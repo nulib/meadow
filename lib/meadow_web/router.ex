@@ -13,14 +13,15 @@ defmodule MeadowWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Other scopes may use custom stacks.
+  scope "/api", MeadowWeb do
+    pipe_through :api
+    resources "/languages", LanguageController
+  end
+
   scope "/", MeadowWeb do
     pipe_through :browser
 
     get "/*path", PageController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", MeadowWeb do
-  #   pipe_through :api
-  # end
 end
