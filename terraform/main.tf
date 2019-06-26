@@ -68,6 +68,15 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
   security_group_id        = "${aws_security_group.meadow_db.id}"
 }
 
+resource "aws_security_group_rule" "allow_http_access" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  security_group_id = "${aws_security_group.meadow.id}"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
 data "aws_vpc" "default_vpc" {
   default = true
 }

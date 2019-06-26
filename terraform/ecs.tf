@@ -3,8 +3,12 @@ resource "aws_ecs_cluster" "meadow" {
 }
 
 resource "aws_ecs_task_definition" "meadow_app" {
-  family                = "${var.stack_name}-app"
-  container_definitions = "${data.template_file.container_definitions.rendered}"
+  family                   = "${var.stack_name}-app"
+  container_definitions    = "${data.template_file.container_definitions.rendered}"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 2048
+  memory                   = 4096
 }
 
 data "template_file" "container_definitions" {
@@ -16,6 +20,26 @@ data "template_file" "container_definitions" {
   }
 }
 
+resource "aws_ecs_service" "meadow" {
+  name            = "meadow"
+  cluster         = "${aws_ecs_cluster.meadow.id}"
+  task_definition = "${aws_ecs_task_definition.meadow_app.arn}"
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  load_balancer {
+    target_group_arn = "${aws_lb_target_group.app_load_balancer.arn}"
+    container_name   = "meadow-app"
+    container_port   = 4000
+  }
+}
+
+resource "aws_lb_target_group" "app_load_balancer" {
+  port        = 4000
+  target_type = "ip"
+  protocol    = "HTTP"
+  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+}
 
 resource "random_string" "secret_key_base" {
   length  = "64"

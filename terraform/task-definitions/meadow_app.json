@@ -9,12 +9,15 @@
         "name": "SECRET_KEY_BASE",
         "value": "${secret_key_base}"
       },
-      { "name": "DATABASE_URL", "value": "${database_url}" }
+      {
+        "name": "DATABASE_URL",
+        "value": "${database_url}"
+      }
     ],
     "portMappings": [
       {
         "containerPort": 4000,
-        "hostPort": 80
+        "hostPort": 4000
       }
     ]
   }
