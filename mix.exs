@@ -5,12 +5,18 @@ defmodule Meadow.MixProject do
     [
       app: :meadow,
       version: "0.1.0",
-      elixir: "~> 1.5",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        meadow: [
+          include_executables_for: [:unix],
+          applications: [meadow: :permanent, runtime_tools: :permanent]
+        ]
+      ]
     ]
   end
 

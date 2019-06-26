@@ -1,0 +1,6 @@
+.elixir_ls
+.git
+_build
+assets
+deps
+Dockerfile
