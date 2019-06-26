@@ -22,6 +22,7 @@ module "rds" {
   username                  = "postgres"
   subnet_ids                = "${data.aws_subnet_ids.default_subnets.ids}"
   family                    = "postgres11"
+  vpc_security_group_ids    = ["${aws_security_group.meadow_db.id}"]
   parameters = [
     {
       name  = "client_encoding"
@@ -35,6 +36,37 @@ resource "random_string" "db_password" {
   special = "false"
 }
 
+resource "aws_security_group" "meadow" {
+  name        = "${var.stack_name}"
+  description = "The Meadow Application"
+  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_security_group" "meadow_db" {
+  name        = "${var.stack_name}-db"
+  description = "The Meadow RDS Instance"
+  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group_rule" "allow_meadow_db_access" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.meadow.id}"
+  security_group_id        = "${aws_security_group.meadow_db.id}"
+}
 
 data "aws_vpc" "default_vpc" {
   default = true
@@ -43,3 +75,5 @@ data "aws_vpc" "default_vpc" {
 data "aws_subnet_ids" "default_subnets" {
   vpc_id = "${data.aws_vpc.default_vpc.id}"
 }
+
+
