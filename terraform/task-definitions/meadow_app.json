@@ -1,0 +1,21 @@
+[
+  {
+    "name": "meadow-app",
+    "image": "nulib/meadow:${docker_tag}",
+    "memoryReservation": 2000,
+    "essential": true,
+    "environment": [
+      {
+        "name": "SECRET_KEY_BASE",
+        "value": "${secret_key_base}"
+      },
+      { "name": "DATABASE_URL", "value": "${database_url}" }
+    ],
+    "portMappings": [
+      {
+        "containerPort": 4000,
+        "hostPort": 80
+      }
+    ]
+  }
+]
