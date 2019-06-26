@@ -4,7 +4,9 @@ module "rds-postgres" {
   database_name  = "meadow"
   instance_class = "db.t3.micro"
   name           = "${var.stack_name}-db"
-  subnet_ids     = []
+  subnet_ids     = "${data.aws_subnet_ids.default_subnets.ids}"
+  username       = "postgres"
+  vpc_id         = "${data.aws_subnet_ids.default_subnets.vpc_id}"
 }
 
 data "aws_vpc" "default_vpc" {
