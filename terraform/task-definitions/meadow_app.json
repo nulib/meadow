@@ -2,7 +2,8 @@
   {
     "name": "meadow-app",
     "image": "nulib/meadow:${docker_tag}",
-    "memoryReservation": 2000,
+    "cpu": 2000,
+    "memoryReservation": 4000,
     "essential": true,
     "environment": [
       {
@@ -19,6 +20,14 @@
         "containerPort": 4000,
         "hostPort": 4000
       }
-    ]
-  }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "app"
+      }
+    }
+   }
 ]

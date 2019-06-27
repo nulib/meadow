@@ -23,11 +23,12 @@ module "rds" {
   subnet_ids                = "${data.aws_subnet_ids.default_subnets.ids}"
   family                    = "postgres11"
   vpc_security_group_ids    = ["${aws_security_group.meadow_db.id}"]
+
   parameters = [
     {
       name  = "client_encoding"
       value = "UTF8"
-    }
+    },
   ]
 }
 
@@ -36,10 +37,11 @@ resource "random_string" "db_password" {
   special = "false"
 }
 
-resource "aws_security_group" "meadow" {
-  name        = "${var.stack_name}"
-  description = "The Meadow Application"
+resource "aws_security_group" "meadow_alb" {
+  name        = "${var.stack_name}-alb"
+  description = "The Meadow Application Load Balancer"
   vpc_id      = "${data.aws_vpc.default_vpc.id}"
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -47,10 +49,25 @@ resource "aws_security_group" "meadow" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_security_group" "meadow" {
+  name        = "${var.stack_name}"
+  description = "The Meadow Application"
+  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_security_group" "meadow_db" {
   name        = "${var.stack_name}-db"
   description = "The Meadow RDS Instance"
   vpc_id      = "${data.aws_vpc.default_vpc.id}"
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -73,8 +90,17 @@ resource "aws_security_group_rule" "allow_http_access" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.meadow.id}"
+  security_group_id = "${aws_security_group.meadow_alb.id}"
   cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "allow_alb_access" {
+  type                     = "ingress"
+  from_port                = 4000
+  to_port                  = 4000
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.meadow_alb.id}"
+  security_group_id        = "${aws_security_group.meadow.id}"
 }
 
 data "aws_vpc" "default_vpc" {
@@ -84,5 +110,3 @@ data "aws_vpc" "default_vpc" {
 data "aws_subnet_ids" "default_subnets" {
   vpc_id = "${data.aws_vpc.default_vpc.id}"
 }
-
-
