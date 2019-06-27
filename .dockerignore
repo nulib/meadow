@@ -1,6 +1,11 @@
 .elixir_ls
 .git
 _build
-assets
+assets/node_modules
 deps
+doc
 Dockerfile
+Jenkinsfile
+README.md
+terraform
+test

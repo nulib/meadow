@@ -1,10 +1,23 @@
 FROM elixir:1.9.0 AS build
-RUN  mix local.hex --force \
-  && mix local.rebar --force
+RUN apt-get update -qq \
+ && apt-get install -y curl \
+ && curl -sL https://deb.nodesource.com/setup_11.x | bash - \
+ && apt-get install -y nodejs \
+ && apt-get clean -y \
+ && rm -rf /var/lib/apt/lists/* \
+ && mix local.hex --force \
+ && mix local.rebar --force
 ENV MIX_ENV=prod
-COPY . /app
+COPY ./mix.exs /app/mix.exs
+COPY ./mix.lock /app/mix.lock
 WORKDIR /app
-RUN mix deps.get --only prod \
+RUN mix do deps.get --only prod, deps.compile 
+COPY . /app
+RUN cd assets \
+ && npm install \
+ && node_modules/.bin/webpack \
+ && cd ..
+RUN mix phx.digest \
  && mix release --overwrite
 
 FROM debian:stretch AS run
