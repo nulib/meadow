@@ -103,6 +103,23 @@ resource "aws_security_group_rule" "allow_alb_access" {
   security_group_id        = "${aws_security_group.meadow.id}"
 }
 
+data "aws_route53_zone" "app_zone" {
+  name = "${var.dns_zone}"
+}
+
+
+resource "aws_route53_record" "app_hostname" {
+  zone_id = "${data.aws_route53_zone.app_zone.zone_id}"
+  name    = "${var.stack_name}"
+  type    = "A"
+  alias {
+    name                   = "${aws_alb.meadow_load_balancer.dns_name}"
+    zone_id                = "${aws_alb.meadow_load_balancer.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+
 data "aws_vpc" "default_vpc" {
   default = true
 }

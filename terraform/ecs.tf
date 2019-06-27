@@ -55,7 +55,7 @@ resource "aws_ecs_service" "meadow" {
   name            = "meadow"
   cluster         = "${aws_ecs_cluster.meadow.id}"
   task_definition = "${aws_ecs_task_definition.meadow_app.arn}"
-  desired_count   = 0
+  desired_count   = 1
   launch_type     = "FARGATE"
   depends_on      = ["aws_alb.meadow_load_balancer"]
 
