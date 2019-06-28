@@ -1,30 +1,26 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 const navLinks = [
   {
-    url: '/',
-    title: 'User Management'
+    url: "/",
+    title: "User Management"
   },
   {
-    url: '/ingest',
-    title: 'Ingest'
+    url: "/",
+    title: "Works"
   },
   {
-    url: '/',
-    title: 'Works'
+    url: "/",
+    title: "Collections"
   },
   {
-    url: '/',
-    title: 'Collections'
+    url: "/",
+    title: "Dashboards"
   },
   {
-    url: '/',
-    title: 'Dashboards'
-  },
-  {
-    url: '/',
-    title: 'Admin Sets'
+    url: "/",
+    title: "Admin Sets"
   }
 ];
 
