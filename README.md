@@ -1,5 +1,7 @@
 # Meadow
 
+[![CircleCI](https://circleci.com/gh/nulib/meadow.svg?style=svg)](https://circleci.com/gh/nulib/meadow)
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
