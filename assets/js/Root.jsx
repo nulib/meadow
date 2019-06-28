@@ -13,12 +13,12 @@ export default class Root extends React.Component {
         <BrowserRouter>
           <Header />
           <Switch>
-            <Route path="/" component={IngestPage} />
             <Route path="/fetch-data" component={FetchDataPage} />
             <Route
               path="/create-ingest-project"
               component={CreateIngestProjectPage}
             />
+            <Route path="/" component={IngestPage} />
           </Switch>
         </BrowserRouter>
       </>
