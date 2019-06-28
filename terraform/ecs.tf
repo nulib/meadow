@@ -43,11 +43,12 @@ data "template_file" "container_definitions" {
   template = "${file("task-definitions/meadow_app.json")}"
 
   vars = {
-    docker_tag      = "${terraform.workspace}"
-    secret_key_base = "${random_string.secret_key_base.result}"
-    database_url    = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
-    region          = "${var.aws_region}"
-    log_group       = "${aws_cloudwatch_log_group.meadow_logs.name}"
+    docker_tag          = "${terraform.workspace}"
+    secret_key_base     = "${random_string.secret_key_base.result}"
+    database_url        = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
+    region              = "${var.aws_region}"
+    log_group           = "${aws_cloudwatch_log_group.meadow_logs.name}"
+    honeybadger_api_key = "${var.honeybadger_api_key}"
   }
 }
 

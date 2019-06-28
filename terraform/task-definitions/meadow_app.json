@@ -13,6 +13,10 @@
       {
         "name": "DATABASE_URL",
         "value": "${database_url}"
+      },
+      {
+        "name": "HONEYBADGER_API_KEY",
+        "value": "${honeybadger_api_key}"
       }
     ],
     "portMappings": [
