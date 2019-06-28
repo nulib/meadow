@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
+  use Honeybadger.Plug
 
   pipeline :browser do
     plug :accepts, ["html"]
