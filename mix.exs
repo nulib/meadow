@@ -49,7 +49,8 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:honeybadger, "~> 0.7"}
+      {:honeybadger, "~> 0.7"},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
   end
 
