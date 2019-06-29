@@ -2,8 +2,9 @@
 
 [![CircleCI](https://circleci.com/gh/nulib/meadow.svg?style=svg)](https://circleci.com/gh/nulib/meadow)
 
-To start your Phoenix server:
+Initial Setup:
 
+* Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
 * Install dependencies with `mix deps.get`
 * Create and migrate your database with `mix ecto.setup`
 * Install Node.js dependencies with `cd assets && npm install`
@@ -11,12 +12,15 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+You can visit the SwaggerUI at: [`http://localhost:4000/swaggerui`](http://localhost:4000/swaggerui)
 
-## Learn more
+To regenerate the OpenAPI spec run
+`mix meadow.open_api_spec spec.json`
 
-* Official website: http://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Mailing list: http://groups.google.com/group/phoenix-talk
-* Source: https://github.com/phoenixframework/phoenix
+After initial setup, you don't need to run `mix ecto.setup` again
+ * You can simply run the application with `mix phx.server`
+ * You may need to run `mix deps.get` or `mix deps.compile` again if new dependencies have been added
+ * You map need to run `cd assets && npm install` if new npm packages have been added
+ * If you need to reset the database you can run `mix ecto.reset` which will drop + create + migrate the database
+ * If you just want to run the migrations but leave the data intact, you can just do `mix ecto.migrate`
+
