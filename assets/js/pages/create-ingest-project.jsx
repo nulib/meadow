@@ -1,9 +1,9 @@
-import React from 'react';
-import Main from '../components/Main';
+import React from "react";
+import Main from "../components/Main";
 
 export default class CreateIngestProjectPage extends React.Component {
   state = {
-    projectTitle: ''
+    projectTitle: ""
   };
 
   handleSubmit = e => {
