@@ -20,3 +20,8 @@ variable "stack_name" {
 variable "dns_zone" {
   type = "string"
 }
+
+variable "tags" {
+  type    = "map"
+  default = {}
+}
