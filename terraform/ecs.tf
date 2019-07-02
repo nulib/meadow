@@ -1,5 +1,6 @@
 resource "aws_ecs_cluster" "meadow" {
   name = "${var.stack_name}"
+  tags = "${var.tags}"
 }
 
 data "aws_iam_role" "task_execution_role" {
@@ -22,6 +23,7 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 resource "aws_iam_role" "meadow_role" {
   name               = "${var.stack_name}-task-role"
   assume_role_policy = "${data.aws_iam_policy_document.ecs_assume_role.json}"
+  tags               = "${var.tags}"
 }
 
 resource "aws_ecs_task_definition" "meadow_app" {
@@ -33,10 +35,12 @@ resource "aws_ecs_task_definition" "meadow_app" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 2048
   memory                   = 4096
+  tags                     = "${var.tags}"
 }
 
 resource "aws_cloudwatch_log_group" "meadow_logs" {
   name = "/ecs/${var.stack_name}"
+  tags = "${var.tags}"
 }
 
 data "template_file" "container_definitions" {
@@ -71,6 +75,8 @@ resource "aws_ecs_service" "meadow" {
     security_groups  = ["${aws_security_group.meadow.id}"]
     assign_public_ip = true
   }
+
+  tags = "${var.tags}"
 }
 
 resource "aws_alb_target_group" "meadow_targets" {
@@ -78,6 +84,7 @@ resource "aws_alb_target_group" "meadow_targets" {
   target_type = "ip"
   protocol    = "HTTP"
   vpc_id      = "${data.aws_vpc.default_vpc.id}"
+  tags        = "${var.tags}"
 }
 
 resource "aws_alb" "meadow_load_balancer" {
@@ -86,6 +93,7 @@ resource "aws_alb" "meadow_load_balancer" {
   load_balancer_type = "application"
   security_groups    = ["${aws_security_group.meadow_alb.id}"]
   subnets            = "${data.aws_subnet_ids.default_subnets.ids}"
+  tags               = "${var.tags}"
 }
 
 resource "aws_lb_listener" "meadow_alb_listener" {
