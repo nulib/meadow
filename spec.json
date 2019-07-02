@@ -1,0 +1,344 @@
+{
+  "components": {
+    "schemas": {
+      "Project": {
+        "description": "An Ingest Project",
+        "example": {
+          "folder": "sample-ingest-project-1561914496",
+          "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+          "title": "Sample Ingest Project"
+        },
+        "properties": {
+          "folder": {
+            "description": "s3 Folder",
+            "readOnly": "true",
+            "type": "string"
+          },
+          "id": {
+            "description": "Project ID",
+            "format": "ulid",
+            "readOnly": "true",
+            "type": "string"
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "datetime",
+            "type": "string"
+          },
+          "title": {
+            "description": "Project Title",
+            "maxLength": 140,
+            "minLength": 4,
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Update timestamp",
+            "format": "datetime",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "Project",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.Project"
+      },
+      "ProjectRequest": {
+        "description": "POST body for creating a project",
+        "example": {
+          "project": {
+            "title": "The Name of the Project"
+          }
+        },
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "title": "ProjectRequest",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.ProjectRequest"
+      },
+      "ProjectResponse": {
+        "description": "Response schema for single project",
+        "example": {
+          "data": {
+            "folder": "sample-project-1561914427",
+            "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+            "title": "Sample Project"
+          }
+        },
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Project"
+          }
+        },
+        "title": "ProjectResponse",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.ProjectResponse"
+      },
+      "ProjectsResponse": {
+        "description": "Response schema for multiple projects",
+        "example": {
+          "data": [
+            {
+              "folder": "sample-project-1561914427",
+              "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+              "title": "Sample Project"
+            },
+            {
+              "folder": "another-sample-project-1561914398",
+              "id": "01DEMHYCAS4XKY0685F40GF8XT",
+              "title": "Another Sample Project"
+            }
+          ]
+        },
+        "properties": {
+          "data": {
+            "description": "The projects details",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            },
+            "type": "array"
+          }
+        },
+        "title": "ProjectsResponse",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.ProjectsResponse"
+      }
+    }
+  },
+  "info": {
+    "title": "Meadow",
+    "version": "1.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/projects": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "List all projects",
+        "operationId": "ProjectController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectsResponse"
+                }
+              }
+            },
+            "description": "Project List Response"
+          }
+        },
+        "summary": "List projects",
+        "tags": [
+          "projects"
+        ]
+      },
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Create a project",
+        "operationId": "ProjectController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRequest"
+              }
+            }
+          },
+          "description": "The project attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Create project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{id}": {
+      "delete": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Delete a project by ID",
+        "operationId": "ProjectController.delete",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Delete project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Show a project by ID",
+        "operationId": "ProjectController.show",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Show project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "patch": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update a project",
+        "operationId": "ProjectController.update",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRequest"
+              }
+            }
+          },
+          "description": "The project attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "put": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update a project",
+        "operationId": "ProjectController.update",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRequest"
+              }
+            }
+          },
+          "description": "The project attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update project",
+        "tags": [
+          "projects"
+        ]
+      }
+    }
+  },
+  "security": [],
+  "servers": [],
+  "tags": []
+}
