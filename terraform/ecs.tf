@@ -26,6 +26,16 @@ resource "aws_iam_role" "meadow_role" {
   tags               = "${var.tags}"
 }
 
+resource "aws_iam_policy" "this_bucket_policy" {
+  name   = "meadow-bucket-access"
+  policy = "${data.aws_iam_policy_document.this_bucket_access.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "bucket_role_access" {
+  role       = "${aws_iam_role.meadow_role.name}"
+  policy_arn = "${aws_iam_policy.this_bucket_policy.arn}"
+}
+
 resource "aws_ecs_task_definition" "meadow_app" {
   family                   = "${var.stack_name}-app"
   container_definitions    = "${data.template_file.container_definitions.rendered}"

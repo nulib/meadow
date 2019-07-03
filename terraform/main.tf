@@ -39,6 +39,47 @@ resource "random_string" "db_password" {
   special = "false"
 }
 
+resource "aws_s3_bucket" "meadow_ingest" {
+  bucket = "${var.stack_name}-ingest"
+  acl    = "private"
+  tags   = "${var.tags}"
+}
+
+data "aws_iam_policy_document" "this_bucket_access" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListAllMyBuckets"]
+    resources = ["arn:aws:s3:::*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.meadow_ingest.arn}",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.meadow_ingest.arn}/*",
+    ]
+  }
+}
+
 resource "aws_security_group" "meadow_alb" {
   name        = "${var.stack_name}-alb"
   description = "The Meadow Application Load Balancer"
