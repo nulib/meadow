@@ -32,6 +32,7 @@ defmodule Meadow.IngestTest do
     test "create_project/1 with valid data creates a project" do
       assert {:ok, %Project{} = project} = Ingest.create_project(@valid_attrs)
       assert project.title == "some title"
+      assert project.folder != ""
     end
 
     test "create_project/1 with valid data generates a folder name" do

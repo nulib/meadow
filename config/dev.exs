@@ -66,6 +66,16 @@ config :meadow, MeadowWeb.Endpoint,
     ]
   ]
 
+config :meadow, ingest_bucket: "dev-ingest"
+
+config :ex_aws, :s3,
+  access_key_id: "minio",
+  secret_access_key: "minio123",
+  host: "localhost",
+  port: 9001,
+  scheme: "http://",
+  region: "us-east-1"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

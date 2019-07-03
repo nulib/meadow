@@ -5,7 +5,6 @@ defmodule Meadow.Ingest do
 
   import Ecto.Query, warn: false
   alias Meadow.Repo
-
   alias Meadow.Ingest.Project
 
   @doc """

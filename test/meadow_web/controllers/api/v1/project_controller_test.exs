@@ -1,5 +1,8 @@
 defmodule MeadowWeb.ProjectControllerTest do
   use MeadowWeb.ConnCase
+  use ExUnit.Case
+
+  import Mox
 
   alias Meadow.Ingest
   alias Meadow.Ingest.Project
@@ -30,6 +33,11 @@ defmodule MeadowWeb.ProjectControllerTest do
 
   describe "create project" do
     test "renders project when data is valid", %{conn: conn} do
+      Meadow.ExAwsHttpMock
+      |> stub(:request, fn _method, _url, _body, _headers, _opts ->
+        {:ok, %{status_code: 200}}
+      end)
+
       conn = post(conn, Routes.v1_project_path(conn, :create), project: @create_attrs)
       assert %{"id" => id, "folder" => folder} = json_response(conn, 201)["data"]
 

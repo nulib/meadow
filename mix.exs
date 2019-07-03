@@ -52,7 +52,13 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:honeybadger, "~> 0.7"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:open_api_spex, "~> 3.4"}
+      {:open_api_spex, "~> 3.4"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:hackney, "~> 1.9"},
+      {:sweet_xml, "~> 0.6"},
+      {:poison, "~> 3.0"},
+      {:mox, "~> 0.5", only: :test}
     ]
   end
 
