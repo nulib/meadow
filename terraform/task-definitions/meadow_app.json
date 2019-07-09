@@ -17,6 +17,10 @@
       {
         "name": "HONEYBADGER_API_KEY",
         "value": "${honeybadger_api_key}"
+      },
+      {
+        "name": "INGEST_BUCKET",
+        "value": "${ingest_bucket}"
       }
     ],
     "portMappings": [
@@ -33,5 +37,5 @@
         "awslogs-stream-prefix": "app"
       }
     }
-   }
+  }
 ]
