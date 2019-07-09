@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
+  use Honeybadger.Plug
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -11,17 +12,23 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug(OpenApiSpex.Plug.PutApiSpec, module: MeadowWeb.ApiSpec)
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", MeadowWeb do
+  scope "/api" do
     pipe_through :api
-    resources "/languages", LanguageController
+
+    scope "/v1", MeadowWeb.Api.V1, as: :v1 do
+      resources "/projects", ProjectController, except: [:new, :edit]
+    end
+
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
   end
 
-  scope "/", MeadowWeb do
+  scope "/" do
     pipe_through :browser
-
-    get "/*path", PageController, :index
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    get "/*path", MeadowWeb.PageController, :index
   end
 end

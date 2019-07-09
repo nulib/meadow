@@ -1,0 +1,40 @@
+
+---
+version: 2
+jobs:
+  test:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.9
+        environment:
+          DATABASE_URL: ecto://root@localhost/circle_test
+          MIX_ENV: test
+      - image: circleci/postgres:10-alpine
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "mix.lock" }}
+      - run:
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
+      - run:
+          name: Install dependencies
+          command: mix do deps.get, deps.compile
+      - save_cache:
+          key: dependency-cache-{{ checksum "mix.lock" }}
+          paths:
+            - ~/meadow/deps
+            - ~/meadow/_build
+      - run:
+          name: Run Tests
+          command: mix test
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: tests
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - test
+

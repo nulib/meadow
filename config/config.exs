@@ -10,6 +10,9 @@ use Mix.Config
 config :meadow,
   ecto_repos: [Meadow.Repo]
 
+# Shared database config
+config :meadow, Meadow.Repo, migration_primary_key: [name: :id, type: :binary_id]
+
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,
   url: [host: "localhost"],

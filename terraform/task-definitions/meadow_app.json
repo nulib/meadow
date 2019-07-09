@@ -1,0 +1,37 @@
+[
+  {
+    "name": "meadow-app",
+    "image": "nulib/meadow:${docker_tag}",
+    "cpu": 2000,
+    "memoryReservation": 4000,
+    "essential": true,
+    "environment": [
+      {
+        "name": "SECRET_KEY_BASE",
+        "value": "${secret_key_base}"
+      },
+      {
+        "name": "DATABASE_URL",
+        "value": "${database_url}"
+      },
+      {
+        "name": "HONEYBADGER_API_KEY",
+        "value": "${honeybadger_api_key}"
+      }
+    ],
+    "portMappings": [
+      {
+        "containerPort": 4000,
+        "hostPort": 4000
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "app"
+      }
+    }
+   }
+]

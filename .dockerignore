@@ -1,0 +1,12 @@
+.elixir_ls
+.git
+_build
+assets/node_modules
+deps
+doc
+Dockerfile
+Jenkinsfile
+priv/static
+README.md
+terraform
+test

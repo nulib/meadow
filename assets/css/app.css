@@ -1,9 +1,9 @@
 /* This file is for your main application css. */
 
-/* @import "./phoenix.css"; */
+@import "tailwindcss/base";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* Put our custom application styles here */
 @import './meadow.css';
+
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";

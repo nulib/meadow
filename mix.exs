@@ -5,12 +5,18 @@ defmodule Meadow.MixProject do
     [
       app: :meadow,
       version: "0.1.0",
-      elixir: "~> 1.5",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        meadow: [
+          include_executables_for: [:unix],
+          applications: [meadow: :permanent, runtime_tools: :permanent]
+        ]
+      ]
     ]
   end
 
@@ -20,7 +26,7 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:honeybadger, :logger, :runtime_tools]
     ]
   end
 
@@ -37,12 +43,22 @@ defmodule Meadow.MixProject do
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.0"},
+      {:ecto_ulid, "~> 0.2.0"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:honeybadger, "~> 0.7"},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:open_api_spex, "~> 3.4"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:hackney, "~> 1.9"},
+      {:sweet_xml, "~> 0.6"},
+      {:poison, "~> 3.0"},
+      {:mox, "~> 0.5", only: :test}
     ]
   end
 

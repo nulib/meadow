@@ -1,8 +1,59 @@
 @font-face {
-  font-family: "AkkuratPro-Regular";
-  src: url("fonts/AkkuratPro-Regular.otf") format("otf");
+  font-family: 'AkkuratPro-Regular';
+  src: url('fonts/AkkuratPro-Regular.otf') format('otf');
 }
 
 body {
-  font-family: "AkkuratPro-Regular";
+  @apply font-display;
+  @apply bg-gray-100;
+  @apply text-gray-700;
+}
+
+h1 {
+  @apply text-2xl my-6;
+}
+
+h2 {
+  @apply text-xl;
+}
+
+h3 {
+  @apply text-lg;
+}
+
+a {
+  @apply text-gray-600;
+}
+
+a:hover {
+  @apply underline;
+}
+
+.btn {
+  @apply bg-gray-300 font-bold tracking-wide text-sm uppercase py-2 px-4 rounded;
+}
+
+.btn:hover {
+  @apply bg-gray-400 no-underline;
+}
+
+.btn:focus {
+  @apply outline-none shadow-outline;
+}
+
+.content-block {
+  @apply bg-white p-6 shadow-md;
+}
+
+.notification {
+  /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
+  @apply bg-green-500
+}
+
+.notification-body {
+  @apply mr-4;
+}
+
+.toast-progress-bar {
+  @apply bg-white;
 }

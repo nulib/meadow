@@ -2,10 +2,11 @@ use Mix.Config
 
 # Configure your database
 config :meadow, Meadow.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "docker",
+  password: "d0ck3r",
   database: "meadow_dev",
   hostname: "localhost",
+  port: 5433,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -17,7 +18,7 @@ config :meadow, Meadow.Repo,
 # with webpack to recompile .js and .css sources.
 config :meadow, MeadowWeb.Endpoint,
   http: [port: 4000],
-  debug_errors: true,
+  debug_errors: false,
   code_reloader: true,
   check_origin: false,
   watchers: [
@@ -64,6 +65,16 @@ config :meadow, MeadowWeb.Endpoint,
       ~r"lib/meadow_web/templates/.*(eex)$"
     ]
   ]
+
+config :meadow, ingest_bucket: "dev-ingest"
+
+config :ex_aws, :s3,
+  access_key_id: "minio",
+  secret_access_key: "minio123",
+  host: "localhost",
+  port: 9001,
+  scheme: "http://",
+  region: "us-east-1"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
