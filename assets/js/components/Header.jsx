@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 
 const navLinks = [
   {
+    url: "/projects",
+    title: "Ingest"
+  },
+  {
     url: "/",
     title: "User Management"
   },

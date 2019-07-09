@@ -44,3 +44,16 @@ a:hover {
 .content-block {
   @apply bg-white p-6 shadow-md;
 }
+
+.notification {
+  /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
+  @apply bg-green-500
+}
+
+.notification-body {
+  @apply mr-4;
+}
+
+.toast-progress-bar {
+  @apply bg-white;
+}

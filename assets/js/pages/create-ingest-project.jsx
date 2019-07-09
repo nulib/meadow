@@ -1,14 +1,32 @@
 import React from "react";
 import Main from "../components/Main";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { withRouter } from "react-router";
 
 export default class CreateIngestProjectPage extends React.Component {
   state = {
     projectTitle: ""
   };
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    // POST the data somewhere here
+    const { projectTitle } = this.state;
+
+    try {
+      await axios.post("/api/v1/projects", {
+        project: {
+          title: projectTitle
+        }
+      });
+
+      // Display success notification and redirect to All Projects view
+      toast(`${projectTitle} created successfully`);
+      this.props.history.push("/projects");
+    } catch (error) {
+      console.log("handleSubmit() error", error);
+      toast(`There was an error creating the project: ${error}`);
+    }
   };
 
   handleTitleChange = e => {
