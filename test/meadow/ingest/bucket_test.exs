@@ -7,6 +7,7 @@ defmodule Meadow.Ingest.BucketTest do
   setup :verify_on_exit!
 
   @project_folder_name "name-of-folder"
+  @bucket 'bucket-name'
 
   describe "Ingest Bucket" do
     test ".create_project_folder writes an \"empty\" folder to the ingest bucket" do
@@ -15,7 +16,7 @@ defmodule Meadow.Ingest.BucketTest do
         {:ok, %{status_code: 200}}
       end)
 
-      assert Meadow.Ingest.Bucket.create_project_folder(@project_folder_name) ==
+      assert Meadow.Ingest.Bucket.create_project_folder('bucket-name', @project_folder_name) ==
                {:ok, %{status_code: 200}}
     end
 
@@ -28,8 +29,23 @@ defmodule Meadow.Ingest.BucketTest do
         {:ok, %{status_code: 200}}
       end)
 
-      assert Meadow.Ingest.Bucket.create_project_folder(@project_folder_name) ==
+      assert Meadow.Ingest.Bucket.create_project_folder('bucket-name', @project_folder_name) ==
                {:ok, %{status_code: 200}}
     end
+  end
+
+  test ".presigned_s3_url generates a presigned url" do
+    Meadow.ExAwsHttpMock
+    |> expect(:request, 1, fn :head, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 200}}
+    end)
+
+    config = ExAws.Config.new(:s3)
+    scheme = config[:scheme]
+    host = config[:host]
+    port = config[:port]
+    regex = ~r{#{scheme}#{host}:#{port}/#{@bucket}/inventory_sheets(.)*}
+
+    assert Meadow.Ingest.Bucket.presigned_s3_url(@bucket) =~ regex
   end
 end

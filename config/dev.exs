@@ -67,6 +67,7 @@ config :meadow, MeadowWeb.Endpoint,
   ]
 
 config :meadow, ingest_bucket: "dev-ingest"
+config :meadow, upload_bucket: "dev-uploads"
 
 config :ex_aws, :s3,
   access_key_id: "minio",

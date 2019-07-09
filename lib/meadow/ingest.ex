@@ -6,6 +6,7 @@ defmodule Meadow.Ingest do
   import Ecto.Query, warn: false
   alias Meadow.Repo
   alias Meadow.Ingest.Project
+  alias Meadow.Ingest.IngestJob
 
   @doc """
   Returns the list of projects.
@@ -99,5 +100,98 @@ defmodule Meadow.Ingest do
   """
   def change_project(%Project{} = project) do
     Project.changeset(project, %{})
+  end
+
+  @doc """
+  Returns the list of ingest_jobs.
+
+  ## Examples
+
+      iex> list_ingest_jobs()
+      [%Job{}, ...]
+
+  """
+  def list_ingest_jobs do
+    Repo.all(IngestJob)
+  end
+
+  @doc """
+  Gets a single job.
+
+  Raises `Ecto.NoResultsError` if the Job does not exist.
+
+  ## Examples
+
+      iex> get_job!(123)
+      %Job{}
+
+      iex> get_job!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_ingest_job!(id), do: Repo.get!(IngestJob, id)
+
+  @doc """
+  Creates a job.
+
+  ## Examples
+
+      iex> create_job(%{field: value})
+      {:ok, %Job{}}
+
+      iex> create_job(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_ingest_job(attrs \\ %{}) do
+    %IngestJob{}
+    |> IngestJob.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a job.
+
+  ## Examples
+      iex> update_job(job, %{field: new_value})
+      {:ok, %Job{}}
+
+      iex> update_job(job, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_ingest_job(%IngestJob{} = ingest_job, attrs) do
+    ingest_job
+    |> IngestJob.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a Job.
+
+  ## Examples
+
+      iex> delete_job(job)
+      {:ok, %Job{}}
+
+      iex> delete_job(job)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_ingest_job(%IngestJob{} = ingest_job) do
+    Repo.delete(ingest_job)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking job changes.
+
+  ## Examples
+
+      iex> change_job(job)
+      %Ecto.Changeset{source: %Job{}}
+
+  """
+  def change_ingest_job(%IngestJob{} = job) do
+    IngestJob.changeset(job, %{})
   end
 end

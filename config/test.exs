@@ -15,6 +15,7 @@ config :meadow, MeadowWeb.Endpoint,
   server: false
 
 config :meadow, ingest_bucket: "test-ingest"
+config :meadow, upload_bucket: "test-uploads"
 
 config :ex_aws, :s3,
   access_key_id: "minio",

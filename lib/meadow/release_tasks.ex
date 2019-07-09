@@ -1,4 +1,7 @@
 defmodule Meadow.ReleaseTasks do
+  @moduledoc """
+  Release tasks for Meadow
+  """
   @app :meadow
 
   def migrate do
@@ -9,12 +12,22 @@ defmodule Meadow.ReleaseTasks do
   end
 
   defp create_storage_for(repo) do
-    IO.puts :stderr, (case repo.__adapter__.storage_up(repo.config) do
-      :ok -> "The database for #{inspect repo} has been created"
-      {:error, :already_up} -> "The database for #{inspect repo} has already been created"
-      {:error, term} when is_binary(term) -> "The database for #{inspect repo} couldn't be created: #{term}"
-      {:error, term} -> "The database for #{inspect repo} couldn't be created: #{inspect term}"
-    end)
+    IO.puts(
+      :stderr,
+      case repo.__adapter__.storage_up(repo.config) do
+        :ok ->
+          "The database for #{inspect(repo)} has been created"
+
+        {:error, :already_up} ->
+          "The database for #{inspect(repo)} has already been created"
+
+        {:error, term} when is_binary(term) ->
+          "The database for #{inspect(repo)} couldn't be created: #{term}"
+
+        {:error, term} ->
+          "The database for #{inspect(repo)} couldn't be created: #{inspect(term)}"
+      end
+    )
   end
 
   defp repos do
