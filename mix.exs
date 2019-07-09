@@ -51,7 +51,7 @@ defmodule Meadow.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:honeybadger, "~> 0.7"},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:open_api_spex, "~> 3.4"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
