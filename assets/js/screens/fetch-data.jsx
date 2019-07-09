@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import Main from "../components/Main";
+import Main from "../components/UI/Main";
 
 export default class FetchDataPage extends React.Component {
   constructor(props) {

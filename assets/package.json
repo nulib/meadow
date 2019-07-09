@@ -3,7 +3,8 @@
   "license": "MIT",
   "scripts": {
     "deploy": "webpack --mode production",
-    "watch": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch",
+    "test": "jest --watch"
   },
   "prettier": "@nulib/prettier-config",
   "dependencies": {
@@ -18,11 +19,14 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "@nulib/prettier-config": "^1.2.0",
+    "@testing-library/jest-dom": "^4.0.0",
+    "@testing-library/react": "^8.0.4",
     "axios": "^0.19.0",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^4.5.0",
     "css-loader": "^2.1.1",
     "file-loader": "^4.0.0",
+    "jest": "^24.8.0",
     "mini-css-extract-plugin": "^0.4.0",
     "optimize-css-assets-webpack-plugin": "^4.0.0",
     "postcss-import": "^12.0.1",
