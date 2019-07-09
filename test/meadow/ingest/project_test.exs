@@ -1,4 +1,4 @@
-defmodule Meadow.ProjectTest do
+defmodule Meadow.Ingest.ProjectTest do
   use Meadow.DataCase
 
   alias Meadow.Ingest

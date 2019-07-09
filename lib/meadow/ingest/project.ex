@@ -30,7 +30,7 @@ defmodule Meadow.Ingest.Project do
   def changeset(project, :create, attrs) do
     project
     |> changeset(attrs)
-    |> create_project_folder()
+    |> generate_folder_name()
   end
 
   @doc false
@@ -38,11 +38,11 @@ defmodule Meadow.Ingest.Project do
     changeset(project, attrs)
   end
 
-  defp create_project_folder(changeset) do
+  defp generate_folder_name(changeset) do
     case changeset.valid? do
       true ->
-        title = get_field(changeset, :title)
-        put_change(changeset, :folder, slugify(title))
+        title = get_field(changeset, :title) |> slugify()
+        put_change(changeset, :folder, title)
 
       _ ->
         changeset
