@@ -1,10 +1,10 @@
 import React from "react";
-import Main from "../components/Main";
+import Main from "../../components/UI/Main";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { withRouter } from "react-router";
 
-export default class CreateIngestProjectPage extends React.Component {
+export default class ProjectForm extends React.Component {
   state = {
     projectTitle: ""
   };
@@ -22,7 +22,7 @@ export default class CreateIngestProjectPage extends React.Component {
 
       // Display success notification and redirect to All Projects view
       toast(`${projectTitle} created successfully`);
-      this.props.history.push("/projects");
+      this.props.history.push("/project/list");
     } catch (error) {
       console.log("handleSubmit() error", error);
       toast(`There was an error creating the project: ${error}`);

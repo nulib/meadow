@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import Main from "../components/Main";
+import React from "react";
+import Main from "../../components/UI/Main";
 
-const HomePage = () => {
+const ScreensHome = () => {
   return (
     <Main>
       <h1>Home Dashboard</h1>
@@ -12,4 +12,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default ScreensHome;

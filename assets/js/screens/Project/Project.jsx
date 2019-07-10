@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Main from "../components/Main";
+import Main from "../../components/UI/Main";
 import { withRouter } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const ProjectPage = ({ match }) => {
+const Project = ({ match }) => {
   const { id } = match.params;
   const [project, setProject] = useState({});
 
@@ -41,4 +41,4 @@ const ProjectPage = ({ match }) => {
   );
 };
 
-export default withRouter(ProjectPage);
+export default withRouter(Project);
