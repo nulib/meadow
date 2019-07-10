@@ -13,6 +13,11 @@ variable "honeybadger_api_key" {
   default = ""
 }
 
+variable "ingest_bucket" {
+  type    = "string"
+  default = ""
+}
+
 variable "stack_name" {
   type = "string"
 }

@@ -27,3 +27,12 @@ secret_key_base =
 config :meadow, MeadowWeb.Endpoint,
   http: [:inet6, port: String.to_integer(System.get_env("PORT") || "4000")],
   secret_key_base: secret_key_base
+
+ingest_bucket =
+  System.get_env("INGEST_BUCKET") ||
+    raise """
+    environment variable INGEST_BUCKET is missing.
+    For example: 'meadow-ingest'
+    """
+
+config :meadow, ingest_bucket: ingest_bucket
