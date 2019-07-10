@@ -11,6 +11,12 @@ defmodule MeadowWeb.Api.V1.ProjectView do
   end
 
   def render("project.json", %{project: project}) do
-    %{id: project.id, title: project.title, folder: project.folder}
+    %{
+      id: project.id,
+      title: project.title,
+      folder: project.folder,
+      inserted_at: project.inserted_at,
+      updated_at: project.updated_at
+    }
   end
 end

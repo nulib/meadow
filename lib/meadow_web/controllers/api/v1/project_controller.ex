@@ -48,7 +48,8 @@ defmodule MeadowWeb.Api.V1.ProjectController do
 
   def create(conn, %{"project" => project_params}) do
     with {:ok, %Project{} = project} <- Ingest.create_project(project_params) do
-      Meadow.Ingest.Bucket.create_project_folder(project.folder)
+      Application.get_env(:meadow, :ingest_bucket)
+      |> Meadow.Ingest.Bucket.create_project_folder(project.folder)
 
       conn
       |> put_status(:created)
