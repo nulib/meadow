@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Main from "../components/Main";
+import Main from "../../components/UI/Main";
 import { withRouter } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
+import InventorySheetList from "../../components/InventorySheet/List";
+import { Link } from "react-router-dom";
 
-const ProjectPage = ({ match }) => {
+const Project = ({ match }) => {
   const { id } = match.params;
-  const [project, setProject] = useState({});
+  const [project, setProject] = useState(null);
 
   useEffect(() => {
     const getProject = async () => {
@@ -25,15 +27,19 @@ const ProjectPage = ({ match }) => {
       {project && (
         <div>
           <h1>{project.title}</h1>
+
+          <h2>Inventory Sheets</h2>
+          <Link
+            to={{
+              pathname: `/project/${id}/inventory-sheet/upload`,
+              state: { projectId: project.id }
+            }}
+            className="btn mb-4"
+          >
+            Add Inventory Sheet
+          </Link>
           <section className="content-block">
-            <p>
-              <span className="font-bold">Id: </span>
-              {project.id}
-            </p>
-            <p>
-              <span className="font-bold">s3 Bucket Folder: </span>
-              <a href="#">{project.folder}</a>
-            </p>
+            <InventorySheetList projectId={project.id} />
           </section>
         </div>
       )}
@@ -41,4 +47,4 @@ const ProjectPage = ({ match }) => {
   );
 };
 
-export default withRouter(ProjectPage);
+export default withRouter(Project);

@@ -11,6 +11,9 @@ defmodule Meadow.Ingest.Project do
   schema "projects" do
     field :title, :string
     field :folder, :string
+
+    has_many :ingest_jobs, Meadow.Ingest.IngestJob
+
     timestamps()
   end
 

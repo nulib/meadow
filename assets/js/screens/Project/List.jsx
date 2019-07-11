@@ -1,10 +1,10 @@
 import React from "react";
-import Main from "../components/Main";
-import { mockProjects } from "../mock-data/projects";
+import Main from "../../components/UI/Main";
+import { mockProjects } from "../../mock-data/projects";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-export default class IngestPage extends React.Component {
+export default class ProjectList extends React.Component {
   state = {
     projects: []
   };
@@ -15,7 +15,7 @@ export default class IngestPage extends React.Component {
 
   async getProjects() {
     try {
-      const response = await axios.get("api/v1/projects");
+      const response = await axios.get("/api/v1/projects");
       this.setState({ projects: response.data.data });
     } catch (error) {
       console.log("getProjects() error", error);
@@ -28,10 +28,10 @@ export default class IngestPage extends React.Component {
     return (
       <Main>
         <h1>Ingestion Projects</h1>
-        <Link to="/create-ingest-project" className="btn">
+        <Link to="/project/create" className="btn">
           Create Project
         </Link>
-        <h2 className="mt-12">Real system output</h2>
+
         <section className="my-6 content-block">
           {projects.map(({ id, folder, title }) => (
             <article key={id} className="pb-6">

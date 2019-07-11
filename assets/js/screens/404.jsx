@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Main from "../components/Main";
+import Main from "../components/UI/Main";
 
 const NotFoundPage = () => {
   return (
