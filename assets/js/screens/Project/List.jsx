@@ -31,7 +31,7 @@ export default class ProjectList extends React.Component {
         <Link to="/project/create" className="btn">
           Create Project
         </Link>
-        <h2 className="mt-12">Real system output</h2>
+
         <section className="my-6 content-block">
           {projects.map(({ id, folder, title }) => (
             <article key={id} className="pb-6">
