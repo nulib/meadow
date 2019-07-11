@@ -9,6 +9,10 @@ export default class ProjectForm extends React.Component {
     projectTitle: ""
   };
 
+  handleCancel = e => {
+    this.props.history.push("/project/list");
+  };
+
   handleSubmit = async e => {
     e.preventDefault();
     const { projectTitle } = this.state;
@@ -47,7 +51,6 @@ export default class ProjectForm extends React.Component {
               Project Title
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="project-title"
               type="text"
               placeholder="Project Title"
@@ -56,8 +59,12 @@ export default class ProjectForm extends React.Component {
             />
           </div>
 
-          <button className="btn mt-6" type="submit">
+          <div className="mt-6"></div>
+          <button className="btn" type="submit">
             Submit
+          </button>
+          <button className="btn btn-cancel" onClick={this.handleCancel}>
+            Cancel
           </button>
         </form>
       </Main>
