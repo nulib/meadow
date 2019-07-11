@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.Bucket do
 
   def create_project_folder(bucket, name) do
     ensure_bucket_exists(bucket)
-    ExAws.S3.put_object(bucket, "#{name}/.keep", "") |> ExAws.request()
+    ExAws.S3.put_object(bucket, "#{name}/", "") |> ExAws.request()
   end
 
   def presigned_s3_url(bucket) do
