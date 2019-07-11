@@ -1,4 +1,3 @@
-
 ---
 version: 2
 jobs:
@@ -28,6 +27,9 @@ jobs:
       - run:
           name: Run Tests
           command: mix test
+      - run:
+          name: Code coverage
+          command: mix coveralls.circle
       - store_artifacts:
           path: /tmp/test-results
           destination: tests
@@ -37,4 +39,3 @@ workflows:
   ci:
     jobs:
       - test
-

@@ -11,6 +11,13 @@ defmodule Meadow.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
       releases: [
         meadow: [
           include_executables_for: [:unix],
@@ -58,7 +65,8 @@ defmodule Meadow.MixProject do
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
       {:poison, "~> 3.0"},
-      {:mox, "~> 0.5", only: :test}
+      {:mox, "~> 0.5", only: :test},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 
