@@ -43,6 +43,10 @@ jobs:
           name: Merge coverage output
           command: |
             curl -F "payload[build_num]=$CIRCLE_WORKFLOW_WORKSPACE_ID" -F "payload[status]=done" "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN"
+      - run:
+          name: Test Webpack build
+          command: yarn deploy
+          working_directory: ~/meadow/assets
       - store_artifacts:
           path: /tmp/test-results
           destination: tests
