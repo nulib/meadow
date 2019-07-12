@@ -4,6 +4,8 @@ defmodule MeadowWeb.IngestJobControllerTest do
   alias Meadow.Ingest
   alias Meadow.Ingest.IngestJob
 
+  import OpenApiSpex.Test.Assertions
+
   @create_attrs %{
     name: "some name",
     presigned_url: "some presigned_url"
@@ -13,6 +15,10 @@ defmodule MeadowWeb.IngestJobControllerTest do
     presigned_url: "some updated presigned_url"
   }
   @invalid_attrs %{name: nil, presigned_url: nil}
+
+  setup do
+    %{spec: MeadowWeb.ApiSpec.spec()}
+  end
 
   def project_fixture() do
     {:ok, project} = Ingest.create_project(%{title: "Some project name"})
@@ -33,6 +39,36 @@ defmodule MeadowWeb.IngestJobControllerTest do
     test "lists all ingest_jobs", %{conn: conn} do
       conn = get(conn, Routes.v1_ingest_job_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
+    end
+
+    test "IngestJobController produces an `IngestJobsResponse`", %{
+      conn: conn,
+      spec: spec
+    } do
+      {:ok, project} =
+        Ingest.create_project(%{
+          title: "Project 1"
+        })
+
+      {:ok, _job} =
+        Ingest.create_ingest_job(%{
+          name: "Job 1",
+          presigned_url: "http://example.com",
+          project_id: project.id
+        })
+
+      {:ok, _job} =
+        Ingest.create_ingest_job(%{
+          name: "Job 2",
+          presigned_url: "http://example.com",
+          project_id: project.id
+        })
+
+      conn
+      |> Plug.Conn.put_req_header("accept", "application/json")
+      |> get(Routes.v1_project_path(conn, :index))
+      |> json_response(200)
+      |> assert_schema("ProjectsResponse", spec)
     end
   end
 
@@ -59,6 +95,18 @@ defmodule MeadowWeb.IngestJobControllerTest do
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.v1_ingest_job_path(conn, :create), ingest_job: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "IngestJobsController.create produces an `IngestJobResponse`", %{conn: conn, spec: spec} do
+      project = project_fixture()
+
+      conn
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> post(Routes.v1_ingest_job_path(conn, :create),
+        ingest_job: Map.put(@create_attrs, :project_id, project.id)
+      )
+      |> json_response(201)
+      |> assert_schema("IngestJobResponse", spec)
     end
   end
 
@@ -104,6 +152,34 @@ defmodule MeadowWeb.IngestJobControllerTest do
         get(conn, Routes.v1_ingest_job_path(conn, :show, ingest_job))
       end
     end
+  end
+
+  test "IngestJob example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.IngestJob.schema().example, "IngestJob", spec)
+  end
+
+  test "IngestJobRequest example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.IngestJobRequest.schema().example, "IngestJobRequest", spec)
+  end
+
+  test "IngestJobResponse example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.IngestJobResponse.schema().example, "IngestJobResponse", spec)
+  end
+
+  test "IngestJobsResponse example matches schema", %{spec: spec} do
+    assert_schema(
+      MeadowWeb.Schemas.IngestJobsResponse.schema().example,
+      "IngestJobsResponse",
+      spec
+    )
+  end
+
+  test "PresignedUrlResponse example matches schema", %{spec: spec} do
+    assert_schema(
+      MeadowWeb.Schemas.PresignedUrlResponse.schema().example,
+      "PresignedUrlResponse",
+      spec
+    )
   end
 
   defp create_ingest_job(_) do

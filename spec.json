@@ -1,6 +1,159 @@
 {
   "components": {
     "schemas": {
+      "IngestJob": {
+        "description": "An ingest job that kicks off an inventory sheet upload",
+        "example": {
+          "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+          "name": "Name of the Ingest Job",
+          "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
+          "project_id": "01DFBXCA303G43Y3695NMQDH8F"
+        },
+        "properties": {
+          "id": {
+            "description": "Ingest Job ID",
+            "format": "ulid",
+            "readOnly": "true",
+            "type": "string"
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "datetime",
+            "type": "string"
+          },
+          "name": {
+            "description": "Ingest Job Name",
+            "maxLength": 140,
+            "minLength": 4,
+            "type": "string"
+          },
+          "presigned_url": {
+            "description": "S3 csv upload url",
+            "format": "uri",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "ID of the parent project",
+            "format": "ulid",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Update timestamp",
+            "format": "datetime",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "presigned_url",
+          "project_id"
+        ],
+        "title": "IngestJob",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJob"
+      },
+      "IngestJobRequest": {
+        "description": "POST body for creating an ingest job",
+        "example": {
+          "ingest_job": {
+            "name": "The Name of the Ingest Job",
+            "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789",
+            "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
+          }
+        },
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/IngestJob"
+          }
+        },
+        "required": [
+          "ingest_job"
+        ],
+        "title": "IngestJobRequest",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobRequest"
+      },
+      "IngestJobResponse": {
+        "description": "Response schema for single ingest job",
+        "example": {
+          "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+          "name": "Name of the Ingest Job",
+          "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
+          "project_id": "01DFBXCA303G43Y3695NMQDH8F"
+        },
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/IngestJob"
+          }
+        },
+        "title": "IngestJobResponse",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobResponse"
+      },
+      "IngestJobsResponse": {
+        "description": "Response schema for multiple ingest jobs",
+        "example": {
+          "data": [
+            {
+              "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
+              "name": "Name of the Ingest Job",
+              "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
+              "project_id": "01DFBXCA303G43Y3695NMQDH8F"
+            },
+            {
+              "id": "01DFBXN0BNB8YEPXCMCNGAWV2J",
+              "name": "Another Name of the Ingest Job",
+              "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789",
+              "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
+            }
+          ]
+        },
+        "properties": {
+          "data": {
+            "description": "The ingest job details",
+            "items": {
+              "$ref": "#/components/schemas/IngestJob"
+            },
+            "type": "array"
+          }
+        },
+        "title": "IngestJobsResponse",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobsResponse"
+      },
+      "PresignedUrl": {
+        "description": "A presigned S3 url to use for upload",
+        "example": {
+          "url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+        },
+        "properties": {
+          "url": {
+            "description": "A presigned S3 url",
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "PresignedUrl",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.PresignedUrl"
+      },
+      "PresignedUrlResponse": {
+        "description": "Response schema for presigned url to upload to S3",
+        "example": {
+          "url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+        },
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PresignedUrl"
+          }
+        },
+        "title": "PresignedUrlResponse",
+        "type": "object",
+        "x-struct": "Elixir.MeadowWeb.Schemas.PresignedUrlResponse"
+      },
       "Project": {
         "description": "An Ingest Project",
         "example": {
@@ -118,6 +271,250 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/v1/ingest_jobs": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "List all ingest jobs",
+        "operationId": "IngestJobController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobsResponse"
+                }
+              }
+            },
+            "description": "Project List Response"
+          }
+        },
+        "summary": "List Ingest Jobs",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Create an ingest job",
+        "operationId": "IngestJobController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Ingest Job"
+          }
+        },
+        "summary": "Create ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      }
+    },
+    "/api/v1/ingest_jobs/presigned_url": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Get presigned s3 url for upload",
+        "operationId": "IngestJobController.presigned_url",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignedUrlResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Get presigned s3 url for upload",
+        "tags": [
+          "ingest_jobs"
+        ]
+      }
+    },
+    "/api/v1/ingest_jobs/{id}": {
+      "delete": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Delete an ingest job by ID",
+        "operationId": "IngestJobController.delete",
+        "parameters": [
+          {
+            "description": "IngestJob ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "IngestJob"
+          }
+        },
+        "summary": "Delete ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Show a ingest job by ID",
+        "operationId": "IngestJobController.show",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Show ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "patch": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update an ingest job",
+        "operationId": "IngestJobController.update",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update an ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "put": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update an ingest job",
+        "operationId": "IngestJobController.update",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update an ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      }
+    },
     "/api/v1/projects": {
       "get": {
         "callbacks": {},

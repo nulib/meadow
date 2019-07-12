@@ -3,6 +3,7 @@ defmodule MeadowWeb.ProjectControllerTest do
   use ExUnit.Case
 
   import Mox
+  import OpenApiSpex.Test.Assertions
 
   alias Meadow.Ingest
   alias Meadow.Ingest.Project
@@ -14,6 +15,10 @@ defmodule MeadowWeb.ProjectControllerTest do
     title: "some updated title"
   }
   @invalid_attrs %{title: nil}
+
+  setup do
+    %{spec: MeadowWeb.ApiSpec.spec()}
+  end
 
   def fixture(:project) do
     {:ok, project} = Ingest.create_project(@create_attrs)
@@ -28,6 +33,27 @@ defmodule MeadowWeb.ProjectControllerTest do
     test "lists all projects", %{conn: conn} do
       conn = get(conn, Routes.v1_project_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
+    end
+
+    test "ProjectsController produces a `ProjectsResponse`", %{
+      conn: conn,
+      spec: spec
+    } do
+      {:ok, _project1} =
+        Ingest.create_project(%{
+          title: "Project 1"
+        })
+
+      {:ok, _project2} =
+        Ingest.create_project(%{
+          title: "Project 2"
+        })
+
+      conn
+      |> Plug.Conn.put_req_header("accept", "application/json")
+      |> get(Routes.v1_project_path(conn, :index))
+      |> json_response(200)
+      |> assert_schema("ProjectsResponse", spec)
     end
   end
 
@@ -53,6 +79,19 @@ defmodule MeadowWeb.ProjectControllerTest do
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.v1_project_path(conn, :create), project: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "ProjectsController.create produces a `ProjectResponse`", %{conn: conn, spec: spec} do
+      Meadow.ExAwsHttpMock
+      |> stub(:request, fn _method, _url, _body, _headers, _opts ->
+        {:ok, %{status_code: 200}}
+      end)
+
+      conn
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> post(Routes.v1_project_path(conn, :create), project: @create_attrs)
+      |> json_response(201)
+      |> assert_schema("ProjectResponse", spec)
     end
   end
 
@@ -92,6 +131,22 @@ defmodule MeadowWeb.ProjectControllerTest do
         get(conn, Routes.v1_project_path(conn, :show, project))
       end
     end
+  end
+
+  test "Project example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.Project.schema().example, "Project", spec)
+  end
+
+  test "ProjectRequest example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.ProjectRequest.schema().example, "ProjectRequest", spec)
+  end
+
+  test "ProjectResponse example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.ProjectResponse.schema().example, "ProjectResponse", spec)
+  end
+
+  test "ProjectsResponse example matches schema", %{spec: spec} do
+    assert_schema(MeadowWeb.Schemas.ProjectsResponse.schema().example, "ProjectsResponse", spec)
   end
 
   defp create_project(_) do
