@@ -18,8 +18,9 @@ COPY ./assets /app/assets
 COPY --from=deps /app/deps/phoenix /app/deps/phoenix
 COPY --from=deps /app/deps/phoenix_html /app/deps/phoenix_html
 WORKDIR /app/assets
-RUN npm install \
-  && node_modules/.bin/webpack
+RUN npm -g install yarn \
+  && yarn install \
+  && yarn deploy
 
 # Create elixir release
 FROM elixir:1.9.0-alpine AS release
