@@ -4,7 +4,7 @@ jobs:
   test:
     working_directory: ~/meadow
     docker:
-      - image: circleci/elixir:1.9
+      - image: circleci/elixir:1.9-node
         environment:
           DATABASE_URL: ecto://root@localhost/circle_test
           MIX_ENV: test
@@ -12,28 +12,40 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "mix.lock" }}
+          key: dependency-cache-{{ checksum "mix.lock" }}-{{ checksum "assets/yarn.lock" }}
       - run:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
       - run:
-          name: Install dependencies
+          name: Install Elixir dependencies
           command: mix do deps.get, deps.compile
+      - run:
+          name: Install JS dependencies
+          command: yarn install
+          working_directory: ~/meadow/assets
       - save_cache:
-          key: dependency-cache-{{ checksum "mix.lock" }}
+          key: dependency-cache-{{ checksum "mix.lock" }}-{{ checksum "assets/yarn.lock" }}
           paths:
+            - ~/meadow/assets/node_modules
             - ~/meadow/deps
             - ~/meadow/_build
       - run:
-          name: Run Tests
-          command: mix test
+          name: Run Elixir Tests
+          command: mix test && mix coveralls.circle
       - run:
-          name: Code coverage
-          command: mix coveralls.circle
+          name: Run JS Tests
+          command: |
+            export COVERALLS_SERVICE_NAME=circle-ci 
+            export COVERALLS_SERVICE_JOB_ID=$CIRCLE_WORKFLOW_WORKSPACE_ID 
+            yarn ci --coverageReporters=text-lcov | yarn run coveralls
+          working_directory: ~/meadow/assets
+      - run:
+          name: Merge coverage output
+          command: |
+            curl -F "payload[build_num]=$CIRCLE_WORKFLOW_WORKSPACE_ID" -F "payload[status]=done" "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN"
       - store_artifacts:
           path: /tmp/test-results
           destination: tests
-
 workflows:
   version: 2
   ci:

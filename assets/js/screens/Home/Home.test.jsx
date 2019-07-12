@@ -2,7 +2,7 @@ import React from "react";
 import { render, cleanup } from "@testing-library/react";
 // this adds custom jest matchers from jest-dom
 import "@testing-library/jest-dom/extend-expect";
-import HomePage from "./home";
+import HomePage from "./Home";
 
 afterEach(cleanup);
 
