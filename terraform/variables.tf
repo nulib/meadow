@@ -30,3 +30,9 @@ variable "tags" {
   type    = "map"
   default = {}
 }
+
+variable "upload_bucket" {
+  type    = "string"
+  default = ""
+}
+

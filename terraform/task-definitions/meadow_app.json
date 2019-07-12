@@ -21,6 +21,10 @@
       {
         "name": "INGEST_BUCKET",
         "value": "${ingest_bucket}"
+      },
+      {
+        "name": "UPLOAD_BUCKET",
+        "value": "${upload_bucket}"
       }
     ],
     "portMappings": [
