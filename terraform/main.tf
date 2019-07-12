@@ -45,6 +45,12 @@ resource "aws_s3_bucket" "meadow_ingest" {
   tags   = "${var.tags}"
 }
 
+resource "aws_s3_bucket" "meadow_uploads" {
+  bucket = "${var.stack_name}-uploads"
+  acl    = "private"
+  tags   = "${var.tags}"
+}
+
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
     effect    = "Allow"
@@ -62,6 +68,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 
     resources = [
       "${aws_s3_bucket.meadow_ingest.arn}",
+      "${aws_s3_bucket.meadow_uploads.arn}"
     ]
   }
 
@@ -76,6 +83,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 
     resources = [
       "${aws_s3_bucket.meadow_ingest.arn}/*",
+      "${aws_s3_bucket.meadow_uploads.arn}/*",
     ]
   }
 }
