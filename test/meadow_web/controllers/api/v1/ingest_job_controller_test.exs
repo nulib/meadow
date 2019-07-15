@@ -14,7 +14,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
   }
   @invalid_attrs %{name: nil, presigned_url: nil}
 
-  def project_fixture do
+  def project_fixture() do
     {:ok, project} = Ingest.create_project(%{title: "Some project name"})
     project
   end

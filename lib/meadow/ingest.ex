@@ -4,9 +4,9 @@ defmodule Meadow.Ingest do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.IngestJob
-  alias Meadow.Ingest.Project
   alias Meadow.Repo
+  alias Meadow.Ingest.Project
+  alias Meadow.Ingest.IngestJob
 
   @doc """
   Returns the list of projects.

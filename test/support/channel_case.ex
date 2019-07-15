@@ -14,7 +14,6 @@ defmodule MeadowWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -27,10 +26,10 @@ defmodule MeadowWeb.ChannelCase do
   end
 
   setup tags do
-    :ok = Sandbox.checkout(Meadow.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Meadow.Repo)
 
     unless tags[:async] do
-      Sandbox.mode(Meadow.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, {:shared, self()})
     end
 
     :ok

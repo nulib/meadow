@@ -2,7 +2,6 @@ defmodule MeadowWeb.Api.V1.ProjectController do
   use MeadowWeb, :controller
 
   alias Meadow.Ingest
-  alias Meadow.Ingest.Bucket
   alias Meadow.Ingest.Project
   alias MeadowWeb.Schemas
   import OpenApiSpex.Operation
@@ -50,7 +49,7 @@ defmodule MeadowWeb.Api.V1.ProjectController do
   def create(conn, %{"project" => project_params}) do
     with {:ok, %Project{} = project} <- Ingest.create_project(project_params) do
       Application.get_env(:meadow, :ingest_bucket)
-      |> Bucket.create_project_folder(project.folder)
+      |> Meadow.Ingest.Bucket.create_project_folder(project.folder)
 
       conn
       |> put_status(:created)
