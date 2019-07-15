@@ -4,13 +4,17 @@ defmodule Meadow.Ingest.Bucket do
   """
 
   def create_project_folder(bucket, name) do
-    ensure_bucket_exists(bucket)
-    ExAws.S3.put_object(bucket, "#{name}/", "") |> ExAws.request()
+    bucket
+    |> check_bucket()
+    |> ExAws.S3.put_object("#{name}/", "")
+    |> ExAws.request()
   end
 
   def presigned_s3_url(bucket) do
+    bucket
+    |> check_bucket()
+
     id = Ecto.ULID.generate()
-    ensure_bucket_exists(bucket)
     path = "inventory_sheets/#{id}.csv"
 
     {:ok, url} =
@@ -23,15 +27,24 @@ defmodule Meadow.Ingest.Bucket do
     url
   end
 
+  defp check_bucket(bucket) do
+    case bucket |> ensure_bucket_exists() do
+      {:ok, _} -> bucket
+      {:error, message} -> raise message
+      other -> raise other
+    end
+  end
+
   defp ensure_bucket_exists(bucket) do
     case bucket do
       :undefined ->
         {:error, "Ingest bucket not configured"}
 
       bucket ->
-        case ExAws.S3.head_bucket(bucket) |> ExAws.request() do
+        case bucket |> ExAws.S3.head_bucket() |> ExAws.request() do
           {:error, {:http_error, 404, _}} ->
-            ExAws.S3.put_bucket(bucket, "us-east-1")
+            bucket
+            |> ExAws.S3.put_bucket("us-east-1")
             |> ExAws.request!()
 
             {:ok, :created}

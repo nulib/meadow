@@ -44,7 +44,7 @@ defmodule Meadow.Ingest.Project do
   defp generate_folder_name(changeset) do
     case changeset.valid? do
       true ->
-        title = get_field(changeset, :title) |> slugify()
+        title = changeset |> get_field(:title) |> slugify()
         put_change(changeset, :folder, title)
 
       _ ->

@@ -14,6 +14,7 @@ defmodule MeadowWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -27,10 +28,10 @@ defmodule MeadowWeb.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Meadow.Repo)
+    :ok = Sandbox.checkout(Meadow.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, {:shared, self()})
+      Sandbox.mode(Meadow.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
