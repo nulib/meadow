@@ -17,10 +17,10 @@ jobs:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
       - run:
-          name: Install Elixir dependencies
+          name: Install Elixir Dependencies
           command: mix do deps.get, deps.compile
       - run:
-          name: Install JS dependencies
+          name: Install JS Dependencies
           command: yarn install
           working_directory: ~/meadow/assets
       - save_cache:
@@ -30,21 +30,28 @@ jobs:
             - ~/meadow/deps
             - ~/meadow/_build
       - run:
-          name: Run Elixir Tests
+          name: Elixir Static Analysis
+          command: mix credo
+      - run:
+          name: Elixir Tests
           command: mix test && mix coveralls.circle
       - run:
-          name: Run JS Tests
+          name: JS Static Analysis
+          command: yarn prettier
+          working_directory: ~/meadow/assets
+      - run:
+          name: JS Tests
           command: |
             export COVERALLS_SERVICE_NAME=circle-ci 
             export COVERALLS_SERVICE_JOB_ID=$CIRCLE_WORKFLOW_WORKSPACE_ID 
             yarn ci --coverageReporters=text-lcov | yarn run coveralls
           working_directory: ~/meadow/assets
       - run:
-          name: Merge coverage output
+          name: Merge Coverage Output
           command: |
             curl -F "payload[build_num]=$CIRCLE_WORKFLOW_WORKSPACE_ID" -F "payload[status]=done" "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN"
       - run:
-          name: Test Webpack build
+          name: Test Webpack Build
           command: yarn deploy
           working_directory: ~/meadow/assets
       - store_artifacts:
