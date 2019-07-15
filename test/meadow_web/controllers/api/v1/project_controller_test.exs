@@ -7,6 +7,7 @@ defmodule MeadowWeb.ProjectControllerTest do
 
   alias Meadow.Ingest
   alias Meadow.Ingest.Project
+  alias MeadowWeb.Schemas
 
   @create_attrs %{
     title: "some title"
@@ -134,19 +135,19 @@ defmodule MeadowWeb.ProjectControllerTest do
   end
 
   test "Project example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.Project.schema().example, "Project", spec)
+    assert_schema(Schemas.Project.schema().example, "Project", spec)
   end
 
   test "ProjectRequest example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.ProjectRequest.schema().example, "ProjectRequest", spec)
+    assert_schema(Schemas.ProjectRequest.schema().example, "ProjectRequest", spec)
   end
 
   test "ProjectResponse example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.ProjectResponse.schema().example, "ProjectResponse", spec)
+    assert_schema(Schemas.ProjectResponse.schema().example, "ProjectResponse", spec)
   end
 
   test "ProjectsResponse example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.ProjectsResponse.schema().example, "ProjectsResponse", spec)
+    assert_schema(Schemas.ProjectsResponse.schema().example, "ProjectsResponse", spec)
   end
 
   defp create_project(_) do

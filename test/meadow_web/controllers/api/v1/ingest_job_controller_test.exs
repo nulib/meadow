@@ -3,6 +3,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
   alias Meadow.Ingest
   alias Meadow.Ingest.IngestJob
+  alias MeadowWeb.Schemas
 
   import OpenApiSpex.Test.Assertions
 
@@ -20,7 +21,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
     %{spec: MeadowWeb.ApiSpec.spec()}
   end
 
-  def project_fixture() do
+  def project_fixture do
     {:ok, project} = Ingest.create_project(%{title: "Some project name"})
     project
   end
@@ -115,7 +116,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
     test "renders ingest_job when data is valid", %{
       conn: conn,
-      ingest_job: %IngestJob{id: id} = ingest_job
+      ingest_job: %Ingest.IngestJob{id: id} = ingest_job
     } do
       conn =
         put(conn, Routes.v1_ingest_job_path(conn, :update, ingest_job),
@@ -155,20 +156,20 @@ defmodule MeadowWeb.IngestJobControllerTest do
   end
 
   test "IngestJob example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.IngestJob.schema().example, "IngestJob", spec)
+    assert_schema(Schemas.IngestJob.schema().example, "IngestJob", spec)
   end
 
   test "IngestJobRequest example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.IngestJobRequest.schema().example, "IngestJobRequest", spec)
+    assert_schema(Schemas.IngestJobRequest.schema().example, "IngestJobRequest", spec)
   end
 
   test "IngestJobResponse example matches schema", %{spec: spec} do
-    assert_schema(MeadowWeb.Schemas.IngestJobResponse.schema().example, "IngestJobResponse", spec)
+    assert_schema(Schemas.IngestJobResponse.schema().example, "IngestJobResponse", spec)
   end
 
   test "IngestJobsResponse example matches schema", %{spec: spec} do
     assert_schema(
-      MeadowWeb.Schemas.IngestJobsResponse.schema().example,
+      Schemas.IngestJobsResponse.schema().example,
       "IngestJobsResponse",
       spec
     )
@@ -176,7 +177,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
   test "PresignedUrlResponse example matches schema", %{spec: spec} do
     assert_schema(
-      MeadowWeb.Schemas.PresignedUrlResponse.schema().example,
+      Schemas.PresignedUrlResponse.schema().example,
       "PresignedUrlResponse",
       spec
     )
