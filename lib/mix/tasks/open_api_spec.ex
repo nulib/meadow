@@ -1,19 +1,22 @@
 defmodule Mix.Tasks.Meadow.OpenApiSpec do
   @moduledoc """
   Generates the OpenApi 3.0 spec
-  Writes the JSON spec to an output file
+  Writes the JSON spec to stdout or an output file
 
     ## Examples
-
-      iex> mix meadow.open_api_spec spec.json
-
-
+      $ mix meadow.open_api_spec
+      $ mix meadow.open_api_spec spec.json
   """
-  def run([output_file]) do
-    json =
-      MeadowWeb.ApiSpec.spec()
-      |> Jason.encode!(pretty: true)
+  def run([]) do
+    IO.puts(json_spec())
+  end
 
-    :ok = File.write!(output_file, json)
+  def run([output_file]) do
+    :ok = File.write!(output_file, json_spec())
+  end
+
+  defp json_spec do
+    MeadowWeb.ApiSpec.spec()
+    |> Jason.encode!(pretty: true)
   end
 end
