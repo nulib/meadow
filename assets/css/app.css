@@ -3,7 +3,7 @@
 @import "tailwindcss/base";
 
 /* Put our custom application styles here */
-@import './meadow.css';
+@import "./meadow.css";
 
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
