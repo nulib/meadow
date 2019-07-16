@@ -40,13 +40,13 @@ resource "random_string" "db_password" {
 }
 
 resource "aws_s3_bucket" "meadow_ingest" {
-  bucket = "${var.stack_name}-ingest"
+  bucket = "${var.stack_name}-${var.environment}-ingest"
   acl    = "private"
   tags   = "${var.tags}"
 }
 
 resource "aws_s3_bucket" "meadow_uploads" {
-  bucket = "${var.stack_name}-uploads"
+  bucket = "${var.stack_name}-${var.environment}-uploads"
   acl    = "private"
   tags   = "${var.tags}"
 }
