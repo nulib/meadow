@@ -1,5 +1,6 @@
 defmodule Meadow.Ingest.BucketTest do
   use ExUnit.Case
+  alias Meadow.Ingest.Bucket
   doctest Meadow.Ingest.Bucket
 
   import Mox
@@ -16,7 +17,7 @@ defmodule Meadow.Ingest.BucketTest do
         {:ok, %{status_code: 200}}
       end)
 
-      assert Meadow.Ingest.Bucket.create_project_folder('bucket-name', @project_folder_name) ==
+      assert Bucket.create_project_folder('bucket-name', @project_folder_name) ==
                {:ok, %{status_code: 200}}
     end
 
@@ -29,7 +30,7 @@ defmodule Meadow.Ingest.BucketTest do
         {:ok, %{status_code: 200}}
       end)
 
-      assert Meadow.Ingest.Bucket.create_project_folder('bucket-name', @project_folder_name) ==
+      assert Bucket.create_project_folder('bucket-name', @project_folder_name) ==
                {:ok, %{status_code: 200}}
     end
   end
@@ -46,6 +47,6 @@ defmodule Meadow.Ingest.BucketTest do
     port = config[:port]
     regex = ~r{#{scheme}#{host}:#{port}/#{@bucket}/inventory_sheets(.)*}
 
-    assert Meadow.Ingest.Bucket.presigned_s3_url(@bucket) =~ regex
+    assert Bucket.presigned_s3_url(@bucket) =~ regex
   end
 end

@@ -67,7 +67,8 @@ defmodule Meadow.MixProject do
       {:sweet_xml, "~> 0.6"},
       {:poison, "~> 3.0"},
       {:mox, "~> 0.5", only: :test},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.10", only: :test},
+      {:briefly, "~> 0.3.0", only: :test}
     ]
   end
 

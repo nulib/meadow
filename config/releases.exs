@@ -36,3 +36,12 @@ ingest_bucket =
     """
 
 config :meadow, ingest_bucket: ingest_bucket
+
+upload_bucket =
+  System.get_env("UPLOAD_BUCKET") ||
+    raise """
+    environment variable UPLOAD_BUCKET is missing.
+    For example: 'meadow-uploads'
+    """
+
+config :meadow, upload_bucket: upload_bucket

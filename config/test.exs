@@ -1,12 +1,29 @@
 use Mix.Config
 
 # Configure your database
-config :meadow, Meadow.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "meadow_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+db_config =
+  case System.get_env("CI") do
+    "true" ->
+      [
+        username: "postgres",
+        password: "postgres",
+        database: "meadow_test",
+        hostname: "localhost",
+        pool: Ecto.Adapters.SQL.Sandbox
+      ]
+
+    _ ->
+      [
+        username: "docker",
+        password: "d0ck3r",
+        database: "meadow_test",
+        hostname: "localhost",
+        port: 5434,
+        pool: Ecto.Adapters.SQL.Sandbox
+      ]
+  end
+
+config :meadow, Meadow.Repo, db_config
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

@@ -64,6 +64,7 @@ data "template_file" "container_definitions" {
     log_group           = "${aws_cloudwatch_log_group.meadow_logs.name}"
     honeybadger_api_key = "${var.honeybadger_api_key}"
     ingest_bucket       = "${aws_s3_bucket.meadow_ingest.bucket}"
+    upload_bucket       = "${aws_s3_bucket.meadow_uploads.bucket}"
   }
 }
 

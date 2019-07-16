@@ -4,12 +4,12 @@ defmodule Meadow.Ingest do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Repo
-  alias Meadow.Ingest.Project
   alias Meadow.Ingest.IngestJob
+  alias Meadow.Ingest.Project
+  alias Meadow.Repo
 
   @doc """
-  Returns the list of projects.
+  Returns the list of projects in reverse chronological order.
 
   ## Examples
 
@@ -18,7 +18,9 @@ defmodule Meadow.Ingest do
 
   """
   def list_projects do
-    Repo.all(Project)
+    Project
+    |> order_by(desc: :updated_at)
+    |> Repo.all()
   end
 
   @doc """

@@ -22,6 +22,10 @@ variable "stack_name" {
   type = "string"
 }
 
+variable "environment" {
+  type = "string"
+}
+
 variable "dns_zone" {
   type = "string"
 }
@@ -30,3 +34,9 @@ variable "tags" {
   type    = "map"
   default = {}
 }
+
+variable "upload_bucket" {
+  type    = "string"
+  default = ""
+}
+
