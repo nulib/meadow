@@ -22,6 +22,10 @@ variable "stack_name" {
   type = "string"
 }
 
+variable "environment" {
+  type = "string"
+}
+
 variable "dns_zone" {
   type = "string"
 }
