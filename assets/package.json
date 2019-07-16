@@ -5,7 +5,9 @@
     "deploy": "webpack --mode production",
     "watch": "webpack --mode development --watch",
     "ci": "jest --ci --coverage",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "prettier": "prettier --check js/**/*.js* css/**/*.css ./*.js ./*.json",
+    "prettier-fix": "prettier --write js/**/*.js* css/**/*.css ./*.js ./*.json"
   },
   "prettier": "@nulib/prettier-config",
   "dependencies": {

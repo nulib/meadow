@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'AkkuratPro-Regular';
-  src: url('fonts/AkkuratPro-Regular.otf') format('otf');
+  font-family: "AkkuratPro-Regular";
+  src: url("fonts/AkkuratPro-Regular.otf") format("otf");
 }
 
 body {
@@ -58,14 +58,13 @@ label {
   background: none;
 }
 
-
 .content-block {
   @apply bg-white p-6 shadow-md;
 }
 
 .notification {
   /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
-  @apply bg-green-500
+  @apply bg-green-500;
 }
 
 .notification-body {
