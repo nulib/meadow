@@ -37,7 +37,7 @@ jobs:
           command: |
             export COVERALLS_SERVICE_NAME=circle-ci 
             export COVERALLS_SERVICE_JOB_ID=$CIRCLE_WORKFLOW_WORKSPACE_ID 
-            yarn ci --coverageReporters=text-lcov | yarn run coveralls ~/meadow
+            yarn ci --coverageReporters=text-lcov | yarn run coveralls
           working_directory: ~/meadow/assets
       - run:
           name: Merge coverage output
