@@ -1,6 +1,7 @@
 # Install elixir dependencies
 FROM elixir:1.9.0-alpine AS deps
 LABEL edu.northwestern.library.app=meadow \
+  edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
 RUN mix local.hex --force \
   && mix local.rebar --force
@@ -13,6 +14,7 @@ RUN mix do deps.get --only prod, deps.compile
 # Build static assets using nodejs & webpacker
 FROM node:11-alpine AS assets
 LABEL edu.northwestern.library.app=meadow \
+  edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=assets
 COPY ./assets /app/assets
 COPY --from=deps /app/deps/phoenix /app/deps/phoenix
