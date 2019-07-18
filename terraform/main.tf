@@ -49,6 +49,14 @@ resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
   acl    = "private"
   tags   = "${var.tags}"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT"]
+    allowed_origins = ["http://${aws_route53_record.app_hostname.fqdn}"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 
 data "aws_iam_policy_document" "this_bucket_access" {
