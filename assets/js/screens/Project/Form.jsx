@@ -28,8 +28,14 @@ export default class ProjectForm extends React.Component {
       toast(`${projectTitle} created successfully`);
       this.props.history.push("/project/list");
     } catch (error) {
-      console.log("handleSubmit() error", error);
-      toast(`There was an error creating the project: ${error}`);
+      if (error.response) {
+        console.log(`Error Status Code: ${error.response.status}`)
+        console.log(`Error creating project: ${JSON.stringify(error.response.data.errors)}`);
+        toast(`Status Code: ${error.response.status} error creating project: ${JSON.stringify(error.response.data.errors)}`);
+      } else {
+        console.log(error);
+        toast(`Error: ${error}`);
+      }
     }
   };
 

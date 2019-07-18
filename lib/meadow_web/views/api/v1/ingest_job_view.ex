@@ -14,6 +14,7 @@ defmodule MeadowWeb.Api.V1.IngestJobView do
     %{
       id: ingest_job.id,
       name: ingest_job.name,
+      filename: ingest_job.filename,
       presigned_url: ingest_job.presigned_url,
       project_id: ingest_job.project_id,
       inserted_at: ingest_job.inserted_at,

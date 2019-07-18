@@ -10,6 +10,7 @@ defmodule Meadow.Ingest.IngestJob do
   schema "ingest_jobs" do
     field :name, :string
     field :presigned_url, :string
+    field :filename, :string
 
     belongs_to :project, Meadow.Ingest.Project
 
@@ -19,7 +20,7 @@ defmodule Meadow.Ingest.IngestJob do
   @doc false
   def changeset(ingest_job, attrs) do
     ingest_job
-    |> cast(attrs, [:name, :presigned_url, :project_id])
+    |> cast(attrs, [:name, :filename, :presigned_url, :project_id])
     |> validate_required([:name, :presigned_url, :project_id])
     |> unique_constraint(:name)
   end
