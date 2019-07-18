@@ -16,7 +16,7 @@ const Project = ({ match }) => {
         const response = await axios.get(`/api/v1/projects/${id}`);
         setProject(response.data.data);
       } catch (error) {
-        toast(`Error fetching project: ${error}`);
+        toast(`Error fetching project: ${JSON.stringify(error.response.data.errors)}`);
       }
     };
     getProject();
@@ -28,7 +28,7 @@ const Project = ({ match }) => {
         <div>
           <h1>{project.title}</h1>
 
-          <h2>Inventory Sheets</h2>
+          <h2>Ingest Jobs</h2>
           <Link
             to={{
               pathname: `/project/${id}/inventory-sheet/upload`,
@@ -36,7 +36,7 @@ const Project = ({ match }) => {
             }}
             className="btn mb-4"
           >
-            Add Inventory Sheet
+            New Ingest Job
           </Link>
           <section className="content-block">
             <InventorySheetList projectId={project.id} />
