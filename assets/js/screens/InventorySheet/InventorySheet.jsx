@@ -2,7 +2,7 @@ import React from "react";
 import Main from "../../components/UI/Main";
 import { withRouter } from "react-router-dom";
 
-const ScreensInventorySheet = ({ history, match, location }) => {
+const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
 
   return (
