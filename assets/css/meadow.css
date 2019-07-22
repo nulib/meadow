@@ -58,6 +58,10 @@ label {
   background: none;
 }
 
+.btn-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
 .content-block {
   @apply bg-white p-6 shadow-md;
 }
