@@ -21,7 +21,18 @@ defmodule Meadow.Ingest.IngestJob do
   def changeset(ingest_job, attrs) do
     ingest_job
     |> cast(attrs, [:name, :filename, :presigned_url, :project_id])
-    |> validate_required([:name, :presigned_url, :project_id])
+    |> validate_required([:name, :presigned_url, :filename, :project_id])
+    |> validate_csv_format()
     |> unique_constraint(:name)
+  end
+
+  def validate_csv_format(changeset) do
+    name = get_field(changeset, :filename)
+
+    if name && Path.extname(name) == ".csv" do
+      changeset
+    else
+      add_error(changeset, :filename, "is not a csv")
+    end
   end
 end

@@ -81,14 +81,16 @@ defmodule Meadow.IngestTest do
     @valid_attrs %{
       name: "some name",
       presigned_url: "some presigned_url",
+      filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
     @update_attrs %{
       name: "some updated name",
       presigned_url: "some updated presigned_url",
+      filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
-    @invalid_attrs %{name: nil, presigned_url: nil}
+    @invalid_attrs %{name: nil, presigned_url: nil, filename: nil}
 
     def ingest_job_fixture(attrs \\ %{}) do
       {:ok, ingest_job} =
