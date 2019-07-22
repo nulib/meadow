@@ -30,7 +30,7 @@
     "copy-webpack-plugin": "^5.0.3",
     "coveralls": "^3.0.5",
     "css-loader": "^3.1.0",
-    "file-loader": "^4.0.0",
+    "file-loader": "^4.1.0",
     "jest": "^24.8.0",
     "mini-css-extract-plugin": "^0.8.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
