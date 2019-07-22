@@ -105,7 +105,7 @@ defmodule Meadow.Ingest do
   end
 
   @doc """
-  Returns the list of ingest_jobs.
+  Returns the list of ingest_jobs in a project.
 
   ## Examples
 
@@ -113,8 +113,21 @@ defmodule Meadow.Ingest do
       [%Job{}, ...]
 
   """
-  def list_ingest_jobs do
-    Repo.all(IngestJob)
+  def list_ingest_jobs(project) do
+    IngestJob
+    |> where([ingest_job], ingest_job.project_id == ^project.id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of all ingest_jobs in all projects.
+  ## Examples
+      iex> list_all_ingest_jobs()
+      [%Job{}, ...]
+  """
+  def list_all_ingest_jobs do
+    IngestJob
+    |> Repo.all()
   end
 
   @doc """
@@ -131,7 +144,11 @@ defmodule Meadow.Ingest do
       ** (Ecto.NoResultsError)
 
   """
-  def get_ingest_job!(id), do: Repo.get!(IngestJob, id)
+  def get_ingest_job!(project, id) do
+    IngestJob
+    |> where([ingest_job], ingest_job.project_id == ^project.id)
+    |> Repo.get!(id)
+  end
 
   @doc """
   Creates a job.

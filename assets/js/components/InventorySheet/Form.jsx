@@ -41,7 +41,7 @@ const InventorySheetForm = ({ history, projectId }) => {
         .pop();
 
       await axios.put(presignedUrl, file, options);
-      const ingestJobResponse = await axios.post("/api/v1/ingest_jobs", {
+      const ingestJobResponse = await axios.post(`/api/v1/projects/${projectId}/ingest_jobs`, {
         ingest_job: {
           name: ingest_job_name,
           presigned_url: presignedUrl,
@@ -64,7 +64,7 @@ const InventorySheetForm = ({ history, projectId }) => {
         );
         toast(
           `Status Code: ${
-            error.response.status
+          error.response.status
           } error creating ingest job: ${JSON.stringify(
             error.response.data.errors
           )}`

@@ -20,9 +20,12 @@ defmodule MeadowWeb.Router do
     pipe_through :api
 
     scope "/v1", MeadowWeb.Api.V1, as: :v1 do
-      resources "/projects", ProjectController, except: [:new, :edit]
       get "/ingest_jobs/presigned_url", IngestJobController, :presigned_url
-      resources "/ingest_jobs", IngestJobController, except: [:new, :edit]
+      get "/ingest_jobs", IngestJobController, :list_all_ingest_jobs
+
+      resources "/projects", ProjectController, except: [:new, :edit] do
+        resources "/ingest_jobs", IngestJobController, except: [:new, :edit]
+      end
     end
 
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []

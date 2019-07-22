@@ -224,8 +224,8 @@ defmodule MeadowWeb.Schemas do
       example: %{
         "ingest_job" => %{
           "name" => "The Name of the Ingest Job",
-          "project_id" => "01DFBXPN3EEZSWC6QTCFYQHTBB",
           "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
+          "project_id" => "01DFBXPN3EEZSWC6QTCFYQHTBB",
           "presigned_url" =>
             "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
         }

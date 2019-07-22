@@ -104,13 +104,13 @@ defmodule Meadow.IngestTest do
     test "list_ingest_jobs/0 returns all ingest_jobs" do
       project = project_fixture()
       ingest_job = ingest_job_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert Ingest.list_ingest_jobs() == [ingest_job]
+      assert Ingest.list_ingest_jobs(project) == [ingest_job]
     end
 
     test "get_ingest_job!/1 returns the job with given id" do
       project = project_fixture()
       ingest_job = ingest_job_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert Ingest.get_ingest_job!(ingest_job.id) == ingest_job
+      assert Ingest.get_ingest_job!(project, ingest_job.id) == ingest_job
     end
 
     test "create_ingest_job/1 with valid data creates a job" do
@@ -151,14 +151,17 @@ defmodule Meadow.IngestTest do
                  Map.put(@invalid_attrs, :project_id, project.id)
                )
 
-      assert ingest_job == Ingest.get_ingest_job!(ingest_job.id)
+      assert ingest_job == Ingest.get_ingest_job!(project, ingest_job.id)
     end
 
     test "delete_ingest_job/1 deletes the job" do
       project = project_fixture()
       ingest_job = ingest_job_fixture(Map.put(@valid_attrs, :project_id, project.id))
       assert {:ok, %IngestJob{}} = Ingest.delete_ingest_job(ingest_job)
-      assert_raise Ecto.NoResultsError, fn -> Ingest.get_ingest_job!(ingest_job.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Ingest.get_ingest_job!(project, ingest_job.id)
+      end
     end
 
     test "change_job/1 returns a job changeset" do

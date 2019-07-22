@@ -39,7 +39,8 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
   describe "index" do
     test "lists all ingest_jobs", %{conn: conn} do
-      conn = get(conn, Routes.v1_ingest_job_path(conn, :index))
+      project = project_fixture()
+      conn = get(conn, Routes.v1_project_ingest_job_path(conn, :index, project.id))
       assert json_response(conn, 200)["data"] == []
     end
 
@@ -81,13 +82,14 @@ defmodule MeadowWeb.IngestJobControllerTest do
       project = project_fixture()
 
       conn =
-        post(conn, Routes.v1_ingest_job_path(conn, :create),
-          ingest_job: Map.put(@create_attrs, :project_id, project.id)
+        post(
+          conn,
+          Routes.v1_project_ingest_job_path(conn, :create, project.id, ingest_job: @create_attrs)
         )
 
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.v1_ingest_job_path(conn, :show, id))
+      conn = get(conn, Routes.v1_project_ingest_job_path(conn, :show, project.id, id))
 
       assert %{
                "id" => id,
@@ -98,7 +100,19 @@ defmodule MeadowWeb.IngestJobControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.v1_ingest_job_path(conn, :create), ingest_job: @invalid_attrs)
+      project = project_fixture()
+
+      conn =
+        post(
+          conn,
+          Routes.v1_project_ingest_job_path(
+            conn,
+            :create,
+            project.id
+          ),
+          ingest_job: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
 
@@ -107,7 +121,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
       conn
       |> Plug.Conn.put_req_header("content-type", "application/json")
-      |> post(Routes.v1_ingest_job_path(conn, :create),
+      |> post(Routes.v1_project_ingest_job_path(conn, :create, project.id),
         ingest_job: Map.put(@create_attrs, :project_id, project.id)
       )
       |> json_response(201)
@@ -123,13 +137,15 @@ defmodule MeadowWeb.IngestJobControllerTest do
       ingest_job: %Ingest.IngestJob{id: id} = ingest_job
     } do
       conn =
-        put(conn, Routes.v1_ingest_job_path(conn, :update, ingest_job),
+        put(
+          conn,
+          Routes.v1_project_ingest_job_path(conn, :update, ingest_job.project_id, id),
           ingest_job: Map.put(@update_attrs, :project_id, ingest_job.project_id)
         )
 
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.v1_ingest_job_path(conn, :show, id))
+      conn = get(conn, Routes.v1_project_ingest_job_path(conn, :show, ingest_job.project_id, id))
 
       assert %{
                "id" => id,
@@ -141,7 +157,12 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn, ingest_job: ingest_job} do
       conn =
-        put(conn, Routes.v1_ingest_job_path(conn, :update, ingest_job), ingest_job: @invalid_attrs)
+        put(
+          conn,
+          Routes.v1_project_ingest_job_path(conn, :update, ingest_job.project_id, ingest_job.id,
+            ingest_job: @invalid_attrs
+          )
+        )
 
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -151,11 +172,15 @@ defmodule MeadowWeb.IngestJobControllerTest do
     setup [:create_ingest_job]
 
     test "deletes chosen ingest_job", %{conn: conn, ingest_job: ingest_job} do
-      conn = delete(conn, Routes.v1_ingest_job_path(conn, :delete, ingest_job))
+      project = Ingest.get_project!(ingest_job.project_id)
+
+      conn =
+        delete(conn, Routes.v1_project_ingest_job_path(conn, :delete, project.id, ingest_job))
+
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
-        get(conn, Routes.v1_ingest_job_path(conn, :show, ingest_job))
+        get(conn, Routes.v1_project_ingest_job_path(conn, :show, project.id, ingest_job))
       end
     end
   end
