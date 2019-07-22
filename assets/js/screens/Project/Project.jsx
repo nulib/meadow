@@ -16,17 +16,21 @@ const Project = ({ match }) => {
         const response = await axios.get(`/api/v1/projects/${id}`);
         setProject(response.data.data);
       } catch (error) {
-        toast(`Error fetching project: ${JSON.stringify(error.response.data.errors)}`);
+        toast(
+          `Error fetching project: ${JSON.stringify(
+            error.response.data.errors
+          )}`
+        );
       }
     };
     getProject();
   }, []);
 
   return (
-    <Main>
+    <>
       {project && (
         <div>
-          <h1>{project.title}</h1>
+          <h1>Project: {project.title}</h1>
 
           <h2>Ingest Jobs</h2>
           <Link
@@ -43,7 +47,7 @@ const Project = ({ match }) => {
           </section>
         </div>
       )}
-    </Main>
+    </>
   );
 };
 

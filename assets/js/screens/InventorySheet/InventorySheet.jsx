@@ -6,13 +6,13 @@ const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
 
   return (
-    <Main>
+    <>
       <h1>Inventory Sheet</h1>
       <section className="content-block">
         <p>Id: {inventorySheetId}</p>
         <img className="w-screen" src="/images/placeholder-content.png" />
       </section>
-    </Main>
+    </>
   );
 };
 
