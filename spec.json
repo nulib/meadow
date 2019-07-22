@@ -64,8 +64,7 @@
           "ingest_job": {
             "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
             "name": "The Name of the Ingest Job",
-            "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789",
-            "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
+            "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
           }
         },
         "properties": {
@@ -281,65 +280,6 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1/ingest_jobs": {
-      "get": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "List all ingest jobs",
-        "operationId": "IngestJobController.index",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestJobsResponse"
-                }
-              }
-            },
-            "description": "Project List Response"
-          }
-        },
-        "summary": "List Ingest Jobs",
-        "tags": [
-          "ingest_jobs"
-        ]
-      },
-      "post": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "Create an ingest job",
-        "operationId": "IngestJobController.create",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
-              }
-            }
-          },
-          "description": "The ingest job attributes",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
-                }
-              }
-            },
-            "description": "Ingest Job"
-          }
-        },
-        "summary": "Create ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
-      }
-    },
     "/api/v1/ingest_jobs/presigned_url": {
       "get": {
         "callbacks": {},
@@ -360,166 +300,6 @@
           }
         },
         "summary": "Get presigned s3 url for upload",
-        "tags": [
-          "ingest_jobs"
-        ]
-      }
-    },
-    "/api/v1/ingest_jobs/{id}": {
-      "delete": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "Delete an ingest job by ID",
-        "operationId": "IngestJobController.delete",
-        "parameters": [
-          {
-            "description": "IngestJob ID",
-            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
-                }
-              }
-            },
-            "description": "IngestJob"
-          }
-        },
-        "summary": "Delete ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
-      },
-      "get": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "Show a ingest job by ID",
-        "operationId": "IngestJobController.show",
-        "parameters": [
-          {
-            "description": "Ingest Job ID",
-            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectResponse"
-                }
-              }
-            },
-            "description": "Project"
-          }
-        },
-        "summary": "Show ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
-      },
-      "patch": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "Update an ingest job",
-        "operationId": "IngestJobController.update",
-        "parameters": [
-          {
-            "description": "Ingest Job ID",
-            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
-              }
-            }
-          },
-          "description": "The ingest job attributes",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
-                }
-              }
-            },
-            "description": "Project"
-          }
-        },
-        "summary": "Update an ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
-      },
-      "put": {
-        "callbacks": {},
-        "deprecated": false,
-        "description": "Update an ingest job",
-        "operationId": "IngestJobController.update",
-        "parameters": [
-          {
-            "description": "Ingest Job ID",
-            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
-              }
-            }
-          },
-          "description": "The ingest job attributes",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
-                }
-              }
-            },
-            "description": "Project"
-          }
-        },
-        "summary": "Update an ingest job",
         "tags": [
           "ingest_jobs"
         ]
@@ -741,6 +521,287 @@
         "summary": "Update project",
         "tags": [
           "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/ingest_jobs": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "List all ingest jobs",
+        "operationId": "IngestJobController.index",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobsResponse"
+                }
+              }
+            },
+            "description": "Project List Response"
+          }
+        },
+        "summary": "List Ingest Jobs",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Create an ingest job",
+        "operationId": "IngestJobController.create",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Ingest Job"
+          }
+        },
+        "summary": "Create ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/ingest_jobs/{id}": {
+      "delete": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Delete an ingest job by ID",
+        "operationId": "IngestJobController.delete",
+        "parameters": [
+          {
+            "description": "IngestJob ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "IngestJob"
+          }
+        },
+        "summary": "Delete ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Show a ingest job by ID",
+        "operationId": "IngestJobController.show",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Show ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "patch": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update an ingest job",
+        "operationId": "IngestJobController.update",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update an ingest job",
+        "tags": [
+          "ingest_jobs"
+        ]
+      },
+      "put": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Update an ingest job",
+        "operationId": "IngestJobController.update",
+        "parameters": [
+          {
+            "description": "Ingest Job ID",
+            "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Project ID",
+            "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestJobRequest"
+              }
+            }
+          },
+          "description": "The ingest job attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobResponse"
+                }
+              }
+            },
+            "description": "Project"
+          }
+        },
+        "summary": "Update an ingest job",
+        "tags": [
+          "ingest_jobs"
         ]
       }
     }

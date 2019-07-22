@@ -2,13 +2,32 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
   use MeadowWeb, :controller
 
   alias Meadow.Ingest
-  alias Meadow.Ingest.{Bucket, IngestJob}
+  alias Meadow.Ingest.{Bucket, IngestJob, Project}
   alias MeadowWeb.Schemas
   alias OpenApiSpex.Operation
 
   import OpenApiSpex.Operation
 
   action_fallback MeadowWeb.FallbackController
+
+  # def extract_project(%{params: %{"project_id" => project_id}} = conn, _) do
+  #   case Ingest.get_project!(project_id) do
+  #     %Project{} = project -> assign(conn, :project, project)
+  #     _ -> render(conn, "error.json")
+  #   end
+  # end
+
+  # plug :extract_project when action in [:create, :show, :index, :update, :delete]
+
+  def action(%{params: %{"project_id" => project_id}} = conn, _) do
+    project = Ingest.get_project!(project_id)
+    args = [conn, conn.params, project]
+    apply(__MODULE__, action_name(conn), args)
+  end
+
+  def action(conn, _) do
+    apply(__MODULE__, action_name(conn), [conn, conn.params])
+  end
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -17,18 +36,23 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
   def index_operation do
     %Operation{
       tags: ["ingest_jobs"],
-      summary: "List Ingest Jobs",
-      description: "List all ingest jobs",
+      summary: "List Ingest Jobs in a project",
+      description: "List all ingest jobs in a project",
       operationId: "IngestJobController.index",
+      parameters: [
+        Operation.parameter(:project_id, :path, :string, "Project ID",
+          example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
+        )
+      ],
       responses: %{
         200 => response("Project List Response", "application/json", Schemas.IngestJobsResponse)
       }
     }
   end
 
-  def index(conn, _params) do
-    ingest_jobs = Ingest.list_ingest_jobs()
-    render(conn, "index.json", ingest_jobs: ingest_jobs)
+  def index(conn, _params, project) do
+    ingest_jobs = Ingest.list_ingest_jobs(project)
+    render(conn, "index.json", ingest_jobs: ingest_jobs, project: project)
   end
 
   def create_operation do
@@ -37,6 +61,11 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
       summary: "Create ingest job",
       description: "Create an ingest job",
       operationId: "IngestJobController.create",
+      parameters: [
+        Operation.parameter(:project_id, :path, :string, "Project ID",
+          example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
+        )
+      ],
       requestBody:
         request_body("The ingest job attributes", "application/json", Schemas.IngestJobRequest,
           required: true
@@ -47,12 +76,19 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
     }
   end
 
-  def create(conn, %{"ingest_job" => job_params}) do
+  def create(conn, %{"ingest_job" => job_params}, project) do
+    job_params =
+      job_params
+      |> Map.put("project_id", project.id)
+
     with {:ok, %IngestJob{} = ingest_job} <- Ingest.create_ingest_job(job_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.v1_ingest_job_path(conn, :show, ingest_job))
-      |> render("show.json", ingest_job: ingest_job)
+      |> put_resp_header(
+        "location",
+        Routes.v1_project_ingest_job_path(conn, :show, project, ingest_job)
+      )
+      |> render("show.json", ingest_job: ingest_job, project: project)
     end
   end
 
@@ -65,6 +101,9 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
       parameters: [
         Operation.parameter(:id, :path, :string, "Ingest Job ID",
           example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
+        ),
+        Operation.parameter(:project_id, :path, :string, "Project ID",
+          example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
         )
       ],
       responses: %{
@@ -73,9 +112,9 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
     }
   end
 
-  def show(conn, %{"id" => id}) do
-    ingest_job = Ingest.get_ingest_job!(id)
-    render(conn, "show.json", ingest_job: ingest_job)
+  def show(conn, %{"id" => id}, project) do
+    ingest_job = Ingest.get_ingest_job!(project, id)
+    render(conn, "show.json", ingest_job: ingest_job, project: project)
   end
 
   def update_operation do
@@ -87,6 +126,9 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
       parameters: [
         Operation.parameter(:id, :path, :string, "Ingest Job ID",
           example: "01DEHZZ8B9TNWZN7M1FXDP5NZB"
+        ),
+        Operation.parameter(:project_id, :path, :string, "Project ID",
+          example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
         )
       ],
       requestBody:
@@ -99,11 +141,11 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
     }
   end
 
-  def update(conn, %{"id" => id, "ingest_job" => job_params}) do
-    ingest_job = Ingest.get_ingest_job!(id)
+  def update(conn, %{"id" => id, "ingest_job" => job_params}, project) do
+    ingest_job = Ingest.get_ingest_job!(project, id)
 
     with {:ok, %IngestJob{} = ingest_job} <- Ingest.update_ingest_job(ingest_job, job_params) do
-      render(conn, "show.json", ingest_job: ingest_job)
+      render(conn, "show.json", ingest_job: ingest_job, project: project)
     end
   end
 
@@ -116,6 +158,9 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
       parameters: [
         Operation.parameter(:id, :path, :string, "IngestJob ID",
           example: "01DEHZZ8B9TNWZN7M1FXDP5NZB"
+        ),
+        Operation.parameter(:project_id, :path, :string, "Project ID",
+          example: "01DEMRE5KZM6GCWVNGB0A2ZDN8"
         )
       ],
       responses: %{
@@ -124,12 +169,29 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
     }
   end
 
-  def delete(conn, %{"id" => id}) do
-    job = Ingest.get_ingest_job!(id)
+  def delete(conn, %{"id" => id}, project) do
+    job = Ingest.get_ingest_job!(project, id)
 
     with {:ok, %IngestJob{}} <- Ingest.delete_ingest_job(job) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  def list_all_ingest_jobs_operation do
+    %Operation{
+      tags: ["ingest_jobs"],
+      summary: "List All Ingest Jobs",
+      description: "List all ingest jobs",
+      operationId: "IngestJobController.list_all_ingest_jobs",
+      responses: %{
+        200 => response("Project List Response", "application/json", Schemas.IngestJobsResponse)
+      }
+    }
+  end
+
+  def list_all_ingest_jobs(conn, _) do
+    ingest_jobs = Ingest.list_all_ingest_jobs()
+    render(conn, "index.json", ingest_jobs: ingest_jobs)
   end
 
   def presigned_url_operation do
