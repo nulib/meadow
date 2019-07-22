@@ -9,7 +9,8 @@ const ScreensInventorySheet = ({ history, match, location }) => {
     <Main>
       <h1>Inventory Sheet</h1>
       <section className="content-block">
-        <p>Show inventory sheet stuff here</p>
+        <p>Id: {inventorySheetId}</p>
+        <img className="w-screen" src="/images/placeholder-content.png" />
       </section>
     </Main>
   );
