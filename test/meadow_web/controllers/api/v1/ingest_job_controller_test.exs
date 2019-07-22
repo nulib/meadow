@@ -8,15 +8,13 @@ defmodule MeadowWeb.IngestJobControllerTest do
 
   @create_attrs %{
     name: "some name",
-    presigned_url: "some presigned_url",
     filename: "some-filename.csv"
   }
   @update_attrs %{
     name: "some updated name",
-    presigned_url: "some updated presigned_url",
     filename: "some-updated-filename.csv"
   }
-  @invalid_attrs %{name: nil, presigned_url: nil, filename: nil}
+  @invalid_attrs %{name: nil, filename: nil}
 
   setup do
     %{spec: MeadowWeb.ApiSpec.spec()}
@@ -56,7 +54,6 @@ defmodule MeadowWeb.IngestJobControllerTest do
       {:ok, _job} =
         Ingest.create_ingest_job(%{
           name: "Job 1",
-          presigned_url: "http://example.com",
           project_id: project.id,
           filename: "test.csv"
         })
@@ -64,7 +61,6 @@ defmodule MeadowWeb.IngestJobControllerTest do
       {:ok, _job} =
         Ingest.create_ingest_job(%{
           name: "Job 2",
-          presigned_url: "http://example.com",
           project_id: project.id,
           filename: "test.csv"
         })
@@ -94,7 +90,6 @@ defmodule MeadowWeb.IngestJobControllerTest do
       assert %{
                "id" => id,
                "name" => "some name",
-               "presigned_url" => "some presigned_url",
                "filename" => "some-filename.csv"
              } = json_response(conn, 200)["data"]
     end
@@ -150,7 +145,6 @@ defmodule MeadowWeb.IngestJobControllerTest do
       assert %{
                "id" => id,
                "name" => "some updated name",
-               "presigned_url" => "some updated presigned_url",
                "filename" => "some-updated-filename.csv"
              } = json_response(conn, 200)["data"]
     end

@@ -35,16 +35,12 @@ const InventorySheetForm = ({ history, projectId }) => {
     try {
       const response = await axios.get("/api/v1/ingest_jobs/presigned_url");
       const presignedUrl = response.data.data.presigned_url;
-      const filename = presignedUrl
-        .split("?")[0]
-        .split("/")
-        .pop();
+      const filename = `s3://${presignedUrl.split("?")[0].split("/").slice(-3).join("/")}`
 
       await axios.put(presignedUrl, file, options);
       const ingestJobResponse = await axios.post(`/api/v1/projects/${projectId}/ingest_jobs`, {
         ingest_job: {
           name: ingest_job_name,
-          presigned_url: presignedUrl,
           project_id: projectId,
           filename: filename
         }

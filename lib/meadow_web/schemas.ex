@@ -123,7 +123,6 @@ defmodule MeadowWeb.Schemas do
         id: %Schema{type: :string, description: "Ingest Job ID", format: "ulid", readOnly: "true"},
         name: %Schema{type: :string, description: "Ingest Job Name", minLength: 4, maxLength: 140},
         filename: %Schema{type: :string, description: "Inventory Sheet Filename in S3 bucket"},
-        presigned_url: %Schema{type: :string, description: "S3 csv upload url", format: :uri},
         project_id: %Schema{
           type: :string,
           description: "ID of the parent project",
@@ -136,14 +135,12 @@ defmodule MeadowWeb.Schemas do
         },
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
       },
-      required: [:name, :presigned_url, :project_id, :filename],
+      required: [:name, :project_id, :filename],
       example: %{
         "id" => "01DEMM44VWN8M3PJFY4J5JJJMF",
         "name" => "Name of the Ingest Job",
         "project_id" => "01DFBXCA303G43Y3695NMQDH8F",
-        "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
-        "presigned_url" =>
-          "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789"
+        "filename" => "s3://bucket-name/project-folder/filename.csv"
       },
       "x-struct": __MODULE__
     })
@@ -165,9 +162,7 @@ defmodule MeadowWeb.Schemas do
         "id" => "01DEMM44VWN8M3PJFY4J5JJJMF",
         "name" => "Name of the Ingest Job",
         "project_id" => "01DFBXCA303G43Y3695NMQDH8F",
-        "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
-        "presigned_url" =>
-          "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789"
+        "filename" => "s3://bucket-name/project-folder/filename.csv"
       },
       "x-struct": __MODULE__
     })
@@ -191,17 +186,13 @@ defmodule MeadowWeb.Schemas do
             "id" => "01DEMM44VWN8M3PJFY4J5JJJMF",
             "name" => "Name of the Ingest Job",
             "project_id" => "01DFBXCA303G43Y3695NMQDH8F",
-            "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
-            "presigned_url" =>
-              "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789"
+            "filename" => "s3://bucket-name/project-folder/filename.csv"
           },
           %{
             "id" => "01DFBXN0BNB8YEPXCMCNGAWV2J",
             "name" => "Another Name of the Ingest Job",
             "project_id" => "01DFBXPN3EEZSWC6QTCFYQHTBB",
-            "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
-            "presigned_url" =>
-              "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+            "filename" => "s3://bucket-name/project-folder/filename.csv"
           }
         ]
       }
@@ -224,10 +215,8 @@ defmodule MeadowWeb.Schemas do
       example: %{
         "ingest_job" => %{
           "name" => "The Name of the Ingest Job",
-          "filename" => "01DFBXCA303G43Y3695NMQ1111.csv",
-          "project_id" => "01DFBXPN3EEZSWC6QTCFYQHTBB",
-          "presigned_url" =>
-            "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+          "filename" => "s3://bucket-name/project-folder/filename.csv",
+          "project_id" => "01DFBXPN3EEZSWC6QTCFYQHTBB"
         }
       },
       "x-struct": __MODULE__

@@ -80,17 +80,15 @@ defmodule Meadow.IngestTest do
 
     @valid_attrs %{
       name: "some name",
-      presigned_url: "some presigned_url",
       filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
     @update_attrs %{
       name: "some updated name",
-      presigned_url: "some updated presigned_url",
       filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
-    @invalid_attrs %{name: nil, presigned_url: nil, filename: nil}
+    @invalid_attrs %{name: nil, filename: nil}
 
     def ingest_job_fixture(attrs \\ %{}) do
       {:ok, ingest_job} =
@@ -120,7 +118,6 @@ defmodule Meadow.IngestTest do
                Ingest.create_ingest_job(Map.put(@valid_attrs, :project_id, project.id))
 
       assert ingest_job.name == "some name"
-      assert ingest_job.presigned_url == "some presigned_url"
     end
 
     test "create_ingest_job/1 with invalid data returns error changeset" do
@@ -138,7 +135,6 @@ defmodule Meadow.IngestTest do
                )
 
       assert ingest_job.name == "some updated name"
-      assert ingest_job.presigned_url == "some updated presigned_url"
     end
 
     test "update_ingest_job/2 with invalid data returns error changeset" do
