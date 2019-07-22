@@ -45,14 +45,14 @@ const InventorySheetForm = ({ history, projectId }) => {
         ingest_job: {
           name: ingest_job_name,
           presigned_url: presignedUrl,
-          project_id: id,
+          project_id: projectId,
           filename: filename
         }
       });
 
       toast(`${ingest_job_name} created successfully`);
       history.push(
-        `/project/${id}/inventory-sheet/${ingestJobResponse.data.data.id}`
+        `/project/${projectId}/inventory-sheet/${ingestJobResponse.data.data.id}`
       );
     } catch (error) {
       if (error.response) {
