@@ -16,7 +16,7 @@ defmodule MeadowWeb.IngestJobControllerTest do
     presigned_url: "some updated presigned_url",
     filename: "some-updated-filename.csv"
   }
-  @invalid_attrs %{name: nil, presigned_url: nil}
+  @invalid_attrs %{name: nil, presigned_url: nil, filename: nil}
 
   setup do
     %{spec: MeadowWeb.ApiSpec.spec()}
