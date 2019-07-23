@@ -10,7 +10,7 @@ const ScreensHome = () => {
         description="View the applications main dashboard features here"
       />
       <ScreenContent>
-        <p>Stuff goes here</p>
+        <img className="w-screen" src="/images/placeholder-content.png" />
       </ScreenContent>
     </>
   );

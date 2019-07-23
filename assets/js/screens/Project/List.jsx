@@ -1,15 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import ProjectList from "../../components/Project/List";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
 
 const ScreensProjectList = () => {
   return (
     <>
-      <h1>Ingestion Projects</h1>
-      <Link to="/project/create" className="btn">
-        Create Project
-      </Link>
-      <ProjectList />
+      <ScreenHeader
+        title="Ingestion Projects"
+        description="The following is a list of all active Ingestion Projects"
+      />
+      <ScreenContent>
+        <Link to="/project/create" className="btn">
+          Create Project
+        </Link>
+        <ProjectList />
+      </ScreenContent>
     </>
   );
 };

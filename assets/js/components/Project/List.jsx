@@ -24,7 +24,7 @@ const ProjectList = () => {
   }, [url]);
 
   return (
-    <section className="my-6 content-block">
+    <section className="my-6">
       {projects.length > 0 &&
         projects.map(({ id, folder, title }) => (
           <article key={id} className="pb-6">
