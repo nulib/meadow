@@ -5,7 +5,7 @@ import axios from "axios";
 
 const InventorySheetList = ({ projectId }) => {
   const [inventorySheets, setInventorySheets] = useState([]);
-  const url = "/api/v1/ingest_jobs";
+  const url = `/api/v1/projects/${projectId}/ingest_jobs`;
 
   useEffect(() => {
     // Start it off by assuming the component is still mounted
@@ -43,7 +43,6 @@ const InventorySheetList = ({ projectId }) => {
                   {sheet.name}
                 </Link>
               </p>
-              <p>Filename: ${sheet.filename}</p>
               <p>Total Works: xxx</p>
               <p>Ingested: 2019-05-12</p>
               <p>Creator: Some person</p>

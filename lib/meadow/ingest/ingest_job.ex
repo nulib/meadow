@@ -9,7 +9,6 @@ defmodule Meadow.Ingest.IngestJob do
   @foreign_key_type Ecto.ULID
   schema "ingest_jobs" do
     field :name, :string
-    field :presigned_url, :string
     field :filename, :string
 
     belongs_to :project, Meadow.Ingest.Project
@@ -20,8 +19,8 @@ defmodule Meadow.Ingest.IngestJob do
   @doc false
   def changeset(ingest_job, attrs) do
     ingest_job
-    |> cast(attrs, [:name, :filename, :presigned_url, :project_id])
-    |> validate_required([:name, :presigned_url, :filename, :project_id])
+    |> cast(attrs, [:name, :filename, :project_id])
+    |> validate_required([:name, :filename, :project_id])
     |> validate_csv_format()
     |> unique_constraint(:name)
   end

@@ -6,7 +6,6 @@ defmodule Meadow.Ingest.IngestJobTest do
   describe "ingest_jobs" do
     @valid_attrs %{
       name: "some name",
-      presigned_url: "some presigned url",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N",
       filename: "test.csv"
     }

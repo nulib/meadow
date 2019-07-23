@@ -2,22 +2,13 @@ defmodule MeadowWeb.Api.V1.IngestJobController do
   use MeadowWeb, :controller
 
   alias Meadow.Ingest
-  alias Meadow.Ingest.{Bucket, IngestJob, Project}
+  alias Meadow.Ingest.{Bucket, IngestJob}
   alias MeadowWeb.Schemas
   alias OpenApiSpex.Operation
 
   import OpenApiSpex.Operation
 
   action_fallback MeadowWeb.FallbackController
-
-  # def extract_project(%{params: %{"project_id" => project_id}} = conn, _) do
-  #   case Ingest.get_project!(project_id) do
-  #     %Project{} = project -> assign(conn, :project, project)
-  #     _ -> render(conn, "error.json")
-  #   end
-  # end
-
-  # plug :extract_project when action in [:create, :show, :index, :update, :delete]
 
   def action(%{params: %{"project_id" => project_id}} = conn, _) do
     project = Ingest.get_project!(project_id)

@@ -4,10 +4,9 @@
       "IngestJob": {
         "description": "An ingest job that kicks off an inventory sheet upload",
         "example": {
-          "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
+          "filename": "s3://bucket-name/project-folder/filename.csv",
           "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
           "name": "Name of the Ingest Job",
-          "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
           "project_id": "01DFBXCA303G43Y3695NMQDH8F"
         },
         "properties": {
@@ -32,11 +31,6 @@
             "minLength": 4,
             "type": "string"
           },
-          "presigned_url": {
-            "description": "S3 csv upload url",
-            "format": "uri",
-            "type": "string"
-          },
           "project_id": {
             "description": "ID of the parent project",
             "format": "ulid",
@@ -50,7 +44,6 @@
         },
         "required": [
           "name",
-          "presigned_url",
           "project_id",
           "filename"
         ],
@@ -62,9 +55,9 @@
         "description": "POST body for creating an ingest job",
         "example": {
           "ingest_job": {
-            "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
+            "filename": "s3://bucket-name/project-folder/filename.csv",
             "name": "The Name of the Ingest Job",
-            "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+            "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
           }
         },
         "properties": {
@@ -82,10 +75,9 @@
       "IngestJobResponse": {
         "description": "Response schema for single ingest job",
         "example": {
-          "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
+          "filename": "s3://bucket-name/project-folder/filename.csv",
           "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
           "name": "Name of the Ingest Job",
-          "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
           "project_id": "01DFBXCA303G43Y3695NMQDH8F"
         },
         "properties": {
@@ -102,17 +94,15 @@
         "example": {
           "data": [
             {
-              "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
+              "filename": "s3://bucket-name/project-folder/filename.csv",
               "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
               "name": "Name of the Ingest Job",
-              "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f005b504294c1bec6727a789",
               "project_id": "01DFBXCA303G43Y3695NMQDH8F"
             },
             {
-              "filename": "01DFBXCA303G43Y3695NMQ1111.csv",
+              "filename": "s3://bucket-name/project-folder/filename.csv",
               "id": "01DFBXN0BNB8YEPXCMCNGAWV2J",
               "name": "Another Name of the Ingest Job",
-              "presigned_url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789",
               "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
             }
           ]
@@ -280,6 +270,31 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/v1/ingest_jobs": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "List all ingest jobs",
+        "operationId": "IngestJobController.list_all_ingest_jobs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobsResponse"
+                }
+              }
+            },
+            "description": "Project List Response"
+          }
+        },
+        "summary": "List All Ingest Jobs",
+        "tags": [
+          "ingest_jobs"
+        ]
+      }
+    },
     "/api/v1/ingest_jobs/presigned_url": {
       "get": {
         "callbacks": {},
@@ -528,7 +543,7 @@
       "get": {
         "callbacks": {},
         "deprecated": false,
-        "description": "List all ingest jobs",
+        "description": "List all ingest jobs in a project",
         "operationId": "IngestJobController.index",
         "parameters": [
           {
@@ -554,7 +569,7 @@
             "description": "Project List Response"
           }
         },
-        "summary": "List Ingest Jobs",
+        "summary": "List Ingest Jobs in a project",
         "tags": [
           "ingest_jobs"
         ]
