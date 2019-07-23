@@ -1,18 +1,23 @@
 import React from "react";
 import Main from "../../components/UI/Main";
 import { withRouter } from "react-router-dom";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
 
 const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
 
   return (
-    <Main>
-      <h1>Inventory Sheet</h1>
-      <section className="content-block">
-        <p>Id: {inventorySheetId}</p>
-        <img className="w-screen" src="/images/placeholder-content.png" />
-      </section>
-    </Main>
+    <>
+      <ScreenHeader title="Inventory Sheet" description="The following is system validation/parsing of the .csv Inventory sheet, and some helpful user feedback" />
+      <ScreenContent>
+        <section>
+          <p>Id: {inventorySheetId}</p>
+          <img className="w-screen" src="/images/placeholder-content.png" />
+        </section>
+      </ScreenContent>
+
+    </>
   );
 };
 

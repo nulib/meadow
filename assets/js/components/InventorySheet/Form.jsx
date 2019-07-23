@@ -79,7 +79,6 @@ const InventorySheetForm = ({ history, projectId }) => {
   return (
     <UIForm
       testId="inventory-sheet-upload-form"
-      classes="content-block"
       onSubmit={handleSubmit}
     >
       <UIInput

@@ -40,13 +40,27 @@ module.exports = (env, options) => ({
         ]
       },
       {
-        test: /\.(woff(2)?|ttf|eot|svg|otf)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(woff(2)?|ttf|eot|otf)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
             loader: "file-loader",
             options: {
               name: "[name].[ext]",
               outputPath: "fonts/"
+            }
+          }
+        ]
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "babel-loader"
+          },
+          {
+            loader: "react-svg-loader",
+            options: {
+              jsx: true // true outputs JSX tags
             }
           }
         ]

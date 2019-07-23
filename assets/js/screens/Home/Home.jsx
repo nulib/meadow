@@ -1,14 +1,18 @@
 import React from "react";
-import Main from "../../components/UI/Main";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
 
 const ScreensHome = () => {
   return (
-    <Main>
-      <h1>Home Dashboard</h1>
-      <section className="content-block">
-        <p>Stuff goes here</p>
-      </section>
-    </Main>
+    <>
+      <ScreenHeader
+        title="Home Dashboard"
+        description="View the applications main dashboard features here"
+      />
+      <ScreenContent>
+        <img className="w-screen" src="/images/placeholder-content.png" />
+      </ScreenContent>
+    </>
   );
 };
 

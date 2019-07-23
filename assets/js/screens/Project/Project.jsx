@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Main from "../../components/UI/Main";
 import { withRouter } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
 import InventorySheetList from "../../components/InventorySheet/List";
 import { Link } from "react-router-dom";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
 
 const Project = ({ match }) => {
   const { id } = match.params;
@@ -16,34 +17,42 @@ const Project = ({ match }) => {
         const response = await axios.get(`/api/v1/projects/${id}`);
         setProject(response.data.data);
       } catch (error) {
-        toast(`Error fetching project: ${JSON.stringify(error.response.data.errors)}`);
+        toast(
+          `Error fetching project: ${JSON.stringify(
+            error.response.data.errors
+          )}`
+        );
       }
     };
     getProject();
   }, []);
 
   return (
-    <Main>
+    <>
       {project && (
-        <div>
-          <h1>{project.title}</h1>
+        <>
+          <ScreenHeader title={`Project: ${project.title}`} description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project" />
 
-          <h2>Ingest Jobs</h2>
-          <Link
-            to={{
-              pathname: `/project/${id}/inventory-sheet/upload`,
-              state: { projectId: project.id }
-            }}
-            className="btn mb-4"
-          >
-            New Ingest Job
-          </Link>
-          <section className="content-block">
-            <InventorySheetList projectId={project.id} />
-          </section>
-        </div>
+          <ScreenContent>
+
+            <Link
+              to={{
+                pathname: `/project/${id}/inventory-sheet/upload`,
+                state: { projectId: project.id }
+              }}
+              className="btn mb-4"
+            >
+              New Ingest Job
+            </Link>
+            <h2>Ingest Jobs</h2>
+            <section>
+              <InventorySheetList projectId={project.id} />
+            </section>
+          </ScreenContent>
+
+        </>
       )}
-    </Main>
+    </>
   );
 };
 

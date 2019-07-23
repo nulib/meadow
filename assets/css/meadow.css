@@ -1,24 +1,28 @@
 @font-face {
   font-family: "AkkuratPro-Regular";
   src: url("fonts/AkkuratPro-Regular.otf") format("otf");
+
+  font-family: "AkkuratPro-Light";
+  src: url("fonts/AkkuratPro-Light.otf") format("otf");
 }
 
 body {
   @apply font-display;
-  @apply bg-gray-100;
   @apply text-gray-700;
+  @apply leading-normal;
 }
 
 h1 {
-  @apply text-2xl my-6;
+  @apply text-3xl text-gray-900;
+  font-family: "AkkuratPro-Light";
 }
 
 h2 {
-  @apply text-xl my-6;
+  @apply text-2xl my-6 text-gray-900;
 }
 
 h3 {
-  @apply text-lg;
+  @apply text-xl text-gray-900;
 }
 
 a {
