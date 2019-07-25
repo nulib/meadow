@@ -12,28 +12,24 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug(OpenApiSpex.Plug.PutApiSpec, module: MeadowWeb.ApiSpec)
   end
 
   # Other scopes may use custom stacks.
   scope "/api" do
     pipe_through :api
 
-    scope "/v1", MeadowWeb.Api.V1, as: :v1 do
-      get "/ingest_jobs/presigned_url", IngestJobController, :presigned_url
-      get "/ingest_jobs", IngestJobController, :list_all_ingest_jobs
+    forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema.Schema
 
-      resources "/projects", ProjectController, except: [:new, :edit] do
-        resources "/ingest_jobs", IngestJobController, except: [:new, :edit]
-      end
-    end
-
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: MeadowWeb.Schema.Schema,
+      socket: MeadowWeb.UserSocket
   end
 
   scope "/" do
     pipe_through :browser
-    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    get "/login", MeadowWeb.AuthController, :login
+    get "/auth/callback", MeadowWeb.AuthController, :callback
+
     get "/*path", MeadowWeb.PageController, :index
   end
 end

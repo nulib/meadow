@@ -34,7 +34,7 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:honeybadger, :logger, :runtime_tools]
+      extra_applications: [:honeybadger, :logger, :runtime_tools, :ueberauth_openam]
     ]
   end
 
@@ -60,7 +60,6 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:honeybadger, "~> 0.7"},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
-      {:open_api_spex, "~> 3.4"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.9"},
@@ -68,7 +67,14 @@ defmodule Meadow.MixProject do
       {:poison, "~> 3.0"},
       {:mox, "~> 0.5", only: :test},
       {:excoveralls, "~> 0.10", only: :test},
-      {:briefly, "~> 0.3.0", only: :test}
+      {:briefly, "~> 0.3.0", only: :test},
+      {:absinthe, "~> 1.4.2"},
+      {:absinthe_plug, "~> 1.4.0"},
+      {:absinthe_phoenix, "~> 1.4.0"},
+      {:dataloader, "~> 1.0.6"},
+      {:nimble_csv, "~> 0.6.0"},
+      {:ueberauth, "~> 0.2"},
+      {:ueberauth_openam, "~> 0.2.0"}
     ]
   end
 
