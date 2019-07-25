@@ -14,7 +14,7 @@ import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
 import { SocketProvider } from "use-phoenix-channel";
 import Layout from "./Layout";
-import TestSub from "../components/InventorySheet/TestSub"
+import TestSub from "../components/InventorySheet/TestSub";
 
 export default class Root extends React.Component {
   render() {

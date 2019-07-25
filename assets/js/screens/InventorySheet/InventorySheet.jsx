@@ -3,10 +3,16 @@ import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import InventorySheetStatus from "../../components/InventorySheet/Status";
+<<<<<<< HEAD
 import { getProject } from "../../components/Project/Api";
 import { getInventorySheet } from "../../components/InventorySheet/Api";
 import ButtonGroup from "../../components/UI/ButtonGroup";
 import UIButton from "../../components/UI/Button";
+=======
+import Breadcrumbs from "../../components/UI/Breadcrumbs";
+import { getProject } from "../../components/Project/Api";
+import { getInventorySheet } from "../../components/InventorySheet/Api";
+>>>>>>> Add breadcrumbs, quickly, to the project to help in navigation for demo
 
 const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
@@ -45,27 +51,21 @@ const ScreensInventorySheet = ({ match }) => {
       },
       {
         label: `${inventorySheet.name}`,
-        link: `/project/${id}/inventory-sheet/${inventorySheetId}`
+        link: ""
       }
     ];
   };
 
   return (
     <>
-      {project && (
-        <ScreenHeader
-          title="Inventory Sheet"
-          description="The following is system validation/parsing of the .csv Inventory sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
-          breadCrumbs={createCrumbs(project)}
-        />
-      )}
+      <ScreenHeader
+        title="Inventory Sheet"
+        description="The following is system validation/parsing of the .csv Inventory sheet, and some helpful user feedback"
+      />
       <ScreenContent>
+        {project && <Breadcrumbs crumbs={createCrumbs(project)} />}
+        <p>Id: {inventorySheetId}</p>
         <InventorySheetStatus inventorySheetId={inventorySheetId} />
-        <h3 className="italic pt-8">Coming Soon...</h3>
-        <ButtonGroup>
-          <UIButton label="Looks great, approve the sheet" />
-          <UIButton classes="bg-red-500" label="Eject and start over" />
-        </ButtonGroup>
       </ScreenContent>
     </>
   );

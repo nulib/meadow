@@ -56,7 +56,8 @@
     "tailwindcss-spinner": "^1.0.0",
     "terser-webpack-plugin": "^1.3.0",
     "use-phoenix-channel": "^1.1.1",
-    "webpack": "4.38.0",
+    "url-loader": "^2.1.0",
+    "webpack": "4.36.1",
     "webpack-cli": "^3.3.6"
   }
 }
