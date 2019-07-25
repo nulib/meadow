@@ -1,40 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
-import axios from "axios";
-import { toast } from "react-toastify";
 import InventorySheetList from "../../components/InventorySheet/List";
 import { Link } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
+import Breadcrumbs from "../../components/UI/Breadcrumbs";
+import { getProject } from "../../components/Project/Api";
 
 const Project = ({ match }) => {
   const { id } = match.params;
   const [project, setProject] = useState(null);
 
   useEffect(() => {
-    const getProject = async () => {
-      try {
-        const response = await axios.get(`/api/v1/projects/${id}`);
-        setProject(response.data.data);
-      } catch (error) {
-        toast(
-          `Error fetching project: ${JSON.stringify(
-            error.response.data.errors
-          )}`
-        );
-      }
-    };
-    getProject();
+    if (id) {
+      const fn = async () => {
+        const thisProject = await getProject(id);
+        setProject(thisProject);
+      };
+      fn();
+    }
   }, []);
+
+  const createCrumbs = project => {
+    if (!project) {
+      return "";
+    }
+    return [
+      {
+        label: "Projects",
+        link: "/project/list"
+      },
+      {
+        label: `${project.title}`,
+        link: `/project/${project.id}`
+      }
+    ];
+  };
 
   return (
     <>
       {project && (
         <>
-          <ScreenHeader title={`Project: ${project.title}`} description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project" />
+          <ScreenHeader
+            title={project.title}
+            description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project"
+          />
 
           <ScreenContent>
-
+            <Breadcrumbs crumbs={createCrumbs(project)} />
             <Link
               to={{
                 pathname: `/project/${id}/inventory-sheet/upload`,
@@ -49,7 +62,6 @@ const Project = ({ match }) => {
               <InventorySheetList projectId={project.id} />
             </section>
           </ScreenContent>
-
         </>
       )}
     </>

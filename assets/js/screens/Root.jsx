@@ -22,7 +22,7 @@ export default class Root extends React.Component {
         <SocketProvider wsUrl="/socket">
           <BrowserRouter>
             <Header />
-            <ToastContainer position="top-right" hideProgressBar />
+            <ToastContainer position="bottom-right" hideProgressBar />
             <Layout>
               <Switch>
                 <Route path="/fetch-data" component={FetchDataPage} />
