@@ -1,9 +1,11 @@
 @font-face {
   font-family: "AkkuratPro-Regular";
-  src: url("fonts/AkkuratPro-Regular.otf") format("otf");
+  src: url("/fontsZ/AkkuratPro-Regular.otf") format("otf");
+}
 
+@font-face {
   font-family: "AkkuratPro-Light";
-  src: url("fonts/AkkuratPro-Light.otf") format("otf");
+  src: url("/fonts/AkkuratPro-Light.otf") format("otf");
 }
 
 body {
@@ -13,8 +15,7 @@ body {
 }
 
 h1 {
-  @apply text-3xl text-gray-900;
-  font-family: "AkkuratPro-Light";
+  @apply text-3xl text-gray-900 font-display font-light;
 }
 
 h2 {
@@ -81,4 +82,12 @@ label {
 
 .toast-progress-bar {
   @apply bg-white;
+}
+
+.toast-error {
+  @apply bg-red-300;
+}
+
+.breadcrumbs {
+  @apply mb-8 text-sm;
 }
