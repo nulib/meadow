@@ -4,8 +4,7 @@ defmodule Meadow.Ingest do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.IngestJob
-  alias Meadow.Ingest.Project
+  alias Meadow.Ingest.{IngestJob, Project}
   alias Meadow.Repo
 
   @doc """
@@ -18,8 +17,26 @@ defmodule Meadow.Ingest do
 
   """
   def list_projects do
-    Project
-    |> order_by(desc: :updated_at)
+    Repo.all(Project)
+  end
+
+  @doc """
+  Returns a list of projects matching the given `criteria`.
+
+  Example Criteria:
+
+  [{:limit, 15}, {:order, :asc}]
+  """
+  def list_projects(criteria) do
+    query = from(p in Project)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from p in query, limit: ^limit
+
+      {:order, order}, query ->
+        from p in query, order_by: [{^order, :id}]
+    end)
     |> Repo.all()
   end
 
@@ -144,9 +161,8 @@ defmodule Meadow.Ingest do
       ** (Ecto.NoResultsError)
 
   """
-  def get_ingest_job!(project, id) do
+  def get_ingest_job!(id) do
     IngestJob
-    |> where([ingest_job], ingest_job.project_id == ^project.id)
     |> Repo.get!(id)
   end
 
@@ -166,6 +182,15 @@ defmodule Meadow.Ingest do
     %IngestJob{}
     |> IngestJob.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Changes the state of an IngestJob
+  """
+  def change_ingest_job_state(%IngestJob{} = ingest_job, state) do
+    ingest_job
+    |> IngestJob.state_changeset(%{state: state})
+    |> Repo.update()
   end
 
   @doc """
@@ -212,5 +237,15 @@ defmodule Meadow.Ingest do
   """
   def change_ingest_job(%IngestJob{} = job) do
     IngestJob.changeset(job, %{})
+  end
+
+  # Dataloader
+
+  def datasource() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(queryable, _) do
+    queryable
   end
 end

@@ -1,5 +1,6 @@
 defmodule MeadowWeb.UserSocket do
   use Phoenix.Socket
+  use Absinthe.Phoenix.Socket, schema: MeadowWeb.Schema.Schema
 
   ## Channels
   channel "job:*", MeadowWeb.IngestJobChannel

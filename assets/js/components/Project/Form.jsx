@@ -1,11 +1,22 @@
 import React from "react";
-import { toast } from "react-toastify";
-import axios from "axios";
-import ButtonGroup from "../UI/ButtonGroup";
-import UIForm from "../UI/Form/Form";
-import UIInput from "../UI/Form/Input";
-import UIButton from "../UI/Button";
 import { withRouter } from "react-router-dom";
+import gql from "graphql-tag";
+import { Mutation } from "react-apollo";
+import Error from "../../screens/Error";
+import Loading from "../../screens/Loading";
+import { GET_PROJECTS_QUERY } from "./List";
+
+const CREATE_PROJECT_MUTATION = gql`
+  mutation CreateProject(
+    $projectTitle: String!
+  ) {
+    createProject(title: $projectTitle) {
+      id
+      title
+      folder
+    }
+  }
+`;
 
 class ProjectForm extends React.Component {
   state = {
@@ -16,40 +27,9 @@ class ProjectForm extends React.Component {
     this.props.history.push("/project/list");
   };
 
-  handleSubmit = async e => {
-    e.preventDefault();
-    const { projectTitle } = this.state;
-
-    try {
-      await axios.post("/api/v1/projects", {
-        project: {
-          title: projectTitle
-        }
-      });
-
-      // Display success notification and redirect to All Projects view
-      toast(`${projectTitle} created successfully`);
-      this.props.history.push("/project/list");
-    } catch (error) {
-      if (error.response) {
-        console.log(`Error Status Code: ${error.response.status}`);
-        console.log(
-          `Error creating project: ${JSON.stringify(
-            error.response.data.errors
-          )}`
-        );
-        toast(
-          `Status Code: ${
-            error.response.status
-          } error creating project: ${JSON.stringify(
-            error.response.data.errors
-          )}`
-        );
-      } else {
-        console.log(error);
-        toast(`Error: ${error}`);
-      }
-    }
+  clearState = () => {
+    this.setState({ projectTitle: "" });
+    this.props.history.push("/project/list");
   };
 
   handleTitleChange = e => {
@@ -59,23 +39,49 @@ class ProjectForm extends React.Component {
   render() {
     const { projectTitle } = this.state;
     return (
-      <UIForm testId="project-form" onSubmit={this.handleSubmit}>
-        <UIInput
-          label="Project Title"
-          name="project-title"
-          id="project-title"
-          onChange={this.handleTitleChange}
-        />
+      <Mutation
+        mutation={CREATE_PROJECT_MUTATION}
+        variables={{
+          ...this.state
+        }}
+        onCompleted={this.clearState}
+        refetchQueries={[{ query: GET_PROJECTS_QUERY }]}>
+        {(createProject, { loading, error }) => {
+          if (loading) return <Loading />;
+          return (
 
-        <ButtonGroup>
-          <UIButton type="submit" label="Submit" disabled={!projectTitle} />
-          <UIButton
-            label="Cancel"
-            classes="btn-cancel"
-            onClick={this.handleCancel}
-          />
-        </ButtonGroup>
-      </UIForm>
+            <form className="content-block" onSubmit={e => {
+              e.preventDefault();
+              createProject();
+            }}>
+              <Error error={error} />
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="username"
+                >
+                  Project Title
+            </label>
+                <input
+                  id="project-title"
+                  type="text"
+                  placeholder="Project Title"
+                  value={projectTitle}
+                  onChange={this.handleTitleChange}
+                />
+              </div>
+
+              <div className="mt-6"></div>
+              <button className="btn" type="submit">
+                Submit
+          </button>
+              <button className="btn btn-cancel" onClick={this.handleCancel}>
+                Cancel
+          </button>
+            </form>
+          );
+        }}
+      </Mutation>
     );
   }
 }

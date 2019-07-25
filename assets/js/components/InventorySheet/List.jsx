@@ -1,56 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import gql from "graphql-tag";
+import { Query } from "react-apollo";
+import Error from "../../screens/Error";
+import Loading from "../../screens/Loading";
+import { GET_PROJECT_QUERY } from "../../screens/Project/Project"
 
 const InventorySheetList = ({ projectId }) => {
-  const [inventorySheets, setInventorySheets] = useState([]);
-  const url = `/api/v1/projects/${projectId}/ingest_jobs`;
-
-  useEffect(() => {
-    // Start it off by assuming the component is still mounted
-    let mounted = true;
-
-    const loadData = async () => {
-      const response = await axios.get(url);
-      // We have a response, but let's first check if component is still mounted
-      if (mounted) {
-        setInventorySheets(response.data.data);
-      }
-    };
-    loadData();
-
-    return () => {
-      // When cleanup is called, toggle the mounted variable to false
-      mounted = false;
-    };
-  }, [url]);
-
   return (
-    <div>
-      {inventorySheets.length === 0 && (
-        <p data-testid="no-inventory-sheets-notification">
-          No inventory sheets are found.
-        </p>
-      )}
+    <Query query={GET_PROJECT_QUERY} variables={{ projectId }}>
+      {({ data, loading, error }) => {
+        if (loading) return <Loading />;
+        if (error) return <Error error={error} />;
+        return <div>
+          {data.project.ingestJobs.length === 0 && (
+            <p data-testid="no-inventory-sheets-notification">
+              No inventory sheets are found.
+            </p>
+          )}
 
-      {inventorySheets.length > 0 && (
-        <ul data-testid="inventory-sheet-list">
-          {inventorySheets.map(sheet => (
-            <li key={sheet.id} className="pb-4">
-              <p>
-                <Link to={`/project/${projectId}/inventory-sheet/${sheet.id}`}>
-                  {sheet.name}
-                </Link>
-              </p>
-              <p>Total Works: xxx</p>
-              <p>Ingested: 2019-05-12</p>
-              <p>Creator: Some person</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+          {data.project.ingestJobs.length > 0 && (
+            <ul data-testid="inventory-sheet-list">
+              {data.project.ingestJobs.map(sheet => (
+                <li key={sheet.id} className="pb-4">
+                  <p>
+                    <Link to={`/project/${projectId}/inventory-sheet/${sheet.id}`}>
+                      {sheet.name}
+                    </Link>
+                  </p>
+                  <p>Total Works: xxx</p>
+                  <p>Ingested: 2019-05-12</p>
+                  <p>Creator: Some person</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+      }}
+    </Query>
   );
 };
 
