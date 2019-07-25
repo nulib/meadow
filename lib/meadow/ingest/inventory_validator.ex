@@ -21,37 +21,45 @@ defmodule Meadow.InventoryValidator do
       raise "Ingest Job association not loaded"
     end
 
-    filename = URI.parse(job.filename).path
+    "/" <> filename = URI.parse(job.filename).path
 
     IO.puts("Parsing: " <> filename <> " from " <> job.filename)
 
-    {:ok, obj} =
-      Application.get_env(:meadow, :upload_bucket)
-      |> ExAws.S3.get_object(filename)
-      |> ExAws.request()
+    case load_file(filename) do
+      {:ok, obj} ->
+        try do
+          [headers | rows] = CSV.parse_string(obj.body, skip_headers: false)
+          Notification.update("job:" <> job.id, {:csv}, %{status: "pass"})
 
-    try do
-      [headers | rows] = CSV.parse_string(obj.body, skip_headers: false)
-      Notification.update("job:" <> job.id, {:csv}, %{status: "pass"})
+          rows =
+            rows
+            |> Enum.map(fn row -> Enum.zip(headers, row) end)
 
-      rows =
-        rows
-        |> Enum.map(fn row -> Enum.zip(headers, row) end)
+          case headers do
+            ~w(work_accession_number accession_number filename description) ->
+              Notification.update("job:" <> job.id, {:headers}, %{status: "pass"})
+              validate_rows(job, rows)
 
-      case headers do
-        ~w(work_accession_number accession_number filename description) ->
-          Notification.update("job:" <> job.id, {:headers}, %{status: "pass"})
-          validate_rows(job, rows)
+            _ ->
+              Notification.update("job:" <> job.id, {:headers}, %{status: "fail"})
+              Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
+          end
+        rescue
+          NimbleCSV.ParseError ->
+            Notification.update("job:" <> job.id, {:csv}, %{status: "fail"})
+            Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
+        end
 
-        _ ->
-          Notification.update("job:" <> job.id, {:headers}, %{status: "fail"})
-          Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
-      end
-    catch
-      NimbleCSV.ParseError ->
+      {:error, _} ->
         Notification.update("job:" <> job.id, {:csv}, %{status: "fail"})
         Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
     end
+  end
+
+  defp load_file(filename) do
+    Application.get_env(:meadow, :upload_bucket)
+    |> ExAws.S3.get_object(filename)
+    |> ExAws.request()
   end
 
   defp validate_value({field_name, value}) when byte_size(value) == 0,

@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UIForm = ({ children, testId = "", classes = "", onSubmit }) => (
-  <form data-testid={testId} className={classes} onSubmit={onSubmit}>
+const UIForm = ({ children, testId = "", classes = "", encType = "", onSubmit }) => (
+  <form data-testid={testId} className={classes} onSubmit={onSubmit} encType={encType}>
     {children}
   </form>
 );

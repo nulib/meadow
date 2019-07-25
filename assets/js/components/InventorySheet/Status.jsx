@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import UIButton from "../UI/Button";
 import { useChannel } from "use-phoenix-channel";
 import isNumber from 'is-number';
+import isUndefined from 'lodash.isundefined';
 
-const InventorySheetStatus = (props) => {
+const InventorySheetStatus = ({ inventorySheetId }) => {
   const initialState = {
     job: {status: 'pending', errors: []},
     csv: {status: 'pending', errors: []},
@@ -11,7 +12,7 @@ const InventorySheetStatus = (props) => {
     row: []
   }
 
-  const channelName = `job:${props.inventorySheetId}`;
+  const channelName = `job:${inventorySheetId}`;
 
   const statusReducer = (state, {event, payload}) => {
     switch(event) {
@@ -40,12 +41,11 @@ const InventorySheetStatus = (props) => {
     }
   }
 
-  const [state, broadcast] = useChannel(channelName, statusReducer, initialState);
-
-  const requestValidation = () => {
-    broadcast("validate", { job_id: channelName })
-  }
-
+  const [state, broadcast] =
+    isUndefined(inventorySheetId) ?
+    [initialState, null] :
+    useChannel(channelName, statusReducer, initialState);
+  
   return (
     <div>
       <ul className="validate">
