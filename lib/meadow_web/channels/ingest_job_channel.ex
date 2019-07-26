@@ -4,6 +4,7 @@ defmodule MeadowWeb.IngestJobChannel do
   """
 
   use Phoenix.Channel
+  alias Meadow.Ingest.InventoryValidator
 
   def join("job:" <> _job_id, _message, socket) do
     send(self(), :after_join)
@@ -30,7 +31,7 @@ defmodule MeadowWeb.IngestJobChannel do
       |> String.split(":")
       |> List.last()
 
-    Meadow.InventoryValidator.validate(job_id)
+    InventoryValidator.validate(job_id)
     {:noreply, socket}
   end
 

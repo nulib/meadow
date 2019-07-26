@@ -1,4 +1,4 @@
-defmodule Meadow.InventoryValidator do
+defmodule Meadow.Ingest.InventoryValidator do
   @moduledoc """
   Validates an Inventory Sheet
   """
@@ -13,47 +13,56 @@ defmodule Meadow.InventoryValidator do
     |> where([ingest_job], ingest_job.id == ^job_id)
     |> preload(:project)
     |> Repo.one()
-    |> validate_content()
+    |> validate_job()
   end
 
-  def validate_content(job) do
+  def validate_job(job) do
     unless Ecto.assoc_loaded?(job.project) do
-      raise "Ingest Job association not loaded"
+      raise ArgumentError, "Ingest Job association not loaded"
     end
 
     "/" <> filename = URI.parse(job.filename).path
 
-    IO.puts("Parsing: " <> filename <> " from " <> job.filename)
-
     case load_file(filename) do
       {:ok, obj} ->
-        try do
-          [headers | rows] = CSV.parse_string(obj.body, skip_headers: false)
-          Notification.update("job:" <> job.id, {:csv}, %{status: "pass"})
-
-          rows =
-            rows
-            |> Enum.map(fn row -> Enum.zip(headers, row) end)
-
-          case headers do
-            ~w(work_accession_number accession_number filename description) ->
-              Notification.update("job:" <> job.id, {:headers}, %{status: "pass"})
-              validate_rows(job, rows)
-
-            _ ->
-              Notification.update("job:" <> job.id, {:headers}, %{status: "fail"})
-              Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
-          end
-        rescue
-          NimbleCSV.ParseError ->
-            Notification.update("job:" <> job.id, {:csv}, %{status: "fail"})
-            Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
-        end
+        validate_content(job, obj.body)
 
       {:error, _} ->
-        Notification.update("job:" <> job.id, {:csv}, %{status: "fail"})
-        Notification.update("job:" <> job.id, {"job"}, %{status: "fail"})
+        job_id(job)
+        |> Notification.update({:csv}, %{status: "fail"})
+        |> Notification.update({"job"}, %{status: "fail"})
+
+        :fail
     end
+  end
+
+  def validate_content(job, csv) do
+    [headers | rows] = CSV.parse_string(csv, skip_headers: false)
+    job_id(job) |> Notification.update({:csv}, %{status: "pass"})
+
+    rows =
+      rows
+      |> Enum.map(fn row -> Enum.zip(headers, row) end)
+
+    case headers do
+      ~w(work_accession_number accession_number filename description) ->
+        job_id(job) |> Notification.update({:headers}, %{status: "pass"})
+        validate_rows(job, rows)
+
+      _ ->
+        job_id(job)
+        |> Notification.update({:headers}, %{status: "fail"})
+        |> Notification.update({"job"}, %{status: "fail"})
+
+        :fail
+    end
+  rescue
+    NimbleCSV.ParseError ->
+      job_id(job)
+      |> Notification.update({:csv}, %{status: "fail"})
+      |> Notification.update({"job"}, %{status: "fail"})
+
+      :fail
   end
 
   defp load_file(filename) do
@@ -98,11 +107,12 @@ defmodule Meadow.InventoryValidator do
 
     case result do
       [] ->
-        Notification.update("job:" <> job.id, {:row, row_num}, %{status: "pass"})
+        job_id(job) |> Notification.update({:row, row_num}, %{status: "pass"})
         :pass
 
       errors ->
-        Notification.update("job:" <> job.id, {:row, row_num}, %{
+        job_id(job)
+        |> Notification.update({:row, row_num}, %{
           status: "fail",
           errors: Enum.reverse(errors)
         })
@@ -115,11 +125,12 @@ defmodule Meadow.InventoryValidator do
     rows
     |> Enum.with_index()
     |> Enum.each(fn {row, row_num} ->
-      Notification.update("job:" <> job.id, {:row, row_num}, %{content: Enum.into(row, %{})})
+      job_id(job) |> Notification.update({:row, row_num}, %{content: Enum.into(row, %{})})
     end)
 
     final_status = validate_rows(job, rows, 0)
-    Notification.update("job:" <> job.id, {"job"}, %{status: to_string(final_status)})
+    job_id(job) |> Notification.update({"job"}, %{status: to_string(final_status)})
+    final_status
   end
 
   defp validate_rows(job, [row | []], row_num), do: validate_row(job, row, row_num)
@@ -132,4 +143,6 @@ defmodule Meadow.InventoryValidator do
       :pass -> row_status
     end
   end
+
+  defp job_id(job), do: "job:" <> job.id
 end

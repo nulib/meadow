@@ -9,6 +9,8 @@ defmodule Meadow.Notification do
   alias Ets.Set
   alias Phoenix.Channel.Server, as: Channel
 
+  @delay 50
+
   def init(id) do
     atom_id = String.to_atom(to_string(id))
 
@@ -18,9 +20,19 @@ defmodule Meadow.Notification do
     end
   end
 
+  def clear!(id) do
+    id
+    |> init()
+    |> Set.delete_all!()
+  end
+
   def dump(id) do
-    Set.to_list!(init(id))
+    id
+    |> init()
+    |> Set.to_list!()
     |> Enum.each(fn {index, struct} -> deliver(id, index, struct) end)
+
+    id
   end
 
   def fetch(id, index) do
@@ -30,15 +42,19 @@ defmodule Meadow.Notification do
 
   def update(id, index, updates \\ %{}) do
     struct =
-      fetch(id, index)
+      id
+      |> fetch(index)
       |> Map.merge(updates)
 
     deliver(id, index, struct)
 
-    case Set.put(init(id), {index, struct}) do
-      {:ok, _set} -> {:ok, struct}
-      other -> other
+    Set.put!(init(id), {index, struct})
+
+    if System.get_env("NOTIFICATION_DELAY") do
+      :timer.sleep(@delay)
     end
+
+    id
   end
 
   defp deliver(id, index, struct) do
@@ -46,7 +62,5 @@ defmodule Meadow.Notification do
       id: Tuple.to_list(index),
       object: struct
     })
-
-    :timer.sleep(50)
   end
 end
