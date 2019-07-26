@@ -23,6 +23,10 @@
         "value": "${ingest_bucket}"
       },
       {
+        "name": "MEADOW_HOSTNAME",
+        "value": "${host_name}"
+      },
+      {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
       }

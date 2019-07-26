@@ -57,13 +57,14 @@ data "template_file" "container_definitions" {
   template = "${file("task-definitions/meadow_app.json")}"
 
   vars = {
-    docker_tag          = "${terraform.workspace}"
-    secret_key_base     = "${random_string.secret_key_base.result}"
     database_url        = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
-    region              = "${var.aws_region}"
-    log_group           = "${aws_cloudwatch_log_group.meadow_logs.name}"
+    docker_tag          = "${terraform.workspace}"
     honeybadger_api_key = "${var.honeybadger_api_key}"
+    host_name           = "${aws_route53_record.app_hostname.fqdn}"
     ingest_bucket       = "${aws_s3_bucket.meadow_ingest.bucket}"
+    log_group           = "${aws_cloudwatch_log_group.meadow_logs.name}"
+    region              = "${var.aws_region}"
+    secret_key_base     = "${random_string.secret_key_base.result}"
     upload_bucket       = "${aws_s3_bucket.meadow_uploads.bucket}"
   }
 }
@@ -94,24 +95,29 @@ resource "aws_ecs_service" "meadow" {
 resource "aws_alb_target_group" "meadow_targets" {
   port        = 4000
   target_type = "ip"
-  protocol    = "HTTP"
+  protocol    = "TCP"
   vpc_id      = "${data.aws_vpc.default_vpc.id}"
   tags        = "${var.tags}"
+
+  stickiness {
+    enabled = false
+    type    = "lb_cookie"
+  }
 }
 
 resource "aws_alb" "meadow_load_balancer" {
   name               = "${var.stack_name}-alb"
   internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["${aws_security_group.meadow_alb.id}"]
-  subnets            = "${data.aws_subnet_ids.default_subnets.ids}"
-  tags               = "${var.tags}"
+  load_balancer_type = "network"
+
+  subnets = "${data.aws_subnet_ids.default_subnets.ids}"
+  tags    = "${var.tags}"
 }
 
 resource "aws_lb_listener" "meadow_alb_listener" {
   load_balancer_arn = "${aws_alb.meadow_load_balancer.arn}"
   port              = "80"
-  protocol          = "HTTP"
+  protocol          = "TCP"
 
   default_action {
     type             = "forward"

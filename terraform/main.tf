@@ -76,7 +76,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 
     resources = [
       "${aws_s3_bucket.meadow_ingest.arn}",
-      "${aws_s3_bucket.meadow_uploads.arn}"
+      "${aws_s3_bucket.meadow_uploads.arn}",
     ]
   }
 
@@ -94,21 +94,6 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_uploads.arn}/*",
     ]
   }
-}
-
-resource "aws_security_group" "meadow_alb" {
-  name        = "${var.stack_name}-alb"
-  description = "The Meadow Application Load Balancer"
-  vpc_id      = "${data.aws_vpc.default_vpc.id}"
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = "${var.tags}"
 }
 
 resource "aws_security_group" "meadow" {
@@ -150,22 +135,13 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
   security_group_id        = "${aws_security_group.meadow_db.id}"
 }
 
-resource "aws_security_group_rule" "allow_http_access" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.meadow_alb.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
 resource "aws_security_group_rule" "allow_alb_access" {
-  type                     = "ingress"
-  from_port                = 4000
-  to_port                  = 4000
-  protocol                 = "tcp"
-  source_security_group_id = "${aws_security_group.meadow_alb.id}"
-  security_group_id        = "${aws_security_group.meadow.id}"
+  type              = "ingress"
+  from_port         = 4000
+  to_port           = 4000
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.meadow.id}"
 }
 
 data "aws_route53_zone" "app_zone" {
