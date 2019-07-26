@@ -2,7 +2,7 @@ defmodule MeadowWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", MeadowWeb.RoomChannel
+  channel "job:*", MeadowWeb.IngestJobChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

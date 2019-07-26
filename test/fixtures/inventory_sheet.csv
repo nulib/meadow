@@ -1,0 +1,8 @@
+work_accession_number,accession_number,filename,description
+Donohue_001,Donohue_001_01,Donohue_001_01.tif,"Letter, page 1, Dear Sir, recto"
+Donohue_001,Donohue_001_02,Donohue_001_02.tif,"Letter, page 1, Dear Sir, verso, blank"
+Donohue_001,Donohue_001_03,Donohue_001_03.tif,"Letter, page 2, If these papers, recto"
+Donohue_001,Donohue_001_04,Donohue_001_04.tif,"Letter, page 2, If these papers, verso, blank"
+Donohue_002,Donohue_002_01,Donohue_002_01.tif,"Photo, man with two children"
+Donohue_002,Donohue_002_02,Donohue_002_02.tif,Verso
+Donohue_002,Donohue_002_03,Donohue_002_03.tif,"Photo, two children praying"

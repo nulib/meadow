@@ -1,0 +1,20 @@
+ul.validate {
+  list-style-type: none;
+}
+
+ul.validate li:before {
+  content: "●";
+  padding-right: 10px;
+}
+
+li.pass:before {
+  color: green;
+}
+
+li.pending:before {
+  color: yellow;
+}
+
+li.fail:before {
+  color: red;
+}

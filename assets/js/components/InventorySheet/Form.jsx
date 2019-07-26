@@ -24,32 +24,37 @@ const InventorySheetForm = ({ history, projectId }) => {
   const handleSubmit = async event => {
     if (event) event.preventDefault();
 
-    let options = {
-      headers: {
-        "Content-Type": "binary/octet-stream"
-      }
-    };
-
-    const { ingest_job_name, file } = values;
+    const { ingest_job_name } = values;
 
     try {
       const response = await axios.get("/api/v1/ingest_jobs/presigned_url");
       const presignedUrl = response.data.data.presigned_url;
       const filename = `s3://${presignedUrl.split("?")[0].split("/").slice(-3).join("/")}`
 
-      await axios.put(presignedUrl, file, options);
-      const ingestJobResponse = await axios.post(`/api/v1/projects/${projectId}/ingest_jobs`, {
-        ingest_job: {
-          name: ingest_job_name,
-          project_id: projectId,
-          filename: filename
-        }
-      });
+      const submitFile = async (presignedUrl, data, headers) => {
+        await axios.put(presignedUrl, data, { headers: headers });
+        return await axios.post(`/api/v1/projects/${projectId}/ingest_jobs`, {
+          ingest_job: {
+            name: ingest_job_name,
+            project_id: projectId,
+            filename: filename
+          }
+        });
+      };
 
-      toast(`${ingest_job_name} created successfully`);
-      history.push(
-        `/project/${projectId}/inventory-sheet/${ingestJobResponse.data.data.id}`
-      );
+      const file = document.getElementById('file').files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const headers = { "Content-Type": file.type };
+        submitFile(presignedUrl, event.target.result, headers)
+          .then((ingestJobResponse) => {
+            toast(`${ingestJobResponse.data.data.name} created successfully`);
+            history.push(
+              `/project/${projectId}/inventory-sheet/${ingestJobResponse.data.data.id}`
+            );
+          });
+      };
+      reader.readAsText(file);
     } catch (error) {
       if (error.response) {
         console.log(`Error Status Code: ${error.response.status}`);
@@ -74,6 +79,7 @@ const InventorySheetForm = ({ history, projectId }) => {
 
   return (
     <UIForm
+      encType="text/plain"
       testId="inventory-sheet-upload-form"
       onSubmit={handleSubmit}
     >
