@@ -25,7 +25,8 @@ secret_key_base =
     """
 
 config :meadow, MeadowWeb.Endpoint,
-  http: [:inet6, port: String.to_integer(System.get_env("PORT") || "4000")],
+  url: [host: {:system, "MEADOW_HOSTNAME"}, port: {:system, "PORT"}],
+  http: [:inet6, port: {:system, "PORT"}],
   secret_key_base: secret_key_base
 
 ingest_bucket =
