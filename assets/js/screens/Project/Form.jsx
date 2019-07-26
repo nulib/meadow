@@ -12,8 +12,8 @@ const ScreensProjectForm = ({}) => {
         link: "/project/list"
       },
       {
-        label: `Create Project`,
-        link: ``
+        label: `Create`,
+        link: `/project/create`
       }
     ];
   };
@@ -22,9 +22,9 @@ const ScreensProjectForm = ({}) => {
       <ScreenHeader
         title="Create Ingest Project"
         description="Start a new Project by creating a name for your project"
+        breadCrumbs={createCrumbs()}
       />
       <ScreenContent>
-        <Breadcrumbs crumbs={createCrumbs()} />
         <ProjectForm />
       </ScreenContent>
     </>

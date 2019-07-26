@@ -38,22 +38,6 @@ const Project = ({ match }) => {
     }
   }, []);
 
-  const createCrumbs = project => {
-    if (!project) {
-      return "";
-    }
-    return [
-      {
-        label: "Projects",
-        link: "/project/list"
-      },
-      {
-        label: `${project.title}`,
-        link: `/project/${project.id}`
-      }
-    ];
-  };
-
   return (
     <Query query={GET_PROJECT_QUERY} variables={{ projectId: id }}>
       {({ data, loading, error }) => {
@@ -64,12 +48,21 @@ const Project = ({ match }) => {
             {data.project && (
               <>
                 <ScreenHeader
-                  title={project.title}
+                  title={data.project.title}
                   description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project"
+                  breadCrumbs={[
+                    {
+                      label: "Projects",
+                      link: "/project/list"
+                    },
+                    {
+                      label: `${data.project.title}`,
+                      link: `/project/${data.project.id}`
+                    }
+                  ]}
                 />
 
                 <ScreenContent>
-                  <Breadcrumbs crumbs={createCrumbs(project)} />
                   <Link
                     to={{
                       pathname: `/project/${id}/inventory-sheet/upload`,
