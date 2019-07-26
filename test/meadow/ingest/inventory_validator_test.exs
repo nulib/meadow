@@ -8,15 +8,6 @@ defmodule Meadow.Ingest.InventoryValidatorTest do
 
   doctest Meadow.Ingest.InventoryValidator
 
-  @files [
-    "Donohue_001_01.tif",
-    "Donohue_001_02.tif",
-    "Donohue_001_03.tif",
-    "Donohue_001_04.tif",
-    "Donohue_002_01.tif",
-    "Donohue_002_02.tif",
-    "Donohue_002_03.tif"
-  ]
   @sheet_path "test-uploads/inventory_sheets/"
 
   setup context do
@@ -41,9 +32,9 @@ defmodule Meadow.Ingest.InventoryValidatorTest do
       :head, url, _, _, _ ->
         file = url |> String.split("/") |> List.last()
 
-        case @files |> Enum.any?(&(&1 == file)) do
-          true -> {:ok, %{status_code: 200}}
-          false -> {:ok, %{status_code: 404}}
+        case file do
+          "Missing_" <> _ -> {:ok, %{status_code: 404}}
+          _ -> {:ok, %{status_code: 200}}
         end
     end
 
