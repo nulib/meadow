@@ -2,7 +2,7 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1
-  docker-cache: nulib/docker-cache@0.1
+  docker-cache: nulib/docker-cache@0.3
 jobs:
   test:
     working_directory: ~/meadow
@@ -96,6 +96,7 @@ workflows:
               only:
                 - /^deploy\/.+/
           cache-key: docker-stages
+          cache-stages: deps assets
       - deploy:
           requires:
             - docker-cache/publish

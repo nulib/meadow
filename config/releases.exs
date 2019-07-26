@@ -24,9 +24,12 @@ secret_key_base =
     You can generate one by calling: mix phx.gen.secret
     """
 
+host = System.get_env("MEADOW_HOSTNAME", "example.com")
+port = String.to_integer(System.get_env("PORT", "4000"))
+
 config :meadow, MeadowWeb.Endpoint,
-  url: [host: {:system, "MEADOW_HOSTNAME"}, port: {:system, "PORT"}],
-  http: [:inet6, port: {:system, "PORT"}],
+  url: [host: host, port: port],
+  http: [:inet6, port: port],
   secret_key_base: secret_key_base
 
 ingest_bucket =
