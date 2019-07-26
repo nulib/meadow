@@ -10,6 +10,7 @@ const ScreensProjectList = () => {
       <ScreenHeader
         title="Ingestion Projects"
         description="The following is a list of all active Ingestion Projects"
+        breadCrumbs={[{ label: "Projects", link: "/project/list" }]}
       />
       <ScreenContent>
         <Link to="/project/create" className="btn">

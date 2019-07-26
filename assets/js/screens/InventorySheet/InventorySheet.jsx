@@ -3,9 +3,10 @@ import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import InventorySheetStatus from "../../components/InventorySheet/Status";
-import Breadcrumbs from "../../components/UI/Breadcrumbs";
 import { getProject } from "../../components/Project/Api";
 import { getInventorySheet } from "../../components/InventorySheet/Api";
+import ButtonGroup from "../../components/UI/ButtonGroup";
+import UIButton from "../../components/UI/Button";
 
 const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
@@ -44,21 +45,27 @@ const ScreensInventorySheet = ({ match }) => {
       },
       {
         label: `${inventorySheet.name}`,
-        link: ""
+        link: `/project/${id}/inventory-sheet/${inventorySheetId}`
       }
     ];
   };
 
   return (
     <>
-      <ScreenHeader
-        title="Inventory Sheet"
-        description="The following is system validation/parsing of the .csv Inventory sheet, and some helpful user feedback"
-      />
+      {project && (
+        <ScreenHeader
+          title="Inventory Sheet"
+          description="The following is system validation/parsing of the .csv Inventory sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
+          breadCrumbs={createCrumbs(project)}
+        />
+      )}
       <ScreenContent>
-        {project && <Breadcrumbs crumbs={createCrumbs(project)} />}
-        <p>Id: {inventorySheetId}</p>
         <InventorySheetStatus inventorySheetId={inventorySheetId} />
+        <h3 className="italic pt-8">Coming Soon...</h3>
+        <ButtonGroup>
+          <UIButton label="Looks great, approve the sheet" />
+          <UIButton classes="bg-red-500" label="Eject and start over" />
+        </ButtonGroup>
       </ScreenContent>
     </>
   );

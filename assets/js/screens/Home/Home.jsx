@@ -8,6 +8,7 @@ const ScreensHome = () => {
       <ScreenHeader
         title="Home Dashboard"
         description="View the applications main dashboard features here"
+        breadCrumbs={[{ label: "Home", link: "/" }]}
       />
       <ScreenContent>
         <img className="w-screen" src="/images/placeholder-content.png" />

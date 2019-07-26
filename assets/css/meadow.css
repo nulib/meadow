@@ -1,4 +1,4 @@
-@font-face {
+/* @font-face {
   font-family: "AkkuratPro-Regular";
   src: url("/fontsZ/AkkuratPro-Regular.otf") format("otf");
 }
@@ -6,10 +6,10 @@
 @font-face {
   font-family: "AkkuratPro-Light";
   src: url("/fonts/AkkuratPro-Light.otf") format("otf");
-}
+} */
 
 body {
-  @apply font-display;
+  /* @apply font-display; */
   @apply text-gray-700;
   @apply leading-normal;
 }
@@ -65,6 +65,14 @@ label {
 
 .btn-disabled {
   @apply opacity-50 cursor-not-allowed;
+}
+
+.button-group .btn {
+  @apply ml-2;
+}
+
+.button-group .btn:first-of-type {
+  @apply ml-0;
 }
 
 .content-block {
