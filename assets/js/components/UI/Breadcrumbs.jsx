@@ -2,20 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-const Breadcrumbs = ({ crumbs }) => (
-  <p className="breadcrumbs">
+const Breadcrumbs = ({ crumbs = [] }) => (
+  <div className="text-xl mb-4">
     {crumbs.map((crumb, i) => (
       <span key={crumb.label}>
-        /{" "}
-        {i !== crumbs.length - 1 && (
-          <Link to={crumb.link} className="bg-gray-100 px-2">
-            {crumb.label}
-          </Link>
-        )}
-        {i === crumbs.length - 1 && <span className="px-2">{crumb.label}</span>}
+        <Link to={crumb.link}>{crumb.label}</Link>
+        {i !== crumbs.length - 1 && <span className="px-4">></span>}
       </span>
     ))}
-  </p>
+  </div>
 );
 
 Breadcrumbs.propTypes = {
