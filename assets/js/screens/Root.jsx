@@ -36,7 +36,7 @@ export default class Root extends React.Component {
                 component={ScreensInventorySheet}
               />
               <Route path="/project/:id" component={Project} />
-              <Route path="/test-sub" component={TestSub} />
+              <Route path="/test-sub/:inventorySheetId" component={TestSub} />
 
               <Route path="/" component={Home} />
               <Route component={NotFoundPage} />
