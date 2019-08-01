@@ -41,7 +41,6 @@ const authLink = setContext((_, { headers }) => {
 const link = new ApolloLink.split(
   operation => hasSubscription(operation.query),
   absintheSocketLink,
-  // authLink.concat(httpLink)
   httpLink
 );
 

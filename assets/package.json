@@ -12,16 +12,16 @@
   "prettier": "@nulib/prettier-config",
   "dependencies": {
     "@absinthe/socket-apollo-link": "^0.2.1",
-    "@jumpn/utils-graphql": "^0.6.0",
-    "apollo-cache-inmemory": "^1.5.1",
-    "apollo-client": "^2.5.1",
-    "apollo-link-context": "^1.0.17",
-    "apollo-link-http": "^1.5.14",
+    "apollo-cache-inmemory": "^1.6.2",
+    "apollo-client": "^2.6.3",
+    "apollo-link-context": "^1.0.18",
+    "apollo-link-http": "^1.5.15",
+    "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "prop-types": "^15.7.2",
-    "react-apollo": "^2.5.3"
+    "react-apollo": "^2.5.8"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

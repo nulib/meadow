@@ -29,6 +29,11 @@ module.exports = (env, options) => ({
         }
       },
       {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      },
+      {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
@@ -69,6 +74,6 @@ module.exports = (env, options) => ({
   ],
   devtool: "source-map",
   resolve: {
-    extensions: [".js", ".jsx", ".json"]
+    extensions: ['*', '.mjs', ".js", ".jsx", ".json"]
   }
 });
