@@ -1,20 +1,21 @@
-@font-face {
+/* @font-face {
   font-family: "AkkuratPro-Regular";
-  src: url("fonts/AkkuratPro-Regular.otf") format("otf");
-
-  font-family: "AkkuratPro-Light";
-  src: url("fonts/AkkuratPro-Light.otf") format("otf");
+  src: url("/fontsZ/AkkuratPro-Regular.otf") format("otf");
 }
 
+@font-face {
+  font-family: "AkkuratPro-Light";
+  src: url("/fonts/AkkuratPro-Light.otf") format("otf");
+} */
+
 body {
-  @apply font-display;
+  /* @apply font-display; */
   @apply text-gray-700;
   @apply leading-normal;
 }
 
 h1 {
-  @apply text-3xl text-gray-900;
-  font-family: "AkkuratPro-Light";
+  @apply text-3xl text-gray-900 font-display font-light;
 }
 
 h2 {
@@ -66,6 +67,14 @@ label {
   @apply opacity-50 cursor-not-allowed;
 }
 
+.button-group .btn {
+  @apply ml-2;
+}
+
+.button-group .btn:first-of-type {
+  @apply ml-0;
+}
+
 .content-block {
   @apply bg-white p-6 shadow-md;
 }
@@ -81,4 +90,12 @@ label {
 
 .toast-progress-bar {
   @apply bg-white;
+}
+
+.toast-error {
+  @apply bg-red-300;
+}
+
+.breadcrumbs {
+  @apply mb-8 text-sm;
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { withRouter } from "react-router";
 import InventorySheetList from "../../components/InventorySheet/List";
 import { Link } from "react-router-dom";
@@ -30,20 +30,33 @@ const Project = ({ match }) => {
       {({ data, loading, error }) => {
         if (loading) return <Loading />;
         if (error) return <Error error={error} />;
-        return <div>
-          {
-            data.project && (
+        return (
+          <div>
+            {data.project && (
               <>
-                <ScreenHeader title={`Project: ${data.project.title}`} description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project" />
+                <ScreenHeader
+                  title={data.project.title}
+                  description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project"
+                  breadCrumbs={[
+                    {
+                      label: "Projects",
+                      link: "/project/list"
+                    },
+                    {
+                      label: `${data.project.title}`,
+                      link: `/project/${data.project.id}`
+                    }
+                  ]}
+                />
 
                 <ScreenContent>
-
                   <Link
                     to={{
                       pathname: `/project/${id}/inventory-sheet/upload`,
                       state: { projectId: data.project.id }
                     }}
-                    className="btn mb-4">
+                    className="btn mb-4"
+                  >
                     New Ingest Job
                   </Link>
                   <h2>Ingest Jobs</h2>
@@ -52,9 +65,9 @@ const Project = ({ match }) => {
                   </section>
                 </ScreenContent>
               </>
-            )
-          }
-        </div>
+            )}
+          </div>
+        );
       }}
     </Query>
   );

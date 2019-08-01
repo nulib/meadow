@@ -13,7 +13,7 @@ import NotFoundPage from "./404";
 import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
 import Layout from "./Layout";
-import TestSub from "../components/InventorySheet/TestSub"
+import TestSub from "../components/InventorySheet/TestSub";
 
 export default class Root extends React.Component {
   render() {
