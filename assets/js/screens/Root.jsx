@@ -13,6 +13,7 @@ import NotFoundPage from "./404";
 import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
 import Layout from "./Layout";
+import TestSub from "../components/InventorySheet/TestSub"
 
 export default class Root extends React.Component {
   render() {
@@ -35,6 +36,7 @@ export default class Root extends React.Component {
                 component={ScreensInventorySheet}
               />
               <Route path="/project/:id" component={Project} />
+              <Route path="/test-sub" component={TestSub} />
 
               <Route path="/" component={Home} />
               <Route component={NotFoundPage} />
