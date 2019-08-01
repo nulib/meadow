@@ -1,31 +1,46 @@
 import React, { useState } from "react";
 import gql from "graphql-tag";
 import { Subscription } from "react-apollo";
+import Error from "../../screens/Error";
+import Loading from "../../screens/Loading";
 
 import { print } from 'graphql/language/printer'
 
 const SUB = gql`
-  subscription IngestJobChange { ingestJobChange(ingestJobId:"01DH1XZ3YDZWTAD24B5JTSYD9M") { name updatedAt }}
+  subscription IngestJobChange($ingestJobId: String!) {
+    ingestJobChange(ingestJobId:$ingestJobId) { 
+      name 
+      state 
+      updatedAt 
+    }
+  }
 `;
 
 
 
-export default class TestSub extends React.PureComponent {
-  render() {
-    console.log("hiiiii")
-    console.log(print(SUB))
-    return (
-      <div>
-        <h1>hi</h1>
-        
-        <Subscription subscription={SUB}>
-          {data => {
-            console.log(data);
-            return <h1>Hey {data}</h1>;
-          }}
-        </Subscription>
+const TestSub = ({ match }) => {
+  const { inventorySheetId } = match.params;
 
-      </div>
-    );
-  }
+  console.log(print(SUB))
+
+  return (
+    <div>
+      <h1>Ingest Job Id: {inventorySheetId}</h1>
+      <Subscription subscription={SUB} variables={{ ingestJobId: inventorySheetId }}>
+        {({ data, loading, error }) => {
+          if (loading) return <Loading />;
+          if (error) return <Error error={error} />;
+          console.log(data);
+          return (
+            <div>
+              <h3>State: {data.ingestJobChange.state}</h3>
+            </div>
+          );
+        }}
+      </Subscription>
+
+    </div>
+  );
 }
+
+export default TestSub;
