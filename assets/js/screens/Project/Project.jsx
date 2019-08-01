@@ -1,7 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { withRouter } from "react-router";
-import Breadcrumbs from "../../components/UI/Breadcrumbs";
-import { getProject } from "../../components/Project/Api";
 import InventorySheetList from "../../components/InventorySheet/List";
 import { Link } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
@@ -26,17 +24,6 @@ const GET_PROJECT_QUERY = gql`
 
 const Project = ({ match }) => {
   const { id } = match.params;
-  const [project, setProject] = useState(null);
-
-  useEffect(() => {
-    if (id) {
-      const fn = async () => {
-        const thisProject = await getProject(id);
-        setProject(thisProject);
-      };
-      fn();
-    }
-  }, []);
 
   return (
     <Query query={GET_PROJECT_QUERY} variables={{ projectId: id }}>

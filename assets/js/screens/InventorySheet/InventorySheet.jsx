@@ -1,50 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import InventorySheetStatus from "../../components/InventorySheet/Status";
-import { getProject } from "../../components/Project/Api";
-import { getInventorySheet } from "../../components/InventorySheet/Api";
 import ButtonGroup from "../../components/UI/ButtonGroup";
 import UIButton from "../../components/UI/Button";
 
 const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
 
-  const [project, setProject] = useState(null);
-  const [inventorySheet, setInventorySheet] = useState(null);
-
-  useEffect(() => {
-    if (id) {
-      const fn = async () => {
-        const thisProject = await getProject(id);
-        const thisInventorySheet = await getInventorySheet(
-          id,
-          inventorySheetId
-        );
-
-        setProject(thisProject);
-        setInventorySheet(thisInventorySheet);
-      };
-      fn();
-    }
-  }, []);
-
-  const createCrumbs = project => {
-    if (!project || !inventorySheet) {
-      return [];
-    }
+  const createCrumbs = () => {
     return [
       {
         label: "Projects",
         link: "/project/list"
       },
       {
-        label: `${project.title}`,
+        label: `(Project Title Goes Here)`,
         link: `/project/${id}`
       },
       {
-        label: `${inventorySheet.name}`,
+        label: `(Inventory Sheet Title Goes Here)`,
         link: `/project/${id}/inventory-sheet/${inventorySheetId}`
       }
     ];
@@ -52,15 +27,13 @@ const ScreensInventorySheet = ({ match }) => {
 
   return (
     <>
-      {project && (
-        <ScreenHeader
-          title="Inventory Sheet"
-          description="The following is system validation/parsing of the .csv Inventory sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
-          breadCrumbs={createCrumbs(project)}
-        />
-      )}
+      <ScreenHeader
+        title="Inventory Sheet"
+        description="The following is system validation/parsing of the .csv Inventory sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
+        breadCrumbs={createCrumbs()}
+      />
       <ScreenContent>
-        <InventorySheetStatus inventorySheetId={inventorySheetId} />
+        <img className="w-screen" src="/images/placeholder-content.png" />
         <h3 className="italic pt-8">Coming Soon...</h3>
         <ButtonGroup>
           <UIButton label="Looks great, approve the sheet" />
