@@ -5,16 +5,10 @@ import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import gql from "graphql-tag";
 import { Query } from "react-apollo";
+import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
 
-const GET_PROJECT_QUERY = gql`
-  query GetProject($projectId: String!) {
-    project(id: $projectId) {
-      title
-    }
-  }
-`;
+
 
 const ScreensInventorySheetForm = ({ match }) => {
   const { id } = match.params;
