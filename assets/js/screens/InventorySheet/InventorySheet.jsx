@@ -14,17 +14,14 @@ import gql from "graphql-tag";
 import { Query } from "react-apollo";
 
 const GET_CRUMB_DATA = gql`
-  query getCrumbData($projectId: String!, $inventorySheetId: String!) {
-    project(id: $projectId) {
-      title
-    }
+  query GetCrumbData($inventorySheetId: String!){
     ingestJob(id: $inventorySheetId) {
       name
-      insertedAt
-      updatedAt
-      filename
+      project {
+        title
+      }
     }
-  }
+}
 `;
 
 const ScreensInventorySheet = ({ match }) => {
@@ -33,13 +30,13 @@ const ScreensInventorySheet = ({ match }) => {
   return (
     <Query
       query={GET_CRUMB_DATA}
-      variables={{ projectId: id, inventorySheetId }}
+      variables={{ inventorySheetId }}
     >
       {({ data, loading, error }) => {
         if (error) return <Error error={error} />;
         if (loading) return <Loading />;
 
-        const { project, ingestJob } = data;
+        const { ingestJob } = data;
 
         const createCrumbs = () => {
           return [
@@ -48,7 +45,7 @@ const ScreensInventorySheet = ({ match }) => {
               link: "/project/list"
             },
             {
-              label: project.title,
+              label: ingestJob.project.title,
               link: `/project/${id}`
             },
             {
