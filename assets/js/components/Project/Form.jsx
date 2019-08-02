@@ -2,14 +2,12 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
-import Error from "../../screens/Error";
-import Loading from "../../screens/Loading";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 import { GET_PROJECTS_QUERY } from "./List";
 
 const CREATE_PROJECT_MUTATION = gql`
-  mutation CreateProject(
-    $projectTitle: String!
-  ) {
+  mutation CreateProject($projectTitle: String!) {
     createProject(title: $projectTitle) {
       id
       title
@@ -45,15 +43,18 @@ class ProjectForm extends React.Component {
           ...this.state
         }}
         onCompleted={this.clearState}
-        refetchQueries={[{ query: GET_PROJECTS_QUERY }]}>
+        refetchQueries={[{ query: GET_PROJECTS_QUERY }]}
+      >
         {(createProject, { loading, error }) => {
           if (loading) return <Loading />;
           return (
-
-            <form className="content-block" onSubmit={e => {
-              e.preventDefault();
-              createProject();
-            }}>
+            <form
+              className="content-block"
+              onSubmit={e => {
+                e.preventDefault();
+                createProject();
+              }}
+            >
               <Error error={error} />
               <div className="mb-4">
                 <label
@@ -61,7 +62,7 @@ class ProjectForm extends React.Component {
                   htmlFor="username"
                 >
                   Project Title
-            </label>
+                </label>
                 <input
                   id="project-title"
                   type="text"
@@ -74,10 +75,10 @@ class ProjectForm extends React.Component {
               <div className="mt-6"></div>
               <button className="btn" type="submit">
                 Submit
-          </button>
+              </button>
               <button className="btn btn-cancel" onClick={this.handleCancel}>
                 Cancel
-          </button>
+              </button>
             </form>
           );
         }}

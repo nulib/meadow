@@ -5,11 +5,10 @@ import gql from "graphql-tag";
 import PropTypes from "prop-types";
 import { Query } from "react-apollo";
 import { Mutation } from "react-apollo";
-import Error from "../../screens/Error";
-import Loading from "../../screens/Loading";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
 import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
-
 
 const CREATE_INGEST_JOB_MUTATION = gql`
   mutation CreateIngestJob(
@@ -17,11 +16,7 @@ const CREATE_INGEST_JOB_MUTATION = gql`
     $projectId: String!
     $filename: String!
   ) {
-    createIngestJob(
-      name: $name
-      project_id: $projectId
-      filename: $filename
-    ) {
+    createIngestJob(name: $name, project_id: $projectId, filename: $filename) {
       id
       name
       project {
@@ -34,7 +29,6 @@ const CREATE_INGEST_JOB_MUTATION = gql`
 `;
 
 const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
-
   const [values, setValues] = useState({ ingest_job_name: "", file: "" });
 
   const handleInputChange = event => {
@@ -43,13 +37,13 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
     setValues({ ...values, [name]: value });
   };
 
-  const handleCancel = (e) => {
+  const handleCancel = e => {
     history.push(`/project/${projectId}`);
   };
 
   const handleComplete = () => {
     history.push(`/project/${projectId}`);
-  }
+  };
 
   const uploadToS3 = () => {
     try {
@@ -57,11 +51,11 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
         await axios.put(presignedUrl, data, { headers: headers });
       };
 
-      const file = document.getElementById('file').files[0];
+      const file = document.getElementById("file").files[0];
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = event => {
         const headers = { "Content-Type": file.type };
-        submitFile(event.target.result, headers)
+        submitFile(event.target.result, headers);
       };
       reader.readAsText(file);
     } catch (error) {
@@ -73,51 +67,68 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
   const { ingest_job_name, file } = values;
 
   return (
-
     <Mutation
       mutation={CREATE_INGEST_JOB_MUTATION}
       variables={{
         name: ingest_job_name,
         projectId: projectId,
-        filename: `s3://${presignedUrl.split("?")[0].split("/").slice(-3).join("/")}`
+        filename: `s3://${presignedUrl
+          .split("?")[0]
+          .split("/")
+          .slice(-3)
+          .join("/")}`
       }}
       onCompleted={handleComplete}
-      refetchQueries={[{
-        query: GET_PROJECT_QUERY,
-        variables: { projectId: projectId }
-      }]}>
+      refetchQueries={[
+        {
+          query: GET_PROJECT_QUERY,
+          variables: { projectId: projectId }
+        }
+      ]}
+    >
       {(createIngestJob, { loading, error }) => {
         if (loading) return <Loading />;
         return (
-
-          <form className="content-block" onSubmit={e => {
-            e.preventDefault();
-            uploadToS3();
-            createIngestJob();
-          }}>
+          <form
+            className="content-block"
+            onSubmit={e => {
+              e.preventDefault();
+              uploadToS3();
+              createIngestJob();
+            }}
+          >
             <Error error={error} />
             <div className="mb-4">
               <label htmlFor="ingest_job_name">Ingest Job Name</label>
-              <input id={"ingest_job_name"} name="ingest_job_name" type="text" onChange={handleInputChange} />
+              <input
+                id={"ingest_job_name"}
+                name="ingest_job_name"
+                type="text"
+                onChange={handleInputChange}
+              />
             </div>
             <div className="mb-4">
               <label htmlFor="file">Inventory Sheet File</label>
-              <input id={"file"} name="file" type="file" onChange={handleInputChange} />
+              <input
+                id={"file"}
+                name="file"
+                type="file"
+                onChange={handleInputChange}
+              />
             </div>
             <div className="mt-6"></div>
             <button className="btn" type="submit">
               Submit
-        </button>
+            </button>
             <button className="btn btn-cancel" onClick={handleCancel}>
               Cancel
-        </button>
+            </button>
           </form>
         );
       }}
     </Mutation>
   );
-}
-
+};
 
 UploadInventorySheet.propTypes = {
   history: PropTypes.shape({

@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
-import Error from "../../screens/Error";
-import Loading from "../../screens/Loading";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 import UploadInventorySheet from "./Upload";
 
 const GET_PRESIGNED_URL = gql`

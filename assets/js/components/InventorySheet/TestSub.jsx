@@ -1,32 +1,33 @@
 import React, { useState } from "react";
 import gql from "graphql-tag";
 import { Subscription } from "react-apollo";
-import Error from "../../screens/Error";
-import Loading from "../../screens/Loading";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 
-import { print } from 'graphql/language/printer'
+import { print } from "graphql/language/printer";
 
 const SUB = gql`
   subscription IngestJobChange($ingestJobId: String!) {
-    ingestJobChange(ingestJobId:$ingestJobId) { 
-      name 
-      state 
-      updatedAt 
+    ingestJobChange(ingestJobId: $ingestJobId) {
+      name
+      state
+      updatedAt
     }
   }
 `;
 
-
-
 const TestSub = ({ match }) => {
   const { inventorySheetId } = match.params;
 
-  console.log(print(SUB))
+  console.log(print(SUB));
 
   return (
     <div>
       <h1>Ingest Job Id: {inventorySheetId}</h1>
-      <Subscription subscription={SUB} variables={{ ingestJobId: inventorySheetId }}>
+      <Subscription
+        subscription={SUB}
+        variables={{ ingestJobId: inventorySheetId }}
+      >
         {({ data, loading, error }) => {
           if (loading) return <Loading />;
           if (error) return <Error error={error} />;
@@ -38,9 +39,8 @@ const TestSub = ({ match }) => {
           );
         }}
       </Subscription>
-
     </div>
   );
-}
+};
 
 export default TestSub;
