@@ -14,7 +14,6 @@ import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
 import { SocketProvider } from "use-phoenix-channel";
 import Layout from "./Layout";
-import TestSub from "../components/InventorySheet/TestSub";
 
 export default class Root extends React.Component {
   render() {
@@ -37,14 +36,11 @@ export default class Root extends React.Component {
                 component={ScreensInventorySheet}
               />
               <Route path="/project/:id" component={Project} />
-              <Route path="/test-sub/:inventorySheetId" component={TestSub} />
-
-                <Route path="/" component={Home} />
-                <Route component={NotFoundPage} />
-              </Switch>
-            </Layout>
-          </BrowserRouter>
-        </SocketProvider>
+              <Route path="/" component={Home} />
+              <Route component={NotFoundPage} />
+            </Switch>
+          </Layout>
+        </BrowserRouter>
       </>
     );
   }

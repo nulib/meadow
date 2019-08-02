@@ -4,7 +4,6 @@
 
 /* Put our custom application styles here */
 @import "./meadow.css";
-@import "./janky-status.css";
 
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";

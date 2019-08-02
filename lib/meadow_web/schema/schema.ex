@@ -1,8 +1,12 @@
 defmodule MeadowWeb.Schema.Schema do
+  @moduledoc """
+  Absinthe Schema for MeadowWeb
+
+  """
   use Absinthe.Schema
   import_types(Absinthe.Type.Custom)
 
-  import Absinthe.Resolution.Helpers, only: [dataloader: 1, dataloader: 3]
+  import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   alias MeadowWeb.Resolvers
   alias Meadow.Ingest
@@ -30,6 +34,12 @@ defmodule MeadowWeb.Schema.Schema do
     @desc "Get a presigned url to upload an inventory sheet"
     field :presigned_url, :presigned_url do
       resolve(&Resolvers.Ingest.get_presigned_url/3)
+    end
+
+    @desc "Get validations for an Inventory Sheet"
+    field :ingest_job_validations, :ingest_job_validations do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Ingest.ingest_job_validations/3)
     end
   end
 
@@ -60,17 +70,16 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.delete_ingest_job/3)
     end
 
-    @desc "Change the state of an ingest_job"
-    field :change_ingest_job_state, :ingest_job do
+    @desc "Validate an Ingest Job"
+    field :validate_ingest_job, :status_message do
       arg(:ingest_job_id, non_null(:id))
-      arg(:state, non_null(:string))
-      resolve(&Resolvers.Ingest.change_ingest_job_state/3)
+      resolve(&Resolvers.Ingest.validate_ingest_job/3)
     end
   end
 
   subscription do
-    @desc "Subscribe to a state change for an Ingest Job"
-    field :ingest_job_change, :ingest_job do
+    @desc "Subscribe to validation messages for an ingest job"
+    field :ingest_job_validation_update, :validation_result do
       arg(:ingest_job_id, non_null(:id))
 
       config(fn args, _info ->
@@ -108,7 +117,23 @@ defmodule MeadowWeb.Schema.Schema do
     field :url, non_null(:string)
   end
 
+  object :ingest_job_validations do
+    field :validations, list_of(:validation_result)
+  end
+
   object :validation_result do
+    field :id, non_null(:string)
+    # field :status, non_null(:string)
+    field :object, :validation_object
+  end
+
+  object :validation_object do
+    field :content, :string
+    field :errors, list_of(:string)
+    field :status, :string
+  end
+
+  object :status_message do
     field :message, non_null(:string)
   end
 

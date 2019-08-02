@@ -2,36 +2,31 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import InventorySheetStatus from "../../components/InventorySheet/Status";
 import Breadcrumbs from "../../components/UI/Breadcrumbs";
-import { getProject } from "../../components/Project/Api";
-import { getInventorySheet } from "../../components/InventorySheet/Api";
 import ButtonGroup from "../../components/UI/ButtonGroup";
 import UIButton from "../../components/UI/Button";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
+import InventorySheet from "../../components/InventorySheet/InventorySheet";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
 
 const GET_CRUMB_DATA = gql`
-  query GetCrumbData($inventorySheetId: String!){
+  query GetCrumbData($inventorySheetId: String!) {
     ingestJob(id: $inventorySheetId) {
       name
       project {
         title
       }
     }
-}
+  }
 `;
 
 const ScreensInventorySheet = ({ match }) => {
   const { id, inventorySheetId } = match.params;
 
   return (
-    <Query
-      query={GET_CRUMB_DATA}
-      variables={{ inventorySheetId }}
-    >
+    <Query query={GET_CRUMB_DATA} variables={{ inventorySheetId }}>
       {({ data, loading, error }) => {
         if (error) return <Error error={error} />;
         if (loading) return <Loading />;
@@ -63,8 +58,7 @@ const ScreensInventorySheet = ({ match }) => {
               breadCrumbs={createCrumbs()}
             />
             <ScreenContent>
-              <img className="w-screen" src="/images/placeholder-content.png" />
-              <h3 className="italic pt-8">Coming Soon...</h3>
+              <InventorySheet inventorySheetId={inventorySheetId} />
               <ButtonGroup>
                 <UIButton label="Looks great, approve the sheet" />
                 <UIButton classes="bg-red-500" label="Eject and start over" />

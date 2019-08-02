@@ -47,49 +47,35 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:absinthe, "~> 1.4.2"},
+      {:absinthe_plug, "~> 1.4.0"},
+      {:absinthe_phoenix, "~> 1.4.0"},
       {:briefly, "~> 0.3.0", only: :test},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
+      {:dataloader, "~> 1.0.6"},
       {:ecto_sql, "~> 3.0"},
       {:ecto_ulid, "~> 0.2.0"},
       {:ets, "~> 0.7.3"},
-      {:ex_aws_s3, "~> 2.0"},
       {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.9"},
       {:honeybadger, "~> 0.7"},
-<<<<<<< HEAD
       {:jason, "~> 1.0"},
       {:mox, "~> 0.5", only: :test},
       {:nimble_csv, "~> 0.6.0"},
-      {:open_api_spex, "~> 3.4"},
-      {:phoenix_ecto, "~> 4.0"},
+      {:phoenix, "~> 1.4.6"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix, "~> 1.4.6"},
+      {:phoenix_ecto, "~> 4.0"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:sweet_xml, "~> 0.6"}
-=======
-      {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
-      {:ex_aws, "~> 2.1"},
-      {:ex_aws_s3, "~> 2.0"},
-      {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
-      {:poison, "~> 3.0"},
-      {:mox, "~> 0.5", only: :test},
-      {:excoveralls, "~> 0.10", only: :test},
-      {:briefly, "~> 0.3.0", only: :test},
-      {:absinthe, "~> 1.4.2"},
-      {:absinthe_plug, "~> 1.4.0"},
-      {:absinthe_phoenix, "~> 1.4.0"},
-      {:dataloader, "~> 1.0.6"},
-      {:nimble_csv, "~> 0.6.0"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"}
->>>>>>> replace openapi with graphql
     ]
   end
 

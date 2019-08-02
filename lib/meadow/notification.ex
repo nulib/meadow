@@ -7,9 +7,6 @@ defmodule Meadow.Notification do
   defstruct [:content, status: "pending", errors: []]
 
   alias Ets.Set
-  alias Phoenix.Channel.Server, as: Channel
-
-  @delay 50
 
   def init(id) do
     atom_id = String.to_atom(to_string(id))
@@ -50,17 +47,17 @@ defmodule Meadow.Notification do
 
     Set.put!(init(id), {index, struct})
 
-    if System.get_env("NOTIFICATION_DELAY") do
-      :timer.sleep(@delay)
-    end
-
     id
   end
 
   defp deliver(id, index, struct) do
-    Channel.broadcast!(Meadow.PubSub, to_string(id), "update", %{
-      id: Tuple.to_list(index),
-      object: struct
-    })
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      %{
+        id: Enum.join(Tuple.to_list(index)),
+        object: %{content: struct.content, status: struct.status, errors: struct.errors}
+      },
+      ingest_job_validation_update: id
+    )
   end
 end

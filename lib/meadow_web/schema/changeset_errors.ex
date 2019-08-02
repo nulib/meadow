@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.ChangesetErrors do
-  @doc """
+  @moduledoc """
   Traverses the changeset errors and returns a map of
   error messages. For example:
 

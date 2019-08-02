@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import gql from "graphql-tag";
 import PropTypes from "prop-types";
-import { Query } from "react-apollo";
 import { Mutation } from "react-apollo";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
 import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
+import { toast } from 'react-toastify';
 
 const CREATE_INGEST_JOB_MUTATION = gql`
   mutation CreateIngestJob(
@@ -38,10 +37,6 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
   };
 
   const handleCancel = e => {
-    history.push(`/project/${projectId}`);
-  };
-
-  const handleComplete = () => {
     history.push(`/project/${projectId}`);
   };
 
@@ -78,7 +73,9 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
           .slice(-3)
           .join("/")}`
       }}
-      onCompleted={handleComplete}
+      onCompleted={(data) => {
+        history.push(`/project/${projectId}/inventory-sheet/${data.createIngestJob.id}`);
+      }}
       refetchQueries={[
         {
           query: GET_PROJECT_QUERY,
@@ -86,16 +83,18 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
         }
       ]}
     >
-      {(createIngestJob, { loading, error }) => {
+      {(createIngestJob, { data, loading, error }) => {
         if (loading) return <Loading />;
+        if (error) return <Error error={error} />;
+
         return (
           <form
             className="content-block"
             onSubmit={e => {
               e.preventDefault();
               uploadToS3();
-              createIngestJob();
-            }}
+              createIngestJob();            
+          }}
           >
             <Error error={error} />
             <div className="mb-4">

@@ -1,6 +1,10 @@
 defmodule MeadowWeb.Resolvers.Ingest do
+  @moduledoc """
+  Absinthe GraphQL query resolver for Ingest Context
+
+  """
   alias Meadow.Ingest
-  alias Meadow.Ingest.Bucket
+  alias Meadow.Ingest.{InventoryValidator, Bucket}
   alias MeadowWeb.Schema.ChangesetErrors
 
   def projects(_, args, _) do
@@ -18,6 +22,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
          message: "Could not create project", details: ChangesetErrors.error_details(changeset)}
 
       {:ok, project} ->
+        Application.get_env(:meadow, :ingest_bucket)
+        |> Bucket.create_project_folder(project.folder)
+
         {:ok, project}
     end
   end
@@ -39,6 +46,15 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   def ingest_job(_, %{id: id}, _) do
     {:ok, Ingest.get_ingest_job!(id)}
+  end
+
+  def ingest_job_validations(_, _, _) do
+    {:ok, %{validations: [%{id: "job", object: %{errors: [], status: "pending"}}]}}
+  end
+
+  def validate_ingest_job(_, args, _) do
+    InventoryValidator.validate(args[:ingest_job_id])
+    {:ok, %{message: "finished"}}
   end
 
   def create_ingest_job(_, args, _) do
@@ -71,30 +87,5 @@ defmodule MeadowWeb.Resolvers.Ingest do
   def get_presigned_url(_, _, _) do
     url = Bucket.presigned_s3_url(Application.get_env(:meadow, :upload_bucket))
     {:ok, %{url: url}}
-  end
-
-  def change_ingest_job_state(_, args, _) do
-    ingest_job = Ingest.get_ingest_job!(args[:ingest_job_id])
-
-    case Ingest.change_ingest_job_state(ingest_job, args[:state]) do
-      {:error, changeset} ->
-        {
-          :error,
-          message: "Could not update ingest job state",
-          details: ChangesetErrors.error_details(changeset)
-        }
-
-      {:ok, ingest_job} ->
-        publish_ingest_job_change(ingest_job)
-        {:ok, ingest_job}
-    end
-  end
-
-  defp publish_ingest_job_change(ingest_job) do
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      ingest_job,
-      ingest_job_change: ingest_job.id
-    )
   end
 end

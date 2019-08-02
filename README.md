@@ -6,6 +6,7 @@
 
 ## Initial setup:
 
+- Make sure you've done the [Local Authentication Setup](https://github.com/nulib/donut/wiki/Authentication-setup-for-dev-environment)
 - Install yarn if it's not already present: `npm -g install yarn`
 - Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
 - Install dependencies with `mix deps.get`
@@ -13,13 +14,13 @@
 - Install Node.js dependencies with `cd assets && yarn install`
 - Start Phoenix endpoint with `mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Now you can visit [`devbox.library.northwestern.edu`](http://devbox.library.northwestern.edu) from your browser.
 
 ## Running the application
 
 You can simply run the application with `mix phx.server`
 
-After initial setup, you don't need to run `mix ecto.setup` again
+After initial setup, you don't need to run `mix ecto.setup` again, but if there are database changes you'll need to run `mix ecto.migrate` before starting the Phoenix server. Or, you can run `mix ecto.reset` which will drop and recreate the database and run the migrations.
 
 ### Dependencies
 
@@ -33,6 +34,11 @@ If you need to reset the database you can run `mix ecto.reset` which will drop +
 
 If you just want to run the migrations but leave the data intact, you can just do `mix ecto.migrate`
 
+### Run the test suite
+
+- Start test devstack: `devstack -t up meadow`
+- run `mix test`
+
 ### Amazon s3/Minio
 
 `http://localhost:9001/minio/` is where you can see your local "s3" buckets.
@@ -40,9 +46,7 @@ If you just want to run the migrations but leave the data intact, you can just d
 **Login**: minio
 **Password**: minio123
 
-### REST API
+### GraphQL API
 
-You can visit the SwaggerUI at: [`http://localhost:4000/swaggerui`](http://localhost:4000/swaggerui)
+You can visit the GraphiQL interface at: [`http://devbox.library.northwestern.edu/api/graphiql`](http://devbox.library.northwestern.edu/api/graphiql)
 
-To regenerate the OpenAPI spec run
-`mix meadow.open_api_spec spec.json`

@@ -11,14 +11,14 @@ import { Socket as PhoenixSocket } from "phoenix";
 // Create an HTTP link that fetches GraphQL results over an HTTP
 // connection from the Phoenix app's GraphQL API endpoint URL.
 const httpLink = createHttpLink({
-  uri: "http://devbox.library.northwestern.edu/api/graphql"
+  uri: "/api/graphql"
 });
 
 // Create a WebSocket link that sends GraphQL subscriptions over
 // a WebSocket. It connects to the Phoenix app's socket URL
 // so subscriptions flow through Phoenix channels.
 const absintheSocketLink = createAbsintheSocketLink(
-  AbsintheSocket.create(new PhoenixSocket("ws://devbox.library.northwestern.edu/socket"))
+  AbsintheSocket.create(new PhoenixSocket("/socket"))
 );
 
 // Create a link that sets the context of the GraphQL request.

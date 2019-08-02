@@ -33,7 +33,7 @@ const ProjectList = () => {
                   </h3>
                   <p>
                     <span className="font-bold">s3 Bucket Folder: </span>{" "}
-                    <a href="#">{folder}</a>
+                    {folder}
                   </p>
                 </article>
               ))}

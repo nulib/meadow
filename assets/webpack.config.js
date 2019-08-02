@@ -31,7 +31,7 @@ module.exports = (env, options) => ({
       {
         test: /\.mjs$/,
         include: /node_modules/,
-        type: 'javascript/auto'
+        type: "javascript/auto"
       },
       {
         test: /\.css$/,
@@ -74,6 +74,6 @@ module.exports = (env, options) => ({
   ],
   devtool: "source-map",
   resolve: {
-    extensions: ['*', '.mjs', ".js", ".jsx", ".json"]
+    extensions: ["*", ".mjs", ".js", ".jsx", ".json"]
   }
 });

@@ -9,6 +9,8 @@ defmodule Meadow.Ingest.InventoryValidator do
   import Ecto.Query
 
   def validate(job_id) do
+    :timer.sleep(1000)
+
     IngestJob
     |> where([ingest_job], ingest_job.id == ^job_id)
     |> preload(:project)
@@ -107,12 +109,12 @@ defmodule Meadow.Ingest.InventoryValidator do
 
     case result do
       [] ->
-        job_id(job) |> Notification.update({:row, row_num}, %{status: "pass"})
+        job_id(job) |> Notification.update({"row" <> to_string(row_num)}, %{status: "pass"})
         :pass
 
       errors ->
         job_id(job)
-        |> Notification.update({:row, row_num}, %{
+        |> Notification.update({"row" <> to_string(row_num)}, %{
           status: "fail",
           errors: Enum.reverse(errors)
         })
@@ -125,7 +127,10 @@ defmodule Meadow.Ingest.InventoryValidator do
     rows
     |> Enum.with_index()
     |> Enum.each(fn {row, row_num} ->
-      job_id(job) |> Notification.update({:row, row_num}, %{content: Enum.into(row, %{})})
+      job_id(job)
+      |> Notification.update({"row" <> to_string(row_num)}, %{
+        content: Enum.join(Enum.map(row, fn {_k, v} -> v end), ", ")
+      })
     end)
 
     final_status = validate_rows(job, rows, 0)
@@ -144,5 +149,5 @@ defmodule Meadow.Ingest.InventoryValidator do
     end
   end
 
-  defp job_id(job), do: "job:" <> job.id
+  defp job_id(job), do: job.id
 end

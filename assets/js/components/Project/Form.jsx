@@ -5,6 +5,7 @@ import { Mutation } from "react-apollo";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { GET_PROJECTS_QUERY } from "./List";
+import { toast } from 'react-toastify';
 
 const CREATE_PROJECT_MUTATION = gql`
   mutation CreateProject($projectTitle: String!) {
@@ -25,10 +26,11 @@ class ProjectForm extends React.Component {
     this.props.history.push("/project/list");
   };
 
-  clearState = () => {
+  handleCompleted = (title) => {
+    toast(`Project ${title} created successfully`);
     this.setState({ projectTitle: "" });
     this.props.history.push("/project/list");
-  };
+  }
 
   handleTitleChange = e => {
     this.setState({ projectTitle: e.target.value });
@@ -42,7 +44,9 @@ class ProjectForm extends React.Component {
         variables={{
           ...this.state
         }}
-        onCompleted={this.clearState}
+        onCompleted={(data) => {
+          this.handleCompleted(data.createProject.title);
+        }}
         refetchQueries={[{ query: GET_PROJECTS_QUERY }]}
       >
         {(createProject, { loading, error }) => {
