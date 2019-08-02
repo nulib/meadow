@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { withRouter } from "react-router";
 import InventorySheetList from "../../components/InventorySheet/List";
 import { Link } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import Error from "../Error";
-import Loading from "../Loading";
+import Error from "../../components/UI/Error";
+import Loading from "../../components/UI/Loading";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
 

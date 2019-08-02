@@ -3,31 +3,34 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
-import Error from "../../screens/Error";
-import Loading from "../../screens/Loading";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 import UploadInventorySheet from "./Upload";
 
 const GET_PRESIGNED_URL = gql`
   query {
-  presignedUrl {
-    url
+    presignedUrl {
+      url
+    }
   }
-}
 `;
 
 const InventorySheetForm = ({ history, projectId }) => {
-
   return (
     <Query query={GET_PRESIGNED_URL}>
       {({ data: { presignedUrl }, loading, error }) => {
         if (loading) return <Loading />;
         if (error) return <Error error={error} />;
         return (
-          <UploadInventorySheet history={history} projectId={projectId} presignedUrl={presignedUrl.url} />
+          <UploadInventorySheet
+            history={history}
+            projectId={projectId}
+            presignedUrl={presignedUrl.url}
+          />
         );
       }}
     </Query>
-  )
+  );
 };
 
 InventorySheetForm.propTypes = {
