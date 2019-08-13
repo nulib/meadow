@@ -23,6 +23,7 @@ defmodule Meadow.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Meadow.DataCase
+      import Meadow.TestHelpers
     end
   end
 
