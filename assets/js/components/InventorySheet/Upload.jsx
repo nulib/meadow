@@ -7,7 +7,7 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
 import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const CREATE_INGEST_JOB_MUTATION = gql`
   mutation CreateIngestJob(
@@ -73,8 +73,10 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
           .slice(-3)
           .join("/")}`
       }}
-      onCompleted={(data) => {
-        history.push(`/project/${projectId}/inventory-sheet/${data.createIngestJob.id}`);
+      onCompleted={data => {
+        history.push(
+          `/project/${projectId}/inventory-sheet/${data.createIngestJob.id}`
+        );
       }}
       refetchQueries={[
         {
@@ -93,8 +95,8 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
             onSubmit={e => {
               e.preventDefault();
               uploadToS3();
-              createIngestJob();            
-          }}
+              createIngestJob();
+            }}
           >
             <Error error={error} />
             <div className="mb-4">
@@ -103,6 +105,7 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
                 id={"ingest_job_name"}
                 name="ingest_job_name"
                 type="text"
+                className="text-input"
                 onChange={handleInputChange}
               />
             </div>

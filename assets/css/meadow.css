@@ -34,16 +34,32 @@ a:hover {
   @apply underline;
 }
 
-input {
-  @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight;
-}
-
-input:focus {
-  @apply outline-none shadow-outline;
-}
-
 label {
   @apply block text-gray-700 text-sm font-bold mb-2;
+}
+
+table {
+  @apply w-full text-left;
+}
+
+th {
+  @apply text-sm font-semibold text-gray-700 p-2 bg-gray-100;
+}
+
+tbody {
+  @apply align-baseline;
+}
+
+tr.error {
+  @apply bg-red-400 text-white;
+}
+
+td {
+  @apply p-2 border-t border-gray-300 text-sm;
+}
+
+.breadcrumbs {
+  @apply mb-8 text-sm;
 }
 
 .btn {
@@ -61,6 +77,14 @@ label {
 .btn-cancel,
 .btn-cancel:hover {
   background: none;
+}
+
+.btn-warning {
+  @apply bg-red-500 text-white;
+}
+
+.btn-warning:hover {
+  @apply bg-red-700 text-white;
 }
 
 .btn-disabled {
@@ -88,14 +112,18 @@ label {
   @apply mr-4;
 }
 
+.text-input {
+  @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight;
+}
+
+.text-input:focus {
+  @apply outline-none shadow-outline;
+}
+
 .toast-progress-bar {
   @apply bg-white;
 }
 
 .toast-error {
   @apply bg-red-300;
-}
-
-.breadcrumbs {
-  @apply mb-8 text-sm;
 }
