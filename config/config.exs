@@ -28,6 +28,16 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :ueberauth, Ueberauth,
+  providers: [
+    openam:
+      {Ueberauth.Strategy.OpenAM,
+       [
+         base_url: "https://websso.it.northwestern.edu/amserver/",
+         sso_cookie: "openAMssoToken"
+       ]}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

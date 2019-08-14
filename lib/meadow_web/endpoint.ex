@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :meadow
+  use Absinthe.Phoenix.Endpoint
 
   socket "/socket", MeadowWeb.UserSocket,
     websocket: true,

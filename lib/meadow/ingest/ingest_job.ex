@@ -10,6 +10,7 @@ defmodule Meadow.Ingest.IngestJob do
   schema "ingest_jobs" do
     field :name, :string
     field :filename, :string
+    field :state, :string
 
     belongs_to :project, Meadow.Ingest.Project
 
@@ -22,7 +23,14 @@ defmodule Meadow.Ingest.IngestJob do
     |> cast(attrs, [:name, :filename, :project_id])
     |> validate_required([:name, :filename, :project_id])
     |> validate_csv_format()
+    |> assoc_constraint(:project)
     |> unique_constraint(:name)
+  end
+
+  def state_changeset(ingest_job, attrs) do
+    ingest_job
+    |> cast(attrs, [:state])
+    |> validate_required([:state])
   end
 
   def validate_csv_format(changeset) do

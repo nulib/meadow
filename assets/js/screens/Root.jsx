@@ -19,31 +19,28 @@ export default class Root extends React.Component {
   render() {
     return (
       <>
-        <SocketProvider wsUrl="/socket">
-          <BrowserRouter>
-            <Header />
-            <ToastContainer position="bottom-right" hideProgressBar />
-            <Layout>
-              <Switch>
-                <Route path="/fetch-data" component={FetchDataPage} />
-                <Route path="/project/list" component={ScreensProjectList} />
-                <Route path="/project/create" component={ScreensProjectForm} />
-                <Route
-                  path="/project/:id/inventory-sheet/upload"
-                  component={ScreensInventorySheetForm}
-                />
-                <Route
-                  path="/project/:id/inventory-sheet/:inventorySheetId"
-                  component={ScreensInventorySheet}
-                />
-                <Route path="/project/:id" component={Project} />
-
-                <Route path="/" component={Home} />
-                <Route component={NotFoundPage} />
-              </Switch>
-            </Layout>
-          </BrowserRouter>
-        </SocketProvider>
+        <BrowserRouter>
+          <Header />
+          <ToastContainer position="top-right" hideProgressBar />
+          <Layout>
+            <Switch>
+              <Route path="/fetch-data" component={FetchDataPage} />
+              <Route path="/project/list" component={ScreensProjectList} />
+              <Route path="/project/create" component={ScreensProjectForm} />
+              <Route
+                path="/project/:id/inventory-sheet/upload"
+                component={ScreensInventorySheetForm}
+              />
+              <Route
+                path="/project/:id/inventory-sheet/:inventorySheetId"
+                component={ScreensInventorySheet}
+              />
+              <Route path="/project/:id" component={Project} />
+              <Route path="/" component={Home} />
+              <Route component={NotFoundPage} />
+            </Switch>
+          </Layout>
+        </BrowserRouter>
       </>
     );
   }
