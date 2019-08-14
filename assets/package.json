@@ -47,7 +47,7 @@
     "tailwindcss": "^1.1.0",
     "terser-webpack-plugin": "^1.4.1",
     "use-phoenix-channel": "^1.1.1",
-    "webpack": "4.38.0",
+    "webpack": "4.39.2",
     "webpack-cli": "^3.3.6"
   }
 }
