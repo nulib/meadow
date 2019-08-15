@@ -91,7 +91,6 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
 
         return (
           <form
-            className="content-block"
             onSubmit={e => {
               e.preventDefault();
               uploadToS3();
