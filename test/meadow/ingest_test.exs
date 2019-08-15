@@ -10,22 +10,13 @@ defmodule Meadow.IngestTest do
     @update_attrs %{title: "some updated title"}
     @invalid_attrs %{title: nil}
 
-    def project_fixture(attrs \\ %{}) do
-      {:ok, project} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Ingest.create_project()
-
-      project
-    end
-
     test "list_projects/0 returns all projects" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       assert Ingest.list_projects() == [project]
     end
 
     test "get_project!/1 returns the project with given id" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       assert Ingest.get_project!(project.id) == project
     end
 
@@ -45,26 +36,26 @@ defmodule Meadow.IngestTest do
     end
 
     test "update_project/2 with valid data updates the project" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       assert {:ok, %Project{} = project} = Ingest.update_project(project, @update_attrs)
       assert project.title == "some updated title"
     end
 
     test "update_project/2 with valid data does not change the orignal folder name" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       original_folder_name = project.folder
       assert {:ok, %Project{} = project} = Ingest.update_project(project, @update_attrs)
       assert project.folder == original_folder_name
     end
 
     test "update_project/2 with invalid data returns error changeset" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       assert {:error, %Ecto.Changeset{}} = Ingest.update_project(project, @invalid_attrs)
       assert project == Ingest.get_project!(project.id)
     end
 
     test "delete_project/1 deletes the project" do
-      project = project_fixture()
+      project = project_fixture(@valid_attrs)
       assert {:ok, %Project{}} = Ingest.delete_project(project)
       assert_raise Ecto.NoResultsError, fn -> Ingest.get_project!(project.id) end
     end
@@ -89,15 +80,6 @@ defmodule Meadow.IngestTest do
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
     @invalid_attrs %{name: nil, filename: nil}
-
-    def ingest_job_fixture(attrs \\ %{}) do
-      {:ok, ingest_job} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Ingest.create_ingest_job()
-
-      ingest_job
-    end
 
     test "list_ingest_jobs/0 returns all ingest_jobs" do
       project = project_fixture()

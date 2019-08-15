@@ -46,7 +46,6 @@ defmodule Meadow.Notification do
     deliver(id, index, struct)
 
     Set.put!(init(id), {index, struct})
-
     id
   end
 

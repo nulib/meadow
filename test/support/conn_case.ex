@@ -21,6 +21,7 @@ defmodule MeadowWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       alias MeadowWeb.Router.Helpers, as: Routes
+      import Meadow.TestHelpers
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
