@@ -18,7 +18,8 @@ module.exports = {
     })
   },
   variants: {
-    spinner: ["responsive"]
+    spinner: ["responsive"],
+    tableLayout: ["responsive"]
   },
   plugins: [
     require("tailwindcss-spinner")() // no options to configure

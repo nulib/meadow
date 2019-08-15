@@ -5,11 +5,24 @@ import gql from "graphql-tag";
 import { Query } from "react-apollo";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
+
+const GET_INGEST_JOBS = gql`
+  query GetIngestJobs($projectId: ID!) {
+    project(id: $projectId) {
+      id
+      ingestJobs {
+        id
+        name
+        updatedAt
+      }
+    }
+  }
+`;
 
 const InventorySheetList = ({ projectId }) => {
+  console.log("TCL: InventorySheetList -> projectId", projectId);
   return (
-    <Query query={GET_PROJECT_QUERY} variables={{ projectId }}>
+    <Query query={GET_INGEST_JOBS} variables={{ projectId }}>
       {({ data, loading, error }) => {
         if (loading) return <Loading />;
         if (error) return <Error error={error} />;
@@ -22,22 +35,30 @@ const InventorySheetList = ({ projectId }) => {
             )}
 
             {data.project.ingestJobs.length > 0 && (
-              <ul data-testid="inventory-sheet-list">
-                {data.project.ingestJobs.map(sheet => (
-                  <li key={sheet.id} className="pb-4">
-                    <p>
-                      <Link
-                        to={`/project/${projectId}/inventory-sheet/${sheet.id}`}
-                      >
-                        {sheet.name}
-                      </Link>
-                    </p>
-                    <p>Total Works: xxx</p>
-                    <p>Ingested: 2019-05-12</p>
-                    <p>Creator: Some person</p>
-                  </li>
-                ))}
-              </ul>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ingest job title</th>
+                    <th>Last updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.project.ingestJobs.map(
+                    ({ id, name, filename, updatedAt }) => (
+                      <tr key={id}>
+                        <td>
+                          <Link
+                            to={`/project/${projectId}/inventory-sheet/${id}`}
+                          >
+                            {name}
+                          </Link>
+                        </td>
+                        <td>{updatedAt}</td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
         );

@@ -11,8 +11,10 @@ const GET_PROJECTS_QUERY = gql`
       id
       title
       folder
-      inserted_at
       updated_at
+      ingestJobs {
+        id
+      }
     }
   }
 `;
@@ -25,18 +27,31 @@ const ProjectList = () => {
         if (error) return <Error error={error} />;
         return (
           <section className="my-6">
-            {data.projects.length > 0 &&
-              data.projects.map(({ id, folder, title }) => (
-                <article key={id} className="pb-6">
-                  <h3>
-                    <Link to={`/project/${id}`}>{title}</Link>
-                  </h3>
-                  <p>
-                    <span className="font-bold">s3 Bucket Folder: </span>{" "}
-                    {folder}
-                  </p>
-                </article>
-              ))}
+            <table>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>s3 Bucket Folder</th>
+                  <th>Number of ingestion jobs</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.projects.length > 0 &&
+                  data.projects.map(
+                    ({ id, folder, title, updated_at, ingestJobs }) => (
+                      <tr key={id}>
+                        <td>
+                          <Link to={`/project/${id}`}>{title}</Link>
+                        </td>
+                        <td>{folder}</td>
+                        <td className="text-center">{ingestJobs.length}</td>
+                        <td>{updated_at}</td>
+                      </tr>
+                    )
+                  )}
+              </tbody>
+            </table>
           </section>
         );
       }}

@@ -2,9 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import Breadcrumbs from "../../components/UI/Breadcrumbs";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import UIButton from "../../components/UI/Button";
+
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import InventorySheet from "../../components/InventorySheet/InventorySheet";
@@ -59,10 +57,6 @@ const ScreensInventorySheet = ({ match }) => {
             />
             <ScreenContent>
               <InventorySheet inventorySheetId={inventorySheetId} />
-              <ButtonGroup>
-                <UIButton label="Looks great, approve the sheet" />
-                <UIButton classes="bg-red-500" label="Eject and start over" />
-              </ButtonGroup>
             </ScreenContent>
           </>
         );
