@@ -19,7 +19,7 @@ const UIButton = ({
 );
 
 UIButton.propTypes = {
-  children: PropTypes.string,
+  children: PropTypes.node,
   classes: PropTypes.string,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(["submit"])

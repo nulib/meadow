@@ -59,7 +59,7 @@ const Project = ({ match }) => {
               }}
               className="btn mb-4"
             >
-              <AddOutlineIcon class="icon" /> New Ingest Job
+              <AddOutlineIcon className="icon" /> New Ingest Job
             </Link>
             <h2>Ingest Jobs</h2>
             <section>
