@@ -21,7 +21,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
       "title" => "This is the title"
     }
 
-    conn = build_conn()
+    conn = build_conn() |> auth_user(user_fixture())
 
     conn =
       post conn, "/api/graphql",

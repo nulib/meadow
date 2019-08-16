@@ -8,27 +8,30 @@ defmodule MeadowWeb.Schema.Schema do
   import_types(MeadowWeb.Schema.Types.Json)
 
   import Absinthe.Resolution.Helpers, only: [batch: 3, dataloader: 1]
-
   alias Meadow.Ingest
   alias MeadowWeb.Resolvers
+  alias MeadowWeb.Schema.Middleware
 
   query do
     @desc "Get a list of projects"
     field :projects, list_of(:project) do
       arg(:limit, :integer, default_value: 100)
       arg(:order, type: :sort_order, default_value: :desc)
+      middleware(Middleware.Authenticate)
       resolve(&MeadowWeb.Resolvers.Ingest.projects/3)
     end
 
     @desc "Get a project by its id"
     field :project, :project do
       arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.project/3)
     end
 
     @desc "Get an ingest job by its id"
     field :ingest_job, :ingest_job do
       arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.ingest_job/3)
     end
 
@@ -39,6 +42,7 @@ defmodule MeadowWeb.Schema.Schema do
 
     @desc "Get a presigned url to upload an inventory sheet"
     field :presigned_url, :presigned_url do
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.get_presigned_url/3)
     end
 
@@ -48,7 +52,13 @@ defmodule MeadowWeb.Schema.Schema do
       arg(:state, list_of(:state))
       arg(:start, :integer)
       arg(:limit, :integer)
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.ingest_job_rows/3)
+    end
+
+    @desc "Get the currently signed-in user"
+    field :me, :user do
+      resolve(&Resolvers.Accounts.me/3)
     end
   end
 
@@ -56,6 +66,7 @@ defmodule MeadowWeb.Schema.Schema do
     @desc "Create a new Ingest Project"
     field :create_project, :project do
       arg(:title, non_null(:string))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.create_project/3)
     end
 
@@ -64,24 +75,28 @@ defmodule MeadowWeb.Schema.Schema do
       arg(:name, non_null(:string))
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.create_ingest_job/3)
     end
 
     @desc "Delete a Project"
     field :delete_project, :project do
       arg(:project_id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.delete_project/3)
     end
 
     @desc "Delete an Ingest Job"
     field :delete_ingest_job, :ingest_job do
       arg(:ingest_job_id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.delete_ingest_job/3)
     end
 
     @desc "Validate an Ingest Job"
     field :validate_ingest_job, :status_message do
       arg(:ingest_job_id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.validate_ingest_job/3)
     end
   end
@@ -203,6 +218,12 @@ defmodule MeadowWeb.Schema.Schema do
     field :fields, list_of(:field)
     field :errors, list_of(:error)
     field :state, :state
+  end
+
+  object :user do
+    field :username, non_null(:string)
+    field :email, :string
+    field :display_name, :string
   end
 
   def context(ctx) do

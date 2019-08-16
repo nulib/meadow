@@ -12,8 +12,9 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
 
   test "projects query returns all projects" do
     projects_fixture()
+    conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(build_conn(), "/api/graphql", query: @query)
+    response = get(conn, "/api/graphql", query: @query)
 
     assert %{
              "data" => %{
@@ -37,8 +38,9 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
   @variables %{"limit" => 2}
   test "projects query limits the number of projects returned" do
     projects_fixture()
+    conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(build_conn(), "/api/graphql", query: @query, variables: @variables)
+    response = get(conn, "/api/graphql", query: @query, variables: @variables)
 
     assert %{
              "data" => %{
@@ -61,8 +63,9 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
   @variables %{"order" => "ASC"}
   test "projects query returns projects ascending" do
     projects_fixture()
+    conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(build_conn(), "/api/graphql", query: @query, variables: @variables)
+    response = get(conn, "/api/graphql", query: @query, variables: @variables)
 
     assert %{
              "data" => %{
@@ -74,8 +77,9 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
   @variables %{"order" => "DESC"}
   test "projects query returns projects descending" do
     projects_fixture()
+    conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(build_conn(), "/api/graphql", query: @query, variables: @variables)
+    response = get(conn, "/api/graphql", query: @query, variables: @variables)
 
     assert %{
              "data" => %{

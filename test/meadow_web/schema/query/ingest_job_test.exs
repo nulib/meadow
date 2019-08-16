@@ -15,7 +15,8 @@ defmodule MeadowWeb.Schema.Query.IngestJobTest do
     ingest_job = ingest_job_fixture()
     variables = %{"id" => ingest_job.id}
 
-    conn = build_conn()
+    conn = build_conn() |> auth_user(user_fixture())
+
     conn = get conn, "/api/graphql", query: @query, variables: variables
 
     assert %{
@@ -39,7 +40,9 @@ defmodule MeadowWeb.Schema.Query.IngestJobTest do
       {:ok, %{status_code: 200}}
     end)
 
-    response = get(build_conn(), "/api/graphql", query: @query)
+    conn = build_conn() |> auth_user(user_fixture())
+
+    response = get(conn, "/api/graphql", query: @query)
 
     assert %{
              "data" => %{
