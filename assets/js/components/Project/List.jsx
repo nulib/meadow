@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 
@@ -20,42 +20,39 @@ const GET_PROJECTS_QUERY = gql`
 `;
 
 const ProjectList = () => {
+  const { loading, error, data } = useQuery(GET_PROJECTS_QUERY);
+
+  if (loading) return <Loading />;
+  if (error) return <Error error={error} />;
+
   return (
-    <Query query={GET_PROJECTS_QUERY}>
-      {({ data, loading, error }) => {
-        if (loading) return <Loading />;
-        if (error) return <Error error={error} />;
-        return (
-          <section className="my-6">
-            <table>
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>s3 Bucket Folder</th>
-                  <th>Number of ingestion jobs</th>
-                  <th>Last Updated</th>
+    <section className="my-6">
+      <table>
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>s3 Bucket Folder</th>
+            <th>Number of ingestion jobs</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.projects.length > 0 &&
+            data.projects.map(
+              ({ id, folder, title, updated_at, ingestJobs }) => (
+                <tr key={id}>
+                  <td>
+                    <Link to={`/project/${id}`}>{title}</Link>
+                  </td>
+                  <td>{folder}</td>
+                  <td className="text-center">{ingestJobs.length}</td>
+                  <td>{updated_at}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {data.projects.length > 0 &&
-                  data.projects.map(
-                    ({ id, folder, title, updated_at, ingestJobs }) => (
-                      <tr key={id}>
-                        <td>
-                          <Link to={`/project/${id}`}>{title}</Link>
-                        </td>
-                        <td>{folder}</td>
-                        <td className="text-center">{ingestJobs.length}</td>
-                        <td>{updated_at}</td>
-                      </tr>
-                    )
-                  )}
-              </tbody>
-            </table>
-          </section>
-        );
-      }}
-    </Query>
+              )
+            )}
+        </tbody>
+      </table>
+    </section>
   );
 };
 
