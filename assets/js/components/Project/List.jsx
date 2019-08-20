@@ -4,8 +4,12 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
+import DeleteIcon from "../../../css/fonts/zondicons/close.svg";
+import { toast } from "react-toastify";
+import { useMutation, useApolloClient } from "@apollo/react-hooks";
+//import GetProjects from "./queries.graphql";
 
-const GET_PROJECTS_QUERY = gql`
+export const GET_PROJECTS = gql`
   query GetProjects {
     projects {
       id
@@ -19,11 +23,50 @@ const GET_PROJECTS_QUERY = gql`
   }
 `;
 
+const DELETE_PROJECT = gql`
+  mutation DeleteProject($projectId: ID!) {
+    deleteProject(projectId: $projectId) {
+      id
+      title
+    }
+  }
+`;
+
 const ProjectList = () => {
-  const { loading, error, data } = useQuery(GET_PROJECTS_QUERY);
+  const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
+  const client = useApolloClient();
+  const [deleteProject, { data }] = useMutation(DELETE_PROJECT, {
+    update(
+      cache,
+      {
+        data: { deleteProject }
+      }
+    ) {
+      const { projects } = client.readQuery({ query: GET_PROJECTS });
+      const index = projects.findIndex(
+        project => project.id === deleteProject.id
+      );
+      projects.splice(index, 1);
+      client.writeQuery({
+        query: GET_PROJECTS,
+        data: { projects }
+      });
+    }
+  });
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
+
+  const handleDeleteClick = (e, project) => {
+    if (project.ingestJobs.length > 0) {
+      return toast(
+        `Project has existing inventory jobs.  You must delete these before deleting project: ${project.title} `,
+        { type: "error" }
+      );
+    }
+
+    deleteProject({ variables: { projectId: project.id } });
+  };
 
   return (
     <section className="my-6">
@@ -34,12 +77,14 @@ const ProjectList = () => {
             <th>s3 Bucket Folder</th>
             <th>Number of ingestion jobs</th>
             <th>Last Updated</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {data.projects.length > 0 &&
-            data.projects.map(
-              ({ id, folder, title, updated_at, ingestJobs }) => (
+          {projectsData.projects.length > 0 &&
+            projectsData.projects.map(project => {
+              const { id, folder, title, updated_at, ingestJobs } = project;
+              return (
                 <tr key={id}>
                   <td>
                     <Link to={`/project/${id}`}>{title}</Link>
@@ -47,9 +92,15 @@ const ProjectList = () => {
                   <td>{folder}</td>
                   <td className="text-center">{ingestJobs.length}</td>
                   <td>{updated_at}</td>
+                  <td>
+                    <DeleteIcon
+                      className="icon cursor-pointer"
+                      onClick={e => handleDeleteClick(e, project)}
+                    />
+                  </td>
                 </tr>
-              )
-            )}
+              );
+            })}
         </tbody>
       </table>
     </section>
@@ -57,4 +108,3 @@ const ProjectList = () => {
 };
 
 export default ProjectList;
-export { GET_PROJECTS_QUERY };

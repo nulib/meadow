@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 const UIButton = ({
   classes = "",
   disabled = false,
-  label = "Button Label",
   onClick,
-  type = ""
+  type = "",
+  children
 }) => (
   <button
     className={`btn ${classes} ${disabled ? "btn-disabled" : ""}`}
@@ -14,13 +14,13 @@ const UIButton = ({
     onClick={onClick}
     disabled={disabled}
   >
-    {label}
+    {children}
   </button>
 );
 
 UIButton.propTypes = {
+  children: PropTypes.string,
   classes: PropTypes.string,
-  label: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(["submit"])
 };

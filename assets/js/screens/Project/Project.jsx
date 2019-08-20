@@ -8,6 +8,7 @@ import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
+import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 
 const GET_PROJECT_QUERY = gql`
   query GetProject($projectId: String!) {
@@ -58,7 +59,7 @@ const Project = ({ match }) => {
               }}
               className="btn mb-4"
             >
-              New Ingest Job
+              <AddOutlineIcon class="icon" /> New Ingest Job
             </Link>
             <h2>Ingest Jobs</h2>
             <section>

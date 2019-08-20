@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import ButtonGroup from "../../components/UI/ButtonGroup";
 import UIButton from "../../components/UI/Button";
 import { useMutation } from "@apollo/react-hooks";
+import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
+import CloseIcon from "../../../css/fonts/zondicons/close.svg";
 
 const SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS = gql`
   subscription IngestJobValidationUpdate($ingestJobId: String!) {
@@ -83,10 +85,6 @@ function InventorySheetValidations({
 
   return (
     <>
-      <div className="text-sm py-4">
-        <input type="checkbox" /> Show all rows
-      </div>
-
       <table>
         <thead>
           <tr>
@@ -115,11 +113,16 @@ function InventorySheetValidations({
       </table>
 
       <ButtonGroup>
-        {!hasErrors && <UIButton label="Approve inventory sheet groupings" />}
-        <UIButton
-          classes="btn-warning"
-          label="Delete job and re-upload inventory sheet"
-        />
+        {!hasErrors && (
+          <UIButton>
+            <CheckMarkIcon className="icon" />
+            Approve inventory sheet groupings
+          </UIButton>
+        )}
+        <UIButton classes="btn-cancel">
+          <CloseIcon className="icon" /> Delete job and re-upload inventory
+          sheet
+        </UIButton>
       </ButtonGroup>
     </>
   );

@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import gql from "graphql-tag";
 import PropTypes from "prop-types";
-import { Mutation } from "react-apollo";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
 import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
 import { toast } from "react-toastify";
+import { useMutation } from "@apollo/react-hooks";
+import UIButton from "../UI/Button";
+import UIButtonGroup from "../UI/ButtonGroup";
 
 const CREATE_INGEST_JOB_MUTATION = gql`
   mutation CreateIngestJob(
@@ -29,6 +31,25 @@ const CREATE_INGEST_JOB_MUTATION = gql`
 
 const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
   const [values, setValues] = useState({ ingest_job_name: "", file: "" });
+  const [createIngestJob, { data, loading, error }] = useMutation(
+    CREATE_INGEST_JOB_MUTATION,
+    {
+      onCompleted({ createIngestJob }) {
+        history.push(
+          `/project/${projectId}/inventory-sheet/${createIngestJob.id}`
+        );
+      },
+      refetchQueries(mutationResult) {
+        console.log("TCL: refetchQueries -> mutationResult", mutationResult);
+        return [
+          {
+            query: GET_PROJECT_QUERY,
+            variables: { projectId: projectId }
+          }
+        ];
+      }
+    }
+  );
 
   const handleInputChange = event => {
     event.persist();
@@ -55,79 +76,60 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
       reader.readAsText(file);
     } catch (error) {
       console.log(error);
-      toast(`Error uploading file to S3: ${error}`);
+      toast(`Error uploading file to S3: ${error}`, { type: "error" });
     }
   };
 
   const { ingest_job_name, file } = values;
 
-  return (
-    <Mutation
-      mutation={CREATE_INGEST_JOB_MUTATION}
-      variables={{
-        name: ingest_job_name,
-        projectId: projectId,
-        filename: `s3://${presignedUrl
-          .split("?")[0]
-          .split("/")
-          .slice(-3)
-          .join("/")}`
-      }}
-      onCompleted={data => {
-        history.push(
-          `/project/${projectId}/inventory-sheet/${data.createIngestJob.id}`
-        );
-      }}
-      refetchQueries={[
-        {
-          query: GET_PROJECT_QUERY,
-          variables: { projectId: projectId }
-        }
-      ]}
-    >
-      {(createIngestJob, { data, loading, error }) => {
-        if (loading) return <Loading />;
-        if (error) return <Error error={error} />;
+  if (loading) return <Loading />;
+  if (error) return <Error error={error} />;
 
-        return (
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              uploadToS3();
-              createIngestJob();
-            }}
-          >
-            <Error error={error} />
-            <div className="mb-4">
-              <label htmlFor="ingest_job_name">Ingest Job Name</label>
-              <input
-                id={"ingest_job_name"}
-                name="ingest_job_name"
-                type="text"
-                className="text-input"
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="file">Inventory Sheet File</label>
-              <input
-                id={"file"}
-                name="file"
-                type="file"
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="mt-6"></div>
-            <button className="btn" type="submit">
-              Submit
-            </button>
-            <button className="btn btn-cancel" onClick={handleCancel}>
-              Cancel
-            </button>
-          </form>
-        );
+  return (
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        uploadToS3();
+        createIngestJob({
+          variables: {
+            name: ingest_job_name,
+            projectId: projectId,
+            filename: `s3://${presignedUrl
+              .split("?")[0]
+              .split("/")
+              .slice(-3)
+              .join("/")}`
+          }
+        });
       }}
-    </Mutation>
+    >
+      <Error error={error} />
+      <div className="mb-4">
+        <label htmlFor="ingest_job_name">Ingest Job Name</label>
+        <input
+          id={"ingest_job_name"}
+          name="ingest_job_name"
+          type="text"
+          className="text-input"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="file">Inventory Sheet File</label>
+        <input
+          id={"file"}
+          name="file"
+          type="file"
+          onChange={handleInputChange}
+        />
+      </div>
+      <UIButtonGroup>
+        <UIButton type="submit">Submit</UIButton>
+        <UIButton classes="btn-cancel" onClick={handleCancel}>
+          Cancel
+        </UIButton>
+      </UIButtonGroup>
+    </form>
   );
 };
 
