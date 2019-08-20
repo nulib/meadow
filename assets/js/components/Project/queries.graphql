@@ -1,0 +1,11 @@
+query GetProjects {
+  projects {
+    id
+    title
+    folder
+    updated_at
+    ingestJobs {
+      id
+    }
+  }
+}

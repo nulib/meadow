@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ProjectList from "../../components/Project/List";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
+import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 
 const ScreensProjectList = () => {
   return (
@@ -14,6 +15,7 @@ const ScreensProjectList = () => {
       />
       <ScreenContent>
         <Link to="/project/create" className="btn">
+          <AddOutlineIcon className="icon" />
           Create Project
         </Link>
         <ProjectList />

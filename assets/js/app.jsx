@@ -6,10 +6,12 @@ import ReactDOM from "react-dom";
 import Root from "./screens/Root";
 
 // GraphQL-specific
-import { ApolloProvider } from "react-apollo";
+import { ApolloProvider } from "@apollo/react-hooks";
 import client from "./client";
 
-ReactDOM.render(<ApolloProvider client={client}>
-  <Root />
-</ApolloProvider>,
-  document.getElementById("react-app"));
+ReactDOM.render(
+  <ApolloProvider client={client}>
+    <Root />
+  </ApolloProvider>,
+  document.getElementById("react-app")
+);

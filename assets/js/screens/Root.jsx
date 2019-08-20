@@ -21,7 +21,11 @@ export default class Root extends React.Component {
       <>
         <BrowserRouter>
           <Header />
-          <ToastContainer position="top-right" hideProgressBar />
+          <ToastContainer
+            position="top-center"
+            hideProgressBar
+            autoClose={27000}
+          />
           <Layout>
             <Switch>
               <Route path="/fetch-data" component={FetchDataPage} />

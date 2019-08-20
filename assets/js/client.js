@@ -1,7 +1,7 @@
 import { ApolloClient } from "apollo-client";
 import { ApolloLink } from "apollo-link";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { createHttpLink } from "apollo-link-http";
+import { HttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
 import { hasSubscription } from "@jumpn/utils-graphql";
 import * as AbsintheSocket from "@absinthe/socket";
@@ -10,9 +10,7 @@ import { Socket as PhoenixSocket } from "phoenix";
 
 // Create an HTTP link that fetches GraphQL results over an HTTP
 // connection from the Phoenix app's GraphQL API endpoint URL.
-const httpLink = createHttpLink({
-  uri: "/api/graphql"
-});
+const httpLink = new HttpLink({ uri: "/api/graphql" });
 
 // Create a WebSocket link that sends GraphQL subscriptions over
 // a WebSocket. It connects to the Phoenix app's socket URL

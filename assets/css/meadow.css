@@ -103,6 +103,10 @@ td {
   @apply bg-white p-6 shadow-md;
 }
 
+.icon {
+  @apply fill-current inline-block text-gray-600 w-4 h-4 mr-1;
+}
+
 .notification {
   /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
   @apply bg-green-500;
@@ -126,4 +130,12 @@ td {
 
 .toast-error {
   @apply bg-red-300;
+}
+
+/** Overrides **/
+.Toastify__toast--default {
+  @apply bg-gray-700 text-white !important;
+}
+.Toastify__close-button--default {
+  @apply text-white !important;
 }

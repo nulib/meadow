@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import UploadInventorySheet from "./Upload";
+import { useQuery } from "@apollo/react-hooks";
 
 const GET_PRESIGNED_URL = gql`
   query {
@@ -16,20 +16,21 @@ const GET_PRESIGNED_URL = gql`
 `;
 
 const InventorySheetForm = ({ history, projectId }) => {
+  const {
+    loading,
+    error,
+    data: { presignedUrl }
+  } = useQuery(GET_PRESIGNED_URL);
+
+  if (loading) return <Loading />;
+  if (error) return <Error error={error} />;
+
   return (
-    <Query query={GET_PRESIGNED_URL}>
-      {({ data: { presignedUrl }, loading, error }) => {
-        if (loading) return <Loading />;
-        if (error) return <Error error={error} />;
-        return (
-          <UploadInventorySheet
-            history={history}
-            projectId={projectId}
-            presignedUrl={presignedUrl.url}
-          />
-        );
-      }}
-    </Query>
+    <UploadInventorySheet
+      history={history}
+      projectId={projectId}
+      presignedUrl={presignedUrl.url}
+    />
   );
 };
 
