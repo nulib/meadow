@@ -65,7 +65,7 @@ const ProjectForm = ({ history }) => {
 
         <UIButtonGroup>
           <UIButton type="submit">Submit</UIButton>
-          <UIButton classes="btn-cancel" onClick={handleCancel}>
+          <UIButton classes="btn-clear" onClick={handleCancel}>
             Cancel
           </UIButton>
         </UIButtonGroup>
