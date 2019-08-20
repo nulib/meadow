@@ -33,13 +33,13 @@ const InventorySheet = ({ inventorySheetId }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <div>
+    <>
       <InventorySheetValidations
         inventorySheetId={inventorySheetId}
         ingestJobValidations={data.ingestJobValidations}
         subscribeToInventorySheetValidations={subscribeToMore}
       />
-    </div>
+    </>
   );
 };
 

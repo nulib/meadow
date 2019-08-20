@@ -42,6 +42,7 @@ const InventorySheetList = ({ projectId }) => {
             <tr>
               <th>Ingest job title</th>
               <th>Last updated</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -54,6 +55,7 @@ const InventorySheetList = ({ projectId }) => {
                     </Link>
                   </td>
                   <td>{updatedAt}</td>
+                  <td>...tbd</td>
                 </tr>
               )
             )}

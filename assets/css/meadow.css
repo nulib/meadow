@@ -74,8 +74,8 @@ td {
   @apply outline-none shadow-outline;
 }
 
-.btn-cancel,
-.btn-cancel:hover {
+.btn-clear,
+.btn-clear:hover {
   background: none;
 }
 
@@ -85,6 +85,10 @@ td {
 
 .btn-warning:hover {
   @apply bg-red-700 text-white;
+}
+
+.btn-warning .icon {
+  @apply text-white;
 }
 
 .btn-disabled {

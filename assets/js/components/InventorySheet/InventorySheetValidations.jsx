@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
 import PropTypes from "prop-types";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import UIButton from "../../components/UI/Button";
 import { useMutation } from "@apollo/react-hooks";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 import CloseIcon from "../../../css/fonts/zondicons/close.svg";
+import InventorySheetErrorsState from "./ErrorsState";
+import InventorySheetUnapprovedState from "./UnapprovedState";
 
 const SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS = gql`
   subscription IngestJobValidationUpdate($ingestJobId: String!) {
@@ -80,52 +80,21 @@ function InventorySheetValidations({
     };
   };
 
-  const rowHasErrors = object =>
-    object && object.errors && object.errors.length > 0;
+  if (hasErrors) {
+    return (
+      <InventorySheetErrorsState
+        validations={ingestJobValidations.validations}
+      />
+    );
+  } else {
+    return (
+      <InventorySheetUnapprovedState
+        validations={ingestJobValidations.validations}
+      />
+    );
+  }
 
-  return (
-    <>
-      <table>
-        <thead>
-          <tr>
-            <th>Job Id</th>
-            <th>Status</th>
-            <th>Content</th>
-            <th>Errors</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ingestJobValidations.validations.map(({ id, object }) => (
-            <tr key={id} className={rowHasErrors(object) ? "error" : ""}>
-              <td>{id}</td>
-              <td>{object && object.status}</td>
-              <td>{object && object.content}</td>
-              <td>
-                {rowHasErrors(object)
-                  ? object.errors.map((error, index) => (
-                      <span key={index}>{error}</span>
-                    ))
-                  : ""}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <ButtonGroup>
-        {!hasErrors && (
-          <UIButton>
-            <CheckMarkIcon className="icon" />
-            Approve inventory sheet groupings
-          </UIButton>
-        )}
-        <UIButton classes="btn-cancel">
-          <CloseIcon className="icon" /> Delete job and re-upload inventory
-          sheet
-        </UIButton>
-      </ButtonGroup>
-    </>
-  );
+  return null;
 }
 
 InventorySheetValidations.propTypes = {
