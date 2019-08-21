@@ -1,19 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
-import gql from "graphql-tag";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import UploadInventorySheet from "./Upload";
 import { useQuery } from "@apollo/react-hooks";
-
-const GET_PRESIGNED_URL = gql`
-  query {
-    presignedUrl {
-      url
-    }
-  }
-`;
+import { GET_PRESIGNED_URL } from "./inventorySheet.query.js";
 
 const InventorySheetForm = ({ history, projectId }) => {
   const {

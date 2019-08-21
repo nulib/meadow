@@ -5,12 +5,12 @@ import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
+import { GET_PROJECT } from "../../screens/Project/Project";
 import { useQuery } from "@apollo/react-hooks";
 
 const ScreensInventorySheetForm = ({ match }) => {
   const { id } = match.params;
-  const { loading, error, data } = useQuery(GET_PROJECT_QUERY, {
+  const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
   });
 
@@ -48,4 +48,4 @@ const ScreensInventorySheetForm = ({ match }) => {
 };
 
 export default withRouter(ScreensInventorySheetForm);
-export { GET_PROJECT_QUERY };
+export { GET_PROJECT };

@@ -6,26 +6,13 @@ import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
-
-const GET_PROJECT_QUERY = gql`
-  query GetProject($projectId: String!) {
-    project(id: $projectId) {
-      id
-      title
-      ingestJobs {
-        id
-        name
-      }
-    }
-  }
-`;
+import { GET_PROJECT } from "../../components/Project/project.query";
 
 const Project = ({ match }) => {
   const { id } = match.params;
-  const { loading, error, data } = useQuery(GET_PROJECT_QUERY, {
+  const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
   });
 
@@ -74,4 +61,4 @@ const Project = ({ match }) => {
 
 export default withRouter(Project);
 
-export { GET_PROJECT_QUERY };
+export { GET_PROJECT };

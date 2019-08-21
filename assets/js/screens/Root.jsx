@@ -12,7 +12,6 @@ import Home from "./Home/Home";
 import NotFoundPage from "./404";
 import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
-import { SocketProvider } from "use-phoenix-channel";
 import Layout from "./Layout";
 
 export default class Root extends React.Component {
@@ -24,7 +23,7 @@ export default class Root extends React.Component {
           <ToastContainer
             position="top-center"
             hideProgressBar
-            autoClose={27000}
+            autoClose={7000}
           />
           <Layout>
             <Switch>

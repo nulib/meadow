@@ -1,24 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import gql from "graphql-tag";
-import { Query } from "react-apollo";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-
-const GET_INGEST_JOBS = gql`
-  query GetIngestJobs($projectId: ID!) {
-    project(id: $projectId) {
-      id
-      ingestJobs {
-        id
-        name
-        updatedAt
-      }
-    }
-  }
-`;
+import { GET_INGEST_JOBS } from "./inventorySheet.query";
 
 const InventorySheetList = ({ projectId }) => {
   const { loading, error, data } = useQuery(GET_INGEST_JOBS, {

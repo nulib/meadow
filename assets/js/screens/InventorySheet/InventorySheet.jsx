@@ -2,7 +2,6 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import InventorySheet from "../../components/InventorySheet/InventorySheet";

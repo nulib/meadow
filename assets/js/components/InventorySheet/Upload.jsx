@@ -1,38 +1,20 @@
 import React, { useState } from "react";
 import axios from "axios";
-import gql from "graphql-tag";
 import PropTypes from "prop-types";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
-import { GET_PROJECT_QUERY } from "../../screens/Project/Project";
+import { GET_PROJECT } from "../../screens/Project/Project";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
-
-const CREATE_INGEST_JOB_MUTATION = gql`
-  mutation CreateIngestJob(
-    $name: String!
-    $projectId: String!
-    $filename: String!
-  ) {
-    createIngestJob(name: $name, project_id: $projectId, filename: $filename) {
-      id
-      name
-      project {
-        id
-        title
-      }
-      filename
-    }
-  }
-`;
+import { CREATE_INGEST_JOB } from "./inventorySheet.query";
 
 const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
   const [values, setValues] = useState({ ingest_job_name: "", file: "" });
   const [createIngestJob, { data, loading, error }] = useMutation(
-    CREATE_INGEST_JOB_MUTATION,
+    CREATE_INGEST_JOB,
     {
       onCompleted({ createIngestJob }) {
         history.push(
@@ -40,10 +22,9 @@ const UploadInventorySheet = ({ projectId, presignedUrl, history }) => {
         );
       },
       refetchQueries(mutationResult) {
-        console.log("TCL: refetchQueries -> mutationResult", mutationResult);
         return [
           {
-            query: GET_PROJECT_QUERY,
+            query: GET_PROJECT,
             variables: { projectId: projectId }
           }
         ];

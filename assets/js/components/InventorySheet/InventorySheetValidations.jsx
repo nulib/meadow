@@ -1,32 +1,12 @@
 import React, { useEffect, useState } from "react";
-import gql from "graphql-tag";
 import PropTypes from "prop-types";
 import { useMutation } from "@apollo/react-hooks";
-import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
-import CloseIcon from "../../../css/fonts/zondicons/close.svg";
 import InventorySheetErrorsState from "./ErrorsState";
 import InventorySheetUnapprovedState from "./UnapprovedState";
-
-const SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS = gql`
-  subscription IngestJobValidationUpdate($ingestJobId: String!) {
-    ingestJobValidationUpdate(ingestJobId: $ingestJobId) {
-      id
-      object {
-        content
-        errors
-        status
-      }
-    }
-  }
-`;
-
-const START_VALIDATION = gql`
-  mutation ValidateIngestJob($id: String!) {
-    validateIngestJob(ingestJobId: $id) {
-      message
-    }
-  }
-`;
+import {
+  SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS,
+  START_VALIDATION
+} from "./inventorySheet.query";
 
 function InventorySheetValidations({
   inventorySheetId,
