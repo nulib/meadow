@@ -7,28 +7,27 @@ import CloseIcon from "../../../css/fonts/zondicons/close.svg";
 const InventorySheetErrorsState = ({ validations }) => {
   const rowHasErrors = object =>
     object && object.errors && object.errors.length > 0;
-
   return (
     <>
       <table>
         <thead>
           <tr>
-            <th>Job Id</th>
+            <th>Row #</th>
             <th>Status</th>
             <th>Content</th>
             <th>Errors</th>
           </tr>
         </thead>
         <tbody>
-          {validations.map(({ id, object }) => (
-            <tr key={id} className={rowHasErrors(object) ? "error" : ""}>
-              <td>{id}</td>
-              <td>{object && object.status}</td>
-              <td>{object && object.content}</td>
+          {validations.map((object) => (
+            <tr key={object.row} className={rowHasErrors(object) ? "error" : ""}>
+              <td>{object && object.row}</td>
+              <td>{object && object.state}</td>
+              <td>{object && object.fields.map(field => field.value).join("; ")}</td>
               <td>
                 {rowHasErrors(object)
-                  ? object.errors.map((error, index) => (
-                      <span key={index}>{error}</span>
+                  ? object.errors.map(({_field, message}, index) => (
+                      <span key={index}>{message}</span>
                     ))
                   : ""}
               </td>
@@ -48,7 +47,7 @@ const InventorySheetErrorsState = ({ validations }) => {
 };
 
 InventorySheetErrorsState.propTypes = {
-  validations: PropTypes.array
+  validations: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default InventorySheetErrorsState;

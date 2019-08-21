@@ -21,7 +21,7 @@ const InventorySheet = ({ inventorySheetId }) => {
     <>
       <InventorySheetValidations
         inventorySheetId={inventorySheetId}
-        ingestJobValidations={data.ingestJobValidations}
+        ingestJobRows={data.ingestJobRows}
         subscribeToInventorySheetValidations={subscribeToMore}
       />
     </>

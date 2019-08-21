@@ -4,7 +4,7 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Repo
-  alias Meadow.Ingest.{Project, IngestJob}
+  alias Meadow.Ingest.{IngestJob, Project}
 
   def ingest_job_fixture(attrs \\ %{}) do
     project = project_fixture()
@@ -42,7 +42,7 @@ defmodule Meadow.TestHelpers do
     project
   end
 
-  def projects_fixture() do
+  def projects_fixture do
     project1 =
       %Project{
         title: "Project 1",

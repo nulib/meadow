@@ -5,11 +5,12 @@ defmodule MeadowWeb.Schema.Schema do
   """
   use Absinthe.Schema
   import_types(Absinthe.Type.Custom)
+  import_types(MeadowWeb.Schema.Types.Json)
 
-  import Absinthe.Resolution.Helpers, only: [dataloader: 1]
+  import Absinthe.Resolution.Helpers, only: [batch: 3, dataloader: 1]
 
-  alias MeadowWeb.Resolvers
   alias Meadow.Ingest
+  alias MeadowWeb.Resolvers
 
   query do
     @desc "Get a list of projects"
@@ -36,10 +37,13 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.get_presigned_url/3)
     end
 
-    @desc "Get validations for an Inventory Sheet"
-    field :ingest_job_validations, :ingest_job_validations do
-      arg(:id, non_null(:id))
-      resolve(&Resolvers.Ingest.ingest_job_validations/3)
+    @desc "Get rows for an Inventory Sheet"
+    field :ingest_job_rows, list_of(:ingest_job_row) do
+      arg(:job_id, non_null(:id))
+      arg(:state, list_of(:state))
+      arg(:start, :integer)
+      arg(:limit, :integer)
+      resolve(&Resolvers.Ingest.ingest_job_rows/3)
     end
   end
 
@@ -79,11 +83,19 @@ defmodule MeadowWeb.Schema.Schema do
 
   subscription do
     @desc "Subscribe to validation messages for an ingest job"
-    field :ingest_job_validation_update, :validation_result do
-      arg(:ingest_job_id, non_null(:id))
+    field :ingest_job_update, :ingest_job do
+      arg(:job_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: args.ingest_job_id}
+        {:ok, topic: "job:" <> args.job_id}
+      end)
+    end
+
+    field :ingest_job_row_update, :ingest_job_row do
+      arg(:job_id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: "row:" <> args.job_id}
       end)
     end
   end
@@ -91,6 +103,12 @@ defmodule MeadowWeb.Schema.Schema do
   enum :sort_order do
     value(:asc)
     value(:desc)
+  end
+
+  enum :state do
+    value(:pending, as: "pending")
+    value(:pass, as: "pass")
+    value(:fail, as: "fail")
   end
 
   object :project do
@@ -106,35 +124,62 @@ defmodule MeadowWeb.Schema.Schema do
   object :ingest_job do
     field :id, non_null(:id)
     field :name, non_null(:string)
-    field :state, non_null(:string)
+    field :state, list_of(:job_state)
     field :filename, non_null(:string)
     field :inserted_at, non_null(:naive_datetime)
     field :updated_at, non_null(:naive_datetime)
     field :project, :project, resolve: dataloader(Ingest)
+
+    field :progress, :job_progress,
+      resolve: fn job, _, _ ->
+        batch({MeadowWeb.Schema.Helpers, :job_progress, Integer}, job.id, fn batch_results ->
+          {:ok, Map.get(batch_results, job.id)}
+        end)
+      end
+
+    field :ingest_rows, list_of(:ingest_job_row), resolve: dataloader(Ingest)
+  end
+
+  object :job_progress do
+    field :states, list_of(:state_count)
+    field :total, non_null(:integer)
+    field :percent_complete, non_null(:float)
   end
 
   object :presigned_url do
     field :url, non_null(:string)
   end
 
-  object :ingest_job_validations do
-    field :validations, list_of(:validation_result)
-  end
-
-  object :validation_result do
-    field :id, non_null(:string)
-    # field :status, non_null(:string)
-    field :object, :validation_object
-  end
-
-  object :validation_object do
-    field :content, :string
-    field :errors, list_of(:string)
-    field :status, :string
-  end
-
   object :status_message do
+    field :message, non_null(:state)
+  end
+
+  object :job_state do
+    field :name, :string
+    field :state, non_null(:state)
+  end
+
+  object :field do
+    field :header, non_null(:string)
+    field :value, non_null(:string)
+  end
+
+  object :error do
+    field :field, non_null(:string)
     field :message, non_null(:string)
+  end
+
+  object :state_count do
+    field :state, non_null(:state)
+    field :count, non_null(:integer)
+  end
+
+  object :ingest_job_row do
+    field :ingest_job, :ingest_job, resolve: dataloader(Ingest)
+    field :row, non_null(:integer)
+    field :fields, list_of(:field)
+    field :errors, list_of(:error)
+    field :state, :state
   end
 
   def context(ctx) do

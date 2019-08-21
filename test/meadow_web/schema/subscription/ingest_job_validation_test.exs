@@ -3,12 +3,27 @@ defmodule MeadowWeb.Schema.Subscription.IngestJobValidationTest do
 
   @subscription """
     subscription ($ingestJobId: ID!) {
-      ingestJobValidationUpdate(ingestJobId: $ingestJobId){
-        id
-        object {
-          content
-          status
-          errors
+      ingestJobRowUpdate(jobId: $ingestJobId){
+        ingestJob {
+          id
+          progress {
+            states {
+              state
+              count
+            }
+            total
+            percent_complete
+          }
+        }
+        row
+        fields {
+          header
+          value
+        }
+        state
+        errors {
+          field
+          message
         }
       }
     }

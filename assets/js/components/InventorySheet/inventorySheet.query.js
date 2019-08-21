@@ -32,16 +32,18 @@ export const GET_INGEST_JOBS = gql`
 `;
 
 export const GET_INVENTORY_SHEET_VALIDATIONS = gql`
-  query IngestJobValidations($inventorySheetId: String!) {
-    ingestJobValidations(id: $inventorySheetId) {
-      validations {
-        id
-        object {
-          content
-          errors
-          status
-        }
+  query IngestJobRows($inventorySheetId: String!) {
+    ingestJobRows(jobId: $inventorySheetId) {
+      row
+      fields {
+        header
+        value
       }
+      errors {
+        field
+        message
+      }
+      state
     }
   }
 `;
@@ -63,14 +65,18 @@ export const START_VALIDATION = gql`
 `;
 
 export const SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS = gql`
-  subscription IngestJobValidationUpdate($ingestJobId: String!) {
-    ingestJobValidationUpdate(ingestJobId: $ingestJobId) {
-      id
-      object {
-        content
-        errors
-        status
+  subscription IngestJobRowUpdate($ingestJobId: String!) {
+    ingestJobRowUpdate(jobId: $ingestJobId) {
+      row
+      fields {
+        header
+        value
       }
+      errors {
+        field
+        message
+      }
+      state
     }
   }
 `;
