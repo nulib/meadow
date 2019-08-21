@@ -1,29 +1,16 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
 import { toast } from "react-toastify";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
-import { GET_PROJECTS } from "./List";
-
-const ADD_PROJECT = gql`
-  mutation CreateProject($projectTitle: String!) {
-    createProject(title: $projectTitle) {
-      id
-      title
-      folder
-    }
-  }
-`;
+import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
 
 const ProjectForm = ({ history }) => {
   let inputTitle;
-  const [addProject, { data }] = useMutation(ADD_PROJECT, {
+  const [createProject, { data }] = useMutation(CREATE_PROJECT, {
     onCompleted({ createProject }) {
-      toast(`Project ${createProject.title} created successfully`, {
-        type: "success"
-      });
+      toast(`Project ${createProject.title} created successfully`);
       history.push("/project/list");
     },
     refetchQueries(mutationResult) {
@@ -40,7 +27,7 @@ const ProjectForm = ({ history }) => {
       <form
         onSubmit={e => {
           e.preventDefault();
-          addProject({
+          createProject({
             variables: { projectTitle: inputTitle.value }
           });
         }}

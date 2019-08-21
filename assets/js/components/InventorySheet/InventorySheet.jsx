@@ -1,24 +1,9 @@
 import React from "react";
-import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import InventorySheetValidations from "./InventorySheetValidations";
-
-const GET_INVENTORY_SHEET_VALIDATIONS = gql`
-  query IngestJobValidations($inventorySheetId: String!) {
-    ingestJobValidations(id: $inventorySheetId) {
-      validations {
-        id
-        object {
-          content
-          errors
-          status
-        }
-      }
-    }
-  }
-`;
+import { GET_INVENTORY_SHEET_VALIDATIONS } from "./inventorySheet.query";
 
 const InventorySheet = ({ inventorySheetId }) => {
   const { loading, error, data, subscribeToMore } = useQuery(

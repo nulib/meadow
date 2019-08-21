@@ -1,36 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import DeleteIcon from "../../../css/fonts/zondicons/close.svg";
 import { toast } from "react-toastify";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
-//import GetProjects from "./queries.graphql";
-
-export const GET_PROJECTS = gql`
-  query GetProjects {
-    projects {
-      id
-      title
-      folder
-      updated_at
-      ingestJobs {
-        id
-      }
-    }
-  }
-`;
-
-const DELETE_PROJECT = gql`
-  mutation DeleteProject($projectId: ID!) {
-    deleteProject(projectId: $projectId) {
-      id
-      title
-    }
-  }
-`;
+import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
 
 const ProjectList = () => {
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
