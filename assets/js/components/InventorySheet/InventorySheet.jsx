@@ -3,26 +3,39 @@ import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import InventorySheetValidations from "./InventorySheetValidations";
-import { GET_INVENTORY_SHEET_VALIDATIONS } from "./inventorySheet.query";
+import { 
+  GET_INVENTORY_SHEET_STATUS,
+  GET_INVENTORY_SHEET_PROGRESS 
+} from "./inventorySheet.query";
 
 const InventorySheet = ({ inventorySheetId }) => {
-  const { loading, error, data, subscribeToMore } = useQuery(
-    GET_INVENTORY_SHEET_VALIDATIONS,
+  const statusQuery = useQuery(
+    GET_INVENTORY_SHEET_STATUS,
+    {
+      variables: { inventorySheetId },
+      fetchPolicy: "network-only"
+    }
+  )
+
+  const progressQuery = useQuery(
+    GET_INVENTORY_SHEET_PROGRESS,
     {
       variables: { inventorySheetId },
       fetchPolicy: "network-only"
     }
   );
 
-  if (loading) return <Loading />;
-  if (error) return <Error error={error} />;
-
+  if (statusQuery.loading || progressQuery.loading) return <Loading />;
+  if (statusQuery.error || progressQuery.error) return <Error error={error} />;
+  
   return (
     <>
       <InventorySheetValidations
         inventorySheetId={inventorySheetId}
-        ingestJobRows={data.ingestJobRows}
-        subscribeToInventorySheetValidations={subscribeToMore}
+        initialProgress={progressQuery.data.ingestJobProgress}
+        initialStatus={statusQuery.data.ingestJob.state}
+        subscribeToInventorySheetProgress={progressQuery.subscribeToMore}
+        subscribeToInventorySheetStatus={statusQuery.subscribeToMore}
       />
     </>
   );

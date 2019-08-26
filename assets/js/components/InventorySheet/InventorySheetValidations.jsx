@@ -1,90 +1,107 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useMutation } from "@apollo/react-hooks";
-import InventorySheetErrorsState from "./ErrorsState";
-import InventorySheetUnapprovedState from "./UnapprovedState";
+import { Line as ProgressBar } from 'rc-progress';
+import debounce from 'lodash.debounce';
+import InventorySheetReport from "./InventorySheetReport";
 import {
-  SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS,
+  SUBSCRIBE_TO_INVENTORY_SHEET_STATUS,
+  SUBSCRIBE_TO_INVENTORY_SHEET_PROGRESS,
   START_VALIDATION
 } from "./inventorySheet.query";
 
 function InventorySheetValidations({
   inventorySheetId,
-  ingestJobRows,
-  subscribeToInventorySheetValidations
+  initialProgress,
+  initialStatus,
+  subscribeToInventorySheetProgress,
+  subscribeToInventorySheetStatus
 }) {
-  const [hasErrors, setHasErrors] = useState(true);
+  const [progress, setProgress] = useState({states: []});
+  const [status, setStatus] = useState([])
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
 
   useEffect(() => {
-    setHasErrors(jobHasErrors({ingestJobRows: ingestJobRows}));
-    startValidation({ variables: { id: inventorySheetId } });
-    subscribeToInventorySheetValidations({
-      document: SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS,
-      variables: { ingestJobId: inventorySheetId },
-      updateQuery: handleValidationUpdate
+    setProgress(initialProgress);
+    subscribeToInventorySheetProgress({
+      document: SUBSCRIBE_TO_INVENTORY_SHEET_PROGRESS,
+      variables: { inventorySheetId },
+      updateQuery: debounce(handleProgressUpdate, 250, {maxWait: 250})
     });
+
+    setStatus(initialStatus);
+    subscribeToInventorySheetStatus({
+      document: SUBSCRIBE_TO_INVENTORY_SHEET_STATUS,
+      variables: { inventorySheetId },
+      updateQuery: handleStatusUpdate
+    });
+
+    startValidation({ variables: { id: inventorySheetId } });
   }, []);
 
-  const jobHasErrors = ({ingestJobRows}) => {
-    return ingestJobRows.filter(row => row.state === "FAIL").length > 0;
-  };
-
-  const handleValidationUpdate = (prev, { subscriptionData }) => {
+  const handleProgressUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
 
-    const newValidation = subscriptionData.data.ingestJobRowUpdate;
-    const index = prev.ingestJobRows.findIndex(
-      ({ id }) => id === newValidation.id
-    );
-    let updatedValidations;
-
-    if (index === -1) {
-      updatedValidations = [
-        newValidation,
-        ...prev.ingestJobRows
-      ];
-    } else {
-      updatedValidations = prev.ingestJobRows;
-      updatedValidations[index] = newValidation;
-    }
-
-    const ingestJobRows = {
-      ...prev.ingestJobRows,
-      validations: updatedValidations
-    };
-
-    setHasErrors(jobHasErrors(ingestJobRows));
-
-    return {
-      ingestJobRows
-    };
+    const progress = subscriptionData.data.ingestJobProgressUpdate;
+    setProgress(progress);
+    return { ingestJobProgress: progress };
   };
 
-  if (hasErrors) {
+  const handleStatusUpdate = (prev, { subscriptionData }) => {
+    if (!subscriptionData.data) return prev;
+
+    const status = subscriptionData.data.ingestJobUpdate.state;
+    setStatus(status);
+    return { ingestJob: subscriptionData.data.ingestJobUpdate }
+  };
+
+  const isFinished = () => { 
+    return status.find(({name, state}) => name == "overall" && state != "PENDING") 
+  }
+
+  const progressBar = () => {
     return (
-      <div>
-      <InventorySheetErrorsState
-        validations={ingestJobRows}
-      />
-      </div>
-    );
-  } else {
-    return (
-      <div>
-      <InventorySheetUnapprovedState
-        validations={ingestJobRows}
-      />
-      </div>
+      <>
+        <ProgressBar 
+          percent={progress.percentComplete}
+          strokeWidth="4"
+          trailWidth="4"
+          strokeLinecap="square"
+        />
+        <p>Checks: {status.map(({name, state}) => `${name}: ${state} `)}</p>
+        <p>Rows: {progress.states.map(({state, count}) => `${state}: ${count} `)}</p>
+      </>
     );
   }
 
-  return null;
+  const report = () => {
+    if (isFinished()) {
+      return (
+        <>
+          <InventorySheetReport
+            progress={progress}
+            jobState={status}
+            inventorySheetId={inventorySheetId}
+          />
+        </>
+      )
+    } else {
+      return(<></>)
+    }
+  }
+
+  return (
+    <>
+      {progressBar()}
+      {report()}
+    </>
+  )
 }
 
 InventorySheetValidations.propTypes = {
   inventorySheetId: PropTypes.string.isRequired,
-  ingestJobRows: PropTypes.arrayOf(PropTypes.object).isRequired
+  initialProgress: PropTypes.object.isRequired,
+  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default InventorySheetValidations;

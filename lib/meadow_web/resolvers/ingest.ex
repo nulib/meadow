@@ -48,12 +48,18 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, Ingest.get_ingest_job!(id)}
   end
 
+  def ingest_job_progress(_, %{id: id}, _) do
+    {:ok, Meadow.Ingest.get_job_progress([id]) |> Map.get(id)}
+  end
+
   def ingest_job_validations(_, _, _) do
     {:ok, %{validations: [%{id: "job", object: %{errors: [], status: "pending"}}]}}
   end
 
   def validate_ingest_job(_, args, _) do
-    {:ok, %{message: InventoryValidator.result(args[:ingest_job_id])}}
+    {response, pid} = args[:ingest_job_id] |> InventoryValidator.async()
+    pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
+    {:ok, %{message: to_string(response) <> " : " <> pid_string}}
   end
 
   def create_ingest_job(_, args, _) do
