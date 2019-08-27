@@ -10,13 +10,14 @@ import {
 
 function InventorySheetValidations({
   inventorySheetId,
-  ingestJobValidations,
+  ingestJobRows,
   subscribeToInventorySheetValidations
 }) {
   const [hasErrors, setHasErrors] = useState(true);
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
 
   useEffect(() => {
+    setHasErrors(jobHasErrors({ingestJobRows: ingestJobRows}));
     startValidation({ variables: { id: inventorySheetId } });
     subscribeToInventorySheetValidations({
       document: SUBSCRIBE_TO_INVENTORY_SHEET_VALIDATIONS,
@@ -25,15 +26,15 @@ function InventorySheetValidations({
     });
   }, []);
 
-  const jobHasErrors = ({ validations }) => {
-    return validations.filter(row => row.object.status === "fail").length > 0;
+  const jobHasErrors = ({ingestJobRows}) => {
+    return ingestJobRows.filter(row => row.state === "FAIL").length > 0;
   };
 
   const handleValidationUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
 
-    const newValidation = subscriptionData.data.ingestJobValidationUpdate;
-    const index = prev.ingestJobValidations.validations.findIndex(
+    const newValidation = subscriptionData.data.ingestJobRowUpdate;
+    const index = prev.ingestJobRows.findIndex(
       ({ id }) => id === newValidation.id
     );
     let updatedValidations;
@@ -41,36 +42,40 @@ function InventorySheetValidations({
     if (index === -1) {
       updatedValidations = [
         newValidation,
-        ...prev.ingestJobValidations.validations
+        ...prev.ingestJobRows
       ];
     } else {
-      updatedValidations = prev.ingestJobValidations.validations;
+      updatedValidations = prev.ingestJobRows;
       updatedValidations[index] = newValidation;
     }
 
-    const ingestJobValidations = {
-      ...prev.ingestJobValidations,
+    const ingestJobRows = {
+      ...prev.ingestJobRows,
       validations: updatedValidations
     };
 
-    setHasErrors(jobHasErrors(ingestJobValidations));
+    setHasErrors(jobHasErrors(ingestJobRows));
 
     return {
-      ingestJobValidations
+      ingestJobRows
     };
   };
 
   if (hasErrors) {
     return (
+      <div>
       <InventorySheetErrorsState
-        validations={ingestJobValidations.validations}
+        validations={ingestJobRows}
       />
+      </div>
     );
   } else {
     return (
+      <div>
       <InventorySheetUnapprovedState
-        validations={ingestJobValidations.validations}
+        validations={ingestJobRows}
       />
+      </div>
     );
   }
 
@@ -79,7 +84,7 @@ function InventorySheetValidations({
 
 InventorySheetValidations.propTypes = {
   inventorySheetId: PropTypes.string.isRequired,
-  ingestJobValidations: PropTypes.object.isRequired
+  ingestJobRows: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default InventorySheetValidations;

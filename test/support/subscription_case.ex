@@ -4,6 +4,7 @@ defmodule MeadowWeb.SubscriptionCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Absinthe.Phoenix.SubscriptionTest
 
   using do
     quote do
@@ -11,14 +12,13 @@ defmodule MeadowWeb.SubscriptionCase do
 
       use MeadowWeb.ChannelCase
 
-      use Absinthe.Phoenix.SubscriptionTest,
-        schema: MeadowWeb.Schema.Schema
+      use SubscriptionTest, schema: MeadowWeb.Schema.Schema
 
       import Meadow.TestHelpers
 
       setup do
         {:ok, socket} = Phoenix.ChannelTest.connect(MeadowWeb.UserSocket, %{})
-        {:ok, socket} = Absinthe.Phoenix.SubscriptionTest.join_absinthe(socket)
+        {:ok, socket} = SubscriptionTest.join_absinthe(socket)
 
         {:ok, socket: socket}
       end

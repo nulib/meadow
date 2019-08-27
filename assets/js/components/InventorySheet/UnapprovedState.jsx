@@ -46,7 +46,7 @@ const InventorySheetUnapprovedState = ({ validations }) => {
   return (
     <>
       {validations.map(validation => (
-        <div key={validation.id}>{validation.object.content}</div>
+        <div key={validation.row}>{validation.fields.map(field => field.value).join("; ")}</div>
       ))}
 
       <h2>What it might look like...?</h2>
@@ -84,7 +84,7 @@ const InventorySheetUnapprovedState = ({ validations }) => {
 };
 
 InventorySheetUnapprovedState.propTypes = {
-  validations: PropTypes.array
+  validations: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default InventorySheetUnapprovedState;

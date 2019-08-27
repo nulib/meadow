@@ -4,7 +4,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   """
   alias Meadow.Ingest
-  alias Meadow.Ingest.{InventoryValidator, Bucket}
+  alias Meadow.Ingest.{Bucket, InventoryValidator}
   alias MeadowWeb.Schema.ChangesetErrors
 
   def projects(_, args, _) do
@@ -53,8 +53,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def validate_ingest_job(_, args, _) do
-    InventoryValidator.validate(args[:ingest_job_id])
-    {:ok, %{message: "finished"}}
+    {:ok, %{message: InventoryValidator.result(args[:ingest_job_id])}}
   end
 
   def create_ingest_job(_, args, _) do
@@ -87,5 +86,13 @@ defmodule MeadowWeb.Resolvers.Ingest do
   def get_presigned_url(_, _, _) do
     url = Bucket.presigned_s3_url(Application.get_env(:meadow, :upload_bucket))
     {:ok, %{url: url}}
+  end
+
+  def ingest_job_rows(_, args, _) do
+    {
+      :ok,
+      args
+      |> Ingest.list_ingest_rows()
+    }
   end
 end

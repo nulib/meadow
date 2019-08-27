@@ -11,7 +11,7 @@ defmodule Meadow.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      test_coverage: [tool: ExCoveralls],
+      test_coverage: coverage_options(),
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.circle": :test,
@@ -36,6 +36,13 @@ defmodule Meadow.MixProject do
       mod: {Meadow.Application, []},
       extra_applications: [:honeybadger, :logger, :runtime_tools, :ueberauth_openam]
     ]
+  end
+
+  defp coverage_options do
+    case System.get_env("CI") do
+      "true" -> [tool: ExCoveralls]
+      _ -> []
+    end
   end
 
   # Specifies which paths to compile per environment.

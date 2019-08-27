@@ -47,32 +47,32 @@ defmodule Meadow.Ingest.InventoryValidatorTest do
   @tag sheet: "inventory_sheet.csv"
   test "fails when the project isn't preloaded", context do
     assert_raise(ArgumentError, "Ingest Job association not loaded", fn ->
-      InventoryValidator.validate_job(context.job)
+      InventoryValidator.result(context.job)
     end)
   end
 
   @tag sheet: "inventory_sheet.csv"
   test "validates an inventory sheet", context do
-    assert(InventoryValidator.validate(context.job.id) == :pass)
+    assert(InventoryValidator.result(context.job.id) == "pass")
   end
 
   @tag sheet: "inventory_sheet_wrong_headers.csv"
   test "fails an inventory sheet when the headers are wrong", context do
-    assert(InventoryValidator.validate(context.job.id) == :fail)
+    assert(InventoryValidator.result(context.job.id) == "fail")
   end
 
   @tag sheet: "inventory_sheet_missing_field.csv"
   test "fails an inventory sheet when a field is missing", context do
-    assert(InventoryValidator.validate(context.job.id) == :fail)
+    assert(InventoryValidator.result(context.job.id) == "fail")
   end
 
   @tag sheet: "inventory_sheet_missing_file.csv"
   test "fails an inventory sheet when a file is missing", context do
-    assert(InventoryValidator.validate(context.job.id) == :fail)
+    assert(InventoryValidator.result(context.job.id) == "fail")
   end
 
   @tag sheet: "missing_inventory_sheet.csv"
   test "fails when inventory sheet is missing", context do
-    assert(InventoryValidator.validate(context.job.id) == :fail)
+    assert(InventoryValidator.result(context.job.id) == "fail")
   end
 end
