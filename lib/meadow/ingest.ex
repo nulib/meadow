@@ -168,6 +168,17 @@ defmodule Meadow.Ingest do
   end
 
   @doc """
+  Gets an ingest job with its project preloaded
+  """
+
+  def get_ingest_job_with_project!(id) do
+    IngestJob
+    |> where([ingest_job], ingest_job.id == ^id)
+    |> preload(:project)
+    |> Repo.one()
+  end
+
+  @doc """
   Gets the list of states for a single job.
 
   ## Examples
@@ -182,6 +193,37 @@ defmodule Meadow.Ingest do
     |> select([job], job.state)
     |> where([job], job.id == ^id)
     |> Repo.one()
+  end
+
+  @doc """
+  Retrieves aggregate completion statistics for one or more ingest jobs.
+  """
+  def get_job_progress(id) when is_binary(id), do: Map.get(get_job_progress([id]), id)
+
+  def get_job_progress(ids) when is_list(ids) do
+    result = list_ingest_job_row_counts(ids)
+
+    tally = fn %{state: state, count: count}, acc ->
+      if state === "pending", do: acc, else: count + acc
+    end
+
+    update_state = fn {id, states} ->
+      total = states |> Enum.reduce(0, fn %{count: count}, acc -> acc + count end)
+      complete = states |> Enum.reduce(0, tally)
+      pct = complete / total * 100
+      {id, %{states: states, total: total, percent_complete: pct}}
+    end
+
+    ids
+    |> Enum.map(fn id ->
+      {id, %{states: [], total: 0, percent_complete: 0.0}}
+    end)
+    |> Enum.into(%{})
+    |> Map.merge(
+      result
+      |> Enum.map(update_state)
+      |> Enum.into(%{})
+    )
   end
 
   @doc """
@@ -407,10 +449,24 @@ defmodule Meadow.Ingest do
   defp send_ingest_row_notification({:ok, row}), do: {:ok, send_ingest_row_notification(row)}
 
   defp send_ingest_row_notification(%IngestRow{} = row) do
+    topic = Enum.join(["row", row.ingest_job_id, row.state], ":")
+
     Absinthe.Subscription.publish(
       MeadowWeb.Endpoint,
       row,
-      ingest_job_row_update: "row:" <> row.ingest_job_id
+      ingest_job_row_state_update: topic
+    )
+
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      row,
+      ingest_job_row_update: Enum.join(["row", row.ingest_job_id], ":")
+    )
+
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      get_job_progress(row.ingest_job_id),
+      ingest_job_progress_update: Enum.join(["progress", row.ingest_job_id], ":")
     )
 
     row

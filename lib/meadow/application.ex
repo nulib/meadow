@@ -16,7 +16,8 @@ defmodule Meadow.Application do
       MeadowWeb.Endpoint,
       # Starts a worker by calling: Meadow.Worker.start_link(arg)
       # {Meadow.Worker, arg},
-      supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint])
+      supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
+      {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

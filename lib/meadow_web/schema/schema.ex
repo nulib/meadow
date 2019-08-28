@@ -32,6 +32,11 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.ingest_job/3)
     end
 
+    field :ingest_job_progress, :job_progress do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Ingest.ingest_job_progress/3)
+    end
+
     @desc "Get a presigned url to upload an inventory sheet"
     field :presigned_url, :presigned_url do
       resolve(&Resolvers.Ingest.get_presigned_url/3)
@@ -91,11 +96,29 @@ defmodule MeadowWeb.Schema.Schema do
       end)
     end
 
+    field :ingest_job_progress_update, :job_progress do
+      arg(:job_id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: "progress:" <> args.job_id}
+      end)
+    end
+
     field :ingest_job_row_update, :ingest_job_row do
       arg(:job_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: "row:" <> args.job_id}
+        {:ok, topic: Enum.join(["row", args.job_id], ":")}
+      end)
+    end
+
+    field :ingest_job_row_state_update, :ingest_job_row do
+      arg(:job_id, non_null(:id))
+      arg(:state, non_null(:state))
+
+      config(fn args, _info ->
+        topic = Enum.join(["row", args.job_id, args.state], ":")
+        {:ok, topic: topic}
       end)
     end
   end
@@ -151,7 +174,7 @@ defmodule MeadowWeb.Schema.Schema do
   end
 
   object :status_message do
-    field :message, non_null(:state)
+    field :message, non_null(:string)
   end
 
   object :job_state do

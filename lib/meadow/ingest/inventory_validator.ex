@@ -7,6 +7,19 @@ defmodule Meadow.Ingest.InventoryValidator do
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
+  def async(job_id) do
+    case Meadow.TaskRegistry |> Registry.lookup(job_id) do
+      [{pid, _}] ->
+        {:running, pid}
+
+      _ ->
+        Task.start(fn ->
+          Meadow.TaskRegistry |> Registry.register(job_id, nil)
+          result(job_id)
+        end)
+    end
+  end
+
   def result(job) do
     validate(job)
     |> IngestJob.find_state()
