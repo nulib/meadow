@@ -26,6 +26,14 @@
         "name": "MEADOW_HOSTNAME",
         "value": "${host_name}"
       },
+      { 
+        "name": "RELEASE_COOKIE",
+        "value": "${secret_key_base}"
+      },
+      { 
+        "name": "RELEASE_NODE",
+        "value": "meadow"
+      },
       {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
@@ -35,6 +43,10 @@
       {
         "containerPort": 4000,
         "hostPort": 4000
+      },
+      {
+        "containerPort": 4369,
+        "hostPort": 4369
       }
     ],
     "logConfiguration": {
