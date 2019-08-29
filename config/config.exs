@@ -38,6 +38,13 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
+config :honeybadger,
+  api_key:
+    System.get_env("HONEYBADGER_API_KEY") ||
+      "DO_NOT_REPORT",
+  environment_name: Mix.env(),
+  exclude_envs: [:dev, :test]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
