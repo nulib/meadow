@@ -5,24 +5,14 @@
 # file to your .gitignore.
 import Config
 
-database_url =
-  System.get_env("DATABASE_URL") ||
-    raise """
-    environment variable DATABASE_URL is missing.
-    For example: ecto://USER:PASS@HOST/DATABASE
-    """
+get_required_var = fn var ->
+  System.get_env(var) || raise "environment variable #{var} is missing."
+end
 
 config :meadow, Meadow.Repo,
   # ssl: true,
-  url: database_url,
+  url: get_required_var.("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
-
-secret_key_base =
-  System.get_env("SECRET_KEY_BASE") ||
-    raise """
-    environment variable SECRET_KEY_BASE is missing.
-    You can generate one by calling: mix phx.gen.secret
-    """
 
 host = System.get_env("MEADOW_HOSTNAME", "example.com")
 port = String.to_integer(System.get_env("PORT", "4000"))
@@ -30,22 +20,13 @@ port = String.to_integer(System.get_env("PORT", "4000"))
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
   http: [:inet6, port: port],
-  secret_key_base: secret_key_base
+  secret_key_base: get_required_var.("SECRET_KEY_BASE")
 
-ingest_bucket =
-  System.get_env("INGEST_BUCKET") ||
-    raise """
-    environment variable INGEST_BUCKET is missing.
-    For example: 'meadow-ingest'
-    """
+config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 
-config :meadow, ingest_bucket: ingest_bucket
+config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
 
-upload_bucket =
-  System.get_env("UPLOAD_BUCKET") ||
-    raise """
-    environment variable UPLOAD_BUCKET is missing.
-    For example: 'meadow-uploads'
-    """
-
-config :meadow, upload_bucket: upload_bucket
+config :honeybadger,
+  api_key: get_required_var.("HONEYBADGER_API_KEY"),
+  environment_name: :prod,
+  exclude_envs: [:dev, :test]
