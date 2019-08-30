@@ -43,7 +43,7 @@ LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add ncurses-libs openssl-dev
 ENV LANG=en_US.UTF-8
-EXPOSE 4000 4369
+EXPOSE 4000 4369 24601
 COPY --from=release /app/_build/prod/rel/meadow /app
 WORKDIR /app
 ENTRYPOINT ["./bin/meadow"]
