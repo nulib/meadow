@@ -1,0 +1,2 @@
+-kernel inet_dist_listen_min 24601 inet_dist_listen_max 24601
+-start_epmd true

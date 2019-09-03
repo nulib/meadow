@@ -136,18 +136,10 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
 }
 
 resource "aws_security_group_rule" "allow_alb_access" {
+  count             = "${length(local.listener_ports)}"
   type              = "ingress"
-  from_port         = 4000
-  to_port           = 4000
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.meadow.id}"
-}
-
-resource "aws_security_group_rule" "allow_alb_remsh_access" {
-  type              = "ingress"
-  from_port         = 4369
-  to_port           = 4369
+  from_port         = "${element(local.listener_ports, count.index)}"
+  to_port           = "${element(local.listener_ports, count.index)}"
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.meadow.id}"

@@ -69,6 +69,11 @@ data "template_file" "container_definitions" {
   }
 }
 
+locals {
+  container_ports = "${list(4000, 4369, 24601)}"
+  listener_ports = "${list(80, 4369, 24601)}"
+}
+
 resource "aws_ecs_service" "meadow" {
   name            = "meadow"
   cluster         = "${aws_ecs_cluster.meadow.id}"
@@ -78,9 +83,21 @@ resource "aws_ecs_service" "meadow" {
   depends_on      = ["aws_alb.meadow_load_balancer"]
 
   load_balancer {
-    target_group_arn = "${aws_alb_target_group.meadow_targets.arn}"
+    target_group_arn = "${aws_alb_target_group.meadow_targets.0.arn}"
     container_name   = "meadow-app"
-    container_port   = 4000
+    container_port   = "${element(local.container_ports, 0)}"
+  }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.meadow_targets.1.arn}"
+    container_name   = "meadow-app"
+    container_port   = "${element(local.container_ports, 1)}"
+  }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.meadow_targets.2.arn}"
+    container_name   = "meadow-app"
+    container_port   = "${element(local.container_ports, 2)}"
   }
 
   network_configuration {
@@ -93,7 +110,8 @@ resource "aws_ecs_service" "meadow" {
 }
 
 resource "aws_alb_target_group" "meadow_targets" {
-  port        = 4000
+  count       = "${length(local.container_ports)}"
+  port        = "${element(local.container_ports, count.index)}"
   target_type = "ip"
   protocol    = "TCP"
   vpc_id      = "${data.aws_vpc.default_vpc.id}"
@@ -115,13 +133,14 @@ resource "aws_alb" "meadow_load_balancer" {
 }
 
 resource "aws_lb_listener" "meadow_alb_listener" {
+  count             = "${length(local.listener_ports)}"
   load_balancer_arn = "${aws_alb.meadow_load_balancer.arn}"
-  port              = "80"
+  port              = "${element(local.listener_ports, count.index)}"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${aws_alb_target_group.meadow_targets.arn}"
+    target_group_arn = "${element(aws_alb_target_group.meadow_targets.*.arn, count.index)}"
   }
 }
 
