@@ -55,7 +55,7 @@ const ScreensInventorySheet = ({ match }) => {
         breadCrumbs={createCrumbs()}
       />
       <ScreenContent>
-        <h1>{data.ingestJob.name}</h1>
+        <h1>Inventory sheet validation</h1>
         <InventorySheet inventorySheetId={inventorySheetId} />
       </ScreenContent>
     </>

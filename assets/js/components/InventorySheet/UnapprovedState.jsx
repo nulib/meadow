@@ -1,9 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import UIButton from "../../components/UI/Button";
-import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
-import CloseIcon from "../../../css/fonts/zondicons/close.svg";
 
 const mockData = [
   {
@@ -45,11 +41,14 @@ const mockData = [
 const InventorySheetUnapprovedState = ({ validations }) => {
   return (
     <>
+      <h2>Approved state output</h2>
       {validations.map(validation => (
-        <div key={validation.row}>{validation.fields.map(field => field.value).join("; ")}</div>
+        <div key={validation.row}>
+          {validation.fields.map(field => field.value).join("; ")}
+        </div>
       ))}
 
-      <h2>What it might look like...?</h2>
+      <h3 className="pt-4">What it might look like...?</h3>
 
       {mockData.map(work => (
         <table key={work.workAccessionNumber} className="mb-6">
@@ -68,17 +67,6 @@ const InventorySheetUnapprovedState = ({ validations }) => {
           </tbody>
         </table>
       ))}
-
-      <ButtonGroup>
-        <UIButton>
-          <CheckMarkIcon className="icon" />
-          Approve inventory sheet
-        </UIButton>
-        <UIButton classes="btn-clear">
-          <CloseIcon className="icon" />
-          Delete job and re-upload inventory sheet
-        </UIButton>
-      </ButtonGroup>
     </>
   );
 };

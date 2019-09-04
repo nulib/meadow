@@ -10,22 +10,19 @@ import {
   GET_INVENTORY_SHEET_VALIDATIONS
 } from "./inventorySheet.query";
 
-function InventorySheetReport({
-  inventorySheetId,
-  progress,
-  jobState
-}) {
+function InventorySheetReport({ inventorySheetId, progress, jobState }) {
   const jobHasErrors = () => {
-    console.log(jobState);
-    if (jobState.find(({state}) => state == "FAIL")) {
+    if (jobState.find(({ state }) => state == "FAIL")) {
       return true;
     }
-    const fails = progress.states.find(({state}) => state == "FAIL");
-    return (fails && fails.count > 0);
+    const fails = progress.states.find(({ state }) => state == "FAIL");
+    return fails && fails.count > 0;
   };
 
-  const { loading, error, data }= useQuery(
-    jobHasErrors() ? GET_INVENTORY_SHEET_ERRORS : GET_INVENTORY_SHEET_VALIDATIONS,
+  const { loading, error, data } = useQuery(
+    jobHasErrors()
+      ? GET_INVENTORY_SHEET_ERRORS
+      : GET_INVENTORY_SHEET_VALIDATIONS,
     {
       variables: { inventorySheetId },
       fetchPolicy: "network-only"
@@ -37,22 +34,22 @@ function InventorySheetReport({
 
   const ingestJobRows = data.ingestJobRows;
 
+  {
+    /* Don't show if job isn't complete */
+  }
+  if (progress.percentComplete === 0) {
+    return null;
+  }
+
   if (jobHasErrors()) {
-    return (
-      <InventorySheetErrorsState
-        validations={ingestJobRows}
-      />
-    )
+    return <InventorySheetErrorsState validations={ingestJobRows} />;
   } else {
     return (
       <>
-        <InventorySheetUnapprovedState
-          validations={ingestJobRows}
-        />
+        <InventorySheetUnapprovedState validations={ingestJobRows} />
       </>
-    );  
+    );
   }
-
 }
 
 InventorySheetReport.propTypes = {
