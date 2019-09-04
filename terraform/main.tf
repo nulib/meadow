@@ -136,10 +136,10 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
 }
 
 resource "aws_security_group_rule" "allow_alb_access" {
-  count             = "${length(local.listener_ports)}"
+  count             = "${length(local.container_ports)}"
   type              = "ingress"
-  from_port         = "${element(local.listener_ports, count.index)}"
-  to_port           = "${element(local.listener_ports, count.index)}"
+  from_port         = "${element(local.container_ports, count.index)}"
+  to_port           = "${element(local.container_ports, count.index)}"
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.meadow.id}"
@@ -167,4 +167,18 @@ data "aws_vpc" "default_vpc" {
 
 data "aws_subnet_ids" "default_subnets" {
   vpc_id = "${data.aws_vpc.default_vpc.id}"
+}
+
+resource "aws_ssm_parameter" "meadow_secret_key_base" {
+  name      = "/${var.stack_name}/secret_key_base"
+  type      = "SecureString"
+  value     = "${random_string.secret_key_base.result}"
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "meadow_node_name" {
+  name      = "/${var.stack_name}/node_name"
+  type      = "String"
+  value     = "${var.stack_name}@${aws_route53_record.app_hostname.fqdn}"
+  overwrite = true
 }

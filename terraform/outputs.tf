@@ -1,3 +1,3 @@
 output "endpoint" {
-  value = "${aws_route53_record.app_hostname.fqdn}"
+  value = "http://${aws_route53_record.app_hostname.fqdn}/"
 }

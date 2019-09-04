@@ -71,7 +71,7 @@ data "template_file" "container_definitions" {
 
 locals {
   container_ports = "${list(4000, 4369, 24601)}"
-  listener_ports = "${list(80, 4369, 24601)}"
+  listener_ports  = "${list(80, 4369, 24601)}"
 }
 
 resource "aws_ecs_service" "meadow" {
