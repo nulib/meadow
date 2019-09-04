@@ -23,6 +23,12 @@ defmodule MeadowWeb.Router do
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema.Schema,
       socket: MeadowWeb.UserSocket
+
+    forward "/", Plug.Static,
+      at: "/",
+      from: {:meadow, "priv/static"},
+      only: ["voyager"],
+      headers: %{"content-type" => "text/html"}
   end
 
   scope "/" do
