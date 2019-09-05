@@ -3,7 +3,13 @@ module.exports = {
     container: {
       padding: "1rem"
     },
-    extend: {},
+    extend: {
+      colors: {
+        "blue-gray": "102a43",
+        "danger-dark": "#ef4e4e",
+        "danger-light": "#ffe3e3"
+      }
+    },
     fontFamily: {
       display: ["AkkuratPro-Regular", "sans-serif"],
       body: ["AkkuratPro-Regular", "sans-serif"]

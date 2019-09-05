@@ -1,14 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import UIButton from "../../components/UI/Button";
-import CloseIcon from "../../../css/fonts/zondicons/close.svg";
 
 const InventorySheetErrorsState = ({ validations }) => {
   const rowHasErrors = object =>
     object && object.errors && object.errors.length > 0;
   return (
     <>
+      <h2>Error report</h2>
       <table>
         <thead>
           <tr>
@@ -19,14 +17,16 @@ const InventorySheetErrorsState = ({ validations }) => {
           </tr>
         </thead>
         <tbody>
-          {validations.map((object) => (
-            <tr key={object.row} className={rowHasErrors(object) ? "error" : ""}>
+          {validations.map(object => (
+            <tr key={object.row}>
               <td>{object && object.row}</td>
               <td>{object && object.state}</td>
-              <td>{object && object.fields.map(field => field.value).join("; ")}</td>
+              <td>
+                {object && object.fields.map(field => field.value).join("; ")}
+              </td>
               <td>
                 {rowHasErrors(object)
-                  ? object.errors.map(({_field, message}, index) => (
+                  ? object.errors.map(({ _field, message }, index) => (
                       <span key={index}>{message}</span>
                     ))
                   : ""}
@@ -35,13 +35,6 @@ const InventorySheetErrorsState = ({ validations }) => {
           ))}
         </tbody>
       </table>
-
-      <ButtonGroup>
-        <UIButton>
-          <CloseIcon className="icon" />
-          Delete job and re-upload inventory sheet
-        </UIButton>
-      </ButtonGroup>
     </>
   );
 };
