@@ -1,73 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-const mockData = [
-  {
-    workAccessionNumber: "Donohue_001",
-    filesets: [
-      {
-        accessionNumber: "Donohue_001_01",
-        content: "painting1.JPG, Letter, page 1, Dear Sir, recto"
-      },
-      {
-        accessionNumber: "Donohue_001_02",
-        content: "painting2.JPG, Letter, page 1, Dear Sir, verso, blank"
-      },
-      {
-        accessionNumber: "Donohue_001_03",
-        content: "painting3.JPG, Letter, page 2, If these papers, recto"
-      }
-    ]
-  },
-  {
-    workAccessionNumber: "Donohue_002",
-    filesets: [
-      {
-        accessionNumber: "Donohue_002_01",
-        content: "painting7.JPG, Photo, two children praying"
-      },
-      {
-        accessionNumber: "Donohue_002_02",
-        content: "painting6.JPG, Verso"
-      },
-      {
-        accessionNumber: "Donohue_002_03",
-        content: "painting7.JPG, Photo, two children praying"
-      }
-    ]
-  }
-];
-
 const InventorySheetUnapprovedState = ({ validations }) => {
-  return (
-    <>
-      <h2>Approved state output</h2>
-      {validations.map(validation => (
-        <div key={validation.row}>
-          {validation.fields.map(field => field.value).join("; ")}
-        </div>
-      ))}
+  const [groupings, setGroupings] = useState();
 
-      <h3 className="pt-4">What it might look like...?</h3>
+  useEffect(() => {
+    orderRows(validations);
+  }, [validations]);
 
-      {mockData.map(work => (
-        <table key={work.workAccessionNumber} className="mb-6">
-          <thead>
-            <tr>
-              <th colSpan="2">{work.workAccessionNumber}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {work.filesets.map(fileset => (
-              <tr key={fileset.accessionNumber}>
-                <td className="w-3/12 pl-3">{fileset.accessionNumber}</td>
-                <td>{fileset.content}</td>
+  function orderRows(validations = []) {
+    const workMap = new Map();
+
+    validations.forEach(row => {
+      const workObj = row.fields.find(
+        field => field.header === "work_accession_number"
+      );
+      const workAccessionNumber = workObj.value;
+      let filesetObj = {};
+
+      if (!workMap.get(workAccessionNumber)) {
+        workMap.set(workAccessionNumber, []);
+      }
+
+      const otherFields = row.fields.filter(
+        field => field.header !== "work_accession_number"
+      );
+      otherFields.forEach(field => {
+        filesetObj[field.header] = field.value;
+      });
+
+      workMap.get(workAccessionNumber).push(filesetObj);
+    });
+
+    setGroupings(workMap);
+  }
+
+  function renderGroupings() {
+    if (groupings) {
+      // Convert from Map to Array object allowing the "map" method
+      // so React can display the results
+      const groupingsArray = [...groupings];
+
+      return groupingsArray.map(grouping => {
+        const work = grouping[0];
+        const filesets = grouping[1];
+
+        return (
+          <tbody key={work}>
+            {filesets.map(({ accession_number, description }, i) => (
+              <tr key={accession_number}>
+                {i === 0 && (
+                  <td rowSpan={filesets.length}>
+                    <strong>{work}</strong>
+                  </td>
+                )}
+                <td>{accession_number}</td>
+                <td>{description}</td>
               </tr>
             ))}
           </tbody>
-        </table>
-      ))}
-    </>
+        );
+      });
+    }
+  }
+
+  return (
+    <table className="mb-6">
+      <thead>
+        <tr>
+          <th>Work Accession Number</th>
+          <th>Fileset Accession Number</th>
+          <th>Fileset Data</th>
+        </tr>
+      </thead>
+      {renderGroupings()}
+    </table>
   );
 };
 

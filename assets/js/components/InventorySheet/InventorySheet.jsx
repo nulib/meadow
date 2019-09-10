@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import InventorySheetValidations from "./InventorySheetValidations";
+import InventorySheetValidations from "./Validations";
 import {
   GET_INVENTORY_SHEET_STATUS,
   GET_INVENTORY_SHEET_PROGRESS

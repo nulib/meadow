@@ -3,16 +3,15 @@ import PropTypes from "prop-types";
 import { useMutation } from "@apollo/react-hooks";
 import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
-import InventorySheetReport from "./InventorySheetReport";
+import InventorySheetReport from "./Report";
 import {
   SUBSCRIBE_TO_INVENTORY_SHEET_STATUS,
   SUBSCRIBE_TO_INVENTORY_SHEET_PROGRESS,
   START_VALIDATION
 } from "./inventorySheet.query";
 import UIAlert from "../UI/Alert";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import UIButton from "../../components/UI/Button";
-import CloseIcon from "../../../css/fonts/zondicons/close.svg";
+import ButtonGroup from "../UI/ButtonGroup";
+import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 
 function InventorySheetValidations({
@@ -74,11 +73,14 @@ function InventorySheetValidations({
     );
   };
 
-  const progressBar = () => {
+  const showProgressBar = () => {
+    if (isFinished()) {
+      return null;
+    }
     return <UIProgressBar percentComplete={progress.percentComplete} />;
   };
 
-  const alert = () => {
+  const showAlert = () => {
     if (isFinished()) {
       const failedChecks = status.filter(
         statusObj => statusObj.state === "FAIL"
@@ -114,16 +116,18 @@ function InventorySheetValidations({
     return null;
   };
 
-  const checks = () => (
-    <div className="mb-4 pt-4">
-      <button onClick={() => setDisplayRowChecks(!displayRowChecks)}>
+  const showChecksTable = () => (
+    <div className="mb-12 pt-8">
+      <button
+        className="btn btn-clear"
+        onClick={() => setDisplayRowChecks(!displayRowChecks)}
+      >
         {displayRowChecks ? "Hide" : "Show"} row check details
       </button>
 
       {displayRowChecks && (
         <>
-          <h2>Row checks</h2>
-          <table className="mb-4">
+          <table className="mt-4">
             <thead>
               <tr>
                 {status.map(({ name }) => (
@@ -133,20 +137,25 @@ function InventorySheetValidations({
             </thead>
             <tbody>
               <tr>
-                {status.map(({ state, name }) => (
-                  <td
-                    key={name}
-                    className={`${
-                      state === "PASS" ? "bg-green-400" : "bg-red-400"
-                    } text-white`}
-                  >
-                    {name !== "rows"
-                      ? state
-                      : progress.states.map(
-                          ({ state, count }) => `${state} (${count}) `
-                        )}
-                  </td>
-                ))}
+                {status.map(({ state, name }) => {
+                  let colorClass = "";
+
+                  if (state === "PASS") {
+                    colorClass = "bg-green-400";
+                  } else if (state === "FAIL") {
+                    colorClass = "bg-red-400";
+                  }
+
+                  return (
+                    <td key={name} className={`${colorClass} text-white`}>
+                      {name !== "rows"
+                        ? state
+                        : progress.states.map(
+                            ({ state, count }) => `${state} (${count}) `
+                          )}
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>
@@ -155,7 +164,7 @@ function InventorySheetValidations({
     </div>
   );
 
-  const report = () => {
+  const showReport = () => {
     if (isFinished()) {
       return (
         <>
@@ -171,12 +180,11 @@ function InventorySheetValidations({
     }
   };
 
-  const userButtons = () => {
+  const showUserButtons = () => {
     if (isFinishedAndErrors()) {
       return (
         <ButtonGroup>
-          <UIButton>
-            <CloseIcon className="icon" />
+          <UIButton classes="btn-danger">
             Delete job and re-upload inventory sheet
           </UIButton>
         </ButtonGroup>
@@ -190,7 +198,6 @@ function InventorySheetValidations({
             Approve inventory sheet
           </UIButton>
           <UIButton classes="btn-clear">
-            <CloseIcon className="icon" />
             Delete job and re-upload inventory sheet
           </UIButton>
         </ButtonGroup>
@@ -200,11 +207,11 @@ function InventorySheetValidations({
 
   return (
     <>
-      {progressBar()}
-      {alert()}
-      {checks()}
-      {report()}
-      {userButtons()}
+      {showProgressBar()}
+      {showAlert()}
+      {showChecksTable()}
+      {showReport()}
+      {showUserButtons()}
     </>
   );
 }
