@@ -18,11 +18,13 @@ const InventorySheetForm = ({ history, projectId }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <UploadInventorySheet
-      history={history}
-      projectId={projectId}
-      presignedUrl={presignedUrl.url}
-    />
+    <div className="md:w-1/2">
+      <UploadInventorySheet
+        history={history}
+        projectId={projectId}
+        presignedUrl={presignedUrl.url}
+      />
+    </div>
   );
 };
 

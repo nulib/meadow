@@ -7,6 +7,7 @@ import {
   GET_INVENTORY_SHEET_STATUS,
   GET_INVENTORY_SHEET_PROGRESS
 } from "./inventorySheet.query";
+import PropTypes from "prop-types";
 
 const InventorySheet = ({ inventorySheetId }) => {
   const {
@@ -44,6 +45,10 @@ const InventorySheet = ({ inventorySheetId }) => {
       />
     </>
   );
+};
+
+InventorySheet.propTypes = {
+  inventorySheetId: PropTypes.string.isRequired
 };
 
 export default InventorySheet;

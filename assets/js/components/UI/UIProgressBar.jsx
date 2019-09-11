@@ -1,7 +1,8 @@
 import React from "react";
 import { Line as ProgressBar } from "rc-progress";
+import PropTypes from "prop-types";
 
-const UIProgressBar = ({ percentComplete }) => {
+const UIProgressBar = ({ label, percentComplete }) => {
   if (percentComplete < 100) {
     return (
       <div className="my-4 pb-4">
@@ -9,13 +10,16 @@ const UIProgressBar = ({ percentComplete }) => {
           {percentComplete} %
         </div>
         <ProgressBar percent={percentComplete} strokeColor="#2cb1bc" />
-        <p className="text-gray-600 text-center mb-8 pt-2">
-          ...Please wait for validation
-        </p>
+        <p className="text-gray-600 text-center mb-8 pt-2">...{label}</p>
       </div>
     );
   }
   return null;
+};
+
+UIProgressBar.propTypes = {
+  label: PropTypes.string,
+  percentComplete: PropTypes.number
 };
 
 export default UIProgressBar;
