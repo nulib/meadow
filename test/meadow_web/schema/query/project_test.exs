@@ -13,7 +13,7 @@ defmodule MeadowWeb.Schema.Query.ProjectTest do
     project = project_fixture()
     variables = %{"id" => project.id}
 
-    conn = build_conn()
+    conn = build_conn() |> auth_user(user_fixture())
     conn = get conn, "/api/graphql", query: @query, variables: variables
 
     assert %{

@@ -12,6 +12,7 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug MeadowWeb.Plugs.SetCurrentUser
   end
 
   # Other scopes may use custom stacks.
@@ -33,8 +34,12 @@ defmodule MeadowWeb.Router do
 
   scope "/" do
     pipe_through :browser
-    get "/login", MeadowWeb.AuthController, :login
-    get "/auth/callback", MeadowWeb.AuthController, :callback
+
+    get "/auth/logout", MeadowWeb.AuthController, :logout
+    get "/auth/:provider", MeadowWeb.AuthController, :login
+    post "/auth/:provider", MeadowWeb.AuthController, :login
+    get "/auth/:provider/callback", MeadowWeb.AuthController, :callback
+    post "/auth/:provider/callback", MeadowWeb.AuthController, :callback
 
     get "/*path", MeadowWeb.PageController, :index
   end

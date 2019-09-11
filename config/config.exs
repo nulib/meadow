@@ -34,7 +34,8 @@ config :ueberauth, Ueberauth,
       {Ueberauth.Strategy.OpenAM,
        [
          base_url: "https://websso.it.northwestern.edu/amserver/",
-         sso_cookie: "openAMssoToken"
+         sso_cookie: "openAMssoToken",
+         callback_path: "/auth/openam/callback"
        ]}
   ]
 

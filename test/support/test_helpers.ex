@@ -3,8 +3,29 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
-  alias Meadow.Repo
+  alias Meadow.Accounts.User
   alias Meadow.Ingest.{IngestJob, Project}
+  alias Meadow.Repo
+
+  def user_fixture(attrs \\ %{}) do
+    username = "name-#{System.unique_integer([:positive])}"
+    display_name = "Name #{System.unique_integer([:positive])}"
+    email = "example-#{System.unique_integer([:positive])}@example.com"
+
+    attrs =
+      Enum.into(attrs, %{
+        username: attrs[:username] || username,
+        display_name: attrs[:display_name] || display_name,
+        email: attrs[:email] || email
+      })
+
+    {:ok, user} =
+      %User{}
+      |> User.changeset(attrs)
+      |> Repo.insert()
+
+    user
+  end
 
   def ingest_job_fixture(attrs \\ %{}) do
     project = project_fixture()

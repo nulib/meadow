@@ -57,7 +57,8 @@ const ProjectList = () => {
           </tr>
         </thead>
         <tbody>
-          {projectsData.projects.length > 0 &&
+          {projectsData.projects &&
+            projectsData.projects.length > 0 &&
             projectsData.projects.map(project => {
               const { id, folder, title, updated_at, ingestJobs } = project;
               return (

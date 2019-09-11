@@ -5,18 +5,26 @@ import { toast } from "react-toastify";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
 
 const ProjectForm = ({ history }) => {
   let inputTitle;
-  const [createProject, { data }] = useMutation(CREATE_PROJECT, {
-    onCompleted({ createProject }) {
-      toast(`Project ${createProject.title} created successfully`);
-      history.push("/project/list");
-    },
-    refetchQueries(mutationResult) {
-      return [{ query: GET_PROJECTS }];
+  const [createProject, { loading, error, data }] = useMutation(
+    CREATE_PROJECT,
+    {
+      onCompleted({ createProject }) {
+        toast(`Project ${createProject.title} created successfully`);
+        history.push("/project/list");
+      },
+      refetchQueries(mutationResult) {
+        return [{ query: GET_PROJECTS }];
+      }
     }
-  });
+  );
+
+  if (error) return <Error error={error} />;
+  if (loading) return <Loading />;
 
   const handleCancel = e => {
     history.push("/project/list");

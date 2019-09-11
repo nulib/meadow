@@ -4,7 +4,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Header from "../components/UI/Header";
-import FetchDataPage from "./fetch-data";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import Project from "./Project/Project";
@@ -13,6 +12,7 @@ import NotFoundPage from "./404";
 import ScreensInventorySheet from "./InventorySheet/InventorySheet";
 import ScreensInventorySheetForm from "./InventorySheet/Form";
 import Layout from "./Layout";
+import RequireSignIn from "../components/Auth/RequireSignIn";
 
 export default class Root extends React.Component {
   render() {
@@ -25,24 +25,35 @@ export default class Root extends React.Component {
             hideProgressBar
             autoClose={7000}
           />
-          <Layout>
-            <Switch>
-              <Route path="/fetch-data" component={FetchDataPage} />
-              <Route path="/project/list" component={ScreensProjectList} />
-              <Route path="/project/create" component={ScreensProjectForm} />
-              <Route
-                path="/project/:id/inventory-sheet/upload"
-                component={ScreensInventorySheetForm}
-              />
-              <Route
-                path="/project/:id/inventory-sheet/:inventorySheetId"
-                component={ScreensInventorySheet}
-              />
-              <Route path="/project/:id" component={Project} />
-              <Route path="/" component={Home} />
-              <Route component={NotFoundPage} />
-            </Switch>
-          </Layout>
+          <RequireSignIn>
+            <Layout>
+              <Switch>
+                <Route
+                  exact
+                  path="/project/list"
+                  component={ScreensProjectList}
+                />
+                <Route
+                  exact
+                  path="/project/create"
+                  component={ScreensProjectForm}
+                />
+                <Route
+                  exact
+                  path="/project/:id/inventory-sheet/upload"
+                  component={ScreensInventorySheetForm}
+                />
+                <Route
+                  exact
+                  path="/project/:id/inventory-sheet/:inventorySheetId"
+                  component={ScreensInventorySheet}
+                />
+                <Route exact path="/project/:id" component={Project} />
+                <Route exact path="/" component={Home} />
+                <Route component={NotFoundPage} />
+              </Switch>
+            </Layout>
+          </RequireSignIn>
         </BrowserRouter>
       </>
     );

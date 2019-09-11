@@ -22,9 +22,21 @@ defmodule MeadowWeb.ConnCase do
       use Phoenix.ConnTest
       alias MeadowWeb.Router.Helpers, as: Routes
       import Meadow.TestHelpers
+      alias Meadow.Accounts.User
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
+
+      defp auth_user(conn, user) do
+        conn
+        |> Plug.Test.init_test_session(
+          current_user: %{
+            username: user.username,
+            display_name: user.display_name,
+            email: user.email
+          }
+        )
+      end
     end
   end
 

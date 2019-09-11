@@ -1,6 +1,7 @@
 import React from "react";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
+import CurrentUser from "../../components/Auth/CurrentUser";
 
 const ScreensHome = () => {
   return (
@@ -11,7 +12,11 @@ const ScreensHome = () => {
         breadCrumbs={[{ label: "Home", link: "/" }]}
       />
       <ScreenContent>
-        <img className="w-screen" src="/images/placeholder-content.png" />
+        <>
+          <CurrentUser>
+            {currentUser => <div>Hello {currentUser.displayName}!</div>}
+          </CurrentUser>
+        </>
       </ScreenContent>
     </>
   );

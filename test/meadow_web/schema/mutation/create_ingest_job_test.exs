@@ -22,7 +22,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateIngestJob do
       "projectId" => project.id
     }
 
-    conn = build_conn()
+    conn = build_conn() |> auth_user(user_fixture())
 
     conn =
       post conn, "/api/graphql",

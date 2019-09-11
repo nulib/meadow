@@ -3,6 +3,8 @@ defmodule MeadowWeb.SubscriptionCase do
   Test case for testing Absinthe Subscriptions.
   """
 
+  alias Absinthe.Phoenix.SubscriptionTest
+
   use ExUnit.CaseTemplate
   alias Absinthe.Phoenix.SubscriptionTest
 
