@@ -48,7 +48,7 @@ const Project = ({ match }) => {
             >
               <AddOutlineIcon className="icon" /> New Ingest Job
             </Link>
-            <h2>Ingest Jobs</h2>
+
             <section>
               <InventorySheetList projectId={data.project.id} />
             </section>

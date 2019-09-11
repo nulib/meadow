@@ -13,7 +13,7 @@ const Header = () => (
         <div className="flex bg-white border-b border-gray-200 fixed top-0 inset-x-0 z-100 h-16 items-center">
           <div className="w-full container relative mx-auto px-6">
             <div className="flex items-center -mx-6">
-              <div className="lg:w-1/4 xl:w-1/5 pl-6 pr-6 lg:pr-8">
+              <div className="w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 pl-6 pr-6 lg:pr-8">
                 <div className="flex items-center">
                   <img
                     src="/images/northwestern-libraries-logo.png"
@@ -30,7 +30,7 @@ const Header = () => (
                         <input
                           type="text"
                           placeholder="Search for items"
-                          className="transition focus:outline-0 border border-transparent focus:bg-white focus:border-gray-300 placeholder-gray-900 rounded-lg bg-gray-200 py-2 pr-4 pl-10 block w-full appearance-none leading-normal ds-input"
+                          className="transition focus:outline-0 text-gray-700 border border-transparent focus:bg-white focus:border-gray-300 placeholder-gray-500 rounded-lg bg-gray-200 py-2 pr-4 pl-10 block w-full appearance-none leading-tight ds-input"
                         />
                         <div className="pointer-events-none absolute inset-y-0 left-0 pl-4 flex items-center">
                           <SearchIcon width={50} height={50} className="icon" />

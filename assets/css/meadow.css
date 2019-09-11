@@ -105,16 +105,25 @@ td {
   @apply text-white;
 }
 
-.btn-clear,
+.btn-clear {
+  @apply bg-transparent border border-gray-300 text-gray-700;
+}
 .btn-clear:hover {
-  background: none;
+  @apply bg-transparent text-gray-800;
 }
 
-.btn-warning {
+.btn-link {
+  @apply bg-transparent text-gray-700;
+}
+.btn-link:hover {
+  @apply bg-transparent text-gray-600;
+}
+
+.btn-danger {
   @apply bg-danger-dark;
 }
 
-.btn-warning:hover {
+.btn-danger:hover {
   @apply bg-red-700;
 }
 
