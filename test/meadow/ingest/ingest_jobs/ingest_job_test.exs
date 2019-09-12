@@ -1,7 +1,6 @@
-defmodule Meadow.Ingest.IngestJobTest do
+defmodule Meadow.Ingest.IngestJobs.IngestJobTest do
   use Meadow.DataCase
-  alias Meadow.Ingest.IngestJob
-  doctest Meadow.Ingest.IngestJob
+  alias Meadow.Ingest.IngestJobs.IngestJob
 
   describe "ingest_jobs" do
     @valid_attrs %{

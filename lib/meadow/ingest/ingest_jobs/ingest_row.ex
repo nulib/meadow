@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.IngestRow do
+defmodule Meadow.Ingest.IngestJobs.IngestRow do
   @moduledoc """
   IngestRow represents a single row of an inventory sheet
   """
@@ -10,7 +10,7 @@ defmodule Meadow.Ingest.IngestRow do
   @foreign_key_type Ecto.ULID
 
   schema "ingest_rows" do
-    belongs_to :ingest_job, Meadow.Ingest.IngestJob, primary_key: true
+    belongs_to :ingest_job, Meadow.Ingest.IngestJobs.IngestJob, primary_key: true
     field :row, :integer, primary_key: true
     field :state, :string, default: "pending"
 

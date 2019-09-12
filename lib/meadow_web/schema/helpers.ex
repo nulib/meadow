@@ -3,6 +3,6 @@ defmodule MeadowWeb.Schema.Helpers do
   Helper methods for GraphQL schema
   """
   def job_progress(_, ids) do
-    Meadow.Ingest.get_job_progress(ids)
+    Meadow.Ingest.IngestJobs.get_job_progress(ids)
   end
 end

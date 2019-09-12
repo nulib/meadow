@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.IngestJob do
+defmodule Meadow.Ingest.IngestJobs.IngestJob do
   @moduledoc """
   IngestJob represents an inventory sheet upload
   """
@@ -24,8 +24,8 @@ defmodule Meadow.Ingest.IngestJob do
       field :state, :string
     end
 
-    belongs_to :project, Meadow.Ingest.Project
-    has_many :ingest_rows, Meadow.Ingest.IngestRow
+    belongs_to :project, Meadow.Ingest.Projects.Project
+    has_many :ingest_rows, Meadow.Ingest.IngestJobs.IngestRow
 
     timestamps()
   end

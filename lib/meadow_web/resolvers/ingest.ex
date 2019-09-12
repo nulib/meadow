@@ -3,20 +3,21 @@ defmodule MeadowWeb.Resolvers.Ingest do
   Absinthe GraphQL query resolver for Ingest Context
 
   """
-  alias Meadow.Ingest
-  alias Meadow.Ingest.{Bucket, InventoryValidator}
+  alias Meadow.Ingest.{IngestJobs, Projects}
+  alias Meadow.Ingest.IngestJobs.InventoryValidator
+  alias Meadow.Ingest.Projects.Bucket
   alias MeadowWeb.Schema.ChangesetErrors
 
   def projects(_, args, _) do
-    {:ok, Ingest.list_projects(args)}
+    {:ok, Projects.list_projects(args)}
   end
 
   def project(_, %{id: id}, _) do
-    {:ok, Ingest.get_project!(id)}
+    {:ok, Projects.get_project!(id)}
   end
 
   def create_project(_, args, _) do
-    case Ingest.create_project(args) do
+    case Projects.create_project(args) do
       {:error, changeset} ->
         {:error,
          message: "Could not create project", details: ChangesetErrors.error_details(changeset)}
@@ -30,9 +31,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def delete_project(_, args, _) do
-    project = Ingest.get_project!(args[:project_id])
+    project = Projects.get_project!(args[:project_id])
 
-    case Ingest.delete_project(project) do
+    case Projects.delete_project(project) do
       {:error, changeset} ->
         {
           :error,
@@ -45,11 +46,11 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def ingest_job(_, %{id: id}, _) do
-    {:ok, Ingest.get_ingest_job!(id)}
+    {:ok, IngestJobs.get_ingest_job!(id)}
   end
 
   def ingest_job_progress(_, %{id: id}, _) do
-    {:ok, Meadow.Ingest.get_job_progress([id]) |> Map.get(id)}
+    {:ok, Meadow.Ingest.IngestJobs.get_job_progress([id]) |> Map.get(id)}
   end
 
   def ingest_job_validations(_, _, _) do
@@ -63,7 +64,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def create_ingest_job(_, args, _) do
-    case Ingest.create_ingest_job(args) do
+    case IngestJobs.create_ingest_job(args) do
       {:error, changeset} ->
         {:error,
          message: "Could not create ingest job", details: ChangesetErrors.error_details(changeset)}
@@ -74,9 +75,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def delete_ingest_job(_, args, _) do
-    ingest_job = Ingest.get_ingest_job!(args[:ingest_job_id])
+    ingest_job = IngestJobs.get_ingest_job!(args[:ingest_job_id])
 
-    case Ingest.delete_ingest_job(ingest_job) do
+    case IngestJobs.delete_ingest_job(ingest_job) do
       {:error, changeset} ->
         {
           :error,
@@ -98,7 +99,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {
       :ok,
       args
-      |> Ingest.list_ingest_rows()
+      |> IngestJobs.list_ingest_rows()
     }
   end
 end

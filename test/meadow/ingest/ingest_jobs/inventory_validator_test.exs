@@ -1,20 +1,20 @@
-defmodule Meadow.Ingest.InventoryValidatorTest do
+defmodule Meadow.Ingest.IngestJobs.InventoryValidatorTest do
   use Meadow.DataCase
 
-  alias Meadow.Ingest
-  alias Meadow.Ingest.InventoryValidator
+  alias Meadow.Ingest.{IngestJobs, Projects}
+  alias Meadow.Ingest.IngestJobs.InventoryValidator
 
   import Mox
 
-  doctest Meadow.Ingest.InventoryValidator
+  doctest Meadow.Ingest.IngestJobs.InventoryValidator
 
   @sheet_path "test-uploads/inventory_sheets/"
 
   setup context do
-    {:ok, project} = Ingest.create_project(%{title: to_string(context.test)})
+    {:ok, project} = Projects.create_project(%{title: to_string(context.test)})
 
     {:ok, job} =
-      Ingest.create_ingest_job(%{
+      IngestJobs.create_ingest_job(%{
         name: to_string(context.test),
         project_id: project.id,
         filename: "s3://" <> @sheet_path <> context.sheet
