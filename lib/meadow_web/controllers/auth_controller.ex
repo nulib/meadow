@@ -2,7 +2,7 @@ defmodule MeadowWeb.AuthController do
   use MeadowWeb, :controller
 
   plug Ueberauth
-  alias(Meadow.Accounts)
+  alias(Meadow.Accounts.Users)
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     referer =
@@ -18,7 +18,7 @@ defmodule MeadowWeb.AuthController do
       conn
       |> extract_referer()
 
-    case Accounts.user_from_auth(auth) do
+    case Users.user_from_auth(auth) do
       {:ok, user} ->
         conn
         |> put_session(:current_user, user)

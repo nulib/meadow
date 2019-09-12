@@ -1,29 +1,29 @@
-defmodule Meadow.Ingest.ProjectTest do
+defmodule Meadow.Ingest.Projects.ProjectTest do
   use Meadow.DataCase
 
-  alias Meadow.Ingest
-  alias Meadow.Ingest.Project
+  alias Meadow.Ingest.Projects
+  alias Meadow.Ingest.Projects.Project
 
   describe "projects" do
     @valid_attrs %{title: "A Sample Project"}
     @invalid_attrs %{title: nil}
 
     test "create_project/1 with valid data creates a project" do
-      assert {:ok, %Project{} = project} = Ingest.create_project(@valid_attrs)
+      assert {:ok, %Project{} = project} = Projects.create_project(@valid_attrs)
       assert project.title == "A Sample Project"
     end
 
     test "create_project/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Ingest.create_project(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Projects.create_project(@invalid_attrs)
     end
 
     test "created project has a ULID identifier" do
-      assert {:ok, %Project{} = project} = Ingest.create_project(@valid_attrs)
+      assert {:ok, %Project{} = project} = Projects.create_project(@valid_attrs)
       assert {:ok, <<data::binary-size(16)>>} = Ecto.ULID.dump(project.id)
     end
 
     test "creating a project generates a folder name" do
-      assert {:ok, %Project{} = project} = Ingest.create_project(@valid_attrs)
+      assert {:ok, %Project{} = project} = Projects.create_project(@valid_attrs)
       assert project.folder != ""
     end
 

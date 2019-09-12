@@ -1,6 +1,6 @@
-defmodule Meadow.AccountsTest do
+defmodule Meadow.Accounts.UsersTest do
   use Meadow.DataCase
-  alias Meadow.Accounts
+  alias Meadow.Accounts.Users
 
   @valid_auth %Ueberauth.Auth{
     credentials: %Ueberauth.Auth.Credentials{
@@ -56,6 +56,6 @@ defmodule Meadow.AccountsTest do
   test '`user_from_auth` returns the user from an %Auth{}' do
     assert {:ok,
             %{username: "abc123", display_name: "Karen Alpahbet", email: "abc123@example.com"}} =
-             Accounts.user_from_auth(@valid_auth)
+             Users.user_from_auth(@valid_auth)
   end
 end

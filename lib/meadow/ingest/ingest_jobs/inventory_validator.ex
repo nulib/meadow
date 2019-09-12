@@ -1,8 +1,8 @@
-defmodule Meadow.Ingest.InventoryValidator do
+defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
   @moduledoc """
   Validates an Inventory Sheet
   """
-  alias Meadow.Ingest.{IngestJob, IngestRow}
+  alias Meadow.Ingest.IngestJobs.{IngestJob, IngestRow}
   alias Meadow.Repo
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
@@ -121,7 +121,9 @@ defmodule Meadow.Ingest.InventoryValidator do
   end
 
   defp validate_headers(job) do
-    first_row = Meadow.Ingest.list_ingest_rows(job: job, start: 1, limit: 1) |> List.first()
+    first_row =
+      Meadow.Ingest.IngestJobs.list_ingest_rows(job: job, start: 1, limit: 1) |> List.first()
+
     headers = for(field <- first_row.fields, into: [], do: field.header) |> Enum.sort()
 
     case headers do
@@ -140,7 +142,7 @@ defmodule Meadow.Ingest.InventoryValidator do
     end
 
     {
-      Meadow.Ingest.list_ingest_rows(job: job, state: ["pending"])
+      Meadow.Ingest.IngestJobs.list_ingest_rows(job: job, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       job
     }
@@ -182,11 +184,11 @@ defmodule Meadow.Ingest.InventoryValidator do
 
     case result do
       [] ->
-        row |> Meadow.Ingest.change_ingest_row_state("pass")
+        row |> Meadow.Ingest.IngestJobs.change_ingest_row_state("pass")
         "pass"
 
       errors ->
-        row |> Meadow.Ingest.update_ingest_row(%{state: "fail", errors: errors})
+        row |> Meadow.Ingest.IngestJobs.update_ingest_row(%{state: "fail", errors: errors})
         "fail"
     end
   end
@@ -214,7 +216,7 @@ defmodule Meadow.Ingest.InventoryValidator do
 
         false ->
           job
-          |> Meadow.Ingest.list_ingest_job_row_counts()
+          |> Meadow.Ingest.IngestJobs.list_ingest_job_row_counts()
           |> Enum.reduce_while(:ok, state_reducer)
       end
 
@@ -231,6 +233,6 @@ defmodule Meadow.Ingest.InventoryValidator do
         end
     }
 
-    {result, job |> Meadow.Ingest.change_ingest_job_state!(state)}
+    {result, job |> Meadow.Ingest.IngestJobs.change_ingest_job_state!(state)}
   end
 end

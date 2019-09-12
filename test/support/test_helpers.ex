@@ -3,8 +3,9 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
-  alias Meadow.Accounts.User
-  alias Meadow.Ingest.{IngestJob, Project}
+  alias Meadow.Accounts.Users.User
+  alias Meadow.Ingest.IngestJobs.IngestJob
+  alias Meadow.Ingest.Projects.Project
   alias Meadow.Repo
 
   def user_fixture(attrs \\ %{}) do
