@@ -1,86 +1,27 @@
 import React from "react";
-import Main from "../../components/UI/Main";
-import { mockProjects } from "../../mock-data/projects";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import ProjectList from "../../components/Project/List";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
+import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 
-export default class ProjectList extends React.Component {
-  state = {
-    projects: []
-  };
-
-  componentDidMount() {
-    this.getProjects();
-  }
-
-  async getProjects() {
-    try {
-      const response = await axios.get("/api/v1/projects");
-      this.setState({ projects: response.data.data });
-    } catch (error) {
-      console.log("getProjects() error", error);
-    }
-  }
-
-  render() {
-    const { projects } = this.state;
-
-    return (
-      <Main>
-        <h1>Ingestion Projects</h1>
+const ScreensProjectList = () => {
+  return (
+    <>
+      <ScreenHeader
+        title="Ingestion Projects"
+        description="The following is a list of all active Ingestion Projects"
+        breadCrumbs={[{ label: "Projects", link: "/project/list" }]}
+      />
+      <ScreenContent>
         <Link to="/project/create" className="btn">
+          <AddOutlineIcon className="icon" />
           Create Project
         </Link>
+        <ProjectList />
+      </ScreenContent>
+    </>
+  );
+};
 
-        <section className="my-6 content-block">
-          {projects.map(({ id, folder, title }) => (
-            <article key={id} className="pb-6">
-              <h3>
-                <Link to={`/project/${id}`}>{title}</Link>
-              </h3>
-              <p>
-                <span className="font-bold">s3 Bucket Folder: </span>{" "}
-                <a href="#">{folder}</a>
-              </p>
-            </article>
-          ))}
-        </section>
-
-        <h2 className="mt-12">
-          Example Output (should it look something like this?)
-        </h2>
-        <section className="my-6 content-block">
-          {mockProjects.map(
-            ({
-              id,
-              title,
-              numWorks,
-              numFilesets,
-              numInventorySheets,
-              dateLastModified,
-              s3Folder
-            }) => (
-              <article key={id} className="pb-6">
-                <h3>
-                  <a href="#">{title}</a>
-                </h3>
-                <p>
-                  {numWorks} Works | {numFilesets} Filesets |{" "}
-                  {numInventorySheets} Inventory Sheets
-                </p>
-                <p>
-                  <span className="font-bold">s3 Bucket Folder: </span>{" "}
-                  <a href="#">{s3Folder}</a>
-                </p>
-                <p>
-                  <span className="font-bold">Date Last Modified: </span>
-                  {dateLastModified}
-                </p>
-              </article>
-            )
-          )}
-        </section>
-      </Main>
-    );
-  }
-}
+export default ScreensProjectList;

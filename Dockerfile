@@ -1,6 +1,7 @@
 # Install elixir dependencies
 FROM elixir:1.9.0-alpine AS deps
 LABEL edu.northwestern.library.app=meadow \
+  edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
 RUN mix local.hex --force \
   && mix local.rebar --force
@@ -13,6 +14,7 @@ RUN mix do deps.get --only prod, deps.compile
 # Build static assets using nodejs & webpacker
 FROM node:11-alpine AS assets
 LABEL edu.northwestern.library.app=meadow \
+  edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=assets
 COPY ./assets /app/assets
 COPY --from=deps /app/deps/phoenix /app/deps/phoenix
@@ -41,7 +43,7 @@ LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add ncurses-libs openssl-dev
 ENV LANG=en_US.UTF-8
-EXPOSE 4000
+EXPOSE 4000 4369 24601
 COPY --from=release /app/_build/prod/rel/meadow /app
 WORKDIR /app
 ENTRYPOINT ["./bin/meadow"]

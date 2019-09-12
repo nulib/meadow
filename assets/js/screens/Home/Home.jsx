@@ -1,14 +1,24 @@
 import React from "react";
-import Main from "../../components/UI/Main";
+import ScreenHeader from "../../components/UI/ScreenHeader";
+import ScreenContent from "../../components/UI/ScreenContent";
+import CurrentUser from "../../components/Auth/CurrentUser";
 
 const ScreensHome = () => {
   return (
-    <Main>
-      <h1>Home Dashboard</h1>
-      <section className="content-block">
-        <p>Stuff goes here</p>
-      </section>
-    </Main>
+    <>
+      <ScreenHeader
+        title="Home Dashboard"
+        description="View the applications main dashboard features here"
+        breadCrumbs={[{ label: "Home", link: "/" }]}
+      />
+      <ScreenContent>
+        <>
+          <CurrentUser>
+            {currentUser => <div>Hello {currentUser.displayName}!</div>}
+          </CurrentUser>
+        </>
+      </ScreenContent>
+    </>
   );
 };
 

@@ -1,33 +1,38 @@
 import React from "react";
-import ButtonGroup from "../../components/UI/ButtonGroup";
 import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
+import UploadInventorySheet from "./Upload";
+import { useQuery } from "@apollo/react-hooks";
+import { GET_PRESIGNED_URL } from "./inventorySheet.query.js";
 
-const InventorySheetForm = ({ handleSubmit, handleCancel }) => {
+const InventorySheetForm = ({ history, projectId }) => {
+  const {
+    loading,
+    error,
+    data: { presignedUrl }
+  } = useQuery(GET_PRESIGNED_URL);
+
+  if (loading) return <Loading />;
+  if (error) return <Error error={error} />;
+
   return (
-    <form
-      data-testid="inventory-sheet-upload-form"
-      className="content-block"
-      onSubmit={handleSubmit}
-    >
-      <div className="mb-4">
-        <label htmlFor="inventory-sheet-file">Inventory sheet</label>
-        <input id="inventory-sheet-file" type="file" />
-      </div>
-      <ButtonGroup>
-        <button className="btn" type="submit">
-          Submit
-        </button>
-        <button className="btn btn-cancel" onClick={handleCancel}>
-          Cancel
-        </button>
-      </ButtonGroup>
-    </form>
+    <div className="md:w-1/2">
+      <UploadInventorySheet
+        history={history}
+        projectId={projectId}
+        presignedUrl={presignedUrl.url}
+      />
+    </div>
   );
 };
 
 InventorySheetForm.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
-  handleCancel: PropTypes.func.isRequired
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired,
+  projectId: PropTypes.string.isRequired
 };
 
-export default InventorySheetForm;
+export default withRouter(InventorySheetForm);

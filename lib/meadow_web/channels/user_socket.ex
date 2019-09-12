@@ -1,8 +1,6 @@
 defmodule MeadowWeb.UserSocket do
   use Phoenix.Socket
-
-  ## Channels
-  # channel "room:*", MeadowWeb.RoomChannel
+  use Absinthe.Phoenix.Socket, schema: MeadowWeb.Schema.Schema
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

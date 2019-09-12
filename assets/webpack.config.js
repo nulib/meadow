@@ -29,6 +29,11 @@ module.exports = (env, options) => ({
         }
       },
       {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: "javascript/auto"
+      },
+      {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
@@ -40,13 +45,23 @@ module.exports = (env, options) => ({
         ]
       },
       {
-        test: /\.(woff(2)?|ttf|eot|svg|otf)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(woff(2)?|ttf|eot|otf)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: "file-loader",
+            loader: "url-loader?limit=100000"
+          }
+        ]
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "babel-loader"
+          },
+          {
+            loader: "react-svg-loader",
             options: {
-              name: "[name].[ext]",
-              outputPath: "fonts/"
+              jsx: true // true outputs JSX tags
             }
           }
         ]
@@ -59,6 +74,6 @@ module.exports = (env, options) => ({
   ],
   devtool: "source-map",
   resolve: {
-    extensions: [".js", ".jsx", ".json"]
+    extensions: ["*", ".mjs", ".js", ".jsx", ".json"]
   }
 });

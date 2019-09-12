@@ -1,43 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { mockInventorySheets } from "../../mock-data/inventorySheets";
 import { Link } from "react-router-dom";
+import { useQuery } from "@apollo/react-hooks";
+import Error from "../UI/Error";
+import Loading from "../UI/Loading";
+import { GET_INGEST_JOBS } from "./inventorySheet.query";
 
 const InventorySheetList = ({ projectId }) => {
-  const [inventorySheets, setInventorySheets] = useState([]);
-
-  useEffect(() => {
-    // Get inventory sheets for project based on id
-    getInventorySheets();
+  const { loading, error, data } = useQuery(GET_INGEST_JOBS, {
+    variables: { projectId }
   });
 
-  function getInventorySheets() {
-    setInventorySheets(mockInventorySheets);
-  }
+  if (loading) return <Loading />;
+  if (error) return <Error error={error} />;
 
   return (
     <div>
-      {inventorySheets.length === 0 && (
+      {data.project.ingestJobs.length === 0 && (
         <p data-testid="no-inventory-sheets-notification">
           No inventory sheets are found.
         </p>
       )}
 
-      {inventorySheets.length > 0 && (
-        <ul data-testid="inventory-sheet-list">
-          {inventorySheets.map(sheet => (
-            <li key={sheet.id} className="pb-4">
-              <p>
-                <Link to={`/project/${projectId}/inventory-sheet/${sheet.id}`}>
-                  {sheet.title}
-                </Link>
-              </p>
-              <p>Total Works: {sheet.totalWorks}</p>
-              <p>Ingested: {sheet.dateCreated}</p>
-              <p>Creator: {sheet.creator}</p>
-            </li>
-          ))}
-        </ul>
+      {data.project.ingestJobs.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Ingest job title</th>
+              <th>Last updated</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.project.ingestJobs.map(
+              ({ id, name, filename, updatedAt }) => (
+                <tr key={id}>
+                  <td>
+                    <Link to={`/project/${projectId}/inventory-sheet/${id}`}>
+                      {name}
+                    </Link>
+                  </td>
+                  <td>{updatedAt}</td>
+                  <td>...tbd</td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
       )}
     </div>
   );

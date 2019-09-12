@@ -6,14 +6,18 @@ defmodule Meadow.Application do
   use Application
 
   def start(_type, _args) do
+    import Supervisor.Spec
+
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
       Meadow.Repo,
       # Start the endpoint when the application starts
-      MeadowWeb.Endpoint
+      MeadowWeb.Endpoint,
       # Starts a worker by calling: Meadow.Worker.start_link(arg)
       # {Meadow.Worker, arg},
+      supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
+      {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

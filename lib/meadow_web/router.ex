@@ -12,25 +12,35 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug(OpenApiSpex.Plug.PutApiSpec, module: MeadowWeb.ApiSpec)
+    plug MeadowWeb.Plugs.SetCurrentUser
   end
 
   # Other scopes may use custom stacks.
   scope "/api" do
     pipe_through :api
 
-    scope "/v1", MeadowWeb.Api.V1, as: :v1 do
-      resources "/projects", ProjectController, except: [:new, :edit]
-      get "/ingest_jobs/presigned_url", IngestJobController, :presigned_url
-      resources "/ingest_jobs", IngestJobController, except: [:new, :edit]
-    end
+    forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema.Schema
 
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: MeadowWeb.Schema.Schema,
+      socket: MeadowWeb.UserSocket
+
+    forward "/", Plug.Static,
+      at: "/",
+      from: {:meadow, "priv/static"},
+      only: ["voyager"],
+      headers: %{"content-type" => "text/html"}
   end
 
   scope "/" do
     pipe_through :browser
-    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+
+    get "/auth/logout", MeadowWeb.AuthController, :logout
+    get "/auth/:provider", MeadowWeb.AuthController, :login
+    post "/auth/:provider", MeadowWeb.AuthController, :login
+    get "/auth/:provider/callback", MeadowWeb.AuthController, :callback
+    post "/auth/:provider/callback", MeadowWeb.AuthController, :callback
+
     get "/*path", MeadowWeb.PageController, :index
   end
 end

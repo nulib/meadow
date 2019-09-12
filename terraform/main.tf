@@ -49,6 +49,14 @@ resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
   acl    = "private"
   tags   = "${var.tags}"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT"]
+    allowed_origins = ["http://${aws_route53_record.app_hostname.fqdn}"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 
 data "aws_iam_policy_document" "this_bucket_access" {
@@ -68,7 +76,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 
     resources = [
       "${aws_s3_bucket.meadow_ingest.arn}",
-      "${aws_s3_bucket.meadow_uploads.arn}"
+      "${aws_s3_bucket.meadow_uploads.arn}",
     ]
   }
 
@@ -86,21 +94,6 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_uploads.arn}/*",
     ]
   }
-}
-
-resource "aws_security_group" "meadow_alb" {
-  name        = "${var.stack_name}-alb"
-  description = "The Meadow Application Load Balancer"
-  vpc_id      = "${data.aws_vpc.default_vpc.id}"
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = "${var.tags}"
 }
 
 resource "aws_security_group" "meadow" {
@@ -142,22 +135,14 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
   security_group_id        = "${aws_security_group.meadow_db.id}"
 }
 
-resource "aws_security_group_rule" "allow_http_access" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.meadow_alb.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
 resource "aws_security_group_rule" "allow_alb_access" {
-  type                     = "ingress"
-  from_port                = 4000
-  to_port                  = 4000
-  protocol                 = "tcp"
-  source_security_group_id = "${aws_security_group.meadow_alb.id}"
-  security_group_id        = "${aws_security_group.meadow.id}"
+  count             = "${length(local.container_ports)}"
+  type              = "ingress"
+  from_port         = "${element(local.container_ports, count.index)}"
+  to_port           = "${element(local.container_ports, count.index)}"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.meadow.id}"
 }
 
 data "aws_route53_zone" "app_zone" {
@@ -182,4 +167,18 @@ data "aws_vpc" "default_vpc" {
 
 data "aws_subnet_ids" "default_subnets" {
   vpc_id = "${data.aws_vpc.default_vpc.id}"
+}
+
+resource "aws_ssm_parameter" "meadow_secret_key_base" {
+  name      = "/${var.stack_name}/secret_key_base"
+  type      = "SecureString"
+  value     = "${random_string.secret_key_base.result}"
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "meadow_node_name" {
+  name      = "/${var.stack_name}/node_name"
+  type      = "String"
+  value     = "${var.stack_name}@${aws_route53_record.app_hostname.fqdn}"
+  overwrite = true
 }

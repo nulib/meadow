@@ -10,19 +10,14 @@ defmodule Meadow.Ingest.Bucket do
     |> ExAws.request()
   end
 
-  def presigned_s3_url(bucket) do
+  def presigned_s3_url(bucket, method \\ :put) do
     bucket
     |> check_bucket()
 
     id = Ecto.ULID.generate()
     path = "inventory_sheets/#{id}.csv"
 
-    {:ok, url} =
-      ExAws.S3.presigned_url(ExAws.Config.new(:s3), :put, bucket, path,
-        query_params: [
-          {"contentType", "binary/octet-stream"}
-        ]
-      )
+    {:ok, url} = ExAws.S3.presigned_url(ExAws.Config.new(:s3), method, bucket, path)
 
     url
   end

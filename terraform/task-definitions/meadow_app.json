@@ -23,6 +23,22 @@
         "value": "${ingest_bucket}"
       },
       {
+        "name": "MEADOW_HOSTNAME",
+        "value": "${host_name}"
+      },
+      { 
+        "name": "RELEASE_COOKIE",
+        "value": "${secret_key_base}"
+      },
+      { 
+        "name": "RELEASE_DISTRIBUTION",
+        "value": "name"
+      },
+      { 
+        "name": "RELEASE_NODE",
+        "value": "meadow@${host_name}"
+      },
+      {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
       }
@@ -31,6 +47,14 @@
       {
         "containerPort": 4000,
         "hostPort": 4000
+      },
+      {
+        "containerPort": 4369,
+        "hostPort": 4369
+      },
+      {
+        "containerPort": 24601,
+        "hostPort": 24601
       }
     ],
     "logConfiguration": {
