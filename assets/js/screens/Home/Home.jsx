@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import CurrentUser from "../../components/Auth/CurrentUser";
+import { AuthContext } from "../../components/Auth/Auth";
 
 const ScreensHome = () => {
+  const me = useContext(AuthContext);
+
   return (
     <>
       <ScreenHeader
@@ -12,11 +14,7 @@ const ScreensHome = () => {
         breadCrumbs={[{ label: "Home", link: "/" }]}
       />
       <ScreenContent>
-        <>
-          <CurrentUser>
-            {currentUser => <div>Hello {currentUser.displayName}!</div>}
-          </CurrentUser>
-        </>
+        <p>Something goes here</p>
       </ScreenContent>
     </>
   );

@@ -177,8 +177,12 @@ td {
 
 /** Overrides **/
 .Toastify__toast--default {
-  @apply bg-gray-700 text-white !important;
+  @apply bg-gray-500 text-white !important;
 }
 .Toastify__close-button--default {
   @apply text-white !important;
+}
+
+.spinner {
+  position: absolute !important;
 }
