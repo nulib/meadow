@@ -1,4 +1,4 @@
-# DRAFT: Meadow Ingest Pipeline
+# Meadow Ingest Pipeline
 
 ## Definitions
 
@@ -47,3 +47,10 @@ The code that actually performs the unit of work required by an `Action`.
   - I have been informally referring to this `SQS→SNS→SQS...` message chain as `SQNS`, pronounced “sequins” or “sequence.”
 
 An `Action` that has multiple prerequisites (e.g., two different) `Actions` or multiple iterations of another `Action` might require an intermediate `Action` that waits for and collects all of its dependency `Messages` before completing.
+
+### Characteristics of Actions
+
+1. `Actions` are *deterministic*. Given the same input, an `Action` will always provide the same output.
+2. `Actions` are *referentially opaque*. This is just a fancy way of saying that `Actions` might (and usually will) have side effects. In some cases, the side effects are the whole point.
+3. `Actions` are *idempotent*. An Action will always check to see if its work has already been done, and will not do it again. Any work that does get repeated results in the same output and side effects (i.e., no duplications, no appending multiple copies of things).
+4. The input to any `Action` can be condensed and expressed as a single binary value. E.g., Row `2` of Ingest Job `01DMKFWMA7VTV960MSMWAHJ0FX` can be expressed as `01DMKFWMA7VTV960MSMWAHJ0FX:2`.
