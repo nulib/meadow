@@ -26,10 +26,10 @@ h3 {
   @apply text-xl text-gray-900;
 }
 
-main a {
+a {
   @apply text-gray-600 underline;
 }
-main a:hover {
+a:hover {
   @apply text-gray-800;
 }
 
