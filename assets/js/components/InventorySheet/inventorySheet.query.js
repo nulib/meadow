@@ -18,6 +18,15 @@ export const CREATE_INGEST_JOB = gql`
   }
 `;
 
+export const DELETE_INGEST_JOB = gql`
+  mutation DeleteIngestJob($ingestJobId: ID!) {
+    deleteIngestJob(ingestJobId: $ingestJobId) {
+      id
+      name
+    }
+  }
+`;
+
 export const GET_INGEST_JOBS = gql`
   query GetIngestJobs($projectId: ID!) {
     project(id: $projectId) {
