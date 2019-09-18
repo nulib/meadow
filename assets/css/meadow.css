@@ -42,7 +42,11 @@ nav a:hover {
 }
 
 table {
-  @apply w-full text-left;
+  @apply text-left;
+}
+
+caption {
+  @apply italic py-4;
 }
 
 th {

@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import DeleteIcon from "../../../css/fonts/zondicons/close.svg";
+import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import { toast } from "react-toastify";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import UIModalDelete from "../UI/Modal/Delete";
 
 const ProjectList = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState();
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
   const client = useApolloClient();
   const [deleteProject, { data }] = useMutation(DELETE_PROJECT, {
@@ -33,54 +36,76 @@ const ProjectList = () => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
-  const handleDeleteClick = (e, project) => {
-    if (project.ingestJobs.length > 0) {
-      return toast(
-        `Project has existing inventory jobs.  You must delete these before deleting project: ${project.title} `,
+  const onOpenModal = (e, project) => {
+    setActiveModal(project);
+    setModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setActiveModal(null);
+    setModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setModalOpen(false);
+
+    if (activeModal.ingestJobs.length > 0) {
+      toast(
+        `Project has existing inventory jobs.  You must delete these before deleting project: ${activeModal.title} `,
         { type: "error" }
       );
+      return setActiveModal(null);
     }
 
-    deleteProject({ variables: { projectId: project.id } });
+    deleteProject({ variables: { projectId: activeModal.id } });
+    setActiveModal(null);
   };
 
   return (
-    <section className="my-6">
-      <table>
-        <thead>
-          <tr>
-            <th>Project</th>
-            <th>s3 Bucket Folder</th>
-            <th>Number of ingestion jobs</th>
-            <th>Last Updated</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {projectsData.projects &&
-            projectsData.projects.length > 0 &&
-            projectsData.projects.map(project => {
-              const { id, folder, title, updated_at, ingestJobs } = project;
-              return (
-                <tr key={id}>
-                  <td>
-                    <Link to={`/project/${id}`}>{title}</Link>
-                  </td>
-                  <td>{folder}</td>
-                  <td className="text-center">{ingestJobs.length}</td>
-                  <td>{updated_at}</td>
-                  <td>
-                    <DeleteIcon
-                      className="icon cursor-pointer"
-                      onClick={e => handleDeleteClick(e, project)}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-        </tbody>
-      </table>
-    </section>
+    <>
+      <section className="my-6">
+        <table>
+          <caption>All Projects</caption>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>s3 Bucket Folder</th>
+              <th className="text-right">Number of ingestion jobs</th>
+              <th>Last Updated</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {projectsData.projects &&
+              projectsData.projects.length > 0 &&
+              projectsData.projects.map(project => {
+                const { id, folder, title, updated_at, ingestJobs } = project;
+                return (
+                  <tr key={id}>
+                    <td>
+                      <Link to={`/project/${id}`}>{title}</Link>
+                    </td>
+                    <td>{folder}</td>
+                    <td className="text-right">{ingestJobs.length}</td>
+                    <td>{updated_at}</td>
+                    <td className="pl-8">
+                      <button onClick={e => onOpenModal(e, project)}>
+                        <TrashIcon className="icon cursor-pointer" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </section>
+      <UIModalDelete
+        isOpen={modalOpen}
+        handleClose={onCloseModal}
+        handleConfirm={handleDeleteClick}
+        thingToDeleteLabel={`Project ${activeModal ? activeModal.title : ""}`}
+      />
+    </>
   );
 };
 

@@ -24,7 +24,8 @@
     "phoenix_html": "file:../deps/phoenix_html",
     "prop-types": "^15.7.2",
     "rc-progress": "^2.5.1",
-    "react-apollo": "^2.5.8"
+    "react-apollo": "^2.5.8",
+    "react-responsive-modal": "^4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
