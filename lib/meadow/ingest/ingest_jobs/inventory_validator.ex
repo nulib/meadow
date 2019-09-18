@@ -7,6 +7,8 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
+  @headers ~w(accession_number description filename role work_accession_number)
+
   def async(job_id) do
     case Meadow.TaskRegistry |> Registry.lookup(job_id) do
       [{pid, _}] ->
@@ -127,7 +129,7 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
     headers = for(field <- first_row.fields, into: [], do: field.header) |> Enum.sort()
 
     case headers do
-      ~w(accession_number description filename work_accession_number) -> {:ok, job}
+      @headers -> {:ok, job}
       _ -> {:error, job}
     end
   end
