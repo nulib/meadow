@@ -27,7 +27,8 @@ RUN npm -g install yarn \
 
 # Create elixir release
 FROM elixir:1.9.0-alpine AS release
-RUN mix local.hex --force \
+RUN  apk add --update --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ git \
+  && mix local.hex --force \
   && mix local.rebar --force
 ENV MIX_ENV=prod
 COPY . /app
