@@ -77,6 +77,18 @@ config :ex_aws, :s3,
   scheme: "http://",
   region: "us-east-1"
 
+config :ex_aws, :sqs,
+  host: "localhost",
+  port: 4101,
+  scheme: "http://",
+  region: "us-east-1"
+
+config :ex_aws, :sns,
+  host: "localhost",
+  port: 4101,
+  scheme: "http://",
+  region: "us-east-1"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
