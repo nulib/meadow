@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useQuery } from "@apollo/react-hooks";
@@ -6,8 +6,12 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { GET_INGEST_JOBS, DELETE_INGEST_JOB } from "./inventorySheet.query";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
+import UIModalDelete from "../UI/Modal/Delete";
+import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 
 const InventorySheetList = ({ projectId }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState();
   const { loading, error, data } = useQuery(GET_INGEST_JOBS, {
     variables: { projectId }
   });
@@ -47,9 +51,19 @@ const InventorySheetList = ({ projectId }) => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
-  const handleDeleteClick = ingestJobId => {
-    console.log("TCL: handleDeleteClick -> ingestJobId", ingestJobId);
-    deleteIngestJob({ variables: { ingestJobId } });
+  const handleDeleteClick = () => {
+    deleteIngestJob({ variables: { ingestJobId: activeModal } });
+    onCloseModal();
+  };
+
+  const onOpenModal = (e, ingestJob) => {
+    setActiveModal(ingestJob);
+    setModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setActiveModal(null);
+    setModalOpen(false);
   };
 
   return (
@@ -61,37 +75,45 @@ const InventorySheetList = ({ projectId }) => {
       )}
 
       {data.project.ingestJobs.length > 0 && (
-        <table>
-          <caption>All Project Ingest Jobs</caption>
-          <thead>
-            <tr>
-              <th>Ingest job title</th>
-              <th>Last updated</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.project.ingestJobs.map(
-              ({ id, name, filename, updatedAt }) => (
-                <tr key={id}>
-                  <td>
-                    <Link to={`/project/${projectId}/inventory-sheet/${id}`}>
-                      {name}
-                    </Link>
-                  </td>
-                  <td>{updatedAt}</td>
-                  <td>[ supported? ]</td>
-                  <td>
-                    <button onClick={() => handleDeleteClick(id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
+        <>
+          <table>
+            <caption>All Project Ingest Jobs</caption>
+            <thead>
+              <tr>
+                <th>Ingest job title</th>
+                <th>Last updated</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.project.ingestJobs.map(
+                ({ id, name, filename, updatedAt }) => (
+                  <tr key={id}>
+                    <td>
+                      <Link to={`/project/${projectId}/inventory-sheet/${id}`}>
+                        {name}
+                      </Link>
+                    </td>
+                    <td>{updatedAt}</td>
+                    <td>[ supported? ]</td>
+                    <td className="text-right">
+                      <button onClick={e => onOpenModal(e, id)}>
+                        <TrashIcon className="icon cursor-pointer" />
+                      </button>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+          <UIModalDelete
+            isOpen={modalOpen}
+            handleClose={onCloseModal}
+            handleConfirm={handleDeleteClick}
+            thingToDeleteLabel={`Ingest Job`}
+          />
+        </>
       )}
     </div>
   );

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import ReactRouterPropTypes from "react-router-prop-types";
 import { useMutation } from "@apollo/react-hooks";
 import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import InventorySheetReport from "./Report";
 import {
+  DELETE_INGEST_JOB,
   SUBSCRIBE_TO_INVENTORY_SHEET_STATUS,
   SUBSCRIBE_TO_INVENTORY_SHEET_PROGRESS,
   START_VALIDATION
@@ -13,18 +15,33 @@ import UIAlert from "../UI/Alert";
 import ButtonGroup from "../UI/ButtonGroup";
 import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
+import UIModalDelete from "../UI/Modal/Delete";
+import { withRouter } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function InventorySheetValidations({
   inventorySheetId,
   initialProgress,
   initialStatus,
+  match,
+  history,
   subscribeToInventorySheetProgress,
   subscribeToInventorySheetStatus
 }) {
   const [progress, setProgress] = useState({ states: [] });
   const [status, setStatus] = useState([]);
   const [displayRowChecks, setDisplayRowChecks] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
+  const [deleteIngestJob, { data: deleteIngestJobData }] = useMutation(
+    DELETE_INGEST_JOB,
+    {
+      onCompleted({ deleteIngestJob }) {
+        toast(`Ingest job deleted successfully`);
+        history.push(`/project/${match.params.id}`);
+      }
+    }
+  );
 
   useEffect(() => {
     setProgress(initialProgress);
@@ -43,6 +60,18 @@ function InventorySheetValidations({
 
     startValidation({ variables: { id: inventorySheetId } });
   }, []);
+
+  const handleDeleteClick = () => {
+    deleteIngestJob({ variables: { ingestJobId: inventorySheetId } });
+  };
+
+  const onOpenModal = () => {
+    setDeleteModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setDeleteModalOpen(false);
+  };
 
   const handleProgressUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
@@ -189,7 +218,7 @@ function InventorySheetValidations({
     if (isFinishedAndErrors()) {
       return (
         <ButtonGroup>
-          <UIButton classes="btn-danger">
+          <UIButton classes="btn-danger" onClick={onOpenModal}>
             Delete job and re-upload inventory sheet
           </UIButton>
         </ButtonGroup>
@@ -202,7 +231,7 @@ function InventorySheetValidations({
             <CheckMarkIcon className="icon" />
             Approve inventory sheet
           </UIButton>
-          <UIButton classes="btn-clear">
+          <UIButton classes="btn-clear" onClick={onOpenModal}>
             Delete job and re-upload inventory sheet
           </UIButton>
         </ButtonGroup>
@@ -241,6 +270,12 @@ function InventorySheetValidations({
           <p>What other info goes here?</p>
         </div>
       </section>
+      <UIModalDelete
+        isOpen={deleteModalOpen}
+        handleClose={onCloseModal}
+        handleConfirm={handleDeleteClick}
+        thingToDeleteLabel={`Ingest Job`}
+      />
     </>
   );
 }
@@ -248,7 +283,9 @@ function InventorySheetValidations({
 InventorySheetValidations.propTypes = {
   inventorySheetId: PropTypes.string.isRequired,
   initialProgress: PropTypes.object.isRequired,
-  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired
+  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired,
+  match: ReactRouterPropTypes.match,
+  history: ReactRouterPropTypes.history
 };
 
-export default InventorySheetValidations;
+export default withRouter(InventorySheetValidations);
