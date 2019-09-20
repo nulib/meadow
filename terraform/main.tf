@@ -3,12 +3,12 @@ terraform {
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 module "rds" {
   source                    = "terraform-aws-modules/rds/aws"
-  version                   = "2.0.0"
+  version                   = "2.5.0"
   allocated_storage         = "5"
   backup_window             = "04:00-05:00"
   engine                    = "postgres"
@@ -17,12 +17,12 @@ module "rds" {
   identifier                = "${var.stack_name}-db"
   instance_class            = "db.t3.micro"
   maintenance_window        = "Sun:01:00-Sun:02:00"
-  password                  = "${random_string.db_password.result}"
+  password                  = random_string.db_password.result
   port                      = "5432"
   username                  = "postgres"
-  subnet_ids                = "${data.aws_subnet_ids.default_subnets.ids}"
+  subnet_ids                = data.aws_subnet_ids.default_subnets.ids
   family                    = "postgres11"
-  vpc_security_group_ids    = ["${aws_security_group.meadow_db.id}"]
+  vpc_security_group_ids    = [aws_security_group.meadow_db.id]
 
   parameters = [
     {
@@ -31,7 +31,7 @@ module "rds" {
     },
   ]
 
-  tags = "${var.tags}"
+  tags = var.tags
 }
 
 resource "random_string" "db_password" {
@@ -42,13 +42,13 @@ resource "random_string" "db_password" {
 resource "aws_s3_bucket" "meadow_ingest" {
   bucket = "${var.stack_name}-${var.environment}-ingest"
   acl    = "private"
-  tags   = "${var.tags}"
+  tags   = var.tags
 }
 
 resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
   acl    = "private"
-  tags   = "${var.tags}"
+  tags   = var.tags
 
   cors_rule {
     allowed_headers = ["*"]
@@ -57,6 +57,12 @@ resource "aws_s3_bucket" "meadow_uploads" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+}
+
+resource "aws_s3_bucket" "meadow_preservation" {
+  bucket = "${var.stack_name}-${var.environment}-preservation"
+  acl    = "private"
+  tags   = var.tags
 }
 
 data "aws_iam_policy_document" "this_bucket_access" {
@@ -75,8 +81,9 @@ data "aws_iam_policy_document" "this_bucket_access" {
     ]
 
     resources = [
-      "${aws_s3_bucket.meadow_ingest.arn}",
-      "${aws_s3_bucket.meadow_uploads.arn}",
+      aws_s3_bucket.meadow_ingest.arn,
+      aws_s3_bucket.meadow_uploads.arn,
+      aws_s3_bucket.meadow_preservation.arn,
     ]
   }
 
@@ -92,14 +99,15 @@ data "aws_iam_policy_document" "this_bucket_access" {
     resources = [
       "${aws_s3_bucket.meadow_ingest.arn}/*",
       "${aws_s3_bucket.meadow_uploads.arn}/*",
+      "${aws_s3_bucket.meadow_preservation.arn}/*",
     ]
   }
 }
 
 resource "aws_security_group" "meadow" {
-  name        = "${var.stack_name}"
+  name        = var.stack_name
   description = "The Meadow Application"
-  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+  vpc_id      = data.aws_vpc.default_vpc.id
 
   egress {
     from_port   = 0
@@ -108,13 +116,13 @@ resource "aws_security_group" "meadow" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = "${var.tags}"
+  tags = var.tags
 }
 
 resource "aws_security_group" "meadow_db" {
   name        = "${var.stack_name}-db"
   description = "The Meadow RDS Instance"
-  vpc_id      = "${data.aws_vpc.default_vpc.id}"
+  vpc_id      = data.aws_vpc.default_vpc.id
 
   egress {
     from_port   = 0
@@ -123,7 +131,7 @@ resource "aws_security_group" "meadow_db" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = "${var.tags}"
+  tags = var.tags
 }
 
 resource "aws_security_group_rule" "allow_meadow_db_access" {
@@ -131,32 +139,32 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
-  source_security_group_id = "${aws_security_group.meadow.id}"
-  security_group_id        = "${aws_security_group.meadow_db.id}"
+  source_security_group_id = aws_security_group.meadow.id
+  security_group_id        = aws_security_group.meadow_db.id
 }
 
 resource "aws_security_group_rule" "allow_alb_access" {
-  count             = "${length(local.container_ports)}"
+  count             = length(local.container_ports)
   type              = "ingress"
-  from_port         = "${element(local.container_ports, count.index)}"
-  to_port           = "${element(local.container_ports, count.index)}"
+  from_port         = element(local.container_ports, count.index)
+  to_port           = element(local.container_ports, count.index)
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.meadow.id}"
+  security_group_id = aws_security_group.meadow.id
 }
 
 data "aws_route53_zone" "app_zone" {
-  name = "${var.dns_zone}"
+  name = var.dns_zone
 }
 
 resource "aws_route53_record" "app_hostname" {
-  zone_id = "${data.aws_route53_zone.app_zone.zone_id}"
-  name    = "${var.stack_name}"
+  zone_id = data.aws_route53_zone.app_zone.zone_id
+  name    = var.stack_name
   type    = "A"
 
   alias {
-    name                   = "${aws_alb.meadow_load_balancer.dns_name}"
-    zone_id                = "${aws_alb.meadow_load_balancer.zone_id}"
+    name                   = aws_alb.meadow_load_balancer.dns_name
+    zone_id                = aws_alb.meadow_load_balancer.zone_id
     evaluate_target_health = true
   }
 }
@@ -166,13 +174,13 @@ data "aws_vpc" "default_vpc" {
 }
 
 data "aws_subnet_ids" "default_subnets" {
-  vpc_id = "${data.aws_vpc.default_vpc.id}"
+  vpc_id = data.aws_vpc.default_vpc.id
 }
 
 resource "aws_ssm_parameter" "meadow_secret_key_base" {
   name      = "/${var.stack_name}/secret_key_base"
   type      = "SecureString"
-  value     = "${random_string.secret_key_base.result}"
+  value     = random_string.secret_key_base.result
   overwrite = true
 }
 
