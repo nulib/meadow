@@ -25,7 +25,11 @@ defmodule Meadow.Ingest.Pipeline.Action do
   we're just going to implement our own `process/1`:
 
       defmodule MyApplication.MyPipeline do
-        use Pipeline.Action, queue_name: "my-pipeline"
+        use Pipeline.Action
+
+        def start_link(opts) do
+          Pipeline.Action.start_link(__MODULE__, queue_name: "my-pipeline")
+        end
 
         def process(data) do
           data
@@ -46,10 +50,13 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
   ### Options
 
-  `Pipeline.Action` is configured by passing options to the `use` macro. The only
+  `Pipeline.Action` is configured by passing options to `start_link`. The only
   required option is `queue_name`. Valid options are:
 
     * `:queue_name` - Required. The name of the SQS queue to poll for messages.
+
+    * `:receive_interval` - Optional. The frequency with which the produer
+      polls SQS for new messages. Default value is 5000.
 
     * `:producer_stages` - Optional. The number of producer stages to
       be created by Broadway. Analogous to Broadway's producer `:stages`

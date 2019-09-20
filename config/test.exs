@@ -60,4 +60,4 @@ config :ex_aws, :sns,
   region: "us-east-1"
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :info

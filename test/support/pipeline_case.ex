@@ -18,14 +18,19 @@ defmodule Meadow.PipelineCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Meadow.Utils.SQNS
 
-  @queue_prefix "http://sqs.us-east-1.goaws.com:4100/100010001000/"
-  @topic_prefix "arn:aws:sns:us-east-1:100010001000:"
   @passthru "receiver"
 
   setup context do
-    context |> Map.get(:pipeline, []) |> create_queues() |> create_subscriptions()
     %{body: %{queue_url: queue_url}} = ExAws.SQS.create_queue(@passthru) |> ExAws.request!()
+
+    with {_queues, topics, _subscriptions} <- context |> Map.get(:pipeline, []) |> SQNS.setup() do
+      topics
+      |> Enum.each(fn topic ->
+        SQNS.Subscriptions.create_subscription({topic, @passthru})
+      end)
+    end
 
     receiver_listener = Task.async(Meadow.PipelineCase, :listen, [self()])
 
@@ -52,7 +57,7 @@ defmodule Meadow.PipelineCase do
   """
   def send_message(queue, message) do
     queue
-    |> test_queue_url()
+    |> SQNS.Queues.get_queue_url()
     |> ExAws.SQS.send_message(message)
     |> ExAws.request!()
   end
@@ -68,46 +73,16 @@ defmodule Meadow.PipelineCase do
     end
   end
 
-  defp create_queues(specs) do
-    specs
-    |> Enum.each(fn spec ->
-      {_queue, ok, error} =
-        case spec do
-          {queue, _} -> create_queue(queue)
-          queue -> create_queue(queue)
-        end
-
-      subscribe(test_queue_url(@passthru), ok)
-      subscribe(test_queue_url(@passthru), error)
-    end)
-
-    specs
-  end
-
-  defp create_subscriptions(specs) do
-    specs
-    |> Enum.each(fn
-      {queue, subscriptions} ->
-        subscriptions
-        |> Enum.each(fn {status, topic} ->
-          subscribe(test_queue_url(queue), test_topic_arn(topic, status))
-        end)
-
-      _ ->
-        :noop
-    end)
-
-    specs
-  end
-
   defp teardown(queue) do
-    ExAws.SNS.delete_topic(test_topic_arn(queue, :ok)) |> ExAws.request()
-    ExAws.SNS.delete_topic(test_topic_arn(queue, :error)) |> ExAws.request()
-    ExAws.SQS.delete_queue(test_queue_url(queue)) |> ExAws.request()
+    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn("#{queue}-ok")) |> ExAws.request()
+    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn("#{queue}-error")) |> ExAws.request()
+    ExAws.SQS.delete_queue(SQNS.Queues.get_queue_url(queue)) |> ExAws.request()
   end
 
   defp pass_messages(pid) do
-    case ExAws.SQS.receive_message(test_queue_url(@passthru)) |> ExAws.request!() do
+    queue_url = SQNS.Queues.get_queue_url(@passthru)
+
+    case ExAws.SQS.receive_message(queue_url) |> ExAws.request!() do
       %{body: %{messages: []}} ->
         :ok
 
@@ -115,7 +90,9 @@ defmodule Meadow.PipelineCase do
         messages
         |> Enum.each(fn %{body: body, receipt_handle: handle} ->
           pass_message(body, pid)
-          ExAws.SQS.delete_message(test_queue_url(@passthru), handle) |> ExAws.request!()
+
+          ExAws.SQS.delete_message(queue_url, handle)
+          |> ExAws.request!()
         end)
 
         :more
@@ -135,23 +112,4 @@ defmodule Meadow.PipelineCase do
       :ok -> :ok
     end
   end
-
-  defp create_queue(name) do
-    %{body: %{queue_url: queue_url}} = ExAws.SQS.create_queue("#{name}") |> ExAws.request!()
-
-    %{body: %{topic_arn: ok_topic}} = ExAws.SNS.create_topic("#{name}-ok") |> ExAws.request!()
-
-    %{body: %{topic_arn: error_topic}} =
-      ExAws.SNS.create_topic("#{name}-error") |> ExAws.request!()
-
-    {queue_url, ok_topic, error_topic}
-  end
-
-  defp subscribe(queue_url, topic_arn) do
-    ExAws.SNS.subscribe(topic_arn, "sqs", queue_url) |> ExAws.request!()
-    :ok
-  end
-
-  defp test_queue_url(name), do: "#{@queue_prefix}#{name}"
-  defp test_topic_arn(name, status), do: "#{@topic_prefix}#{name}-#{status}"
 end

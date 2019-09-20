@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.Pipeline.ActionTest do
   import Meadow.PipelineCase
 
   describe "action" do
-    @tag pipeline: ["process-a", "process-b": [ok: "process-a"]]
+    @tag pipeline: ["process-b", "process-a": [ok: "process-b"]]
     test "simple pipeline", context do
       defmodule ProcessA do
         alias Meadow.Ingest.Pipeline.Action
