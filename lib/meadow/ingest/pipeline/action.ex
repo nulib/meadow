@@ -27,14 +27,19 @@ defmodule Meadow.Ingest.Pipeline.Action do
       defmodule MyApplication.MyPipeline do
         use Pipeline.Action
 
-        def start_link(opts) do
-          Pipeline.Action.start_link(__MODULE__, queue_name: "my-pipeline")
-        end
-
         def process(data) do
           data
           |> Map.get_and_update!(:value, fn n -> n * n end)
         end
+      end
+
+  By default, the queue and topic names are the same as the last segment of the using module
+  name converted to a string. This can be overridden by passing a `:queue_name` option to
+  `use`:
+
+      defmodule MyApplication.MyPipeline do
+        use Pipeline.Action, queue_name: "my-pipeline"
+        ...
       end
 
   ### Batcher
@@ -50,10 +55,8 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
   ### Options
 
-  `Pipeline.Action` is configured by passing options to `start_link`. The only
-  required option is `queue_name`. Valid options are:
-
-    * `:queue_name` - Required. The name of the SQS queue to poll for messages.
+  `Pipeline.Action` is configured by passing options to `start_link`.
+  Valid options are:
 
     * `:receive_interval` - Optional. The frequency with which the produer
       polls SQS for new messages. Default value is 5000.
@@ -93,9 +96,27 @@ defmodule Meadow.Ingest.Pipeline.Action do
   @required_topics [:ok, :error]
   @callback process(data :: any()) :: {atom(), any()}
 
-  defmacro __using__(_) do
-    quote location: :keep, bind_quoted: [module: __CALLER__.module] do
-      @behaviour Meadow.Ingest.Pipeline.Action
+  defmacro __using__(use_opts) do
+    use_opts =
+      case use_opts[:queue_name] do
+        nil ->
+          queue =
+            __CALLER__.module
+            |> to_string()
+            |> String.split(".")
+            |> List.last()
+
+          use_opts |> Keyword.put_new(:queue_name, queue)
+
+        _ ->
+          use_opts
+      end
+
+    quote location: :keep,
+          bind_quoted: [queue: use_opts[:queue_name], module: __CALLER__.module] do
+      alias Meadow.Ingest.Pipeline
+      alias Meadow.Utils.SQNS
+      @behaviour Pipeline.Action
 
       @doc false
       def child_spec(arg) do
@@ -107,6 +128,24 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
         Supervisor.child_spec(default, [])
       end
+
+      @doc false
+      def start_link(opts) do
+        Pipeline.Action.start_link(
+          __MODULE__,
+          opts |> Keyword.put_new(:queue_name, unquote(queue))
+        )
+      end
+
+      @doc "Send a message directly to the Action's queue"
+      def send_message(data) when is_binary(data) do
+        unquote(queue)
+        |> SQNS.Queues.get_queue_url()
+        |> ExAws.SQS.send_message(data)
+        |> ExAws.request!()
+      end
+
+      def send_message(data), do: send_message(data |> Jason.encode!())
     end
   end
 

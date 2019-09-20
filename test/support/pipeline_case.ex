@@ -51,17 +51,6 @@ defmodule Meadow.PipelineCase do
     }
   end
 
-  @doc """
-  Send a message to the named queue, presumably to kickstart the
-  action or pipeline being tested.
-  """
-  def send_message(queue, message) do
-    queue
-    |> SQNS.Queues.get_queue_url()
-    |> ExAws.SQS.send_message(message)
-    |> ExAws.request!()
-  end
-
   @doc false
   def listen(pid) do
     pass_messages(pid)
