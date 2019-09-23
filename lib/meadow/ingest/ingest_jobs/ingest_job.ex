@@ -8,8 +8,6 @@ defmodule Meadow.Ingest.IngestJobs.IngestJob do
 
   @default_state [
     %{name: "file", state: "pending"},
-    %{name: "csv", state: "pending"},
-    %{name: "headers", state: "pending"},
     %{name: "rows", state: "pending"},
     %{name: "overall", state: "pending"}
   ]
@@ -19,6 +17,7 @@ defmodule Meadow.Ingest.IngestJobs.IngestJob do
   schema "ingest_jobs" do
     field :name, :string
     field :filename, :string
+    field :file_errors, {:array, :string}, default: []
 
     embeds_many :state, State, primary_key: {:name, :string, []} do
       field :state, :string
@@ -38,10 +37,9 @@ defmodule Meadow.Ingest.IngestJobs.IngestJob do
         else: attrs
 
     ingest_job
-    |> cast(attrs, [:name, :filename, :project_id])
+    |> cast(attrs, [:name, :filename, :project_id, :file_errors])
     |> cast_embed(:state, with: &state_changeset/2)
     |> validate_required([:name, :filename, :project_id])
-    |> validate_csv_format()
     |> assoc_constraint(:project)
     |> unique_constraint(:name)
   end
@@ -65,15 +63,5 @@ defmodule Meadow.Ingest.IngestJobs.IngestJob do
         _ -> {:cont, result}
       end
     end)
-  end
-
-  def validate_csv_format(changeset) do
-    name = get_field(changeset, :filename)
-
-    if name && Path.extname(name) == ".csv" do
-      changeset
-    else
-      add_error(changeset, :filename, "is not a csv")
-    end
   end
 end

@@ -203,6 +203,15 @@ defmodule Meadow.Ingest.IngestJobs do
   end
 
   @doc """
+  Add error  m
+
+  """
+  def add_error(%IngestJob{} = job, error) do
+    from(j in IngestJob, where: j.id == ^job.id)
+    |> Repo.update_all(push: [file_errors: error])
+  end
+
+  @doc """
   Returns row counts for one or more IngestJobs grouped by state
   """
   def list_ingest_job_row_counts(ids) when is_list(ids) do
