@@ -59,6 +59,14 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidatorTest do
   @tag sheet: "inventory_sheet_wrong_headers.csv"
   test "fails an inventory sheet when the headers are wrong", context do
     assert(InventoryValidator.result(context.job.id) == "fail")
+    ingest_job = InventoryValidator.validate(context.job.id)
+
+    assert(
+      ingest_job.file_errors == [
+        "Required header missing: accession_number",
+        "Invalid header: not_the_accession_number"
+      ]
+    )
   end
 
   @tag sheet: "inventory_sheet_missing_field.csv"
@@ -74,5 +82,12 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidatorTest do
   @tag sheet: "missing_inventory_sheet.csv"
   test "fails when inventory sheet is missing", context do
     assert(InventoryValidator.result(context.job.id) == "fail")
+    ingest_job = InventoryValidator.validate(context.job.id)
+
+    assert(
+      ingest_job.file_errors == [
+        "Could not load ingest sheet from S3"
+      ]
+    )
   end
 end

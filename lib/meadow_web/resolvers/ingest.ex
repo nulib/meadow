@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   Absinthe GraphQL query resolver for Ingest Context
 
   """
+  alias Meadow.Ingest.IngestJobs
   alias Meadow.Ingest.{IngestJobs, Projects}
   alias Meadow.Ingest.IngestJobs.InventoryValidator
   alias Meadow.Ingest.Projects.Bucket
@@ -50,7 +51,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def ingest_job_progress(_, %{id: id}, _) do
-    {:ok, Meadow.Ingest.IngestJobs.get_job_progress([id]) |> Map.get(id)}
+    {:ok, IngestJobs.get_job_progress([id]) |> Map.get(id)}
   end
 
   def ingest_job_validations(_, _, _) do

@@ -2,6 +2,7 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
   @moduledoc """
   Validates an Inventory Sheet
   """
+  alias Meadow.Ingest.IngestJobs
   alias Meadow.Ingest.IngestJobs.{IngestJob, IngestRow}
   alias Meadow.Repo
   alias NimbleCSV.RFC4180, as: CSV
@@ -40,7 +41,6 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
 
     events = [
       {"file", &load_file/1},
-      {"headers", &validate_headers/1},
       {"rows", &validate_rows/1},
       {"overall", &overall_status/1}
     ]
@@ -74,18 +74,62 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
          |> ExAws.S3.get_object(filename)
          |> ExAws.request() do
       {:error, _} ->
+        add_error(job, "Could not load ingest sheet from S3")
         {:error, job}
 
       {:ok, obj} ->
-        {:ok, job} |> update_state("file")
         load_rows(job, obj.body)
     end
   end
 
   defp load_rows(job, csv) do
     [headers | rows] = CSV.parse_string(csv, skip_headers: false)
-    {:ok, job} |> update_state("csv")
+    sorted_headers = Enum.sort(headers)
 
+    case job |> validate_headers(sorted_headers) do
+      {:ok, job} ->
+        {:ok, job} |> update_state("file")
+        insert_rows(job, [headers | rows])
+        {:ok, job}
+
+      {:error, job} ->
+        {:error, job}
+    end
+  rescue
+    e in NimbleCSV.ParseError ->
+      add_error(job, "Invalid csv file: " <> e.message)
+      {:error, job} |> update_state("file")
+  end
+
+  defp validate_headers(job, headers) do
+    case headers do
+      @headers ->
+        {:ok, job}
+
+      _ ->
+        with missing_headers = [_ | _] <- @headers -- headers do
+          add_error(
+            job,
+            "Required " <>
+              Inflex.inflect("header", Kernel.length(missing_headers)) <>
+              " missing: " <> Enum.join(missing_headers, ",")
+          )
+        end
+
+        with invalid_headers = [_ | _] <- headers -- @headers do
+          add_error(
+            job,
+            "Invalid " <>
+              Inflex.inflect("header", Kernel.length(invalid_headers)) <>
+              ": " <> Enum.join(invalid_headers, ",")
+          )
+        end
+
+        {:error, job}
+    end
+  end
+
+  defp insert_rows(job, [headers | rows]) do
     Repo.transaction(fn ->
       rows
       |> Enum.with_index(1)
@@ -116,22 +160,6 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
         )
       end)
     end)
-
-    {:ok, job}
-  rescue
-    NimbleCSV.ParseError -> {:error, job} |> update_state("csv")
-  end
-
-  defp validate_headers(job) do
-    first_row =
-      Meadow.Ingest.IngestJobs.list_ingest_rows(job: job, start: 1, limit: 1) |> List.first()
-
-    headers = for(field <- first_row.fields, into: [], do: field.header) |> Enum.sort()
-
-    case headers do
-      @headers -> {:ok, job}
-      _ -> {:error, job}
-    end
   end
 
   defp validate_rows(job) do
@@ -144,7 +172,7 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
     end
 
     {
-      Meadow.Ingest.IngestJobs.list_ingest_rows(job: job, state: ["pending"])
+      IngestJobs.list_ingest_rows(job: job, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       job
     }
@@ -186,11 +214,11 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
 
     case result do
       [] ->
-        row |> Meadow.Ingest.IngestJobs.change_ingest_row_state("pass")
+        row |> IngestJobs.change_ingest_row_state("pass")
         "pass"
 
       errors ->
-        row |> Meadow.Ingest.IngestJobs.update_ingest_row(%{state: "fail", errors: errors})
+        row |> IngestJobs.update_ingest_row(%{state: "fail", errors: errors})
         "fail"
     end
   end
@@ -218,11 +246,15 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
 
         false ->
           job
-          |> Meadow.Ingest.IngestJobs.list_ingest_job_row_counts()
+          |> IngestJobs.list_ingest_job_row_counts()
           |> Enum.reduce_while(:ok, state_reducer)
       end
 
     {result, job}
+  end
+
+  defp add_error(job, message) do
+    IngestJobs.add_error(job, message)
   end
 
   defp update_state({result, job}, event) do
@@ -235,6 +267,6 @@ defmodule Meadow.Ingest.IngestJobs.InventoryValidator do
         end
     }
 
-    {result, job |> Meadow.Ingest.IngestJobs.change_ingest_job_state!(state)}
+    {result, job |> IngestJobs.change_ingest_job_state!(state)}
   end
 end
