@@ -53,4 +53,4 @@ An `Action` that has multiple prerequisites (e.g., two different) `Actions` or m
 1. `Actions` are *deterministic*. Given the same input, an `Action` will always provide the same output.
 2. `Actions` are *referentially opaque*. This is just a fancy way of saying that `Actions` might (and usually will) have side effects. In some cases, the side effects are the whole point.
 3. `Actions` are *idempotent*. An Action will always check to see if its work has already been done, and will not do it again. Any work that does get repeated results in the same output and side effects (i.e., no duplications, no appending multiple copies of things).
-4. The input to any `Action` can be condensed and expressed as a single binary value. E.g., Row `2` of Ingest Job `01DMKFWMA7VTV960MSMWAHJ0FX` can be expressed as `01DMKFWMA7VTV960MSMWAHJ0FX:2`.
+4. The input to any `Action` can be condensed and expressed as a single binary value. E.g., Row `2` of Ingest Sheet `01DMKFWMA7VTV960MSMWAHJ0FX` can be expressed as `01DMKFWMA7VTV960MSMWAHJ0FX:2`.

@@ -1,10 +1,10 @@
-defmodule MeadowWeb.Schema.Subscription.IngestJobValidationTest do
+defmodule MeadowWeb.Schema.Subscription.IngestSheetValidationTest do
   use MeadowWeb.SubscriptionCase, async: true
 
   @subscription """
-    subscription ($ingestJobId: ID!) {
-      ingestJobRowUpdate(jobId: $ingestJobId){
-        ingestJob {
+    subscription ($ingestSheetId: ID!) {
+      ingestSheetRowUpdate(sheetId: $ingestSheetId){
+        ingestSheet {
           id
           progress {
             states {
@@ -29,10 +29,10 @@ defmodule MeadowWeb.Schema.Subscription.IngestJobValidationTest do
     }
   """
 
-  test "ingest job validations can be subscribed to", %{socket: socket} do
-    ingest_job = ingest_job_fixture()
+  test "ingest sheet validations can be subscribed to", %{socket: socket} do
+    ingest_sheet = ingest_sheet_fixture()
 
-    ref = push_doc(socket, @subscription, variables: %{"ingestJobId" => ingest_job.id})
+    ref = push_doc(socket, @subscription, variables: %{"ingestSheetId" => ingest_sheet.id})
     assert_reply ref, :ok, %{subscriptionId: subscription_id}
   end
 end

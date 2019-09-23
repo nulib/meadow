@@ -24,7 +24,7 @@ export const GET_PROJECT = gql`
     project(id: $projectId) {
       id
       title
-      ingestJobs {
+      ingestSheets {
         id
         name
       }
@@ -39,7 +39,7 @@ export const GET_PROJECTS = gql`
       title
       folder
       updated_at
-      ingestJobs {
+      ingestSheets {
         id
       }
     }

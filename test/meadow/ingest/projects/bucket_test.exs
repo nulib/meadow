@@ -44,7 +44,7 @@ defmodule Meadow.Ingest.Projects.BucketTest do
     scheme = config[:scheme]
     host = config[:host]
     port = config[:port]
-    regex = ~r{#{scheme}#{host}:#{port}/#{@bucket}/inventory_sheets(.)*}
+    regex = ~r{#{scheme}#{host}:#{port}/#{@bucket}/ingest_sheets(.)*}
 
     assert Bucket.presigned_s3_url(@bucket) =~ regex
   end

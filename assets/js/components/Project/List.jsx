@@ -49,9 +49,9 @@ const ProjectList = () => {
   const handleDeleteClick = () => {
     setModalOpen(false);
 
-    if (activeModal.ingestJobs.length > 0) {
+    if (activeModal.ingestSheets.length > 0) {
       toast(
-        `Project has existing inventory jobs.  You must delete these before deleting project: ${activeModal.title} `,
+        `Project has existing ingest sheets.  You must delete these before deleting project: ${activeModal.title} `,
         { type: "error" }
       );
       return setActiveModal(null);
@@ -70,7 +70,7 @@ const ProjectList = () => {
             <tr>
               <th>Project</th>
               <th>s3 Bucket Folder</th>
-              <th className="text-right">Number of ingestion jobs</th>
+              <th className="text-right">Number of ingestion sheets</th>
               <th>Last Updated</th>
               <th></th>
             </tr>
@@ -79,14 +79,14 @@ const ProjectList = () => {
             {projectsData.projects &&
               projectsData.projects.length > 0 &&
               projectsData.projects.map(project => {
-                const { id, folder, title, updated_at, ingestJobs } = project;
+                const { id, folder, title, updated_at, ingestSheets } = project;
                 return (
                   <tr key={id}>
                     <td>
                       <Link to={`/project/${id}`}>{title}</Link>
                     </td>
                     <td>{folder}</td>
-                    <td className="text-right">{ingestJobs.length}</td>
+                    <td className="text-right">{ingestSheets.length}</td>
                     <td>{updated_at}</td>
                     <td className="pl-8">
                       <button onClick={e => onOpenModal(e, project)}>

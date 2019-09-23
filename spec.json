@@ -1,21 +1,21 @@
 {
   "components": {
     "schemas": {
-      "IngestJob": {
-        "description": "An ingest job that kicks off an inventory sheet upload",
+      "IngestSheet": {
+        "description": "An ingest sheet that kicks off an ingest sheet upload",
         "example": {
           "filename": "s3://bucket-name/project-folder/filename.csv",
           "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
-          "name": "Name of the Ingest Job",
+          "name": "Name of the Ingest Sheet",
           "project_id": "01DFBXCA303G43Y3695NMQDH8F"
         },
         "properties": {
           "filename": {
-            "description": "Inventory Sheet Filename in S3 bucket",
+            "description": "Ingest Sheet Filename in S3 bucket",
             "type": "string"
           },
           "id": {
-            "description": "Ingest Job ID",
+            "description": "Ingest Sheet ID",
             "format": "ulid",
             "readOnly": "true",
             "type": "string"
@@ -26,7 +26,7 @@
             "type": "string"
           },
           "name": {
-            "description": "Ingest Job Name",
+            "description": "Ingest Sheet Name",
             "maxLength": 140,
             "minLength": 4,
             "type": "string"
@@ -42,88 +42,82 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "project_id",
-          "filename"
-        ],
-        "title": "IngestJob",
+        "required": ["name", "project_id", "filename"],
+        "title": "IngestSheet",
         "type": "object",
-        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJob"
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestSheet"
       },
-      "IngestJobRequest": {
-        "description": "POST body for creating an ingest job",
+      "IngestSheetRequest": {
+        "description": "POST body for creating an ingest sheet",
         "example": {
-          "ingest_job": {
+          "ingest_sheet": {
             "filename": "s3://bucket-name/project-folder/filename.csv",
-            "name": "The Name of the Ingest Job",
+            "name": "The Name of the Ingest Sheet",
             "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
           }
         },
         "properties": {
-          "ingest_job": {
-            "$ref": "#/components/schemas/IngestJob"
+          "ingest_sheet": {
+            "$ref": "#/components/schemas/IngestSheet"
           }
         },
-        "required": [
-          "ingest_job"
-        ],
-        "title": "IngestJobRequest",
+        "required": ["ingest_sheet"],
+        "title": "IngestSheetRequest",
         "type": "object",
-        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobRequest"
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestSheetRequest"
       },
-      "IngestJobResponse": {
-        "description": "Response schema for single ingest job",
+      "IngestSheetResponse": {
+        "description": "Response schema for single ingest sheet",
         "example": {
           "filename": "s3://bucket-name/project-folder/filename.csv",
           "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
-          "name": "Name of the Ingest Job",
+          "name": "Name of the Ingest Sheet",
           "project_id": "01DFBXCA303G43Y3695NMQDH8F"
         },
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/IngestJob"
+            "$ref": "#/components/schemas/IngestSheet"
           }
         },
-        "title": "IngestJobResponse",
+        "title": "IngestSheetResponse",
         "type": "object",
-        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobResponse"
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestSheetResponse"
       },
-      "IngestJobsResponse": {
-        "description": "Response schema for multiple ingest jobs",
+      "IngestSheetsResponse": {
+        "description": "Response schema for multiple ingest sheets",
         "example": {
           "data": [
             {
               "filename": "s3://bucket-name/project-folder/filename.csv",
               "id": "01DEMM44VWN8M3PJFY4J5JJJMF",
-              "name": "Name of the Ingest Job",
+              "name": "Name of the Ingest Sheet",
               "project_id": "01DFBXCA303G43Y3695NMQDH8F"
             },
             {
               "filename": "s3://bucket-name/project-folder/filename.csv",
               "id": "01DFBXN0BNB8YEPXCMCNGAWV2J",
-              "name": "Another Name of the Ingest Job",
+              "name": "Another Name of the Ingest Sheet",
               "project_id": "01DFBXPN3EEZSWC6QTCFYQHTBB"
             }
           ]
         },
         "properties": {
           "data": {
-            "description": "The ingest job details",
+            "description": "The ingest sheet details",
             "items": {
-              "$ref": "#/components/schemas/IngestJob"
+              "$ref": "#/components/schemas/IngestSheet"
             },
             "type": "array"
           }
         },
-        "title": "IngestJobsResponse",
+        "title": "IngestSheetsResponse",
         "type": "object",
-        "x-struct": "Elixir.MeadowWeb.Schemas.IngestJobsResponse"
+        "x-struct": "Elixir.MeadowWeb.Schemas.IngestSheetsResponse"
       },
       "PresignedUrl": {
         "description": "A presigned S3 url to use for upload",
         "example": {
-          "url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+          "url": "http://localhost:9001/dev-uploads/ingest_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
         },
         "properties": {
           "url": {
@@ -132,9 +126,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "title": "PresignedUrl",
         "type": "object",
         "x-struct": "Elixir.MeadowWeb.Schemas.PresignedUrl"
@@ -142,7 +134,7 @@
       "PresignedUrlResponse": {
         "description": "Response schema for presigned url to upload to S3",
         "example": {
-          "url": "http://localhost:9001/dev-uploads/inventory_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
+          "url": "http://localhost:9001/dev-uploads/ingest_sheets/01DFENBFNJAMYKR3C9YT3NRVWZ.csv?contentType=binary%2Foctet-stream&x-amz-acl=public-read&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20190710%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190710T192152Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a215cd85011af1cd54bxxxxx8ad67a1de83bf5b0f0yyyy4294c1bec6727a789"
         },
         "properties": {
           "data": {
@@ -189,9 +181,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "title": "Project",
         "type": "object",
         "x-struct": "Elixir.MeadowWeb.Schemas.Project"
@@ -208,9 +198,7 @@
             "$ref": "#/components/schemas/Project"
           }
         },
-        "required": [
-          "project"
-        ],
+        "required": ["project"],
         "title": "ProjectRequest",
         "type": "object",
         "x-struct": "Elixir.MeadowWeb.Schemas.ProjectRequest"
@@ -270,37 +258,35 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1/ingest_jobs": {
+    "/api/v1/ingest_sheets": {
       "get": {
         "callbacks": {},
         "deprecated": false,
-        "description": "List all ingest jobs",
-        "operationId": "IngestJobController.list_all_ingest_jobs",
+        "description": "List all ingest sheets",
+        "operationId": "IngestSheetController.list_all_ingest_sheets",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobsResponse"
+                  "$ref": "#/components/schemas/IngestSheetsResponse"
                 }
               }
             },
             "description": "Project List Response"
           }
         },
-        "summary": "List All Ingest Jobs",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "List All Ingest Sheets",
+        "tags": ["ingest_sheets"]
       }
     },
-    "/api/v1/ingest_jobs/presigned_url": {
+    "/api/v1/ingest_sheets/presigned_url": {
       "get": {
         "callbacks": {},
         "deprecated": false,
         "description": "Get presigned s3 url for upload",
-        "operationId": "IngestJobController.presigned_url",
+        "operationId": "IngestSheetController.presigned_url",
         "parameters": [],
         "responses": {
           "200": {
@@ -315,9 +301,7 @@
           }
         },
         "summary": "Get presigned s3 url for upload",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "tags": ["ingest_sheets"]
       }
     },
     "/api/v1/projects": {
@@ -340,9 +324,7 @@
           }
         },
         "summary": "List projects",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       },
       "post": {
         "callbacks": {},
@@ -374,9 +356,7 @@
           }
         },
         "summary": "Create project",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       }
     },
     "/api/v1/projects/{id}": {
@@ -410,9 +390,7 @@
           }
         },
         "summary": "Delete project",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       },
       "get": {
         "callbacks": {},
@@ -444,9 +422,7 @@
           }
         },
         "summary": "Show project",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       },
       "patch": {
         "callbacks": {},
@@ -489,9 +465,7 @@
           }
         },
         "summary": "Update project",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       },
       "put": {
         "callbacks": {},
@@ -534,17 +508,15 @@
           }
         },
         "summary": "Update project",
-        "tags": [
-          "projects"
-        ]
+        "tags": ["projects"]
       }
     },
-    "/api/v1/projects/{project_id}/ingest_jobs": {
+    "/api/v1/projects/{project_id}/ingest_sheets": {
       "get": {
         "callbacks": {},
         "deprecated": false,
-        "description": "List all ingest jobs in a project",
-        "operationId": "IngestJobController.index",
+        "description": "List all ingest sheets in a project",
+        "operationId": "IngestSheetController.index",
         "parameters": [
           {
             "description": "Project ID",
@@ -562,23 +534,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobsResponse"
+                  "$ref": "#/components/schemas/IngestSheetsResponse"
                 }
               }
             },
             "description": "Project List Response"
           }
         },
-        "summary": "List Ingest Jobs in a project",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "List Ingest Sheets in a project",
+        "tags": ["ingest_sheets"]
       },
       "post": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Create an ingest job",
-        "operationId": "IngestJobController.create",
+        "description": "Create an ingest sheet",
+        "operationId": "IngestSheetController.create",
         "parameters": [
           {
             "description": "Project ID",
@@ -595,11 +565,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
+                "$ref": "#/components/schemas/IngestSheetRequest"
               }
             }
           },
-          "description": "The ingest job attributes",
+          "description": "The ingest sheet attributes",
           "required": true
         },
         "responses": {
@@ -607,28 +577,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
+                  "$ref": "#/components/schemas/IngestSheetResponse"
                 }
               }
             },
-            "description": "Ingest Job"
+            "description": "Ingest Sheet"
           }
         },
-        "summary": "Create ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "Create ingest sheet",
+        "tags": ["ingest_sheets"]
       }
     },
-    "/api/v1/projects/{project_id}/ingest_jobs/{id}": {
+    "/api/v1/projects/{project_id}/ingest_sheets/{id}": {
       "delete": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Delete an ingest job by ID",
-        "operationId": "IngestJobController.delete",
+        "description": "Delete an ingest sheet by ID",
+        "operationId": "IngestSheetController.delete",
         "parameters": [
           {
-            "description": "IngestJob ID",
+            "description": "IngestSheet ID",
             "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
             "in": "path",
             "name": "id",
@@ -653,26 +621,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
+                  "$ref": "#/components/schemas/IngestSheetResponse"
                 }
               }
             },
-            "description": "IngestJob"
+            "description": "IngestSheet"
           }
         },
-        "summary": "Delete ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "Delete ingest sheet",
+        "tags": ["ingest_sheets"]
       },
       "get": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Show a ingest job by ID",
-        "operationId": "IngestJobController.show",
+        "description": "Show a ingest sheet by ID",
+        "operationId": "IngestSheetController.show",
         "parameters": [
           {
-            "description": "Ingest Job ID",
+            "description": "Ingest Sheet ID",
             "example": "01DEMRE5KZM6GCWVNGB0A2ZDN8",
             "in": "path",
             "name": "id",
@@ -704,19 +670,17 @@
             "description": "Project"
           }
         },
-        "summary": "Show ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "Show ingest sheet",
+        "tags": ["ingest_sheets"]
       },
       "patch": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Update an ingest job",
-        "operationId": "IngestJobController.update",
+        "description": "Update an ingest sheet",
+        "operationId": "IngestSheetController.update",
         "parameters": [
           {
-            "description": "Ingest Job ID",
+            "description": "Ingest Sheet ID",
             "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
             "in": "path",
             "name": "id",
@@ -740,11 +704,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
+                "$ref": "#/components/schemas/IngestSheetRequest"
               }
             }
           },
-          "description": "The ingest job attributes",
+          "description": "The ingest sheet attributes",
           "required": true
         },
         "responses": {
@@ -752,26 +716,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
+                  "$ref": "#/components/schemas/IngestSheetResponse"
                 }
               }
             },
             "description": "Project"
           }
         },
-        "summary": "Update an ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "Update an ingest sheet",
+        "tags": ["ingest_sheets"]
       },
       "put": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Update an ingest job",
-        "operationId": "IngestJobController.update",
+        "description": "Update an ingest sheet",
+        "operationId": "IngestSheetController.update",
         "parameters": [
           {
-            "description": "Ingest Job ID",
+            "description": "Ingest Sheet ID",
             "example": "01DEHZZ8B9TNWZN7M1FXDP5NZB",
             "in": "path",
             "name": "id",
@@ -795,11 +757,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IngestJobRequest"
+                "$ref": "#/components/schemas/IngestSheetRequest"
               }
             }
           },
-          "description": "The ingest job attributes",
+          "description": "The ingest sheet attributes",
           "required": true
         },
         "responses": {
@@ -807,17 +769,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IngestJobResponse"
+                  "$ref": "#/components/schemas/IngestSheetResponse"
                 }
               }
             },
             "description": "Project"
           }
         },
-        "summary": "Update an ingest job",
-        "tags": [
-          "ingest_jobs"
-        ]
+        "summary": "Update an ingest sheet",
+        "tags": ["ingest_sheets"]
       }
     }
   },

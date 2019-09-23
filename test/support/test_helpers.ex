@@ -4,7 +4,7 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Accounts.Users.User
-  alias Meadow.Ingest.IngestJobs.IngestJob
+  alias Meadow.Ingest.IngestSheets.IngestSheet
   alias Meadow.Ingest.Projects.Project
   alias Meadow.Repo
 
@@ -28,7 +28,7 @@ defmodule Meadow.TestHelpers do
     user
   end
 
-  def ingest_job_fixture(attrs \\ %{}) do
+  def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
     name = "name-#{System.unique_integer([:positive])}"
     filename = "file-#{System.unique_integer([:positive])}.csv"
@@ -40,12 +40,12 @@ defmodule Meadow.TestHelpers do
         project_id: attrs[:project_id] || project.id
       })
 
-    {:ok, ingest_job} =
-      %IngestJob{}
-      |> IngestJob.changeset(attrs)
+    {:ok, ingest_sheet} =
+      %IngestSheet{}
+      |> IngestSheet.changeset(attrs)
       |> Repo.insert()
 
-    ingest_job
+    ingest_sheet
   end
 
   def project_fixture(attrs \\ %{}) do

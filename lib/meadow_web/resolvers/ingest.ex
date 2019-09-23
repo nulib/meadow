@@ -3,9 +3,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   Absinthe GraphQL query resolver for Ingest Context
 
   """
-  alias Meadow.Ingest.IngestJobs
-  alias Meadow.Ingest.{IngestJobs, Projects}
-  alias Meadow.Ingest.IngestJobs.InventoryValidator
+  alias Meadow.Ingest.IngestSheets
+  alias Meadow.Ingest.{IngestSheets, Projects}
+  alias Meadow.Ingest.IngestSheets.IngestSheetValidator
   alias Meadow.Ingest.Projects.Bucket
   alias MeadowWeb.Schema.ChangesetErrors
 
@@ -46,48 +46,49 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
-  def ingest_job(_, %{id: id}, _) do
-    {:ok, IngestJobs.get_ingest_job!(id)}
+  def ingest_sheet(_, %{id: id}, _) do
+    {:ok, IngestSheets.get_ingest_sheet!(id)}
   end
 
-  def ingest_job_progress(_, %{id: id}, _) do
-    {:ok, IngestJobs.get_job_progress([id]) |> Map.get(id)}
+  def ingest_sheet_progress(_, %{id: id}, _) do
+    {:ok, IngestSheets.get_sheet_progress([id]) |> Map.get(id)}
   end
 
-  def ingest_job_validations(_, _, _) do
-    {:ok, %{validations: [%{id: "job", object: %{errors: [], status: "pending"}}]}}
+  def ingest_sheet_validations(_, _, _) do
+    {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
   end
 
-  def validate_ingest_job(_, args, _) do
-    {response, pid} = args[:ingest_job_id] |> InventoryValidator.async()
+  def validate_ingest_sheet(_, args, _) do
+    {response, pid} = args[:ingest_sheet_id] |> IngestSheetValidator.async()
     pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
     {:ok, %{message: to_string(response) <> " : " <> pid_string}}
   end
 
-  def create_ingest_job(_, args, _) do
-    case IngestJobs.create_ingest_job(args) do
+  def create_ingest_sheet(_, args, _) do
+    case IngestSheets.create_ingest_sheet(args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not create ingest job", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not create ingest sheet",
+         details: ChangesetErrors.error_details(changeset)}
 
-      {:ok, ingest_job} ->
-        {:ok, ingest_job}
+      {:ok, ingest_sheet} ->
+        {:ok, ingest_sheet}
     end
   end
 
-  def delete_ingest_job(_, args, _) do
-    ingest_job = IngestJobs.get_ingest_job!(args[:ingest_job_id])
+  def delete_ingest_sheet(_, args, _) do
+    ingest_sheet = IngestSheets.get_ingest_sheet!(args[:ingest_sheet_id])
 
-    case IngestJobs.delete_ingest_job(ingest_job) do
+    case IngestSheets.delete_ingest_sheet(ingest_sheet) do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not delete ingest job",
+          message: "Could not delete ingest sheet",
           details: ChangesetErrors.error_details(changeset)
         }
 
-      {:ok, ingest_job} ->
-        {:ok, ingest_job}
+      {:ok, ingest_sheet} ->
+        {:ok, ingest_sheet}
     end
   end
 
@@ -96,11 +97,11 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, %{url: url}}
   end
 
-  def ingest_job_rows(_, args, _) do
+  def ingest_sheet_rows(_, args, _) do
     {
       :ok,
       args
-      |> IngestJobs.list_ingest_rows()
+      |> IngestSheets.list_ingest_sheet_rows()
     }
   end
 end

@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-We need a way to provide live updates to the front-end for inventory sheet validation,
+We need a way to provide live updates to the front-end for ingest sheet validation,
 ingest status, etc.
 
 ## Decision

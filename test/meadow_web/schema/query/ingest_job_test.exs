@@ -1,19 +1,19 @@
-defmodule MeadowWeb.Schema.Query.IngestJobTest do
+defmodule MeadowWeb.Schema.Query.IngestSheetTest do
   use MeadowWeb.ConnCase, async: true
 
   import Mox
 
   @query """
   query($id: String!) {
-    ingest_job(id: $id) {
+    ingest_sheet(id: $id) {
       name
     }
   }
   """
 
-  test "ingest job query returns the ingest job with a given id" do
-    ingest_job = ingest_job_fixture()
-    variables = %{"id" => ingest_job.id}
+  test "ingest sheet query returns the ingest sheet with a given id" do
+    ingest_sheet = ingest_sheet_fixture()
+    variables = %{"id" => ingest_sheet.id}
 
     conn = build_conn() |> auth_user(user_fixture())
 
@@ -21,7 +21,7 @@ defmodule MeadowWeb.Schema.Query.IngestJobTest do
 
     assert %{
              "data" => %{
-               "ingest_job" => %{"name" => ingest_job.name}
+               "ingest_sheet" => %{"name" => ingest_sheet.name}
              }
            } == json_response(conn, 200)
   end
@@ -34,7 +34,7 @@ defmodule MeadowWeb.Schema.Query.IngestJobTest do
   }
   """
 
-  test "gets a presigned url for an ingest job" do
+  test "gets a presigned url for an ingest sheet" do
     Meadow.ExAwsHttpMock
     |> stub(:request, fn _method, _url, _body, _headers, _opts ->
       {:ok, %{status_code: 200}}

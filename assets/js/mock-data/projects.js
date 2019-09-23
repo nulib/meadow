@@ -5,7 +5,7 @@ export const mockProjects = [
     dateLastModified: "2019-02-11",
     numFilesets: 228,
     numWorks: 79,
-    numInventorySheets: 3,
+    numIngestSheets: 3,
     s3Folder: "/s3bucket-location-here"
   },
   {
@@ -14,7 +14,7 @@ export const mockProjects = [
     dateLastModified: "2018-10-28",
     numFilesets: 1788,
     numWorks: 311,
-    numInventorySheets: 12,
+    numIngestSheets: 12,
     s3Folder: "/donohue-2384"
   },
   {
@@ -23,7 +23,7 @@ export const mockProjects = [
     dateLastModified: "2019-08-02",
     numFilesets: 86,
     numWorks: 15,
-    numInventorySheets: 8,
+    numIngestSheets: 8,
     s3Folder: "/obama-3d-7883asdf"
   }
 ];

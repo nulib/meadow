@@ -10,8 +10,8 @@ import ScreensProjectForm from "./Project/Form";
 import Project from "./Project/Project";
 import Home from "./Home/Home";
 import NotFoundPage from "./404";
-import ScreensInventorySheet from "./InventorySheet/InventorySheet";
-import ScreensInventorySheetForm from "./InventorySheet/Form";
+import ScreensIngestSheet from "./IngestSheet/IngestSheet";
+import ScreensIngestSheetForm from "./IngestSheet/Form";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
 
@@ -41,13 +41,13 @@ export default class Root extends React.Component {
             />
             <PrivateRoute
               exact
-              path="/project/:id/inventory-sheet/upload"
-              component={ScreensInventorySheetForm}
+              path="/project/:id/ingest-sheet/upload"
+              component={ScreensIngestSheetForm}
             />
             <PrivateRoute
               exact
-              path="/project/:id/inventory-sheet/:inventorySheetId"
-              component={ScreensInventorySheet}
+              path="/project/:id/ingest-sheet/:ingestSheetId"
+              component={ScreensIngestSheet}
             />
             <PrivateRoute exact path="/project/:id" component={Project} />
             <PrivateRoute exact path="/" component={Home} />
