@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router";
-import InventorySheetList from "../../components/InventorySheet/List";
+import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
@@ -25,7 +25,7 @@ const Project = ({ match }) => {
         <>
           <ScreenHeader
             title={data.project.title}
-            description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project"
+            description="The following is a list of all active Ingest Sheets for a project"
             breadCrumbs={[
               {
                 label: "Projects",
@@ -41,16 +41,16 @@ const Project = ({ match }) => {
           <ScreenContent>
             <Link
               to={{
-                pathname: `/project/${id}/inventory-sheet/upload`,
+                pathname: `/project/${id}/ingest-sheet/upload`,
                 state: { projectId: data.project.id }
               }}
               className="btn mb-4"
             >
-              <AddOutlineIcon className="icon" /> New Ingest Job
+              <AddOutlineIcon className="icon" /> New Ingest Sheet
             </Link>
 
             <section>
-              <InventorySheetList projectId={data.project.id} />
+              <IngestSheetList projectId={data.project.id} />
             </section>
           </ScreenContent>
         </>

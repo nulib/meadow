@@ -2,9 +2,9 @@ defmodule MeadowWeb.Schema.Helpers do
   @moduledoc """
   Helper methods for GraphQL schema
   """
-  alias Meadow.Ingest.IngestJobs
+  alias Meadow.Ingest.IngestSheets
 
-  def job_progress(_, ids) do
-    IngestJobs.get_job_progress(ids)
+  def sheet_progress(_, ids) do
+    IngestSheets.get_sheet_progress(ids)
   end
 end

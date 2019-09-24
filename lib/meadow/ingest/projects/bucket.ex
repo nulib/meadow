@@ -15,7 +15,7 @@ defmodule Meadow.Ingest.Projects.Bucket do
     |> check_bucket()
 
     id = Ecto.ULID.generate()
-    path = "inventory_sheets/#{id}.csv"
+    path = "ingest_sheets/#{id}.csv"
 
     {:ok, url} = ExAws.S3.presigned_url(ExAws.Config.new(:s3), method, bucket, path)
 

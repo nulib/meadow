@@ -67,9 +67,9 @@ defmodule Meadow.Ingest.Projects do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking job changes.
+  Returns an `%Ecto.Changeset{}` for tracking sheet changes.
   """
-  def change_project(%Project{} = job) do
-    Project.changeset(job, %{})
+  def change_project(%Project{} = sheet) do
+    Project.changeset(sheet, %{})
   end
 end

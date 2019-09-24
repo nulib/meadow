@@ -28,32 +28,32 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.project/3)
     end
 
-    @desc "Get an ingest job by its id"
-    field :ingest_job, :ingest_job do
+    @desc "Get an ingest sheet by its id"
+    field :ingest_sheet, :ingest_sheet do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.ingest_job/3)
+      resolve(&Resolvers.Ingest.ingest_sheet/3)
     end
 
-    field :ingest_job_progress, :job_progress do
+    field :ingest_sheet_progress, :sheet_progress do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.Ingest.ingest_job_progress/3)
+      resolve(&Resolvers.Ingest.ingest_sheet_progress/3)
     end
 
-    @desc "Get a presigned url to upload an inventory sheet"
+    @desc "Get a presigned url to upload an ingest sheet"
     field :presigned_url, :presigned_url do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.get_presigned_url/3)
     end
 
-    @desc "Get rows for an Inventory Sheet"
-    field :ingest_job_rows, list_of(:ingest_job_row) do
-      arg(:job_id, non_null(:id))
+    @desc "Get rows for an Ingest Sheet"
+    field :ingest_sheet_rows, list_of(:ingest_sheet_row) do
+      arg(:sheet_id, non_null(:id))
       arg(:state, list_of(:state))
       arg(:start, :integer)
       arg(:limit, :integer)
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.ingest_job_rows/3)
+      resolve(&Resolvers.Ingest.ingest_sheet_rows/3)
     end
 
     @desc "Get the currently signed-in user"
@@ -70,13 +70,13 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.create_project/3)
     end
 
-    @desc "Create a new Ingest Job for a Project"
-    field :create_ingest_job, :ingest_job do
+    @desc "Create a new Ingest Sheet for a Project"
+    field :create_ingest_sheet, :ingest_sheet do
       arg(:name, non_null(:string))
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.create_ingest_job/3)
+      resolve(&Resolvers.Ingest.create_ingest_sheet/3)
     end
 
     @desc "Delete a Project"
@@ -86,53 +86,53 @@ defmodule MeadowWeb.Schema.Schema do
       resolve(&Resolvers.Ingest.delete_project/3)
     end
 
-    @desc "Delete an Ingest Job"
-    field :delete_ingest_job, :ingest_job do
-      arg(:ingest_job_id, non_null(:id))
+    @desc "Delete an Ingest Sheet"
+    field :delete_ingest_sheet, :ingest_sheet do
+      arg(:ingest_sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.delete_ingest_job/3)
+      resolve(&Resolvers.Ingest.delete_ingest_sheet/3)
     end
 
-    @desc "Validate an Ingest Job"
-    field :validate_ingest_job, :status_message do
-      arg(:ingest_job_id, non_null(:id))
+    @desc "Validate an Ingest Sheet"
+    field :validate_ingest_sheet, :status_message do
+      arg(:ingest_sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.validate_ingest_job/3)
+      resolve(&Resolvers.Ingest.validate_ingest_sheet/3)
     end
   end
 
   subscription do
-    @desc "Subscribe to validation messages for an ingest job"
-    field :ingest_job_update, :ingest_job do
-      arg(:job_id, non_null(:id))
+    @desc "Subscribe to validation messages for an ingest sheet"
+    field :ingest_sheet_update, :ingest_sheet do
+      arg(:sheet_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: "job:" <> args.job_id}
+        {:ok, topic: "sheet:" <> args.sheet_id}
       end)
     end
 
-    field :ingest_job_progress_update, :job_progress do
-      arg(:job_id, non_null(:id))
+    field :ingest_sheet_progress_update, :sheet_progress do
+      arg(:sheet_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: "progress:" <> args.job_id}
+        {:ok, topic: "progress:" <> args.sheet_id}
       end)
     end
 
-    field :ingest_job_row_update, :ingest_job_row do
-      arg(:job_id, non_null(:id))
+    field :ingest_sheet_row_update, :ingest_sheet_row do
+      arg(:sheet_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: Enum.join(["row", args.job_id], ":")}
+        {:ok, topic: Enum.join(["row", args.sheet_id], ":")}
       end)
     end
 
-    field :ingest_job_row_state_update, :ingest_job_row do
-      arg(:job_id, non_null(:id))
+    field :ingest_sheet_row_state_update, :ingest_sheet_row do
+      arg(:sheet_id, non_null(:id))
       arg(:state, non_null(:state))
 
       config(fn args, _info ->
-        topic = Enum.join(["row", args.job_id, args.state], ":")
+        topic = Enum.join(["row", args.sheet_id, args.state], ":")
         {:ok, topic: topic}
       end)
     end
@@ -157,37 +157,37 @@ defmodule MeadowWeb.Schema.Schema do
     field :inserted_at, non_null(:naive_datetime)
     field :updated_at, non_null(:naive_datetime)
 
-    field :ingest_jobs, list_of(:ingest_job), resolve: dataloader(Ingest)
+    field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
   end
 
-  @desc "IngestJob object"
-  object :ingest_job do
-    @desc "ulid identifier for IngestJob (autogenerated)"
+  @desc "IngestSheet object"
+  object :ingest_sheet do
+    @desc "ulid identifier for IngestSheet (autogenerated)"
     field :id, non_null(:id)
-    @desc "Name of the IngestJob"
+    @desc "Name of the IngestSheet"
     field :name, non_null(:string)
-    @desc "Tracks file, rows and overall state of IngestJob"
-    field :state, list_of(:job_state)
+    @desc "Tracks file, rows and overall state of IngestSheet"
+    field :state, list_of(:sheet_state)
     @desc "Location of file (ex: s3://bucket/project-123/filename.csv"
     field :filename, non_null(:string)
     field :inserted_at, non_null(:naive_datetime)
     field :updated_at, non_null(:naive_datetime)
-    @desc "Project the IngestJob Belongs to"
+    @desc "Project the IngestSheet Belongs to"
     field :project, :project, resolve: dataloader(Ingest)
     @desc "An array of error messages"
     field :file_errors, list_of(:string)
 
-    field :progress, :job_progress,
-      resolve: fn job, _, _ ->
-        batch({MeadowWeb.Schema.Helpers, :job_progress, Integer}, job.id, fn batch_results ->
-          {:ok, Map.get(batch_results, job.id)}
+    field :progress, :sheet_progress,
+      resolve: fn sheet, _, _ ->
+        batch({MeadowWeb.Schema.Helpers, :sheet_progress, Integer}, sheet.id, fn batch_results ->
+          {:ok, Map.get(batch_results, sheet.id)}
         end)
       end
 
-    field :ingest_rows, list_of(:ingest_job_row), resolve: dataloader(Ingest)
+    field :ingest_sheet_rows, list_of(:ingest_sheet_row), resolve: dataloader(Ingest)
   end
 
-  object :job_progress do
+  object :sheet_progress do
     field :states, list_of(:state_count)
     field :total, non_null(:integer)
     field :percent_complete, non_null(:float)
@@ -201,8 +201,8 @@ defmodule MeadowWeb.Schema.Schema do
     field :message, non_null(:string)
   end
 
-  @desc "Object that tracks IngestJob state"
-  object :job_state do
+  @desc "Object that tracks IngestSheet state"
+  object :sheet_state do
     @desc "file, rows, or overall"
     field :name, :string
     @desc "PENDING, PASS or FAIL"
@@ -224,8 +224,8 @@ defmodule MeadowWeb.Schema.Schema do
     field :count, non_null(:integer)
   end
 
-  object :ingest_job_row do
-    field :ingest_job, :ingest_job, resolve: dataloader(Ingest)
+  object :ingest_sheet_row do
+    field :ingest_sheet, :ingest_sheet, resolve: dataloader(Ingest)
     field :row, non_null(:integer)
     field :fields, list_of(:field)
     field :errors, list_of(:error)
