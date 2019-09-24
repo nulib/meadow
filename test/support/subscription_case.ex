@@ -14,7 +14,7 @@ defmodule MeadowWeb.SubscriptionCase do
 
       use MeadowWeb.ChannelCase
 
-      use SubscriptionTest, schema: MeadowWeb.Schema.Schema
+      use SubscriptionTest, schema: MeadowWeb.Schema
 
       import Meadow.TestHelpers
 

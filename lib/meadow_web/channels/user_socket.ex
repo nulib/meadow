@@ -1,6 +1,6 @@
 defmodule MeadowWeb.UserSocket do
   use Phoenix.Socket
-  use Absinthe.Phoenix.Socket, schema: MeadowWeb.Schema.Schema
+  use Absinthe.Phoenix.Socket, schema: MeadowWeb.Schema
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
