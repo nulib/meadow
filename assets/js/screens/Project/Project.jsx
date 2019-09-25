@@ -10,7 +10,7 @@ import { useQuery } from "@apollo/react-hooks";
 import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 import { GET_PROJECT } from "../../components/Project/project.query";
 
-const Project = ({ match }) => {
+const ScreensProject = ({ match }) => {
   const { id } = match.params;
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
@@ -45,6 +45,7 @@ const Project = ({ match }) => {
                 state: { projectId: data.project.id }
               }}
               className="btn mb-4"
+              data-testid="button-new-ingest-sheet"
             >
               <AddOutlineIcon className="icon" /> New Ingest Sheet
             </Link>
@@ -59,6 +60,4 @@ const Project = ({ match }) => {
   );
 };
 
-export default withRouter(Project);
-
-export { GET_PROJECT };
+export default withRouter(ScreensProject);

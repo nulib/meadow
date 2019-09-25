@@ -20,7 +20,7 @@ export const DELETE_PROJECT = gql`
 `;
 
 export const GET_PROJECT = gql`
-  query GetProject($projectId: String!) {
+  query GetProject($projectId: ID!) {
     project(id: $projectId) {
       id
       title

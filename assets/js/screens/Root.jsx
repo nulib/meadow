@@ -7,7 +7,7 @@ import { AuthProvider } from "../components/Auth/Auth";
 import Header from "../components/UI/Header/Header";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
-import Project from "./Project/Project";
+import ScreensProject from "./Project/Project";
 import Home from "./Home/Home";
 import NotFoundPage from "./404";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
@@ -49,7 +49,11 @@ export default class Root extends React.Component {
               path="/project/:id/ingest-sheet/:ingestSheetId"
               component={ScreensIngestSheet}
             />
-            <PrivateRoute exact path="/project/:id" component={Project} />
+            <PrivateRoute
+              exact
+              path="/project/:id"
+              component={ScreensProject}
+            />
             <PrivateRoute exact path="/" component={Home} />
             <PrivateRoute component={NotFoundPage} />
           </Switch>
