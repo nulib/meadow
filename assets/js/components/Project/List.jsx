@@ -63,7 +63,7 @@ const ProjectList = () => {
 
   return (
     <>
-      <section className="my-6">
+      <section data-testid="project-list" className="my-6">
         <table>
           <caption>All Projects</caption>
           <thead>

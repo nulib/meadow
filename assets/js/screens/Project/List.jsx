@@ -14,7 +14,11 @@ const ScreensProjectList = () => {
         breadCrumbs={[{ label: "Projects", link: "/project/list" }]}
       />
       <ScreenContent>
-        <Link to="/project/create" className="btn">
+        <Link
+          data-testid="button-new-project"
+          to="/project/create"
+          className="btn"
+        >
           <AddOutlineIcon className="icon" />
           Create Project
         </Link>
