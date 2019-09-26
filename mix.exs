@@ -67,7 +67,7 @@ defmodule Meadow.MixProject do
       {:ets, "~> 0.7.3"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_aws_sns, "~> 2.0.1"},
+      {:ex_aws_sns, git: "https://github.com/mbklein/ex_aws_sns.git", branch: "add-filter-policy"},
       {:ex_aws_sqs, "~> 3.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:gettext, "~> 0.11"},

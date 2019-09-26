@@ -1,12 +1,12 @@
-defmodule Meadow.Utils.SQNS.Topics do
+defmodule SQNS.Topics do
   @moduledoc false
 
   alias ExAws.SNS
-  alias Meadow.Utils.Arn
+  alias SQNS.Utils.Arn
   require Logger
 
   def list_topics(topics \\ [], start_token \\ nil) do
-    with %{body: result} <- SNS.list_topics(start_token: start_token) |> ExAws.request!() do
+    with %{body: result} <- SNS.list_topics(next_token: start_token) |> ExAws.request!() do
       case Map.get(result, :next_token, "") do
         "" -> topics ++ result.topics
         token -> list_topics(topics ++ result.topics, token)

@@ -8,6 +8,7 @@
     "lib/meadow_web/views/page_view.ex",
     "lib/meadow/application.ex",
     "lib/meadow/release_tasks.ex",
+    "lib/mix/",
     "test/"
   ]
 }

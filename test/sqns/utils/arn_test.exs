@@ -1,6 +1,6 @@
-defmodule Meadow.Utils.ArnTest do
+defmodule ArnTest do
   use ExUnit.Case
-  alias Meadow.Utils.Arn
+  alias SQNS.Utils.Arn
 
   @arn "arn:aws:s3:us-east-1:123456789012:abcdefg/hijkl"
 
