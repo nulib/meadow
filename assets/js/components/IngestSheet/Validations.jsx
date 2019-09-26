@@ -250,26 +250,6 @@ function IngestSheetValidations({
         {showUserButtons()}
       </section>
 
-      <section className="pt-12">
-        <h2>Approved State UI</h2>
-        <p>
-          Guessing once the use hits approve, could the API expose an "approved"
-          flag the front-end can reference?{" "}
-        </p>
-        <UIAlert
-          type="success"
-          body="Ingest sheet has been approved and skeleton works are being created"
-          title="Ingest sheet approved"
-        />
-        <div className="pt-12">
-          <UIProgressBar percentComplete={50} label="works being created" />
-        </div>
-        <div className="text-center leading-loose text-gray-600">
-          <p>48 works are being created</p>
-          <p>370 file sets are being created</p>
-          <p>What other info goes here?</p>
-        </div>
-      </section>
       <UIModalDelete
         isOpen={deleteModalOpen}
         handleClose={onCloseModal}

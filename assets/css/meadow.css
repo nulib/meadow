@@ -33,6 +33,10 @@ a:hover {
   @apply text-gray-800;
 }
 
+dl.inline dt {
+  @apply font-bold;
+}
+
 label {
   @apply block text-gray-700 text-sm font-bold mb-2;
 }
