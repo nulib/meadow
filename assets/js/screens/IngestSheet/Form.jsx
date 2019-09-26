@@ -5,7 +5,7 @@ import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import { GET_PROJECT } from "../Project/Project";
+import { GET_PROJECT } from "../../components/Project/project.query";
 import { useQuery } from "@apollo/react-hooks";
 
 const ScreensIngestSheetForm = ({ match }) => {
@@ -46,4 +46,3 @@ const ScreensIngestSheetForm = ({ match }) => {
 };
 
 export default withRouter(ScreensIngestSheetForm);
-export { GET_PROJECT };

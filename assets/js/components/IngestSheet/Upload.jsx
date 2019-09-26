@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
-import { GET_PROJECT } from "../../screens/Project/Project";
+import { GET_PROJECT } from "../Project/project.query";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
 
-const UploadIngestSheet = ({ projectId, presignedUrl, history }) => {
+const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
   const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
@@ -114,7 +114,7 @@ const UploadIngestSheet = ({ projectId, presignedUrl, history }) => {
   );
 };
 
-UploadIngestSheet.propTypes = {
+IngestSheetUpload.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -122,4 +122,4 @@ UploadIngestSheet.propTypes = {
   presignedUrl: PropTypes.string.isRequired
 };
 
-export default withRouter(UploadIngestSheet);
+export default withRouter(IngestSheetUpload);
