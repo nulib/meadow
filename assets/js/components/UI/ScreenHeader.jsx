@@ -4,7 +4,10 @@ import BreadCrumbs from "./Breadcrumbs";
 
 const ScreenHeader = ({ breadCrumbs, title = "", description = "" }) => {
   return (
-    <div className="mb-2 px-6 max-w-3xl mx-auto lg:ml-0 lg:mr-auto xl:mx-0 xl:px-12 xl:w-3/4">
+    <div
+      data-testid="screen-header"
+      className="mb-2 px-6 max-w-3xl mx-auto lg:ml-0 lg:mr-auto xl:mx-0 xl:px-12 xl:w-3/4"
+    >
       <h1 className="hidden">{title}</h1>
       <BreadCrumbs crumbs={breadCrumbs} />
       {description && (

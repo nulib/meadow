@@ -19,10 +19,10 @@ defmodule MeadowWeb.Router do
   scope "/api" do
     pipe_through :api
 
-    forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema.Schema
+    forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
-      schema: MeadowWeb.Schema.Schema,
+      schema: MeadowWeb.Schema,
       socket: MeadowWeb.UserSocket
 
     forward "/", Plug.Static,

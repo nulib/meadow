@@ -31,7 +31,7 @@ const ProjectForm = ({ history }) => {
   };
 
   return (
-    <>
+    <div className="md:w-1/2">
       <form
         onSubmit={e => {
           e.preventDefault();
@@ -65,7 +65,7 @@ const ProjectForm = ({ history }) => {
           </UIButton>
         </UIButtonGroup>
       </form>
-    </>
+    </div>
   );
 };
 

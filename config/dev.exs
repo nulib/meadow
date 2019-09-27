@@ -69,11 +69,27 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow, ingest_bucket: "dev-ingest"
 config :meadow, upload_bucket: "dev-uploads"
 
+config :ex_aws,
+  access_key_id: "fake",
+  secret_access_key: "fake"
+
 config :ex_aws, :s3,
   access_key_id: "minio",
   secret_access_key: "minio123",
   host: "localhost",
   port: 9001,
+  scheme: "http://",
+  region: "us-east-1"
+
+config :ex_aws, :sqs,
+  host: "localhost",
+  port: 4101,
+  scheme: "http://",
+  region: "us-east-1"
+
+config :ex_aws, :sns,
+  host: "localhost",
+  port: 4101,
   scheme: "http://",
   region: "us-east-1"
 

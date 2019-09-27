@@ -26,10 +26,10 @@ h3 {
   @apply text-xl text-gray-900;
 }
 
-main a {
+a {
   @apply text-gray-600 underline;
 }
-main a:hover {
+a:hover {
   @apply text-gray-800;
 }
 
@@ -42,7 +42,11 @@ nav a:hover {
 }
 
 table {
-  @apply w-full text-left;
+  @apply text-left w-full;
+}
+
+caption {
+  @apply italic py-4 text-sm text-gray-600;
 }
 
 th {
@@ -177,8 +181,12 @@ td {
 
 /** Overrides **/
 .Toastify__toast--default {
-  @apply bg-gray-700 text-white !important;
+  @apply bg-gray-600 text-white !important;
 }
 .Toastify__close-button--default {
   @apply text-white !important;
+}
+
+.spinner {
+  position: absolute !important;
 }

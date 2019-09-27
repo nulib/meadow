@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router";
-import InventorySheetList from "../../components/InventorySheet/List";
+import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
@@ -10,7 +10,7 @@ import { useQuery } from "@apollo/react-hooks";
 import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 import { GET_PROJECT } from "../../components/Project/project.query";
 
-const Project = ({ match }) => {
+const ScreensProject = ({ match }) => {
   const { id } = match.params;
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
@@ -25,7 +25,7 @@ const Project = ({ match }) => {
         <>
           <ScreenHeader
             title={data.project.title}
-            description="The following is a list of all active Ingest Jobs (or Inventory sheets) for a project"
+            description="The following is a list of all active Ingest Sheets for a project"
             breadCrumbs={[
               {
                 label: "Projects",
@@ -41,16 +41,17 @@ const Project = ({ match }) => {
           <ScreenContent>
             <Link
               to={{
-                pathname: `/project/${id}/inventory-sheet/upload`,
+                pathname: `/project/${id}/ingest-sheet/upload`,
                 state: { projectId: data.project.id }
               }}
               className="btn mb-4"
+              data-testid="button-new-ingest-sheet"
             >
-              <AddOutlineIcon className="icon" /> New Ingest Job
+              <AddOutlineIcon className="icon" /> New Ingest Sheet
             </Link>
 
             <section>
-              <InventorySheetList projectId={data.project.id} />
+              <IngestSheetList projectId={data.project.id} />
             </section>
           </ScreenContent>
         </>
@@ -59,6 +60,4 @@ const Project = ({ match }) => {
   );
 };
 
-export default withRouter(Project);
-
-export { GET_PROJECT };
+export default withRouter(ScreensProject);

@@ -20,11 +20,11 @@ export const DELETE_PROJECT = gql`
 `;
 
 export const GET_PROJECT = gql`
-  query GetProject($projectId: String!) {
+  query GetProject($projectId: ID!) {
     project(id: $projectId) {
       id
       title
-      ingestJobs {
+      ingestSheets {
         id
         name
       }
@@ -39,7 +39,7 @@ export const GET_PROJECTS = gql`
       title
       folder
       updated_at
-      ingestJobs {
+      ingestSheets {
         id
       }
     }
