@@ -1,4 +1,4 @@
-defmodule Meadow.PipelineCase do
+defmodule SQNS.PipelineCase do
   @moduledoc ~S"""
   This module defines the setup for tests involving
   pipelines and actions.
@@ -18,7 +18,7 @@ defmodule Meadow.PipelineCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Meadow.Utils.SQNS
+  alias SQNS.Pipeline.Data
 
   @passthru "receiver"
 
@@ -28,11 +28,11 @@ defmodule Meadow.PipelineCase do
     with {_queues, topics, _subscriptions} <- context |> Map.get(:pipeline, []) |> SQNS.setup() do
       topics
       |> Enum.each(fn topic ->
-        SQNS.Subscriptions.create_subscription({topic, @passthru})
+        SQNS.Subscriptions.create_subscription({@passthru, topic, nil})
       end)
     end
 
-    receiver_listener = Task.async(Meadow.PipelineCase, :listen, [self()])
+    receiver_listener = Task.async(SQNS.PipelineCase, :listen, [self()])
 
     on_exit(fn ->
       send(receiver_listener.pid, :shutdown)
@@ -89,10 +89,16 @@ defmodule Meadow.PipelineCase do
   end
 
   defp pass_message(body, pid) do
-    with %{"Message" => data, "TopicArn" => source} <- Jason.decode!(body) do
-      status = source |> String.split("-") |> List.last() |> String.to_atom()
-      send(pid, {status, data |> Jason.decode!()})
-    end
+    {msg, attrs} = Data.extract(body)
+    now = System.monotonic_time(:millisecond)
+    elapsed = now - Map.get(msg, "started")
+
+    msg =
+      msg
+      |> Map.put_new("finished", now)
+      |> Map.put_new("elapsed", elapsed)
+
+    send(pid, {msg, attrs})
   end
 
   defp flush(pid) do

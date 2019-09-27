@@ -1,7 +1,7 @@
-defmodule Meadow.Utils.SQNSTest do
+defmodule SQNSTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
-  alias Meadow.Utils.SQNS
+  alias SQNS
 
   setup do
     SQNS.Topics.list_topics()
@@ -70,20 +70,22 @@ defmodule Meadow.Utils.SQNSTest do
       assert(
         capture_log(fn ->
           assert(
-            SQNS.Subscriptions.create_subscription({"test_topic", "test_queue"}) ==
+            SQNS.Subscriptions.create_subscription({"test_queue", "test_topic", nil}) ==
               {"arn:aws:sns:us-east-1:100010001000:test_topic",
-               "arn:aws:sqs:us-east-1:100010001000:test_queue"}
+               "arn:aws:sqs:us-east-1:100010001000:test_queue", %{}}
           )
         end) =~ "Creating Subscription: test_topic → test_queue"
       )
     end
 
     test "create existing subscription" do
-      SQNS.Subscriptions.create_subscription({"test_topic", "test_queue"})
+      SQNS.Subscriptions.create_subscription({"test_queue", "test_topic", nil})
 
       assert(
         capture_log(fn ->
-          assert(SQNS.Subscriptions.create_subscription({"test_topic", "test_queue"}) == :noop)
+          assert(
+            SQNS.Subscriptions.create_subscription({"test_queue", "test_topic", nil}) == :noop
+          )
         end) =~ "Subscription test_topic → test_queue already exists"
       )
     end
@@ -92,20 +94,18 @@ defmodule Meadow.Utils.SQNSTest do
   describe "specs" do
     test "create all queues, topics, and subscriptions based on a spec" do
       SQNS.setup([
-        "c",
-        a: [ok: ["b", "c"], error: "c"],
-        b: [ok: "c", error: ["c"]]
+        :a,
+        b: [a: [status: :ok]],
+        c: [:a, :b]
       ])
 
       expected_queues = ~w(a b c)
-      expected_topics = ~w(a-error a-ok b-error b-ok c-error c-ok)
+      expected_topics = ~w(a b c)
 
       expected_subscriptions = [
-        {"a-error", "c"},
-        {"b-ok", "c"},
-        {"b-error", "c"},
-        {"a-ok", "b"},
-        {"a-ok", "c"}
+        {"a", "c", %{}},
+        {"b", "c", %{}},
+        {"a", "b", %{"status" => ["ok"]}}
       ]
 
       with actual_queues <- SQNS.Queues.list_queue_names() |> Enum.sort() do

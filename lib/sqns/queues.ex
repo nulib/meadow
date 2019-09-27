@@ -1,8 +1,8 @@
-defmodule Meadow.Utils.SQNS.Queues do
+defmodule SQNS.Queues do
   @moduledoc false
 
   alias ExAws.SQS
-  alias Meadow.Utils.Arn
+  alias SQNS.Utils.Arn
   require Logger
 
   def list_queues(queues \\ [], start_token \\ nil) do

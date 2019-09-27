@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.Pipeline.Action do
+defmodule SQNS.Pipeline.Action do
   @moduledoc ~S"""
-  `Pipeline.Action` wraps a [`Broadway SQS`](https://hexdocs.pm/broadway/amazon-sqs.html)
+  `SQNS.Pipeline.Action` wraps a [`Broadway SQS`](https://hexdocs.pm/broadway/amazon-sqs.html)
   processing pipeline to allow for the simple creation of multi-stage `SQS -> Broadway -> SNS`
   pipelines.
 
@@ -20,7 +20,7 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
   ### Processor
 
-  `Pipeline.Action` assumes that all message data is JSON, deserializing it before `process`
+  `SQNS.Pipeline.Action` assumes that all message data is JSON, deserializing it before `process`
   and serializing it again on the way out. Instead of implementing `handle_message/3`,
   we're just going to implement our own `process/1`:
 
@@ -44,18 +44,18 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
   ### Batcher
 
-  `Pipeline.Action` sends processed data to an [AWS Simple Notification Service](https://aws.amazon.com/sns/)
-  topic, allowing it to be dispatched to another queue (and into another `Pipeline.Action`),
+  `SQNS.Pipeline.Action` sends processed data to an [AWS Simple Notification Service](https://aws.amazon.com/sns/)
+  topic, allowing it to be dispatched to another queue (and into another `SQNS.Pipeline.Action`),
   an AWS Lambda, an arbitrary webhook, or even an email or SMS message.
 
   ## Configuration Options
 
-  `Pipeline.Action` attempts to use sane defaults, inheriting most of them from `Broadway` itself.
+  `SQNS.Pipeline.Action` attempts to use sane defaults, inheriting most of them from `Broadway` itself.
   However, several can be overriden in the application configuration.
 
   ### Options
 
-  `Pipeline.Action` is configured by passing options to `start_link`.
+  `SQNS.Pipeline.Action` is configured by passing options to `start_link`.
   Valid options are:
 
     * `:receive_interval` - Optional. The frequency with which the produer
@@ -91,10 +91,13 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
   use Broadway
   alias Broadway.Message
+  alias SQNS.Pipeline.Data
   require Logger
 
   @required_topics [:ok, :error]
   @callback process(data :: any()) :: {atom(), any()}
+  @callback process(data :: any(), attrs :: map()) :: {atom(), any(), map()}
+  @optional_callbacks process: 2
 
   defmacro __using__(use_opts) do
     use_opts =
@@ -114,8 +117,7 @@ defmodule Meadow.Ingest.Pipeline.Action do
 
     quote location: :keep,
           bind_quoted: [queue: use_opts[:queue_name], module: __CALLER__.module] do
-      alias Meadow.Ingest.Pipeline
-      alias Meadow.Utils.SQNS
+      alias SQNS.Pipeline
       @behaviour Pipeline.Action
 
       @doc false
@@ -137,15 +139,26 @@ defmodule Meadow.Ingest.Pipeline.Action do
         )
       end
 
+      def process(data, attrs), do: process(data) |> Tuple.append(attrs)
+
       @doc "Send a message directly to the Action's queue"
-      def send_message(data) when is_binary(data) do
+      def send_message(data, context \\ %{}) do
         unquote(queue)
         |> SQNS.Queues.get_queue_url()
-        |> ExAws.SQS.send_message(data)
+        |> ExAws.SQS.send_message(
+          %{
+            "Message" => data,
+            "MessageAttributes" =>
+              context
+              |> Enum.map(fn {name, value} ->
+                {name, %{"Type" => "StringValue", "Value" => value}}
+              end)
+              |> Enum.into(%{})
+          }
+          |> Jason.encode!()
+        )
         |> ExAws.request!()
       end
-
-      def send_message(data), do: send_message(data |> Jason.encode!())
     end
   end
 
@@ -187,47 +200,31 @@ defmodule Meadow.Ingest.Pipeline.Action do
   end
 
   @impl true
-  def handle_message(_, message, context) do
+  def handle_message(_, message, %{module: module}) do
     message
     |> Message.put_batcher(:sns)
-    |> Message.update_data(fn data ->
-      data
-      |> extract_data()
-      |> around_process(context)
+    |> Message.update_data(fn message_data ->
+      with {data, attrs} <- Data.extract(message_data) do
+        data
+        |> module.process(attrs)
+        |> Data.update(module)
+      end
     end)
   end
 
   @impl true
-  def handle_batch(:sns, messages, _, %{sns_topics: sns_topics}) do
+  def handle_batch(:sns, messages, _, %{queue_name: queue_name}) do
     messages
-    |> Enum.each(fn %Message{data: {status, data}} ->
-      topic_arn = Map.get(sns_topics, status)
+    |> Enum.each(fn %Message{data: {_, data, attrs}} ->
+      topic_arn = queue_name |> SQNS.Topics.get_topic_arn()
       Logger.debug("Sending #{byte_size(data)} bytes to #{topic_arn}")
 
       data
-      |> ExAws.SNS.publish(topic_arn: topic_arn)
+      |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)
       |> ExAws.request!()
     end)
 
     messages
-  end
-
-  defp extract_data(data) do
-    case Jason.decode(data) do
-      {:ok, %{"Type" => "Notification", "Message" => d}} -> d
-      _ -> data
-    end
-  rescue
-    ArgumentError -> data
-  end
-
-  defp around_process(data, %{module: module}) do
-    {status, result} =
-      data
-      |> Jason.decode!()
-      |> module.process()
-
-    {status, result |> Jason.encode!()}
   end
 
   defp ensure_sns_topics(context) do

@@ -1,13 +1,16 @@
-defmodule Meadow.Utils.SQNS do
-  alias Meadow.Utils.SQNS.{Queues, Subscriptions, Topics}
+defmodule SQNS do
+  alias SQNS.{Queues, Subscriptions, Topics}
 
   @moduledoc """
   Utilities to create the queues, topics, and subscriptions required to
   support the ingest pipeline.
   """
 
-  @type subs :: [ok: binary() | list(binary()), error: binary() | list(binary())]
-  @type spec :: binary() | {binary(), subs()}
+  @type stringish :: atom() | binary()
+  @type filter :: {stringish(), stringish()}
+  @type subscription :: stringish() | {stringish(), list(filter())}
+  @type subscriptions :: list(subscription())
+  @type spec :: stringish() | {stringish(), subscriptions()}
   @type specs :: list(spec)
 
   @doc "Set up pipeline infrastructure based on a list of queue/topic/subscription specs"
@@ -27,14 +30,16 @@ defmodule Meadow.Utils.SQNS do
     end)
   end
 
-  defp parse_topics(specs) do
-    parse_queues(specs)
-    |> Enum.reduce([], fn queue, acc ->
-      acc ++ ["#{queue}-ok", "#{queue}-error"]
-    end)
-  end
+  defp parse_topics(specs), do: parse_queues(specs)
 
-  defp parse_subscription(queue, target, status), do: {"#{queue}-#{status}", to_string(target)}
+  defp parse_filters(filters) do
+    filters
+    |> Enum.map(fn
+      {key, value} when is_list(value) -> {key, value}
+      {key, value} -> {key, [value]}
+    end)
+    |> Enum.into(%{})
+  end
 
   defp parse_subscriptions(specs) do
     specs
@@ -45,12 +50,11 @@ defmodule Meadow.Utils.SQNS do
     |> Enum.map(fn {queue, queue_subs} ->
       queue_subs
       |> Enum.map(fn
-        {status, targets} when is_list(targets) ->
-          targets
-          |> Enum.map(&parse_subscription(queue, &1, status))
+        {target, filters} ->
+          {queue, target, filters |> parse_filters()}
 
-        {status, target} ->
-          parse_subscription(queue, target, status)
+        target ->
+          {queue, target, nil}
       end)
     end)
     |> List.flatten()

@@ -1,7 +1,6 @@
 defmodule Mix.Tasks.Meadow.Pipeline.Setup do
   @moduledoc "Creates resources for the ingest pipeline"
   use Mix.Task
-  alias Meadow.Utils.SQNS
 
   @shortdoc @moduledoc
   def run(_) do
