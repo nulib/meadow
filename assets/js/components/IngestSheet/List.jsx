@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
+import { toast } from "react-toastify";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import UIModalDelete from "../UI/Modal/Delete";
@@ -16,40 +17,43 @@ const IngestSheetList = ({ projectId }) => {
     variables: { projectId }
   });
   const client = useApolloClient();
-  const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
-    DELETE_INGEST_SHEET,
-    {
-      update(
-        cache,
-        {
-          data: { deleteIngestSheet }
-        }
-      ) {
-        try {
-          const { project } = client.readQuery({
-            query: GET_INGEST_SHEETS,
-            variables: { projectId }
-          });
+  const [
+    deleteIngestSheet,
+    { data: deleteIngestSheetData, error: deleteIngestSheetError }
+  ] = useMutation(DELETE_INGEST_SHEET, {
+    update(
+      cache,
+      {
+        data: { deleteIngestSheet }
+      }
+    ) {
+      try {
+        const { project } = client.readQuery({
+          query: GET_INGEST_SHEETS,
+          variables: { projectId }
+        });
 
-          const index = project.ingestSheets.findIndex(
-            ingestSheet => ingestSheet.id === deleteIngestSheet.id
-          );
+        const index = project.ingestSheets.findIndex(
+          ingestSheet => ingestSheet.id === deleteIngestSheet.id
+        );
 
-          project.ingestSheets.splice(index, 1);
+        project.ingestSheets.splice(index, 1);
 
-          client.writeQuery({
-            query: GET_INGEST_SHEETS,
-            data: { project }
-          });
-        } catch (error) {
-          console.log("Error reading from cache", error);
-        }
+        client.writeQuery({
+          query: GET_INGEST_SHEETS,
+          data: { project }
+        });
+      } catch (error) {
+        console.log("Error reading from cache", error);
       }
     }
-  );
+  });
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
+  if (deleteIngestSheetError) {
+    toast(`Error: ${deleteIngestSheetError.message}`);
+  }
 
   const handleDeleteClick = () => {
     deleteIngestSheet({ variables: { ingestSheetId: activeModal } });
@@ -88,7 +92,7 @@ const IngestSheetList = ({ projectId }) => {
             </thead>
             <tbody>
               {data.project.ingestSheets.map(
-                ({ id, name, filename, updatedAt }) => (
+                ({ id, name, filename, status, updatedAt }) => (
                   <tr key={id}>
                     <td>
                       <Link to={`/project/${projectId}/ingest-sheet/${id}`}>
@@ -96,7 +100,7 @@ const IngestSheetList = ({ projectId }) => {
                       </Link>
                     </td>
                     <td>{updatedAt}</td>
-                    <td>[ supported? ]</td>
+                    <td>{status}</td>
                     <td className="text-right">
                       <button onClick={e => onOpenModal(e, id)}>
                         <TrashIcon className="icon cursor-pointer" />

@@ -38,7 +38,7 @@ export const GET_PROJECTS = gql`
       id
       title
       folder
-      updated_at
+      updatedAt
       ingestSheets {
         id
       }

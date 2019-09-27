@@ -22,7 +22,7 @@ const mocks = [
               }
             ],
             title: "Mock project title",
-            updated_at: "2019-09-24T13:57:24"
+            updatedAt: "2019-09-24T13:57:24"
           }
         ]
       }
