@@ -173,7 +173,7 @@ defmodule SQNS.Pipeline.Action do
         default: [
           module:
             {BroadwaySQS.Producer,
-             queue_name: opts.queue_name, receive_interval: opts.receive_interval},
+             queue_url: opts.queue_url, receive_interval: opts.receive_interval},
           stages: opts.producer_stages
         ]
       ],
@@ -272,11 +272,12 @@ defmodule SQNS.Pipeline.Action do
       end
 
     case result do
-      %{queue_name: queue_name} when not is_binary(queue_name) ->
-        {:error, "expected :queue_name to be a binary, got: #{queue_name}"}
-
-      _ ->
+      %{queue_name: queue_name} when is_binary(queue_name) ->
         result
+        |> Map.put(:queue_url, SQNS.Queues.get_queue_url(queue_name))
+
+      %{queue_name: queue_name} ->
+        {:error, "expected :queue_name to be a binary, got: #{queue_name}"}
     end
   end
 
