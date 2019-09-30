@@ -44,6 +44,7 @@
     "coveralls": "^3.0.6",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
+    "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
     "jest": "^24.9.0",
