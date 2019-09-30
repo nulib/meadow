@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   Absinthe GraphQL query resolver for Ingest Context
 
   """
+  alias Meadow.Config
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.{IngestSheets, Projects}
   alias Meadow.Ingest.IngestSheets.IngestSheetValidator
@@ -24,7 +25,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
          message: "Could not create project", details: ChangesetErrors.error_details(changeset)}
 
       {:ok, project} ->
-        Application.get_env(:meadow, :ingest_bucket)
+        Config.ingest_bucket()
         |> Bucket.create_project_folder(project.folder)
 
         {:ok, project}
@@ -132,7 +133,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def get_presigned_url(_, _, _) do
-    url = Bucket.presigned_s3_url(Application.get_env(:meadow, :upload_bucket))
+    url = Bucket.presigned_s3_url(Config.upload_bucket())
     {:ok, %{url: url}}
   end
 

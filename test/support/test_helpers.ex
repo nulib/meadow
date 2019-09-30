@@ -7,7 +7,7 @@ defmodule Meadow.TestHelpers do
   alias Meadow.Data.{FileSet, Work}
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.IngestSheets.IngestSheet
+  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetValidator}
   alias Meadow.Ingest.Projects.Project
 
   alias Meadow.Repo
@@ -54,6 +54,16 @@ defmodule Meadow.TestHelpers do
     ingest_sheet
   end
 
+  def ingest_sheet_rows_fixture(file_fixture) do
+    sheet = ingest_sheet_fixture()
+
+    sheet
+    |> Repo.preload(:project)
+    |> IngestSheetValidator.load_rows(File.read!(file_fixture))
+
+    sheet
+  end
+
   def project_fixture(attrs \\ %{}) do
     title = "title-#{System.unique_integer([:positive])}"
 
@@ -64,7 +74,7 @@ defmodule Meadow.TestHelpers do
 
     {:ok, project} =
       %Project{}
-      |> Project.changeset(attrs)
+      |> Project.changeset(:create, attrs)
       |> Repo.insert()
 
     project

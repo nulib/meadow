@@ -66,8 +66,10 @@ config :meadow, MeadowWeb.Endpoint,
     ]
   ]
 
-config :meadow, ingest_bucket: "dev-ingest"
-config :meadow, upload_bucket: "dev-uploads"
+config :meadow,
+  ingest_bucket: "dev-ingest",
+  upload_bucket: "dev-uploads",
+  preservation_bucket: "dev-preservation"
 
 config :ex_aws,
   access_key_id: "fake",
@@ -94,7 +96,9 @@ config :ex_aws, :sns,
   region: "us-east-1"
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :console,
+  format: "$metadata[$level] $levelpad$message\n",
+  metadata: [:action]
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

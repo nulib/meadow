@@ -9,13 +9,14 @@ defmodule Meadow.Application do
     import Supervisor.Spec
 
     # List all child processes to be supervised
+    # Start the Ecto repository
+    # Start the endpoint when the application starts
+    # Starts a worker by calling: Meadow.Worker.start_link(arg)
+    # {Meadow.Worker, arg},
     children = [
-      # Start the Ecto repository
       Meadow.Repo,
-      # Start the endpoint when the application starts
       MeadowWeb.Endpoint,
-      # Starts a worker by calling: Meadow.Worker.start_link(arg)
-      # {Meadow.Worker, arg},
+      {Meadow.Ingest.Pipeline, start: Meadow.Config.start_pipeline?()},
       supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]

@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.9-node
+        environment:
+          DATABASE_URL: ecto://root@localhost/circle_test
+          MIX_ENV: test
+      - image: circleci/postgres:10-alpine
+      - image: nulib/goaws
+    steps:
+      - checkout
+      - run:
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
+      - run:
+          name: Install Elixir Dependencies
+          command: mix do deps.get, deps.compile
+      - run:
+          name: Install JS Dependencies
+          command: yarn install
+          working_directory: ~/meadow/assets
+      - run:
+          name: Elixir Static Analysis
+          command: mix credo
+      - run:
+          name: Elixir Tests
+          command: mix test
+      - run:
+          name: JS Static Analysis
+          command: yarn prettier
+          working_directory: ~/meadow/assets
+      - run:
+          name: JS Tests
+          command: yarn ci
+          working_directory: ~/meadow/assets
+      - run:
+          name: Test Webpack Build
+          command: yarn deploy
+          working_directory: ~/meadow/assets

@@ -1,6 +1,8 @@
 defmodule MeadowWeb.Schema.Mutation.CreateIngestSheet do
   use MeadowWeb.ConnCase, async: true
 
+  import Mox
+
   @query """
     mutation ($name: String!, $filename: String!, $projectId: ID!) {
       createIngestSheet(name: $name, filename: $filename, projectId: $projectId) {
@@ -15,6 +17,11 @@ defmodule MeadowWeb.Schema.Mutation.CreateIngestSheet do
 
   test "createIngestSheet mutation creates an ingest sheet for a project", _context do
     project = project_fixture()
+
+    Meadow.ExAwsHttpMock
+    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 404}}
+    end)
 
     input = %{
       "name" => "This is the name",

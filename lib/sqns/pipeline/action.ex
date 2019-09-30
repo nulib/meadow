@@ -95,9 +95,8 @@ defmodule SQNS.Pipeline.Action do
   require Logger
 
   @required_topics [:ok, :error]
-  @callback process(data :: any()) :: {atom(), any()}
-  @callback process(data :: any(), attrs :: map()) :: {atom(), any(), map()}
-  @optional_callbacks process: 2
+  @callback process(data :: any(), attrs :: map()) ::
+              {atom(), any(), map()} | {atom(), any()} | {atom()} | atom()
 
   defmacro __using__(use_opts) do
     use_opts =
@@ -118,6 +117,8 @@ defmodule SQNS.Pipeline.Action do
     quote location: :keep,
           bind_quoted: [queue: use_opts[:queue_name], module: __CALLER__.module] do
       alias SQNS.Pipeline
+      require Logger
+
       @behaviour Pipeline.Action
 
       @doc false
@@ -133,13 +134,13 @@ defmodule SQNS.Pipeline.Action do
 
       @doc false
       def start_link(opts) do
+        Logger.debug("Starting #{__MODULE__}")
+
         Pipeline.Action.start_link(
           __MODULE__,
           opts |> Keyword.put_new(:queue_name, unquote(queue))
         )
       end
-
-      def process(data, attrs), do: process(data) |> Tuple.append(attrs)
 
       @doc "Send a message directly to the Action's queue"
       def send_message(data, context \\ %{}) do
@@ -205,9 +206,21 @@ defmodule SQNS.Pipeline.Action do
     |> Message.put_batcher(:sns)
     |> Message.update_data(fn message_data ->
       with {data, attrs} <- Data.extract(message_data) do
-        data
-        |> module.process(attrs)
-        |> Data.update(module)
+        with old_action <- Logger.metadata()[:action] do
+          try do
+            Logger.metadata(action: module |> Module.split() |> List.last())
+
+            case module.process(data, attrs) do
+              {s, d, a} -> {s, d, a}
+              {s, d} -> {s, d, attrs}
+              {s} -> {s, data, attrs}
+              s -> {s, data, attrs}
+            end
+            |> Data.update(module)
+          after
+            Logger.metadata(action: old_action)
+          end
+        end
       end
     end)
   end
@@ -217,7 +230,6 @@ defmodule SQNS.Pipeline.Action do
     messages
     |> Enum.each(fn %Message{data: {_, data, attrs}} ->
       topic_arn = queue_name |> SQNS.Topics.get_topic_arn()
-      Logger.debug("Sending #{byte_size(data)} bytes to #{topic_arn}")
 
       data
       |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)

@@ -31,8 +31,14 @@ config :meadow, MeadowWeb.Endpoint,
   http: [port: 4002],
   server: false
 
-config :meadow, ingest_bucket: "test-ingest"
-config :meadow, upload_bucket: "test-uploads"
+config :meadow,
+  ingest_bucket: "test-ingest",
+  upload_bucket: "test-uploads",
+  preservation_bucket: "test-preservation"
+
+config :meadow,
+  start_pipeline: false,
+  synchronous_validation: true
 
 config :ex_aws,
   access_key_id: "minio",
