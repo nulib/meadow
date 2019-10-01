@@ -9,7 +9,9 @@ defmodule Meadow.DataTest do
       file_sets: [
         %{
           accession_number: "1234",
+          role: "am",
           metadata: %{
+            description: "This is the description",
             location: "https://www.library.northwestern.edu",
             original_filename: "test.tiff"
           }
@@ -21,6 +23,10 @@ defmodule Meadow.DataTest do
       work = work_fixture(@file_set_attrs) |> Repo.preload(:file_sets)
       file_set_id = List.first(work.file_sets).id
       assert Data.get_work_by_file_set_id(file_set_id).id == work.id
+    end
+
+    test "query/2 returns its queryable" do
+      assert Data.query(:input, :ignored) == :input
     end
   end
 end

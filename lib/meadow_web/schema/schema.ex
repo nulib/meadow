@@ -7,18 +7,25 @@ defmodule MeadowWeb.Schema do
   import_types(Absinthe.Type.Custom)
   import_types(MeadowWeb.Schema.Types.Json)
 
+  alias Meadow.Data
   alias Meadow.Ingest
 
   import_types(__MODULE__.AccountTypes)
   import_types(__MODULE__.IngestTypes)
+  import_types(__MODULE__.Data.WorkTypes)
+  import_types(__MODULE__.Data.FileSetTypes)
 
   query do
     import_fields(:account_queries)
     import_fields(:ingest_queries)
+    import_fields(:work_queries)
+    import_fields(:file_set_queries)
   end
 
   mutation do
     import_fields(:ingest_mutations)
+    import_fields(:work_mutations)
+    import_fields(:file_set_mutations)
   end
 
   subscription do
@@ -52,6 +59,7 @@ defmodule MeadowWeb.Schema do
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Ingest, Ingest.datasource())
+      |> Dataloader.add_source(Data, Data.datasource())
 
     Map.put(ctx, :loader, loader)
   end

@@ -21,6 +21,46 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Returns a list of works matching the given `criteria`.
+
+  Example Criteria:
+
+  [{:limit, 15}, {:order, :asc}, {:filter, [{:visibility, :open}, {:work_type, :image}]}]
+  """
+
+  def list_works(criteria) do
+    query = from(w in Work)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from w in query, limit: ^limit
+
+      {:filter, filters}, query ->
+        filter_with(filters, query)
+
+      {:order, order}, query ->
+        from p in query, order_by: [{^order, :id}]
+    end)
+    |> Repo.all()
+  end
+
+  defp filter_with(filters, query) do
+    Enum.reduce(filters, query, fn
+      {:matching, term}, query ->
+        map = %{"title" => term}
+
+        from q in query,
+          where: fragment("metadata @> ?::jsonb", ^map)
+
+      {:visibility, value}, query ->
+        from q in query, where: q.visibility == ^value
+
+      {:work_type, value}, query ->
+        from q in query, where: q.work_type == ^value
+    end)
+  end
+
+  @doc """
   Gets a work.
 
   Raises `Ecto.NoResultsError` if the Work does not exist.
@@ -35,6 +75,15 @@ defmodule Meadow.Data.Works do
 
   """
   def get_work!(id), do: Repo.get!(Work, id)
+
+  @doc """
+  Gets a work by accession_number
+
+  Raises `Ecto.NoResultsError` if the Work does not exist
+  """
+  def get_work_by_accession_number!(accession_number) do
+    Repo.get_by!(Work, accession_number: accession_number)
+  end
 
   @doc """
   Creates a work.
@@ -76,5 +125,12 @@ defmodule Meadow.Data.Works do
         where: fragment("metadata @> ?::jsonb", ^map)
 
     Repo.all(q)
+  end
+
+  @doc """
+  Deletes a Work.
+  """
+  def delete_work(%Work{} = work) do
+    Repo.delete(work)
   end
 end
