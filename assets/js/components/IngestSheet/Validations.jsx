@@ -8,8 +8,7 @@ import IngestSheetReport from "./Report";
 import {
   DELETE_INGEST_SHEET,
   SUBSCRIBE_TO_INGEST_SHEET_STATUS,
-  SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
-  START_VALIDATION
+  SUBSCRIBE_TO_INGEST_SHEET_PROGRESS
 } from "./ingestSheet.query";
 import UIAlert from "../UI/Alert";
 import ButtonGroup from "../UI/ButtonGroup";
@@ -32,7 +31,6 @@ function IngestSheetValidations({
   const [status, setStatus] = useState([]);
   const [displayRowChecks, setDisplayRowChecks] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [startValidation, { validationData }] = useMutation(START_VALIDATION);
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
     DELETE_INGEST_SHEET,
     {
@@ -57,8 +55,6 @@ function IngestSheetValidations({
       variables: { ingestSheetId },
       updateQuery: handleStatusUpdate
     });
-
-    startValidation({ variables: { id: ingestSheetId } });
   }, []);
 
   const handleDeleteClick = () => {

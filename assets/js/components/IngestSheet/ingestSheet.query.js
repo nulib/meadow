@@ -13,6 +13,7 @@ export const CREATE_INGEST_SHEET = gql`
     ) {
       id
       name
+      status
       project {
         id
         title
@@ -27,6 +28,7 @@ export const DELETE_INGEST_SHEET = gql`
     deleteIngestSheet(ingestSheetId: $ingestSheetId) {
       id
       name
+      status
     }
   }
 `;
@@ -38,6 +40,7 @@ export const GET_INGEST_SHEETS = gql`
       ingestSheets {
         id
         name
+        status
         updatedAt
       }
     }
@@ -105,14 +108,6 @@ export const GET_PRESIGNED_URL = gql`
   query {
     presignedUrl {
       url
-    }
-  }
-`;
-
-export const START_VALIDATION = gql`
-  mutation ValidateIngestSheet($id: String!) {
-    validateIngestSheet(ingestSheetId: $id) {
-      message
     }
   }
 `;

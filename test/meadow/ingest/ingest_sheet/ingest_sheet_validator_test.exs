@@ -54,6 +54,11 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidatorTest do
   @tag sheet: "ingest_sheet.csv"
   test "validates an ingest sheet", context do
     assert(IngestSheetValidator.result(context.sheet.id) == "pass")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.file_errors == [])
+
+    assert(ingest_sheet.status == "valid")
   end
 
   @tag sheet: "ingest_sheet_wrong_headers.csv"
@@ -67,16 +72,24 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidatorTest do
         "Invalid header: not_the_accession_number"
       ]
     )
+
+    assert(ingest_sheet.status == "file_fail")
   end
 
   @tag sheet: "ingest_sheet_missing_field.csv"
   test "fails an ingest sheet when a field is missing", context do
     assert(IngestSheetValidator.result(context.sheet.id) == "fail")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
   end
 
   @tag sheet: "ingest_sheet_missing_file.csv"
   test "fails an ingest sheet when a file is missing", context do
     assert(IngestSheetValidator.result(context.sheet.id) == "fail")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
   end
 
   @tag sheet: "missing_ingest_sheet.csv"
@@ -89,5 +102,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidatorTest do
         "Could not load ingest sheet from S3"
       ]
     )
+
+    assert(ingest_sheet.status == "file_fail")
   end
 end
