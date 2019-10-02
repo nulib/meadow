@@ -28,10 +28,12 @@ defmodule MeadowWeb.Schema do
     import_fields(:ingest_mutations)
     import_fields(:work_mutations)
     import_fields(:file_set_mutations)
+    import_fields(:mock_mutations)
   end
 
   subscription do
     import_fields(:ingest_subscriptions)
+    import_fields(:mock_subscriptions)
   end
 
   enum :sort_order do
