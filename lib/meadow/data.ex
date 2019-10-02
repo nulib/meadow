@@ -26,4 +26,14 @@ defmodule Meadow.Data do
     |> Ecto.assoc(:work)
     |> Repo.one()
   end
+
+  # Dataloader
+
+  def datasource do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(queryable, _) do
+    queryable
+  end
 end

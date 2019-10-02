@@ -6,7 +6,12 @@ defmodule Meadow.Data.FileSets.FileSetTest do
   describe "file_sets" do
     @valid_attrs %{
       accession_number: "12345",
-      metadata: %{location: "https://example.com", original_filename: "test.tiff"}
+      role: "am",
+      metadata: %{
+        description: "yes",
+        location: "https://example.com",
+        original_filename: "test.tiff"
+      }
     }
 
     test "created file_set has a ULID identifier" do

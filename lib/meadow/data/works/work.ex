@@ -9,6 +9,8 @@ defmodule Meadow.Data.Works.Work do
 
   import Ecto.Changeset
 
+  use Meadow.Constants
+
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   schema "works" do
@@ -23,11 +25,16 @@ defmodule Meadow.Data.Works.Work do
   end
 
   def changeset(work, attrs) do
+    required_params = [:accession_number, :visibility, :work_type]
+    optional_params = []
+
     work
-    |> cast(attrs, [:accession_number, :visibility, :work_type])
+    |> cast(attrs, required_params ++ optional_params)
     |> cast_embed(:metadata)
     |> cast_assoc(:file_sets)
-    |> validate_required([:accession_number, :metadata, :visibility, :work_type])
+    |> validate_required(required_params)
+    |> validate_inclusion(:visibility, @visibility)
+    |> validate_inclusion(:work_type, @work_types)
     |> unique_constraint(:accession_number)
   end
 end

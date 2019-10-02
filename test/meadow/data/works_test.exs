@@ -8,7 +8,7 @@ defmodule Meadow.Data.WorksTest do
     @valid_attrs %{
       accession_number: "12345",
       visibility: "open",
-      work_type: "Image",
+      work_type: "image",
       metadata: %{title: "Test"}
     }
     @invalid_attrs %{accession_number: nil}
@@ -30,6 +30,17 @@ defmodule Meadow.Data.WorksTest do
 
     test "create_work/1 with invalid data does not create a work" do
       assert {:error, %Ecto.Changeset{}} = Works.create_work(@invalid_attrs)
+    end
+
+    test "delete_work/1 deletes a work" do
+      work = work_fixture()
+      assert {:ok, %Work{} = work} = Works.delete_work(work)
+      assert Enum.empty?(Works.list_works())
+    end
+
+    test "get_work!/1 returns a work by id" do
+      work = work_fixture()
+      assert %Work{} = Works.get_work!(work.id)
     end
   end
 end

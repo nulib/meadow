@@ -8,10 +8,13 @@ defmodule Meadow.Data.FileSets.FileSet do
 
   import Ecto.Changeset
 
+  use Meadow.Constants
+
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   schema "file_sets" do
     field :accession_number
+    field :role, :string
     embeds_one :metadata, FileSetMetadata
     timestamps()
 
@@ -20,9 +23,11 @@ defmodule Meadow.Data.FileSets.FileSet do
 
   def changeset(file_set, params) do
     file_set
-    |> cast(params, [:accession_number])
+    |> cast(params, [:accession_number, :work_id, :role])
     |> cast_embed(:metadata)
-    |> validate_required([:accession_number])
+    |> validate_required([:accession_number, :role])
+    |> assoc_constraint(:work)
     |> unique_constraint(:accession_number)
+    |> validate_inclusion(:role, @file_set_roles)
   end
 end

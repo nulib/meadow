@@ -121,19 +121,21 @@ defmodule Meadow.TestHelpers do
     attrs =
       Enum.into(attrs, %{
         accession_number: attrs[:accession_number] || Faker.String.base64(),
+        role: attrs[:role] || Faker.Util.pick(@file_set_roles),
         metadata:
           attrs[:metadata] ||
             %{
+              description: attrs[:description] || Faker.String.base64(),
               location: "https://fake-s3-bucket/" <> Faker.String.base64(),
               original_filename: Faker.File.file_name()
             }
       })
 
-    {:ok, work} =
+    {:ok, file_set} =
       %FileSet{}
       |> FileSet.changeset(attrs)
       |> Repo.insert()
 
-    work
+    file_set
   end
 end

@@ -140,6 +140,16 @@ defmodule MeadowWeb.Schema.IngestTypes do
     end
   end
 
+  object :project do
+    field :id, non_null(:id)
+    field :title, non_null(:string)
+    field :folder, non_null(:string)
+    field :inserted_at, non_null(:naive_datetime)
+    field :updated_at, non_null(:naive_datetime)
+
+    field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
+  end
+
   @desc "IngestSheet object"
   object :ingest_sheet do
     field :id, non_null(:id)
@@ -193,10 +203,12 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
   end
 
-  object :sheet_progress do
-    field :states, list_of(:state_count)
-    field :total, non_null(:integer)
-    field :percent_complete, non_null(:float)
+  object :ingest_sheet_row do
+    field :ingest_sheet, :ingest_sheet, resolve: dataloader(Ingest)
+    field :row, non_null(:integer)
+    field :fields, list_of(:field)
+    field :errors, list_of(:error)
+    field :state, :state
   end
 
   @desc "Object that tracks IngestSheet state"
@@ -206,16 +218,21 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :state, non_null(:state)
   end
 
+  @desc "states: PENDING, PASS or FAIL"
+  enum :state do
+    value(:pending, as: "pending")
+    value(:pass, as: "pass")
+    value(:fail, as: "fail")
+  end
+
+  object :sheet_progress do
+    field :states, list_of(:state_count)
+    field :total, non_null(:integer)
+    field :percent_complete, non_null(:float)
+  end
+
   object :state_count do
     field :state, non_null(:state)
     field :count, non_null(:integer)
-  end
-
-  object :ingest_sheet_row do
-    field :ingest_sheet, :ingest_sheet, resolve: dataloader(Ingest)
-    field :row, non_null(:integer)
-    field :fields, list_of(:field)
-    field :errors, list_of(:error)
-    field :state, :state
   end
 end

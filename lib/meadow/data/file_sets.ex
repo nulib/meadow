@@ -37,6 +37,15 @@ defmodule Meadow.Data.FileSets do
   def get_file_set!(id), do: Repo.get!(FileSet, id)
 
   @doc """
+  Gets a file_set by accession_number
+
+  Raises `Ecto.NoResultsError` if the Work does not exist
+  """
+  def get_file_set_by_accession_number!(accession_number) do
+    Repo.get_by!(FileSet, accession_number: accession_number)
+  end
+
+  @doc """
   Creates a file set.
 
   ## Examples
@@ -52,5 +61,12 @@ defmodule Meadow.Data.FileSets do
     %FileSet{}
     |> FileSet.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Deletes a FileSet.
+  """
+  def delete_file_set(%FileSet{} = file_set) do
+    Repo.delete(file_set)
   end
 end

@@ -7,8 +7,14 @@ defmodule Meadow.Data.FileSetsTest do
   describe "queries" do
     @valid_attrs %{
       accession_number: "12345",
-      metadata: %{location: "https://example.com", original_filename: "test.tiff"}
+      role: "am",
+      metadata: %{
+        description: "yes",
+        location: "https://example.com",
+        original_filename: "test.tiff"
+      }
     }
+
     @invalid_attrs %{accession_number: nil}
 
     test "list_file_sets/0 returns all file_sets" do
@@ -17,11 +23,27 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "create_file_set/1 with valid data creates a file_set" do
-      assert {:ok, %FileSet{} = work} = FileSets.create_file_set(@valid_attrs)
+      assert {:ok, %FileSet{} = file_set} = FileSets.create_file_set(@valid_attrs)
     end
 
     test "create_file_set/1 with invalid data does not create a file_set" do
       assert {:error, %Ecto.Changeset{}} = FileSets.create_file_set(@invalid_attrs)
+    end
+
+    test "delete_file_set/1 deletes a file_set" do
+      file_set = file_set_fixture()
+      assert {:ok, %FileSet{} = file_set} = FileSets.delete_file_set(file_set)
+      assert Enum.empty?(FileSets.list_file_sets())
+    end
+
+    test "get_file_set!/1 returns a file set by id" do
+      file_set = file_set_fixture()
+      assert FileSets.get_file_set!(file_set.id) == file_set
+    end
+
+    test "get_file_set_by_accessionb_number!/1 returns a file set by accession_number" do
+      file_set = file_set_fixture()
+      assert FileSets.get_file_set_by_accession_number!(file_set.accession_number) == file_set
     end
   end
 end
