@@ -25,7 +25,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
         return [
           {
             query: GET_PROJECT,
-            variables: { projectId: projectId }
+            variables: { projectId }
           }
         ];
       }

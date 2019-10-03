@@ -9,8 +9,15 @@ import {
 } from "./ingestSheet.query";
 import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
+import IngestSheetActionRow from "./ActionRow";
 
-const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
+const IngestSheet = ({
+  ingestSheetData,
+  projectId,
+  subscribeToIngestSheetUpdates
+}) => {
+  const { status } = ingestSheetData;
+
   // const {
   //   data: statusData,
   //   loading: statusLoading,
@@ -43,6 +50,12 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     <>
       <IngestSheetAlert ingestSheet={ingestSheetData} />
 
+      <IngestSheetActionRow
+        ingestSheetId={ingestSheetData.id}
+        projectId={projectId}
+        status={status}
+      />
+
       {/* <IngestSheetValidations
         ingestSheetId={ingestSheetId}
         initialProgress={progressData.ingestSheetProgress}
@@ -56,6 +69,7 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
 
 IngestSheet.propTypes = {
   ingestSheetData: PropTypes.object,
+  projectId: PropTypes.string,
   subscribeToIngestSheetUpdates: PropTypes.func
 };
 

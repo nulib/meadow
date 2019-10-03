@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
-import { useMutation } from "@apollo/react-hooks";
+
 import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
 import {
-  DELETE_INGEST_SHEET,
   SUBSCRIBE_TO_INGEST_SHEET_STATE,
   SUBSCRIBE_TO_INGEST_SHEET_PROGRESS
 } from "./ingestSheet.query";
@@ -14,9 +13,7 @@ import UIAlert from "../UI/Alert";
 import ButtonGroup from "../UI/ButtonGroup";
 import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
-import UIModalDelete from "../UI/Modal/Delete";
 import { withRouter } from "react-router-dom";
-import { toast } from "react-toastify";
 
 function IngestSheetValidations({
   ingestSheetId,
@@ -30,16 +27,6 @@ function IngestSheetValidations({
   const [progress, setProgress] = useState({ states: [] });
   const [status, setStatus] = useState([]);
   const [displayRowChecks, setDisplayRowChecks] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
-    DELETE_INGEST_SHEET,
-    {
-      onCompleted({ deleteIngestSheet }) {
-        toast(`Ingest sheet deleted successfully`);
-        history.push(`/project/${match.params.id}`);
-      }
-    }
-  );
 
   useEffect(() => {
     setProgress(initialProgress);
@@ -56,18 +43,6 @@ function IngestSheetValidations({
       updateQuery: handleStatusUpdate
     });
   }, []);
-
-  const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { ingestSheetId: ingestSheetId } });
-  };
-
-  const onOpenModal = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const onCloseModal = () => {
-    setDeleteModalOpen(false);
-  };
 
   const handleProgressUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
@@ -244,13 +219,6 @@ function IngestSheetValidations({
         {showReport()}
         {showUserButtons()}
       </section>
-
-      <UIModalDelete
-        isOpen={deleteModalOpen}
-        handleClose={onCloseModal}
-        handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Ingest Sheet`}
-      />
     </>
   );
 }

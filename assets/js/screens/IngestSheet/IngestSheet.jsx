@@ -93,6 +93,7 @@ const ScreensIngestSheet = ({ match }) => {
 
         <IngestSheet
           ingestSheetData={sheetData.ingestSheet}
+          projectId={id}
           subscribeToIngestSheetUpdates={() =>
             subscribeToMore({
               document: INGEST_SHEET_SUBSCRIPTION,
