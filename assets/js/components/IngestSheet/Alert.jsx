@@ -10,10 +10,26 @@ const IngestSheetAlert = ({ ingestSheet }) => {
 
   switch (status) {
     case "APPROVED":
+      alertObj = {
+        type: "info",
+        title: "Approved",
+        body: "The Ingest Sheet has been approved and the ingest is in progress"
+      };
       break;
     case "COMPLETED":
+      alertObj = {
+        type: "success",
+        title: "Ingestion Complete",
+        body: "All files have been processed"
+      };
       break;
     case "DELETED":
+      // Not sure if someone could actually end up here
+      alertObj = {
+        type: "danger",
+        title: "Deleted",
+        body: "Ingest sheet no longer exists"
+      };
       break;
     case "FILE_FAIL":
       alertObj = {
@@ -32,6 +48,11 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       };
       break;
     case "UPLOADED":
+      alertObj = {
+        type: "info",
+        title: "File uploaded",
+        body: "Ingest sheet validation is in progress"
+      };
       break;
     case "VALID":
       alertObj = {
