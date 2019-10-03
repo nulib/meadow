@@ -8,6 +8,10 @@ import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Link } from "react-router-dom";
+import {
+  INGEST_SHEET_SUBSCRIPTION,
+  INGEST_SHEET_QUERY
+} from "../../components/IngestSheet/ingestSheet.query";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($ingestSheetId: String!) {
@@ -22,14 +26,28 @@ const GET_CRUMB_DATA = gql`
 
 const ScreensIngestSheet = ({ match }) => {
   const { id, ingestSheetId } = match.params;
-  const { loading, error, data } = useQuery(GET_CRUMB_DATA, {
+  const {
+    loading: crumbsLoading,
+    error: crumbsError,
+    data: crumbsData
+  } = useQuery(GET_CRUMB_DATA, {
     variables: { ingestSheetId }
   });
 
-  if (error) return <Error error={error} />;
-  if (loading) return <Loading />;
+  const {
+    subscribeToMore,
+    data: sheetData,
+    loading: sheetLoading,
+    error: sheetError
+  } = useQuery(INGEST_SHEET_QUERY, {
+    variables: { ingestSheetId }
+  });
 
-  const { ingestSheet } = data;
+  if (crumbsLoading || sheetLoading) return <Loading />;
+  if (crumbsError || sheetError)
+    return <Error error={crumbsError || sheetError} />;
+
+  const { ingestSheet } = crumbsData;
 
   const createCrumbs = () => {
     return [
@@ -73,11 +91,33 @@ const ScreensIngestSheet = ({ match }) => {
           </Link>
         </div>
 
-        <IngestSheet ingestSheetId={ingestSheetId} />
+        <IngestSheet
+          ingestSheetData={sheetData.ingestSheet}
+          subscribeToIngestSheetUpdates={() =>
+            subscribeToMore({
+              document: INGEST_SHEET_SUBSCRIPTION,
+              variables: { ingestSheetId },
+              updateQuery: (prev, { subscriptionData }) => {
+                console.log(
+                  "TCL: ScreensIngestSheet -> subscriptionData",
+                  subscriptionData
+                );
+                console.log("TCL: ScreensIngestSheet -> prev", prev);
+                if (!subscriptionData.data) return prev;
+                const updatedSheet = subscriptionData.data.ingestSheet;
+
+                // Note we'll have to see how this really works... it happens so fast now, that this code block
+                // isn't running.  It might have to be a 5000 row Ingest Sheet or something...
+                return Object.assign({}, prev, {
+                  updatedSheet
+                });
+              }
+            })
+          }
+        />
       </ScreenContent>
     </>
   );
 };
 
 export default withRouter(ScreensIngestSheet);
-export { GET_CRUMB_DATA };

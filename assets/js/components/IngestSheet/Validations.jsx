@@ -7,7 +7,7 @@ import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
 import {
   DELETE_INGEST_SHEET,
-  SUBSCRIBE_TO_INGEST_SHEET_STATUS,
+  SUBSCRIBE_TO_INGEST_SHEET_STATE,
   SUBSCRIBE_TO_INGEST_SHEET_PROGRESS
 } from "./ingestSheet.query";
 import UIAlert from "../UI/Alert";
@@ -51,7 +51,7 @@ function IngestSheetValidations({
 
     setStatus(initialStatus);
     subscribeToIngestSheetStatus({
-      document: SUBSCRIBE_TO_INGEST_SHEET_STATUS,
+      document: SUBSCRIBE_TO_INGEST_SHEET_STATE,
       variables: { ingestSheetId },
       updateQuery: handleStatusUpdate
     });
@@ -238,7 +238,6 @@ function IngestSheetValidations({
   return (
     <>
       <section>
-        <h2>Unapproved State UI</h2>
         {showProgressBar()}
         {showAlert()}
         {showChecksTable()}
