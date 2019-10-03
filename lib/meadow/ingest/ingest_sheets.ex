@@ -146,7 +146,6 @@ defmodule Meadow.Ingest.IngestSheets do
     ingest_sheet
     |> IngestSheet.changeset(%{state: new_state})
     |> Repo.update()
-    |> send_ingest_sheet_notification()
   end
 
   def change_ingest_sheet_state!(%IngestSheet{} = ingest_sheet, updates) do
@@ -171,7 +170,6 @@ defmodule Meadow.Ingest.IngestSheets do
     ingest_sheet
     |> IngestSheet.changeset(attrs)
     |> Repo.update()
-    |> send_ingest_sheet_notification()
   end
 
   @doc """
