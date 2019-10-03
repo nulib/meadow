@@ -9,7 +9,7 @@ const UIAlert = ({
   type = "info"
 }) => {
   return (
-    <div className={`alert my-4 ${type}`} role="alert">
+    <div data-testid="ui-alert" className={`alert my-4 ${type}`} role="alert">
       <div className="flex">
         <div className="py-1">
           {type === "success" && <CheckmarkOutlineIcon className="icon" />}
