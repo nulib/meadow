@@ -4,7 +4,7 @@ defmodule MeadowWeb.Schema.MockTypes do
 
   """
   use Absinthe.Schema.Notation
-
+  alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
   @fake_db %{
@@ -82,6 +82,65 @@ defmodule MeadowWeb.Schema.MockTypes do
     }
   }
 
+  @errors_db %{
+    "foo" => %{
+      works: [
+        %{
+          work_accession_number: "01DP6073MBNW6K85GS9J805DLL",
+          errors: ["Duplicate Work Accession Number"],
+          file_sets: [
+            %{
+              row_number: 1,
+              accession_number: "Something_Else_003_001",
+              role: "am",
+              description: "Mauris pellentesque sodales",
+              filename: "s3://the/path/to/the/file.tif",
+              errors: []
+            },
+            %{
+              row_number: 2,
+              accession_number: "Something_Else_003_002",
+              role: "am",
+              description: "Mauris pellentesque sodales",
+              filename: "s3://the/path/to/the/file.tif",
+              errors: ["Couldn't find file: s3://the/path/to/the/file.tif"]
+            }
+          ]
+        },
+        %{
+          work_accession_number: "01DP6073MBNW6K85GS9J805DMM",
+          errors: [],
+          file_sets: [
+            %{
+              row_number: 8,
+              accession_number: "Something_Else_004_001",
+              role: "am",
+              description: "Mauris pellentesque sodales",
+              filename: "s3://the/path/to/the/file.tif",
+              errors: ["Problem creating pyramidal tif"]
+            },
+            %{
+              row_number: 9,
+              accession_number: "Something_Else_004_002",
+              role: "am",
+              description: "Mauris pellentesque sodales",
+              filename: "s3://the/path/to/the/file.tif",
+              errors: ["Error moving file to preservation storage"]
+            },
+            %{
+              row_number: 10,
+              accession_number: "Something_Else_004_002",
+              role: "am",
+              description: "Mauris pellentesque sodales",
+              filename: "s3://the/path/to/the/file.tif",
+              errors: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+
   object :mock_queries do
     @desc "`MOCK` for getting completed works along with an IngestSheet"
     field :mock_ingest_sheet, list_of(:mock_ingest_sheet) do
@@ -93,6 +152,41 @@ defmodule MeadowWeb.Schema.MockTypes do
         {:ok, Map.get(@fake_db, "foo")}
       end)
     end
+
+    @desc "`MOCK` for getting errors for completed ingest sheet"
+    field :mock_ingest_sheet_errors, :mock_ingest_sheet_errors do
+      @desc "The ID of `IngestSheet`"
+      arg(:id, type: non_null(:id))
+      middleware(Middleware.Authenticate)
+
+      resolve(fn %{id: _id}, _ ->
+        {:ok, Map.get(@errors_db, "foo")}
+      end)
+    end
+  end
+
+  object :mock_mutations do
+    @desc "MOCK Approve an Ingest Sheet"
+    field :mock_approve_ingest_sheet, :ingest_sheet do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Mock.mock_approve_ingest_sheet/3)
+    end
+  end
+
+  object :mock_subscriptions do
+    @desc "MOCK for subscription of count of works created during ingest progress"
+    field :mock_works_created_count, :mock_count do
+      arg(:sheet_id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: Enum.join(["mock_subscription", args.sheet_id], ":")}
+      end)
+    end
+  end
+
+  object :mock_count do
+    field :count, :integer
   end
 
   @desc "MOCK IngestSheet object"
@@ -113,6 +207,28 @@ defmodule MeadowWeb.Schema.MockTypes do
     field :visibility, non_null(:visibility)
 
     field :file_sets, list_of(:mock_file_set)
+  end
+
+  @desc "MOCK work errors"
+  object :mock_ingest_sheet_errors do
+    field :works, list_of(:mock_work_errors)
+  end
+
+  @desc "MOCK errors object"
+  object :mock_work_errors do
+    field :work_accession_number, non_null(:string)
+    field :errors, list_of(:string)
+    field :file_sets, list_of(:mock_row_errors)
+  end
+
+  @desc "MOCK work errors"
+  object :mock_row_errors do
+    field :row_number, :integer
+    field :accession_number, :string
+    field :role, :string
+    field :description, :string
+    field :filename, :string
+    field :errors, list_of(:string)
   end
 
   @desc "MOCK `file_set` object represents one file (repository object in S3)"
