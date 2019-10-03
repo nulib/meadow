@@ -92,6 +92,13 @@ defmodule MeadowWeb.Schema.IngestTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.approve_ingest_sheet/3)
     end
+
+    @desc "Kick off Validation of an Ingest Sheet"
+    field :validate_ingest_sheet, :status_message do
+      arg(:ingest_sheet_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.validate_ingest_sheet/3)
+    end
   end
 
   object :ingest_subscriptions do
