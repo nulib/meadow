@@ -1,4 +1,33 @@
 import gql from "graphql-tag";
+import IngestSheet from "./IngestSheet";
+
+IngestSheet.fragments = {
+  parts: gql`
+    fragment IngestSheetParts on IngestSheet {
+      fileErrors
+      ingestSheetRows {
+        errors {
+          field
+          message
+        }
+        fields {
+          header
+          value
+        }
+        row
+        state
+      }
+      id
+      name
+      filename
+      state {
+        name
+        state
+      }
+      status
+    }
+  `
+};
 
 export const CREATE_INGEST_SHEET = gql`
   mutation CreateIngestSheet(
@@ -116,71 +145,22 @@ export const GET_PRESIGNED_URL = gql`
 export const INGEST_SHEET_QUERY = gql`
   query IngestSheetQuery($ingestSheetId: ID!) {
     ingestSheet(id: $ingestSheetId) {
-      fileErrors
-      ingestSheetRows {
-        errors {
-          field
-          message
-        }
-        fields {
-          header
-          value
-        }
-        row
-        state
-      }
-      id
-      name
-      filename
-      state {
-        name
-        state
-      }
-      status
+      ...IngestSheetParts
     }
   }
+  ${IngestSheet.fragments.parts}
 `;
 
 export const INGEST_SHEET_SUBSCRIPTION = gql`
   subscription SubscribeToIngestSheet($ingestSheetId: ID!) {
     ingestSheetUpdate(sheetId: $ingestSheetId) {
-      fileErrors
-      ingestSheetRows {
-        errors {
-          field
-          message
-        }
-        fields {
-          header
-          value
-        }
-        row
-        state
-      }
-      id
-      name
-      filename
-      state {
-        name
-        state
-      }
-      status
+      ...IngestSheetParts
     }
   }
+  ${IngestSheet.fragments.parts}
 `;
 
-export const SUBSCRIBE_TO_INGEST_SHEET_STATE = gql`
-  subscription IngestSheetStatusUpdate($ingestSheetId: String!) {
-    ingestSheetUpdate(sheetId: $ingestSheetId) {
-      id
-      state {
-        name
-        state
-      }
-    }
-  }
-`;
-
+//TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
   subscription IngestSheetRowUpdate($ingestSheetId: String!) {
     ingestSheetRowUpdate(sheetId: $ingestSheetId) {
@@ -198,6 +178,7 @@ export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
   }
 `;
 
+// TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_ERRORS = gql`
   subscription IngestSheetRowErrors($ingestSheetId: String!) {
     ingestSheetRowStateUpdate(sheetId: $ingestSheetId, state: FAIL) {

@@ -99,11 +99,6 @@ const ScreensIngestSheet = ({ match }) => {
               document: INGEST_SHEET_SUBSCRIPTION,
               variables: { ingestSheetId },
               updateQuery: (prev, { subscriptionData }) => {
-                console.log(
-                  "TCL: ScreensIngestSheet -> subscriptionData",
-                  subscriptionData
-                );
-                console.log("TCL: ScreensIngestSheet -> prev", prev);
                 if (!subscriptionData.data) return prev;
                 const updatedSheet = subscriptionData.data.ingestSheetUpdate;
                 return { ingestSheet: { ...updatedSheet } };

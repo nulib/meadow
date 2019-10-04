@@ -30,19 +30,6 @@ const IngestSheet = ({
   subscribeToIngestSheetUpdates
 }) => {
   const { id, status } = ingestSheetData;
-  console.log("TCL: ingestSheetData", ingestSheetData);
-  console.log("TCL: status", status);
-
-  const {
-    data: stateData,
-    loading: stateLoading,
-    error: stateError,
-    subscribeToMore: stateSubscribeToMore
-  } = useQuery(GET_INGEST_SHEET_STATE, {
-    variables: { ingestSheetId: id },
-    fetchPolicy: "network-only"
-  });
-  console.log("TCL: stateData", stateData);
 
   const {
     data: progressData,
@@ -53,16 +40,13 @@ const IngestSheet = ({
     variables: { ingestSheetId: id },
     fetchPolicy: "network-only"
   });
-  console.log("TCL: progressData", progressData);
 
   useEffect(() => {
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (stateLoading || progressLoading) return <Loading />;
-  if (stateError || progressError) {
-    return <Error error={stateError ? stateError : progressError} />;
-  }
+  if (progressLoading) return <Loading />;
+  if (progressError) return <Error error={progressError} />;
 
   return (
     <>
@@ -76,10 +60,9 @@ const IngestSheet = ({
 
       <IngestSheetValidations
         ingestSheetId={id}
+        status={status}
         initialProgress={progressData.ingestSheetProgress}
-        initialStatus={stateData.ingestSheet.state}
         subscribeToIngestSheetProgress={progressSubscribeToMore}
-        subscribeToIngestSheetState={stateSubscribeToMore}
       />
     </>
   );

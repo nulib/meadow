@@ -3,21 +3,16 @@ import PropTypes from "prop-types";
 import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
-import {
-  SUBSCRIBE_TO_INGEST_SHEET_STATE,
-  SUBSCRIBE_TO_INGEST_SHEET_PROGRESS
-} from "./ingestSheet.query";
+import { SUBSCRIBE_TO_INGEST_SHEET_PROGRESS } from "./ingestSheet.query";
 import { withRouter } from "react-router-dom";
 
 function IngestSheetValidations({
   ingestSheetId,
   initialProgress,
-  initialStatus,
   subscribeToIngestSheetProgress,
-  subscribeToIngestSheetState
+  status
 }) {
   const [progress, setProgress] = useState({ states: [] });
-  const [status, setStatus] = useState([]);
 
   useEffect(() => {
     setProgress(initialProgress);
@@ -25,13 +20,6 @@ function IngestSheetValidations({
       document: SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
       variables: { ingestSheetId },
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 })
-    });
-
-    setStatus(initialStatus);
-    subscribeToIngestSheetState({
-      document: SUBSCRIBE_TO_INGEST_SHEET_STATE,
-      variables: { ingestSheetId },
-      updateQuery: handleStatusUpdate
     });
   }, []);
 
@@ -43,18 +31,8 @@ function IngestSheetValidations({
     return { ingestSheetProgress: progress };
   };
 
-  const handleStatusUpdate = (prev, { subscriptionData }) => {
-    if (!subscriptionData.data) return prev;
-
-    const status = subscriptionData.data.ingestSheetUpdate.state;
-    setStatus(status);
-    return { ingestSheet: subscriptionData.data.ingestSheetUpdate };
-  };
-
   const isFinished = () => {
-    return status.find(
-      ({ name, state }) => name == "overall" && state != "PENDING"
-    );
+    return status !== "UPLOADED";
   };
 
   const showProgressBar = () => {
@@ -75,7 +53,7 @@ function IngestSheetValidations({
         <>
           <IngestSheetReport
             progress={progress}
-            sheetState={status}
+            status={status}
             ingestSheetId={ingestSheetId}
           />
         </>
@@ -97,8 +75,16 @@ function IngestSheetValidations({
 
 IngestSheetValidations.propTypes = {
   ingestSheetId: PropTypes.string.isRequired,
-  initialProgress: PropTypes.object.isRequired,
-  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired
+  status: PropTypes.oneOf([
+    "APPROVED",
+    "COMPLETED",
+    "DELETED",
+    "FILE_FAIL",
+    "ROW_FAIL",
+    "UPLOADED",
+    "VALID"
+  ]),
+  initialProgress: PropTypes.object.isRequired
 };
 
 export default withRouter(IngestSheetValidations);
