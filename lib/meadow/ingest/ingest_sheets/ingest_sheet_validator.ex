@@ -2,13 +2,15 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   @moduledoc """
   Validates an Ingest Sheet
   """
+
+  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
   alias Meadow.Repo
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
-  @headers ~w(accession_number description filename role work_accession_number)
+  use Meadow.Constants
 
   def async(sheet_id) do
     case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
@@ -105,12 +107,12 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_headers(sheet, headers) do
     case headers do
-      @headers ->
+      @ingest_sheet_headers ->
         {:ok, sheet}
 
       _ ->
-        missing = check_missing_headers(@headers -- headers)
-        invalid = check_invalid_headers(headers -- @headers)
+        missing = check_missing_headers(@ingest_sheet_headers -- headers)
+        invalid = check_invalid_headers(headers -- @ingest_sheet_headers)
         errors = missing ++ invalid
         add_file_errors(sheet, errors)
 
@@ -179,6 +181,37 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_value({field_name, value}) when byte_size(value) == 0,
     do: {:error, field_name, "#{field_name} cannot be blank"}
+
+  defp validate_value({"role", value}) do
+    case Enum.member?(@file_set_roles, value) do
+      true ->
+        :ok
+
+      false ->
+        {:error, "role", "role: #{value} is invalid"}
+    end
+  end
+
+  defp validate_value({"accession_number", value}) do
+    case FileSets.accession_exists?(value) do
+      true ->
+        {:error, "accession_number", "accession_number #{value} already exists in system"}
+
+      false ->
+        :ok
+    end
+  end
+
+  defp validate_value({"work_accession_number", value}) do
+    case Works.accession_exists?(value) do
+      true ->
+        {:error, "work_accession_number",
+         "work_accession_number #{value} already exists in system"}
+
+      false ->
+        :ok
+    end
+  end
 
   defp validate_value({"filename", value}) do
     response =

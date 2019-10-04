@@ -86,6 +86,16 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Check if accession number already exists in system
+
+  iex> accession_exists?("123")
+  true
+  """
+  def accession_exists?(accession_number) do
+    Repo.exists?(from w in Work, where: w.accession_number == ^accession_number)
+  end
+
+  @doc """
   Creates a work.
 
   ## Examples

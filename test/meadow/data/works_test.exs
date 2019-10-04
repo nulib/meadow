@@ -42,5 +42,11 @@ defmodule Meadow.Data.WorksTest do
       work = work_fixture()
       assert %Work{} = Works.get_work!(work.id)
     end
+
+    test "accession_exists?/1 returns true if accession is already taken" do
+      work = work_fixture()
+
+      assert Works.accession_exists?(work.accession_number) == true
+    end
   end
 end

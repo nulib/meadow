@@ -25,8 +25,9 @@ defmodule Meadow.Data.FileSets.FileSet do
     file_set
     |> cast(params, [:accession_number, :work_id, :role])
     |> cast_embed(:metadata)
-    |> validate_required([:accession_number, :role])
+    |> validate_required([:accession_number, :role, :metadata])
     |> assoc_constraint(:work)
+    |> unsafe_validate_unique([:accession_number], Meadow.Repo)
     |> unique_constraint(:accession_number)
     |> validate_inclusion(:role, @file_set_roles)
   end
