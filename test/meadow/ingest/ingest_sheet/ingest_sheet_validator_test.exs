@@ -102,7 +102,31 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidatorTest do
         "Could not load ingest sheet from S3"
       ]
     )
+  end
 
-    assert(ingest_sheet.status == "file_fail")
+  @tag sheet: "ingest_sheet_incorrect_role.csv"
+  test "fails when ingest sheet has invalid content for role", context do
+    assert(IngestSheetValidator.result(context.sheet.id) == "fail")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_duplicate_accession.csv"
+  test "fails with duplicate accession_number", context do
+    file_set_fixture(%{accession_number: "6777"})
+    assert(IngestSheetValidator.result(context.sheet.id) == "fail")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_duplicate_work_accession.csv"
+  test "fails with duplicate work_accession_number", context do
+    work_fixture(%{accession_number: "6779"})
+    assert(IngestSheetValidator.result(context.sheet.id) == "fail")
+    ingest_sheet = IngestSheetValidator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
   end
 end

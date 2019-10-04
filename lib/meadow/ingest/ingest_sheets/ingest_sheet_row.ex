@@ -47,6 +47,16 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
     |> cast(attrs, [:header, :value])
   end
 
+  def field_value(row, field_name) when is_binary(field_name) do
+    case row.fields
+         |> Enum.find(fn field -> field.header == field_name end) do
+      nil -> nil
+      field -> field.value
+    end
+  end
+
+  def field_value(row, field_name), do: field_value(row, to_string(field_name))
+
   def state_changeset(ingest_sheet_row, attrs) do
     ingest_sheet_row
     |> cast(attrs, [:state])

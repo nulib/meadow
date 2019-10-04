@@ -45,5 +45,11 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
       assert FileSets.get_file_set_by_accession_number!(file_set.accession_number) == file_set
     end
+
+    test "accession_exists?/1 returns true if accession is already taken" do
+      file_set = file_set_fixture()
+
+      assert FileSets.accession_exists?(file_set.accession_number) == true
+    end
   end
 end
