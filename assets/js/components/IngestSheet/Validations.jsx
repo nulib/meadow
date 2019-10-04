@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import ReactRouterPropTypes from "react-router-prop-types";
-
 import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
@@ -9,24 +7,17 @@ import {
   SUBSCRIBE_TO_INGEST_SHEET_STATE,
   SUBSCRIBE_TO_INGEST_SHEET_PROGRESS
 } from "./ingestSheet.query";
-import UIAlert from "../UI/Alert";
-import ButtonGroup from "../UI/ButtonGroup";
-import UIButton from "../UI/Button";
-import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 import { withRouter } from "react-router-dom";
 
 function IngestSheetValidations({
   ingestSheetId,
   initialProgress,
   initialStatus,
-  match,
-  history,
   subscribeToIngestSheetProgress,
-  subscribeToIngestSheetStatus
+  subscribeToIngestSheetState
 }) {
   const [progress, setProgress] = useState({ states: [] });
   const [status, setStatus] = useState([]);
-  const [displayRowChecks, setDisplayRowChecks] = useState(false);
 
   useEffect(() => {
     setProgress(initialProgress);
@@ -37,7 +28,7 @@ function IngestSheetValidations({
     });
 
     setStatus(initialStatus);
-    subscribeToIngestSheetStatus({
+    subscribeToIngestSheetState({
       document: SUBSCRIBE_TO_INGEST_SHEET_STATE,
       variables: { ingestSheetId },
       updateQuery: handleStatusUpdate
@@ -66,13 +57,6 @@ function IngestSheetValidations({
     );
   };
 
-  const isFinishedAndErrors = () => {
-    return (
-      isFinished() &&
-      status.find(({ name, state }) => name === "overall" && state === "FAIL")
-    );
-  };
-
   const showProgressBar = () => {
     if (isFinished()) {
       return null;
@@ -84,90 +68,6 @@ function IngestSheetValidations({
       />
     );
   };
-
-  const showAlert = () => {
-    if (isFinished()) {
-      const failedChecks = status.filter(
-        statusObj => statusObj.state === "FAIL"
-      );
-
-      if (failedChecks.length > 0) {
-        const AlertBody = (
-          <>
-            {failedChecks.map(obj => (
-              <p key={obj.name}>
-                {obj.name}: {obj.state}
-              </p>
-            ))}
-          </>
-        );
-
-        return (
-          <UIAlert
-            type="danger"
-            title="The following Ingest Sheet validations failed:"
-            body={AlertBody}
-          />
-        );
-      }
-      return (
-        <UIAlert
-          type="success"
-          title="Validation success"
-          body="All checks on the ingest sheet were successful"
-        />
-      );
-    }
-    return null;
-  };
-
-  const showChecksTable = () => (
-    <div className="mb-12 pt-8">
-      <button
-        className="btn btn-clear"
-        onClick={() => setDisplayRowChecks(!displayRowChecks)}
-      >
-        {displayRowChecks ? "Hide" : "Show"} row check details
-      </button>
-
-      {displayRowChecks && (
-        <>
-          <table className="mt-4">
-            <thead>
-              <tr>
-                {status.map(({ name }) => (
-                  <th key={name}>{name}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {status.map(({ state, name }) => {
-                  let colorClass = "";
-
-                  if (state === "PASS") {
-                    colorClass = "bg-green-400";
-                  } else if (state === "FAIL") {
-                    colorClass = "bg-red-400";
-                  }
-
-                  return (
-                    <td key={name} className={`${colorClass} text-white`}>
-                      {name !== "rows"
-                        ? state
-                        : progress.states.map(
-                            ({ state, count }) => `${state} (${count}) `
-                          )}
-                    </td>
-                  );
-                })}
-              </tr>
-            </tbody>
-          </table>
-        </>
-      )}
-    </div>
-  );
 
   const showReport = () => {
     if (isFinished()) {
@@ -185,39 +85,11 @@ function IngestSheetValidations({
     }
   };
 
-  const showUserButtons = () => {
-    if (isFinishedAndErrors()) {
-      return (
-        <ButtonGroup>
-          <UIButton classes="btn-danger" onClick={onOpenModal}>
-            Delete sheet and re-upload ingest sheet
-          </UIButton>
-        </ButtonGroup>
-      );
-    }
-    if (isFinished()) {
-      return (
-        <ButtonGroup>
-          <UIButton>
-            <CheckMarkIcon className="icon" />
-            Approve ingest sheet
-          </UIButton>
-          <UIButton classes="btn-clear" onClick={onOpenModal}>
-            Delete sheet and re-upload ingest sheet
-          </UIButton>
-        </ButtonGroup>
-      );
-    }
-  };
-
   return (
     <>
       <section>
         {showProgressBar()}
-        {showAlert()}
-        {showChecksTable()}
         {showReport()}
-        {showUserButtons()}
       </section>
     </>
   );
@@ -226,9 +98,7 @@ function IngestSheetValidations({
 IngestSheetValidations.propTypes = {
   ingestSheetId: PropTypes.string.isRequired,
   initialProgress: PropTypes.object.isRequired,
-  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired,
-  match: ReactRouterPropTypes.match,
-  history: ReactRouterPropTypes.history
+  initialStatus: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default withRouter(IngestSheetValidations);

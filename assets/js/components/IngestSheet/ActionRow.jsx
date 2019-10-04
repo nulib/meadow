@@ -41,7 +41,7 @@ const IngestSheetActionRow = ({
   };
 
   return (
-    <>
+    <div className="my-12">
       <ButtonGroup>
         {showApproveButton && (
           <UIButton>
@@ -63,7 +63,7 @@ const IngestSheetActionRow = ({
         handleConfirm={handleDeleteClick}
         thingToDeleteLabel={`Ingest Sheet`}
       />
-    </>
+    </div>
   );
 };
 

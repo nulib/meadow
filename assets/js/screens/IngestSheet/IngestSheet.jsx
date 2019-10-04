@@ -105,13 +105,8 @@ const ScreensIngestSheet = ({ match }) => {
                 );
                 console.log("TCL: ScreensIngestSheet -> prev", prev);
                 if (!subscriptionData.data) return prev;
-                const updatedSheet = subscriptionData.data.ingestSheet;
-
-                // Note we'll have to see how this really works... it happens so fast now, that this code block
-                // isn't running.  It might have to be a 5000 row Ingest Sheet or something...
-                return Object.assign({}, prev, {
-                  updatedSheet
-                });
+                const updatedSheet = subscriptionData.data.ingestSheetUpdate;
+                return { ingestSheet: { ...updatedSheet } };
               }
             })
           }

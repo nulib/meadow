@@ -50,18 +50,11 @@ export const GET_INGEST_SHEETS = gql`
 export const GET_INGEST_SHEET_STATE = gql`
   query IngestSheetState($ingestSheetId: String!) {
     ingestSheet(id: $ingestSheetId) {
+      id
       state {
         name
         state
       }
-    }
-  }
-`;
-
-export const GET_INGEST_SHEET_STATUS = gql`
-  query IngestSheetStatus($ingestSheetId: String!) {
-    ingestSheet(id: $ingestSheetId) {
-      status
     }
   }
 `;
@@ -151,9 +144,27 @@ export const INGEST_SHEET_QUERY = gql`
 export const INGEST_SHEET_SUBSCRIPTION = gql`
   subscription SubscribeToIngestSheet($ingestSheetId: ID!) {
     ingestSheetUpdate(sheetId: $ingestSheetId) {
+      fileErrors
+      ingestSheetRows {
+        errors {
+          field
+          message
+        }
+        fields {
+          header
+          value
+        }
+        row
+        state
+      }
       id
-      status
       name
+      filename
+      state {
+        name
+        state
+      }
+      status
     }
   }
 `;
@@ -161,6 +172,7 @@ export const INGEST_SHEET_SUBSCRIPTION = gql`
 export const SUBSCRIBE_TO_INGEST_SHEET_STATE = gql`
   subscription IngestSheetStatusUpdate($ingestSheetId: String!) {
     ingestSheetUpdate(sheetId: $ingestSheetId) {
+      id
       state {
         name
         state
