@@ -67,16 +67,23 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
   end
 
-  defp load_file(sheet) do
+  @max_attempts 5
+  defp load_file(sheet, attempt \\ 1) do
     "/" <> filename = URI.parse(sheet.filename).path
 
     case Application.get_env(:meadow, :upload_bucket)
          |> ExAws.S3.get_object(filename)
          |> ExAws.request() do
       {:error, _} ->
-        add_file_errors(sheet, ["Could not load ingest sheet from S3"])
+        case attempt do
+          @max_attempts ->
+            add_file_errors(sheet, ["Could not load ingest sheet from S3"])
+            {:error, sheet}
 
-        {:error, sheet}
+          i ->
+            :timer.sleep(1000)
+            load_file(sheet, i + 1)
+        end
 
       {:ok, obj} ->
         load_rows(sheet, obj.body)
