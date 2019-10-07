@@ -3,12 +3,28 @@ defmodule Meadow.ReleaseTasks do
   Release tasks for Meadow
   """
   @app :meadow
+  alias Ecto.Adapters.SQL
 
   def migrate do
     for repo <- repos() do
       create_storage_for(repo)
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
+  end
+
+  def reset! do
+    for repo <- repos() do
+      SQL.query!(
+        repo,
+        "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'"
+      )
+      |> Map.get(:rows)
+      |> Enum.each(fn [_, table, _, _, _, _, _, _] ->
+        SQL.query!(repo, "DROP TABLE #{table} CASCADE")
+      end)
+    end
+
+    migrate()
   end
 
   defp create_storage_for(repo) do
