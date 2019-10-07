@@ -8,7 +8,9 @@ import { useQuery } from "@apollo/react-hooks";
 import { GET_PRESIGNED_URL } from "./ingestSheet.query.js";
 
 const IngestSheetForm = ({ history, projectId }) => {
-  const { loading, error, data } = useQuery(GET_PRESIGNED_URL);
+  const { loading, error, data } = useQuery(GET_PRESIGNED_URL, {
+    fetchPolicy: "no-cache"
+  });
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
