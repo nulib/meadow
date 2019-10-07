@@ -84,6 +84,12 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
   end
 
+  def validate_ingest_sheet(_, args, _) do
+    {response, pid} = args[:ingest_sheet_id] |> IngestSheetValidator.async()
+    pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
+    {:ok, %{message: to_string(response) <> " : " <> pid_string}}
+  end
+
   def create_ingest_sheet(_, args, _) do
     case IngestSheets.create_ingest_sheet(args) do
       {:error, changeset} ->
@@ -92,7 +98,6 @@ defmodule MeadowWeb.Resolvers.Ingest do
          details: ChangesetErrors.error_details(changeset)}
 
       {:ok, ingest_sheet} ->
-        {_response, _pid} = ingest_sheet.id |> IngestSheetValidator.async()
         {:ok, ingest_sheet}
     end
   end
