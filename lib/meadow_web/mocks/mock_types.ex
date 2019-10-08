@@ -84,67 +84,60 @@ defmodule MeadowWeb.Schema.MockTypes do
 
   @errors_db %{
     "foo" => %{
-      works: [
+      file_sets: [
         %{
-          work_accession_number: "01DP6073MBNW6K85GS9J805DLL",
-          errors: ["Duplicate Work Accession Number"],
-          file_sets: [
-            %{
-              row_number: 1,
-              accession_number: "Something_Else_003_001",
-              role: "am",
-              description: "Mauris pellentesque sodales",
-              filename: "s3://the/path/to/the/file.tif",
-              errors: []
-            },
-            %{
-              row_number: 2,
-              accession_number: "Something_Else_003_002",
-              role: "am",
-              description: "Mauris pellentesque sodales",
-              filename: "s3://the/path/to/the/file.tif",
-              errors: ["Couldn't find file: s3://the/path/to/the/file.tif"]
-            }
-          ]
+          row_number: 1,
+          accession_number: "Something_Else_003_001",
+          work_accession_number: "Something_Else_003",
+          role: "am",
+          description: "Mauris pellentesque sodales",
+          filename: "s3://the/path/to/the/file.tif",
+          errors: ["Duplicate accession number"]
         },
         %{
-          work_accession_number: "01DP6073MBNW6K85GS9J805DMM",
-          errors: [],
-          file_sets: [
-            %{
-              row_number: 8,
-              accession_number: "Something_Else_004_001",
-              role: "am",
-              description: "Mauris pellentesque sodales",
-              filename: "s3://the/path/to/the/file.tif",
-              errors: ["Problem creating pyramidal tif"]
-            },
-            %{
-              row_number: 9,
-              accession_number: "Something_Else_004_002",
-              role: "am",
-              description: "Mauris pellentesque sodales",
-              filename: "s3://the/path/to/the/file.tif",
-              errors: ["Error moving file to preservation storage"]
-            },
-            %{
-              row_number: 10,
-              accession_number: "Something_Else_004_002",
-              role: "am",
-              description: "Mauris pellentesque sodales",
-              filename: "s3://the/path/to/the/file.tif",
-              errors: []
-            }
-          ]
+          row_number: 2,
+          accession_number: "Something_Else_003_002",
+          work_accession_number: "Something_Else_003",
+          role: "am",
+          description: "Mauris pellentesque sodales",
+          filename: "s3://the/path/to/the/file.tif",
+          errors: ["Couldn't find file: s3://the/path/to/the/file.tif"]
+        },
+        %{
+          row_number: 8,
+          accession_number: "Something_Else_004_001",
+          work_accession_number: "Something_Else_004",
+          role: "am",
+          description: "Mauris pellentesque sodales",
+          filename: "s3://the/path/to/the/file.tif",
+          errors: ["Problem creating pyramidal tif", "Duplicate work accession number"]
+        },
+        %{
+          row_number: 9,
+          accession_number: "Something_Else_004_002",
+          work_accession_number: "Something_Else_004",
+          role: "am",
+          description: "Mauris pellentesque sodales",
+          filename: "s3://the/path/to/the/file.tif",
+          errors: ["Error moving file to preservation storage", "Duplicate work accession number"]
+        },
+        %{
+          row_number: 10,
+          accession_number: "Something_Else_004_002",
+          work_accession_number: "Something_Else_004",
+          role: "am",
+          description: "Mauris pellentesque sodales",
+          filename: "s3://the/path/to/the/file.tif",
+          errors: ["Duplicate accession number", "Duplicate work accession number"]
         }
       ]
     }
   }
 
   object :mock_queries do
-    @desc "`MOCK` for getting completed works along with an IngestSheet"
+    @desc "`MOCK` for getting (successfully) created works for a completed IngestSheet"
     field :mock_ingest_sheet, list_of(:mock_ingest_sheet) do
-      @desc "The ID of `IngestSheet`"
+      @desc "The ID of `IngestSheet` (can be anything)"
       arg(:id, type: non_null(:id))
       middleware(Middleware.Authenticate)
 
@@ -155,7 +148,7 @@ defmodule MeadowWeb.Schema.MockTypes do
 
     @desc "`MOCK` for getting errors for completed ingest sheet"
     field :mock_ingest_sheet_errors, :mock_ingest_sheet_errors do
-      @desc "The ID of `IngestSheet`"
+      @desc "The ID of `IngestSheet` (can be anything)"
       arg(:id, type: non_null(:id))
       middleware(Middleware.Authenticate)
 
@@ -209,22 +202,16 @@ defmodule MeadowWeb.Schema.MockTypes do
     field :file_sets, list_of(:mock_file_set)
   end
 
-  @desc "MOCK work errors"
+  @desc "MOCK ingest errors for each row (file_set)"
   object :mock_ingest_sheet_errors do
-    field :works, list_of(:mock_work_errors)
-  end
-
-  @desc "MOCK errors object"
-  object :mock_work_errors do
-    field :work_accession_number, non_null(:string)
-    field :errors, list_of(:string)
     field :file_sets, list_of(:mock_row_errors)
   end
 
-  @desc "MOCK work errors"
+  @desc "MOCK file_set (row) errors"
   object :mock_row_errors do
     field :row_number, :integer
     field :accession_number, :string
+    field :work_accession_number, :string
     field :role, :string
     field :description, :string
     field :filename, :string
