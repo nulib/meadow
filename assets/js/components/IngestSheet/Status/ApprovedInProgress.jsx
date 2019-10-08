@@ -1,28 +1,10 @@
 import React from "react";
-import UIAlert from "../../UI/Alert";
 import UIProgressBar from "../../UI/UIProgressBar";
-import { withRouter, Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const IngestSheetStatusApprovedInProgress = ({ match }) => {
-  const {
-    params: { id, ingestSheetId }
-  } = match;
-
+const IngestSheetStatusApprovedInProgress = ({ ingestSheet }) => {
   return (
     <section>
-      <div className="p-4 bg-yellow-100 text-sm">
-        <Link to={`/project/${id}/ingest-sheet/${ingestSheetId}`}>Go Back</Link>
-      </div>
-      <h2>Ingest Sheet - Approved In Progress</h2>
-      <p>
-        Guessing once the use hits approve, could the API expose an "approved"
-        flag the front-end can reference?{" "}
-      </p>
-      <UIAlert
-        type="success"
-        body="Ingest sheet has been approved and skeleton works are being created"
-        title="Ingest sheet approved"
-      />
       <div className="pt-12">
         <UIProgressBar percentComplete={50} label="works being created" />
       </div>
@@ -35,4 +17,8 @@ const IngestSheetStatusApprovedInProgress = ({ match }) => {
   );
 };
 
-export default withRouter(IngestSheetStatusApprovedInProgress);
+IngestSheetStatusApprovedInProgress.propTypes = {
+  ingestSheet: PropTypes.object
+};
+
+export default IngestSheetStatusApprovedInProgress;

@@ -3,7 +3,10 @@ import ButtonGroup from "../UI/ButtonGroup";
 import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 import UIModalDelete from "../UI/Modal/Delete";
-import { DELETE_INGEST_SHEET } from "./ingestSheet.query";
+import {
+  DELETE_INGEST_SHEET,
+  MOCK_APPROVE_INGEST_SHEET
+} from "./ingestSheet.query";
 import { useMutation } from "@apollo/react-hooks";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
@@ -26,7 +29,16 @@ const IngestSheetActionRow = ({
       }
     }
   );
+  const [
+    approveIngestSheet,
+    { loading: approveLoading, error: approveError }
+  ] = useMutation(MOCK_APPROVE_INGEST_SHEET);
+
   const showApproveButton = status === "VALID";
+
+  const handleApproveClick = () => {
+    approveIngestSheet({ variables: { id: ingestSheetId } });
+  };
 
   const handleDeleteClick = () => {
     deleteIngestSheet({ variables: { ingestSheetId: ingestSheetId } });
@@ -44,7 +56,7 @@ const IngestSheetActionRow = ({
     <div className="my-12">
       <ButtonGroup>
         {showApproveButton && (
-          <UIButton>
+          <UIButton onClick={handleApproveClick}>
             <CheckMarkIcon className="icon" />
             Approve ingest sheet
           </UIButton>
@@ -56,6 +68,9 @@ const IngestSheetActionRow = ({
           Delete ingest sheet / job and start over
         </UIButton>
       </ButtonGroup>
+
+      {approveLoading && <p>Approval loading...</p>}
+      {approveError && <p>Error : (please try again)</p>}
 
       <UIModalDelete
         isOpen={deleteModalOpen}

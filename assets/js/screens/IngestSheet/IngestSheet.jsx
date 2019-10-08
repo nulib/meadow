@@ -77,23 +77,6 @@ const ScreensIngestSheet = ({ match }) => {
         breadCrumbs={createCrumbs()}
       />
       <ScreenContent>
-        <div className="p-4 bg-yellow-100 text-sm">
-          <p className="text-gray-600">
-            Temporary subnavigation for further Ingest Sheet status
-          </p>
-          <Link
-            to={`/project/${id}/ingest-sheet/${ingestSheetId}/approved-in-progress`}
-          >
-            Approved: building works
-          </Link>
-          <Link
-            to={`/project/${id}/ingest-sheet/${ingestSheetId}/approved`}
-            className="pl-4"
-          >
-            Approved: works created
-          </Link>
-        </div>
-
         <IngestSheet
           ingestSheetData={sheetData.ingestSheet}
           projectId={id}

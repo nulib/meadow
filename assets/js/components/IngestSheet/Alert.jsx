@@ -13,14 +13,15 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "info",
         title: "Approved",
-        body: "The Ingest Sheet has been approved and the ingest is in progress"
+        body:
+          "The Ingest Sheet has been approved and the ingest is in progress."
       };
       break;
     case "COMPLETED":
       alertObj = {
         type: "success",
         title: "Ingestion Complete",
-        body: "All files have been processed"
+        body: "All files have been processed."
       };
       break;
     case "DELETED":
@@ -28,7 +29,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "danger",
         title: "Deleted",
-        body: "Ingest sheet no longer exists"
+        body: "Ingest sheet no longer exists."
       };
       break;
     case "FILE_FAIL":
@@ -44,14 +45,14 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "danger",
         title: "File has failing rows",
-        body: ""
+        body: "See the error report below for details."
       };
       break;
     case "UPLOADED":
       alertObj = {
         type: "info",
         title: "File uploaded",
-        body: "Ingest sheet validation is in progress"
+        body: "Ingest sheet validation is in progress."
       };
       break;
     case "VALID":
