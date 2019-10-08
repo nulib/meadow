@@ -225,3 +225,11 @@ export const MOCK_APPROVE_INGEST_SHEET = gql`
     }
   }
 `;
+
+export const MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION = gql`
+  subscription MockWorksCreatedCount($sheetId: ID!) {
+    mockWorksCreatedCount(sheetId: $sheetId) {
+      count
+    }
+  }
+`;
