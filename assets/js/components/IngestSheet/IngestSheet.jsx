@@ -3,13 +3,11 @@ import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetValidations from "./Validations";
-import {
-  GET_INGEST_SHEET_STATE,
-  GET_INGEST_SHEET_PROGRESS
-} from "./ingestSheet.query";
+import { GET_INGEST_SHEET_PROGRESS } from "./ingestSheet.query";
 import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
 import IngestSheetActionRow from "./ActionRow";
+import ApprovedInProgress from "./Status/ApprovedInProgress";
 
 /**
  * The following are possible status values for an Ingest Sheet)
@@ -52,18 +50,25 @@ const IngestSheet = ({
     <>
       <IngestSheetAlert ingestSheet={ingestSheetData} />
 
-      <IngestSheetActionRow
-        ingestSheetId={id}
-        projectId={projectId}
-        status={status}
-      />
+      {["APPROVED"].indexOf(status) > -1 && (
+        <ApprovedInProgress ingestSheet={ingestSheetData} />
+      )}
 
-      <IngestSheetValidations
-        ingestSheetId={id}
-        status={status}
-        initialProgress={progressData.ingestSheetProgress}
-        subscribeToIngestSheetProgress={progressSubscribeToMore}
-      />
+      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
+        <>
+          <IngestSheetActionRow
+            ingestSheetId={id}
+            projectId={projectId}
+            status={status}
+          />
+          <IngestSheetValidations
+            ingestSheetId={id}
+            status={status}
+            initialProgress={progressData.ingestSheetProgress}
+            subscribeToIngestSheetProgress={progressSubscribeToMore}
+          />
+        </>
+      )}
     </>
   );
 };

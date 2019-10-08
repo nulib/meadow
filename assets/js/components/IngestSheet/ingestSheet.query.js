@@ -215,3 +215,13 @@ export const SUBSCRIBE_TO_INGEST_SHEET_PROGRESS = gql`
     }
   }
 `;
+
+export const MOCK_APPROVE_INGEST_SHEET = gql`
+  mutation MockApproveIngestSheet($id: ID!) {
+    mockApproveIngestSheet(id: $id) {
+      id
+      status
+      updatedAt
+    }
+  }
+`;

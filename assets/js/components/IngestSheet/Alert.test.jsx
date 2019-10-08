@@ -164,7 +164,7 @@ it("displays info alert with approved message when the Ingest Sheet status is AP
   expect(getByText("Approved")).toBeInTheDocument();
   expect(
     getByText(
-      "The Ingest Sheet has been approved and the ingest is in progress"
+      "The Ingest Sheet has been approved and the ingest is in progress."
     )
   ).toBeInTheDocument();
 });
@@ -206,7 +206,7 @@ it("displays success alert with completed message when the Ingest Sheet status i
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("success");
   expect(getByText("Ingestion Complete")).toBeInTheDocument();
-  expect(getByText("All files have been processed")).toBeInTheDocument();
+  expect(getByText("All files have been processed.")).toBeInTheDocument();
 });
 
 const deleted = {
@@ -246,5 +246,5 @@ it("displays success alert with completed message when the Ingest Sheet status i
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("danger");
   expect(getByText("Deleted")).toBeInTheDocument();
-  expect(getByText("Ingest sheet no longer exists")).toBeInTheDocument();
+  expect(getByText("Ingest sheet no longer exists.")).toBeInTheDocument();
 });
