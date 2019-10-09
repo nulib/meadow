@@ -25,14 +25,15 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
     |> validate_required([:object_id, :action, :outcome])
   end
 
-  defp cast_action(change, action) do
-    value =
-      cond do
-        is_binary(action) -> action
-        is_atom(action) && Code.ensure_loaded?(action) -> Module.split(action) |> Enum.join(".")
-        true -> inspect(action)
-      end
+  def action_to_string(action) do
+    cond do
+      is_binary(action) -> action
+      is_atom(action) && Code.ensure_loaded?(action) -> Module.split(action) |> Enum.join(".")
+      true -> inspect(action)
+    end
+  end
 
-    Ecto.Changeset.change(change, %{action: value})
+  defp cast_action(change, action) do
+    Ecto.Changeset.change(change, %{action: action_to_string(action)})
   end
 end

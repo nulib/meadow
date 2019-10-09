@@ -16,7 +16,15 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
   use Action
   require Logger
 
-  def process(data, attributes) do
+  def process(data, attrs),
+    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+
+  defp process(%{file_set_id: file_set_id}, _, true) do
+    Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
+    :noop
+  end
+
+  defp process(data, attributes, _) do
     AuditEntries.add_entry!(data.file_set_id, __MODULE__, "started")
     file_set = FileSets.get_file_set!(data.file_set_id)
 

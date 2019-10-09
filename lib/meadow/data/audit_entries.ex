@@ -7,13 +7,38 @@ defmodule Meadow.Data.AuditEntries do
   alias Meadow.Data.AuditEntries.AuditEntry
   alias Meadow.Repo
 
-  def latest_outcome_for(object_id), do: get_latest_entry_for(object_id).outcome
+  def latest_outcome_for(object_id) do
+    case get_latest_entry_for(object_id) do
+      %AuditEntry{outcome: outcome} -> outcome
+      _ -> nil
+    end
+  end
+
   def error?(object_id), do: latest_outcome_for(object_id) == "error"
   def ok?(object_id), do: latest_outcome_for(object_id) == "ok"
 
+  def latest_outcome_for(object_id, action) do
+    case get_latest_entry_for(object_id, action) do
+      %AuditEntry{outcome: outcome} -> outcome
+      _ -> nil
+    end
+  end
+
+  def error?(object_id, action), do: latest_outcome_for(object_id, action) == "error"
+  def ok?(object_id, action), do: latest_outcome_for(object_id, action) == "ok"
+
   def get_latest_entry_for(object_id) do
     from(
+      entries_for(object_id),
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  def get_latest_entry_for(object_id, action) do
+    from(
       a in entries_for(object_id),
+      where: a.action == ^AuditEntry.action_to_string(action),
       limit: 1
     )
     |> Repo.one()
@@ -21,6 +46,14 @@ defmodule Meadow.Data.AuditEntries do
 
   def get_entries_for(object_id) do
     entries_for(object_id)
+    |> Repo.all()
+  end
+
+  def get_entries_for(object_id, action) do
+    from(
+      a in entries_for(object_id),
+      where: a.action == ^AuditEntry.action_to_string(action)
+    )
     |> Repo.all()
   end
 

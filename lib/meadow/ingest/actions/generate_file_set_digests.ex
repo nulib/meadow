@@ -16,9 +16,17 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
 
   @hashes [:sha256]
 
-  def process(data, _attributes) do
-    AuditEntries.add_entry!(data.file_set_id, __MODULE__, "started")
-    file_set = FileSets.get_file_set!(data.file_set_id)
+  def process(data, attrs),
+    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+
+  defp process(%{file_set_id: file_set_id}, _, true) do
+    Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
+    :noop
+  end
+
+  defp process(%{file_set_id: file_set_id}, _attributes, _) do
+    AuditEntries.add_entry!(file_set_id, __MODULE__, "started")
+    file_set = FileSets.get_file_set!(file_set_id)
 
     try do
       Logger.info("Generating digests for #{file_set.id}")
