@@ -69,6 +69,10 @@ td {
   @apply p-2 border-t border-gray-300 text-sm;
 }
 
+table.clear th {
+  @apply bg-transparent text-red-900;
+}
+
 .alert {
   @apply border-t-4 rounded-b px-4 py-3 shadow-md;
 }
