@@ -8,9 +8,9 @@
 
 - Make sure you've done the [Local Authentication Setup](https://github.com/nulib/donut/wiki/Authentication-setup-for-dev-environment)
 - Install yarn if it's not already present: `npm -g install yarn`
-- Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
 - Install dependencies with `mix deps.get`
-- Create and migrate your database with `mix ecto.setup`
+- Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
+- Create SQNS pipeline, S3 buckets, and database with `mix meadow.setup`
 - Install Node.js dependencies with `cd assets && yarn install`
 - Start Phoenix endpoint with `mix phx.server`
 
@@ -20,13 +20,13 @@ Now you can visit [`devbox.library.northwestern.edu`](http://devbox.library.nort
 
 You can simply run the application with `mix phx.server`
 
-After initial setup, you don't need to run `mix ecto.setup` again, but if there are database changes you'll need to run `mix ecto.migrate` before starting the Phoenix server. Or, you can run `mix ecto.reset` which will drop and recreate the database and run the migrations.
+After initial setup, you don't need to run `mix meadow.setup` again, but if there are database changes you'll need to run `mix ecto.migrate` before starting the Phoenix server. Or, you can run `mix ecto.reset` which will drop and recreate the database and run the migrations. If you need to reset the entire development environment, run `devstack down -v` and go back to the last three steps of Initial Setup.
 
 ### Dependencies
 
 You may need to run `mix deps.get` or `mix deps.compile` again if new dependencies have been added
 
-You map need to run `cd assets && yarn install` if new `node` packages have been added
+You may need to run `cd assets && yarn install` if new `node` packages have been added
 
 ### Database
 
