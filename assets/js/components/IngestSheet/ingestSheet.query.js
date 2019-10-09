@@ -256,3 +256,19 @@ export const MOCK_INGEST_SHEET_COMPLETED = gql`
     }
   }
 `;
+
+export const MOCK_INGEST_SHEET_COMPLETED_ERRORS = gql`
+  query MockIngestSheetCompletedErrors($id: ID!) {
+    mockIngestSheetErrors(id: $id) {
+      fileSets {
+        accessionNumber
+        description
+        errors
+        filename
+        role
+        rowNumber
+        workAccessionNumber
+      }
+    }
+  }
+`;
