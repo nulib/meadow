@@ -136,7 +136,7 @@ defmodule MeadowWeb.Schema.MockTypes do
 
   object :mock_queries do
     @desc "`MOCK` for getting (successfully) created works for a completed IngestSheet"
-    field :mock_ingest_sheet, list_of(:mock_ingest_sheet) do
+    field :mock_ingest_sheet, :mock_ingest_sheet do
       @desc "The ID of `IngestSheet` (can be anything)"
       arg(:id, type: non_null(:id))
       middleware(Middleware.Authenticate)
