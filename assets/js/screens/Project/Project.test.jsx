@@ -1,6 +1,9 @@
 import React from "react";
 import ScreensProject from "./Project";
-import { GET_PROJECT } from "../../components/Project/project.query";
+import {
+  GET_PROJECT,
+  INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
+} from "../../components/Project/project.query";
 import { renderWithRouterApollo } from "../../testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
@@ -22,14 +25,36 @@ const mocks = [
           ingestSheets: [
             {
               id: "01DNFK56MEN9H0C4CDBE7TECJT",
-              name: "fffff"
+              name: "fffff",
+              status: "UPLOADED",
+              updatedAt: "2019-10-07T16:16:57"
             },
             {
               id: "01DNFK9XNJ1FWE8GQGSTR3D1NE",
-              name: "not a csv"
+              name: "not a csv",
+              status: "COMPLETED",
+              updatedAt: "2019-10-07T16:16:57"
             }
           ],
           title: MOCK_PROJECT_TITLE
+        }
+      }
+    }
+  },
+  {
+    request: {
+      query: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
+      variables: {
+        projectId: "01DNFK4B8XASXNKBSAKQ6YVNF3"
+      }
+    },
+    result: {
+      data: {
+        ingestSheetUpdatesForProject: {
+          id: "01DNFK56MEN9H0C4CDBE7TECJT",
+          name: "fffff",
+          status: "VALID",
+          updatedAt: "2019-10-07T16:16:57"
         }
       }
     }

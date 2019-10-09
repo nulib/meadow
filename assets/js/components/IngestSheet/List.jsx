@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { useQuery } from "@apollo/react-hooks";
-import Error from "../UI/Error";
-import Loading from "../UI/Loading";
+import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import { toast } from "react-toastify";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
-import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import UIModalDelete from "../UI/Modal/Delete";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 
-const IngestSheetList = ({ projectId }) => {
+const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
-  const { loading, error, data } = useQuery(GET_INGEST_SHEETS, {
-    variables: { projectId }
-  });
+
+  useEffect(() => {
+    subscribeToIngestSheetStatusChanges();
+  }, []);
+
   const client = useApolloClient();
   const [
     deleteIngestSheet,
@@ -49,8 +48,6 @@ const IngestSheetList = ({ projectId }) => {
     }
   });
 
-  if (loading) return <Loading />;
-  if (error) return <Error error={error} />;
   if (deleteIngestSheetError) {
     toast(`Error: ${deleteIngestSheetError.message}`);
   }
@@ -72,13 +69,13 @@ const IngestSheetList = ({ projectId }) => {
 
   return (
     <div>
-      {data.project.ingestSheets.length === 0 && (
+      {project.ingestSheets.length === 0 && (
         <p data-testid="no-ingest-sheets-notification">
           No ingest sheets are found.
         </p>
       )}
 
-      {data.project.ingestSheets.length > 0 && (
+      {project.ingestSheets.length > 0 && (
         <>
           <table>
             <caption>All Project Ingest Sheets</caption>
@@ -91,24 +88,22 @@ const IngestSheetList = ({ projectId }) => {
               </tr>
             </thead>
             <tbody>
-              {data.project.ingestSheets.map(
-                ({ id, name, filename, status, updatedAt }) => (
-                  <tr key={id}>
-                    <td>
-                      <Link to={`/project/${projectId}/ingest-sheet/${id}`}>
-                        {name}
-                      </Link>
-                    </td>
-                    <td>{updatedAt}</td>
-                    <td>{status}</td>
-                    <td className="text-right">
-                      <button onClick={e => onOpenModal(e, id)}>
-                        <TrashIcon className="icon cursor-pointer" />
-                      </button>
-                    </td>
-                  </tr>
-                )
-              )}
+              {project.ingestSheets.map(({ id, name, status, updatedAt }) => (
+                <tr key={id}>
+                  <td>
+                    <Link to={`/project/${project.id}/ingest-sheet/${id}`}>
+                      {name}
+                    </Link>
+                  </td>
+                  <td>{updatedAt}</td>
+                  <td>{status}</td>
+                  <td className="text-right">
+                    <button onClick={e => onOpenModal(e, id)}>
+                      <TrashIcon className="icon cursor-pointer" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
           <UIModalDelete
@@ -124,7 +119,8 @@ const IngestSheetList = ({ projectId }) => {
 };
 
 IngestSheetList.propTypes = {
-  projectId: PropTypes.string.isRequired
+  project: PropTypes.object.isRequired,
+  subscribeToIngestSheetStatusChanges: PropTypes.func.isRequired
 };
 
 export default IngestSheetList;

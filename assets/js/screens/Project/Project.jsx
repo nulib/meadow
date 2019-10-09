@@ -8,13 +8,46 @@ import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { useQuery } from "@apollo/react-hooks";
 import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
-import { GET_PROJECT } from "../../components/Project/project.query";
+import {
+  GET_PROJECT,
+  INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
+} from "../../components/Project/project.query";
 
 const ScreensProject = ({ match }) => {
   const { id } = match.params;
-  const { loading, error, data } = useQuery(GET_PROJECT, {
+  const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
   });
+
+  const handleIngestSheetStatusChange = (prev, { subscriptionData }) => {
+    if (!subscriptionData.data) return prev;
+
+    const ingestSheet = subscriptionData.data.ingestSheetUpdatesForProject;
+
+    let updatedIngestSheets;
+    switch (ingestSheet.status) {
+      case "UPLOADED":
+        updatedIngestSheets = [ingestSheet, ...prev.project.ingestSheets];
+        break;
+      case "DELETED":
+        updatedIngestSheets = prev.project.ingestSheets.filter(
+          i => i.id !== ingestSheet.id
+        );
+        break;
+      default:
+        updatedIngestSheets = prev.project.ingestSheets.filter(
+          i => i.id !== ingestSheet.id
+        );
+        updatedIngestSheets = [ingestSheet, ...updatedIngestSheets];
+    }
+
+    return {
+      project: {
+        ...prev.project,
+        ingestSheets: updatedIngestSheets
+      }
+    };
+  };
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
@@ -51,7 +84,16 @@ const ScreensProject = ({ match }) => {
             </Link>
 
             <section>
-              <IngestSheetList projectId={data.project.id} />
+              <IngestSheetList
+                project={data.project}
+                subscribeToIngestSheetStatusChanges={() =>
+                  subscribeToMore({
+                    document: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
+                    variables: { projectId: data.project.id },
+                    updateQuery: handleIngestSheetStatusChange
+                  })
+                }
+              />
             </section>
           </ScreenContent>
         </>

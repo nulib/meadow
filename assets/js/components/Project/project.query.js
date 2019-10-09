@@ -27,6 +27,8 @@ export const GET_PROJECT = gql`
       ingestSheets {
         id
         name
+        status
+        updatedAt
       }
     }
   }
@@ -42,6 +44,17 @@ export const GET_PROJECTS = gql`
       ingestSheets {
         id
       }
+    }
+  }
+`;
+
+export const INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION = gql`
+  subscription IngestSheetUpdatesForProject($projectId: ID!) {
+    ingestSheetUpdatesForProject(projectId: $projectId) {
+      id
+      name
+      status
+      updatedAt
     }
   }
 `;
