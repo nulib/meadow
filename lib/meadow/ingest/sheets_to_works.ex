@@ -22,7 +22,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   end
 
   def group_by_works(%IngestSheet{} = ingest_sheet) do
-    IngestSheets.list_ingest_sheet_rows(ingest_sheet: ingest_sheet)
+    IngestSheets.list_ingest_sheet_rows(sheet: ingest_sheet)
     |> Enum.group_by(fn row -> row |> IngestSheetRow.field_value(:work_accession_number) end)
   end
 
