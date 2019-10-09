@@ -83,6 +83,10 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
 
   const { ingest_sheet_name, file } = values;
 
+  const isSubmitDisabled = () => {
+    return values.ingest_sheet_name.length === 0 || values.file.length === 0;
+  };
+
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
@@ -109,7 +113,9 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
         />
       </div>
       <UIButtonGroup>
-        <UIButton type="submit">Submit</UIButton>
+        <UIButton type="submit" disabled={isSubmitDisabled()}>
+          Submit
+        </UIButton>
         <UIButton classes="btn-clear" onClick={handleCancel}>
           Cancel
         </UIButton>

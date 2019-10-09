@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ import Loading from "../UI/Loading";
 
 const ProjectForm = ({ history }) => {
   let inputTitle;
+  const [submitDisabled, setSubmitDisabled] = useState(true);
   const [createProject, { loading, error, data }] = useMutation(
     CREATE_PROJECT,
     {
@@ -26,8 +27,12 @@ const ProjectForm = ({ history }) => {
   if (error) return <Error error={error} />;
   if (loading) return <Loading />;
 
-  const handleCancel = e => {
+  const handleCancel = () => {
     history.push("/project/list");
+  };
+
+  const handleInputChange = () => {
+    setSubmitDisabled(inputTitle.value === "");
   };
 
   return (
@@ -55,11 +60,14 @@ const ProjectForm = ({ history }) => {
               inputTitle = node;
             }}
             className="text-input"
+            onChange={handleInputChange}
           />
         </div>
 
         <UIButtonGroup>
-          <UIButton type="submit">Submit</UIButton>
+          <UIButton type="submit" disabled={submitDisabled}>
+            Submit
+          </UIButton>
           <UIButton classes="btn-clear" onClick={handleCancel}>
             Cancel
           </UIButton>
