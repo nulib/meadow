@@ -33,7 +33,7 @@ a:hover {
   @apply text-gray-800;
 }
 
-dl.inline dt {
+dl dt {
   @apply font-bold;
 }
 

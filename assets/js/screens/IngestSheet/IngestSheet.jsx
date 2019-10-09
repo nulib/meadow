@@ -48,7 +48,7 @@ const ScreensIngestSheet = ({ match }) => {
 
   if (crumbsLoading || sheetLoading) return <Loading />;
   if (crumbsError || sheetError)
-    return <Error error={crumbsError || sheetError} />;
+    return <Error error={crumbsError ? crumbsError : sheetError} />;
 
   const { ingestSheet } = crumbsData;
 

@@ -233,3 +233,26 @@ export const MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const MOCK_INGEST_SHEET_COMPLETED = gql`
+  query MockIngestSheetCompleted($id: ID!) {
+    mockIngestSheet(id: $id) {
+      name
+      works {
+        accessionNumber
+        fileSets {
+          accessionNumber
+          id
+          metadata {
+            description
+            location
+          }
+          role
+        }
+        id
+        visibility
+        workType
+      }
+    }
+  }
+`;

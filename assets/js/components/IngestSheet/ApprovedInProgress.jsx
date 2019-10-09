@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import UIProgressBar from "../../UI/UIProgressBar";
+import UIProgressBar from "../UI/UIProgressBar";
 import PropTypes from "prop-types";
 import { useSubscription } from "@apollo/react-hooks";
-import { MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION } from "../ingestSheet.query";
+import { MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION } from "./ingestSheet.query";
 
-const IngestSheetStatusApprovedInProgress = ({ ingestSheet }) => {
+const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
   const { data, loading, error } = useSubscription(
     MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION,
     {
@@ -41,8 +41,8 @@ const IngestSheetStatusApprovedInProgress = ({ ingestSheet }) => {
   );
 };
 
-IngestSheetStatusApprovedInProgress.propTypes = {
+IngestSheetApprovedInProgress.propTypes = {
   ingestSheet: PropTypes.object
 };
 
-export default IngestSheetStatusApprovedInProgress;
+export default IngestSheetApprovedInProgress;

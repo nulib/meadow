@@ -14,8 +14,6 @@ import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensIngestSheetForm from "./IngestSheet/Form";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
-import IngestSheetStatusApprovedInProgress from "../components/IngestSheet/Status/ApprovedInProgress";
-import IngestSheetStatusApproved from "../components/IngestSheet/Status/Approved";
 
 export default class Root extends React.Component {
   render() {
@@ -50,16 +48,6 @@ export default class Root extends React.Component {
               exact
               path="/project/:id/ingest-sheet/:ingestSheetId"
               component={ScreensIngestSheet}
-            />
-            <PrivateRoute
-              exact
-              path="/project/:id/ingest-sheet/:ingestSheetId/approved-in-progress"
-              component={IngestSheetStatusApprovedInProgress}
-            />
-            <PrivateRoute
-              exact
-              path="/project/:id/ingest-sheet/:ingestSheetId/approved"
-              component={IngestSheetStatusApproved}
             />
             <PrivateRoute
               exact
