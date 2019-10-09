@@ -62,6 +62,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
                 accession_number: row |> IngestSheetRow.field_value(:accession_number),
                 role: row |> IngestSheetRow.field_value(:role),
                 metadata: %{
+                  description: row |> IngestSheetRow.field_value(:description),
                   location: location,
                   original_filename: Path.basename(file_path)
                 }
