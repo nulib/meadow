@@ -26,9 +26,9 @@ const IngestSheetErrorsState = ({ validations }) => {
               </td>
               <td>
                 {rowHasErrors(object)
-                  ? object.errors.map(({ _field, message }, index) => (
-                      <span key={index}>{message}</span>
-                    ))
+                  ? object.errors
+                      .map(({ _field, message }, index) => message)
+                      .join(", ")
                   : ""}
               </td>
             </tr>
