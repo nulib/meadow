@@ -4,7 +4,7 @@ defmodule Meadow.Ingest.IngestSheets do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
+  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow, IngestSheetWorks, IngestStatus}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
@@ -358,6 +358,71 @@ defmodule Meadow.Ingest.IngestSheets do
   """
   def change_ingest_sheet_row(%IngestSheetRow{} = row) do
     IngestSheetRow.changeset(row, %{})
+  end
+
+  @doc """
+  Update the ingest status of an ingest sheet or a row
+  """
+  def update_ingest_status(%IngestSheet{id: ingest_sheet_id}),
+    do: update_ingest_status(ingest_sheet_id)
+
+  def update_ingest_status(ingest_sheet_id) do
+    states =
+      from(entry in IngestStatus,
+        distinct: true,
+        select: entry.status,
+        where: entry.ingest_sheet_id == ^ingest_sheet_id and entry.row > 0
+      )
+      |> Repo.all()
+      |> Enum.into(%MapSet{})
+
+    status =
+      if MapSet.size(MapSet.intersection(states, MapSet.new(["pending", nil]))) == 0,
+        do: "finished",
+        else: "pending"
+
+    status =
+      if MapSet.member?(states, "error"),
+        do: "#{status} (with errors)",
+        else: status
+
+    %IngestStatus{
+      ingest_sheet_id: ingest_sheet_id
+    }
+    |> IngestStatus.changeset(%{status: status})
+    |> Repo.insert(
+      on_conflict: [set: [status: status]],
+      conflict_target: [:ingest_sheet_id, :row]
+    )
+  end
+
+  def update_ingest_status(%IngestSheetRow{} = row, ingest_status),
+    do: update_ingest_status(row.ingest_sheet_id, row.row, ingest_status)
+
+  def update_ingest_status(ingest_sheet_id, row, ingest_status) do
+    case %IngestStatus{ingest_sheet_id: ingest_sheet_id, row: row}
+         |> IngestStatus.changeset(%{
+           status: ingest_status
+         })
+         |> Repo.insert(
+           on_conflict: [set: [status: ingest_status]],
+           conflict_target: [:ingest_sheet_id, :row]
+         ) do
+      {:ok, _} -> update_ingest_status(ingest_sheet_id)
+      other -> other
+    end
+  end
+
+  def link_works_to_ingest_sheet(works, %IngestSheet{} = ingest_sheet) do
+    IngestSheetWorks
+    |> Repo.insert_all(
+      works
+      |> Enum.map(fn work ->
+        [ingest_sheet_id: ingest_sheet.id, work_id: work.id]
+      end)
+    )
+
+    works
   end
 
   # Absinthe Notifications

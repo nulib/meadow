@@ -13,6 +13,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
     belongs_to :ingest_sheet, Meadow.Ingest.IngestSheets.IngestSheet, primary_key: true
     field :row, :integer, primary_key: true
     field :state, :string, default: "pending"
+    field :file_set_accession_number, :string
 
     embeds_many :errors, Error, primary_key: false, on_replace: :delete do
       field :field, :string
@@ -27,13 +28,23 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
     timestamps()
   end
 
+  def field_value(row, field_name) when is_binary(field_name) do
+    case row.fields
+         |> Enum.find(fn field -> field.header == field_name end) do
+      nil -> nil
+      field -> field.value
+    end
+  end
+
+  def field_value(row, field_name), do: field_value(row, to_string(field_name))
+
   @doc false
   def changeset(ingest_sheet_row, attrs) do
     ingest_sheet_row
-    |> cast(attrs, [:state])
+    |> cast(attrs, [:file_set_accession_number, :state])
     |> cast_embed(:errors, with: &error_changeset/2)
     |> cast_embed(:fields, with: &field_changeset/2)
-    |> validate_required([:ingest_sheet_id, :row])
+    |> validate_required([:ingest_sheet_id, :row, :file_set_accession_number])
     |> assoc_constraint(:ingest_sheet)
   end
 

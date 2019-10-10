@@ -7,7 +7,7 @@ defmodule SQNS.Pipeline.Data do
 
   def extract(data) do
     case decode(data) do
-      %{"Message" => msg, "MessageAttributes" => attrs} ->
+      %{message: msg, message_attributes: attrs} ->
         {decode(msg), attrs |> attrs_to_map()}
 
       msg ->
@@ -17,8 +17,8 @@ defmodule SQNS.Pipeline.Data do
 
   def update({status, data, attrs}, caller) do
     context_attrs = %{
-      "status" => status,
-      "process" => caller |> to_string() |> String.split(".") |> List.last()
+      status: status,
+      process: caller |> to_string() |> String.split(".") |> List.last()
     }
 
     {
@@ -32,7 +32,7 @@ defmodule SQNS.Pipeline.Data do
     attrs
     |> Enum.map(fn
       %{name: name, value: value} -> {name, value}
-      {name, %{"Value" => value}} -> {name, value}
+      {name, %{value: value}} -> {name, value}
     end)
     |> Enum.into(%{})
   end
@@ -44,7 +44,7 @@ defmodule SQNS.Pipeline.Data do
 
   defp decode(data) do
     case Jason.decode(data) do
-      {:ok, result} -> result
+      {:ok, result} -> AtomicMap.convert(result, safe: false)
       _ -> data
     end
   rescue

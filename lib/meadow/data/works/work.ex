@@ -4,6 +4,7 @@ defmodule Meadow.Data.Works.Work do
   """
 
   use Ecto.Schema
+  alias Meadow.Data.AuditEntries.AuditEntry
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.WorkMetadata
 
@@ -22,6 +23,11 @@ defmodule Meadow.Data.Works.Work do
     embeds_one :metadata, WorkMetadata, on_replace: :update
 
     has_many :file_sets, FileSet
+
+    has_many :audit_entries, AuditEntry,
+      references: :id,
+      foreign_key: :object_id,
+      on_delete: :delete_all
   end
 
   def changeset(work, attrs) do

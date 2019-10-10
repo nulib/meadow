@@ -29,6 +29,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
     belongs_to :project, Meadow.Ingest.Projects.Project
     has_many :ingest_sheet_rows, Meadow.Ingest.IngestSheets.IngestSheetRow
 
+    has_many :ingest_sheet_works, Meadow.Ingest.IngestSheets.IngestSheetWorks
+    has_many :works, through: [:ingest_sheet_works, :work]
+
     timestamps()
   end
 

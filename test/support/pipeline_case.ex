@@ -43,6 +43,8 @@ defmodule SQNS.PipelineCase do
         {queue, _} -> teardown(queue)
         queue -> teardown(queue)
       end)
+
+      teardown(@passthru)
     end)
 
     {
@@ -63,8 +65,7 @@ defmodule SQNS.PipelineCase do
   end
 
   defp teardown(queue) do
-    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn("#{queue}-ok")) |> ExAws.request()
-    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn("#{queue}-error")) |> ExAws.request()
+    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn(queue)) |> ExAws.request()
     ExAws.SQS.delete_queue(SQNS.Queues.get_queue_url(queue)) |> ExAws.request()
   end
 
@@ -91,12 +92,12 @@ defmodule SQNS.PipelineCase do
   defp pass_message(body, pid) do
     {msg, attrs} = Data.extract(body)
     now = System.monotonic_time(:millisecond)
-    elapsed = now - Map.get(msg, "started")
+    elapsed = now - Map.get(msg, :started)
 
     msg =
       msg
-      |> Map.put_new("finished", now)
-      |> Map.put_new("elapsed", elapsed)
+      |> Map.put_new(:finished, now)
+      |> Map.put_new(:elapsed, elapsed)
 
     send(pid, {msg, attrs})
   end

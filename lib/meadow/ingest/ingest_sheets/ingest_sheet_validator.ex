@@ -3,25 +3,32 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   Validates an Ingest Sheet
   """
 
+  alias Meadow.Config
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
   use Meadow.Constants
 
   def async(sheet_id) do
-    case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
-      [{pid, _}] ->
-        {:running, pid}
+    if Config.synchronous_validation?() do
+      send(self(), result(sheet_id))
+      {:sync, self()}
+    else
+      case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
+        [{pid, _}] ->
+          {:running, pid}
 
-      _ ->
-        Task.start(fn ->
-          Meadow.TaskRegistry |> Registry.register(sheet_id, nil)
-          result(sheet_id)
-        end)
+        _ ->
+          Task.start(fn ->
+            Meadow.TaskRegistry |> Registry.register(sheet_id, nil)
+            result(sheet_id)
+          end)
+      end
     end
   end
 
@@ -73,7 +80,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   defp load_file(sheet, attempt \\ 1) do
     "/" <> filename = URI.parse(sheet.filename).path
 
-    case Application.get_env(:meadow, :upload_bucket)
+    case Config.upload_bucket()
          |> ExAws.S3.get_object(filename)
          |> ExAws.request() do
       {:error, _} ->
@@ -92,7 +99,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
   end
 
-  defp load_rows(sheet, csv) do
+  def load_rows(sheet, csv) do
     [headers | rows] = CSV.parse_string(csv, skip_headers: false)
     sorted_headers = Enum.sort(headers)
 
@@ -127,23 +134,34 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
   end
 
+  defp transform_fields(sheet, headers, row) do
+    Enum.zip(headers, row)
+    |> Enum.reduce([], fn {k, v}, acc ->
+      v =
+        case k do
+          "filename" -> sheet.project.folder <> "/" <> v
+          _ -> v
+        end
+
+      [%IngestSheetRow.Field{header: k, value: v} | acc]
+    end)
+    |> Enum.reverse()
+  end
+
   defp insert_rows(sheet, [headers | rows]) do
     Repo.transaction(fn ->
       rows
       |> Enum.with_index(1)
       |> Enum.map(fn {row, row_num} ->
         now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        fields = transform_fields(sheet, headers, row)
 
-        fields =
-          Enum.zip(headers, row)
-          |> Enum.reduce([], fn {k, v}, acc ->
-            [%IngestSheetRow.Field{header: k, value: v} | acc]
-          end)
-          |> Enum.reverse()
+        file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
 
         %{
           ingest_sheet_id: sheet.id,
           row: row_num,
+          file_set_accession_number: file_set_accession_number,
           fields: fields,
           state: "pending",
           inserted_at: now,
@@ -163,7 +181,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   defp validate_rows(sheet) do
     row_check = fn
       row, result ->
-        case validate_row(sheet, row) do
+        case validate_row(row) do
           "pass" -> result
           "fail" -> :error
         end
@@ -222,7 +240,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_value({"filename", value}) do
     response =
-      Application.get_env(:meadow, :ingest_bucket)
+      Config.ingest_bucket()
       |> ExAws.S3.head_object(value)
       |> ExAws.request()
 
@@ -235,15 +253,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_value({_field_name, _value}), do: :ok
 
-  defp validate_row(sheet, %IngestSheetRow{state: "pending"} = row) do
+  defp validate_row(%IngestSheetRow{state: "pending"} = row) do
     reducer = fn %IngestSheetRow.Field{header: field_name, value: value}, acc ->
-      value =
-        case {field_name, value} do
-          {"filename", v} -> {"filename", sheet.project.folder <> "/" <> v}
-          other -> other
-        end
-
-      case validate_value(value) do
+      case validate_value({field_name, value}) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: error} | acc]
       end

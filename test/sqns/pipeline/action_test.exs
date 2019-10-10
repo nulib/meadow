@@ -3,7 +3,7 @@ defmodule SQNS.Pipeline.ActionTest do
 
   doctest SQNS.Pipeline.Action
 
-  @timeout 1200
+  @timeout 2000
 
   describe "action" do
     @tag pipeline: [
@@ -16,8 +16,8 @@ defmodule SQNS.Pipeline.ActionTest do
         alias SQNS.Pipeline.Action
         use Action
 
-        def process(data) do
-          {:ok, data |> Map.put("a", "received")}
+        def process(data, _) do
+          {:ok, data |> Map.put(:a, "received")}
         end
       end
 
@@ -25,8 +25,8 @@ defmodule SQNS.Pipeline.ActionTest do
         alias SQNS.Pipeline.Action
         use Action
 
-        def process(data) do
-          {:error, data |> Map.put("b", "received")}
+        def process(data, _) do
+          {:error, data |> Map.put(:b, "received")}
         end
       end
 
@@ -34,8 +34,8 @@ defmodule SQNS.Pipeline.ActionTest do
         alias SQNS.Pipeline.Action
         use Action
 
-        def process(data) do
-          {:error, data |> Map.put("c", "received")}
+        def process(data, _) do
+          {:error, data |> Map.put(:c, "received")}
         end
       end
 
@@ -45,19 +45,19 @@ defmodule SQNS.Pipeline.ActionTest do
       ProcessA.send_message(%{started: time}, %{user_data: "xyz"})
 
       assert_receive(
-        {%{"started" => ^time, "a" => "received"}, %{"status" => "ok", "user_data" => "xyz"}},
+        {%{started: ^time, a: "received"}, %{status: "ok", user_data: xyz}},
         @timeout
       )
 
       assert_receive(
-        {%{"started" => ^time, "a" => "received", "b" => "received"},
-         %{"status" => "error", "user_data" => "xyz"}},
+        {%{started: ^time, a: "received", b: "received"},
+         %{status: "error", user_data: "xyz"}},
         @timeout
       )
 
       refute_receive(
-        {%{"started" => ^time, "a" => "received", "c" => "received"},
-         %{"status" => "error", "user_data" => "bleh"}},
+        {%{started: ^time, a: "received", c: "received"},
+         %{status: "error", user_data: "bleh"}},
         @timeout
       )
     end
