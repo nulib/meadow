@@ -10,13 +10,9 @@ import {
   GET_INGEST_SHEET_VALIDATIONS
 } from "./ingestSheet.query";
 
-function IngestSheetReport({ ingestSheetId, progress, sheetState }) {
+function IngestSheetReport({ ingestSheetId, progress, status }) {
   const sheetHasErrors = () => {
-    if (sheetState.find(({ state }) => state == "FAIL")) {
-      return true;
-    }
-    const fails = progress.states.find(({ state }) => state == "FAIL");
-    return fails && fails.count > 0;
+    return ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
   };
 
   const { loading, error, data } = useQuery(
@@ -53,7 +49,7 @@ function IngestSheetReport({ ingestSheetId, progress, sheetState }) {
 IngestSheetReport.propTypes = {
   ingestSheetId: PropTypes.string.isRequired,
   progress: PropTypes.object.isRequired,
-  sheetState: PropTypes.arrayOf(PropTypes.object).isRequired
+  status: PropTypes.string
 };
 
 export default IngestSheetReport;

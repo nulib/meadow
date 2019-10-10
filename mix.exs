@@ -34,7 +34,12 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:honeybadger, :logger, :runtime_tools, :ueberauth_openam]
+      extra_applications: [
+        :honeybadger,
+        :logger,
+        :runtime_tools,
+        :ueberauth_openam
+      ]
     ]
   end
 
@@ -57,8 +62,10 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.4.2"},
       {:absinthe_plug, "~> 1.4.0"},
       {:absinthe_phoenix, "~> 1.4.0"},
+      {:atomic_map, "~> 0.8"},
       {:briefly, "~> 0.3.0", only: :test},
       {:broadway_sqs, "~> 0.3.0"},
+      {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
@@ -67,9 +74,11 @@ defmodule Meadow.MixProject do
       {:ets, "~> 0.7.3"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_aws_sns, "~> 2.0.1"},
+      {:ex_aws_sns,
+       git: "https://github.com/mbklein/ex_aws_sns.git", branch: "add-filter-policy"},
       {:ex_aws_sqs, "~> 3.0"},
       {:excoveralls, "~> 0.10", only: :test},
+      {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.15"},
       {:honeybadger, "~> 0.7"},
@@ -101,7 +110,7 @@ defmodule Meadow.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["meadow.pipeline.setup", "ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end

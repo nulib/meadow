@@ -2,24 +2,33 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   @moduledoc """
   Validates an Ingest Sheet
   """
+
+  alias Meadow.Config
+  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
-  @headers ~w(accession_number description filename role work_accession_number)
+  use Meadow.Constants
 
   def async(sheet_id) do
-    case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
-      [{pid, _}] ->
-        {:running, pid}
+    if Config.synchronous_validation?() do
+      send(self(), result(sheet_id))
+      {:sync, self()}
+    else
+      case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
+        [{pid, _}] ->
+          {:running, pid}
 
-      _ ->
-        Task.start(fn ->
-          Meadow.TaskRegistry |> Registry.register(sheet_id, nil)
-          result(sheet_id)
-        end)
+        _ ->
+          Task.start(fn ->
+            Meadow.TaskRegistry |> Registry.register(sheet_id, nil)
+            result(sheet_id)
+          end)
+      end
     end
   end
 
@@ -67,22 +76,30 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
   end
 
-  defp load_file(sheet) do
+  @max_attempts 5
+  defp load_file(sheet, attempt \\ 1) do
     "/" <> filename = URI.parse(sheet.filename).path
 
-    case Application.get_env(:meadow, :upload_bucket)
+    case Config.upload_bucket()
          |> ExAws.S3.get_object(filename)
          |> ExAws.request() do
       {:error, _} ->
-        add_error(sheet, "Could not load ingest sheet from S3")
-        {:error, sheet}
+        case attempt do
+          @max_attempts ->
+            add_file_errors(sheet, ["Could not load ingest sheet from S3"])
+            {:error, sheet}
+
+          i ->
+            :timer.sleep(1000)
+            load_file(sheet, i + 1)
+        end
 
       {:ok, obj} ->
         load_rows(sheet, obj.body)
     end
   end
 
-  defp load_rows(sheet, csv) do
+  def load_rows(sheet, csv) do
     [headers | rows] = CSV.parse_string(csv, skip_headers: false)
     sorted_headers = Enum.sort(headers)
 
@@ -97,36 +114,38 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
   rescue
     e in NimbleCSV.ParseError ->
-      add_error(sheet, "Invalid csv file: " <> e.message)
+      add_file_errors(sheet, ["Invalid csv file: " <> e.message])
+
       {:error, sheet} |> update_state("file")
   end
 
   defp validate_headers(sheet, headers) do
     case headers do
-      @headers ->
+      @ingest_sheet_headers ->
         {:ok, sheet}
 
       _ ->
-        with missing_headers = [_ | _] <- @headers -- headers do
-          add_error(
-            sheet,
-            "Required " <>
-              Inflex.inflect("header", Kernel.length(missing_headers)) <>
-              " missing: " <> Enum.join(missing_headers, ",")
-          )
-        end
-
-        with invalid_headers = [_ | _] <- headers -- @headers do
-          add_error(
-            sheet,
-            "Invalid " <>
-              Inflex.inflect("header", Kernel.length(invalid_headers)) <>
-              ": " <> Enum.join(invalid_headers, ",")
-          )
-        end
+        missing = check_missing_headers(@ingest_sheet_headers -- headers)
+        invalid = check_invalid_headers(headers -- @ingest_sheet_headers)
+        errors = missing ++ invalid
+        add_file_errors(sheet, errors)
 
         {:error, sheet}
     end
+  end
+
+  defp transform_fields(sheet, headers, row) do
+    Enum.zip(headers, row)
+    |> Enum.reduce([], fn {k, v}, acc ->
+      v =
+        case k do
+          "filename" -> sheet.project.folder <> "/" <> v
+          _ -> v
+        end
+
+      [%IngestSheetRow.Field{header: k, value: v} | acc]
+    end)
+    |> Enum.reverse()
   end
 
   defp insert_rows(sheet, [headers | rows]) do
@@ -135,17 +154,14 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
       |> Enum.with_index(1)
       |> Enum.map(fn {row, row_num} ->
         now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        fields = transform_fields(sheet, headers, row)
 
-        fields =
-          Enum.zip(headers, row)
-          |> Enum.reduce([], fn {k, v}, acc ->
-            [%IngestSheetRow.Field{header: k, value: v} | acc]
-          end)
-          |> Enum.reverse()
+        file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
 
         %{
           ingest_sheet_id: sheet.id,
           row: row_num,
+          file_set_accession_number: file_set_accession_number,
           fields: fields,
           state: "pending",
           inserted_at: now,
@@ -165,25 +181,66 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   defp validate_rows(sheet) do
     row_check = fn
       row, result ->
-        case validate_row(sheet, row) do
+        case validate_row(row) do
           "pass" -> result
           "fail" -> :error
         end
     end
 
-    {
+    overall_row_result = {
       IngestSheets.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       sheet
     }
+
+    case overall_row_result do
+      {:ok, sheet} ->
+        IngestSheets.update_ingest_sheet_status(sheet, "valid")
+        {:ok, sheet}
+
+      {:error, sheet} ->
+        IngestSheets.update_ingest_sheet_status(sheet, "row_fail")
+        {:error, sheet}
+    end
   end
 
   defp validate_value({field_name, value}) when byte_size(value) == 0,
     do: {:error, field_name, "#{field_name} cannot be blank"}
 
+  defp validate_value({"role", value}) do
+    case Enum.member?(@file_set_roles, value) do
+      true ->
+        :ok
+
+      false ->
+        {:error, "role", "role: #{value} is invalid"}
+    end
+  end
+
+  defp validate_value({"accession_number", value}) do
+    case FileSets.accession_exists?(value) do
+      true ->
+        {:error, "accession_number", "accession_number #{value} already exists in system"}
+
+      false ->
+        :ok
+    end
+  end
+
+  defp validate_value({"work_accession_number", value}) do
+    case Works.accession_exists?(value) do
+      true ->
+        {:error, "work_accession_number",
+         "work_accession_number #{value} already exists in system"}
+
+      false ->
+        :ok
+    end
+  end
+
   defp validate_value({"filename", value}) do
     response =
-      Application.get_env(:meadow, :ingest_bucket)
+      Config.ingest_bucket()
       |> ExAws.S3.head_object(value)
       |> ExAws.request()
 
@@ -196,15 +253,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_value({_field_name, _value}), do: :ok
 
-  defp validate_row(sheet, %IngestSheetRow{state: "pending"} = row) do
+  defp validate_row(%IngestSheetRow{state: "pending"} = row) do
     reducer = fn %IngestSheetRow.Field{header: field_name, value: value}, acc ->
-      value =
-        case {field_name, value} do
-          {"filename", v} -> {"filename", sheet.project.folder <> "/" <> v}
-          other -> other
-        end
-
-      case validate_value(value) do
+      case validate_value({field_name, value}) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: error} | acc]
       end
@@ -253,8 +304,10 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     {result, sheet}
   end
 
-  defp add_error(sheet, message) do
-    IngestSheets.add_error(sheet, message)
+  defp add_file_errors(sheet, messages) do
+    sheet
+    |> IngestSheets.add_file_errors_to_ingest_sheet(messages)
+    |> IngestSheets.update_ingest_sheet_status("file_fail")
   end
 
   defp update_state({result, sheet}, event) do
@@ -269,4 +322,24 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
     {result, sheet |> IngestSheets.change_ingest_sheet_state!(state)}
   end
+
+  defp check_missing_headers([_ | _] = missing_headers) do
+    [
+      "Required " <>
+        Inflex.inflect("header", Kernel.length(missing_headers)) <>
+        " missing: " <> Enum.join(missing_headers, ",")
+    ]
+  end
+
+  defp check_missing_headers([]), do: []
+
+  defp check_invalid_headers([_ | _] = invalid_headers) do
+    [
+      "Invalid " <>
+        Inflex.inflect("header", Kernel.length(invalid_headers)) <>
+        ": " <> Enum.join(invalid_headers, ",")
+    ]
+  end
+
+  defp check_invalid_headers([]), do: []
 end

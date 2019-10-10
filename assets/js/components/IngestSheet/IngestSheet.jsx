@@ -1,24 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetValidations from "./Validations";
-import {
-  GET_INGEST_SHEET_STATUS,
-  GET_INGEST_SHEET_PROGRESS
-} from "./ingestSheet.query";
+import { GET_INGEST_SHEET_PROGRESS } from "./ingestSheet.query";
+import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
+import IngestSheetActionRow from "./ActionRow";
+import IngestSheetApprovedInProgress from "./ApprovedInProgress";
+import IngestSheetCompleted from "./Completed";
 
-const IngestSheet = ({ ingestSheetId }) => {
-  const {
-    data: statusData,
-    loading: statusLoading,
-    error: statusError,
-    subscribeToMore: statusSubscribeToMore
-  } = useQuery(GET_INGEST_SHEET_STATUS, {
-    variables: { ingestSheetId },
-    fetchPolicy: "network-only"
-  });
+/**
+ * The following are possible status values for an Ingest Sheet)
+ *
+
+APPROVED: Approved, ingest in progress
+COMPLETED: Ingest Completed
+DELETED: Ingest Sheet deleted
+FILE_FAIL: Errors validating csv file
+ROW_FAIL: Errors in content rows
+UPLOADED: Uploaded, validation in progress
+VALID: Passes validation
+*/
+
+const IngestSheet = ({
+  ingestSheetData,
+  projectId,
+  subscribeToIngestSheetUpdates
+}) => {
+  const { id, status } = ingestSheetData;
 
   const {
     data: progressData,
@@ -26,29 +36,52 @@ const IngestSheet = ({ ingestSheetId }) => {
     error: progressError,
     subscribeToMore: progressSubscribeToMore
   } = useQuery(GET_INGEST_SHEET_PROGRESS, {
-    variables: { ingestSheetId },
+    variables: { ingestSheetId: id },
     fetchPolicy: "network-only"
   });
 
-  if (statusLoading || progressLoading) return <Loading />;
-  if (statusError || progressError)
-    return <Error error={statusError || progressError} />;
+  useEffect(() => {
+    subscribeToIngestSheetUpdates();
+  }, []);
+
+  if (progressLoading) return <Loading />;
+  if (progressError) return <Error error={progressError} />;
 
   return (
     <>
-      <IngestSheetValidations
-        ingestSheetId={ingestSheetId}
-        initialProgress={progressData.ingestSheetProgress}
-        initialStatus={statusData.ingestSheet.state}
-        subscribeToIngestSheetProgress={progressSubscribeToMore}
-        subscribeToIngestSheetStatus={statusSubscribeToMore}
-      />
+      <IngestSheetAlert ingestSheet={ingestSheetData} />
+
+      {["APPROVED"].indexOf(status) > -1 && (
+        <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+      )}
+
+      {["COMPLETED"].indexOf(status) > -1 && (
+        <IngestSheetCompleted ingestSheetId={ingestSheetData.id} />
+      )}
+
+      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
+        <>
+          <IngestSheetActionRow
+            ingestSheetId={id}
+            projectId={projectId}
+            status={status}
+          />
+          <IngestSheetValidations
+            ingestSheetId={id}
+            status={status}
+            initialProgress={progressData.ingestSheetProgress}
+            subscribeToIngestSheetProgress={progressSubscribeToMore}
+          />
+        </>
+      )}
     </>
   );
 };
 
 IngestSheet.propTypes = {
-  ingestSheetId: PropTypes.string.isRequired
+  ingestSheetData: PropTypes.object,
+  projectId: PropTypes.string,
+  subscribeToIngestSheetUpdates: PropTypes.func
 };
 
 export default IngestSheet;

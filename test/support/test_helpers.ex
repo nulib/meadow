@@ -4,9 +4,15 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Accounts.Users.User
-  alias Meadow.Ingest.IngestSheets.IngestSheet
+  alias Meadow.Data.{FileSet, Work}
+  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Works.Work
+  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetValidator}
   alias Meadow.Ingest.Projects.Project
+
   alias Meadow.Repo
+
+  use Meadow.Constants
 
   def user_fixture(attrs \\ %{}) do
     username = "name-#{System.unique_integer([:positive])}"
@@ -48,6 +54,16 @@ defmodule Meadow.TestHelpers do
     ingest_sheet
   end
 
+  def ingest_sheet_rows_fixture(file_fixture) do
+    sheet = ingest_sheet_fixture()
+
+    sheet
+    |> Repo.preload(:project)
+    |> IngestSheetValidator.load_rows(File.read!(file_fixture))
+
+    sheet
+  end
+
   def project_fixture(attrs \\ %{}) do
     title = "title-#{System.unique_integer([:positive])}"
 
@@ -58,7 +74,7 @@ defmodule Meadow.TestHelpers do
 
     {:ok, project} =
       %Project{}
-      |> Project.changeset(attrs)
+      |> Project.changeset(:create, attrs)
       |> Repo.insert()
 
     project
@@ -87,5 +103,49 @@ defmodule Meadow.TestHelpers do
       |> Repo.insert!()
 
     [project1, project2, project3]
+  end
+
+  def work_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        accession_number: attrs[:accession_number] || Faker.String.base64(),
+        visibility: attrs[:visibility] || Faker.Util.pick(@visibility),
+        work_type: attrs[:work_type] || Faker.Util.pick(@work_types),
+        metadata:
+          attrs[:metadata] ||
+            %{
+              title: "Test title"
+            },
+        file_sets: attrs[:file_sets] || []
+      })
+
+    {:ok, work} =
+      %Work{}
+      |> Work.changeset(attrs)
+      |> Repo.insert()
+
+    work
+  end
+
+  def file_set_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        accession_number: attrs[:accession_number] || Faker.String.base64(),
+        role: attrs[:role] || Faker.Util.pick(@file_set_roles),
+        metadata:
+          attrs[:metadata] ||
+            %{
+              description: attrs[:description] || Faker.String.base64(),
+              location: "https://fake-s3-bucket/" <> Faker.String.base64(),
+              original_filename: Faker.File.file_name()
+            }
+      })
+
+    {:ok, file_set} =
+      %FileSet{}
+      |> FileSet.changeset(attrs)
+      |> Repo.insert()
+
+    file_set
   end
 end

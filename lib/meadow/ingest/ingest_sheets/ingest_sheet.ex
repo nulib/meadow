@@ -12,11 +12,14 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
     %{name: "overall", state: "pending"}
   ]
 
+  @statuses ~w(uploaded file_fail row_fail valid approved completed deleted)
+
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   schema "ingest_sheets" do
     field :name, :string
     field :filename, :string
+    field :status, :string, default: "uploaded"
     field :file_errors, {:array, :string}, default: []
 
     embeds_many :state, State, primary_key: {:name, :string, []} do
@@ -25,6 +28,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
 
     belongs_to :project, Meadow.Ingest.Projects.Project
     has_many :ingest_sheet_rows, Meadow.Ingest.IngestSheets.IngestSheetRow
+
+    has_many :ingest_sheet_works, Meadow.Ingest.IngestSheets.IngestSheetWorks
+    has_many :works, through: [:ingest_sheet_works, :work]
 
     timestamps()
   end
@@ -37,11 +43,18 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
         else: attrs
 
     ingest_sheet
-    |> cast(attrs, [:name, :filename, :project_id, :file_errors])
+    |> cast(attrs, [:name, :filename, :project_id, :file_errors, :status])
     |> cast_embed(:state, with: &state_changeset/2)
     |> validate_required([:name, :filename, :project_id])
     |> assoc_constraint(:project)
     |> unique_constraint(:name)
+  end
+
+  def status_changeset(ingest_sheet, attrs) do
+    ingest_sheet
+    |> cast(attrs, [:status])
+    |> validate_required([:status])
+    |> validate_status()
   end
 
   def state_changeset(ingest_sheet, attrs) do
@@ -49,10 +62,34 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
     |> cast(attrs, [:name, :state])
   end
 
+  def file_errors_changeset(ingest_sheet, attrs) do
+    ingest_sheet
+    |> cast(attrs, [:file_errors])
+    |> validate_required([:file_errors])
+  end
+
   def reset_default_state(ingest_sheet) do
     ingest_sheet
     |> changeset(%{state: @default_state})
     |> Repo.update()
+  end
+
+  def validate_status(changeset) do
+    case changeset.valid? do
+      true ->
+        status = get_field(changeset, :status)
+
+        case Enum.member?(@statuses, status) do
+          true ->
+            changeset
+
+          _ ->
+            add_error(changeset, :status, "is not a valid status")
+        end
+
+      _ ->
+        changeset
+    end
   end
 
   def find_state(ingest_sheet, key \\ "overall") do

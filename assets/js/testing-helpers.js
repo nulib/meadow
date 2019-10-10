@@ -58,3 +58,15 @@ export function renderWithRouterApollo(
     ...render(ui, { wrapper: Wrapper })
   };
 }
+
+export function renderWithApollo(ui, { mocks = [] }) {
+  const Wrapper = ({ children }) => (
+    <MockedProvider mocks={mocks} addTypename={false}>
+      {children}
+    </MockedProvider>
+  );
+
+  return {
+    ...render(ui, { wrapper: Wrapper })
+  };
+}

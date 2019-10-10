@@ -33,6 +33,10 @@ a:hover {
   @apply text-gray-800;
 }
 
+dl dt {
+  @apply font-bold;
+}
+
 label {
   @apply block text-gray-700 text-sm font-bold mb-2;
 }
@@ -63,6 +67,10 @@ tr.error {
 
 td {
   @apply p-2 border-t border-gray-300 text-sm;
+}
+
+table.clear th {
+  @apply bg-transparent text-red-900;
 }
 
 .alert {

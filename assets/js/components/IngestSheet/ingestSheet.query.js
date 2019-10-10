@@ -1,4 +1,33 @@
 import gql from "graphql-tag";
+import IngestSheet from "./IngestSheet";
+
+IngestSheet.fragments = {
+  parts: gql`
+    fragment IngestSheetParts on IngestSheet {
+      fileErrors
+      ingestSheetRows {
+        errors {
+          field
+          message
+        }
+        fields {
+          header
+          value
+        }
+        row
+        state
+      }
+      id
+      name
+      filename
+      state {
+        name
+        state
+      }
+      status
+    }
+  `
+};
 
 export const CREATE_INGEST_SHEET = gql`
   mutation CreateIngestSheet(
@@ -13,6 +42,7 @@ export const CREATE_INGEST_SHEET = gql`
     ) {
       id
       name
+      status
       project {
         id
         title
@@ -27,6 +57,7 @@ export const DELETE_INGEST_SHEET = gql`
     deleteIngestSheet(ingestSheetId: $ingestSheetId) {
       id
       name
+      status
     }
   }
 `;
@@ -38,15 +69,17 @@ export const GET_INGEST_SHEETS = gql`
       ingestSheets {
         id
         name
+        status
         updatedAt
       }
     }
   }
 `;
 
-export const GET_INGEST_SHEET_STATUS = gql`
-  query IngestSheetStatus($ingestSheetId: String!) {
+export const GET_INGEST_SHEET_STATE = gql`
+  query IngestSheetState($ingestSheetId: String!) {
     ingestSheet(id: $ingestSheetId) {
+      id
       state {
         name
         state
@@ -117,17 +150,25 @@ export const START_VALIDATION = gql`
   }
 `;
 
-export const SUBSCRIBE_TO_INGEST_SHEET_STATUS = gql`
-  subscription IngestSheetStatusUpdate($ingestSheetId: String!) {
-    ingestSheetUpdate(sheetId: $ingestSheetId) {
-      state {
-        name
-        state
-      }
+export const INGEST_SHEET_QUERY = gql`
+  query IngestSheetQuery($ingestSheetId: ID!) {
+    ingestSheet(id: $ingestSheetId) {
+      ...IngestSheetParts
     }
   }
+  ${IngestSheet.fragments.parts}
 `;
 
+export const INGEST_SHEET_SUBSCRIPTION = gql`
+  subscription SubscribeToIngestSheet($ingestSheetId: ID!) {
+    ingestSheetUpdate(sheetId: $ingestSheetId) {
+      ...IngestSheetParts
+    }
+  }
+  ${IngestSheet.fragments.parts}
+`;
+
+//TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
   subscription IngestSheetRowUpdate($ingestSheetId: String!) {
     ingestSheetRowUpdate(sheetId: $ingestSheetId) {
@@ -145,6 +186,7 @@ export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
   }
 `;
 
+// TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_ERRORS = gql`
   subscription IngestSheetRowErrors($ingestSheetId: String!) {
     ingestSheetRowStateUpdate(sheetId: $ingestSheetId, state: FAIL) {
@@ -170,6 +212,63 @@ export const SUBSCRIBE_TO_INGEST_SHEET_PROGRESS = gql`
         count
       }
       percentComplete
+    }
+  }
+`;
+
+export const MOCK_APPROVE_INGEST_SHEET = gql`
+  mutation MockApproveIngestSheet($id: ID!) {
+    mockApproveIngestSheet(id: $id) {
+      id
+      status
+      updatedAt
+    }
+  }
+`;
+
+export const MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION = gql`
+  subscription MockWorksCreatedCount($sheetId: ID!) {
+    mockWorksCreatedCount(sheetId: $sheetId) {
+      count
+    }
+  }
+`;
+
+export const MOCK_INGEST_SHEET_COMPLETED = gql`
+  query MockIngestSheetCompleted($id: ID!) {
+    mockIngestSheet(id: $id) {
+      name
+      works {
+        accessionNumber
+        fileSets {
+          accessionNumber
+          id
+          metadata {
+            description
+            location
+          }
+          role
+        }
+        id
+        visibility
+        workType
+      }
+    }
+  }
+`;
+
+export const MOCK_INGEST_SHEET_COMPLETED_ERRORS = gql`
+  query MockIngestSheetCompletedErrors($id: ID!) {
+    mockIngestSheetErrors(id: $id) {
+      fileSets {
+        accessionNumber
+        description
+        errors
+        filename
+        role
+        rowNumber
+        workAccessionNumber
+      }
     }
   }
 `;

@@ -79,7 +79,7 @@ const ProjectList = () => {
             {projectsData.projects &&
               projectsData.projects.length > 0 &&
               projectsData.projects.map(project => {
-                const { id, folder, title, updated_at, ingestSheets } = project;
+                const { id, folder, title, updatedAt, ingestSheets } = project;
                 return (
                   <tr key={id}>
                     <td>
@@ -87,7 +87,7 @@ const ProjectList = () => {
                     </td>
                     <td>{folder}</td>
                     <td className="text-right">{ingestSheets.length}</td>
-                    <td>{updated_at}</td>
+                    <td>{updatedAt}</td>
                     <td className="pl-8">
                       <button onClick={e => onOpenModal(e, project)}>
                         <TrashIcon className="icon cursor-pointer" />

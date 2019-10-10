@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../../Auth/Auth";
-import PropTypes from "prop-types";
 import UIHeaderLogo from "./Logo";
 import UIHeaderGlobalSearch from "./GlobalSearch";
 import UIHeaderNav from "./Nav";
@@ -17,7 +16,7 @@ const Header = () => {
               <UIHeaderLogo />
             </div>
             <div className="flex flex-grow lg:w-3/4 xl:w-4/5">
-              <UIHeaderGlobalSearch currentUser={me} />
+              <UIHeaderGlobalSearch />
               <UIHeaderNav currentUser={me} />
             </div>
           </div>
@@ -25,10 +24,6 @@ const Header = () => {
       </div>
     </div>
   );
-};
-
-Header.propTypes = {
-  username: PropTypes.string
 };
 
 export default Header;

@@ -4,7 +4,7 @@ defmodule Meadow.Ingest.IngestSheets do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
+  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow, IngestSheetWorks, IngestStatus}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
@@ -14,7 +14,7 @@ defmodule Meadow.Ingest.IngestSheets do
   ## Examples
 
       iex> list_ingest_sheets()
-      [%Job{}, ...]
+      [%IngestSheet{}, ...]
 
   """
   def list_ingest_sheets(project) do
@@ -27,7 +27,7 @@ defmodule Meadow.Ingest.IngestSheets do
   Returns the list of all ingest_sheets in all projects.
   ## Examples
       iex> list_all_ingest_sheets()
-      [%Job{}, ...]
+      [%IngestSheet{}, ...]
   """
   def list_all_ingest_sheets do
     IngestSheet
@@ -37,14 +37,14 @@ defmodule Meadow.Ingest.IngestSheets do
   @doc """
   Gets a single sheet.
 
-  Raises `Ecto.NoResultsError` if the Job does not exist.
+  Raises `Ecto.NoResultsError` if the IngestSheet does not exist.
 
   ## Examples
 
-      iex> get_sheet!(123)
-      %Job{}
+      iex> get_ingest_sheet!(123)
+      %IngestSheet{}
 
-      iex> get_sheet!(456)
+      iex> get_ingest_sheet!(456)
       ** (Ecto.NoResultsError)
 
   """
@@ -118,7 +118,7 @@ defmodule Meadow.Ingest.IngestSheets do
   ## Examples
 
       iex> create_ingest_sheet_row(%{field: value})
-      {:ok, %Job{}}
+      {:ok, %IngestSheet{}}
 
       iex> create_ingest_sheet_row(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
@@ -128,6 +128,7 @@ defmodule Meadow.Ingest.IngestSheets do
     %IngestSheet{}
     |> IngestSheet.changeset(attrs)
     |> Repo.insert()
+    |> send_ingest_sheet_notification()
   end
 
   @doc """
@@ -145,7 +146,6 @@ defmodule Meadow.Ingest.IngestSheets do
     ingest_sheet
     |> IngestSheet.changeset(%{state: new_state})
     |> Repo.update()
-    |> send_ingest_sheet_notification()
   end
 
   def change_ingest_sheet_state!(%IngestSheet{} = ingest_sheet, updates) do
@@ -160,7 +160,7 @@ defmodule Meadow.Ingest.IngestSheets do
 
   ## Examples
       iex> update_sheet(sheet, %{field: new_value})
-      {:ok, %Job{}}
+      {:ok, %IngestSheet{}}
 
       iex> update_sheet(sheet, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
@@ -170,23 +170,48 @@ defmodule Meadow.Ingest.IngestSheets do
     ingest_sheet
     |> IngestSheet.changeset(attrs)
     |> Repo.update()
-    |> send_ingest_sheet_notification()
   end
 
   @doc """
-  Deletes a Job.
+  Updates a sheet's status.
 
+  ## Examples
+      iex> update_ingest_sheet_status(sheet, %{status: "valid"})
+      {:ok, %IngestSheet{}}
+
+      iex> update_ingest_sheet_status(sheet, %{status: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_ingest_sheet_status(%IngestSheet{} = ingest_sheet, status) do
+    ingest_sheet
+    |> IngestSheet.status_changeset(%{status: status})
+    |> Repo.update()
+    |> send_ingest_sheet_notification()
+  end
+
+  def update_ingest_sheet_status({:ok, %IngestSheet{} = ingest_sheet}, status) do
+    update_ingest_sheet_status(ingest_sheet, status)
+  end
+
+  @doc """
+  Deletes an IngestSheet.
+  Set the status to 'DELETED' and send a notification before deleting
   ## Examples
 
       iex> delete_sheet(sheet)
-      {:ok, %Job{}}
+      {:ok, %IngestSheet{}}
 
       iex> delete_sheet(sheet)
       {:error, %Ecto.Changeset{}}
 
   """
   def delete_ingest_sheet(%IngestSheet{} = ingest_sheet) do
-    Repo.delete(ingest_sheet)
+    with {:ok, ingest_sheet} <- update_ingest_sheet_status(ingest_sheet, "deleted") do
+      ingest_sheet
+      |> Repo.delete()
+      |> send_ingest_sheet_notification()
+    end
   end
 
   @doc """
@@ -195,7 +220,7 @@ defmodule Meadow.Ingest.IngestSheets do
   ## Examples
 
       iex> change_sheet(sheet)
-      %Ecto.Changeset{source: %Job{}}
+      %Ecto.Changeset{source: %IngestSheet{}}
 
   """
   def change_ingest_sheet(%IngestSheet{} = sheet) do
@@ -203,12 +228,20 @@ defmodule Meadow.Ingest.IngestSheets do
   end
 
   @doc """
-  Add error  m
+  Add file level error message to ingest sheet's errors array
 
+  ## Examples
+
+  iex>  add_file_errors_to_ingest_sheet(sheet, errors)
+  {:ok, %IngestSheet{}}
+
+  iex> add_file_errors_to_ingest_sheet(sheet, errors)
+  {:error, %Ecto.Changeset{}}
   """
-  def add_error(%IngestSheet{} = sheet, error) do
-    from(j in IngestSheet, where: j.id == ^sheet.id)
-    |> Repo.update_all(push: [file_errors: error])
+  def add_file_errors_to_ingest_sheet(%IngestSheet{} = ingest_sheet, errors) do
+    ingest_sheet
+    |> IngestSheet.file_errors_changeset(%{file_errors: ingest_sheet.file_errors ++ errors})
+    |> Repo.update()
   end
 
   @doc """
@@ -253,10 +286,10 @@ defmodule Meadow.Ingest.IngestSheets do
 
   ## Examples
 
-      iex> list_ingest_sheet_rows(ingest_sheet: %Job{})
+      iex> list_ingest_sheet_rows(ingest_sheet: %IngestSheet{})
       [%IngestSheetRow{}, ...]
 
-      iex> list_ingest_sheet_rows(ingest_sheet: %Job{}, state: ["error"])
+      iex> list_ingest_sheet_rows(ingest_sheet: %IngestSheet{}, state: ["error"])
       [%IngestSheetRow{}, ...]
   """
   def list_ingest_sheet_rows(criteria) do
@@ -327,6 +360,71 @@ defmodule Meadow.Ingest.IngestSheets do
     IngestSheetRow.changeset(row, %{})
   end
 
+  @doc """
+  Update the ingest status of an ingest sheet or a row
+  """
+  def update_ingest_status(%IngestSheet{id: ingest_sheet_id}),
+    do: update_ingest_status(ingest_sheet_id)
+
+  def update_ingest_status(ingest_sheet_id) do
+    states =
+      from(entry in IngestStatus,
+        distinct: true,
+        select: entry.status,
+        where: entry.ingest_sheet_id == ^ingest_sheet_id and entry.row > 0
+      )
+      |> Repo.all()
+      |> Enum.into(%MapSet{})
+
+    status =
+      if MapSet.size(MapSet.intersection(states, MapSet.new(["pending", nil]))) == 0,
+        do: "finished",
+        else: "pending"
+
+    status =
+      if MapSet.member?(states, "error"),
+        do: "#{status} (with errors)",
+        else: status
+
+    %IngestStatus{
+      ingest_sheet_id: ingest_sheet_id
+    }
+    |> IngestStatus.changeset(%{status: status})
+    |> Repo.insert(
+      on_conflict: [set: [status: status]],
+      conflict_target: [:ingest_sheet_id, :row]
+    )
+  end
+
+  def update_ingest_status(%IngestSheetRow{} = row, ingest_status),
+    do: update_ingest_status(row.ingest_sheet_id, row.row, ingest_status)
+
+  def update_ingest_status(ingest_sheet_id, row, ingest_status) do
+    case %IngestStatus{ingest_sheet_id: ingest_sheet_id, row: row}
+         |> IngestStatus.changeset(%{
+           status: ingest_status
+         })
+         |> Repo.insert(
+           on_conflict: [set: [status: ingest_status]],
+           conflict_target: [:ingest_sheet_id, :row]
+         ) do
+      {:ok, _} -> update_ingest_status(ingest_sheet_id)
+      other -> other
+    end
+  end
+
+  def link_works_to_ingest_sheet(works, %IngestSheet{} = ingest_sheet) do
+    IngestSheetWorks
+    |> Repo.insert_all(
+      works
+      |> Enum.map(fn work ->
+        [ingest_sheet_id: ingest_sheet.id, work_id: work.id]
+      end)
+    )
+
+    works
+  end
+
   # Absinthe Notifications
 
   defp send_ingest_sheet_notification({:ok, sheet}),
@@ -337,6 +435,12 @@ defmodule Meadow.Ingest.IngestSheets do
       MeadowWeb.Endpoint,
       sheet,
       ingest_sheet_update: "sheet:" <> sheet.id
+    )
+
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      sheet,
+      ingest_sheet_updates_for_project: "sheets:" <> sheet.project_id
     )
 
     sheet

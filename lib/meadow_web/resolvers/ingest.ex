@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   Absinthe GraphQL query resolver for Ingest Context
 
   """
+  alias Meadow.Config
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.{IngestSheets, Projects}
   alias Meadow.Ingest.IngestSheets.IngestSheetValidator
@@ -24,7 +25,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
          message: "Could not create project", details: ChangesetErrors.error_details(changeset)}
 
       {:ok, project} ->
-        Application.get_env(:meadow, :ingest_bucket)
+        Config.ingest_bucket()
         |> Bucket.create_project_folder(project.folder)
 
         {:ok, project}
@@ -48,6 +49,32 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   def ingest_sheet(_, %{id: id}, _) do
     {:ok, IngestSheets.get_ingest_sheet!(id)}
+  end
+
+  def approve_ingest_sheet(_, %{id: id}, _) do
+    id
+    |> IngestSheets.get_ingest_sheet!()
+    |> approve_ingest_sheet()
+  end
+
+  def approve_ingest_sheet(%{status: "valid"} = ingest_sheet) do
+    case IngestSheets.update_ingest_sheet_status(ingest_sheet, "approved") do
+      {:error, changeset} ->
+        {
+          :error,
+          message: "Could not approve sheet", details: ChangesetErrors.error_details(changeset)
+        }
+
+      {:ok, ingest_sheet} ->
+        {:ok, ingest_sheet}
+    end
+  end
+
+  def approve_ingest_sheet(%{status: _}) do
+    {
+      :error,
+      message: "Only valid ingest sheets can be approved"
+    }
   end
 
   def ingest_sheet_progress(_, %{id: id}, _) do
@@ -76,9 +103,16 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
-  def delete_ingest_sheet(_, args, _) do
-    ingest_sheet = IngestSheets.get_ingest_sheet!(args[:ingest_sheet_id])
+  @invalid_delete_status ["approved", "completed"]
 
+  def delete_ingest_sheet(%{status: status}) when status in @invalid_delete_status do
+    {
+      :error,
+      message: "Can't delete ingest sheet with status: " <> status
+    }
+  end
+
+  def delete_ingest_sheet(%{status: _} = ingest_sheet) do
     case IngestSheets.delete_ingest_sheet(ingest_sheet) do
       {:error, changeset} ->
         {
@@ -92,8 +126,14 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
+  def delete_ingest_sheet(_, args, _) do
+    args[:ingest_sheet_id]
+    |> IngestSheets.get_ingest_sheet!()
+    |> delete_ingest_sheet()
+  end
+
   def get_presigned_url(_, _, _) do
-    url = Bucket.presigned_s3_url(Application.get_env(:meadow, :upload_bucket))
+    url = Bucket.presigned_s3_url(Config.upload_bucket())
     {:ok, %{url: url}}
   end
 
