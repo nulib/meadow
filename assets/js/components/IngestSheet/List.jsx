@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
-import { toast } from "react-toastify";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
 import UIModalDelete from "../UI/Modal/Delete";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
+import { useToasts } from "react-toast-notifications";
 
 // delete/refine later
 export const TEMP_USER_FRIENDLY_STATUS = {
@@ -20,6 +20,7 @@ export const TEMP_USER_FRIENDLY_STATUS = {
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
+  const { addToast } = useToasts();
 
   useEffect(() => {
     subscribeToIngestSheetStatusChanges();
@@ -59,7 +60,10 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   });
 
   if (deleteIngestSheetError) {
-    toast(`Error: ${deleteIngestSheetError.message}`);
+    addToast(`Error: ${deleteIngestSheetError.message}`, {
+      appearance: "error",
+      autoDismiss: true
+    });
   }
 
   const handleDeleteClick = () => {

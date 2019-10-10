@@ -8,10 +8,10 @@ import {
   MOCK_APPROVE_INGEST_SHEET
 } from "./ingestSheet.query";
 import { useMutation } from "@apollo/react-hooks";
-import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
 import { withRouter } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 
 const IngestSheetActionRow = ({
   projectId,
@@ -19,12 +19,16 @@ const IngestSheetActionRow = ({
   status,
   history
 }) => {
+  const { addToast } = useToasts();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
     DELETE_INGEST_SHEET,
     {
       onCompleted({ deleteIngestSheet }) {
-        toast(`Ingest sheet deleted successfully`);
+        addToast("Ingest sheet deleted successfully", {
+          appearance: "success",
+          autoDismiss: true
+        });
         history.push(`/project/${projectId}`);
       }
     }

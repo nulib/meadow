@@ -1,7 +1,7 @@
 import React from "react";
 import ScreensProjectList from "./List";
 import { GET_PROJECTS } from "../../components/Project/project.query";
-import { renderWithRouterApollo } from "../../testing-helpers";
+import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
 import { waitForElement } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 
@@ -31,7 +31,9 @@ const mocks = [
 ];
 
 it("renders a create new project button", async () => {
-  const { getByTestId } = renderWithRouterApollo(<ScreensProjectList />);
+  const { getByTestId } = renderWithRouterApollo(
+    wrapWithToast(<ScreensProjectList />)
+  );
   const buttonElement = await waitForElement(() =>
     getByTestId("button-new-project")
   );
@@ -39,7 +41,9 @@ it("renders a create new project button", async () => {
 });
 
 it("renders screen header and screen content components", async () => {
-  const { getByTestId } = renderWithRouterApollo(<ScreensProjectList />);
+  const { getByTestId } = renderWithRouterApollo(
+    wrapWithToast(<ScreensProjectList />)
+  );
   const [screenHeaderElement, screenContentElement] = await waitForElement(
     () => [getByTestId("screen-header"), getByTestId("screen-content")]
   );
@@ -49,7 +53,7 @@ it("renders screen header and screen content components", async () => {
 
 it("renders the project list component", async () => {
   const { getByTestId, debug } = renderWithRouterApollo(
-    <ScreensProjectList />,
+    wrapWithToast(<ScreensProjectList />),
     {
       mocks
     }

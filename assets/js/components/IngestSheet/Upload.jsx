@@ -5,13 +5,14 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { withRouter } from "react-router-dom";
 import { GET_PROJECT } from "../Project/project.query";
-import { toast } from "react-toastify";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
+import { useToasts } from "react-toast-notifications";
 
 const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
+  const { addToast } = useToasts();
   const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
@@ -77,7 +78,10 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
     } catch (error) {
       Promise.resolve(null);
       console.log(error);
-      toast(`Error uploading file to S3: ${error}`, { type: "error" });
+      addToast(`Error uploading file to S3: ${error}`, {
+        appearance: "error",
+        autoDismiss: true
+      });
     }
   };
 

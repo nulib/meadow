@@ -1,21 +1,25 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import { toast } from "react-toastify";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
+import { useToasts } from "react-toast-notifications";
 
 const ProjectForm = ({ history }) => {
+  const { addToast } = useToasts();
   let inputTitle;
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [createProject, { loading, error, data }] = useMutation(
     CREATE_PROJECT,
     {
       onCompleted({ createProject }) {
-        toast(`Project ${createProject.title} created successfully`);
+        addToast(`Project ${createProject.title} created successfully`, {
+          appearance: "success",
+          autoDismiss: true
+        });
         history.push("/project/list");
       },
       refetchQueries(mutationResult) {
