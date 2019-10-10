@@ -112,9 +112,13 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                   <td>{updatedAt}</td>
                   <td>{TEMP_USER_FRIENDLY_STATUS[status]}</td>
                   <td className="text-right">
-                    <button onClick={e => onOpenModal(e, id)}>
-                      <TrashIcon className="icon cursor-pointer" />
-                    </button>
+                    {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
+                      status
+                    ) > -1 && (
+                      <button onClick={e => onOpenModal(e, id)}>
+                        <TrashIcon className="icon cursor-pointer" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
