@@ -26,7 +26,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     |> Enum.group_by(fn row -> row |> IngestSheetRow.field_value(:work_accession_number) end)
   end
 
-  defp start_file_set_pipelines(ingest_sheet) do
+  def start_file_set_pipelines(ingest_sheet) do
     from(s in IngestSheetRow,
       join: fs in FileSets.FileSet,
       on: s.file_set_accession_number == fs.accession_number,

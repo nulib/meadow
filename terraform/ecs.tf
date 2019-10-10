@@ -28,11 +28,12 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     effect = "Allow"
     actions = [
       "sns:CreateTopic",
+      "sns:GetSubscriptionAttributes",
       "sns:ListSubscriptions",
       "sns:ListTopics",
-      "sns:Subscribe",
-      "sns:GetSubscriptionAttributes",
-      "sns:SetSubscriptionAttributes"
+      "sns:Publish",
+      "sns:SetSubscriptionAttributes",
+      "sns:Subscribe"
     ]
     resources = ["*"]
   }

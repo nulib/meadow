@@ -133,7 +133,7 @@ defmodule SQNS.Pipeline.Action do
 
       @doc false
       def start_link(opts) do
-        Logger.debug("Starting #{__MODULE__}")
+        Logger.info("Starting #{__MODULE__}")
 
         Pipeline.Action.start_link(
           __MODULE__,
@@ -229,6 +229,8 @@ defmodule SQNS.Pipeline.Action do
     messages
     |> Enum.each(fn %Message{data: {_, data, attrs}} ->
       topic_arn = queue_name |> SQNS.Topics.get_topic_arn()
+
+      Logger.debug("Sending #{inspect(data)} to #{topic_arn} [#{inspect(attrs)}]")
 
       data
       |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)
