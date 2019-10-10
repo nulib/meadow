@@ -1,30 +1,7 @@
 defmodule SQNSTest do
-  use ExUnit.Case
+  use SQNS.TestCase
   import ExUnit.CaptureLog
   alias SQNS
-
-  setup do
-    existing_topics = SQNS.Topics.list_topics()
-    existing_queues = SQNS.Queues.list_queues()
-    existing_topic_names = SQNS.Topics.list_topic_names()
-    existing_queue_names = SQNS.Queues.list_queue_names()
-    existing_subscriptions = SQNS.Subscriptions.list_subscriptions()
-
-    on_exit(fn ->
-      (SQNS.Topics.list_topics() -- existing_topics)
-      |> Enum.each(fn t -> ExAws.SNS.delete_topic(t) |> ExAws.request!() end)
-
-      (SQNS.Queues.list_queues() -- existing_queues)
-      |> Enum.each(fn q -> ExAws.SQS.delete_queue(q) |> ExAws.request!() end)
-    end)
-
-    created_queues = fn -> SQNS.Queues.list_queue_names() -- existing_queue_names end
-    created_topics = fn -> SQNS.Topics.list_topic_names() -- existing_topic_names end
-    created_subs = fn -> SQNS.Subscriptions.list_subscriptions() -- existing_subscriptions end
-
-    {:ok,
-     created_queues: created_queues, created_topics: created_topics, created_subs: created_subs}
-  end
 
   describe "queues" do
     test "create missing queue" do
@@ -106,11 +83,7 @@ defmodule SQNSTest do
   end
 
   describe "specs" do
-    test "create all queues, topics, and subscriptions based on a spec", %{
-      created_topics: created_topics,
-      created_queues: created_queues,
-      created_subs: created_subs
-    } do
+    test "create all queues, topics, and subscriptions based on a spec", context do
       SQNS.setup([
         :a,
         b: [a: [status: :ok]],
@@ -126,15 +99,15 @@ defmodule SQNSTest do
         {"a", "b", %{"status" => ["ok"]}}
       ]
 
-      with actual_queues <- created_queues.() |> Enum.sort() do
+      with actual_queues <- queue_names(context) |> Enum.sort() do
         assert(actual_queues == expected_queues)
       end
 
-      with actual_topics <- created_topics.() |> Enum.sort() do
+      with actual_topics <- topic_names(context) |> Enum.sort() do
         assert(actual_topics == expected_topics)
       end
 
-      with actual_subscriptions <- created_subs.() do
+      with actual_subscriptions <- subscriptions(context) do
         assert(
           expected_subscriptions
           |> Enum.all?(fn sub -> sub in actual_subscriptions end)

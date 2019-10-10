@@ -14,7 +14,6 @@ defmodule Meadow.Ingest.Actions.IngestFileSet do
   end
 
   defp process(%{file_set_id: file_set_id}, _, _) do
-    AuditEntries.add_entry!(file_set_id, __MODULE__, "started")
     Logger.info("Beginning ingest pipeline for FileSet #{file_set_id}")
     {result, _} = AuditEntries.add_entry(file_set_id, __MODULE__, "ok")
     result
