@@ -36,7 +36,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "danger",
         title: "File errors",
-        body: fileErrors.length > 0 ? fileErrors.map(error => `${error}`) : ""
+        body: fileErrors.length > 0 ? fileErrors.join(", ") : ""
       };
       break;
     case "ROW_FAIL":
