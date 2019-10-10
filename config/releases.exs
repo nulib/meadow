@@ -23,7 +23,7 @@ config :meadow, MeadowWeb.Endpoint,
   secret_key_base: get_required_var.("SECRET_KEY_BASE")
 
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
-
+config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
 config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
 
 config :honeybadger,

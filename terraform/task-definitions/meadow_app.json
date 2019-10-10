@@ -26,6 +26,10 @@
         "name": "MEADOW_HOSTNAME",
         "value": "${host_name}"
       },
+      {
+        "name": "PRESERVATION_BUCKET",
+        "value": "${preservation_bucket}"
+      },
       { 
         "name": "RELEASE_COOKIE",
         "value": "${secret_key_base}"
