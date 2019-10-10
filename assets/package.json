@@ -26,7 +26,8 @@
     "prop-types": "^15.7.2",
     "rc-progress": "^2.5.1",
     "react-apollo": "^3.1.1",
-    "react-responsive-modal": "^4.0.1"
+    "react-responsive-modal": "^4.0.1",
+    "react-toast-notifications": "^2.2.5"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -59,7 +60,6 @@
     "react-router-dom": "^5.0.1",
     "react-router-prop-types": "^1.0.4",
     "react-svg-loader": "^3.0.3",
-    "react-toastify": "^5.3.2",
     "tailwindcss": "^1.0.5",
     "tailwindcss-spinner": "^1.0.0",
     "terser-webpack-plugin": "^2.1.0",

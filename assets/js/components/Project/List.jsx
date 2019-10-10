@@ -4,12 +4,13 @@ import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
-import { toast } from "react-toastify";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
 import UIModalDelete from "../UI/Modal/Delete";
+import { useToasts } from "react-toast-notifications";
 
 const ProjectList = () => {
+  const { addToast } = useToasts();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
@@ -50,9 +51,12 @@ const ProjectList = () => {
     setModalOpen(false);
 
     if (activeModal.ingestSheets.length > 0) {
-      toast(
+      addToast(
         `Project has existing ingest sheets.  You must delete these before deleting project: ${activeModal.title} `,
-        { type: "error" }
+        {
+          appearance: "error",
+          autoDismiss: true
+        }
       );
       return setActiveModal(null);
     }

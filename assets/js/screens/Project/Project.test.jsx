@@ -4,7 +4,7 @@ import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
 } from "../../components/Project/project.query";
-import { renderWithRouterApollo } from "../../testing-helpers";
+import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
 import { waitForElement } from "@testing-library/react";
@@ -63,7 +63,7 @@ const mocks = [
 
 function setupMatchTests() {
   return renderWithRouterApollo(
-    <Route path="/project/:id" component={ScreensProject} />,
+    wrapWithToast(<Route path="/project/:id" component={ScreensProject} />),
     {
       mocks,
       route: "/project/01DNFK4B8XASXNKBSAKQ6YVNF3"
