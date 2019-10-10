@@ -37,10 +37,12 @@ defmodule Meadow.Ingest.Pipeline do
       IngestFileSet: [],
       GenerateFileSetDigests: [IngestFileSet: [status: :ok]],
       CopyFileToPreservation: [GenerateFileSetDigests: [status: :ok]],
+      FileSetComplete: [CopyFileToPreservation: [status: :ok]],
       UpdateIngestSheetStatus: [
         IngestFileSet: [context: :IngestSheet, status: :error],
         GenerateFileSetDigests: [context: :IngestSheet, status: :error],
-        CopyFileToPreservation: [context: :IngestSheet, status: [:ok, :error]]
+        CopyFileToPreservation: [context: :IngestSheet, status: :error],
+        FileSetComplete: [context: :IngestSheet, status: [:ok, :error]]
       ]
     ]
   end

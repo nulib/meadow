@@ -3,8 +3,8 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   Validates an Ingest Sheet
   """
 
-  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Config
+  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.IngestSheets
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
   alias Meadow.Repo
