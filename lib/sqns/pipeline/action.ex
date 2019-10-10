@@ -173,7 +173,8 @@ defmodule SQNS.Pipeline.Action do
         default: [
           module:
             {BroadwaySQS.Producer,
-             queue_name: opts.queue_name, receive_interval: opts.receive_interval},
+             queue_url: SQNS.Queues.get_queue_url(opts.queue_name),
+             receive_interval: opts.receive_interval},
           stages: opts.producer_stages
         ]
       ],

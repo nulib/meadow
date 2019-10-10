@@ -64,7 +64,7 @@ defmodule Meadow.MixProject do
       {:absinthe_phoenix, "~> 1.4.0"},
       {:atomic_map, "~> 0.8"},
       {:briefly, "~> 0.3.0", only: :test},
-      {:broadway_sqs, "~> 0.3.0"},
+      {:broadway_sqs, "~> 0.4.0"},
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
