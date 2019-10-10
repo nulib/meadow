@@ -7,6 +7,16 @@ import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
 import UIModalDelete from "../UI/Modal/Delete";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 
+// delete/refine later
+export const TEMP_USER_FRIENDLY_STATUS = {
+  UPLOADED: "Validation in progress...",
+  ROW_FAIL: "Validation Errors",
+  FILE_FAIL: "Validation Errors",
+  VALID: "Valid, waiting for approval",
+  APPROVED: "Ingest in progress...",
+  COMPLETED: "Ingest Complete"
+};
+
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
@@ -96,7 +106,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     </Link>
                   </td>
                   <td>{updatedAt}</td>
-                  <td>{status}</td>
+                  <td>{TEMP_USER_FRIENDLY_STATUS[status]}</td>
                   <td className="text-right">
                     <button onClick={e => onOpenModal(e, id)}>
                       <TrashIcon className="icon cursor-pointer" />
