@@ -20,22 +20,22 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     return (data.mockWorksCreatedCount.count / mockTotalWorkCount) * 100;
   };
 
+  const mockProgressValue = () => {
+    return data.mockWorksCreatedCount.count;
+  };
+
   return (
     <section>
       <div className="pt-12">
         <UIProgressBar
           percentComplete={mockPercentComplete()}
-          progressValue={mockPercentComplete() / 10}
+          progressValue={mockProgressValue()}
           isProgressValueAPercentage={false}
-          label="works being created"
+          label="works have been created"
         />
       </div>
       <div className="text-center leading-loose text-gray-600">
-        <p>
-          {!loading && data.mockWorksCreatedCount.count} works are being created
-        </p>
-        <p>xxx file sets are being created</p>
-        <p>What other helpful info could go here?</p>
+        <p></p>
       </div>
     </section>
   );
