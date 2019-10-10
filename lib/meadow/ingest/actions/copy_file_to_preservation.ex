@@ -21,7 +21,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
 
   defp process(%{file_set_id: file_set_id}, _, true) do
     Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
-    :noop
+    :ok
   end
 
   defp process(data, attributes, _) do

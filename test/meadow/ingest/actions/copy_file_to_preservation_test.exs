@@ -1,8 +1,9 @@
 defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
   use Meadow.DataCase
-  alias Meadow.Data.FileSets
+  alias Meadow.Data.{AuditEntries, FileSets}
   alias Meadow.Ingest.Actions.CopyFileToPreservation
   alias Meadow.Utils.Pairtree
+  import ExUnit.CaptureLog
   import Mox
 
   @sha256 "3be2b0180066d23605f9f022ae68facecc7f11e557e88dea3219bb4d42e150b5"
@@ -39,6 +40,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
       end)
 
       assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(AuditEntries.ok?(file_set_id, CopyFileToPreservation))
 
       assert_received(%{
         source: source,
@@ -49,6 +51,10 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
       assert dest == {"test-preservation", "#{pairtree}/#{@sha256}"}
       file_set = FileSets.get_file_set!(file_set_id)
       assert(file_set.metadata.location =~ "/test-preservation/#{pairtree}/#{@sha256}")
+
+      assert capture_log(fn ->
+               CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
     end
   end
 

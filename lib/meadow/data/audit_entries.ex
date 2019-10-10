@@ -10,7 +10,7 @@ defmodule Meadow.Data.AuditEntries do
   def latest_outcome_for(object_id) do
     case get_latest_entry_for(object_id) do
       %AuditEntry{outcome: outcome} -> outcome
-      _ -> nil
+      _ -> :unknown
     end
   end
 
@@ -20,7 +20,7 @@ defmodule Meadow.Data.AuditEntries do
   def latest_outcome_for(object_id, action) do
     case get_latest_entry_for(object_id, action) do
       %AuditEntry{outcome: outcome} -> outcome
-      _ -> nil
+      _ -> :unknown
     end
   end
 
@@ -66,7 +66,7 @@ defmodule Meadow.Data.AuditEntries do
   defp entries_for(object_id) do
     from(a in AuditEntry,
       where: a.object_id == ^object_id,
-      order_by: [desc: :updated_at]
+      order_by: [desc: :id]
     )
   end
 
