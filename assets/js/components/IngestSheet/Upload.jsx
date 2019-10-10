@@ -10,6 +10,7 @@ import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
 import { useToasts } from "react-toast-notifications";
+import Upload from "../../../css/fonts/zondicons/upload.svg";
 
 const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
   const { addToast } = useToasts();
@@ -118,7 +119,8 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
       </div>
       <UIButtonGroup>
         <UIButton type="submit" disabled={isSubmitDisabled()}>
-          Submit
+          <Upload className="icon" />
+          Upload CSV File
         </UIButton>
         <UIButton classes="btn-clear" onClick={handleCancel}>
           Cancel

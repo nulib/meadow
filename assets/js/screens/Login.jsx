@@ -12,7 +12,7 @@ const ScreensLogin = () => {
   if (me) return <Redirect to="/" />;
 
   return (
-    <div className="container w-full flex justify-center">
+    <div className="container w-full flex justify-center mx-auto">
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-32 text-center max-w-sm">
         <h1 className="text-gray-600 mb-4">Please login via SSO</h1>
         <button className="btn btn-primary" onClick={redirectToLogin}>

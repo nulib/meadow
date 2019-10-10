@@ -9,7 +9,9 @@ const UIButton = ({
   children
 }) => (
   <button
-    className={`btn ${classes} ${disabled ? "btn-disabled" : ""}`}
+    className={`btn inline-flex items-center ${classes} ${
+      disabled ? "btn-disabled" : ""
+    }`}
     type={type}
     onClick={onClick}
     disabled={disabled}

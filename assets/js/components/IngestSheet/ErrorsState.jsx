@@ -6,8 +6,8 @@ const IngestSheetErrorsState = ({ validations }) => {
     object && object.errors && object.errors.length > 0;
   return (
     <>
-      <h2>Error report</h2>
       <table>
+        <caption>Ingest sheet validation row errors</caption>
         <thead>
           <tr>
             <th>Row #</th>

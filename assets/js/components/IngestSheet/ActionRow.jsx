@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ButtonGroup from "../UI/ButtonGroup";
 import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
+import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import UIModalDelete from "../UI/Modal/Delete";
 import {
   DELETE_INGEST_SHEET,
@@ -69,6 +70,7 @@ const IngestSheetActionRow = ({
           classes={showApproveButton ? `btn-clear` : ``}
           onClick={onOpenModal}
         >
+          <TrashIcon className="icon" />
           Delete ingest sheet / job and start over
         </UIButton>
       </ButtonGroup>
