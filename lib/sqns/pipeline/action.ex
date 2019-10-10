@@ -94,7 +94,6 @@ defmodule SQNS.Pipeline.Action do
   alias SQNS.Pipeline.Data
   require Logger
 
-  @required_topics [:ok, :error]
   @callback process(data :: any(), attrs :: map()) ::
               {atom(), any(), map()} | {atom(), any()} | {atom()} | atom()
 
@@ -194,8 +193,7 @@ defmodule SQNS.Pipeline.Action do
       ],
       context: %{
         module: module,
-        queue_name: opts.queue_name,
-        sns_topics: opts.sns_topics
+        queue_name: opts.queue_name
       }
     )
   end
@@ -239,38 +237,6 @@ defmodule SQNS.Pipeline.Action do
     messages
   end
 
-  defp ensure_sns_topics(context) do
-    context
-    |> Map.update!(:sns_topics, fn arns ->
-      new_arns =
-        Enum.reduce(@required_topics, arns, fn status, result ->
-          status |> ensure_sns_topic(result, context)
-        end)
-
-      new_arns |> Enum.into(%{})
-    end)
-  end
-
-  defp ensure_sns_topic(status, arns, context) do
-    case arns[status] do
-      t when is_binary(t) ->
-        arns
-
-      _ ->
-        arns
-        |> Keyword.put_new(
-          status,
-          (context[:queue_name]
-           |> ExAws.SQS.get_queue_attributes([:queue_arn])
-           |> ExAws.request!()
-           |> Map.get(:body)
-           |> Map.get(:attributes)
-           |> Map.get(:queue_arn)
-           |> String.replace(":sqs:", ":sns:")) <> "-" <> to_string(status)
-        )
-    end
-  end
-
   defp validate_config(opts) do
     result =
       case opts |> Broadway.Options.validate(configuration_spec()) do
@@ -280,7 +246,6 @@ defmodule SQNS.Pipeline.Action do
         {:ok, validated} ->
           validated
           |> Enum.into(%{})
-          |> ensure_sns_topics()
       end
 
     case result do
@@ -294,7 +259,6 @@ defmodule SQNS.Pipeline.Action do
 
   defp configuration_spec do
     [
-      sns_topics: [type: :keyword_list, default: []],
       batch_size: [type: :pos_integer, default: 100],
       batch_timeout: [type: :pos_integer, default: 1000],
       batcher_stages: [type: :non_neg_integer, default: 1],
