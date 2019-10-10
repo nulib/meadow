@@ -5,6 +5,7 @@ defmodule Meadow.Ingest.Projects do
 
   import Ecto.Query, warn: false
 
+  alias Meadow.Ingest.IngestSheets.IngestSheet
   alias Meadow.{Ingest.Projects.Project, Repo}
 
   @doc """
@@ -39,7 +40,11 @@ defmodule Meadow.Ingest.Projects do
 
   Raises `Ecto.NoResultsError` if the Project does not exist.
   """
-  def get_project!(id), do: Repo.get!(Project, id)
+  def get_project!(id) do
+    Project
+    |> Repo.get(id)
+    |> Repo.preload(ingest_sheets: from(i in IngestSheet, order_by: [desc: i.inserted_at]))
+  end
 
   @doc """
   Creates a project.
