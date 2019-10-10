@@ -92,6 +92,7 @@ defmodule SQNS.Queues do
           "Version" => "2012-10-17"
         })
     )
+    |> ExAws.request!()
 
     queue_url
   end

@@ -60,8 +60,8 @@ defmodule SQNS.Subscriptions do
 
   defp get_filter_policy(subscription_arn) do
     case ExAws.SNS.get_subscription_attributes(subscription_arn)
-    |> ExAws.request!()
-    |> get_in([:body, :filter_policy]) do
+         |> ExAws.request!()
+         |> get_in([:body, :filter_policy]) do
       nil -> nil
       "" -> nil
       json -> Jason.decode!(json)
@@ -71,7 +71,11 @@ defmodule SQNS.Subscriptions do
   defp set_filter(_, nil), do: :noop
 
   defp set_filter(subscription_arn, filter) do
-    ExAws.SNS.set_subscription_attributes(:filter_policy, filter |> Jason.encode!(), subscription_arn)
+    ExAws.SNS.set_subscription_attributes(
+      :filter_policy,
+      filter |> Jason.encode!(),
+      subscription_arn
+    )
     |> ExAws.request!()
   end
 end
