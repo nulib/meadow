@@ -77,6 +77,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   end
 
   @max_attempts 5
+  @sleep_time if Mix.env() == :test, do: 10, else: 1000
   defp load_file(sheet, attempt \\ 1) do
     "/" <> filename = URI.parse(sheet.filename).path
 
@@ -90,7 +91,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
             {:error, sheet}
 
           i ->
-            :timer.sleep(1000)
+            :timer.sleep(@sleep_time)
             load_file(sheet, i + 1)
         end
 
