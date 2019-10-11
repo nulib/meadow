@@ -22,7 +22,11 @@ defmodule Meadow.MixProject do
       releases: [
         meadow: [
           include_executables_for: [:unix],
-          applications: [meadow: :permanent, runtime_tools: :permanent]
+          applications: [
+            meadow: :permanent,
+            observer: :permanent,
+            runtime_tools: :permanent
+          ]
         ]
       ]
     ]
