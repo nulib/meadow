@@ -85,6 +85,9 @@ defmodule SQNS.Queues do
                 }
               },
               "Effect" => "Allow",
+              "Principal" => %{
+                "AWS" => "*"
+              },
               "Resource" => queue_arn,
               "Sid" => "sns-notifications-1"
             }

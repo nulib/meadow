@@ -202,26 +202,28 @@ defmodule SQNS.Pipeline.Action do
   @impl true
   def handle_message(_, message, %{module: module}) do
     message
+    |> Message.update_data(&process_message(&1, module))
     |> Message.put_batcher(:sns)
-    |> Message.update_data(fn message_data ->
-      with {data, attrs} <- Data.extract(message_data) do
-        with old_action <- Logger.metadata()[:action] do
-          try do
-            Logger.metadata(action: module |> Module.split() |> List.last())
+  end
 
-            case module.process(data, attrs) do
-              {s, d, a} -> {s, d, a}
-              {s, d} -> {s, d, attrs}
-              {s} -> {s, data, attrs}
-              s -> {s, data, attrs}
-            end
-            |> Data.update(module)
-          after
-            Logger.metadata(action: old_action)
+  defp process_message(message_data, module) do
+    with {data, attrs} <- Data.extract(message_data) do
+      with old_action <- Logger.metadata()[:action] do
+        try do
+          Logger.metadata(action: module |> Module.split() |> List.last())
+
+          case module.process(data, attrs) do
+            {s, d, a} -> {s, d, a}
+            {s, d} -> {s, d, attrs}
+            {s} -> {s, data, attrs}
+            s -> {s, data, attrs}
           end
+          |> Data.update(module)
+        after
+          Logger.metadata(action: old_action)
         end
       end
-    end)
+    end
   end
 
   @impl true
@@ -236,6 +238,17 @@ defmodule SQNS.Pipeline.Action do
       |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)
       |> ExAws.request!()
     end)
+
+    messages
+  end
+
+  @impl true
+  def handle_batch(batcher, messages, _, context) do
+    Logger.warn(
+      "Unknown Batcher: " <>
+        "#{inspect(batcher)} called for #{length(messages)} messages " <>
+        "with context #{inspect(context)}"
+    )
 
     messages
   end

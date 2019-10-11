@@ -22,7 +22,8 @@ defmodule Meadow.Ingest.Pipeline do
             Actions.CopyFileToPreservation,
             Actions.GenerateFileSetDigests,
             Actions.IngestFileSet,
-            Actions.UpdateIngestSheetStatus
+            Actions.UpdateIngestSheetStatus,
+            Actions.FileSetComplete
           ]
 
         false ->

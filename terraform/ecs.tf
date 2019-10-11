@@ -43,11 +43,14 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     effect = "Allow"
     actions = [
       "sqs:CreateQueue",
+      "sqs:DeleteMessage",
+      "sqs:DeleteMessageBatch",
       "sqs:GetQueueAttributes",
       "sqs:GetQueueUrl",
       "sqs:ListQueues",
       "sqs:ReceiveMessage",
       "sqs:SendMessage",
+      "sqs:SendMessageBatch",
       "sqs:SetQueueAttributes"
     ]
     resources = ["arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
