@@ -216,59 +216,56 @@ export const SUBSCRIBE_TO_INGEST_SHEET_PROGRESS = gql`
   }
 `;
 
-export const MOCK_APPROVE_INGEST_SHEET = gql`
-  mutation MockApproveIngestSheet($id: ID!) {
-    mockApproveIngestSheet(id: $id) {
-      id
-      status
-      updatedAt
+export const APPROVE_INGEST_SHEET = gql`
+  mutation ApproveIngestSheet($id: ID!) {
+    approveIngestSheet(id: $id) {
+      message
     }
   }
 `;
 
-export const MOCK_WORKS_CREATED_COUNT_SUBSCRIPTION = gql`
-  subscription MockWorksCreatedCount($sheetId: ID!) {
-    mockWorksCreatedCount(sheetId: $sheetId) {
-      count
+export const INGEST_PROGRESS_SUBSCRIPTION = gql`
+  subscription IngestProgress($sheetId: ID!) {
+    ingestProgress(ingestSheetId: $sheetId) {
+      totalFileSets
+      completedFileSets
+      percentComplete
     }
   }
 `;
 
-export const MOCK_INGEST_SHEET_COMPLETED = gql`
-  query MockIngestSheetCompleted($id: ID!) {
-    mockIngestSheet(id: $id) {
-      name
-      works {
-        accessionNumber
-        fileSets {
-          accessionNumber
-          id
-          metadata {
-            description
-            location
-          }
-          role
-        }
-        id
-        visibility
-        workType
-      }
-    }
-  }
-`;
-
-export const MOCK_INGEST_SHEET_COMPLETED_ERRORS = gql`
-  query MockIngestSheetCompletedErrors($id: ID!) {
-    mockIngestSheetErrors(id: $id) {
+export const INGEST_SHEET_WORKS = gql`
+  query IngestSheetWorks($id: ID!) {
+    ingestSheetWorks(id: $id) {
+      accessionNumber
       fileSets {
         accessionNumber
-        description
-        errors
-        filename
+        id
+        metadata {
+          description
+          location
+        }
         role
-        rowNumber
-        workAccessionNumber
       }
+      id
+      visibility
+      workType
+    }
+  }
+`;
+
+export const INGEST_SHEET_COMPLETED_ERRORS = gql`
+  query IngestSheetCompletedErrors($id: ID!) {
+    ingestSheetErrors(id: $id) {
+      accessionNumber
+      action
+      description
+      errors
+      filename
+      outcome
+      role
+      rowNumber
+      workAccessionNumber
     }
   }
 `;

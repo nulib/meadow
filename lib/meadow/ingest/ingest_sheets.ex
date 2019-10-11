@@ -4,6 +4,9 @@ defmodule Meadow.Ingest.IngestSheets do
   """
 
   import Ecto.Query, warn: false
+  alias Meadow.Data.AuditEntries.AuditEntry
+  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Works.Work
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow, IngestSheetWorks, IngestStatus}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
@@ -381,19 +384,26 @@ defmodule Meadow.Ingest.IngestSheets do
         do: "finished",
         else: "pending"
 
-    status =
+    status_text =
       if MapSet.member?(states, "error"),
         do: "#{status} (with errors)",
         else: status
 
-    %IngestStatus{
-      ingest_sheet_id: ingest_sheet_id
-    }
-    |> IngestStatus.changeset(%{status: status})
-    |> Repo.insert(
-      on_conflict: [set: [status: status]],
-      conflict_target: [:ingest_sheet_id, :row]
-    )
+    Repo.transaction(fn ->
+      if status == "finished" do
+        get_ingest_sheet!(ingest_sheet_id)
+        |> update_ingest_sheet_status("completed")
+      end
+
+      %IngestStatus{
+        ingest_sheet_id: ingest_sheet_id
+      }
+      |> IngestStatus.changeset(%{status: status_text})
+      |> Repo.insert(
+        on_conflict: [set: [status: status_text]],
+        conflict_target: [:ingest_sheet_id, :row]
+      )
+    end)
   end
 
   def update_ingest_status(%IngestSheetRow{} = row, ingest_status),
@@ -423,6 +433,186 @@ defmodule Meadow.Ingest.IngestSheets do
     )
 
     works
+  end
+
+  def list_ingest_sheet_works(%IngestSheet{} = ingest_sheet) do
+    ingest_sheet
+    |> Repo.preload(:works)
+    |> Map.get(:works)
+  end
+
+  def list_ingest_sheet_works(ingest_sheet_id) do
+    from(s in Meadow.Ingest.IngestSheets.IngestSheet,
+      where: s.id == ^ingest_sheet_id,
+      preload: :works
+    )
+    |> Repo.one()
+    |> Map.get(:works)
+  end
+
+  def file_set_count(%IngestSheet{} = ingest_sheet), do: file_set_count(ingest_sheet.id)
+
+  def file_set_count(ingest_sheet_id) do
+    from(r in IngestSheetRow,
+      where: r.ingest_sheet_id == ^ingest_sheet_id,
+      select: count(r.ingest_sheet_id)
+    )
+    |> Repo.one()
+  end
+
+  def completed_file_set_count(%IngestSheet{} = ingest_sheet),
+    do: completed_file_set_count(ingest_sheet.id)
+
+  def completed_file_set_count(ingest_sheet_id) do
+    from([entry: a] in file_set_audit_entries(ingest_sheet_id),
+      where: a.outcome in ["ok", "error"],
+      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      where: a.action == "Meadow.Ingest.Actions.FileSetComplete",
+      select: count(a.id)
+    )
+    |> Repo.one()
+  end
+
+  def total_action_count(%IngestSheet{} = ingest_sheet), do: total_action_count(ingest_sheet.id)
+
+  def total_action_count(ingest_sheet_id) do
+    from([entry: a] in file_set_audit_entries(ingest_sheet_id),
+      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      select: count(a.id)
+    )
+    |> Repo.one()
+  end
+
+  def completed_action_count(%IngestSheet{} = ingest_sheet),
+    do: completed_action_count(ingest_sheet.id)
+
+  def completed_action_count(ingest_sheet_id) do
+    from([entry: a] in file_set_audit_entries(ingest_sheet_id),
+      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      where: a.outcome in ["ok", "error"],
+      select: count(a.id)
+    )
+    |> Repo.one()
+  end
+
+  def ingest_errors(%IngestSheet{} = ingest_sheet), do: ingest_errors(ingest_sheet.id)
+
+  def ingest_errors(ingest_sheet_id) do
+    row_errors =
+      from([entry: entry, row: row] in row_audit_entries(ingest_sheet_id),
+        where: entry.outcome in ["error", "skipped"],
+        select: %{
+          row_number: row.row,
+          accession_number: row.file_set_accession_number,
+          fields: row.fields,
+          id: entry.object_id,
+          action: entry.action,
+          outcome: entry.outcome,
+          errors: entry.notes
+        }
+      )
+
+    file_set_errors =
+      from([entry: entry, row: row] in file_set_audit_entries(ingest_sheet_id),
+        where: entry.outcome in ["error", "skipped"],
+        select: %{
+          row_number: row.row,
+          accession_number: row.file_set_accession_number,
+          fields: row.fields,
+          id: entry.object_id,
+          action: entry.action,
+          outcome: entry.outcome,
+          errors: entry.notes
+        }
+      )
+
+    query = from(row_errors, union_all: ^file_set_errors)
+
+    from(q in subquery(query), order_by: q.row_number)
+    |> Repo.all()
+    |> Enum.map(fn error_row ->
+      Map.merge(
+        error_row,
+        error_row.fields
+        |> Enum.map(fn field ->
+          {field.header |> String.to_atom(), field.value}
+        end)
+        |> Enum.into(%{})
+      )
+      |> Map.delete(:fields)
+    end)
+  end
+
+  def ingest_sheet_for(%FileSet{} = file_set), do: ingest_sheet_for_file_set(file_set.id)
+
+  def ingest_sheet_for(%Work{} = work), do: ingest_sheet_for_work(work.id)
+
+  def ingest_sheet_for_file_set(file_set_id) do
+    from(
+      fs in FileSet,
+      join: iw in IngestSheetWorks,
+      on: iw.work_id == fs.work_id,
+      join: sheets in IngestSheet,
+      on: sheets.id == iw.ingest_sheet_id,
+      where: fs.id == ^file_set_id,
+      select: sheets
+    )
+    |> Repo.one()
+  end
+
+  def ingest_sheet_for_work(work_id) do
+    from(
+      iw in IngestSheetWorks,
+      join: sheets in IngestSheet,
+      on: sheets.id == iw.ingest_sheet_id,
+      where: iw.work_id == ^work_id,
+      select: sheets
+    )
+    |> Repo.one()
+  end
+
+  def file_sets_and_rows(ingest_sheet) do
+    from(f in FileSet,
+      as: :file_set,
+      join: w in Work,
+      on: w.id == f.work_id,
+      join: iw in IngestSheetWorks,
+      on: iw.work_id == w.id,
+      join: r in IngestSheetRow,
+      as: :row,
+      on:
+        r.ingest_sheet_id == iw.ingest_sheet_id and
+          r.file_set_accession_number == f.accession_number,
+      where: r.ingest_sheet_id == ^ingest_sheet.id
+    )
+  end
+
+  def row_audit_entries(ingest_sheet_id) do
+    from(a in AuditEntry,
+      as: :entry,
+      join: r in IngestSheetRow,
+      as: :row,
+      on: r.id == a.object_id,
+      where: r.ingest_sheet_id == ^ingest_sheet_id
+    )
+  end
+
+  def file_set_audit_entries(ingest_sheet_id) do
+    from(a in AuditEntry,
+      as: :entry,
+      join: f in FileSet,
+      on: f.id == a.object_id,
+      join: w in Work,
+      on: w.id == f.work_id,
+      join: iw in IngestSheetWorks,
+      on: iw.work_id == w.id,
+      join: r in IngestSheetRow,
+      as: :row,
+      on:
+        r.ingest_sheet_id == r.ingest_sheet_id and
+          r.file_set_accession_number == f.accession_number,
+      where: iw.ingest_sheet_id == ^ingest_sheet_id
+    )
   end
 
   # Absinthe Notifications

@@ -31,9 +31,4 @@ defmodule Meadow.Config do
   def start_pipeline? do
     Application.get_env(:meadow, :start_pipeline, true)
   end
-
-  @doc "Check whether to force synchronous validation (e.g., for tests)"
-  def synchronous_validation? do
-    Application.get_env(:meadow, :synchronous_validation, false)
-  end
 end

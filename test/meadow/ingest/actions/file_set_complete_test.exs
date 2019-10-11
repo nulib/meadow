@@ -4,13 +4,14 @@ defmodule Meadow.Ingest.Actions.FileSetCompleteTest do
   alias Meadow.Ingest.Actions.FileSetComplete
   import ExUnit.CaptureLog
 
-  @object_id "01DPPFNZ55TABJ74NV9H4ZKF1B"
   test "process/2" do
-    assert(FileSetComplete.process(%{file_set_id: @object_id}, %{}) == :ok)
-    assert(AuditEntries.ok?(@object_id, FileSetComplete))
+    object = file_set_fixture()
+
+    assert(FileSetComplete.process(%{file_set_id: object.id}, %{}) == :ok)
+    assert(AuditEntries.ok?(object.id, FileSetComplete))
 
     assert capture_log(fn ->
-             FileSetComplete.process(%{file_set_id: @object_id}, %{})
-           end) =~ "Skipping #{FileSetComplete} for #{@object_id} – already complete"
+             FileSetComplete.process(%{file_set_id: object.id}, %{})
+           end) =~ "Skipping #{FileSetComplete} for #{object.id} – already complete"
   end
 end

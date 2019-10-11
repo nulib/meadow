@@ -1,14 +1,14 @@
 defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
   use MeadowWeb.ConnCase, async: true
-  use MeadowWeb.GQLCase
+  use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/CreateCollection.gql")
 
-  test "should be a valid mutation", %{gql_context: gctx} do
+  test "should be a valid mutation" do
     result =
       query_gql(
         variables: %{"name" => "The collection name"},
-        context: gctx
+        context: gql_context()
       )
 
     assert {:ok, query_data} = result

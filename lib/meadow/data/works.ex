@@ -117,10 +117,9 @@ defmodule Meadow.Data.Works do
   Same as create_work/1 but raises on error
   """
   def create_work!(attrs \\ %{}) do
-    case create_work(attrs) do
-      {:ok, work} -> work
-      {:error, error} -> raise error
-    end
+    %Work{}
+    |> Work.changeset(attrs)
+    |> Repo.insert!()
   end
 
   @doc """

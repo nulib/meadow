@@ -167,6 +167,17 @@ defmodule Meadow.TestHelpers do
     file_set
   end
 
+  def gql_context(extra \\ %{}) do
+    extra
+    |> Map.merge(%{
+      current_user: %{
+        username: "user1",
+        email: "email@example.com",
+        display_name: "User Name"
+      }
+    })
+  end
+
   def sandbox_mode(tags) do
     result =
       case Sandbox.checkout(Meadow.Repo) do

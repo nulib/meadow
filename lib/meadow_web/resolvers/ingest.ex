@@ -4,8 +4,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   """
   alias Meadow.Config
+  alias Meadow.Data.AuditEntries
   alias Meadow.Ingest.IngestSheets
-  alias Meadow.Ingest.{IngestSheets, Projects}
+  alias Meadow.Ingest.{IngestSheets, Projects, SheetsToWorks}
   alias Meadow.Ingest.IngestSheets.IngestSheetValidator
   alias Meadow.Ingest.Projects.Bucket
   alias MeadowWeb.Schema.ChangesetErrors
@@ -66,7 +67,15 @@ defmodule MeadowWeb.Resolvers.Ingest do
         }
 
       {:ok, ingest_sheet} ->
-        {:ok, ingest_sheet}
+        {response, pid} =
+          Meadow.Async.run_once("ingest:#{ingest_sheet.id}", fn ->
+            ingest_sheet
+            |> SheetsToWorks.create_works_from_ingest_sheet()
+            |> SheetsToWorks.start_file_set_pipelines()
+          end)
+
+        pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
+        {:ok, %{message: to_string(response) <> " : " <> pid_string}}
     end
   end
 
@@ -86,7 +95,11 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def validate_ingest_sheet(_, args, _) do
-    {response, pid} = args[:ingest_sheet_id] |> IngestSheetValidator.async()
+    {response, pid} =
+      Meadow.Async.run_once("validate:#{args[:ingest_sheet_id]}", fn ->
+        args[:ingest_sheet_id] |> IngestSheetValidator.result()
+      end)
+
     pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
     {:ok, %{message: to_string(response) <> " : " <> pid_string}}
   end
@@ -143,5 +156,23 @@ defmodule MeadowWeb.Resolvers.Ingest do
       args
       |> IngestSheets.list_ingest_sheet_rows()
     }
+  end
+
+  def get_audit_trail(_, args, _) do
+    {:ok,
+     args[:object_id]
+     |> AuditEntries.get_entries()
+     |> Enum.map(fn entry ->
+       mod = "Elixir.#{entry.action}" |> String.to_atom()
+       %AuditEntries.AuditEntry{entry | action: mod.actiondoc()}
+     end)}
+  end
+
+  def ingest_sheet_works(_, %{id: sheet_id}, _) do
+    {:ok, sheet_id |> IngestSheets.list_ingest_sheet_works()}
+  end
+
+  def ingest_sheet_errors(_, %{id: sheet_id}, _) do
+    {:ok, sheet_id |> IngestSheets.ingest_errors()}
   end
 end

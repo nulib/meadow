@@ -53,6 +53,28 @@ defmodule MeadowWeb.Schema.IngestTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.ingest_sheet_rows/3)
     end
+
+    @desc "Retrieve all audit entries for an object"
+    field :audit_trail, list_of(:audit_entry) do
+      arg(:object_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.get_audit_trail/3)
+    end
+
+    @desc "Get works created for an Ingest Sheet"
+    field :ingest_sheet_works, list_of(:work) do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.ingest_sheet_works/3)
+    end
+
+    @desc "Get errors for completed ingest sheet"
+    field :ingest_sheet_errors, list_of(:ingest_sheet_error) do
+      @desc "The ID of `IngestSheet` (can be anything)"
+      arg(:id, type: non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.ingest_sheet_errors/3)
+    end
   end
 
   object :ingest_mutations do
@@ -87,7 +109,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     end
 
     @desc "Approve an Ingest Sheet"
-    field :approve_ingest_sheet, :ingest_sheet do
+    field :approve_ingest_sheet, :status_message do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.approve_ingest_sheet/3)
@@ -145,6 +167,31 @@ defmodule MeadowWeb.Schema.IngestTypes do
         {:ok, topic: topic}
       end)
     end
+
+    @desc "Subscribe to audit trail updates for a specific work or file set"
+    field :audit_update, :audit_entry do
+      arg(:object_id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: args.object_id}
+      end)
+    end
+
+    @desc "Subscribe to audit trail updates for works and file sets"
+    field :audit_updates, :audit_entry do
+      config(fn _args, _info ->
+        {:ok, topic: :all}
+      end)
+    end
+
+    @desc "Subscribe to work creation progress notifications for an ingest sheet"
+    field :ingest_progress, :work_ingest_progress do
+      arg(:ingest_sheet_id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: args.ingest_sheet_id}
+      end)
+    end
   end
 
   object :project do
@@ -199,6 +246,15 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:fail, as: "fail")
   end
 
+  @desc "Action outcomes"
+  enum :action_outcome do
+    value(:waiting, as: "waiting", description: "Action is pending but not yet started")
+    value(:started, as: "started", description: "Action has been initiated but not yet completed")
+    value(:ok, as: "ok", description: "Action completed successfully")
+    value(:error, as: "error", description: "Action failed; see notes field for details")
+    value(:skipped, as: "skipped", description: "Action skipped due to upstream error(s)")
+  end
+
   @desc "an Ingest Project"
   object :project do
     field :id, non_null(:id)
@@ -241,5 +297,50 @@ defmodule MeadowWeb.Schema.IngestTypes do
   object :state_count do
     field :state, non_null(:state)
     field :count, non_null(:integer)
+  end
+
+  object :ingest_sheet_error do
+    field :row_number, :integer
+    field :accession_number, :string
+    field :work_accession_number, :string
+    field :role, :string
+    field :description, :string
+    field :filename, :string
+    field :action, non_null(:string)
+    field :outcome, non_null(:action_outcome)
+    field :errors, :string
+  end
+
+  @desc "The state of a single action within a pipeline"
+  object :audit_entry do
+    @desc "The ID of the Work or FileSet target of the action"
+    field :object_id, non_null(:string)
+    @desc "The module name of the action"
+    field :action, :string
+    @desc "The most recent outcome of the action"
+    field :outcome, :action_outcome
+    @desc "Additional details regarding the success or failure of the action"
+    field :notes, :string
+    field :inserted_at, non_null(:naive_datetime)
+    field :updated_at, non_null(:naive_datetime)
+  end
+
+  @desc """
+  A summary progress report on the ingest of a single Ingest Sheet. NOTE: This
+  does not indicate success, only done-ness.
+  """
+  object :work_ingest_progress do
+    @desc "The ID of the Ingest Sheet in progress"
+    field :ingest_sheet_id, non_null(:id)
+    @desc "The total number of FileSets attached to the Ingest Sheet"
+    field :total_file_sets, non_null(:integer)
+    @desc "The number of FileSets that have reached OK or ERROR state"
+    field :completed_file_sets, non_null(:integer)
+    @desc "The total number of actions required to complete the ingest"
+    field :total_actions, non_null(:integer)
+    @desc "The number of actions that have reached OK or ERROR state"
+    field :completed_actions, non_null(:integer)
+    @desc "The percentage of actions that have reached OK or ERROR state"
+    field :percent_complete, non_null(:float)
   end
 end

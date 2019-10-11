@@ -11,6 +11,7 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   schema "audit_entries" do
+    field :object_type
     field :object_id, Ecto.ULID
     field :action
     field :outcome
@@ -21,11 +22,12 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
   def changeset(audit_entry, attrs \\ %{}) do
     audit_entry
     |> cast_action(attrs[:action])
+    |> cast_type(attrs[:object_type])
     |> cast(attrs, [:object_id, :outcome, :notes])
     |> validate_required([:object_id, :action, :outcome])
   end
 
-  def action_to_string(action) do
+  def atom_to_string(action) do
     cond do
       is_binary(action) -> action
       is_atom(action) && Code.ensure_loaded?(action) -> Module.split(action) |> Enum.join(".")
@@ -34,6 +36,10 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
   end
 
   defp cast_action(change, action) do
-    Ecto.Changeset.change(change, %{action: action_to_string(action)})
+    Ecto.Changeset.change(change, %{action: atom_to_string(action)})
+  end
+
+  defp cast_type(change, type) do
+    Ecto.Changeset.change(change, %{object_type: atom_to_string(type)})
   end
 end

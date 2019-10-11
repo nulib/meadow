@@ -15,7 +15,6 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.CollectionTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
-  import_types(__MODULE__.MockTypes)
 
   query do
     import_fields(:account_queries)
@@ -23,7 +22,6 @@ defmodule MeadowWeb.Schema do
     import_fields(:ingest_queries)
     import_fields(:work_queries)
     import_fields(:file_set_queries)
-    import_fields(:mock_queries)
   end
 
   mutation do
@@ -31,12 +29,10 @@ defmodule MeadowWeb.Schema do
     import_fields(:collection_mutations)
     import_fields(:work_mutations)
     import_fields(:file_set_mutations)
-    import_fields(:mock_mutations)
   end
 
   subscription do
     import_fields(:ingest_subscriptions)
-    import_fields(:mock_subscriptions)
   end
 
   enum :sort_order do
