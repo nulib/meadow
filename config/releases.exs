@@ -30,3 +30,5 @@ config :honeybadger,
   api_key: get_required_var.("HONEYBADGER_API_KEY"),
   environment_name: :prod,
   exclude_envs: [:dev, :test]
+
+config :sqns, prefix: "meadow"

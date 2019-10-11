@@ -6,6 +6,9 @@ defmodule Meadow.ReleaseTasks do
   alias Ecto.Adapters.SQL
 
   def migrate do
+    [:ex_aws, :hackney, :sqns] |> Enum.each(&Application.ensure_all_started/1)
+    Meadow.Ingest.Pipeline.queue_config() |> SQNS.setup()
+
     for repo <- repos() do
       create_storage_for(repo)
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
