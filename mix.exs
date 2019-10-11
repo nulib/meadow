@@ -42,6 +42,7 @@ defmodule Meadow.MixProject do
         :honeybadger,
         :logger,
         :runtime_tools,
+        :sqns,
         :ueberauth_openam
       ]
     ]
@@ -66,9 +67,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.4.2"},
       {:absinthe_plug, "~> 1.4.0"},
       {:absinthe_phoenix, "~> 1.4.0"},
-      {:atomic_map, "~> 0.8"},
       {:briefly, "~> 0.3.0", only: :test},
-      {:broadway_sqs, "~> 0.4.0"},
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
@@ -78,9 +77,6 @@ defmodule Meadow.MixProject do
       {:ets, "~> 0.7.3"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_aws_sns,
-       git: "https://github.com/mbklein/ex_aws_sns.git", branch: "add-filter-policy"},
-      {:ex_aws_sqs, "~> 3.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
@@ -98,6 +94,7 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
+      {:sqns, git: "https://github.com/nulib/sqns.git"},
       {:sweet_xml, "~> 0.6"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"}
