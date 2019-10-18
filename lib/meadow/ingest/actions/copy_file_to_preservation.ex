@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
-  alias SQNS.Pipeline.Action
+  alias Sequins.Pipeline.Action
   use Action
   require Logger
 

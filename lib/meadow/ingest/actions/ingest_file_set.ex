@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.Actions.IngestFileSet do
   @moduledoc "Start the ingest of a FileSet"
 
   alias Meadow.Data.AuditEntries
-  alias SQNS.Pipeline.Action
+  alias Sequins.Pipeline.Action
   use Action
 
   def process(data, attrs),

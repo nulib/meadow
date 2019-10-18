@@ -42,7 +42,7 @@ defmodule Meadow.MixProject do
         :honeybadger,
         :logger,
         :runtime_tools,
-        :sqns,
+        :sequins,
         :ueberauth_openam
       ]
     ]
@@ -94,7 +94,7 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
-      {:sqns, git: "https://github.com/nulib/sqns.git"},
+      {:sequins, git: "https://github.com/nulib/sequins.git"},
       {:sweet_xml, "~> 0.6"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"}

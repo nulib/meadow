@@ -44,7 +44,7 @@ The code that actually performs the unit of work required by an `Action`.
   - Most `Workers` will be written in Elixir using [Broadway](https://hexdocs.pm/broadway/), with [BroadwaySQS](https://hexdocs.pm/broadway_sqs/) as the producer and a custom batcher that delivers processed messages to SNS.
   - Some `Workers` might be implemented in other languages if they are better suited to the work. For example, image derivatives are best  created using VIPS via Sharp, which requires a nodejs `Worker`.
 - `Actions` are chained together into `Pipelines` by having `Queues` subscribe to `Topics`. It is also possible to have an AWS Lambda subscribe to a `Topic` in order to start a non-Elixir worker or perform other housekeeping tasks outside the scope of `Workers`.
-  - I have been informally referring to this `SQS→SNS→SQS...` message chain as `SQNS`, pronounced “sequins” or “sequence.”
+  - This `SQS→SNS→SQS...` message chain pattern has been extracted into a Hex package called `Sequins`.
 
 An `Action` that has multiple prerequisites (e.g., two different) `Actions` or multiple iterations of another `Action` might require an intermediate `Action` that waits for and collects all of its dependency `Messages` before completing.
 

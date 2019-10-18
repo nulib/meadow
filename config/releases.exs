@@ -31,4 +31,4 @@ config :honeybadger,
   environment_name: :prod,
   exclude_envs: [:dev, :test]
 
-config :sqns, prefix: "meadow"
+config :sequins, prefix: "meadow"

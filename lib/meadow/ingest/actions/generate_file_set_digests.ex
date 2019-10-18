@@ -10,7 +10,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Repo
   alias Meadow.Utils
-  alias SQNS.Pipeline.Action
+  alias Sequins.Pipeline.Action
   use Action
   require Logger
 
