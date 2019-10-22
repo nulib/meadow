@@ -16,10 +16,11 @@ defmodule Meadow.Application do
     children = [
       Meadow.Repo,
       MeadowWeb.Endpoint,
-      {Meadow.Ingest.Pipeline, start: Meadow.Config.start_pipeline?()},
       supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
+
+    if Meadow.Config.start_pipeline?(), do: Meadow.Ingest.Pipeline.start()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

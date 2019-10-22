@@ -11,7 +11,7 @@ defmodule Meadow.Ingest.Actions.UpdateIngestSheetStatus do
   context: "ingest_sheet"
   """
   alias Meadow.Ingest.IngestSheets
-  alias SQNS.Pipeline.Action
+  alias Sequins.Pipeline.Action
   use Action
   require Logger
 

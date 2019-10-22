@@ -14,23 +14,17 @@ defmodule Meadow.Ingest.Pipeline do
     }
   end
 
-  def start_link(opts) do
-    children =
-      case opts[:start] do
-        true ->
-          [
-            Actions.CopyFileToPreservation,
-            Actions.GenerateFileSetDigests,
-            Actions.IngestFileSet,
-            Actions.UpdateIngestSheetStatus,
-            Actions.FileSetComplete
-          ]
+  def start do
+    children = [
+      {Actions.CopyFileToPreservation, max_number_of_messages: 3, visibility_timeout: 180},
+      {Actions.GenerateFileSetDigests, max_number_of_messages: 3, visibility_timeout: 180},
+      {Actions.IngestFileSet, processor_stages: 1},
+      {Actions.UpdateIngestSheetStatus, processor_stages: 1},
+      {Actions.FileSetComplete, processor_stages: 1}
+    ]
 
-        false ->
-          []
-      end
-
-    Supervisor.start_link(children, name: __MODULE__.Supervisor, strategy: :one_for_one)
+    Application.ensure_started(:sequins, :permanent)
+    Sequins.start_children(children)
   end
 
   def queue_config do

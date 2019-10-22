@@ -28,7 +28,7 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :sqns, prefix: "meadow"
+config :sequins, prefix: "meadow"
 
 config :ueberauth, Ueberauth,
   providers: [

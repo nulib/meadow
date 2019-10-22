@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.Actions.FileSetComplete do
   @moduledoc "Mark the end of the FileSet ingest pipeline"
 
   alias Meadow.Data.AuditEntries
-  alias SQNS.Pipeline.Action
+  alias Sequins.Pipeline.Action
   use Action
 
   def process(data, attrs),

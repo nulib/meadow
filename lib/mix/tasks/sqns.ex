@@ -6,6 +6,6 @@ defmodule Mix.Tasks.Meadow.Pipeline.Setup do
   @shortdoc @moduledoc
   def run(_) do
     [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)
-    Pipeline.queue_config() |> SQNS.setup()
+    Pipeline.queue_config() |> Sequins.setup()
   end
 end
