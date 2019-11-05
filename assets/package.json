@@ -35,7 +35,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/plugin-transform-async-to-generator": "^7.5.0",
     "@babel/preset-env": "^7.6.3",
-    "@babel/preset-react": "^7.6.3",
+    "@babel/preset-react": "^7.7.0",
     "@nulib/prettier-config": "^1.2.0",
     "@testing-library/jest-dom": "^4.2.3",
     "@testing-library/react": "^9.3.2",
