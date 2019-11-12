@@ -4,6 +4,7 @@ defmodule Meadow.Application do
   @moduledoc false
 
   use Application
+  alias Meadow.Ingest.Pipeline
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -20,7 +21,7 @@ defmodule Meadow.Application do
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
-    if Meadow.Config.start_pipeline?(), do: Meadow.Ingest.Pipeline.start()
+    if Meadow.Config.start_pipeline?(), do: Pipeline.start()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
