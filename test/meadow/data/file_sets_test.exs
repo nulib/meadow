@@ -51,5 +51,12 @@ defmodule Meadow.Data.FileSetsTest do
 
       assert FileSets.accession_exists?(file_set.accession_number) == true
     end
+
+    test "compute_positions/1 dynamically sets position values" do
+      assert FileSets.compute_positions([%{position: nil}, %{position: nil}]) == [
+               %{position: 0},
+               %{position: 1}
+             ]
+    end
   end
 end

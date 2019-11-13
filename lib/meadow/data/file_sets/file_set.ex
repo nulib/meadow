@@ -8,6 +8,7 @@ defmodule Meadow.Data.FileSets.FileSet do
   alias Meadow.Data.Works.Work
 
   import Ecto.Changeset
+  import EctoRanked
 
   use Meadow.Constants
 
@@ -16,6 +17,9 @@ defmodule Meadow.Data.FileSets.FileSet do
   schema "file_sets" do
     field :accession_number
     field :role, :string
+    field :rank, :integer
+    field :position, :any, virtual: true
+
     embeds_one :metadata, FileSetMetadata, on_replace: :update
     timestamps()
 
@@ -29,12 +33,13 @@ defmodule Meadow.Data.FileSets.FileSet do
 
   def changeset(file_set, params) do
     file_set
-    |> cast(params, [:accession_number, :work_id, :role])
+    |> cast(params, [:accession_number, :work_id, :role, :rank, :position])
     |> cast_embed(:metadata)
     |> validate_required([:accession_number, :role, :metadata])
     |> assoc_constraint(:work)
     |> unsafe_validate_unique([:accession_number], Meadow.Repo)
     |> unique_constraint(:accession_number)
     |> validate_inclusion(:role, @file_set_roles)
+    |> set_rank(scope: :work_id)
   end
 end

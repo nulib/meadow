@@ -79,4 +79,20 @@ defmodule Meadow.Data.FileSets do
   def delete_file_set(%FileSet{} = file_set) do
     Repo.delete(file_set)
   end
+
+  @doc """
+  Dynamically compute the position for each item in a list of maps
+  that include the key `:position`.
+
+  ## Examples
+
+      iex> compute_positions([%{position: nil}, %{position: nil}])
+      [%{position: 0}, %{position: 1}]
+
+  """
+  def compute_positions(ordered_items \\ []) do
+    for {item, i} <- Enum.with_index(ordered_items) do
+      %{item | position: i}
+    end
+  end
 end
