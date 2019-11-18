@@ -5,6 +5,7 @@ defmodule Meadow.Data.Works.Work do
 
   use Ecto.Schema
   alias Meadow.Data.AuditEntries.AuditEntry
+  alias Meadow.Data.Collections.Collection
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.WorkMetadata
 
@@ -28,6 +29,8 @@ defmodule Meadow.Data.Works.Work do
       references: :id,
       foreign_key: :object_id,
       on_delete: :delete_all
+
+    many_to_many(:collections, Collection, join_through: "collections_works", on_replace: :delete)
   end
 
   def changeset(work, attrs) do

@@ -4,7 +4,8 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Accounts.Users.User
-  alias Meadow.Data.{FileSet, Work}
+  alias Meadow.Data.{Collection, FileSet, Work}
+  alias Meadow.Data.Collections.Collection
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
   alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetValidator}
@@ -103,6 +104,22 @@ defmodule Meadow.TestHelpers do
       |> Repo.insert!()
 
     [project1, project2, project3]
+  end
+
+  def collection_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        name: attrs[:name] || "collection-#{System.unique_integer([:positive])}",
+        description: attrs[:description] || "Description of collection",
+        keywords: attrs[:keywords] || ["keyword1", "keyword 2", "keyword 3"]
+      })
+
+    {:ok, collection} =
+      %Collection{}
+      |> Collection.changeset(attrs)
+      |> Repo.insert()
+
+    collection
   end
 
   def work_fixture(attrs \\ %{}) do

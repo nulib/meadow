@@ -4,10 +4,11 @@ defmodule Meadow.ReleaseTasks do
   """
   @app :meadow
   alias Ecto.Adapters.SQL
+  alias Meadow.Ingest.Pipeline
 
   def migrate do
     [:ex_aws, :hackney, :sequins] |> Enum.each(&Application.ensure_all_started/1)
-    Meadow.Ingest.Pipeline.queue_config() |> Sequins.setup()
+    Pipeline.queue_config() |> Sequins.setup()
 
     for repo <- repos() do
       create_storage_for(repo)
