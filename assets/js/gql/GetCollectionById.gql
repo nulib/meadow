@@ -1,0 +1,7 @@
+#import "./CollectionFields.frag.gql"
+
+query GetCollectionById($collectionId: ID!) {
+  collection(collectionId: $collectionId) {
+    ...CollectionFields
+  }
+}
