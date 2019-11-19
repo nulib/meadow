@@ -1,22 +1,17 @@
 defmodule MeadowWeb.Schema.Query.GetCollectionByIdTest do
   use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.GQLCase
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/GetCollectionById.gql")
 
-  test "should be a valid query" do
+  test "should be a valid query", %{gql_context: gctx} do
     collection_fixture = collection_fixture()
 
     result =
       query_gql(
         variables: %{"collectionId" => collection_fixture.id},
-        context: %{
-          :current_user => %{
-            username: "user1",
-            email: "email@example.com",
-            display_name: "User Name"
-          }
-        }
+        context: gctx
       )
 
     assert {:ok, query_data} = result
