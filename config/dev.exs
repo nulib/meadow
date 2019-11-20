@@ -69,7 +69,8 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow,
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
-  preservation_bucket: "dev-preservation"
+  preservation_bucket: "dev-preservation",
+  pyramid_bucket: "dev-pyramids"
 
 config :ex_aws,
   access_key_id: "fake",

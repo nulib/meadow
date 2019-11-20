@@ -40,7 +40,7 @@ RUN mix phx.digest \
   && mix release --overwrite
 
 # Create runtime image
-FROM alpine:3.9
+FROM node-11:alpine
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add ncurses-libs openssl-dev

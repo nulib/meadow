@@ -36,4 +36,22 @@ defmodule Meadow.Utils.Pairtree do
       {:error, message} -> raise ArgumentError, message
     end
   end
+
+  @doc """
+  Generate a pairtree for a pyramid key
+
+  Example:
+    Meadow.Utils.Pairtree.generate_pyramid_path("01DT5BNAR8XB6YFWB9V1VQQKDN")
+    => "01/dt/5b/na/r8/xb/6y/fw/b9/v1/vq/qk/dn-pyramid.tif"
+  """
+  def generate_pyramid_path(id) do
+    transform = fn str ->
+      (Regex.scan(~r/../, String.slice(str, 0, 24)) ++
+         ["#{String.slice(str, 24, 2)}-pyramid.tif"])
+      |> Enum.join("/")
+      |> String.downcase()
+    end
+
+    id |> String.slice(0, 26 * 2) |> transform.()
+  end
 end

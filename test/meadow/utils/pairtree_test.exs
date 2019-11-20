@@ -47,4 +47,9 @@ defmodule Meadow.Utils.PairtreeTest do
       end
     end
   end
+
+  describe "generate_pyramid_path/1" do
+    assert Pairtree.generate_pyramid_path("01DT5BNAR8XB6YFWB9V1VQQKDN") ==
+             "01/dt/5b/na/r8/xb/6y/fw/b9/v1/vq/qk/dn-pyramid.tif"
+  end
 end
