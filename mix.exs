@@ -94,12 +94,19 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
-      {:sequins, git: "https://github.com/nulib/sequins.git"},
+      {:sequins, sequins_version()},
       {:sweet_xml, "~> 0.6"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"},
       {:wormwood, "~> 0.1.0"}
     ]
+  end
+
+  defp sequins_version do
+    case System.get_env("SEQUINS", nil) do
+      nil -> "~> 0.4.1"
+      path -> [path: path]
+    end
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

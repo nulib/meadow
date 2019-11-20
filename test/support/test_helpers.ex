@@ -3,6 +3,7 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
+  alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Accounts.Users.User
   alias Meadow.Data.{Collection, FileSet, Work}
   alias Meadow.Data.Collections.Collection
@@ -164,5 +165,20 @@ defmodule Meadow.TestHelpers do
       |> Repo.insert()
 
     file_set
+  end
+
+  def sandbox_mode(tags) do
+    result =
+      case Sandbox.checkout(Meadow.Repo) do
+        :ok -> :ok
+        {:already, :owner} -> :ok
+        other -> other
+      end
+
+    unless tags[:async] do
+      Sandbox.mode(Meadow.Repo, {:shared, self()})
+    end
+
+    result
   end
 end
