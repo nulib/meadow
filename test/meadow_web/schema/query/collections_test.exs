@@ -1,7 +1,6 @@
 defmodule MeadowWeb.Schema.Query.CollectionsTest do
   use MeadowWeb.ConnCase, async: true
   use MeadowWeb.GQLCase
-  use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/GetCollections.gql")
 

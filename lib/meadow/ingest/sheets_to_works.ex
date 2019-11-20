@@ -18,7 +18,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     |> Enum.map(&ingest_work/1)
     |> IngestSheets.link_works_to_ingest_sheet(ingest_sheet)
 
-    start_file_set_pipelines(ingest_sheet)
+    ingest_sheet
   end
 
   def group_by_works(%IngestSheet{} = ingest_sheet) do
@@ -40,6 +40,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
         %{context: "IngestSheet", ingest_sheet: ingest_sheet.id, ingest_sheet_row: row_num}
       )
     end)
+
+    ingest_sheet
   end
 
   defp ingest_work({accession_number, file_set_rows}) do

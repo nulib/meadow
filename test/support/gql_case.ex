@@ -5,6 +5,12 @@ defmodule MeadowWeb.GQLCase do
   This module defines some setup for testing GraphQL queries, mutations, and subscriptions
   """
 
+  using do
+    quote do
+      use Wormwood.GQLCase
+    end
+  end
+
   setup do
     {:ok,
      gql_context: %{
