@@ -1,0 +1,7 @@
+#import "./CollectionFields.frag.gql"
+
+query GetCollections {
+  collections {
+    ...CollectionFields
+  }
+}

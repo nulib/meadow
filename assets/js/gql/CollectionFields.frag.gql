@@ -1,0 +1,6 @@
+fragment CollectionFields on Collection {
+  id
+  name
+  description
+  keywords
+}
