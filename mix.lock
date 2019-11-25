@@ -27,7 +27,7 @@
   "ex_aws_s3": {:hex, :ex_aws_s3, "2.0.2", "c0258bbdfea55de4f98f0b2f0ca61fe402cc696f573815134beb1866e778f47b", [:mix], [{:ex_aws, "~> 2.0", [hex: :ex_aws, repo: "hexpm", optional: false]}, {:sweet_xml, ">= 0.0.0", [hex: :sweet_xml, repo: "hexpm", optional: true]}], "hexpm"},
   "ex_aws_sns": {:hex, :ex_aws_sns, "2.1.0", "912a2092c5a028646f04263b0a380e4da74670b77c0647bc68e8d9c282b8e954", [:mix], [{:ex_aws, "~> 2.0", [hex: :ex_aws, repo: "hexpm", optional: false]}], "hexpm"},
   "ex_aws_sqs": {:hex, :ex_aws_sqs, "3.0.0", "a1e3e04ac0b0e25008d965e742b0800a7029914f6f485d7022f3aaf34d052b5b", [:mix], [{:ex_aws, "~> 2.0", [hex: :ex_aws, repo: "hexpm", optional: false]}], "hexpm"},
-  "excoveralls": {:hex, :excoveralls, "0.12.0", "50e17a1b116fdb7facc2fe127a94db246169f38d7627b391376a0bc418413ce1", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
+  "excoveralls": {:hex, :excoveralls, "0.12.1", "a553c59f6850d0aff3770e4729515762ba7c8e41eedde03208182a8dc9d0ce07", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "faker": {:hex, :faker, "0.13.0", "8abcb996f010ccd6c85588c89fc047f11134e04da019b70252f95431d721a3dc", [:mix], [], "hexpm"},
   "file_system": {:hex, :file_system, "0.2.7", "e6f7f155970975789f26e77b8b8d8ab084c59844d8ecfaf58cbda31c494d14aa", [:mix], [], "hexpm"},
   "gen_stage": {:hex, :gen_stage, "0.14.3", "d0c66f1c87faa301c1a85a809a3ee9097a4264b2edf7644bf5c123237ef732bf", [:mix], [], "hexpm"},
