@@ -44,7 +44,7 @@
     "copy-webpack-plugin": "^5.0.5",
     "coveralls": "^3.0.8",
     "css-loader": "^3.2.0",
-    "file-loader": "^4.3.0",
+    "file-loader": "^5.0.2",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
