@@ -27,6 +27,25 @@ defmodule Meadow.Data do
     |> Repo.one()
   end
 
+  @doc """
+  Query returning a list of FileSets for a Work ordered by `:rank`.
+
+  ## Examples
+
+      iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J")
+      [%Meadow.Data.FileSets.FileSet{rank: -100}, %Meadow.Data.FileSets.FileSet{rank: 0}, %Meadow.Data.FileSets.FileSet{rank: 100}]
+
+      iex> ranked_file_sets_for_work(Ecto.ULID.generate())
+      []
+
+  """
+  def ranked_file_sets_for_work(work_id) do
+    FileSet
+    |> where([fs], fs.work_id == ^work_id)
+    |> order_by(:rank)
+    |> Repo.all()
+  end
+
   # Dataloader
 
   def datasource do
