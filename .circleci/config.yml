@@ -16,7 +16,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "mix.lock" }}-{{ checksum "assets/yarn.lock" }}
+          keys:
+            - v1-hex-cache-{{ checksum "mix.lock" }}
+            - v1-hex-cache-
+            - dependency-cache-
+      - restore_cache:
+          keys:
+            - v1-npm-cache-{{ checksum "assets/yarn.lock" }}
+            - v1-npm-cache-
       - run:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
@@ -28,11 +35,14 @@ jobs:
           command: yarn install
           working_directory: ~/meadow/assets
       - save_cache:
-          key: dependency-cache-{{ checksum "mix.lock" }}-{{ checksum "assets/yarn.lock" }}
+          key: v1-hex-cache-{{ checksum "mix.lock" }}
           paths:
-            - ~/meadow/assets/node_modules
             - ~/meadow/deps
             - ~/meadow/_build
+      - save_cache:
+          key: v1-npm-cache-{{ checksum "assets/yarn.lock" }}
+          paths:
+            - ~/meadow/assets/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo
