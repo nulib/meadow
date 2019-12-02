@@ -64,7 +64,8 @@ const ScreensIngestSheet = ({ match }) => {
       },
       {
         label: ingestSheet.name,
-        link: `/project/${id}/ingest-sheet/${ingestSheetId}`
+        link: `/project/${id}/ingest-sheet/${ingestSheetId}`,
+        labelWithoutLink: "Sheet:"
       }
     ];
   };
@@ -73,7 +74,7 @@ const ScreensIngestSheet = ({ match }) => {
     <>
       <ScreenHeader
         title="Ingest Sheet"
-        description="The following is system validation/parsing of the .csv Ingest sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
+        description="Feedback on the current status of an Ingest Sheet .csv file moving into the system."
         breadCrumbs={createCrumbs()}
       />
       <ScreenContent>

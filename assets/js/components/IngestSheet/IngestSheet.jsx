@@ -9,19 +9,13 @@ import PropTypes from "prop-types";
 import IngestSheetActionRow from "./ActionRow";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
+import UIButton from "../UI/Button";
+import DownloadIcon from "../../../css/fonts/zondicons/download.svg";
 
 /**
- * The following are possible status values for an Ingest Sheet)
- *
-
-APPROVED: Approved, ingest in progress
-COMPLETED: Ingest Completed
-DELETED: Ingest Sheet deleted
-FILE_FAIL: Errors validating csv file
-ROW_FAIL: Errors in content rows
-UPLOADED: Uploaded, validation in progress
-VALID: Passes validation
-*/
+ * Note: This component is dependent on the GraphQL "IngestSheet" data type "status" property.
+ * Refer to latest values to clarify this component's logic.
+ */
 
 const IngestSheet = ({
   ingestSheetData,
@@ -47,6 +41,12 @@ const IngestSheet = ({
   if (progressLoading) return <Loading />;
   if (progressError) return <Error error={progressError} />;
 
+  const handleDownloadCsv = () => {
+    //TODO: Put code to download CSV file here.
+    // ie. hitSomeEndpoint(id)
+    console.log("Put code to download CSV file here");
+  };
+
   return (
     <>
       <IngestSheetAlert ingestSheet={ingestSheetData} />
@@ -56,7 +56,12 @@ const IngestSheet = ({
       )}
 
       {["COMPLETED"].indexOf(status) > -1 && (
-        <IngestSheetCompleted ingestSheetId={ingestSheetData.id} />
+        <>
+          <UIButton classes="mt-6" onClick={handleDownloadCsv}>
+            <DownloadIcon className="icon"></DownloadIcon> Download .csv
+          </UIButton>
+          <IngestSheetCompleted ingestSheetId={ingestSheetData.id} />
+        </>
       )}
 
       {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
