@@ -37,8 +37,7 @@ config :meadow,
   preservation_bucket: "test-preservation"
 
 config :meadow,
-  start_pipeline: false,
-  synchronous_validation: true
+  start_pipeline: false
 
 config :ex_aws,
   access_key_id: "minio",

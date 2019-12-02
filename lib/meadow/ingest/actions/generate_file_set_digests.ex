@@ -14,6 +14,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
   use Action
   require Logger
 
+  @actiondoc "Generate Digests for FileSet"
   @hashes [:sha256]
 
   def process(data, attrs),
@@ -25,8 +26,8 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
   end
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
-    AuditEntries.add_entry!(file_set_id, __MODULE__, "started")
     file_set = FileSets.get_file_set!(file_set_id)
+    AuditEntries.add_entry!(file_set, __MODULE__, "started")
 
     try do
       Logger.info("Generating digests for #{file_set.id}")
@@ -41,12 +42,12 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
       |> FileSet.changeset(%{metadata: %{digests: hashes}})
       |> Repo.update!()
 
-      AuditEntries.add_entry!(file_set.id, __MODULE__, "ok")
+      AuditEntries.add_entry!(file_set, __MODULE__, "ok")
       :ok
     rescue
-      e in RuntimeError ->
-        AuditEntries.add_entry!(file_set.id, __MODULE__, "error", e)
-        {:error, e}
+      e ->
+        AuditEntries.add_entry!(file_set, __MODULE__, "error", Exception.message(e))
+        {:error, Exception.message(e)}
     end
   end
 

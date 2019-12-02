@@ -6,12 +6,12 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key false
+  @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
 
   schema "ingest_sheet_rows" do
-    belongs_to :ingest_sheet, Meadow.Ingest.IngestSheets.IngestSheet, primary_key: true
-    field :row, :integer, primary_key: true
+    belongs_to :ingest_sheet, Meadow.Ingest.IngestSheets.IngestSheet
+    field :row, :integer
     field :state, :string, default: "pending"
     field :file_set_accession_number, :string
 

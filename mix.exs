@@ -11,7 +11,7 @@ defmodule Meadow.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      test_coverage: coverage_options(),
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.circle": :test,
@@ -48,13 +48,6 @@ defmodule Meadow.MixProject do
     ]
   end
 
-  defp coverage_options do
-    case System.get_env("CI") do
-      "true" -> [tool: ExCoveralls]
-      _ -> []
-    end
-  end
-
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
@@ -67,10 +60,11 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.4.2"},
       {:absinthe_plug, "~> 1.4.0"},
       {:absinthe_phoenix, "~> 1.4.0"},
+      {:assertions, "~> 0.14.1"},
       {:briefly, "~> 0.3.0", only: :test},
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_sql, "~> 3.0"},
       {:ecto_ulid, "~> 0.2.0"},

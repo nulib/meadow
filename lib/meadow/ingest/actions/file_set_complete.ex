@@ -1,9 +1,11 @@
 defmodule Meadow.Ingest.Actions.FileSetComplete do
   @moduledoc "Mark the end of the FileSet ingest pipeline"
 
-  alias Meadow.Data.AuditEntries
+  alias Meadow.Data.{AuditEntries, FileSets.FileSet}
   alias Sequins.Pipeline.Action
   use Action
+
+  @actiondoc "Completed Processing FileSet"
 
   def process(data, attrs),
     do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
@@ -15,7 +17,11 @@ defmodule Meadow.Ingest.Actions.FileSetComplete do
 
   defp process(%{file_set_id: file_set_id}, _, _) do
     Logger.info("Ingest pipeline complete for FileSet #{file_set_id}")
-    {result, _} = AuditEntries.add_entry(file_set_id, __MODULE__, "ok")
+
+    {result, _} =
+      {FileSet, file_set_id}
+      |> AuditEntries.add_entry(__MODULE__, "ok")
+
     result
   end
 end

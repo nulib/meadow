@@ -6,7 +6,7 @@ import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import UIModalDelete from "../UI/Modal/Delete";
 import {
   DELETE_INGEST_SHEET,
-  MOCK_APPROVE_INGEST_SHEET
+  APPROVE_INGEST_SHEET
 } from "./ingestSheet.query";
 import { useMutation } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
@@ -37,7 +37,7 @@ const IngestSheetActionRow = ({
   const [
     approveIngestSheet,
     { loading: approveLoading, error: approveError }
-  ] = useMutation(MOCK_APPROVE_INGEST_SHEET);
+  ] = useMutation(APPROVE_INGEST_SHEET);
 
   const showApproveButton = status === "VALID";
 

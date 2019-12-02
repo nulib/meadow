@@ -5,74 +5,117 @@ defmodule Meadow.Data.AuditEntries do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.AuditEntries.AuditEntry
+  alias Meadow.Ingest.IngestSheets.IngestSheetProgress
   alias Meadow.Repo
 
-  def latest_outcome_for(object_id) do
-    case get_latest_entry_for(object_id) do
+  def latest_outcome(object_id) do
+    case get_latest_entry(object_id) do
       %AuditEntry{outcome: outcome} -> outcome
       _ -> :unknown
     end
   end
 
-  def error?(object_id), do: latest_outcome_for(object_id) == "error"
-  def ok?(object_id), do: latest_outcome_for(object_id) == "ok"
+  def error?(object_id),
+    do: get_entries(object_id) |> Enum.any?(fn entry -> entry.outcome == "error" end)
 
-  def latest_outcome_for(object_id, action) do
-    case get_latest_entry_for(object_id, action) do
+  def ok?(object_id),
+    do: get_entries(object_id) |> Enum.all?(fn entry -> entry.outcome == "ok" end)
+
+  def latest_outcome(object_id, action) do
+    case get_latest_entry(object_id, action) do
       %AuditEntry{outcome: outcome} -> outcome
       _ -> :unknown
     end
   end
 
-  def error?(object_id, action), do: latest_outcome_for(object_id, action) == "error"
-  def ok?(object_id, action), do: latest_outcome_for(object_id, action) == "ok"
+  def error?(object_id, action), do: latest_outcome(object_id, action) == "error"
+  def ok?(object_id, action), do: latest_outcome(object_id, action) == "ok"
 
-  def get_latest_entry_for(object_id) do
+  def initialize_entries(object, actions, initial_status \\ "waiting")
+
+  def initialize_entries({object_type, object_id}, actions, initial_status) do
+    Repo.transaction(fn ->
+      actions
+      |> Enum.each(fn action ->
+        add_entry!({object_type, object_id}, action, initial_status)
+      end)
+    end)
+  end
+
+  def initialize_entries(object, actions, initial_status) do
+    {object.__struct__, object.id}
+    |> initialize_entries(actions, initial_status)
+  end
+
+  def get_entry!(id) do
+    from(a in AuditEntry, where: a.id == ^id) |> Repo.one()
+  end
+
+  def get_latest_entry(object_id) do
     from(
-      entries_for(object_id),
+      entries(object_id),
       limit: 1
     )
     |> Repo.one()
   end
 
-  def get_latest_entry_for(object_id, action) do
+  def get_latest_entry(object_id, action) do
     from(
-      a in entries_for(object_id),
-      where: a.action == ^AuditEntry.action_to_string(action),
+      a in entries(object_id),
+      where: a.action == ^AuditEntry.atom_to_string(action),
       limit: 1
     )
     |> Repo.one()
   end
 
-  def get_entries_for(object_id) do
-    entries_for(object_id)
+  def get_entries(object_id) do
+    entries(object_id)
     |> Repo.all()
   end
 
-  def get_entries_for(object_id, action) do
-    from(
-      a in entries_for(object_id),
-      where: a.action == ^AuditEntry.action_to_string(action)
+  def add_entry(object, action, outcome, notes \\ nil)
+
+  def add_entry({object_type, object_id}, action, outcome, notes) do
+    make_changeset(object_type, object_id, action, outcome, notes)
+    |> Repo.insert(
+      on_conflict: [set: [outcome: outcome, notes: notes, updated_at: DateTime.utc_now()]],
+      conflict_target: [:object_id, :action]
     )
-    |> Repo.all()
+    |> send_audit_notification()
   end
 
-  def add_entry(object_id, action, outcome, notes \\ nil),
-    do: Repo.insert(make_changeset(object_id, action, outcome, notes))
+  def add_entry(object, action, outcome, notes) do
+    {object.__struct__, object.id}
+    |> add_entry(action, outcome, notes)
+  end
 
-  def add_entry!(object_id, action, outcome, notes \\ nil),
-    do: Repo.insert!(make_changeset(object_id, action, outcome, notes))
+  def add_entry!(object, action, outcome, notes \\ nil)
 
-  defp entries_for(object_id) do
+  def add_entry!({object_type, object_id}, action, outcome, notes) do
+    make_changeset(object_type, object_id, action, outcome, notes)
+    |> Repo.insert!(
+      on_conflict: [set: [outcome: outcome, notes: notes, updated_at: DateTime.utc_now()]],
+      conflict_target: [:object_id, :action]
+    )
+    |> send_audit_notification()
+  end
+
+  def add_entry!(object, action, outcome, notes) do
+    {object.__struct__, object.id}
+    |> add_entry!(action, outcome, notes)
+  end
+
+  defp entries(object_id) do
     from(a in AuditEntry,
       where: a.object_id == ^object_id,
-      order_by: [desc: :id]
+      order_by: [desc: :updated_at, desc: :id]
     )
   end
 
-  defp make_changeset(object_id, action, outcome, notes) when is_nil(notes) or is_binary(notes) do
+  defp make_changeset(object_type, object_id, action, outcome, notes) do
     %AuditEntry{}
     |> AuditEntry.changeset(%{
+      object_type: object_type,
       object_id: object_id,
       action: action,
       outcome: outcome,
@@ -80,6 +123,21 @@ defmodule Meadow.Data.AuditEntries do
     })
   end
 
-  defp make_changeset(object_id, action, outcome, notes),
-    do: make_changeset(object_id, action, outcome, inspect(notes))
+  # Absinthe Notifications
+
+  defp send_audit_notification({:ok, entry}),
+    do: {:ok, send_audit_notification(entry)}
+
+  defp send_audit_notification(%AuditEntry{} = entry) do
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      entry,
+      audit_update: entry.object_id,
+      audit_updates: :all
+    )
+
+    IngestSheetProgress.send_notification(entry)
+
+    entry
+  end
 end

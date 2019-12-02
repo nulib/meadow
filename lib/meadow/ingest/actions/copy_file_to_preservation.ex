@@ -15,6 +15,9 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
   alias Sequins.Pipeline.Action
   use Action
   require Logger
+  import SweetXml, only: [sigil_x: 2]
+
+  @actiondoc "Copy File to Preservation"
 
   def process(data, attrs),
     do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
@@ -25,8 +28,8 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
   end
 
   defp process(data, attributes, _) do
-    AuditEntries.add_entry!(data.file_set_id, __MODULE__, "started")
     file_set = FileSets.get_file_set!(data.file_set_id)
+    AuditEntries.add_entry!(file_set, __MODULE__, "started")
 
     case copy_file_to_preservation(file_set) do
       {:ok, new_location} ->
@@ -34,11 +37,11 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
         |> FileSet.changeset(%{metadata: %{location: new_location}})
         |> Repo.update!()
 
-        AuditEntries.add_entry!(file_set.id, __MODULE__, "ok")
+        AuditEntries.add_entry!(file_set, __MODULE__, "ok")
         :ok
 
       {:error, err} ->
-        AuditEntries.add_entry!(file_set.id, __MODULE__, "error", err)
+        AuditEntries.add_entry!(file_set, __MODULE__, "error", err)
         {:error, data, attributes |> Map.put(:error, err)}
     end
   end
@@ -65,8 +68,15 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
     case ExAws.S3.put_object_copy(dest_bucket, dest_key, src_bucket, src_key, meta: s3_metadata)
          |> ExAws.request() do
       {:ok, _} -> {:ok, dest_location}
-      {:error, {:http_error, _status, %{body: body}}} -> {:error, body}
+      {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
       {:error, other} -> {:error, inspect(other)}
+    end
+  end
+
+  defp extract_error(body) do
+    with error <-
+           SweetXml.xmap(body, code: ~x"/Error/Code/text()", message: ~x"/Error/Message/text()") do
+      "#{error.code}: #{error.message}"
     end
   end
 end

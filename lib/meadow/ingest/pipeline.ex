@@ -14,17 +14,28 @@ defmodule Meadow.Ingest.Pipeline do
     }
   end
 
-  def start do
-    children = [
+  def actions do
+    [
+      Actions.IngestFileSet,
+      Actions.GenerateFileSetDigests,
+      Actions.CopyFileToPreservation,
+      Actions.FileSetComplete
+    ]
+  end
+
+  def children do
+    [
       {Actions.CopyFileToPreservation, max_number_of_messages: 3, visibility_timeout: 180},
       {Actions.GenerateFileSetDigests, max_number_of_messages: 3, visibility_timeout: 180},
       {Actions.IngestFileSet, processor_stages: 1},
       {Actions.UpdateIngestSheetStatus, processor_stages: 1},
       {Actions.FileSetComplete, processor_stages: 1}
     ]
+  end
 
+  def start do
     Application.ensure_started(:sequins, :permanent)
-    Sequins.start_children(children)
+    Sequins.start_children(children())
   end
 
   def queue_config do

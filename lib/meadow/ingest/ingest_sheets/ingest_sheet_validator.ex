@@ -14,24 +14,6 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   use Meadow.Constants
 
-  def async(sheet_id) do
-    if Config.synchronous_validation?() do
-      send(self(), result(sheet_id))
-      {:sync, self()}
-    else
-      case Meadow.TaskRegistry |> Registry.lookup(sheet_id) do
-        [{pid, _}] ->
-          {:running, pid}
-
-        _ ->
-          Task.start(fn ->
-            Meadow.TaskRegistry |> Registry.register(sheet_id, nil)
-            result(sheet_id)
-          end)
-      end
-    end
-  end
-
   def result(sheet) do
     validate(sheet)
     |> IngestSheet.find_state()
@@ -78,7 +60,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   @max_attempts 5
   @sleep_time if Mix.env() == :test, do: 10, else: 1000
-  defp load_file(sheet, attempt \\ 1) do
+  def load_file(sheet, attempt \\ 1) do
     "/" <> filename = URI.parse(sheet.filename).path
 
     case Config.upload_bucket()
@@ -160,6 +142,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
         file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
 
         %{
+          id: Ecto.ULID.generate(),
           ingest_sheet_id: sheet.id,
           row: row_num,
           file_set_accession_number: file_set_accession_number,

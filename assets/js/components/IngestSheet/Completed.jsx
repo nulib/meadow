@@ -2,20 +2,20 @@ import React, { useState } from "react";
 import WorkRow from "./WorkRow";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
-import { MOCK_INGEST_SHEET_COMPLETED } from "./ingestSheet.query";
+import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 
 const IngestSheetCompleted = ({ ingestSheetId }) => {
-  const { loading, error, data } = useQuery(MOCK_INGEST_SHEET_COMPLETED, {
+  const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
     variables: { id: ingestSheetId }
   });
   const [showErrors, setShowErrors] = useState(false);
 
   if (loading) return "Loading...";
-  if (error) return <Error error={error} />;
+  if (error) return <Error error={error.message} />;
 
-  const { works = [] } = data.mockIngestSheet;
+  const works = data.ingestSheetWorks;
 
   return (
     <>
