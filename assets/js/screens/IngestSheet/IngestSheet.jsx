@@ -14,8 +14,8 @@ import {
 } from "../../components/IngestSheet/ingestSheet.query";
 
 const GET_CRUMB_DATA = gql`
-  query GetCrumbData($ingestSheetId: String!) {
-    ingestSheet(id: $ingestSheetId) {
+  query GetCrumbData($sheetId: String!) {
+    ingestSheet(id: $sheetId) {
       id
       name
       project {
@@ -27,13 +27,13 @@ const GET_CRUMB_DATA = gql`
 `;
 
 const ScreensIngestSheet = ({ match }) => {
-  const { id, ingestSheetId } = match.params;
+  const { id, sheetId } = match.params;
   const {
     loading: crumbsLoading,
     error: crumbsError,
     data: crumbsData
   } = useQuery(GET_CRUMB_DATA, {
-    variables: { ingestSheetId }
+    variables: { sheetId }
   });
 
   const {
@@ -42,7 +42,7 @@ const ScreensIngestSheet = ({ match }) => {
     loading: sheetLoading,
     error: sheetError
   } = useQuery(INGEST_SHEET_QUERY, {
-    variables: { ingestSheetId },
+    variables: { sheetId },
     fetchPolicy: "network-only"
   });
 
@@ -64,7 +64,7 @@ const ScreensIngestSheet = ({ match }) => {
       },
       {
         label: ingestSheet.name,
-        link: `/project/${id}/ingest-sheet/${ingestSheetId}`,
+        link: `/project/${id}/ingest-sheet/${sheetId}`,
         labelWithoutLink: "Sheet:"
       }
     ];
@@ -84,7 +84,7 @@ const ScreensIngestSheet = ({ match }) => {
           subscribeToIngestSheetUpdates={() =>
             subscribeToMore({
               document: INGEST_SHEET_SUBSCRIPTION,
-              variables: { ingestSheetId },
+              variables: { sheetId },
               updateQuery: (prev, { subscriptionData }) => {
                 if (!subscriptionData.data) return prev;
                 const updatedSheet = subscriptionData.data.ingestSheetUpdate;

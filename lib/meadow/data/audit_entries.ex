@@ -5,7 +5,7 @@ defmodule Meadow.Data.AuditEntries do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.AuditEntries.AuditEntry
-  alias Meadow.Ingest.IngestSheets.IngestSheetProgress
+  alias Meadow.Ingest.Sheets.Progress
   alias Meadow.Repo
 
   def latest_outcome(object_id) do
@@ -136,7 +136,7 @@ defmodule Meadow.Data.AuditEntries do
       audit_updates: :all
     )
 
-    IngestSheetProgress.send_notification(entry)
+    Progress.send_notification(entry)
 
     entry
   end

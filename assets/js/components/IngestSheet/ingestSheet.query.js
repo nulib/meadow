@@ -53,8 +53,8 @@ export const CREATE_INGEST_SHEET = gql`
 `;
 
 export const DELETE_INGEST_SHEET = gql`
-  mutation DeleteIngestSheet($ingestSheetId: ID!) {
-    deleteIngestSheet(ingestSheetId: $ingestSheetId) {
+  mutation DeleteIngestSheet($sheetId: ID!) {
+    deleteIngestSheet(sheetId: $sheetId) {
       id
       name
       status
@@ -77,8 +77,8 @@ export const GET_INGEST_SHEETS = gql`
 `;
 
 export const GET_INGEST_SHEET_STATE = gql`
-  query IngestSheetState($ingestSheetId: String!) {
-    ingestSheet(id: $ingestSheetId) {
+  query IngestSheetState($sheetId: String!) {
+    ingestSheet(id: $sheetId) {
       id
       state {
         name
@@ -89,8 +89,8 @@ export const GET_INGEST_SHEET_STATE = gql`
 `;
 
 export const GET_INGEST_SHEET_ERRORS = gql`
-  query IngestSheetRowErrors($ingestSheetId: String!) {
-    ingestSheetRows(sheetId: $ingestSheetId, state: FAIL) {
+  query IngestSheetRowErrors($sheetId: String!) {
+    ingestSheetRows(sheetId: $sheetId, state: FAIL) {
       row
       fields {
         header
@@ -106,8 +106,8 @@ export const GET_INGEST_SHEET_ERRORS = gql`
 `;
 
 export const GET_INGEST_SHEET_PROGRESS = gql`
-  query IngestSheetProgress($ingestSheetId: String!) {
-    ingestSheetProgress(id: $ingestSheetId) {
+  query IngestSheetProgress($sheetId: String!) {
+    ingestSheetProgress(id: $sheetId) {
       states {
         state
         count
@@ -118,8 +118,8 @@ export const GET_INGEST_SHEET_PROGRESS = gql`
 `;
 
 export const GET_INGEST_SHEET_VALIDATIONS = gql`
-  query IngestSheetRows($ingestSheetId: String!) {
-    ingestSheetRows(sheetId: $ingestSheetId) {
+  query IngestSheetRows($sheetId: String!) {
+    ingestSheetRows(sheetId: $sheetId) {
       row
       fields {
         header
@@ -144,15 +144,15 @@ export const GET_PRESIGNED_URL = gql`
 
 export const START_VALIDATION = gql`
   mutation ValidateIngestSheet($id: String!) {
-    validateIngestSheet(ingestSheetId: $id) {
+    validateIngestSheet(sheetId: $id) {
       message
     }
   }
 `;
 
 export const INGEST_SHEET_QUERY = gql`
-  query IngestSheetQuery($ingestSheetId: ID!) {
-    ingestSheet(id: $ingestSheetId) {
+  query IngestSheetQuery($sheetId: ID!) {
+    ingestSheet(id: $sheetId) {
       ...IngestSheetParts
     }
   }
@@ -160,8 +160,8 @@ export const INGEST_SHEET_QUERY = gql`
 `;
 
 export const INGEST_SHEET_SUBSCRIPTION = gql`
-  subscription SubscribeToIngestSheet($ingestSheetId: ID!) {
-    ingestSheetUpdate(sheetId: $ingestSheetId) {
+  subscription SubscribeToIngestSheet($sheetId: ID!) {
+    ingestSheetUpdate(sheetId: $sheetId) {
       ...IngestSheetParts
     }
   }
@@ -170,8 +170,8 @@ export const INGEST_SHEET_SUBSCRIPTION = gql`
 
 //TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
-  subscription IngestSheetRowUpdate($ingestSheetId: String!) {
-    ingestSheetRowUpdate(sheetId: $ingestSheetId) {
+  subscription IngestSheetRowUpdate($sheetId: String!) {
+    ingestSheetRowUpdate(sheetId: $sheetId) {
       row
       fields {
         header
@@ -188,8 +188,8 @@ export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
 
 // TODO: Delete this?
 export const SUBSCRIBE_TO_INGEST_SHEET_ERRORS = gql`
-  subscription IngestSheetRowErrors($ingestSheetId: String!) {
-    ingestSheetRowStateUpdate(sheetId: $ingestSheetId, state: FAIL) {
+  subscription IngestSheetRowErrors($sheetId: String!) {
+    ingestSheetRowStateUpdate(sheetId: $sheetId, state: FAIL) {
       row
       fields {
         header
@@ -205,8 +205,8 @@ export const SUBSCRIBE_TO_INGEST_SHEET_ERRORS = gql`
 `;
 
 export const SUBSCRIBE_TO_INGEST_SHEET_PROGRESS = gql`
-  subscription IngestSheetProgressUpdate($ingestSheetId: String!) {
-    ingestSheetProgressUpdate(sheetId: $ingestSheetId) {
+  subscription IngestSheetProgressUpdate($sheetId: String!) {
+    ingestSheetProgressUpdate(sheetId: $sheetId) {
       states {
         state
         count
@@ -226,7 +226,7 @@ export const APPROVE_INGEST_SHEET = gql`
 
 export const INGEST_PROGRESS_SUBSCRIPTION = gql`
   subscription IngestProgress($sheetId: ID!) {
-    ingestProgress(ingestSheetId: $sheetId) {
+    ingestProgress(sheetId: $sheetId) {
       totalFileSets
       completedFileSets
       percentComplete

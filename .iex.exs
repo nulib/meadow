@@ -12,14 +12,14 @@ alias Meadow.Data.{
   Works.Work
 }
 
-alias Meadow.Ingest.{IngestSheets, Projects}
+alias Meadow.Ingest.{Sheets, Projects}
 alias Meadow.Ingest.Projects.{Bucket, Project}
 
-alias Meadow.Ingest.IngestSheets.{
-  IngestSheet,
-  IngestSheetRow,
-  IngestSheetValidator,
-  IngestStatus
+alias Meadow.Ingest.Sheets.{
+  Sheet,
+  Row,
+  Validator,
+  Status
 }
 
 import Ecto.Query

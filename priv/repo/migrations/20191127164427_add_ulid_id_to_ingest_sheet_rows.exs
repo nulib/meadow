@@ -6,7 +6,7 @@ defmodule Meadow.Repo.Migrations.AddUlidIdToIngestSheetRows do
     drop constraint(:ingest_sheet_rows, "ingest_sheet_rows_pkey")
 
     alter table(:ingest_sheet_rows) do
-      modify :ingest_sheet_id, :binary_id, null: false, primary_key: false
+      modify :sheet_id, :binary_id, null: false, primary_key: false
       modify :row, :integer, null: false, primary_key: false
       add :id, :binary_id
     end
@@ -27,7 +27,7 @@ defmodule Meadow.Repo.Migrations.AddUlidIdToIngestSheetRows do
 
   def down do
     alter table(:ingest_sheet_rows) do
-      modify :ingest_sheet_id, :binary_id, null: false, primary_key: true
+      modify :sheet_id, :binary_id, null: false, primary_key: true
       modify :row, :integer, null: false, primary_key: true
       remove :id
     end

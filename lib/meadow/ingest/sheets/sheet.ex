@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.IngestSheets.IngestSheet do
+defmodule Meadow.Ingest.Sheets.Sheet do
   @moduledoc """
-  IngestSheet represents an ingest sheet upload
+  Sheet represents an ingest sheet upload
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -27,9 +27,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheet do
     end
 
     belongs_to :project, Meadow.Ingest.Projects.Project
-    has_many :ingest_sheet_rows, Meadow.Ingest.IngestSheets.IngestSheetRow
+    has_many :ingest_sheet_rows, Meadow.Ingest.Sheets.Row
 
-    has_many :ingest_sheet_works, Meadow.Ingest.IngestSheets.IngestSheetWorks
+    has_many :ingest_sheet_works, Meadow.Ingest.Sheets.SheetWorks
     has_many :works, through: [:ingest_sheet_works, :work]
 
     timestamps()

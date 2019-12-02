@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.Actions.UpdateIngestSheetStatus do
+defmodule Meadow.Ingest.Actions.UpdateSheetStatus do
   @moduledoc """
-  Action to update the status of an IngestSheet during
+  Action to update the status of an Sheet during
   the processing of a FileSet.
 
   Subscribes to:
@@ -10,29 +10,29 @@ defmodule Meadow.Ingest.Actions.UpdateIngestSheetStatus do
   Filter:
   context: "ingest_sheet"
   """
-  alias Meadow.Ingest.IngestSheets
+  alias Meadow.Ingest.Sheets
   alias Sequins.Pipeline.Action
   use Action
   require Logger
 
-  @actiondoc "Update IngestSheet Status"
+  @actiondoc "Update Sheet Status"
 
   def process(
         _data,
         %{
-          ingest_sheet: ingest_sheet_id,
+          ingest_sheet: sheet_id,
           ingest_sheet_row: row,
           process: last_action,
           status: status
         }
       ) do
     Logger.info(
-      "Setting status #{status} on row #{row} of sheet #{ingest_sheet_id} from #{last_action}"
+      "Setting status #{status} on row #{row} of sheet #{sheet_id} from #{last_action}"
     )
 
     {result, _} =
-      IngestSheets.update_ingest_status(
-        ingest_sheet_id,
+      Sheets.update_status(
+        sheet_id,
         String.to_integer(row),
         status
       )

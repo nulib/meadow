@@ -1,9 +1,9 @@
-defmodule MeadowWeb.Schema.Subscription.IngestSheetValidationTest do
+defmodule MeadowWeb.Schema.Subscription.SheetValidationTest do
   use MeadowWeb.SubscriptionCase, async: true
 
   @subscription """
-    subscription ($ingestSheetId: ID!) {
-      ingestSheetRowUpdate(sheetId: $ingestSheetId){
+    subscription ($sheetId: ID!) {
+      ingestSheetRowUpdate(sheetId: $sheetId){
         ingestSheet {
           id
           progress {
@@ -32,7 +32,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestSheetValidationTest do
   test "ingest sheet validations can be subscribed to", %{socket: socket} do
     ingest_sheet = ingest_sheet_fixture()
 
-    ref = push_doc(socket, @subscription, variables: %{"ingestSheetId" => ingest_sheet.id})
+    ref = push_doc(socket, @subscription, variables: %{"sheetId" => ingest_sheet.id})
     assert_reply ref, :ok, %{subscriptionId: subscription_id}
   end
 end

@@ -1,12 +1,12 @@
-defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
+defmodule Meadow.Ingest.Sheets.Validator do
   @moduledoc """
   Validates an Ingest Sheet
   """
 
   alias Meadow.Config
   alias Meadow.Data.{FileSets, Works}
-  alias Meadow.Ingest.IngestSheets
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
+  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.Sheets.{Sheet, Row}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
   alias NimbleCSV.RFC4180, as: CSV
@@ -16,7 +16,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   def result(sheet) do
     validate(sheet)
-    |> IngestSheet.find_state()
+    |> Sheet.find_state()
   end
 
   def validate(sheet_id) when is_binary(sheet_id) do
@@ -25,7 +25,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     |> validate()
   end
 
-  def validate(%IngestSheet{} = sheet) do
+  def validate(%Sheet{} = sheet) do
     unless Ecto.assoc_loaded?(sheet.project) do
       raise ArgumentError, "Ingest Sheet association not loaded"
     end
@@ -40,7 +40,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
   end
 
   defp check_result(sheet, {event, func}) do
-    case sheet |> IngestSheet.find_state(event) do
+    case sheet |> Sheet.find_state(event) do
       "pass" -> {:ok, sheet}
       "fail" -> {:error, sheet}
       "pending" -> sheet |> func.() |> update_state(event)
@@ -126,7 +126,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
           _ -> v
         end
 
-      [%IngestSheetRow.Field{header: k, value: v} | acc]
+      [%Row.Field{header: k, value: v} | acc]
     end)
     |> Enum.reverse()
   end
@@ -143,7 +143,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
         %{
           id: Ecto.ULID.generate(),
-          ingest_sheet_id: sheet.id,
+          sheet_id: sheet.id,
           row: row_num,
           file_set_accession_number: file_set_accession_number,
           fields: fields,
@@ -154,9 +154,9 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
       end)
       |> Enum.chunk_every(10_000)
       |> Enum.each(fn chunk ->
-        Repo.insert_all(IngestSheetRow, chunk,
+        Repo.insert_all(Row, chunk,
           on_conflict: :replace_all_except_primary_key,
-          conflict_target: [:ingest_sheet_id, :row]
+          conflict_target: [:sheet_id, :row]
         )
       end)
     end)
@@ -172,18 +172,18 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
     end
 
     overall_row_result = {
-      IngestSheets.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
+      Sheets.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       sheet
     }
 
     case overall_row_result do
       {:ok, sheet} ->
-        IngestSheets.update_ingest_sheet_status(sheet, "valid")
+        Sheets.update_ingest_sheet_status(sheet, "valid")
         {:ok, sheet}
 
       {:error, sheet} ->
-        IngestSheets.update_ingest_sheet_status(sheet, "row_fail")
+        Sheets.update_ingest_sheet_status(sheet, "row_fail")
         {:error, sheet}
     end
   end
@@ -237,8 +237,8 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp validate_value({_field_name, _value}), do: :ok
 
-  defp validate_row(%IngestSheetRow{state: "pending"} = row) do
-    reducer = fn %IngestSheetRow.Field{header: field_name, value: value}, acc ->
+  defp validate_row(%Row{state: "pending"} = row) do
+    reducer = fn %Row.Field{header: field_name, value: value}, acc ->
       case validate_value({field_name, value}) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: error} | acc]
@@ -249,17 +249,17 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
     case result do
       [] ->
-        row |> IngestSheets.change_ingest_sheet_row_state("pass")
+        row |> Sheets.change_ingest_sheet_row_state("pass")
         "pass"
 
       errors ->
-        row |> IngestSheets.update_ingest_sheet_row(%{state: "fail", errors: errors})
+        row |> Sheets.update_ingest_sheet_row(%{state: "fail", errors: errors})
         "fail"
     end
   end
 
   defp load_sheet(sheet_id) do
-    IngestSheet
+    Sheet
     |> where([ingest_sheet], ingest_sheet.id == ^sheet_id)
     |> preload(:project)
     |> Repo.one()
@@ -281,7 +281,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
         false ->
           sheet
-          |> IngestSheets.list_ingest_sheet_row_counts()
+          |> Sheets.list_ingest_sheet_row_counts()
           |> Enum.reduce_while(:ok, state_reducer)
       end
 
@@ -290,8 +290,8 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
 
   defp add_file_errors(sheet, messages) do
     sheet
-    |> IngestSheets.add_file_errors_to_ingest_sheet(messages)
-    |> IngestSheets.update_ingest_sheet_status("file_fail")
+    |> Sheets.add_file_errors_to_ingest_sheet(messages)
+    |> Sheets.update_ingest_sheet_status("file_fail")
   end
 
   defp update_state({result, sheet}, event) do
@@ -304,7 +304,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetValidator do
         end
     }
 
-    {result, sheet |> IngestSheets.change_ingest_sheet_state!(state)}
+    {result, sheet |> Sheets.change_ingest_sheet_state!(state)}
   end
 
   defp check_missing_headers([_ | _] = missing_headers) do

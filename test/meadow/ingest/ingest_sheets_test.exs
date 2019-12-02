@@ -1,8 +1,8 @@
-defmodule Meadow.Ingest.IngestSheetsTest do
+defmodule Meadow.Ingest.SheetsTest do
   use Meadow.DataCase
 
-  alias Meadow.Ingest.IngestSheets
-  alias Meadow.Ingest.IngestSheets.IngestSheet
+  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.Sheets.Sheet
 
   describe "ingest_sheets" do
     @valid_attrs %{
@@ -20,34 +20,34 @@ defmodule Meadow.Ingest.IngestSheetsTest do
     test "list_ingest_sheets/0 returns all ingest_sheets" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert IngestSheets.list_ingest_sheets(project) == [ingest_sheet]
+      assert Sheets.list_ingest_sheets(project) == [ingest_sheet]
     end
 
     test "get_ingest_sheet!/1 returns the sheet with given id" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert IngestSheets.get_ingest_sheet!(ingest_sheet.id) == ingest_sheet
+      assert Sheets.get_ingest_sheet!(ingest_sheet.id) == ingest_sheet
     end
 
     test "create_ingest_sheet/1 with valid data creates a sheet" do
       project = project_fixture()
 
-      assert {:ok, %IngestSheet{} = ingest_sheet} =
-               IngestSheets.create_ingest_sheet(Map.put(@valid_attrs, :project_id, project.id))
+      assert {:ok, %Sheet{} = ingest_sheet} =
+               Sheets.create_ingest_sheet(Map.put(@valid_attrs, :project_id, project.id))
 
       assert ingest_sheet.name == "some name"
     end
 
     test "create_ingest_sheet/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = IngestSheets.create_ingest_sheet(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Sheets.create_ingest_sheet(@invalid_attrs)
     end
 
     test "update_ingest_sheet/2 with valid data updates the ingest sheet" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
 
-      assert {:ok, %IngestSheet{} = ingest_sheet} =
-               IngestSheets.update_ingest_sheet(
+      assert {:ok, %Sheet{} = ingest_sheet} =
+               Sheets.update_ingest_sheet(
                  ingest_sheet,
                  Map.put(@update_attrs, :project_id, project.id)
                )
@@ -60,28 +60,28 @@ defmodule Meadow.Ingest.IngestSheetsTest do
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
 
       assert {:error, %Ecto.Changeset{}} =
-               IngestSheets.update_ingest_sheet(
+               Sheets.update_ingest_sheet(
                  ingest_sheet,
                  Map.put(@invalid_attrs, :project_id, project.id)
                )
 
-      assert ingest_sheet == IngestSheets.get_ingest_sheet!(ingest_sheet.id)
+      assert ingest_sheet == Sheets.get_ingest_sheet!(ingest_sheet.id)
     end
 
     test "delete_ingest_sheet/1 deletes the sheet" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert {:ok, %IngestSheet{}} = IngestSheets.delete_ingest_sheet(ingest_sheet)
+      assert {:ok, %Sheet{}} = Sheets.delete_ingest_sheet(ingest_sheet)
 
       assert_raise Ecto.NoResultsError, fn ->
-        IngestSheets.get_ingest_sheet!(ingest_sheet.id)
+        Sheets.get_ingest_sheet!(ingest_sheet.id)
       end
     end
 
     test "change_sheet/1 returns a sheet changeset" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert %Ecto.Changeset{} = IngestSheets.change_ingest_sheet(ingest_sheet)
+      assert %Ecto.Changeset{} = Sheets.change_ingest_sheet(ingest_sheet)
     end
   end
 end

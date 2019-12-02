@@ -1,4 +1,4 @@
-defmodule MeadowWeb.Schema.Mutation.CreateIngestSheet do
+defmodule MeadowWeb.Schema.Mutation.CreateSheet do
   use MeadowWeb.ConnCase, async: true
 
   import Mox

@@ -6,9 +6,9 @@ import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 
-const IngestSheetCompleted = ({ ingestSheetId }) => {
+const IngestSheetCompleted = ({ sheetId }) => {
   const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
-    variables: { id: ingestSheetId }
+    variables: { id: sheetId }
   });
   const [showErrors, setShowErrors] = useState(false);
 
@@ -29,7 +29,7 @@ const IngestSheetCompleted = ({ ingestSheetId }) => {
       </div>
 
       {showErrors && (
-        <IngestSheetCompletedErrors ingestSheetId={ingestSheetId} />
+        <IngestSheetCompletedErrors sheetId={sheetId} />
       )}
       <section>
         {works.length > 0 &&
@@ -40,7 +40,7 @@ const IngestSheetCompleted = ({ ingestSheetId }) => {
 };
 
 IngestSheetCompleted.propTypes = {
-  ingestSheetId: PropTypes.string
+  sheetId: PropTypes.string
 };
 
 export default IngestSheetCompleted;

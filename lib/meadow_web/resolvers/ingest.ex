@@ -5,9 +5,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   """
   alias Meadow.Config
   alias Meadow.Data.AuditEntries
-  alias Meadow.Ingest.IngestSheets
-  alias Meadow.Ingest.{IngestSheets, Projects, SheetsToWorks}
-  alias Meadow.Ingest.IngestSheets.IngestSheetValidator
+  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.{Sheets, Projects, SheetsToWorks}
+  alias Meadow.Ingest.Sheets.Validator
   alias Meadow.Ingest.Projects.Bucket
   alias MeadowWeb.Schema.ChangesetErrors
 
@@ -49,17 +49,17 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def ingest_sheet(_, %{id: id}, _) do
-    {:ok, IngestSheets.get_ingest_sheet!(id)}
+    {:ok, Sheets.get_ingest_sheet!(id)}
   end
 
   def approve_ingest_sheet(_, %{id: id}, _) do
     id
-    |> IngestSheets.get_ingest_sheet!()
+    |> Sheets.get_ingest_sheet!()
     |> approve_ingest_sheet()
   end
 
   def approve_ingest_sheet(%{status: "valid"} = ingest_sheet) do
-    case IngestSheets.update_ingest_sheet_status(ingest_sheet, "approved") do
+    case Sheets.update_ingest_sheet_status(ingest_sheet, "approved") do
       {:error, changeset} ->
         {
           :error,
@@ -87,7 +87,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def ingest_sheet_progress(_, %{id: id}, _) do
-    {:ok, IngestSheets.get_sheet_progress([id]) |> Map.get(id)}
+    {:ok, Sheets.get_sheet_progress([id]) |> Map.get(id)}
   end
 
   def ingest_sheet_validations(_, _, _) do
@@ -96,8 +96,8 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   def validate_ingest_sheet(_, args, _) do
     {response, pid} =
-      Meadow.Async.run_once("validate:#{args[:ingest_sheet_id]}", fn ->
-        args[:ingest_sheet_id] |> IngestSheetValidator.result()
+      Meadow.Async.run_once("validate:#{args[:sheet_id]}", fn ->
+        args[:sheet_id] |> Validator.result()
       end)
 
     pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
@@ -105,7 +105,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def create_ingest_sheet(_, args, _) do
-    case IngestSheets.create_ingest_sheet(args) do
+    case Sheets.create_ingest_sheet(args) do
       {:error, changeset} ->
         {:error,
          message: "Could not create ingest sheet",
@@ -126,7 +126,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def delete_ingest_sheet(%{status: _} = ingest_sheet) do
-    case IngestSheets.delete_ingest_sheet(ingest_sheet) do
+    case Sheets.delete_ingest_sheet(ingest_sheet) do
       {:error, changeset} ->
         {
           :error,
@@ -140,8 +140,8 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def delete_ingest_sheet(_, args, _) do
-    args[:ingest_sheet_id]
-    |> IngestSheets.get_ingest_sheet!()
+    args[:sheet_id]
+    |> Sheets.get_ingest_sheet!()
     |> delete_ingest_sheet()
   end
 
@@ -154,7 +154,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {
       :ok,
       args
-      |> IngestSheets.list_ingest_sheet_rows()
+      |> Sheets.list_ingest_sheet_rows()
     }
   end
 
@@ -169,10 +169,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def ingest_sheet_works(_, %{id: sheet_id}, _) do
-    {:ok, sheet_id |> IngestSheets.list_ingest_sheet_works()}
+    {:ok, sheet_id |> Sheets.list_ingest_sheet_works()}
   end
 
   def ingest_sheet_errors(_, %{id: sheet_id}, _) do
-    {:ok, sheet_id |> IngestSheets.ingest_errors()}
+    {:ok, sheet_id |> Sheets.ingest_errors()}
   end
 end

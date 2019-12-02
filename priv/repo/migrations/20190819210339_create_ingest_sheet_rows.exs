@@ -7,7 +7,7 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetRows do
       add :errors, :jsonb
       add :fields, :jsonb
 
-      add :ingest_sheet_id, references("ingest_sheets", on_delete: :delete_all),
+      add :sheet_id, references("ingest_sheets", on_delete: :delete_all),
         null: false,
         primary_key: true
 
@@ -16,6 +16,6 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetRows do
       timestamps()
     end
 
-    create unique_index(:ingest_sheet_rows, [:ingest_sheet_id, :row])
+    create unique_index(:ingest_sheet_rows, [:sheet_id, :row])
   end
 end

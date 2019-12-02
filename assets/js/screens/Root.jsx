@@ -39,7 +39,7 @@ export default class Root extends React.Component {
               />
               <PrivateRoute
                 exact
-                path="/project/:id/ingest-sheet/:ingestSheetId"
+                path="/project/:id/ingest-sheet/:sheetId"
                 component={ScreensIngestSheet}
               />
               <PrivateRoute

@@ -1,4 +1,4 @@
-defmodule MeadowWeb.Schema.Query.IngestSheetTest do
+defmodule MeadowWeb.Schema.Query.SheetTest do
   use MeadowWeb.ConnCase, async: true
 
   import Mox

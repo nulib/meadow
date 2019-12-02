@@ -1,12 +1,12 @@
-defmodule Meadow.Ingest.IngestSheets.IngestSheetProgress do
+defmodule Meadow.Ingest.Sheets.Progress do
   @moduledoc """
   Translate audit entry notifications into ingest sheet progress notifications
   """
 
-  alias Meadow.Ingest.IngestSheets
+  alias Meadow.Ingest.Sheets
 
   def send_notification(audit_entry) do
-    case IngestSheets.ingest_sheet_for_file_set(audit_entry.object_id) do
+    case Sheets.ingest_sheet_for_file_set(audit_entry.object_id) do
       nil ->
         :noop
 
@@ -20,10 +20,10 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetProgress do
   end
 
   defp pipeline_progress(ingest_sheet) do
-    case IngestSheets.total_action_count(ingest_sheet) do
+    case Sheets.total_action_count(ingest_sheet) do
       0 ->
         %{
-          ingest_sheet_id: ingest_sheet.id,
+          sheet_id: ingest_sheet.id,
           total_file_sets: 0,
           completed_file_sets: 0,
           total_actions: 0,
@@ -32,13 +32,13 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetProgress do
         }
 
       action_count ->
-        completed_action_count = IngestSheets.completed_action_count(ingest_sheet)
+        completed_action_count = Sheets.completed_action_count(ingest_sheet)
         percent_complete = round(completed_action_count / action_count * 10_000) / 100
 
         %{
-          ingest_sheet_id: ingest_sheet.id,
-          total_file_sets: IngestSheets.file_set_count(ingest_sheet),
-          completed_file_sets: IngestSheets.completed_file_set_count(ingest_sheet),
+          sheet_id: ingest_sheet.id,
+          total_file_sets: Sheets.file_set_count(ingest_sheet),
+          completed_file_sets: Sheets.completed_file_set_count(ingest_sheet),
           total_actions: action_count,
           completed_actions: completed_action_count,
           percent_complete: percent_complete

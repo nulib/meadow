@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest.SheetsToWorksTest do
   use Meadow.DataCase
-  alias Meadow.Ingest.{IngestSheets, SheetsToWorks}
+  alias Meadow.Ingest.{Sheets, SheetsToWorks}
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
 
@@ -19,7 +19,7 @@ defmodule Meadow.Ingest.SheetsToWorksTest do
     sheet = sheet |> Repo.preload(:works)
     assert length(sheet.works) == @fixture_works
     assert length(Works.list_works()) == @fixture_works
-    assert length(IngestSheets.list_ingest_sheet_works(sheet)) == @fixture_works
+    assert length(Sheets.list_ingest_sheet_works(sheet)) == @fixture_works
     assert length(FileSets.list_file_sets()) == @fixture_file_sets
     assert length(Repo.preload(sheet, :works).works) == @fixture_works
   end

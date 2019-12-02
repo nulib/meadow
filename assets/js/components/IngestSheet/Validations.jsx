@@ -11,7 +11,7 @@ import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 
 function IngestSheetValidations({
-  ingestSheetId,
+  sheetId,
   initialProgress,
   subscribeToIngestSheetProgress,
   status
@@ -23,11 +23,11 @@ function IngestSheetValidations({
     setProgress(initialProgress);
     subscribeToIngestSheetProgress({
       document: SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
-      variables: { ingestSheetId },
+      variables: { sheetId },
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 })
     });
 
-    startValidation({ variables: { id: ingestSheetId } });
+    startValidation({ variables: { id: sheetId } });
   }, []);
 
   const handleProgressUpdate = (prev, { subscriptionData }) => {
@@ -64,7 +64,7 @@ function IngestSheetValidations({
           <IngestSheetReport
             progress={progress}
             status={status}
-            ingestSheetId={ingestSheetId}
+            sheetId={sheetId}
           />
         </>
       );
@@ -84,7 +84,7 @@ function IngestSheetValidations({
 }
 
 IngestSheetValidations.propTypes = {
-  ingestSheetId: PropTypes.string.isRequired,
+  sheetId: PropTypes.string.isRequired,
   status: PropTypes.oneOf([
     "APPROVED",
     "COMPLETED",

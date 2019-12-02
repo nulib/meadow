@@ -5,11 +5,11 @@ import { INGEST_SHEET_COMPLETED_ERRORS } from "../ingestSheet.query";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../../UI/Error";
 
-const IngestSheetCompletedErrors = ({ ingestSheetId }) => {
+const IngestSheetCompletedErrors = ({ sheetId }) => {
   const { loading, error, data } = useQuery(
     INGEST_SHEET_COMPLETED_ERRORS,
     {
-      variables: { id: ingestSheetId }
+      variables: { id: sheetId }
     }
   );
 
@@ -58,7 +58,7 @@ console.log(errorBody);
 };
 
 IngestSheetCompletedErrors.propTypes = {
-  ingestSheetId: PropTypes.string
+  sheetId: PropTypes.string
 };
 
 export default IngestSheetCompletedErrors;
