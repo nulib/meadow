@@ -6,8 +6,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.{AuditEntries, FileSets.FileSet, Works}
-  alias Meadow.Ingest.{Actions, Sheets, Pipeline}
-  alias Meadow.Ingest.Sheets.{Sheet, Row}
+  alias Meadow.Ingest.{Actions, Pipeline, Sheets}
+  alias Meadow.Ingest.Sheets.{Row, Sheet}
   alias Meadow.Repo
 
   use Meadow.Constants

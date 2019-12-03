@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.Sheets.Validator do
   alias Meadow.Config
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.Sheets
-  alias Meadow.Ingest.Sheets.{Sheet, Row}
+  alias Meadow.Ingest.Sheets.{Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
   alias NimbleCSV.RFC4180, as: CSV

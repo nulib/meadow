@@ -1,8 +1,8 @@
 defmodule Meadow.Utils.DataLoaderTest do
   use ExUnit.Case
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Utils.DataLoader
   alias Meadow.Repo
+  alias Meadow.Utils.DataLoader
   doctest Meadow.Utils.DataLoader
 
   setup do
