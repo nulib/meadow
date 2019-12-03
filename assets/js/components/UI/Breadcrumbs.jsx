@@ -4,22 +4,33 @@ import { Link } from "react-router-dom";
 import CheveronRightIcon from "../../../css/fonts/zondicons/cheveron-right.svg";
 
 const Breadcrumbs = ({ crumbs = [] }) => (
-  <div className="text-xl mb-4">
-    {crumbs.map((crumb, i) => (
-      <span key={crumb.label}>
-        <Link to={crumb.link}>{crumb.label}</Link>
+  <ul className="text-xl mb-4" data-testid="breadcrumbs">
+    {crumbs.map(({ label, link, labelWithoutLink }, i) => (
+      <li className="inline-block" key={label}>
+        {labelWithoutLink && (
+          <span className="mr-1 font-light text-gray-600">
+            {labelWithoutLink}
+          </span>
+        )}
+        <Link to={link}>{label}</Link>
         {i !== crumbs.length - 1 && (
           <span className="px-4">
             <CheveronRightIcon className="icon" />
           </span>
         )}
-      </span>
+      </li>
     ))}
-  </div>
+  </ul>
 );
 
 Breadcrumbs.propTypes = {
-  crumbs: PropTypes.array.isRequired
+  crumbs: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      link: PropTypes.string,
+      labelWithoutLink: PropTypes.string
+    })
+  )
 };
 
 export default Breadcrumbs;
