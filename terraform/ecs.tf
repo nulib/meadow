@@ -33,7 +33,8 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
       "sns:ListTopics",
       "sns:Publish",
       "sns:SetSubscriptionAttributes",
-      "sns:Subscribe"
+      "sns:Subscribe",
+      "sns:Unsubscribe"
     ]
     resources = ["*"]
   }
@@ -111,6 +112,7 @@ data "template_file" "container_definitions" {
     ingest_bucket       = aws_s3_bucket.meadow_ingest.bucket
     log_group           = aws_cloudwatch_log_group.meadow_logs.name
     preservation_bucket = aws_s3_bucket.meadow_preservation.bucket
+    pyramid_bucket      = var.pyramid_bucket
     region              = var.aws_region
     secret_key_base     = random_string.secret_key_base.result
     upload_bucket       = aws_s3_bucket.meadow_uploads.bucket

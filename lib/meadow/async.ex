@@ -3,8 +3,10 @@ defmodule Meadow.Async do
   Performs singleton tasks asynchronously using Elixir's built-in Registry
   """
 
+  @environment Mix.env()
+
   def run_once(task_id, fun) do
-    run_once(task_id, fun, Mix.env())
+    run_once(task_id, fun, @environment)
   end
 
   def run_once(task_id, fun, :test) do
