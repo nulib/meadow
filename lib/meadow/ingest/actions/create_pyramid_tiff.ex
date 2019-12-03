@@ -7,7 +7,6 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
   alias Sequins.Pipeline.Action
   use Action
 
-  @pyramid_bucket Config.pyramid_bucket()
   @command "bin/fake_pyramid.js"
   @timeout 7_000
 
@@ -23,17 +22,15 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
     Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
     file_set = FileSets.get_file_set!(file_set_id)
 
-    Process.flag(:trap_exit, true)
-    port = Port.open({:spawn, @command}, [:binary, :exit_status])
-    Port.monitor(port)
+    port = find_or_create_port()
 
     case create_pyramid_tiff(file_set, port) do
       {:ok, _} ->
-        AuditEntries.add_entry!(file_set.id, __MODULE__, "ok")
+        AuditEntries.add_entry!(file_set, __MODULE__, "ok")
         :ok
 
       {:error, error} ->
-        AuditEntries.add_entry!(file_set.id, __MODULE__, "error", error)
+        AuditEntries.add_entry!(file_set, __MODULE__, "error", error)
         {:error, error}
     end
   rescue
@@ -72,5 +69,29 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
     dest_key = Path.join(["/", Pairtree.generate_pyramid_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
+  defp pyramid_port?(p) do
+    @command ==
+      Port.info(p)
+      |> Keyword.get(:name)
+      |> to_string()
+  end
+
+  defp find_or_create_port do
+    case Enum.find(Port.list(), &pyramid_port?/1) do
+      nil ->
+        Logger.info("Spawning #{@command} in a new port")
+
+        Process.flag(:trap_exit, true)
+
+        port = Port.open({:spawn, @command}, [:binary, :exit_status])
+        Port.monitor(port)
+        port
+
+      port ->
+        Logger.debug("Using port #{inspect(port)} for #{@command}")
+        port
+    end
   end
 end
