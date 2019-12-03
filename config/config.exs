@@ -20,6 +20,11 @@ config :meadow, MeadowWeb.Endpoint,
   render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]
 
+# Configures the pyramid TIFF processor
+with val <- System.get_env("PYRAMID_PROCESSOR") do
+  unless is_nil(val), do: config(:meadow, pyramid_processor: val)
+end
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $levelpad$message\n",

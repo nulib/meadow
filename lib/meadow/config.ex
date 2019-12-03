@@ -23,6 +23,15 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :pyramid_bucket)
   end
 
+  @doc "Retrieve the configured pyramid processor"
+  def pyramid_processor do
+    Application.get_env(
+      :meadow,
+      :pyramid_processor,
+      :code.priv_dir(:meadow) |> to_string() |> Path.join("bin/fake_pyramid.js")
+    )
+  end
+
   @doc "Retrieve a list of configured buckets"
   def buckets do
     [

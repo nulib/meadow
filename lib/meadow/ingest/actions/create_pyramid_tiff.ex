@@ -71,26 +71,26 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
 
-  defp pyramid_port?(p) do
-    @command ==
-      Port.info(p)
-      |> Keyword.get(:name)
-      |> to_string()
-  end
-
   defp find_or_create_port do
-    case Enum.find(Port.list(), &pyramid_port?/1) do
+    command = Config.pyramid_processor()
+
+    pyramid_port? = fn p ->
+      command ==
+        Port.info(p)
+        |> Keyword.get(:name)
+        |> to_string()
+    end
+
+    case Enum.find(Port.list(), pyramid_port?) do
       nil ->
-        Logger.info("Spawning #{@command} in a new port")
-
+        Logger.info("Spawning #{command} in a new port")
         Process.flag(:trap_exit, true)
-
-        port = Port.open({:spawn, @command}, [:binary, :exit_status])
+        port = Port.open({:spawn, command}, [:binary, :exit_status])
         Port.monitor(port)
         port
 
       port ->
-        Logger.debug("Using port #{inspect(port)} for #{@command}")
+        Logger.debug("Using port #{inspect(port)} for #{command}")
         port
     end
   end
