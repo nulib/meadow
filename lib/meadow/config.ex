@@ -18,12 +18,18 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :upload_bucket)
   end
 
+  @doc "Retrieve the configured pyramid bucket"
+  def pyramid_bucket do
+    Application.get_env(:meadow, :pyramid_bucket)
+  end
+
   @doc "Retrieve a list of configured buckets"
   def buckets do
     [
       ingest_bucket(),
       preservation_bucket(),
-      upload_bucket()
+      upload_bucket(),
+      pyramid_bucket()
     ]
   end
 

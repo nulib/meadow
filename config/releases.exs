@@ -25,6 +25,7 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
 config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
+config :meadow, pyramid_bucket: get_required_var.("PYRAMID_BUCKET")
 
 config :honeybadger,
   api_key: get_required_var.("HONEYBADGER_API_KEY"),

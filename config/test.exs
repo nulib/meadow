@@ -34,7 +34,8 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow,
   ingest_bucket: "test-ingest",
   upload_bucket: "test-uploads",
-  preservation_bucket: "test-preservation"
+  preservation_bucket: "test-preservation",
+  pyramid_bucket: "test-pyramids"
 
 config :meadow,
   start_pipeline: false

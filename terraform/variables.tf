@@ -40,3 +40,8 @@ variable "upload_bucket" {
   default = ""
 }
 
+variable "pyramid_bucket" {
+  type    = "string"
+  default = ""
+}
+

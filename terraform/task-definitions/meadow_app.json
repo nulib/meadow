@@ -30,15 +30,19 @@
         "name": "PRESERVATION_BUCKET",
         "value": "${preservation_bucket}"
       },
-      { 
+      {
+        "name": "PYRAMID_BUCKET",
+        "value": "${pyramid_bucket}"
+      },
+      {
         "name": "RELEASE_COOKIE",
         "value": "${secret_key_base}"
       },
-      { 
+      {
         "name": "RELEASE_DISTRIBUTION",
         "value": "name"
       },
-      { 
+      {
         "name": "RELEASE_NODE",
         "value": "meadow@${host_name}"
       },

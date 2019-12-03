@@ -28,6 +28,7 @@ defmodule Meadow.Ingest.Pipeline do
       {Actions.CopyFileToPreservation, max_number_of_messages: 3, visibility_timeout: 180},
       {Actions.GenerateFileSetDigests, max_number_of_messages: 3, visibility_timeout: 180},
       {Actions.IngestFileSet, processor_stages: 1},
+      {Actions.CreatePyramidTiff, processor_stages: 1},
       {Actions.UpdateSheetStatus, processor_stages: 1},
       {Actions.FileSetComplete, processor_stages: 1}
     ]
@@ -43,11 +44,13 @@ defmodule Meadow.Ingest.Pipeline do
       IngestFileSet: [],
       GenerateFileSetDigests: [IngestFileSet: [status: :ok]],
       CopyFileToPreservation: [GenerateFileSetDigests: [status: :ok]],
-      FileSetComplete: [CopyFileToPreservation: [status: :ok]],
+      CreatePyramidTiff: [CopyFileToPreservation: [status: :ok]],
+      FileSetComplete: [CreatePyramidTiff: [status: :ok]],
       UpdateSheetStatus: [
         IngestFileSet: [context: :Sheet, status: :error],
         GenerateFileSetDigests: [context: :Sheet, status: :error],
         CopyFileToPreservation: [context: :Sheet, status: :error],
+        CreatePyramidTiff: [context: :Sheet, status: :error],
         FileSetComplete: [context: :Sheet, status: [:ok, :error]]
       ]
     ]
