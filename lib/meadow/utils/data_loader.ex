@@ -1,4 +1,4 @@
-defmodule Meadow.Data.DataLoader do
+defmodule Meadow.Utils.DataLoader do
   @moduledoc """
   Insert dummy Work records (100 by default, can be overridden),
   with embedded Metadata and a random array of up to 300 FileSets.

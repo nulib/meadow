@@ -1,5 +1,5 @@
 subscription IngestProgress($sheetId: ID!) {
-  ingestProgress(ingestSheetId: $sheetId) {
+  ingestProgress(sheetId: $sheetId) {
     totalFileSets
     completedFileSets
     percentComplete

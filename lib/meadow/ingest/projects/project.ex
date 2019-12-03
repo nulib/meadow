@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Projects.Project do
     field :title, :string
     field :folder, :string
 
-    has_many :ingest_sheets, Meadow.Ingest.IngestSheets.IngestSheet
+    has_many :ingest_sheets, Meadow.Ingest.Sheets.Sheet
 
     timestamps()
   end

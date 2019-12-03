@@ -16,7 +16,7 @@ import { useToasts } from "react-toast-notifications";
 
 const IngestSheetActionRow = ({
   projectId,
-  ingestSheetId,
+  sheetId,
   status,
   history
 }) => {
@@ -42,11 +42,11 @@ const IngestSheetActionRow = ({
   const showApproveButton = status === "VALID";
 
   const handleApproveClick = () => {
-    approveIngestSheet({ variables: { id: ingestSheetId } });
+    approveIngestSheet({ variables: { id: sheetId } });
   };
 
   const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { ingestSheetId: ingestSheetId } });
+    deleteIngestSheet({ variables: { sheetId: sheetId } });
   };
 
   const onOpenModal = () => {
@@ -90,7 +90,7 @@ const IngestSheetActionRow = ({
 
 IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
-  ingestSheetId: PropTypes.string,
+  sheetId: PropTypes.string,
   status: PropTypes.string,
   history: ReactRouterPropTypes.history
 };

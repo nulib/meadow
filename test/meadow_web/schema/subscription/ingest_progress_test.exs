@@ -41,7 +41,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     }
 
     assert_in_delta(pct, @pct_factor, 0.01)
-    sheet = IngestSheets.get_ingest_sheet!(sheet.id)
+    sheet = Sheets.get_ingest_sheet!(sheet.id)
     refute(sheet.status == "completed")
   end
 
@@ -51,7 +51,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     file_sets
     |> Enum.with_index()
     |> Enum.each(fn {file_set, row} ->
-      IngestSheets.update_ingest_status(sheet.id, row, "ok")
+      Sheets.update_status(sheet.id, row, "ok")
       AuditEntries.initialize_entries(file_set, Pipeline.actions(), "ok")
     end)
 
@@ -64,7 +64,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
       assert_in_delta(pct, i * @pct_factor, 0.01)
     end)
 
-    sheet = IngestSheets.get_ingest_sheet!(sheet.id)
+    sheet = Sheets.get_ingest_sheet!(sheet.id)
     assert(sheet.status == "completed")
   end
 end

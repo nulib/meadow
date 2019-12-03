@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
+defmodule Meadow.Ingest.Sheets.Row do
   @moduledoc """
-  IngestSheetRow represents a single row of an ingest sheet
+  Row represents a single row of an ingest sheet
   """
 
   use Ecto.Schema
@@ -10,7 +10,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
   @foreign_key_type Ecto.ULID
 
   schema "ingest_sheet_rows" do
-    belongs_to :ingest_sheet, Meadow.Ingest.IngestSheets.IngestSheet
+    belongs_to :sheet, Meadow.Ingest.Sheets.Sheet
     field :row, :integer
     field :state, :string, default: "pending"
     field :file_set_accession_number, :string
@@ -39,37 +39,37 @@ defmodule Meadow.Ingest.IngestSheets.IngestSheetRow do
   def field_value(row, field_name), do: field_value(row, to_string(field_name))
 
   @doc false
-  def changeset(ingest_sheet_row, attrs) do
-    ingest_sheet_row
+  def changeset(row, attrs) do
+    row
     |> cast(attrs, [:file_set_accession_number, :state])
     |> cast_embed(:errors, with: &error_changeset/2)
     |> cast_embed(:fields, with: &field_changeset/2)
-    |> validate_required([:ingest_sheet_id, :row, :file_set_accession_number])
-    |> assoc_constraint(:ingest_sheet)
+    |> validate_required([:sheet_id, :row, :file_set_accession_number])
+    |> assoc_constraint(:sheet)
   end
 
-  def error_changeset(ingest_sheet_row, attrs) do
-    ingest_sheet_row
+  def error_changeset(row, attrs) do
+    row
     |> cast(attrs, [:field, :message])
   end
 
-  def field_changeset(ingest_sheet_row, attrs) do
-    ingest_sheet_row
+  def field_changeset(row, attrs) do
+    row
     |> cast(attrs, [:header, :value])
   end
 
-  def state_changeset(ingest_sheet_row, attrs) do
-    ingest_sheet_row
+  def state_changeset(row, attrs) do
+    row
     |> cast(attrs, [:state])
-    |> validate_required([:ingest_sheet_id, :row])
-    |> assoc_constraint(:ingest_sheet)
+    |> validate_required([:sheet_id, :row])
+    |> assoc_constraint(:sheet)
     |> validate_required([:state])
   end
 
-  def data_changeset(ingest_sheet_row, _attrs) do
-    ingest_sheet_row
+  def data_changeset(row, _attrs) do
+    row
     |> cast_embed(:errors, with: &error_changeset/2)
     |> cast_embed(:fields, with: &field_changeset/2)
-    |> validate_required([:ingest_sheet_id, :row])
+    |> validate_required([:sheet_id, :row])
   end
 end

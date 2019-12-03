@@ -1,45 +1,45 @@
 defmodule Meadow.Ingest.SheetsToWorks do
   @moduledoc """
-  Functions to group IngestSheetRows into Works and FileSets
+  Functions to group Rows into Works and FileSets
   and create the resulting database records
   """
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.{AuditEntries, FileSets.FileSet, Works}
-  alias Meadow.Ingest.{Actions, IngestSheets, Pipeline}
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
+  alias Meadow.Ingest.{Actions, Sheets, Pipeline}
+  alias Meadow.Ingest.Sheets.{Sheet, Row}
   alias Meadow.Repo
 
   use Meadow.Constants
 
-  def create_works_from_ingest_sheet(%IngestSheet{} = ingest_sheet) do
+  def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet) do
     work_records = group_by_works(ingest_sheet)
 
     work_records
     |> Enum.map(fn work_record -> ingest_work(work_record) end)
     |> Enum.reject(fn work -> is_nil(work) end)
-    |> IngestSheets.link_works_to_ingest_sheet(ingest_sheet)
+    |> Sheets.link_works_to_ingest_sheet(ingest_sheet)
 
     ingest_sheet
   end
 
-  def group_by_works(%IngestSheet{} = ingest_sheet) do
-    IngestSheets.list_ingest_sheet_rows(sheet: ingest_sheet)
-    |> Enum.group_by(fn row -> row |> IngestSheetRow.field_value(:work_accession_number) end)
+  def group_by_works(%Sheet{} = ingest_sheet) do
+    Sheets.list_ingest_sheet_rows(sheet: ingest_sheet)
+    |> Enum.group_by(fn row -> row |> Row.field_value(:work_accession_number) end)
   end
 
   def start_file_set_pipelines(ingest_sheet) do
-    from([file_set: file_set, row: row] in IngestSheets.file_sets_and_rows(ingest_sheet),
+    from([file_set: file_set, row: row] in Sheets.file_sets_and_rows(ingest_sheet),
       select: %{file_set_id: file_set.id, row_num: row.row}
     )
     |> Repo.all()
     |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
-      IngestSheets.update_ingest_status(ingest_sheet.id, row_num, "pending")
+      Sheets.update_status(ingest_sheet.id, row_num, "pending")
       AuditEntries.initialize_entries({FileSet, file_set_id}, Pipeline.actions())
 
       Actions.IngestFileSet.send_message(
         %{file_set_id: file_set_id},
-        %{context: "IngestSheet", ingest_sheet: ingest_sheet.id, ingest_sheet_row: row_num}
+        %{context: "Sheet", ingest_sheet: ingest_sheet.id, ingest_sheet_row: row_num}
       )
     end)
 
@@ -59,14 +59,14 @@ defmodule Meadow.Ingest.SheetsToWorks do
           file_sets:
             file_set_rows
             |> Enum.map(fn row ->
-              file_path = IngestSheetRow.field_value(row, :filename)
+              file_path = Row.field_value(row, :filename)
               location = "s3://#{ingest_bucket}/#{file_path}"
 
               %{
-                accession_number: row |> IngestSheetRow.field_value(:accession_number),
-                role: row |> IngestSheetRow.field_value(:role),
+                accession_number: row |> Row.field_value(:accession_number),
+                role: row |> Row.field_value(:role),
                 metadata: %{
-                  description: row |> IngestSheetRow.field_value(:description),
+                  description: row |> Row.field_value(:description),
                   location: location,
                   original_filename: Path.basename(file_path)
                 }

@@ -10,7 +10,7 @@ import {
   GET_INGEST_SHEET_VALIDATIONS
 } from "./ingestSheet.query";
 
-function IngestSheetReport({ ingestSheetId, progress, status }) {
+function IngestSheetReport({ sheetId, progress, status }) {
   const sheetHasErrors = () => {
     return ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
   };
@@ -18,7 +18,7 @@ function IngestSheetReport({ ingestSheetId, progress, status }) {
   const { loading, error, data } = useQuery(
     sheetHasErrors() ? GET_INGEST_SHEET_ERRORS : GET_INGEST_SHEET_VALIDATIONS,
     {
-      variables: { ingestSheetId },
+      variables: { sheetId },
       fetchPolicy: "network-only"
     }
   );
@@ -47,7 +47,7 @@ function IngestSheetReport({ ingestSheetId, progress, status }) {
 }
 
 IngestSheetReport.propTypes = {
-  ingestSheetId: PropTypes.string.isRequired,
+  sheetId: PropTypes.string.isRequired,
   progress: PropTypes.object.isRequired,
   status: PropTypes.string
 };

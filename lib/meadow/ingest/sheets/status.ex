@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.IngestSheets.IngestStatus do
+defmodule Meadow.Ingest.Sheets.Status do
   @moduledoc """
-  IngestStatus represents the ingest status of a single ingest sheet or ingest sheet row
+  Status represents the ingest status of a single ingest sheet or ingest sheet row
   """
 
   use Ecto.Schema
@@ -12,8 +12,8 @@ defmodule Meadow.Ingest.IngestSheets.IngestStatus do
   @foreign_key_type Ecto.ULID
   @sheet_row -1
 
-  schema "ingest_sheet_ingest_status" do
-    field :ingest_sheet_id, :string, primary_key: true
+  schema "ingest_sheet_status" do
+    field :sheet_id, :string, primary_key: true
     field :row, :integer, default: @sheet_row, primary_key: true
     field :status, :string, default: "initialized"
   end
@@ -22,7 +22,7 @@ defmodule Meadow.Ingest.IngestSheets.IngestStatus do
   def changeset(ingest_sheet_row, attrs) do
     ingest_sheet_row
     |> cast(attrs, [:status])
-    |> validate_required([:ingest_sheet_id, :row, :status])
+    |> validate_required([:sheet_id, :row, :status])
     |> validate_change(:status, &validate_ingest_status/2)
   end
 

@@ -70,7 +70,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
 
     @desc "Get errors for completed ingest sheet"
     field :ingest_sheet_errors, list_of(:ingest_sheet_error) do
-      @desc "The ID of `IngestSheet` (can be anything)"
+      @desc "The ID of `Sheet` (can be anything)"
       arg(:id, type: non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.ingest_sheet_errors/3)
@@ -103,7 +103,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
 
     @desc "Delete an Ingest Sheet"
     field :delete_ingest_sheet, :ingest_sheet do
-      arg(:ingest_sheet_id, non_null(:id))
+      arg(:sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.delete_ingest_sheet/3)
     end
@@ -117,7 +117,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
 
     @desc "Kick off Validation of an Ingest Sheet"
     field :validate_ingest_sheet, :status_message do
-      arg(:ingest_sheet_id, non_null(:id))
+      arg(:sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.validate_ingest_sheet/3)
     end
@@ -186,10 +186,10 @@ defmodule MeadowWeb.Schema.IngestTypes do
 
     @desc "Subscribe to work creation progress notifications for an ingest sheet"
     field :ingest_progress, :work_ingest_progress do
-      arg(:ingest_sheet_id, non_null(:id))
+      arg(:sheet_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: args.ingest_sheet_id}
+        {:ok, topic: args.sheet_id}
       end)
     end
   end
@@ -204,7 +204,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
   end
 
-  @desc "IngestSheet object"
+  @desc "Sheet object"
   object :ingest_sheet do
     field :id, non_null(:id)
     field :name, non_null(:string)
@@ -274,7 +274,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :state, :state
   end
 
-  @desc "Object that tracks IngestSheet state"
+  @desc "Object that tracks Sheet state"
   object :sheet_state do
     @desc "name: file, rows, or overall"
     field :name, :string
@@ -331,7 +331,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
   """
   object :work_ingest_progress do
     @desc "The ID of the Ingest Sheet in progress"
-    field :ingest_sheet_id, non_null(:id)
+    field :sheet_id, non_null(:id)
     @desc "The total number of FileSets attached to the Ingest Sheet"
     field :total_file_sets, non_null(:integer)
     @desc "The number of FileSets that have reached OK or ERROR state"

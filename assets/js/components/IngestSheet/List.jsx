@@ -67,7 +67,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   }
 
   const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { ingestSheetId: activeModal } });
+    deleteIngestSheet({ variables: { sheetId: activeModal } });
     onCloseModal();
   };
 

@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest do
   @moduledoc """
-  The PrimaryIngest context. Functions for dealing with Ingest, IngestSheets and Projects
+  The PrimaryIngest context. Functions for dealing with Ingest, Sheets and Projects
   """
 
   import Ecto.Query, warn: false

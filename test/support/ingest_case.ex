@@ -8,14 +8,14 @@ defmodule Meadow.IngestCase do
   """
 
   alias Meadow.Repo
-  alias Meadow.Ingest.{IngestSheets, SheetsToWorks}
+  alias Meadow.Ingest.{Sheets, SheetsToWorks}
   import Meadow.TestHelpers
 
   @fixture "test/fixtures/ingest_sheet.csv"
 
   using do
     quote do
-      alias Meadow.Ingest.IngestSheets
+      alias Meadow.Ingest.Sheets
       import Meadow.IngestCase
 
       def create_works(sheet) do
@@ -31,11 +31,11 @@ defmodule Meadow.IngestCase do
     sheet = ingest_sheet_rows_fixture(@fixture)
 
     sheet
-    |> IngestSheets.change_ingest_sheet_state!(%{file: "pass", rows: "pass", overall: "pass"})
+    |> Sheets.change_ingest_sheet_state!(%{file: "pass", rows: "pass", overall: "pass"})
     |> Repo.preload(:ingest_sheet_rows)
     |> Map.get(:ingest_sheet_rows)
     |> Enum.each(fn
-      row -> IngestSheets.change_ingest_sheet_row_state(row, "pass")
+      row -> Sheets.change_ingest_sheet_row_state(row, "pass")
     end)
 
     {:ok, ingest_sheet: sheet}

@@ -9,7 +9,7 @@ defmodule Meadow.TestHelpers do
   alias Meadow.Data.Collections.Collection
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetValidator}
+  alias Meadow.Ingest.Sheets.{Sheet, Validator}
   alias Meadow.Ingest.Projects.Project
 
   alias Meadow.Repo
@@ -49,8 +49,8 @@ defmodule Meadow.TestHelpers do
       })
 
     {:ok, ingest_sheet} =
-      %IngestSheet{}
-      |> IngestSheet.changeset(attrs)
+      %Sheet{}
+      |> Sheet.changeset(attrs)
       |> Repo.insert()
 
     ingest_sheet
@@ -61,7 +61,7 @@ defmodule Meadow.TestHelpers do
 
     sheet
     |> Repo.preload(:project)
-    |> IngestSheetValidator.load_rows(File.read!(file_fixture))
+    |> Validator.load_rows(File.read!(file_fixture))
 
     sheet
   end
