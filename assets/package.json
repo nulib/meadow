@@ -43,7 +43,7 @@
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.5",
     "coveralls": "^3.0.9",
-    "css-loader": "^3.2.0",
+    "css-loader": "^3.2.1",
     "file-loader": "^5.0.2",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
