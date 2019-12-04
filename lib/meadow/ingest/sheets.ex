@@ -609,7 +609,7 @@ defmodule Meadow.Ingest.Sheets do
       join: r in Row,
       as: :row,
       on:
-        r.sheet_id == r.sheet_id and
+        r.sheet_id == iw.sheet_id and
           r.file_set_accession_number == f.accession_number,
       where: iw.sheet_id == ^sheet_id
     )
