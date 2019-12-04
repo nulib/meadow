@@ -1,0 +1,9 @@
+fragment ProjectListFields on Project {
+  id
+  title
+  folder
+  updatedAt
+  ingestSheets {
+    id
+  }
+}

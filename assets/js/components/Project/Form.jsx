@@ -3,7 +3,8 @@ import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
-import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { CREATE_PROJECT } from "./project.query.js";
+import { GetProjects } from "../../gql/GetProjects.gql";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useToasts } from "react-toast-notifications";
@@ -23,7 +24,7 @@ const ProjectForm = ({ history }) => {
         history.push("/project/list");
       },
       refetchQueries(mutationResult) {
-        return [{ query: GET_PROJECTS }];
+        return [{ query: GetProjects }];
       }
     }
   );

@@ -9,6 +9,12 @@
     "prettier": "prettier --check js/**/*.js* css/**/*.css ./*.js ./*.json",
     "prettier-fix": "prettier --write js/**/*.js* css/**/*.css ./*.js ./*.json"
   },
+  "jest": {
+    "transform": {
+      "\\.(gql|graphql)$": "jest-transform-graphql",
+      ".*": "babel-jest"
+    }
+  },
   "prettier": "@nulib/prettier-config",
   "dependencies": {
     "@absinthe/socket-apollo-link": "^0.2.1",
@@ -30,7 +36,7 @@
     "react-toast-notifications": "^2.2.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.2",
+    "@babel/core": "^7.7.4",
     "@babel/plugin-proposal-class-properties": "^7.7.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/plugin-transform-async-to-generator": "^7.5.0",
@@ -40,15 +46,17 @@
     "@testing-library/jest-dom": "^4.2.3",
     "@testing-library/react": "^9.3.2",
     "axios": "^0.19.0",
+    "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.5",
     "coveralls": "^3.0.7",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
+    "jest": "^24.9.0",
+    "jest-transform-graphql": "^2.1.0",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
-    "jest": "^24.9.0",
     "mini-css-extract-plugin": "^0.8.0",
     "node-fetch": "^2.6.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",

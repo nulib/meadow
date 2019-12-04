@@ -5,30 +5,28 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
-import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { DELETE_PROJECT } from "./project.query.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { useToasts } from "react-toast-notifications";
+import GetProjectsQuery from "../../gql/GetProjects.gql";
 
 const ProjectList = () => {
   const { addToast } = useToasts();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
-  const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
+  const { loading, error, data: projectsData } = useQuery(GetProjectsQuery);
   const client = useApolloClient();
   const [deleteProject, { data }] = useMutation(DELETE_PROJECT, {
-    update(
-      cache,
-      {
-        data: { deleteProject }
-      }
-    ) {
-      const { projects } = client.readQuery({ query: GET_PROJECTS });
+    update(cache, { data: { deleteProject } }) {
+      const { projects } = client.readQuery({
+        query: GetProjectsQuery
+      });
       const index = projects.findIndex(
         project => project.id === deleteProject.id
       );
       projects.splice(index, 1);
       client.writeQuery({
-        query: GET_PROJECTS,
+        query: GetProjectsQuery,
         data: { projects }
       });
     }

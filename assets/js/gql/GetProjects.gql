@@ -1,0 +1,7 @@
+#import "./ProjectListFields.frag.gql"
+
+query GetProjects {
+  projects {
+    ...ProjectListFields
+  }
+}
