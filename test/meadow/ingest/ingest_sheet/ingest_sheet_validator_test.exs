@@ -1,7 +1,7 @@
 defmodule Meadow.Ingest.Sheets.ValidatorTest do
   use Meadow.DataCase
 
-  alias Meadow.Ingest.{Sheets, Projects}
+  alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Ingest.Sheets.Validator
 
   import Mox

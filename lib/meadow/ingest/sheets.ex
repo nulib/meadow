@@ -7,7 +7,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.AuditEntries.AuditEntry
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.Sheets.{Sheet, Row, SheetWorks, Status}
+  alias Meadow.Ingest.Sheets.{Row, Sheet, SheetWorks, Status}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
