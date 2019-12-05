@@ -2,7 +2,7 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1
-  docker-cache: nulib/docker-cache@0.3
+  docker: circleci/docker@0.5.19
 jobs:
   test:
     working_directory: ~/meadow
@@ -10,8 +10,12 @@ jobs:
       - image: circleci/elixir:1.9-node
         environment:
           DATABASE_URL: ecto://root@localhost/circle_test
+          DB_PORT: "5432"
           MIX_ENV: test
       - image: circleci/postgres:10-alpine
+        environment:
+          POSTGRES_USER: docker
+          POSTGRES_PASSWORD: d0ck3r
       - image: nulib/goaws
     steps:
       - checkout
@@ -19,7 +23,6 @@ jobs:
           keys:
             - v1-hex-cache-{{ checksum "mix.lock" }}
             - v1-hex-cache-
-            - dependency-cache-
       - restore_cache:
           keys:
             - v1-npm-cache-{{ checksum "assets/yarn.lock" }}
@@ -72,11 +75,47 @@ jobs:
       - store_artifacts:
           path: /tmp/test-results
           destination: tests
+  publish:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Set DEPLOY_TAG from branch name
+          command: |
+            if [[ $CIRCLE_BRANCH == "master" ]]; then
+              echo "export DEPLOY_TAG=production" >> $BASH_ENV
+            else
+              echo "export DEPLOY_TAG=$(echo $CIRCLE_BRANCH | awk -F/ '{print $NF}')" >> $BASH_ENV
+            fi
+      - docker/check
+      - docker/build:
+          cache_from: nulib/meadow-deps:${DEPLOY_TAG}
+          image: nulib/meadow
+          tag: ${DEPLOY_TAG}
+      - run:
+          command: |
+            DEPS_IMAGE=$(docker image ls --filter "label=edu.northwestern.library.app=meadow" --filter "label=edu.northwestern.library.stage=deps" --format '{{.CreatedAt}}\t{{.ID}}' | sort -nr | cut -f2 | head -1)
+            docker tag ${DEPS_IMAGE} nulib/meadow-deps:${DEPLOY_TAG}
+      - docker/push:
+          image: nulib/meadow-deps
+          tag: ${DEPLOY_TAG}
+      - docker/push:
+          image: nulib/meadow
+          tag: ${DEPLOY_TAG}
   deploy:
     docker:
       - image: circleci/python:3.7.1
     steps:
-      - docker-cache/set-deploy-tag
+      - run:
+          name: Set DEPLOY_TAG from branch name
+          command: |
+            if [[ $CIRCLE_BRANCH == "master" ]]; then
+              echo "export DEPLOY_TAG=production" >> $BASH_ENV
+            else
+              echo "export DEPLOY_TAG=$(echo $CIRCLE_BRANCH | awk -F/ '{print $NF}')" >> $BASH_ENV
+            fi
       - run:
           command: |
             echo "export AWS_ACCESS_KEY_ID=\$${DEPLOY_TAG}_AWS_ACCESS_KEY_ID" >> $BASH_ENV
@@ -100,18 +139,17 @@ workflows:
   ci:
     jobs:
       - test
-      - docker-cache/publish:
+      - publish:
           requires:
             - test
           filters:
             branches:
               only:
+                - /^build-.+/
                 - /^deploy\/.+/
-          cache-key: docker-stages
-          cache-stages: deps assets
       - deploy:
           requires:
-            - docker-cache/publish
+            - publish
           filters:
             branches:
               only:
