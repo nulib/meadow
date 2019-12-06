@@ -19,16 +19,7 @@ defmodule Meadow.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      releases: [
-        meadow: [
-          include_executables_for: [:unix],
-          applications: [
-            meadow: :permanent,
-            observer: :permanent,
-            runtime_tools: :permanent
-          ]
-        ]
-      ]
+      releases: releases()
     ]
   end
 
@@ -116,5 +107,25 @@ defmodule Meadow.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["meadow.pipeline.setup", "ecto.create --quiet", "ecto.migrate", "test"]
     ]
+  end
+
+  defp releases do
+    [
+      meadow: [
+        include_executables_for: [:unix],
+        applications: [
+          meadow: :permanent,
+          observer: :permanent,
+          runtime_tools: :permanent
+        ],
+        steps: [&build_assets/1, :assemble, :tar]
+      ]
+    ]
+  end
+
+  def build_assets(release) do
+    System.cmd("yarn", ["deploy"], cd: "assets")
+    Mix.Tasks.Phx.Digest.run([])
+    release
   end
 end
