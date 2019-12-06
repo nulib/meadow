@@ -8,6 +8,7 @@ COPY ./mix.exs /app/mix.exs
 COPY ./mix.lock /app/mix.lock
 WORKDIR /app
 RUN mix do deps.get --only prod, deps.compile 
+COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
 RUN yarn install
