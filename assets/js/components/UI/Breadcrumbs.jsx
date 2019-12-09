@@ -12,7 +12,8 @@ const Breadcrumbs = ({ crumbs = [] }) => (
             {labelWithoutLink}
           </span>
         )}
-        <Link to={link}>{label}</Link>
+        {link ? <Link to={link}>{label}</Link> : label}
+
         {i !== crumbs.length - 1 && (
           <span className="px-4">
             <CheveronRightIcon className="icon" />
