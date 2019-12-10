@@ -90,7 +90,7 @@ defmodule Meadow.MixProject do
 
   defp sequins_version do
     case System.get_env("SEQUINS", nil) do
-      nil -> "~> 0.4.1"
+      nil -> "~> 0.5.0"
       path -> [path: path]
     end
   end
