@@ -96,6 +96,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "`work_metadata` represents all metadata associated with a work object. It is stored in a single json field."
   object :work_metadata do
     field :title, :string
+    field :description, :string
   end
 
   @desc "visibility setting for the object"

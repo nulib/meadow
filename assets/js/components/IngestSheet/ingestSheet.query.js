@@ -234,6 +234,21 @@ export const INGEST_PROGRESS_SUBSCRIPTION = gql`
   }
 `;
 
+export const INGEST_SHEET_EXPORT_CSV = gql`
+  query IngestSheetWorks($id: ID!) {
+    ingestSheetWorks(id: $id) {
+      accessionNumber
+      id
+      visibility
+      workType
+      metadata {
+        title
+        description
+      }
+    }
+  }
+`;
+
 export const INGEST_SHEET_WORKS = gql`
   query IngestSheetWorks($id: ID!) {
     ingestSheetWorks(id: $id) {

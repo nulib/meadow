@@ -8,12 +8,13 @@ defmodule Meadow.Data.Works.WorkMetadata do
 
   embedded_schema do
     field :title
+    field :description
 
     timestamps()
   end
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [:title])
+    |> cast(params, [:title, :description])
   end
 end
