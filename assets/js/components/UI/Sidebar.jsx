@@ -15,7 +15,7 @@ const navLinks = [
     title: "Works"
   },
   {
-    url: "/",
+    url: "/collection/list",
     title: "Collections"
   },
   {
