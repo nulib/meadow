@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import WorkRow from "./WorkRow";
+import WorkRow from "../Work/Row";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
@@ -28,9 +28,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
         Show mock errors
       </div>
 
-      {showErrors && (
-        <IngestSheetCompletedErrors sheetId={sheetId} />
-      )}
+      {showErrors && <IngestSheetCompletedErrors sheetId={sheetId} />}
       <section>
         {works.length > 0 &&
           works.map(work => <WorkRow key={work.id} work={work} />)}

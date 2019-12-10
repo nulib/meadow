@@ -11,7 +11,7 @@ const navLinks = [
     title: "User Management"
   },
   {
-    url: "/",
+    url: "/work/list",
     title: "Works"
   },
   {

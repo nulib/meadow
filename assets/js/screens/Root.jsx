@@ -10,6 +10,8 @@ import Home from "./Home/Home";
 import NotFoundPage from "./404";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensIngestSheetForm from "./IngestSheet/Form";
+import ScreensWork from "./Work/Work";
+import ScreensWorkList from "./Work/List";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
 
@@ -47,6 +49,12 @@ export default class Root extends React.Component {
                 path="/project/:id"
                 component={ScreensProject}
               />
+              <PrivateRoute
+                exact
+                path="/work/list"
+                component={ScreensWorkList}
+              />
+              <PrivateRoute exact path="/work/:id" component={ScreensWork} />
               <PrivateRoute exact path="/" component={Home} />
               <PrivateRoute component={NotFoundPage} />
             </Switch>
