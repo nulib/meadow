@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_PROJECT } from "./project.query.js";
-import { GetProjects } from "../../gql/GetProjects.gql";
+import GetProjects from "../../gql/GetProjects.gql";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useToasts } from "react-toast-notifications";

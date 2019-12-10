@@ -6,4 +6,5 @@ fragment ProjectListFields on Project {
   ingestSheets {
     id
   }
+  __typename
 }

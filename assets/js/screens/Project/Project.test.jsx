@@ -27,16 +27,19 @@ const mocks = [
               id: "01DNFK56MEN9H0C4CDBE7TECJT",
               name: "fffff",
               status: "UPLOADED",
-              updatedAt: "2019-10-07T16:16:57"
+              updatedAt: "2019-10-07T16:16:57",
+              __typename: "IngestSheet"
             },
             {
               id: "01DNFK9XNJ1FWE8GQGSTR3D1NE",
               name: "not a csv",
               status: "COMPLETED",
-              updatedAt: "2019-10-07T16:16:57"
+              updatedAt: "2019-10-07T16:16:57",
+              __typename: "IngestSheet"
             }
           ],
-          title: MOCK_PROJECT_TITLE
+          title: MOCK_PROJECT_TITLE,
+          __typename: "Project"
         }
       }
     }
@@ -54,7 +57,8 @@ const mocks = [
           id: "01DNFK56MEN9H0C4CDBE7TECJT",
           name: "fffff",
           status: "VALID",
-          updatedAt: "2019-10-07T16:16:57"
+          updatedAt: "2019-10-07T16:16:57",
+          __typename: "IngestSheet"
         }
       }
     }
@@ -94,9 +98,13 @@ it("renders a button to create a new ingest sheet", async () => {
 
 it("renders both screen header and screen content components", async () => {
   const { getByTestId } = setupMatchTests();
-  const [screenHeaderElement, screenContentElement] = await waitForElement(
-    () => [getByTestId("screen-header"), getByTestId("screen-content")]
-  );
+  const [
+    screenHeaderElement,
+    screenContentElement
+  ] = await waitForElement(() => [
+    getByTestId("screen-header"),
+    getByTestId("screen-content")
+  ]);
   expect(screenHeaderElement).toBeInTheDocument();
   expect(screenContentElement).toBeInTheDocument();
 });

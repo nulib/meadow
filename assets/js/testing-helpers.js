@@ -50,7 +50,7 @@ export function renderWithRouterApollo(
   } = {}
 ) {
   const Wrapper = ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks} addTypename={true}>
       <Router history={history}>{children}</Router>
     </MockedProvider>
   );

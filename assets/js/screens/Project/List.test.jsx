@@ -1,28 +1,29 @@
 import React from "react";
 import ScreensProjectList from "./List";
-import { GET_PROJECTS } from "../../components/Project/project.query";
+import GetProjectsQuery from "../../gql/GetProjects.gql";
 import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
 import { waitForElement } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
 
 const mocks = [
   {
     request: {
-      query: GET_PROJECTS
+      query: GetProjectsQuery
     },
     result: {
       data: {
         projects: [
           {
-            folder: "asdfasdf-1569333444",
             id: "01DNHRZZF8M2GF7RXD7K0MJV2V",
+            title: "Mock project title",
+            folder: "asdfasdf-1569333444",
+            updatedAt: "2019-09-24T13:57:24",
             ingestSheets: [
               {
-                id: "01DNJ161YWWVSMHMWZM4V2J7S1"
+                id: "01DNJ161YWWVSMHMWZM4V2J7S1",
+                __typename: "IngestSheet"
               }
             ],
-            title: "Mock project title",
-            updatedAt: "2019-09-24T13:57:24"
+            __typename: "IngestSheet"
           }
         ]
       }
@@ -44,20 +45,25 @@ it("renders screen header and screen content components", async () => {
   const { getByTestId } = renderWithRouterApollo(
     wrapWithToast(<ScreensProjectList />)
   );
-  const [screenHeaderElement, screenContentElement] = await waitForElement(
-    () => [getByTestId("screen-header"), getByTestId("screen-content")]
-  );
+  const [
+    screenHeaderElement,
+    screenContentElement
+  ] = await waitForElement(() => [
+    getByTestId("screen-header"),
+    getByTestId("screen-content")
+  ]);
   expect(screenHeaderElement).toBeInTheDocument();
   expect(screenContentElement).toBeInTheDocument();
 });
 
 it("renders the project list component", async () => {
-  const { getByTestId, debug } = renderWithRouterApollo(
+  const { getByTestId } = renderWithRouterApollo(
     wrapWithToast(<ScreensProjectList />),
     {
       mocks
     }
   );
+
   const listElement = await waitForElement(() => getByTestId("project-list"));
   expect(listElement).toBeInTheDocument();
 });
