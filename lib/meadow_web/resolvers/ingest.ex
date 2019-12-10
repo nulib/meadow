@@ -4,7 +4,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   """
   alias Meadow.Config
-  alias Meadow.Data.AuditEntries
+  alias Meadow.Data.ActionStates
   alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Projects.Bucket
   alias Meadow.Ingest.Sheets
@@ -158,13 +158,13 @@ defmodule MeadowWeb.Resolvers.Ingest do
     }
   end
 
-  def get_audit_trail(_, args, _) do
+  def get_action_states(_, args, _) do
     {:ok,
      args[:object_id]
-     |> AuditEntries.get_entries()
-     |> Enum.map(fn entry ->
-       mod = "Elixir.#{entry.action}" |> String.to_atom()
-       %AuditEntries.AuditEntry{entry | action: mod.actiondoc()}
+     |> ActionStates.get_states()
+     |> Enum.map(fn state ->
+       mod = "Elixir.#{state.action}" |> String.to_atom()
+       %ActionStates.ActionState{state | action: mod.actiondoc()}
      end)}
   end
 

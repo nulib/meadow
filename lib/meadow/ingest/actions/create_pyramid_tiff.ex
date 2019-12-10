@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
   @moduledoc "Create the pyramid tiff derivative for Image objects"
 
   alias Meadow.Config
-  alias Meadow.Data.{AuditEntries, FileSets}
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.Pairtree
   alias Sequins.Pipeline.Action
   use Action
@@ -11,7 +11,7 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
   @timeout 7_000
 
   def process(data, attrs),
-    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+    do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
 
   defp process(%{file_set_id: file_set_id}, _, true) do
     Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
@@ -26,11 +26,11 @@ defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
 
     case create_pyramid_tiff(file_set, port) do
       {:ok, _} ->
-        AuditEntries.add_entry!(file_set, __MODULE__, "ok")
+        ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
 
       {:error, error} ->
-        AuditEntries.add_entry!(file_set, __MODULE__, "error", error)
+        ActionStates.set_state!(file_set, __MODULE__, "error", error)
         {:error, error}
     end
   rescue

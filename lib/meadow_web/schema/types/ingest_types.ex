@@ -54,11 +54,11 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet_rows/3)
     end
 
-    @desc "Retrieve all audit entries for an object"
-    field :audit_trail, list_of(:audit_entry) do
+    @desc "Retrieve all audit states for an object"
+    field :action_states, list_of(:action_state) do
       arg(:object_id, non_null(:id))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.get_audit_trail/3)
+      resolve(&Resolvers.Ingest.get_action_states/3)
     end
 
     @desc "Get works created for an Ingest Sheet"
@@ -168,8 +168,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
       end)
     end
 
-    @desc "Subscribe to audit trail updates for a specific work or file set"
-    field :audit_update, :audit_entry do
+    @desc "Subscribe to action state updates for a specific work or file set"
+    field :action_update, :action_state do
       arg(:object_id, non_null(:id))
 
       config(fn args, _info ->
@@ -177,8 +177,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
       end)
     end
 
-    @desc "Subscribe to audit trail updates for works and file sets"
-    field :audit_updates, :audit_entry do
+    @desc "Subscribe to action state updates for works and file sets"
+    field :action_updates, :action_state do
       config(fn _args, _info ->
         {:ok, topic: :all}
       end)
@@ -312,7 +312,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
   end
 
   @desc "The state of a single action within a pipeline"
-  object :audit_entry do
+  object :action_state do
     @desc "The ID of the Work or FileSet target of the action"
     field :object_id, non_null(:string)
     @desc "The module name of the action"

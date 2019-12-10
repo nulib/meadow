@@ -1,0 +1,6 @@
+fragment ActionStateFields on ActionState {
+  objectId
+  action
+  outcome
+  notes
+}

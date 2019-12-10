@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   use Meadow.IngestCase
   use MeadowWeb.SubscriptionCase, async: true
-  alias Meadow.Data.AuditEntries
+  alias Meadow.Data.ActionStates
   alias Meadow.Ingest.Actions.GenerateFileSetDigests
   alias Meadow.Ingest.Pipeline
 
@@ -17,7 +17,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
 
     file_sets
     |> Enum.each(fn file_set ->
-      AuditEntries.initialize_entries(file_set, Pipeline.actions())
+      ActionStates.initialize_states(file_set, Pipeline.actions())
     end)
 
     {:ok,
@@ -34,7 +34,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     assert_reply ref, :ok, %{subscriptionId: subscription_id}
 
     List.first(file_sets)
-    |> AuditEntries.add_entry!(GenerateFileSetDigests, "ok")
+    |> ActionStates.set_state!(GenerateFileSetDigests, "ok")
 
     assert_push "subscription:data", %{
       result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
@@ -52,7 +52,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     |> Enum.with_index()
     |> Enum.each(fn {file_set, row} ->
       Sheets.update_status(sheet.id, row, "ok")
-      AuditEntries.initialize_entries(file_set, Pipeline.actions(), "ok")
+      ActionStates.initialize_states(file_set, Pipeline.actions(), "ok")
     end)
 
     Range.new(1, 28)

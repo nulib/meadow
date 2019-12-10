@@ -1,6 +1,0 @@
-fragment AuditFields on AuditEntry {
-  objectId
-  action
-  outcome
-  notes
-}

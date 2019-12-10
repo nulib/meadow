@@ -4,7 +4,7 @@ defmodule Meadow.Ingest.Sheets do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.AuditEntries.AuditEntry
+  alias Meadow.Data.ActionStates.ActionState
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
   alias Meadow.Ingest.Sheets.{Row, Sheet, SheetWorks, Status}
@@ -464,7 +464,7 @@ defmodule Meadow.Ingest.Sheets do
     do: completed_file_set_count(ingest_sheet.id)
 
   def completed_file_set_count(sheet_id) do
-    from([entry: a] in file_set_audit_entries(sheet_id),
+    from([entry: a] in file_set_action_states(sheet_id),
       where: a.outcome in ["ok", "error"],
       where: a.object_type == "Meadow.Data.FileSets.FileSet",
       where: a.action == "Meadow.Ingest.Actions.FileSetComplete",
@@ -476,7 +476,7 @@ defmodule Meadow.Ingest.Sheets do
   def total_action_count(%Sheet{} = ingest_sheet), do: total_action_count(ingest_sheet.id)
 
   def total_action_count(sheet_id) do
-    from([entry: a] in file_set_audit_entries(sheet_id),
+    from([entry: a] in file_set_action_states(sheet_id),
       where: a.object_type == "Meadow.Data.FileSets.FileSet",
       select: count(a.id)
     )
@@ -487,7 +487,7 @@ defmodule Meadow.Ingest.Sheets do
     do: completed_action_count(ingest_sheet.id)
 
   def completed_action_count(sheet_id) do
-    from([entry: a] in file_set_audit_entries(sheet_id),
+    from([entry: a] in file_set_action_states(sheet_id),
       where: a.object_type == "Meadow.Data.FileSets.FileSet",
       where: a.outcome in ["ok", "error"],
       select: count(a.id)
@@ -499,7 +499,7 @@ defmodule Meadow.Ingest.Sheets do
 
   def ingest_errors(sheet_id) do
     row_errors =
-      from([entry: entry, row: row] in row_audit_entries(sheet_id),
+      from([entry: entry, row: row] in row_action_states(sheet_id),
         where: entry.outcome in ["error", "skipped"],
         select: %{
           row_number: row.row,
@@ -513,7 +513,7 @@ defmodule Meadow.Ingest.Sheets do
       )
 
     file_set_errors =
-      from([entry: entry, row: row] in file_set_audit_entries(sheet_id),
+      from([entry: entry, row: row] in file_set_action_states(sheet_id),
         where: entry.outcome in ["error", "skipped"],
         select: %{
           row_number: row.row,
@@ -587,8 +587,8 @@ defmodule Meadow.Ingest.Sheets do
     )
   end
 
-  def row_audit_entries(sheet_id) do
-    from(a in AuditEntry,
+  def row_action_states(sheet_id) do
+    from(a in ActionState,
       as: :entry,
       join: r in Row,
       as: :row,
@@ -597,8 +597,8 @@ defmodule Meadow.Ingest.Sheets do
     )
   end
 
-  def file_set_audit_entries(sheet_id) do
-    from(a in AuditEntry,
+  def file_set_action_states(sheet_id) do
+    from(a in ActionState,
       as: :entry,
       join: f in FileSet,
       on: f.id == a.object_id,

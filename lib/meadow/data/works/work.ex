@@ -4,7 +4,7 @@ defmodule Meadow.Data.Works.Work do
   """
 
   use Ecto.Schema
-  alias Meadow.Data.AuditEntries.AuditEntry
+  alias Meadow.Data.ActionStates.ActionState
   alias Meadow.Data.Collections.Collection
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.WorkMetadata
@@ -25,7 +25,7 @@ defmodule Meadow.Data.Works.Work do
 
     has_many :file_sets, FileSet
 
-    has_many :audit_entries, AuditEntry,
+    has_many :action_states, ActionState,
       references: :id,
       foreign_key: :object_id,
       on_delete: :delete_all
