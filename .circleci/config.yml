@@ -21,12 +21,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-hex-cache-{{ checksum "mix.lock" }}
-            - v1-hex-cache-
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
-            - v1-npm-cache-{{ checksum "assets/yarn.lock" }}
-            - v1-npm-cache-
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "assets/yarn.lock" }}
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
@@ -38,12 +38,12 @@ jobs:
           command: yarn install
           working_directory: ~/meadow/assets
       - save_cache:
-          key: v1-hex-cache-{{ checksum "mix.lock" }}
+          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
           paths:
             - ~/meadow/deps
             - ~/meadow/_build
       - save_cache:
-          key: v1-npm-cache-{{ checksum "assets/yarn.lock" }}
+          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "assets/yarn.lock" }}
           paths:
             - ~/meadow/assets/node_modules
       - run:
