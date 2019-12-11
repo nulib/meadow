@@ -10,7 +10,6 @@ import IngestSheetActionRow from "./ActionRow";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
 import UIButton from "../UI/Button";
-import DownloadIcon from "../../../css/fonts/zondicons/download.svg";
 
 /**
  * Note: This component is dependent on the GraphQL "IngestSheet" data type "status" property.
@@ -57,9 +56,6 @@ const IngestSheet = ({
 
       {["COMPLETED"].indexOf(status) > -1 && (
         <>
-          <UIButton classes="mt-6" onClick={handleDownloadCsv}>
-            <DownloadIcon className="icon"></DownloadIcon> Download .csv
-          </UIButton>
           <IngestSheetCompleted sheetId={ingestSheetData.id} />
         </>
       )}

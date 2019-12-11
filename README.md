@@ -34,6 +34,8 @@ If you need to reset the database you can run `mix ecto.reset` which will drop +
 
 If you just want to run the migrations but leave the data intact, you can just do `mix ecto.migrate`
 
+If you would like to use pgAdmin to view the database and tables, run `devstack up pgadmin` and view it in the browser at: [`http://localhost:5051/`](http://localhost:5051/)
+
 ### Run the test suite
 
 - Start test devstack: `devstack -t up meadow`
@@ -49,4 +51,3 @@ If you just want to run the migrations but leave the data intact, you can just d
 ### GraphQL API
 
 You can visit the GraphiQL interface at: [`http://devbox.library.northwestern.edu/api/graphiql`](http://devbox.library.northwestern.edu/api/graphiql)
-

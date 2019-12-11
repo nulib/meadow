@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
+import IngestSheetDownload from "./Completed/Download";
 
 const IngestSheetCompleted = ({ sheetId }) => {
   const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
@@ -19,6 +20,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
 
   return (
     <>
+      <IngestSheetDownload sheetId={sheetId} />
       <div className="my-8">
         <input
           type="checkbox"
