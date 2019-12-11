@@ -10,16 +10,22 @@ const UIInput = ({
 }) => (
   <div className="mb-4">
     <label htmlFor={name}>{label}</label>
-    <input id={id} name={name} type={type} onChange={onChange} />
+    <input
+      id={id}
+      name={name}
+      type={type}
+      className="text-input"
+      onChange={onChange}
+    />
   </div>
 );
 
 UIInput.propTypes = {
   id: PropTypes.string,
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  label: PropTypes.string,
+  name: PropTypes.string,
   type: PropTypes.string,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func
 };
 
 export default UIInput;
