@@ -54,7 +54,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet_rows/3)
     end
 
-    @desc "Retrieve all audit states for an object"
+    @desc "Retrieve all action states for an object"
     field :action_states, list_of(:action_state) do
       arg(:object_id, non_null(:id))
       middleware(Middleware.Authenticate)
