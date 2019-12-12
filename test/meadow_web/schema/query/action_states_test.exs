@@ -4,6 +4,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   use Wormwood.GQLCase
   alias Meadow.Data.ActionStates
   alias Meadow.Ingest.Actions.GenerateFileSetDigests
+  import Assertions
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/GetActionStates.gql")
 
@@ -18,11 +19,19 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   end
 
   test "contains records", %{file_set: file_set} do
+    ActionStates.set_state!(file_set, "Create FileSet", "ok")
     ActionStates.set_state!(file_set, Meadow.Ingest.Actions.GenerateFileSetDigests, "ok")
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
-    trail = get_in(result, [:data, "actionStates"])
-    assert(length(trail) == 1)
-    assert(trail |> List.first() |> Map.get("action") == GenerateFileSetDigests.actiondoc())
-    assert(trail |> List.first() |> Map.get("outcome") == "OK")
+
+    with trail <- get_in(result, [:data, "actionStates"]) do
+      assert(length(trail) == 2)
+
+      assert_lists_equal(trail |> Enum.map(fn %{"action" => v} -> v end), [
+        "Create FileSet",
+        GenerateFileSetDigests.actiondoc()
+      ])
+
+      assert_lists_equal(trail |> Enum.map(fn %{"outcome" => v} -> v end), ["OK", "OK"])
+    end
   end
 end

@@ -162,10 +162,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok,
      args[:object_id]
      |> ActionStates.get_states()
-     |> Enum.map(fn state ->
-       mod = "Elixir.#{state.action}" |> String.to_atom()
-       %ActionStates.ActionState{state | action: mod.actiondoc()}
-     end)}
+     |> Enum.map(&update_action_doc/1)}
   end
 
   def ingest_sheet_works(_, %{id: sheet_id}, _) do
@@ -174,5 +171,13 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
   def ingest_sheet_errors(_, %{id: sheet_id}, _) do
     {:ok, sheet_id |> Sheets.ingest_errors()}
+  end
+
+  defp update_action_doc(state) do
+    with mod <- "Elixir.#{state.action}" |> String.to_atom() do
+      if Code.ensure_loaded?(mod),
+        do: %ActionStates.ActionState{state | action: mod.actiondoc()},
+        else: state
+    end
   end
 end

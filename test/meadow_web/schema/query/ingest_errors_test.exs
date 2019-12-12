@@ -44,7 +44,7 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
 
         with error <- List.first(errors) do
           assert error["rowNumber"] == 5
-          assert error["action"] == "CreateWork"
+          assert error["action"] == "Create Work"
           assert error["errors"] == "accession_number: has already been taken"
         end
       end
