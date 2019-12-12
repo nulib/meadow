@@ -85,7 +85,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     case result do
       {:ok, %Works.Work{} = work} ->
-        ActionStates.set_state!(work, "CreateWork", "ok")
+        ActionStates.set_state!(work, "Create Work", "ok")
         work
 
       {:error, changeset} ->
@@ -97,7 +97,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     with row <- file_set_rows |> List.first() do
       create_errors(
         row,
-        "CreateWork",
+        "Create Work",
         errors_to_strings(changeset.errors)
       )
     end
