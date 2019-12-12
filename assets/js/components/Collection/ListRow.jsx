@@ -1,0 +1,48 @@
+import React from "react";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import EditIcon from "../../../css/fonts/zondicons/edit-pencil.svg";
+
+const CollectionListRow = ({ collection }) => {
+  const { id, name = "", description = "", keywords = [] } = collection;
+  return (
+    <li
+      data-testid="collection-list-row"
+      className="border-b border-gray-400 pb-8"
+    >
+      <header className="flex justify-between">
+        <h2>
+          <Link to={`/collection/${id}`}>{name}</Link>
+        </h2>
+        <Link to={`/`} className="mt-6">
+          <EditIcon className="icon" /> <span className="sr-only">Edit</span>
+        </Link>
+      </header>
+      <div className="flex flex-col sm:flex-row">
+        <img
+          src="/images/placeholder-content.png"
+          alt="Placeholder for collection"
+          className="sm:max-w-xs sm:pr-4"
+        />
+        <dl className="">
+          <dt>Description</dt>
+          <dd>{description}</dd>
+          <dt>Keywords</dt>
+          <dd>{keywords.join(", ")}</dd>
+          <dt>Type [not yet supported]</dt>
+          <dd>NUL Collection</dd>
+          <dt>Works [not yet supported]</dt>
+          <dd>3810 works, 2010 public, 700 netid, 100 private</dd>
+          <dt>Assets [not yet supported]</dt>
+          <dd>100,000 preserved files</dd>
+        </dl>
+      </div>
+    </li>
+  );
+};
+
+CollectionListRow.propTypes = {
+  collection: PropTypes.object
+};
+
+export default CollectionListRow;

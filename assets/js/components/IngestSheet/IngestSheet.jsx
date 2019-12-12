@@ -9,7 +9,6 @@ import PropTypes from "prop-types";
 import IngestSheetActionRow from "./ActionRow";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
-import UIButton from "../UI/Button";
 
 /**
  * Note: This component is dependent on the GraphQL "IngestSheet" data type "status" property.
@@ -39,12 +38,6 @@ const IngestSheet = ({
 
   if (progressLoading) return <Loading />;
   if (progressError) return <Error error={progressError} />;
-
-  const handleDownloadCsv = () => {
-    //TODO: Put code to download CSV file here.
-    // ie. hitSomeEndpoint(id)
-    console.log("Put code to download CSV file here");
-  };
 
   return (
     <>

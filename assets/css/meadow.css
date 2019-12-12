@@ -15,7 +15,7 @@ body {
 }
 
 h1 {
-  @apply text-3xl text-gray-900 font-display font-light;
+  @apply text-3xl text-gray-900 font-light;
 }
 
 h2 {

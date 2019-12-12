@@ -6,7 +6,7 @@ import CheveronRightIcon from "../../../css/fonts/zondicons/cheveron-right.svg";
 const Breadcrumbs = ({ crumbs = [] }) => (
   <ul className="text-xl mb-4" data-testid="breadcrumbs">
     {crumbs.map(({ label, link, labelWithoutLink }, i) => (
-      <li className="inline-block" key={label}>
+      <li className="inline-block" key={label || labelWithoutLink}>
         {labelWithoutLink && (
           <span className="mr-1 font-light text-gray-600">
             {labelWithoutLink}
