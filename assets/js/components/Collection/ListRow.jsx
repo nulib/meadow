@@ -6,7 +6,10 @@ import EditIcon from "../../../css/fonts/zondicons/edit-pencil.svg";
 const CollectionListRow = ({ collection }) => {
   const { id, name = "", description = "", keywords = [] } = collection;
   return (
-    <li className="border-b border-gray-400 pb-8">
+    <li
+      data-testid="collection-list-row"
+      className="border-b border-gray-400 pb-8"
+    >
       <header className="flex justify-between">
         <h2>
           <Link to={`/collection/${id}`}>{name}</Link>
