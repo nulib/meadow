@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   """
   import Ecto.Query, warn: false
   alias Meadow.Config
-  alias Meadow.Data.{AuditEntries, FileSets.FileSet, Works}
+  alias Meadow.Data.{ActionStates, FileSets.FileSet, Works}
   alias Meadow.Ingest.{Actions, Pipeline, Sheets}
   alias Meadow.Ingest.Sheets.{Row, Sheet}
   alias Meadow.Repo
@@ -35,7 +35,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     |> Repo.all()
     |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
       Sheets.update_status(ingest_sheet.id, row_num, "pending")
-      AuditEntries.initialize_entries({FileSet, file_set_id}, Pipeline.actions())
+      ActionStates.initialize_states({FileSet, file_set_id}, Pipeline.actions())
 
       Actions.IngestFileSet.send_message(
         %{file_set_id: file_set_id},
@@ -85,7 +85,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     case result do
       {:ok, %Works.Work{} = work} ->
-        AuditEntries.add_entry!(work, "CreateWork", "ok")
+        ActionStates.set_state!(work, "CreateWork", "ok")
         work
 
       {:error, changeset} ->
@@ -118,11 +118,11 @@ defmodule Meadow.Ingest.SheetsToWorks do
   end
 
   defp create_errors(ingest_sheet_row, action, []) do
-    AuditEntries.add_entry!(ingest_sheet_row, action, "skipped")
+    ActionStates.set_state!(ingest_sheet_row, action, "skipped")
   end
 
   defp create_errors(ingest_sheet_row, action, errors) do
-    AuditEntries.add_entry!(ingest_sheet_row, action, "error", Enum.join(errors, "; "))
+    ActionStates.set_state!(ingest_sheet_row, action, "error", Enum.join(errors, "; "))
   end
 
   defp errors_to_strings(errors) do

@@ -1,6 +1,6 @@
-defmodule Meadow.Data.AuditEntries.AuditEntry do
+defmodule Meadow.Data.ActionStates.ActionState do
   @moduledoc """
-  AuditEntries keep track of actions performed on Works and FileSets
+  ActionStates keep track of actions performed on Works and FileSets
   """
   use Ecto.Schema
 
@@ -10,7 +10,7 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
-  schema "audit_entries" do
+  schema "action_states" do
     field :object_type
     field :object_id, Ecto.ULID
     field :action
@@ -19,8 +19,8 @@ defmodule Meadow.Data.AuditEntries.AuditEntry do
     timestamps()
   end
 
-  def changeset(audit_entry, attrs \\ %{}) do
-    audit_entry
+  def changeset(action_state, attrs \\ %{}) do
+    action_state
     |> cast_action(attrs[:action])
     |> cast_type(attrs[:object_type])
     |> cast(attrs, [:object_id, :outcome, :notes])

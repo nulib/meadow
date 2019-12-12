@@ -1,7 +1,0 @@
-#import "./AuditFields.frag.gql"
-
-query GetAuditTrail($objectId: ID!) {
-  auditTrail(objectId: $objectId) {
-    ...AuditFields
-  }
-}

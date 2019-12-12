@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
   use Meadow.DataCase
-  alias Meadow.Data.{AuditEntries, FileSets}
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.Actions.CopyFileToPreservation
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
@@ -40,7 +40,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
       end)
 
       assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
-      assert(AuditEntries.ok?(file_set_id, CopyFileToPreservation))
+      assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
 
       assert_received(%{
         source: source,

@@ -1,7 +1,7 @@
 defmodule Meadow.Ingest.Actions.GenerateFileSetDigestsTest do
   use Meadow.S3Case
   use Meadow.DataCase
-  alias Meadow.Data.{AuditEntries, FileSets}
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.Actions.GenerateFileSetDigests
   import ExUnit.CaptureLog
 
@@ -32,7 +32,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigestsTest do
   ]
   test "process/2", %{file_set_id: file_set_id} do
     assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
-    assert(AuditEntries.ok?(file_set_id, GenerateFileSetDigests))
+    assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
     assert(file_set.metadata.digests == %{"sha256" => @sha256})

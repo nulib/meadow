@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
   * Kicked off manually
 
   """
-  alias Meadow.Data.{AuditEntries, FileSets}
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Repo
   alias Meadow.Utils
@@ -18,7 +18,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
   @hashes [:sha256]
 
   def process(data, attrs),
-    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+    do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
 
   defp process(%{file_set_id: file_set_id}, _, true) do
     Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
@@ -27,7 +27,7 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     file_set = FileSets.get_file_set!(file_set_id)
-    AuditEntries.add_entry!(file_set, __MODULE__, "started")
+    ActionStates.set_state!(file_set, __MODULE__, "started")
 
     try do
       Logger.info("Generating digests for #{file_set.id}")
@@ -42,11 +42,11 @@ defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
       |> FileSet.changeset(%{metadata: %{digests: hashes}})
       |> Repo.update!()
 
-      AuditEntries.add_entry!(file_set, __MODULE__, "ok")
+      ActionStates.set_state!(file_set, __MODULE__, "ok")
       :ok
     rescue
       e ->
-        AuditEntries.add_entry!(file_set, __MODULE__, "error", Exception.message(e))
+        ActionStates.set_state!(file_set, __MODULE__, "error", Exception.message(e))
         {:error, Exception.message(e)}
     end
   end

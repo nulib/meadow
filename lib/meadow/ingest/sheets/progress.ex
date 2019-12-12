@@ -1,12 +1,12 @@
 defmodule Meadow.Ingest.Sheets.Progress do
   @moduledoc """
-  Translate audit entry notifications into ingest sheet progress notifications
+  Translate action state notifications into ingest sheet progress notifications
   """
 
   alias Meadow.Ingest.Sheets
 
-  def send_notification(audit_entry) do
-    case Sheets.ingest_sheet_for_file_set(audit_entry.object_id) do
+  def send_notification(action_state) do
+    case Sheets.ingest_sheet_for_file_set(action_state.object_id) do
       nil ->
         :noop
 

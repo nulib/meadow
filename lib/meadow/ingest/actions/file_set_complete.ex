@@ -1,14 +1,14 @@
 defmodule Meadow.Ingest.Actions.FileSetComplete do
   @moduledoc "Mark the end of the FileSet ingest pipeline"
 
-  alias Meadow.Data.{AuditEntries, FileSets.FileSet}
+  alias Meadow.Data.{ActionStates, FileSets.FileSet}
   alias Sequins.Pipeline.Action
   use Action
 
   @actiondoc "Completed Processing FileSet"
 
   def process(data, attrs),
-    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+    do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
 
   defp process(%{file_set_id: file_set_id}, _, true) do
     Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
@@ -20,7 +20,7 @@ defmodule Meadow.Ingest.Actions.FileSetComplete do
 
     {result, _} =
       {FileSet, file_set_id}
-      |> AuditEntries.add_entry(__MODULE__, "ok")
+      |> ActionStates.set_state(__MODULE__, "ok")
 
     result
   end

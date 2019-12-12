@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
 
   """
   alias Meadow.Config
-  alias Meadow.Data.{AuditEntries, FileSets}
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -20,7 +20,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
   @actiondoc "Copy File to Preservation"
 
   def process(data, attrs),
-    do: process(data, attrs, AuditEntries.ok?(data.file_set_id, __MODULE__))
+    do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
 
   defp process(%{file_set_id: file_set_id}, _, true) do
     Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
@@ -29,7 +29,7 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
 
   defp process(data, attributes, _) do
     file_set = FileSets.get_file_set!(data.file_set_id)
-    AuditEntries.add_entry!(file_set, __MODULE__, "started")
+    ActionStates.set_state!(file_set, __MODULE__, "started")
 
     case copy_file_to_preservation(file_set) do
       {:ok, new_location} ->
@@ -37,11 +37,11 @@ defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
         |> FileSet.changeset(%{metadata: %{location: new_location}})
         |> Repo.update!()
 
-        AuditEntries.add_entry!(file_set, __MODULE__, "ok")
+        ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
 
       {:error, err} ->
-        AuditEntries.add_entry!(file_set, __MODULE__, "error", err)
+        ActionStates.set_state!(file_set, __MODULE__, "error", err)
         {:error, data, attributes |> Map.put(:error, err)}
     end
   end

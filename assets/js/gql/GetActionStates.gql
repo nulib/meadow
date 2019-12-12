@@ -1,0 +1,7 @@
+#import "./ActionStateFields.frag.gql"
+
+query GetActionStates($objectId: ID!) {
+  actionStates(objectId: $objectId) {
+    ...ActionStateFields
+  }
+}

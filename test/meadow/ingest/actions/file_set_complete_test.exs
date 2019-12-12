@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest.Actions.FileSetCompleteTest do
   use Meadow.DataCase
-  alias Meadow.Data.AuditEntries
+  alias Meadow.Data.ActionStates
   alias Meadow.Ingest.Actions.FileSetComplete
   import ExUnit.CaptureLog
 
@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Actions.FileSetCompleteTest do
     object = file_set_fixture()
 
     assert(FileSetComplete.process(%{file_set_id: object.id}, %{}) == :ok)
-    assert(AuditEntries.ok?(object.id, FileSetComplete))
+    assert(ActionStates.ok?(object.id, FileSetComplete))
 
     assert capture_log(fn ->
              FileSetComplete.process(%{file_set_id: object.id}, %{})
