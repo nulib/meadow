@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
 import CollectionListRow from "../../components/Collection/ListRow";
@@ -8,10 +8,13 @@ import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 import { Link } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
   const [filteredCollections, setFilteredCollections] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const inputEl = useRef(null);
 
   useEffect(() => {
     if (data && data.collections) {
@@ -36,12 +39,12 @@ const ScreensCollectionList = () => {
   };
 
   const handleFilterChange = e => {
-    const searchValue = e.target.value;
+    const searchValue = inputEl.current.value.toLowerCase();
 
     if (searchValue) {
       setFilteredCollections(
-        filteredCollections.filter(
-          collection => collection.name.indexOf(searchValue) > -1
+        data.collections.filter(collection =>
+          collection.name.toLowerCase().includes(searchValue)
         )
       );
     } else {
@@ -61,7 +64,8 @@ const ScreensCollectionList = () => {
           <input
             className="text-input max-w-sm"
             placeholder="Filter collections"
-            onChange={handleFilterChange}
+            onChange={debounce(handleFilterChange, 300)}
+            ref={inputEl}
           />
           <Link to="/" className="btn">
             <AddOutlineIcon className="icon" />
