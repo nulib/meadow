@@ -70,6 +70,7 @@ defmodule Meadow.MixProject do
       {:honeybadger, "~> 0.7"},
       {:inflex, "~> 2.0.0"},
       {:jason, "~> 1.0"},
+      {:junit_formatter, "~> 3.0.1", only: :test},
       {:mox, "~> 0.5", only: :test},
       {:nimble_csv, "~> 0.6.0"},
       {:phoenix, "~> 1.4.10"},

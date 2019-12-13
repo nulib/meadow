@@ -51,3 +51,9 @@ config :ex_aws, :sns,
 
 # Print only warnings and errors during test
 config :logger, level: :info
+
+config :junit_formatter,
+  report_file: "results.xml",
+  report_dir: "test-results/elixir",
+  print_report_file: true,
+  prepend_project_name?: true

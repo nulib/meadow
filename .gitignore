@@ -52,3 +52,4 @@ package.json
 
 # Ide files
 /.vscode
+test-results

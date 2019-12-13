@@ -51,7 +51,7 @@ jobs:
           command: mix credo
       - run:
           name: Elixir Tests
-          command: mix test && (mix coveralls.circle || true)
+          command: mkdir -p test-results/elixir && mix test && (mix coveralls.circle || true)
       - run:
           name: JS Static Analysis
           command: yarn prettier
@@ -61,6 +61,9 @@ jobs:
           command: |
             export COVERALLS_SERVICE_NAME=circle-ci 
             export COVERALLS_SERVICE_JOB_ID=$CIRCLE_WORKFLOW_WORKSPACE_ID 
+            export JEST_JUNIT_OUTPUT_DIR=../test-results/js
+            export JEST_JUNIT_OUTPUT_NAME=results.xml
+            mkdir -p ${JEST_JUNIT_OUTPUT_DIR}
             yarn ci --coverageReporters=text-lcov | (yarn run coveralls ~/meadow || true)
           working_directory: ~/meadow/assets
       - run:
@@ -72,9 +75,8 @@ jobs:
           name: Test Webpack Build
           command: yarn deploy
           working_directory: ~/meadow/assets
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: tests
+      - store_test_results:
+          path: test-results
   tarball:
     working_directory: ~/meadow
     docker:
