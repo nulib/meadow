@@ -91,7 +91,7 @@ jobs:
             fi
       - restore_cache:
           keys:
-            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Environment.DEPLOY_TAG }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Environment.CIRCLE_BRANCH }}
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
@@ -111,7 +111,7 @@ jobs:
       - save_cache:
           paths:
             - _build/prod
-          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Environment.DEPLOY_TAG }}
+          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Environment.CIRCLE_BRANCH }}
       - run:
           name: Log release
           command: ls -la _build/prod
