@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Sheets.Sheet do
+defmodule Meadow.Ingest.Schemas.Sheet do
   @moduledoc """
   Sheet represents an ingest sheet upload
   """
@@ -26,10 +26,10 @@ defmodule Meadow.Ingest.Sheets.Sheet do
       field :state, :string
     end
 
-    belongs_to :project, Meadow.Ingest.Projects.Project
-    has_many :ingest_sheet_rows, Meadow.Ingest.Sheets.Row
+    belongs_to :project, Meadow.Ingest.Schemas.Project
+    has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row
 
-    has_many :ingest_sheet_works, Meadow.Ingest.Sheets.SheetWorks
+    has_many :ingest_sheet_works, Meadow.Ingest.Schemas.SheetWorks
     has_many :works, through: [:ingest_sheet_works, :work]
 
     timestamps()

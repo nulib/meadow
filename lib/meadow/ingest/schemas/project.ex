@@ -1,7 +1,7 @@
-defmodule Meadow.Ingest.Projects.Project do
+defmodule Meadow.Ingest.Schemas.Project do
   @moduledoc """
   This modeule defines the Ecto.Schema
-  and Ecto.Changeset for Meadow.Ingest.Projects.Project
+  and Ecto.Changeset for Meadow.Ingest.Schemas.Project
 
   """
   use Ecto.Schema
@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Projects.Project do
     field :title, :string
     field :folder, :string
 
-    has_many :ingest_sheets, Meadow.Ingest.Sheets.Sheet
+    has_many :ingest_sheets, Meadow.Ingest.Schemas.Sheet
 
     timestamps()
   end

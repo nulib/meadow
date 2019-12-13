@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Sheets.Progress do
+defmodule Meadow.Ingest.Progress do
   @moduledoc """
   Translate action state notifications into ingest sheet progress notifications
   """

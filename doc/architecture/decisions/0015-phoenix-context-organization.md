@@ -6,6 +6,8 @@ Date: 2019-09-11
 
 Accepted
 
+Amended by [19. Directory Layout Revisions](0019-directory-layout-revisions.md)
+
 ## Context
 
 Our Phoenix Contexts are becoming bloated. We need some organizational pattern to keep things modular.

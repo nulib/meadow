@@ -7,9 +7,78 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.ActionStates.ActionState
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.Sheets.{Row, Sheet, SheetWorks, Status}
+  alias Meadow.Ingest.Schemas.{Row, Sheet, SheetWorks, Status}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
+
+  @doc """
+  Creates a sheet.
+
+  ## Examples
+
+      iex> create_ingest_sheet_row(%{field: value})
+      {:ok, %Sheet{}}
+
+      iex> create_ingest_sheet_row(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_ingest_sheet(attrs \\ %{}) do
+    %Sheet{}
+    |> Sheet.changeset(attrs)
+    |> Repo.insert()
+    |> send_ingest_sheet_notification()
+  end
+
+  @doc """
+  Updates a sheet.
+
+  ## Examples
+      iex> update_sheet(sheet, %{field: new_value})
+      {:ok, %Sheet{}}
+
+      iex> update_sheet(sheet, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_ingest_sheet(%Sheet{} = ingest_sheet, attrs) do
+    ingest_sheet
+    |> Sheet.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes an Sheet.
+  Set the status to 'DELETED' and send a notification before deleting
+  ## Examples
+
+      iex> delete_sheet(sheet)
+      {:ok, %Sheet{}}
+
+      iex> delete_sheet(sheet)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_ingest_sheet(%Sheet{} = ingest_sheet) do
+    with {:ok, ingest_sheet} <- update_ingest_sheet_status(ingest_sheet, "deleted") do
+      ingest_sheet
+      |> Repo.delete()
+      |> send_ingest_sheet_notification()
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking sheet changes.
+
+  ## Examples
+
+      iex> change_sheet(sheet)
+      %Ecto.Changeset{source: %Sheet{}}
+
+  """
+  def change_ingest_sheet(%Sheet{} = sheet) do
+    Sheet.changeset(sheet, %{})
+  end
 
   @doc """
   Returns the list of ingest_sheets in a project.
@@ -116,25 +185,6 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
-  Creates a sheet.
-
-  ## Examples
-
-      iex> create_ingest_sheet_row(%{field: value})
-      {:ok, %Sheet{}}
-
-      iex> create_ingest_sheet_row(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_ingest_sheet(attrs \\ %{}) do
-    %Sheet{}
-    |> Sheet.changeset(attrs)
-    |> Repo.insert()
-    |> send_ingest_sheet_notification()
-  end
-
-  @doc """
   Changes the state of an Sheet Event
   """
   def change_ingest_sheet_state(%Sheet{} = ingest_sheet, updates) do
@@ -159,23 +209,6 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
-  Updates a sheet.
-
-  ## Examples
-      iex> update_sheet(sheet, %{field: new_value})
-      {:ok, %Sheet{}}
-
-      iex> update_sheet(sheet, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_ingest_sheet(%Sheet{} = ingest_sheet, attrs) do
-    ingest_sheet
-    |> Sheet.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Updates a sheet's status.
 
   ## Examples
@@ -195,39 +228,6 @@ defmodule Meadow.Ingest.Sheets do
 
   def update_ingest_sheet_status({:ok, %Sheet{} = ingest_sheet}, status) do
     update_ingest_sheet_status(ingest_sheet, status)
-  end
-
-  @doc """
-  Deletes an Sheet.
-  Set the status to 'DELETED' and send a notification before deleting
-  ## Examples
-
-      iex> delete_sheet(sheet)
-      {:ok, %Sheet{}}
-
-      iex> delete_sheet(sheet)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_ingest_sheet(%Sheet{} = ingest_sheet) do
-    with {:ok, ingest_sheet} <- update_ingest_sheet_status(ingest_sheet, "deleted") do
-      ingest_sheet
-      |> Repo.delete()
-      |> send_ingest_sheet_notification()
-    end
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking sheet changes.
-
-  ## Examples
-
-      iex> change_sheet(sheet)
-      %Ecto.Changeset{source: %Sheet{}}
-
-  """
-  def change_ingest_sheet(%Sheet{} = sheet) do
-    Sheet.changeset(sheet, %{})
   end
 
   @doc """
@@ -323,47 +323,6 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
-  Changes the state of an Row
-  """
-  def change_ingest_sheet_row_state(%Row{} = ingest_sheet_row, state) do
-    ingest_sheet_row
-    |> Row.state_changeset(%{state: state})
-    |> Repo.update()
-    |> send_ingest_sheet_row_notification()
-  end
-
-  @doc """
-  Updates an ingest row.
-
-  ## Examples
-      iex> update_ingest_sheet_row(row, %{field: new_value})
-      {:ok, %Row{}}
-
-      iex> update_ingest_sheet_row(row, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_ingest_sheet_row(%Row{} = ingest_sheet_row, attrs) do
-    ingest_sheet_row
-    |> Row.changeset(attrs)
-    |> Repo.update()
-    |> send_ingest_sheet_row_notification()
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking sheet changes.
-
-  ## Examples
-
-      iex> change_ingest_sheet_row(row)
-      %Ecto.Changeset{source: %Row{}}
-
-  """
-  def change_ingest_sheet_row(%Row{} = row) do
-    Row.changeset(row, %{})
-  end
-
-  @doc """
   Update the ingest status of an ingest sheet or a row
   """
   def update_status(%Sheet{id: sheet_id}),
@@ -442,7 +401,7 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   def list_ingest_sheet_works(sheet_id) do
-    from(s in Meadow.Ingest.Sheets.Sheet,
+    from(s in Meadow.Ingest.Schemas.Sheet,
       where: s.id == ^sheet_id,
       preload: :works
     )
@@ -617,10 +576,10 @@ defmodule Meadow.Ingest.Sheets do
 
   # Absinthe Notifications
 
-  defp send_ingest_sheet_notification({:ok, sheet}),
+  def send_ingest_sheet_notification({:ok, sheet}),
     do: {:ok, send_ingest_sheet_notification(sheet)}
 
-  defp send_ingest_sheet_notification(%Sheet{} = sheet) do
+  def send_ingest_sheet_notification(%Sheet{} = sheet) do
     Absinthe.Subscription.publish(
       MeadowWeb.Endpoint,
       sheet,
@@ -636,12 +595,12 @@ defmodule Meadow.Ingest.Sheets do
     sheet
   end
 
-  defp send_ingest_sheet_notification(other), do: other
+  def send_ingest_sheet_notification(other), do: other
 
-  defp send_ingest_sheet_row_notification({:ok, row}),
+  def send_ingest_sheet_row_notification({:ok, row}),
     do: {:ok, send_ingest_sheet_row_notification(row)}
 
-  defp send_ingest_sheet_row_notification(%Row{} = row) do
+  def send_ingest_sheet_row_notification(%Row{} = row) do
     topic = Enum.join(["row", row.sheet_id, row.state], ":")
 
     Absinthe.Subscription.publish(
@@ -665,5 +624,5 @@ defmodule Meadow.Ingest.Sheets do
     row
   end
 
-  defp send_ingest_sheet_row_notification(other), do: other
+  def send_ingest_sheet_row_notification(other), do: other
 end

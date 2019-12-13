@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.ProjectsTest do
   use Meadow.DataCase
 
   alias Meadow.Ingest.Projects
-  alias Meadow.Ingest.Projects.Project
+  alias Meadow.Ingest.Schemas.Project
 
   describe "projects" do
     @valid_attrs %{title: "some title"}

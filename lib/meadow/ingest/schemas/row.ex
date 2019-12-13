@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Sheets.Row do
+defmodule Meadow.Ingest.Schemas.Row do
   @moduledoc """
   Row represents a single row of an ingest sheet
   """
@@ -10,7 +10,7 @@ defmodule Meadow.Ingest.Sheets.Row do
   @foreign_key_type Ecto.ULID
 
   schema "ingest_sheet_rows" do
-    belongs_to :sheet, Meadow.Ingest.Sheets.Sheet
+    belongs_to :sheet, Meadow.Ingest.Schemas.Sheet
     field :row, :integer
     field :state, :string, default: "pending"
     field :file_set_accession_number, :string
