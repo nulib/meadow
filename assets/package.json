@@ -64,7 +64,7 @@
     "react-toastify": "^5.4.1",
     "tailwindcss": "^1.1.4",
     "tailwindcss-spinner": "^1.0.0",
-    "terser-webpack-plugin": "^2.2.3",
+    "terser-webpack-plugin": "^2.3.0",
     "url-loader": "^3.0.0",
     "use-phoenix-channel": "^1.1.1",
     "webpack": "4.41.2",
