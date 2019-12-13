@@ -84,7 +84,7 @@ defmodule Meadow.MixProject do
       {:sweet_xml, "~> 0.6"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"},
-      {:wormwood, "~> 0.1.0"}
+      {:wormwood, "~> 0.1.0", only: :test}
     ]
   end
 
