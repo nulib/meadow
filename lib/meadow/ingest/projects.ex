@@ -5,7 +5,8 @@ defmodule Meadow.Ingest.Projects do
 
   import Ecto.Query, warn: false
 
-  alias Meadow.{Ingest.Projects.Project, Repo}
+  alias Meadow.Ingest.Schemas.Project
+  alias Meadow.Repo
 
   @doc """
   Returns the list of projects in reverse chronological order.

@@ -6,9 +6,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   alias Meadow.Config
   alias Meadow.Data.ActionStates
   alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
-  alias Meadow.Ingest.Projects.Bucket
+  alias Meadow.Ingest.Bucket
   alias Meadow.Ingest.Sheets
-  alias Meadow.Ingest.Sheets.Validator
+  alias Meadow.Ingest.Validator
   alias MeadowWeb.Schema.ChangesetErrors
 
   def projects(_, args, _) do

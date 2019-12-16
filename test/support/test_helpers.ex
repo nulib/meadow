@@ -9,8 +9,8 @@ defmodule Meadow.TestHelpers do
   alias Meadow.Data.Collections.Collection
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.Projects.Project
-  alias Meadow.Ingest.Sheets.{Sheet, Validator}
+  alias Meadow.Ingest.Validator
+  alias Meadow.Ingest.Schemas.{Project, Sheet}
 
   alias Meadow.Repo
 

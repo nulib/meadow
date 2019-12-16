@@ -15,7 +15,7 @@ alias Meadow.Data.{
 alias Meadow.Ingest.{Sheets, Projects}
 alias Meadow.Ingest.Projects.{Bucket, Project}
 
-alias Meadow.Ingest.Sheets.{
+alias Meadow.Ingest.Schemas.{
   Sheet,
   Row,
   Validator,

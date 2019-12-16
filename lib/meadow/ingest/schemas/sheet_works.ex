@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Sheets.SheetWorks do
+defmodule Meadow.Ingest.Schemas.SheetWorks do
   @moduledoc """
   Links ingest sheets to works
   """
@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Sheets.SheetWorks do
   @primary_key false
   @foreign_key_type Ecto.ULID
   schema "ingest_sheet_works" do
-    belongs_to(:sheet, Meadow.Ingest.Sheets.Sheet, primary_key: true)
+    belongs_to(:sheet, Meadow.Ingest.Schemas.Sheet, primary_key: true)
     belongs_to(:work, Meadow.Data.Works.Work, primary_key: true)
   end
 

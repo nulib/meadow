@@ -1,6 +1,6 @@
-defmodule Meadow.Ingest.Projects.BucketTest do
+defmodule Meadow.Ingest.BucketTest do
   use ExUnit.Case
-  alias Meadow.Ingest.Projects.Bucket
+  alias Meadow.Ingest.Bucket
 
   import Mox
 

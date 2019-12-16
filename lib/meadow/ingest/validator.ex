@@ -1,12 +1,12 @@
-defmodule Meadow.Ingest.Sheets.Validator do
+defmodule Meadow.Ingest.Validator do
   @moduledoc """
   Validates an Ingest Sheet
   """
 
   alias Meadow.Config
   alias Meadow.Data.{FileSets, Works}
-  alias Meadow.Ingest.Sheets
-  alias Meadow.Ingest.Sheets.{Row, Sheet}
+  alias Meadow.Ingest.{Rows, Sheets}
+  alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
   alias NimbleCSV.RFC4180, as: CSV
@@ -249,11 +249,11 @@ defmodule Meadow.Ingest.Sheets.Validator do
 
     case result do
       [] ->
-        row |> Sheets.change_ingest_sheet_row_state("pass")
+        row |> Rows.change_ingest_sheet_row_state("pass")
         "pass"
 
       errors ->
-        row |> Sheets.update_ingest_sheet_row(%{state: "fail", errors: errors})
+        row |> Rows.update_ingest_sheet_row(%{state: "fail", errors: errors})
         "fail"
     end
   end

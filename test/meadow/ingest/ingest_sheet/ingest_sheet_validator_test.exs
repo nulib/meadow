@@ -1,12 +1,12 @@
-defmodule Meadow.Ingest.Sheets.ValidatorTest do
+defmodule Meadow.Ingest.ValidatorTest do
   use Meadow.DataCase
 
   alias Meadow.Ingest.{Projects, Sheets}
-  alias Meadow.Ingest.Sheets.Validator
+  alias Meadow.Ingest.Validator
 
   import Mox
 
-  doctest Meadow.Ingest.Sheets.Validator
+  doctest Meadow.Ingest.Validator
 
   @sheet_path "test-uploads/ingest_sheets/"
 

@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Projects.Bucket do
+defmodule Meadow.Ingest.Bucket do
   @moduledoc """
   Helper functions for Ingest Project s3 folder
   """

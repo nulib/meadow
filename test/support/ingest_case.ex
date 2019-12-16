@@ -8,7 +8,7 @@ defmodule Meadow.IngestCase do
   """
 
   alias Meadow.Repo
-  alias Meadow.Ingest.{Sheets, SheetsToWorks}
+  alias Meadow.Ingest.{Rows, Sheets, SheetsToWorks}
   import Meadow.TestHelpers
 
   @fixture "test/fixtures/ingest_sheet.csv"
@@ -35,7 +35,7 @@ defmodule Meadow.IngestCase do
     |> Repo.preload(:ingest_sheet_rows)
     |> Map.get(:ingest_sheet_rows)
     |> Enum.each(fn
-      row -> Sheets.change_ingest_sheet_row_state(row, "pass")
+      row -> Rows.change_ingest_sheet_row_state(row, "pass")
     end)
 
     {:ok, ingest_sheet: sheet}

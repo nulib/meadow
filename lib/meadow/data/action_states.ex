@@ -5,7 +5,7 @@ defmodule Meadow.Data.ActionStates do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.ActionStates.ActionState
-  alias Meadow.Ingest.Sheets.Progress
+  alias Meadow.Ingest.Progress
   alias Meadow.Repo
 
   def latest_outcome(object_id) do

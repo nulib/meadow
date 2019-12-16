@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Sheets.Status do
+defmodule Meadow.Ingest.Schemas.Status do
   @moduledoc """
   Status represents the ingest status of a single ingest sheet or ingest sheet row
   """
