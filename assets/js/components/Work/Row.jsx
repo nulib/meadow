@@ -1,12 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import Work from "./Work";
+import UICard from "../UI/Card";
 
 const WorkRow = ({ work }) => {
   const fileSetsToDisplay = 5;
 
   return (
-    <>
+    <UICard>
       <div data-testid="work-row" className="w-full flex py-4">
         <div className="w-1/4">
           <Link to={`/work/${work.id}`}>
@@ -45,7 +47,7 @@ const WorkRow = ({ work }) => {
           </dl>
         </div>
       </div>
-    </>
+    </UICard>
   );
 };
 

@@ -27,7 +27,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
           className="mr-2"
           onChange={() => setShowErrors(!showErrors)}
         />
-        Show mock errors
+        Show errors
       </div>
 
       {showErrors && <IngestSheetCompletedErrors sheetId={sheetId} />}

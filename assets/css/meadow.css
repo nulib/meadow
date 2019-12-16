@@ -10,8 +10,7 @@
 
 body {
   /* @apply font-display; */
-  @apply text-gray-700;
-  @apply leading-normal;
+  @apply text-gray-700 leading-normal bg-gray-100;
 }
 
 h1 {
@@ -46,7 +45,7 @@ nav a:hover {
 }
 
 table {
-  @apply text-left w-full;
+  @apply text-left w-full bg-white border-gray-200 border;
 }
 
 caption {
@@ -54,7 +53,7 @@ caption {
 }
 
 th {
-  @apply text-sm font-semibold text-gray-700 p-2 bg-gray-100;
+  @apply text-sm font-semibold text-gray-700 p-2 bg-gray-200;
 }
 
 tbody {

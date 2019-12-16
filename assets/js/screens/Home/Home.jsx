@@ -11,7 +11,6 @@ const ScreensHome = () => {
       <ScreenHeader
         title="Home Dashboard"
         description="View the applications main dashboard features here"
-        breadCrumbs={[{ label: "Home", link: "/" }]}
       />
       <ScreenContent>
         <p>Something goes here</p>
