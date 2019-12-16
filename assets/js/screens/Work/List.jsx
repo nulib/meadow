@@ -3,9 +3,8 @@ import { useQuery } from "@apollo/react-hooks";
 import { GET_WORKS } from "../../components/Work/work.query";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
-import WorkList from "../../components/Work/List";
+import WorkRow from "../../components/Work/Row";
 
 const ScreensWorkList = () => {
   const { data, loading, error } = useQuery(GET_WORKS);
@@ -13,26 +12,17 @@ const ScreensWorkList = () => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
-  const createCrumbs = () => {
-    return [
-      {
-        label: "Works",
-        link: "/work/list"
-      }
-    ];
-  };
+  const sampleWorks = data.works.slice(0, 10);
 
   return (
-    <>
-      <ScreenHeader
-        title="Works"
-        description="All works in the system."
-        breadCrumbs={createCrumbs()}
-      />
-      <ScreenContent>
-        <WorkList works={data.works} />
-      </ScreenContent>
-    </>
+    <ScreenContent>
+      <p className="my-4">
+        <span className="font-bold">[xx] results returned...</span>
+      </p>
+      {sampleWorks.map(work => (
+        <WorkRow key={work.id} work={work} />
+      ))}
+    </ScreenContent>
   );
 };
 

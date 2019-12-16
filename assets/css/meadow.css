@@ -162,6 +162,21 @@ table.clear th {
   @apply fill-current inline-block text-gray-600 w-4 h-4 mr-1;
 }
 
+.nav-item {
+  @apply mb-3;
+}
+.nav-item .icon {
+  @apply mr-2;
+}
+
+.nav-link {
+  @apply px-2 -mx-2 py-1 relative block text-gray-600 font-normal no-underline;
+}
+.nav-link:hover,
+.nav-item.active .nav-link {
+  @apply text-gray-900 font-medium;
+}
+
 .notification {
   /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
   @apply bg-green-500;
