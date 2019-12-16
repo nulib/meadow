@@ -4,7 +4,7 @@ defmodule MeadowWeb.Schema.Helpers do
   """
   alias Meadow.Ingest.Sheets
 
-  def sheet_progress(_, ids) do
-    Sheets.get_sheet_progress(ids)
+  def validation_progress(_, ids) do
+    Sheets.get_sheet_validation_progress(ids)
   end
 end

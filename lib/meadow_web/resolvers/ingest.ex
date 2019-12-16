@@ -5,8 +5,8 @@ defmodule MeadowWeb.Resolvers.Ingest do
   """
   alias Meadow.Config
   alias Meadow.Data.ActionStates
-  alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Bucket
+  alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
   alias MeadowWeb.Schema.ChangesetErrors
@@ -86,8 +86,8 @@ defmodule MeadowWeb.Resolvers.Ingest do
     }
   end
 
-  def ingest_sheet_progress(_, %{id: id}, _) do
-    {:ok, Sheets.get_sheet_progress([id]) |> Map.get(id)}
+  def ingest_sheet_validation_progress(_, %{id: id}, _) do
+    {:ok, Sheets.get_sheet_validation_progress([id]) |> Map.get(id)}
   end
 
   def ingest_sheet_validations(_, _, _) do
@@ -154,7 +154,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {
       :ok,
       args
-      |> Sheets.list_ingest_sheet_rows()
+      |> Rows.list_ingest_sheet_rows()
     }
   end
 

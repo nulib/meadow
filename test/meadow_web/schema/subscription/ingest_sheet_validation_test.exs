@@ -3,28 +3,13 @@ defmodule MeadowWeb.Schema.Subscription.SheetValidationTest do
 
   @subscription """
     subscription ($sheetId: ID!) {
-      ingestSheetRowUpdate(sheetId: $sheetId){
-        ingestSheet {
-          id
-          progress {
-            states {
-              state
-              count
-            }
-            total
-            percent_complete
-          }
+      ingestSheetValidationProgress(sheetId: $sheetId){
+        states {
+          state
+          count
         }
-        row
-        fields {
-          header
-          value
-        }
-        state
-        errors {
-          field
-          message
-        }
+        total
+        percent_complete
       }
     }
   """
