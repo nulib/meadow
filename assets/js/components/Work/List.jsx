@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Work from "./Work";
+import UICard from "../UI/Card";
 
 const WorkList = ({ works = [] }) => {
   if (works.length === 0) {
@@ -9,9 +10,9 @@ const WorkList = ({ works = [] }) => {
   return (
     <div data-testid="work-list">
       {works.map(work => (
-        <div key={work.id} className="my-8">
+        <UICard key={work.id}>
           <Work work={work} />
-        </div>
+        </UICard>
       ))}
     </div>
   );

@@ -17,26 +17,16 @@ const ScreensWork = () => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
-  const createCrumbs = () => {
-    return [
-      {
-        label: "Works",
-        link: "/work/list"
-      },
-      {
-        label: data.work.accessionNumber,
-        link: ``
-      }
-    ];
-  };
+  console.log("Data", data);
+  const { work } = data;
 
   return (
     <>
-      <ScreenHeader
-        title="Work"
-        description="Individual work details."
-        breadCrumbs={createCrumbs()}
-      />
+      <ScreenHeader>
+        <h1>
+          {work.metadata.title ? work.metadata.title : work.accessionNumber}
+        </h1>
+      </ScreenHeader>
       <ScreenContent>
         <Work work={data.work} />
       </ScreenContent>

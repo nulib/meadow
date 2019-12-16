@@ -24,7 +24,7 @@ const ScreensCollection = () => {
         link: "/collection/list"
       },
       {
-        labelWithoutLink: data.collection.name,
+        label: data.collection.name,
         link: `/collection/${id}`
       }
     ];

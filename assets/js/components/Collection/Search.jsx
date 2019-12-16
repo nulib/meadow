@@ -13,8 +13,11 @@ const CollectionSearch = () => {
   }
 
   return (
-    <div data-testid="collection-search">
-      <input className="text-input mb-2" placeholder="Search"></input>
+    <div data-testid="collection-search" className="mt-12">
+      <input
+        className="text-input mb-2 max-w-lg block"
+        placeholder="Search collections"
+      ></input>
       <button className="btn-link mb-8 text-sm">Show Filters</button>
       <div className="flex mb-2 max-w-xl">
         <div className="font-bold mr-3">3000 results</div>
