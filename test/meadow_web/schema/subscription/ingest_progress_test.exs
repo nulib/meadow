@@ -3,7 +3,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   use MeadowWeb.SubscriptionCase, async: true
   alias Meadow.Data.ActionStates
   alias Meadow.Ingest.Actions.GenerateFileSetDigests
-  alias Meadow.Ingest.Pipeline
+  alias Meadow.Ingest.{Pipeline, Sheets, Status}
 
   @file_set_count 7
   @action_count length(Pipeline.actions())
@@ -51,7 +51,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     file_sets
     |> Enum.with_index()
     |> Enum.each(fn {file_set, row} ->
-      Sheets.update_status(sheet.id, row, "ok")
+      Status.update_status(sheet.id, row, "ok")
       ActionStates.initialize_states(file_set, Pipeline.actions(), "ok")
     end)
 

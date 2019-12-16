@@ -4,6 +4,7 @@ defmodule Meadow.Ingest do
   """
 
   import Ecto.Query, warn: false
+  alias Meadow.Data.{FileSets.FileSet, Works.Work}
   alias Meadow.Repo
 
   # Dataloader

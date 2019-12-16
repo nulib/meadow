@@ -1,12 +1,9 @@
 defmodule Meadow.Ingest.Sheets do
-  @moduledoc """
-  Secondary Context for Sheets
-  """
-
   import Ecto.Query, warn: false
   alias Meadow.Data.ActionStates.ActionState
   alias Meadow.Data.FileSets.FileSet
   alias Meadow.Data.Works.Work
+  alias Meadow.Ingest.Notifications
   alias Meadow.Ingest.Schemas.{Row, Sheet, SheetWorks, Status}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
@@ -27,7 +24,7 @@ defmodule Meadow.Ingest.Sheets do
     %Sheet{}
     |> Sheet.changeset(attrs)
     |> Repo.insert()
-    |> send_ingest_sheet_notification()
+    |> Notifications.send_ingest_sheet_notification()
   end
 
   @doc """
@@ -63,7 +60,7 @@ defmodule Meadow.Ingest.Sheets do
     with {:ok, ingest_sheet} <- update_ingest_sheet_status(ingest_sheet, "deleted") do
       ingest_sheet
       |> Repo.delete()
-      |> send_ingest_sheet_notification()
+      |> Notifications.send_ingest_sheet_notification()
     end
   end
 
@@ -223,7 +220,7 @@ defmodule Meadow.Ingest.Sheets do
     ingest_sheet
     |> Sheet.status_changeset(%{status: status})
     |> Repo.update()
-    |> send_ingest_sheet_notification()
+    |> Notifications.send_ingest_sheet_notification()
   end
 
   def update_ingest_sheet_status({:ok, %Sheet{} = ingest_sheet}, status) do
@@ -322,64 +319,32 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.all()
   end
 
-  @doc """
-  Update the ingest status of an ingest sheet or a row
-  """
-  def update_status(%Sheet{id: sheet_id}),
-    do: update_status(sheet_id)
+  def ingest_sheet_for(%FileSet{} = file_set), do: ingest_sheet_for_file_set(file_set.id)
 
-  def update_status(sheet_id) do
-    states =
-      from(entry in Status,
-        distinct: true,
-        select: entry.status,
-        where: entry.sheet_id == ^sheet_id and entry.row > 0
-      )
-      |> Repo.all()
-      |> Enum.into(%MapSet{})
+  def ingest_sheet_for(%Work{} = work), do: ingest_sheet_for_work(work.id)
 
-    status =
-      if MapSet.size(MapSet.intersection(states, MapSet.new(["pending", nil]))) == 0,
-        do: "finished",
-        else: "pending"
-
-    status_text =
-      if MapSet.member?(states, "error"),
-        do: "#{status} (with errors)",
-        else: status
-
-    Repo.transaction(fn ->
-      if status == "finished" do
-        get_ingest_sheet!(sheet_id)
-        |> update_ingest_sheet_status("completed")
-      end
-
-      %Status{
-        sheet_id: sheet_id
-      }
-      |> Status.changeset(%{status: status_text})
-      |> Repo.insert(
-        on_conflict: [set: [status: status_text]],
-        conflict_target: [:sheet_id, :row]
-      )
-    end)
+  def ingest_sheet_for_file_set(file_set_id) do
+    from(
+      fs in FileSet,
+      join: iw in SheetWorks,
+      on: iw.work_id == fs.work_id,
+      join: sheets in Sheet,
+      on: sheets.id == iw.sheet_id,
+      where: fs.id == ^file_set_id,
+      select: sheets
+    )
+    |> Repo.one()
   end
 
-  def update_status(%Row{} = row, ingest_status),
-    do: update_status(row.sheet_id, row.row, ingest_status)
-
-  def update_status(sheet_id, row, ingest_status) do
-    case %Status{sheet_id: sheet_id, row: row}
-         |> Status.changeset(%{
-           status: ingest_status
-         })
-         |> Repo.insert(
-           on_conflict: [set: [status: ingest_status]],
-           conflict_target: [:sheet_id, :row]
-         ) do
-      {:ok, _} -> update_status(sheet_id)
-      other -> other
-    end
+  def ingest_sheet_for_work(work_id) do
+    from(
+      iw in SheetWorks,
+      join: sheets in Sheet,
+      on: sheets.id == iw.sheet_id,
+      where: iw.work_id == ^work_id,
+      select: sheets
+    )
+    |> Repo.one()
   end
 
   def link_works_to_ingest_sheet(works, %Sheet{} = ingest_sheet) do
@@ -502,34 +467,6 @@ defmodule Meadow.Ingest.Sheets do
     end)
   end
 
-  def ingest_sheet_for(%FileSet{} = file_set), do: ingest_sheet_for_file_set(file_set.id)
-
-  def ingest_sheet_for(%Work{} = work), do: ingest_sheet_for_work(work.id)
-
-  def ingest_sheet_for_file_set(file_set_id) do
-    from(
-      fs in FileSet,
-      join: iw in SheetWorks,
-      on: iw.work_id == fs.work_id,
-      join: sheets in Sheet,
-      on: sheets.id == iw.sheet_id,
-      where: fs.id == ^file_set_id,
-      select: sheets
-    )
-    |> Repo.one()
-  end
-
-  def ingest_sheet_for_work(work_id) do
-    from(
-      iw in SheetWorks,
-      join: sheets in Sheet,
-      on: sheets.id == iw.sheet_id,
-      where: iw.work_id == ^work_id,
-      select: sheets
-    )
-    |> Repo.one()
-  end
-
   def file_sets_and_rows(ingest_sheet) do
     from(f in FileSet,
       as: :file_set,
@@ -573,56 +510,4 @@ defmodule Meadow.Ingest.Sheets do
       where: iw.sheet_id == ^sheet_id
     )
   end
-
-  # Absinthe Notifications
-
-  def send_ingest_sheet_notification({:ok, sheet}),
-    do: {:ok, send_ingest_sheet_notification(sheet)}
-
-  def send_ingest_sheet_notification(%Sheet{} = sheet) do
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      sheet,
-      ingest_sheet_update: "sheet:" <> sheet.id
-    )
-
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      sheet,
-      ingest_sheet_updates_for_project: "sheets:" <> sheet.project_id
-    )
-
-    sheet
-  end
-
-  def send_ingest_sheet_notification(other), do: other
-
-  def send_ingest_sheet_row_notification({:ok, row}),
-    do: {:ok, send_ingest_sheet_row_notification(row)}
-
-  def send_ingest_sheet_row_notification(%Row{} = row) do
-    topic = Enum.join(["row", row.sheet_id, row.state], ":")
-
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      row,
-      ingest_sheet_row_state_update: topic
-    )
-
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      row,
-      ingest_sheet_row_update: Enum.join(["row", row.sheet_id], ":")
-    )
-
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      get_sheet_progress(row.sheet_id),
-      ingest_sheet_progress_update: Enum.join(["progress", row.sheet_id], ":")
-    )
-
-    row
-  end
-
-  def send_ingest_sheet_row_notification(other), do: other
 end

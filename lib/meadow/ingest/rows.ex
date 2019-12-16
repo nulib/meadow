@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest.Rows do
   alias Meadow.Ingest.Schemas.Row
-  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.Notifications
   alias Meadow.Repo
 
   @moduledoc """
@@ -35,7 +35,7 @@ defmodule Meadow.Ingest.Rows do
     ingest_sheet_row
     |> Row.changeset(attrs)
     |> Repo.update()
-    |> Sheets.send_ingest_sheet_row_notification()
+    |> Notifications.send_ingest_sheet_row_notification()
   end
 
   @doc """
@@ -45,6 +45,6 @@ defmodule Meadow.Ingest.Rows do
     ingest_sheet_row
     |> Row.state_changeset(%{state: state})
     |> Repo.update()
-    |> Sheets.send_ingest_sheet_row_notification()
+    |> Notifications.send_ingest_sheet_row_notification()
   end
 end

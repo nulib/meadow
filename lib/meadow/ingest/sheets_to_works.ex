@@ -46,6 +46,18 @@ defmodule Meadow.Ingest.SheetsToWorks do
     ingest_sheet
   end
 
+  def link_works_to_ingest_sheet(works, %Sheet{} = ingest_sheet) do
+    SheetWorks
+    |> Repo.insert_all(
+      works
+      |> Enum.map(fn work ->
+        [sheet_id: ingest_sheet.id, work_id: work.id]
+      end)
+    )
+
+    works
+  end
+
   defp ingest_work({accession_number, file_set_rows}) do
     ingest_bucket = Config.ingest_bucket()
 
