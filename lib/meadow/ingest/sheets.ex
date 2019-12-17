@@ -317,7 +317,7 @@ defmodule Meadow.Ingest.Sheets do
     from([entry: a] in file_set_action_states(sheet_id),
       where: a.outcome in ["ok", "error"],
       where: a.object_type == "Meadow.Data.FileSets.FileSet",
-      where: a.action == "Meadow.Ingest.Actions.FileSetComplete",
+      where: a.action == "Meadow.Pipeline.Actions.FileSetComplete",
       select: count(a.id)
     )
     |> Repo.one()

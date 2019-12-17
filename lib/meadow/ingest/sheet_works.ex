@@ -36,6 +36,13 @@ defmodule Meadow.Ingest.SheetWorks do
     |> Repo.one()
   end
 
+  def get_file_sets_and_rows(%Sheet{} = sheet) do
+    from([file_set: file_set, row: row] in file_sets_and_rows(sheet),
+      select: %{file_set_id: file_set.id, row_num: row.row}
+    )
+    |> Repo.all()
+  end
+
   def file_sets_and_rows(ingest_sheet) do
     from(f in FileSet,
       as: :file_set,

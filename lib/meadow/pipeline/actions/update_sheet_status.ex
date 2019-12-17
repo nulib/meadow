@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Actions.UpdateSheetStatus do
+defmodule Meadow.Pipeline.Actions.UpdateSheetStatus do
   @moduledoc """
   Action to update the status of an Sheet during
   the processing of a FileSet.

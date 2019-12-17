@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Meadow.Pipeline.Setup do
   @moduledoc "Creates resources for the ingest pipeline"
-  alias Meadow.Ingest.Pipeline
+  alias Meadow.Pipeline
   use Mix.Task
 
   @shortdoc @moduledoc

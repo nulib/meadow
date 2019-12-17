@@ -4,7 +4,7 @@ defmodule Meadow.Application do
   @moduledoc false
 
   use Application
-  alias Meadow.Ingest.Pipeline
+  alias Meadow.Pipeline
 
   def start(_type, _args) do
     import Supervisor.Spec

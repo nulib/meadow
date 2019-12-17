@@ -1,6 +1,6 @@
 use Mix.Config
 
-alias Meadow.Ingest.Actions.{
+alias Meadow.Pipeline.Actions.{
   CopyFileToPreservation,
   CreatePyramidTiff,
   FileSetComplete,
@@ -11,7 +11,7 @@ alias Meadow.Ingest.Actions.{
 
 config :sequins, prefix: "meadow"
 
-config :sequins, Meadow.Ingest.Pipeline,
+config :sequins, Meadow.Pipeline,
   actions: [
     IngestFileSet,
     GenerateFileSetDigests,

@@ -1,11 +1,11 @@
-defmodule Meadow.Ingest.Actions.FileSetComplete do
-  @moduledoc "Mark the end of the FileSet ingest pipeline"
+defmodule Meadow.Pipeline.Actions.IngestFileSet do
+  @moduledoc "Start the ingest of a FileSet"
 
-  alias Meadow.Data.{ActionStates, FileSets.FileSet}
+  alias Meadow.Data.{ActionStates, FileSet}
   alias Sequins.Pipeline.Action
   use Action
 
-  @actiondoc "Completed Processing FileSet"
+  @actiondoc "Start Ingesting a FileSet"
 
   def process(data, attrs),
     do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
@@ -16,12 +16,14 @@ defmodule Meadow.Ingest.Actions.FileSetComplete do
   end
 
   defp process(%{file_set_id: file_set_id}, _, _) do
-    Logger.info("Ingest pipeline complete for FileSet #{file_set_id}")
+    Logger.info("Beginning ingest pipeline for FileSet #{file_set_id}")
 
     {result, _} =
       {FileSet, file_set_id}
       |> ActionStates.set_state(__MODULE__, "ok")
 
     result
+  rescue
+    err in RuntimeError -> {:error, err}
   end
 end

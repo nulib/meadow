@@ -1,8 +1,8 @@
-defmodule Meadow.Ingest.Actions.GenerateFileSetDigestsTest do
+defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
   use Meadow.S3Case
   use Meadow.DataCase
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Ingest.Actions.GenerateFileSetDigests
+  alias Meadow.Pipeline.Actions.GenerateFileSetDigests
   import ExUnit.CaptureLog
 
   @bucket "test-ingest"

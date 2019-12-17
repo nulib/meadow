@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Actions.GenerateFileSetDigests do
+defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   @moduledoc """
   Action to generate the digest map for a FileSet
 
