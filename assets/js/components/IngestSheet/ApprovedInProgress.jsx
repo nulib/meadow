@@ -24,10 +24,7 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
       <div className="pt-12">
         <UIProgressBar
           percentComplete={ingestProgress.percentComplete}
-          progressValue={ingestProgress.completedFileSets}
           totalValue={ingestProgress.totalFileSets}
-          isProgressValueAPercentage={false}
-          label="file sets have been processed"
         />
       </div>
       <div className="text-center leading-loose text-gray-600">
