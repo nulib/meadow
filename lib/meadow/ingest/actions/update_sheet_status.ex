@@ -10,7 +10,7 @@ defmodule Meadow.Ingest.Actions.UpdateSheetStatus do
   Filter:
   context: "ingest_sheet"
   """
-  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.{Sheets, Status}
   alias Sequins.Pipeline.Action
   use Action
   require Logger
@@ -26,12 +26,10 @@ defmodule Meadow.Ingest.Actions.UpdateSheetStatus do
           status: status
         }
       ) do
-    Logger.info(
-      "Setting status #{status} on row #{row} of sheet #{sheet_id} from #{last_action}"
-    )
+    Logger.info("Setting status #{status} on row #{row} of sheet #{sheet_id} from #{last_action}")
 
     {result, _} =
-      Sheets.update_status(
+      Status.update_status(
         sheet_id,
         String.to_integer(row),
         status

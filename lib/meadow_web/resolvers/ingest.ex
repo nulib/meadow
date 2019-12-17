@@ -5,7 +5,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   """
   alias Meadow.Config
   alias Meadow.Data.ActionStates
-  alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
+  alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Bucket
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
@@ -154,7 +154,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {
       :ok,
       args
-      |> Sheets.list_ingest_sheet_rows()
+      |> Rows.list_ingest_sheet_rows()
     }
   end
 

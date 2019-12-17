@@ -151,6 +151,28 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
+  Updates a sheet's status.
+
+  ## Examples
+      iex> update_ingest_sheet_status(sheet, %{status: "valid"})
+      {:ok, %Sheet{}}
+
+      iex> update_ingest_sheet_status(sheet, %{status: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_ingest_sheet_status(%Sheet{} = ingest_sheet, status) do
+    ingest_sheet
+    |> Sheet.status_changeset(%{status: status})
+    |> Repo.update()
+    |> Notifications.send_ingest_sheet_notification()
+  end
+
+  def update_ingest_sheet_status({:ok, %Sheet{} = ingest_sheet}, status) do
+    update_ingest_sheet_status(ingest_sheet, status)
+  end
+
+  @doc """
   Retrieves aggregate completion statistics for one or more ingest sheets.
   """
   def get_sheet_progress(id) when is_binary(id), do: Map.get(get_sheet_progress([id]), id)
@@ -206,28 +228,6 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
-  Updates a sheet's status.
-
-  ## Examples
-      iex> update_ingest_sheet_status(sheet, %{status: "valid"})
-      {:ok, %Sheet{}}
-
-      iex> update_ingest_sheet_status(sheet, %{status: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_ingest_sheet_status(%Sheet{} = ingest_sheet, status) do
-    ingest_sheet
-    |> Sheet.status_changeset(%{status: status})
-    |> Repo.update()
-    |> Notifications.send_ingest_sheet_notification()
-  end
-
-  def update_ingest_sheet_status({:ok, %Sheet{} = ingest_sheet}, status) do
-    update_ingest_sheet_status(ingest_sheet, status)
-  end
-
-  @doc """
   Add file level error message to ingest sheet's errors array
 
   ## Examples
@@ -279,84 +279,6 @@ defmodule Meadow.Ingest.Sheets do
 
   def list_ingest_sheet_row_counts(%Sheet{} = sheet) do
     list_ingest_sheet_row_counts(sheet.id)
-  end
-
-  @doc """
-  Returns the list of ingest_sheet_rows matching a set of criteria.
-
-  ## Examples
-
-      iex> list_ingest_sheet_rows(ingest_sheet: %Sheet{})
-      [%Row{}, ...]
-
-      iex> list_ingest_sheet_rows(ingest_sheet: %Sheet{}, state: ["error"])
-      [%Row{}, ...]
-  """
-  def list_ingest_sheet_rows(criteria) do
-    criteria
-    |> Enum.reduce(Row, fn
-      {:sheet, sheet}, query ->
-        from(r in query)
-        |> where([ingest_sheet_row], ingest_sheet_row.sheet_id == ^sheet.id)
-
-      {:sheet_id, sheet_id}, query ->
-        from(r in query)
-        |> where([ingest_sheet_row], ingest_sheet_row.sheet_id == ^sheet_id)
-
-      {:state, state}, query ->
-        from(r in query) |> where([ingest_sheet_row], ingest_sheet_row.state in ^state)
-
-      {:start, start}, query ->
-        from(r in query) |> where([ingest_sheet_row], ingest_sheet_row.row >= ^start)
-
-      {:limit, limit}, query ->
-        from r in query, limit: ^limit
-
-      _, query ->
-        query
-    end)
-    |> order_by(asc: :row)
-    |> Repo.all()
-  end
-
-  def ingest_sheet_for(%FileSet{} = file_set), do: ingest_sheet_for_file_set(file_set.id)
-
-  def ingest_sheet_for(%Work{} = work), do: ingest_sheet_for_work(work.id)
-
-  def ingest_sheet_for_file_set(file_set_id) do
-    from(
-      fs in FileSet,
-      join: iw in SheetWorks,
-      on: iw.work_id == fs.work_id,
-      join: sheets in Sheet,
-      on: sheets.id == iw.sheet_id,
-      where: fs.id == ^file_set_id,
-      select: sheets
-    )
-    |> Repo.one()
-  end
-
-  def ingest_sheet_for_work(work_id) do
-    from(
-      iw in SheetWorks,
-      join: sheets in Sheet,
-      on: sheets.id == iw.sheet_id,
-      where: iw.work_id == ^work_id,
-      select: sheets
-    )
-    |> Repo.one()
-  end
-
-  def link_works_to_ingest_sheet(works, %Sheet{} = ingest_sheet) do
-    SheetWorks
-    |> Repo.insert_all(
-      works
-      |> Enum.map(fn work ->
-        [sheet_id: ingest_sheet.id, work_id: work.id]
-      end)
-    )
-
-    works
   end
 
   def list_ingest_sheet_works(%Sheet{} = ingest_sheet) do
@@ -465,22 +387,6 @@ defmodule Meadow.Ingest.Sheets do
       )
       |> Map.delete(:fields)
     end)
-  end
-
-  def file_sets_and_rows(ingest_sheet) do
-    from(f in FileSet,
-      as: :file_set,
-      join: w in Work,
-      on: w.id == f.work_id,
-      join: iw in SheetWorks,
-      on: iw.work_id == w.id,
-      join: r in Row,
-      as: :row,
-      on:
-        r.sheet_id == iw.sheet_id and
-          r.file_set_accession_number == f.accession_number,
-      where: r.sheet_id == ^ingest_sheet.id
-    )
   end
 
   def row_action_states(sheet_id) do

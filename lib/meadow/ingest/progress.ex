@@ -3,10 +3,10 @@ defmodule Meadow.Ingest.Progress do
   Translate action state notifications into ingest sheet progress notifications
   """
 
-  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.{Sheets, SheetWorks}
 
   def send_notification(action_state) do
-    case Sheets.ingest_sheet_for_file_set(action_state.object_id) do
+    case SheetWorks.ingest_sheet_for_file_set(action_state.object_id) do
       nil ->
         :noop
 

@@ -172,7 +172,7 @@ defmodule Meadow.Ingest.Validator do
     end
 
     overall_row_result = {
-      Sheets.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
+      Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       sheet
     }
