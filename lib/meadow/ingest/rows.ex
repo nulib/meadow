@@ -1,7 +1,7 @@
 defmodule Meadow.Ingest.Rows do
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.Schemas.Row
   alias Meadow.Ingest.Notifications
+  alias Meadow.Ingest.Schemas.Row
   alias Meadow.Repo
 
   @moduledoc """
