@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import Work from "./Work";
 import UICard from "../UI/Card";
 
 const WorkRow = ({ work }) => {
@@ -15,8 +14,8 @@ const WorkRow = ({ work }) => {
             <img src="/images/placeholder-content.png" />
           </Link>
         </div>
-        <div className="w-3/4 pl-4">
-          <dl data-testid="work">
+        <div className="w-2/4 pl-4">
+          <dl>
             <dd>
               <Link to={`/work/${work.id}`}>{work.id}</Link>
             </dd>
@@ -26,6 +25,10 @@ const WorkRow = ({ work }) => {
             <dd>{work.workType}</dd>
             <dt>Visibility:</dt>
             <dd>{work.visibility}</dd>
+          </dl>
+        </div>
+        <div className="text-right">
+          <dl>
             <dt>File Sets:</dt>
             {work.fileSets && (
               <dd>

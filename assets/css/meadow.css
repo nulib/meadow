@@ -176,6 +176,25 @@ table.clear th {
   @apply text-gray-900 font-medium;
 }
 
+.nav-tabs {
+  @apply flex border-b;
+}
+.nav-tabs .tab {
+  @apply mr-1;
+}
+.nav-tabs .tab a {
+  @apply bg-white inline-block py-2 px-4 font-semibold;
+}
+.nav-tabs .tab.active {
+  @apply -mb-px;
+}
+.nav-tabs .tab.active a {
+  @apply border-l border-t border-r rounded-t;
+}
+.nav-tabs-body {
+  @apply bg-white p-4;
+}
+
 .notification {
   /* @apply flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 absolute top-0 right-0 m-4; */
   @apply bg-green-500;

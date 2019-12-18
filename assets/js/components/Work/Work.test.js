@@ -16,6 +16,5 @@ describe("Work component", () => {
     const { getByTestId, getByText } = setupTests();
     expect(getByTestId("work")).toBeInTheDocument();
     expect(getByText(mockWork.accessionNumber)).toBeInTheDocument();
-    expect(getByText(mockWork.id)).toBeInTheDocument();
   });
 });

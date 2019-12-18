@@ -17,16 +17,20 @@ const ScreensWork = () => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
-  console.log("Data", data);
   const { work } = data;
 
   return (
     <>
-      <ScreenHeader>
-        <h1>
-          {work.metadata.title ? work.metadata.title : work.accessionNumber}
-        </h1>
-      </ScreenHeader>
+      <ScreenHeader
+        title={id}
+        description="A work in the system, defined by Accession Number and container file sets."
+        breadCrumbs={[
+          {
+            label: `${work.accessionNumber}`,
+            link: `/work/${id}`
+          }
+        ]}
+      />
       <ScreenContent>
         <Work work={data.work} />
       </ScreenContent>
