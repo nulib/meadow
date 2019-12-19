@@ -61,6 +61,7 @@ defmodule Meadow.Ingest.Schemas.Row do
   def state_changeset(row, attrs) do
     row
     |> cast(attrs, [:state])
+    |> cast_embed(:errors, with: &error_changeset/2)
     |> validate_required([:sheet_id, :row])
     |> assoc_constraint(:sheet)
     |> validate_required([:state])

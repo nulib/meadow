@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetValidations from "./Validations";
-import { GET_INGEST_SHEET_PROGRESS } from "./ingestSheet.query";
+import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.query";
 import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
 import IngestSheetActionRow from "./ActionRow";
@@ -27,7 +27,7 @@ const IngestSheet = ({
     loading: progressLoading,
     error: progressError,
     subscribeToMore: progressSubscribeToMore
-  } = useQuery(GET_INGEST_SHEET_PROGRESS, {
+  } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
     fetchPolicy: "network-only"
   });
@@ -63,8 +63,8 @@ const IngestSheet = ({
           <IngestSheetValidations
             sheetId={id}
             status={status}
-            initialProgress={progressData.ingestSheetProgress}
-            subscribeToIngestSheetProgress={progressSubscribeToMore}
+            initialProgress={progressData.ingestSheetValidationProgress}
+            subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
           />
         </>
       )}

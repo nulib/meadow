@@ -33,9 +33,10 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet/3)
     end
 
-    field :ingest_sheet_progress, :sheet_progress do
+    @desc "Get the validation status for an ingest sheet"
+    field :ingest_sheet_validation_progress, :validation_progress do
       arg(:id, non_null(:id))
-      resolve(&Resolvers.Ingest.ingest_sheet_progress/3)
+      resolve(&Resolvers.Ingest.ingest_sheet_validation_progress/3)
     end
 
     @desc "Get a presigned url to upload an ingest sheet"
@@ -124,7 +125,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
   end
 
   object :ingest_subscriptions do
-    @desc "Subscribe to ingest sheet updates for a project"
+    @desc "Subscribe to ingest sheet updates for a specific project"
     field :ingest_sheet_updates_for_project, :ingest_sheet do
       arg(:project_id, non_null(:id))
 
@@ -133,7 +134,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
       end)
     end
 
-    @desc "Subscribe to validation messages for an ingest sheet"
+    @desc "Subscribe to updates for an ingest sheet"
     field :ingest_sheet_update, :ingest_sheet do
       arg(:sheet_id, non_null(:id))
 
@@ -142,29 +143,12 @@ defmodule MeadowWeb.Schema.IngestTypes do
       end)
     end
 
-    field :ingest_sheet_progress_update, :sheet_progress do
+    @desc "Subscribe to validation updates for an ingest sheet"
+    field :ingest_sheet_validation_progress, :validation_progress do
       arg(:sheet_id, non_null(:id))
 
       config(fn args, _info ->
-        {:ok, topic: "progress:" <> args.sheet_id}
-      end)
-    end
-
-    field :ingest_sheet_row_update, :ingest_sheet_row do
-      arg(:sheet_id, non_null(:id))
-
-      config(fn args, _info ->
-        {:ok, topic: Enum.join(["row", args.sheet_id], ":")}
-      end)
-    end
-
-    field :ingest_sheet_row_state_update, :ingest_sheet_row do
-      arg(:sheet_id, non_null(:id))
-      arg(:state, non_null(:state))
-
-      config(fn args, _info ->
-        topic = Enum.join(["row", args.sheet_id, args.state], ":")
-        {:ok, topic: topic}
+        {:ok, topic: "validation_progress:" <> args.sheet_id}
       end)
     end
 
@@ -218,11 +202,15 @@ defmodule MeadowWeb.Schema.IngestTypes do
     @desc "An array of file level error messages"
     field :file_errors, list_of(:string)
 
-    field :progress, :sheet_progress,
+    field :validation_progress, :validation_progress,
       resolve: fn sheet, _, _ ->
-        batch({MeadowWeb.Schema.Helpers, :sheet_progress, Integer}, sheet.id, fn batch_results ->
-          {:ok, Map.get(batch_results, sheet.id)}
-        end)
+        batch(
+          {MeadowWeb.Schema.Helpers, :validation_progress, Integer},
+          sheet.id,
+          fn batch_results ->
+            {:ok, Map.get(batch_results, sheet.id)}
+          end
+        )
       end
 
     field :ingest_sheet_rows, list_of(:ingest_sheet_row), resolve: dataloader(Ingest)
@@ -288,7 +276,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:fail, as: "fail")
   end
 
-  object :sheet_progress do
+  object :validation_progress do
     field :states, list_of(:state_count)
     field :total, non_null(:integer)
     field :percent_complete, non_null(:float)

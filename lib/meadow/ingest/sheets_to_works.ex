@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets.FileSet, Works}
-  alias Meadow.Ingest.{Actions, Pipeline, Sheets}
+  alias Meadow.Ingest.{Actions, Pipeline, Rows, SheetWorks, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
 
@@ -18,23 +18,23 @@ defmodule Meadow.Ingest.SheetsToWorks do
     work_records
     |> Enum.map(fn work_record -> ingest_work(work_record) end)
     |> Enum.reject(fn work -> is_nil(work) end)
-    |> Sheets.link_works_to_ingest_sheet(ingest_sheet)
+    |> SheetWorks.link_works_to_ingest_sheet(ingest_sheet)
 
     ingest_sheet
   end
 
   def group_by_works(%Sheet{} = ingest_sheet) do
-    Sheets.list_ingest_sheet_rows(sheet: ingest_sheet)
+    Rows.list_ingest_sheet_rows(sheet: ingest_sheet)
     |> Enum.group_by(fn row -> row |> Row.field_value(:work_accession_number) end)
   end
 
   def start_file_set_pipelines(ingest_sheet) do
-    from([file_set: file_set, row: row] in Sheets.file_sets_and_rows(ingest_sheet),
+    from([file_set: file_set, row: row] in SheetWorks.file_sets_and_rows(ingest_sheet),
       select: %{file_set_id: file_set.id, row_num: row.row}
     )
     |> Repo.all()
     |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
-      Sheets.update_status(ingest_sheet.id, row_num, "pending")
+      Status.change(ingest_sheet.id, row_num, "pending")
       ActionStates.initialize_states({FileSet, file_set_id}, Pipeline.actions())
 
       Actions.IngestFileSet.send_message(

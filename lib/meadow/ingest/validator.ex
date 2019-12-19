@@ -172,7 +172,7 @@ defmodule Meadow.Ingest.Validator do
     end
 
     overall_row_result = {
-      Sheets.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
+      Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
       |> Enum.reduce(:ok, row_check),
       sheet
     }
@@ -249,11 +249,11 @@ defmodule Meadow.Ingest.Validator do
 
     case result do
       [] ->
-        row |> Rows.change_ingest_sheet_row_state("pass")
+        row |> Rows.change_ingest_sheet_row_validation_state("pass")
         "pass"
 
       errors ->
-        row |> Rows.update_ingest_sheet_row(%{state: "fail", errors: errors})
+        row |> Rows.change_ingest_sheet_row_validation_state(%{state: "fail", errors: errors})
         "fail"
     end
   end
@@ -290,7 +290,7 @@ defmodule Meadow.Ingest.Validator do
 
   defp add_file_errors(sheet, messages) do
     sheet
-    |> Sheets.add_file_errors_to_ingest_sheet(messages)
+    |> Sheets.add_file_validation_errors_to_ingest_sheet(messages)
     |> Sheets.update_ingest_sheet_status("file_fail")
   end
 
@@ -304,7 +304,7 @@ defmodule Meadow.Ingest.Validator do
         end
     }
 
-    {result, sheet |> Sheets.change_ingest_sheet_state!(state)}
+    {result, sheet |> Sheets.change_ingest_sheet_validation_state!(state)}
   end
 
   defp check_missing_headers([_ | _] = missing_headers) do

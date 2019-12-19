@@ -4,7 +4,7 @@ import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
 import {
-  SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
+  SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
   START_VALIDATION
 } from "./ingestSheet.query";
 import { withRouter } from "react-router-dom";
@@ -13,7 +13,7 @@ import { useMutation } from "@apollo/react-hooks";
 function IngestSheetValidations({
   sheetId,
   initialProgress,
-  subscribeToIngestSheetProgress,
+  subscribeToIngestSheetValidationProgress,
   status
 }) {
   const [progress, setProgress] = useState({ states: [] });
@@ -21,8 +21,8 @@ function IngestSheetValidations({
 
   useEffect(() => {
     setProgress(initialProgress);
-    subscribeToIngestSheetProgress({
-      document: SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
+    subscribeToIngestSheetValidationProgress({
+      document: SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
       variables: { sheetId },
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 })
     });
@@ -33,9 +33,9 @@ function IngestSheetValidations({
   const handleProgressUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
 
-    const progress = subscriptionData.data.ingestSheetProgressUpdate;
+    const progress = subscriptionData.data.ingestSheetValidationProgress;
     setProgress(progress);
-    return { ingestSheetProgress: progress };
+    return { ingestSheetValidationProgress: progress };
   };
 
   const isFinished = () => {

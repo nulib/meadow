@@ -31,11 +31,11 @@ defmodule Meadow.IngestCase do
     sheet = ingest_sheet_rows_fixture(@fixture)
 
     sheet
-    |> Sheets.change_ingest_sheet_state!(%{file: "pass", rows: "pass", overall: "pass"})
+    |> Sheets.change_ingest_sheet_validation_state!(%{file: "pass", rows: "pass", overall: "pass"})
     |> Repo.preload(:ingest_sheet_rows)
     |> Map.get(:ingest_sheet_rows)
     |> Enum.each(fn
-      row -> Rows.change_ingest_sheet_row_state(row, "pass")
+      row -> Rows.change_ingest_sheet_row_validation_state(row, "pass")
     end)
 
     {:ok, ingest_sheet: sheet}

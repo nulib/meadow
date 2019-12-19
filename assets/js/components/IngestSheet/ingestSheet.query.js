@@ -88,8 +88,8 @@ export const GET_INGEST_SHEET_STATE = gql`
   }
 `;
 
-export const GET_INGEST_SHEET_ERRORS = gql`
-  query IngestSheetRowErrors($sheetId: String!) {
+export const GET_INGEST_SHEET_ROW_VALIDATION_ERRORS = gql`
+  query IngestSheetRowValidationErrors($sheetId: String!) {
     ingestSheetRows(sheetId: $sheetId, state: FAIL) {
       row
       fields {
@@ -105,9 +105,9 @@ export const GET_INGEST_SHEET_ERRORS = gql`
   }
 `;
 
-export const GET_INGEST_SHEET_PROGRESS = gql`
-  query IngestSheetProgress($sheetId: String!) {
-    ingestSheetProgress(id: $sheetId) {
+export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
+  query IngestSheetValidationProgress($sheetId: String!) {
+    ingestSheetValidationProgress(id: $sheetId) {
       states {
         state
         count
@@ -117,7 +117,7 @@ export const GET_INGEST_SHEET_PROGRESS = gql`
   }
 `;
 
-export const GET_INGEST_SHEET_VALIDATIONS = gql`
+export const GET_INGEST_SHEET_ROW_VALIDATIONS = gql`
   query IngestSheetRows($sheetId: String!) {
     ingestSheetRows(sheetId: $sheetId) {
       row
@@ -168,45 +168,9 @@ export const INGEST_SHEET_SUBSCRIPTION = gql`
   ${IngestSheet.fragments.parts}
 `;
 
-//TODO: Delete this?
-export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATIONS = gql`
-  subscription IngestSheetRowUpdate($sheetId: String!) {
-    ingestSheetRowUpdate(sheetId: $sheetId) {
-      row
-      fields {
-        header
-        value
-      }
-      errors {
-        field
-        message
-      }
-      state
-    }
-  }
-`;
-
-// TODO: Delete this?
-export const SUBSCRIBE_TO_INGEST_SHEET_ERRORS = gql`
-  subscription IngestSheetRowErrors($sheetId: String!) {
-    ingestSheetRowStateUpdate(sheetId: $sheetId, state: FAIL) {
-      row
-      fields {
-        header
-        value
-      }
-      errors {
-        field
-        message
-      }
-      state
-    }
-  }
-`;
-
-export const SUBSCRIBE_TO_INGEST_SHEET_PROGRESS = gql`
-  subscription IngestSheetProgressUpdate($sheetId: String!) {
-    ingestSheetProgressUpdate(sheetId: $sheetId) {
+export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS = gql`
+  subscription IngestSheetValidationProgress($sheetId: String!) {
+    ingestSheetValidationProgress(sheetId: $sheetId) {
       states {
         state
         count

@@ -6,8 +6,8 @@ import Loading from "../UI/Loading";
 import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
 import {
-  GET_INGEST_SHEET_ERRORS,
-  GET_INGEST_SHEET_VALIDATIONS
+  GET_INGEST_SHEET_ROW_VALIDATION_ERRORS,
+  GET_INGEST_SHEET_ROW_VALIDATIONS
 } from "./ingestSheet.query";
 
 function IngestSheetReport({ sheetId, progress, status }) {
@@ -16,7 +16,9 @@ function IngestSheetReport({ sheetId, progress, status }) {
   };
 
   const { loading, error, data } = useQuery(
-    sheetHasErrors() ? GET_INGEST_SHEET_ERRORS : GET_INGEST_SHEET_VALIDATIONS,
+    sheetHasErrors()
+      ? GET_INGEST_SHEET_ROW_VALIDATION_ERRORS
+      : GET_INGEST_SHEET_ROW_VALIDATIONS,
     {
       variables: { sheetId },
       fetchPolicy: "network-only"
