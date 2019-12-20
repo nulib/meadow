@@ -14,8 +14,10 @@ import ScreensWork from "./Work/Work";
 import ScreensWorkList from "./Work/List";
 import ScreensCollectionList from "./Collection/List";
 import ScreensCollection from "./Collection/Collection";
+import ScreensCollectionForm from "./Collection/Form";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
+import ScrollToTop from "../components/ScrollToTop";
 
 export default class Root extends React.Component {
   render() {
@@ -23,6 +25,7 @@ export default class Root extends React.Component {
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Header />
             <Switch>
               <Route exact path="/login" component={Login} />
@@ -61,6 +64,11 @@ export default class Root extends React.Component {
                 exact
                 path="/collection/list"
                 component={ScreensCollectionList}
+              />
+              <PrivateRoute
+                exact
+                path="/collection/form/:id?"
+                component={ScreensCollectionForm}
               />
               <PrivateRoute
                 exact

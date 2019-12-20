@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const UISelect = ({ options = [], value, ...props }) => (
-  <div className="relative">
+  <div className="relative shadow">
     <select
       {...props}
       value={value}

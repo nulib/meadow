@@ -67,7 +67,7 @@ const ScreensCollectionList = () => {
             onChange={debounce(handleFilterChange, 300)}
             ref={inputEl}
           />
-          <Link to="/" className="btn">
+          <Link to="/collection/form" className="btn">
             <AddOutlineIcon className="icon" />
             Create collection
           </Link>
@@ -78,6 +78,9 @@ const ScreensCollectionList = () => {
               <CollectionListRow key={collection.id} collection={collection} />
             ))}
         </ul>
+        {data.collections.length === 0 && (
+          <p>No collections exist. Why not add one?</p>
+        )}
       </ScreenContent>
     </>
   );
