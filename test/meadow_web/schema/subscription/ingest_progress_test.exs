@@ -3,7 +3,8 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   use MeadowWeb.SubscriptionCase, async: true
   alias Meadow.Data.ActionStates
   alias Meadow.Ingest.Actions.GenerateFileSetDigests
-  alias Meadow.Ingest.{Pipeline, Sheets, Status}
+  alias Meadow.Ingest.{Sheets, Status}
+  alias Meadow.Pipeline
 
   @file_set_count 7
   @action_count length(Pipeline.actions())
@@ -40,7 +41,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
       result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
     }
 
-    assert_in_delta(pct, @pct_factor, 0.01)
+    assert_in_delta(pct, @pct_factor, 0.10)
     sheet = Sheets.get_ingest_sheet!(sheet.id)
     refute(sheet.status == "completed")
   end
@@ -61,7 +62,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
         result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
       }
 
-      assert_in_delta(pct, i * @pct_factor, 0.01)
+      assert_in_delta(pct, i * @pct_factor, 0.10)
     end)
 
     sheet = Sheets.get_ingest_sheet!(sheet.id)

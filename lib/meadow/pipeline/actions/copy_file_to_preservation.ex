@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Actions.CopyFileToPreservation do
+defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   @moduledoc """
   Action to copy the file referenced in a FileSet
   to the pre-configured preservation bucket.

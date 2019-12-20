@@ -71,7 +71,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
           Meadow.Async.run_once("ingest:#{ingest_sheet.id}", fn ->
             ingest_sheet
             |> SheetsToWorks.create_works_from_ingest_sheet()
-            |> SheetsToWorks.start_file_set_pipelines()
+            |> SheetsToWorks.send_to_pipeline()
           end)
 
         pid_string = pid |> :erlang.pid_to_list() |> List.to_string()

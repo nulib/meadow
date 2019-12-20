@@ -1,4 +1,4 @@
-defmodule Meadow.Ingest.Actions.CreatePyramidTiff do
+defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   @moduledoc "Create the pyramid tiff derivative for Image objects"
 
   alias Meadow.Config

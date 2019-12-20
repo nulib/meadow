@@ -1,7 +1,7 @@
-defmodule Meadow.Ingest.Actions.FileSetCompleteTest do
+defmodule Meadow.Pipeline.Actions.FileSetCompleteTest do
   use Meadow.DataCase
   alias Meadow.Data.ActionStates
-  alias Meadow.Ingest.Actions.FileSetComplete
+  alias Meadow.Pipeline.Actions.FileSetComplete
   import ExUnit.CaptureLog
 
   test "process/2" do

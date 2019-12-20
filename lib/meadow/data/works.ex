@@ -123,6 +123,18 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Creates a work inside a transaction.
+  """
+  def ensure_create_work(attrs \\ %{}) do
+    Repo.transaction(fn ->
+      case create_work(attrs) do
+        {:ok, work} -> work
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  @doc """
   Fetches all works that include a Metadata title.
 
   Returns [] if the query returns no matches

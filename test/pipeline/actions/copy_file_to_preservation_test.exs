@@ -1,7 +1,7 @@
-defmodule Meadow.Ingest.Actions.CopyFileToPreservationTest do
+defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   use Meadow.DataCase
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Ingest.Actions.CopyFileToPreservation
+  alias Meadow.Pipeline.Actions.CopyFileToPreservation
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
   import Mox

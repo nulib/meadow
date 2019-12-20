@@ -5,10 +5,10 @@ defmodule Meadow.Ingest.SheetsToWorks do
   """
   import Ecto.Query, warn: false
   alias Meadow.Config
-  alias Meadow.Data.{ActionStates, FileSets.FileSet, Works}
-  alias Meadow.Ingest.{Actions, Pipeline, Rows, SheetWorks, Status}
+  alias Meadow.Data.{ActionStates, Works}
+  alias Meadow.Ingest.{Rows, SheetWorks, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
-  alias Meadow.Repo
+  alias Meadow.Pipeline
 
   use Meadow.Constants
 
@@ -28,19 +28,16 @@ defmodule Meadow.Ingest.SheetsToWorks do
     |> Enum.group_by(fn row -> row |> Row.field_value(:work_accession_number) end)
   end
 
-  def start_file_set_pipelines(ingest_sheet) do
-    from([file_set: file_set, row: row] in SheetWorks.file_sets_and_rows(ingest_sheet),
-      select: %{file_set_id: file_set.id, row_num: row.row}
-    )
-    |> Repo.all()
+  def send_to_pipeline(ingest_sheet) do
+    SheetWorks.get_file_sets_and_rows(ingest_sheet)
     |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
       Status.change(ingest_sheet.id, row_num, "pending")
-      ActionStates.initialize_states({FileSet, file_set_id}, Pipeline.actions())
 
-      Actions.IngestFileSet.send_message(
-        %{file_set_id: file_set_id},
-        %{context: "Sheet", ingest_sheet: ingest_sheet.id, ingest_sheet_row: row_num}
-      )
+      Pipeline.kickoff(file_set_id, %{
+        context: "Sheet",
+        ingest_sheet: ingest_sheet.id,
+        ingest_sheet_row: row_num
+      })
     end)
 
     ingest_sheet
@@ -49,41 +46,30 @@ defmodule Meadow.Ingest.SheetsToWorks do
   defp ingest_work({accession_number, file_set_rows}) do
     ingest_bucket = Config.ingest_bucket()
 
-    result =
-      Repo.transaction(fn ->
-        attrs = %{
-          accession_number: accession_number,
-          visibility: @default_visibility,
-          work_type: "image",
-          metadata: %{},
-          file_sets:
-            file_set_rows
-            |> Enum.map(fn row ->
-              file_path = Row.field_value(row, :filename)
-              location = "s3://#{ingest_bucket}/#{file_path}"
+    attrs = %{
+      accession_number: accession_number,
+      visibility: @default_visibility,
+      work_type: "image",
+      metadata: %{},
+      file_sets:
+        file_set_rows
+        |> Enum.map(fn row ->
+          file_path = Row.field_value(row, :filename)
+          location = "s3://#{ingest_bucket}/#{file_path}"
 
-              %{
-                accession_number: row |> Row.field_value(:accession_number),
-                role: row |> Row.field_value(:role),
-                metadata: %{
-                  description: row |> Row.field_value(:description),
-                  location: location,
-                  original_filename: Path.basename(file_path)
-                }
-              }
-            end)
-        }
+          %{
+            accession_number: row |> Row.field_value(:accession_number),
+            role: row |> Row.field_value(:role),
+            metadata: %{
+              description: row |> Row.field_value(:description),
+              location: location,
+              original_filename: Path.basename(file_path)
+            }
+          }
+        end)
+    }
 
-        case Works.create_work(attrs) do
-          {:ok, work} ->
-            work
-
-          {:error, changeset} ->
-            Repo.rollback(changeset)
-        end
-      end)
-
-    case result do
+    case Works.ensure_create_work(attrs) do
       {:ok, %Works.Work{} = work} ->
         ActionStates.set_state!(work, "Create Work", "ok")
         work

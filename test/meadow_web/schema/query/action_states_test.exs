@@ -3,7 +3,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
   alias Meadow.Data.ActionStates
-  alias Meadow.Ingest.Actions.GenerateFileSetDigests
+  alias Meadow.Pipeline.Actions.GenerateFileSetDigests
   import Assertions
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/GetActionStates.gql")
@@ -20,7 +20,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
 
   test "contains records", %{file_set: file_set} do
     ActionStates.set_state!(file_set, "Create FileSet", "ok")
-    ActionStates.set_state!(file_set, Meadow.Ingest.Actions.GenerateFileSetDigests, "ok")
+    ActionStates.set_state!(file_set, Meadow.Pipeline.Actions.GenerateFileSetDigests, "ok")
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
