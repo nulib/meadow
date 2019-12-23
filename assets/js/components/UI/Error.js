@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import UIAlert from "./Alert";
 
 // Render runtime errors, including GraphQL errors and network errors.
 //
@@ -20,19 +21,16 @@ const Error = ({ error }) => {
 
   if (isNetworkError) {
     if (error.networkError.statusCode === 404) {
-      errorMessage = (
-        <h3>
-          <code>404: Not Found</code>
-        </h3>
+      return (
+        <UIAlert type="danger" title="Network Error" body="404: Not Found" />
       );
     } else {
-      errorMessage = (
-        <>
-          <h3>Network Error!</h3>
-          <code>
-            {error.networkError.statusCode}: {error.networkError.message}
-          </code>
-        </>
+      return (
+        <UIAlert
+          type="danger"
+          title="Network Error"
+          body={`${error.networkError.statusCode}: ${error.networkError.message}`}
+        />
       );
     }
   } else if (hasGraphQLErrors) {
@@ -56,16 +54,10 @@ const Error = ({ error }) => {
         </ul>
       </>
     );
+    return <UIAlert type="danger" title="GraphQL Error" body={errorMessage} />;
   } else {
-    errorMessage = (
-      <>
-        <h3>Whoops!</h3>
-        <p>{error.message}</p>
-      </>
-    );
+    return <UIAlert type="danger" title="Whoops!" body={error.message} />;
   }
-
-  return <div className="errors">{errorMessage}</div>;
 };
 
 Error.propTypes = {
