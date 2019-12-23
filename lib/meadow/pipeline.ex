@@ -5,7 +5,7 @@ defmodule Meadow.Pipeline do
   use Sequins.Pipeline
 
   alias Meadow.Data.ActionStates
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
 
   def kickoff(_, context \\ %{})
 

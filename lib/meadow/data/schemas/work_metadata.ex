@@ -1,4 +1,4 @@
-defmodule Meadow.Data.Works.WorkMetadata do
+defmodule Meadow.Data.Schemas.WorkMetadata do
   @moduledoc """
   Descriptive metadata embedded in Work records.
   """

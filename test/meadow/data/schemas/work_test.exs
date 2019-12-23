@@ -1,7 +1,7 @@
-defmodule Meadow.Data.Works.WorkTest do
+defmodule Meadow.Data.Schemas.WorkTest do
   use Meadow.DataCase
 
-  alias Meadow.Data.Works.Work
+  alias Meadow.Data.Schemas.Work
 
   describe "works" do
     @valid_attrs %{

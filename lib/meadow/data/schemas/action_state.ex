@@ -1,4 +1,4 @@
-defmodule Meadow.Data.ActionStates.ActionState do
+defmodule Meadow.Data.Schemas.ActionState do
   @moduledoc """
   ActionStates keep track of actions performed on Works and FileSets
   """

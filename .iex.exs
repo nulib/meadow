@@ -1,15 +1,20 @@
 alias Meadow.Repo
 alias Meadow.{Accounts, Ingest}
-alias Meadow.Acccounts.Users
-alias Meadow.Acccounts.Users.User
+alias Meadow.Accounts.Users
+alias Meadow.Accounts.Users.User
 
 alias Meadow.Data.{
   ActionStates,
-  ActionStates.ActionState,
+  Collections,
   FileSets,
-  FileSets.FileSet,
-  Works,
-  Works.Work
+  Works
+}
+
+alias Meadow.Data.Schemas.{
+  ActionState,
+  Collection,
+  FileSet,
+  Work
 }
 
 alias Meadow.Ingest.{Sheets, Projects}

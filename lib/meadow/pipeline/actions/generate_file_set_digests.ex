@@ -7,7 +7,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
   alias Meadow.Utils
   alias Sequins.Pipeline.Action

@@ -4,7 +4,7 @@ defmodule Meadow.Data.ActionStates do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.ActionStates.ActionState
+  alias Meadow.Data.Schemas.ActionState
   alias Meadow.Ingest.Progress
   alias Meadow.Repo
 

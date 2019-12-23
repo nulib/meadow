@@ -1,7 +1,7 @@
 defmodule Meadow.Data.ActionStatesTest do
   use Meadow.DataCase
   alias Meadow.Data.ActionStates
-  alias Meadow.Data.ActionStates.ActionState
+  alias Meadow.Data.Schemas.ActionState
   import Assertions
 
   @actions [Test.Action.One, Test.Action.Two, "TestActionThree"]

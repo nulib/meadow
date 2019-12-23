@@ -1,11 +1,11 @@
-defmodule Meadow.Data.FileSets.FileSet do
+defmodule Meadow.Data.Schemas.FileSet do
   @moduledoc """
   FileSets are used to describe objects stored in Amazon S3
   """
   use Ecto.Schema
-  alias Meadow.Data.ActionStates.ActionState
-  alias Meadow.Data.FileSets.FileSetMetadata
-  alias Meadow.Data.Works.Work
+  alias Meadow.Data.Schemas.ActionState
+  alias Meadow.Data.Schemas.FileSetMetadata
+  alias Meadow.Data.Schemas.Work
 
   import Ecto.Changeset
   import EctoRanked

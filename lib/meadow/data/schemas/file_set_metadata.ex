@@ -1,4 +1,4 @@
-defmodule Meadow.Data.FileSets.FileSetMetadata do
+defmodule Meadow.Data.Schemas.FileSetMetadata do
   @moduledoc """
   Descriptive metadata embedded in FileSet records.
   """

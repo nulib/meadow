@@ -2,7 +2,7 @@ defmodule Meadow.Data.FileSetsTest do
   use Meadow.DataCase
 
   alias Meadow.Data.FileSets
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
 
   describe "queries" do
     @valid_attrs %{

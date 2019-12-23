@@ -5,6 +5,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   """
   alias Meadow.Config
   alias Meadow.Data.ActionStates
+  alias Meadow.Data.Schemas.ActionState
   alias Meadow.Ingest.Bucket
   alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
@@ -176,7 +177,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   defp update_action_doc(state) do
     with mod <- "Elixir.#{state.action}" |> String.to_atom() do
       if Code.ensure_loaded?(mod),
-        do: %ActionStates.ActionState{state | action: mod.actiondoc()},
+        do: %ActionState{state | action: mod.actiondoc()},
         else: state
     end
   end
