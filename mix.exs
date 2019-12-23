@@ -51,7 +51,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.4.2"},
       {:absinthe_plug, "~> 1.4.0"},
       {:absinthe_phoenix, "~> 1.4.0"},
-      {:assertions, "~> 0.14.1"},
+      {:assertions, "~> 0.15.0"},
       {:briefly, "~> 0.3.0", only: :test},
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0.0"},
