@@ -157,6 +157,10 @@ table.clear th {
   @apply bg-white p-6 shadow-md;
 }
 
+.form-group {
+  @apply mb-4;
+}
+
 .icon {
   @apply fill-current inline-block text-gray-600 w-4 h-4 mr-1;
 }
