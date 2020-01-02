@@ -3,9 +3,9 @@ defmodule Meadow.Ingest.Sheets do
   API for Ingest Sheets
   """
   import Ecto.Query, warn: false
-  alias Meadow.Data.ActionStates.ActionState
-  alias Meadow.Data.FileSets.FileSet
-  alias Meadow.Data.Works.Work
+  alias Meadow.Data.Schemas.ActionState
+  alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Ingest.Notifications
   alias Meadow.Ingest.Schemas.{Row, Sheet, SheetWorks}
   alias Meadow.Repo
@@ -316,7 +316,7 @@ defmodule Meadow.Ingest.Sheets do
   def completed_file_set_count(sheet_id) do
     from([entry: a] in file_set_action_states(sheet_id),
       where: a.outcome in ["ok", "error"],
-      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      where: a.object_type == "Meadow.Data.Schemas.FileSet",
       where: a.action == "Meadow.Pipeline.Actions.FileSetComplete",
       select: count(a.id)
     )
@@ -327,7 +327,7 @@ defmodule Meadow.Ingest.Sheets do
 
   def total_action_count(sheet_id) do
     from([entry: a] in file_set_action_states(sheet_id),
-      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      where: a.object_type == "Meadow.Data.Schemas.FileSet",
       select: count(a.id)
     )
     |> Repo.one()
@@ -338,7 +338,7 @@ defmodule Meadow.Ingest.Sheets do
 
   def completed_action_count(sheet_id) do
     from([entry: a] in file_set_action_states(sheet_id),
-      where: a.object_type == "Meadow.Data.FileSets.FileSet",
+      where: a.object_type == "Meadow.Data.Schemas.FileSet",
       where: a.outcome in ["ok", "error"],
       select: count(a.id)
     )

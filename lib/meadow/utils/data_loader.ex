@@ -5,8 +5,7 @@ defmodule Meadow.Utils.DataLoader do
   """
 
   alias Meadow.Repo
-  alias Meadow.Data.FileSets.{FileSet, FileSetMetadata}
-  alias Meadow.Data.Works.{Work, WorkMetadata}
+  alias Meadow.Data.Schemas.{FileSet, FileSetMetadata, Work, WorkMetadata}
 
   use Meadow.Constants
 

@@ -4,7 +4,7 @@ defmodule Meadow.Data.Works do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.Works.Work
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
 
   @doc """
@@ -101,7 +101,7 @@ defmodule Meadow.Data.Works do
   ## Examples
 
       iex> create_work(%{field: value})
-      {:ok, %Meadow.Data.Works.Work{}}
+      {:ok, %Meadow.Data.Schemas.Work{}}
 
       iex> create_work(%{field: bad_value})
       {:error, %Ecto.Changeset{}}

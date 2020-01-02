@@ -9,7 +9,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
   alias Sequins.Pipeline.Action

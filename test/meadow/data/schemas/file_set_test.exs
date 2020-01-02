@@ -1,7 +1,7 @@
-defmodule Meadow.Data.FileSets.FileSetTest do
+defmodule Meadow.Data.Schemas.FileSetTest do
   use Meadow.DataCase
 
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
 
   describe "file_sets" do
     @valid_attrs %{

@@ -4,7 +4,7 @@ defmodule Meadow.Data.FileSets do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
 
   @doc """
@@ -61,7 +61,7 @@ defmodule Meadow.Data.FileSets do
   ## Examples
 
       iex> create_file_set(%{field: value})
-      {:ok, %Meadow.Data.FileSets.FileSet{}}
+      {:ok, %Meadow.Data.Schemas.FileSet{}}
 
       iex> create_work(%{field: bad_value})
       {:error, %Ecto.Changeset{}}

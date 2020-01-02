@@ -6,6 +6,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Ingest.{Rows, SheetWorks, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Pipeline
@@ -70,7 +71,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     }
 
     case Works.ensure_create_work(attrs) do
-      {:ok, %Works.Work{} = work} ->
+      {:ok, %Work{} = work} ->
         ActionStates.set_state!(work, "Create Work", "ok")
         work
 

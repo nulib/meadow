@@ -1,4 +1,4 @@
-defmodule Meadow.Data.Collections.Collection do
+defmodule Meadow.Data.Schemas.Collection do
   @moduledoc """
   Collections are used to group objects for display
   """
@@ -6,7 +6,7 @@ defmodule Meadow.Data.Collections.Collection do
 
   import Ecto.Changeset
 
-  alias Meadow.Data.Works.Work
+  alias Meadow.Data.Schemas.Work
 
   use Meadow.Constants
 

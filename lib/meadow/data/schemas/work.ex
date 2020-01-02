@@ -1,13 +1,13 @@
-defmodule Meadow.Data.Works.Work do
+defmodule Meadow.Data.Schemas.Work do
   @moduledoc """
   A repository data object. Embeds one Metadata map and many FileSets.
   """
 
   use Ecto.Schema
-  alias Meadow.Data.ActionStates.ActionState
-  alias Meadow.Data.Collections.Collection
-  alias Meadow.Data.FileSets.FileSet
-  alias Meadow.Data.Works.WorkMetadata
+  alias Meadow.Data.Schemas.ActionState
+  alias Meadow.Data.Schemas.Collection
+  alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Data.Schemas.WorkMetadata
 
   import Ecto.Changeset
 

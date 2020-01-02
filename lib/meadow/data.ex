@@ -4,7 +4,7 @@ defmodule Meadow.Data do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
 
   @doc """
@@ -15,7 +15,7 @@ defmodule Meadow.Data do
   ## Examples
 
       iex> get_work_by_file_set_id("2ff9a2b3-b563-4840-9bc0-5d8b5aeb")
-      %Meadow.Data.Works.Work{}
+      %Meadow.Data.Schemas.Work{}
 
       iex> get_work_by_file_set_id("1234")
       ** (Ecto.NoResultsError)
@@ -33,7 +33,7 @@ defmodule Meadow.Data do
   ## Examples
 
       iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J")
-      [%Meadow.Data.FileSets.FileSet{rank: -100}, %Meadow.Data.FileSets.FileSet{rank: 0}, %Meadow.Data.FileSets.FileSet{rank: 100}]
+      [%Meadow.Data.Schemas.FileSet{rank: -100}, %Meadow.Data.Schemas.FileSet{rank: 0}, %Meadow.Data.Schemas.FileSet{rank: 100}]
 
       iex> ranked_file_sets_for_work(Ecto.ULID.generate())
       []

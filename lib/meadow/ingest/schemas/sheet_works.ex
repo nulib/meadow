@@ -9,7 +9,7 @@ defmodule Meadow.Ingest.Schemas.SheetWorks do
   @foreign_key_type Ecto.ULID
   schema "ingest_sheet_works" do
     belongs_to(:sheet, Meadow.Ingest.Schemas.Sheet, primary_key: true)
-    belongs_to(:work, Meadow.Data.Works.Work, primary_key: true)
+    belongs_to(:work, Meadow.Data.Schemas.Work, primary_key: true)
   end
 
   @doc false

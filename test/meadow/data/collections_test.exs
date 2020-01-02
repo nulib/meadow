@@ -2,7 +2,7 @@ defmodule Meadow.Data.CollectionsTest do
   use Meadow.DataCase
 
   alias Meadow.Data.Collections
-  alias Meadow.Data.Collections.Collection
+  alias Meadow.Data.Schemas.Collection
 
   describe "queries" do
     @valid_attrs %{

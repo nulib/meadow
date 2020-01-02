@@ -1,8 +1,8 @@
 defmodule Meadow.Data.WorksTest do
   use Meadow.DataCase
 
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
-  alias Meadow.Data.Works.Work
 
   describe "queries" do
     @valid_attrs %{

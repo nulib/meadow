@@ -4,7 +4,7 @@ defmodule Meadow.Data.Collections do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.Collections.Collection
+  alias Meadow.Data.Schemas.Collection
   alias Meadow.Repo
 
   def list_collections do

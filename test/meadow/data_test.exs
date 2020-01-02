@@ -2,7 +2,7 @@ defmodule Meadow.DataTest do
   use Meadow.DataCase
 
   alias Meadow.Data
-  alias Meadow.Data.FileSets.FileSet
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
 
   describe "queries" do

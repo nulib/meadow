@@ -4,7 +4,7 @@ defmodule Meadow.Ingest.SheetWorks do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.{FileSets.FileSet, Works.Work}
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.Schemas.{Row, Sheet, SheetWorks}
   alias Meadow.Repo
 

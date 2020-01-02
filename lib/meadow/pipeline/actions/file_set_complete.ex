@@ -1,7 +1,7 @@
 defmodule Meadow.Pipeline.Actions.FileSetComplete do
   @moduledoc "Mark the end of the FileSet ingest pipeline"
 
-  alias Meadow.Data.{ActionStates, FileSets.FileSet}
+  alias Meadow.Data.{ActionStates, Schemas.FileSet}
   alias Sequins.Pipeline.Action
   use Action
 

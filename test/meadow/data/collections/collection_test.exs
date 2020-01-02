@@ -1,7 +1,7 @@
-defmodule Meadow.Data.Collections.CollectionTest do
+defmodule Meadow.Data.Schemas.CollectionTest do
   use Meadow.DataCase
 
-  alias Meadow.Data.Collections.Collection
+  alias Meadow.Data.Schemas.Collection
 
   describe "collections" do
     @valid_attrs %{
