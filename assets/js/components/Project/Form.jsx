@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
@@ -28,7 +28,15 @@ const ProjectForm = ({ history }) => {
     }
   );
 
-  if (error) return <Error error={error} />;
+  if (error)
+    return (
+      <>
+        <Error error={error} />
+        <p>
+          <Link to="/project/create">Try again</Link>
+        </p>
+      </>
+    );
   if (loading) return <Loading />;
 
   const handleCancel = () => {
