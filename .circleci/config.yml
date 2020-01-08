@@ -17,6 +17,12 @@ jobs:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
       - image: nulib/goaws
+      - image: nulib/ldap-test
+        environment:
+          DOMAIN: library.northwestern.edu
+          DOMAINPASS: d0ck3rAdm1n!
+          INSECURELDAP: "true"
+          NOCOMPLEXITY: "true"
     steps:
       - checkout
       - restore_cache:

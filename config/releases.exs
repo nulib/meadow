@@ -9,6 +9,13 @@ get_required_var = fn var ->
   System.get_env(var) || raise "environment variable #{var} is missing."
 end
 
+config :exldap, :settings,
+  server: get_required_var.("LDAP_SERVER"),
+  base: System.get_env("LDAP_BASE_DN", "DC=library,DC=northwestern,DC=edu"),
+  port: String.to_integer(System.get_env("LDAP_PORT", "389")),
+  user_dn: get_required_var.("LDAP_BIND_DN"),
+  password: get_required_var.("LDAP_BIND_PASSWORD")
+
 config :meadow, Meadow.Repo,
   # ssl: true,
   url: get_required_var.("DATABASE_URL"),
