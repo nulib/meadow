@@ -51,7 +51,7 @@ jobs:
           command: mix credo
       - run:
           name: Elixir Tests
-          command: mix test && (mix coveralls.circle || true)
+          command: mix coveralls.circle
       - run:
           name: JS Static Analysis
           command: yarn prettier
@@ -59,15 +59,8 @@ jobs:
       - run:
           name: JS Tests
           command: |
-            export COVERALLS_SERVICE_NAME=circle-ci 
-            export COVERALLS_SERVICE_JOB_ID=$CIRCLE_WORKFLOW_WORKSPACE_ID 
-            yarn ci --coverageReporters=text-lcov | (yarn run coveralls ~/meadow || true)
+            yarn ci
           working_directory: ~/meadow/assets
-      - run:
-          name: Merge Coverage Output
-          command: |
-            curl -F "payload[build_num]=$CIRCLE_WORKFLOW_WORKSPACE_ID" -F "payload[status]=done" "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN"
-            true
       - run:
           name: Test Webpack Build
           command: yarn deploy
