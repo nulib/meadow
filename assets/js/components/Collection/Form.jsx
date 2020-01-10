@@ -233,7 +233,7 @@ const CollectionForm = ({ collection }) => {
           <UIButton type="submit" disabled={submitDisabled}>
             Submit
           </UIButton>
-          <UIButton classes="btn-clear" onClick={handleCancel}>
+          <UIButton className="btn-clear" onClick={handleCancel}>
             Cancel
           </UIButton>
         </UIButtonGroup>

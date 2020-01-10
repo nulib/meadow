@@ -4,22 +4,14 @@ import UIButton from "../UI/Button";
 import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import UIModalDelete from "../UI/Modal/Delete";
-import {
-  DELETE_INGEST_SHEET,
-  APPROVE_INGEST_SHEET
-} from "./ingestSheet.query";
+import { DELETE_INGEST_SHEET, APPROVE_INGEST_SHEET } from "./ingestSheet.query";
 import { useMutation } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
 import { withRouter } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 
-const IngestSheetActionRow = ({
-  projectId,
-  sheetId,
-  status,
-  history
-}) => {
+const IngestSheetActionRow = ({ projectId, sheetId, status, history }) => {
   const { addToast } = useToasts();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
@@ -67,7 +59,7 @@ const IngestSheetActionRow = ({
           </UIButton>
         )}
         <UIButton
-          classes={showApproveButton ? `btn-clear` : ``}
+          className={showApproveButton ? `btn-clear` : ``}
           onClick={onOpenModal}
         >
           <TrashIcon className="icon" />
