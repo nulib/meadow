@@ -155,7 +155,7 @@ defmodule Meadow.Ingest.Validator do
       |> Enum.chunk_every(10_000)
       |> Enum.each(fn chunk ->
         Repo.insert_all(Row, chunk,
-          on_conflict: :replace_all_except_primary_key,
+          on_conflict: {:replace_all_except, [:id]},
           conflict_target: [:sheet_id, :row]
         )
       end)
