@@ -105,17 +105,22 @@ data "template_file" "container_definitions" {
   template = file("task-definitions/meadow_app.json")
 
   vars = {
-    database_url        = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
-    docker_tag          = terraform.workspace
-    honeybadger_api_key = var.honeybadger_api_key
-    host_name           = aws_route53_record.app_hostname.fqdn
-    ingest_bucket       = aws_s3_bucket.meadow_ingest.bucket
-    log_group           = aws_cloudwatch_log_group.meadow_logs.name
-    preservation_bucket = aws_s3_bucket.meadow_preservation.bucket
-    pyramid_bucket      = var.pyramid_bucket
-    region              = var.aws_region
-    secret_key_base     = random_string.secret_key_base.result
-    upload_bucket       = aws_s3_bucket.meadow_uploads.bucket
+    database_url          = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
+    docker_tag            = terraform.workspace
+    honeybadger_api_key   = var.honeybadger_api_key
+    host_name             = aws_route53_record.app_hostname.fqdn
+    ingest_bucket         = aws_s3_bucket.meadow_ingest.bucket
+    log_group             = aws_cloudwatch_log_group.meadow_logs.name
+    preservation_bucket   = aws_s3_bucket.meadow_preservation.bucket
+    pyramid_bucket        = var.pyramid_bucket
+    region                = var.aws_region
+    secret_key_base       = random_string.secret_key_base.result
+    upload_bucket         = aws_s3_bucket.meadow_uploads.bucket
+    ldap_server           = var.ldap_server
+    ldap_base_dn          = var.ldap_base_dn
+    ldap_port             = var.ldap_port
+    ldap_bind_dn          = var.ldap_bind_dn
+    ldap_bind_password    = var.ldap_bind_password
   }
 }
 
@@ -130,7 +135,7 @@ resource "aws_ecs_service" "meadow" {
   task_definition = aws_ecs_task_definition.meadow_app.arn
   desired_count   = 1
   launch_type     = "FARGATE"
-  depends_on      = ["aws_alb.meadow_load_balancer"]
+  depends_on      = [aws_alb.meadow_load_balancer]
 
   load_balancer {
     target_group_arn = aws_alb_target_group.meadow_targets.0.arn
@@ -151,9 +156,9 @@ resource "aws_ecs_service" "meadow" {
   }
 
   network_configuration {
-    subnets          = data.aws_subnet_ids.default_subnets.ids
+    subnets          = data.aws_subnet_ids.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   tags = var.tags
@@ -164,7 +169,7 @@ resource "aws_alb_target_group" "meadow_targets" {
   port        = element(local.container_ports, count.index)
   target_type = "ip"
   protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default_vpc.id
+  vpc_id      = data.aws_vpc.this_vpc.id
   tags        = var.tags
 
   stickiness {
@@ -178,7 +183,7 @@ resource "aws_alb" "meadow_load_balancer" {
   internal           = false
   load_balancer_type = "network"
 
-  subnets = data.aws_subnet_ids.default_subnets.ids
+  subnets = data.aws_subnet_ids.public_subnets.ids
   tags    = var.tags
 }
 
