@@ -19,7 +19,8 @@ config :meadow,
   ingest_bucket: "test-ingest",
   upload_bucket: "test-uploads",
   preservation_bucket: "test-preservation",
-  pyramid_bucket: "test-pyramids"
+  pyramid_bucket: "test-pyramids",
+  ldap_nested_groups: false
 
 config :meadow,
   start_pipeline: false
@@ -48,6 +49,13 @@ config :ex_aws, :sns,
   port: if(System.get_env("CI"), do: 4100, else: 4102),
   scheme: "http://",
   region: "us-east-1"
+
+config :exldap, :settings,
+  server: "localhost",
+  base: "DC=library,DC=northwestern,DC=edu",
+  port: if(System.get_env("CI"), do: 389, else: 391),
+  user_dn: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu",
+  password: "d0ck3rAdm1n!"
 
 # Print only warnings and errors during test
 config :logger, level: :info

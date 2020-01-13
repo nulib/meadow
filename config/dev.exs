@@ -70,7 +70,8 @@ config :meadow,
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
   preservation_bucket: "dev-preservation",
-  pyramid_bucket: "dev-pyramids"
+  pyramid_bucket: "dev-pyramids",
+  ldap_nested_groups: false
 
 config :ex_aws,
   access_key_id: "fake",
@@ -95,6 +96,13 @@ config :ex_aws, :sns,
   port: 4101,
   scheme: "http://",
   region: "us-east-1"
+
+config :exldap, :settings,
+  server: "localhost",
+  base: "DC=library,DC=northwestern,DC=edu",
+  port: 390,
+  user_dn: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu",
+  password: "d0ck3rAdm1n!"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
