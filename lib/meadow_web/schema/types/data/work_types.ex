@@ -47,6 +47,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       resolve(&Resolvers.Data.create_work/3)
     end
 
+    @desc "Update a Work"
+    field :update_work, :work do
+      arg(:id, non_null(:id))
+      arg(:work, non_null(:work_update_input))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.update_work/3)
+    end
+
     @desc "Delete a Work"
     field :delete_work, :work do
       arg(:work_id, non_null(:id))
@@ -89,6 +97,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :title, :string
   end
 
+  @desc "Fields that can be updated on a work object"
+  input_object :work_update_input do
+    field :metadata, :work_metadata_input
+    field :work_type, :work_type
+    field :visibility, :visibility
+    field :file_sets, list_of(:file_set_input)
+  end
+
   #
   # Object Types
   #
@@ -109,6 +125,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "work types"
   enum :work_type do
     value(:image, as: "image", description: "Image")
+    value(:image, as: "audio", description: "Audio")
     value(:video, as: "video", description: "Video")
     value(:document, as: "document", description: "Document")
   end

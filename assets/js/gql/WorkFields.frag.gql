@@ -1,0 +1,13 @@
+fragment WorkFields on Work {
+  id
+  accessionNumber
+  visibility
+  workType
+  fileSets {
+    ...FileSetFields
+  }
+  metadata {
+    title
+    description
+  }
+}

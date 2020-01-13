@@ -1,0 +1,11 @@
+fragment FileSetFields on FileSet {
+  id
+  accessionNumber
+  role
+  rank
+  position
+  metadata {
+    description
+    digests
+  }
+}
