@@ -4,7 +4,7 @@ defmodule Meadow.Accounts.Ldap do
   groups and group membership.
   """
 
-  alias Meadow.Accounts.Users.User
+  alias Meadow.Accounts.Schemas.User
   alias Meadow.Config
 
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"

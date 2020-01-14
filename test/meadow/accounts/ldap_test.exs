@@ -72,7 +72,7 @@ defmodule Meadow.Accounts.LdapTest do
     end
 
     test "from User model", %{dn: expected} do
-      assert Ldap.user_dn(%Meadow.Accounts.Users.User{username: "testUser1"}) == expected
+      assert Ldap.user_dn(%Meadow.Accounts.Schemas.User{username: "testUser1"}) == expected
     end
 
     test "from user's Ldap.Entry", %{conn: conn, dn: expected} do

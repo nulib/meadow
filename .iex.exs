@@ -1,7 +1,7 @@
 alias Meadow.Repo
 alias Meadow.{Accounts, Ingest}
 alias Meadow.Accounts.Users
-alias Meadow.Accounts.Users.User
+alias Meadow.Accounts.Schemas.User
 
 alias Meadow.Data.{
   ActionStates,

@@ -22,7 +22,7 @@ defmodule MeadowWeb.ConnCase do
       use Phoenix.ConnTest
       alias MeadowWeb.Router.Helpers, as: Routes
       import Meadow.TestHelpers
-      alias Meadow.Accounts.Users.User
+      alias Meadow.Accounts.Schemas.User
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
