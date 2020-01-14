@@ -41,6 +41,19 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def update_work(_, %{id: id, work: work_params}, _) do
+    work = Works.get_work!(id)
+
+    case Works.update_work(work, work_params) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not update work", details: ChangesetErrors.error_details(changeset)}
+
+      {:ok, work} ->
+        {:ok, work}
+    end
+  end
+
   def delete_work(_, args, _) do
     work = Works.get_work!(args[:work_id])
 
