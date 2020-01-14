@@ -1,7 +1,7 @@
-defmodule Meadow.Accounts.Users.User do
+defmodule Meadow.Accounts.Schemas.User do
   @moduledoc """
   This modeule defines the Ecto.Schema
-  and Ecto.Changeset for Meadow.Accounts.Users.User
+  and Ecto.Changeset for Meadow.Accounts.Schemas.User
 
   """
   use Ecto.Schema

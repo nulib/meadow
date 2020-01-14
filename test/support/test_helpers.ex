@@ -4,7 +4,7 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Accounts.Users.User
+  alias Meadow.Accounts.Schemas.User
   alias Meadow.Data.{Collection, FileSet, Work}
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
