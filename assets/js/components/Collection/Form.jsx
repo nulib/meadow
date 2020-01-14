@@ -19,7 +19,6 @@ import { useToasts } from "react-toast-notifications";
 function setInitialFormValues(obj = {}) {
   const initialFormValues = {
     collectionName: obj.name || "",
-    collectionType: "",
     isFeatured: false,
     description: "",
     findingAidUrl: "",
@@ -47,9 +46,7 @@ const CollectionForm = ({ collection }) => {
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
   useEffect(() => {
-    setSubmitDisabled(
-      formValues.collectionName === "" || formValues.collectionType === ""
-    );
+    setSubmitDisabled(formValues.collectionName === "");
   }, [formValues]);
 
   useEffect(() => {
@@ -159,28 +156,6 @@ const CollectionForm = ({ collection }) => {
           </div>
         </section>
         <section className="sm:w-full md:w-2/3">
-          <div className="form-group">
-            <UISelect
-              options={[
-                {
-                  label: "Collection type...",
-                  value: ""
-                },
-                {
-                  label: "NUL Collection",
-                  value: "NUL Collection"
-                },
-                {
-                  label: "NUL Theme",
-                  value: "NUL Theme"
-                }
-              ]}
-              value={formValues.collectionType}
-              name="collectionType"
-              onChange={handleInputChange}
-              className="shadow"
-            ></UISelect>
-          </div>
           <div className="form-group">
             <p>[Select thumbnail]</p>
           </div>
