@@ -23,6 +23,26 @@
         "value": "${ingest_bucket}"
       },
       {
+        "name": "LDAP_BASE_DN",
+        "value": "${ldap_base_dn}"
+      },
+      {
+        "name": "LDAP_BIND_DN",
+        "value": "${ldap_bind_dn}"
+      },
+      {
+        "name": "LDAP_BIND_PASSWORD",
+        "value": "${ldap_bind_password}"
+      },
+      {
+        "name": "LDAP_PORT",
+        "value": "${ldap_port}"
+      },
+      {
+        "name": "LDAP_SERVER",
+        "value": "${ldap_server}"
+      },
+      {
         "name": "MEADOW_HOSTNAME",
         "value": "${host_name}"
       },

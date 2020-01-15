@@ -20,7 +20,7 @@ module "rds" {
   password                  = random_string.db_password.result
   port                      = "5432"
   username                  = "postgres"
-  subnet_ids                = data.aws_subnet_ids.default_subnets.ids
+  subnet_ids                = data.aws_subnet_ids.private_subnets.ids
   family                    = "postgres11"
   vpc_security_group_ids    = [aws_security_group.meadow_db.id]
 
@@ -107,7 +107,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 resource "aws_security_group" "meadow" {
   name        = var.stack_name
   description = "The Meadow Application"
-  vpc_id      = data.aws_vpc.default_vpc.id
+  vpc_id      = data.aws_vpc.this_vpc.id
 
   egress {
     from_port   = 0
@@ -122,7 +122,7 @@ resource "aws_security_group" "meadow" {
 resource "aws_security_group" "meadow_db" {
   name        = "${var.stack_name}-db"
   description = "The Meadow RDS Instance"
-  vpc_id      = data.aws_vpc.default_vpc.id
+  vpc_id      = data.aws_vpc.this_vpc.id
 
   egress {
     from_port   = 0
@@ -169,12 +169,24 @@ resource "aws_route53_record" "app_hostname" {
   }
 }
 
-data "aws_vpc" "default_vpc" {
-  default = true
+data "aws_vpc" "this_vpc" {
+  id = var.vpc_id
 }
 
-data "aws_subnet_ids" "default_subnets" {
-  vpc_id = data.aws_vpc.default_vpc.id
+data "aws_subnet_ids" "public_subnets" {
+  vpc_id = data.aws_vpc.this_vpc.id
+  filter {
+    name   = "tag:SubnetType"
+    values = ["public"]
+  }
+}
+
+data "aws_subnet_ids" "private_subnets" {
+  vpc_id = data.aws_vpc.this_vpc.id
+  filter {
+    name   = "tag:SubnetType"
+    values = ["private"]
+  }
 }
 
 resource "aws_ssm_parameter" "meadow_secret_key_base" {
