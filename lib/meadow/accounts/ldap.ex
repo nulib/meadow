@@ -89,20 +89,18 @@ defmodule Meadow.Accounts.Ldap do
 
   @doc "List the groups a given user belongs to"
   def list_user_groups(user) do
-    user_dn = user_dn(user)
+    {:ok, results} =
+      connection()
+      |> Exldap.search_with_filter(
+        @meadow_base,
+        Exldap.with_and([
+          Exldap.equalityMatch("objectClass", "group"),
+          filter_for(user_dn(user))
+        ])
+      )
 
-    list_groups()
-    |> Enum.map(fn %Entry{id: group_dn} = entry ->
-      {:ok, results} =
-        connection()
-        |> Exldap.search_with_filter(user_dn, filter_for(group_dn))
-
-      case length(results) do
-        0 -> nil
-        1 -> entry
-      end
-    end)
-    |> Enum.reject(&is_nil/1)
+    results
+    |> Enum.map(&Entry.new/1)
   end
 
   @doc "Create a group under the @meadow_base DN"
@@ -177,12 +175,12 @@ defmodule Meadow.Accounts.Ldap do
     case Config.ldap_nested_groups?() do
       true ->
         Exldap.extensibleMatch(dn,
-          type: "memberOf",
+          type: "member",
           matchingRule: @ldap_matching_rule_in_chain
         )
 
       _ ->
-        Exldap.equalityMatch("memberOf", dn)
+        Exldap.equalityMatch("member", dn)
     end
   end
 end
