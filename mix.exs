@@ -54,6 +54,7 @@ defmodule Meadow.MixProject do
       {:assertions, "~> 0.15.0"},
       {:briefly, "~> 0.3.0", only: :test},
       {:bypass, "~> 1.0", only: :test},
+      {:con_cache, "~> 0.14.0"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},

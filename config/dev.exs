@@ -98,11 +98,12 @@ config :ex_aws, :sns,
   region: "us-east-1"
 
 config :exldap, :settings,
-  server: "localhost",
-  base: "DC=library,DC=northwestern,DC=edu",
-  port: 390,
-  user_dn: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu",
-  password: "d0ck3rAdm1n!"
+  server: System.get_env("LDAP_SERVER", "localhost"),
+  base: System.get_env("LDAP_BASE_DN", "DC=library,DC=northwestern,DC=edu"),
+  port: String.to_integer(System.get_env("LDAP_PORT", "390")),
+  user_dn:
+    System.get_env("LDAP_BIND_DN", "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"),
+  password: System.get_env("LDAP_BIND_PASSWORD", "d0ck3rAdm1n!")
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
