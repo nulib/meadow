@@ -1,7 +1,7 @@
 defmodule Meadow.Ingest.SheetsToWorksTest do
   use Meadow.DataCase
-  alias Meadow.Ingest.{Sheets, SheetWorks, SheetsToWorks}
   alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Ingest.{Sheets, SheetsToWorks, SheetWorks}
   alias Meadow.Repo
 
   @fixture "test/fixtures/ingest_sheet.csv"

@@ -125,7 +125,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "work types"
   enum :work_type do
     value(:image, as: "image", description: "Image")
-    value(:image, as: "audio", description: "Audio")
+    value(:audio, as: "audio", description: "Audio")
     value(:video, as: "video", description: "Video")
     value(:document, as: "document", description: "Document")
   end
