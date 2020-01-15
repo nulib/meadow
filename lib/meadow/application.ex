@@ -18,7 +18,8 @@ defmodule Meadow.Application do
       Meadow.Repo,
       MeadowWeb.Endpoint,
       supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
-      {Registry, keys: :unique, name: Meadow.TaskRegistry}
+      {Registry, keys: :unique, name: Meadow.TaskRegistry},
+      {ConCache, [name: Meadow.Cache, ttl_check_interval: false]}
     ]
 
     if Meadow.Config.start_pipeline?(), do: Pipeline.start()

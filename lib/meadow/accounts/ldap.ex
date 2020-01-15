@@ -7,6 +7,7 @@ defmodule Meadow.Accounts.Ldap do
   alias Meadow.Accounts.Schemas.User
   alias Meadow.Config
 
+  @connect_timeout 1500
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
 
@@ -31,10 +32,18 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  def connection do
-    case Exldap.connect() do
-      {:ok, result} -> result
-      other -> other
+  def connection(force_new \\ false) do
+    if force_new, do: Meadow.Cache |> ConCache.delete(:ldap_address)
+
+    settings =
+      with config <- Application.get_env(:exldap, :settings) do
+        Keyword.put(config, :server, connection_address(config))
+      end
+
+    case {Exldap.connect(settings, @connect_timeout), force_new} do
+      {{:ok, result}, _} -> result
+      {_, false} -> connection(true)
+      {other, true} -> other
     end
   end
 
@@ -153,6 +162,26 @@ defmodule Meadow.Accounts.Ldap do
         other -> other
       end
     end
+  end
+
+  defp connection_address(config) do
+    find_connection = fn tuple ->
+      case tuple |> :gen_tcp.connect(config[:port], [:inet]) do
+        {:ok, _} -> tuple |> Tuple.to_list() |> Enum.join(".")
+        _ -> nil
+      end
+    end
+
+    Meadow.Cache
+    |> ConCache.get_or_store(:ldap_address, fn ->
+      {:ok, ldap_addrs} =
+        config[:server]
+        |> to_charlist()
+        |> :inet.getaddrs(:inet, @connect_timeout)
+
+      ldap_addrs
+      |> Enum.find_value(find_connection)
+    end)
   end
 
   defp extract_members(connection, %Exldap.Entry{} = group) do
