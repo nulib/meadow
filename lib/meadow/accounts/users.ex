@@ -5,7 +5,7 @@ defmodule Meadow.Accounts.Users do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Accounts.Users.User
+  alias Meadow.Accounts.Schemas.User
   alias Meadow.Repo
   alias Ueberauth.Auth
 

@@ -32,6 +32,17 @@ defmodule Meadow.Data.WorksTest do
       assert {:error, %Ecto.Changeset{}} = Works.create_work(@invalid_attrs)
     end
 
+    test "update_work/2 updates a work" do
+      work = work_fixture()
+      assert {:ok, %Work{} = work} = Works.update_work(work, %{metadata: %{title: "New name"}})
+      assert work.metadata.title == "New name"
+    end
+
+    test "update_work/2 with invalid attributes returns an error" do
+      work = work_fixture()
+      assert {:error, %Ecto.Changeset{}} = Works.update_work(work, %{work_type: "Dictionary"})
+    end
+
     test "delete_work/1 deletes a work" do
       work = work_fixture()
       assert {:ok, %Work{} = work} = Works.delete_work(work)

@@ -43,7 +43,7 @@ defmodule Meadow.Accounts.UsersTest do
       image: nil,
       last_name: nil,
       location: nil,
-      name: "Karen Alpahbet",
+      name: "Karen Alphabet",
       nickname: "abc123",
       phone: nil,
       urls: %{}
@@ -53,9 +53,17 @@ defmodule Meadow.Accounts.UsersTest do
     uid: "abc123"
   }
 
-  test '`user_from_auth` returns the user from an %Auth{}' do
+  test "`user_from_auth` creates the user if it doesn't exist" do
     assert {:ok,
-            %{username: "abc123", display_name: "Karen Alpahbet", email: "abc123@example.com"}} =
+            %{username: "abc123", display_name: "Karen Alphabet", email: "abc123@example.com"}} =
+             Users.user_from_auth(@valid_auth)
+  end
+
+  test "`user_from_auth` returns an existing user" do
+    Users.user_from_auth(@valid_auth)
+
+    assert {:ok,
+            %{username: "abc123", display_name: "Karen Alphabet", email: "abc123@example.com"}} =
              Users.user_from_auth(@valid_auth)
   end
 end

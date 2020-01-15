@@ -65,6 +65,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :id, non_null(:id)
     field :accession_number, non_null(:string)
     field :role, non_null(:file_set_role)
+    field :position, :string
+    field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
     field :metadata, :file_set_metadata
     field :inserted_at, non_null(:naive_datetime)
@@ -76,6 +78,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :location, :string
     field :original_filename, :string
     field :description, :string
+    field :digests, :string
   end
 
   @desc "A `file_set_role` designates whether the file is an access or preservation master and will determine how the file is processed and stored."

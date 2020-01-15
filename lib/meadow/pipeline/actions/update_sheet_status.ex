@@ -37,9 +37,4 @@ defmodule Meadow.Pipeline.Actions.UpdateSheetStatus do
 
     result
   end
-
-  def process(d, a) do
-    Logger.warn("We should never get here! data=#{inspect(d)} attributes=#{inspect(a)}")
-    :ok
-  end
 end

@@ -46,4 +46,9 @@ defmodule Meadow.Config do
   def start_pipeline? do
     Application.get_env(:meadow, :start_pipeline, true)
   end
+
+  @doc "Check whether LDAP server supports nested groups"
+  def ldap_nested_groups? do
+    Application.get_env(:meadow, :ldap_nested_groups, true)
+  end
 end

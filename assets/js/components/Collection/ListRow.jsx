@@ -28,8 +28,6 @@ const CollectionListRow = ({ collection }) => {
             <dd>{description}</dd>
             <dt>Keywords</dt>
             <dd>{keywords.join(", ")}</dd>
-            <dt>Type [not yet supported]</dt>
-            <dd>NUL Collection</dd>
             <dt>Works [not yet supported]</dt>
             <dd>3810 works, 2010 public, 700 netid, 100 private</dd>
             <dt>Assets [not yet supported]</dt>

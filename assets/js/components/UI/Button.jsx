@@ -1,30 +1,20 @@
 import React from "react";
-import PropTypes from "prop-types";
 
-const UIButton = ({
-  classes = "",
-  disabled = false,
-  onClick,
-  type = "",
-  children
-}) => (
-  <button
-    className={`btn inline-flex items-center ${classes} ${
-      disabled ? "btn-disabled" : ""
-    }`}
-    type={type}
-    onClick={onClick}
-    disabled={disabled}
-  >
-    {children}
-  </button>
-);
+// By default the UI button will appear as a "primary button" in color & style
+const UIButton = ({ children, ...props }) => {
+  const { disabled, className } = props;
+  const classes = `btn inline-flex items-center ${className ? className : ""}`;
+  delete props.className;
 
-UIButton.propTypes = {
-  children: PropTypes.node,
-  classes: PropTypes.string,
-  onClick: PropTypes.func,
-  type: PropTypes.oneOf(["submit"])
+  return (
+    <button
+      type="button"
+      className={`${classes} ${disabled ? "btn-disabled" : ""} `}
+      {...props}
+    >
+      {children}
+    </button>
+  );
 };
 
 export default UIButton;

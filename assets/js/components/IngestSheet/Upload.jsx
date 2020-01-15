@@ -122,7 +122,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
           <Upload className="icon" />
           Upload CSV File
         </UIButton>
-        <UIButton classes="btn-clear" onClick={handleCancel}>
+        <UIButton className="btn-clear" onClick={handleCancel}>
           Cancel
         </UIButton>
       </UIButtonGroup>

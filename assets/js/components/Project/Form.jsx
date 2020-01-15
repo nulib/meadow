@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { withRouter, Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
@@ -8,11 +8,13 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useToasts } from "react-toast-notifications";
 
-const ProjectForm = ({ history }) => {
+const ProjectForm = () => {
   const { addToast } = useToasts();
   let inputTitle;
+  const history = useHistory();
   const [submitDisabled, setSubmitDisabled] = useState(true);
-  const [createProject, { loading, error, data }] = useMutation(
+  const [formError, setFormError] = useState();
+  let [createProject, { loading, error: mutationError, data }] = useMutation(
     CREATE_PROJECT,
     {
       onCompleted({ createProject }) {
@@ -22,21 +24,15 @@ const ProjectForm = ({ history }) => {
         });
         history.push("/project/list");
       },
+      onError(error) {
+        setFormError(error);
+      },
       refetchQueries(mutationResult) {
         return [{ query: GET_PROJECTS }];
       }
     }
   );
 
-  if (error)
-    return (
-      <>
-        <Error error={error} />
-        <p>
-          <Link to="/project/create">Try again</Link>
-        </p>
-      </>
-    );
   if (loading) return <Loading />;
 
   const handleCancel = () => {
@@ -45,10 +41,18 @@ const ProjectForm = ({ history }) => {
 
   const handleInputChange = () => {
     setSubmitDisabled(inputTitle.value === "");
+    if (formError) {
+      setFormError(false);
+    }
   };
 
   return (
-    <div className="md:w-1/2">
+    <div>
+      {formError && (
+        <div className="mb-8">
+          <Error error={formError} />
+        </div>
+      )}
       <form
         onSubmit={e => {
           e.preventDefault();
@@ -57,15 +61,17 @@ const ProjectForm = ({ history }) => {
           });
         }}
       >
-        <div className="mb-4">
+        <div className="mb-4 md:w-1/2">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="username"
+            htmlFor="project-title"
           >
             Project Title
           </label>
           <input
+            autoFocus
             id="project-title"
+            data-testid="project-title-input"
             type="text"
             placeholder="Project Title"
             ref={node => {
@@ -77,10 +83,18 @@ const ProjectForm = ({ history }) => {
         </div>
 
         <UIButtonGroup>
-          <UIButton type="submit" disabled={submitDisabled}>
+          <UIButton
+            type="submit"
+            disabled={submitDisabled || formError}
+            data-testid="submit-button"
+          >
             Submit
           </UIButton>
-          <UIButton classes="btn-clear" onClick={handleCancel}>
+          <UIButton
+            className="btn-clear"
+            onClick={handleCancel}
+            data-testid="cancel-button"
+          >
             Cancel
           </UIButton>
         </UIButtonGroup>
@@ -89,4 +103,4 @@ const ProjectForm = ({ history }) => {
   );
 };
 
-export default withRouter(ProjectForm);
+export default ProjectForm;

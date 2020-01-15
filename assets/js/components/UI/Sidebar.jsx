@@ -53,7 +53,7 @@ const Sidebar = () => {
               >
                 <Link to="/collection/list" className="nav-link">
                   <BookReferenceIcon className="icon" />
-                  Collections
+                  Themes & Collections
                 </Link>
               </li>
               <li

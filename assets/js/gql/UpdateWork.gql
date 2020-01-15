@@ -1,0 +1,8 @@
+#import "./WorkFields.frag.gql"
+#import "./FileSetFields.frag.gql"
+
+mutation($id: ID!, $visibility: Visibility!, $metadata: WorkMetadataInput!) {
+  updateWork(id: $id, work: { visibility: $visibility, metadata: $metadata }) {
+    ...WorkFields
+  }
+}

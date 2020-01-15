@@ -135,6 +135,24 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Updates a work.
+
+  ## Examples
+
+      iex> update_work(work, %{field: new_value})
+      {:ok, %Work{}}
+
+      iex> update_work(work, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_work(%Work{} = work, attrs) do
+    work
+    |> Work.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Fetches all works that include a Metadata title.
 
   Returns [] if the query returns no matches
