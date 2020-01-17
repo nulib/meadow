@@ -69,6 +69,22 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def add_work_to_collection(_, %{work_id: work_id, collection_id: collection_id}, _) do
+    work = Works.get_work!(work_id)
+
+    case Works.update_work(work, %{collection_id: collection_id}) do
+      {:error, changeset} ->
+        {
+          :error,
+          message: "Could not add work to collection",
+          details: ChangesetErrors.error_details(changeset)
+        }
+
+      {:ok, work} ->
+        {:ok, work}
+    end
+  end
+
   def file_sets(_, _args, _) do
     {:ok, FileSets.list_file_sets()}
   end

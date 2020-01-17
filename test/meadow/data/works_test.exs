@@ -59,5 +59,24 @@ defmodule Meadow.Data.WorksTest do
 
       assert Works.accession_exists?(work.accession_number) == true
     end
+
+    test "add_to_collection/2 adds the work to a collection" do
+      work = work_fixture()
+
+      collection_id =
+        collection_fixture()
+        |> Map.get(:id)
+
+      assert {:ok, %Work{collection_id: collection_id} = work} =
+               Works.add_to_collection(work, collection_id)
+    end
+
+    test "add_to_collection/2 with an invalid collection fails" do
+      work = work_fixture()
+
+      collection_id = "1234"
+
+      assert {:error, _} = Works.add_to_collection(work, collection_id)
+    end
   end
 end

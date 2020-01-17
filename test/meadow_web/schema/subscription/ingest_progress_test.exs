@@ -10,7 +10,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   @action_count length(Pipeline.actions())
   @pct_factor 100 / (@file_set_count * @action_count)
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/IngestProgress.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
 
   setup %{socket: socket, ingest_sheet: sheet} do
     sheet = create_works(sheet)

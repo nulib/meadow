@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   alias Meadow.Pipeline.Actions.GenerateFileSetDigests
   import Assertions
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/GetActionStates.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/GetActionStates.gql")
 
   setup %{ingest_sheet: sheet} do
     sheet = create_works(sheet)

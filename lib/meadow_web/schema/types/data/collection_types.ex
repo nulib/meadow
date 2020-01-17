@@ -4,9 +4,10 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
 
   """
   use Absinthe.Schema.Notation
-
+  alias Meadow.Data
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
+  import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   object :collection_queries do
     @desc "Get a list of collections"
@@ -29,6 +30,9 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:name, non_null(:string))
       arg(:description, :string)
       arg(:keywords, list_of(:string))
+      arg(:admin_email, :string)
+      arg(:finding_aid_url, :string)
+      arg(:featured, :boolean)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.create_collection/3)
     end
@@ -39,6 +43,9 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:name, :string)
       arg(:description, :string)
       arg(:keywords, list_of(:string))
+      arg(:admin_email, :string)
+      arg(:finding_aid_url, :string)
+      arg(:featured, :boolean)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
@@ -61,16 +68,9 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :name, :string
     field :description, :string
     field :keywords, list_of(:string)
-  end
-
-  #
-  # Input Object Types
-  #
-
-  @desc "Input fields for a `collection` object "
-  input_object :collection_input do
-    field :name, :string
-    field :description, :string
-    field :keywords, list_of(:string)
+    field :featured, :boolean
+    field :admin_email, :string
+    field :finding_aid_url, :string
+    field :works, list_of(:work), resolve: dataloader(Data)
   end
 end

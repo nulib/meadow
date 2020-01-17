@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/CreateCollection.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/CreateCollection.gql")
 
   test "should be a valid mutation" do
     result =

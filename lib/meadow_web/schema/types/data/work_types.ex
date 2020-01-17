@@ -61,6 +61,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.delete_work/3)
     end
+
+    @desc "Add a work to a Collection"
+    field :add_work_to_collection, :work do
+      arg(:work_id, non_null(:id))
+      arg(:collection_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.add_work_to_collection/3)
+    end
   end
 
   @desc "A work object"
@@ -72,7 +80,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :visibility, non_null(:visibility)
     field :inserted_at, non_null(:naive_datetime)
     field :updated_at, non_null(:naive_datetime)
-
+    field :collection, :collection, resolve: dataloader(Data)
     field :file_sets, list_of(:file_set), resolve: dataloader(Data)
   end
 
