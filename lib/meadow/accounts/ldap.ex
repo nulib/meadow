@@ -10,6 +10,7 @@ defmodule Meadow.Accounts.Ldap do
   @connect_timeout 1500
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
+  @valid_dn ~r/^CN=.+,DC=[^,]+$/im
 
   defmodule Entry do
     @moduledoc """
@@ -53,6 +54,11 @@ defmodule Meadow.Accounts.Ldap do
   @doc "Fetch the display names (LDAP commonName) for a list of entries"
   def display_names([]), do: []
   def display_names([entry | entries]), do: [display_name(entry) | display_names(entries)]
+
+  @doc "Make sure group references are fully qualified DNs"
+  def group_dn(group) do
+    if Regex.match?(@valid_dn, group), do: group, else: "CN=#{group},#{@meadow_base}"
+  end
 
   @doc "Fetch the unique identifier (LDAP distinguishedName) for a user"
   def user_dn(%Entry{} = user), do: user.id
@@ -98,24 +104,30 @@ defmodule Meadow.Accounts.Ldap do
 
   @doc "List the groups a given user belongs to"
   def list_user_groups(user) do
-    {:ok, results} =
-      connection()
-      |> Exldap.search_with_filter(
-        @meadow_base,
-        Exldap.with_and([
-          Exldap.equalityMatch("objectClass", "group"),
-          filter_for(user_dn(user))
-        ])
-      )
+    case user_dn(user) do
+      nil ->
+        []
 
-    results
-    |> Enum.map(&Entry.new/1)
+      dn ->
+        {:ok, results} =
+          connection()
+          |> Exldap.search_with_filter(
+            @meadow_base,
+            Exldap.with_and([
+              Exldap.equalityMatch("objectClass", "group"),
+              filter_for(dn)
+            ])
+          )
+
+        results
+        |> Enum.map(&Entry.new/1)
+    end
   end
 
   @doc "Create a group under the @meadow_base DN"
   def create_group(group) do
     with {:ok, connection} <- Exldap.connect(),
-         group_dn <- "CN=#{group},#{@meadow_base}" |> to_charlist() do
+         group_dn <- group_dn(group) |> to_charlist() do
       attributes = [
         {'objectClass', ['group']},
         {'objectClass', ['top']},
@@ -140,7 +152,7 @@ defmodule Meadow.Accounts.Ldap do
   @doc "Add a user to a group"
   def add_user(user, group) do
     with user_dn <- user_dn(user),
-         group_dn <- "CN=#{group},#{@meadow_base}" |> to_charlist(),
+         group_dn <- group_dn(group) |> to_charlist(),
          operation <- :eldap.mod_add('member', [to_charlist(user_dn)]) do
       case modify_entry(group_dn, operation) do
         {:ok, _} -> :ok
