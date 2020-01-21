@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Query.GetCollectionByIdTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/GetCollectionById.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/GetCollectionById.gql")
 
   test "should be a valid query" do
     collection_fixture = collection_fixture()

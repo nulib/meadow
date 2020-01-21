@@ -3,27 +3,29 @@ defmodule Meadow.Data.Schemas.Collection do
   Collections are used to group objects for display
   """
   use Ecto.Schema
+  use Meadow.Constants
 
   import Ecto.Changeset
 
   alias Meadow.Data.Schemas.Work
-
-  use Meadow.Constants
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   schema "collections" do
     field :name, :string
     field :description, :string
     field :keywords, {:array, :string}, default: []
+    field :featured, :boolean
+    field :finding_aid_url, :string
+    field :admin_email, :string
 
     timestamps()
 
-    many_to_many :works, Work, join_through: "collections_works", on_replace: :delete
+    has_many :works, Work
   end
 
   def changeset(collection, params) do
     collection
-    |> cast(params, [:name, :description, :keywords])
+    |> cast(params, [:name, :description, :keywords, :featured, :finding_aid_url, :admin_email])
     |> validate_required([:name])
     |> unique_constraint(:name)
   end

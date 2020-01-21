@@ -30,17 +30,18 @@ defmodule Meadow.Data.Schemas.Work do
       foreign_key: :object_id,
       on_delete: :delete_all
 
-    many_to_many(:collections, Collection, join_through: "collections_works", on_replace: :delete)
+    belongs_to :collection, Collection
   end
 
   def changeset(work, attrs) do
     required_params = [:accession_number, :visibility, :work_type]
-    optional_params = []
+    optional_params = [:collection_id]
 
     work
     |> cast(attrs, required_params ++ optional_params)
     |> cast_embed(:metadata)
     |> cast_assoc(:file_sets)
+    |> assoc_constraint(:collection)
     |> validate_required(required_params)
     |> validate_inclusion(:visibility, @visibility)
     |> validate_inclusion(:work_type, @work_types)

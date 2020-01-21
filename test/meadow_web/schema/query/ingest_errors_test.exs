@@ -3,7 +3,7 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/GetIngestErrors.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/GetIngestErrors.gql")
 
   describe "ingest with errors" do
     test "duplicate FileSet accession number", %{ingest_sheet: sheet} do

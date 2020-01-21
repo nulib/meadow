@@ -3,4 +3,7 @@ fragment CollectionFields on Collection {
   name
   description
   keywords
+  findingAidUrl
+  adminEmail
+  featured
 }

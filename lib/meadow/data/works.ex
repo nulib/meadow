@@ -153,6 +153,24 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Adds a work to a collection
+
+  ## Examples
+
+      iex> add_to_collection(%Work{} = work, "01DYQWEW109B53VYG2M7B5TGFV")
+      {:ok, %Meadow.Data.Schemas.Work{}}
+
+      iex> add_to_collection(%Work{} = work, "bad_ulid")
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def add_to_collection(%Work{} = work, collection_id) do
+    work
+    |> Work.changeset(%{collection_id: collection_id})
+    |> Repo.update()
+  end
+
+  @doc """
   Fetches all works that include a Metadata title.
 
   Returns [] if the query returns no matches

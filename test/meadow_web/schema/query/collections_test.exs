@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Query.CollectionsTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "assets/js/gql/GetCollections.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/GetCollections.gql")
 
   test "should be a valid query" do
     collection_fixture()
