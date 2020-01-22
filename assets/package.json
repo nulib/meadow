@@ -40,7 +40,7 @@
     "@nulib/prettier-config": "^1.2.0",
     "@testing-library/jest-dom": "^5.0.0",
     "@testing-library/react": "^9.4.0",
-    "axios": "^0.19.1",
+    "axios": "^0.19.2",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.1.1",
     "coveralls": "^3.0.9",
