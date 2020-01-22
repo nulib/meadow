@@ -57,7 +57,7 @@ defmodule Meadow.MixProject do
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
-      {:ecto_ranked, "~> 0.4.0"},
+      {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0"},
       {:ecto_ulid, "~> 0.2.0"},
       {:ets, "~> 0.8.0"},
