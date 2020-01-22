@@ -10,7 +10,7 @@
 - Install yarn if it's not already present: `npm -g install yarn`
 - Install dependencies with `mix deps.get`
 - Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
-- Create Sequins pipeline, S3 buckets, and database with `mix meadow.setup`
+- Create Sequins pipeline, S3 buckets, and database with `mix do meadow.setup, meadow.ldap.setup`
 - Install Node.js dependencies with `cd assets && yarn install`
 - Start Phoenix endpoint with `mix phx.server`
 
