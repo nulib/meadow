@@ -28,7 +28,7 @@ defmodule Meadow.Accounts.LdapTest do
   describe "group membership" do
     setup do
       Enum.each(@groups, fn group -> Ldap.create_group(group) end)
-      create_users(["testUser1", "testUser2", "testUser3"])
+      create_ldap_users(["testUser1", "testUser2", "testUser3"])
       :ok
     end
 
@@ -68,7 +68,7 @@ defmodule Meadow.Accounts.LdapTest do
 
   describe "fetch distinguished names for users" do
     setup do
-      {:ok, conn: Ldap.connection(), dn: create_user("testUser1")}
+      {:ok, conn: Ldap.connection(), dn: create_ldap_user("testUser1")}
     end
 
     test "from User model", %{dn: expected} do

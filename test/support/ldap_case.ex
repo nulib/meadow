@@ -54,7 +54,7 @@ defmodule Meadow.LdapCase do
     :ok
   end
 
-  def create_user(username) do
+  def create_ldap_user(username) do
     with {:ok, connection} <- Exldap.connect(),
          user_dn <-
            "CN=#{username},OU=TestUsers,DC=library,DC=northwestern,DC=edu" |> to_charlist() do
@@ -74,9 +74,9 @@ defmodule Meadow.LdapCase do
     end
   end
 
-  def create_users([]), do: []
+  def create_ldap_users([]), do: []
 
-  def create_users([user | users]) do
-    [create_user(user) | create_users(users)]
+  def create_ldap_users([user | users]) do
+    [create_ldap_user(user) | create_ldap_users(users)]
   end
 end
