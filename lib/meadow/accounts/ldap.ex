@@ -4,34 +4,11 @@ defmodule Meadow.Accounts.Ldap do
   groups and group membership.
   """
 
-  alias Meadow.Accounts.Schemas.User
-  alias Meadow.Config
+  alias Meadow.Accounts.Ldap.Entry
 
   @connect_timeout 1500
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
-  @valid_dn ~r/^CN=.+,DC=[^,]+$/im
-
-  defmodule Entry do
-    @moduledoc """
-    Simple id/name struct for LDAP entries
-    """
-    defstruct id: nil, name: nil
-
-    def new(%Exldap.Entry{} = entry) do
-      %__MODULE__{
-        id: entry.object_name |> to_string(),
-        name: entry |> Exldap.get_attribute!("cn")
-      }
-    end
-
-    def new(connection, dn) do
-      case Exldap.search(connection, base: dn, filter: Exldap.equalityMatch("objectClass", "top")) do
-        {:ok, [entry]} -> %__MODULE__{id: dn, name: entry |> Exldap.get_attribute!("cn")}
-        _ -> %__MODULE__{id: dn, name: nil}
-      end
-    end
-  end
 
   def connection(force_new \\ false) do
     if force_new, do: Meadow.Cache |> ConCache.delete(:ldap_address)
@@ -48,34 +25,19 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "Fetch the display name (LDAP commonName) for an entry"
-  def display_name(%Entry{} = entry), do: entry.name
-
-  @doc "Fetch the display names (LDAP commonName) for a list of entries"
-  def display_names([]), do: []
-  def display_names([entry | entries]), do: [display_name(entry) | display_names(entries)]
-
-  @doc "Make sure group references are fully qualified DNs"
-  def group_dn(group) do
-    if Regex.match?(@valid_dn, group), do: group, else: "CN=#{group},#{@meadow_base}"
-  end
-
-  @doc "Fetch the unique identifier (LDAP distinguishedName) for a user"
-  def user_dn(%Entry{} = user), do: user.id
-  def user_dn(%User{username: username}), do: user_dn(username)
-
-  def user_dn(username) do
-    with {:ok, results} <- connection() |> Exldap.search_field("cn", username) do
-      case results do
-        [] ->
-          nil
-
-        _ ->
-          results
-          |> List.first()
-          |> Map.get(:object_name)
-          |> to_string()
-      end
+  @doc "Find a user entry by its common name (NetID)"
+  def find_user(cn) do
+    case connection()
+         |> Exldap.search_with_filter(
+           Exldap.with_and([
+             Exldap.equalityMatch("cn", cn),
+             Exldap.equalityMatch("objectClass", "user")
+           ])
+         ) do
+      {:ok, []} -> nil
+      {:ok, [entry]} -> Entry.new(entry)
+      {:ok, [_ | _]} -> {:error, :tooManyResults}
+      other -> other
     end
   end
 
@@ -93,9 +55,13 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   @doc "List the members of a given group"
-  def list_group_members(group) do
+  def list_group_members(group_dn) do
     with conn <- connection() do
-      case Exldap.search(conn, base: @meadow_base, filter: Exldap.equalityMatch("cn", group)) do
+      case Exldap.search(conn,
+             base: group_dn,
+             scope: :eldap.baseObject(),
+             filter: Exldap.equalityMatch("objectClass", "group")
+           ) do
         {:ok, [entry]} -> extract_members(conn, entry)
         other -> other
       end
@@ -103,40 +69,36 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   @doc "List the groups a given user belongs to"
-  def list_user_groups(user) do
-    case user_dn(user) do
-      nil ->
-        []
-
-      dn ->
-        {:ok, results} =
-          connection()
-          |> Exldap.search_with_filter(
-            @meadow_base,
-            Exldap.with_and([
-              Exldap.equalityMatch("objectClass", "group"),
-              filter_for(dn)
-            ])
-          )
-
-        results
-        |> Enum.map(&Entry.new/1)
+  def list_user_groups(user_dn) do
+    case connection()
+         |> Exldap.search_with_filter(
+           @meadow_base,
+           Exldap.with_and([
+             Exldap.equalityMatch("objectClass", "group"),
+             Exldap.extensibleMatch(user_dn,
+               type: "member",
+               matchingRule: @ldap_matching_rule_in_chain
+             )
+           ])
+         ) do
+      {:ok, results} -> results |> Enum.map(&Entry.new/1)
+      {:error, :noSuchObject} -> []
     end
   end
 
   @doc "Create a group under the @meadow_base DN"
-  def create_group(group) do
+  def create_group(group_cn) do
     with {:ok, connection} <- Exldap.connect(),
-         group_dn <- group_dn(group) |> to_charlist() do
-      attributes = [
-        {'objectClass', ['group']},
-        {'objectClass', ['top']},
-        {'groupType', ['4']},
-        {'cn', [group]},
-        {'description', [group]}
-      ]
+         group_dn <- "CN=#{group_cn},#{@meadow_base}" do
+      attributes =
+        map_to_attributes(%{
+          objectClass: ["group", "top"],
+          groupType: 4,
+          cn: group_cn,
+          displayName: "#{group_cn} Group"
+        })
 
-      case :eldap.add(connection, group_dn, attributes) do
+      case :eldap.add(connection, to_charlist(group_dn), attributes) do
         :ok ->
           {:ok, Entry.new(connection, group_dn)}
 
@@ -149,11 +111,27 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "Add a user to a group"
-  def add_user(user, group) do
-    with user_dn <- user_dn(user),
-         group_dn <- group_dn(group) |> to_charlist(),
-         operation <- :eldap.mod_add('member', [to_charlist(user_dn)]) do
+  @doc "Create the Meadow base"
+  def create_meadow_base do
+    with {:ok, connection} <- Exldap.connect() do
+      attributes = map_to_attributes(%{objectClass: ["organizationalUnit", "top"]})
+
+      case :eldap.add(connection, to_charlist(@meadow_base), attributes) do
+        :ok ->
+          {:ok, Entry.new(connection, @meadow_base)}
+
+        {:error, :entryAlreadyExists} ->
+          {:exists, Entry.new(connection, @meadow_base)}
+
+        other ->
+          other
+      end
+    end
+  end
+
+  @doc "Add a member to a group"
+  def add_member(group_dn, member_dn) do
+    with operation <- :eldap.mod_add('member', [to_charlist(member_dn)]) do
       case modify_entry(group_dn, operation) do
         {:ok, _} -> :ok
         {:exists, _} -> :exists
@@ -162,16 +140,24 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "Remove a user from a group"
-  def remove_user(user, group) do
-    with user_dn <- user_dn(user),
-         group_dn <- "CN=#{group},#{@meadow_base}" |> to_charlist(),
-         operation <- :eldap.mod_delete('member', [to_charlist(user_dn)]) do
+  @doc "Remove a member from a group"
+  def remove_member(group_dn, member_dn) do
+    with operation <- :eldap.mod_delete('member', [to_charlist(member_dn)]) do
       case modify_entry(group_dn, operation) do
         {:ok, _} -> :ok
         other -> other
       end
     end
+  end
+
+  defp map_to_attributes(map) do
+    map
+    |> Enum.map(fn {key, value} ->
+      {
+        to_charlist(key),
+        value |> ensure_list() |> Enum.map(fn v -> v |> to_string() |> to_charlist() end)
+      }
+    end)
   end
 
   defp connection_address(config) do
@@ -195,33 +181,28 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   defp extract_members(connection, %Exldap.Entry{} = group) do
-    group
-    |> Exldap.get_attribute!("member")
-    |> ensure_list()
-    |> Enum.map(fn dn -> Entry.new(connection, dn) end)
+    filter =
+      group
+      |> Exldap.get_attribute!("member")
+      |> ensure_list()
+      |> Enum.map(fn dn -> Exldap.equalityMatch("distinguishedName", dn) end)
+      |> Exldap.with_or()
+
+    with {:ok, members} <- connection |> Exldap.search_with_filter(filter) do
+      members
+      |> ensure_list()
+      |> Enum.map(fn entry -> Entry.new(entry) end)
+    end
   end
 
   defp ensure_list(x) when is_list(x), do: x
   defp ensure_list(x), do: [x]
 
   defp modify_entry(dn, operation) do
-    case :eldap.modify(connection(), dn, [operation]) do
-      :ok -> {:ok, to_string(dn)}
-      {:error, :entryAlreadyExists} -> {:exists, to_string(dn)}
+    case :eldap.modify(connection(), to_charlist(dn), [operation]) do
+      :ok -> {:ok, dn}
+      {:error, :entryAlreadyExists} -> {:exists, dn}
       other -> other
-    end
-  end
-
-  defp filter_for(dn) do
-    case Config.ldap_nested_groups?() do
-      true ->
-        Exldap.extensibleMatch(dn,
-          type: "member",
-          matchingRule: @ldap_matching_rule_in_chain
-        )
-
-      _ ->
-        Exldap.equalityMatch("member", dn)
     end
   end
 end

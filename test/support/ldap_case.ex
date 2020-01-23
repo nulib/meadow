@@ -5,6 +5,7 @@ defmodule Meadow.LdapCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Meadow.Accounts.Ldap
 
   using do
     quote do
@@ -15,7 +16,7 @@ defmodule Meadow.LdapCase do
 
   setup do
     with {:ok, connection} <- Exldap.connect() do
-      ["Meadow", "TestUsers"]
+      ["Meadow", "NotMeadow"]
       |> Enum.each(fn ou ->
         attributes = [
           {'objectClass', ['organizationalUnit']},
@@ -34,7 +35,7 @@ defmodule Meadow.LdapCase do
 
     on_exit(fn ->
       with {:ok, connection} <- Exldap.connect() do
-        ["Meadow", "TestUsers"]
+        ["Meadow", "NotMeadow"]
         |> Enum.each(fn ou ->
           {:ok, children} =
             Exldap.search(connection,
@@ -54,16 +55,39 @@ defmodule Meadow.LdapCase do
     :ok
   end
 
+  def display_names([]), do: []
+  def display_names(%Ldap.Entry{} = entry), do: entry.attributes.displayName
+  def display_names([entry | entries]), do: [display_names(entry) | display_names(entries)]
+
+  def library_dn(val), do: "CN=#{val},OU=NotMeadow,DC=library,DC=northwestern,DC=edu"
+  def meadow_dn(val), do: "CN=#{val},OU=Meadow,DC=library,DC=northwestern,DC=edu"
+
+  def create_ldap_group(group) do
+    with {:ok, connection} <- Exldap.connect(),
+         group_dn <- library_dn(group) |> to_charlist() do
+      attributes = [
+        {'objectClass', ['group', 'top']},
+        {'groupType', ['4']},
+        {'displayName', ["Group #{group}" |> to_charlist()]}
+      ]
+
+      case :eldap.add(connection, group_dn, attributes) do
+        :ok -> to_string(group_dn)
+        {:error, :entryAlreadyExists} -> to_string(group_dn)
+        other -> other
+      end
+    end
+  end
+
   def create_ldap_user(username) do
     with {:ok, connection} <- Exldap.connect(),
-         user_dn <-
-           "CN=#{username},OU=TestUsers,DC=library,DC=northwestern,DC=edu" |> to_charlist() do
+         user_dn <- library_dn(username) |> to_charlist() do
       attributes = [
-        {'objectClass', ['user']},
-        {'objectClass', ['person']},
-        {'objectClass', ['organizationalPerson']},
-        {'objectClass', ['top']},
-        {'sn', [to_charlist(username)]}
+        {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
+        {'displayName', ["User #{username}" |> to_charlist()]},
+        {'mail', ["#{username}@library.northwestern.edu" |> to_charlist()]},
+        {'cn', [to_charlist(username)]},
+        {'sn', ['User']}
       ]
 
       case :eldap.add(connection, user_dn, attributes) do
@@ -72,11 +96,5 @@ defmodule Meadow.LdapCase do
         other -> other
       end
     end
-  end
-
-  def create_ldap_users([]), do: []
-
-  def create_ldap_users([user | users]) do
-    [create_ldap_user(user) | create_ldap_users(users)]
   end
 end
