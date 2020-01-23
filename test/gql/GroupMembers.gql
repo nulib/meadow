@@ -1,0 +1,5 @@
+query GroupMembers($groupName: ID!) {
+  groupMembers(groupName: $groupName) {
+    username
+  }
+}

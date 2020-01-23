@@ -1,0 +1,5 @@
+query UserGroups($username: ID!) {
+  userGroups(username: $username) {
+    name
+  }
+}
