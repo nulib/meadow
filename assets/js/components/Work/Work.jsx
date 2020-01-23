@@ -2,28 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import UICard from "../UI/Card";
 import EditIcon from "../../../css/fonts/zondicons/edit-pencil.svg";
-import UISelect from "../UI/Select";
+import OpenSeadragonViewer from "openseadragon-react-viewer";
 
 const Work = ({ work }) => {
-  const handleSelectChange = e => {
-    console.log("changed", e.target.value);
-  };
-
-  const buildGallery = (count = 3) => {
-    let images = [];
-    do {
-      images.push(
-        <img
-          key={count}
-          src="/images/placeholder-content.png"
-          className="w-40 cursor-pointer"
-        />
-      );
-      count--;
-    } while (count !== 0);
-    return images;
-  };
-
   return (
     <div data-testid="work">
       <header className="flex justify-between mb-8">
@@ -33,18 +14,7 @@ const Work = ({ work }) => {
         </button>
       </header>
       <section className="mb-16">
-        <UISelect
-          data-testid="work-select"
-          onChange={handleSelectChange}
-          options={[
-            { value: "", label: "Select one..." },
-            { value: 1, label: "some option" },
-            { value: 2, label: "another option" },
-            { value: 3, label: "ho ho ho" }
-          ]}
-        />
-        <img src="/images/placeholder-content.png" />
-        <div className="flex justify-around">{buildGallery(5)}</div>
+        <OpenSeadragonViewer manifestUrl="https://iiif.stack.rdc.library.northwestern.edu/public/06/20/ea/ca/-5/4e/6-/41/81/-a/85/8-/39/dd/ea/0b/b1/c5-manifest.json" />
       </section>
       <section className="mb-12">
         <ul className="nav-tabs">
