@@ -26,13 +26,13 @@ defmodule Mix.Tasks.Meadow.Setup do
   Set up the Meadow development environment
   """
 
-  alias Mix.Tasks.Ecto.{Create, Migrate}
+  alias Mix.Tasks.Ecto
   alias Mix.Tasks.Meadow.{Buckets, Pipeline}
 
   def run(args) do
     Pipeline.Setup.run(args)
     Buckets.Create.run(args)
-    Create.run(args)
-    Migrate.run(args)
+    Ecto.Create.run(args)
+    Ecto.Migrate.run(args)
   end
 end
