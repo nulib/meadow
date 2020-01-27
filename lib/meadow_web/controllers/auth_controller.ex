@@ -2,7 +2,9 @@ defmodule MeadowWeb.AuthController do
   use MeadowWeb, :controller
 
   plug Ueberauth
-  alias(Meadow.Accounts.Users)
+  alias Meadow.Accounts
+  alias Meadow.Accounts.Ldap
+  alias Ueberauth.Auth
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     referer =
@@ -13,19 +15,19 @@ defmodule MeadowWeb.AuthController do
     |> redirect(external: referer)
   end
 
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+  def callback(%{assigns: %{ueberauth_auth: %Auth{uid: uid}}} = conn, _params) do
     referer =
       conn
       |> extract_referer()
 
-    case Users.user_from_auth(auth) do
+    case Accounts.authorize_user_login(uid) do
       {:ok, user} ->
         conn
         |> put_session(:current_user, user)
         |> configure_session(renew: true)
         |> redirect(external: referer)
 
-      {:error, _reason} ->
+      {:error, _message} ->
         conn
         |> redirect(external: referer)
     end

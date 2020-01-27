@@ -21,21 +21,13 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
       |> get_session(:current_user)
 
     case user do
-      %{username: _username, email: _email, display_name: _display_name} ->
+      %{username: _username, email: _email, display_name: _display_name, role: _role} ->
         %{
-          current_user: user,
-          user_groups: fetch_groups(user)
+          current_user: user
         }
 
       _ ->
         %{}
-    end
-  end
-
-  defp fetch_groups(user) do
-    case Ldap.find_user(user.username) do
-      %Ldap.Entry{} = entry -> Ldap.list_user_groups(entry.id) |> Enum.map(fn e -> e.name end)
-      _ -> []
     end
   end
 end

@@ -55,6 +55,15 @@ defmodule MeadowWeb.Schema.AccountTypes do
     field :username, non_null(:string)
     field :email, :string
     field :display_name, :string
+    field :role, :user_role
+  end
+
+  @desc "Meadow user roles"
+  enum :user_role do
+    value(:administrator, as: "Administrator", description: "administrator")
+    value(:manager, as: "Manager", description: "manager")
+    value(:editor, as: "Editor", description: "editor")
+    value(:user, as: "User", description: "user")
   end
 
   @desc "work types"
