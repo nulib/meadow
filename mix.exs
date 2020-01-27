@@ -109,7 +109,14 @@ defmodule Meadow.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["meadow.pipeline.setup", "ecto.create --quiet", "ecto.migrate", "test"]
+      test: [
+        "meadow.pipeline.setup",
+        "meadow.ldap.teardown test/fixtures/ldap_seed.ldif",
+        "meadow.ldap.setup test/fixtures/ldap_seed.ldif",
+        "ecto.create --quiet",
+        "ecto.migrate",
+        "test"
+      ]
     ]
   end
 

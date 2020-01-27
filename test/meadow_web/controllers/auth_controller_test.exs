@@ -1,5 +1,5 @@
 defmodule MeadowWeb.AuthControllerTest do
-  use MeadowWeb.ConnCase
+  use MeadowWeb.ConnCase, async: true
 
   test "GET /auth/openam redirects to SSO url with a callback url", %{conn: conn} do
     conn = get(conn, "/auth/openam")

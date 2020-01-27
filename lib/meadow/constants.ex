@@ -9,6 +9,7 @@ defmodule Meadow.Constants do
       @default_visibility "restricted"
       @file_set_roles ~w[am pm]
       @ingest_sheet_headers ~w(accession_number description filename role work_accession_number)
+      @role_priority ~w[Administrators Managers Editors Users]
     end
   end
 end
