@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
   use Meadow.IngestCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/GetIngestErrors.gql")

@@ -4,7 +4,8 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Accounts.Schemas.User
+
+  alias Meadow.Accounts.User
   alias Meadow.Data.{Collection, FileSet, Work}
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
@@ -16,24 +17,19 @@ defmodule Meadow.TestHelpers do
 
   use Meadow.Constants
 
-  def user_fixture(attrs \\ %{}) do
+  import Meadow.LdapHelpers
+
+  def user_fixture do
     username = "name-#{System.unique_integer([:positive])}"
-    display_name = "Name #{System.unique_integer([:positive])}"
-    email = "example-#{System.unique_integer([:positive])}@example.com"
 
-    attrs =
-      Enum.into(attrs, %{
-        username: attrs[:username] || username,
-        display_name: attrs[:display_name] || display_name,
-        email: attrs[:email] || email
-      })
+    with {:ok, connection} <- Exldap.connect() do
+      user_dn = "CN=#{username},OU=NotMeadow,DC=library,DC=northwestern,DC=edu" |> to_charlist()
+      add_entry(connection, user_dn, people_attributes(username))
+      add_membership(connection, "CN=Users,OU=Meadow,DC=library,DC=northwestern,DC=edu", user_dn)
+      user_dn
+    end
 
-    {:ok, user} =
-      %User{}
-      |> User.changeset(attrs)
-      |> Repo.insert()
-
-    user
+    User.find(username)
   end
 
   def ingest_sheet_fixture(attrs \\ %{}) do

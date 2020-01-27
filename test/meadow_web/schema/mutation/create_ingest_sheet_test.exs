@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.CreateSheet do
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
 
   import Mox
 

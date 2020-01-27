@@ -36,7 +36,7 @@ defmodule MeadowWeb.Schema.AccountTypes do
 
   object :account_mutations do
     @desc "Add a group to a role"
-    field :add_group_to_role, :entry do
+    field :add_group_to_role, :status_message do
       arg(:group_id, non_null(:id))
       arg(:role_id, non_null(:id))
       middleware(Middleware.Authenticate)
@@ -55,6 +55,19 @@ defmodule MeadowWeb.Schema.AccountTypes do
     field :username, non_null(:string)
     field :email, :string
     field :display_name, :string
+    field :role, :user_role
+  end
+
+  object :status do
+    field :message, non_null(:string)
+  end
+
+  @desc "Meadow user roles"
+  enum :user_role do
+    value(:administrator, as: "Administrator", description: "administrator")
+    value(:manager, as: "Manager", description: "manager")
+    value(:editor, as: "Editor", description: "editor")
+    value(:user, as: "User", description: "user")
   end
 
   @desc "work types"

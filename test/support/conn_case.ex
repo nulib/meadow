@@ -19,6 +19,7 @@ defmodule MeadowWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
+      use Meadow.LdapCase
       use Phoenix.ConnTest
       alias MeadowWeb.Router.Helpers, as: Routes
       import Meadow.TestHelpers
@@ -33,7 +34,8 @@ defmodule MeadowWeb.ConnCase do
           current_user: %{
             username: user.username,
             display_name: user.display_name,
-            email: user.email
+            email: user.email,
+            role: user.role
           }
         )
       end

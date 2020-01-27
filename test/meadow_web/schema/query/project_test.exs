@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.Query.ProjectTest do
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
 
   @query """
   query($id: String!) {
