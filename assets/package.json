@@ -18,7 +18,7 @@
     "apollo-client": "^2.6.8",
     "apollo-link-context": "^1.0.18",
     "apollo-link-http": "^1.5.15",
-    "graphql": "^14.4.2",
+    "graphql": "^14.6.0",
     "graphql-tag": "^2.10.1",
     "js-cookie": "^2.2.1",
     "phoenix": "file:../deps/phoenix",
