@@ -33,6 +33,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:admin_email, :string)
       arg(:finding_aid_url, :string)
       arg(:featured, :boolean)
+      arg(:published, :boolean)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.create_collection/3)
     end
@@ -46,6 +47,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:admin_email, :string)
       arg(:finding_aid_url, :string)
       arg(:featured, :boolean)
+      arg(:published, :boolean)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
@@ -71,6 +73,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :featured, :boolean
     field :admin_email, :string
     field :finding_aid_url, :string
+    field :published, :boolean
     field :works, list_of(:work), resolve: dataloader(Data)
   end
 end

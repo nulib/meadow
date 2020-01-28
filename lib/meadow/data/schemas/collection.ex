@@ -17,6 +17,7 @@ defmodule Meadow.Data.Schemas.Collection do
     field :featured, :boolean
     field :finding_aid_url, :string
     field :admin_email, :string
+    field :published, :boolean, default: false
 
     timestamps()
 
@@ -25,7 +26,15 @@ defmodule Meadow.Data.Schemas.Collection do
 
   def changeset(collection, params) do
     collection
-    |> cast(params, [:name, :description, :keywords, :featured, :finding_aid_url, :admin_email])
+    |> cast(params, [
+      :name,
+      :description,
+      :keywords,
+      :featured,
+      :finding_aid_url,
+      :admin_email,
+      :published
+    ])
     |> validate_required([:name])
     |> unique_constraint(:name)
   end

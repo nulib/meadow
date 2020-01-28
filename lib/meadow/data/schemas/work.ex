@@ -19,6 +19,7 @@ defmodule Meadow.Data.Schemas.Work do
     field :accession_number, :string
     field :visibility, :string
     field :work_type, :string
+    field :published, :boolean, default: false
     timestamps()
 
     embeds_one :metadata, WorkMetadata, on_replace: :update
