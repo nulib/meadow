@@ -5,17 +5,51 @@ defmodule MeadowWeb.Schema.AccountTypes do
   """
   use Absinthe.Schema.Notation
   alias MeadowWeb.Resolvers
+  alias MeadowWeb.Schema.Middleware
 
   object :account_queries do
     @desc "Get the currently signed-in user"
     field :me, :user do
       resolve(&Resolvers.Accounts.me/3)
     end
+
+    @desc "Get the list of Roles"
+    field :roles, list_of(:entries) do
+      middleware(Middleware.Authenticate)
+      resolve(&MeadowWeb.Resolvers.Accounts.list_roles/3)
+    end
+
+    @desc "Get a list of members of a role"
+    field :role_members, list_of(:entries) do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Accounts.role_members/3)
+    end
+
+    @desc "Get a list of members of a group"
+    field :group_members, list_of(:entries) do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Accounts.group_members/3)
+    end
+  end
+
+  @desc "An LDAP Entry"
+  object :entries do
+    field :id, non_null(:id)
+    field :name, :string
+    field :type, :entry_type
   end
 
   object :user do
     field :username, non_null(:string)
     field :email, :string
     field :display_name, :string
+  end
+
+  @desc "work types"
+  enum :entry_type do
+    value(:group, as: "group", description: "group")
+    value(:user, as: "user", description: "user")
   end
 end
