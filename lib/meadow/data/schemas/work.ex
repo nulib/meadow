@@ -47,4 +47,23 @@ defmodule Meadow.Data.Schemas.Work do
     |> validate_inclusion(:work_type, @work_types)
     |> unique_constraint(:accession_number)
   end
+
+  defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
+    def id(work), do: work.id
+    def routing(_), do: false
+
+    def encode(work) do
+      %{
+        model: %{application: "Meadow", name: String.capitalize(work.work_type)},
+        accession_number: work.accession_number,
+        visibility: work.visibility,
+        title: work.metadata.title,
+        collection:
+          case work.collection do
+            nil -> []
+            collection -> %{id: collection.id, name: collection.name}
+          end
+      }
+    end
+  end
 end

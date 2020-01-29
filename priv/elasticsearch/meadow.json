@@ -1,0 +1,118 @@
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "full_text": {
+          "type": "text"
+        },
+        "all_titles": {
+          "type": "text"
+        },
+        "all_subjects": {
+          "type": "text"
+        }
+      },
+      "dynamic_templates": [
+        {
+          "facets": {
+            "match": "*_facet",
+            "mapping": { "type": "keyword" }
+          }
+        },
+        {
+          "latlong": {
+            "match": "*_geo",
+            "mapping": { "type": "geo_point" }
+          }
+        },
+        {
+          "date_text": {
+            "match_pattern": "regex",
+            "match": "^date",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": { "type": "keyword" }
+              }
+            }
+          }
+        },
+        {
+          "ids": {
+            "path_match": "*.id",
+            "mapping": { "type": "keyword" }
+          }
+        },
+        {
+          "uris": {
+            "path_match": "*.uri",
+            "mapping": { "type": "keyword" }
+          }
+        },
+        {
+          "subjects": {
+            "path_match": "subject.label",
+            "mapping": {
+              "type": "text",
+              "copy_to": ["full_text", "all_subjects"],
+              "fields": {
+                "keyword": { "type": "keyword" }
+              }
+            }
+          }
+        },
+        {
+          "titles": {
+            "path_match": "title.*",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": { "type": "keyword" }
+              },
+              "copy_to": ["full_text", "all_titles"]
+            }
+          }
+        },
+        {
+          "nested_titles": {
+            "path_match": "*.title",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": { "type": "keyword" }
+              },
+              "copy_to": ["full_text"]
+            }
+          }
+        },
+        {
+          "labels": {
+            "path_match": "*.label",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": { "type": "keyword" }
+              },
+              "copy_to": ["full_text"]
+            }
+          }
+        },
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 512
+                }
+              },
+              "copy_to": ["full_text"]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

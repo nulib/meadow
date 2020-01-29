@@ -20,6 +20,21 @@ config :meadow, MeadowWeb.Endpoint,
   render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]
 
+# Configures the ElasticsearchCluster
+config :meadow, Meadow.ElasticsearchCluster,
+  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9201"),
+  api: Elasticsearch.API.HTTP,
+  json_library: Jason,
+  indexes: %{
+    meadow: %{
+      settings: "priv/elasticsearch/meadow.json",
+      store: Meadow.ElasticsearchStore,
+      sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
+      bulk_page_size: 5000,
+      bulk_wait_interval: 15_000
+    }
+  }
+
 # Configures the pyramid TIFF processor
 with val <- System.get_env("PYRAMID_PROCESSOR") do
   unless is_nil(val), do: config(:meadow, pyramid_processor: val)
