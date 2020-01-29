@@ -33,6 +33,9 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
   end
 
   defp fetch_groups(user) do
-    Ldap.list_user_groups(user.username) |> Enum.map(fn e -> e.name end)
+    case Ldap.find_user(user.username) do
+      %Ldap.Entry{} = entry -> Ldap.list_user_groups(entry.id) |> Enum.map(fn e -> e.name end)
+      _ -> []
+    end
   end
 end

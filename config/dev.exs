@@ -103,7 +103,8 @@ config :exldap, :settings,
   port: String.to_integer(System.get_env("LDAP_PORT", "390")),
   user_dn:
     System.get_env("LDAP_BIND_DN", "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"),
-  password: System.get_env("LDAP_BIND_PASSWORD", "d0ck3rAdm1n!")
+  password: System.get_env("LDAP_BIND_PASSWORD", "d0ck3rAdm1n!"),
+  ssl: System.get_env("LDAP_SSL", "false") == "true"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
