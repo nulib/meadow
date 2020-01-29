@@ -9,8 +9,7 @@ defmodule MeadowWeb.Resolvers.Accounts do
     defstruct [:id, :name, :type]
   end
 
-  alias Meadow.Accounts.Ldap
-  alias MeadowWeb.Resolvers.Accounts
+  # alias Meadow.Accounts.Ldap
 
   def me(_, _, %{context: %{current_user: user}}) do
     {:ok, user}
@@ -46,7 +45,7 @@ defmodule MeadowWeb.Resolvers.Accounts do
      ]}
   end
 
-  def role_members(_, %{id: id}, _) do
+  def role_members(_, %{id: _id}, _) do
     {:ok,
      [
        %Entry{
@@ -72,7 +71,7 @@ defmodule MeadowWeb.Resolvers.Accounts do
      ]}
   end
 
-  def group_members(_, %{id: id}, _) do
+  def group_members(_, %{id: _id}, _) do
     {:ok,
      [
        %Entry{
@@ -96,5 +95,14 @@ defmodule MeadowWeb.Resolvers.Accounts do
          type: "user"
        }
      ]}
+  end
+
+  def add_group_to_role(_, %{group_id: _group_id, role_id: _role_id}, _) do
+    {:ok,
+     %Entry{
+       id: "CN=Editors,OU=Meadow,DC=library,DC=northwestern,DC=edu",
+       name: "Editors",
+       type: "group"
+     }}
   end
 end

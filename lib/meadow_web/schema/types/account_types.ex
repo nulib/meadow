@@ -14,28 +14,38 @@ defmodule MeadowWeb.Schema.AccountTypes do
     end
 
     @desc "Get the list of Roles"
-    field :roles, list_of(:entries) do
+    field :roles, list_of(:entry) do
       middleware(Middleware.Authenticate)
       resolve(&MeadowWeb.Resolvers.Accounts.list_roles/3)
     end
 
     @desc "Get a list of members of a role"
-    field :role_members, list_of(:entries) do
+    field :role_members, list_of(:entry) do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Accounts.role_members/3)
     end
 
     @desc "Get a list of members of a group"
-    field :group_members, list_of(:entries) do
+    field :group_members, list_of(:entry) do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Accounts.group_members/3)
     end
   end
 
+  object :account_mutations do
+    @desc "Add a group to a role"
+    field :add_group_to_role, :entry do
+      arg(:group_id, non_null(:id))
+      arg(:role_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Accounts.add_group_to_role/3)
+    end
+  end
+
   @desc "An LDAP Entry"
-  object :entries do
+  object :entry do
     field :id, non_null(:id)
     field :name, :string
     field :type, :entry_type
