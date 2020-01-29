@@ -25,6 +25,7 @@ defmodule MeadowWeb.Schema do
   end
 
   mutation do
+    import_fields(:account_mutations)
     import_fields(:ingest_mutations)
     import_fields(:collection_mutations)
     import_fields(:work_mutations)
