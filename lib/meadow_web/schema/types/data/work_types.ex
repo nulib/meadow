@@ -42,6 +42,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:accession_number, non_null(:string))
       arg(:work_type, non_null(:work_type))
       arg(:visibility, non_null(:visibility))
+      arg(:published, :boolean)
       arg(:file_sets, list_of(:file_set_input))
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.create_work/3)
@@ -78,6 +79,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :metadata, :work_metadata
     field :work_type, non_null(:work_type)
     field :visibility, non_null(:visibility)
+    field :published, :boolean
     field :inserted_at, non_null(:naive_datetime)
     field :updated_at, non_null(:naive_datetime)
     field :collection, :collection, resolve: dataloader(Data)
@@ -110,6 +112,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :metadata, :work_metadata_input
     field :work_type, :work_type
     field :visibility, :visibility
+    field :published, :boolean
     field :file_sets, list_of(:file_set_input)
   end
 
