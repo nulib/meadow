@@ -129,8 +129,8 @@ defmodule Meadow.TestHelpers do
         accession_number: attrs[:accession_number] || Faker.String.base64(),
         visibility: attrs[:visibility] || Faker.Util.pick(@visibility),
         work_type: attrs[:work_type] || Faker.Util.pick(@work_types),
-        metadata:
-          attrs[:metadata] ||
+        descriptive_metadata:
+          attrs[:descriptive_metadata] ||
             %{
               title: "Test title"
             },

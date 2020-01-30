@@ -8,13 +8,15 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
       $accession_number: String!
       $work_type: WorkType!
       $visibility: Visibility!
-      $metadata: WorkMetadataInput!
+      $administrative_metadata: WorkAdministrativeMetadataInput!
+      $descriptive_metadata: WorkDescriptiveMetadataInput!
       ) {
       createWork(
         accessionNumber: $accession_number
         workType: $work_type
         visibility: $visibility
-        metadata: $metadata
+        administrativeMetadata: $administrative_metadata
+        descriptiveMetadata: $descriptive_metadata
         )
       {
         id
@@ -32,7 +34,8 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
       "accession_number" => "99999",
       "visibility" => "OPEN",
       "work_type" => "IMAGE",
-      "metadata" => %{"title" => "Something"}
+      "descriptive_metadata" => %{"title" => "Something"},
+      "administrative_metadata" => %{"preservation_level" => 1}
     }
 
     conn = build_conn() |> auth_user(user_fixture())

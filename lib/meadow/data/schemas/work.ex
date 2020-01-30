@@ -7,7 +7,8 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Data.Schemas.WorkMetadata
+  alias Meadow.Data.Schemas.WorkAdministrativeMetadata
+  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
 
   import Ecto.Changeset
 
@@ -22,7 +23,8 @@ defmodule Meadow.Data.Schemas.Work do
     field :published, :boolean, default: false
     timestamps()
 
-    embeds_one :metadata, WorkMetadata, on_replace: :update
+    embeds_one :descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update
+    embeds_one :administrative_metadata, WorkAdministrativeMetadata, on_replace: :update
 
     has_many :file_sets, FileSet
 
@@ -40,7 +42,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     work
     |> cast(attrs, required_params ++ optional_params)
-    |> cast_embed(:metadata)
+    |> cast_embed(:administrative_metadata)
+    |> cast_embed(:descriptive_metadata)
     |> cast_assoc(:file_sets)
     |> assoc_constraint(:collection)
     |> validate_required(required_params)
@@ -58,7 +61,7 @@ defmodule Meadow.Data.Schemas.Work do
         model: %{application: "Meadow", name: String.capitalize(work.work_type)},
         accession_number: work.accession_number,
         visibility: work.visibility,
-        title: work.metadata.title,
+        title: work.descriptive_metadata.title,
         collection:
           case work.collection do
             nil -> []

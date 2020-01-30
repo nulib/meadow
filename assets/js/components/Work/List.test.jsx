@@ -20,7 +20,7 @@ const works = [
     ],
     id: "01DV4BAE9NDQHSMRHKM8KC4FNC",
     insertedAt: "2019-12-02T22:22:30",
-    metadata: {
+    descriptiveMetadata: {
       title: null
     },
     updatedAt: "2019-12-02T22:22:30",
@@ -31,7 +31,7 @@ const works = [
     accessionNumber: "Example-30",
     id: "01DV4BAEC14Q87NRGMY9RX08FE",
     insertedAt: "2019-12-02T22:22:30",
-    metadata: {
+    descriptiveMetadata: {
       title: null
     },
     updatedAt: "2019-12-02T22:22:30",

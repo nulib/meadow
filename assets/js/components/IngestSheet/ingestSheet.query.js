@@ -205,7 +205,7 @@ export const INGEST_SHEET_EXPORT_CSV = gql`
       id
       visibility
       workType
-      metadata {
+      descriptiveMetadata {
         title
         description
       }

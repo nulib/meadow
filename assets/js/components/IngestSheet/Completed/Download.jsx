@@ -23,8 +23,8 @@ const IngestSheetDownload = ({ sheetId }) => {
     rWork.id = work.id;
     rWork.visibility = work.visibility;
     rWork.workype = work.workType;
-    rWork.title = work.metadata.title;
-    rWork.description = work.metadata.description;
+    rWork.title = work.descriptive_metadata.title;
+    rWork.description = work.descriptive_metadata.description;
     return rWork;
   });
 

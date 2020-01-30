@@ -50,7 +50,7 @@ defmodule Meadow.Data.Works do
         map = %{"title" => term}
 
         from q in query,
-          where: fragment("metadata @> ?::jsonb", ^map)
+          where: fragment("descriptive_metadata @> ?::jsonb", ^map)
 
       {:visibility, value}, query ->
         from q in query, where: q.visibility == ^value
@@ -189,7 +189,7 @@ defmodule Meadow.Data.Works do
 
     q =
       from Work,
-        where: fragment("metadata @> ?::jsonb", ^map)
+        where: fragment("descriptive_metadata @> ?::jsonb", ^map)
 
     Repo.all(q)
   end

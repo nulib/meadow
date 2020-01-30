@@ -8,7 +8,7 @@ defmodule Meadow.Data.Schemas.WorkTest do
       accession_number: "12345",
       visibility: "open",
       work_type: "image",
-      metadata: %{title: "Test"}
+      descriptive_metadata: %{title: "Test"}
     }
 
     test "created work has a ULID identifier" do

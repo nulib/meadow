@@ -6,7 +6,11 @@ fragment WorkFields on Work {
   fileSets {
     ...FileSetFields
   }
-  metadata {
+  administrativeMetadata {
+    preservationLevel
+    rightsStatement
+  }
+  descriptiveMetadata {
     title
     description
   }
