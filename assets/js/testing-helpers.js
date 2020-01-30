@@ -102,7 +102,7 @@ export const mockWork = {
   ],
   id: "01DV4BAE9NDQHSMRHKM8KC4FNC",
   insertedAt: "2019-12-02T22:22:30",
-  metadata: {
+  descriptiveMetadata: {
     title: null
   },
   updatedAt: "2019-12-02T22:22:30",

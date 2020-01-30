@@ -38,7 +38,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_mutations do
     @desc "Create a new Work"
     field :create_work, :work do
-      arg(:metadata, non_null(:work_metadata_input))
+      arg(:administrative_metadata, non_null(:work_administrative_metadata_input))
+      arg(:descriptive_metadata, non_null(:work_descriptive_metadata_input))
       arg(:accession_number, non_null(:string))
       arg(:work_type, non_null(:work_type))
       arg(:visibility, non_null(:visibility))
@@ -76,7 +77,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work do
     field :id, non_null(:id)
     field :accession_number, non_null(:string)
-    field :metadata, :work_metadata
+    field :administrative_metadata, :work_administrative_metadata
+    field :descriptive_metadata, :work_descriptive_metadata
     field :work_type, non_null(:work_type)
     field :visibility, non_null(:visibility)
     field :published, :boolean
@@ -102,14 +104,26 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :work_type, :work_type
   end
 
-  @desc "Same as `work_metadata`. This represents all metadata associated with a work object. It is stored in a single json field."
-  input_object :work_metadata_input do
+  @desc "Same as `work_administrative_metadata`. This represents all administrative metadata associated with a work object. It is stored in a single json field."
+  input_object :work_administrative_metadata_input do
+    field :preservation_level, :integer
+    field :rights_statement, :string
+  end
+
+  @desc "Same as `work_descriptive_metadata`. This represents all descriptive metadata associated with a work object. It is stored in a single json field."
+  input_object :work_descriptive_metadata_input do
+    field :description, :string
+    field :genre, list_of(:string)
+    field :keywords, list_of(:string)
+    field :nul_subject, list_of(:string)
+    field :technique, :string
     field :title, :string
   end
 
   @desc "Fields that can be updated on a work object"
   input_object :work_update_input do
-    field :metadata, :work_metadata_input
+    field :administrative_metadata, :work_administrative_metadata_input
+    field :descriptive_metadata, :work_descriptive_metadata_input
     field :work_type, :work_type
     field :visibility, :visibility
     field :published, :boolean
@@ -120,10 +134,20 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   # Object Types
   #
 
-  @desc "`work_metadata` represents all metadata associated with a work object. It is stored in a single json field."
-  object :work_metadata do
-    field :title, :string
+  @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
+  object :work_descriptive_metadata do
     field :description, :string
+    field :genre, list_of(:string)
+    field :keywords, list_of(:string)
+    field :nul_subject, list_of(:string)
+    field :technique, :string
+    field :title, :string
+  end
+
+  @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
+  object :work_administrative_metadata do
+    field :preservation_level, :integer
+    field :rights_statement, :string
   end
 
   @desc "visibility setting for the object"

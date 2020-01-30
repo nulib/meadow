@@ -16,7 +16,7 @@ export const GET_WORK = gql`
         }
       }
       insertedAt
-      metadata {
+      descriptiveMetadata {
         title
       }
       updatedAt
@@ -42,7 +42,7 @@ export const GET_WORKS = gql`
         }
       }
       insertedAt
-      metadata {
+      descriptiveMetadata {
         title
       }
       updatedAt

@@ -9,7 +9,7 @@ defmodule Meadow.Data.WorksTest do
       accession_number: "12345",
       visibility: "open",
       work_type: "image",
-      metadata: %{title: "Test"}
+      descriptive_metadata: %{title: "Test"}
     }
     @invalid_attrs %{accession_number: nil}
 
@@ -20,7 +20,7 @@ defmodule Meadow.Data.WorksTest do
 
     test "get_works_by_title/1 fetches the works by title" do
       work = work_fixture()
-      title = work.metadata.title
+      title = work.descriptive_metadata.title
       assert length(Works.get_works_by_title(title)) == 1
     end
 
@@ -34,8 +34,8 @@ defmodule Meadow.Data.WorksTest do
 
     test "update_work/2 updates a work" do
       work = work_fixture()
-      assert {:ok, %Work{} = work} = Works.update_work(work, %{metadata: %{title: "New name"}})
-      assert work.metadata.title == "New name"
+      assert {:ok, %Work{} = work} = Works.update_work(work, %{descriptive_metadata: %{title: "New name"}})
+      assert work.descriptive_metadata.title == "New name"
     end
 
     test "update_work/2 with invalid attributes returns an error" do

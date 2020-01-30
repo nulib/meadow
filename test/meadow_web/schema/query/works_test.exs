@@ -60,19 +60,19 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
     accession_number: "12345",
     visibility: "open",
     work_type: "image",
-    metadata: %{title: "This Title"}
+    descriptive_metadata: %{title: "This Title"}
   }
   @no_match_attrs %{
     accession_number: "123456",
     visibility: "restricted",
     work_type: "video",
-    metadata: %{title: "Other One"}
+    descriptive_metadata: %{title: "Other One"}
   }
 
   @query """
   query ($filter: WorkFilter!) {
     works(filter: $filter) {
-      metadata{
+      descriptiveMetadata{
         title
       }
     }
@@ -90,7 +90,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
     assert %{
              "data" => %{
                "works" => [
-                 %{"metadata" => %{"title" => "This Title"}}
+                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
                ]
              }
            } == json_response(response, 200)
@@ -108,7 +108,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
     assert %{
              "data" => %{
                "works" => [
-                 %{"metadata" => %{"title" => "This Title"}}
+                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
                ]
              }
            } == json_response(response, 200)
@@ -126,7 +126,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
     assert %{
              "data" => %{
                "works" => [
-                 %{"metadata" => %{"title" => "This Title"}}
+                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
                ]
              }
            } == json_response(response, 200)

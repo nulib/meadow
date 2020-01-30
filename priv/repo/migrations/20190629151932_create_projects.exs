@@ -10,6 +10,5 @@ defmodule Meadow.Repo.Migrations.CreateProjects do
     end
 
     create unique_index(:projects, [:title])
-
   end
 end

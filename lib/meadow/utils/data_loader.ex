@@ -5,7 +5,14 @@ defmodule Meadow.Utils.DataLoader do
   """
 
   alias Meadow.Repo
-  alias Meadow.Data.Schemas.{FileSet, FileSetMetadata, Work, WorkMetadata}
+
+  alias Meadow.Data.Schemas.{
+    FileSet,
+    FileSetMetadata,
+    Work,
+    WorkAdministrativeMetadata,
+    WorkDescriptiveMetadata
+  }
 
   use Meadow.Constants
 
@@ -19,7 +26,22 @@ defmodule Meadow.Utils.DataLoader do
       work_type: Faker.Util.pick(@work_types),
       visibility: Faker.Util.pick(@visibility),
       accession_number: Faker.String.base64(),
-      metadata: %WorkMetadata{
+      administrative_metadata: %WorkAdministrativeMetadata{
+        preservation_level: Enum.random(1..3),
+        rights_statement: Faker.Lorem.sentence()
+      },
+      descriptive_metadata: %WorkDescriptiveMetadata{
+        description: Faker.Lorem.sentence(),
+        genre: Faker.Lorem.words(1..5),
+        keywords: Faker.Lorem.words(1..5),
+        nul_subject: Faker.Lorem.words(1..5),
+        technique:
+          Faker.Util.pick([
+            "albumen process",
+            "drawing (image-making)",
+            "silver-dye bleach process",
+            "gelatin silver process"
+          ]),
         title: Faker.Lorem.sentence()
       },
       file_sets: insert_file_sets()
