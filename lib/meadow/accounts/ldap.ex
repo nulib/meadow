@@ -111,24 +111,6 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "Create the Meadow base"
-  def create_meadow_base do
-    with {:ok, connection} <- Exldap.connect() do
-      attributes = map_to_attributes(%{objectClass: ["organizationalUnit", "top"]})
-
-      case :eldap.add(connection, to_charlist(@meadow_base), attributes) do
-        :ok ->
-          {:ok, Entry.new(connection, @meadow_base)}
-
-        {:error, :entryAlreadyExists} ->
-          {:exists, Entry.new(connection, @meadow_base)}
-
-        other ->
-          other
-      end
-    end
-  end
-
   @doc "Add a member to a group"
   def add_member(group_dn, member_dn) do
     with operation <- :eldap.mod_add('member', [to_charlist(member_dn)]) do
