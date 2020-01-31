@@ -126,7 +126,10 @@ defmodule Mix.Tasks.Meadow.Ldap.Setup do
   defp people_attributes(username) do
     [
       {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
-      {'sn', [to_charlist(username)]}
+      {'sn', [to_charlist(username)]},
+      {'uid', [to_charlist(username)]},
+      {'mail', [to_charlist("#{username}@library.northwestern.edu")]},
+      {'displayName', [to_charlist(username)]}
     ]
   end
 

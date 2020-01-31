@@ -3,6 +3,7 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
   checks for auth token in the reqeust and puts the current user into the Absinthe Context
   """
   @behaviour Plug
+  alias Meadow.Accounts
   import Plug.Conn
 
   def init(opts), do: opts
@@ -18,15 +19,15 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
       conn
       |> fetch_session
       |> get_session(:current_user)
+      |> refresh_user()
+  end
 
-    case user do
-      %{username: _username, email: _email, display_name: _display_name, role: _role} ->
-        %{
-          current_user: user
-        }
-
-      _ ->
-        %{}
+  defp refresh_user(%{username: username}) do
+    case Accounts.authorize_user_login(username) do
+      {:ok, user} -> %{current_user: user}
+      _ -> %{}
     end
   end
+
+  defp refresh_user(_), do: %{}
 end
