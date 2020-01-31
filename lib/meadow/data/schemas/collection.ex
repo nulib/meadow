@@ -38,4 +38,16 @@ defmodule Meadow.Data.Schemas.Collection do
     |> validate_required([:name])
     |> unique_constraint(:name)
   end
+
+  defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
+    def id(collection), do: collection.id
+    def routing(_), do: false
+
+    def encode(collection) do
+      %{
+        model: %{application: "Meadow", name: "Collection"},
+        name: collection.name
+      }
+    end
+  end
 end

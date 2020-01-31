@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Meadow.Ldap.Setup do
   @moduledoc """
-  Create all configured S3 buckets
+  Configure LDAP for the development environment
   """
   require Logger
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"

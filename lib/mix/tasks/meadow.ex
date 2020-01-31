@@ -27,12 +27,13 @@ defmodule Mix.Tasks.Meadow.Setup do
   """
 
   alias Mix.Tasks.Ecto
-  alias Mix.Tasks.Meadow.{Buckets, Pipeline}
+  alias Mix.Tasks.Meadow.{Buckets, Elasticsearch, Pipeline}
 
   def run(args) do
     Pipeline.Setup.run(args)
     Buckets.Create.run(args)
     Ecto.Create.run(args)
     Ecto.Migrate.run(args)
+    Elasticsearch.Setup.run(args)
   end
 end

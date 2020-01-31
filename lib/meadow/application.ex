@@ -15,6 +15,7 @@ defmodule Meadow.Application do
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
     children = [
+      Meadow.ElasticsearchCluster,
       Meadow.Repo,
       MeadowWeb.Endpoint,
       supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
