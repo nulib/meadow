@@ -7,52 +7,58 @@ defmodule Meadow.LdapCase do
   use ExUnit.CaseTemplate
   alias Meadow.Accounts.Ldap
 
-  using do
-    quote do
-      alias Meadow.Accounts.Ldap
-      import Meadow.LdapCase
-    end
-  end
-
   setup do
-    with {:ok, connection} <- Exldap.connect() do
-      ["Meadow", "NotMeadow"]
-      |> Enum.each(fn ou ->
-        attributes = [
-          {'objectClass', ['organizationalUnit']},
-          {'objectClass', ['top']},
-          {'ou', [to_charlist(ou)]},
-          {'name', [to_charlist(ou)]}
-        ]
-
-        :eldap.add(
-          connection,
-          to_charlist("OU=#{ou},DC=library,DC=northwestern,DC=edu"),
-          attributes
-        )
-      end)
-    end
-
     on_exit(fn ->
-      with {:ok, connection} <- Exldap.connect() do
-        ["Meadow", "NotMeadow"]
-        |> Enum.each(fn ou ->
-          {:ok, children} =
-            Exldap.search(connection,
-              base: "OU=#{ou},DC=library,DC=northwestern,DC=edu",
-              scope: :eldap.wholeSubtree(),
-              filter: Exldap.equalityMatch("objectClass", "top")
-            )
-
-          Enum.reverse(children)
-          |> Enum.each(fn leaf ->
-            :eldap.delete(connection, leaf.object_name)
-          end)
-        end)
-      end
+      ["Meadow", "NotMeadow"]
+      |> Enum.each(&empty_ou/1)
     end)
 
     :ok
+  end
+
+  def create_ou(ou) do
+    with {:ok, connection} <- Exldap.connect() do
+      attributes = [
+        {'objectClass', ['organizationalUnit']},
+        {'objectClass', ['top']},
+        {'ou', [to_charlist(ou)]},
+        {'name', [to_charlist(ou)]}
+      ]
+
+      :eldap.add(
+        connection,
+        to_charlist("OU=#{ou},DC=library,DC=northwestern,DC=edu"),
+        attributes
+      )
+    end
+  end
+
+  def destroy_ou(ou) do
+    with {:ok, connection} <- Exldap.connect(),
+         base <- "OU=#{ou},DC=library,DC=northwestern,DC=edu" do
+      :eldap.delete(connection, to_charlist(base))
+    end
+  end
+
+  def empty_ou(ou) do
+    with {:ok, connection} <- Exldap.connect(),
+         base <- "OU=#{ou},DC=library,DC=northwestern,DC=edu" do
+      {:ok, children} =
+        Exldap.search(connection,
+          base: base,
+          scope: :eldap.wholeSubtree(),
+          filter:
+            Exldap.with_and([
+              Exldap.negate(Exldap.equalityMatch("distinguishedName", base)),
+              Exldap.equalityMatch("objectClass", "top")
+            ])
+        )
+
+      children
+      |> Enum.each(fn leaf ->
+        :eldap.delete(connection, leaf.object_name)
+      end)
+    end
   end
 
   def display_names([]), do: []
@@ -87,7 +93,8 @@ defmodule Meadow.LdapCase do
         {'displayName', ["User #{username}" |> to_charlist()]},
         {'mail', ["#{username}@library.northwestern.edu" |> to_charlist()]},
         {'cn', [to_charlist(username)]},
-        {'sn', ['User']}
+        {'sn', ['User']},
+        {'uid', [to_charlist(username)]}
       ]
 
       case :eldap.add(connection, user_dn, attributes) do

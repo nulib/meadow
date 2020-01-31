@@ -108,8 +108,7 @@ defmodule Mix.Tasks.Meadow.Ldap.Setup do
 
   defp ou_attributes(rdn) do
     [
-      {'objectClass', ['organizationalUnit']},
-      {'objectClass', ['top']},
+      {'objectClass', ['organizationalUnit', 'top']},
       {'ou', [to_charlist(rdn)]},
       {'name', [to_charlist(rdn)]}
     ]
@@ -117,8 +116,7 @@ defmodule Mix.Tasks.Meadow.Ldap.Setup do
 
   defp group_attributes(rdn) do
     [
-      {'objectClass', ['group']},
-      {'objectClass', ['top']},
+      {'objectClass', ['group', 'top']},
       {'groupType', ['4']},
       {'cn', [rdn]},
       {'description', [rdn]}
@@ -127,10 +125,7 @@ defmodule Mix.Tasks.Meadow.Ldap.Setup do
 
   defp people_attributes(username) do
     [
-      {'objectClass', ['user']},
-      {'objectClass', ['person']},
-      {'objectClass', ['organizationalPerson']},
-      {'objectClass', ['top']},
+      {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
       {'sn', [to_charlist(username)]}
     ]
   end

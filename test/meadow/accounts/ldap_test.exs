@@ -1,8 +1,11 @@
 defmodule Meadow.Accounts.LdapTest do
+  use Meadow.Constants
   use Meadow.LdapCase
-  import Assertions
 
-  @groups ["Administrators", "Managers", "Editors", "Viewers", "Users"]
+  alias Meadow.Accounts.Ldap
+
+  import Assertions
+  import Meadow.LdapCase
 
   describe "create groups" do
     test "create group" do
@@ -27,7 +30,7 @@ defmodule Meadow.Accounts.LdapTest do
 
   describe "group membership" do
     setup do
-      Enum.each(@groups, fn group -> Ldap.create_group(group) end)
+      Enum.each(@role_priority, fn group -> Ldap.create_group(group) end)
       ["testUser1", "testUser2", "testUser3"] |> Enum.each(&create_ldap_user/1)
       "testGroup1" |> create_ldap_group()
       :ok
@@ -95,7 +98,7 @@ defmodule Meadow.Accounts.LdapTest do
         assert entry.class == "user"
 
         with attrs <- entry.attributes do
-          assert_lists_equal([:displayName, :mail], attrs |> Map.keys())
+          assert_lists_equal([:displayName, :mail, :uid], attrs |> Map.keys())
           assert attrs.displayName == "User testUserX"
           assert attrs.mail == "testUserX@library.northwestern.edu"
         end

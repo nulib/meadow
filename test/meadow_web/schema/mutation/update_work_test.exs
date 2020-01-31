@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "assets/js/gql/UpdateWork.gql")

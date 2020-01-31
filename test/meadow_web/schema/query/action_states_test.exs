@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   use Meadow.IngestCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
   use Wormwood.GQLCase
   alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.GenerateFileSetDigests

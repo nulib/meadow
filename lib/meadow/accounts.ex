@@ -3,33 +3,22 @@ defmodule Meadow.Accounts do
   Primary Context module for user and groups related functionality
   """
 
-  defmodule User do
-    @moduledoc """
-    Struct for user information
-    """
-    defstruct [:username, :email, :display_name, :role]
-  end
-
-  alias Meadow.Accounts.Ldap
+  alias Meadow.Accounts.{Ldap, User}
 
   import Ecto.Query, warn: false
 
   @doc "Determine if a NU user is authorized to use Meadow"
-  def authorize_user_login(uid) do
-    case Ldap.find_user(uid) do
+  def authorize_user_login(username) do
+    case User.find(username) do
       nil ->
         {:error, "Unauthorized"}
 
-      user_entry ->
-        case user_role(uid) do
+      user ->
+        case user.role do
           nil -> {:error, "Unauthorized"}
-          role -> {:ok, %User{username: user_entry.name, email: "", display_name: "", role: role}}
+          _ -> {:ok, user}
         end
     end
-  end
-
-  def user_role(uid) do
-    "Administrator"
   end
 
   def list_roles do
@@ -46,12 +35,5 @@ defmodule Meadow.Accounts do
 
   def add_group_to_role(group_id, role_id) do
     Ldap.add_member(group_id, role_id)
-  end
-
-  defp user_groups(user) do
-    case Ldap.find_user(user.username) do
-      %Ldap.Entry{} = entry -> Ldap.list_user_groups(entry.id) |> Enum.map(fn e -> e.name end)
-      _ -> []
-    end
   end
 end

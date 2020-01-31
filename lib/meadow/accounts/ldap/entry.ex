@@ -2,7 +2,7 @@ defmodule Meadow.Accounts.Ldap.Entry do
   @moduledoc """
   Simple class/id/name/attributes struct for LDAP entries
   """
-  @attributes ["description", "displayName", "mail", "title"]
+  @attributes ["description", "displayName", "mail", "title", "uid"]
   @known_classes ["group", "user"]
   defstruct class: "unknown", id: nil, name: nil, attributes: %{}
 

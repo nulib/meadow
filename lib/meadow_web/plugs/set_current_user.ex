@@ -3,7 +3,6 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
   checks for auth token in the reqeust and puts the current user into the Absinthe Context
   """
   @behaviour Plug
-  alias Meadow.Accounts.Ldap
   import Plug.Conn
 
   def init(opts), do: opts

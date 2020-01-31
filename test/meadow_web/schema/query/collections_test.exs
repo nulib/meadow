@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.Query.CollectionsTest do
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/GetCollections.gql")

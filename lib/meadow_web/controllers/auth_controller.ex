@@ -3,7 +3,6 @@ defmodule MeadowWeb.AuthController do
 
   plug Ueberauth
   alias Meadow.Accounts
-  alias Meadow.Accounts.Ldap
   alias Ueberauth.Auth
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
