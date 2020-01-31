@@ -2,6 +2,7 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
   use Meadow.LdapCase
   use MeadowWeb.ConnCase
 
+  alias Meadow.Accounts.User
   alias MeadowWeb.Plugs.SetCurrentUser
 
   describe "without a valid session" do
@@ -27,11 +28,12 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
         |> auth_user(user)
         |> SetCurrentUser.call(nil)
 
-      assert %{
+      assert %User{
                username: user.username,
                email: user.email,
+               id: user.id,
                display_name: user.display_name,
-               role: nil
+               role: "User"
              } ==
                conn.private.absinthe.context.current_user
     end

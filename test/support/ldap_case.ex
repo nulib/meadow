@@ -82,6 +82,8 @@ defmodule Meadow.LdapCase do
         {:error, :entryAlreadyExists} -> to_string(group_dn)
         other -> other
       end
+
+      group_dn
     end
   end
 
@@ -102,6 +104,8 @@ defmodule Meadow.LdapCase do
         {:error, :entryAlreadyExists} -> to_string(user_dn)
         other -> other
       end
+
+      user_dn
     end
   end
 end

@@ -17,7 +17,12 @@ defmodule Meadow.TestHelpers do
 
   def user_fixture do
     username = "name-#{System.unique_integer([:positive])}"
-    Meadow.LdapCase.create_ldap_user(username)
+
+    with user_dn <- Meadow.LdapCase.create_ldap_user(username),
+         {:ok, group} <- Meadow.Accounts.Ldap.create_group("Users") do
+      Meadow.Accounts.Ldap.add_member(group.id, user_dn)
+    end
+
     Meadow.Accounts.User.find(username)
   end
 
