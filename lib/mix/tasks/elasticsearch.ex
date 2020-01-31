@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Setup do
   @moduledoc """
   Build elasticsearch index for the dev environment if it does not exist
   """
-  alias Mix.Tasks
+  alias Mix.Tasks.Elasticsearch
 
   require Logger
 
