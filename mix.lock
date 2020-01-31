@@ -30,6 +30,7 @@
   "ex_aws_sqs": {:hex, :ex_aws_sqs, "3.1.0", "b84844285dfdf9b07551708aae6f439fd8a79e595bb3075718342d48978d5b19", [:mix], [{:ex_aws, "~> 2.0", [hex: :ex_aws, repo: "hexpm", optional: false]}], "hexpm"},
   "excoveralls": {:hex, :excoveralls, "0.12.2", "a513defac45c59e310ac42fcf2b8ae96f1f85746410f30b1ff2b710a4b6cd44b", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "exldap": {:hex, :exldap, "0.6.3", "98e8c4ad5e1773b921ba0a5f27c96a6d814a7dff1581e5648eaf7c4f594729e7", [:mix], [], "hexpm"},
+  "exldap_update": {:hex, :exldap_update, "0.1.0", "c02e8362810f4c64dfa7a4689bdbedac9573ce7aa46203ab795975ad5c4b6f05", [:mix], [{:exldap, "~> 0.6.3", [hex: :exldap, repo: "hexpm", optional: false]}], "hexpm"},
   "faker": {:hex, :faker, "0.13.0", "8abcb996f010ccd6c85588c89fc047f11134e04da019b70252f95431d721a3dc", [:mix], [], "hexpm"},
   "file_system": {:hex, :file_system, "0.2.7", "e6f7f155970975789f26e77b8b8d8ab084c59844d8ecfaf58cbda31c494d14aa", [:mix], [], "hexpm"},
   "gen_stage": {:hex, :gen_stage, "0.14.3", "d0c66f1c87faa301c1a85a809a3ee9097a4264b2edf7644bf5c123237ef732bf", [:mix], [], "hexpm"},

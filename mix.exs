@@ -66,6 +66,7 @@ defmodule Meadow.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},
+      {:exldap_update, "~> 0.1.0"},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.15"},

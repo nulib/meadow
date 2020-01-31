@@ -59,7 +59,7 @@ defmodule Meadow.Accounts.Ldap do
     with conn <- connection() do
       case Exldap.search(conn,
              base: group_dn,
-             scope: :eldap.baseObject(),
+             scope: :baseObject,
              filter: Exldap.equalityMatch("objectClass", "group")
            ) do
         {:ok, [entry]} -> extract_members(conn, entry)
@@ -90,15 +90,12 @@ defmodule Meadow.Accounts.Ldap do
   def create_group(group_cn) do
     with {:ok, connection} <- Exldap.connect(),
          group_dn <- "CN=#{group_cn},#{@meadow_base}" do
-      attributes =
-        map_to_attributes(%{
-          objectClass: ["group", "top"],
-          groupType: 4,
-          cn: group_cn,
-          displayName: "#{group_cn} Group"
-        })
-
-      case :eldap.add(connection, to_charlist(group_dn), attributes) do
+      case Exldap.Update.add(connection, group_dn, %{
+             objectClass: ["group", "top"],
+             groupType: 4,
+             cn: group_cn,
+             displayName: "#{group_cn} Group"
+           }) do
         :ok ->
           {:ok, Entry.new(connection, group_dn)}
 
@@ -113,33 +110,19 @@ defmodule Meadow.Accounts.Ldap do
 
   @doc "Add a member to a group"
   def add_member(group_dn, member_dn) do
-    with operation <- :eldap.mod_add('member', [to_charlist(member_dn)]) do
-      case modify_entry(group_dn, operation) do
-        {:ok, _} -> :ok
-        {:exists, _} -> :exists
-        other -> other
-      end
+    case Exldap.Update.modify(connection(), group_dn, {:add, :member, member_dn}) do
+      {:ok, _} -> :ok
+      {:error, :entryAlreadyExists} -> :exists
+      other -> other
     end
   end
 
   @doc "Remove a member from a group"
   def remove_member(group_dn, member_dn) do
-    with operation <- :eldap.mod_delete('member', [to_charlist(member_dn)]) do
-      case modify_entry(group_dn, operation) do
-        {:ok, _} -> :ok
-        other -> other
-      end
+    case Exldap.Update.modify(connection(), group_dn, {:delete, :member, member_dn}) do
+      {:ok, _} -> :ok
+      other -> other
     end
-  end
-
-  defp map_to_attributes(map) do
-    map
-    |> Enum.map(fn {key, value} ->
-      {
-        to_charlist(key),
-        value |> ensure_list() |> Enum.map(fn v -> v |> to_string() |> to_charlist() end)
-      }
-    end)
   end
 
   defp connection_address(config) do
@@ -179,12 +162,4 @@ defmodule Meadow.Accounts.Ldap do
 
   defp ensure_list(x) when is_list(x), do: x
   defp ensure_list(x), do: [x]
-
-  defp modify_entry(dn, operation) do
-    case :eldap.modify(connection(), to_charlist(dn), [operation]) do
-      :ok -> {:ok, dn}
-      {:error, :entryAlreadyExists} -> {:exists, dn}
-      other -> other
-    end
-  end
 end

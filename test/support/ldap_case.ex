@@ -18,17 +18,10 @@ defmodule Meadow.LdapCase do
 
   def create_ou(ou) do
     with {:ok, connection} <- Exldap.connect() do
-      attributes = [
-        {'objectClass', ['organizationalUnit']},
-        {'objectClass', ['top']},
-        {'ou', [to_charlist(ou)]},
-        {'name', [to_charlist(ou)]}
-      ]
-
-      :eldap.add(
+      Exldap.Update.add(
         connection,
-        to_charlist("OU=#{ou},DC=library,DC=northwestern,DC=edu"),
-        attributes
+        "OU=#{ou},DC=library,DC=northwestern,DC=edu",
+        %{objectClass: ["organizationalUnit", "top"], ou: ou, name: ou}
       )
     end
   end
@@ -36,7 +29,7 @@ defmodule Meadow.LdapCase do
   def destroy_ou(ou) do
     with {:ok, connection} <- Exldap.connect(),
          base <- "OU=#{ou},DC=library,DC=northwestern,DC=edu" do
-      :eldap.delete(connection, to_charlist(base))
+      Exldap.Update.delete(connection, base)
     end
   end
 
@@ -46,7 +39,7 @@ defmodule Meadow.LdapCase do
       {:ok, children} =
         Exldap.search(connection,
           base: base,
-          scope: :eldap.wholeSubtree(),
+          scope: :wholeSubtree,
           filter:
             Exldap.with_and([
               Exldap.negate(Exldap.equalityMatch("distinguishedName", base)),
@@ -56,7 +49,7 @@ defmodule Meadow.LdapCase do
 
       children
       |> Enum.each(fn leaf ->
-        :eldap.delete(connection, leaf.object_name)
+        Exldap.Update.delete(connection, leaf.object_name)
       end)
     end
   end
@@ -70,36 +63,34 @@ defmodule Meadow.LdapCase do
 
   def create_ldap_group(group) do
     with {:ok, connection} <- Exldap.connect(),
-         group_dn <- library_dn(group) |> to_charlist() do
-      attributes = [
-        {'objectClass', ['group', 'top']},
-        {'groupType', ['4']},
-        {'displayName', ["Group #{group}" |> to_charlist()]}
-      ]
+         group_dn <- library_dn(group) do
+      attributes = %{
+        objectClass: ["group", "top"],
+        groupType: 4,
+        displayName: "Group #{group}"
+      }
 
-      case :eldap.add(connection, group_dn, attributes) do
-        :ok -> to_string(group_dn)
-        {:error, :entryAlreadyExists} -> to_string(group_dn)
+      case Exldap.Update.add(connection, group_dn, attributes) do
+        :ok -> group_dn
+        {:error, :entryAlreadyExists} -> group_dn
         other -> other
       end
-
-      group_dn
     end
   end
 
   def create_ldap_user(username) do
     with {:ok, connection} <- Exldap.connect(),
-         user_dn <- library_dn(username) |> to_charlist() do
-      attributes = [
-        {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
-        {'displayName', ["User #{username}" |> to_charlist()]},
-        {'mail', ["#{username}@library.northwestern.edu" |> to_charlist()]},
-        {'cn', [to_charlist(username)]},
-        {'sn', ['User']},
-        {'uid', [to_charlist(username)]}
-      ]
+         user_dn <- library_dn(username) do
+      attributes = %{
+        objectClass: ["user", "person", "organizationalPerson", "top"],
+        displayName: "User #{username}",
+        mail: "#{username}@library.northwestern.edu",
+        cn: username,
+        sn: "User",
+        uid: username
+      }
 
-      case :eldap.add(connection, user_dn, attributes) do
+      case Exldap.Update.add(connection, user_dn, attributes) do
         :ok -> to_string(user_dn)
         {:error, :entryAlreadyExists} -> to_string(user_dn)
         other -> other

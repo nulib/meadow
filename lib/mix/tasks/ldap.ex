@@ -76,7 +76,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     end
 
     defp add_entry(connection, entry, attributes) do
-      case :eldap.add(connection, to_charlist(entry), attributes) do
+      case Exldap.Update.add(connection, entry, attributes) do
         :ok ->
           Logger.info("Created LDAP Entry: #{entry}")
 
@@ -89,9 +89,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     end
 
     defp add_membership(connection, parent_dn, child_dn) do
-      case :eldap.modify(connection, to_charlist(parent_dn), [
-             :eldap.mod_add('member', [to_charlist(child_dn)])
-           ]) do
+      case Exldap.Update.modify(connection, parent_dn, {:add, :member, child_dn}) do
         :ok ->
           Logger.info("Added LDAP membership for: #{child_dn} to #{parent_dn}")
 
@@ -108,30 +106,30 @@ defmodule Mix.Tasks.Meadow.Ldap do
     end
 
     defp ou_attributes(rdn) do
-      [
-        {'objectClass', ['organizationalUnit', 'top']},
-        {'ou', [to_charlist(rdn)]},
-        {'name', [to_charlist(rdn)]}
-      ]
+      %{
+        objectClass: ["organizationalUnit", "top"],
+        ou: rdn,
+        name: rdn
+      }
     end
 
     defp group_attributes(rdn) do
-      [
-        {'objectClass', ['group', 'top']},
-        {'groupType', ['4']},
-        {'cn', [rdn]},
-        {'description', [rdn]}
-      ]
+      %{
+        objectClass: ["group", "top"],
+        groupType: 4,
+        cn: rdn,
+        description: rdn
+      }
     end
 
     defp people_attributes(username) do
-      [
-        {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
-        {'sn', [to_charlist(username)]},
-        {'uid', [to_charlist(username)]},
-        {'mail', [to_charlist("#{username}@library.northwestern.edu")]},
-        {'displayName', [to_charlist(username)]}
-      ]
+      %{
+        objectClass: ["user", "person", "organizationalPerson", "top"],
+        sn: username,
+        uid: username,
+        mail: "#{username}@library.northwestern.edu",
+        displayName: username
+      }
     end
 
     defp find_rdn(org) do
@@ -162,7 +160,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
         @organizational_units
         |> Enum.each(fn org ->
           Logger.info("Destroying OU: #{org}")
-          :eldap.delete(connection, to_charlist(org))
+          Exldap.Update.delete(connection, org)
         end)
       end
     end
