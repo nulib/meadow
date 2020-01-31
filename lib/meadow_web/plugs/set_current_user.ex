@@ -15,11 +15,10 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
   end
 
   defp build_context(conn) do
-    user =
-      conn
-      |> fetch_session
-      |> get_session(:current_user)
-      |> refresh_user()
+    conn
+    |> fetch_session
+    |> get_session(:current_user)
+    |> refresh_user()
   end
 
   defp refresh_user(%{username: username}) do
