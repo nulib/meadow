@@ -3,12 +3,12 @@ defmodule Meadow.Accounts.Ldap.Entry do
   Simple class/id/name/attributes struct for LDAP entries
   """
   @attributes ["description", "displayName", "mail", "title", "uid"]
-  @known_classes ["group", "user"]
-  defstruct class: "unknown", id: nil, name: nil, attributes: %{}
+  @known_types ["group", "user"]
+  defstruct type: "unknown", id: nil, name: nil, attributes: %{}
 
   def new(%Exldap.Entry{} = entry) do
     %__MODULE__{
-      class: entry |> extract_class(),
+      type: entry |> extract_type(),
       id: entry.object_name |> to_string(),
       name: entry |> Exldap.get_attribute!("cn"),
       attributes: entry |> extract_attributes()
@@ -33,9 +33,9 @@ defmodule Meadow.Accounts.Ldap.Entry do
     |> Enum.into(%{})
   end
 
-  defp extract_class(%Exldap.Entry{} = entry) do
+  defp extract_type(%Exldap.Entry{} = entry) do
     entry
     |> Exldap.get_attribute!("objectClass")
-    |> Enum.find("unknown", fn v -> Enum.member?(@known_classes, v) end)
+    |> Enum.find("unknown", fn v -> Enum.member?(@known_types, v) end)
   end
 end

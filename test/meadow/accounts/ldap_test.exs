@@ -98,7 +98,7 @@ defmodule Meadow.Accounts.LdapTest do
   describe "entry attributes" do
     test "user attributes" do
       with entry <- Ldap.Entry.new(Ldap.connection(), create_ldap_user("testUserX")) do
-        assert entry.class == "user"
+        assert entry.type == "user"
 
         with attrs <- entry.attributes do
           assert_lists_equal([:displayName, :mail, :uid], attrs |> Map.keys())
@@ -111,14 +111,14 @@ defmodule Meadow.Accounts.LdapTest do
     test "group attributes" do
       with entry <-
              Ldap.Entry.new(Ldap.connection(), meadow_dn("Users")) do
-        assert entry.class == "group"
+        assert entry.type == "group"
       end
     end
 
     test "other object attributes" do
       with entry <-
              Ldap.Entry.new(Ldap.connection(), "CN=System,DC=library,DC=northwestern,DC=edu") do
-        assert entry.class == "unknown"
+        assert entry.type == "unknown"
       end
     end
   end
