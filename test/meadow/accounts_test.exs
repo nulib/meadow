@@ -77,7 +77,7 @@ defmodule Meadow.AccountsTest do
     end
 
     test "nested group" do
-      assert :ok == Accounts.add_group_to_role(library_dn("AllUsers"), meadow_dn("Users"))
+      assert :ok == Accounts.add_group_to_role(meadow_dn("Users"), library_dn("AllUsers"))
 
       assert_lists_equal(
         Accounts.role_members(meadow_dn("Users")) |> display_names(),

@@ -33,7 +33,7 @@ defmodule Meadow.Accounts do
     Ldap.list_group_members(id)
   end
 
-  def add_group_to_role(group_id, role_id) do
+  def add_group_to_role(role_id, group_id) do
     Ldap.add_member(role_id, group_id)
   end
 end
