@@ -3,17 +3,21 @@ defmodule Meadow.ReleaseTasks do
   Release tasks for Meadow
   """
   @app :meadow
+  @elastic_search_index @app
+
   alias Ecto.Adapters.SQL
   alias Meadow.Pipeline
 
   def migrate do
-    [:ex_aws, :hackney, :sequins] |> Enum.each(&Application.ensure_all_started/1)
+    [:elasticsearch, :ex_aws, :hackney, :sequins] |> Enum.each(&Application.ensure_all_started/1)
     Pipeline.queue_config() |> Sequins.setup()
 
     for repo <- repos() do
       create_storage_for(repo)
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
+
+    Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, @elastic_search_index)
   end
 
   def reset! do
