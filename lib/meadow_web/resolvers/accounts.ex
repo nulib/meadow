@@ -25,6 +25,16 @@ defmodule MeadowWeb.Resolvers.Accounts do
   end
 
   def add_group_to_role(_, %{group_id: group_id, role_id: role_id}, _) do
-    {:ok, Accounts.add_group_to_role(group_id, role_id)}
+    {:ok,
+     case Accounts.add_group_to_role(role_id, group_id) do
+       :ok ->
+         %{message: "OK"}
+
+       :exists ->
+         %{message: "EXISTS"}
+
+       other ->
+         %{message: other}
+     end}
   end
 end

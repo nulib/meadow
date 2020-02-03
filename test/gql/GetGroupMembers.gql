@@ -1,0 +1,7 @@
+#import "./EntryFields.frag.gql"
+
+query GetGroupMembers($id: ID!) {
+  groupMembers(id: $id) {
+    ...EntryFields
+  }
+}
