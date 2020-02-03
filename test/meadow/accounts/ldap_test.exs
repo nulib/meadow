@@ -9,22 +9,18 @@ defmodule Meadow.Accounts.LdapTest do
 
   describe "create groups" do
     test "create group" do
-      assert Ldap.list_groups() == []
+      preexisting_groups = Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end)
       Ldap.create_group("TestGroup")
 
       with result <- Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end) do
-        assert_lists_equal(result, ["TestGroup"])
+        assert_lists_equal(result, ["TestGroup" | preexisting_groups])
       end
     end
 
     test "create group that already exists" do
-      {result, entry} = Ldap.create_group("TestGroup")
-      assert result == :ok
-      assert entry.name == "TestGroup"
-
-      {result, entry} = Ldap.create_group("TestGroup")
+      {result, entry} = Ldap.create_group("Users")
       assert result == :exists
-      assert entry.name == "TestGroup"
+      assert entry.name == "Users"
     end
   end
 
@@ -42,14 +38,14 @@ defmodule Meadow.Accounts.LdapTest do
 
       assert_lists_equal(
         library_dn("testUser1") |> Ldap.list_user_groups() |> display_names(),
-        ["Users Group"]
+        ["Group Users"]
       )
 
       assert meadow_dn("Editors") |> Ldap.add_member(library_dn("testUser1")) == :ok
 
       assert_lists_equal(
         library_dn("testUser1") |> Ldap.list_user_groups() |> display_names(),
-        ["Editors Group", "Users Group"]
+        ["Group Editors", "Group Users"]
       )
     end
 
@@ -87,7 +83,7 @@ defmodule Meadow.Accounts.LdapTest do
 
       assert_lists_equal(
         library_dn("testUser2") |> Ldap.list_user_groups() |> display_names(),
-        ["Editors Group"]
+        ["Group Editors"]
       )
     end
   end
@@ -106,8 +102,9 @@ defmodule Meadow.Accounts.LdapTest do
     end
 
     test "group attributes" do
-      with {:ok, group} <- Ldap.create_group("TestGroup") do
-        assert group.class == "group"
+      with entry <-
+             Ldap.Entry.new(Ldap.connection(), meadow_dn("Users")) do
+        assert entry.class == "group"
       end
     end
 

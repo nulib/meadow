@@ -4,6 +4,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     Seed Ldap Entries for Dev environment
     """
     require Logger
+    alias Meadow.LdapHelpers, as: Helpers
 
     @organizational_units [
       "OU=Meadow,DC=library,DC=northwestern,DC=edu",
@@ -33,14 +34,14 @@ defmodule Mix.Tasks.Meadow.Ldap do
             org
             |> find_rdn
 
-          add_entry(connection, org, ou_attributes(rdn))
+          add_entry(connection, org, Helpers.ou_attributes(rdn))
         end)
       end
 
       with {:ok, connection} <- Exldap.connect() do
         @groups
         |> Enum.each(fn group_dn ->
-          add_entry(connection, group_dn, group_attributes(find_rdn(group_dn)))
+          add_entry(connection, group_dn, Helpers.group_attributes(find_rdn(group_dn)))
         end)
       end
 
@@ -49,7 +50,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
         |> Enum.each(fn username ->
           user_dn = "CN=#{username},OU=DevUsers,DC=library,DC=northwestern,DC=edu"
 
-          add_entry(connection, user_dn, people_attributes(username))
+          add_entry(connection, user_dn, Helpers.people_attributes(username))
 
           group_dn = "CN=MeadowUsers,OU=DevUsers,DC=library,DC=northwestern,DC=edu"
           add_membership(connection, group_dn, user_dn)
@@ -58,7 +59,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
         add_entry(
           connection,
           "CN=auh7250,OU=DevUsers,DC=library,DC=northwestern,DC=edu",
-          people_attributes("auh7250")
+          Helpers.people_attributes("auh7250")
         )
 
         add_membership(
@@ -76,7 +77,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     end
 
     defp add_entry(connection, entry, attributes) do
-      case :eldap.add(connection, to_charlist(entry), attributes) do
+      case Helpers.add_entry(connection, entry, attributes) do
         :ok ->
           Logger.info("Created LDAP Entry: #{entry}")
 
@@ -89,9 +90,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     end
 
     defp add_membership(connection, parent_dn, child_dn) do
-      case :eldap.modify(connection, to_charlist(parent_dn), [
-             :eldap.mod_add('member', [to_charlist(child_dn)])
-           ]) do
+      case Helpers.add_membership(connection, parent_dn, child_dn) do
         :ok ->
           Logger.info("Added LDAP membership for: #{child_dn} to #{parent_dn}")
 
@@ -105,33 +104,6 @@ defmodule Mix.Tasks.Meadow.Ldap do
             }"
           )
       end
-    end
-
-    defp ou_attributes(rdn) do
-      [
-        {'objectClass', ['organizationalUnit', 'top']},
-        {'ou', [to_charlist(rdn)]},
-        {'name', [to_charlist(rdn)]}
-      ]
-    end
-
-    defp group_attributes(rdn) do
-      [
-        {'objectClass', ['group', 'top']},
-        {'groupType', ['4']},
-        {'cn', [rdn]},
-        {'description', [rdn]}
-      ]
-    end
-
-    defp people_attributes(username) do
-      [
-        {'objectClass', ['user', 'person', 'organizationalPerson', 'top']},
-        {'sn', [to_charlist(username)]},
-        {'uid', [to_charlist(username)]},
-        {'mail', [to_charlist("#{username}@library.northwestern.edu")]},
-        {'displayName', [to_charlist(username)]}
-      ]
     end
 
     defp find_rdn(org) do
@@ -152,6 +124,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
     Clear out Ldap Entries for Dev environment
     """
     require Logger
+    alias Meadow.LdapHelpers, as: Helpers
 
     @organizational_units [
       "OU=Meadow,DC=library,DC=northwestern,DC=edu",
@@ -162,7 +135,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
         @organizational_units
         |> Enum.each(fn org ->
           Logger.info("Destroying OU: #{org}")
-          :eldap.delete(connection, to_charlist(org))
+          Helpers.destroy_entry(connection, org)
         end)
       end
     end
