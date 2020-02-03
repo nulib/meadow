@@ -6,14 +6,21 @@ defmodule Meadow.Accounts.LdapTest do
 
   import Assertions
   import Meadow.LdapCase
+  import Meadow.LdapHelpers
 
   describe "create groups" do
-    test "create group" do
-      preexisting_groups = Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end)
-      Ldap.create_group("TestGroup")
+    test "create group", %{ldap: ldap} do
+      try do
+        preexisting_groups =
+          Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end)
 
-      with result <- Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end) do
-        assert_lists_equal(result, ["TestGroup" | preexisting_groups])
+        Ldap.create_group("TestGroup")
+
+        with result <- Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end) do
+          assert_lists_equal(result, ["TestGroup" | preexisting_groups])
+        end
+      after
+        destroy_entry(ldap, meadow_dn("TestGroup"))
       end
     end
 
