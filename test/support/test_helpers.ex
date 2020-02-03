@@ -4,6 +4,7 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Ecto.Adapters.SQL.Sandbox
+  alias Meadow.Accounts.User
   alias Meadow.Data.{Collection, FileSet, Work}
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
@@ -27,7 +28,7 @@ defmodule Meadow.TestHelpers do
       user_dn
     end
 
-    Meadow.Accounts.User.find(username)
+    User.find(username)
   end
 
   def ingest_sheet_fixture(attrs \\ %{}) do
