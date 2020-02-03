@@ -15,7 +15,9 @@ defmodule Meadow.LdapCase do
       end
     end)
 
-    :ok
+    with {:ok, connection} <- Exldap.connect() do
+      {:ok, ldap: connection}
+    end
   end
 
   def display_names([]), do: []

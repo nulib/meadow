@@ -1,6 +1,14 @@
 defmodule Meadow.LdapHelpers do
   def add_entry(connection, entry, attributes) do
-    :eldap.add(connection, to_charlist(entry), attributes)
+    entry = to_charlist(entry)
+
+    attributes =
+      case Enum.find(attributes, fn x -> x == {'distinguishedName', entry} end) do
+        nil -> [{'distinguishedName', [entry]} | attributes]
+        _ -> attributes
+      end
+
+    :eldap.add(connection, entry, attributes)
   end
 
   def destroy_entry(connection, entry) do
