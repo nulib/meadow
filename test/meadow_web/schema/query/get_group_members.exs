@@ -22,7 +22,7 @@ defmodule MeadowWeb.Schema.Query.GetGroupMembersTest do
 
     result =
       query_gql(
-        variables: %{"id" => "CN=yyy111 Group,OU=NotMeadow,DC=library,DC=northwestern,DC=edu"},
+        variables: %{"id" => group_dn},
         context: gql_context()
       )
 
