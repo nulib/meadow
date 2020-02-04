@@ -18,13 +18,26 @@ const IngestSheetDownload = ({ sheetId }) => {
 
   //Temporary. Ultimately CSV prep will be handled on the backend.
   const reformattedWorks = works.map(work => {
-    var rWork = {};
-    rWork.accession_number = work.accessionNumber;
-    rWork.id = work.id;
-    rWork.visibility = work.visibility;
-    rWork.workype = work.workType;
-    rWork.title = work.descriptive_metadata.title;
-    rWork.description = work.descriptive_metadata.description;
+    let rWork = {};
+
+    try {
+      rWork.accession_number = work.accessionNumber;
+      rWork.id = work.id;
+      rWork.visibility = work.visibility;
+      rWork.workype = work.workType;
+      rWork.title = work.descriptiveMetadata
+        ? work.descriptiveMetadata.title
+        : "";
+      rWork.description = work.descriptiveMetadata
+        ? work.descriptiveMetadata.description
+        : "";
+    } catch (e) {
+      console.log(
+        "Error attemping to put together works for CSV download file",
+        e
+      );
+    }
+
     return rWork;
   });
 
