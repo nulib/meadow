@@ -5,6 +5,7 @@ Wireframes for Meadow are created using sketch. To ensure consistency, we should
 
 ## Contributing
 - Install [sketch iconfont](https://github.com/keremciu/sketch-iconfont) and [sketch iconfont font bundle](https://github.com/keremciu/font-bundles)
+- You may need to install webfonts. Google's webfont pack can be installed with `curl https://raw.githubusercontent.com/qrpike/Web-Font-Load/master/install.sh | sh` if you want all of them. Alternately, you can use brew and tap the font cask. `brew tap homebrew/cask-font&& brew cask install font-roboto` 
 - Branch and make edits to ingestion-engine-wireframes.sketch
 - As much as possible use styles from the "style guide" or "basic layout compontents"
 - Move any outdated wireframes to "_old"
