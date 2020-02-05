@@ -72,7 +72,7 @@ defmodule Meadow.MixProject do
       {:inflex, "~> 2.0.0"},
       {:jason, "~> 1.0"},
       {:mox, "~> 0.5", only: :test},
-      {:nimble_csv, "~> 0.6.0"},
+      {:nimble_csv, "~> 0.7.0"},
       {:phoenix, "~> 1.4.10"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
