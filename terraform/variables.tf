@@ -70,3 +70,7 @@ variable "ldap_port" {
 variable "ldap_server" {
   type    = string
 }
+
+variable "elasticsearch_url" {
+  type    = string
+}
