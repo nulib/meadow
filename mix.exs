@@ -84,6 +84,7 @@ defmodule Meadow.MixProject do
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:sequins, sequins_version()},
+      {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
       {:ueberauth, "~> 0.2"},
       {:ueberauth_openam, "~> 0.2.0"},

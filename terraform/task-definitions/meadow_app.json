@@ -19,6 +19,10 @@
         "value": "${honeybadger_api_key}"
       },
       {
+        "name": "ELASTICSEARCH_URL",
+        "value": "${elasticsearch_url}"
+      },
+      {
         "name": "INGEST_BUCKET",
         "value": "${ingest_bucket}"
       },

@@ -30,6 +30,21 @@ config :meadow, MeadowWeb.Endpoint,
   http: [:inet6, port: port],
   secret_key_base: get_required_var.("SECRET_KEY_BASE")
 
+config :meadow, Meadow.ElasticsearchCluster,
+  url: get_required_var.("ELASTICSEARCH_URL"),
+  api: Elasticsearch.API.AWS,
+  default_options: [aws: [service: "es"]],
+  json_library: Jason,
+  indexes: %{
+    meadow: %{
+      settings: "priv/elasticsearch/meadow.json",
+      store: Meadow.ElasticsearchStore,
+      sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
+      bulk_page_size: 5000,
+      bulk_wait_interval: 15_000
+    }
+  }
+
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
 config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
