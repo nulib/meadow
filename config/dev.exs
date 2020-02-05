@@ -31,6 +31,9 @@ config :meadow, MeadowWeb.Endpoint,
     ]
   ]
 
+config :meadow, Meadow.ElasticsearchCluster,
+  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9201")
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
@@ -70,8 +73,7 @@ config :meadow,
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
   preservation_bucket: "dev-preservation",
-  pyramid_bucket: "dev-pyramids",
-  ldap_nested_groups: false
+  pyramid_bucket: "dev-pyramids"
 
 config :ex_aws,
   access_key_id: "fake",

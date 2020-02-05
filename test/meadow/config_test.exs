@@ -2,6 +2,10 @@ defmodule Meadow.ConfigTest do
   use ExUnit.Case
   alias Meadow.Config
 
+  test "index_interval/0" do
+    assert Config.index_interval() == 1234
+  end
+
   test "ingest_bucket" do
     assert Config.ingest_bucket() == "test-ingest"
   end

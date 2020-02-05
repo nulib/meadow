@@ -60,14 +60,18 @@ defmodule Meadow.Data.Schemas.Work do
     def encode(work) do
       %{
         model: %{application: "Meadow", name: String.capitalize(work.work_type)},
-        accession_number: work.accession_number,
-        visibility: work.visibility,
         title: work.descriptive_metadata.title,
+        accession_number: work.accession_number,
+        description: work.descriptive_metadata.description,
+        visibility: work.visibility,
+        published: work.published,
         collection:
           case work.collection do
             nil -> []
-            collection -> %{id: collection.id, name: collection.name}
-          end
+            collection -> %{id: collection.id, title: collection.name}
+          end,
+        create_date: work.inserted_at,
+        modified_date: work.updated_at
       }
     end
   end

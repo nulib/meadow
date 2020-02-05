@@ -43,4 +43,20 @@ defmodule Meadow.Data.Schemas.FileSet do
     |> validate_inclusion(:role, @file_set_roles)
     |> set_rank(scope: :work_id)
   end
+
+  defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
+    def id(file_set), do: file_set.id
+    def routing(_), do: false
+
+    def encode(file_set) do
+      %{
+        model: %{application: "Meadow", name: "FileSet"},
+        label: file_set.metadata.description,
+        visibility: file_set.work.visibility,
+        create_date: file_set.inserted_at,
+        modified_date: file_set.updated_at,
+        work_id: file_set.work.id
+      }
+    end
+  end
 end

@@ -4,6 +4,7 @@ defmodule Meadow.Application do
   @moduledoc false
 
   use Application
+  alias Meadow.Config
   alias Meadow.Pipeline
 
   def start(_type, _args) do
@@ -14,7 +15,7 @@ defmodule Meadow.Application do
     # Start the endpoint when the application starts
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
-    children = [
+    base_children = [
       Meadow.ElasticsearchCluster,
       Meadow.Repo,
       MeadowWeb.Endpoint,
@@ -22,6 +23,12 @@ defmodule Meadow.Application do
       {Registry, keys: :unique, name: Meadow.TaskRegistry},
       {ConCache, [name: Meadow.Cache, ttl_check_interval: false]}
     ]
+
+    children =
+      case Mix.env() do
+        :test -> base_children
+        _ -> base_children ++ [{Meadow.Data.IndexWorker, interval: Config.index_interval()}]
+      end
 
     if Meadow.Config.start_pipeline?(), do: Pipeline.start()
 
