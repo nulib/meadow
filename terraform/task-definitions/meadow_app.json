@@ -19,6 +19,14 @@
         "value": "${honeybadger_api_key}"
       },
       {
+        "name": "ELASTICSEARCH_KEY",
+        "value": "${elasticsearch_key}"
+      },
+      {
+        "name": "ELASTICSEARCH_SECRET",
+        "value": "${elasticsearch_secret}"
+      },
+      {
         "name": "ELASTICSEARCH_URL",
         "value": "${elasticsearch_url}"
       },
