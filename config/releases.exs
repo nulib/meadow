@@ -33,7 +33,14 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow, Meadow.ElasticsearchCluster,
   url: get_required_var.("ELASTICSEARCH_URL"),
   api: Elasticsearch.API.AWS,
-  default_options: [aws: [service: "es"]],
+  default_options: [
+    aws: [
+      service: "es",
+      region: get_required_var.("AWS_REGION"),
+      access_key: get_required_var.("ELASTICSEARCH_KEY"),
+      secret: get_required_var.("ELASTICSEARCH_SECRET")
+    ]
+  ],
   json_library: Jason,
   indexes: %{
     meadow: %{

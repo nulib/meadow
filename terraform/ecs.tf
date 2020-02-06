@@ -107,6 +107,8 @@ data "template_file" "container_definitions" {
   vars = {
     database_url          = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
     docker_tag            = terraform.workspace
+    elasticsearch_key     = aws_iam_access_key.meadow_elasticsearch_access_key.id
+    elasticsearch_secret  = aws_iam_access_key.meadow_elasticsearch_access_key.secret
     elasticsearch_url     = var.elasticsearch_url
     honeybadger_api_key   = var.honeybadger_api_key
     host_name             = aws_route53_record.app_hostname.fqdn
