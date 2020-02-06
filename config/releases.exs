@@ -44,7 +44,7 @@ config :meadow, Meadow.ElasticsearchCluster,
   json_library: Jason,
   indexes: %{
     meadow: %{
-      settings: "priv/elasticsearch/meadow.json",
+      settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
       bulk_page_size: 5000,
