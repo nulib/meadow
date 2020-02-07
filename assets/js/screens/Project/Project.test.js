@@ -22,6 +22,7 @@ const mocks = [
       data: {
         project: {
           id: "01DNFK4B8XASXNKBSAKQ6YVNF3",
+          title: MOCK_PROJECT_TITLE,
           ingestSheets: [
             {
               id: "01DNFK56MEN9H0C4CDBE7TECJT",
@@ -36,7 +37,7 @@ const mocks = [
               updatedAt: "2019-10-07T16:16:57"
             }
           ],
-          title: MOCK_PROJECT_TITLE
+          updatedAt: "2019-10-07T16:16:57"
         }
       }
     }
@@ -80,9 +81,10 @@ function setupMatchTests() {
 // });
 
 it("displays the project title", async () => {
-  const { findAllByText } = setupMatchTests();
+  const { findAllByText, debug } = setupMatchTests();
   const projectTitleArray = await findAllByText(MOCK_PROJECT_TITLE);
-  expect(projectTitleArray.length).toBeGreaterThan(1);
+
+  expect(projectTitleArray.length).toEqual(1);
 });
 
 it("renders a button to create a new ingest sheet", async () => {
@@ -90,6 +92,7 @@ it("renders a button to create a new ingest sheet", async () => {
   const button = await waitForElement(() =>
     getByTestId("button-new-ingest-sheet")
   );
+
   expect(button).toBeInTheDocument();
 });
 
@@ -99,9 +102,10 @@ it("renders both screen header and screen content components", async () => {
     screenHeaderElement,
     screenContentElement
   ] = await waitForElement(() => [
-    getByTestId("screen-header"),
+    getByTestId("screen-hero"),
     getByTestId("screen-content")
   ]);
+
   expect(screenHeaderElement).toBeInTheDocument();
   expect(screenContentElement).toBeInTheDocument();
 });

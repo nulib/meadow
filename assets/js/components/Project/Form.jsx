@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import { useHistory, Link } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import UIButton from "../UI/Button";
-import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useToasts } from "react-toast-notifications";
 
-const ProjectForm = () => {
+const ProjectForm = ({ showForm, setShowForm }) => {
   const { addToast } = useToasts();
   let inputTitle;
-  const history = useHistory();
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formError, setFormError] = useState();
   let [createProject, { loading, error: mutationError, data }] = useMutation(
@@ -22,7 +18,7 @@ const ProjectForm = () => {
           appearance: "success",
           autoDismiss: true
         });
-        history.push("/project/list");
+        setShowForm(false);
       },
       onError(error) {
         setFormError(error);
@@ -35,8 +31,11 @@ const ProjectForm = () => {
 
   if (loading) return <Loading />;
 
-  const handleCancel = () => {
-    history.push("/project/list");
+  const handleSubmit = e => {
+    e.preventDefault();
+    createProject({
+      variables: { projectTitle: inputTitle.value }
+    });
   };
 
   const handleInputChange = () => {
@@ -48,57 +47,63 @@ const ProjectForm = () => {
 
   return (
     <div>
-      {formError && (
-        <div className="mb-8">
-          <Error error={formError} />
-        </div>
-      )}
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-          createProject({
-            variables: { projectTitle: inputTitle.value }
-          });
-        }}
-      >
-        <div className="mb-4 md:w-1/2">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="project-title"
-          >
-            Project Title
-          </label>
-          <input
-            autoFocus
-            id="project-title"
-            data-testid="project-title-input"
-            type="text"
-            placeholder="Project Title"
-            ref={node => {
-              inputTitle = node;
-            }}
-            className="text-input"
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <UIButtonGroup>
-          <UIButton
-            type="submit"
-            disabled={submitDisabled || formError}
-            data-testid="submit-button"
-          >
-            Submit
-          </UIButton>
-          <UIButton
-            className="btn-clear"
-            onClick={handleCancel}
-            data-testid="cancel-button"
-          >
-            Cancel
-          </UIButton>
-        </UIButtonGroup>
-      </form>
+      <div className={`modal ${showForm ? "is-active" : ""}`}>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-background"></div>
+          <div className="modal-content">
+            <div className="box">
+              {formError && (
+                <div className="notification">
+                  <Error error={formError} />
+                </div>
+              )}
+              <div className="field">
+                <label className="label" htmlFor="project-title">
+                  Project
+                </label>
+                <div className="control">
+                  <input
+                    id="project-title"
+                    type="text"
+                    data-testid="project-title-input"
+                    name="project-title"
+                    className="input"
+                    placeholder="Name your project..."
+                    ref={node => {
+                      inputTitle = node;
+                    }}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="buttons">
+                <button
+                  type="submit"
+                  className="button is-primary"
+                  disabled={submitDisabled || formError}
+                  data-testid="submit-button"
+                >
+                  Create
+                </button>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => setShowForm(false)}
+                  data-testid="cancel-button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            className="modal-close is-large"
+            type="button"
+            aria-label="close"
+            onClick={() => setShowForm(false)}
+          ></button>
+        </form>
+      </div>
     </div>
   );
 };

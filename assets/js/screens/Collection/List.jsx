@@ -6,7 +6,6 @@ import { useQuery } from "@apollo/react-hooks";
 import { GET_COLLECTIONS } from "../../components/Collection/collection.query";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 import { Link } from "react-router-dom";
 import debounce from "lodash.debounce";
 
@@ -68,7 +67,6 @@ const ScreensCollectionList = () => {
             ref={inputEl}
           />
           <Link to="/collection/form" className="btn">
-            <AddOutlineIcon className="icon" />
             Create collection
           </Link>
         </section>

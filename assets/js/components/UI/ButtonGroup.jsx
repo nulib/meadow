@@ -1,7 +1,9 @@
 import React from "react";
 
-const ButtonGroup = ({ children }) => (
-  <div className="my-6 flex button-group">{children}</div>
+const ButtonGroup = ({ children, ...props }) => (
+  <div className="buttons" {...props}>
+    {children}
+  </div>
 );
 
 export default ButtonGroup;

@@ -6,7 +6,7 @@ const IngestSheetErrorsState = ({ validations }) => {
     object && object.errors && object.errors.length > 0;
   return (
     <>
-      <table>
+      <table className="table is-striped is-hoverable is-fullwidth">
         <caption>Ingest sheet validation row errors</caption>
         <thead>
           <tr>
@@ -20,7 +20,9 @@ const IngestSheetErrorsState = ({ validations }) => {
           {validations.map(object => (
             <tr key={object.row}>
               <td>{object && object.row}</td>
-              <td>{object && object.state}</td>
+              <td>
+                <span className="tag is-danger">{object && object.state}</span>
+              </td>
               <td>
                 {object && object.fields.map(field => field.value).join("; ")}
               </td>

@@ -1,4 +1,5 @@
 import React from "react";
+import Layout from "../Layout";
 import ProjectForm from "../../components/Project/Form";
 import ScreenHeader from "../../components/UI/ScreenHeader";
 import ScreenContent from "../../components/UI/ScreenContent";
@@ -7,26 +8,26 @@ const ScreensProjectForm = ({}) => {
   const createCrumbs = () => {
     return [
       {
-        label: "Projects",
+        title: "Projects",
         link: "/project/list"
       },
       {
-        label: `Create`,
+        title: `Create`,
         link: `/project/create`
       }
     ];
   };
   return (
-    <>
-      <ScreenHeader
-        title="Create Ingest Project"
-        description="Start a new Project by creating a name for your project"
-        breadCrumbs={createCrumbs()}
-      />
-      <ScreenContent>
-        <ProjectForm />
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="hero is-light">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">Add Project</h1>
+          </div>
+        </div>
+      </section>
+      <ProjectForm />
+    </Layout>
   );
 };
 

@@ -1,0 +1,10 @@
+button.button {
+  border-radius: 2px;
+}
+table {
+  caption {
+    @extend .has-text-grey;
+    @extend .is-italic;
+    @extend .is-size-6;
+  }
+}

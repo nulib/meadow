@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import EditIcon from "../../../css/fonts/zondicons/edit-pencil.svg";
 import UICard from "../UI/Card";
 
 const CollectionListRow = ({ collection }) => {
@@ -13,9 +12,7 @@ const CollectionListRow = ({ collection }) => {
           <h2 className="mt-0">
             <Link to={`/collection/${id}`}>{name}</Link>
           </h2>
-          <Link to={`/collection/form/${id}`}>
-            <EditIcon className="icon" /> <span className="sr-only">Edit</span>
-          </Link>
+          <Link to={`/collection/form/${id}`}>Edit</Link>
         </header>
         <div className="flex flex-col sm:flex-row">
           <img

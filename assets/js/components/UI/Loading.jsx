@@ -1,12 +1,13 @@
 import React from "react";
 
 const Loading = () => (
-  <div
+  <progress
     data-testid="loading"
-    className="spinner top-0 left-0 w-screen h-screen z-50"
+    className="progress is-small is-primary"
+    max="100"
   >
-    <p>spinning...</p>
-  </div>
+    15%
+  </progress>
 );
 
 export default Loading;

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import UserIcon from "../../../../css/fonts/zondicons/user.svg";
-import CheveronDownIcon from "../../../../css/fonts/zondicons/cheveron-down.svg";
 import { withRouter } from "react-router-dom";
 import client from "../../../client";
 
@@ -18,14 +16,13 @@ const UIUserTopNav = ({ currentUser }) => {
   return (
     <div className="relative">
       <button onClick={() => setDropdownOpen(!dropdownOpen)}>
-        <UserIcon width={100} height={100} className="icon" />
-        <CheveronDownIcon width={100} height={100} className="icon" />
+        User icon Chevron goes here?
       </button>
       {dropdownOpen && (
-        <ul className="absolute w-32 right-0 text-right my-4 p-2 bg-gray-200">
+        <ul className="">
           <li>{currentUser.displayName}</li>
           <li>
-            <button className="btn btn-link" onClick={handleClick}>
+            <button className="" onClick={handleClick}>
               Logout
             </button>
           </li>

@@ -3,18 +3,18 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { GET_PROJECT } from "../Project/project.query";
 import { useMutation } from "@apollo/react-hooks";
-import UIButton from "../UI/Button";
-import UIButtonGroup from "../UI/ButtonGroup";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
 import { useToasts } from "react-toast-notifications";
-import Upload from "../../../css/fonts/zondicons/upload.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
+const IngestSheetUpload = ({ projectId, presignedUrl }) => {
+  const history = useHistory();
   const { addToast } = useToasts();
   const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
+  const [fileNameString, setFileNameString] = useState("No file uploaded");
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
     {
@@ -38,6 +38,12 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
     event.persist();
     const { name, value } = event.target;
     setValues({ ...values, [name]: value });
+
+    if (name === "file") {
+      if (event.target.files.length > 0) {
+        setFileNameString(event.target.files[0].name);
+      }
+    }
   };
 
   const handleCancel = e => {
@@ -45,10 +51,8 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
   };
 
   const handleSubmit = async e => {
-    console.log("enters handleSubmit");
     e.preventDefault();
     await uploadToS3();
-    console.log("upload to s3 done");
     await createIngestSheet({
       variables: {
         name: ingest_sheet_name,
@@ -96,46 +100,83 @@ const IngestSheetUpload = ({ projectId, presignedUrl, history }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Error error={error} />
-      <div className="mb-4">
-        <label htmlFor="ingest_sheet_name">Ingest Sheet Name</label>
-        <input
-          id={"ingest_sheet_name"}
-          name="ingest_sheet_name"
-          type="text"
-          className="text-input"
-          onChange={handleInputChange}
-        />
+    <div className="columns">
+      <div className="column is-half is-offset-one-quarter">
+        <form onSubmit={handleSubmit}>
+          <Error error={error} />
+          <div className="field">
+            <label htmlFor="ingest_sheet_name" className="label">
+              Ingest Sheet Name
+            </label>
+            <div className="control">
+              <input
+                id={"ingest_sheet_name"}
+                name="ingest_sheet_name"
+                type="text"
+                className="input"
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+          <div className="field">
+            <div id="file-js-example" className="file has-name">
+              <label className="file-label">
+                <input
+                  className="file-input"
+                  id="file"
+                  name="file"
+                  type="file"
+                  onChange={handleInputChange}
+                />
+                <span className="file-cta">
+                  <span className="file-icon">
+                    <FontAwesomeIcon icon="file-upload" />
+                  </span>
+                  <span className="file-label">Choose a file…</span>
+                </span>
+                <span className="file-name">{fileNameString}</span>
+              </label>
+            </div>
+            {/* <div className="file">
+              <label className="file-label">
+                <input
+                  className="file-input"
+                  id={"file"}
+                  name="file"
+                  type="file"
+                  onChange={handleInputChange}
+                />
+                <span className="file-cta">
+                  <span className="file-icon">
+                    <FontAwesomeIcon icon="file-upload" />
+                  </span>
+                  <span className="file-label">Choose a file…</span>
+                </span>
+              </label>
+            </div> */}
+          </div>
+
+          <div className="buttons">
+            <button
+              type="submit"
+              className="button is-primary"
+              disabled={isSubmitDisabled()}
+            >
+              Submit
+            </button>
+            <button type="button" className="button" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-      <div className="mb-4">
-        <label htmlFor="file">Ingest Sheet File</label>
-        <input
-          id={"file"}
-          name="file"
-          type="file"
-          onChange={handleInputChange}
-        />
-      </div>
-      <UIButtonGroup>
-        <UIButton type="submit" disabled={isSubmitDisabled()}>
-          <Upload className="icon" />
-          Upload CSV File
-        </UIButton>
-        <UIButton className="btn-clear" onClick={handleCancel}>
-          Cancel
-        </UIButton>
-      </UIButtonGroup>
-    </form>
+    </div>
   );
 };
 
 IngestSheetUpload.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired,
   projectId: PropTypes.string.isRequired,
   presignedUrl: PropTypes.string.isRequired
 };
 
-export default withRouter(IngestSheetUpload);
+export default IngestSheetUpload;

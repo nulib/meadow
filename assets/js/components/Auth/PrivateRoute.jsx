@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { AuthContext } from "./Auth";
 import { Route, Redirect } from "react-router-dom";
-import Layout from "../../screens/Layout";
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const me = useContext(AuthContext);
@@ -11,9 +10,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
       {...rest}
       render={props =>
         me ? (
-          <Layout>
-            <Component {...props} />
-          </Layout>
+          <Component {...props} />
         ) : (
           <Redirect
             to={{

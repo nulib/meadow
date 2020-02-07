@@ -1,35 +1,35 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import CheveronRightIcon from "../../../css/fonts/zondicons/cheveron-right.svg";
 
-const Breadcrumbs = ({ crumbs = [] }) => (
-  <ul className="text-xl mb-4" data-testid="breadcrumbs">
-    {crumbs.map(({ label, link, labelWithoutLink }, i) => (
-      <li className="inline-block" key={label}>
-        {labelWithoutLink && (
-          <span className="mr-1 font-light text-gray-600">
-            {labelWithoutLink}
-          </span>
-        )}
-        {link ? <Link to={link}>{label}</Link> : label}
-
-        {i !== crumbs.length - 1 && (
-          <span className="px-4">
-            <CheveronRightIcon className="icon" />
-          </span>
-        )}
-      </li>
-    ))}
-  </ul>
+const Breadcrumbs = ({ items = [] }) => (
+  <nav
+    className="breadcrumb box is-shadowless"
+    aria-label="breadcrumbs"
+    data-testid="breadcrumbs"
+  >
+    <ul>
+      {items.map(({ label, route, isActive }) =>
+        isActive ? (
+          <li key={label} className="is-active">
+            <a aria-current="page">{label}</a>
+          </li>
+        ) : (
+          <li key={label}>
+            <Link to={route}>{label}</Link>
+          </li>
+        )
+      )}
+    </ul>
+  </nav>
 );
 
 Breadcrumbs.propTypes = {
-  crumbs: PropTypes.arrayOf(
+  items: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string,
-      link: PropTypes.string,
-      labelWithoutLink: PropTypes.string
+      label: PropTypes.string.isRequred,
+      route: PropTypes.string,
+      isActive: PropTypes.bool
     })
   )
 };
