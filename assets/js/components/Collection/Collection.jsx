@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
-import EditIcon from "../../../css/fonts/zondicons/edit-pencil.svg";
 import CollectionSearch from "./Search";
 import UIButton from "../UI/Button";
 import UICard from "../UI/Card";
@@ -48,7 +47,7 @@ const Collection = ({ id, name, description, keywords = [] }) => {
           <h1>{name}</h1>
           <div>
             <UIButton onClick={() => history.push(`/collection/form/${id}`)}>
-              <EditIcon className="icon" /> Edit
+              Edit
             </UIButton>
             <button
               className="btn-link ml-4"

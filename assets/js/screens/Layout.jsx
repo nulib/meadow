@@ -1,16 +1,22 @@
 import React from "react";
-import Sidebar from "../components/UI/Sidebar";
-import ContentWrapper from "../components/UI/ContentWrapper";
+import PropTypes from "prop-types";
+import UILayoutFooter from "../components/UI/Layout/Footer";
+import UILayoutNavBar from "../components/UI/Layout/NavBar";
 
 const Layout = ({ children }) => {
   return (
-    <div className="w-full container mx-auto px-6">
-      <div className="lg:flex -mx-6">
-        <Sidebar />
-        <ContentWrapper>{children}</ContentWrapper>
+    <>
+      <UILayoutNavBar />
+      <div>
+        <main>{children}</main>
+        <UILayoutFooter />
       </div>
-    </div>
+    </>
   );
+};
+
+Layout.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 export default Layout;

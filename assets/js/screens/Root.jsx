@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { ToastProvider } from "react-toast-notifications";
 import { AuthProvider } from "../components/Auth/Auth";
-import Header from "../components/UI/Header/Header";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
@@ -26,7 +25,6 @@ export default class Root extends React.Component {
         <ToastProvider>
           <BrowserRouter>
             <ScrollToTop />
-            <Header />
             <Switch>
               <Route exact path="/login" component={Login} />
               <PrivateRoute

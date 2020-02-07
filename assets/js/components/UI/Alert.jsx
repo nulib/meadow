@@ -1,7 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import InformationOutlineIcon from "../../../css/fonts/zondicons/information-outline.svg";
-import CheckmarkOutlineIcon from "../../../css/fonts/zondicons/checkmark-outline.svg";
 
 const UIAlert = ({
   title = "You should include a title",
@@ -12,8 +10,8 @@ const UIAlert = ({
     <div data-testid="ui-alert" className={`alert my-4 ${type}`} role="alert">
       <div className="flex">
         <div className="py-1">
-          {type === "success" && <CheckmarkOutlineIcon className="icon" />}
-          {type !== "success" && <InformationOutlineIcon className="icon" />}
+          {type === "success" && "success checkmark icon here"}
+          {type !== "success" && "info icon here"}
         </div>
         <div>
           <p className="font-bold">{title}</p>

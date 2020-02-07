@@ -30,6 +30,7 @@ export const GET_PROJECT = gql`
         status
         updatedAt
       }
+      updatedAt
     }
   }
 `;

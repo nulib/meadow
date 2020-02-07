@@ -6,6 +6,7 @@ import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import IngestSheetDownload from "./Completed/Download";
+import WorkListItem from "../Work/ListItem";
 
 const IngestSheetCompleted = ({ sheetId }) => {
   const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
@@ -20,20 +21,26 @@ const IngestSheetCompleted = ({ sheetId }) => {
 
   return (
     <>
-      <IngestSheetDownload sheetId={sheetId} />
-      <div className="my-8">
-        <input
-          type="checkbox"
-          className="mr-2"
-          onChange={() => setShowErrors(!showErrors)}
-        />
-        Show errors
-      </div>
+      {/* <IngestSheetDownload sheetId={sheetId} /> */}
+      <p>
+        <label className="checkbox">
+          <input type="checkbox" onChange={() => setShowErrors(!showErrors)} />
+          Show errors
+        </label>
+      </p>
 
       {showErrors && <IngestSheetCompletedErrors sheetId={sheetId} />}
-      <section>
-        {works.length > 0 &&
-          works.map(work => <WorkRow key={work.id} work={work} />)}
+      <section className="section">
+        <div className="columns is-multiline">
+          {works.map(work => (
+            <div
+              key={work.id}
+              className="column is-half-tablet is-one-third-desktop"
+            >
+              <WorkListItem key={work.id} work={work} />
+            </div>
+          ))}
+        </div>
       </section>
     </>
   );

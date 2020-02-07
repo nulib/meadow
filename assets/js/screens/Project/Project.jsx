@@ -1,20 +1,19 @@
 import React from "react";
-import { withRouter } from "react-router";
+import { useParams } from "react-router";
+import Layout from "../Layout";
 import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { useQuery } from "@apollo/react-hooks";
-import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
 } from "../../components/Project/project.query";
+import { formatDate } from "../../services/helpers";
 
-const ScreensProject = ({ match }) => {
-  const { id } = match.params;
+const ScreensProject = () => {
+  const { id } = useParams();
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id }
   });
@@ -52,38 +51,47 @@ const ScreensProject = ({ match }) => {
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
+  const breadCrumbs = [
+    {
+      label: "Projects",
+      link: "/project/list"
+    },
+    {
+      label: `${data.project.title}`,
+      link: `/project/${data.project.id}`
+    }
+  ];
+
   return (
-    <div>
+    <Layout>
       {data.project && (
-        <>
-          <ScreenHeader
-            title={data.project.title}
-            description="The following is a list of all active Ingest Sheets for a project"
-            breadCrumbs={[
-              {
-                label: "Projects",
-                link: "/project/list"
-              },
-              {
-                label: `${data.project.title}`,
-                link: `/project/${data.project.id}`
-              }
-            ]}
-          />
+        <div>
+          <section className="hero is-light" data-testid="screen-hero">
+            <div className="hero-body">
+              <div className="container">
+                <h1 className="title">{data.project.title}</h1>
+                <h2 className="subtitle">
+                  Last updated:{" "}
+                  <span className="is-italic">
+                    {formatDate(data.project.updatedAt)}
+                  </span>
+                </h2>
+                <Link
+                  to={{
+                    pathname: `/project/${id}/ingest-sheet/upload`,
+                    state: { projectId: data.project.id }
+                  }}
+                  className="button is-primary"
+                  data-testid="button-new-ingest-sheet"
+                >
+                  Add an Ingest Sheet
+                </Link>
+              </div>
+            </div>
+          </section>
 
-          <ScreenContent>
-            <Link
-              to={{
-                pathname: `/project/${id}/ingest-sheet/upload`,
-                state: { projectId: data.project.id }
-              }}
-              className="btn mb-4"
-              data-testid="button-new-ingest-sheet"
-            >
-              <AddOutlineIcon className="icon" /> New Ingest Sheet
-            </Link>
-
-            <section>
+          <section className="section" data-testid="screen-content">
+            <div className="container">
               <IngestSheetList
                 project={data.project}
                 subscribeToIngestSheetStatusChanges={() =>
@@ -94,12 +102,12 @@ const ScreensProject = ({ match }) => {
                   })
                 }
               />
-            </section>
-          </ScreenContent>
-        </>
+            </div>
+          </section>
+        </div>
       )}
-    </div>
+    </Layout>
   );
 };
 
-export default withRouter(ScreensProject);
+export default ScreensProject;

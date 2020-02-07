@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { INGEST_SHEET_EXPORT_CSV } from "../ingestSheet.query";
 import { CSVLink } from "react-csv";
 import Error from "../../UI/Error";
-import DownloadIcon from "../../../../css/fonts/zondicons/download.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const IngestSheetDownload = ({ sheetId }) => {
   const { loading, error, data } = useQuery(INGEST_SHEET_EXPORT_CSV, {
@@ -44,14 +44,19 @@ const IngestSheetDownload = ({ sheetId }) => {
   return (
     <>
       {works.length > 0 && (
-        <CSVLink
-          data={reformattedWorks}
-          filename={`ingest_sheet_${sheetId}.csv`}
-          className="btn btn-primary"
-          target="_blank"
-        >
-          <DownloadIcon className="icon"></DownloadIcon> Download .csv
-        </CSVLink>
+        <div className="buttons">
+          <CSVLink
+            data={reformattedWorks}
+            filename={`ingest_sheet_${sheetId}.csv`}
+            className="button"
+            target="_blank"
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="file-download" />
+            </span>
+            <span>Download .csv</span>
+          </CSVLink>
+        </div>
       )}
     </>
   );

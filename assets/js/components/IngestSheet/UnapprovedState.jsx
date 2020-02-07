@@ -65,7 +65,7 @@ const IngestSheetUnapprovedState = ({ validations }) => {
   }
 
   return (
-    <table className="mb-6">
+    <table className="table is-striped is-fullwidth is-bordered">
       <thead>
         <tr>
           <th>Work Accession Number</th>

@@ -21,7 +21,7 @@ describe("ProjectForm component", () => {
 
   it("disables the submit button when project title text input has no value", () => {
     const { getByLabelText, getByTestId, debug } = setUpTests();
-    const el = getByLabelText(/project title/i);
+    const el = getByLabelText(/project/i);
     const button = getByTestId("submit-button");
 
     expect(el).toBeInTheDocument();

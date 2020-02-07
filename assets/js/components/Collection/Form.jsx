@@ -115,7 +115,6 @@ const CollectionForm = ({ collection }) => {
       .split(",")
       .map(keyword => keyword.trim());
 
-    console.log("submitted form values :", values);
     if (!collection) {
       createCollection({
         variables: { ...values }

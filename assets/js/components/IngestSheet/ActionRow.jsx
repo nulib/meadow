@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import ButtonGroup from "../UI/ButtonGroup";
-import UIButton from "../UI/Button";
-import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
-import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import UIModalDelete from "../UI/Modal/Delete";
 import { DELETE_INGEST_SHEET, APPROVE_INGEST_SHEET } from "./ingestSheet.query";
 import { useMutation } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
-import ReactRouterPropTypes from "react-router-prop-types";
-import { withRouter } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
+import { useHistory } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const IngestSheetActionRow = ({ projectId, sheetId, status, history }) => {
+const IngestSheetActionRow = ({ projectId, sheetId, status }) => {
+  const history = useHistory();
   const { addToast } = useToasts();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
@@ -50,21 +48,22 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, history }) => {
   };
 
   return (
-    <div className="my-12">
+    <div className="box is-shadowless">
       <ButtonGroup>
         {showApproveButton && (
-          <UIButton onClick={handleApproveClick}>
-            <CheckMarkIcon className="icon" />
-            Approve ingest sheet
-          </UIButton>
+          <button className="button is-primary" onClick={handleApproveClick}>
+            <span className="icon">
+              <FontAwesomeIcon icon="thumbs-up" />
+            </span>{" "}
+            <span>Approve ingest sheet</span>
+          </button>
         )}
-        <UIButton
-          className={showApproveButton ? `btn-clear` : ``}
-          onClick={onOpenModal}
-        >
-          <TrashIcon className="icon" />
-          Delete ingest sheet / job and start over
-        </UIButton>
+        <button className={`button is-small`} onClick={onOpenModal}>
+          <span className="icon">
+            <FontAwesomeIcon icon="trash" />
+          </span>{" "}
+          <span>Delete ingest sheet / job and start over</span>
+        </button>
       </ButtonGroup>
 
       {approveLoading && <p>Approval loading...</p>}
@@ -83,8 +82,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, history }) => {
 IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
   sheetId: PropTypes.string,
-  status: PropTypes.string,
-  history: ReactRouterPropTypes.history
+  status: PropTypes.string
 };
 
-export default withRouter(IngestSheetActionRow);
+export default IngestSheetActionRow;

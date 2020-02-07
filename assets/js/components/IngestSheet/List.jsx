@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
 import UIModalDelete from "../UI/Modal/Delete";
-import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
 import { useToasts } from "react-toast-notifications";
+import UINotification from "../UI/Notification";
+import { getClassFromIngestSheetStatus } from "../../services/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // delete/refine later
+// TODO: Pull this into a common service
 export const TEMP_USER_FRIENDLY_STATUS = {
   UPLOADED: "Validation in progress...",
   ROW_FAIL: "Validation Errors",
@@ -31,12 +34,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     deleteIngestSheet,
     { data: deleteIngestSheetData, error: deleteIngestSheetError }
   ] = useMutation(DELETE_INGEST_SHEET, {
-    update(
-      cache,
-      {
-        data: { deleteIngestSheet }
-      }
-    ) {
+    update(cache, { data: { deleteIngestSheet } }) {
       try {
         const { project } = client.readQuery({
           query: GET_INGEST_SHEETS,
@@ -56,6 +54,12 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
       } catch (error) {
         console.log("Error reading from cache", error);
       }
+    },
+    onCompleted({ deleteIngestSheet }) {
+      addToast("Ingest sheet deleted successfully", {
+        appearance: "success",
+        autoDismiss: true
+      });
     }
   });
 
@@ -84,19 +88,22 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   return (
     <div>
       {project.ingestSheets.length === 0 && (
-        <p data-testid="no-ingest-sheets-notification">
+        <UINotification
+          data-testid="no-ingest-sheets-notification"
+          className="is-warning"
+        >
           No ingest sheets are found.
-        </p>
+        </UINotification>
       )}
 
       {project.ingestSheets.length > 0 && (
         <>
-          <table>
+          <table className="table is-striped is-hoverable is-fullwidth">
             <caption>All Project Ingest Sheets</caption>
             <thead>
               <tr>
                 <th>Ingest sheet title</th>
-                <th>Last updated</th>
+                <th className="has-text-right">Last updated</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -109,14 +116,24 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       {name}
                     </Link>
                   </td>
-                  <td>{updatedAt}</td>
-                  <td>{TEMP_USER_FRIENDLY_STATUS[status]}</td>
-                  <td className="text-right">
+                  <td className="has-text-right">{updatedAt}</td>
+                  <td>
+                    <span
+                      className={`tag ${getClassFromIngestSheetStatus(status)}`}
+                    >
+                      {TEMP_USER_FRIENDLY_STATUS[status]}
+                    </span>
+                  </td>
+                  <td className="has-text-right">
                     {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
                       status
                     ) > -1 && (
-                      <button onClick={e => onOpenModal(e, id)}>
-                        <TrashIcon className="icon cursor-pointer" />
+                      <button
+                        className="button"
+                        onClick={e => onOpenModal(e, id)}
+                      >
+                        {<FontAwesomeIcon icon="trash" />}{" "}
+                        <span className="sr-only">Delete</span>
                       </button>
                     )}
                   </td>

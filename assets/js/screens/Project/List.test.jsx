@@ -40,13 +40,17 @@ it("renders a create new project button", async () => {
   expect(buttonElement).toBeInTheDocument();
 });
 
-it("renders screen header and screen content components", async () => {
+it("renders hero page section and main page content section", async () => {
   const { getByTestId } = renderWithRouterApollo(
     wrapWithToast(<ScreensProjectList />)
   );
-  const [screenHeaderElement, screenContentElement] = await waitForElement(
-    () => [getByTestId("screen-header"), getByTestId("screen-content")]
-  );
+  const [
+    screenHeaderElement,
+    screenContentElement
+  ] = await waitForElement(() => [
+    getByTestId("screen-hero"),
+    getByTestId("screen-content")
+  ]);
   expect(screenHeaderElement).toBeInTheDocument();
   expect(screenContentElement).toBeInTheDocument();
 });

@@ -1,0 +1,9 @@
+@charset "utf-8";
+@import "./scss/fonts";
+
+// Custom variables go before importing Bulma
+@import "./scss/variables";
+
+@import "~bulma/bulma";
+
+@import "./scss/base";

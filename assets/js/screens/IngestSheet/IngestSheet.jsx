@@ -12,6 +12,10 @@ import {
   INGEST_SHEET_SUBSCRIPTION,
   INGEST_SHEET_QUERY
 } from "../../components/IngestSheet/ingestSheet.query";
+import Layout from "../Layout";
+import { getClassFromIngestSheetStatus } from "../../services/helpers";
+import IngestSheetDownload from "../../components/IngestSheet/Completed/Download";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: String!) {
@@ -55,46 +59,85 @@ const ScreensIngestSheet = ({ match }) => {
   const createCrumbs = () => {
     return [
       {
-        label: "Projects",
-        link: "/project/list"
-      },
-      {
-        label: ingestSheet.project.title,
-        link: `/project/${id}`
+        label: `Project :: ${ingestSheet.project.title}`,
+        route: `/project/${id}`
       },
       {
         label: ingestSheet.name,
-        link: `/project/${id}/ingest-sheet/${sheetId}`,
-        labelWithoutLink: "Sheet:"
+        route: `/project/${id}/ingest-sheet/${sheetId}`,
+        isActive: true
       }
     ];
   };
 
   return (
-    <>
-      <ScreenHeader
-        title="Ingest Sheet"
-        description="Feedback on the current status of an Ingest Sheet .csv file moving into the system."
-        breadCrumbs={createCrumbs()}
-      />
-      <ScreenContent>
-        <IngestSheet
-          ingestSheetData={sheetData.ingestSheet}
-          projectId={id}
-          subscribeToIngestSheetUpdates={() =>
-            subscribeToMore({
-              document: INGEST_SHEET_SUBSCRIPTION,
-              variables: { sheetId },
-              updateQuery: (prev, { subscriptionData }) => {
-                if (!subscriptionData.data) return prev;
-                const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-                return { ingestSheet: { ...updatedSheet } };
-              }
-            })
-          }
-        />
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="hero is-light">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">
+              {ingestSheet.name}{" "}
+              <span
+                className={`tag ${getClassFromIngestSheetStatus(
+                  sheetData.ingestSheet.status
+                )}`}
+              >
+                Status should go here
+              </span>
+            </h1>
+            <h2 className="subtitle">Ingest Sheet</h2>
+            <IngestSheetDownload sheetId={sheetId} />
+          </div>
+        </div>
+      </section>
+      <div className="container">
+        <UIBreadcrumbs items={createCrumbs()} />
+      </div>
+
+      <section className="section">
+        <div className="container">
+          <IngestSheet
+            ingestSheetData={sheetData.ingestSheet}
+            projectId={id}
+            subscribeToIngestSheetUpdates={() =>
+              subscribeToMore({
+                document: INGEST_SHEET_SUBSCRIPTION,
+                variables: { sheetId },
+                updateQuery: (prev, { subscriptionData }) => {
+                  if (!subscriptionData.data) return prev;
+                  const updatedSheet = subscriptionData.data.ingestSheetUpdate;
+                  return { ingestSheet: { ...updatedSheet } };
+                }
+              })
+            }
+          />
+        </div>
+      </section>
+    </Layout>
+    // <>
+    //   <ScreenHeader
+    //     title="Ingest Sheet"
+    //     description="Feedback on the current status of an Ingest Sheet .csv file moving into the system."
+    //     breadCrumbs={createCrumbs()}
+    //   />
+    //   <ScreenContent>
+    //     <IngestSheet
+    //       ingestSheetData={sheetData.ingestSheet}
+    //       projectId={id}
+    //       subscribeToIngestSheetUpdates={() =>
+    //         subscribeToMore({
+    //           document: INGEST_SHEET_SUBSCRIPTION,
+    //           variables: { sheetId },
+    //           updateQuery: (prev, { subscriptionData }) => {
+    //             if (!subscriptionData.data) return prev;
+    //             const updatedSheet = subscriptionData.data.ingestSheetUpdate;
+    //             return { ingestSheet: { ...updatedSheet } };
+    //           }
+    //         })
+    //       }
+    //     />
+    //   </ScreenContent>
+    // </>
   );
 };
 

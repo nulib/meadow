@@ -1,8 +1,8 @@
-import React from "react";
-import UIAlert from "../UI/Alert";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 const IngestSheetAlert = ({ ingestSheet }) => {
+  const [showMessage, setShowMessage] = useState(true);
   if (!ingestSheet) return null;
 
   const { status, fileErrors } = ingestSheet;
@@ -11,7 +11,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
   switch (status) {
     case "APPROVED":
       alertObj = {
-        type: "info",
+        type: "is-info",
         title: "Approved",
         body:
           "The Ingest Sheet has been approved and the ingest is in progress."
@@ -19,7 +19,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       break;
     case "COMPLETED":
       alertObj = {
-        type: "success",
+        type: "is-success",
         title: "Ingestion Complete",
         body: "All files have been processed."
       };
@@ -27,14 +27,14 @@ const IngestSheetAlert = ({ ingestSheet }) => {
     case "DELETED":
       // Not sure if someone could actually end up here
       alertObj = {
-        type: "danger",
+        type: "is-danger",
         title: "Deleted",
         body: "Ingest sheet no longer exists."
       };
       break;
     case "FILE_FAIL":
       alertObj = {
-        type: "danger",
+        type: "is-danger",
         title: "File errors",
         body: fileErrors.length > 0 ? fileErrors.join(", ") : ""
       };
@@ -43,21 +43,21 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       // Peel off ingestSheet.ingestSheetRows and inspect the "errors" array for each row to
       // give additional user feedback.  Put that data in "body"s value below.
       alertObj = {
-        type: "danger",
+        type: "is-danger",
         title: "File has failing rows",
         body: "See the error report below for details."
       };
       break;
     case "UPLOADED":
       alertObj = {
-        type: "info",
+        type: "is-info",
         title: "File uploaded",
         body: "Ingest sheet validation is in progress."
       };
       break;
     case "VALID":
       alertObj = {
-        type: "success",
+        type: "is-success",
         title: "File is valid",
         body: "All checks have passed and the ingest sheet is valid."
       };
@@ -66,7 +66,19 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       break;
   }
 
-  return <UIAlert {...alertObj} />;
+  return showMessage ? (
+    <article className={`message ${alertObj.type}`} data-testid="ui-alert">
+      <div className="message-header">
+        <p>{alertObj.title}</p>
+        <button
+          className="delete"
+          aria-label="delete"
+          onClick={() => setShowMessage(false)}
+        ></button>
+      </div>
+      <div className="message-body">{alertObj.body}</div>
+    </article>
+  ) : null;
 };
 
 IngestSheetAlert.propTypes = {

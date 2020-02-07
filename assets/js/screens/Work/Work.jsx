@@ -1,12 +1,12 @@
 import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_WORK } from "../../components/Work/work.query";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import Layout from "../Layout";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 import Work from "../../components/Work/Work";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensWork = () => {
   const { id } = useParams();
@@ -19,22 +19,39 @@ const ScreensWork = () => {
 
   const { work } = data;
 
+  const breadCrumbs = [
+    {
+      label: "Project :: name here",
+      route: "/"
+    },
+    {
+      label: "Ingest Sheet :: name here",
+      route: "/"
+    },
+    {
+      label: work.accessionNumber,
+      isActive: true
+    }
+  ];
+
   return (
-    <>
-      <ScreenHeader
-        title={id}
-        description="A work in the system, defined by Accession Number and container file sets."
-        breadCrumbs={[
-          {
-            label: `${work.accessionNumber}`,
-            link: `/work/${id}`
-          }
-        ]}
-      />
-      <ScreenContent>
-        <Work work={data.work} />
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="hero is-light">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">{work.accessionNumber}</h1>
+            <h2 className="subtitle">Work Accession Number</h2>
+            <Link to="/" className="button is-primary">
+              Edit work
+            </Link>
+          </div>
+        </div>
+      </section>
+      <div className="container">
+        <UIBreadcrumbs items={breadCrumbs} />
+      </div>
+      <Work work={data.work} />
+    </Layout>
   );
 };
 

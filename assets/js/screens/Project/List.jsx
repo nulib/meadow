@@ -1,30 +1,40 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import Layout from "../Layout";
 import ProjectList from "../../components/Project/List";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
-import AddOutlineIcon from "../../../css/fonts/zondicons/add-outline.svg";
+import ProjectForm from "../../components/Project/Form";
 
 const ScreensProjectList = () => {
+  const [showForm, setShowForm] = useState();
+
   return (
-    <>
-      <ScreenHeader
-        title="Ingestion Projects"
-        description="The following is a list of all active Ingestion Projects"
-        breadCrumbs={[{ label: "Projects", link: "/project/list" }]}
-      />
-      <ScreenContent>
-        <Link
-          data-testid="button-new-project"
-          to="/project/create"
-          className="btn"
-        >
-          <AddOutlineIcon className="icon" />
-          Create Project
-        </Link>
-        <ProjectList />
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="hero is-light" data-testid="screen-hero">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">Projects</h1>
+            <h2 className="subtitle">
+              What is a project? Projects contain{" "}
+              <span className="is-italic">Ingest Sheets</span>
+            </h2>
+            <button
+              className="button is-primary"
+              data-testid="button-new-project"
+              onClick={() => setShowForm(!showForm)}
+            >
+              Add Project
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div className="section" data-testid="screen-content">
+        <div className="container">
+          <ProjectList />
+        </div>
+      </div>
+
+      <ProjectForm showForm={showForm} setShowForm={setShowForm} />
+    </Layout>
   );
 };
 

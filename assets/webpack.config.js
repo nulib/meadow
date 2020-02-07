@@ -6,12 +6,12 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = (env, options) => ({
-  optimization: {
-    minimizer: [
-      new TerserPlugin({ cache: true, parallel: true, sourceMap: false }),
-      new OptimizeCSSAssetsPlugin({})
-    ]
-  },
+  // optimization: {
+  //   minimizer: [
+  //     new TerserPlugin({ cache: true, parallel: true, sourceMap: false }),
+  //     new OptimizeCSSAssetsPlugin({})
+  //   ]
+  // },
   entry: {
     app: "./js/app.jsx"
   },
@@ -34,14 +34,12 @@ module.exports = (env, options) => ({
         type: "javascript/auto"
       },
       {
-        test: /\.css$/,
+        test: /\.(sa|sc|c)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: { importLoaders: 1 }
-          },
-          "postcss-loader"
+          // "style-loader",
+          { loader: "css-loader", options: {} },
+          { loader: "sass-loader", options: {} }
         ]
       },
       {
