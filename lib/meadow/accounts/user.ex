@@ -33,10 +33,7 @@ defmodule Meadow.Accounts.User do
     end
   end
 
-  defp user_groups(user_entry) do
-    case user_entry do
-      %Ldap.Entry{} = entry -> Ldap.list_user_groups(entry.id) |> Enum.map(fn e -> e.name end)
-      _ -> []
-    end
+  defp user_groups(%Ldap.Entry{} = user_entry) do
+    Ldap.list_user_groups(user_entry.id) |> Enum.map(fn e -> e.name end)
   end
 end
