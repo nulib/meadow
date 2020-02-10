@@ -14,7 +14,7 @@ defmodule Meadow.Data.Schemas.Work do
 
   use Meadow.Constants
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
   schema "works" do
     field :accession_number, :string

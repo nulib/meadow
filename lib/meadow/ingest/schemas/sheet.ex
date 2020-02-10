@@ -14,7 +14,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
 
   @statuses ~w(uploaded file_fail row_fail valid approved completed deleted)
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
   schema "ingest_sheets" do
     field :name, :string

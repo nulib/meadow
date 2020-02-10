@@ -7,7 +7,7 @@ defmodule Meadow.Ingest.Schemas.Project do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   schema "projects" do
     field :title, :string
     field :folder, :string

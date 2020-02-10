@@ -12,7 +12,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   use Meadow.Constants
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
   schema "file_sets" do
     field :accession_number

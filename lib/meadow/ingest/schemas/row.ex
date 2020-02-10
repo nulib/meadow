@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.Schemas.Row do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
 
   schema "ingest_sheet_rows" do
