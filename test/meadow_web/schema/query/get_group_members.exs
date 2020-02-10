@@ -5,8 +5,8 @@ defmodule MeadowWeb.Schema.Query.GetGroupMembersTest do
   load_gql(MeadowWeb.Schema, "test/gql/GetGroupMembers.gql")
 
   test "should return group members" do
-    user_dn = test_users_dn("auy5400")
-    group_dn = "CN=Technology,OU=Departments,DC=library,DC=northwestern,DC=edu"
+    user_dn = test_users_dn(random_user("TestAdmins"))
+    group_dn = "CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu"
 
     result =
       query_gql(

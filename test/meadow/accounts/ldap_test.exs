@@ -32,7 +32,7 @@ defmodule Meadow.Accounts.LdapTest do
 
   describe "group membership" do
     test "add/remove user to/from group" do
-      user_id = "aui9865"
+      user_id = random_user(:noAccess)
 
       assert test_users_dn(user_id)
              |> Ldap.list_user_groups()
@@ -59,7 +59,7 @@ defmodule Meadow.Accounts.LdapTest do
     end
 
     test "add user to group user is already a member of" do
-      user_id = test_users_dn("aui9865")
+      user_id = random_user(:noAccess) |> test_users_dn()
 
       try do
         assert meadow_dn("Users")
@@ -76,20 +76,20 @@ defmodule Meadow.Accounts.LdapTest do
     end
 
     test "group as member of group" do
-      user_id = test_users_dn("aut2418")
+      user_id = test_users_dn(random_user("TestManagers"))
 
       assert_lists_equal(
         meadow_dn("Managers")
         |> Ldap.list_group_members()
         |> entry_names(),
-        ["Curators"]
+        ["TestManagers"]
       )
 
       assert_lists_equal(
         meadow_dn("Users")
         |> Ldap.list_group_members()
         |> entry_names(),
-        ["Curators", "Technology"]
+        ["TestAdmins", "TestManagers"]
       )
 
       assert_lists_equal(
@@ -106,14 +106,14 @@ defmodule Meadow.Accounts.LdapTest do
       with entry <-
              Ldap.Entry.new(
                Ldap.connection(),
-               test_users_dn("aut2418")
+               test_users_dn(random_user())
              ) do
         assert entry.type == "user"
 
         with attrs <- entry.attributes do
           assert_lists_equal([:displayName, :mail, :description], attrs |> Map.keys())
-          assert attrs.displayName == "Test User13"
-          assert attrs.mail == "TestUser13@example.com"
+          assert attrs.displayName |> String.match?(~r"^Test User\d+$")
+          assert attrs.mail |> String.match?(~r"^TestUser\d+@example.com$")
         end
       end
     end

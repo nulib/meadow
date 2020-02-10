@@ -9,17 +9,19 @@ defmodule Meadow.AccountsTest do
 
   describe "user login" do
     test "user doesn't exist" do
-      assert Accounts.authorize_user_login("nonExistentUser") == {:error, "Unauthorized"}
+      assert Accounts.authorize_user_login(random_user(:unknown)) == {:error, "Unauthorized"}
     end
 
     test "user without access" do
-      assert Accounts.authorize_user_login("aui9865") == {:error, "Unauthorized"}
+      assert Accounts.authorize_user_login(random_user(:noAccess)) == {:error, "Unauthorized"}
     end
 
     test "user with access" do
-      with {result, user} <- Accounts.authorize_user_login("aua6615") do
+      username = random_user(:access)
+
+      with {result, user} <- Accounts.authorize_user_login(username) do
         assert result == :ok
-        assert user.username == "aua6615"
+        assert user.username == username
       end
     end
   end
@@ -39,7 +41,7 @@ defmodule Meadow.AccountsTest do
     test "role members" do
       assert_lists_equal(
         Accounts.role_members(meadow_dn("Administrators")) |> entry_names(),
-        ["Technology"]
+        ["TestAdmins"]
       )
 
       assert_lists_equal(
@@ -49,20 +51,20 @@ defmodule Meadow.AccountsTest do
 
       assert_lists_equal(
         Accounts.role_members(meadow_dn("Managers")) |> entry_names(),
-        ["Curators"]
+        ["TestManagers"]
       )
 
       assert_lists_equal(
         Accounts.role_members(meadow_dn("Users")) |> entry_names(),
-        ["Curators", "Technology"]
+        ["TestAdmins", "TestManagers"]
       )
     end
 
     test "group members" do
       assert_lists_equal(
-        Accounts.group_members("CN=Curators,OU=Departments,DC=library,DC=northwestern,DC=edu")
+        Accounts.group_members("CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu")
         |> entry_names(),
-        ["aut2418", "aum1701", "auf2249", "aua6615"]
+        test_users("TestAdmins")
       )
     end
   end

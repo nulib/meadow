@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Query.GetRoleMembersTest do
 
     assert_lists_equal(
       Enum.map(members, fn m -> m["name"] end),
-      ["Curators", "Technology"]
+      ["TestAdmins", "TestManagers"]
     )
   end
 end

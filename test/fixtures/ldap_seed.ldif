@@ -247,31 +247,31 @@ ou: Departments
 distinguishedName: OU=Departments,DC=library,DC=northwestern,DC=edu
 name: Departments
 
-dn: CN=Curators,OU=Departments,DC=library,DC=northwestern,DC=edu
+dn: CN=TestManagers,OU=Departments,DC=library,DC=northwestern,DC=edu
 changetype: add
 objectClass: group
 objectClass: top
 groupType: 4
 objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=library,DC=northwestern,DC=edu
-cn: Curators
-description: Curators
-distinguishedName: CN=Curators,OU=Meadow,DC=library,DC=northwestern,DC=edu
-name: Curators
+cn: TestManagers
+description: TestManagers
+distinguishedName: CN=TestManagers,OU=Meadow,DC=library,DC=northwestern,DC=edu
+name: TestManagers
 member: CN=aut2418,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 member: CN=aum1701,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 member: CN=auf2249,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 member: CN=aua6615,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 
-dn: CN=Technology,OU=Departments,DC=library,DC=northwestern,DC=edu
+dn: CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu
 changetype: add
 objectClass: group
 objectClass: top
 groupType: 4
 objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=library,DC=northwestern,DC=edu
-cn: Technology
-description: Technology
-distinguishedName: CN=Technology,OU=Meadow,DC=library,DC=northwestern,DC=edu
-name: Technology
+cn: TestAdmins
+description: TestAdmins
+distinguishedName: CN=TestAdmins,OU=Meadow,DC=library,DC=northwestern,DC=edu
+name: TestAdmins
 member: CN=auy5400,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 member: CN=auk0124,OU=TestUsers,DC=library,DC=northwestern,DC=edu
 member: CN=auh7250,OU=TestUsers,DC=library,DC=northwestern,DC=edu
@@ -299,7 +299,7 @@ cn: Administrators
 description: Meadow Administrators
 distinguishedName: CN=Administrators,OU=Meadow,DC=library,DC=northwestern,DC=edu
 name: Administrators
-member: CN=Technology,OU=Departments,DC=library,DC=northwestern,DC=edu
+member: CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu
 
 dn: CN=Editors,OU=Meadow,DC=library,DC=northwestern,DC=edu
 changetype: add
@@ -322,7 +322,7 @@ cn: Managers
 description: Meadow Managers
 distinguishedName: CN=Managers,OU=Meadow,DC=library,DC=northwestern,DC=edu
 name: Managers
-member: CN=Curators,OU=Departments,DC=library,DC=northwestern,DC=edu
+member: CN=TestManagers,OU=Departments,DC=library,DC=northwestern,DC=edu
 
 dn: CN=Users,OU=Meadow,DC=library,DC=northwestern,DC=edu
 changetype: add
@@ -334,5 +334,5 @@ cn: Users
 description: Meadow Users
 distinguishedName: CN=Users,OU=Meadow,DC=library,DC=northwestern,DC=edu
 name: Users
-member: CN=Technology,OU=Departments,DC=library,DC=northwestern,DC=edu
-member: CN=Curators,OU=Departments,DC=library,DC=northwestern,DC=edu
+member: CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu
+member: CN=TestManagers,OU=Departments,DC=library,DC=northwestern,DC=edu

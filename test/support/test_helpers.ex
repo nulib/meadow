@@ -17,9 +17,17 @@ defmodule Meadow.TestHelpers do
 
   use Meadow.Constants
 
-  def user_fixture do
-    User.find("auy5400")
-  end
+  @test_users %{
+    "TestAdmins" => ~w[auy5400 auk0124 auh7250 aud6389],
+    "TestManagers" => ~w[aut2418 aum1701 auf2249 aua6615],
+    :access => ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615],
+    :noAccess => ~w[aup9261 aup6836 aui9865 auj5680 auq9679],
+    :unknown => ~w[unknownUser]
+  }
+
+  def test_users(category \\ :access), do: @test_users |> Map.get(category)
+  def random_user(category \\ :access), do: category |> test_users |> Enum.random()
+  def user_fixture(category \\ :access), do: category |> random_user() |> User.find()
 
   def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
