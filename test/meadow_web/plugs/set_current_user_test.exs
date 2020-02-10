@@ -17,7 +17,7 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
 
   describe "with a valid session" do
     setup do
-      user = user_fixture()
+      user = user_fixture("TestAdmins")
       {:ok, %{user: user}}
     end
 
