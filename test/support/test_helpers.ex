@@ -4,7 +4,8 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Accounts.Schemas.User
+
+  alias Meadow.Accounts.{Ldap, User}
   alias Meadow.Data.{Collection, FileSet, Work}
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
@@ -16,25 +17,17 @@ defmodule Meadow.TestHelpers do
 
   use Meadow.Constants
 
-  def user_fixture(attrs \\ %{}) do
-    username = "name-#{System.unique_integer([:positive])}"
-    display_name = "Name #{System.unique_integer([:positive])}"
-    email = "example-#{System.unique_integer([:positive])}@example.com"
+  @test_users %{
+    "TestAdmins" => ~w[auy5400 auk0124 auh7250 aud6389],
+    "TestManagers" => ~w[aut2418 aum1701 auf2249 aua6615],
+    :access => ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615],
+    :noAccess => ~w[aup9261 aup6836 aui9865 auj5680 auq9679],
+    :unknown => ~w[unknownUser]
+  }
 
-    attrs =
-      Enum.into(attrs, %{
-        username: attrs[:username] || username,
-        display_name: attrs[:display_name] || display_name,
-        email: attrs[:email] || email
-      })
-
-    {:ok, user} =
-      %User{}
-      |> User.changeset(attrs)
-      |> Repo.insert()
-
-    user
-  end
+  def test_users(category \\ :access), do: @test_users |> Map.get(category)
+  def random_user(category \\ :access), do: category |> test_users |> Enum.random()
+  def user_fixture(category \\ :access), do: category |> random_user() |> User.find()
 
   def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
@@ -192,4 +185,16 @@ defmodule Meadow.TestHelpers do
 
     result
   end
+
+  def delete_entry(dn) do
+    with {:ok, conn} <- Exldap.connect() do
+      :eldap.delete(conn, to_charlist(dn))
+    end
+  end
+
+  def entry_names([]), do: []
+  def entry_names(%Ldap.Entry{} = entry), do: entry.name
+  def entry_names([entry | entries]), do: [entry_names(entry) | entry_names(entries)]
+  def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,DC=library,DC=northwestern,DC=edu"
+  def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,DC=library,DC=northwestern,DC=edu"
 end

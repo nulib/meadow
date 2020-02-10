@@ -1,0 +1,5 @@
+fragment EntryFields on Entry {
+  id
+  name
+  type
+}

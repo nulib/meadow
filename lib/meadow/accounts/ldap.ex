@@ -63,6 +63,7 @@ defmodule Meadow.Accounts.Ldap do
              filter: Exldap.equalityMatch("objectClass", "group")
            ) do
         {:ok, [entry]} -> extract_members(conn, entry)
+        {:error, :noSuchObject} -> []
         other -> other
       end
     end
@@ -178,6 +179,7 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   defp ensure_list(x) when is_list(x), do: x
+  defp ensure_list(x) when is_nil(x), do: []
   defp ensure_list(x), do: [x]
 
   defp modify_entry(dn, operation) do

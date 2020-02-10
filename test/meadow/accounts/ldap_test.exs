@@ -1,117 +1,137 @@
 defmodule Meadow.Accounts.LdapTest do
-  use Meadow.LdapCase
-  import Assertions
+  use ExUnit.Case
+  use Meadow.Constants
 
-  @groups ["Administrators", "Managers", "Editors", "Viewers", "Users"]
+  alias Meadow.Accounts.Ldap
+
+  import Assertions
+  import Meadow.TestHelpers
 
   describe "create groups" do
     test "create group" do
-      assert Ldap.list_groups() == []
-      Ldap.create_group("TestGroup")
+      try do
+        preexisting_groups =
+          Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end)
 
-      with result <- Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end) do
-        assert_lists_equal(result, ["TestGroup"])
+        Ldap.create_group("TestGroup")
+
+        with result <- Ldap.list_groups() |> Enum.map(fn %Ldap.Entry{name: name} -> name end) do
+          assert_lists_equal(result, ["TestGroup" | preexisting_groups])
+        end
+      after
+        delete_entry(meadow_dn("TestGroup"))
       end
     end
 
     test "create group that already exists" do
-      {result, entry} = Ldap.create_group("TestGroup")
-      assert result == :ok
-      assert entry.name == "TestGroup"
-
-      {result, entry} = Ldap.create_group("TestGroup")
+      {result, entry} = Ldap.create_group("Users")
       assert result == :exists
-      assert entry.name == "TestGroup"
+      assert entry.name == "Users"
     end
   end
 
   describe "group membership" do
-    setup do
-      Enum.each(@groups, fn group -> Ldap.create_group(group) end)
-      ["testUser1", "testUser2", "testUser3"] |> Enum.each(&create_ldap_user/1)
-      "testGroup1" |> create_ldap_group()
-      :ok
-    end
+    test "add/remove user to/from group" do
+      user_id = random_user(:noAccess)
 
-    test "add user to group" do
-      assert library_dn("testUser1") |> Ldap.list_user_groups() == []
-      assert meadow_dn("Users") |> Ldap.add_member(library_dn("testUser1")) == :ok
+      assert test_users_dn(user_id)
+             |> Ldap.list_user_groups()
+             |> entry_names() == []
 
-      assert_lists_equal(
-        library_dn("testUser1") |> Ldap.list_user_groups() |> display_names(),
-        ["Users Group"]
-      )
-
-      assert meadow_dn("Editors") |> Ldap.add_member(library_dn("testUser1")) == :ok
+      assert meadow_dn("Users")
+             |> Ldap.add_member(test_users_dn(user_id)) ==
+               :ok
 
       assert_lists_equal(
-        library_dn("testUser1") |> Ldap.list_user_groups() |> display_names(),
-        ["Editors Group", "Users Group"]
+        test_users_dn(user_id)
+        |> Ldap.list_user_groups()
+        |> entry_names(),
+        ["Users"]
       )
+
+      assert meadow_dn("Users")
+             |> Ldap.remove_member(test_users_dn(user_id)) ==
+               :ok
+
+      assert test_users_dn(user_id)
+             |> Ldap.list_user_groups()
+             |> entry_names() == []
     end
 
     test "add user to group user is already a member of" do
-      assert meadow_dn("Users") |> Ldap.add_member(library_dn("testUser1")) == :ok
-      assert meadow_dn("Users") |> Ldap.add_member(library_dn("testUser1")) == :exists
-    end
+      user_id = random_user(:noAccess) |> test_users_dn()
 
-    test "remove user from group" do
-      meadow_dn("Managers") |> Ldap.add_member(library_dn("testUser1"))
-      meadow_dn("Managers") |> Ldap.add_member(library_dn("testUser2"))
+      try do
+        assert meadow_dn("Users")
+               |> Ldap.add_member(user_id) ==
+                 :ok
 
-      assert_lists_equal(
-        meadow_dn("Managers") |> Ldap.list_group_members() |> display_names(),
-        ["User testUser1", "User testUser2"]
-      )
-
-      meadow_dn("Managers") |> Ldap.remove_member(library_dn("testUser1"))
-
-      assert_lists_equal(
-        meadow_dn("Managers") |> Ldap.list_group_members() |> display_names(),
-        ["User testUser2"]
-      )
+        assert meadow_dn("Users")
+               |> Ldap.add_member(user_id) ==
+                 :exists
+      after
+        meadow_dn("Users")
+        |> Ldap.remove_member(user_id)
+      end
     end
 
     test "group as member of group" do
-      library_dn("testGroup1") |> Ldap.add_member(library_dn("testUser2"))
-      meadow_dn("Editors") |> Ldap.add_member(library_dn("testGroup1"))
-      meadow_dn("Editors") |> Ldap.add_member(library_dn("testUser3"))
+      user_id = test_users_dn(random_user("TestManagers"))
 
       assert_lists_equal(
-        meadow_dn("Editors") |> Ldap.list_group_members() |> display_names(),
-        ["Group testGroup1", "User testUser3"]
+        meadow_dn("Managers")
+        |> Ldap.list_group_members()
+        |> entry_names(),
+        ["TestManagers"]
       )
 
       assert_lists_equal(
-        library_dn("testUser2") |> Ldap.list_user_groups() |> display_names(),
-        ["Editors Group"]
+        meadow_dn("Users")
+        |> Ldap.list_group_members()
+        |> entry_names(),
+        ["TestAdmins", "TestManagers"]
+      )
+
+      assert_lists_equal(
+        user_id
+        |> Ldap.list_user_groups()
+        |> entry_names(),
+        ["Users", "Managers"]
       )
     end
   end
 
   describe "entry attributes" do
     test "user attributes" do
-      with entry <- Ldap.Entry.new(Ldap.connection(), create_ldap_user("testUserX")) do
-        assert entry.class == "user"
+      with entry <-
+             Ldap.Entry.new(
+               Ldap.connection(),
+               test_users_dn(random_user())
+             ) do
+        assert entry.type == "user"
 
         with attrs <- entry.attributes do
-          assert_lists_equal([:displayName, :mail], attrs |> Map.keys())
-          assert attrs.displayName == "User testUserX"
-          assert attrs.mail == "testUserX@library.northwestern.edu"
+          assert_lists_equal([:displayName, :mail, :description], attrs |> Map.keys())
+          assert attrs.displayName |> String.match?(~r"^Test User\d+$")
+          assert attrs.mail |> String.match?(~r"^TestUser\d+@example.com$")
         end
       end
     end
 
     test "group attributes" do
-      with {:ok, group} <- Ldap.create_group("TestGroup") do
-        assert group.class == "group"
+      with entry <-
+             Ldap.Entry.new(
+               Ldap.connection(),
+               meadow_dn("Users")
+             ) do
+        assert entry.type == "group"
       end
     end
 
     test "other object attributes" do
       with entry <-
              Ldap.Entry.new(Ldap.connection(), "CN=System,DC=library,DC=northwestern,DC=edu") do
-        assert entry.class == "unknown"
+        assert entry.type == "unknown"
       end
     end
   end

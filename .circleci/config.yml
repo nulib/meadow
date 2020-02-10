@@ -19,6 +19,9 @@ jobs:
       - image: nulib/goaws
       - image: nulib/ldap-alpine
     steps:
+      - run:
+          name: Install LDAP utils
+          command: sudo apt-get install -y ldap-utils
       - checkout
       - restore_cache:
           keys:

@@ -33,7 +33,8 @@ defmodule MeadowWeb.ConnCase do
           current_user: %{
             username: user.username,
             display_name: user.display_name,
-            email: user.email
+            email: user.email,
+            role: user.role
           }
         )
       end
