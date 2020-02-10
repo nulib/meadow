@@ -142,7 +142,7 @@ defmodule Meadow.Ingest.Validator do
         file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
 
         %{
-          id: Ecto.ULID.generate(),
+          id: Ecto.UUID.generate(),
           sheet_id: sheet.id,
           row: row_num,
           file_set_accession_number: file_set_accession_number,

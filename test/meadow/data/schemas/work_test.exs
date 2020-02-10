@@ -11,13 +11,13 @@ defmodule Meadow.Data.Schemas.WorkTest do
       descriptive_metadata: %{title: "Test"}
     }
 
-    test "created work has a ULID identifier" do
+    test "created work has a UUID identifier" do
       {:ok, work} =
         %Work{}
         |> Work.changeset(@valid_attrs)
         |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.ULID.dump(work.id)
+      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(work.id)
     end
   end
 end

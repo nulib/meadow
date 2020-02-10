@@ -12,8 +12,8 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   use Meadow.Constants
 
-  @primary_key {:id, Ecto.ULID, autogenerate: true}
-  @foreign_key_type Ecto.ULID
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @foreign_key_type Ecto.UUID
   schema "file_sets" do
     field :accession_number
     field :role, :string

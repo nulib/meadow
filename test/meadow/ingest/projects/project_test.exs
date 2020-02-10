@@ -17,9 +17,9 @@ defmodule Meadow.Ingest.Schemas.ProjectTest do
       assert {:error, %Ecto.Changeset{}} = Projects.create_project(@invalid_attrs)
     end
 
-    test "created project has a ULID identifier" do
+    test "created project has a UUID identifier" do
       assert {:ok, %Project{} = project} = Projects.create_project(@valid_attrs)
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.ULID.dump(project.id)
+      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(project.id)
     end
 
     test "creating a project generates a folder name" do

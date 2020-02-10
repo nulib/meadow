@@ -8,11 +8,11 @@ defmodule Meadow.Data.Schemas.ActionState do
 
   use Meadow.Constants
 
-  @primary_key {:id, Ecto.ULID, autogenerate: true}
-  @foreign_key_type Ecto.ULID
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @foreign_key_type Ecto.UUID
   schema "action_states" do
     field :object_type
-    field :object_id, Ecto.ULID
+    field :object_id, Ecto.UUID
     field :action
     field :outcome
     field :notes

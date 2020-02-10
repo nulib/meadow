@@ -35,7 +35,7 @@ defmodule Meadow.Data do
       iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J")
       [%Meadow.Data.Schemas.FileSet{rank: -100}, %Meadow.Data.Schemas.FileSet{rank: 0}, %Meadow.Data.Schemas.FileSet{rank: 100}]
 
-      iex> ranked_file_sets_for_work(Ecto.ULID.generate())
+      iex> ranked_file_sets_for_work(Ecto.UUID.generate())
       []
 
   """

@@ -160,7 +160,7 @@ defmodule Meadow.Data.Works do
       iex> add_to_collection(%Work{} = work, "01DYQWEW109B53VYG2M7B5TGFV")
       {:ok, %Meadow.Data.Schemas.Work{}}
 
-      iex> add_to_collection(%Work{} = work, "bad_ulid")
+      iex> add_to_collection(%Work{} = work, "bad_uuid")
       {:error, %Ecto.Changeset{}}
 
   """
