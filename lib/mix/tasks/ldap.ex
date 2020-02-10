@@ -11,6 +11,10 @@ defmodule Mix.Tasks.Meadow.Ldap do
     require Logger
 
     def run(seed_files) do
+      unless length(seed_files) != 0 do
+        Mix.raise("Error: No seed file specified.")
+      end
+
       seed_files
       |> Enum.each(fn seed_file ->
         Logger.info("Seeding #{Path.basename(seed_file)}")
@@ -27,6 +31,10 @@ defmodule Mix.Tasks.Meadow.Ldap do
     require Logger
 
     def run(seed_files) do
+      unless length(seed_files) != 0 do
+        Mix.raise("Error: No seed file specified.")
+      end
+
       seed_files |> Enum.each(&unseed/1)
     end
 
@@ -60,6 +68,10 @@ defmodule Mix.Tasks.Meadow.Ldap do
     require Logger
 
     def run(ldif_file) do
+      unless File.exists?(ldif_file) do
+        Logger.warn("ldif file #{ldif_file} not found.")
+      end
+
       with args <- ldap_args() ++ ["-f", ldif_file] do
         case System.find_executable(@executable) do
           nil -> Logger.error("COMMAND NOT FOUND: #{@executable}")
