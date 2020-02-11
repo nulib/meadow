@@ -10,6 +10,19 @@ defmodule MeadowWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :elasticsearch do
+    plug :accepts, ["json"]
+
+    plug MeadowWeb.Plugs.SetCurrentUser
+    plug MeadowWeb.Plugs.RequireLogin
+  end
+
+  scope "/elasticsearch" do
+    pipe_through :elasticsearch
+
+    forward "/", MeadowWeb.Plugs.Elasticsearch
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
     plug MeadowWeb.Plugs.SetCurrentUser

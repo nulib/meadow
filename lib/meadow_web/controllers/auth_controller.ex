@@ -35,6 +35,7 @@ defmodule MeadowWeb.AuthController do
   def logout(conn, _params) do
     conn
     |> delete_session(:current_user)
+    |> Plug.Conn.assign(:current_user, nil)
     |> redirect(to: "/")
   end
 
