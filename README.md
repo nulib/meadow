@@ -10,7 +10,8 @@
 - Install yarn if it's not already present: `npm -g install yarn`
 - Install dependencies with `mix deps.get`
 - Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
-- Create Sequins pipeline, S3 buckets, and database with `mix do meadow.setup, meadow.ldap.setup`
+- Seed the LDAP database (see below for instructions)
+- Create Sequins pipeline, S3 buckets, and database with `mix do meadow.setup`
 - Install Node.js dependencies with `cd assets && yarn install`
 - Start Phoenix endpoint with `mix phx.server`
 
@@ -38,12 +39,10 @@ If you would like to use pgAdmin to view the database and tables, run `devstack 
 
 ### Seeding the LDAP server
 
-The task `mix meadow.ldap.setup [seed_file ...]` will seed the LDAP database
-using one or more LDIF files. `mix meadow.ldap.teardown [seed_file ...]` will
-remove any entries referenced in the seed files. Seed files containing a
-reasonable sample of users and groups for development are available from the
-NUL dev team. A seed file for testing is included in the project and is loaded
-automatically as part of the `mix test` task.
+The task `mix meadow.ldap.setup [seed_file ...]` will seed the LDAP database using one or more LDIF files. `mix meadow.ldap.teardown [seed_file ...]` will remove any entries referenced in the seed files.
+
+- Seed files containing a reasonable sample of users and groups for development are available from the NUL dev team.
+- A seed file for testing is included in the project and is loaded automatically as part of the `mix test` task.
 
 ### Run the test suite
 
