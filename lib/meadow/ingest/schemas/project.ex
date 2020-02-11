@@ -8,6 +8,7 @@ defmodule Meadow.Ingest.Schemas.Project do
   import Ecto.Changeset
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "projects" do
     field :title, :string
     field :folder, :string

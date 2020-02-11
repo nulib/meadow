@@ -3,14 +3,16 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheets do
 
   def change do
     create table(:ingest_sheets) do
-      add :name, :string
-      add :presigned_url, :string
-
-      add :project_id, references("projects"), null: false
+      add(:name, :string)
+      add(:filename, :string)
+      add(:state, :jsonb)
+      add(:status, :string)
+      add(:file_errors, {:array, :text}, default: [])
+      add(:project_id, references(:projects, on_delete: :delete_all))
 
       timestamps()
     end
 
-    create unique_index(:ingest_sheets, [:name])
+    create(unique_index(:ingest_sheets, [:name]))
   end
 end

@@ -16,6 +16,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "ingest_sheets" do
     field :name, :string
     field :filename, :string

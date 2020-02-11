@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Schemas.Row do
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
-
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "ingest_sheet_rows" do
     belongs_to :sheet, Meadow.Ingest.Schemas.Sheet
     field :row, :integer

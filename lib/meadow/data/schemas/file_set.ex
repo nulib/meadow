@@ -14,6 +14,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "file_sets" do
     field :accession_number
     field :role, :string

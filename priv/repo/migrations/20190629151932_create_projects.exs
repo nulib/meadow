@@ -3,12 +3,12 @@ defmodule Meadow.Repo.Migrations.CreateProjects do
 
   def change do
     create table(:projects) do
-      add :title, :string
-      add :folder, :string
+      add(:title, :string)
+      add(:folder, :string)
 
       timestamps()
     end
 
-    create unique_index(:projects, [:title])
+    create(unique_index(:projects, [:title]))
   end
 end

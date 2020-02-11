@@ -82,8 +82,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :work_type, non_null(:work_type)
     field :visibility, non_null(:visibility)
     field :published, :boolean
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
     field :collection, :collection, resolve: dataloader(Data)
     field :file_sets, list_of(:file_set), resolve: dataloader(Data)
   end
