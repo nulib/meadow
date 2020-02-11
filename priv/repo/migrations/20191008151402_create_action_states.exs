@@ -1,4 +1,4 @@
-defmodule Meadow.Repo.Migrations.CreateAuditEntries do
+defmodule Meadow.Repo.Migrations.CreateActionStates do
   use Ecto.Migration
 
   def change do
