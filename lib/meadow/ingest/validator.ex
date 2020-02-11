@@ -136,13 +136,13 @@ defmodule Meadow.Ingest.Validator do
       rows
       |> Enum.with_index(1)
       |> Enum.map(fn {row, row_num} ->
-        now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        now = DateTime.utc_now()
         fields = transform_fields(sheet, headers, row)
 
         file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
 
         %{
-          id: Ecto.ULID.generate(),
+          id: Ecto.UUID.generate(),
           sheet_id: sheet.id,
           row: row_num,
           file_set_accession_number: file_set_accession_number,

@@ -9,7 +9,8 @@ defmodule Meadow.Data.Schemas.Collection do
 
   alias Meadow.Data.Schemas.Work
 
-  @primary_key {:id, Ecto.ULID, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "collections" do
     field :name, :string
     field :description, :string

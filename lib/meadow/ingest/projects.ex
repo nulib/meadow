@@ -30,7 +30,7 @@ defmodule Meadow.Ingest.Projects do
         from p in query, limit: ^limit
 
       {:order, order}, query ->
-        from p in query, order_by: [{^order, :id}]
+        from p in query, order_by: [{^order, :updated_at}, {^order, :title}]
     end)
     |> Repo.all()
   end

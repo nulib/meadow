@@ -69,8 +69,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
     field :metadata, :file_set_metadata
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
   end
 
   @desc "`file_set_metadata` represents all metadata associated with a file set object. It is stored in a single json field."

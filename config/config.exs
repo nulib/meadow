@@ -11,7 +11,15 @@ config :meadow,
   ecto_repos: [Meadow.Repo]
 
 # Shared database config
-config :meadow, Meadow.Repo, migration_primary_key: [name: :id, type: :binary_id]
+config :meadow, Meadow.Repo,
+  migration_primary_key: [
+    name: :id,
+    type: :binary_id,
+    autogenerate: false,
+    read_after_writes: true,
+    default: {:fragment, "uuid_generate_v4()"}
+  ],
+  migration_timestamps: [type: :utc_datetime_usec]
 
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,

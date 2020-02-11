@@ -9,7 +9,7 @@ defmodule Meadow.Ingest.Schemas.Status do
   import Ecto.Changeset
 
   @primary_key false
-  @foreign_key_type Ecto.ULID
+  @foreign_key_type Ecto.UUID
   @sheet_row -1
 
   schema "ingest_sheet_status" do

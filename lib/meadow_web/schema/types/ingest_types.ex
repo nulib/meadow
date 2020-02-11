@@ -182,8 +182,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :id, non_null(:id)
     field :title, non_null(:string)
     field :folder, non_null(:string)
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
 
     field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
   end
@@ -196,8 +196,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :status, :ingest_sheet_status
     field :state, list_of(:sheet_state)
     field :filename, non_null(:string)
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
     field :project, :project, resolve: dataloader(Ingest)
     @desc "An array of file level error messages"
     field :file_errors, list_of(:string)
@@ -248,8 +248,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :id, non_null(:id)
     field :title, non_null(:string)
     field :folder, non_null(:string)
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
 
     field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
   end
@@ -309,8 +309,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :outcome, :action_outcome
     @desc "Additional details regarding the success or failure of the action"
     field :notes, :string
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
   end
 
   @desc """

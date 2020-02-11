@@ -10,10 +10,10 @@ defmodule Meadow.Data.Schemas.CollectionTest do
       keywords: ["one", "two", "three"]
     }
 
-    test "created collection has a ULID identifier" do
+    test "created collection has a UUID identifier" do
       {:ok, collection} = %Collection{} |> Collection.changeset(@valid_attrs) |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.ULID.dump(collection.id)
+      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(collection.id)
     end
 
     test "changeset is invalid if collection name is used already" do

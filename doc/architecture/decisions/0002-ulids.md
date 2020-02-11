@@ -4,7 +4,7 @@ Date: 2019-06-25
 
 ## Status
 
-Accepted
+Superceded by [23. uuids](0023-uuids.md)
 
 ## Context
 

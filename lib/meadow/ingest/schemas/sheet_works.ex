@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.Schemas.SheetWorks do
   import Ecto.Changeset
 
   @primary_key false
-  @foreign_key_type Ecto.ULID
+  @foreign_key_type Ecto.UUID
   schema "ingest_sheet_works" do
     belongs_to(:sheet, Meadow.Ingest.Schemas.Sheet, primary_key: true)
     belongs_to(:work, Meadow.Data.Schemas.Work, primary_key: true)

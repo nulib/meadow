@@ -6,6 +6,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   import Ecto.Changeset
   use Ecto.Schema
 
+  @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
     field :description, :string
     field :genre, {:array, :string}, default: []

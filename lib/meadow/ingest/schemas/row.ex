@@ -6,9 +6,9 @@ defmodule Meadow.Ingest.Schemas.Row do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, Ecto.ULID, autogenerate: true}
-  @foreign_key_type Ecto.ULID
-
+  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
+  @foreign_key_type Ecto.UUID
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "ingest_sheet_rows" do
     belongs_to :sheet, Meadow.Ingest.Schemas.Sheet
     field :row, :integer

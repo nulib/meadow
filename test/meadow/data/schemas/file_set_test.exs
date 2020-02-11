@@ -14,13 +14,13 @@ defmodule Meadow.Data.Schemas.FileSetTest do
       }
     }
 
-    test "created file_set has a ULID identifier" do
+    test "created file_set has a UUID identifier" do
       {:ok, file_set} =
         %FileSet{}
         |> FileSet.changeset(@valid_attrs)
         |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.ULID.dump(file_set.id)
+      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(file_set.id)
     end
   end
 end

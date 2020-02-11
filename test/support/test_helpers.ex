@@ -79,21 +79,21 @@ defmodule Meadow.TestHelpers do
     project1 =
       %Project{
         title: "Project 1",
-        id: "01DJ8TY8X1DYDP91Q6WJ4BNG0G"
+        id: "c5ea7b82-6afe-40ba-8229-5a9d21f0764b"
       }
       |> Repo.insert!()
 
     project2 =
       %Project{
         title: "Project 2",
-        id: "01DJ8V5VMY13F5EX9KA1SJGGBN"
+        id: "50e195ed-47b9-4bdb-9796-835b8b4fa149"
       }
       |> Repo.insert!()
 
     project3 =
       %Project{
         title: "Project 3",
-        id: "01DJ8V6TTJC85GBZ80V6ZNH9EY"
+        id: "4f677f01-23d5-48f3-bbfd-3f209eae9581"
       }
       |> Repo.insert!()
 
