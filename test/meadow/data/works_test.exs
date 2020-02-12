@@ -34,7 +34,10 @@ defmodule Meadow.Data.WorksTest do
 
     test "update_work/2 updates a work" do
       work = work_fixture()
-      assert {:ok, %Work{} = work} = Works.update_work(work, %{descriptive_metadata: %{title: "New name"}})
+
+      assert {:ok, %Work{} = work} =
+               Works.update_work(work, %{descriptive_metadata: %{title: "New name"}})
+
       assert work.descriptive_metadata.title == "New name"
     end
 
@@ -77,6 +80,16 @@ defmodule Meadow.Data.WorksTest do
       collection_id = "1234"
 
       assert {:error, _} = Works.add_to_collection(work, collection_id)
+    end
+
+    test "work metadata should default to empty maps" do
+      {:ok, work} =
+        Works.create_work(%{accession_number: "abc", visibility: "open", work_type: "image"})
+
+      with work <- Works.get_work!(work.id) do
+        assert work.descriptive_metadata.title == nil
+        assert work.administrative_metadata.preservation_level == nil
+      end
     end
   end
 end
