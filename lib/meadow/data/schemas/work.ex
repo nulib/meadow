@@ -67,7 +67,7 @@ defmodule Meadow.Data.Schemas.Work do
         published: work.published,
         collection:
           case work.collection do
-            nil -> []
+            nil -> %{}
             collection -> %{id: collection.id, title: collection.name}
           end,
         create_date: work.inserted_at,
