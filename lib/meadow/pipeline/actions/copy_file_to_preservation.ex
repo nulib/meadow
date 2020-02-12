@@ -9,8 +9,6 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Repo
   alias Meadow.Utils.Pairtree
   alias Sequins.Pipeline.Action
   use Action
@@ -34,8 +32,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     case copy_file_to_preservation(file_set) do
       {:ok, new_location} ->
         file_set
-        |> FileSet.changeset(%{metadata: %{location: new_location}})
-        |> Repo.update!()
+        |> FileSets.update_file_set(%{metadata: %{location: new_location}})
 
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok

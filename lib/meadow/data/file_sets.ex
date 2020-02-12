@@ -81,6 +81,15 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Updates a FileSet.
+  """
+  def update_file_set(%FileSet{} = file_set, attrs) do
+    file_set
+    |> FileSet.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Dynamically compute the position for each item in a list of maps
   that include the key `:position`.
 
