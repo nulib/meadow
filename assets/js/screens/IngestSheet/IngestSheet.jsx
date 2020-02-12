@@ -1,7 +1,5 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
@@ -59,7 +57,11 @@ const ScreensIngestSheet = ({ match }) => {
   const createCrumbs = () => {
     return [
       {
-        label: `Project :: ${ingestSheet.project.title}`,
+        label: `Projects`,
+        route: `/project/list`
+      },
+      {
+        label: `${ingestSheet.project.title}`,
         route: `/project/${id}`
       },
       {
@@ -90,9 +92,8 @@ const ScreensIngestSheet = ({ match }) => {
           </div>
         </div>
       </section>
-      <div className="container">
-        <UIBreadcrumbs items={createCrumbs()} />
-      </div>
+
+      <UIBreadcrumbs items={createCrumbs()} />
 
       <section className="section">
         <div className="container">

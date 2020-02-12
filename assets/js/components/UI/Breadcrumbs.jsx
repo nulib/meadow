@@ -2,26 +2,31 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-const Breadcrumbs = ({ items = [] }) => (
-  <nav
-    className="breadcrumb box is-shadowless"
-    aria-label="breadcrumbs"
-    data-testid="breadcrumbs"
-  >
-    <ul>
-      {items.map(({ label, route, isActive }) =>
-        isActive ? (
-          <li key={label} className="is-active">
-            <a aria-current="page">{label}</a>
-          </li>
-        ) : (
-          <li key={label}>
-            <Link to={route}>{label}</Link>
-          </li>
-        )
-      )}
-    </ul>
-  </nav>
+const Breadcrumbs = ({ items = [], ...props }) => (
+  <div className="has-background-grey-lighter" style={{ padding: "0.75rem" }}>
+    <div className="container">
+      <nav
+        className="breadcrumb has-succeeds-separator is-size-7 is-uppercase"
+        aria-label="breadcrumbs"
+        data-testid="breadcrumbs"
+        {...props}
+      >
+        <ul>
+          {items.map(({ label, route, isActive }) =>
+            isActive ? (
+              <li key={label} className="is-active">
+                <a aria-current="page">{label}</a>
+              </li>
+            ) : (
+              <li key={label}>
+                <Link to={route}>{label}</Link>
+              </li>
+            )
+          )}
+        </ul>
+      </nav>
+    </div>
+  </div>
 );
 
 Breadcrumbs.propTypes = {

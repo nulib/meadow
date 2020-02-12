@@ -1,5 +1,6 @@
 import React from "react";
 import Work from "./Work";
+import { fireEvent } from "@testing-library/react";
 import { renderWithRouter, mockWork } from "../../services/testing-helpers";
 
 describe("Work component", () => {
@@ -11,10 +12,9 @@ describe("Work component", () => {
     expect(setupTests()).toBeTruthy();
   });
 
-  it("renders the work element", () => {
-    // TODO: Flesh this out more as the Work component becomes more real
-    const { getByTestId, getByText } = setupTests();
-    expect(getByTestId("work")).toBeInTheDocument();
+  it("renders the viewer and tabs", () => {
+    const { getByTestId } = setupTests();
+    expect(getByTestId("viewer")).toBeInTheDocument();
     expect(getByTestId("tabs")).toBeInTheDocument();
   });
 });

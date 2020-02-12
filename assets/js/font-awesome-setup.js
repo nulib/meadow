@@ -2,6 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import {
   faAngleDown,
+  faCheck,
   faEdit,
   faFileDownload,
   faFileUpload,
@@ -16,6 +17,7 @@ export default function setupFontAwesome() {
   return library.add(
     fab,
     faAngleDown,
+    faCheck,
     faEdit,
     faFileDownload,
     faFileUpload,
