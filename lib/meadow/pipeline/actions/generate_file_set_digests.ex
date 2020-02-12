@@ -7,8 +7,6 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Repo
   alias Meadow.Utils
   alias Sequins.Pipeline.Action
   use Action
@@ -38,9 +36,9 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
         |> Enum.reduce(init_hashes(), &update_hashes(&2, &1))
         |> finalize_hashes()
 
-      file_set
-      |> FileSet.changeset(%{metadata: %{digests: hashes}})
-      |> Repo.update!()
+      {:ok, _} =
+        file_set
+        |> FileSets.update_file_set(%{metadata: %{digests: hashes}})
 
       ActionStates.set_state!(file_set, __MODULE__, "ok")
       :ok

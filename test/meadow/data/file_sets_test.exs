@@ -36,6 +36,22 @@ defmodule Meadow.Data.FileSetsTest do
       assert Enum.empty?(FileSets.list_file_sets())
     end
 
+    test "update_file_set/2 updates a file_set" do
+      file_set = file_set_fixture()
+
+      assert {:ok, %FileSet{} = file_set} =
+               FileSets.update_file_set(file_set, %{metadata: %{description: "New description"}})
+
+      assert file_set.metadata.description == "New description"
+    end
+
+    test "update_file_set/2 with invalid attributes returns an error" do
+      file_set = file_set_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               FileSets.update_file_set(file_set, %{role: "Unsupported"})
+    end
+
     test "get_file_set!/1 returns a file set by id" do
       file_set = file_set_fixture()
       assert FileSets.get_file_set!(file_set.id) == file_set
