@@ -10,6 +10,8 @@
 - Install yarn if it's not already present: `npm -g install yarn`
 - Install dependencies with `mix deps.get`
 - Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
+  - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
+  - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
 - Seed the LDAP database (see below for instructions)
 - Create Sequins pipeline, S3 buckets, and database with `mix do meadow.setup`
 - Install Node.js dependencies with `cd assets && yarn install`
