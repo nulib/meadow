@@ -1,9 +1,13 @@
 @charset "utf-8";
 @import "./scss/fonts";
 
+// Get access to Bulma variables
+@import "bulma/sass/utilities/initial-variables";
+
 // Custom variables go before importing Bulma
 @import "./scss/variables";
 
 @import "~bulma/bulma";
 
+@import "./scss/mixins";
 @import "./scss/base";

@@ -7,6 +7,7 @@ import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import ButtonGroup from "../../components/UI/ButtonGroup";
 
 const ScreensWork = () => {
   const { id } = useParams();
@@ -36,20 +37,29 @@ const ScreensWork = () => {
 
   return (
     <Layout>
-      <section className="hero is-light">
+      <section className="hero is-light" data-testid="work-hero">
         <div className="hero-body">
           <div className="container">
             <h1 className="title">{work.accessionNumber}</h1>
             <h2 className="subtitle">Work Accession Number</h2>
-            <Link to="/" className="button is-primary">
-              Edit work
-            </Link>
+            <ButtonGroup>
+              <button
+                className="button is-primary"
+                data-testid="publish-button"
+              >
+                Publish
+              </button>
+              <Link to="/" className="button" data-testid="edit-button">
+                Edit work
+              </Link>
+              <button className="button" data-testid="delete-button">
+                Delete
+              </button>
+            </ButtonGroup>
           </div>
         </div>
       </section>
-      <div className="container">
-        <UIBreadcrumbs items={breadCrumbs} />
-      </div>
+      <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
       <Work work={data.work} />
     </Layout>
   );
