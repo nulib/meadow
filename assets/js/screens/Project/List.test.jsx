@@ -1,7 +1,10 @@
 import React from "react";
 import ScreensProjectList from "./List";
 import { GET_PROJECTS } from "../../components/Project/project.query";
-import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
+import {
+  renderWithRouterApollo,
+  wrapWithToast
+} from "../../services/testing-helpers";
 import { waitForElement } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 

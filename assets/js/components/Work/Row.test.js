@@ -1,6 +1,6 @@
 import React from "react";
 import WorkRow from "./Row";
-import { renderWithRouter } from "../../testing-helpers";
+import { renderWithRouter } from "../../services/testing-helpers";
 
 const work = {
   accessionNumber: "Example-34",

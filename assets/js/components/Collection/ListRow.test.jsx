@@ -1,6 +1,6 @@
 import React from "react";
 import CollectionListRow from "./ListRow";
-import { renderWithRouter } from "../../testing-helpers";
+import { renderWithRouter } from "../../services/testing-helpers";
 
 const collection = {
   description: "collection description",

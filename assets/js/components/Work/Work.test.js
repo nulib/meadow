@@ -1,6 +1,6 @@
 import React from "react";
 import Work from "./Work";
-import { renderWithRouter, mockWork } from "../../testing-helpers";
+import { renderWithRouter, mockWork } from "../../services/testing-helpers";
 
 describe("Work component", () => {
   function setupTests() {
