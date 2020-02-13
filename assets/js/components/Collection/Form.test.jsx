@@ -5,7 +5,10 @@ import {
   UPDATE_COLLECTION,
   GET_COLLECTIONS
 } from "./collection.query.js";
-import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
+import {
+  renderWithRouterApollo,
+  wrapWithToast
+} from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
 import { waitForElement, render } from "@testing-library/react";

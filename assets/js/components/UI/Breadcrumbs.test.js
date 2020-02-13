@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { renderWithRouter } from "../../testing-helpers";
+import { renderWithRouter } from "../../services/testing-helpers";
 import Breadcrumbs from "./Breadcrumbs";
 
 const crumbs = [

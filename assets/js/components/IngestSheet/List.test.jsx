@@ -3,7 +3,7 @@ import { render, cleanup } from "@testing-library/react";
 import IngestSheetList from "./List";
 import "@testing-library/jest-dom/extend-expect";
 import { IngestSheets } from "../../mock-data/ingestSheets";
-import { renderWithRouter } from "../../testing-helpers";
+import { renderWithRouter } from "../../services/testing-helpers";
 
 const projectId = "abcdefg123";
 

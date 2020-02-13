@@ -1,7 +1,10 @@
 import React from "react";
 import ProjectForm from "./Form";
 import { fireEvent } from "@testing-library/react";
-import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
+import {
+  renderWithRouterApollo,
+  wrapWithToast
+} from "../../services/testing-helpers";
 
 describe("ProjectForm component", () => {
   function setUpTests() {

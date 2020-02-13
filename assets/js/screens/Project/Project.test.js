@@ -4,7 +4,10 @@ import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
 } from "../../components/Project/project.query";
-import { renderWithRouterApollo, wrapWithToast } from "../../testing-helpers";
+import {
+  renderWithRouterApollo,
+  wrapWithToast
+} from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
 import { waitForElement } from "@testing-library/react";
