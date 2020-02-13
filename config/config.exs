@@ -30,16 +30,19 @@ config :meadow, MeadowWeb.Endpoint,
 
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
-  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9201"),
   api: Elasticsearch.API.HTTP,
   json_library: Jason,
   indexes: %{
     meadow: %{
       settings: "priv/elasticsearch/meadow.json",
       store: Meadow.ElasticsearchStore,
-      sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
-      bulk_page_size: 5000,
-      bulk_wait_interval: 15_000
+      sources: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ],
+      bulk_page_size: 5_000,
+      bulk_wait_interval: 2_000
     }
   }
 

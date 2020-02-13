@@ -4,8 +4,6 @@ defmodule Meadow.ElasticsearchStore do
   """
   @behaviour Elasticsearch.Store
 
-  import Ecto.Query
-
   alias Meadow.Data.Schemas
   alias Meadow.Repo
 
@@ -16,6 +14,16 @@ defmodule Meadow.ElasticsearchStore do
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->
       Repo.preload(chunk, :collection)
+    end)
+  end
+
+  @impl true
+  def stream(Schemas.FileSet = schema) do
+    schema
+    |> Repo.stream()
+    |> Stream.chunk_every(10)
+    |> Stream.flat_map(fn chunk ->
+      Repo.preload(chunk, :work)
     end)
   end
 

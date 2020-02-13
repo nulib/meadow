@@ -15,12 +15,28 @@ config :meadow, MeadowWeb.Endpoint,
   http: [port: 4002],
   server: false
 
+config :meadow, Meadow.ElasticsearchCluster,
+  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9202"),
+  indexes: %{
+    meadow: %{
+      settings: "priv/elasticsearch/meadow.json",
+      store: Meadow.ElasticsearchStore,
+      sources: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ],
+      bulk_page_size: 3,
+      bulk_wait_interval: 2
+    }
+  }
+
 config :meadow,
+  index_interval: 1234,
   ingest_bucket: "test-ingest",
   upload_bucket: "test-uploads",
   preservation_bucket: "test-preservation",
-  pyramid_bucket: "test-pyramids",
-  ldap_nested_groups: false
+  pyramid_bucket: "test-pyramids"
 
 config :meadow,
   start_pipeline: false

@@ -3,6 +3,11 @@ defmodule Meadow.Config do
   Convenience methods for retrieving Meadow configuration
   """
 
+  @doc "Retrieve the configured indexing interval"
+  def index_interval do
+    Application.get_env(:meadow, :index_interval, 120_000)
+  end
+
   @doc "Retrieve the configured ingest bucket"
   def ingest_bucket do
     Application.get_env(:meadow, :ingest_bucket)
@@ -45,11 +50,6 @@ defmodule Meadow.Config do
   @doc "Check whether the ingest pipeline should be started"
   def start_pipeline? do
     Application.get_env(:meadow, :start_pipeline, true)
-  end
-
-  @doc "Check whether LDAP server supports nested groups"
-  def ldap_nested_groups? do
-    Application.get_env(:meadow, :ldap_nested_groups, true)
   end
 
   @doc "Locate a path relative to the priv directory"
