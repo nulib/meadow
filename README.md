@@ -4,30 +4,48 @@
 [![Coverage Status](https://coveralls.io/repos/github/nulib/meadow/badge.svg)](https://coveralls.io/github/nulib/meadow)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=nulib/meadow)](https://dependabot.com)
 
+## Prerequisites
+
+- Install Erlang and Elixir
+  - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
+- Install Node (you can use `nvm` or `asdf` to install node)
+
+  - `brew install nvm`
+
 ## Initial setup:
 
 - Make sure you've done the [Local Authentication Setup](https://github.com/nulib/donut/wiki/Authentication-setup-for-dev-environment)
-- Install yarn if it's not already present: `npm -g install yarn`
-- Install dependencies with `mix deps.get`
+- Install yarn if it's not already present: `brew install npm`, `npm -g install yarn`, or `asdf install yarn [VERSION]`
+- From the `meadow` project root, install Elixir dependencies with `mix deps.get`
 - Run [devstack](https://github.com/nulib/devstack) environment: `devstack up meadow`
   - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
   - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
-- Seed the LDAP database (see below for instructions)
-- Create Sequins pipeline, S3 buckets, and database with `mix do meadow.setup`
-- Install Node.js dependencies with `cd assets && yarn install`
-- Start Phoenix endpoint with `mix phx.server`
+- Create Sequins pipeline, S3 buckets, and database with `mix meadow.setup`
+- Setup/seed the LDAP (see below for instructions)
+- From the `assets` folder, install Node.js dependencies with `cd assets && yarn install`
+- Back in the `meadow` project folder, start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
 Now you can visit [`devbox.library.northwestern.edu`](http://devbox.library.northwestern.edu) from your browser.
 
 ## Running the application
 
-You can simply run the application with `mix phx.server`
+Start the Phoenix with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
-After initial setup, you don't need to run `mix meadow.setup` again, but if there are database changes you'll need to run `mix ecto.migrate` before starting the Phoenix server. Or, you can run `mix ecto.reset` which will drop and recreate the database and run the migrations. If you need to reset the entire development environment, run `devstack down -v` and go back to the last three steps of Initial Setup.
+## Stopping the application
+
+You can stop the Phoneix server with `Ctrl + C` twice
+
+You can stop devstack by running `devstack down`. You local data (from the database, ldap, etc) will persist after devstack shuts down.
+
+If you need to clear your data and reset the entire development environment, run `devstack down -v`
+
+After initial setup, you don't need to run `mix meadow.setup` and `mix meadow.ldap.setup [seed_file ...]` again unless you've run `devstack down -v`.
+
+Read more about [Devstack](https://github.com/nulib/devstack) commands here.
 
 ### Dependencies
 
-You may need to run `mix deps.get` or `mix deps.compile` again if new dependencies have been added
+You may need to run `mix deps.get` again if new dependencies have been added
 
 You may need to run `cd assets && yarn install` if new `node` packages have been added
 
