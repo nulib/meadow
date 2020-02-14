@@ -38,9 +38,32 @@ const WorkTabsStructure = ({ work }) => {
 
         <section className="section has-background-light">
           <h2 className="small-title">Download all files as zip</h2>
-          <p className="notification is-warning">
-            TODO: Finish coding this up against the wireframe
-          </p>
+          <div className="columns">
+            <div className="column">
+              <div className="control">
+                <label className="radio">
+                  <input type="radio" name="downloadsize" />
+                  {" "}Full size
+                </label>
+                <label className="radio">
+                  <input type="radio" name="downloadsize" />
+                  {" "}3000x3000
+                </label>
+                <label className="radio">
+                  <input type="radio" name="downloadsize" />
+                  {" "}1000x1000
+                </label>
+              </div>
+            </div>
+
+            <div className="column buttons has-text-right">
+              <button className="button">
+                Download Tiffs
+              </button>
+              <button className="button is-primary">
+                Download JPGs
+              </button>
+            </div></div>
         </section>
       </div>
     </div>
