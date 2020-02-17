@@ -6,9 +6,7 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <div className="columns is-centered" data-testid="tab-preservation-content">
       <div className="column">
-        <p className="notification is-warning">
-          TODO: wire this table up to GraphQL data
-        </p>
+
         <table className="table is-fullwidth is-striped is-hoverable">
           <thead>
             <tr>
@@ -21,20 +19,32 @@ const WorkTabsPreservation = ({ work }) => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>AM</td>
-              <td>1234_12.tif</td>
-              <td>ASDF09860986AS0986ASDF</td>
-              <td>s3://asoyuoasd.com</td>
-              <td>
-                <FontAwesomeIcon icon="check" />
-              </td>
-              <td>
-                <button className="button">
-                  <FontAwesomeIcon icon="trash" />
-                </button>
-              </td>
-            </tr>
+
+            { work.fileSets &&
+              work.fileSets.map(fileset => {
+                const metadata = fileset.metadata;
+                return (
+                  <tr key={fileset.id}>
+                    <td>{fileset.role}</td>
+                    <td>{metadata ? metadata.originalFilename : " "}</td>
+                    <td className="notification is-warning">
+                      TODO: Need this exposed in GraphQL
+                    </td>
+                    <td className="notification is-warning">
+                      TODO: Need this exposed in GraphQL
+                    </td>
+                    <td className="notification is-warning">
+                      TODO: Need this exposed in GraphQL
+                    </td>
+                    <td>
+                      <button className="button">
+                        <FontAwesomeIcon icon="trash" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            }
           </tbody>
         </table>
       </div>

@@ -7,9 +7,11 @@ export const GET_WORK = gql`
       accessionNumber
       fileSets {
         id
+        role
         accessionNumber
         metadata {
           description
+          originalFilename
         }
         work {
           id
@@ -33,9 +35,11 @@ export const GET_WORKS = gql`
       accessionNumber
       fileSets {
         id
+        role
         accessionNumber
         metadata {
           description
+          originalFilename
         }
         work {
           id
