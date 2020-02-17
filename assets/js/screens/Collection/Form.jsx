@@ -1,12 +1,12 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import CollectionForm from "../../components/Collection/Form";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
+import Layout from "../Layout";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { useQuery } from "@apollo/react-hooks";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensCollectionForm = () => {
   const { id } = useParams();
@@ -15,7 +15,7 @@ const ScreensCollectionForm = () => {
   let crumbs = [
     {
       label: "Collections",
-      link: "/collection/list"
+      route: "/collection/list"
     }
   ];
 
@@ -30,11 +30,11 @@ const ScreensCollectionForm = () => {
     crumbs.push(
       {
         label: data.collection.name,
-        link: `/collection/${data.collection.id}`
+        route: `/collection/${data.collection.id}`
       },
       {
         label: "Edit",
-        link: `/collection/form/${data.collection.id}`
+        isActive: true
       }
     );
 
@@ -44,24 +44,29 @@ const ScreensCollectionForm = () => {
   if (!edit) {
     crumbs.push({
       label: "Add",
-      link: `/collection/form`
+      isActive: true
     });
   }
 
   return (
-    <>
-      <ScreenHeader
-        title={`${edit ? "Edit" : "Create"} Collection`}
-        description={`${
-          edit ? "Edit an existing collection" : "Create a new collection"
-        }`}
-        breadCrumbs={crumbs}
-      />
-
-      <ScreenContent>
-        {<CollectionForm collection={collection} />}
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="hero is-light" data-testid="collection-form-hero">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">
+              {edit ? collection.name : "Create Collection"}
+            </h1>
+            <h2 className="subtitle">{edit ? "Collection" : ""}</h2>
+          </div>
+        </div>
+      </section>
+      <UIBreadcrumbs items={crumbs} />
+      <section className="section">
+        <div className="container">
+          <CollectionForm collection={collection} />
+        </div>
+      </section>
+    </Layout>
   );
 };
 

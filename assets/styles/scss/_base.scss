@@ -14,6 +14,12 @@ table {
   }
 }
 
+.buttons-end {
+  @extend .field;
+  @extend .has-addons;
+  justify-content: flex-end;
+}
+
 .small-title {
   @include small-title;
 }

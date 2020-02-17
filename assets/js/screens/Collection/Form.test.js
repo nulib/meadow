@@ -1,0 +1,103 @@
+import React from "react";
+import ScreensCollectionForm from "./Form";
+import { GET_COLLECTION } from "../../components/Collection/collection.query";
+import {
+  renderWithRouterApollo,
+  wrapWithToast
+} from "../../services/testing-helpers";
+import { Route } from "react-router-dom";
+import { wait } from "@testing-library/react";
+
+const mocks = [
+  {
+    request: {
+      query: GET_COLLECTION,
+      variables: {
+        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
+      }
+    },
+    result: {
+      data: {
+        collection: {
+          adminEmail: "test@test.com",
+          description: "Test arrays keyword arrays arrays arrays arrays",
+          featured: false,
+          findingAidUrl: "http://go.com",
+          id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
+          keywords: ["yo", "foo", "bar", "dude", "hey"],
+          name: "Ima collection",
+          published: false,
+          works: []
+        }
+      }
+    }
+  }
+];
+
+function setupTests() {
+  return renderWithRouterApollo(
+    wrapWithToast(
+      <Route path="/collection/form/:id" component={ScreensCollectionForm} />
+    ),
+    {
+      mocks,
+      route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
+    }
+  );
+}
+
+it("renders without crashing", async () => {
+  const { container, queryByTestId } = setupTests();
+
+  expect(queryByTestId("loading")).toBeInTheDocument();
+
+  // This "wait()" magically makes Apollo MockProvider warning messages go away
+  await wait();
+  expect(queryByTestId("loading")).not.toBeInTheDocument();
+  expect(container).toBeTruthy();
+});
+
+it("renders hero section", async () => {
+  const { getByTestId } = setupTests();
+
+  await wait();
+  expect(getByTestId("collection-form-hero")).toBeInTheDocument();
+});
+
+it("renders breadcrumbs", async () => {
+  const { getByTestId } = setupTests();
+
+  await wait();
+  expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+});
+
+it("renders no initial form values when creating a collection", async () => {
+  const { getByTestId } = renderWithRouterApollo(
+    wrapWithToast(
+      <Route path="/collection/form/" component={ScreensCollectionForm} />
+    ),
+    {
+      route: "/collection/form/"
+    }
+  );
+
+  await wait();
+  expect(getByTestId("collection-name")).toHaveValue("");
+  expect(getByTestId("description")).toHaveValue("");
+  expect(getByTestId("finding-aid-url")).toHaveValue("");
+  expect(getByTestId("admin-email")).toHaveValue("");
+  expect(getByTestId("keywords")).toHaveValue("");
+});
+
+it("renders existing collection values in the form when editing a form", async () => {
+  const { getByTestId } = setupTests();
+
+  await wait();
+  expect(getByTestId("collection-name")).toHaveValue("Ima collection");
+  expect(getByTestId("description")).toHaveValue(
+    "Test arrays keyword arrays arrays arrays arrays"
+  );
+  expect(getByTestId("finding-aid-url")).toHaveValue("http://go.com");
+  expect(getByTestId("admin-email")).toHaveValue("test@test.com");
+  expect(getByTestId("keywords")).toHaveValue("yo, foo, bar, dude, hey");
+});

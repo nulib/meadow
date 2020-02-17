@@ -91,10 +91,7 @@ const ProjectList = () => {
                   <td className="has-text-right">{ingestSheets.length}</td>
                   <td className="has-text-right">{formatDate(updatedAt)}</td>
                   <td>
-                    <div
-                      className="field has-addons"
-                      style={{ justifyContent: "flex-end" }}
-                    >
+                    <div className="buttons-end">
                       <p className="control">
                         <button className="button">
                           <FontAwesomeIcon icon="edit" />

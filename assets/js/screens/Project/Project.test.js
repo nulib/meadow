@@ -10,7 +10,7 @@ import {
 } from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
-import { waitForElement } from "@testing-library/react";
+import { wait, waitForElement } from "@testing-library/react";
 
 const MOCK_PROJECT_TITLE = "Mock project title";
 const mocks = [
@@ -85,6 +85,9 @@ function setupMatchTests() {
 
 it("displays the project title", async () => {
   const { findAllByText, debug } = setupMatchTests();
+
+  await wait();
+
   const projectTitleArray = await findAllByText(MOCK_PROJECT_TITLE);
 
   expect(projectTitleArray.length).toEqual(1);
@@ -92,6 +95,9 @@ it("displays the project title", async () => {
 
 it("renders a button to create a new ingest sheet", async () => {
   const { getByTestId, debug } = setupMatchTests();
+
+  await wait();
+
   const button = await waitForElement(() =>
     getByTestId("button-new-ingest-sheet")
   );
@@ -101,6 +107,9 @@ it("renders a button to create a new ingest sheet", async () => {
 
 it("renders both screen header and screen content components", async () => {
   const { getByTestId } = setupMatchTests();
+
+  await wait();
+
   const [
     screenHeaderElement,
     screenContentElement

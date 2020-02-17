@@ -3,7 +3,7 @@ import React from "react";
 // By default the UI button will appear as a "primary button" in color & style
 const UIButton = ({ children, ...props }) => {
   const { disabled, className } = props;
-  const classes = `btn inline-flex items-center ${className ? className : ""}`;
+  const classes = `button ${className ? className : ""}`;
   delete props.className;
 
   return (
