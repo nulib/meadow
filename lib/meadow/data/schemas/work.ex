@@ -11,6 +11,7 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
 
   import Ecto.Changeset
+  import Meadow.Data.Schemas.Validations
 
   use Meadow.Constants
 
@@ -43,6 +44,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     work
     |> cast(attrs, required_params ++ optional_params)
+    |> prepare_embed(:administrative_metadata)
+    |> prepare_embed(:descriptive_metadata)
     |> cast_embed(:administrative_metadata)
     |> cast_embed(:descriptive_metadata)
     |> cast_assoc(:file_sets)

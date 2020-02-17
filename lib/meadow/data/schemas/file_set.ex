@@ -9,6 +9,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   import Ecto.Changeset
   import EctoRanked
+  import Meadow.Data.Schemas.Validations
 
   use Meadow.Constants
 
@@ -35,6 +36,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   def changeset(file_set, params) do
     file_set
     |> cast(params, [:accession_number, :work_id, :role, :rank, :position])
+    |> prepare_embed(:metadata)
     |> cast_embed(:metadata)
     |> validate_required([:accession_number, :role, :metadata])
     |> assoc_constraint(:work)

@@ -86,10 +86,8 @@ defmodule Meadow.Data.WorksTest do
       {:ok, work} =
         Works.create_work(%{accession_number: "abc", visibility: "open", work_type: "image"})
 
-      with work <- Works.get_work!(work.id) do
-        assert work.descriptive_metadata.title == nil
-        assert work.administrative_metadata.preservation_level == nil
-      end
+      assert work.descriptive_metadata.title == nil
+      assert work.administrative_metadata.preservation_level == nil
     end
   end
 end
