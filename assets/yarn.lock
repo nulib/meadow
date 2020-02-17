@@ -6252,7 +6252,12 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-phoenix@^1.4.0, "phoenix@file:../deps/phoenix":
+phoenix@^1.4.0:
+  version "1.4.13"
+  resolved "https://registry.yarnpkg.com/phoenix/-/phoenix-1.4.13.tgz#b2d163b3d067aa1b090d1294d857d0f9a9f52a5f"
+  integrity sha512-1VYlHaifJgMvNX+gQCyB0SOdUydrdpPmrzmTs5OGanJOsOIA5lP3iL2t+MdUhrgKtEtJpnE/KRVCIa5M5itNUQ==
+
+"phoenix@file:../deps/phoenix":
   version "1.4.12"
 
 "phoenix_html@file:../deps/phoenix_html":
@@ -8044,10 +8049,10 @@ terser-webpack-plugin@^1.4.3:
     webpack-sources "^1.4.0"
     worker-farm "^1.7.0"
 
-terser-webpack-plugin@^2.3.4:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-2.3.4.tgz#ac045703bd8da0936ce910d8fb6350d0e1dee5fe"
-  integrity sha512-Nv96Nws2R2nrFOpbzF6IxRDpIkkIfmhvOws+IqMvYdFLO7o6wAILWFKONFgaYy8+T4LVz77DQW0f7wOeDEAjrg==
+terser-webpack-plugin@^2.3.5:
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-2.3.5.tgz#5ad971acce5c517440ba873ea4f09687de2f4a81"
+  integrity sha512-WlWksUoq+E4+JlJ+h+U+QUzXpcsMSSNXkDy9lBVkSqDn1w23Gg29L/ary9GeJVYCGiNJJX7LnVc4bwL1N3/g1w==
   dependencies:
     cacache "^13.0.1"
     find-cache-dir "^3.2.0"
