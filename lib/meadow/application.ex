@@ -25,12 +25,12 @@ defmodule Meadow.Application do
     ]
 
     children =
-      case Mix.env() do
-        :test -> base_children
+      case Config.test_mode? do
+        true -> base_children
         _ -> base_children ++ [{Meadow.Data.IndexWorker, interval: Config.index_interval()}]
       end
 
-    if Meadow.Config.start_pipeline?(), do: Pipeline.start()
+    unless Meadow.Config.test_mode?(), do: Pipeline.start()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

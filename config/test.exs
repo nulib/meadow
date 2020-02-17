@@ -39,7 +39,7 @@ config :meadow,
   pyramid_bucket: "test-pyramids"
 
 config :meadow,
-  start_pipeline: false
+  test_mode: true
 
 config :ex_aws,
   access_key_id: "minio",

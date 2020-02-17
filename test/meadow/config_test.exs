@@ -35,7 +35,7 @@ defmodule Meadow.ConfigTest do
            ]
   end
 
-  test "start_pipeline?" do
-    assert Config.start_pipeline?() == false
+  test "test_mode?" do
+    assert Config.test_mode?() == true
   end
 end
