@@ -47,9 +47,9 @@ defmodule Meadow.Config do
     ]
   end
 
-  @doc "Check whether the ingest pipeline should be started"
-  def start_pipeline? do
-    Application.get_env(:meadow, :start_pipeline, true)
+  @doc "Check whether Meadow is running in test mode"
+  def test_mode? do
+    Application.get_env(:meadow, :test_mode, false)
   end
 
   @doc "Locate a path relative to the priv directory"
