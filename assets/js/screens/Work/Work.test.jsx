@@ -25,8 +25,11 @@ const mocks = [
             {
               accessionNumber: "Donohue_001_04",
               id: "01E08T3EXBJX3PWDG22NSRE0BS",
+              role: "AM",
               metadata: {
-                description: "Letter, page 2, If these papers, verso, blank"
+                description: "Letter, page 2, If these papers, verso, blank",
+                originalFilename: "coffee.jpg"
+
               },
               work: {
                 id: "01E08T3ETNGSNJ3T13JZK0ET29"
@@ -35,8 +38,10 @@ const mocks = [
             {
               accessionNumber: "Donohue_001_01",
               id: "01E08T3EW3TQ9T0AXCR6X9QDJW",
+              role: "AM",
               metadata: {
-                description: "Letter, page 1, Dear Sir, recto"
+                description: "Letter, page 1, Dear Sir, recto",
+                originalFilename: "coffee.jpg"
               },
               work: {
                 id: "01E08T3ETNGSNJ3T13JZK0ET29"
@@ -45,8 +50,10 @@ const mocks = [
             {
               accessionNumber: "Donohue_001_03",
               id: "01E08T3EWRPXMWW0B1NHZ56AW6",
+              role: "AM",
               metadata: {
-                description: "Letter, page 2, If these papers, recto"
+                description: "Letter, page 2, If these papers, recto",
+                originalFilename: "coffee.jpg"
               },
               work: {
                 id: "01E08T3ETNGSNJ3T13JZK0ET29"
@@ -55,8 +62,10 @@ const mocks = [
             {
               accessionNumber: "Donohue_001_02",
               id: "01E08T3EWFJB35RY3RVR65AXMK",
+              role: "AM",
               metadata: {
-                description: "Letter, page 1, Dear Sir, verso, blank"
+                description: "Letter, page 1, Dear Sir, verso, blank",
+                originalFilename: "coffee.jpg"
               },
               work: {
                 id: "01E08T3ETNGSNJ3T13JZK0ET29"
