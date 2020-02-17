@@ -6252,7 +6252,12 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-phoenix@^1.4.0, "phoenix@file:../deps/phoenix":
+phoenix@^1.4.0:
+  version "1.4.13"
+  resolved "https://registry.yarnpkg.com/phoenix/-/phoenix-1.4.13.tgz#b2d163b3d067aa1b090d1294d857d0f9a9f52a5f"
+  integrity sha512-1VYlHaifJgMvNX+gQCyB0SOdUydrdpPmrzmTs5OGanJOsOIA5lP3iL2t+MdUhrgKtEtJpnE/KRVCIa5M5itNUQ==
+
+"phoenix@file:../deps/phoenix":
   version "1.4.12"
 
 "phoenix_html@file:../deps/phoenix_html":
@@ -6849,10 +6854,10 @@ react-apollo@^3.1.3:
     "@apollo/react-hooks" "^3.1.3"
     "@apollo/react-ssr" "^3.1.3"
 
-react-csv@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-csv/-/react-csv-1.1.2.tgz#6cb47e625f51878d24bb68a120efb45a30ad243a"
-  integrity sha512-pTOTYntW+gQWzCxyEGfS5ZeOfQw4Mu3B+DJd4jrJKNuAWFQ+EEyF2Earfg0+FVEkPwMr62OLtbYCHmc6vQWj2w==
+react-csv@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-csv/-/react-csv-2.0.1.tgz#5b21d2170f705285d25476a0e28de7f8cab7f0ff"
+  integrity sha512-GK2MVXvEQW1PxaDja2Ksyb487Ae8jC8Kq70vrqwl1KFQojQleK2q/nDxeExe8482jAVLOE+w1qCCZN5Gu5ekKA==
 
 react-device-detect@^1.11.14:
   version "1.11.14"
