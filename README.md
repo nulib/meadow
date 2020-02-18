@@ -8,9 +8,8 @@
 
 - Install Erlang and Elixir
   - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
-- Install Node (you can use `nvm` or `asdf` to install node)
-
-  - `brew install nvm`
+- Install Node (you can use `nvm` (`brew install nvm`) or `asdf` to install node)
+- `brew install libffi`
 
 ## Initial setup:
 
@@ -22,7 +21,8 @@
   - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
 - Create Sequins pipeline, S3 buckets, and database with `mix meadow.setup`
 - Setup/seed the LDAP (see below for instructions)
-- From the `assets` folder, install Node.js dependencies with `cd assets && yarn install`
+  - you can run the general setup and the LDAP setup at the same time with `mix do meadow.setup, mix meadow.ldap.setup [seed_file ...]`
+- Install Node.js dependencies with `mix assets.install`
 - Back in the `meadow` project folder, start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
 Now you can visit [`devbox.library.northwestern.edu`](http://devbox.library.northwestern.edu) from your browser.
@@ -47,7 +47,7 @@ Read more about [Devstack](https://github.com/nulib/devstack) commands here.
 
 You may need to run `mix deps.get` again if new dependencies have been added
 
-You may need to run `cd assets && yarn install` if new `node` packages have been added
+You may need to run `mix assets.install` if new `node` packages have been added
 
 ### Database
 

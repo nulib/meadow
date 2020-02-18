@@ -1,8 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
   use MeadowWeb.ConnCase, async: true
 
-  import Mox
-
   @query """
     mutation (
       $accession_number: String!
@@ -25,11 +23,6 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
   """
 
   test "createWork mutation creates a work", _context do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
-
     input = %{
       "accession_number" => "99999",
       "visibility" => "OPEN",

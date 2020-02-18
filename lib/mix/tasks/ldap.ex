@@ -7,9 +7,11 @@ defmodule Mix.Tasks.Meadow.Ldap do
     @moduledoc """
     Add LDAP entries specified in LDIF file(s)
     """
+    use Mix.Task
     alias Mix.Tasks.Meadow.Ldap.Common
     require Logger
 
+    @shortdoc @moduledoc
     def run(seed_files) do
       unless length(seed_files) != 0 do
         Mix.raise("Error: No seed file specified.")
@@ -27,9 +29,11 @@ defmodule Mix.Tasks.Meadow.Ldap do
     @moduledoc """
     Delete LDAP entries specified in LDIF file(s)
     """
+    use Mix.Task
     alias Mix.Tasks.Meadow.Ldap.Common
     require Logger
 
+    @shortdoc @moduledoc
     def run(seed_files) do
       unless length(seed_files) != 0 do
         Mix.raise("Error: No seed file specified.")

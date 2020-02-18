@@ -2,8 +2,10 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
   @moduledoc """
   Create all configured S3 buckets
   """
+  use Mix.Task
   require Logger
 
+  @shortdoc @moduledoc
   def run(_) do
     [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)
 
@@ -26,10 +28,14 @@ defmodule Mix.Tasks.Meadow.Setup do
   Set up the Meadow development environment
   """
 
+  use Mix.Task
+  alias Mix.Tasks.Assets
   alias Mix.Tasks.Ecto
   alias Mix.Tasks.Meadow.{Buckets, Elasticsearch, Pipeline}
 
+  @shortdoc @moduledoc
   def run(args) do
+    Assets.Install.run(args)
     Pipeline.Setup.run(args)
     Buckets.Create.run(args)
     Ecto.Create.run(args)

@@ -1,7 +1,11 @@
 defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
   use MeadowWeb.ConnCase, async: true
+  use Meadow.S3Case
 
-  import Mox
+  @bucket "test-ingest"
+  @key "create_file_set_test/file.tif"
+  @content "test/fixtures/coffee.tif"
+  @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
 
   @query """
     mutation (
@@ -22,13 +26,9 @@ defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
     }
   """
 
-  test "createWork mutation creates a FileSet", _context do
+  @tag s3: [@fixture]
+  test "createFileSet mutation creates a FileSet", _context do
     work = work_fixture()
-
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
 
     input = %{
       "accession_number" => "99999",
@@ -37,7 +37,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
       "metadata" => %{
         "description" => "Something",
         "original_filename" => "file.tif",
-        "location" => "s3://path/to/file/on/s3"
+        "location" => "s3://#{@bucket}/#{@key}"
       }
     }
 
