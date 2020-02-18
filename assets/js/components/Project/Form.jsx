@@ -76,7 +76,7 @@ const ProjectForm = ({ showForm, setShowForm }) => {
                   />
                 </div>
               </div>
-              <div className="buttons">
+              <div className="buttons is-right">
                 <button
                   type="submit"
                   className="button is-primary"

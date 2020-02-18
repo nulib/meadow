@@ -1,7 +1,5 @@
 import React from "react";
-import Modal from "react-responsive-modal";
 import PropTypes from "prop-types";
-import ButtonGroup from "../ButtonGroup";
 
 const UIModalDelete = ({
   isOpen,
@@ -10,24 +8,31 @@ const UIModalDelete = ({
   thingToDeleteLabel
 }) => {
   return (
-    <Modal center open={isOpen} onClose={handleClose}>
-      <div className="flex">
-        <div className="mr-8">
-          <h4 className="uppercase text-sm font-bold leading-loose">
-            Delete {thingToDeleteLabel}
-          </h4>
-          <p className="text-gray-600">This action cannot be undone</p>
-          <ButtonGroup>
+    <div className={`modal ${isOpen ? "is-active" : ""}`}>
+      <div className="modal-background"></div>
+      <div className="modal-content">
+        <div className="box">
+          <div className="field">
+            <label className="label">Delete {thingToDeleteLabel} ?</label>
+            <p className="text-gray-600">This action cannot be undone.</p>
+          </div>
+          <div className="buttons is-right">
             <button className="button" onClick={handleClose}>
               Cancel
             </button>
             <button className="button is-danger" onClick={handleConfirm}>
               Delete
             </button>
-          </ButtonGroup>
+          </div>
         </div>
       </div>
-    </Modal>
+      <button
+        className="modal-close is-large"
+        type="button"
+        aria-label="close"
+        onClick={handleClose}
+      ></button>
+    </div>
   );
 };
 
