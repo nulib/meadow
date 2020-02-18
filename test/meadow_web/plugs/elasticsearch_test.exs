@@ -11,7 +11,7 @@ defmodule ElasticsearchTest do
         |> auth_user(user_fixture())
         |> delete("/elasticsearch/meadow/_doc/#{work.id}")
 
-      assert conn.status == 401
+      assert conn.status == 400
     end
 
     test "returns results for _search reqeusts" do

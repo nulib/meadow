@@ -21,7 +21,7 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
       false ->
         conn
         |> put_resp_content_type("application/json")
-        |> resp(401, "Unauthorized")
+        |> resp(400, "Bad Request")
         |> send_resp()
     end
   end
