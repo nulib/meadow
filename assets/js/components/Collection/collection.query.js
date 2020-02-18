@@ -4,10 +4,17 @@ import Collection from "./Collection";
 // Collection.fragments = {
 //   parts: gql`
 //     fragment CollectionParts on Collection {
-//       id
-//       description
-//       keywords
+//       adminEmail
+//       featured
+//       findingAidUrl
+//       published
 //       name
+//       description
+//       id
+//       keywords
+//       works {
+//         id
+//       }
 //     }
 //   `
 // };
@@ -51,10 +58,17 @@ export const DELETE_COLLECTION = gql`
 export const GET_COLLECTION = gql`
   query GetCollection($id: ID!) {
     collection(collectionId: $id) {
-      id
-      description
+      adminEmail
+      featured
+      findingAidUrl
+      published
       name
+      description
+      id
       keywords
+      works {
+        id
+      }
     }
   }
 `;
@@ -70,10 +84,17 @@ export const GET_COLLECTION = gql`
 export const GET_COLLECTIONS = gql`
   query GetCollections {
     collections {
-      id
-      description
+      adminEmail
+      featured
+      findingAidUrl
+      published
       name
+      description
+      id
       keywords
+      works {
+        id
+      }
     }
   }
 `;

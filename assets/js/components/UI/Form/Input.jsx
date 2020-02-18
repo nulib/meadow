@@ -5,9 +5,15 @@ const UIInput = ({ ...props }) => {
   const { id, label } = props;
 
   return (
-    <div className="mb-4 w-full">
-      {label && id && <label htmlFor={id}>{props.label}</label>}
-      <input {...props} className="text-input" />
+    <div className="field">
+      {label && id && (
+        <label className="label" htmlFor={id}>
+          {props.label}
+        </label>
+      )}
+      <div className="control">
+        <input {...props} className="input" />
+      </div>
     </div>
   );
 };

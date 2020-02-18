@@ -11,7 +11,17 @@ import Loading from "../UI/Loading";
 import { useToasts } from "react-toast-notifications";
 import { useHistory } from "react-router-dom";
 
-const Collection = ({ id, name, description, keywords = [] }) => {
+const Collection = ({
+  id,
+  adminEmail,
+  description,
+  featured,
+  findingAidUrl,
+  keywords = [],
+  name,
+  published,
+  works = []
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { addToast } = useToasts();
   const history = useHistory();
@@ -41,42 +51,40 @@ const Collection = ({ id, name, description, keywords = [] }) => {
   };
 
   return (
-    <div data-testid="collection">
-      <UICard>
-        <header className="flex flex-row justify-between mb-4">
-          <h1>{name}</h1>
-          <div>
-            <UIButton onClick={() => history.push(`/collection/form/${id}`)}>
-              Edit
-            </UIButton>
-            <button
-              className="btn-link ml-4"
-              onClick={() => setModalOpen(true)}
-            >
-              Delete
-            </button>
-          </div>
-        </header>
-        <section className="flex flex-col sm:flex-row">
-          <div className="sm:w-1/2">
-            <img
-              src="/images/placeholder-content.png"
-              alt="Placeholder for collection"
-            />
-          </div>
-          <div className="pl-4 sm:w-1/2">
-            <div className="h-32 border border-gray-300 overflow-y-scroll mb-4 p-2">
-              {description}
-            </div>
-            <p>Admin@admin.com</p>
-            <p>Finding aid</p>
+    <div className="container" data-testid="collection">
+      <article className="media">
+        <figure className="media-left">
+          <p
+            className="image is-square"
+            style={{ width: "300px", height: "300px" }}
+          >
+            <img src="https://bulma.io/images/placeholders/480x480.png" />
+          </p>
+        </figure>
+        <div className="media-content">
+          <div className="content">
             <dl>
-              <dt>Keywords</dt>
+              <dt>
+                <strong>Description</strong>
+              </dt>
+              <dd>{description}</dd>
+              <dt>
+                <strong>Admin Email</strong>
+              </dt>
+              <dd>{adminEmail}</dd>
+              <dt>
+                <strong>Finding Aid URL</strong>
+              </dt>
+              <dd>{findingAidUrl}</dd>
+              <dt>
+                <strong>Keywords</strong>
+              </dt>
               <dd>{keywords.join(", ")}</dd>
             </dl>
           </div>
-        </section>
-      </UICard>
+        </div>
+        <div className="media-right"></div>
+      </article>
 
       <CollectionSearch />
       <UIModalDelete

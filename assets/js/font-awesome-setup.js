@@ -8,6 +8,7 @@ import {
   faFileUpload,
   faPlus,
   faProjectDiagram,
+  faSearch,
   faThumbsUp,
   faTrash,
   faUser
@@ -23,6 +24,7 @@ export default function setupFontAwesome() {
     faFileUpload,
     faPlus,
     faProjectDiagram,
+    faSearch,
     faThumbsUp,
     faTrash,
     faUser

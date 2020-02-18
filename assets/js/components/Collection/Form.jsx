@@ -4,8 +4,6 @@ import { useMutation } from "@apollo/react-hooks";
 import UIButton from "../UI/Button";
 import UIButtonGroup from "../UI/ButtonGroup";
 import UIFormInput from "../UI/Form/Input";
-import UISelect from "../UI/Select";
-import UIDivider from "../UI/Divider";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
@@ -18,18 +16,13 @@ import { useToasts } from "react-toast-notifications";
 // Pass in existing collection values when editing
 function setInitialFormValues(obj = {}) {
   const initialFormValues = {
-    collectionName: obj.name || "",
-    isFeatured: false,
-    description: "",
-    findingAidUrl: "",
-    adminEmail: "",
-    keywords: null
+    collectionName: obj.name || ""
   };
-
   let values = {
     ...initialFormValues,
     ...obj
   };
+
   delete values.name;
   delete values.keywords;
   values.keywords =
@@ -41,9 +34,9 @@ function setInitialFormValues(obj = {}) {
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
   const [pageLoading, setPageLoading] = useState(true);
+  const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formValues, setFormValues] = useState({});
   const { addToast } = useToasts();
-  const [submitDisabled, setSubmitDisabled] = useState(true);
 
   useEffect(() => {
     setSubmitDisabled(formValues.collectionName === "");
@@ -99,10 +92,10 @@ const CollectionForm = ({ collection }) => {
   };
 
   const handleIsFeaturedChange = e => {
-    const prevVal = formValues.isFeatured;
+    const prevVal = formValues.featured;
     setFormValues({
       ...formValues,
-      isFeatured: !prevVal
+      featured: !prevVal
     });
   };
 
@@ -115,6 +108,7 @@ const CollectionForm = ({ collection }) => {
       .split(",")
       .map(keyword => keyword.trim());
 
+    console.log("values :", values);
     if (!collection) {
       createCollection({
         variables: { ...values }
@@ -129,88 +123,113 @@ const CollectionForm = ({ collection }) => {
   return (
     <div>
       <form onSubmit={handleSubmit} data-testid="collection-form">
-        <section className="flex justify-between items-center">
-          <div className="w-1/2 form-group">
+        <div className="columns is-centered">
+          <div className="column is-half">
             <UIFormInput
               placeholder="Add collection Name"
               type="text"
-              // Using "collectionName" instead of GraphQL schema's "name" because
-              // browsers keep autofilling with personal names "ie. Adam J. Arling"
               name="collectionName"
+              id="collectionName"
               label="Collection Name"
-              value={formValues.collectionName}
+              value={formValues.collectionName || ""}
               onChange={handleInputChange}
+              data-testid="collection-name"
             />
-          </div>
-          <div className="form-group">
-            <input
-              type="checkbox"
-              id="isFeatured"
-              name="isFeatured"
-              onChange={handleIsFeaturedChange}
-            />
-            <label htmlFor="isFeatured" className="inline-block ml-2">
-              Featured?
-            </label>
-          </div>
-        </section>
-        <section className="sm:w-full md:w-2/3">
-          <div className="form-group">
-            <p>[Select thumbnail]</p>
-          </div>
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              name="description"
-              id="description"
-              onChange={handleInputChange}
-              value={formValues.description}
-              className="text-input w-full"
-              rows="8"
-            >
-              {formValues.description}
-            </textarea>
-          </div>
-          <div className="form-group">
+
+            <div className="field">
+              <label htmlFor="collection-type" className="label">
+                Collection Type
+              </label>
+              <div className="control">
+                <div className="select">
+                  <select id="collection-type" data-testid="collection-type">
+                    <option>NUL Collection</option>
+                    <option>NUL Theme</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="field">
+              <div className="control">
+                <label htmlFor="featured" className="checkbox">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    name="featured"
+                    onChange={handleIsFeaturedChange}
+                    data-testid="featured"
+                  />{" "}
+                  Featured?
+                </label>
+              </div>
+            </div>
+
+            <div className="field" data-testid="choose-thumbnail">
+              <p className="notification is-warning">
+                TODO: Wire up [Select thumbnail]
+              </p>
+            </div>
+
+            <div className="field">
+              <label htmlFor="description" className="label">
+                Description
+              </label>
+              <div className="control">
+                <textarea
+                  name="description"
+                  id="description"
+                  onChange={handleInputChange}
+                  value={formValues.description || ""}
+                  className="textarea"
+                  rows="8"
+                  data-testid="description"
+                >
+                  {formValues.description}
+                </textarea>
+              </div>
+            </div>
+
             <UIFormInput
               name="findingAidUrl"
               id="findingAidUrl"
               onChange={handleInputChange}
-              value={formValues.findingAidUrl}
+              value={formValues.findingAidUrl || ""}
               label="Finding Aid Url"
+              data-testid="finding-aid-url"
             />
-          </div>
-          <UIDivider />
-          <div className="form-group">
+
             <UIFormInput
               name="adminEmail"
               id="adminEmail"
-              value={formValues.adminEmail}
+              value={formValues.adminEmail || ""}
               onChange={handleInputChange}
               label="Admin Email Address"
               type="email"
+              data-testid="admin-email"
             />
-          </div>
-          <UIDivider />
-          <div className="form-group">
+
             <UIFormInput
               name="keywords"
               id="keywords"
-              value={formValues.keywords}
+              value={formValues.keywords || ""}
               onChange={handleInputChange}
               label="Keywords"
               placeholder="multiple, separated, by, commas"
+              data-testid="keywords"
             />
+            <UIButtonGroup>
+              <UIButton
+                type="submit"
+                className="is-primary"
+                disabled={submitDisabled}
+              >
+                Submit
+              </UIButton>
+              <UIButton onClick={handleCancel}>Cancel</UIButton>
+            </UIButtonGroup>
           </div>
-        </section>
-        <UIButtonGroup>
-          <UIButton type="submit" disabled={submitDisabled}>
-            Submit
-          </UIButton>
-          <UIButton className="btn-clear" onClick={handleCancel}>
-            Cancel
-          </UIButton>
-        </UIButtonGroup>
+        </div>
       </form>
     </div>
   );
