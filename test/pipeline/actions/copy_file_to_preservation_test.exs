@@ -32,7 +32,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     {:ok,
      file_set_id: file_set.id,
      preservation_key:
-       Pairtree.generate_preservation_path(
+       Pairtree.preservation_path(
          file_set.id,
          Map.get(file_set.metadata.digests, "sha256")
        )}

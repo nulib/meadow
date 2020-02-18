@@ -78,20 +78,20 @@ export const mockWork = {
       accessionNumber: "Example-34-3",
       id: "01DV4BAEAGKNT5P3GH10X263K1",
       metadata: {
-        description: "Lorem Ipsum"
-      },
-      work: {
-        id: "01DV4BAE9NDQHSMRHKM8KC4FNC"
+        description: "Lorem Ipsum",
+        original_filename: "foo.tiff",
+        location: "s3://bucket/foo/bar",
+        label: "foo.tiff"
       }
     },
     {
       accessionNumber: "Example-34-4",
       id: "01DV4BAEANHGYQKQ2EPBWJVJSR",
       metadata: {
-        description: "Lorem Ipsum"
-      },
-      work: {
-        id: "01DV4BAE9NDQHSMRHKM8KC4FNC"
+        description: "Lorem Ipsum",
+        original_filename: "foo.tiff",
+        location: "s3://bucket/foo/bar",
+        label: "foo.tiff"
       }
     }
   ],
@@ -103,5 +103,8 @@ export const mockWork = {
   },
   updatedAt: "2019-12-02T22:22:30",
   visibility: "RESTRICTED",
-  workType: "IMAGE"
+  workType: "IMAGE",
+  published: false,
+  manifestUrl: "http://foobar",
+  representativeImage: "http://foobar"
 };

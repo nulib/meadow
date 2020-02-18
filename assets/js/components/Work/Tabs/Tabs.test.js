@@ -6,10 +6,26 @@ import {
   renderWithRouterApollo,
   mockWork
 } from "../../../services/testing-helpers";
+import { IIIF_SERVER_URL } from "../../Iiif/iiif.query";
+
+const mocks = [
+  {
+    request: {
+      query: IIIF_SERVER_URL
+    },
+    result: {
+      data: {
+        iiifServerUrl: {
+          url: "http://localhost:8184/iiif/2/"
+        }
+      }
+    }
+  }
+];
 
 describe("Tabs component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabs work={mockWork} />);
+    return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
   }
 
   it("renders without crashing", () => {

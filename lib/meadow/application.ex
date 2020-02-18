@@ -25,9 +25,16 @@ defmodule Meadow.Application do
     ]
 
     children =
-      case Config.test_mode? do
-        true -> base_children
-        _ -> base_children ++ [{Meadow.Data.IndexWorker, interval: Config.index_interval()}]
+      case Config.test_mode?() do
+        true ->
+          base_children
+
+        _ ->
+          base_children ++
+            [
+              {Meadow.Data.IndexWorker, interval: Config.index_interval()},
+              Meadow.Iiif.ManifestListener
+            ]
       end
 
     unless Meadow.Config.test_mode?(), do: Pipeline.start()

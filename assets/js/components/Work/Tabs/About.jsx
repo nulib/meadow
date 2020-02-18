@@ -23,9 +23,10 @@ const WorkTabsAbout = ({ work }) => {
   });
 
   const onSubmit = data => {
-    const { description = "" } = data;
+    const { description = "", title = "" } = data;
     let workUpdateInput = {
       descriptiveMetadata: {
+        title,
         description
       },
       published: true
@@ -55,6 +56,32 @@ const WorkTabsAbout = ({ work }) => {
           </h2>
           {showCoreMetadata && (
             <div className="box">
+              <div className="field">
+                <label className="label">Title</label>
+                <div className="control">
+                  {isEditing ? (
+                    <>
+                      <textarea
+                        ref={register({ required: true })}
+                        name="title"
+                        className={`textarea ${
+                          errors.title ? "is-danger" : ""
+                        }`}
+                        data-testid="title"
+                        placeholder="e.g. Hello world"
+                        defaultValue={descriptiveMetadata.title}
+                      />
+                      {errors.description && (
+                        <p className="help is-danger">
+                          Title field is required
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p>{descriptiveMetadata.title || "No title provided"}</p>
+                  )}
+                </div>
+              </div>
               <div className="field">
                 <label className="label">Description</label>
                 <div className="control">

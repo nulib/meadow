@@ -216,17 +216,28 @@ export const INGEST_SHEET_EXPORT_CSV = gql`
 export const INGEST_SHEET_WORKS = gql`
   query IngestSheetWorks($id: ID!) {
     ingestSheetWorks(id: $id) {
+      id
       accessionNumber
+      descriptiveMetadata {
+        title
+        description
+      }
       fileSets {
-        accessionNumber
         id
+        role
+        accessionNumber
         metadata {
           description
+          originalFilename
+          label
           location
         }
-        role
       }
-      id
+      insertedAt
+      manifestUrl
+      published
+      representativeImage
+      updatedAt
       visibility
       workType
     }

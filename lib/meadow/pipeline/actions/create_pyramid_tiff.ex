@@ -87,7 +87,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   defp pyramid_uri_for(file_set_id) do
     dest_bucket = Config.pyramid_bucket()
 
-    dest_key = Path.join(["/", Pairtree.generate_pyramid_path(file_set_id)])
+    dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end

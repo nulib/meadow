@@ -53,7 +53,8 @@ defmodule Meadow.Data.Schemas.FileSet do
     def encode(file_set) do
       %{
         model: %{application: "Meadow", name: "FileSet"},
-        label: file_set.metadata.description,
+        label: file_set.metadata.label,
+        description: file_set.metadata.description,
         visibility: file_set.work.visibility,
         create_date: file_set.inserted_at,
         modified_date: file_set.updated_at,

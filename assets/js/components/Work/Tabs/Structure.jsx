@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { IiifContext } from "../../Iiif/Iiif";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { buildImageURL } from "../../../services/helpers";
 
 const WorkTabsStructure = ({ work }) => {
+  const iiifServerUrl = useContext(IiifContext);
+
   if (!work) {
     return null;
   }
   return (
+    
     <div className="columns is-centered">
       <div className="column is-three-quarters">
         {work.fileSets.map(({ id, accessionNumber, metadata }) => (
@@ -15,7 +19,7 @@ const WorkTabsStructure = ({ work }) => {
             <figure className="media-left">
               <p className="image is-64x64">
                 <img
-                  src={`${buildImageURL(id, "IIIF_SQUARE")}`}
+                  src={`${iiifServerUrl}${id}/square/500,500/0/default.jpg`}
                   placeholder="Fileset Image"
                   onError={e => {
                     e.target.src = "/images/1280x960.png";

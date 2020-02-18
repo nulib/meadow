@@ -11,6 +11,7 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     field :location
     field :original_filename
     field :description
+    field :label
     field :digests, :map
 
     timestamps()
@@ -18,7 +19,7 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [:location, :digests, :original_filename, :description])
+    |> cast(params, [:location, :digests, :original_filename, :description, :label])
     |> validate_required([:location, :original_filename])
   end
 end
