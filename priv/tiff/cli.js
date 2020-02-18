@@ -31,8 +31,8 @@ process.stdin.on("data", data => {
     .catch(err => {
       process.stdout.write(`ERROR:${err.message}`);
     })
-    .then(dest => {
-      process.stdout.write(dest);
+    .then(_dest => {
+      process.stdout.write("complete");
     });
 });
 process.stdin.on("end", () => {
