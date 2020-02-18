@@ -33,7 +33,7 @@ defmodule Meadow.Config do
     Application.get_env(
       :meadow,
       :pyramid_processor,
-      priv_path("bin/fake_pyramid.js")
+      priv_path("tiff/cli.js")
     )
   end
 

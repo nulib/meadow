@@ -7,7 +7,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   alias Sequins.Pipeline.Action
   use Action
 
-  @command "bin/fake_pyramid.js"
   @timeout 7_000
 
   def process(data, attrs),
@@ -21,10 +20,12 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   defp process(%{file_set_id: file_set_id}, _, _) do
     Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
     file_set = FileSets.get_file_set!(file_set_id)
+    source = file_set.metadata.location
+    target = pyramid_uri_for(file_set.id)
 
     port = find_or_create_port()
 
-    case create_pyramid_tiff(file_set, port) do
+    case create_pyramid_tiff(source, target, port) do
       {:ok, _} ->
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
@@ -37,9 +38,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     err in RuntimeError -> {:error, err}
   end
 
-  defp create_pyramid_tiff(file_set, port) do
-    source = file_set.metadata.location
-    target = pyramid_uri_for(file_set.id)
+  defp create_pyramid_tiff("s3://" <> _ = source, target, port) do
     input = Poison.encode!(%{source: source, target: target})
 
     send(port, {self(), {:command, input}})
@@ -63,12 +62,54 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     end
   end
 
+  defp create_pyramid_tiff(source, _target, _port) do
+    Logger.error("Invalid s3://location: #{source}")
+    {:error, "Invalid s3://location: #{source}"}
+  end
+
   defp pyramid_uri_for(file_set_id) do
     dest_bucket = Config.pyramid_bucket()
 
     dest_key = Path.join(["/", Pairtree.generate_pyramid_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
+  defp make_environment do
+    with config <- Application.get_env(:ex_aws, :s3) do
+      result =
+        case config[:access_key_id] do
+          nil -> []
+          val -> [{'AWS_ACCESS_KEY_ID', to_charlist(val)}]
+        end
+
+      result =
+        case config[:secret_access_key] do
+          nil -> result
+          val -> [{'AWS_SECRET_ACCESS_KEY', to_charlist(val)} | result]
+        end
+
+      result =
+        case config[:region] do
+          nil -> result
+          val -> [{'AWS_REGION', to_charlist(val)} | result]
+        end
+
+      case config[:host] do
+        nil ->
+          result
+
+        val ->
+          endpoint =
+            Keyword.get(config, :scheme, "https://")
+            |> URI.parse()
+            |> Map.put(:host, val)
+            |> Map.put(:port, config[:port])
+            |> URI.to_string()
+
+          [{'AWS_S3_ENDPOINT', to_charlist(endpoint)} | result]
+      end
+    end
   end
 
   defp find_or_create_port do
@@ -85,7 +126,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
       nil ->
         Logger.info("Spawning #{command} in a new port")
         Process.flag(:trap_exit, true)
-        port = Port.open({:spawn, command}, [:binary, :exit_status])
+        port = Port.open({:spawn, command}, [{:env, make_environment()}, :binary, :exit_status])
         Port.monitor(port)
         port
 

@@ -110,6 +110,7 @@ defmodule Meadow.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: [
         "meadow.pipeline.setup",
+        "meadow.buckets.create",
         "meadow.ldap.teardown test/fixtures/ldap_seed.ldif",
         "meadow.ldap.setup test/fixtures/ldap_seed.ldif",
         "ecto.create --quiet",
