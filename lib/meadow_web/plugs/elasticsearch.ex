@@ -37,7 +37,13 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
         Application.get_env(:meadow, Meadow.ElasticsearchCluster)
       )
 
-    case config |> config[:api].request(conn.method, path <> query_string, body, []) do
+    method = case conn.method do
+      x when is_atom(x) -> x
+      x when is_binary(x) -> String.to_atom(x)
+      x -> String.to_atom(to_string(x))
+    end
+
+    case config |> config[:api].request(method, path <> query_string, body, []) do
       {:ok, response} ->
         conn
         |> put_resp_content_type("application/json")
