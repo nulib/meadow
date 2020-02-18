@@ -31,7 +31,6 @@ npm-debug.log
 
 # The directory NPM downloads your dependencies sources to.
 /assets/coverage/
-/assets/node_modules/
 /assets/package-lock.json
 
 # Since we are building assets from assets/,
@@ -46,7 +45,7 @@ npm-debug.log
 /terraform/.terraform/
 
 # Accounts for a package on the front-end to enable autocomplete for Jest in VSCode
-/node_modules
+node_modules
 /yarn.lock
 /package.json
 

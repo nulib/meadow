@@ -9,6 +9,7 @@
 - Install Erlang and Elixir
   - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
 - Install Node (you can use `nvm` or `asdf` to install node)
+- `brew install libffi`
 
   - `brew install nvm`
 
@@ -48,6 +49,11 @@ Read more about [Devstack](https://github.com/nulib/devstack) commands here.
 You may need to run `mix deps.get` again if new dependencies have been added
 
 You may need to run `cd assets && yarn install` if new `node` packages have been added
+
+Install pyramid tiff generation dependencies
+`cd priv/tiff`
+
+`yarn install`
 
 ### Database
 
