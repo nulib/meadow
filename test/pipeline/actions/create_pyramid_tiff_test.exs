@@ -23,7 +23,24 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
         }
       })
 
-    {:ok, file_set_id: file_set.id, pairtree: Pairtree.generate_pyramid_path(file_set.id)}
+    invalid_file_set =
+      file_set_fixture(%{
+        id: "5915fe2b-6b66-4373-b69a-e13f765dc2a4",
+        accession_number: "1234",
+        role: "am",
+        metadata: %{
+          location: "invalid",
+          original_filename: "coffee.tif"
+        }
+      })
+
+    ExAws.S3.put_object(@bucket, @key, File.read!(@content)) |> ExAws.request!()
+
+    {:ok,
+     file_set_id: file_set.id,
+     pairtree: Pairtree.generate_pyramid_path(file_set.id),
+     invalid_file_set_id: invalid_file_set.id,
+     invalid_pairtree: Pairtree.generate_pyramid_path(invalid_file_set.id)}
   end
 
   @tag s3: [@fixture]
@@ -36,6 +53,17 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} – already complete"
+    end
+  end
+
+  describe "file_set with invalid location fails" do
+    test "process/2", %{invalid_file_set_id: file_set_id, invalid_pairtree: dest} do
+      assert({:error, _} = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+
+      assert(ActionStates.ok?(file_set_id, CreatePyramidTiff) == false)
+
+      assert {:error, {:http_error, 404, _}} =
+               ExAws.S3.head_object("test-pyramids", dest) |> ExAws.request()
     end
   end
 end
