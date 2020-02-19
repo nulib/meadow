@@ -1,37 +1,122 @@
 defmodule Meadow.S3Case do
   @moduledoc """
-  This module includes the setup and mocks for testing loading and streaming
-  fixtures from S3
+  This module includes the setup, teardown, and utility functions
+  for working with S3/Minio
+
+  To have `S3Case` manage test fixtures in Minio, add an `s3` tag
+  to the test containing a list of %{bucket, key, content} structs:
+
+      defmodule Meadow.FileCheckerTest do
+        use Meadow.S3Case
+
+        @bucket "test-ingest"
+        @key: "file_checker_test/path/to/file.tif"
+        @content: "test/fixtures/file.tif"
+        @fixture %{
+          bucket: @bucket,
+          key: @key,
+          content: File.read!(@content)
+        }
+
+        @tag s3: [@fixture]
+        test "file exists" do
+          assert {:ok, _} =
+            ExAws.S3.head_object(@bucket, @key)
+            |> ExAws.request!()
+        end
+      end
+
+  Note that the `key` is namespaced using the name of the test to avoid
+  collisions with other test data. This is a good practice, especially
+  if test are running `async`.
+
+  Objects created using the tag will automatically be destroyed at the end
+  of the test. Other resources (buckets and objects) created as by-products
+  can be removed in the test's teardown code by using `delete_bucket/1`,
+  `delete_object/2`, and `empty_bucket/1`, but be sure _only_ to delete
+  resources created by that test to avoid stomping on another concurrent
+  test's resources. The test suite will warn of any unmanaged resources left
+  behind at the end of the run.
   """
   use ExUnit.CaseTemplate
 
-  setup tags do
-    Application.ensure_all_started(:bypass)
-
-    content =
-      case tags[:content] do
-        x when is_binary(x) -> :binary.bin_to_list(x)
-        x when is_bitstring(x) -> x
-        x -> :binary.bin_to_list(to_string(x))
+  using do
+    quote do
+      defp delete_bucket(bucket) do
+        bucket
+        |> empty_bucket()
+        |> ExAws.S3.delete_bucket()
+        |> ExAws.request()
       end
 
-    chunk_size = tags[:chunk_size] || 4
+      defp delete_object(bucket, key) do
+        ExAws.S3.delete_object(bucket, key)
+        |> ExAws.request()
+      end
 
-    url_path = "/#{tags[:bucket]}/#{tags[:key]}"
-    bypass = Bypass.open(port: ExAws.Config.new(:s3).port)
+      defp empty_bucket(bucket) do
+        case ExAws.S3.head_bucket(bucket) |> ExAws.request() do
+          {:ok, _} ->
+            objects =
+              bucket
+              |> ExAws.S3.list_objects()
+              |> ExAws.request!()
+              |> get_in([:body, :contents])
+              |> Enum.map(& &1.key)
 
-    Bypass.stub(bypass, "GET", url_path, fn conn ->
-      conn =
-        conn
-        |> Plug.Conn.send_chunked(200)
+            ExAws.S3.delete_all_objects(bucket, objects) |> ExAws.request()
+            bucket
 
-      content
-      |> Enum.chunk_every(chunk_size)
-      |> Enum.each(fn chunk -> conn |> Plug.Conn.chunk(chunk) end)
+          {:error, _} ->
+            bucket
+        end
+      end
+    end
+  end
 
-      conn
+  setup tags do
+    tags
+    |> Map.get(:s3, [])
+    |> Enum.each(fn %{bucket: bucket, key: key, content: content} ->
+      ExAws.S3.put_object(bucket, key, to_string(content))
+      |> ExAws.request!()
     end)
 
-    {:ok, port: bypass.port}
+    on_exit(fn ->
+      tags
+      |> Map.get(:s3, [])
+      |> Enum.each(fn %{bucket: bucket, key: key} ->
+        ExAws.S3.delete_object(bucket, key) |> ExAws.request!()
+      end)
+    end)
+
+    :ok
+  end
+
+  def show_cleanup_warnings do
+    require Logger
+
+    all_buckets =
+      ExAws.S3.list_buckets()
+      |> ExAws.request!()
+      |> get_in([:body, :buckets])
+      |> Enum.map(& &1.name)
+
+    with buckets <- Meadow.Config.buckets() do
+      (all_buckets -- buckets)
+      |> Enum.each(&Logger.warn("Unexpected bucket left behind: #{&1}"))
+
+      buckets
+      |> Enum.each(fn bucket ->
+        objects =
+          ExAws.S3.list_objects(bucket)
+          |> ExAws.request!()
+          |> get_in([:body, :contents])
+          |> Enum.map(& &1.key)
+
+        objects
+        |> Enum.each(&Logger.warn("Unexpected object left in bucket \"#{bucket}\": #{&1}"))
+      end)
+    end
   end
 end
