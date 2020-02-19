@@ -1,8 +1,6 @@
 defmodule MeadowWeb.Schema.Query.SheetTest do
   use MeadowWeb.ConnCase, async: true
 
-  import Mox
-
   @query """
   query($id: String!) {
     ingest_sheet(id: $id) {
@@ -35,11 +33,6 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
   """
 
   test "gets a presigned url for an ingest sheet" do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
-
     conn = build_conn() |> auth_user(user_fixture())
 
     response = get(conn, "/api/graphql", query: @query)

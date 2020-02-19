@@ -1,8 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
   use MeadowWeb.ConnCase, async: true
 
-  import Mox
-
   @query """
     mutation ($title: String!) {
       createProject(title: $title) {
@@ -12,11 +10,6 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
   """
 
   test "createProject mutation creates a project", _context do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
-
     input = %{
       "title" => "This is the title"
     }
