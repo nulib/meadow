@@ -23,7 +23,7 @@ defmodule Meadow.ConfigTest do
   end
 
   test "pyramid_processor" do
-    assert Path.basename(Config.pyramid_processor()) == "fake_pyramid.js"
+    assert Path.basename(Config.pyramid_processor()) == "cli.js"
   end
 
   test "buckets" do
