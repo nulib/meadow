@@ -36,7 +36,8 @@ jobs:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "assets/yarn.lock" }}
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-
             - npm-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
           name: Install hex & rebar
@@ -48,15 +49,20 @@ jobs:
           name: Install JS Dependencies
           command: yarn install
           working_directory: ~/meadow/assets
+      - run:
+          name: Install Pyramid Dependencies
+          command: yarn install
+          working_directory: ~/meadow/priv/tiff
       - save_cache:
           key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
           paths:
             - ~/meadow/deps
             - ~/meadow/_build
       - save_cache:
-          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "assets/yarn.lock" }}
+          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}
           paths:
             - ~/meadow/assets/node_modules
+            - ~/meadow/priv/tiff/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo
