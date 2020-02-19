@@ -29,7 +29,7 @@ process.stdin.on("data", data => {
   pyramid
     .createPyramidTiff(source, target)
     .catch(err => {
-      process.stdout.write(`ERROR:${err.message}`);
+      process.stdout.write(`ERROR (cli.js): ${err.message}`);
     })
     .then(_dest => {
       process.stdout.write("complete");
