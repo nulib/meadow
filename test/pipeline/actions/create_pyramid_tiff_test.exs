@@ -6,10 +6,11 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
+  @ingest_bucket Meadow.Config.ingest_bucket()
+  @pyramid_bucket Meadow.Config.pyramid_bucket()
   @key "create_pyramid_tiff_test/coffee.tif"
   @content "test/fixtures/coffee.tif"
-  @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
+  @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
 
   setup do
     file_set =
@@ -18,7 +19,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
         accession_number: "123",
         role: "am",
         metadata: %{
-          location: "s3://#{@bucket}/#{@key}",
+          location: "s3://#{@ingest_bucket}/#{@key}",
           original_filename: "coffee.tif"
         }
       })
@@ -33,8 +34,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
           original_filename: "coffee.tif"
         }
       })
-
-    ExAws.S3.put_object(@bucket, @key, File.read!(@content)) |> ExAws.request!()
 
     {:ok,
      file_set_id: file_set.id,
@@ -53,6 +52,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} – already complete"
+
+      on_exit(fn ->
+        delete_object(@pyramid_bucket, dest)
+      end)
     end
   end
 
@@ -64,6 +67,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
       assert {:error, {:http_error, 404, _}} =
                ExAws.S3.head_object("test-pyramids", dest) |> ExAws.request()
+
+      on_exit(fn ->
+        delete_object(@pyramid_bucket, dest)
+      end)
     end
   end
 end

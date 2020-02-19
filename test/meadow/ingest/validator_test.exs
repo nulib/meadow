@@ -1,54 +1,47 @@
 defmodule Meadow.Ingest.ValidatorTest do
   use Meadow.DataCase
+  use Meadow.S3Case
 
-  alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Ingest.Validator
 
-  import Mox
-
-  doctest Meadow.Ingest.Validator
-
-  @sheet_path "test-uploads/ingest_sheets/"
+  @sheet_path "/validator_test/"
+  @uploads_bucket Meadow.Config.upload_bucket()
+  @ingest_bucket Meadow.Config.ingest_bucket()
+  @image_fixture "test/fixtures/coffee.tif"
 
   setup context do
-    {:ok, project} = Projects.create_project(%{title: to_string(context.test)})
-
-    {:ok, sheet} =
-      Sheets.create_ingest_sheet(%{
-        name: to_string(context.test),
-        project_id: project.id,
-        filename: "s3://" <> @sheet_path <> context.sheet
+    project =
+      project_fixture(%{
+        id: "45289196-b5bc-44fd-bd99-dcf033f020f8"
       })
 
-    http_mock = fn
-      :get, url, _, _, _ ->
-        file = url |> String.split("/") |> List.last()
+    sheet =
+      ingest_sheet_fixture(%{
+        name: to_string(context.test),
+        project_id: project.id,
+        filename: "s3://" <> @uploads_bucket <> @sheet_path <> context.sheet
+      })
 
-        case File.exists?("test/fixtures/#{file}") do
-          true -> {:ok, %{status_code: 200, body: File.read!("test/fixtures/#{file}")}}
-          false -> {:ok, %{status_code: 404}}
-        end
+    ExAws.S3.put_object(
+      @uploads_bucket,
+      @sheet_path <> context.sheet,
+      File.read!("test/fixtures/#{context.sheet}")
+    )
+    |> ExAws.request!()
 
-      :head, url, _, _, _ ->
-        file = url |> String.split("/") |> List.last()
+    ExAws.S3.put_object(
+      @ingest_bucket,
+      "#{project.folder}/coffee.tif",
+      File.read!(@image_fixture)
+    )
+    |> ExAws.request!()
 
-        case file do
-          "Missing_" <> _ -> {:ok, %{status_code: 404}}
-          _ -> {:ok, %{status_code: 200}}
-        end
-    end
-
-    Meadow.ExAwsHttpMock
-    |> stub(:request, http_mock)
+    on_exit(fn ->
+      delete_object(@uploads_bucket, @sheet_path <> context.sheet)
+      delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
+    end)
 
     {:ok, %{sheet: sheet, project: project}}
-  end
-
-  @tag sheet: "ingest_sheet.csv"
-  test "fails when the project isn't preloaded", context do
-    assert_raise(ArgumentError, "Ingest Sheet association not loaded", fn ->
-      Validator.result(context.sheet)
-    end)
   end
 
   @tag sheet: "ingest_sheet.csv"
@@ -76,6 +69,15 @@ defmodule Meadow.Ingest.ValidatorTest do
     assert(ingest_sheet.status == "file_fail")
   end
 
+  @tag sheet: "missing_ingest_sheet.csv"
+  test "fails an ingest sheet the csv is missing", context do
+    delete_object(@uploads_bucket, @sheet_path <> "missing_ingest_sheet.csv")
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "file_fail")
+  end
+
   @tag sheet: "ingest_sheet_missing_field.csv"
   test "fails an ingest sheet when a field is missing", context do
     assert(Validator.result(context.sheet.id) == "fail")
@@ -90,18 +92,6 @@ defmodule Meadow.Ingest.ValidatorTest do
     ingest_sheet = Validator.validate(context.sheet.id)
 
     assert(ingest_sheet.status == "row_fail")
-  end
-
-  @tag sheet: "missing_ingest_sheet.csv"
-  test "fails when ingest sheet is missing", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
-
-    assert(
-      ingest_sheet.file_errors == [
-        "Could not load ingest sheet from S3"
-      ]
-    )
   end
 
   @tag sheet: "ingest_sheet_incorrect_role.csv"
