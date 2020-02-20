@@ -20,6 +20,8 @@ jobs:
       - image: nulib/goaws
       - image: nulib/ldap-alpine
       - image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+        environment:
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
       - image: minio/minio
         environment:
           MINIO_ACCESS_KEY: minio
