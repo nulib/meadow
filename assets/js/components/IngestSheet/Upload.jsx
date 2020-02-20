@@ -137,35 +137,18 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
                 <span className="file-name">{fileNameString}</span>
               </label>
             </div>
-            {/* <div className="file">
-              <label className="file-label">
-                <input
-                  className="file-input"
-                  id={"file"}
-                  name="file"
-                  type="file"
-                  onChange={handleInputChange}
-                />
-                <span className="file-cta">
-                  <span className="file-icon">
-                    <FontAwesomeIcon icon="file-upload" />
-                  </span>
-                  <span className="file-label">Choose a file…</span>
-                </span>
-              </label>
-            </div> */}
           </div>
 
-          <div className="buttons">
+          <div className="buttons is-right">
+            <button type="button" className="button" onClick={handleCancel}>
+              Cancel
+            </button>
             <button
               type="submit"
               className="button is-primary"
               disabled={isSubmitDisabled()}
             >
               Submit
-            </button>
-            <button type="button" className="button" onClick={handleCancel}>
-              Cancel
             </button>
           </div>
         </form>

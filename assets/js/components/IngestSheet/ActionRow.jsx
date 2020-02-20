@@ -58,11 +58,11 @@ const IngestSheetActionRow = ({ projectId, sheetId, status }) => {
             <span>Approve ingest sheet</span>
           </button>
         )}
-        <button className={`button is-small`} onClick={onOpenModal}>
+        <button className={`button`} onClick={onOpenModal}>
           <span className="icon">
             <FontAwesomeIcon icon="trash" />
           </span>{" "}
-          <span>Delete ingest sheet / job and start over</span>
+          <span>Delete ingest sheet and start over</span>
         </button>
       </ButtonGroup>
 

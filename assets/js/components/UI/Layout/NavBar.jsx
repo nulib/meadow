@@ -48,7 +48,7 @@ const UILayoutNavBar = () => {
 
         <div className="navbar-end">
           <Link to="/" className="navbar-item">
-            Home
+            <FontAwesomeIcon icon="home" />
           </Link>
           <Link
             to="/project/list"
@@ -91,6 +91,15 @@ const UILayoutNavBar = () => {
               </button>
             </div>
           )}
+          <div className="navbar-item has-dropdown is-hoverable">
+            <a className="navbar-link">
+              <FontAwesomeIcon icon="bell" />
+            </a>
+            <div className="navbar-dropdown is-right">
+              <a className="navbar-item">Some alert #1</a>
+              <a className="navbar-item">Some alert #2</a>
+            </div>
+          </div>
           {currentUser && (
             <div className="navbar-item has-dropdown is-hoverable">
               <a className="navbar-link">

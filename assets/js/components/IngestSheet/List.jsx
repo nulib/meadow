@@ -8,17 +8,7 @@ import { useToasts } from "react-toast-notifications";
 import UINotification from "../UI/Notification";
 import { getClassFromIngestSheetStatus } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-// delete/refine later
-// TODO: Pull this into a common service
-export const TEMP_USER_FRIENDLY_STATUS = {
-  UPLOADED: "Validation in progress...",
-  ROW_FAIL: "Validation Errors",
-  FILE_FAIL: "Validation Errors",
-  VALID: "Valid, waiting for approval",
-  APPROVED: "Ingest in progress...",
-  COMPLETED: "Ingest Complete"
-};
+import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
 
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -116,7 +106,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       {name}
                     </Link>
                   </td>
-                  <td className="has-text-right">{updatedAt}</td>
+                  <td className="has-text-right">{formatDate(updatedAt)}</td>
                   <td>
                     <span
                       className={`tag ${getClassFromIngestSheetStatus(status)}`}

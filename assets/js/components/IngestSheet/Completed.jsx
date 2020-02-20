@@ -1,35 +1,47 @@
 import React, { useState } from "react";
-import WorkRow from "../Work/Row";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
-import { INGEST_SHEET_WORKS } from "./ingestSheet.query";
+import {
+  INGEST_SHEET_WORKS,
+  INGEST_SHEET_COMPLETED_ERRORS
+} from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
-import IngestSheetDownload from "./Completed/Download";
 import WorkListItem from "../Work/ListItem";
 
 const IngestSheetCompleted = ({ sheetId }) => {
-  const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
+  const {
+    loading: worksLoading,
+    error: worksError,
+    data: worksData
+  } = useQuery(INGEST_SHEET_WORKS, {
     variables: { id: sheetId }
   });
-  const [showErrors, setShowErrors] = useState(false);
+  const {
+    loading: errorsLoading,
+    error: errorsError,
+    data: errorsData
+  } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
 
-  if (loading) return "Loading...";
-  if (error) return <Error error={error.message} />;
+  if (worksLoading || errorsLoading) return "Loading...";
+  if (worksError) return <Error error={worksError.message} />;
+  if (errorsError) return <Error error={errorsError.message} />;
 
-  const works = data.ingestSheetWorks;
+  const works = worksData.ingestSheetWorks;
+  let ingestSheetErrors = [];
+  console.log("errorsData :", errorsData);
+  try {
+    ingestSheetErrors = errorsData.ingestSheetErrors;
+  } catch (e) {}
 
   return (
     <>
-      {/* <IngestSheetDownload sheetId={sheetId} /> */}
-      <p>
-        <label className="checkbox">
-          <input type="checkbox" onChange={() => setShowErrors(!showErrors)} />
-          Show errors
-        </label>
-      </p>
+      {ingestSheetErrors.length > 0 && (
+        <section className="section">
+          <IngestSheetCompletedErrors errors={ingestSheetErrors} />
+        </section>
+      )}
 
-      {showErrors && <IngestSheetCompletedErrors sheetId={sheetId} />}
       <section className="section">
         <div className="columns is-multiline">
           {works.map(work => (
