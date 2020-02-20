@@ -22,19 +22,17 @@ defmodule Meadow.Ingest.ValidatorTest do
         filename: "s3://" <> @uploads_bucket <> @sheet_path <> context.sheet
       })
 
-    ExAws.S3.put_object(
+    upload_object(
       @uploads_bucket,
       @sheet_path <> context.sheet,
       File.read!("test/fixtures/#{context.sheet}")
     )
-    |> ExAws.request!()
 
-    ExAws.S3.put_object(
+    upload_object(
       @ingest_bucket,
       "#{project.folder}/coffee.tif",
       File.read!(@image_fixture)
     )
-    |> ExAws.request!()
 
     on_exit(fn ->
       delete_object(@uploads_bucket, @sheet_path <> context.sheet)

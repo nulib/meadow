@@ -48,9 +48,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       assert(file_set.metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}")
 
-      assert {:ok, _} =
-               ExAws.S3.head_object(@preservation_bucket, preservation_key)
-               |> ExAws.request()
+      assert(object_exists?(@preservation_bucket, preservation_key))
 
       assert capture_log(fn ->
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})

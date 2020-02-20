@@ -42,6 +42,13 @@ defmodule Meadow.S3Case do
 
   using do
     quote do
+      defp object_exists?(bucket, key) do
+        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
+          {:ok, _} -> true
+          {:error, _} -> false
+        end
+      end
+
       defp delete_bucket(bucket) do
         bucket
         |> empty_bucket()
@@ -70,6 +77,11 @@ defmodule Meadow.S3Case do
           {:error, _} ->
             bucket
         end
+      end
+
+      defp upload_object(bucket, key, content) do
+        ExAws.S3.put_object(bucket, key, to_string(content))
+        |> ExAws.request!()
       end
     end
   end
