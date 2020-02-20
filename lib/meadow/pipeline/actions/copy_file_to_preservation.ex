@@ -52,8 +52,10 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     dest_key =
       Path.join([
         "/",
-        Pairtree.generate!(file_set.id, 4),
-        Map.get(file_set.metadata.digests, "sha256")
+        Pairtree.generate_preservation_path(
+          file_set.id,
+          Map.get(file_set.metadata.digests, "sha256")
+        )
       ])
 
     original_filename = file_set.metadata.original_filename

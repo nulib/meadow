@@ -47,7 +47,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
     test "process/2", %{file_set_id: file_set_id, pairtree: dest} do
       assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
-      assert {:ok, _} = ExAws.S3.head_object("test-pyramids", dest) |> ExAws.request()
+      assert {:ok, _} = ExAws.S3.head_object(@pyramid_bucket, dest) |> ExAws.request()
 
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})

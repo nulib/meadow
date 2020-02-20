@@ -29,18 +29,22 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         }
       })
 
-    {:ok, file_set_id: file_set.id, pairtree: Pairtree.generate!(file_set.id, 4)}
+    {:ok,
+     file_set_id: file_set.id,
+     preservation_key:
+       Pairtree.generate_preservation_path(
+         file_set.id,
+         Map.get(file_set.metadata.digests, "sha256")
+       )}
   end
 
   @tag s3: [@fixture]
   describe "success" do
-    test "process/2", %{file_set_id: file_set_id, pairtree: pairtree} do
-      require IEx
+    test "process/2", %{file_set_id: file_set_id, preservation_key: preservation_key} do
       assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      preservation_key = "#{pairtree}/#{@sha256}"
 
       assert(file_set.metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}")
 
