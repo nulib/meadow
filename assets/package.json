@@ -52,7 +52,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "coveralls": "^3.0.9",
     "css-loader": "^3.4.2",
-    "file-loader": "^5.0.2",
+    "file-loader": "^5.1.0",
     "jest": "^25.1.0",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
