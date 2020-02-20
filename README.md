@@ -23,7 +23,7 @@
   - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
 - Create Sequins pipeline, S3 buckets, and database with `mix meadow.setup`
 - Setup/seed the LDAP (see below for instructions)
-- From the `assets` folder, install Node.js dependencies with `cd assets && yarn install`
+- Install Node.js dependencies with `mix assets.install`
 - Back in the `meadow` project folder, start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
 Now you can visit [`devbox.library.northwestern.edu`](http://devbox.library.northwestern.edu) from your browser.
@@ -48,12 +48,7 @@ Read more about [Devstack](https://github.com/nulib/devstack) commands here.
 
 You may need to run `mix deps.get` again if new dependencies have been added
 
-You may need to run `cd assets && yarn install` if new `node` packages have been added
-
-Install pyramid tiff generation dependencies
-`cd priv/tiff`
-
-`yarn install`
+You may need to run `mix assets.install` if new `node` packages have been added
 
 ### Database
 
