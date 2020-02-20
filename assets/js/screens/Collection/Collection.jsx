@@ -1,21 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import Collection from "../../components/Collection/Collection";
 import { useQuery } from "@apollo/react-hooks";
-import { GET_COLLECTION } from "../../components/Collection/collection.query";
+import {
+  GET_COLLECTION,
+  GET_COLLECTIONS,
+  DELETE_COLLECTION
+} from "../../components/Collection/collection.query";
 import Error from "../../components//UI/Error";
 import Loading from "../../components//UI/Loading";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
+import { useMutation } from "@apollo/react-hooks";
+import UIModalDelete from "../../components/UI/Modal/Delete";
+import { useToasts } from "react-toast-notifications";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import Layout from "../Layout";
 
 const ScreensCollection = () => {
   const { id } = useParams();
+  const { addToast } = useToasts();
+  const history = useHistory();
+  const [modalOpen, setModalOpen] = useState(false);
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id }
+  });
+  const [deleteCollection] = useMutation(DELETE_COLLECTION, {
+    onCompleted({ deleteCollection }) {
+      addToast(`Collection ${deleteCollection.name} deleted successfully`, {
+        appearance: "success",
+        autoDismiss: true
+      });
+      history.push("/collection/list");
+    },
+    refetchQueries(mutationResult) {
+      return [{ query: GET_COLLECTIONS }];
+    }
   });
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
+
+  const onOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setModalOpen(false);
+    deleteCollection({ variables: { collectionId: id } });
+  };
 
   const crumbs = [
     {
@@ -29,8 +64,6 @@ const ScreensCollection = () => {
     }
   ];
 
-  console.log("data :", data);
-
   return (
     <Layout>
       <section className="hero is-light">
@@ -42,7 +75,9 @@ const ScreensCollection = () => {
               <Link to={`/collection/form/${id}`} className="button is-primary">
                 Edit
               </Link>
-              <button className="button">Delete</button>
+              <button className="button" onClick={onOpenModal}>
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -51,6 +86,13 @@ const ScreensCollection = () => {
       <section className="section">
         <Collection {...data.collection} />
       </section>
+
+      <UIModalDelete
+        isOpen={modalOpen}
+        handleClose={onCloseModal}
+        handleConfirm={handleDeleteClick}
+        thingToDeleteLabel={`Collection ${data.collection.name}`}
+      />
     </Layout>
   );
 };

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const CollectionListRow = ({ collection }) => {
+const CollectionListRow = ({ collection, onOpenModal }) => {
   const { id, name = "", description = "", keywords = [] } = collection;
   return (
     <li data-testid="collection-list-row">
@@ -48,7 +48,7 @@ const CollectionListRow = ({ collection }) => {
               </Link>
             </p>
             <p className="control">
-              <button className="button" onClick={e => onOpenModal(e, project)}>
+              <button className="button" onClick={() => onOpenModal({id, name})}>
                 <FontAwesomeIcon icon="trash" />
               </button>
             </p>
