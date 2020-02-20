@@ -23,3 +23,18 @@ table {
 .small-title {
   @include small-title;
 }
+
+// This override is only necessary due to a CSS nameing collision with npm "react-toastify" package
+.notification {
+  &.is-danger {
+    background-color: $red !important;
+  }
+}
+
+// TODO: Find a better way to override these overrides via Bulma variables
+.message.is-success .message-body {
+  color: $success;
+}
+.tag:not(body).is-success.is-light {
+  color: $success;
+}

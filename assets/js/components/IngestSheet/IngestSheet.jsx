@@ -41,7 +41,9 @@ const IngestSheet = ({
 
   return (
     <>
-      <IngestSheetAlert ingestSheet={ingestSheetData} />
+      {status !== "COMPLETED" && (
+        <IngestSheetAlert ingestSheet={ingestSheetData} />
+      )}
 
       {["APPROVED"].indexOf(status) > -1 && (
         <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />

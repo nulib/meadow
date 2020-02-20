@@ -5,13 +5,15 @@ import Loading from "../../components/UI/Loading";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
-import { Link } from "react-router-dom";
 import {
   INGEST_SHEET_SUBSCRIPTION,
   INGEST_SHEET_QUERY
 } from "../../components/IngestSheet/ingestSheet.query";
 import Layout from "../Layout";
-import { getClassFromIngestSheetStatus } from "../../services/helpers";
+import {
+  getClassFromIngestSheetStatus,
+  TEMP_USER_FRIENDLY_STATUS
+} from "../../services/helpers";
 import IngestSheetDownload from "../../components/IngestSheet/Completed/Download";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
@@ -84,7 +86,7 @@ const ScreensIngestSheet = ({ match }) => {
                   sheetData.ingestSheet.status
                 )}`}
               >
-                Status should go here
+                {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
               </span>
             </h1>
             <h2 className="subtitle">Ingest Sheet</h2>
@@ -115,30 +117,6 @@ const ScreensIngestSheet = ({ match }) => {
         </div>
       </section>
     </Layout>
-    // <>
-    //   <ScreenHeader
-    //     title="Ingest Sheet"
-    //     description="Feedback on the current status of an Ingest Sheet .csv file moving into the system."
-    //     breadCrumbs={createCrumbs()}
-    //   />
-    //   <ScreenContent>
-    //     <IngestSheet
-    //       ingestSheetData={sheetData.ingestSheet}
-    //       projectId={id}
-    //       subscribeToIngestSheetUpdates={() =>
-    //         subscribeToMore({
-    //           document: INGEST_SHEET_SUBSCRIPTION,
-    //           variables: { sheetId },
-    //           updateQuery: (prev, { subscriptionData }) => {
-    //             if (!subscriptionData.data) return prev;
-    //             const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-    //             return { ingestSheet: { ...updatedSheet } };
-    //           }
-    //         })
-    //       }
-    //     />
-    //   </ScreenContent>
-    // </>
   );
 };
 

@@ -14,7 +14,7 @@
 ## Initial setup:
 
 - Make sure you've done the [Local Authentication Setup](https://github.com/nulib/donut/wiki/Authentication-setup-for-dev-environment)
-- Install yarn if it's not already present: `brew install npm`, `npm -g install yarn`, or `asdf install yarn [VERSION]`
+- Install yarn if it's not already present: `npm -g install yarn`, or `asdf install yarn [VERSION]`
 - From the `meadow` project root, install Elixir dependencies with `mix deps.get`
 - Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
   - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
