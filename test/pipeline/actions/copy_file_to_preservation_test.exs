@@ -1,74 +1,64 @@
 defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   use Meadow.DataCase
+  use Meadow.S3Case
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.CopyFileToPreservation
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
-  import Mox
 
-  @sha256 "3be2b0180066d23605f9f022ae68facecc7f11e557e88dea3219bb4d42e150b5"
+  @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
+  @ingest_bucket Meadow.Config.ingest_bucket()
+  @preservation_bucket Meadow.Config.preservation_bucket()
+  @key "copy_file_to_preservation_test/test.tif"
+  @content "test/fixtures/coffee.tif"
+  @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
+  @id "7aab17f1-89b4-4716-8421-e2f3f4c161ec"
 
   setup do
     file_set =
       file_set_fixture(%{
+        id: @id,
         accession_number: "123",
         role: "am",
         metadata: %{
           digests: %{
             "sha256" => @sha256
           },
-          location: "s3://test-ingest/project-123/test.tif",
+          location: "s3://#{@ingest_bucket}/#{@key}",
           original_filename: "test.tif"
         }
       })
 
-    {:ok, file_set_id: file_set.id, pairtree: Pairtree.generate!(file_set.id, 4)}
+    {:ok,
+     file_set_id: file_set.id,
+     preservation_key:
+       Pairtree.generate_preservation_path(
+         file_set.id,
+         Map.get(file_set.metadata.digests, "sha256")
+       )}
   end
 
+  @tag s3: [@fixture]
   describe "success" do
-    test "process/2", %{file_set_id: file_set_id, pairtree: pairtree} do
-      Meadow.ExAwsHttpMock
-      |> stub(:request, fn :put, url, _body, headers, _opts ->
-        src_path = headers |> List.keyfind("x-amz-copy-source", 0) |> elem(1)
-        dest_path = URI.parse(url).path
-
-        [_, dest_bucket, dest_key] = dest_path |> String.split("/", parts: 3)
-        [_, src_bucket, src_key] = src_path |> String.split("/", parts: 3)
-
-        send(self(), %{source: {src_bucket, src_key}, dest: {dest_bucket, dest_key}})
-        {:ok, %{status_code: 200}}
-      end)
-
+    test "process/2", %{file_set_id: file_set_id, preservation_key: preservation_key} do
       assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
 
-      assert_received(%{
-        source: source,
-        dest: dest
-      })
-
-      assert source == {"test-ingest", "project-123/test.tif"}
-      assert dest == {"test-preservation", "#{pairtree}/#{@sha256}"}
       file_set = FileSets.get_file_set!(file_set_id)
-      assert(file_set.metadata.location =~ "/test-preservation/#{pairtree}/#{@sha256}")
+
+      assert(file_set.metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}")
+
+      assert {:ok, _} =
+               ExAws.S3.head_object(@preservation_bucket, preservation_key)
+               |> ExAws.request()
 
       assert capture_log(fn ->
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
-    end
-  end
 
-  describe "failure" do
-    test "process/2", %{file_set_id: file_set_id} do
-      Meadow.ExAwsHttpMock
-      |> stub(:request, fn :put, _url, _body, _headers, _opts ->
-        {:ok, %{status_code: 404}}
+      on_exit(fn ->
+        delete_object(@preservation_bucket, preservation_key)
       end)
-
-      file_set = FileSets.get_file_set!(file_set_id)
-      src_location = file_set.metadata.location
-      assert({:error, _, _} = CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}))
-      assert(FileSets.get_file_set!(file_set_id).metadata.location == src_location)
     end
   end
 end
