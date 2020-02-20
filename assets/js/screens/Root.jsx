@@ -17,7 +17,6 @@ import ScreensCollectionForm from "./Collection/Form";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
 import ScrollToTop from "../components/ScrollToTop";
-import ElasticsearchExample from "../components/ElasticsearchExample";
 
 export default class Root extends React.Component {
   render() {
@@ -73,11 +72,6 @@ export default class Root extends React.Component {
                 exact
                 path="/collection/:id"
                 component={ScreensCollection}
-              />
-              <PrivateRoute
-                exact
-                path="/elasticsearch-example"
-                component={ElasticsearchExample}
               />
               <PrivateRoute exact path="/" component={Home} />
               <PrivateRoute component={NotFoundPage} />
