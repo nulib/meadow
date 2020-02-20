@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import CollectionListRow from "../../components/Collection/ListRow";
 import { useQuery } from "@apollo/react-hooks";
-import { GET_COLLECTIONS } from "../../components/Collection/collection.query";
+import {
+  GET_COLLECTIONS,
+  DELETE_COLLECTION
+} from "../../components/Collection/collection.query";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import { Link } from "react-router-dom";
-import debounce from "lodash.debounce";
+import { Link, useHistory } from "react-router-dom";
+import { useMutation } from "@apollo/react-hooks";
+import { useToasts } from "react-toast-notifications";
 import Layout from "../Layout";
+import UIModalDelete from "../../components/UI/Modal/Delete";
 
 const ScreensCollectionList = () => {
+  const { addToast } = useToasts();
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
   const [filteredCollections, setFilteredCollections] = useState([]);
-  const [searchValue, setSearchValue] = useState("");
+  const [activeCollection, setActiveCollection] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
   const inputEl = useRef(null);
 
   useEffect(() => {
@@ -20,12 +27,40 @@ const ScreensCollectionList = () => {
     }
   }, [data]);
 
+  const [deleteCollection] = useMutation(DELETE_COLLECTION, {
+    onCompleted({ deleteCollection }) {
+      addToast(`Collection ${deleteCollection.name} deleted successfully`, {
+        appearance: "success",
+        autoDismiss: true
+      });
+    },
+    refetchQueries(mutationResult) {
+      return [{ query: GET_COLLECTIONS }];
+    }
+  });
+
   if (loading) {
     return <Loading />;
   }
   if (error) {
     return <Error error={error} />;
   }
+
+  const onOpenModal = (collectionObj) => {
+    setActiveCollection(collectionObj);
+    setModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setActiveCollection();
+    setModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setModalOpen(false);
+    deleteCollection({ variables: { collectionId: activeCollection.id } });
+    setActiveCollection();
+  };
 
   const createCrumbs = () => {
     return [
@@ -76,6 +111,7 @@ const ScreensCollectionList = () => {
                 <CollectionListRow
                   key={collection.id}
                   collection={collection}
+                  onOpenModal={onOpenModal}
                 />
               ))}
           </ul>
@@ -84,6 +120,12 @@ const ScreensCollectionList = () => {
           )}
         </div>
       </section>
+      <UIModalDelete
+        isOpen={modalOpen}
+        handleClose={onCloseModal}
+        handleConfirm={handleDeleteClick}
+        thingToDeleteLabel={`Collection ${activeCollection ? activeCollection.name : " "}`}
+      />
     </Layout>
   );
 };

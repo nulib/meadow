@@ -108,7 +108,6 @@ const CollectionForm = ({ collection }) => {
       .split(",")
       .map(keyword => keyword.trim());
 
-    console.log("values :", values);
     if (!collection) {
       createCollection({
         variables: { ...values }
@@ -159,6 +158,7 @@ const CollectionForm = ({ collection }) => {
                     name="featured"
                     onChange={handleIsFeaturedChange}
                     data-testid="featured"
+                    checked={formValues.featured || false}
                   />{" "}
                   Featured?
                 </label>

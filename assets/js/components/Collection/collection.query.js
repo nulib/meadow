@@ -24,16 +24,25 @@ export const CREATE_COLLECTION = gql`
     $description: String
     $collectionName: String!
     $keywords: [String]
+    $findingAidUrl: String
+    $adminEmail: String
+    $featured: Boolean
   ) {
     createCollection(
       description: $description
       name: $collectionName
       keywords: $keywords
+      findingAidUrl: $findingAidUrl
+      adminEmail: $adminEmail
+      featured: $featured
     ) {
       id
       description
       name
       keywords
+      findingAidUrl
+      adminEmail
+      featured
     }
   }
 `;
@@ -105,17 +114,26 @@ export const UPDATE_COLLECTION = gql`
     $description: String
     $collectionName: String!
     $keywords: [String]
+    $findingAidUrl: String
+    $adminEmail: String
+    $featured: Boolean
   ) {
     updateCollection(
       collectionId: $collectionId
       description: $description
       name: $collectionName
       keywords: $keywords
+      findingAidUrl: $findingAidUrl
+      adminEmail: $adminEmail
+      featured: $featured
     ) {
       id
       description
       name
       keywords
+      findingAidUrl
+      adminEmail
+      featured
     }
   }
 `;
