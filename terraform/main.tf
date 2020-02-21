@@ -65,6 +65,10 @@ resource "aws_s3_bucket" "meadow_preservation" {
   tags   = var.tags
 }
 
+data "aws_s3_bucket" "pyramid_bucket" {
+  bucket = var.pyramid_bucket
+}
+
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
     effect    = "Allow"
@@ -84,6 +88,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_ingest.arn,
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation.arn,
+      data.aws_s3_bucket.pyramid_bucket.arn
     ]
   }
 
@@ -100,6 +105,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_ingest.arn}/*",
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation.arn}/*",
+      "${data.aws_s3_bucket.pyramid_bucket.arn}/*"
     ]
   }
 }

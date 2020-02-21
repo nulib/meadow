@@ -7,7 +7,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   alias Sequins.Pipeline.Action
   use Action
 
-  @timeout 7_000
+  @timeout 30_000
 
   def process(data, attrs),
     do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
@@ -42,29 +42,46 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     input = Poison.encode!(%{source: source, target: target})
 
     send(port, {self(), {:command, input}})
-
-    receive do
-      {_port, {:data, "complete"}} ->
-        Logger.info("complete")
-        {:ok, "complete"}
-
-      {_port, {:data, message}} ->
-        Logger.error(message)
-        {:error, message}
-
-      {_port, {:exit_status, status}} ->
-        Logger.error("exit_status: #{status}")
-        {:error, "exit_status: #{status}"}
-    after
-      @timeout ->
-        Logger.error("No response after 7s")
-        {:error, "Timeout"}
-    end
+    handle_output(port)
   end
 
   defp create_pyramid_tiff(source, _target, _port) do
     Logger.error("Invalid s3://location: #{source}")
     {:error, "Invalid s3://location: #{source}"}
+  end
+
+  defp handle_message(message) do
+    case ~r"^\[(?<level>.+?)\] (?<message>.+)$" |> Regex.named_captures(message) do
+      %{"level" => level, "message" => message} ->
+        Logger.log(String.to_atom(level), message)
+
+      _ ->
+        Logger.warn("Unknown message received: #{message}")
+    end
+  end
+
+  defp handle_output(port) do
+    receive do
+      {^port, {:data, {:eol, "[ok]"}}} ->
+        Logger.info("complete")
+        {:ok, "complete"}
+
+      {^port, {:data, {:eol, "[fatal] " <> message}}} ->
+        Logger.error(message)
+        {:error, message}
+
+      {^port, {:data, {:eol, message}}} ->
+        handle_message(message)
+        handle_output(port)
+
+      {^port, {:exit_status, status}} ->
+        Logger.error("exit_status: #{status}")
+        {:error, "exit_status: #{status}"}
+    after
+      @timeout ->
+        Logger.error("No response after #{@timeout}ms")
+        {:error, "Timeout"}
+    end
   end
 
   defp pyramid_uri_for(file_set_id) do
@@ -91,7 +108,12 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         Process.flag(:trap_exit, true)
 
         port =
-          Port.open({:spawn, command}, [{:env, Config.s3_environment()}, :binary, :exit_status])
+          Port.open({:spawn, command}, [
+            {:env, Config.s3_environment()},
+            {:line, 512},
+            :binary,
+            :exit_status
+          ])
 
         Port.monitor(port)
         port
