@@ -3,7 +3,6 @@ import { Router } from "react-router-dom";
 import { act, render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/react-testing";
-import { ToastProvider } from "react-toast-notifications";
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
@@ -70,10 +69,6 @@ export function renderWithApollo(ui, { mocks = [] }) {
   return {
     ...render(ui, { wrapper: Wrapper })
   };
-}
-
-export function wrapWithToast(ui) {
-  return <ToastProvider addToast={() => {}}>{ui}</ToastProvider>;
 }
 
 export const mockWork = {

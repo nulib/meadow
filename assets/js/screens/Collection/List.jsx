@@ -9,12 +9,11 @@ import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { Link, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 import Layout from "../Layout";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 
 const ScreensCollectionList = () => {
-  const { addToast } = useToasts();
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [activeCollection, setActiveCollection] = useState();
@@ -29,10 +28,10 @@ const ScreensCollectionList = () => {
 
   const [deleteCollection] = useMutation(DELETE_COLLECTION, {
     onCompleted({ deleteCollection }) {
-      addToast(`Collection ${deleteCollection.name} deleted successfully`, {
-        appearance: "success",
-        autoDismiss: true
-      });
+      toastWrapper(
+        "is-success",
+        `Collection ${deleteCollection.name} deleted successfully`
+      );
     },
     refetchQueries(mutationResult) {
       return [{ query: GET_COLLECTIONS }];
@@ -46,7 +45,7 @@ const ScreensCollectionList = () => {
     return <Error error={error} />;
   }
 
-  const onOpenModal = (collectionObj) => {
+  const onOpenModal = collectionObj => {
     setActiveCollection(collectionObj);
     setModalOpen(true);
   };
@@ -124,7 +123,9 @@ const ScreensCollectionList = () => {
         isOpen={modalOpen}
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Collection ${activeCollection ? activeCollection.name : " "}`}
+        thingToDeleteLabel={`Collection ${
+          activeCollection ? activeCollection.name : " "
+        }`}
       />
     </Layout>
   );

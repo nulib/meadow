@@ -956,7 +956,7 @@
     "@emotion/utils" "0.11.3"
     "@emotion/weak-memoize" "0.2.5"
 
-"@emotion/core@^10.0.14", "@emotion/core@^10.0.9":
+"@emotion/core@^10.0.9":
   version "10.0.27"
   resolved "https://registry.yarnpkg.com/@emotion/core/-/core-10.0.27.tgz#7c3f78be681ab2273f3bf11ca3e2edc4a9dd1fdc"
   integrity sha512-XbD5R36pVbohQMnKfajHv43g8EbN4NHdF6Zh9zg/C0nr0jqwOw3gYnC07Xj3yG43OYSRyrGsoQ5qPwc8ycvLZw==
@@ -2435,6 +2435,11 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
+
+bulma-toast@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/bulma-toast/-/bulma-toast-1.5.4.tgz#ee72a1f49a1da07c49c0507ffa4ade6c1d3026f8"
+  integrity sha512-yLGeupj1WOCgOS6Gtik2eyJ2aA55nFwDyTeLSoTDdRRdWsWbBcMsna3j7ZATiQTZ4o5BI05X4z/qCKc9qMysUA==
 
 bulma@^0.8.0:
   version "0.8.0"
@@ -7217,14 +7222,6 @@ react-svg-loader@^3.0.3:
     loader-utils "^1.2.3"
     react-svg-core "^3.0.3"
 
-react-toast-notifications@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/react-toast-notifications/-/react-toast-notifications-2.4.0.tgz#6213730bd1fe158fc01aeef200687ea94c5c5b24"
-  integrity sha512-8tkrbNh7LxkiFmtqAL/AiI55efIeI+fBk3c6ImsiZ0VObb4yvOq0cqYuJHyUiv9fuD2aBxvXGVH+n4Snt8qoWA==
-  dependencies:
-    "@emotion/core" "^10.0.14"
-    react-transition-group "^4.3.0"
-
 react-toastify@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-5.5.0.tgz#f55de44f6b5e3ce3b13b69e5bb4427f2c9404822"
@@ -7245,7 +7242,7 @@ react-transition-group@^2.2.1:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react-transition-group@^4, react-transition-group@^4.3.0:
+react-transition-group@^4:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.3.0.tgz#fea832e386cf8796c58b61874a3319704f5ce683"
   integrity sha512-1qRV1ZuVSdxPlPf4O8t7inxUGpdyO5zG9IoNfJxSO0ImU2A1YWkEQvFPuIPZmMLkg5hYs7vv5mMOyfgSkvAwvw==

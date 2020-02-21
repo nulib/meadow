@@ -11,13 +11,12 @@ import Loading from "../../components//UI/Loading";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import UIModalDelete from "../../components/UI/Modal/Delete";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import Layout from "../Layout";
 
 const ScreensCollection = () => {
   const { id } = useParams();
-  const { addToast } = useToasts();
   const history = useHistory();
   const [modalOpen, setModalOpen] = useState(false);
   const { data, loading, error } = useQuery(GET_COLLECTION, {
@@ -25,10 +24,10 @@ const ScreensCollection = () => {
   });
   const [deleteCollection] = useMutation(DELETE_COLLECTION, {
     onCompleted({ deleteCollection }) {
-      addToast(`Collection ${deleteCollection.name} deleted successfully`, {
-        appearance: "success",
-        autoDismiss: true
-      });
+      toastWrapper(
+        "is-success",
+        `Collection ${deleteCollection.name} deleted successfully`
+      );
       history.push("/collection/list");
     },
     refetchQueries(mutationResult) {
