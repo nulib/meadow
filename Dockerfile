@@ -12,6 +12,10 @@ COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
 RUN yarn install
+COPY ./priv/tiff/package.json /app/priv/tiff/package.json
+COPY ./priv/tiff/yarn.lock /app/priv/tiff/yarn.lock
+WORKDIR /app/priv/tiff
+RUN yarn install
 
 # Create elixir release
 FROM nulib/elixir-phoenix-base AS release
@@ -20,6 +24,7 @@ COPY . /app
 COPY --from=deps /app/_build /app/_build
 COPY --from=deps /app/deps /app/deps
 COPY --from=deps /app/assets/node_modules /app/assets/node_modules
+COPY --from=deps /app/priv/tiff/node_modules /app/priv/tiff/node_modules
 WORKDIR /app
 RUN mix release --overwrite
 

@@ -31,7 +31,6 @@ npm-debug.log
 
 # The directory NPM downloads your dependencies sources to.
 /assets/coverage/
-/assets/node_modules/
 /assets/package-lock.json
 
 # Since we are building assets from assets/,

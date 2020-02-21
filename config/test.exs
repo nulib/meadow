@@ -50,7 +50,8 @@ config :ex_aws, :s3,
   port: if(System.get_env("CI"), do: 9000, else: 9002),
   scheme: "http://",
   region: "us-east-1",
-  http_client: Meadow.ExAwsHttpMock
+  access_key_id: "minio",
+  secret_access_key: "minio123"
 
 config :ex_aws, :sqs,
   host: "localhost",
