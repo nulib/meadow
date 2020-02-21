@@ -76,3 +76,6 @@ config :exldap, :settings,
 
 # Print only warnings and errors during test
 config :logger, level: :info
+
+config :ex_unit,
+  assert_receive_timeout: 500
