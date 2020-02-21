@@ -2,12 +2,7 @@
 
 const AWS = require("aws-sdk");
 const pyramid = require("./pyramid");
-const readline = require("readline");
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-});
+const portlog = require("./portlog");
 
 if (process.env["ECS_CONTAINER_METADATA_FILE"]) {
   var instanceMetadata = require(process.env["ECS_CONTAINER_METADATA_FILE"]);
@@ -29,9 +24,9 @@ process.stdin.on("data", data => {
   pyramid
     .createPyramidTiff(source, target)
     .then(_dest => {
-      process.stdout.write("[ok]");
+      portlog("ok");
     }).catch(err => {
-      process.stdout.write(`[fatal] ${err.message}`);
+      portlog("fatal", err.message);
     });
 });
 process.stdin.on("end", () => {

@@ -52,27 +52,27 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
 
   defp handle_output(port) do
     receive do
-      {^port, {:data, "[debug] " <> message}} ->
+      {^port, {:data, {:eol, "[debug] " <> message}}} ->
         Logger.debug(message)
         handle_output(port)
 
-      {^port, {:data, "[info] " <> message}} ->
+      {^port, {:data, {:eol, "[info] " <> message}}} ->
         Logger.info(message)
         handle_output(port)
 
-      {^port, {:data, "[warn] " <> message}} ->
+      {^port, {:data, {:eol, "[warn] " <> message}}} ->
         Logger.warn(message)
         handle_output(port)
 
-      {^port, {:data, "[error] " <> message}} ->
+      {^port, {:data, {:eol, "[error] " <> message}}} ->
         Logger.error(message)
         handle_output(port)
 
-      {^port, {:data, "[fatal] " <> message}} ->
+      {^port, {:data, {:eol, "[fatal] " <> message}}} ->
         Logger.error(message)
         {:error, message}
 
-      {^port, {:data, "[ok]"}} ->
+      {^port, {:data, {:eol, "[ok]"}}} ->
         Logger.info("complete")
         {:ok, "complete"}
 
@@ -81,7 +81,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         {:error, "exit_status: #{status}"}
     after
       @timeout ->
-        Logger.error("No response after 7s")
+        Logger.error("No response after #{@timeout}ms")
         {:error, "Timeout"}
     end
   end
@@ -110,7 +110,12 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         Process.flag(:trap_exit, true)
 
         port =
-          Port.open({:spawn, command}, [{:env, Config.s3_environment()}, :binary, :exit_status])
+          Port.open({:spawn, command}, [
+            {:env, Config.s3_environment()},
+            {:line, 512},
+            :binary,
+            :exit_status
+          ])
 
         Port.monitor(port)
         port
