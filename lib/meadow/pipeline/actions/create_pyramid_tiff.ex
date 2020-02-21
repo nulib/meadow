@@ -7,7 +7,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   alias Sequins.Pipeline.Action
   use Action
 
-  @timeout 7_000
+  @timeout 30_000
 
   def process(data, attrs),
     do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
