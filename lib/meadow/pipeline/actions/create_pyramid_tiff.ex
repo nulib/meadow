@@ -50,31 +50,29 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     {:error, "Invalid s3://location: #{source}"}
   end
 
+  defp handle_message(message) do
+    case ~r"^\[(?<level>.+?)\] (?<message>.+)$" |> Regex.named_captures(message) do
+      %{"level" => level, "message" => message} ->
+        Logger.log(String.to_atom(level), message)
+
+      _ ->
+        Logger.warn("Unknown message received: #{message}")
+    end
+  end
+
   defp handle_output(port) do
     receive do
-      {^port, {:data, {:eol, "[debug] " <> message}}} ->
-        Logger.debug(message)
-        handle_output(port)
-
-      {^port, {:data, {:eol, "[info] " <> message}}} ->
-        Logger.info(message)
-        handle_output(port)
-
-      {^port, {:data, {:eol, "[warn] " <> message}}} ->
-        Logger.warn(message)
-        handle_output(port)
-
-      {^port, {:data, {:eol, "[error] " <> message}}} ->
-        Logger.error(message)
-        handle_output(port)
+      {^port, {:data, {:eol, "[ok]"}}} ->
+        Logger.info("complete")
+        {:ok, "complete"}
 
       {^port, {:data, {:eol, "[fatal] " <> message}}} ->
         Logger.error(message)
         {:error, message}
 
-      {^port, {:data, {:eol, "[ok]"}}} ->
-        Logger.info("complete")
-        {:ok, "complete"}
+      {^port, {:data, {:eol, message}}} ->
+        handle_message(message)
+        handle_output(port)
 
       {^port, {:exit_status, status}} ->
         Logger.error("exit_status: #{status}")
