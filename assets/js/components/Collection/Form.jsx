@@ -11,7 +11,7 @@ import {
 } from "./collection.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 
 // Pass in existing collection values when editing
 function setInitialFormValues(obj = {}) {
@@ -36,7 +36,6 @@ const CollectionForm = ({ collection }) => {
   const [pageLoading, setPageLoading] = useState(true);
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formValues, setFormValues] = useState({});
-  const { addToast } = useToasts();
 
   useEffect(() => {
     setSubmitDisabled(formValues.collectionName === "");
@@ -51,10 +50,10 @@ const CollectionForm = ({ collection }) => {
     CREATE_COLLECTION,
     {
       onCompleted({ createCollection }) {
-        addToast(`Collection ${createCollection.name} created successfully`, {
-          appearance: "success",
-          autoDismiss: true
-        });
+        toastWrapper(
+          "is-success",
+          `Collection ${createCollection.name} created successfully`
+        );
         history.push("/collection/list");
       },
       refetchQueries(mutationResult) {
@@ -68,10 +67,10 @@ const CollectionForm = ({ collection }) => {
     { loading: updateLoading, error: updateError, data: updateData }
   ] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
-      addToast(`Collection ${updateCollection.name} updated successfully`, {
-        appearance: "success",
-        autoDismiss: true
-      });
+      toastWrapper(
+        "is-success",
+        `Collection ${updateCollection.name} updated successfully`
+      );
       history.push(`/collection/${collection.id}`);
     }
   });

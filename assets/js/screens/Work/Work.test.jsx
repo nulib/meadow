@@ -1,10 +1,7 @@
 import React from "react";
 import ScreensWork from "./Work";
 import { Route } from "react-router-dom";
-import {
-  renderWithRouterApollo,
-  wrapWithToast
-} from "../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { GET_WORK } from "../../components/Work/work.query";
 import { waitForElement } from "@testing-library/react";
 
@@ -29,7 +26,6 @@ const mocks = [
               metadata: {
                 description: "Letter, page 2, If these papers, verso, blank",
                 originalFilename: "coffee.jpg"
-
               },
               work: {
                 id: "01E08T3ETNGSNJ3T13JZK0ET29"
@@ -87,7 +83,7 @@ const mocks = [
 // react-router's param object
 function setupMatchTests() {
   return renderWithRouterApollo(
-    wrapWithToast(<Route path="/work/:id" component={ScreensWork} />),
+    <Route path="/work/:id" component={ScreensWork} />,
     {
       mocks,
       route: "/work/ABC123"

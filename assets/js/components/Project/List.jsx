@@ -6,12 +6,10 @@ import Loading from "../UI/Loading";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
 import UIModalDelete from "../UI/Modal/Delete";
-import { useToasts } from "react-toast-notifications";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDate } from "../../services/helpers";
+import { formatDate, toastWrapper } from "../../services/helpers";
 
 const ProjectList = () => {
-  const { addToast } = useToasts();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
@@ -27,6 +25,7 @@ const ProjectList = () => {
         query: GET_PROJECTS,
         data: { projects }
       });
+      toastWrapper("is-success", `Project deleted successfully`);
     }
   });
 
@@ -45,18 +44,13 @@ const ProjectList = () => {
 
   const handleDeleteClick = () => {
     setModalOpen(false);
-
     if (activeModal.ingestSheets.length > 0) {
-      addToast(
-        `Project has existing ingest sheets.  You must delete these before deleting project: ${activeModal.title} `,
-        {
-          appearance: "error",
-          autoDismiss: true
-        }
+      toastWrapper(
+        "is-danger",
+        `Project has existing ingest sheets.  You must delete these before deleting project: ${activeModal.title} `
       );
       return setActiveModal(null);
     }
-
     deleteProject({ variables: { projectId: activeModal.id } });
     setActiveModal(null);
   };

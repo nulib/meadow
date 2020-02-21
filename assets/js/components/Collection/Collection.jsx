@@ -13,8 +13,6 @@ const Collection = ({
   published,
   works = []
 }) => {
-
-
   return (
     <div className="container" data-testid="collection">
       <article className="media">

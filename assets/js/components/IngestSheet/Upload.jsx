@@ -7,12 +7,11 @@ import { useHistory } from "react-router-dom";
 import { GET_PROJECT } from "../Project/project.query";
 import { useMutation } from "@apollo/react-hooks";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const IngestSheetUpload = ({ projectId, presignedUrl }) => {
   const history = useHistory();
-  const { addToast } = useToasts();
   const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
   const [fileNameString, setFileNameString] = useState("No file uploaded");
   const [createIngestSheet, { data, loading, error }] = useMutation(
@@ -64,6 +63,11 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
           .join("/")}`
       }
     });
+    toastWrapper(
+      "is-danger",
+      `Ingest Sheet ${ingest_sheet_name} created successfully`
+    );
+
     console.log("done creating IngestSheet");
   };
 
@@ -83,10 +87,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
     } catch (error) {
       Promise.resolve(null);
       console.log(error);
-      addToast(`Error uploading file to S3: ${error}`, {
-        appearance: "error",
-        autoDismiss: true
-      });
+      toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
     }
   };
 
