@@ -36,6 +36,7 @@ defmodule MeadowWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
+      interface: :playground,
       socket: MeadowWeb.UserSocket
 
     forward "/", Plug.Static,
