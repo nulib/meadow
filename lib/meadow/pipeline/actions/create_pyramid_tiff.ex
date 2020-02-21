@@ -42,17 +42,41 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     input = Poison.encode!(%{source: source, target: target})
 
     send(port, {self(), {:command, input}})
+    handle_output(port)
+  end
 
+  defp create_pyramid_tiff(source, _target, _port) do
+    Logger.error("Invalid s3://location: #{source}")
+    {:error, "Invalid s3://location: #{source}"}
+  end
+
+  defp handle_output(port) do
     receive do
-      {_port, {:data, "complete"}} ->
-        Logger.info("complete")
-        {:ok, "complete"}
+      {^port, {:data, "[debug] " <> message}} ->
+        Logger.debug(message)
+        handle_output(port)
 
-      {_port, {:data, message}} ->
+      {^port, {:data, "[info] " <> message}} ->
+        Logger.info(message)
+        handle_output(port)
+
+      {^port, {:data, "[warn] " <> message}} ->
+        Logger.warn(message)
+        handle_output(port)
+
+      {^port, {:data, "[error] " <> message}} ->
+        Logger.error(message)
+        handle_output(port)
+
+      {^port, {:data, "[fatal] " <> message}} ->
         Logger.error(message)
         {:error, message}
 
-      {_port, {:exit_status, status}} ->
+      {^port, {:data, "[ok]"}} ->
+        Logger.info("complete")
+        {:ok, "complete"}
+
+      {^port, {:exit_status, status}} ->
         Logger.error("exit_status: #{status}")
         {:error, "exit_status: #{status}"}
     after
@@ -60,11 +84,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         Logger.error("No response after 7s")
         {:error, "Timeout"}
     end
-  end
-
-  defp create_pyramid_tiff(source, _target, _port) do
-    Logger.error("Invalid s3://location: #{source}")
-    {:error, "Invalid s3://location: #{source}"}
   end
 
   defp pyramid_uri_for(file_set_id) do
