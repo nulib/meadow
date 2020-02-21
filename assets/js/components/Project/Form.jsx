@@ -3,10 +3,9 @@ import { useMutation } from "@apollo/react-hooks";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 
 const ProjectForm = ({ showForm, setShowForm }) => {
-  const { addToast } = useToasts();
   let inputTitle;
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formError, setFormError] = useState();
@@ -14,10 +13,10 @@ const ProjectForm = ({ showForm, setShowForm }) => {
     CREATE_PROJECT,
     {
       onCompleted({ createProject }) {
-        addToast(`Project ${createProject.title} created successfully`, {
-          appearance: "success",
-          autoDismiss: true
-        });
+        toastWrapper(
+          "is-success",
+          `Project ${createProject.title} created successfully`
+        );
         setShowForm(false);
       },
       onError(error) {

@@ -2,8 +2,7 @@ import React from "react";
 import ScreensWork from "./Work";
 import { Route } from "react-router-dom";
 import {
-  renderWithRouterApollo,
-  wrapWithToast
+  renderWithRouterApollo
 } from "../../services/testing-helpers";
 import { GET_WORK } from "../../components/Work/work.query";
 import { waitForElement } from "@testing-library/react";
@@ -87,7 +86,7 @@ const mocks = [
 // react-router's param object
 function setupMatchTests() {
   return renderWithRouterApollo(
-    wrapWithToast(<Route path="/work/:id" component={ScreensWork} />),
+    <Route path="/work/:id" component={ScreensWork} />,
     {
       mocks,
       route: "/work/ABC123"

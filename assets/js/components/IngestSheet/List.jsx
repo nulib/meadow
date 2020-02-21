@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
 import UIModalDelete from "../UI/Modal/Delete";
-import { useToasts } from "react-toast-notifications";
+import { toastWrapper } from "../../services/helpers";
 import UINotification from "../UI/Notification";
 import { getClassFromIngestSheetStatus } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,7 +13,6 @@ import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
-  const { addToast } = useToasts();
 
   useEffect(() => {
     subscribeToIngestSheetStatusChanges();
@@ -46,18 +45,18 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
       }
     },
     onCompleted({ deleteIngestSheet }) {
-      addToast("Ingest sheet deleted successfully", {
-        appearance: "success",
-        autoDismiss: true
-      });
+      toastWrapper(
+        "is-success",
+        "Ingest sheet deleted successfully"
+      );
     }
   });
 
   if (deleteIngestSheetError) {
-    addToast(`Error: ${deleteIngestSheetError.message}`, {
-      appearance: "error",
-      autoDismiss: true
-    });
+    toastWrapper(
+      "is-danger",
+      `Error: ${deleteIngestSheetError.message}`
+    );
   }
 
   const handleDeleteClick = () => {

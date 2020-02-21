@@ -2,8 +2,7 @@ import React from "react";
 import ScreensCollectionForm from "./Form";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import {
-  renderWithRouterApollo,
-  wrapWithToast
+  renderWithRouterApollo
 } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { wait } from "@testing-library/react";
@@ -36,9 +35,8 @@ const mocks = [
 
 function setupTests() {
   return renderWithRouterApollo(
-    wrapWithToast(
       <Route path="/collection/form/:id" component={ScreensCollectionForm} />
-    ),
+    ,
     {
       mocks,
       route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
@@ -73,9 +71,8 @@ it("renders breadcrumbs", async () => {
 
 it("renders no initial form values when creating a collection", async () => {
   const { getByTestId } = renderWithRouterApollo(
-    wrapWithToast(
       <Route path="/collection/form/" component={ScreensCollectionForm} />
-    ),
+    ,
     {
       route: "/collection/form/"
     }

@@ -5,8 +5,7 @@ import {
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
 } from "../../components/Project/project.query";
 import {
-  renderWithRouterApollo,
-  wrapWithToast
+  renderWithRouterApollo
 } from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
@@ -67,7 +66,7 @@ const mocks = [
 
 function setupMatchTests() {
   return renderWithRouterApollo(
-    wrapWithToast(<Route path="/project/:id" component={ScreensProject} />),
+    <Route path="/project/:id" component={ScreensProject} />,
     {
       mocks,
       route: "/project/01DNFK4B8XASXNKBSAKQ6YVNF3"

@@ -6,8 +6,7 @@ import {
   GET_COLLECTIONS
 } from "./collection.query.js";
 import {
-  renderWithRouterApollo,
-  wrapWithToast
+  renderWithRouterApollo
 } from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
@@ -39,7 +38,7 @@ const mocks = [
 ];
 
 function setupMatchTests() {
-  return renderWithRouterApollo(wrapWithToast(<CollectionForm />), {
+  return renderWithRouterApollo(<CollectionForm />, {
     mocks,
     route: "/collection/form"
   });

@@ -1,4 +1,5 @@
 import moment from "moment";
+import { toast } from "bulma-toast";
 
 /**
  * Escape double quotes (which may interfere with Search queries)
@@ -12,6 +13,18 @@ export function escapeDoubleQuotes(str) {
 export function formatDate(date) {
   if (!date) return "";
   return moment(date).format("MMM Do YYYY, h:mm:ss a");
+}
+
+export function toastWrapper(
+  type = "is-info",
+  message = "Oops, You forgot to include a message!"
+) {
+  return toast({
+    message,
+    type,
+    dismissible: true,
+    duration: 5000
+  });
 }
 
 export function getClassFromIngestSheetStatus(status) {
