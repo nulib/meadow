@@ -36,6 +36,8 @@ defmodule Meadow.Data.Schemas.Work do
       on_delete: :delete_all
 
     belongs_to :collection, Collection
+
+    field :extra_index_fields, :map, virtual: true, default: %{}
   end
 
   def changeset(work, attrs) do
@@ -76,6 +78,7 @@ defmodule Meadow.Data.Schemas.Work do
         create_date: work.inserted_at,
         modified_date: work.updated_at
       }
+      |> Map.merge(work.extra_index_fields)
     end
   end
 end

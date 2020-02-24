@@ -6,6 +6,7 @@ defmodule Meadow.ElasticsearchDiffStore do
   @behaviour Elasticsearch.Store
 
   alias Meadow.Data.Schemas
+  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
   import Ecto.Query
 
@@ -25,6 +26,7 @@ defmodule Meadow.ElasticsearchDiffStore do
   def stream(Schemas.Work = schema) do
     schema
     |> out_of_date()
+    |> Sheets.works_with_sheets()
     |> Repo.stream()
     |> Stream.chunk_every(@chunk_size)
     |> Stream.flat_map(fn chunk ->

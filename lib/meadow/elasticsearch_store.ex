@@ -5,11 +5,13 @@ defmodule Meadow.ElasticsearchStore do
   @behaviour Elasticsearch.Store
 
   alias Meadow.Data.Schemas
+  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
 
   @impl true
   def stream(Schemas.Work = schema) do
     schema
+    |> Sheets.works_with_sheets()
     |> Repo.stream()
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->

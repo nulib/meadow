@@ -52,7 +52,10 @@ defmodule Meadow.Ingest.SheetsToWorks do
       visibility: @default_visibility,
       published: false,
       work_type: "image",
-      metadata: %{},
+      administrative_metadata: %{
+        project: "",
+        sheet: ""
+      },
       file_sets:
         file_set_rows
         |> Enum.map(fn row ->

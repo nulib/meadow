@@ -4,6 +4,7 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, Indexer, Works}
+  alias Meadow.Ingest.SheetWorks
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
   describe "indexing" do
@@ -59,6 +60,35 @@ defmodule Meadow.Data.IndexerTest do
         Indexer.synchronize_index()
         assert indexed_doc(work.id) |> get_in(["visibility"]) == "open"
         assert indexed_doc(file_set.id) |> get_in(["visibility"]) == "open"
+      end)
+    end
+
+    @tag unboxed: true
+    test "work includes ingest sheet details" do
+      Sandbox.unboxed_run(Repo, fn ->
+        project = project_fixture()
+
+        ingest_sheet =
+          ingest_sheet_fixture(%{
+            project_id: project.id,
+            name: "sheet name",
+            filename: "sheet_name.csv"
+          })
+
+        %{works: [work | _]} = indexable_data()
+        work |> Works.update_work(%{collection_id: nil})
+        SheetWorks.link_works_to_ingest_sheet([work], ingest_sheet)
+        Indexer.synchronize_index()
+
+        with doc <- indexed_doc(work.id) do
+          assert doc |> get_in(["collection"]) == %{}
+          assert doc |> get_in(["project"]) == %{"id" => project.id, "name" => project.title}
+
+          assert doc |> get_in(["sheet"]) == %{
+                   "id" => ingest_sheet.id,
+                   "name" => ingest_sheet.name
+                 }
+        end
       end)
     end
   end
