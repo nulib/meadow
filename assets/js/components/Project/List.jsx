@@ -67,14 +67,14 @@ const ProjectList = () => {
         data-testid="project-list"
         className="table is-striped is-hoverable is-fullwidth"
       >
-        {/* <caption>All Projects</caption> */}
+        <caption>All Projects</caption>
         <thead>
           <tr>
             <th>Project</th>
             <th>s3 Bucket Folder</th>
             <th className="text-right has-text-right"># Ingest Sheets</th>
             <th className="has-text-right">Last Updated</th>
-            <th></th>
+            <th className="has-text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
