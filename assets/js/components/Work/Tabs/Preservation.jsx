@@ -6,7 +6,6 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <div className="columns is-centered" data-testid="tab-preservation-content">
       <div className="column">
-
         <table className="table is-fullwidth is-striped is-hoverable">
           <thead>
             <tr>
@@ -15,12 +14,11 @@ const WorkTabsPreservation = ({ work }) => {
               <th>Checksum</th>
               <th>s3 Key</th>
               <th>Verified</th>
-              <th></th>
+              <th className="has-text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-
-            { work.fileSets &&
+            {work.fileSets &&
               work.fileSets.map(fileset => {
                 const metadata = fileset.metadata;
                 return (
@@ -37,14 +35,15 @@ const WorkTabsPreservation = ({ work }) => {
                       TODO: Need this exposed in GraphQL
                     </td>
                     <td>
-                      <button className="button">
-                        <FontAwesomeIcon icon="trash" />
-                      </button>
+                      <div className="buttons-end">
+                        <button className="button">
+                          <FontAwesomeIcon icon="trash" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
-              })
-            }
+              })}
           </tbody>
         </table>
       </div>

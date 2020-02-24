@@ -27,7 +27,7 @@ table {
 // This override is only necessary due to a CSS nameing collision with npm "react-toastify" package
 .notification {
   &.is-danger {
-    background-color: $red !important;
+    background-color: $red2 !important;
   }
 }
 
