@@ -20,7 +20,7 @@ const IngestSheet = ({
   projectId,
   subscribeToIngestSheetUpdates
 }) => {
-  const { id, status } = ingestSheetData;
+  const { id, status, name } = ingestSheetData;
 
   const {
     data: progressData,
@@ -61,6 +61,7 @@ const IngestSheet = ({
             sheetId={id}
             projectId={projectId}
             status={status}
+            name={name}
           />
           <IngestSheetValidations
             sheetId={id}
