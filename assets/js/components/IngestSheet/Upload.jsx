@@ -64,7 +64,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
       }
     });
     toastWrapper(
-      "is-danger",
+      "is-success",
       `Ingest Sheet ${ingest_sheet_name} created successfully`
     );
 

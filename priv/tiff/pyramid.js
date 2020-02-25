@@ -8,7 +8,7 @@ const portlog = require("./portlog");
 const createPyramidTiff = async (source, dest) => {
   const inputFile = await makeInputFile(source);
   try {
-    portlog("info", `Creating pyramidal TIFF from ${inputFile}`)
+    portlog("info", `Creating pyramidal TIFF from ${inputFile}`);
     const pyramidTiff = await sharp(inputFile)
       .limitInputPixels(false)
       .resize({
@@ -28,9 +28,11 @@ const createPyramidTiff = async (source, dest) => {
       .toBuffer();
     await sendToDestination(pyramidTiff, dest);
   } finally {
-    portlog("info", `Deleting ${inputFile}`)
+    portlog("info", `Deleting ${inputFile}`);
     fs.unlink(inputFile, err => {
-      if (err) { throw err; }
+      if (err) {
+        throw err;
+      }
     });
   }
 };
