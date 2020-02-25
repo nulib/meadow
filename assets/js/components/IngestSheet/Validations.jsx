@@ -49,9 +49,7 @@ function IngestSheetValidations({
     const { percentComplete } = progress;
     return (
       <UIProgressBar
-        percentComplete={
-          percentComplete ? percentComplete.toFixed(2) : percentComplete
-        }
+        percentComplete={Number(percentComplete)}
         label="Please wait for validation"
       />
     );

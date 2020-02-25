@@ -25,7 +25,8 @@ process.stdin.on("data", data => {
     .createPyramidTiff(source, target)
     .then(_dest => {
       portlog("ok");
-    }).catch(err => {
+    })
+    .catch(err => {
       portlog("fatal", err.message);
     });
 });
