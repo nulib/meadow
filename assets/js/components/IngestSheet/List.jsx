@@ -88,7 +88,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                 <th>Ingest sheet title</th>
                 <th className="has-text-right">Last updated</th>
                 <th>Status</th>
-                <th></th>
+                <th className="has-text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
