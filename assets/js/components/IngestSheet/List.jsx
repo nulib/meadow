@@ -54,7 +54,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   }
 
   const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { sheetId: activeModal } });
+    deleteIngestSheet({ variables: { sheetId: activeModal.id } });
     onCloseModal();
   };
 
@@ -64,7 +64,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   };
 
   const onCloseModal = () => {
-    setActiveModal(null);
+    setActiveModal();
     setModalOpen(false);
   };
 
@@ -113,7 +113,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     ) > -1 && (
                       <button
                         className="button"
-                        onClick={e => onOpenModal(e, id)}
+                        onClick={e => onOpenModal(e, { id, name })}
                       >
                         {<FontAwesomeIcon icon="trash" />}{" "}
                         <span className="sr-only">Delete</span>
@@ -128,7 +128,9 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
             isOpen={modalOpen}
             handleClose={onCloseModal}
             handleConfirm={handleDeleteClick}
-            thingToDeleteLabel={`Ingest Sheet`}
+            thingToDeleteLabel={`Ingest Sheet ${
+              activeModal ? activeModal.name : ""
+            }`}
           />
         </>
       )}

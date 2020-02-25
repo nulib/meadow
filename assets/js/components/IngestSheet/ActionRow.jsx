@@ -8,14 +8,14 @@ import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastWrapper } from "../../services/helpers";
 
-const IngestSheetActionRow = ({ projectId, sheetId, status }) => {
+const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
     DELETE_INGEST_SHEET,
     {
       onCompleted({ deleteIngestSheet }) {
-        toastWrapper("is-success", "Ingest sheet deleted successfully");
+        toastWrapper("is-success", `Ingest sheet ${name} deleted successfully`);
         history.push(`/project/${projectId}`);
       }
     }
@@ -69,7 +69,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status }) => {
         isOpen={deleteModalOpen}
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Ingest Sheet`}
+        thingToDeleteLabel={`Ingest Sheet ${name}`}
       />
     </div>
   );
@@ -78,7 +78,8 @@ const IngestSheetActionRow = ({ projectId, sheetId, status }) => {
 IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
   sheetId: PropTypes.string,
-  status: PropTypes.string
+  status: PropTypes.string,
+  name: PropTypes.string
 };
 
 export default IngestSheetActionRow;
