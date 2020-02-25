@@ -91,7 +91,7 @@ You can visit the GraphiQL interface at: [`http://devbox.library.northwestern.ed
 
 ### IIIF Server
 
-In dev mode, the IIIF Server is available at: `http://localhost:3000/iiif/2`
+In dev mode, the IIIF Server is available at: `http://localhost:8183/iiif/2`
 
 ### Elasticsearch + Kibana
 
