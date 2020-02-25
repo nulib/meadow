@@ -29,7 +29,7 @@ WORKDIR /app
 RUN mix release --overwrite
 
 # Create runtime image
-FROM node:11-alpine
+FROM node:13-alpine
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add ncurses-libs openssl-dev
