@@ -1,75 +1,99 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import { WorkFormContext } from "../FormProvider";
+
+const visibilityOptions = ["RESTRICTED", "WHAT", "ARE", "THESE"];
 
 const WorkTabsAdministrative = ({ work }) => {
+  const isEditing = useContext(WorkFormContext);
+  const [visibility, setVisibility] = useState(work.visibility);
+
   return (
     <div
       className="columns is-centered"
       data-testid="tab-administrative-content"
     >
       <div className="column is-three-quarters">
-        <div className="box is-shadowless">
-          <h3 className="small-title">Visibility</h3>
-          <p
-            className={`tag ${
-              work.visibility === "RESTRICTED" ? "is-danger" : "is-success"
-            }`}
-          >
-            {work.visibility}
-          </p>
+        <div className="field">
+          <label className="label">Visibility</label>
+          <div className="control">
+            {isEditing ? (
+              <div className="select">
+                <select
+                  value={visibility}
+                  onChange={e => setVisibility(e.target.value)}
+                >
+                  <option value="">Select dropdown</option>
+                  {visibilityOptions.map(option => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <p
+                className={`tag ${
+                  work.visibility === "RESTRICTED" ? "is-danger" : "is-success"
+                }`}
+              >
+                {work.visibility}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="box is-shadowless">
-          <h3 className="small-title">Collection</h3>
-          <p>
-            {work.collection
-              ? work.collection.name
-              : "Not part of a collection"}
-          </p>
+
+        <div className="field">
+          <label className="label">Collection</label>
+          <div className="control">
+            {isEditing ? (
+              <div className="select">
+                <select>
+                  <option>Select dropdown</option>
+                  <option>With options</option>
+                </select>
+              </div>
+            ) : (
+              <p>
+                {work.collection
+                  ? work.collection.name
+                  : "Not part of a collection"}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="box is-shadowless">
-          <h3 className="small-title">Themes</h3>
-          <p className="notification is-warning">Need this in GraphQL</p>
+
+        <div className="field">
+          <label className="label">Themes</label>
+          <div className="control">
+            {isEditing ? (
+              <div className="select">
+                <select>
+                  <option>Select dropdown</option>
+                  <option>With options</option>
+                </select>
+              </div>
+            ) : (
+              <p>Themes go here</p>
+            )}
+          </div>
         </div>
-        <div className="box is-shadowless">
-          <h3 className="small-title">Preservation Level</h3>
-          <p>
-            {work.workAdministrativeMetadata
-              ? work.workAdministrativeMetadata.preservationLevel
-              : "No preservation level"}
-          </p>
-        </div>
-        <hr />
-        <p className="notification is-warning">
-          TODO: Need to show/hide Edit UI based on editing state
-        </p>
-        <h3 className="small-title">[Edit Mode]</h3>
-        <div className="select">
-          <select>
-            <option>Select dropdown</option>
-            <option>With options</option>
-          </select>
-        </div>
-        <h3 className="small-title">Collection</h3>
-        <div className="select">
-          <select>
-            <option>Select dropdown</option>
-            <option>With options</option>
-          </select>
-        </div>
-        <h3 className="small-title">Themes</h3>
-        <div className="select">
-          <select>
-            <option>Select dropdown</option>
-            <option>With options</option>
-          </select>
-        </div>
-        <h3 className="small-title">Preservation Level</h3>
-        <div className="select">
-          <select>
-            <option>Select dropdown</option>
-            <option>With options</option>
-          </select>
+
+        <div className="field">
+          <label className="label">Preservation Level</label>
+          <div className="control">
+            {isEditing ? (
+              <div className="select">
+                <select>
+                  <option>Select dropdown</option>
+                  <option>With options</option>
+                </select>
+              </div>
+            ) : (
+              <p>Preservation levels</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

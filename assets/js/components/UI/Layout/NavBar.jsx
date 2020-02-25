@@ -24,7 +24,7 @@ const UILayoutNavBar = () => {
   };
 
   return (
-    <nav className="navbar is-dark">
+    <nav className="navbar is-dark is-fixed-top">
       <div className="navbar-brand">
         <a className="navbar-item" href="https://www.library.northwestern.edu/">
           <img
