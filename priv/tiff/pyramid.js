@@ -9,8 +9,7 @@ const createPyramidTiff = async (source, dest) => {
   const inputFile = await makeInputFile(source);
   try {
     portlog("info", `Creating pyramidal TIFF from ${inputFile}`);
-    const pyramidTiff = await sharp(inputFile)
-      .limitInputPixels(false)
+    const pyramidTiff = await sharp(inputFile, { limitInputPixels: false })
       .resize({
         width: 15000,
         height: 15000,
