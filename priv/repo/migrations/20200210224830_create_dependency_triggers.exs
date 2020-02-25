@@ -1,4 +1,4 @@
-defmodule Meadow.Repo.Migrations.TouchWorksOnCollectionUpdate do
+defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   use Ecto.Migration
 
   def up do
@@ -20,9 +20,7 @@ defmodule Meadow.Repo.Migrations.TouchWorksOnCollectionUpdate do
         RETURNS trigger AS $$
       BEGIN
         IF #{condition} THEN
-          UPDATE #{child}
-          SET updated_at = NOW()
-          WHERE #{Inflex.singularize(parent)}_id = NEW.id;
+          UPDATE #{child} SET updated_at = NOW() WHERE #{Inflex.singularize(parent)}_id = NEW.id;
         END IF;
         RETURN NEW;
       END;
@@ -41,8 +39,8 @@ defmodule Meadow.Repo.Migrations.TouchWorksOnCollectionUpdate do
 
   defp drop_dependency_trigger(parent, child) do
     with {function_name, trigger_name} <- object_names(parent, child) do
-      execute("DROP TRIGGER #{trigger_name};")
-      execute("DROP FUNCTION #{function_name};")
+      execute("DROP TRIGGER IF EXISTS #{trigger_name} ON #{parent};")
+      execute("DROP FUNCTION IF EXISTS #{function_name};")
     end
   end
 

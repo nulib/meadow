@@ -6,6 +6,7 @@ defmodule Meadow.IndexCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
+  alias Meadow.Ingest.Schemas.{Project, Sheet}
   alias Meadow.Repo
 
   setup tags do
@@ -16,7 +17,7 @@ defmodule Meadow.IndexCase do
     on_exit(fn ->
       if tags[:unboxed] do
         Sandbox.unboxed_run(Repo, fn ->
-          [IndexTime, FileSet, Work, Collection]
+          [IndexTime, FileSet, Project, Sheet, Work, Collection]
           |> Enum.each(fn schema -> Repo.delete_all(schema) end)
         end)
       end
