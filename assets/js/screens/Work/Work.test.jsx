@@ -17,7 +17,10 @@ const mocks = [
       data: {
         work: {
           accessionNumber: "Donohue_001",
-          descriptiveMetadata: null,
+          descriptiveMetadata: {
+            description: "Some description here",
+            title: "Ima work title"
+          },
           fileSets: [
             {
               accessionNumber: "Donohue_001_04",
