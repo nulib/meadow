@@ -1,16 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import { buildImageURL } from "../../services/global-vars";
 
 const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
+  const imageIdToDisplay =
+    work.fileSets && work.fileSets[0] ? work.fileSets[0].id : "";
 
   return (
     <div className="card">
       <div className="card-image">
         <figure className="image is-4by3">
           <Link to={`/work/${work.id}`}>
-            <img src="/images/1280x960.png" alt="Placeholder image" />
+            <img
+              src={`${buildImageURL(imageIdToDisplay, "IIIF_SQUARE")}`}
+              alt="Placeholder image"
+            />
           </Link>
         </figure>
       </div>

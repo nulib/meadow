@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { buildImageURL } from "../../../services/global-vars";
 
 const WorkTabsStructure = ({ work }) => {
   if (!work) {
@@ -13,7 +14,10 @@ const WorkTabsStructure = ({ work }) => {
           <article key={id} className="media">
             <figure className="media-left">
               <p className="image is-64x64">
-                <img src="https://bulma.io/images/placeholders/128x128.png" />
+                <img
+                  src={`${buildImageURL(id, "IIIF_SQUARE")}`}
+                  placeholder="Fileset Image"
+                />
               </p>
             </figure>
             <div className="media-content">
