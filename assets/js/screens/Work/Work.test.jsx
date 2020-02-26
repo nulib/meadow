@@ -73,6 +73,7 @@ const mocks = [
           ],
           id: "ABC123",
           insertedAt: "2020-02-04T19:16:16",
+          published: false,
           updatedAt: "2020-02-04T19:16:16",
           visibility: "RESTRICTED",
           workType: "IMAGE"
@@ -98,12 +99,11 @@ it("renders without crashing", () => {
   setupMatchTests();
 });
 
-it("renders Publish, Edit, and Delete buttons", async () => {
+it("renders Publish, and Delete buttons", async () => {
   const { getByTestId } = setupMatchTests();
   const buttonEl = await waitForElement(() => getByTestId("publish-button"));
 
   expect(buttonEl).toBeInTheDocument();
-  expect(getByTestId("edit-button")).toBeInTheDocument();
   expect(getByTestId("delete-button")).toBeInTheDocument();
 });
 

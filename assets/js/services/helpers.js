@@ -15,16 +15,13 @@ export function formatDate(date) {
   return moment(date).format("MMM Do YYYY, h:mm:ss a");
 }
 
-export function toastWrapper(
-  type = "is-info",
-  message = "Whoops, You forgot to include a message!"
-) {
-  return toast({
-    message,
-    type,
-    dismissible: true,
-    duration: 5000
-  });
+export function formatSimpleISODate(date) {
+  if (!date) return "";
+  let newDate = moment(date)
+    .format()
+    .substring(0, 16);
+
+  return newDate;
 }
 
 export function getClassFromIngestSheetStatus(status) {
@@ -51,3 +48,16 @@ export const TEMP_USER_FRIENDLY_STATUS = {
   APPROVED: "Ingest in progress...",
   COMPLETED: "Ingest Complete"
 };
+
+export function toastWrapper(
+  type = "is-info",
+  message = "Whoops, You forgot to include a message!"
+) {
+  return toast({
+    message,
+    type,
+    dismissible: true,
+    duration: 5000,
+    position: "top-center"
+  });
+}

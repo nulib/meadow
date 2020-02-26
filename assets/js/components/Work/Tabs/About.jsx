@@ -1,134 +1,216 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { formatDate } from "../../../services/helpers";
-import { WorkFormContext } from "../FormProvider";
+import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@apollo/react-hooks";
+import useIsEditing from "../../../hooks/useIsEditing";
+import { UPDATE_WORK } from "../work.query";
+import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 
 const WorkTabsAbout = ({ work }) => {
-  const isEditing = useContext(WorkFormContext);
   const { descriptiveMetadata } = work;
-  const [description, setDescription] = useState(
-    descriptiveMetadata.description
-  );
-  const [insertedAt, setInsertedAt] = useState(work.insertedAt);
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
+  const { register, handleSubmit, watch, errors } = useForm();
+  const [isEditing, setIsEditing] = useIsEditing();
+
+  const [updateWork] = useMutation(UPDATE_WORK, {
+    onCompleted({ updateWork }) {
+      toastWrapper("is-success", "Work form has been updated");
+    }
+  });
+
+  const onSubmit = data => {
+    const { description = "" } = data;
+    let workUpdateInput = {
+      descriptiveMetadata: {
+        description
+      },
+      published: true
+    };
+
+    setIsEditing(false);
+    updateWork({
+      variables: { id: work.id, work: workUpdateInput }
+    });
+  };
 
   return (
-    <div className="columns is-centered" data-testid="tab-about-content">
-      <div className="column is-three-quarters">
-        <h2 className="title is-size-5">
-          Core Metadata{" "}
-          <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
-            <FontAwesomeIcon
-              icon={
-                showCoreMetadata
-                  ? "chevron-circle-down"
-                  : "chevron-circle-right"
-              }
-            />
-          </a>
-        </h2>
-        {showCoreMetadata && (
-          <div className="box">
-            <div className="field">
-              <label className="label">Description</label>
-              <div className="control">
-                {isEditing ? (
-                  <textarea
-                    name="description"
-                    className="textarea"
-                    placeholder="e.g. Hello world"
-                    value={descriptiveMetadata.description}
-                    onChange={e => setDescription(e.target.value)}
-                  />
-                ) : (
-                  <p className="has-text-grey">
-                    {descriptiveMetadata.description ||
-                      "No description provided"}
-                  </p>
-                )}
+    <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
+      <div className="columns is-centered">
+        <div className="column is-two-thirds">
+          <h2 className="title is-size-5">
+            Core Metadata{" "}
+            <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
+              <FontAwesomeIcon
+                icon={
+                  showCoreMetadata
+                    ? "chevron-circle-down"
+                    : "chevron-circle-right"
+                }
+              />
+            </a>
+          </h2>
+          {showCoreMetadata && (
+            <div className="box">
+              <div className="field">
+                <label className="label">Description</label>
+                <div className="control">
+                  {isEditing ? (
+                    <>
+                      <textarea
+                        ref={register({ required: true })}
+                        name="description"
+                        className={`textarea ${
+                          errors.description ? "is-danger" : ""
+                        }`}
+                        data-testid="description"
+                        placeholder="e.g. Hello world"
+                        defaultValue={descriptiveMetadata.description}
+                      />
+                      {errors.description && (
+                        <p className="help is-danger">
+                          Description field is required
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p>
+                      {descriptiveMetadata.description ||
+                        "No description provided"}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="field">
+                <label className="label">
+                  Date Created{" "}
+                  <UITagNotYetSupported label="Display not yet supported" />
+                  <UITagNotYetSupported label="Update not yet supported" />
+                </label>
+                <div className="control">
+                  {isEditing ? (
+                    <>
+                      <input
+                        ref={register}
+                        name="dateCreated"
+                        data-testid="date-created"
+                        className={`input ${
+                          errors.dateCreated ? "is-danger" : ""
+                        }`}
+                        type="datetime-local"
+                      />
+                      {errors.dateCreated && (
+                        <p className="help is-danger">
+                          Date Created field is required
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p>Date will go here</p>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="field">
-              <label className="label">
-                Date Created (Should this be editable?)
-              </label>
-              <div className="control">
-                {isEditing ? (
-                  <input
-                    name="insertedAt"
-                    className="input"
-                    type="date"
-                    value={insertedAt}
-                    onChange={e => setInsertedAt(e.target.value)}
-                  />
-                ) : (
-                  <p>{formatDate(work.insertedAt)}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+          )}
 
-        <h2 className="title is-size-5">
-          Descriptive Metadata{" "}
-          <a
-            onClick={() => setShowDescriptiveMetadata(!showDescriptiveMetadata)}
-          >
-            <FontAwesomeIcon
-              icon={
-                showDescriptiveMetadata
-                  ? "chevron-circle-down"
-                  : "chevron-circle-right"
+          <h2 className="title is-size-5">
+            Descriptive Metadata{" "}
+            <a
+              onClick={() =>
+                setShowDescriptiveMetadata(!showDescriptiveMetadata)
               }
-            />
-          </a>
-        </h2>
-        {showDescriptiveMetadata && (
-          <div className="box">
-            <div className="field">
-              <label className="label">Creators</label>
-              <div className="control">
-                <p className="notification is-warning">
-                  Need this exposed in GraphQL
-                </p>
+            >
+              <FontAwesomeIcon
+                icon={
+                  showDescriptiveMetadata
+                    ? "chevron-circle-down"
+                    : "chevron-circle-right"
+                }
+              />
+            </a>
+          </h2>
+          {showDescriptiveMetadata && (
+            <div className="box">
+              <div className="field">
+                <label className="label">
+                  Creators{" "}
+                  <UITagNotYetSupported label="Display not yet supported" />{" "}
+                  <UITagNotYetSupported label="Update not yet supported" />
+                </label>
+                <div className="control">
+                  <ul>
+                    <li>
+                      <Link to="/">Creator 1 as a link</Link>
+                    </li>
+                    <li>
+                      <Link to="/">Creator 2 as a link</Link>
+                    </li>
+                    <li>
+                      <Link to="/">Creator 3 as a link</Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="field">
+                <label className="label">
+                  Contributors{" "}
+                  <UITagNotYetSupported label="Display not yet supported" />{" "}
+                  <UITagNotYetSupported label="Update not yet supported" />
+                </label>
                 <ul>
                   <li>
-                    <Link to="/">Creator 1 as a link</Link>
+                    <Link to="/">Contributor 1 as a link</Link>
                   </li>
                   <li>
-                    <Link to="/">Creator 2 as a link</Link>
+                    <Link to="/">Contributor 2 as a link</Link>
                   </li>
                   <li>
-                    <Link to="/">Creator 3 as a link</Link>
+                    <Link to="/">Contributor 3 as a link</Link>
                   </li>
                 </ul>
               </div>
             </div>
-
-            <div className="field">
-              <label className="label">Contributors</label>
-              <p className="notification is-warning">
-                Need this exposed in GraphQL
-              </p>
-              <ul>
-                <li>
-                  <Link to="/">Contributor 1 as a link</Link>
-                </li>
-                <li>
-                  <Link to="/">Contributor 2 as a link</Link>
-                </li>
-                <li>
-                  <Link to="/">Contributor 3 as a link</Link>
-                </li>
-              </ul>
-            </div>
+          )}
+        </div>
+        <div className="column is-narrow">
+          <div className="buttons">
+            {!isEditing && (
+              <button
+                type="button"
+                className="button is-primary"
+                data-testid="edit-button"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </button>
+            )}
+            {isEditing && (
+              <>
+                <button
+                  type="submit"
+                  className="button is-primary"
+                  data-testid="save-button"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="button"
+                  data-testid="cancel-button"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </form>
   );
 };
 

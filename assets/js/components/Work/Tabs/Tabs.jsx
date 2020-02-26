@@ -52,14 +52,30 @@ const WorkTabs = ({ work }) => {
         </ul>
       </div>
       <div className="tabs-container">
-        {activeTab === "tab-about" && <WorkTabAbout work={work} />}
-        {activeTab === "tab-administrative" && (
+        <div
+          data-testid="tab-about-content"
+          className={`${activeTab !== "tab-about" ? "is-hidden" : ""}`}
+        >
+          <WorkTabAbout work={work} />
+        </div>
+        <div
+          data-testid="tab-administrative-content"
+          className={`${activeTab !== "tab-administrative" ? "is-hidden" : ""}`}
+        >
           <WorkTabsAdministrative work={work} />
-        )}
-        {activeTab === "tab-structure" && <WorkTabStructure work={work} />}
-        {activeTab === "tab-preservation" && (
+        </div>
+        <div
+          data-testid="tab-structure-content"
+          className={`${activeTab !== "tab-structure" ? "is-hidden" : ""}`}
+        >
+          <WorkTabStructure work={work} />
+        </div>
+        <div
+          data-testid="tab-preservation-content"
+          className={`${activeTab !== "tab-preservation" ? "is-hidden" : ""}`}
+        >
           <WorkTabsPreservation work={work} />
-        )}
+        </div>
       </div>
     </>
   );

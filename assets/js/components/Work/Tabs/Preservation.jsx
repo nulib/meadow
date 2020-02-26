@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const WorkTabsPreservation = ({ work }) => {
   return (
-    <div className="columns is-centered" data-testid="tab-preservation-content">
+    <div className="columns is-centered">
       <div className="column">
         <table className="table is-fullwidth is-striped is-hoverable">
           <thead>

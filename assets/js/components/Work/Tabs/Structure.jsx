@@ -7,7 +7,7 @@ const WorkTabsStructure = ({ work }) => {
     return null;
   }
   return (
-    <div className="columns is-centered" data-testid="tab-structure-content">
+    <div className="columns is-centered">
       <div className="column is-three-quarters">
         {work.fileSets.map(({ id, accessionNumber, metadata }) => (
           <article key={id} className="media">
@@ -42,28 +42,22 @@ const WorkTabsStructure = ({ work }) => {
             <div className="column">
               <div className="control">
                 <label className="radio">
-                  <input type="radio" name="downloadsize" />
-                  {" "}Full size
+                  <input type="radio" name="downloadsize" /> Full size
                 </label>
                 <label className="radio">
-                  <input type="radio" name="downloadsize" />
-                  {" "}3000x3000
+                  <input type="radio" name="downloadsize" /> 3000x3000
                 </label>
                 <label className="radio">
-                  <input type="radio" name="downloadsize" />
-                  {" "}1000x1000
+                  <input type="radio" name="downloadsize" /> 1000x1000
                 </label>
               </div>
             </div>
 
             <div className="column buttons has-text-right">
-              <button className="button">
-                Download Tiffs
-              </button>
-              <button className="button is-primary">
-                Download JPGs
-              </button>
-            </div></div>
+              <button className="button">Download Tiffs</button>
+              <button className="button is-primary">Download JPGs</button>
+            </div>
+          </div>
         </section>
       </div>
     </div>

@@ -1,11 +1,14 @@
 import React from "react";
 import Work from "./Work";
 import { fireEvent } from "@testing-library/react";
-import { renderWithRouter, mockWork } from "../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  mockWork
+} from "../../services/testing-helpers";
 
 describe("Work component", () => {
   function setupTests() {
-    return renderWithRouter(<Work work={mockWork} />);
+    return renderWithRouterApollo(<Work work={mockWork} />);
   }
 
   it("renders without crashing", () => {

@@ -5,6 +5,10 @@ export const GET_WORK = gql`
     work(id: $id) {
       id
       accessionNumber
+      descriptiveMetadata {
+        title
+        description
+      }
       fileSets {
         id
         role
@@ -18,9 +22,7 @@ export const GET_WORK = gql`
         }
       }
       insertedAt
-      descriptiveMetadata {
-        title
-      }
+      published
       updatedAt
       visibility
       workType
@@ -33,6 +35,10 @@ export const GET_WORKS = gql`
     works {
       id
       accessionNumber
+      descriptiveMetadata {
+        title
+        description
+      }
       fileSets {
         id
         role
@@ -46,12 +52,23 @@ export const GET_WORKS = gql`
         }
       }
       insertedAt
-      descriptiveMetadata {
-        title
-      }
+      published
       updatedAt
       visibility
       workType
+    }
+  }
+`;
+
+export const UPDATE_WORK = gql`
+  mutation UpdateWork($id: ID!, $work: WorkUpdateInput!) {
+    updateWork(id: $id, work: $work) {
+      id
+      descriptiveMetadata {
+        title
+        description
+      }
+      insertedAt
     }
   }
 `;

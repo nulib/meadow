@@ -1,6 +1,6 @@
 import React from "react";
 import { Router } from "react-router-dom";
-import { act, render } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/react-testing";
 
@@ -98,7 +98,8 @@ export const mockWork = {
   id: "01DV4BAE9NDQHSMRHKM8KC4FNC",
   insertedAt: "2019-12-02T22:22:30",
   descriptiveMetadata: {
-    title: null
+    title: "Ima title",
+    description: "Ima description"
   },
   updatedAt: "2019-12-02T22:22:30",
   visibility: "RESTRICTED",
