@@ -8,12 +8,9 @@ import Loading from "../../components/UI/Loading";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import ButtonGroup from "../../components/UI/ButtonGroup";
-import useIsEditing from "../../hooks/useIsEditing";
-import WorkFormProvider from "../../components/Work/FormProvider";
 
 const ScreensWork = () => {
   const { id } = useParams();
-  const [isEditing, setIsEditing] = useIsEditing();
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id }
   });
@@ -40,74 +37,36 @@ const ScreensWork = () => {
     }
   ];
 
-  const handleSubmit = e => {
-    e.preventDefault();
-
-    setIsEditing(false);
-    //TODO: Wire this up
-  };
-
   return (
     <Layout>
-      <WorkFormProvider isEditing={isEditing}>
-        <form name="work-form" data-testid="work-form" onSubmit={handleSubmit}>
-          <section className="hero is-light" data-testid="work-hero">
-            <div className="hero-body">
-              <div className="container">
-                <h1 className="title">{accessionNumber}</h1>
-                <h2 className="subtitle">Work Accession Number</h2>
-                <ButtonGroup>
-                  {!published && (
-                    <button
-                      className="button is-primary"
-                      data-testid="publish-button"
-                      disabled={isEditing}
-                    >
-                      {!published ? "Publish" : "Unpublish"}
-                    </button>
-                  )}
-                  {!isEditing && (
-                    <button
-                      className="button"
-                      data-testid="edit-button"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      Edit work
-                    </button>
-                  )}
-                  {isEditing && (
-                    <>
-                      <button
-                        className="button is-primary"
-                        data-testid="edit-button"
-                        type="submit"
-                      >
-                        Save work
-                      </button>
-                      <button
-                        className="button"
-                        data-testid="edit-button"
-                        onClick={() => setIsEditing(false)}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
-                  <button
-                    className="button"
-                    data-testid="delete-button"
-                    disabled={isEditing}
-                  >
-                    Delete
-                  </button>
-                </ButtonGroup>
-              </div>
-            </div>
-          </section>
-          <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
-          <Work work={data.work} />
-        </form>
-      </WorkFormProvider>
+      <section className="hero is-light" data-testid="work-hero">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">
+              {accessionNumber}{" "}
+              <span className={`tag ${published ? "is-info" : "is-warning"}`}>
+                {published ? "Published" : "Not Published"}
+              </span>
+            </h1>
+            <h2 className="subtitle">Work Accession Number</h2>
+            <ButtonGroup>
+              {!published && (
+                <button
+                  className="button is-primary is-outlined"
+                  data-testid="publish-button"
+                >
+                  {!published ? "Publish" : "Unpublish"}
+                </button>
+              )}
+              <button className="button" data-testid="delete-button">
+                Delete
+              </button>
+            </ButtonGroup>
+          </div>
+        </div>
+      </section>
+      <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
+      <Work work={data.work} />
     </Layout>
   );
 };
