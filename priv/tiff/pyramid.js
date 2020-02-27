@@ -44,15 +44,18 @@ const makeInputFile = location => {
     let writable = fs
       .createWriteStream(fileName)
       .on("error", err => reject(err));
-    new AWS.S3()
+    let s3Stream = new AWS.S3()
       .getObject({
         Bucket: uri.host,
         Key: getS3Key(uri)
-      })
-      .createReadStream()
-      .on("end", () => resolve(fileName))
-      .on("error", err => reject(err))
-      .pipe(writable);
+      }).createReadStream();
+
+    s3Stream.on("error", err => reject(err));
+    
+    s3Stream
+      .pipe(writable)
+      .on("close", () => resolve(fileName))
+      .on("error", err => reject(err));
   });
 };
 
