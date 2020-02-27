@@ -23,27 +23,6 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     deleteIngestSheet,
     { data: deleteIngestSheetData, error: deleteIngestSheetError }
   ] = useMutation(DELETE_INGEST_SHEET, {
-    update(cache, { data: { deleteIngestSheet } }) {
-      try {
-        const { project } = client.readQuery({
-          query: GET_INGEST_SHEETS,
-          variables: { projectId }
-        });
-
-        const index = project.ingestSheets.findIndex(
-          ingestSheet => ingestSheet.id === deleteIngestSheet.id
-        );
-
-        project.ingestSheets.splice(index, 1);
-
-        client.writeQuery({
-          query: GET_INGEST_SHEETS,
-          data: { project }
-        });
-      } catch (error) {
-        console.log("Error reading from cache", error);
-      }
-    },
     onCompleted({ deleteIngestSheet }) {
       toastWrapper("is-success", "Ingest sheet deleted successfully");
     }
