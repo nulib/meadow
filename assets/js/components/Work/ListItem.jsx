@@ -6,7 +6,7 @@ import { buildImageURL } from "../../services/helpers";
 const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
   const imageIdToDisplay =
-    work.fileSets && work.fileSets[0] ? work.fileSets[0].id : "";
+    work.fileSets && work.fileSets.length > 0 ? work.fileSets[0].id : "";
 
   return (
     <div className="card">
