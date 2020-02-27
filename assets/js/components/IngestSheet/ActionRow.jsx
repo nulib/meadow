@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import ButtonGroup from "../UI/ButtonGroup";
 import UIModalDelete from "../UI/Modal/Delete";
-import { DELETE_INGEST_SHEET, APPROVE_INGEST_SHEET } from "./ingestSheet.query";
-import { useMutation } from "@apollo/react-hooks";
+import {
+  DELETE_INGEST_SHEET,
+  APPROVE_INGEST_SHEET,
+  GET_INGEST_SHEETS
+} from "./ingestSheet.query";
+import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,9 +15,28 @@ import { toastWrapper } from "../../services/helpers";
 const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const client = useApolloClient();
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
     DELETE_INGEST_SHEET,
     {
+      update(cache, { data: { deleteIngestSheet } }) {
+        try {
+          const { project } = client.readQuery({
+            query: GET_INGEST_SHEETS,
+            variables: { projectId }
+          });
+          const index = project.ingestSheets.findIndex(
+            ingestSheet => ingestSheet.id === deleteIngestSheet.id
+          );
+          project.ingestSheets.splice(index, 1);
+          client.writeQuery({
+            query: GET_INGEST_SHEETS,
+            data: { project }
+          });
+        } catch (error) {
+          console.log("Error reading from cache", error);
+        }
+      },
       onCompleted({ deleteIngestSheet }) {
         toastWrapper("is-success", `Ingest sheet ${name} deleted successfully`);
         history.push(`/project/${projectId}`);
