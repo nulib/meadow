@@ -9,10 +9,10 @@ import { IIIF_SIZES } from "./global-vars";
  * @return {string} This returns a URL for the image
  */
 export function buildImageURL(id, imageSize) {
-  const imageHost = id
+  const srcPath = id
     ? `http://localhost:8183/iiif/2/${id}`
     : "/images/1280x960.png";
-  return imageHost + (id ? `${IIIF_SIZES[imageSize]}` : "");
+  return srcPath + (id ? `${IIIF_SIZES[imageSize]}` : "");
 }
 
 /**

@@ -6,13 +6,13 @@ import {
 } from "./helpers";
 
 describe("Build Image URL function", () => {
-  it("should return URL", () => {
+  it("should return a URL containing correct IIIF params", () => {
     const expected =
-      "http://localhost:8183/iiif/2/filesetId/square/500,500/0/default.jpg";
-    const actual = buildImageURL("filesetId", "IIIF_SQUARE");
+      "http://localhost:8183/iiif/2/ABC123/square/500,500/0/default.jpg";
+    const actual = buildImageURL("ABC123", "IIIF_SQUARE");
     expect(expected).toEqual(actual);
   });
-  it("should return default URL", () => {
+  it("should return default URL for placeholder Image", () => {
     const expected = "/images/1280x960.png";
     const actual = buildImageURL("", "IIIF_SQUARE");
     expect(expected).toEqual(actual);
