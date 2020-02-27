@@ -1,5 +1,19 @@
 import moment from "moment";
 import { toast } from "bulma-toast";
+import { IIIF_SIZES } from "./global-vars";
+
+/**
+ * Builds IIIF url for placeholder images
+ * @param {string} id This ID is a filesetId
+ * @param {object} imageSize This is an image size type
+ * @return {string} This returns a URL for the image
+ */
+export function buildImageURL(id, imageSize) {
+  const imageHost = id
+    ? `http://localhost:8183/iiif/2/${id}`
+    : "/images/1280x960.png";
+  return imageHost + (id ? `${IIIF_SIZES[imageSize]}` : "");
+}
 
 /**
  * Escape double quotes (which may interfere with Search queries)

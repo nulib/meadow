@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { buildImageURL } from "../../../services/global-vars";
+import { buildImageURL } from "../../../services/helpers";
 
 const WorkTabsStructure = ({ work }) => {
   if (!work) {
@@ -17,6 +17,9 @@ const WorkTabsStructure = ({ work }) => {
                 <img
                   src={`${buildImageURL(id, "IIIF_SQUARE")}`}
                   placeholder="Fileset Image"
+                  onError={e => {
+                    e.target.src = "/images/1280x960.png";
+                  }}
                 />
               </p>
             </figure>

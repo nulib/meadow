@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { buildImageURL } from "../../services/global-vars";
+import { buildImageURL } from "../../services/helpers";
 
 const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
@@ -16,6 +16,9 @@ const WorkListItem = ({ work }) => {
             <img
               src={`${buildImageURL(imageIdToDisplay, "IIIF_SQUARE")}`}
               alt="Placeholder image"
+              onError={e => {
+                e.target.src = "/images/1280x960.png";
+              }}
             />
           </Link>
         </figure>
