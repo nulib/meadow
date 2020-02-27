@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ButtonGroup from "../UI/ButtonGroup";
 import UIModalDelete from "../UI/Modal/Delete";
 import {
   DELETE_INGEST_SHEET,
@@ -11,6 +10,7 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastWrapper } from "../../services/helpers";
+import IngestSheetDownload from "./Completed/Download";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
   const history = useHistory();
@@ -48,8 +48,6 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
     { loading: approveLoading, error: approveError }
   ] = useMutation(APPROVE_INGEST_SHEET);
 
-  const showApproveButton = status === "VALID";
-
   const handleApproveClick = () => {
     approveIngestSheet({ variables: { id: sheetId } });
   };
@@ -67,9 +65,9 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
   };
 
   return (
-    <div className="box is-shadowless">
-      <ButtonGroup>
-        {showApproveButton && (
+    <div className="">
+      <div className="buttons">
+        {status === "VALID" && (
           <button className="button is-primary" onClick={handleApproveClick}>
             <span className="icon">
               <FontAwesomeIcon icon="thumbs-up" />
@@ -77,13 +75,19 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
             <span>Approve ingest sheet</span>
           </button>
         )}
-        <button className={`button`} onClick={onOpenModal}>
-          <span className="icon">
-            <FontAwesomeIcon icon="trash" />
-          </span>{" "}
-          <span>Delete ingest sheet and start over</span>
-        </button>
-      </ButtonGroup>
+
+        {status === "COMPLETED" && <IngestSheetDownload sheetId={sheetId} />}
+
+        {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
+          -1 && (
+          <button className={`button`} onClick={onOpenModal}>
+            <span className="icon">
+              <FontAwesomeIcon icon="trash" />
+            </span>{" "}
+            <span>Delete ingest sheet and start over</span>
+          </button>
+        )}
+      </div>
 
       {approveLoading && <p>Approval loading...</p>}
       {approveError && <p>Error : (please try again)</p>}

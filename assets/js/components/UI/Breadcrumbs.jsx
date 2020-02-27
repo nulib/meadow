@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 const Breadcrumbs = ({ items = [], ...props }) => (
-  <div className="has-background-grey-lighter" style={{ padding: "0.75rem" }}>
+  <div className="has-background-white-bis" style={{ padding: "0.75rem" }}>
     <div className="container">
       <nav
-        className="breadcrumb has-succeeds-separator is-size-7 is-uppercase"
+        className="breadcrumb has-succeeds-separator "
         aria-label="breadcrumbs"
         data-testid="breadcrumbs"
         {...props}

@@ -131,7 +131,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
                 />
                 <span className="file-cta">
                   <span className="file-icon">
-                    <FontAwesomeIcon icon="file-upload" />
+                    <FontAwesomeIcon icon="file-csv" />
                   </span>
                   <span className="file-label">Choose a file…</span>
                 </span>
@@ -149,7 +149,10 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
               className="button is-primary"
               disabled={isSubmitDisabled()}
             >
-              Submit
+              <span className="icon">
+                <FontAwesomeIcon icon="file-upload" />
+              </span>
+              <span>Upload</span>
             </button>
           </div>
         </form>

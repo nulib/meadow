@@ -12,6 +12,7 @@ import {
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
 } from "../../components/Project/project.query";
 import { formatDate } from "../../services/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensProject = () => {
   const { id } = useParams();
@@ -86,7 +87,10 @@ const ScreensProject = () => {
                   className="button is-primary"
                   data-testid="button-new-ingest-sheet"
                 >
-                  Add an Ingest Sheet
+                  <span className="icon">
+                    <FontAwesomeIcon icon="file-csv" />
+                  </span>{" "}
+                  <span>Add an Ingest Sheet</span>
                 </Link>
               </div>
             </div>

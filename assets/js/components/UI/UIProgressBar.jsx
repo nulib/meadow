@@ -5,11 +5,13 @@ import PropTypes from "prop-types";
 const UIProgressBar = ({ percentComplete, totalValue }) => {
   if (percentComplete < 100) {
     return (
-      <div className="">
-        <div className="">{`${Math.round(percentComplete)} % complete`}</div>
-        <ProgressBar percent={percentComplete} strokeColor="#5091cd" />
-        <p className="text-gray-600 text-center mb-8 pt-2">{`Ingesting ${totalValue} file sets.`}</p>
-      </div>
+      <>
+        <div className="has-text-centered is-size-4">{`${Math.round(
+          percentComplete
+        )} % complete`}</div>
+        <ProgressBar percent={percentComplete} strokeColor="#765da0" />
+        <p className="has-text-centered">{`Ingesting ${totalValue} file sets.`}</p>
+      </>
     );
   }
   return null;

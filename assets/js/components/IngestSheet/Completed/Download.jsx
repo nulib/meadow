@@ -44,19 +44,17 @@ const IngestSheetDownload = ({ sheetId }) => {
   return (
     <>
       {works.length > 0 && (
-        <div className="buttons">
-          <CSVLink
-            data={reformattedWorks}
-            filename={`ingest_sheet_${sheetId}.csv`}
-            className="button"
-            target="_blank"
-          >
-            <span className="icon">
-              <FontAwesomeIcon icon="file-download" />
-            </span>
-            <span>Download .csv</span>
-          </CSVLink>
-        </div>
+        <CSVLink
+          data={reformattedWorks}
+          filename={`ingest_sheet_${sheetId}.csv`}
+          className="button"
+          target="_blank"
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="file-download" />
+          </span>
+          <span>Download .csv</span>
+        </CSVLink>
       )}
     </>
   );
