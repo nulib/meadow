@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 
 data "aws_iam_policy_document" "meadow_role_permissions" {
   statement {
-    sid = "sns"
+    sid    = "sns"
     effect = "Allow"
     actions = [
       "sns:CreateTopic",
@@ -38,9 +38,9 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     ]
     resources = ["*"]
   }
-  
+
   statement {
-    sid = "sqs"
+    sid    = "sqs"
     effect = "Allow"
     actions = [
       "sqs:CreateQueue",
@@ -70,8 +70,8 @@ resource "aws_iam_policy" "meadow_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "meadow_role_policy" {
-  role               = aws_iam_role.meadow_role.id
-  policy_arn         = aws_iam_policy.meadow_role_policy.arn
+  role       = aws_iam_role.meadow_role.id
+  policy_arn = aws_iam_policy.meadow_role_policy.arn
 }
 
 resource "aws_iam_policy" "this_bucket_policy" {
@@ -105,25 +105,27 @@ data "template_file" "container_definitions" {
   template = file("task-definitions/meadow_app.json")
 
   vars = {
-    database_url          = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
-    docker_tag            = terraform.workspace
-    elasticsearch_key     = aws_iam_access_key.meadow_elasticsearch_access_key.id
-    elasticsearch_secret  = aws_iam_access_key.meadow_elasticsearch_access_key.secret
-    elasticsearch_url     = var.elasticsearch_url
-    honeybadger_api_key   = var.honeybadger_api_key
-    host_name             = aws_route53_record.app_hostname.fqdn
-    ingest_bucket         = aws_s3_bucket.meadow_ingest.bucket
-    log_group             = aws_cloudwatch_log_group.meadow_logs.name
-    preservation_bucket   = aws_s3_bucket.meadow_preservation.bucket
-    pyramid_bucket        = var.pyramid_bucket
-    region                = var.aws_region
-    secret_key_base       = random_string.secret_key_base.result
-    upload_bucket         = aws_s3_bucket.meadow_uploads.bucket
-    ldap_server           = var.ldap_server
-    ldap_base_dn          = var.ldap_base_dn
-    ldap_port             = var.ldap_port
-    ldap_bind_dn          = var.ldap_bind_dn
-    ldap_bind_password    = var.ldap_bind_password
+    database_url         = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
+    docker_tag           = terraform.workspace
+    elasticsearch_key    = aws_iam_access_key.meadow_elasticsearch_access_key.id
+    elasticsearch_secret = aws_iam_access_key.meadow_elasticsearch_access_key.secret
+    elasticsearch_url    = var.elasticsearch_url
+    honeybadger_api_key  = var.honeybadger_api_key
+    host_name            = aws_route53_record.app_hostname.fqdn
+    iiif_manifest_url    = var.iiif_manifest_url
+    iiif_server_url      = var.iiif_server_url
+    ingest_bucket        = aws_s3_bucket.meadow_ingest.bucket
+    log_group            = aws_cloudwatch_log_group.meadow_logs.name
+    preservation_bucket  = aws_s3_bucket.meadow_preservation.bucket
+    pyramid_bucket       = var.pyramid_bucket
+    region               = var.aws_region
+    secret_key_base      = random_string.secret_key_base.result
+    upload_bucket        = aws_s3_bucket.meadow_uploads.bucket
+    ldap_server          = var.ldap_server
+    ldap_base_dn         = var.ldap_base_dn
+    ldap_port            = var.ldap_port
+    ldap_bind_dn         = var.ldap_bind_dn
+    ldap_bind_password   = var.ldap_bind_password
   }
 }
 

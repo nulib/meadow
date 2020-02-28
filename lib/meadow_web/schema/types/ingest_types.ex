@@ -40,7 +40,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     end
 
     @desc "Get a presigned url to upload an ingest sheet"
-    field :presigned_url, :presigned_url do
+    field :presigned_url, :url do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.get_presigned_url/3)
     end

@@ -31,6 +31,14 @@
         "value": "${elasticsearch_url}"
       },
       {
+        "name": "IIIF_MANIFEST_URL",
+        "value": "${iiif_manifest_url}"
+      },
+      {
+        "name": "IIIF_SERVER_URL",
+        "value": "${iiif_server_url}"
+      },
+      {
         "name": "INGEST_BUCKET",
         "value": "${ingest_bucket}"
       },
