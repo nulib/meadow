@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { useQuery } from "@apollo/react-hooks";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
@@ -54,11 +55,12 @@ const ScreensProject = () => {
   const breadCrumbs = [
     {
       label: "Projects",
-      link: "/project/list"
+      route: "/project/list"
     },
     {
       label: `${data.project.title}`,
-      link: `/project/${data.project.id}`
+      route: `/project/${data.project.id}`,
+      isActive: true
     }
   ];
 
@@ -89,7 +91,10 @@ const ScreensProject = () => {
               </div>
             </div>
           </section>
-
+          <UIBreadcrumbs
+            items={breadCrumbs}
+            data-testid="project-breadcrumbs"
+          />
           <section className="section" data-testid="screen-content">
             <div className="container">
               <IngestSheetList

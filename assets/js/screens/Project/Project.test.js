@@ -87,7 +87,7 @@ it("displays the project title", async () => {
 
   const projectTitleArray = await findAllByText(MOCK_PROJECT_TITLE);
 
-  expect(projectTitleArray.length).toEqual(1);
+  expect(projectTitleArray.length).toEqual(2);
 });
 
 it("renders a button to create a new ingest sheet", async () => {
