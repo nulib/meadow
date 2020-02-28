@@ -15,6 +15,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.CollectionTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
+  import_types(__MODULE__.HelperTypes)
 
   query do
     import_fields(:account_queries)
@@ -22,6 +23,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:ingest_queries)
     import_fields(:work_queries)
     import_fields(:file_set_queries)
+    import_fields(:helper_queries)
   end
 
   mutation do
@@ -41,7 +43,7 @@ defmodule MeadowWeb.Schema do
     value(:desc)
   end
 
-  object :presigned_url do
+  object :url do
     field :url, non_null(:string)
   end
 

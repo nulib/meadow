@@ -46,7 +46,7 @@ variable "pyramid_bucket" {
 }
 
 variable "vpc_id" {
-  type    = string
+  type = string
 }
 
 variable "ldap_base_dn" {
@@ -55,11 +55,11 @@ variable "ldap_base_dn" {
 }
 
 variable "ldap_bind_dn" {
-  type    = string
+  type = string
 }
 
 variable "ldap_bind_password" {
-  type    = string
+  type = string
 }
 
 variable "ldap_port" {
@@ -68,9 +68,17 @@ variable "ldap_port" {
 }
 
 variable "ldap_server" {
-  type    = string
+  type = string
 }
 
 variable "elasticsearch_url" {
-  type    = string
+  type = string
+}
+
+variable "iiif_server_url" {
+  type = string
+}
+
+variable "iiif_manifest_url" {
+  type = string
 }

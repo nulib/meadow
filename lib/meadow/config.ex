@@ -37,6 +37,16 @@ defmodule Meadow.Config do
     )
   end
 
+  @doc "Retrieve the IIIF server endpoint"
+  def iiif_server_url do
+    Application.get_env(:meadow, :iiif_server_url)
+  end
+
+  @doc "Retrieve the IIIF server endpoint"
+  def iiif_manifest_url do
+    Application.get_env(:meadow, :iiif_manifest_url)
+  end
+
   @doc "Retrieve a list of configured buckets"
   def buckets do
     [

@@ -101,3 +101,7 @@ In dev mode, the IIIF Server is available at: `http://localhost:8183/iiif/2`
 ### LDAP
 
 The development LDAP is available at `localhost` port `390`
+
+### Terraform
+
+Meadow's Terraform code is stored in this repo. To run Terraform commands, you'll need to do the [configuration setup](https://github.com/nulib/repodev_planning_and_docs/blob/a36472895ae5c851f4f36b6f598dc5f666cea672/docs/2._Developer_Guides/Meadow/Terraform-Setup-on-Meadow.md)
