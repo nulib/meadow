@@ -40,11 +40,13 @@ defmodule Meadow.Config do
   @doc "Retrieve the IIIF server endpoint"
   def iiif_server_url do
     Application.get_env(:meadow, :iiif_server_url)
+    |> ensure_trailing_slash()
   end
 
   @doc "Retrieve the IIIF server endpoint"
   def iiif_manifest_url do
     Application.get_env(:meadow, :iiif_manifest_url)
+    |> ensure_trailing_slash()
   end
 
   @doc "Retrieve a list of configured buckets"
@@ -103,5 +105,11 @@ defmodule Meadow.Config do
           [{'AWS_S3_ENDPOINT', to_charlist(endpoint)} | result]
       end
     end
+  end
+
+  defp ensure_trailing_slash(value) do
+    if value |> String.ends_with?("/"),
+      do: value,
+      else: value <> "/"
   end
 end

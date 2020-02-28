@@ -37,12 +37,8 @@ config :meadow,
   upload_bucket: "test-uploads",
   preservation_bucket: "test-preservation",
   pyramid_bucket: "test-pyramids",
-  iiif_server_url: System.get_env("IIIF_SERVER_URL", "http://localhost:8184/iiif/2/"),
-  iiif_manifest_url:
-    System.get_env(
-      "IIIF_MANIFEST_URL",
-      "http://localhost:9002/minio/test-pyramids/public/"
-    )
+  iiif_server_url: "http://localhost:8184/iiif/2/",
+  iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/"
 
 config :meadow,
   test_mode: true

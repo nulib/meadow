@@ -9,15 +9,24 @@ defmodule Meadow.Data.Schemas.Validations do
   update), set it to an empty embedded struct instead
   """
   def prepare_embed(%Ecto.Changeset{data: data, params: params} = change, field) when is_atom(field) do
-    with f <- to_string(field) do
-      case {Map.get(params, f), Map.get(data, f)} do
-        {nil, nil} ->
-          {:embed, field_spec} = change.data.__struct__.__schema__(:type, field)
-          params = Map.put(params, f, field_spec.related.__struct__ |> Map.from_struct())
-          Map.put(change, :params, params)
+    empty_struct = fn ->
+      {:embed, field_spec} = change.data.__struct__.__schema__(:type, field)
+      field_spec.related.__struct__ |> Map.from_struct()
+    end
 
-        _ ->
-          change
+    with f <- to_string(field) do
+      value = cond do
+        Map.has_key?(params, f) and is_nil(Map.get(params, f)) -> empty_struct.()
+        Map.has_key?(params, f) -> Map.get(params, f)
+        is_nil(Map.get(data, f)) -> empty_struct.()
+        true -> nil
+      end
+
+      case value do
+        nil -> change
+        value ->
+          params = Map.put(params, f, value)
+          Map.put(change, :params, params)
       end
     end
   end
