@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Schema.Query.WorksTest do
   use MeadowWeb.ConnCase, async: true
+  alias Meadow.Data.Works
 
   @query """
   query {
@@ -130,5 +131,35 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
                ]
              }
            } == json_response(response, 200)
+  end
+
+  @query """
+  query {
+    works{
+      id
+      representativeImage
+    }
+  }
+  """
+  test "works query returns work with representative image" do
+    work = work_fixture()
+    %{id: image_id} = file_set_fixture(%{work_id: work.id})
+    work |> Works.update_work(%{representative_file_set_id: image_id})
+
+    conn = build_conn() |> auth_user(user_fixture())
+
+    response = get(conn, "/api/graphql", query: @query)
+    expected = "#{Meadow.Config.iiif_server_url()}#{image_id}"
+
+    assert %{
+             "data" => %{
+               "works" => [
+                 %{
+                   "id" => _,
+                   "representativeImage" => ^expected
+                 }
+               ]
+             }
+           } = json_response(response, 200)
   end
 end

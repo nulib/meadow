@@ -86,6 +86,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :updated_at, non_null(:datetime)
     field :collection, :collection, resolve: dataloader(Data)
     field :file_sets, list_of(:file_set), resolve: dataloader(Data)
+    field :representative_image, :string
   end
 
   #

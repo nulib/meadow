@@ -4,7 +4,7 @@ defmodule Meadow.Data.Works do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
 
   @doc """
@@ -17,7 +17,9 @@ defmodule Meadow.Data.Works do
 
   """
   def list_works do
-    Repo.all(Work)
+    Work
+    |> Repo.all()
+    |> add_representative_image()
   end
 
   @doc """
@@ -29,7 +31,7 @@ defmodule Meadow.Data.Works do
   """
 
   def list_works(criteria) do
-    query = from(w in Work)
+    query = from(Work)
 
     Enum.reduce(criteria, query, fn
       {:limit, limit}, query ->
@@ -42,6 +44,7 @@ defmodule Meadow.Data.Works do
         from p in query, order_by: [{^order, :id}]
     end)
     |> Repo.all()
+    |> add_representative_image()
   end
 
   defp filter_with(filters, query) do
@@ -74,7 +77,10 @@ defmodule Meadow.Data.Works do
       ** (Ecto.NoResultsError)
 
   """
-  def get_work!(id), do: Repo.get!(Work, id)
+  def get_work!(id) do
+    Repo.get!(Work, id)
+    |> add_representative_image()
+  end
 
   @doc """
   Gets a work by accession_number
@@ -83,6 +89,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work_by_accession_number!(accession_number) do
     Repo.get_by!(Work, accession_number: accession_number)
+    |> add_representative_image()
   end
 
   @doc """
@@ -108,9 +115,10 @@ defmodule Meadow.Data.Works do
 
   """
   def create_work(attrs \\ %{}) do
-    %Work{}
-    |> Work.changeset(attrs)
-    |> Repo.insert()
+    case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
+      {:ok, work} -> set_default_representative_image(work)
+      other -> other
+    end
   end
 
   @doc """
@@ -120,6 +128,7 @@ defmodule Meadow.Data.Works do
     %Work{}
     |> Work.changeset(attrs)
     |> Repo.insert!()
+    |> set_default_representative_image!()
   end
 
   @doc """
@@ -150,6 +159,7 @@ defmodule Meadow.Data.Works do
     work
     |> Work.changeset(attrs)
     |> Repo.update()
+    |> add_representative_image()
   end
 
   @doc """
@@ -168,6 +178,7 @@ defmodule Meadow.Data.Works do
     work
     |> Work.changeset(%{collection_id: collection_id})
     |> Repo.update()
+    |> add_representative_image()
   end
 
   @doc """
@@ -187,11 +198,11 @@ defmodule Meadow.Data.Works do
   def get_works_by_title(title) do
     map = %{"title" => title}
 
-    q =
-      from Work,
-        where: fragment("descriptive_metadata @> ?::jsonb", ^map)
-
-    Repo.all(q)
+    from(Work,
+      where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+    )
+    |> Repo.all()
+    |> add_representative_image()
   end
 
   @doc """
@@ -199,5 +210,89 @@ defmodule Meadow.Data.Works do
   """
   def delete_work(%Work{} = work) do
     Repo.delete(work)
+  end
+
+  @doc """
+  Sets the representative_file_set_id for a work based
+  on a file set
+
+  ## Examples
+
+      iex> set_representative_image(work, file_set)
+      {:ok, %Work{}}
+  """
+  def set_representative_image(%Work{} = work, %FileSet{id: id}) do
+    work
+    |> update_work(%{representative_file_set_id: id})
+  end
+
+  def set_representative_image(%Work{} = work, nil) do
+    work
+    |> update_work(%{representative_file_set_id: nil})
+  end
+
+  @doc """
+  Sets the default representative_file_set_id for a work
+
+  ## Examples
+
+      iex> set_default_representative_image(work)
+      {:ok, %Work{}}
+  """
+  def set_default_representative_image(%Work{} = work) do
+    work =
+      if Ecto.assoc_loaded?(work.file_sets),
+        do: work,
+        else: work |> Repo.preload(file_sets: from(FileSet, order_by: :rank, limit: 1))
+
+    work
+    |> set_representative_image(work.file_sets |> List.first())
+  end
+
+  @doc """
+  Sets the default representative_file_set_id for a work
+
+  ## Examples
+
+      iex> set_default_representative_image!(work)
+      %Work{}
+  """
+  def set_default_representative_image!(%Work{} = work) do
+    case set_default_representative_image(work) do
+      {:ok, work} -> work
+      {:error, err} -> raise err
+    end
+  end
+
+  @doc """
+  Sets the value of the representative_image virtual field
+  for a work, list of works, or stream of works
+  """
+  def add_representative_image(%Work{} = work) do
+    case work.representative_file_set_id do
+      nil -> Map.put(work, :representative_image, nil)
+      id -> Map.put(work, :representative_image, representative_image_url(id))
+    end
+  end
+
+  def add_representative_image(%Stream{} = stream),
+    do: Stream.map(stream, &add_representative_image/1)
+
+  def add_representative_image(works) when is_list(works),
+    do: Enum.map(works, &add_representative_image/1)
+
+  def add_representative_image({:ok, object}),
+    do: {:ok, add_representative_image(object)}
+
+  def add_representative_image(x), do: x
+
+  defp representative_image_url(nil), do: nil
+
+  defp representative_image_url(id) do
+    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+      uri
+      |> URI.merge(id)
+      |> URI.to_string()
+    end
   end
 end

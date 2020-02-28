@@ -23,6 +23,7 @@ defmodule Meadow.Data.Schemas.Work do
     field :visibility, :string
     field :work_type, :string
     field :published, :boolean, default: false
+    field :representative_file_set_id, Ecto.UUID, default: nil
     timestamps()
 
     embeds_one :descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update
@@ -37,12 +38,13 @@ defmodule Meadow.Data.Schemas.Work do
 
     belongs_to :collection, Collection
 
+    field :representative_image, :string, virtual: true, default: nil
     field :extra_index_fields, :map, virtual: true, default: %{}
   end
 
   def changeset(work, attrs) do
     required_params = [:accession_number, :visibility, :work_type]
-    optional_params = [:collection_id]
+    optional_params = [:collection_id, :representative_file_set_id]
 
     work
     |> cast(attrs, required_params ++ optional_params)
