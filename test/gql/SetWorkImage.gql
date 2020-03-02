@@ -1,0 +1,8 @@
+#import "./FileSetFields.frag.gql"
+#import "./WorkFields.frag.gql"
+
+mutation($work_id: ID!, $file_set_id: ID!) {
+  setWorkImage(work_id: $work_id, file_set_id: $file_set_id) {
+    ...WorkFields
+  }
+}

@@ -6,10 +6,8 @@ defmodule Meadow.TestHelpers do
   alias Ecto.Adapters.SQL.Sandbox
 
   alias Meadow.Accounts.{Ldap, User}
-  alias Meadow.Data.{Collection, FileSet, Work}
-  alias Meadow.Data.Schemas.Collection
-  alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
 
@@ -138,19 +136,31 @@ defmodule Meadow.TestHelpers do
     work
   end
 
-  def file_set_fixture(attrs \\ %{}) do
+  def work_with_file_sets_fixture(count, work_attrs \\ %{}, file_set_attrs \\ %{}) do
     attrs =
-      Enum.into(attrs, %{
-        accession_number: attrs[:accession_number] || Faker.String.base64(),
-        role: attrs[:role] || Faker.Util.pick(@file_set_roles),
-        metadata:
-          attrs[:metadata] ||
-            %{
-              description: attrs[:description] || Faker.String.base64(),
-              location: "https://fake-s3-bucket/" <> Faker.String.base64(),
-              original_filename: Faker.File.file_name()
-            }
+      Enum.into(work_attrs, %{
+        file_sets: 1..count |> Enum.map(fn _ -> file_set_fixture_attrs(file_set_attrs) end)
       })
+
+    work_fixture(attrs) |> Works.set_default_representative_image!()
+  end
+
+  def file_set_fixture_attrs(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      accession_number: attrs[:accession_number] || Faker.String.base64(),
+      role: attrs[:role] || Faker.Util.pick(@file_set_roles),
+      metadata:
+        attrs[:metadata] ||
+          %{
+            description: attrs[:description] || Faker.String.base64(),
+            location: "https://fake-s3-bucket/" <> Faker.String.base64(),
+            original_filename: Faker.File.file_name()
+          }
+    })
+  end
+
+  def file_set_fixture(attrs \\ %{}) do
+    attrs = file_set_fixture_attrs(attrs)
 
     {:ok, file_set} =
       %FileSet{}

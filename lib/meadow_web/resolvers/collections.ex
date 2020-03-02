@@ -3,7 +3,7 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
   Absinthe GraphQL query resolver for Collections
 
   """
-  alias Meadow.Data.Collections
+  alias Meadow.Data.{Collections, Works}
   alias MeadowWeb.Schema.ChangesetErrors
 
   def collections(_, _, _) do
@@ -29,6 +29,20 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     collection = Collections.get_collection!(args[:collection_id])
 
     case Collections.update_collection(collection, args) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not update collection", details: ChangesetErrors.error_details(changeset)}
+
+      {:ok, collection} ->
+        {:ok, collection}
+    end
+  end
+
+  def set_collection_image(_, %{collection_id: collection_id, work_id: work_id}, _) do
+    collection = Collections.get_collection!(collection_id)
+    work = Works.get_work!(work_id)
+
+    case Collections.set_representative_image(collection, work) do
       {:error, changeset} ->
         {:error,
          message: "Could not update collection", details: ChangesetErrors.error_details(changeset)}

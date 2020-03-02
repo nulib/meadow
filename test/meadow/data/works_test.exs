@@ -102,9 +102,8 @@ defmodule Meadow.Data.WorksTest do
 
   describe "representative images" do
     setup do
-      work = work_fixture()
-      file_sets = 0..2 |> Enum.map(fn _ -> file_set_fixture(%{work_id: work.id}) end)
-      file_set = file_sets |> Enum.at(1)
+      work = work_with_file_sets_fixture(3)
+      file_set = work.file_sets |> Enum.at(1)
 
       {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
 

@@ -10,6 +10,7 @@ defmodule Meadow.Data.Schemas.Collection do
   alias Meadow.Data.Schemas.Work
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
+  @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "collections" do
     field :name, :string
@@ -22,20 +23,25 @@ defmodule Meadow.Data.Schemas.Collection do
 
     timestamps()
 
+    belongs_to :representative_work, Work, on_replace: :nilify
     has_many :works, Work
+
+    field :representative_image, :string, virtual: true
   end
 
-  def changeset(collection, params) do
+  def changeset(collection, params \\ %{}) do
     collection
     |> cast(params, [
-      :name,
+      :admin_email,
       :description,
-      :keywords,
       :featured,
       :finding_aid_url,
-      :admin_email,
-      :published
+      :keywords,
+      :name,
+      :published,
+      :representative_work_id
     ])
+    |> assoc_constraint(:representative_work)
     |> validate_required([:name])
     |> unique_constraint(:name)
   end

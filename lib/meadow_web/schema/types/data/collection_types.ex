@@ -52,6 +52,14 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
 
+    @desc "Set the representative Work for a Collection"
+    field :set_collection_image, :collection do
+      arg(:collection_id, non_null(:id))
+      arg(:work_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.Collections.set_collection_image/3)
+    end
+
     @desc "Delete a Collection"
     field :delete_collection, :collection do
       arg(:collection_id, non_null(:id))
@@ -75,5 +83,6 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :finding_aid_url, :string
     field :published, :boolean
     field :works, list_of(:work), resolve: dataloader(Data)
+    field :representative_image, :string
   end
 end
