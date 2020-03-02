@@ -8,7 +8,10 @@ const UIModalDelete = ({
   thingToDeleteLabel
 }) => {
   return (
-    <div className={`modal ${isOpen ? "is-active" : ""}`}>
+    <div
+      className={`modal ${isOpen ? "is-active" : ""}`}
+      data-testid="delete-modal"
+    >
       <div className="modal-background"></div>
       <div className="modal-content">
         <div className="box">
