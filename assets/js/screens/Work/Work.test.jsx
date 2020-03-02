@@ -17,6 +17,14 @@ const mocks = [
       data: {
         work: {
           accessionNumber: "Donohue_001",
+          administrativeMetadata: {
+            preservationLevel: 1,
+            rightsStatement: "https://northwestern.edu"
+          },
+          collection: {
+            id: "1287312378238293126321308",
+            name: " Collection 1232432 Name"
+          },
           descriptiveMetadata: {
             description: "Some description here",
             title: "Ima work title"
