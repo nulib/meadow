@@ -27,6 +27,14 @@ export const GET_WORK = gql`
       updatedAt
       visibility
       workType
+      collection {
+        id
+        name
+      }
+      administrativeMetadata {
+        preservationLevel
+        rightsStatement
+      }
     }
   }
 `;
@@ -70,7 +78,24 @@ export const UPDATE_WORK = gql`
         title
         description
       }
+      visibility
+      administrativeMetadata {
+        preservationLevel
+        rightsStatement
+      }
+      collection {
+        name
+        id
+      }
       insertedAt
+    }
+  }
+`;
+
+export const ADD_WORK_TO_COLLECTION = gql`
+  mutation addWorkToCollection($workId: ID!, $collectionId: ID!) {
+    addWorkToCollection(workId: $workId, collectionId: $collectionId) {
+      id
     }
   }
 `;
