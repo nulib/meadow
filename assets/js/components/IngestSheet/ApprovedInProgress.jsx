@@ -12,7 +12,12 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     }
   );
 
-  if (loading) return <p>...Loading</p>;
+  if (loading)
+    return (
+      <progress className="progress is-primary" max="100">
+        30%
+      </progress>
+    );
   if (error) {
     console.log(error);
     return <p>Error: {error.message}</p>;
@@ -20,15 +25,12 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
 
   const { ingestProgress } = data;
   return (
-    <section>
-      <div className="pt-12">
+    <section className="section">
+      <div className="container">
         <UIProgressBar
           percentComplete={Number(ingestProgress.percentComplete)}
           totalValue={ingestProgress.totalFileSets}
         />
-      </div>
-      <div className="text-center leading-loose text-gray-600">
-        <p></p>
       </div>
     </section>
   );

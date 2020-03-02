@@ -15,7 +15,8 @@ const IngestSheetCompleted = ({ sheetId }) => {
     error: worksError,
     data: worksData
   } = useQuery(INGEST_SHEET_WORKS, {
-    variables: { id: sheetId }
+    variables: { id: sheetId },
+    fetchPolicy: "network-only"
   });
   const {
     loading: errorsLoading,
@@ -23,13 +24,18 @@ const IngestSheetCompleted = ({ sheetId }) => {
     data: errorsData
   } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
 
-  if (worksLoading || errorsLoading) return "Loading...";
+  if (worksLoading || errorsLoading)
+    return (
+      <progress className="progress is-primary" max="100">
+        30%
+      </progress>
+    );
   if (worksError) return <Error error={worksError.message} />;
   if (errorsError) return <Error error={errorsError.message} />;
 
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
-  console.log("errorsData :", errorsData);
+
   try {
     ingestSheetErrors = errorsData.ingestSheetErrors;
   } catch (e) {}
@@ -38,7 +44,9 @@ const IngestSheetCompleted = ({ sheetId }) => {
     <>
       {ingestSheetErrors.length > 0 && (
         <section className="section">
-          <IngestSheetCompletedErrors errors={ingestSheetErrors} />
+          <div className="container">
+            <IngestSheetCompletedErrors errors={ingestSheetErrors} />
+          </div>
         </section>
       )}
 

@@ -14,8 +14,9 @@ import {
   getClassFromIngestSheetStatus,
   TEMP_USER_FRIENDLY_STATUS
 } from "../../services/helpers";
-import IngestSheetDownload from "../../components/IngestSheet/Completed/Download";
+
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: String!) {
@@ -55,7 +56,6 @@ const ScreensIngestSheet = ({ match }) => {
     return <Error error={crumbsError ? crumbsError : sheetError} />;
 
   const { ingestSheet } = crumbsData;
-
   const createCrumbs = () => {
     return [
       {
@@ -90,32 +90,34 @@ const ScreensIngestSheet = ({ match }) => {
               </span>
             </h1>
             <h2 className="subtitle">Ingest Sheet</h2>
-            <IngestSheetDownload sheetId={sheetId} />
+
+            <IngestSheetActionRow
+              sheetId={sheetId}
+              projectId={id}
+              status={sheetData.ingestSheet.status}
+              name={sheetData.ingestSheet.name}
+            />
           </div>
         </div>
       </section>
 
       <UIBreadcrumbs items={createCrumbs()} />
 
-      <section className="section">
-        <div className="container">
-          <IngestSheet
-            ingestSheetData={sheetData.ingestSheet}
-            projectId={id}
-            subscribeToIngestSheetUpdates={() =>
-              subscribeToMore({
-                document: INGEST_SHEET_SUBSCRIPTION,
-                variables: { sheetId },
-                updateQuery: (prev, { subscriptionData }) => {
-                  if (!subscriptionData.data) return prev;
-                  const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-                  return { ingestSheet: { ...updatedSheet } };
-                }
-              })
+      <IngestSheet
+        ingestSheetData={sheetData.ingestSheet}
+        projectId={id}
+        subscribeToIngestSheetUpdates={() =>
+          subscribeToMore({
+            document: INGEST_SHEET_SUBSCRIPTION,
+            variables: { sheetId },
+            updateQuery: (prev, { subscriptionData }) => {
+              if (!subscriptionData.data) return prev;
+              const updatedSheet = subscriptionData.data.ingestSheetUpdate;
+              return { ingestSheet: { ...updatedSheet } };
             }
-          />
-        </div>
-      </section>
+          })
+        }
+      />
     </Layout>
   );
 };

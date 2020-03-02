@@ -26,7 +26,7 @@ export function escapeDoubleQuotes(str) {
 
 export function formatDate(date) {
   if (!date) return "";
-  return moment(date).format("MMM Do YYYY, h:mm:ss a");
+  return moment.utc(date).format("lll");
 }
 
 export function formatSimpleISODate(date) {
