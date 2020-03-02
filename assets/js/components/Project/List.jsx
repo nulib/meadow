@@ -94,6 +94,7 @@ const ProjectList = () => {
                       <p className="control">
                         <button
                           className="button"
+                          data-testid="delete-button"
                           onClick={e => onOpenModal(e, project)}
                         >
                           <FontAwesomeIcon icon="trash" />
