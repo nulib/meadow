@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 
 const WorkTabsAdministrative = ({ work }) => {
+  const { id, administrativeMetadata, collection } = work;
   const [isEditing, setIsEditing] = useIsEditing();
   const { register, handleSubmit } = useForm();
   const [updateWork] = useMutation(UPDATE_WORK, {
@@ -22,13 +23,15 @@ const WorkTabsAdministrative = ({ work }) => {
     }
   });
 
+  // TODO: Add Work to collection is disrupting changes made using updateWork,
+  // need to verify apolloclient update/rollback options upon adding collection to work.
   const [addWorkToCollection] = useMutation(ADD_WORK_TO_COLLECTION, {
     onCompleted({ addWorkToCollection }) {
       setIsEditing(false);
       toastWrapper("is-success", "Work form has been updated");
     },
     refetchQueries(mutationResult) {
-      return [{ query: GET_WORK, variables: { id: work.id } }];
+      return [{ query: GET_WORK, variables: { id } }];
     }
   });
 
@@ -43,7 +46,7 @@ const WorkTabsAdministrative = ({ work }) => {
       published: true
     };
     updateWork({
-      variables: { id: work.id, work: workUpdateInput }
+      variables: { id, work: workUpdateInput }
     });
     // addWorkToCollection({
     //   variables: { workId: work.id, collectionId: data.collection }
@@ -51,7 +54,6 @@ const WorkTabsAdministrative = ({ work }) => {
   };
 
   const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
-  console.log(collectionsData);
   return (
     <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="columns is-centered">
@@ -99,7 +101,7 @@ const WorkTabsAdministrative = ({ work }) => {
                     <select
                       ref={register}
                       name="collection"
-                      defaultValue={work.collection ? work.collection.id : ""}
+                      defaultValue={collection ? collection.id : ""}
                     >
                       <option value="">Select dropdown</option>
                       {collectionsData.collections &&
@@ -112,9 +114,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   </div>
                 ) : (
                   <p>
-                    {work.collection
-                      ? work.collection.name
-                      : "Not part of a collection"}
+                    {collection ? collection.name : "Not part of a collection"}
                   </p>
                 )}
               </div>
@@ -137,8 +137,8 @@ const WorkTabsAdministrative = ({ work }) => {
                       ref={register}
                       name="preservationLevel"
                       defaultValue={
-                        work.administrativeMetadata
-                          ? work.administrativeMetadata.preservationLevel
+                        administrativeMetadata
+                          ? administrativeMetadata.preservationLevel
                           : ""
                       }
                     >
@@ -151,8 +151,8 @@ const WorkTabsAdministrative = ({ work }) => {
                   </div>
                 ) : (
                   <p>
-                    {work.administrativeMetadata
-                      ? work.administrativeMetadata.preservationLevel
+                    {administrativeMetadata
+                      ? administrativeMetadata.preservationLevel
                       : ""}
                   </p>
                 )}
@@ -167,24 +167,20 @@ const WorkTabsAdministrative = ({ work }) => {
                     <select
                       ref={register}
                       name="rightsStatement"
-                      defaultValue={
-                        work.administrativeMetadata
-                          ? work.administrativeMetadata.rightsStatement
-                          : ""
-                      }
+                      defaultValue={administrativeMetadata.rightsStatement}
                     >
                       <option value="">Select dropdown</option>
-                      {RIGHTS_STATEMENTS.map(({ term, id }) => (
+                      {RIGHTS_STATEMENTS.map(({ label, id }) => (
                         <option key={id} value={id}>
-                          {`${term}`}
+                          {`${label}`}
                         </option>
                       ))}
                     </select>
                   </div>
                 ) : (
                   <p>
-                    {work.administrativeMetadata
-                      ? work.administrativeMetadata.rightsStatement
+                    {administrativeMetadata
+                      ? administrativeMetadata.rightsStatement
                       : ""}
                   </p>
                 )}
