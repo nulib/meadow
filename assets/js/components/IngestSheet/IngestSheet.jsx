@@ -42,10 +42,12 @@ const IngestSheet = ({
   return (
     <>
       {["APPROVED"].indexOf(status) > -1 && (
-        <>
-          <IngestSheetAlert ingestSheet={ingestSheetData} />
-          <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
-        </>
+        <section className="section">
+          <div className="container">
+            <IngestSheetAlert ingestSheet={ingestSheetData} />
+            <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+          </div>
+        </section>
       )}
 
       {["COMPLETED"].indexOf(status) > -1 && (

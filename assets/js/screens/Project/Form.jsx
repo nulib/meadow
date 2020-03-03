@@ -1,8 +1,6 @@
 import React from "react";
 import Layout from "../Layout";
 import ProjectForm from "../../components/Project/Form";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 
 const ScreensProjectForm = ({}) => {
   const createCrumbs = () => {
