@@ -1,22 +1,40 @@
 import React from "react";
 import Work from "./Work";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, wait } from "@testing-library/react";
 import {
   renderWithRouterApollo,
   mockWork
 } from "../../services/testing-helpers";
+import { IIIF_SERVER_URL } from "../IIIF/iiif.query";
+
+const mocks = [
+  {
+    request: {
+      query: IIIF_SERVER_URL
+    },
+    result: {
+      data: {
+        iiifServerUrl: {
+          url: "http://localhost:8184/iiif/2/"
+        }
+      }
+    }
+  }
+];
 
 describe("Work component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<Work work={mockWork} />);
+    return renderWithRouterApollo(<Work work={mockWork} />, { mocks });
   }
 
   it("renders without crashing", () => {
     expect(setupTests()).toBeTruthy();
   });
 
-  it("renders the viewer and tabs", () => {
+  it("renders the viewer and tabs", async () => {
     const { getByTestId } = setupTests();
+
+    await wait();
     expect(getByTestId("viewer")).toBeInTheDocument();
     expect(getByTestId("tabs")).toBeInTheDocument();
   });

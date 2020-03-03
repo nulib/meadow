@@ -1,12 +1,11 @@
 import React from "react";
 import WorkTabs from "./Tabs";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, wait } from "@testing-library/react";
 import {
-  renderWithRouter,
   renderWithRouterApollo,
   mockWork
 } from "../../../services/testing-helpers";
-import { IIIF_SERVER_URL } from "../../Iiif/iiif.query";
+import { IIIF_SERVER_URL } from "../../IIIF/iiif.query";
 
 const mocks = [
   {
@@ -32,26 +31,31 @@ describe("Tabs component", () => {
     expect(setupTests()).toBeTruthy();
   });
 
-  it("renders tab section and all four tabs: About, Administrative, Structure, and Preservation", () => {
+  it("renders tab section and all four tabs: About, Administrative, Structure, and Preservation", async () => {
     const { getByText, getByTestId } = setupTests();
 
-    expect(getByTestId("tabs")).toBeInTheDocument();
+    await wait();
 
+    expect(getByTestId("tabs")).toBeInTheDocument();
     expect(getByTestId("tab-about")).toBeInTheDocument();
     expect(getByTestId("tab-administrative")).toBeInTheDocument();
     expect(getByTestId("tab-structure")).toBeInTheDocument();
     expect(getByTestId("tab-preservation")).toBeInTheDocument();
   });
 
-  it("renders About tab content by default", () => {
+  it("renders About tab content by default", async () => {
     const { queryByTestId } = setupTests();
+
+    await wait();
 
     expect(queryByTestId("tab-about-content")).toBeVisible();
     expect(queryByTestId("structure-content")).toBeNull();
   });
 
-  it("renders a tab active when clicking on a tab nav item", () => {
+  it("renders a tab active when clicking on a tab nav item", async () => {
     const { queryByTestId, debug } = setupTests();
+
+    await wait();
 
     expect(queryByTestId("tab-about-content")).not.toHaveClass("is-hidden");
 

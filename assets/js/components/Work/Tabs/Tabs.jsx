@@ -3,7 +3,7 @@ import WorkTabAbout from "./About";
 import WorkTabStructure from "./Structure";
 import WorkTabsAdministrative from "./Administrative";
 import WorkTabsPreservation from "./Preservation";
-import { IiifProvider } from "../../Iiif/Iiif";
+import { IIIFProvider } from "../../IIIF/IIIFProvider";
 
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -14,7 +14,7 @@ const WorkTabs = ({ work }) => {
 
   return (
     <>
-      <IiifProvider>
+      <IIIFProvider>
         <div className="tabs is-centered is-boxed" data-testid="tabs">
           <ul>
             <li className={`${activeTab === "tab-about" && "is-active"}`}>
@@ -87,7 +87,7 @@ const WorkTabs = ({ work }) => {
             <WorkTabsPreservation work={work} />
           </div>
         </div>
-      </IiifProvider>
+      </IIIFProvider>
     </>
   );
 };

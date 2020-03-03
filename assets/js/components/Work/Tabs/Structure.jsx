@@ -1,17 +1,15 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { IiifContext } from "../../Iiif/Iiif";
-
+import { IIIFContext } from "../../IIIF/IIIFProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const WorkTabsStructure = ({ work }) => {
-  const iiifServerUrl = useContext(IiifContext);
+  const iiifServerUrl = useContext(IIIFContext);
 
   if (!work) {
     return null;
   }
   return (
-    
     <div className="columns is-centered">
       <div className="column is-three-quarters">
         {work.fileSets.map(({ id, accessionNumber, metadata }) => (
