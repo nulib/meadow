@@ -1,8 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import IngestSheetForm from "../../components/IngestSheet/Form";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { GET_PROJECT } from "../../components/Project/project.query";
@@ -38,26 +36,6 @@ const ScreensIngestSheetForm = ({ match }) => {
           {id && <IngestSheetForm projectId={id} />}
         </div>
       </section>
-      {/* <ScreenHeader
-        title="New Ingest Sheet"
-        description="Upload an Ingest sheet here to validate its contents and its work files exist in AWS"
-        breadCrumbs={[
-          {
-            label: "Projects",
-            link: "/project/list"
-          },
-          {
-            label: project.title,
-            link: `/project/${id}`
-          },
-          {
-            label: "Create ingest sheet",
-            link: `/project/${id}/ingest-sheet/upload`
-          }
-        ]}
-      />
-
-      <ScreenContent>{id && <IngestSheetForm projectId={id} />}</ScreenContent> */}
     </Layout>
   );
 };

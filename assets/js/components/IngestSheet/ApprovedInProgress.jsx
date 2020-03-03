@@ -25,14 +25,10 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
 
   const { ingestProgress } = data;
   return (
-    <section className="section">
-      <div className="container">
-        <UIProgressBar
-          percentComplete={Number(ingestProgress.percentComplete)}
-          totalValue={ingestProgress.totalFileSets}
-        />
-      </div>
-    </section>
+    <UIProgressBar
+      percentComplete={Number(ingestProgress.percentComplete)}
+      totalValue={ingestProgress.totalFileSets}
+    />
   );
 };
 

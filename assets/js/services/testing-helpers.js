@@ -3,6 +3,7 @@ import { Router } from "react-router-dom";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/react-testing";
+import { ReactiveBase } from "@appbaseio/reactivesearch";
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
