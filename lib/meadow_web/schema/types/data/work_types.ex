@@ -57,6 +57,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       resolve(&Resolvers.Data.update_work/3)
     end
 
+    @desc "Set the representative FileSet for a Work"
+    field :set_work_image, :work do
+      arg(:work_id, non_null(:id))
+      arg(:file_set_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.set_work_image/3)
+    end
+
     @desc "Delete a Work"
     field :delete_work, :work do
       arg(:work_id, non_null(:id))

@@ -3,8 +3,7 @@ defmodule MeadowWeb.Resolvers.Data do
   Absinthe GraphQL query resolver for Data Context
 
   """
-  alias Meadow.Data.FileSets
-  alias Meadow.Data.Works
+  alias Meadow.Data.{FileSets, Works}
   alias MeadowWeb.Schema.ChangesetErrors
 
   def works(_, args, _) do
@@ -45,6 +44,20 @@ defmodule MeadowWeb.Resolvers.Data do
     work = Works.get_work!(id)
 
     case Works.update_work(work, work_params) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not update work", details: ChangesetErrors.error_details(changeset)}
+
+      {:ok, work} ->
+        {:ok, work}
+    end
+  end
+
+  def set_work_image(_, %{work_id: work_id, file_set_id: file_set_id}, _) do
+    work = Works.get_work!(work_id)
+    file_set = FileSets.get_file_set!(file_set_id)
+
+    case Works.set_representative_image(work, file_set) do
       {:error, changeset} ->
         {:error,
          message: "Could not update work", details: ChangesetErrors.error_details(changeset)}
