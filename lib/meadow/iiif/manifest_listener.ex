@@ -1,14 +1,11 @@
-defmodule Meadow.Iiif.ManifestListener do
+defmodule Meadow.IIIF.ManifestListener do
   @moduledoc """
   Listens to INSERTS/UPDATES on Postgrex.Notifications topic "works_changed" and writes IIIF Manifests to S3
   """
   use GenServer
   require Logger
-  alias Meadow.Config
-  alias Meadow.Data.Works
+
   alias Meadow.IIIF
-  alias Meadow.Iiif.Generator
-  alias Meadow.Utils.Pairtree
 
   @topic "works_changed"
 

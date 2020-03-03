@@ -33,7 +33,7 @@ defmodule Meadow.Application do
           base_children ++
             [
               {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-              Meadow.Iiif.ManifestListener
+              Meadow.IIIF.ManifestListener
             ]
       end
 

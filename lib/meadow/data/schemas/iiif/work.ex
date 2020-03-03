@@ -1,7 +1,7 @@
 alias IIIF.Presentation.{Canvas, Image, ImageResource, Manifest, Sequence, Service}
 alias Meadow.IIIF
 
-defimpl Meadow.IiifManifest.Resource, for: Meadow.Data.Schemas.Work do
+defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Work do
   def encode(work) do
     %Manifest{
       id: IIIF.manifest_id(work.id),

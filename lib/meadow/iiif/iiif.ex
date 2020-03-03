@@ -5,7 +5,7 @@ defmodule Meadow.IIIF do
 
   alias Meadow.Config
   alias Meadow.Data.Works
-  alias Meadow.Iiif.Generator
+  alias Meadow.IIIF.Generator
   alias Meadow.Utils.Pairtree
 
   @pyramid_bucket Meadow.Config.pyramid_bucket()

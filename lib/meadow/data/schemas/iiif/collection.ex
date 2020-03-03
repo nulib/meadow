@@ -2,7 +2,7 @@ alias IIIF.Presentation.{Canvas, Collection, ImageResource, Manifest, Sequence}
 
 alias Meadow.IIIF
 
-defimpl Meadow.IiifManifest.Resource, for: Meadow.Data.Schemas.Collection do
+defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Collection do
   def encode(collection) do
     %Collection{
       id: collection.id,

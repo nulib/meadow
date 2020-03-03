@@ -1,10 +1,11 @@
-defmodule Meadow.Iiif.Generator do
+defmodule Meadow.IIIF.Generator do
   @moduledoc """
-  Generates resources in accordance by the IIIF Presentation API 2.x
+  Generates resources in accordance with the IIIF Presentation API 2.x
+  based on the encoding defined in the schema
   """
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, Work}
-  alias Meadow.IiifManifest
+  alias Meadow.IIIF.Resource
 
   import Ecto.Query, warn: false
 
@@ -22,7 +23,7 @@ defmodule Meadow.Iiif.Generator do
 
   defp encode!(object) do
     object
-    |> IiifManifest.Resource.encode()
+    |> Resource.encode()
     |> to_json()
     |> Jason.encode!(pretty: true)
   end

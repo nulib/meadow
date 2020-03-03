@@ -1,4 +1,4 @@
-defmodule Meadow.IiifTest do
+defmodule Meadow.IIIFTest do
   use Meadow.DataCase
   use Meadow.S3Case
   alias Meadow.Config

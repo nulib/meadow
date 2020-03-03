@@ -1,8 +1,8 @@
-defmodule Meadow.Iiif.ManifestListenerTest do
+defmodule Meadow.IIIF.ManifestListenerTest do
   use Meadow.DataCase
   use Meadow.S3Case
   alias Meadow.Config
-  alias Meadow.Iiif.ManifestListener
+  alias Meadow.IIIF.ManifestListener
   alias Meadow.Utils.Pairtree
 
   setup _context do

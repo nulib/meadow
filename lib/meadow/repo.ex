@@ -3,14 +3,6 @@ defmodule Meadow.Repo do
     otp_app: :meadow,
     adapter: Ecto.Adapters.Postgres
 
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
-      type: :supervisor
-    }
-  end
-
   def init(_, opts), do: {:ok, opts}
 
   def listen(event_name) do
