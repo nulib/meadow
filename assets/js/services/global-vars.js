@@ -15,62 +15,50 @@ export const PRESERVATION_LEVELS = [
 export const RIGHTS_STATEMENTS = [
   {
     id: " http://rightsstatements.org/vocab/InC/1.0/",
-    term: "In Copyright",
-    active: true
+    label: "In Copyright"
   },
   {
     id: " http://rightsstatements.org/vocab/InC-OW-EU/1.0/  ",
-    term: "In Copyright - EU Orphan Work",
-    active: true
+    label: "In Copyright - EU Orphan Work"
   },
   {
     id: " http://rightsstatements.org/vocab/InC-EDU/1.0/",
-    term: "In Copyright - Educational Use Permitted",
-    active: true
+    label: "In Copyright - Educational Use Permitted"
   },
   {
     id: " http://rightsstatements.org/vocab/InC-NC/1.0/",
-    term: "In Copyright - Non-Commercial Use Permitted",
-    active: true
+    label: "In Copyright - Non-Commercial Use Permitted"
   },
   {
     id: " http://rightsstatements.org/vocab/InC-RUU/1.0/",
-    term: "In Copyright - Rights-holder(s) Unlocatable or Unidentifiable",
-    active: true
+    label: "In Copyright - Rights-holder(s) Unlocatable or Unidentifiable"
   },
   {
     id: " http://rightsstatements.org/vocab/NoC-CR/1.0/",
-    term: "No Copyright - Contractual Restrictions",
-    active: true
+    label: "No Copyright - Contractual Restrictions"
   },
   {
     id: " http://rightsstatements.org/vocab/NoC-NC/1.0/",
-    term: "No Copyright - Non-Commercial Use Only ",
-    active: true
+    label: "No Copyright - Non-Commercial Use Only "
   },
   {
     id: " http://rightsstatements.org/vocab/NoC-OKLR/1.0/",
-    term: "No Copyright - Other Known Legal Restrictions",
-    active: true
+    label: "No Copyright - Other Known Legal Restrictions"
   },
   {
     id: " http://rightsstatements.org/vocab/NoC-US/1.0/",
-    term: "No Copyright - United States",
-    active: true
+    label: "No Copyright - United States"
   },
   {
     id: " http://rightsstatements.org/vocab/CNE/1.0/",
-    term: "Copyright Not Evaluated",
-    active: true
+    label: "Copyright Not Evaluated"
   },
   {
     id: " http://rightsstatements.org/vocab/UND/1.0/",
-    term: "Copyright Undetermined",
-    active: true
+    label: "Copyright Undelabelined"
   },
   {
     id: " http://rightsstatements.org/vocab/NKC/1.0/  ",
-    term: "No Known Copyright",
-    active: true
+    label: "No Known Copyright"
   }
 ];
