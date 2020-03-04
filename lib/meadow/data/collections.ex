@@ -5,7 +5,7 @@ defmodule Meadow.Data.Collections do
 
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias Meadow.Data.Schemas.Collection
+  alias Meadow.Data.Schemas.{Collection, Work}
   alias Meadow.Data.Works
   alias Meadow.Repo
 
@@ -46,6 +46,26 @@ defmodule Meadow.Data.Collections do
     |> Collection.changeset(attrs)
     |> Repo.update()
     |> add_representative_image()
+  end
+
+  def add_works(%Collection{} = collection, work_ids) do
+    from(w in Work, where: w.id in ^work_ids)
+    |> Repo.update_all(set: [collection_id: collection.id, updated_at: DateTime.utc_now()])
+
+    {:ok, get_collection!(collection.id)}
+  rescue
+    err in Postgrex.Error -> {:error, err.postgres}
+    err -> {:error, err}
+  end
+
+  def remove_works(%Collection{} = collection, work_ids) do
+    from(w in Work, where: w.id in ^work_ids and w.collection_id == ^collection.id)
+    |> Repo.update_all(set: [collection_id: nil, updated_at: DateTime.utc_now()])
+
+    {:ok, get_collection!(collection.id)}
+  rescue
+    err in Postgrex.Error -> {:error, err.postgres}
+    err -> {:error, err}
   end
 
   @doc """

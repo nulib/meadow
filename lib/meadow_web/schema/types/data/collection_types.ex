@@ -52,6 +52,22 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
 
+    @desc "Add Works to a Collection"
+    field :add_works_to_collection, :collection do
+      arg(:collection_id, non_null(:id))
+      arg(:work_ids, list_of(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.Collections.add_works/3)
+    end
+
+    @desc "Remove Works from a Collection"
+    field :remove_works_from_collection, :collection do
+      arg(:collection_id, non_null(:id))
+      arg(:work_ids, list_of(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Data.Collections.remove_works/3)
+    end
+
     @desc "Set the representative Work for a Collection"
     field :set_collection_image, :collection do
       arg(:collection_id, non_null(:id))

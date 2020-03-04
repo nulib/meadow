@@ -47,6 +47,47 @@ defmodule Meadow.Data.CollectionsTest do
     end
   end
 
+  describe "work associations" do
+    setup do
+      collection = collection_fixture()
+
+      works = [
+        work_fixture(%{collection_id: collection.id}),
+        work_fixture(%{collection_id: collection.id}),
+        work_fixture(),
+        work_fixture()
+      ]
+
+      {:ok, %{collection: collection |> Repo.preload(:works), works: works}}
+    end
+
+    test "add_works/2", %{collection: collection, works: works} do
+      assert length(collection.works) == 2
+
+      ids =
+        works
+        |> Enum.filter(&(&1.collection_id != collection.id))
+        |> Enum.map(& &1.id)
+
+      with {:ok, updated} <- Collections.add_works(collection, ids) do
+        assert length(Repo.preload(updated, :works).works) == 4
+      end
+    end
+
+    test "remove_works/2", %{collection: collection, works: works} do
+      assert length(collection.works) == 2
+
+      ids =
+        works
+        |> Enum.filter(&(&1.collection_id == collection.id))
+        |> Enum.map(& &1.id)
+
+      with {:ok, updated} <- Collections.remove_works(collection, ids) do
+        assert Repo.preload(updated, :works).works |> Enum.empty?()
+      end
+    end
+  end
+
   describe "representative images" do
     setup do
       collection = collection_fixture()

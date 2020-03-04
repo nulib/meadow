@@ -155,6 +155,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :descriptive_metadata, :work_descriptive_metadata_input
     field :visibility, :visibility
     field :published, :boolean
+    field :collection_id, :id
   end
 
   #
