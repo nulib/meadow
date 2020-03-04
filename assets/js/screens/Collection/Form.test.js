@@ -92,5 +92,5 @@ it("renders existing collection values in the form when editing a form", async (
   );
   expect(getByTestId("finding-aid-url")).toHaveValue("http://go.com");
   expect(getByTestId("admin-email")).toHaveValue("test@test.com");
-  expect(getByTestId("keywords")).toHaveValue("yo, foo, bar, dude, hey");
+  expect(getByTestId("keywords")).toHaveValue("yo,foo,bar,dude,hey");
 });
