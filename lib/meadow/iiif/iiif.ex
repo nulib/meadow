@@ -8,8 +8,6 @@ defmodule Meadow.IIIF do
   alias Meadow.IIIF.Generator
   alias Meadow.Utils.Pairtree
 
-  @pyramid_bucket Meadow.Config.pyramid_bucket()
-
   def write_manifest(work_id) do
     work_id
     |> Works.get_work!()
@@ -52,7 +50,7 @@ defmodule Meadow.IIIF do
 
   defp write_to_s3(manifest, key) do
     ExAws.S3.put_object(
-      @pyramid_bucket,
+      Meadow.Config.pyramid_bucket(),
       key,
       manifest
     )
