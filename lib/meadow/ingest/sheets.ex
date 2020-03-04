@@ -6,6 +6,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Works
   alias Meadow.Ingest.Notifications
   alias Meadow.Ingest.Schemas.{Project, Row, Sheet, SheetWorks}
   alias Meadow.Repo
@@ -289,6 +290,7 @@ defmodule Meadow.Ingest.Sheets do
     ingest_sheet
     |> Repo.preload(:works)
     |> Map.get(:works)
+    |> Works.add_representative_image()
   end
 
   def list_ingest_sheet_works(sheet_id) do
@@ -298,6 +300,7 @@ defmodule Meadow.Ingest.Sheets do
     )
     |> Repo.one()
     |> Map.get(:works)
+    |> Works.add_representative_image()
   end
 
   def file_set_count(%Sheet{} = ingest_sheet), do: file_set_count(ingest_sheet.id)
