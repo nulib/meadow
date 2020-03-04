@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import { buildImageURL } from "../../services/helpers";
 
 const setVisibilityClass = visibility => {
   if (visibility.toUpperCase() === "RESTRICTED") {
@@ -11,33 +13,30 @@ const setVisibilityClass = visibility => {
   return "";
 };
 
-const SearchResultItem = ({ work }) => {
+const SearchResultItem = ({ res }) => {
   const {
     _id,
     accession_number,
-    description,
+    file_sets = [],
     model,
     published,
     title,
     visibility
-  } = work;
+  } = res;
   const fileSetsToDisplay = 5;
-  // const imageIdToDisplay =
-  //   work.fileSets && work.fileSets.length > 0 ? work.fileSets[0].id : "";
 
   return (
     <div className="card">
       <div className="card-image">
-        <figure className="image is-4by3">
-          {/* <Link to={`/work/${_id}`}>
-            <img
-              src={`${buildImageURL(imageIdToDisplay, "IIIF_SQUARE")}`}
-              alt="Placeholder image"
-              onError={e => {
-                e.target.src = "/images/1280x960.png";
-              }}
-            />
-          </Link> */}
+        <figure className="image is-square">
+          {file_sets.length > 0 && (
+            <Link to={`/work/${_id}`}>
+              <img
+                src={`${buildImageURL(file_sets[0].id, "IIIF_SQUARE")}`}
+                alt="Placeholder image"
+              />
+            </Link>
+          )}
         </figure>
       </div>
       <div className="card-content">
@@ -47,20 +46,17 @@ const SearchResultItem = ({ work }) => {
         <p className="subtitle is-size-6">Accession Number</p>
         <h4 className="subtitle">
           Filesets{" "}
-          {/* <span className="tag is-link is-light">{work.fileSets.length}</span> */}
+          <span className="tag is-link is-light">{file_sets.length}</span>
         </h4>
-        {/* <div className="list is-hoverable">
-          {work.fileSets.map((fileSet, i) =>
+        <div className="list is-hoverable">
+          {file_sets.map((fileSet, i) =>
             i < fileSetsToDisplay - 1 ? (
               <a key={fileSet.id} className="list-item">
-                {fileSet.accessionNumber} -{" "}
-                {fileSet.metadata &&
-                  fileSet.metadata.description &&
-                  fileSet.metadata.description}
+                {fileSet.label}
               </a>
             ) : null
           )}
-        </div> */}
+        </div>
         <p>
           <span className={`tag ${setVisibilityClass(visibility)}`}>
             {visibility}

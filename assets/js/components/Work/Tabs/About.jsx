@@ -61,14 +61,12 @@ const WorkTabsAbout = ({ work }) => {
                 <div className="control">
                   {isEditing ? (
                     <>
-                      <textarea
+                      <input
                         ref={register({ required: true })}
                         name="title"
-                        className={`textarea ${
-                          errors.title ? "is-danger" : ""
-                        }`}
+                        className={`input ${errors.title ? "is-danger" : ""}`}
                         data-testid="title"
-                        placeholder="e.g. Hello world"
+                        placeholder="e.g. Best work ever"
                         defaultValue={descriptiveMetadata.title}
                       />
                       {errors.description && (
@@ -94,7 +92,7 @@ const WorkTabsAbout = ({ work }) => {
                           errors.description ? "is-danger" : ""
                         }`}
                         data-testid="description"
-                        placeholder="e.g. Hello world"
+                        placeholder="Describe the work"
                         defaultValue={descriptiveMetadata.description}
                       />
                       {errors.description && (
@@ -127,7 +125,6 @@ const WorkTabsAbout = ({ work }) => {
                         className={`input ${
                           errors.dateCreated ? "is-danger" : ""
                         }`}
-                        type="datetime-local"
                       />
                       {errors.dateCreated && (
                         <p className="help is-danger">

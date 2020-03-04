@@ -49,6 +49,7 @@ $CamptonExtraBold: "Campton Extra Bold", Impact, sans-serif;
 $CamptonExtraLight: "Campton Extra Light", "Courier New", sans-serif;
 
 // Customize Bulma with these variables
+// Colors
 $primary: $nu-purple;
 $link: $nu-purple;
 $info: $blue;
@@ -57,6 +58,8 @@ $warning: $yellow;
 $danger: $red2;
 $dark: $rich-black-80;
 
+// General
+$breadcrumb-item-separator-color: $rich-black-50;
 $family-primary: $AkkuratProRegular;
 $family-secondary: $CamptonBook;
-$breadcrumb-item-separator-color: $rich-black-50;
+$navbar-height: 5rem;

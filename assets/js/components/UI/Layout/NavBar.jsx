@@ -94,23 +94,17 @@ const UILayoutNavBar = () => {
               Themes &amp; Collections
             </Link>
 
-            <div className="navbar-item">
+            {/* <div className="navbar-item">
               <button
                 className="button is-primary is-inverted is-outlined"
                 onClick={handleSearchButtonClick}
               >
                 <FontAwesomeIcon icon="search" />
               </button>
-            </div>
+            </div> */}
           </div>
 
           <div className="navbar-end">
-            <Link
-              to="/"
-              className={`navbar-item ${isActive("user") ? "is-active" : ""}`}
-            >
-              User Management
-            </Link>
             <Link
               to="/"
               className={`navbar-item ${
@@ -142,13 +136,21 @@ const UILayoutNavBar = () => {
                   <FontAwesomeIcon icon="user" />
                 </a>
                 <div className="navbar-dropdown is-right">
-                  <span className="navbar-item">{currentUser.email}</span>
+                  <span className="navbar-item">{currentUser.displayName}</span>
                   <a className="navbar-item" onClick={handleLogoutClick}>
                     Logout
                   </a>
                 </div>
               </div>
             )}
+            <div className="navbar-item">
+              <button
+                className="button is-dark"
+                onClick={handleSearchButtonClick}
+              >
+                <FontAwesomeIcon icon="search" size="2x" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>

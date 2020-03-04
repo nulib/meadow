@@ -2436,6 +2436,16 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
+bulma-checkradio@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/bulma-checkradio/-/bulma-checkradio-1.1.1.tgz#d94c4bce810089957102670b19cafb194bcb97be"
+  integrity sha512-6Wn2faBiFkctSeiaQkeU2MbjkQeuXsN4AthBDEKrHGGPl5wmV2GEj4iZCqzvw7Te7baaHdU8PbUgrmlD5D6oGA==
+
+bulma-pageloader@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/bulma-pageloader/-/bulma-pageloader-0.3.0.tgz#94a4ff7d9129cbe01dbc5cae4e64508e13563cf1"
+  integrity sha512-lbahiqhBCov5AYdziHFnC5/JOhCrJWFTpdRiAkwW49IM/mf0whCWHVe8MuejZFu2PEs1mtH8Gnz8exEks4Q+7g==
+
 bulma-toast@^1.5.4:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/bulma-toast/-/bulma-toast-1.5.4.tgz#ee72a1f49a1da07c49c0507ffa4ade6c1d3026f8"

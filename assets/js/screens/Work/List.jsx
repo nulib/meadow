@@ -38,7 +38,7 @@ const ScreensWorkList = () => {
                   key={res._id}
                   className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
                 >
-                  <SearchResultItem work={res} />
+                  <SearchResultItem res={res} />
                 </div>
               );
             }}
