@@ -15,7 +15,7 @@ defmodule Meadow.ElasticsearchStore do
     |> Repo.stream()
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->
-      Repo.preload(chunk, :collection)
+      Repo.preload(chunk, [:collection, :file_sets])
     end)
   end
 

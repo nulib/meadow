@@ -78,6 +78,15 @@ defmodule Meadow.Data.Schemas.Work do
             nil -> %{}
             collection -> %{id: collection.id, title: collection.name}
           end,
+        file_sets:
+          work.file_sets
+          |> Enum.map(fn file_set ->
+            %{
+              id: file_set.id,
+              accession_number: file_set.accession_number,
+              label: file_set.metadata.label
+            }
+          end),
         create_date: work.inserted_at,
         iiif_manifest: IIIF.manifest_id(work.id),
         modified_date: work.updated_at

@@ -30,7 +30,7 @@ defmodule Meadow.ElasticsearchDiffStore do
     |> Repo.stream()
     |> Stream.chunk_every(@chunk_size)
     |> Stream.flat_map(fn chunk ->
-      Repo.preload(chunk, :collection)
+      Repo.preload(chunk, [:collection, :file_sets])
     end)
   end
 
