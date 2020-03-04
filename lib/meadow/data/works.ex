@@ -169,7 +169,7 @@ defmodule Meadow.Data.Works do
   """
   def update_work(%Work{} = work, attrs) do
     work
-    |> Work.changeset(attrs)
+    |> Work.update_changeset(attrs)
     |> Repo.update()
     |> add_representative_image()
   end
@@ -188,7 +188,7 @@ defmodule Meadow.Data.Works do
   """
   def add_to_collection(%Work{} = work, collection_id) do
     work
-    |> Work.changeset(%{collection_id: collection_id})
+    |> Work.update_changeset(%{collection_id: collection_id})
     |> Repo.update()
     |> add_representative_image()
   end
