@@ -54,7 +54,7 @@ const WorkTabsStructure = ({ work }) => {
                                 <input
                                   ref={register({ required: true })}
                                   name={`label-${id}`}
-                                  data-testid="label"
+                                  data-testid="input-label"
                                   className={`input ${
                                     errors[`label-${id}`] ? "is-danger" : ""
                                   }`}
@@ -84,7 +84,7 @@ const WorkTabsStructure = ({ work }) => {
                                 <textarea
                                   ref={register({ required: true })}
                                   name={`metadataDescription-${id}`}
-                                  data-testid="metadataDescription"
+                                  data-testid="textarea-metadata-description"
                                   className={`input ${
                                     errors[`metadataDescription-${id}`]
                                       ? "is-danger"
