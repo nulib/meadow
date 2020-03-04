@@ -8,8 +8,14 @@ table {
     @extend .is-italic;
     @extend .is-size-6;
   }
+  &.is-fixed {
+    table-layout: fixed;
+  }
 }
 
+.break-word {
+  overflow-wrap: break-word;
+}
 .buttons-end {
   @extend .field;
   @extend .has-addons;
