@@ -75,22 +75,22 @@ it("renders no initial form values when creating a collection", async () => {
   );
 
   await wait();
-  expect(getByTestId("collection-name")).toHaveValue("");
-  expect(getByTestId("description")).toHaveValue("");
-  expect(getByTestId("finding-aid-url")).toHaveValue("");
-  expect(getByTestId("admin-email")).toHaveValue("");
-  expect(getByTestId("keywords")).toHaveValue("");
+  expect(getByTestId("input-collection-name")).toHaveValue("");
+  expect(getByTestId("textarea-description")).toHaveValue("");
+  expect(getByTestId("input-finding-aid-url")).toHaveValue("");
+  expect(getByTestId("input-admin-email")).toHaveValue("");
+  expect(getByTestId("input-keywords")).toHaveValue("");
 });
 
 it("renders existing collection values in the form when editing a form", async () => {
   const { getByTestId } = setupTests();
 
   await wait();
-  expect(getByTestId("collection-name")).toHaveValue("Ima collection");
-  expect(getByTestId("description")).toHaveValue(
+  expect(getByTestId("input-collection-name")).toHaveValue("Ima collection");
+  expect(getByTestId("textarea-description")).toHaveValue(
     "Test arrays keyword arrays arrays arrays arrays"
   );
-  expect(getByTestId("finding-aid-url")).toHaveValue("http://go.com");
-  expect(getByTestId("admin-email")).toHaveValue("test@test.com");
-  expect(getByTestId("keywords")).toHaveValue("yo,foo,bar,dude,hey");
+  expect(getByTestId("input-finding-aid-url")).toHaveValue("http://go.com");
+  expect(getByTestId("input-admin-email")).toHaveValue("test@test.com");
+  expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,dude,hey");
 });

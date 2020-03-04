@@ -75,7 +75,7 @@ const CollectionForm = ({ collection }) => {
         <div className="columns is-centered">
           <div className="column is-half">
             <div className="field">
-              <label htmlFor="collectionName" className="label">
+              <label htmlFor="collection-name" className="label">
                 Collection Name
               </label>
               <div className="control">
@@ -85,9 +85,9 @@ const CollectionForm = ({ collection }) => {
                   type="text"
                   ref={register({ required: true })}
                   name="collectionName"
-                  id="colletion-name"
+                  id="collection-name"
                   defaultValue={collection ? collection.name : ""}
-                  data-testid="collection-name"
+                  data-testid="input-collection-name"
                 />
               </div>
             </div>
@@ -102,7 +102,7 @@ const CollectionForm = ({ collection }) => {
                     ref={register}
                     id="collection-type"
                     name="collectionType"
-                    data-testid="collection-type"
+                    data-testid="input-collection-type"
                   >
                     <option>NUL Collection</option>
                     <option>NUL Theme</option>
@@ -119,7 +119,7 @@ const CollectionForm = ({ collection }) => {
                     id="featured"
                     ref={register}
                     name="featured"
-                    data-testid="featured"
+                    data-testid="checkbox-featured"
                     defaultChecked={collection ? collection.featured : false}
                   />{" "}
                   Featured?
@@ -127,7 +127,7 @@ const CollectionForm = ({ collection }) => {
               </div>
             </div>
 
-            <div className="field" data-testid="choose-thumbnail">
+            <div className="field">
               <p className="notification is-warning">
                 TODO: Wire up [Select thumbnail]
               </p>
@@ -145,41 +145,41 @@ const CollectionForm = ({ collection }) => {
                   defaultValue={collection ? collection.description : ""}
                   className="textarea"
                   rows="8"
-                  data-testid="description"
+                  data-testid="textarea-description"
                 ></textarea>
               </div>
             </div>
 
             <div className="field">
-              <label htmlFor="findingAidUrl" className="label">
+              <label htmlFor="finding-aid-url" className="label">
                 Finding Aid URL
               </label>
               <div className="control">
                 <input
                   ref={register}
                   name="findingAidUrl"
-                  id="findingAidUrl"
+                  id="finding-aid-url"
                   className="input"
                   defaultValue={collection ? collection.findingAidUrl : ""}
                   label="Finding Aid Url"
-                  data-testid="finding-aid-url"
+                  data-testid="input-finding-aid-url"
                 />
               </div>
             </div>
 
             <div className="field">
-              <label htmlFor="adminEmail" className="label">
+              <label htmlFor="admin-email" className="label">
                 Admin Email
               </label>
               <div className="control">
                 <input
                   ref={register}
                   name="adminEmail"
-                  id="adminEmail"
+                  id="admin-email"
                   className="input"
                   defaultValue={collection ? collection.adminEmail : ""}
                   type="email"
-                  data-testid="admin-email"
+                  data-testid="input-admin-email"
                 />
               </div>
             </div>
@@ -197,7 +197,7 @@ const CollectionForm = ({ collection }) => {
                   defaultValue={collection ? collection.keywords : ""}
                   label="Keywords"
                   placeholder="multiple, separated, by, commas"
-                  data-testid="keywords"
+                  data-testid="input-keywords"
                 />
               </div>
             </div>
@@ -206,14 +206,14 @@ const CollectionForm = ({ collection }) => {
               <button
                 type="submit"
                 className="button is-primary"
-                data-testid="save-button"
+                data-testid="button-save"
               >
                 Save
               </button>
               <button
                 type="button"
                 className="button"
-                data-testid="cancel-button"
+                data-testid="button-cancel"
                 onClick={handleCancel}
               >
                 Cancel
