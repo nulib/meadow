@@ -41,60 +41,92 @@ const WorkTabsStructure = ({ work }) => {
                   {isEditing ? (
                     <>
                       <div className="field">
-                        <input
-                          ref={register({ required: true })}
-                          name={`accessionNumber-${id}`}
-                          data-testid="accessionNumber"
-                          className={`input ${
-                            errors[`accessionNumber-${id}`] ? "is-danger" : ""
-                          }`}
-                          type="text"
-                          placeholder="Accession Numbner"
-                          defaultValue={accessionNumber}
-                        />
-                        {errors[`accessionNumber-${id}`] && (
-                          <p className="help is-danger">
-                            Accession Number is required
-                          </p>
-                        )}
+                        <strong>{accessionNumber}</strong>
                       </div>
                       <div className="field">
-                        <textarea
-                          ref={register({ required: true })}
-                          name={`metadataDescription-${id}`}
-                          data-testid="metadataDescription"
-                          className={`input ${
-                            errors[`metadataDescription-${id}`]
-                              ? "is-danger"
-                              : ""
-                          }`}
-                          defaultValue={metadata.description}
-                          type="text"
-                        ></textarea>
-                        {errors[`metadataDescription-${id}`] && (
-                          <p className="help is-danger">
-                            Metadata Description is required
-                          </p>
-                        )}
+                        <div class="field is-horizontal">
+                          <div class="field-label is-normal">
+                            <label class="label">Label</label>
+                          </div>
+                          <div class="field-body">
+                            <div class="field">
+                              <p class="control">
+                                <input
+                                  ref={register({ required: true })}
+                                  name={`label-${id}`}
+                                  data-testid="label"
+                                  className={`input ${
+                                    errors[`label-${id}`] ? "is-danger" : ""
+                                  }`}
+                                  type="text"
+                                  placeholder="Label"
+                                  defaultValue={metadata.label}
+                                />
+                              </p>
+                              {errors[`label-${id}`] && (
+                                <p className="help is-danger">
+                                  Label is required
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <div class="field is-horizontal">
+                          <div class="field-label is-normal">
+                            <label class="label">Description</label>
+                          </div>
+                          <div class="field-body">
+                            <div class="field">
+                              <p class="control">
+                                <textarea
+                                  ref={register({ required: true })}
+                                  name={`metadataDescription-${id}`}
+                                  data-testid="metadataDescription"
+                                  className={`input ${
+                                    errors[`metadataDescription-${id}`]
+                                      ? "is-danger"
+                                      : ""
+                                  }`}
+                                  defaultValue={metadata.description}
+                                  type="text"
+                                ></textarea>
+                              </p>
+                              {errors[`metadataDescription-${id}`] && (
+                                <p className="help is-danger">
+                                  Metadata Description is required
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </>
                   ) : (
                     <p>
                       <strong>{accessionNumber}</strong>
                       <br />
+                      {metadata.label}
+                      <br />
                       {metadata.description}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="media-right">
-                <button className="button">
-                  <FontAwesomeIcon icon="file-download" /> .tiff
-                </button>
-                <button className="button">
-                  <FontAwesomeIcon icon="file-download" /> .jpg
-                </button>
-              </div>
+              {isEditing ? (
+                ""
+              ) : (
+                <div className="media-right">
+                  <button className="button">
+                    <FontAwesomeIcon icon="file-download" /> .tiff
+                  </button>
+                  <button className="button">
+                    <FontAwesomeIcon icon="file-download" /> .jpg
+                  </button>
+                </div>
+              )}
             </article>
           ))}
 
