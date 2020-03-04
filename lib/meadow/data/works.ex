@@ -6,6 +6,7 @@ defmodule Meadow.Data.Works do
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
@@ -20,6 +21,7 @@ defmodule Meadow.Data.Works do
   """
   def list_works do
     Work
+    |> Sheets.works_with_sheets()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -45,6 +47,7 @@ defmodule Meadow.Data.Works do
       {:order, order}, query ->
         from p in query, order_by: [{^order, :id}]
     end)
+    |> Sheets.works_with_sheets()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -80,7 +83,9 @@ defmodule Meadow.Data.Works do
 
   """
   def get_work!(id) do
-    Repo.get!(Work, id)
+    Work
+    |> Sheets.works_with_sheets()
+    |> Repo.get!(id)
     |> add_representative_image()
   end
 
@@ -90,7 +95,9 @@ defmodule Meadow.Data.Works do
   Raises `Ecto.NoResultsError` if the Work does not exist
   """
   def get_work_by_accession_number!(accession_number) do
-    Repo.get_by!(Work, accession_number: accession_number)
+    Work
+    |> Sheets.works_with_sheets()
+    |> Repo.get_by!(accession_number: accession_number)
     |> add_representative_image()
   end
 
@@ -99,9 +106,11 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
+    |> Sheets.works_with_sheets()
     |> where([work], work.id == ^id)
     |> preload(:file_sets)
     |> Repo.one()
+    |> add_representative_image()
   end
 
   @doc """

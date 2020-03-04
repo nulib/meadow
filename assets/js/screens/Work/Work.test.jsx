@@ -82,6 +82,14 @@ const mocks = [
           id: "ABC123",
           insertedAt: "2020-02-04T19:16:16",
           published: false,
+          project: {
+            id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
+            name: "Foo"
+          },
+          sheet: {
+            id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
+            name: "Bar"
+          },
           updatedAt: "2020-02-04T19:16:16",
           visibility: "RESTRICTED",
           workType: "IMAGE",

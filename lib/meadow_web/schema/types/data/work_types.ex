@@ -103,6 +103,18 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :collection, :collection, resolve: dataloader(Data)
     field :file_sets, list_of(:file_set), resolve: dataloader(Data)
     field :representative_image, :string
+
+    field :project, :work_project do
+      resolve(fn work, _, _ ->
+        {:ok, work.extra_index_fields.project}
+      end)
+    end
+
+    field :sheet, :work_sheet do
+      resolve(fn work, _, _ ->
+        {:ok, work.extra_index_fields.sheet}
+      end)
+    end
   end
 
   #
@@ -165,6 +177,18 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_administrative_metadata do
     field :preservation_level, :integer
     field :rights_statement, :string
+  end
+
+  @desc "Project info"
+  object :work_project do
+    field :id, :string
+    field :name, :string
+  end
+
+  @desc "Sheet info"
+  object :work_sheet do
+    field :id, :id
+    field :name, :string
   end
 
   @desc "visibility setting for the object"

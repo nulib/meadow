@@ -12,9 +12,10 @@ import { GET_COLLECTIONS } from "../../Collection/collection.query";
 import { UPDATE_WORK, ADD_WORK_TO_COLLECTION, GET_WORK } from "../work.query";
 import { useForm } from "react-hook-form";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
+import { Link } from "react-router-dom";
 
 const WorkTabsAdministrative = ({ work }) => {
-  const { id, administrativeMetadata, collection } = work;
+  const { id, administrativeMetadata, collection, project, sheet } = work;
   const [isEditing, setIsEditing] = useIsEditing();
   const { register, handleSubmit } = useForm();
   const [updateWork] = useMutation(UPDATE_WORK, {
@@ -185,6 +186,17 @@ const WorkTabsAdministrative = ({ work }) => {
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="field">
+              <label className="label">Project</label>
+              <Link to={`/project/${project.id}`}>{project.name}</Link>
+            </div>
+            <div className="field">
+              <label className="label">Ingest Sheet</label>
+              <Link to={`/project/${project.id}/ingest-sheet/${sheet.id}`}>
+                {sheet.name}
+              </Link>
             </div>
           </div>
         </div>

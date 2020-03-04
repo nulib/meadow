@@ -23,6 +23,14 @@ export const GET_WORK = gql`
       }
       insertedAt
       manifestUrl
+      project {
+        id
+        name
+      }
+      sheet {
+        id
+        name
+      }
       published
       representativeImage
       updatedAt
@@ -63,6 +71,14 @@ export const GET_WORKS = gql`
       }
       insertedAt
       manifestUrl
+      project {
+        id
+        name
+      }
+      sheet {
+        id
+        name
+      }
       published
       representativeImage
       updatedAt
