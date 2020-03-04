@@ -1,6 +1,6 @@
 import React from "react";
-import { useQuery } from "@apollo/react-hooks";
-import { GET_WORK } from "../../components/Work/work.query";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import { GET_WORK, UPDATE_WORK } from "../../components/Work/work.query";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
@@ -8,11 +8,18 @@ import Loading from "../../components/UI/Loading";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import ButtonGroup from "../../components/UI/ButtonGroup";
+import { toastWrapper } from "../../services/helpers";
 
 const ScreensWork = () => {
   const { id } = useParams();
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id }
+  });
+  const [updateWork] = useMutation(UPDATE_WORK, {
+    onCompleted({ updateWork }) {
+      console.log("updateWork :", updateWork);
+      toastWrapper("is-success", "Work form has been updated");
+    }
   });
 
   if (loading) return <Loading />;
@@ -37,6 +44,16 @@ const ScreensWork = () => {
     }
   ];
 
+  const handlePublishClick = () => {
+    let workUpdateInput = {
+      published: !published
+    };
+
+    updateWork({
+      variables: { id, work: workUpdateInput }
+    });
+  };
+
   return (
     <Layout>
       <section className="hero is-light" data-testid="work-hero">
@@ -54,6 +71,7 @@ const ScreensWork = () => {
                 <button
                   className="button is-primary is-outlined"
                   data-testid="publish-button"
+                  onClick={handlePublishClick}
                 >
                   {!published ? "Publish" : "Unpublish"}
                 </button>

@@ -6,7 +6,7 @@ const Work = ({ work }) => {
   return (
     <div data-testid="work-component">
       <section data-testid="viewer">
-        <OpenSeadragonViewer manifestUrl={work.manifestUrl} />}
+        <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
       </section>
       <section className="section">
         <div className="container">
