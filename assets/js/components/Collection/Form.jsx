@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import UIButton from "../UI/Button";
-import UIButtonGroup from "../UI/ButtonGroup";
-import UIFormInput from "../UI/Form/Input";
+import input from "../UI/Form/Input";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
@@ -12,38 +10,14 @@ import {
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
-
-// Pass in existing collection values when editing
-function setInitialFormValues(obj = {}) {
-  const initialFormValues = {
-    collectionName: obj.name || ""
-  };
-  let values = {
-    ...initialFormValues,
-    ...obj
-  };
-
-  delete values.name;
-  delete values.keywords;
-  values.keywords =
-    obj.keywords && obj.keywords.length > 0 ? obj.keywords.join(", ") : "";
-
-  return values;
-}
+import { useForm } from "react-hook-form";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
   const [pageLoading, setPageLoading] = useState(true);
-  const [submitDisabled, setSubmitDisabled] = useState(true);
-  const [formValues, setFormValues] = useState({});
-
-  useEffect(() => {
-    setSubmitDisabled(formValues.collectionName === "");
-  }, [formValues]);
-
+  const { register, handleSubmit, watch, errors } = useForm();
   useEffect(() => {
     setPageLoading(false);
-    setFormValues(setInitialFormValues(collection));
   }, []);
 
   const [createCollection, { loading, error, data }] = useMutation(
@@ -83,56 +57,40 @@ const CollectionForm = ({ collection }) => {
     history.push("/collection/list");
   };
 
-  const handleInputChange = e => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleIsFeaturedChange = e => {
-    const prevVal = formValues.featured;
-    setFormValues({
-      ...formValues,
-      featured: !prevVal
-    });
-  };
-
-  const handleSubmit = e => {
-    e.preventDefault();
-
-    // Convert keywords to an array as defined in GraphQL
-    let values = { ...formValues };
-    values.keywords = formValues.keywords
-      .split(",")
-      .map(keyword => keyword.trim());
-
+  const onSubmit = data => {
     if (!collection) {
       createCollection({
-        variables: { ...values }
+        variables: { ...data }
       });
     } else {
       updateCollection({
-        variables: { ...values, collectionId: collection.id }
+        variables: { ...data, collectionId: collection.id }
       });
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSubmit} data-testid="collection-form">
+      <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
         <div className="columns is-centered">
           <div className="column is-half">
-            <UIFormInput
-              placeholder="Add collection Name"
-              type="text"
-              name="collectionName"
-              id="collectionName"
-              label="Collection Name"
-              value={formValues.collectionName || ""}
-              onChange={handleInputChange}
-              data-testid="collection-name"
-            />
+            <div className="field">
+              <label htmlFor="collectionName" className="label">
+                Collection Name
+              </label>
+              <div className="control">
+                <input
+                  placeholder="Add collection Name"
+                  className={`input ${errors.collectioName ? "is-danger" : ""}`}
+                  type="text"
+                  ref={register({ required: true })}
+                  name="collectionName"
+                  id="colletion-name"
+                  defaultValue={collection ? collection.name : ""}
+                  data-testid="collection-name"
+                />
+              </div>
+            </div>
 
             <div className="field">
               <label htmlFor="collection-type" className="label">
@@ -140,7 +98,12 @@ const CollectionForm = ({ collection }) => {
               </label>
               <div className="control">
                 <div className="select">
-                  <select id="collection-type" data-testid="collection-type">
+                  <select
+                    ref={register}
+                    id="collection-type"
+                    name="collectionType"
+                    data-testid="collection-type"
+                  >
                     <option>NUL Collection</option>
                     <option>NUL Theme</option>
                   </select>
@@ -154,10 +117,10 @@ const CollectionForm = ({ collection }) => {
                   <input
                     type="checkbox"
                     id="featured"
+                    ref={register}
                     name="featured"
-                    onChange={handleIsFeaturedChange}
                     data-testid="featured"
-                    checked={formValues.featured || false}
+                    defaultChecked={collection ? collection.featured : false}
                   />{" "}
                   Featured?
                 </label>
@@ -176,57 +139,86 @@ const CollectionForm = ({ collection }) => {
               </label>
               <div className="control">
                 <textarea
+                  ref={register}
                   name="description"
                   id="description"
-                  onChange={handleInputChange}
-                  value={formValues.description || ""}
+                  defaultValue={collection ? collection.description : ""}
                   className="textarea"
                   rows="8"
                   data-testid="description"
-                >
-                  {formValues.description}
-                </textarea>
+                ></textarea>
               </div>
             </div>
 
-            <UIFormInput
-              name="findingAidUrl"
-              id="findingAidUrl"
-              onChange={handleInputChange}
-              value={formValues.findingAidUrl || ""}
-              label="Finding Aid Url"
-              data-testid="finding-aid-url"
-            />
+            <div className="field">
+              <label htmlFor="findingAidUrl" className="label">
+                Finding Aid URL
+              </label>
+              <div className="control">
+                <input
+                  ref={register}
+                  name="findingAidUrl"
+                  id="findingAidUrl"
+                  className="input"
+                  defaultValue={collection ? collection.findingAidUrl : ""}
+                  label="Finding Aid Url"
+                  data-testid="finding-aid-url"
+                />
+              </div>
+            </div>
 
-            <UIFormInput
-              name="adminEmail"
-              id="adminEmail"
-              value={formValues.adminEmail || ""}
-              onChange={handleInputChange}
-              label="Admin Email Address"
-              type="email"
-              data-testid="admin-email"
-            />
+            <div className="field">
+              <label htmlFor="adminEmail" className="label">
+                Admin Email
+              </label>
+              <div className="control">
+                <input
+                  ref={register}
+                  name="adminEmail"
+                  id="adminEmail"
+                  className="input"
+                  defaultValue={collection ? collection.adminEmail : ""}
+                  type="email"
+                  data-testid="admin-email"
+                />
+              </div>
+            </div>
 
-            <UIFormInput
-              name="keywords"
-              id="keywords"
-              value={formValues.keywords || ""}
-              onChange={handleInputChange}
-              label="Keywords"
-              placeholder="multiple, separated, by, commas"
-              data-testid="keywords"
-            />
-            <UIButtonGroup>
-              <UIButton
+            <div className="field">
+              <label htmlFor="keywords" className="label">
+                Keywords
+              </label>
+              <div className="control">
+                <input
+                  ref={register}
+                  name="keywords"
+                  id="keywords"
+                  className="input"
+                  defaultValue={collection ? collection.keywords : ""}
+                  label="Keywords"
+                  placeholder="multiple, separated, by, commas"
+                  data-testid="keywords"
+                />
+              </div>
+            </div>
+
+            <div className="buttons">
+              <button
                 type="submit"
-                className="is-primary"
-                disabled={submitDisabled}
+                className="button is-primary"
+                data-testid="save-button"
               >
-                Submit
-              </UIButton>
-              <UIButton onClick={handleCancel}>Cancel</UIButton>
-            </UIButtonGroup>
+                Save
+              </button>
+              <button
+                type="button"
+                className="button"
+                data-testid="cancel-button"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </form>
