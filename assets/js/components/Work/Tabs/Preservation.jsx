@@ -26,7 +26,7 @@ const WorkTabsPreservation = ({ work }) => {
                     <td>{fileset.role}</td>
                     <td>{metadata ? metadata.originalFilename : " "}</td>
                     <td className="notification is-warning">
-                      TODO: Need this exposed in GraphQL
+                      {metadata.sha256}
                     </td>
                     <td className="notification is-warning">
                       TODO: Need this exposed in GraphQL

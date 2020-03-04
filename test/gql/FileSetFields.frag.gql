@@ -6,6 +6,8 @@ fragment FileSetFields on FileSet {
   position
   metadata {
     description
-    digests
+    sha256
+    location
+    original_filename
   }
 }
