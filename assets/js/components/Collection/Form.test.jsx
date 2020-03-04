@@ -49,14 +49,13 @@ it("displays the collection form", () => {
 
 it("displays all form fields", () => {
   const { queryByTestId } = setupMatchTests();
-  expect(queryByTestId("collection-name")).toBeInTheDocument();
-  expect(queryByTestId("collection-type")).toBeInTheDocument();
-  expect(queryByTestId("featured")).toBeInTheDocument();
-  expect(queryByTestId("choose-thumbnail")).toBeInTheDocument();
-  expect(queryByTestId("description")).toBeInTheDocument();
-  expect(queryByTestId("finding-aid-url")).toBeInTheDocument();
-  expect(queryByTestId("admin-email")).toBeInTheDocument();
-  expect(queryByTestId("keywords")).toBeInTheDocument();
+  expect(queryByTestId("input-collection-name")).toBeInTheDocument();
+  expect(queryByTestId("input-collection-type")).toBeInTheDocument();
+  expect(queryByTestId("checkbox-featured")).toBeInTheDocument();
+  expect(queryByTestId("textarea-description")).toBeInTheDocument();
+  expect(queryByTestId("input-finding-aid-url")).toBeInTheDocument();
+  expect(queryByTestId("input-admin-email")).toBeInTheDocument();
+  expect(queryByTestId("input-keywords")).toBeInTheDocument();
 });
 
 it("renders no initial form values when creating a collection", () => {});
