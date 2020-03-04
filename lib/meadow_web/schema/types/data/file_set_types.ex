@@ -42,18 +42,29 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   # Input Object Types
   #
 
-  @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set. It is stored in a single json field."
+  @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_metadata_input do
     field :location, :string
     field :original_filename, :string
     field :description, :string
   end
 
-  @desc "Input fields for a `file_set` object "
+  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  input_object :file_set_metadata_update do
+    field :label, :string
+    field :description, :string
+  end
+
+  @desc "Input fields for a `file_set` creation object "
   input_object :file_set_input do
     field :accession_number, non_null(:string)
     field :role, non_null(:file_set_role)
     field :metadata, :file_set_metadata_input
+  end
+
+  @desc "Input fields for a `file_set` update object "
+  input_object :file_set_update_update do
+    field :metadata, :file_set_metadata_update
   end
 
   #
@@ -79,7 +90,14 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :label, :string
     field :original_filename, :string
     field :description, :string
-    field :digests, :string
+
+    field :sha256, :string do
+      resolve(fn file_set, _, _ ->
+        case file_set.digests do
+          _digests -> {:ok, file_set.digests["sha256"]}
+        end
+      end)
+    end
   end
 
   @desc "A `file_set_role` designates whether the file is an access or preservation master and will determine how the file is processed and stored."

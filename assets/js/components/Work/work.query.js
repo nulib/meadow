@@ -18,6 +18,7 @@ export const GET_WORK = gql`
           originalFilename
           label
           location
+          sha256
         }
       }
       insertedAt
@@ -49,6 +50,7 @@ export const GET_WORKS = gql`
           originalFilename
           location
           label
+          sha256
         }
       }
       insertedAt

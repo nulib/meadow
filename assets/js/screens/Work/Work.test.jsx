@@ -30,7 +30,8 @@ const mocks = [
                 description: "Letter, page 2, If these papers, verso, blank",
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
-                label: "foo.tiff"
+                label: "foo.tiff",
+                sha256: "foobar"
               }
             },
             {
@@ -41,7 +42,8 @@ const mocks = [
                 description: "Letter, page 1, Dear Sir, recto",
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
-                label: "foo.tiff"
+                label: "foo.tiff",
+                sha256: "foobar"
               }
             },
             {
@@ -52,7 +54,8 @@ const mocks = [
                 description: "Letter, page 2, If these papers, recto",
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
-                label: "foo.tiff"
+                label: "foo.tiff",
+                sha256: "foobar"
               }
             },
             {
@@ -63,7 +66,8 @@ const mocks = [
                 description: "Letter, page 1, Dear Sir, verso, blank",
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
-                label: "foo.tiff"
+                label: "foo.tiff",
+                sha256: "foobar"
               }
             }
           ],
