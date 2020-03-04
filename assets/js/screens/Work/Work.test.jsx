@@ -28,10 +28,9 @@ const mocks = [
               role: "AM",
               metadata: {
                 description: "Letter, page 2, If these papers, verso, blank",
-                originalFilename: "coffee.jpg"
-              },
-              work: {
-                id: "01E08T3ETNGSNJ3T13JZK0ET29"
+                originalFilename: "coffee.jpg",
+                location: "s3://bucket/foo/bar",
+                label: "foo.tiff"
               }
             },
             {
@@ -40,10 +39,9 @@ const mocks = [
               role: "AM",
               metadata: {
                 description: "Letter, page 1, Dear Sir, recto",
-                originalFilename: "coffee.jpg"
-              },
-              work: {
-                id: "01E08T3ETNGSNJ3T13JZK0ET29"
+                originalFilename: "coffee.jpg",
+                location: "s3://bucket/foo/bar",
+                label: "foo.tiff"
               }
             },
             {
@@ -52,10 +50,9 @@ const mocks = [
               role: "AM",
               metadata: {
                 description: "Letter, page 2, If these papers, recto",
-                originalFilename: "coffee.jpg"
-              },
-              work: {
-                id: "01E08T3ETNGSNJ3T13JZK0ET29"
+                originalFilename: "coffee.jpg",
+                location: "s3://bucket/foo/bar",
+                label: "foo.tiff"
               }
             },
             {
@@ -64,10 +61,9 @@ const mocks = [
               role: "AM",
               metadata: {
                 description: "Letter, page 1, Dear Sir, verso, blank",
-                originalFilename: "coffee.jpg"
-              },
-              work: {
-                id: "01E08T3ETNGSNJ3T13JZK0ET29"
+                originalFilename: "coffee.jpg",
+                location: "s3://bucket/foo/bar",
+                label: "foo.tiff"
               }
             }
           ],
@@ -76,7 +72,9 @@ const mocks = [
           published: false,
           updatedAt: "2020-02-04T19:16:16",
           visibility: "RESTRICTED",
-          workType: "IMAGE"
+          workType: "IMAGE",
+          manifestUrl: "http://foobar",
+          representativeImage: "http://foobar"
         }
       }
     }

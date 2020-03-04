@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { IIIFContext } from "../../IIIF/IIIFProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { buildImageURL } from "../../../services/helpers";
 
 const WorkTabsStructure = ({ work }) => {
+  const iiifServerUrl = useContext(IIIFContext);
+
   if (!work) {
     return null;
   }
@@ -15,7 +17,7 @@ const WorkTabsStructure = ({ work }) => {
             <figure className="media-left">
               <p className="image is-64x64">
                 <img
-                  src={`${buildImageURL(id, "IIIF_SQUARE")}`}
+                  src={`${iiifServerUrl}${id}/square/500,500/0/default.jpg`}
                   placeholder="Fileset Image"
                   onError={e => {
                     e.target.src = "/images/1280x960.png";

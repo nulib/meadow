@@ -4,8 +4,10 @@ defmodule Meadow.Data.Works do
   """
 
   import Ecto.Query, warn: false
+  alias Meadow.Config
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
+  alias Meadow.Utils.Pairtree
 
   @doc """
   Returns the list of Works.
@@ -90,6 +92,16 @@ defmodule Meadow.Data.Works do
   def get_work_by_accession_number!(accession_number) do
     Repo.get_by!(Work, accession_number: accession_number)
     |> add_representative_image()
+  end
+
+  @doc """
+
+  """
+  def with_file_sets(id) do
+    Work
+    |> where([work], work.id == ^id)
+    |> preload(:file_sets)
+    |> Repo.one()
   end
 
   @doc """
@@ -210,6 +222,23 @@ defmodule Meadow.Data.Works do
   """
   def delete_work(%Work{} = work) do
     Repo.delete(work)
+  end
+
+  @doc """
+  Retrieves the IIIF Manifest URL for a work
+  iex> iiif_manifest_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47")
+  "https://iiif.stack.rdc.library.northwestern.edu/public/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
+
+  iex> iiif_manifest_url(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47"})
+  "https://iiif.stack.rdc.library.northwestern.edu/public/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
+
+  """
+  def iiif_manifest_url(%Work{id: id}) do
+    iiif_manifest_url(id)
+  end
+
+  def iiif_manifest_url(work_id) do
+    Config.iiif_manifest_url() <> Pairtree.manifest_path(work_id)
   end
 
   @doc """

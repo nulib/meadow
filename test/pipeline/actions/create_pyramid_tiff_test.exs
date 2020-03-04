@@ -37,9 +37,9 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
     {:ok,
      file_set_id: file_set.id,
-     pairtree: Pairtree.generate_pyramid_path(file_set.id),
+     pairtree: Pairtree.pyramid_path(file_set.id),
      invalid_file_set_id: invalid_file_set.id,
-     invalid_pairtree: Pairtree.generate_pyramid_path(invalid_file_set.id)}
+     invalid_pairtree: Pairtree.pyramid_path(invalid_file_set.id)}
   end
 
   @tag s3: [@fixture]

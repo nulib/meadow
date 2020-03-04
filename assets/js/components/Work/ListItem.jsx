@@ -1,12 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { buildImageURL } from "../../services/helpers";
 
 const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
-  const imageIdToDisplay =
-    work.fileSets && work.fileSets.length > 0 ? work.fileSets[0].id : "";
 
   return (
     <div className="card">
@@ -14,8 +11,8 @@ const WorkListItem = ({ work }) => {
         <figure className="image is-4by3">
           <Link to={`/work/${work.id}`}>
             <img
-              src={`${buildImageURL(imageIdToDisplay, "IIIF_SQUARE")}`}
-              alt="Placeholder image"
+              src={`${work.representativeImage}/full/1280,960/0/default.jpg`}
+              alt={work.title}
               onError={e => {
                 e.target.src = "/images/1280x960.png";
               }}

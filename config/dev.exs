@@ -76,7 +76,7 @@ config :meadow,
   pyramid_bucket: "dev-pyramids",
   iiif_server_url: System.get_env("IIIF_SERVER_URL", "http://localhost:8183/iiif/2/"),
   iiif_manifest_url:
-    System.get_env("IIIF_MANIFEST_URL", "http://localhost:9001/minio/dev-pyramids/public/")
+    System.get_env("IIIF_MANIFEST_URL", "http://localhost:9001/dev-pyramids/public/")
 
 config :ex_aws,
   access_key_id: "fake",

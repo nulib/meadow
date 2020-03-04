@@ -8,17 +8,17 @@ defmodule Meadow.Utils.Pairtree do
 
   ## Examples
 
-    iex> Pairtree.generate_preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90")
+    iex> Pairtree.preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90")
     "a1/3d/45/b1/412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
 
-    iex> Pairtree.generate_preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c64")
+    iex> Pairtree.preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c64")
     ** (ArgumentError) Invalid sha256 hash
   """
-  def generate_preservation_path(id, sha256) when byte_size(sha256) == 64 do
+  def preservation_path(id, sha256) when byte_size(sha256) == 64 do
     generate!(id, 4) <> "/" <> sha256
   end
 
-  def generate_preservation_path(_, _) do
+  def preservation_path(_, _) do
     raise ArgumentError, message: "Invalid sha256 hash"
   end
 
@@ -26,11 +26,47 @@ defmodule Meadow.Utils.Pairtree do
   Generate a pyramid path
 
   Examples:
-    iex> Meadow.Utils.Pairtree.generate_pyramid_path("a13d45b1-69a6-447f-9d42-90b989a2949c")
+    iex> Meadow.Utils.Pairtree.pyramid_path("a13d45b1-69a6-447f-9d42-90b989a2949c")
     "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-pyramid.tif"
   """
-  def generate_pyramid_path(id) do
-    generate!(id) <> "-pyramid.tif"
+  def pyramid_path(id) do
+    id
+    |> with_extension("pyramid", "tif")
+  end
+
+  @doc """
+  Generate a manifest path
+
+  Examples:
+    iex> Meadow.Utils.Pairtree.manifest_path("a13d45b1-69a6-447f-9d42-90b989a2949c")
+    "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
+  """
+  def manifest_path(id) do
+    id
+    |> with_extension("manifest", "json")
+  end
+
+  @doc """
+  Generate an S3 Key for a IIIF manifest
+
+  Examples:
+    iex> Meadow.Utils.Pairtree.manifest_key("a13d45b1-69a6-447f-9d42-90b989a2949c")
+    "public/a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
+  """
+  def manifest_key(id) do
+    "public/" <> with_extension(id, "manifest", "json")
+  end
+
+  @doc """
+  Generate a Pairtree with ending and extension
+
+  Examples:
+    iex> Meadow.Utils.Pairtree.with_extension("a13d45b1-69a6-447f-9d42-90b989a2949c", "manifest", "json")
+    "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
+  """
+
+  def with_extension(id, ending, extension) do
+    generate!(id) <> "-" <> ending <> "." <> extension
   end
 
   @doc """

@@ -68,7 +68,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
             metadata: %{
               description: row |> Row.field_value(:description),
               location: location,
-              original_filename: Path.basename(file_path)
+              original_filename: Path.basename(file_path),
+              label: Path.basename(file_path)
             }
           }
         end)

@@ -9,6 +9,7 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
+  alias Meadow.IIIF
 
   import Ecto.Changeset
   import Meadow.Data.Schemas.Validations
@@ -78,6 +79,7 @@ defmodule Meadow.Data.Schemas.Work do
             collection -> %{id: collection.id, title: collection.name}
           end,
         create_date: work.inserted_at,
+        iiif_manifest: IIIF.manifest_id(work.id),
         modified_date: work.updated_at
       }
       |> Map.merge(work.extra_index_fields)

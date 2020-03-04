@@ -7,6 +7,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
   alias Meadow.Data
+  alias Meadow.Data.Works
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
@@ -90,6 +91,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :work_type, non_null(:work_type)
     field :visibility, non_null(:visibility)
     field :published, :boolean
+
+    field :manifest_url, :string do
+      resolve(fn work, _, _ ->
+        {:ok, Works.iiif_manifest_url(work.id)}
+      end)
+    end
+
     field :inserted_at, non_null(:datetime)
     field :updated_at, non_null(:datetime)
     field :collection, :collection, resolve: dataloader(Data)

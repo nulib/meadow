@@ -20,6 +20,28 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
           :noop
       end
     end)
+
+    with bucket <- Meadow.Config.pyramid_bucket() do
+      policy = %{
+        "Statement" => [
+          %{
+            "Action" => ["s3:GetBucketLocation", "s3:ListBucket"],
+            "Effect" => "Allow",
+            "Principal" => %{"AWS" => ["*"]},
+            "Resource" => ["arn:aws:s3:::#{bucket}"]
+          },
+          %{
+            "Action" => ["s3:GetObject"],
+            "Effect" => "Allow",
+            "Principal" => %{"AWS" => ["*"]},
+            "Resource" => ["arn:aws:s3:::#{bucket}/*"]
+          }
+        ],
+        "Version" => "2012-10-17"
+      }
+
+      bucket |> ExAws.S3.put_bucket_policy(policy |> Jason.encode!()) |> ExAws.request!()
+    end
   end
 end
 

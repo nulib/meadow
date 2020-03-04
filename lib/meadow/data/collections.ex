@@ -21,6 +21,15 @@ defmodule Meadow.Data.Collections do
     |> add_representative_image()
   end
 
+  def with_works_and_file_sets(id) do
+    Collection
+    |> where([collection], collection.id == ^id)
+    |> join(:left, [collection], works in assoc(collection, :works))
+    |> join(:left, [collection, works], file_sets in assoc(works, :file_sets))
+    |> preload([collection, works, file_sets], works: {works, file_sets: file_sets})
+    |> Repo.one()
+  end
+
   def delete_collection(%Collection{} = collection) do
     Repo.delete(collection)
   end

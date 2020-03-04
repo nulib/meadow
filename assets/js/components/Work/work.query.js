@@ -16,13 +16,14 @@ export const GET_WORK = gql`
         metadata {
           description
           originalFilename
-        }
-        work {
-          id
+          label
+          location
         }
       }
       insertedAt
+      manifestUrl
       published
+      representativeImage
       updatedAt
       visibility
       workType
@@ -46,13 +47,14 @@ export const GET_WORKS = gql`
         metadata {
           description
           originalFilename
-        }
-        work {
-          id
+          location
+          label
         }
       }
       insertedAt
+      manifestUrl
       published
+      representativeImage
       updatedAt
       visibility
       workType
