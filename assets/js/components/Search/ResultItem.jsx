@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { buildImageURL } from "../../services/helpers";
+import { IIIFContext } from "../IIIF/IIIFProvider";
 
 const setVisibilityClass = visibility => {
   if (visibility.toUpperCase() === "RESTRICTED") {
@@ -14,11 +14,14 @@ const setVisibilityClass = visibility => {
 };
 
 const SearchResultItem = ({ res }) => {
+  const iiifServerUrl = useContext(IIIFContext);
+
   const {
     _id,
     accession_number,
     file_sets = [],
     model,
+    representative_file_set_id,
     published,
     title,
     visibility
@@ -32,7 +35,7 @@ const SearchResultItem = ({ res }) => {
           {file_sets.length > 0 && (
             <Link to={`/work/${_id}`}>
               <img
-                src={`${buildImageURL(file_sets[0].id, "IIIF_SQUARE")}`}
+                src={`${iiifServerUrl}${representative_file_set_id}/square/500,500/0/default.jpg`}
                 alt="Placeholder image"
               />
             </Link>
@@ -45,15 +48,14 @@ const SearchResultItem = ({ res }) => {
         </h3>
         <p className="subtitle is-size-6">Accession Number</p>
         <h4 className="subtitle">
-          Filesets{" "}
-          <span className="tag is-link is-light">{file_sets.length}</span>
+          Filesets <span className="tag is-light">{file_sets.length}</span>
         </h4>
-        <div className="list is-hoverable">
+        <div className="list is-hoverable has-background-light">
           {file_sets.map((fileSet, i) =>
             i < fileSetsToDisplay - 1 ? (
-              <a key={fileSet.id} className="list-item">
+              <p key={fileSet.id} className="list-item">
                 {fileSet.label}
-              </a>
+              </p>
             ) : null
           )}
         </div>
