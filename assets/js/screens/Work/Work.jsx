@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { GET_WORK, UPDATE_WORK } from "../../components/Work/work.query";
+import {
+  GET_WORK,
+  UPDATE_WORK,
+  DELETE_WORK
+} from "../../components/Work/work.query";
+import UIModalDelete from "../../components/UI/Modal/Delete";
+import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
@@ -15,6 +21,19 @@ const ScreensWork = () => {
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id }
   });
+  const history = useHistory();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
+    onCompleted({ deleteWork: { project, sheet, descriptiveMetadata } }) {
+      toastWrapper(
+        "is-success",
+        `Work ${
+          descriptiveMetadata ? descriptiveMetadata.title : ""
+        } deleted successfully`
+      );
+      history.push(`/project/${project.id}/ingest-sheet/${sheet.id}`);
+    }
+  });
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       toastWrapper(
@@ -24,21 +43,33 @@ const ScreensWork = () => {
     }
   });
 
+  const handleDeleteClick = () => {
+    deleteWork({ variables: { workId: id } });
+  };
+
+  const onOpenModal = () => {
+    setDeleteModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setDeleteModalOpen(false);
+  };
+
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
   const {
-    work: { accessionNumber, published }
+    work: { accessionNumber, published, descriptiveMetadata, project, sheet }
   } = data;
 
   const breadCrumbs = [
     {
-      label: "Project :: name here",
-      route: "/"
+      label: `${project.name}`,
+      route: `/project/${project.id}`
     },
     {
-      label: "Ingest Sheet :: name here",
-      route: "/"
+      label: `${sheet.name}`,
+      route: `/project/${project.id}/ingest-sheet/${sheet.id}`
     },
     {
       label: accessionNumber,
@@ -76,7 +107,11 @@ const ScreensWork = () => {
               >
                 {!published ? "Publish" : "Unpublish"}
               </button>
-              <button className="button" data-testid="delete-button">
+              <button
+                className="button"
+                data-testid="delete-button"
+                onClick={onOpenModal}
+              >
                 Delete
               </button>
             </ButtonGroup>
@@ -85,6 +120,16 @@ const ScreensWork = () => {
       </section>
       <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
       <Work work={data.work} />
+      <UIModalDelete
+        isOpen={deleteModalOpen}
+        handleClose={onCloseModal}
+        handleConfirm={handleDeleteClick}
+        thingToDeleteLabel={`Work ${
+          descriptiveMetadata
+            ? descriptiveMetadata.title || accessionNumber
+            : accessionNumber
+        }`}
+      />
     </Layout>
   );
 };
