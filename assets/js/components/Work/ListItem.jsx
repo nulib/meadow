@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import { setVisibilityClass } from "../../services/helpers";
 
 const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
@@ -41,7 +42,9 @@ const WorkListItem = ({ work }) => {
           )}
         </div>
         <p>
-          <span className="tag is-danger">{work.visibility}</span>
+          <span className={`tag ${setVisibilityClass(work.visibility)}`}>
+            {work.visibility.toUpperCase()}
+          </span>
         </p>
       </div>
     </div>

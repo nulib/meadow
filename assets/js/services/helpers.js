@@ -61,3 +61,16 @@ export function toastWrapper(
     position: "top-center"
   });
 }
+
+export function setVisibilityClass(visibility) {
+  if (visibility.toUpperCase() === "RESTRICTED") {
+    return "is-danger";
+  }
+  if (visibility.toUpperCase() === "AUTHENTICATED") {
+    return "is-info";
+  }
+  if (visibility.toUpperCase() === "OPEN") {
+    return "is-success";
+  }
+  return "";
+}

@@ -2,16 +2,7 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { IIIFContext } from "../IIIF/IIIFProvider";
-
-const setVisibilityClass = visibility => {
-  if (visibility.toUpperCase() === "RESTRICTED") {
-    return "is-danger";
-  }
-  if (visibility.toUpperCase() === "OPEN") {
-    return "is-success";
-  }
-  return "";
-};
+import { setVisibilityClass } from "../../services/helpers";
 
 const SearchResultItem = ({ res }) => {
   const iiifServerUrl = useContext(IIIFContext);
@@ -61,7 +52,7 @@ const SearchResultItem = ({ res }) => {
         </div>
         <p>
           <span className={`tag ${setVisibilityClass(visibility)}`}>
-            {visibility}
+            {visibility.toUpperCase()}
           </span>
         </p>
       </div>
