@@ -76,11 +76,6 @@ export const UPDATE_WORK = gql`
   mutation UpdateWork($id: ID!, $work: WorkUpdateInput!) {
     updateWork(id: $id, work: $work) {
       id
-      descriptiveMetadata {
-        title
-        description
-      }
-      visibility
       administrativeMetadata {
         preservationLevel
         rightsStatement
@@ -89,7 +84,13 @@ export const UPDATE_WORK = gql`
         name
         id
       }
+      descriptiveMetadata {
+        title
+        description
+      }
       insertedAt
+      published
+      visibility
     }
   }
 `;
