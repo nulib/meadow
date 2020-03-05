@@ -13,6 +13,7 @@ import { UPDATE_WORK, ADD_WORK_TO_COLLECTION, GET_WORK } from "../work.query";
 import { useForm } from "react-hook-form";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import { Link } from "react-router-dom";
+import { setVisibilityClass } from "../../../services/helpers";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
@@ -79,14 +80,8 @@ const WorkTabsAdministrative = ({ work }) => {
                     </select>
                   </div>
                 ) : (
-                  <p
-                    className={`tag ${
-                      work.visibility === "RESTRICTED"
-                        ? "is-danger"
-                        : "is-success"
-                    }`}
-                  >
-                    {work.visibility}
+                  <p className={`tag ${setVisibilityClass(work.visibility)}`}>
+                    {work.visibility.toUpperCase()}
                   </p>
                 )}
               </div>
