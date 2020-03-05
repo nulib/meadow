@@ -44,13 +44,13 @@ const WorkTabsStructure = ({ work }) => {
                         <strong>{accessionNumber}</strong>
                       </div>
                       <div className="field">
-                        <div class="field is-horizontal">
-                          <div class="field-label is-normal">
-                            <label class="label">Label</label>
+                        <div className="field is-horizontal">
+                          <div className="field-label is-normal">
+                            <label className="label">Label</label>
                           </div>
-                          <div class="field-body">
-                            <div class="field">
-                              <p class="control">
+                          <div className="field-body">
+                            <div className="field">
+                              <p className="control">
                                 <input
                                   ref={register({ required: true })}
                                   name={`label-${id}`}
@@ -74,13 +74,13 @@ const WorkTabsStructure = ({ work }) => {
                       </div>
 
                       <div className="field">
-                        <div class="field is-horizontal">
-                          <div class="field-label is-normal">
-                            <label class="label">Description</label>
+                        <div className="field is-horizontal">
+                          <div className="field-label is-normal">
+                            <label className="label">Description</label>
                           </div>
-                          <div class="field-body">
-                            <div class="field">
-                              <p class="control">
+                          <div className="field-body">
+                            <div className="field">
+                              <p className="control">
                                 <textarea
                                   ref={register({ required: true })}
                                   name={`metadataDescription-${id}`}
