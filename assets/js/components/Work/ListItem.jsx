@@ -26,18 +26,17 @@ const WorkListItem = ({ work }) => {
         </h3>
         <p className="subtitle is-size-6">Accession Number</p>
         <h4 className="subtitle">
-          Filesets{" "}
-          <span className="tag is-link is-light">{work.fileSets.length}</span>
+          Filesets <span className="tag is-light">{work.fileSets.length}</span>
         </h4>
-        <div className="list is-hoverable">
+        <div className="list has-background-light">
           {work.fileSets.map((fileSet, i) =>
             i < fileSetsToDisplay - 1 ? (
-              <a key={fileSet.id} className="list-item">
+              <span key={fileSet.id} className="list-item">
                 {fileSet.accessionNumber} -{" "}
                 {fileSet.metadata &&
                   fileSet.metadata.description &&
                   fileSet.metadata.description}
-              </a>
+              </span>
             ) : null
           )}
         </div>
