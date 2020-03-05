@@ -153,10 +153,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   input_object :work_update_input do
     field :administrative_metadata, :work_administrative_metadata_input
     field :descriptive_metadata, :work_descriptive_metadata_input
-    field :work_type, :work_type
     field :visibility, :visibility
     field :published, :boolean
-    field :file_sets, list_of(:file_set_input)
   end
 
   #

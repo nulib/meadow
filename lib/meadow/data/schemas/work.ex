@@ -61,6 +61,18 @@ defmodule Meadow.Data.Schemas.Work do
     |> unique_constraint(:accession_number)
   end
 
+  def update_changeset(work, attrs) do
+    allowed_params = [:published, :visibility, :collection_id, :representative_file_set_id]
+
+    work
+    |> cast(attrs, allowed_params)
+    |> prepare_embed(:administrative_metadata)
+    |> prepare_embed(:descriptive_metadata)
+    |> cast_embed(:administrative_metadata)
+    |> cast_embed(:descriptive_metadata)
+    |> assoc_constraint(:collection)
+  end
+
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
     def id(work), do: work.id
     def routing(_), do: false

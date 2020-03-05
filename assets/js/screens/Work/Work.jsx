@@ -17,8 +17,10 @@ const ScreensWork = () => {
   });
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
-      console.log("updateWork :", updateWork);
-      toastWrapper("is-success", "Work form has been updated");
+      toastWrapper(
+        "is-success",
+        `Work has been ${updateWork.published ? "published" : "unpublished"}`
+      );
     }
   });
 
@@ -67,15 +69,13 @@ const ScreensWork = () => {
             </h1>
             <h2 className="subtitle">Work Accession Number</h2>
             <ButtonGroup>
-              {!published && (
-                <button
-                  className="button is-primary is-outlined"
-                  data-testid="publish-button"
-                  onClick={handlePublishClick}
-                >
-                  {!published ? "Publish" : "Unpublish"}
-                </button>
-              )}
+              <button
+                className="button is-primary is-outlined"
+                data-testid="publish-button"
+                onClick={handlePublishClick}
+              >
+                {!published ? "Publish" : "Unpublish"}
+              </button>
               <button className="button" data-testid="delete-button">
                 Delete
               </button>

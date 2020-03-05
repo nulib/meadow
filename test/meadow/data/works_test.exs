@@ -52,7 +52,7 @@ defmodule Meadow.Data.WorksTest do
 
     test "update_work/2 with invalid attributes returns an error" do
       work = work_fixture()
-      assert {:error, %Ecto.Changeset{}} = Works.update_work(work, %{work_type: "Dictionary"})
+      assert {:error, %Ecto.Changeset{}} = Works.update_work(work, %{published: "Dictionary"})
     end
 
     test "delete_work/1 deletes a work" do
