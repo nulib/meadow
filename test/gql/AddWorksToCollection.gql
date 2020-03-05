@@ -1,0 +1,8 @@
+mutation($workIds: [ID!], $collectionId: ID!) {
+  addWorksToCollection(workIds: $workIds, collectionId: $collectionId) {
+    id
+    works {
+      id
+    }
+  }
+}

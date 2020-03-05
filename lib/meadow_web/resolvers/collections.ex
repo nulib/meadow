@@ -38,6 +38,30 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     end
   end
 
+  def add_works(_, %{collection_id: collection_id, work_ids: work_ids}, _) do
+    collection = Collections.get_collection!(collection_id)
+
+    case Collections.add_works(collection, work_ids) do
+      {:error, error} ->
+        {:error, message: "Could not add works to collection", details: error.message}
+
+      {:ok, collection} ->
+        {:ok, collection}
+    end
+  end
+
+  def remove_works(_, %{collection_id: collection_id, work_ids: work_ids}, _) do
+    collection = Collections.get_collection!(collection_id)
+
+    case Collections.remove_works(collection, work_ids) do
+      {:error, error} ->
+        {:error, message: "Could not add works to collection", details: error.message}
+
+      {:ok, collection} ->
+        {:ok, collection}
+    end
+  end
+
   def set_collection_image(_, %{collection_id: collection_id, work_id: work_id}, _) do
     collection = Collections.get_collection!(collection_id)
     work = Works.get_work!(work_id)
