@@ -88,6 +88,15 @@ export const GET_WORKS = gql`
   }
 `;
 
+export const SET_WORK_IMAGE = gql`
+  mutation SetWorkImage($fileSetId: ID!, $workId: ID!) {
+    setWorkImage(fileSetId: $fileSetId, workId: $workId) {
+      id
+      representativeImage
+    }
+  }
+`;
+
 export const UPDATE_WORK = gql`
   mutation UpdateWork($id: ID!, $work: WorkUpdateInput!) {
     updateWork(id: $id, work: $work) {
