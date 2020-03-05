@@ -10,7 +10,7 @@ import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UILoadingPage from "../../components/UI/LoadingPage";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import ButtonGroup from "../../components/UI/ButtonGroup";
@@ -55,7 +55,7 @@ const ScreensWork = () => {
     setDeleteModalOpen(false);
   };
 
-  if (loading) return <Loading />;
+  if (loading) return <UILoadingPage />;
   if (error) return <Error error={error} />;
 
   const {

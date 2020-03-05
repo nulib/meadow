@@ -4,7 +4,7 @@ import Layout from "../Layout";
 import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UILoadingPage from "../../components/UI/LoadingPage";
 import { useQuery } from "@apollo/react-hooks";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
@@ -50,7 +50,7 @@ const ScreensProject = () => {
     };
   };
 
-  if (loading) return <Loading />;
+  if (loading) return <UILoadingPage />;
   if (error) return <Error error={error} />;
 
   const breadCrumbs = [

@@ -6,7 +6,7 @@ import {
   DELETE_COLLECTION
 } from "../../components/Collection/collection.query";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UILoadingPage from "../../components/UI/LoadingPage";
 import { Link, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { toastWrapper } from "../../services/helpers";
@@ -39,7 +39,7 @@ const ScreensCollectionList = () => {
   });
 
   if (loading) {
-    return <Loading />;
+    return <UILoadingPage />;
   }
   if (error) {
     return <Error error={error} />;
