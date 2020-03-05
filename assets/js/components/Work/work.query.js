@@ -127,3 +127,22 @@ export const ADD_WORK_TO_COLLECTION = gql`
     }
   }
 `;
+
+export const DELETE_WORK = gql`
+  mutation deleteWork($workId: ID!) {
+    deleteWork(workId: $workId) {
+      id
+      descriptiveMetadata {
+        title
+      }
+      sheet {
+        id
+        name
+      }
+      project {
+        id
+        name
+      }
+    }
+  }
+`;
