@@ -1,7 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UILoadingPage from "../../components/UI/LoadingPage";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
@@ -51,7 +51,7 @@ const ScreensIngestSheet = ({ match }) => {
     fetchPolicy: "network-only"
   });
 
-  if (crumbsLoading || sheetLoading) return <Loading />;
+  if (crumbsLoading || sheetLoading) return <UILoadingPage />;
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
 

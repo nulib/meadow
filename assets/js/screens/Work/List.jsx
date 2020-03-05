@@ -1,6 +1,5 @@
 import React from "react";
 import Layout from "../Layout";
-import Loading from "../../components/UI/Loading";
 import SearchResultItem from "../../components/Search/ResultItem";
 import { ReactiveList } from "@appbaseio/reactivesearch";
 import { IIIFProvider } from "../../components/IIIF/IIIFProvider";

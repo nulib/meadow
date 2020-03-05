@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
-import Loading from "../UI/Loading";
+import UILoadingPage from "../UI/LoadingPage";
 import IngestSheetValidations from "./Validations";
 import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.query";
 import IngestSheetAlert from "./Alert";
@@ -36,7 +36,7 @@ const IngestSheet = ({
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (progressLoading) return <Loading />;
+  if (progressLoading) return <UILoadingPage />;
   if (progressError) return <Error error={progressError} />;
 
   return (

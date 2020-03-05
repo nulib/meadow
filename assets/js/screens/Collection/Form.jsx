@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import CollectionForm from "../../components/Collection/Form";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UILoadingPage from "../../components/UI/LoadingPage";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { useQuery } from "@apollo/react-hooks";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
@@ -24,7 +24,7 @@ const ScreensCollectionForm = () => {
       variables: { id }
     });
 
-    if (loading) return <Loading />;
+    if (loading) return <UILoadingPage />;
     if (error) return <Error error={error} />;
 
     crumbs.push(
