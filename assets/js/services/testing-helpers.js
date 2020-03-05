@@ -106,6 +106,14 @@ export const mockWork = {
   visibility: "RESTRICTED",
   workType: "IMAGE",
   published: false,
+  project: {
+    id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
+    name: "Foo"
+  },
+  sheet: {
+    id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
+    name: "Bar"
+  },
   manifestUrl: "http://foobar",
   representativeImage: "http://foobar"
 };
