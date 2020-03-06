@@ -4,7 +4,7 @@ Date: 2020-01-27
 
 ## Status
 
-Accepted
+Superceded by [24. IIIF Manifests](0024-iiif-manifests.md)
 
 ## Context
 
