@@ -16,7 +16,7 @@ In light of this, we decided to go with a simpler approach to routing requests f
 
 ## Decision
 
-We will not build the lambda that checks for the host application, instead we will use the API Gatewya to route all requests for public IIIF manifests to the pyrmids bucket's public directory on S3.
+We will not build the lambda that checks for the host application, instead we will use the API Gateway to route all requests for public IIIF manifests to the pyramids bucket's public directory on S3.
 
 ## Consequences
 
