@@ -48,7 +48,7 @@ it("renders without crashing", async () => {
 
   // This "wait()" magically makes Apollo MockProvider warning messages go away
   await wait();
-  expect(queryByTestId("loading")).not.toBeInTheDocument();
+
   expect(container).toBeTruthy();
 });
 

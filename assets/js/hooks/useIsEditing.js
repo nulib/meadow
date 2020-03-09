@@ -4,8 +4,8 @@ export default function useIsEditing(initialValue) {
   const [isEditing, setIsEditing] = useState(initialValue);
   return [
     isEditing,
-    useCallback(value => {
+    useCallback((value) => {
       return setIsEditing(value);
-    })
+    }),
   ];
 }

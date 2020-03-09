@@ -13,11 +13,11 @@ module.exports = (env, options) => ({
   //   ]
   // },
   entry: {
-    app: "./js/app.jsx"
+    app: "./js/app.jsx",
   },
   output: {
     filename: "app.js",
-    path: path.resolve(__dirname, "../priv/static/js")
+    path: path.resolve(__dirname, "../priv/static/js"),
   },
   module: {
     rules: [
@@ -25,13 +25,13 @@ module.exports = (env, options) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
-        }
+          loader: "babel-loader",
+        },
       },
       {
         test: /\.mjs$/,
         include: /node_modules/,
-        type: "javascript/auto"
+        type: "javascript/auto",
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -39,39 +39,39 @@ module.exports = (env, options) => ({
           MiniCssExtractPlugin.loader,
           // "style-loader",
           { loader: "css-loader", options: {} },
-          { loader: "sass-loader", options: {} }
-        ]
+          { loader: "sass-loader", options: {} },
+        ],
       },
       {
         test: /\.(woff(2)?|ttf|eot|otf)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: "url-loader?limit=100000"
-          }
-        ]
+            loader: "url-loader?limit=100000",
+          },
+        ],
       },
       {
         test: /\.svg$/,
         use: [
           {
-            loader: "babel-loader"
+            loader: "babel-loader",
           },
           {
             loader: "react-svg-loader",
             options: {
-              jsx: true // true outputs JSX tags
-            }
-          }
-        ]
-      }
-    ]
+              jsx: true, // true outputs JSX tags
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-    new CopyWebpackPlugin([{ from: "static/", to: "../" }])
+    new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
   ],
   devtool: "source-map",
   resolve: {
-    extensions: ["*", ".mjs", ".js", ".jsx", ".json"]
-  }
+    extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
+  },
 });
