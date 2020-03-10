@@ -85,23 +85,24 @@
     fast-json-stable-stringify "^2.0.0"
     tslib "^1.10.0"
 
-"@appbaseio/reactivecore@9.3.0-beta.3":
-  version "9.3.0-beta.3"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.3.0-beta.3.tgz#ad9b7174828bb6a2ecc5f6ae26ed160f38bb9a93"
-  integrity sha512-5OoxGkvgS0RGZ3nPKXbtMASTbnQ/pXtCqMSG/+kpTHHyf3hosGt/tgqq07naMFp+yaNjlyOhRCS0X1v0mpuVlQ==
+"@appbaseio/reactivecore@9.3.0-beta.4":
+  version "9.3.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.3.0-beta.4.tgz#94489761d260737ff2132130bca07b52adc40054"
+  integrity sha512-fVR2g68To/if1RKXbH1LBnTgFg6SfTGblrAs7eq9BGf5I1ZUNK/f+ZJwHOav3SY4TwPtmvKbYnLeLHI7HjINvg==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
     redux "^4.0.0"
     redux-thunk "^2.3.0"
+    xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@^3.5.0-beta.3":
-  version "3.5.0-beta.3"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.5.0-beta.3.tgz#2d3678e6e25f057552fb552e09dc1c7d52b3f7e1"
-  integrity sha512-bhsYLMQzCA8AzqOYFb/5THl1fdRLP/ReN9n8PGGFMK2xrmWn0bYXh9ZuhCwV/cK3Rty3MXVnkjflCPvxrlvrrg==
+"@appbaseio/reactivesearch@^3.5.0-beta.6":
+  version "3.5.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.5.0-beta.6.tgz#84bd683591125252835369f6b38d2f7fcba8c680"
+  integrity sha512-rd6YjYTRFAg0Q02oT3WX5F6gfCldBJcVlDhei6ZAn077GqkwX1tcqFB6kVnLvgkYlCQVxlhBNt9gTQDb4zOyQw==
   dependencies:
-    "@appbaseio/reactivecore" "9.3.0-beta.3"
-    appbase-js "^4.0.2-beta.13"
+    "@appbaseio/reactivecore" "9.3.0-beta.4"
+    appbase-js "4.0.2"
     cross-env "^5.2.0"
     downshift "^1.31.2"
     emotion "^9.0.0"
@@ -1956,10 +1957,10 @@ apollo-utilities@1.3.3, apollo-utilities@^1.0.0, apollo-utilities@^1.3.0, apollo
     ts-invariant "^0.4.0"
     tslib "^1.10.0"
 
-appbase-js@^4.0.2-beta.13:
-  version "4.0.2-beta.13"
-  resolved "https://registry.yarnpkg.com/appbase-js/-/appbase-js-4.0.2-beta.13.tgz#1ec8c26a79e398fdd98de49779ba1523d52d8912"
-  integrity sha512-iHMpa1gS8FxX+dNc/E7CiGUXwTIbQMggK6szZ8GbG5n26vmpxFcS6jdVZ24+8f8s5cMTCiePfu/a84HQpOD35A==
+appbase-js@4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/appbase-js/-/appbase-js-4.0.2.tgz#a2de2ff8ca0f6e3dc14df357533a7b5c452c3e6e"
+  integrity sha512-rLcdjPSHTP42y3NTIlBRyJAFjT3oT516J/loQ/eTojvVUcvSm+40GYD/bPpVgOmGWSXpWMnLxiw82yu5m+nl3Q==
   dependencies:
     cross-fetch "^2.2.2"
     json-stable-stringify "^1.0.1"
