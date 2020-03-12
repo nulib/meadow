@@ -3,6 +3,7 @@ defmodule MeadowWeb.Router do
   use Honeybadger.Plug
 
   pipeline :browser do
+    plug MeadowWeb.Plugs.CheckHttps
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash

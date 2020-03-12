@@ -64,6 +64,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :test_mode, false)
   end
 
+  @doc "Check if Meadow is configured to require HTTPS"
+  def https do
+    Application.get_env(:meadow, :require_https, false)
+  end
+
   @doc "Locate a path relative to the priv directory"
   def priv_path(path) do
     :code.priv_dir(:meadow) |> to_string() |> Path.join(path)

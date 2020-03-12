@@ -65,3 +65,15 @@ config :honeybadger,
   exclude_envs: [:dev, :test]
 
 config :sequins, prefix: "meadow"
+
+config :ueberauth, Ueberauth,
+  providers: [
+    nusso:
+      {Ueberauth.Strategy.NuSSO,
+       [
+         base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
+         callback_path: "/auth/nusso/callback",
+         consumer_key: get_required_var.("AGENTLESS_SSO_KEY"),
+         include_attributes: true
+       ]}
+  ]

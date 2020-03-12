@@ -29,6 +29,14 @@ config :meadow, MeadowWeb.Endpoint,
       "--watch-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
+  ],
+  live_reload: [
+    patterns: [
+      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/gettext/.*(po)$",
+      ~r"lib/meadow_web/{live,views}/.*(ex)$",
+      ~r"lib/meadow_web/templates/.*(eex)$"
+    ]
   ]
 
 config :meadow, Meadow.ElasticsearchCluster,
@@ -59,15 +67,6 @@ config :meadow, Meadow.ElasticsearchCluster,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :meadow, MeadowWeb.Endpoint,
-  live_reload: [
-    patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/meadow_web/{live,views}/.*(ex)$",
-      ~r"lib/meadow_web/templates/.*(eex)$"
-    ]
-  ]
 
 config :meadow,
   ingest_bucket: "dev-ingest",
@@ -76,7 +75,8 @@ config :meadow,
   pyramid_bucket: "dev-pyramids",
   iiif_server_url: System.get_env("IIIF_SERVER_URL", "http://localhost:8183/iiif/2/"),
   iiif_manifest_url:
-    System.get_env("IIIF_MANIFEST_URL", "http://localhost:9001/dev-pyramids/public/")
+    System.get_env("IIIF_MANIFEST_URL", "http://localhost:9001/dev-pyramids/public/"),
+  require_https: {true, 3001}
 
 config :ex_aws,
   access_key_id: "fake",

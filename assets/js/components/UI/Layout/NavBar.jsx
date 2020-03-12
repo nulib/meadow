@@ -39,7 +39,7 @@ const UILayoutNavBar = () => {
   };
 
   const redirectToLogin = () => {
-    window.location.pathname = `/auth/openam`;
+    window.location.pathname = `/auth/nusso`;
   };
 
   return (
