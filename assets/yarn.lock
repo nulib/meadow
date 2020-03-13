@@ -85,10 +85,10 @@
     fast-json-stable-stringify "^2.0.0"
     tslib "^1.10.0"
 
-"@appbaseio/reactivecore@9.3.0-beta.4":
-  version "9.3.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.3.0-beta.4.tgz#94489761d260737ff2132130bca07b52adc40054"
-  integrity sha512-fVR2g68To/if1RKXbH1LBnTgFg6SfTGblrAs7eq9BGf5I1ZUNK/f+ZJwHOav3SY4TwPtmvKbYnLeLHI7HjINvg==
+"@appbaseio/reactivecore@9.3.0-beta.5":
+  version "9.3.0-beta.5"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.3.0-beta.5.tgz#5db214cf31eb806bd75417a20ec3a029be0c57f0"
+  integrity sha512-ZS7RDyYyJ4XlSeFpP3ud/sCHyuomd9m8ydfwiFRLEs8uSwAZoSPpU0vQJLJZQgt6mP8lpUKZRrADeEbysmrynQ==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -96,12 +96,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@^3.5.0-beta.6":
-  version "3.5.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.5.0-beta.6.tgz#84bd683591125252835369f6b38d2f7fcba8c680"
-  integrity sha512-rd6YjYTRFAg0Q02oT3WX5F6gfCldBJcVlDhei6ZAn077GqkwX1tcqFB6kVnLvgkYlCQVxlhBNt9gTQDb4zOyQw==
+"@appbaseio/reactivesearch@^3.5.0-beta.7":
+  version "3.5.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.5.0-beta.7.tgz#c4cce7712ae3325751ff4d33cad3204cd69ef2bb"
+  integrity sha512-h3zh9pdM51+1q5XBXasLn0KD5J52RTdtfBaGvoTgs8RoarRBs4iCDTK+5HG80XGgH2LNuYTcYOsjh1pgDIgA7w==
   dependencies:
-    "@appbaseio/reactivecore" "9.3.0-beta.4"
+    "@appbaseio/reactivecore" "9.3.0-beta.5"
     appbase-js "4.0.2"
     cross-env "^5.2.0"
     downshift "^1.31.2"
