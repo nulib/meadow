@@ -43,6 +43,18 @@ config :meadow,
 config :meadow,
   test_mode: true
 
+config :ueberauth, Ueberauth,
+  providers: [
+    nusso:
+      {Ueberauth.Strategy.NuSSO,
+       [
+         base_url: "https://northwestern-dev.apigee.net/agentless-websso/",
+         callback_path: "/auth/nusso/callback",
+         consumer_key: "test-sso-key",
+         include_attributes: true
+       ]}
+  ]
+
 config :ex_aws,
   access_key_id: "minio",
   secret_access_key: "minio123"

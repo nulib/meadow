@@ -1,6 +1,17 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
   use Honeybadger.Plug
+  alias Meadow.Config
+
+  pipeline :ssl do
+    unless Config.test_mode?(),
+      do:
+        plug(Plug.SSL,
+          host: Config.ssl_host(),
+          hsts: false,
+          rewrite_on: [:x_forwarded_proto]
+        )
+  end
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -18,6 +29,7 @@ defmodule MeadowWeb.Router do
   end
 
   scope "/elasticsearch" do
+    pipe_through :ssl
     pipe_through :elasticsearch
 
     forward "/", MeadowWeb.Plugs.Elasticsearch
@@ -30,6 +42,7 @@ defmodule MeadowWeb.Router do
 
   # Other scopes may use custom stacks.
   scope "/api" do
+    pipe_through :ssl
     pipe_through :api
 
     forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema
@@ -47,6 +60,7 @@ defmodule MeadowWeb.Router do
   end
 
   scope "/" do
+    pipe_through :ssl
     pipe_through :browser
 
     get "/auth/logout", MeadowWeb.AuthController, :logout

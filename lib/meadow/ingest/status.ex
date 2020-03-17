@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.Status do
 
   import Ecto.Query, warn: false
   alias Meadow.Ingest.Schemas.{Row, Sheet, Status}
-  alias Meadow.Ingest.{Sheets}
+  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
 
   @doc """

@@ -7,6 +7,9 @@
 # The directory Mix downloads your dependencies sources to.
 /deps/
 
+# Local config files
+/config/*.local.exs
+
 # Where 3rd-party dependencies like ExDoc output generated docs.
 /doc/*
 !/doc/architecture
@@ -37,6 +40,7 @@ npm-debug.log
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
 /priv/static/
+/priv/cert/
 
 /.elixir_ls/
 

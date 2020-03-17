@@ -64,6 +64,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :test_mode, false)
   end
 
+  @doc "Return the host:port to redirect to, or nil to use the current host on port 443"
+  def ssl_host do
+    Application.get_env(:meadow, :ssl_host, nil)
+  end
+
   @doc "Locate a path relative to the priv directory"
   def priv_path(path) do
     :code.priv_dir(:meadow) |> to_string() |> Path.join(path)

@@ -89,6 +89,10 @@
       {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
+      },
+      {
+        "name": "AGENTLESS_SSO_KEY",
+        "value": "${agentless_sso_key}"
       }
     ],
     "portMappings": [

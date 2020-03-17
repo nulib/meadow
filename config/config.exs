@@ -59,17 +59,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :ueberauth, Ueberauth,
-  providers: [
-    openam:
-      {Ueberauth.Strategy.OpenAM,
-       [
-         base_url: "https://websso.it.northwestern.edu/amserver/",
-         sso_cookie: "openAMssoToken",
-         callback_path: "/auth/openam/callback"
-       ]}
-  ]
-
 config :honeybadger,
   api_key:
     System.get_env("HONEYBADGER_API_KEY") ||
@@ -103,3 +92,6 @@ import_config "sequins.exs"
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+if File.exists?("config/#{Mix.env()}.local.exs"),
+  do: import_config("#{Mix.env()}.local.exs")
