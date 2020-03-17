@@ -59,6 +59,8 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
+
 config :honeybadger,
   api_key:
     System.get_env("HONEYBADGER_API_KEY") ||
