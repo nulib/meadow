@@ -7,7 +7,7 @@ defmodule MeadowWeb.AuthControllerTest do
            |> URI.parse()
            |> Map.get(:fragment)
            |> URI.decode_query()
-           |> Map.get("goto") == "http://www.example.com/auth/nusso/callback"
+           |> Map.get("goto") == "https://www.example.com/auth/nusso/callback"
   end
 
   test "GET /auth/nusso/callback redirects to the referring page" do
