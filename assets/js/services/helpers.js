@@ -17,9 +17,7 @@ export function formatDate(date) {
 
 export function formatSimpleISODate(date) {
   if (!date) return "";
-  let newDate = moment(date)
-    .format()
-    .substring(0, 16);
+  let newDate = moment(date).format().substring(0, 16);
 
   return newDate;
 }
@@ -46,7 +44,7 @@ export const TEMP_USER_FRIENDLY_STATUS = {
   FILE_FAIL: "Validation Errors",
   VALID: "Valid, waiting for approval",
   APPROVED: "Ingest in progress...",
-  COMPLETED: "Ingest Complete"
+  COMPLETED: "Ingest Complete",
 };
 
 export function toastWrapper(
@@ -58,7 +56,7 @@ export function toastWrapper(
     type,
     dismissible: true,
     duration: 5000,
-    position: "top-center"
+    position: "top-center",
   });
 }
 

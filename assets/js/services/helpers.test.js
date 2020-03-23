@@ -2,7 +2,7 @@ import {
   buildImageURL,
   escapeDoubleQuotes,
   formatDate,
-  getClassFromIngestSheetStatus
+  getClassFromIngestSheetStatus,
 } from "./helpers";
 
 it("should escape double quotes", () => {
