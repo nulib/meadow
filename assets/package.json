@@ -6,8 +6,8 @@
     "watch": "webpack --mode development --watch",
     "ci": "jest --ci --coverage",
     "test": "jest --watch",
-    "prettier": "prettier --check js/**/*.js* css/**/*.css ./*.js ./*.json",
-    "prettier-fix": "prettier --write js/**/*.js* css/**/*.css ./*.js ./*.json"
+    "prettier": "prettier --check js/**/*.js* styles/**/*.scss ./*.js ./*.json",
+    "prettier-fix": "prettier --write js/**/*.js* styles/**/*.scss ./*.js ./*.json"
   },
   "prettier": "@nulib/prettier-config",
   "dependencies": {
@@ -68,7 +68,7 @@
     "node-fetch": "^2.6.0",
     "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.0",
     "react-router-dom": "^5.1.2",
