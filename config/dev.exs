@@ -18,6 +18,12 @@ config :meadow, Meadow.Repo,
 # with webpack to recompile .js and .css sources.
 config :meadow, MeadowWeb.Endpoint,
   http: [port: 3000],
+  https: [
+    port: 3001,
+    cipher_suite: :strong,
+    certfile: "/usr/local/etc/devbox_ssl/devbox.library.full.pem",
+    keyfile: "/usr/local/etc/devbox_ssl/devbox.library.key.pem"
+  ],
   debug_errors: false,
   code_reloader: true,
   check_origin: false,
@@ -121,3 +127,16 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :ueberauth, Ueberauth,
+  providers: [
+    nusso:
+      {Ueberauth.Strategy.NuSSO,
+       [
+         base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
+         callback_path: "/auth/nusso/callback",
+         consumer_key: System.get_env("SETTINGS__NUSSO__CONSUMER_KEY"),
+         include_attributes: true,
+         ssl_port: 3001
+       ]}
+  ]
