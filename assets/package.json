@@ -28,7 +28,7 @@
     "bulma-pageloader": "^0.3.0",
     "bulma-switch": "^2.0.0",
     "bulma-toast": "^1.5.4",
-    "elasticsearch": "^16.7.0",
+    "elasticsearch": "^16.7.1",
     "graphql": "^14.6.0",
     "graphql-tag": "^2.10.3",
     "js-cookie": "^2.2.1",
