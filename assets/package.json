@@ -60,7 +60,7 @@
     "coveralls": "^3.0.11",
     "css-loader": "^3.4.2",
     "file-loader": "^6.0.0",
-    "jest": "^25.2.1",
+    "jest": "^25.2.3",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
