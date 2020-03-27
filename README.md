@@ -25,9 +25,6 @@
 - Install Node.js dependencies with `mix assets.install`
   - `assets.install` looks for all `yarn.lock` files project-wide and runs `yarn install` in each directory found, so you don't need to run `yarn install` in individual directories.
 - `cd` back to the `meadow` project folder and start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
-- Set up Meadow for SSL and Agentless SSO:
-  - Copy both [devbox certificate files](https://github.com/nulib/miscellany/tree/master/devbox_cert) to `priv/cert/`
-  - Copy the [Meadow SSL config](https://github.com/nulib/miscellany/blob/master/meadow/config/dev.local.exs) to `config/`
 
 Now you can visit [`devbox.library.northwestern.edu`](https://devbox.library.northwestern.edu:3001) from your browser.
 
