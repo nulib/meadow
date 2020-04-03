@@ -12,7 +12,7 @@
   "prettier": "@nulib/prettier-config",
   "dependencies": {
     "@absinthe/socket-apollo-link": "^0.2.1",
-    "@apollo/react-hooks": "^3.1.2",
+    "@apollo/react-hooks": "^3.1.4",
     "@apollo/react-testing": "^3.1.3",
     "@appbaseio/reactivesearch": "^3.7.2",
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
