@@ -73,24 +73,50 @@ const UILayoutNavBar = () => {
     return (
       <>
         <div className="navbar-item has-dropdown is-hoverable">
-          <input type="checkbox" id="dropdown1" />
-          <label htmlFor="dropdown1" className="navbar-link">
+          <input
+            type="checkbox"
+            id="dropdown1"
+            aria-haspopup="true"
+            aria-labelledby="dropdown1-label"
+          />
+          <label
+            id="dropdown1-label"
+            htmlFor="dropdown1"
+            className="navbar-link"
+          >
             <FontAwesomeIcon icon="bell" />
           </label>
 
-          <div className="navbar-dropdown is-right">
-            <a className="navbar-item">Some alert #1</a>
-            <a className="navbar-item">Some alert #2</a>
+          <div className="navbar-dropdown is-right" aria-expanded="true">
+            <a role="menuitem" className="navbar-item">
+              Some alert #1
+            </a>
+            <a role="menuitem" className="navbar-item">
+              Some alert #2
+            </a>
           </div>
         </div>
         <div className="navbar-item has-dropdown is-hoverable">
-          <input type="checkbox" id="dropdown2" />
-          <label htmlFor="dropdown2" className="navbar-link">
+          <input
+            type="checkbox"
+            id="dropdown2"
+            aria-haspopup="true"
+            aria-labelledby="dropdown2-label"
+          />
+          <label
+            id="dropdown2-label"
+            htmlFor="dropdown2"
+            className="navbar-link"
+          >
             <FontAwesomeIcon icon="user" />
           </label>
-          <div className="navbar-dropdown is-right">
+          <div className="navbar-dropdown is-right" aria-expanded="true">
             <span className="navbar-item">{currentUser.displayName}</span>
-            <a className="navbar-item" onClick={handleLogoutClick}>
+            <a
+              role="menuitem"
+              className="navbar-item"
+              onClick={handleLogoutClick}
+            >
               Logout
             </a>
           </div>
@@ -106,6 +132,7 @@ const UILayoutNavBar = () => {
         className="navbar"
         aria-expanded={mobileNavOpen ? true : false}
         aria-hidden={mobileNavOpen ? false : false}
+        aria-label="Mobile Navigation Menu"
         style={mobileNavOpen ? { display: "block" } : { display: "none" }}
       >
         {!currentUser && (
@@ -130,7 +157,7 @@ const UILayoutNavBar = () => {
 
             <NavbarEndLinks />
             <div className="navbar-item">
-              <a onClick={handleSearchButtonClick}>
+              <a role="menuitem" onClick={handleSearchButtonClick}>
                 <FontAwesomeIcon icon="search" />
                 {` `} Search
               </a>
@@ -138,7 +165,7 @@ const UILayoutNavBar = () => {
           </div>
         )}
       </nav>
-      <nav className="navbar is-dark is-fixed-top">
+      <nav className="navbar is-dark is-fixed-top" aria-label="Navigation Menu">
         <div className="navbar-brand">
           <a
             className="navbar-item"
