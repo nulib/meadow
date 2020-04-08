@@ -50,9 +50,9 @@ const WorkTabsAdministrative = ({ work }) => {
     updateWork({
       variables: { id, work: workUpdateInput }
     });
-    // addWorkToCollection({
-    //   variables: { workId: work.id, collectionId: data.collection }
-    // });
+    addWorkToCollection({
+      variables: { workId: work.id, collectionId: data.collection }
+    });
   };
 
   const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
@@ -88,9 +88,7 @@ const WorkTabsAdministrative = ({ work }) => {
             </div>
 
             <div className="field">
-              <label className="label">
-                Collection <UITagNotYetSupported label="Work in Progress" />
-              </label>
+              <label className="label">Collection</label>
               <div className="control">
                 {isEditing ? (
                   <div className="select">
