@@ -41,7 +41,6 @@ const UILayoutNavBar = () => {
 
   const handleMobileMenuClick = () => {
     setMobileNavOpen(!mobileNavOpen);
-    console.log(mobileNavOpen);
   };
 
   const redirectToLogin = () => {
@@ -74,29 +73,27 @@ const UILayoutNavBar = () => {
     return (
       <>
         <div className="navbar-item has-dropdown is-hoverable">
-          <a className="navbar-link">
+          <input type="checkbox" id="dropdown1" />
+          <label htmlFor="dropdown1" className="navbar-link">
             <FontAwesomeIcon icon="bell" />
-          </a>
+          </label>
+
           <div className="navbar-dropdown is-right">
             <a className="navbar-item">Some alert #1</a>
             <a className="navbar-item">Some alert #2</a>
           </div>
         </div>
         <div className="navbar-item has-dropdown is-hoverable">
-          <a className="navbar-link">
+          <input type="checkbox" id="dropdown2" />
+          <label htmlFor="dropdown2" className="navbar-link">
             <FontAwesomeIcon icon="user" />
-          </a>
+          </label>
           <div className="navbar-dropdown is-right">
             <span className="navbar-item">{currentUser.displayName}</span>
             <a className="navbar-item" onClick={handleLogoutClick}>
               Logout
             </a>
           </div>
-        </div>
-        <div className="navbar-item">
-          <button className="button is-dark" onClick={handleSearchButtonClick}>
-            <FontAwesomeIcon icon="search" size="2x" />
-          </button>
         </div>
       </>
     );
@@ -132,6 +129,12 @@ const UILayoutNavBar = () => {
             </Link>
 
             <NavbarEndLinks />
+            <div className="navbar-item">
+              <a onClick={handleSearchButtonClick}>
+                <FontAwesomeIcon icon="search" />
+                {` `} Search
+              </a>
+            </div>
           </div>
         )}
       </nav>
@@ -184,6 +187,14 @@ const UILayoutNavBar = () => {
                   Dashboards
                 </Link>
                 <NavbarEndLinks />
+                <div className="navbar-item">
+                  <button
+                    className="button is-dark"
+                    onClick={handleSearchButtonClick}
+                  >
+                    <FontAwesomeIcon icon="search" size="2x" />
+                  </button>
+                </div>
               </div>
             </>
           )}

@@ -33,6 +33,17 @@ table {
   }
 }
 
+// navbar-dropdown collapse options for mobile menu
+.navbar-dropdown,
+.has-dropdown input[type="checkbox"] {
+  display: none;
+}
+
+#dropdown1:checked ~ .navbar-dropdown,
+#dropdown2:checked ~ .navbar-dropdown {
+  display: block;
+}
+
 // TODO: Find a better way to override these overrides via Bulma variables
 .message.is-success .message-body {
   color: $success;
