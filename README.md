@@ -87,7 +87,7 @@ See your local "s3" buckets.
 
 ### GraphQL API
 
-You can visit the GraphiQL interface at: [`http://devbox.library.northwestern.edu/api/graphiql`](http://devbox.library.northwestern.edu/api/graphiql)
+You can visit the GraphiQL interface at: [`https://devbox.library.northwestern.edu:3001/api/graphiql`](https://devbox.library.northwestern.edu:3001/api/graphiql)
 
 ### IIIF Server
 

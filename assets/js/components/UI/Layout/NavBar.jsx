@@ -9,6 +9,7 @@ import UISearchBar from "../SearchBar";
 const UILayoutNavBar = () => {
   const currentUser = useContext(AuthContext);
   const [showSearch, setShowSearch] = useState();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const history = useHistory();
 
@@ -38,13 +39,100 @@ const UILayoutNavBar = () => {
     }
   };
 
+  const handleMobileMenuClick = () => {
+    setMobileNavOpen(!mobileNavOpen);
+  };
+
   const redirectToLogin = () => {
     window.location.pathname = `/auth/nusso`;
   };
 
+  const NavbarStartLinks = () => {
+    return (
+      <>
+        <Link to="/" className="navbar-item">
+          <FontAwesomeIcon icon="home" />
+        </Link>
+        <Link
+          to="/project/list"
+          className={`navbar-item ${isActive("project") ? "is-active" : ""}`}
+        >
+          Projects
+        </Link>
+
+        <Link
+          to="/collection/list"
+          className={`navbar-item ${isActive("collection") ? "is-active" : ""}`}
+        >
+          Themes &amp; Collections
+        </Link>
+      </>
+    );
+  };
+
+  const NavbarEndLinks = () => {
+    return (
+      <>
+        <div className="navbar-item has-dropdown is-hoverable">
+          <input
+            type="checkbox"
+            id="dropdown1"
+            aria-haspopup="true"
+            aria-labelledby="dropdown1-label"
+          />
+          <label
+            id="dropdown1-label"
+            htmlFor="dropdown1"
+            className="navbar-link"
+          >
+            <FontAwesomeIcon icon="bell" />
+          </label>
+
+          <div className="navbar-dropdown is-right" aria-expanded="true">
+            <a role="menuitem" className="navbar-item">
+              Some alert #1
+            </a>
+            <a role="menuitem" className="navbar-item">
+              Some alert #2
+            </a>
+          </div>
+        </div>
+        <div className="navbar-item has-dropdown is-hoverable">
+          <input
+            type="checkbox"
+            id="dropdown2"
+            aria-haspopup="true"
+            aria-labelledby="dropdown2-label"
+          />
+          <label
+            id="dropdown2-label"
+            htmlFor="dropdown2"
+            className="navbar-link"
+          >
+            <FontAwesomeIcon icon="user" />
+          </label>
+          <div className="navbar-dropdown is-right" aria-expanded="true">
+            <span className="navbar-item">{currentUser.displayName}</span>
+            <a
+              role="menuitem"
+              className="navbar-item"
+              onClick={handleLogoutClick}
+            >
+              Logout
+            </a>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
-      <nav className="navbar is-dark is-fixed-top">
+      <nav
+        role="navigation"
+        className="navbar is-dark is-fixed-top"
+        aria-label="main navigation"
+      >
         <div className="navbar-brand">
           <a
             className="navbar-item"
@@ -55,21 +143,39 @@ const UILayoutNavBar = () => {
               alt="Northwestern Libraries logo"
             />
           </a>
-
-          <div
-            className="navbar-burger burger"
-            data-target="navMenuColordark-example"
+          <button
+            role="button"
+            aria-label="menu"
+            aria-expanded={mobileNavOpen}
+            aria-controls="navbarMenu"
+            className={`button is-dark navbar-burger burger ${
+              mobileNavOpen ? "is-active" : ""
+            }`}
+            data-target="navbarMenu"
+            onClick={handleMobileMenuClick}
           >
             <span></span>
             <span></span>
             <span></span>
-          </div>
+          </button>
         </div>
 
-        <div id="navMenuColordark-example" className="navbar-menu">
-          <div className="navbar-start">
-            {currentUser && (
-              <>
+        <div
+          id="navbarMenu"
+          className={`navbar-menu ${mobileNavOpen ? "is-active" : ""}`}
+        >
+          {!currentUser && (
+            <div className="navbar-end">
+              <div className="navbar-item">
+                <button className="button" onClick={redirectToLogin}>
+                  <strong>Log in</strong>
+                </button>
+              </div>
+            </div>
+          )}
+          {currentUser && (
+            <>
+              <div className="navbar-start">
                 <Link to="/" className="navbar-item">
                   <FontAwesomeIcon icon="home" />
                 </Link>
@@ -81,12 +187,7 @@ const UILayoutNavBar = () => {
                 >
                   Projects
                 </Link>
-                {/* <Link
-                to="/work/list"
-                className={`navbar-item ${isActive("work") ? "is-active" : ""}`}
-              >
-                Works
-              </Link> */}
+
                 <Link
                   to="/collection/list"
                   className={`navbar-item ${
@@ -95,74 +196,98 @@ const UILayoutNavBar = () => {
                 >
                   Themes &amp; Collections
                 </Link>
-
-                {/* <div className="navbar-item">
-                <button
-                  className="button is-primary is-inverted is-outlined"
-                  onClick={handleSearchButtonClick}
-                >
-                  <FontAwesomeIcon icon="search" />
-                </button>
-              </div> */}
-              </>
-            )}
-          </div>
-
-          <div className="navbar-end">
-            {currentUser && (
-              <Link
-                to="/"
-                className={`navbar-item ${
-                  isActive("dashboard") ? "is-active" : ""
-                }`}
-              >
-                Dashboards
-              </Link>
-            )}
-
-            {!currentUser && (
-              <div className="navbar-item">
-                <button className="button" onClick={redirectToLogin}>
-                  <strong>Log in</strong>
-                </button>
               </div>
-            )}
 
-            {currentUser && (
-              <>
+              <div className="navbar-end">
+                <Link
+                  to="/"
+                  className={`navbar-item ${
+                    isActive("dashboard") ? "is-active" : ""
+                  }`}
+                >
+                  Dashboards
+                </Link>
+
                 <div className="navbar-item has-dropdown is-hoverable">
-                  <a className="navbar-link">
+                  <input
+                    type="checkbox"
+                    id="dropdown1"
+                    aria-haspopup="true"
+                    aria-labelledby="dropdown1-label"
+                  />
+                  <label
+                    id="dropdown1-label"
+                    htmlFor="dropdown1"
+                    className="navbar-link"
+                  >
                     <FontAwesomeIcon icon="bell" />
-                  </a>
-                  <div className="navbar-dropdown is-right">
-                    <a className="navbar-item">Some alert #1</a>
-                    <a className="navbar-item">Some alert #2</a>
+                  </label>
+
+                  <div
+                    className="navbar-dropdown is-right"
+                    aria-expanded="true"
+                  >
+                    <a role="menuitem" className="navbar-item">
+                      Some alert #1
+                    </a>
+                    <a role="menuitem" className="navbar-item">
+                      Some alert #2
+                    </a>
                   </div>
                 </div>
                 <div className="navbar-item has-dropdown is-hoverable">
-                  <a className="navbar-link">
+                  <input
+                    type="checkbox"
+                    id="dropdown2"
+                    aria-haspopup="true"
+                    aria-labelledby="dropdown2-label"
+                  />
+                  <label
+                    id="dropdown2-label"
+                    htmlFor="dropdown2"
+                    className="navbar-link"
+                  >
                     <FontAwesomeIcon icon="user" />
-                  </a>
-                  <div className="navbar-dropdown is-right">
+                  </label>
+                  <div
+                    className="navbar-dropdown is-right"
+                    aria-expanded="true"
+                  >
                     <span className="navbar-item">
                       {currentUser.displayName}
                     </span>
-                    <a className="navbar-item" onClick={handleLogoutClick}>
+                    <a
+                      role="menuitem"
+                      className="navbar-item"
+                      onClick={handleLogoutClick}
+                    >
                       Logout
                     </a>
                   </div>
                 </div>
+
                 <div className="navbar-item">
                   <button
-                    className="button is-dark"
+                    className="button is-dark is-hidden-touch"
                     onClick={handleSearchButtonClick}
                   >
                     <FontAwesomeIcon icon="search" size="2x" />
                   </button>
+
+                  <button
+                    role="menuitem"
+                    className="button is-text is-hidden-desktop"
+                    onClick={handleSearchButtonClick}
+                  >
+                    <span className="icon">
+                      <FontAwesomeIcon icon="search" />
+                    </span>
+                    <span>Search</span>
+                  </button>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </nav>
       {showSearch && <UISearchBar />}
