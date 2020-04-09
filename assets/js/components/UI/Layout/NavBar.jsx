@@ -69,6 +69,7 @@ const UILayoutNavBar = () => {
       </>
     );
   };
+
   const NavbarEndLinks = () => {
     return (
       <>
@@ -128,44 +129,10 @@ const UILayoutNavBar = () => {
   return (
     <>
       <nav
-        id="mobile-nav"
-        className="navbar"
-        aria-expanded={mobileNavOpen ? true : false}
-        aria-hidden={mobileNavOpen ? false : false}
-        aria-label="Mobile Navigation Menu"
-        style={mobileNavOpen ? { display: "block" } : { display: "none" }}
+        role="navigation"
+        className="navbar is-dark is-fixed-top"
+        aria-label="main navigation"
       >
-        {!currentUser && (
-          <div className="navbar-item">
-            <button className="button" onClick={redirectToLogin}>
-              <strong>Log in</strong>
-            </button>
-          </div>
-        )}
-        {currentUser && (
-          <div>
-            <NavbarStartLinks />
-
-            <Link
-              to="/"
-              className={`navbar-item ${
-                isActive("dashboard") ? "is-active" : ""
-              }`}
-            >
-              Dashboards
-            </Link>
-
-            <NavbarEndLinks />
-            <div className="navbar-item">
-              <a role="menuitem" onClick={handleSearchButtonClick}>
-                <FontAwesomeIcon icon="search" />
-                {` `} Search
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
-      <nav className="navbar is-dark is-fixed-top" aria-label="Navigation Menu">
         <div className="navbar-brand">
           <a
             className="navbar-item"
@@ -176,20 +143,27 @@ const UILayoutNavBar = () => {
               alt="Northwestern Libraries logo"
             />
           </a>
-          <div
-            className={`navbar-burger burger ${
+          <button
+            role="button"
+            aria-label="menu"
+            aria-expanded={mobileNavOpen}
+            aria-controls="navbarMenu"
+            className={`button is-dark navbar-burger burger ${
               mobileNavOpen ? "is-active" : ""
             }`}
-            data-target="navMenuColordark-example"
+            data-target="navbarMenu"
             onClick={handleMobileMenuClick}
           >
             <span></span>
             <span></span>
             <span></span>
-          </div>
+          </button>
         </div>
 
-        <div id="navMenuColordark-example" className="navbar-menu">
+        <div
+          id="navbarMenu"
+          className={`navbar-menu ${mobileNavOpen ? "is-active" : ""}`}
+        >
           {!currentUser && (
             <div className="navbar-end">
               <div className="navbar-item">
@@ -202,8 +176,28 @@ const UILayoutNavBar = () => {
           {currentUser && (
             <>
               <div className="navbar-start">
-                <NavbarStartLinks />
+                <Link to="/" className="navbar-item">
+                  <FontAwesomeIcon icon="home" />
+                </Link>
+                <Link
+                  to="/project/list"
+                  className={`navbar-item ${
+                    isActive("project") ? "is-active" : ""
+                  }`}
+                >
+                  Projects
+                </Link>
+
+                <Link
+                  to="/collection/list"
+                  className={`navbar-item ${
+                    isActive("collection") ? "is-active" : ""
+                  }`}
+                >
+                  Themes &amp; Collections
+                </Link>
               </div>
+
               <div className="navbar-end">
                 <Link
                   to="/"
@@ -213,13 +207,82 @@ const UILayoutNavBar = () => {
                 >
                   Dashboards
                 </Link>
-                <NavbarEndLinks />
+
+                <div className="navbar-item has-dropdown is-hoverable">
+                  <input
+                    type="checkbox"
+                    id="dropdown1"
+                    aria-haspopup="true"
+                    aria-labelledby="dropdown1-label"
+                  />
+                  <label
+                    id="dropdown1-label"
+                    htmlFor="dropdown1"
+                    className="navbar-link"
+                  >
+                    <FontAwesomeIcon icon="bell" />
+                  </label>
+
+                  <div
+                    className="navbar-dropdown is-right"
+                    aria-expanded="true"
+                  >
+                    <a role="menuitem" className="navbar-item">
+                      Some alert #1
+                    </a>
+                    <a role="menuitem" className="navbar-item">
+                      Some alert #2
+                    </a>
+                  </div>
+                </div>
+                <div className="navbar-item has-dropdown is-hoverable">
+                  <input
+                    type="checkbox"
+                    id="dropdown2"
+                    aria-haspopup="true"
+                    aria-labelledby="dropdown2-label"
+                  />
+                  <label
+                    id="dropdown2-label"
+                    htmlFor="dropdown2"
+                    className="navbar-link"
+                  >
+                    <FontAwesomeIcon icon="user" />
+                  </label>
+                  <div
+                    className="navbar-dropdown is-right"
+                    aria-expanded="true"
+                  >
+                    <span className="navbar-item">
+                      {currentUser.displayName}
+                    </span>
+                    <a
+                      role="menuitem"
+                      className="navbar-item"
+                      onClick={handleLogoutClick}
+                    >
+                      Logout
+                    </a>
+                  </div>
+                </div>
+
                 <div className="navbar-item">
                   <button
-                    className="button is-dark"
+                    className="button is-dark is-hidden-touch"
                     onClick={handleSearchButtonClick}
                   >
                     <FontAwesomeIcon icon="search" size="2x" />
+                  </button>
+
+                  <button
+                    role="menuitem"
+                    className="button is-text is-hidden-desktop"
+                    onClick={handleSearchButtonClick}
+                  >
+                    <span className="icon">
+                      <FontAwesomeIcon icon="search" />
+                    </span>
+                    <span>Search</span>
                   </button>
                 </div>
               </div>
