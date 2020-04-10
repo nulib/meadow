@@ -141,7 +141,11 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
           </div>
 
           <div className="buttons is-right">
-            <button type="button" className="button" onClick={handleCancel}>
+            <button
+              type="button"
+              className="button is-text"
+              onClick={handleCancel}
+            >
               Cancel
             </button>
             <button

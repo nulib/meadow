@@ -50,10 +50,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   return (
     <div>
       {project.ingestSheets.length === 0 && (
-        <UINotification
-          data-testid="no-ingest-sheets-notification"
-          className="is-info"
-        >
+        <UINotification data-testid="no-ingest-sheets-notification">
           No ingest sheets are found.
         </UINotification>
       )}

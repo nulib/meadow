@@ -223,7 +223,7 @@ const WorkTabsAbout = ({ work }) => {
                 </button>
                 <button
                   type="button"
-                  className="button"
+                  className="button is-text"
                   data-testid="cancel-button"
                   onClick={() => setIsEditing(false)}
                 >

@@ -167,16 +167,28 @@ const WorkTabsStructure = ({ work }) => {
             <h2 className="small-title">Download all files as zip</h2>
             <div className="columns">
               <div className="column">
-                <div className="control">
-                  <label className="radio">
-                    <input type="radio" name="downloadsize" /> Full size
-                  </label>
-                  <label className="radio">
-                    <input type="radio" name="downloadsize" /> 3000x3000
-                  </label>
-                  <label className="radio">
-                    <input type="radio" name="downloadsize" /> 1000x1000
-                  </label>
+                <div className="field">
+                  <input
+                    type="radio"
+                    className="is-checkradio"
+                    name="downloadsize"
+                    id="downloadsize1"
+                  />
+                  <label htmlFor="downloadsize1"> Full size</label>
+                  <input
+                    type="radio"
+                    className="is-checkradio"
+                    name="downloadsize"
+                    id="downloadsize2"
+                  />
+                  <label htmlFor="downloadsize2"> 3000x3000</label>
+                  <input
+                    type="radio"
+                    className="is-checkradio"
+                    name="downloadsize"
+                    id="downloadsize3"
+                  />
+                  <label htmlFor="downloadsize3"> 1000x1000</label>
                 </div>
               </div>
 

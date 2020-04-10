@@ -211,7 +211,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 </button>
                 <button
                   type="button"
-                  className="button"
+                  className="button is-text"
                   onClick={() => setIsEditing(false)}
                 >
                   Cancel
