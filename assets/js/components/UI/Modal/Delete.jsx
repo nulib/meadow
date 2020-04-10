@@ -20,7 +20,7 @@ const UIModalDelete = ({
             <p className="text-gray-600">This action cannot be undone.</p>
           </div>
           <div className="buttons is-right">
-            <button className="button" onClick={handleClose}>
+            <button className="button is-text" onClick={handleClose}>
               Cancel
             </button>
             <button className="button is-danger" onClick={handleConfirm}>

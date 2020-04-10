@@ -90,6 +90,7 @@ const CollectionForm = ({ collection }) => {
                   data-testid="input-collection-name"
                 />
               </div>
+              <p className="help">Name for the Collection</p>
             </div>
 
             <div className="field">
@@ -109,28 +110,23 @@ const CollectionForm = ({ collection }) => {
                   </select>
                 </div>
               </div>
+              <p className="help">Type of Collection</p>
             </div>
 
             <div className="field">
-              <div className="control">
-                <label htmlFor="featured" className="checkbox">
-                  <input
-                    type="checkbox"
-                    id="featured"
-                    ref={register}
-                    name="featured"
-                    data-testid="checkbox-featured"
-                    defaultChecked={collection ? collection.featured : false}
-                  />{" "}
-                  Featured?
-                </label>
-              </div>
-            </div>
-
-            <div className="field">
-              <p className="notification is-warning">
-                TODO: Wire up [Select thumbnail]
-              </p>
+              <input
+                type="checkbox"
+                id="featured"
+                ref={register}
+                name="featured"
+                className="is-checkradio"
+                id="checkbox-featured"
+                data-testid="checkbox-featured"
+                defaultChecked={
+                  collection && collection.featured ? "checked" : false
+                }
+              />
+              <label htmlFor="checkbox-featured"> Featured?</label>
             </div>
 
             <div className="field">
@@ -148,6 +144,7 @@ const CollectionForm = ({ collection }) => {
                   data-testid="textarea-description"
                 ></textarea>
               </div>
+              <p className="help">Describe the Collection</p>
             </div>
 
             <div className="field">
@@ -165,6 +162,7 @@ const CollectionForm = ({ collection }) => {
                   data-testid="input-finding-aid-url"
                 />
               </div>
+              <p className="help">Finding Aid URL for the Collection</p>
             </div>
 
             <div className="field">
@@ -182,6 +180,7 @@ const CollectionForm = ({ collection }) => {
                   data-testid="input-admin-email"
                 />
               </div>
+              <p className="help">Email of the Admin for this Collection</p>
             </div>
 
             <div className="field">
@@ -212,7 +211,7 @@ const CollectionForm = ({ collection }) => {
               </button>
               <button
                 type="button"
-                className="button"
+                className="button is-text"
                 data-testid="button-cancel"
                 onClick={handleCancel}
               >
