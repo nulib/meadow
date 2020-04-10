@@ -79,9 +79,13 @@ config :meadow,
   upload_bucket: "dev-uploads",
   preservation_bucket: "dev-preservation",
   pyramid_bucket: "dev-pyramids",
-  iiif_server_url: System.get_env("IIIF_SERVER_URL", "http://localhost:8183/iiif/2/"),
+  iiif_server_url:
+    System.get_env("IIIF_SERVER_URL", "https://devbox.library.northwestern.edu:8183/iiif/2/"),
   iiif_manifest_url:
-    System.get_env("IIIF_MANIFEST_URL", "http://localhost:9001/dev-pyramids/public/")
+    System.get_env(
+      "IIIF_MANIFEST_URL",
+      "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/"
+    )
 
 config :ex_aws,
   access_key_id: "fake",
@@ -90,9 +94,9 @@ config :ex_aws,
 config :ex_aws, :s3,
   access_key_id: "minio",
   secret_access_key: "minio123",
-  host: "localhost",
+  host: "devbox.library.northwestern.edu",
   port: 9001,
-  scheme: "http://",
+  scheme: "https://",
   region: "us-east-1"
 
 config :ex_aws, :sqs,
