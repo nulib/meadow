@@ -21,7 +21,7 @@
     "@fortawesome/react-fontawesome": "^0.1.9",
     "apollo-cache-inmemory": "^1.6.5",
     "apollo-client": "^2.6.8",
-    "apollo-link-context": "^1.0.18",
+    "apollo-link-context": "^1.0.20",
     "apollo-link-http": "^1.5.15",
     "bulma": "^0.8.1",
     "bulma-checkradio": "^1.1.1",
