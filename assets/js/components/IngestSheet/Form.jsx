@@ -15,12 +15,10 @@ const IngestSheetForm = ({ projectId }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <div className="md:w-1/2">
-      <IngestSheetUpload
-        projectId={projectId}
-        presignedUrl={data.presignedUrl.url}
-      />
-    </div>
+    <IngestSheetUpload
+      projectId={projectId}
+      presignedUrl={data.presignedUrl.url}
+    />
   );
 };
 

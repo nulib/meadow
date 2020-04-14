@@ -50,20 +50,19 @@ const ScreensCollectionForm = () => {
 
   return (
     <Layout>
-      <section className="hero is-light" data-testid="collection-form-hero">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">
-              {edit ? collection.name : "Create Collection"}
-            </h1>
-            <h2 className="subtitle">{edit ? "Collection" : ""}</h2>
-          </div>
-        </div>
-      </section>
-      <UIBreadcrumbs items={crumbs} />
       <section className="section">
         <div className="container">
-          <CollectionForm collection={collection} />
+          <div className="columns is-centered">
+            <div className="column is-two-thirds-desktop">
+              <UIBreadcrumbs items={crumbs} />
+              <div className="box">
+                <h1 className="title" data-testid="collection-form-title">
+                  Add New Collection
+                </h1>
+                <CollectionForm collection={collection} />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

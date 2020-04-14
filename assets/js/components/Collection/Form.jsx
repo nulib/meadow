@@ -72,8 +72,8 @@ const CollectionForm = ({ collection }) => {
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
-        <div className="columns is-centered">
-          <div className="column is-half">
+        <div className="columns">
+          <div className="column is-two-thirds">
             <div className="field">
               <label htmlFor="collection-name" className="label">
                 Collection Name
@@ -92,133 +92,142 @@ const CollectionForm = ({ collection }) => {
               </div>
               <p className="help">Name for the Collection</p>
             </div>
-
+          </div>
+          <div className="column is-one-third">
             <div className="field">
-              <label htmlFor="collection-type" className="label">
-                Collection Type
-              </label>
-              <div className="control">
-                <div className="select">
-                  <select
-                    ref={register}
-                    id="collection-type"
-                    name="collectionType"
-                    data-testid="input-collection-type"
-                  >
-                    <option>NUL Collection</option>
-                    <option>NUL Theme</option>
-                  </select>
-                </div>
-              </div>
-              <p className="help">Type of Collection</p>
-            </div>
-
-            <div className="field">
-              <input
-                type="checkbox"
-                id="featured"
-                ref={register}
-                name="featured"
-                className="is-checkradio"
-                id="checkbox-featured"
-                data-testid="checkbox-featured"
-                defaultChecked={
-                  collection && collection.featured ? "checked" : false
-                }
-              />
-              <label htmlFor="checkbox-featured"> Featured?</label>
-            </div>
-
-            <div className="field">
-              <label htmlFor="description" className="label">
-                Description
-              </label>
-              <div className="control">
-                <textarea
-                  ref={register}
-                  name="description"
-                  id="description"
-                  defaultValue={collection ? collection.description : ""}
-                  className="textarea"
-                  rows="8"
-                  data-testid="textarea-description"
-                ></textarea>
-              </div>
-              <p className="help">Describe the Collection</p>
-            </div>
-
-            <div className="field">
-              <label htmlFor="finding-aid-url" className="label">
-                Finding Aid URL
-              </label>
               <div className="control">
                 <input
+                  type="checkbox"
+                  id="featured"
                   ref={register}
-                  name="findingAidUrl"
-                  id="finding-aid-url"
-                  className="input"
-                  defaultValue={collection ? collection.findingAidUrl : ""}
-                  label="Finding Aid Url"
-                  data-testid="input-finding-aid-url"
-                />
+                  className="is-checkradio"
+                  name="featured"
+                  data-testid="checkbox-featured"
+                  defaultChecked={collection ? collection.featured : false}
+                />{" "}
+                <label htmlFor="featured" className="checkbox">
+                  Featured?
+                </label>
               </div>
-              <p className="help">Finding Aid URL for the Collection</p>
-            </div>
-
-            <div className="field">
-              <label htmlFor="admin-email" className="label">
-                Admin Email
-              </label>
-              <div className="control">
-                <input
-                  ref={register}
-                  name="adminEmail"
-                  id="admin-email"
-                  className="input"
-                  defaultValue={collection ? collection.adminEmail : ""}
-                  type="email"
-                  data-testid="input-admin-email"
-                />
-              </div>
-              <p className="help">Email of the Admin for this Collection</p>
-            </div>
-
-            <div className="field">
-              <label htmlFor="keywords" className="label">
-                Keywords
-              </label>
-              <div className="control">
-                <input
-                  ref={register}
-                  name="keywords"
-                  id="keywords"
-                  className="input"
-                  defaultValue={collection ? collection.keywords : ""}
-                  label="Keywords"
-                  placeholder="multiple, separated, by, commas"
-                  data-testid="input-keywords"
-                />
-              </div>
-            </div>
-
-            <div className="buttons">
-              <button
-                type="submit"
-                className="button is-primary"
-                data-testid="button-save"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                className="button is-text"
-                data-testid="button-cancel"
-                onClick={handleCancel}
-              >
-                Cancel
-              </button>
             </div>
           </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="collection-type" className="label">
+            Collection Type
+          </label>
+          <div className="control">
+            <div className="select">
+              <select
+                ref={register}
+                id="collection-type"
+                name="collectionType"
+                data-testid="input-collection-type"
+              >
+                <option>NUL Collection</option>
+                <option>NUL Theme</option>
+              </select>
+            </div>
+          </div>
+          <p className="help">Type of Collection</p>
+        </div>
+
+        <div className="field">
+          <p className="notification is-warning">
+            TODO: Wire up [Select thumbnail]
+          </p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="description" className="label">
+            Description
+          </label>
+          <div className="control">
+            <textarea
+              ref={register}
+              name="description"
+              id="description"
+              defaultValue={collection ? collection.description : ""}
+              className="textarea"
+              rows="8"
+              data-testid="textarea-description"
+            ></textarea>
+          </div>
+          <p className="help">Describe the Collection</p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="finding-aid-url" className="label">
+            Finding Aid URL
+          </label>
+          <div className="control">
+            <input
+              ref={register}
+              name="findingAidUrl"
+              id="finding-aid-url"
+              className="input"
+              type="text"
+              defaultValue={collection ? collection.findingAidUrl : ""}
+              label="Finding Aid Url"
+              data-testid="input-finding-aid-url"
+            />
+          </div>
+          <p className="help">Finding Aid URL for the Collection</p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="admin-email" className="label">
+            Admin Email
+          </label>
+          <div className="control">
+            <input
+              ref={register}
+              name="adminEmail"
+              id="admin-email"
+              className="input"
+              defaultValue={collection ? collection.adminEmail : ""}
+              type="email"
+              data-testid="input-admin-email"
+            />
+          </div>
+          <p className="help">Email of the Admin for this Collection</p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="keywords" className="label">
+            Keywords
+          </label>
+          <div className="control">
+            <input
+              ref={register}
+              name="keywords"
+              id="keywords"
+              className="input"
+              defaultValue={collection ? collection.keywords : ""}
+              label="Keywords"
+              placeholder="multiple, separated, by, commas"
+              data-testid="input-keywords"
+            />
+          </div>
+        </div>
+
+        <div className="buttons is-right">
+          <button
+            type="button"
+            className="button"
+            data-testid="button-cancel"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="button is-primary"
+            data-testid="button-save"
+          >
+            Save
+          </button>
         </div>
       </form>
     </div>

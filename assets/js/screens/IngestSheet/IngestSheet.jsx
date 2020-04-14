@@ -14,7 +14,7 @@ import {
   getClassFromIngestSheetStatus,
   TEMP_USER_FRIENDLY_STATUS
 } from "../../services/helpers";
-
+import IngestSheetAlert from "../../components/IngestSheet/Alert";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
 
@@ -76,48 +76,56 @@ const ScreensIngestSheet = ({ match }) => {
 
   return (
     <Layout>
-      <section className="hero is-light">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">
-              {ingestSheet.name}{" "}
-              <span
-                className={`tag ${getClassFromIngestSheetStatus(
-                  sheetData.ingestSheet.status
-                )}`}
-              >
-                {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
-              </span>
-            </h1>
-            <h2 className="subtitle">Ingest Sheet</h2>
-
-            <IngestSheetActionRow
-              sheetId={sheetId}
-              projectId={id}
-              status={sheetData.ingestSheet.status}
-              name={sheetData.ingestSheet.name}
-            />
+      <section className="section">
+        <div className="container">
+          <UIBreadcrumbs items={createCrumbs()} />
+          <div className="columns">
+            <div className="column is-half">
+              <div className="box">
+                <h1 className="title">
+                  {ingestSheet.name}{" "}
+                  <span
+                    className={`tag ${getClassFromIngestSheetStatus(
+                      sheetData.ingestSheet.status
+                    )}`}
+                  >
+                    {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
+                  </span>
+                </h1>
+                <h2 className="subtitle">Ingest Sheet</h2>
+                <IngestSheetActionRow
+                  sheetId={sheetId}
+                  projectId={id}
+                  status={sheetData.ingestSheet.status}
+                  name={sheetData.ingestSheet.name}
+                />
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="box">
+                <h3 className="subtitle">Ingest Sheet Status</h3>
+                <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
+              </div>
+            </div>
           </div>
+
+          <IngestSheet
+            ingestSheetData={sheetData.ingestSheet}
+            projectId={id}
+            subscribeToIngestSheetUpdates={() =>
+              subscribeToMore({
+                document: INGEST_SHEET_SUBSCRIPTION,
+                variables: { sheetId },
+                updateQuery: (prev, { subscriptionData }) => {
+                  if (!subscriptionData.data) return prev;
+                  const updatedSheet = subscriptionData.data.ingestSheetUpdate;
+                  return { ingestSheet: { ...updatedSheet } };
+                }
+              })
+            }
+          />
         </div>
       </section>
-
-      <UIBreadcrumbs items={createCrumbs()} />
-
-      <IngestSheet
-        ingestSheetData={sheetData.ingestSheet}
-        projectId={id}
-        subscribeToIngestSheetUpdates={() =>
-          subscribeToMore({
-            document: INGEST_SHEET_SUBSCRIPTION,
-            variables: { sheetId },
-            updateQuery: (prev, { subscriptionData }) => {
-              if (!subscriptionData.data) return prev;
-              const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-              return { ingestSheet: { ...updatedSheet } };
-            }
-          })
-        }
-      />
     </Layout>
   );
 };
