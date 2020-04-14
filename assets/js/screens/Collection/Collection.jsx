@@ -65,7 +65,7 @@ const ScreensCollection = () => {
 
   return (
     <Layout>
-      <section className="hero is-light">
+      <section className="hero is-light" data-testid="collection-screen-hero">
         <div className="hero-body">
           <div className="container">
             <h1 className="title">{data.collection.name || ""}</h1>
@@ -81,7 +81,7 @@ const ScreensCollection = () => {
           </div>
         </div>
       </section>
-      <UIBreadcrumbs items={crumbs} />
+      <UIBreadcrumbs items={crumbs} data-testid="breadcrumbs" />
       <section className="section">
         <Collection {...data.collection} />
       </section>

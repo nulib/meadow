@@ -86,7 +86,7 @@ const ScreensCollectionList = () => {
 
   return (
     <Layout>
-      <section className="hero is-light">
+      <section className="hero is-light" data-testid="collection-list-hero">
         <div className="hero-body">
           <div className="container">
             <h1 className="title">Collections</h1>
@@ -102,7 +102,7 @@ const ScreensCollectionList = () => {
           </div>
         </div>
       </section>
-      <section className="section">
+      <section className="section" data-testid="collection-list">
         <div className="container">
           <ul>
             {filteredCollections.length > 0 &&

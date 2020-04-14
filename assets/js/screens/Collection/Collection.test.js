@@ -1,5 +1,5 @@
 import React from "react";
-import Collection from "./Collection";
+import ScreensCollection from "./Collection";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
@@ -33,7 +33,7 @@ const mocks = [
 
 function setupTests() {
   return renderWithRouterApollo(
-    <Route path="/collection/:id" component={Collection} />,
+    <Route path="/collection/:id" component={ScreensCollection} />,
     {
       mocks,
       route: "/collection/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
@@ -41,9 +41,27 @@ function setupTests() {
   );
 }
 
-it("renders collection item", async () => {
+it("renders without crashing", async () => {
+  const { container, queryByTestId } = setupTests();
+
+  expect(queryByTestId("loading")).toBeInTheDocument();
+
+  // This "wait()" magically makes Apollo MockProvider warning messages go away
+  await wait();
+  expect(queryByTestId("loading")).not.toBeInTheDocument();
+  expect(container).toBeTruthy();
+});
+
+it("renders hero section", async () => {
   const { getByTestId } = setupTests();
 
   await wait();
-  expect(getByTestId("collection")).toBeInTheDocument();
+  expect(getByTestId("collection-screen-hero")).toBeInTheDocument();
+});
+
+it("renders breadcrumbs", async () => {
+  const { getByTestId } = setupTests();
+
+  await wait();
+  expect(getByTestId("breadcrumbs")).toBeInTheDocument();
 });
