@@ -5,13 +5,13 @@ import UILayoutNavBar from "../components/UI/Layout/NavBar";
 
 const Layout = ({ children }) => {
   return (
-    <>
+    <div id="root">
       <UILayoutNavBar />
       <div>
         <main>{children}</main>
         <UILayoutFooter />
       </div>
-    </>
+    </div>
   );
 };
 

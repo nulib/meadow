@@ -79,8 +79,8 @@ The task `mix meadow.ldap.setup [seed_file ...]` will seed the LDAP database usi
 
 See your local "s3" buckets.
 
-- Dev: `https://localhost:9001/minio/`
-- Test: `https://localhost:9002/minio/`
+- Dev: `https://devbox.library.northwestern.edu:9001/`
+- Test: `https://devbox.library.northwestern.edu:9002/`
 
 **Login**: minio
 **Password**: minio123

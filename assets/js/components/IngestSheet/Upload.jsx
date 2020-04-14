@@ -101,67 +101,59 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <div className="columns">
-      <div className="column is-half is-offset-one-quarter">
-        <form onSubmit={handleSubmit}>
-          <Error error={error} />
-          <div className="field">
-            <label htmlFor="ingest_sheet_name" className="label">
-              Ingest Sheet Name
-            </label>
-            <div className="control">
-              <input
-                id={"ingest_sheet_name"}
-                name="ingest_sheet_name"
-                type="text"
-                className="input"
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <div className="field">
-            <div id="file-js-example" className="file has-name">
-              <label className="file-label">
-                <input
-                  className="file-input"
-                  id="file"
-                  name="file"
-                  type="file"
-                  onChange={handleInputChange}
-                />
-                <span className="file-cta">
-                  <span className="file-icon">
-                    <FontAwesomeIcon icon="file-csv" />
-                  </span>
-                  <span className="file-label">Choose a file…</span>
-                </span>
-                <span className="file-name">{fileNameString}</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="buttons is-right">
-            <button
-              type="button"
-              className="button is-text"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="button is-primary"
-              disabled={isSubmitDisabled()}
-            >
-              <span className="icon">
-                <FontAwesomeIcon icon="file-upload" />
-              </span>
-              <span>Upload</span>
-            </button>
-          </div>
-        </form>
+    <form onSubmit={handleSubmit}>
+      <Error error={error} />
+      <div className="field">
+        <label htmlFor="ingest_sheet_name" className="label">
+          Ingest Sheet Name
+        </label>
+        <div className="control">
+          <input
+            id={"ingest_sheet_name"}
+            name="ingest_sheet_name"
+            type="text"
+            className="input"
+            onChange={handleInputChange}
+          />
+        </div>
       </div>
-    </div>
+      <div className="field">
+        <div id="file-js-example" className="file has-name">
+          <label className="file-label">
+            <input
+              className="file-input"
+              id="file"
+              name="file"
+              type="file"
+              onChange={handleInputChange}
+            />
+            <span className="file-cta">
+              <span className="file-icon">
+                <FontAwesomeIcon icon="file-csv" />
+              </span>
+              <span className="file-label">Choose a file…</span>
+            </span>
+            <span className="file-name">{fileNameString}</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="buttons is-right">
+        <button type="button" className="button" onClick={handleCancel}>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="button is-primary"
+          disabled={isSubmitDisabled()}
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="file-upload" />
+          </span>
+          <span>Upload</span>
+        </button>
+      </div>
+    </form>
   );
 };
 

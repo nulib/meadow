@@ -7,7 +7,7 @@ const WorkListItem = ({ work }) => {
   const fileSetsToDisplay = 5;
 
   return (
-    <div className="card">
+    <div className="card is-shadowless">
       <div className="card-image">
         <figure className="image is-4by3">
           <Link to={`/work/${work.id}`}>

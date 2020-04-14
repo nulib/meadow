@@ -43,25 +43,22 @@ const IngestSheetCompleted = ({ sheetId }) => {
   return (
     <>
       {ingestSheetErrors.length > 0 && (
-        <section className="section">
-          <div className="container">
-            <IngestSheetCompletedErrors errors={ingestSheetErrors} />
-          </div>
-        </section>
+        <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
 
-      <section className="section">
+      <div className="box">
+        <h2 className="title is-size-4">Works</h2>
         <div className="columns is-multiline">
           {works.map(work => (
             <div
               key={work.id}
-              className="column is-half-tablet is-one-third-desktop"
+              className="column is-half-tablet is-one-quarter-desktop"
             >
               <WorkListItem key={work.id} work={work} />
             </div>
           ))}
         </div>
-      </section>
+      </div>
     </>
   );
 };

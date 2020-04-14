@@ -111,7 +111,7 @@ it("renders both screen header and screen content components", async () => {
     screenHeaderElement,
     screenContentElement
   ] = await waitForElement(() => [
-    getByTestId("screen-hero"),
+    getByTestId("screen-header"),
     getByTestId("screen-content")
   ]);
 

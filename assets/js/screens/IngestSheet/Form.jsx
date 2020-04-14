@@ -6,6 +6,7 @@ import Loading from "../../components/UI/Loading";
 import { GET_PROJECT } from "../../components/Project/project.query";
 import { useQuery } from "@apollo/react-hooks";
 import Layout from "../Layout";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensIngestSheetForm = ({ match }) => {
   const params = useParams();
@@ -21,19 +22,23 @@ const ScreensIngestSheetForm = ({ match }) => {
 
   return (
     <Layout>
-      <section className="hero is-light">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">Upload a new Ingest Sheet</h1>
-            <h2 className="subtitle">
-              Project: <span className="is-italic">Project title here?</span>
-            </h2>
-          </div>
-        </div>
-      </section>
       <section className="section">
         <div className="container">
-          {id && <IngestSheetForm projectId={id} />}
+          <div className="columns">
+            <div className="column is-8 is-offset-2">
+              <UIBreadcrumbs
+                items={[
+                  { label: "Projects", route: "/project/list" },
+                  { label: "Project Name", route: "/" },
+                  { label: "Upload Ingest Sheet" }
+                ]}
+              />
+              <div className="box">
+                <h1 className="title">Upload a new Ingest Sheet</h1>
+                {id && <IngestSheetForm projectId={id} />}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

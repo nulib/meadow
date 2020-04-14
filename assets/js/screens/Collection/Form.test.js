@@ -52,11 +52,11 @@ it("renders without crashing", async () => {
   expect(container).toBeTruthy();
 });
 
-it("renders hero section", async () => {
+it("renders add collection title", async () => {
   const { getByTestId } = setupTests();
 
   await wait();
-  expect(getByTestId("collection-form-hero")).toBeInTheDocument();
+  expect(getByTestId("collection-form-title")).toBeInTheDocument();
 });
 
 it("renders breadcrumbs", async () => {
