@@ -12,6 +12,7 @@ import { useMutation } from "@apollo/react-hooks";
 import { toastWrapper } from "../../services/helpers";
 import Layout from "../Layout";
 import UIModalDelete from "../../components/UI/Modal/Delete";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -86,37 +87,64 @@ const ScreensCollectionList = () => {
 
   return (
     <Layout>
-      <section className="hero is-light" data-testid="collection-list-hero">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">Collections</h1>
-            <h2 className="subtitle">
-              Each <span className="is-italic">Work</span> must live in a
-              Collection. <br />
-              <strong>Themes</strong> are customized groupings of{" "}
-              <span className="is-italic">Works</span>.
-            </h2>
-            <Link to="/collection/form" className="button is-primary">
-              Create collection
-            </Link>
-          </div>
-        </div>
-      </section>
-      <section className="section" data-testid="collection-list">
+      <section className="section">
         <div className="container">
-          <ul>
-            {filteredCollections.length > 0 &&
-              filteredCollections.map(collection => (
-                <CollectionListRow
-                  key={collection.id}
-                  collection={collection}
-                  onOpenModal={onOpenModal}
-                />
-              ))}
-          </ul>
-          {data.collections.length === 0 && (
-            <p>No collections exist. Why not add one?</p>
-          )}
+          <UIBreadcrumbs items={[{ label: "Collections" }]} />
+
+          <div className="columns">
+            <div className="column is-6">
+              <div className="box">
+                <h1 className="title">Collections</h1>
+                <h2 className="subtitle">
+                  Each <span className="is-italic">Work</span> must live in a
+                  Collection.
+                  <br />
+                  <strong>Themes</strong> are customized groupings of{" "}
+                  <span className="is-italic">Works</span>.
+                </h2>
+                <Link to="/collection/form" className="button is-primary">
+                  Add new collection
+                </Link>
+              </div>
+            </div>
+            <div className="column is-6">
+              <div className="box">
+                <h2 className="title is-size-4">Themes</h2>
+                <p className="subtitle">
+                  Customized groupings of{" "}
+                  <span className="is-italic">Works</span>
+                </p>
+                <Link to="/" className="button">
+                  View themes
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="box">
+            <h3 className="subtitle">All Collections</h3>
+            <div className="field">
+              <input
+                className="input"
+                type="text"
+                placeholder="Search collections"
+              />
+            </div>
+            <ul>
+              {filteredCollections.length > 0 &&
+                filteredCollections.map(collection => (
+                  <CollectionListRow
+                    key={collection.id}
+                    collection={collection}
+                    onOpenModal={onOpenModal}
+                  />
+                ))}
+            </ul>
+            {data.collections.length === 0 && (
+              <div className="content">
+                <p className="notification">No collections returned</p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
       <UIModalDelete
