@@ -85,7 +85,7 @@ defmodule Meadow.MixProject do
       {:sequins, sequins_version()},
       {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
-      {:ueberauth_nusso, "~> 0.2.2"},
+      {:ueberauth_nusso, "~> 0.2.4"},
       {:wormwood, "~> 0.1.0"}
     ]
   end
