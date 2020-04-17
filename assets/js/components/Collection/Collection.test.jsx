@@ -1,49 +1,33 @@
 import React from "react";
+import { render } from "@testing-library/react";
+import { wait, waitForElement } from "@testing-library/react";
 import Collection from "./Collection";
-import { GET_COLLECTION } from "../../components/Collection/collection.query";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { Route } from "react-router-dom";
-import { wait } from "@testing-library/react";
 
-const mocks = [
-  {
-    request: {
-      query: GET_COLLECTION,
-      variables: {
-        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
-      }
-    },
-    result: {
-      data: {
-        collection: {
-          adminEmail: "test@test.com",
-          description: "Test arrays keyword arrays arrays arrays arrays",
-          featured: false,
-          findingAidUrl: "http://go.com",
-          id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-          keywords: ["yo", "foo", "bar", "dude", "hey"],
-          name: "Ima collection",
-          published: false,
-          works: []
-        }
-      }
-    }
-  }
-];
+const mocks = {
+  adminEmail: "test@test.com",
+  description: "Test arrays keyword arrays arrays arrays arrays",
+  featured: false,
+  findingAidUrl: "http://go.com",
+  id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
+  keywords: ["yo", "foo", "bar", "dude", "hey"],
+  name: "Ima collection",
+  published: false,
+  works: []
+};
 
-function setupTests() {
-  return renderWithRouterApollo(
-    <Route path="/collection/:id" component={Collection} />,
-    {
-      mocks,
-      route: "/collection/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
-    }
+it("renders collection section", async () => {
+  const { getByTestId, getByText } = render(<Collection {...mocks} />);
+  const collectionSection = await waitForElement(() =>
+    getByTestId("collection")
   );
-}
-
-it("renders collection item", async () => {
-  const { getByTestId } = setupTests();
-
   await wait();
-  expect(getByTestId("collection")).toBeInTheDocument();
+  expect(collectionSection).toBeInTheDocument();
+});
+
+it("renders collection properties", async () => {
+  const { getByText } = render(<Collection {...mocks} />);
+  expect(getByText("test@test.com")).toBeInTheDocument();
+  expect(
+    getByText("Test arrays keyword arrays arrays arrays arrays")
+  ).toBeInTheDocument();
 });

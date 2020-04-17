@@ -71,10 +71,18 @@ const ScreensCollection = () => {
             <h1 className="title">{data.collection.name || ""}</h1>
             <h2 className="subtitle">Collection</h2>
             <div className="buttons">
-              <Link to={`/collection/form/${id}`} className="button is-primary">
+              <Link
+                data-testid="edit-button"
+                to={`/collection/form/${id}`}
+                className="button is-primary"
+              >
                 Edit
               </Link>
-              <button className="button" onClick={onOpenModal}>
+              <button
+                data-testid="delete-button"
+                className="button"
+                onClick={onOpenModal}
+              >
                 Delete
               </button>
             </div>

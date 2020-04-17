@@ -3,9 +3,37 @@ import ScreensCollection from "./Collection";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
-import { wait } from "@testing-library/react";
+import {
+  wait,
+  fireEvent,
+  waitForElement,
+  getByText
+} from "@testing-library/react";
 
 const mocks = [
+  {
+    request: {
+      query: GET_COLLECTION,
+      variables: {
+        id: "form"
+      }
+    },
+    result: {
+      data: {
+        collection: {
+          adminEmail: "test@test.com",
+          description: "Test arrays keyword arrays arrays arrays arrays",
+          featured: false,
+          findingAidUrl: "http://go.com",
+          id: "form",
+          keywords: ["yo", "foo", "bar", "dude", "hey"],
+          name: "Ima collection",
+          published: false,
+          works: []
+        }
+      }
+    }
+  },
   {
     request: {
       query: GET_COLLECTION,
@@ -54,14 +82,28 @@ it("renders without crashing", async () => {
 
 it("renders hero section", async () => {
   const { getByTestId } = setupTests();
-
   await wait();
   expect(getByTestId("collection-screen-hero")).toBeInTheDocument();
 });
 
 it("renders breadcrumbs", async () => {
   const { getByTestId } = setupTests();
-
   await wait();
   expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+});
+
+it("opens up Delete dialog", async () => {
+  const { getByTestId } = setupTests();
+  const deleteButtonEl = await waitForElement(() =>
+    getByTestId("delete-button")
+  );
+  fireEvent.click(deleteButtonEl);
+  const deleteModalEl = await waitForElement(() => getByTestId("delete-modal"));
+  expect(deleteModalEl).toBeInTheDocument();
+});
+
+it("renders Edit button", async () => {
+  const { getByTestId } = setupTests();
+  await wait();
+  expect(getByTestId("edit-button")).toBeInTheDocument();
 });
