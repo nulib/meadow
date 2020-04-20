@@ -65,23 +65,31 @@ const ScreensCollection = () => {
 
   return (
     <Layout>
-      <section className="hero is-light">
+      <section className="hero is-light" data-testid="collection-screen-hero">
         <div className="hero-body">
           <div className="container">
             <h1 className="title">{data.collection.name || ""}</h1>
             <h2 className="subtitle">Collection</h2>
             <div className="buttons">
-              <Link to={`/collection/form/${id}`} className="button is-primary">
+              <Link
+                data-testid="edit-button"
+                to={`/collection/form/${id}`}
+                className="button is-primary"
+              >
                 Edit
               </Link>
-              <button className="button" onClick={onOpenModal}>
+              <button
+                data-testid="delete-button"
+                className="button"
+                onClick={onOpenModal}
+              >
                 Delete
               </button>
             </div>
           </div>
         </div>
       </section>
-      <UIBreadcrumbs items={crumbs} />
+      <UIBreadcrumbs items={crumbs} data-testid="breadcrumbs" />
       <section className="section">
         <Collection {...data.collection} />
       </section>
