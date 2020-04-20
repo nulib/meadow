@@ -56,7 +56,7 @@ defmodule Meadow.MixProject do
       {:bypass, "~> 1.0", only: :test},
       {:con_cache, "~> 0.14.0"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.3.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0"},
