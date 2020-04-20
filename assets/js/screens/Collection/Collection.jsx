@@ -65,25 +65,30 @@ const ScreensCollection = () => {
 
   return (
     <Layout>
-      <section className="hero is-light">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">{data.collection.name || ""}</h1>
-            <h2 className="subtitle">Collection</h2>
-            <div className="buttons">
-              <Link to={`/collection/form/${id}`} className="button is-primary">
-                Edit
-              </Link>
-              <button className="button" onClick={onOpenModal}>
-                Delete
-              </button>
+      <section className="section">
+        <div className="container">
+          <UIBreadcrumbs items={crumbs} />
+          <div className="columns">
+            <div className="column is-two-thirds">
+              <div className="box">
+                <h1 className="title">{data.collection.name || ""}</h1>
+                <h2 className="subtitle">Collection</h2>
+                <div className="buttons">
+                  <Link
+                    to={`/collection/form/${id}`}
+                    className="button is-primary"
+                  >
+                    Edit
+                  </Link>
+                  <button className="button" onClick={onOpenModal}>
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+          <Collection {...data.collection} />
         </div>
-      </section>
-      <UIBreadcrumbs items={crumbs} />
-      <section className="section">
-        <Collection {...data.collection} />
       </section>
 
       <UIModalDelete

@@ -15,7 +15,7 @@ const Collection = ({
 }) => {
   return (
     <div className="container" data-testid="collection">
-      <article className="media">
+      <article className="media box">
         <figure className="media-left">
           <p
             className="image is-square"
