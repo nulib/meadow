@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Layout from "../Layout";
 import ProjectList from "../../components/Project/List";
 import ProjectForm from "../../components/Project/Form";
+import { PrimaryButton } from "nulib-admin-ui-components";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -16,13 +17,12 @@ const ScreensProjectList = () => {
               What is a project? Projects contain{" "}
               <span className="is-italic">Ingest Sheets</span>
             </h2>
-            <button
-              className="button is-primary"
+            <PrimaryButton
               data-testid="button-new-project"
               onClick={() => setShowForm(!showForm)}
             >
               Add Project
-            </button>
+            </PrimaryButton>
           </div>
         </div>
       </section>
