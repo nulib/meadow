@@ -18,6 +18,7 @@ const CollectionSearch = () => {
   return (
     <>
       <section data-testid="collection-search" className="box">
+        <h1 className="title">Collection Works</h1>
         <div className="field">
           <div className="control has-icons-left">
             <input

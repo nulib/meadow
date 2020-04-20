@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
-import CollectionSearch from "./Search";
 
 const Collection = ({
   id,
@@ -14,8 +13,8 @@ const Collection = ({
   works = []
 }) => {
   return (
-    <div className="container" data-testid="collection">
-      <article className="media box">
+    <div data-testid="collection">
+      <article className="media">
         <figure className="media-left">
           <p
             className="image is-square"
@@ -48,8 +47,6 @@ const Collection = ({
         </div>
         <div className="media-right"></div>
       </article>
-
-      <CollectionSearch />
     </div>
   );
 };
