@@ -17,7 +17,8 @@ const CollectionSearch = () => {
 
   return (
     <>
-      <section data-testid="collection-search" className="section">
+      <section data-testid="collection-search" className="box">
+        <h2 className="title is-size-4">Collection Works</h2>
         <div className="field">
           <div className="control has-icons-left">
             <input
@@ -33,27 +34,23 @@ const CollectionSearch = () => {
         <p className="field">
           <a>Show Filters</a>
         </p>
-      </section>
-
-      <nav className="level">
-        <div className="level-left">
-          <div className="level-item">
-            <p className="is-size-5">
-              <strong>3000 results...</strong>
-            </p>
+        <nav className="level">
+          <div className="level-left">
+            <div className="level-item">
+              <p className="is-size-5">
+                <strong>3000 results...</strong>
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="level-right">
-          <div className="level-item">
-            <button className="button">Batch Edit Records</button>
+          <div className="level-right">
+            <div className="level-item">
+              <button className="button">Batch Edit Records</button>
+            </div>
+            <div className="level-item">
+              <button className="button">Export CSV</button>
+            </div>
           </div>
-          <div className="level-item">
-            <button className="button">Export CSV</button>
-          </div>
-        </div>
-      </nav>
-
-      <section className="section">
+        </nav>
         <ul className="columns is-multiline">{items}</ul>
       </section>
     </>

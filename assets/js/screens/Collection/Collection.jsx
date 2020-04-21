@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Collection from "../../components/Collection/Collection";
+import CollectionSearch from "../../components/Collection/Search";
 import { useQuery } from "@apollo/react-hooks";
 import {
   GET_COLLECTION,
@@ -65,33 +66,31 @@ const ScreensCollection = () => {
 
   return (
     <Layout>
-      <section className="hero is-light" data-testid="collection-screen-hero">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">{data.collection.name || ""}</h1>
-            <h2 className="subtitle">Collection</h2>
-            <div className="buttons">
-              <Link
-                data-testid="edit-button"
-                to={`/collection/form/${id}`}
-                className="button is-primary"
-              >
-                Edit
-              </Link>
-              <button
-                data-testid="delete-button"
-                className="button"
-                onClick={onOpenModal}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <UIBreadcrumbs items={crumbs} data-testid="breadcrumbs" />
       <section className="section">
-        <Collection {...data.collection} />
+        <div className="container">
+          <UIBreadcrumbs items={crumbs} />
+          <div className="box">
+            <div className="columns">
+              <div className="column is-two-thirds">
+                <h1 className="title">{data.collection.name || ""}</h1>
+                <h2 className="subtitle">Collection</h2>
+              </div>
+              <div className="column is-one-third buttons has-text-right">
+                <Link
+                  to={`/collection/form/${id}`}
+                  className="button is-primary"
+                >
+                  Edit
+                </Link>
+                <button className="button" onClick={onOpenModal}>
+                  Delete
+                </button>
+              </div>
+            </div>
+            <Collection {...data.collection} />
+          </div>
+          <CollectionSearch />
+        </div>
       </section>
 
       <UIModalDelete
