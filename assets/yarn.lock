@@ -6141,6 +6141,10 @@ nth-check@^1.0.2:
   dependencies:
     boolbase "~1.0.0"
 
+"nulib-admin-ui-components@https://github.com/nulib/nulib-admin-ui-components":
+  version "1.0.0"
+  resolved "https://github.com/nulib/nulib-admin-ui-components#b18928ee0b1a3d32da452051322839774733f4c0"
+
 number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
