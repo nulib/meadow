@@ -57,7 +57,7 @@ const ScreensCollectionForm = () => {
               <UIBreadcrumbs items={crumbs} />
               <div className="box">
                 <h1 className="title" data-testid="collection-form-title">
-                  Add New Collection
+                  {collection ? "Edit" : "Add New"} Collection
                 </h1>
                 <CollectionForm collection={collection} />
               </div>
