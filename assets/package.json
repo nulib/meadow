@@ -40,7 +40,7 @@
     "rc-progress": "^2.5.2",
     "react-apollo": "^3.1.5",
     "react-csv": "^2.0.3",
-    "react-hook-form": "^5.5.1",
+    "react-hook-form": "^5.5.2",
     "react-responsive-modal": "^4.0.1",
     "react-toast-notifications": "^2.4.0"
   },
