@@ -4,10 +4,12 @@ import WorkTabs from "./Tabs/Tabs";
 
 const Work = ({ work }) => {
   return (
-    <section className="section " data-testid="work-component">
-      <div data-testid="viewer">
-        <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
-      </div>
+    <>
+      <section className=" " data-testid="work-component">
+        <div data-testid="viewer">
+          <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
+        </div>
+      </section>
       <section className="section">
         <div className="container">
           <div className="box">
@@ -15,7 +17,7 @@ const Work = ({ work }) => {
           </div>
         </div>
       </section>
-    </section>
+    </>
   );
 };
 

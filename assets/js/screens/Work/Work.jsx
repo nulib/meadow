@@ -118,8 +118,8 @@ const ScreensWork = () => {
             </ButtonGroup>
           </div>
         </div>
-        <Work work={data.work} />
       </section>
+      <Work work={data.work} />
 
       <UIModalDelete
         isOpen={deleteModalOpen}
