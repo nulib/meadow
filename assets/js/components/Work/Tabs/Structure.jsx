@@ -47,7 +47,7 @@ const WorkTabsStructure = ({ work }) => {
   return (
     <form name="work-structure-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="columns is-centered">
-        <div className="column is-two-thirds box">
+        <div className="column is-two-thirds box is-shadowless">
           {work.fileSets.map(({ id, accessionNumber, metadata }) => (
             <article key={id} className="media">
               <figure className="media-left">
