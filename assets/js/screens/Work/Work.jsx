@@ -118,6 +118,7 @@ const ScreensWork = () => {
             </ButtonGroup>
           </div>
         </div>
+
         <Work work={data.work} />
       </section>
 

@@ -117,7 +117,6 @@ const WorkTabsStructure = ({ work }) => {
                     )}
                   </div>
                 </div>
-
                 {isEditing ? (
                   ""
                 ) : (

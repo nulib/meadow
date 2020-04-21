@@ -4,7 +4,7 @@ import WorkTabs from "./Tabs/Tabs";
 
 const Work = ({ work }) => {
   return (
-    <section className="section" data-testid="work-component">
+    <section className="section " data-testid="work-component">
       <div data-testid="viewer">
         <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
       </div>
