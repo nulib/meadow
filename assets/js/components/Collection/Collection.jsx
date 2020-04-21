@@ -1,52 +1,41 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes, { shape } from "prop-types";
 
 const Collection = ({
-  id,
   adminEmail,
   description,
-  featured,
   findingAidUrl,
-  keywords = [],
-  name,
-  published,
-  works = []
+  keywords = []
 }) => {
   return (
     <div data-testid="collection">
-      <article className="media">
-        <figure className="media-left">
-          <p
-            className="image is-square"
-            style={{ width: "300px", height: "300px" }}
-          >
+      <div className="columns">
+        <div className="column is-one-quarter-desktop is-half-tablet">
+          <figure className="image is-square">
             <img src="https://bulma.io/images/placeholders/480x480.png" />
-          </p>
-        </figure>
-        <div className="media-content">
-          <div className="content">
-            <dl>
-              <dt>
-                <strong>Description</strong>
-              </dt>
-              <dd>{description}</dd>
-              <dt>
-                <strong>Admin Email</strong>
-              </dt>
-              <dd>{adminEmail}</dd>
-              <dt>
-                <strong>Finding Aid URL</strong>
-              </dt>
-              <dd>{findingAidUrl}</dd>
-              <dt>
-                <strong>Keywords</strong>
-              </dt>
-              <dd>{keywords.join(", ")}</dd>
-            </dl>
-          </div>
+          </figure>
         </div>
-        <div className="media-right"></div>
-      </article>
+        <div className="column content">
+          <dl>
+            <dt>
+              <strong>Description</strong>
+            </dt>
+            <dd>{description}</dd>
+            <dt>
+              <strong>Admin Email</strong>
+            </dt>
+            <dd>{adminEmail}</dd>
+            <dt>
+              <strong>Finding Aid URL</strong>
+            </dt>
+            <dd>{findingAidUrl}</dd>
+            <dt>
+              <strong>Keywords</strong>
+            </dt>
+            <dd>{keywords.join(", ")}</dd>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 };
