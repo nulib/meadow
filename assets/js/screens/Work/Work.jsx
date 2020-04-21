@@ -89,9 +89,10 @@ const ScreensWork = () => {
 
   return (
     <Layout>
-      <section className="hero is-light" data-testid="work-hero">
-        <div className="hero-body">
-          <div className="container">
+      <section className="section" data-testid="work-hero">
+        <div className="container">
+          <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
+          <div className="box">
             <h1 className="title">
               {accessionNumber}{" "}
               <span className={`tag ${published ? "is-info" : "is-warning"}`}>
@@ -118,8 +119,8 @@ const ScreensWork = () => {
           </div>
         </div>
       </section>
-      <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
       <Work work={data.work} />
+
       <UIModalDelete
         isOpen={deleteModalOpen}
         handleClose={onCloseModal}

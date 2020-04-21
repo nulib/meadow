@@ -47,7 +47,7 @@ const WorkTabsStructure = ({ work }) => {
   return (
     <form name="work-structure-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="columns is-centered">
-        <div className="column is-two-thirds box">
+        <div className="column is-two-thirds box is-shadowless">
           {work.fileSets.map(({ id, accessionNumber, metadata }) => (
             <article key={id} className="media">
               <figure className="media-left">
@@ -117,43 +117,51 @@ const WorkTabsStructure = ({ work }) => {
                     )}
                   </div>
                 </div>
-              </div>
-              <div className="media-right has-text-right">
                 {isEditing ? (
                   ""
                 ) : (
                   <>
-                    <div className="field">
-                      <input
-                        id={`checkbox-work-switch-${id}`}
-                        type="checkbox"
-                        name={`checkbox-work-switch-${id}`}
-                        className="switch"
-                        checked={workImageFilesetId === id}
-                        onChange={e => handleWorkImageChange(id)}
-                      />
-                      <label htmlFor={`checkbox-work-switch-${id}`}>
-                        Work image
-                      </label>
-                    </div>
-                    <div className="field has-addons">
-                      <p className="control">
-                        <button className="button">
-                          <span className="icon">
-                            <FontAwesomeIcon icon="file-download" />
-                          </span>{" "}
-                          <span>TIFF</span>
-                        </button>
-                      </p>
-                      <p className="control">
-                        <button className="button">
-                          <span className="icon">
-                            <FontAwesomeIcon icon="file-download" />
-                          </span>{" "}
-                          <span>JPG</span>
-                        </button>
-                      </p>
-                    </div>
+                    <nav className="level">
+                      <div className="level-left">
+                        <div className="level-item">
+                          <div className="field">
+                            <input
+                              id={`checkbox-work-switch-${id}`}
+                              type="checkbox"
+                              name={`checkbox-work-switch-${id}`}
+                              className="switch"
+                              checked={workImageFilesetId === id}
+                              onChange={e => handleWorkImageChange(id)}
+                            />
+                            <label htmlFor={`checkbox-work-switch-${id}`}>
+                              Work image
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="level-right">
+                        <div className="level-item">
+                          <div className="field has-addons">
+                            <p className="control">
+                              <button className="button">
+                                <span className="icon">
+                                  <FontAwesomeIcon icon="file-download" />
+                                </span>{" "}
+                                <span>TIFF</span>
+                              </button>
+                            </p>
+                            <p className="control">
+                              <button className="button">
+                                <span className="icon">
+                                  <FontAwesomeIcon icon="file-download" />
+                                </span>{" "}
+                                <span>JPG</span>
+                              </button>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </nav>
                   </>
                 )}
               </div>

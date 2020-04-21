@@ -55,7 +55,7 @@ const WorkTabsAbout = ({ work }) => {
             </a>
           </h2>
           {showCoreMetadata && (
-            <div className="box">
+            <div className="box is-shadowless">
               <div className="field">
                 <label className="label">Title</label>
                 <div className="control">
@@ -157,7 +157,7 @@ const WorkTabsAbout = ({ work }) => {
             </a>
           </h2>
           {showDescriptiveMetadata && (
-            <div className="box">
+            <div className="box is-shadowless">
               <div className="field">
                 <label className="label">
                   Creators{" "}
