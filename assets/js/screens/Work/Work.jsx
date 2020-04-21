@@ -117,8 +117,8 @@ const ScreensWork = () => {
               </button>
             </ButtonGroup>
           </div>
-          <Work work={data.work} />
         </div>
+        <Work work={data.work} />
       </section>
 
       <UIModalDelete

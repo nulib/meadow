@@ -4,14 +4,16 @@ import WorkTabs from "./Tabs/Tabs";
 
 const Work = ({ work }) => {
   return (
-    <div data-testid="work-component">
-      <div data-testid="viewer" className="box">
+    <section className="section" data-testid="work-component">
+      <div data-testid="viewer">
         <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
       </div>
-      <div className="box">
-        <WorkTabs work={work} />
+      <div className="container">
+        <div className="box">
+          <WorkTabs work={work} />
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
