@@ -18,6 +18,13 @@ defmodule Meadow.Data.IndexerTest do
       assert indexed_doc_count() == count
     end
 
+    test "reindex_all!/0", %{count: count} do
+      Indexer.synchronize_index()
+      assert indexed_doc_count() == count
+      Indexer.reindex_all!()
+      assert indexed_doc_count() == count
+    end
+
     test "deleted", %{count: count, works: [work | _]} do
       assert indexed_doc_count() == 0
       Indexer.synchronize_index()

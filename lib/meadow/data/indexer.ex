@@ -2,6 +2,7 @@ defmodule Meadow.Data.Indexer do
   @moduledoc """
   Indexes individual structs into Elasticsearch, preloading if necessary.
   """
+  alias Meadow.Data.IndexTimes
   alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
   alias Meadow.ElasticsearchDiffStore, as: Store
@@ -16,6 +17,11 @@ defmodule Meadow.Data.Indexer do
     |> Enum.each(&synchronize_schema/1)
 
     Elasticsearch.Index.refresh(Cluster, to_string(@index))
+  end
+
+  def reindex_all! do
+    IndexTimes.reset_all!()
+    synchronize_index()
   end
 
   def synchronize_schema(schema) do
