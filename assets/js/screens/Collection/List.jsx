@@ -3,7 +3,7 @@ import CollectionListRow from "../../components/Collection/ListRow";
 import { useQuery } from "@apollo/react-hooks";
 import {
   GET_COLLECTIONS,
-  DELETE_COLLECTION
+  DELETE_COLLECTION,
 } from "../../components/Collection/collection.query";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
@@ -36,7 +36,7 @@ const ScreensCollectionList = () => {
     },
     refetchQueries(mutationResult) {
       return [{ query: GET_COLLECTIONS }];
-    }
+    },
   });
 
   if (loading) {
@@ -46,7 +46,7 @@ const ScreensCollectionList = () => {
     return <Error error={error} />;
   }
 
-  const onOpenModal = collectionObj => {
+  const onOpenModal = (collectionObj) => {
     setActiveCollection(collectionObj);
     setModalOpen(true);
   };
@@ -66,17 +66,17 @@ const ScreensCollectionList = () => {
     return [
       {
         label: "Collections",
-        link: "/collection/list"
-      }
+        link: "/collection/list",
+      },
     ];
   };
 
-  const handleFilterChange = e => {
+  const handleFilterChange = (e) => {
     const searchValue = inputEl.current.value.toLowerCase();
 
     if (searchValue) {
       setFilteredCollections(
-        data.collections.filter(collection =>
+        data.collections.filter((collection) =>
           collection.name.toLowerCase().includes(searchValue)
         )
       );
@@ -87,7 +87,7 @@ const ScreensCollectionList = () => {
 
   return (
     <Layout>
-      <section className="section" data-testid="collection-list-hero">
+      <section className="section" data-testid="collection-list-wrapper">
         <div className="container">
           <UIBreadcrumbs items={[{ label: "Collections" }]} />
 
@@ -131,7 +131,7 @@ const ScreensCollectionList = () => {
             </div>
             <ul>
               {filteredCollections.length > 0 &&
-                filteredCollections.map(collection => (
+                filteredCollections.map((collection) => (
                   <CollectionListRow
                     key={collection.id}
                     collection={collection}

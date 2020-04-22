@@ -10,8 +10,8 @@ const mocks = [
     request: {
       query: GET_WORK,
       variables: {
-        id: "ABC123"
-      }
+        id: "ABC123",
+      },
     },
     result: {
       data: {
@@ -19,15 +19,15 @@ const mocks = [
           accessionNumber: "Donohue_001",
           administrativeMetadata: {
             preservationLevel: 1,
-            rightsStatement: "https://northwestern.edu"
+            rightsStatement: "https://northwestern.edu",
           },
           collection: {
             id: "1287312378238293126321308",
-            name: " Collection 1232432 Name"
+            name: " Collection 1232432 Name",
           },
           descriptiveMetadata: {
             description: "Some description here",
-            title: "Ima work title"
+            title: "Ima work title",
           },
           fileSets: [
             {
@@ -39,8 +39,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar"
-              }
+                sha256: "foobar",
+              },
             },
             {
               accessionNumber: "Donohue_001_01",
@@ -51,8 +51,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar"
-              }
+                sha256: "foobar",
+              },
             },
             {
               accessionNumber: "Donohue_001_03",
@@ -63,8 +63,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar"
-              }
+                sha256: "foobar",
+              },
             },
             {
               accessionNumber: "Donohue_001_02",
@@ -75,30 +75,30 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar"
-              }
-            }
+                sha256: "foobar",
+              },
+            },
           ],
           id: "ABC123",
           insertedAt: "2020-02-04T19:16:16",
           published: false,
           project: {
             id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-            name: "Foo"
+            name: "Foo",
           },
           sheet: {
             id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-            name: "Bar"
+            name: "Bar",
           },
           updatedAt: "2020-02-04T19:16:16",
           visibility: "RESTRICTED",
           workType: "IMAGE",
           manifestUrl: "http://foobar",
-          representativeImage: "http://foobar"
-        }
-      }
-    }
-  }
+          representativeImage: "http://foobar",
+        },
+      },
+    },
+  },
 ];
 
 // This function helps mock out a component's dependency on
@@ -108,7 +108,7 @@ function setupMatchTests() {
     <Route path="/work/:id" component={ScreensWork} />,
     {
       mocks,
-      route: "/work/ABC123"
+      route: "/work/ABC123",
     }
   );
 }
@@ -118,17 +118,15 @@ it("renders without crashing", () => {
 });
 
 it("renders Publish, and Delete buttons", async () => {
-  const { getByTestId } = setupMatchTests();
-  const buttonEl = await waitForElement(() => getByTestId("publish-button"));
-
+  const { findByTestId, getByTestId } = setupMatchTests();
+  const buttonEl = await findByTestId("publish-button");
   expect(buttonEl).toBeInTheDocument();
   expect(getByTestId("delete-button")).toBeInTheDocument();
 });
 
 it("renders breadcrumbs", async () => {
-  const { getByTestId, debug } = setupMatchTests();
-  const crumbsEl = await waitForElement(() => getByTestId("work-breadcrumbs"));
-
+  const { findByTestId, debug } = setupMatchTests();
+  const crumbsEl = await findByTestId("work-breadcrumbs");
   expect(crumbsEl).toBeInTheDocument();
 });
 

@@ -10,7 +10,7 @@ const Breadcrumbs = ({ items = [], ...props }) => (
     {...props}
   >
     <ul>
-      {items.map(({ label, route, isActive }) =>
+      {items.map(({ label, route = "/", isActive }) =>
         isActive ? (
           <li key={label} className="is-active">
             <a aria-current="page">{label}</a>
@@ -30,9 +30,9 @@ Breadcrumbs.propTypes = {
     PropTypes.shape({
       label: PropTypes.string.isRequred,
       route: PropTypes.string,
-      isActive: PropTypes.bool
+      isActive: PropTypes.bool,
     })
-  )
+  ),
 };
 
 export default Breadcrumbs;

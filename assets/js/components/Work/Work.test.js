@@ -1,25 +1,25 @@
 import React from "react";
 import Work from "./Work";
-import { fireEvent, wait } from "@testing-library/react";
+import { fireEvent, waitFor } from "@testing-library/react";
 import {
   renderWithRouterApollo,
-  mockWork
+  mockWork,
 } from "../../services/testing-helpers";
 import { IIIF_SERVER_URL } from "../IIIF/iiif.query";
 
 const mocks = [
   {
     request: {
-      query: IIIF_SERVER_URL
+      query: IIIF_SERVER_URL,
     },
     result: {
       data: {
         iiifServerUrl: {
-          url: "http://localhost:8184/iiif/2/"
-        }
-      }
-    }
-  }
+          url: "http://localhost:8184/iiif/2/",
+        },
+      },
+    },
+  },
 ];
 
 describe("Work component", () => {
@@ -34,8 +34,9 @@ describe("Work component", () => {
   it("renders the viewer and tabs", async () => {
     const { getByTestId } = setupTests();
 
-    await wait();
-    expect(getByTestId("viewer")).toBeInTheDocument();
-    expect(getByTestId("tabs")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByTestId("viewer")).toBeInTheDocument();
+      expect(getByTestId("tabs")).toBeInTheDocument();
+    });
   });
 });
