@@ -117,6 +117,44 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     end
   end
 
+  @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
+  object :work_descriptive_metadata do
+    field :description, :string
+    @desc "NOT YET IMPLEMENTED"
+    field :genre, list_of(:controlled_vocabulary)
+    field :keywords, list_of(:string)
+    field :nul_subject, list_of(:string)
+    @desc "NOT YET IMPLEMENTED"
+    field :style_period, list_of(:controlled_vocabulary)
+    @desc "NOT YET IMPLEMENTED"
+    field :technique, list_of(:controlled_vocabulary)
+    field :title, :string
+  end
+
+  @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
+  object :work_administrative_metadata do
+    field :preservation_level, :integer
+    field :rights_statement, :string
+  end
+
+  @desc "Project info"
+  object :work_project do
+    field :id, :string
+    field :name, :string
+  end
+
+  @desc "Sheet info"
+  object :work_sheet do
+    field :id, :id
+    field :name, :string
+  end
+
+  @desc "Controlled Vocabulary"
+  object :controlled_vocabulary do
+    field :id, :string
+    field :label, :string
+  end
+
   #
   # Input Object Types
   #
@@ -145,7 +183,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :genre, list_of(:string)
     field :keywords, list_of(:string)
     field :nul_subject, list_of(:string)
-    field :technique, :string
     field :title, :string
   end
 
@@ -156,38 +193,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :visibility, :visibility
     field :published, :boolean
     field :collection_id, :id
-  end
-
-  #
-  # Object Types
-  #
-
-  @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
-  object :work_descriptive_metadata do
-    field :description, :string
-    field :genre, list_of(:string)
-    field :keywords, list_of(:string)
-    field :nul_subject, list_of(:string)
-    field :technique, :string
-    field :title, :string
-  end
-
-  @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
-  object :work_administrative_metadata do
-    field :preservation_level, :integer
-    field :rights_statement, :string
-  end
-
-  @desc "Project info"
-  object :work_project do
-    field :id, :string
-    field :name, :string
-  end
-
-  @desc "Sheet info"
-  object :work_sheet do
-    field :id, :id
-    field :name, :string
   end
 
   @desc "visibility setting for the object"

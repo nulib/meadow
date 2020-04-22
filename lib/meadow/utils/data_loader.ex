@@ -32,16 +32,8 @@ defmodule Meadow.Utils.DataLoader do
       },
       descriptive_metadata: %WorkDescriptiveMetadata{
         description: Faker.Lorem.sentence(),
-        genre: Faker.Lorem.words(1..5),
         keywords: Faker.Lorem.words(1..5),
         nul_subject: Faker.Lorem.words(1..5),
-        technique:
-          Faker.Util.pick([
-            "albumen process",
-            "drawing (image-making)",
-            "silver-dye bleach process",
-            "gelatin silver process"
-          ]),
         title: Faker.Lorem.sentence()
       },
       file_sets: insert_file_sets()
