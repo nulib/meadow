@@ -79,10 +79,15 @@ const ScreensCollection = () => {
                 <Link
                   to={`/collection/form/${id}`}
                   className="button is-primary"
+                  data-testid="edit-button"
                 >
                   Edit
                 </Link>
-                <button className="button" onClick={onOpenModal}>
+                <button
+                  className="button"
+                  onClick={onOpenModal}
+                  data-testid="delete-button"
+                >
                   Delete
                 </button>
               </div>
