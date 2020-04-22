@@ -50,7 +50,7 @@ describe("ScreensCollectionList component", () => {
   it("renders collection list", async () => {
     const { getByTestId, getByText } = setupTests();
     await wait();
-    expect(getByText("Create collection")).toBeInTheDocument();
+    expect(getByText("Add new collection")).toBeInTheDocument();
     expect(getByTestId("collection-list")).toBeInTheDocument();
   });
 

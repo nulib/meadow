@@ -87,7 +87,7 @@ const ScreensCollectionList = () => {
 
   return (
     <Layout>
-      <section className="section">
+      <section className="section" data-testid="collection-list-hero">
         <div className="container">
           <UIBreadcrumbs items={[{ label: "Collections" }]} />
 
@@ -120,7 +120,7 @@ const ScreensCollectionList = () => {
               </div>
             </div>
           </div>
-          <div className="box">
+          <div className="box" data-testid="collection-list">
             <h3 className="subtitle">All Collections</h3>
             <div className="field">
               <input

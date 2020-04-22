@@ -66,7 +66,7 @@ const ScreensCollection = () => {
 
   return (
     <Layout>
-      <section className="section">
+      <section className="section" data-testid="collection-screen-hero">
         <div className="container">
           <UIBreadcrumbs items={crumbs} />
           <div className="box">
@@ -79,10 +79,15 @@ const ScreensCollection = () => {
                 <Link
                   to={`/collection/form/${id}`}
                   className="button is-primary"
+                  data-testid="edit-button"
                 >
                   Edit
                 </Link>
-                <button className="button" onClick={onOpenModal}>
+                <button
+                  className="button"
+                  onClick={onOpenModal}
+                  data-testid="delete-button"
+                >
                   Delete
                 </button>
               </div>
@@ -92,7 +97,6 @@ const ScreensCollection = () => {
           <CollectionSearch />
         </div>
       </section>
-
       <UIModalDelete
         isOpen={modalOpen}
         handleClose={onCloseModal}
