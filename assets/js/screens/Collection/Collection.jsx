@@ -92,7 +92,6 @@ const ScreensCollection = () => {
           <CollectionSearch />
         </div>
       </section>
-
       <UIModalDelete
         isOpen={modalOpen}
         handleClose={onCloseModal}
