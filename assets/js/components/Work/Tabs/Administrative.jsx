@@ -60,7 +60,7 @@ const WorkTabsAdministrative = ({ work }) => {
     <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="columns is-centered">
         <div className="column is-two-thirds">
-          <div className="box">
+          <div className="box is-shadowless">
             <div className="field">
               <label className="label">Visibility</label>
               <div className="control">

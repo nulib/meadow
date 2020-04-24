@@ -3,30 +3,26 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 const Breadcrumbs = ({ items = [], ...props }) => (
-  <div className="has-background-white-bis" style={{ padding: "0.75rem" }}>
-    <div className="container">
-      <nav
-        className="breadcrumb has-succeeds-separator "
-        aria-label="breadcrumbs"
-        data-testid="breadcrumbs"
-        {...props}
-      >
-        <ul>
-          {items.map(({ label, route, isActive }) =>
-            isActive ? (
-              <li key={label} className="is-active">
-                <a aria-current="page">{label}</a>
-              </li>
-            ) : (
-              <li key={label}>
-                <Link to={route}>{label}</Link>
-              </li>
-            )
-          )}
-        </ul>
-      </nav>
-    </div>
-  </div>
+  <nav
+    className="breadcrumb has-succeeds-separator "
+    aria-label="breadcrumbs"
+    data-testid="breadcrumbs"
+    {...props}
+  >
+    <ul>
+      {items.map(({ label, route = "/", isActive }) =>
+        isActive ? (
+          <li key={label} className="is-active">
+            <a aria-current="page">{label}</a>
+          </li>
+        ) : (
+          <li key={label}>
+            <Link to={route}>{label}</Link>
+          </li>
+        )
+      )}
+    </ul>
+  </nav>
 );
 
 Breadcrumbs.propTypes = {
@@ -34,9 +30,9 @@ Breadcrumbs.propTypes = {
     PropTypes.shape({
       label: PropTypes.string.isRequred,
       route: PropTypes.string,
-      isActive: PropTypes.bool
+      isActive: PropTypes.bool,
     })
-  )
+  ),
 };
 
 export default Breadcrumbs;

@@ -3,17 +3,14 @@ import CollectionForm from "./Form";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
-  GET_COLLECTIONS
+  GET_COLLECTIONS,
 } from "./collection.query.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import "@testing-library/jest-dom/extend-expect";
-import { Route } from "react-router-dom";
-import { waitForElement, render } from "@testing-library/react";
 
 const mocks = [
   {
     request: {
-      query: GET_COLLECTIONS
+      query: GET_COLLECTIONS,
     },
     result: {
       data: {
@@ -27,18 +24,18 @@ const mocks = [
             keywords: ["any", " work", "foo", "bar"],
             name: "Great collection",
             published: false,
-            works: []
-          }
-        ]
-      }
-    }
-  }
+            works: [],
+          },
+        ],
+      },
+    },
+  },
 ];
 
 function setupMatchTests() {
   return renderWithRouterApollo(<CollectionForm />, {
     mocks,
-    route: "/collection/form"
+    route: "/collection/form",
   });
 }
 

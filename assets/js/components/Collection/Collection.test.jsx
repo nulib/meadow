@@ -1,9 +1,8 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { wait, waitForElement } from "@testing-library/react";
 import Collection from "./Collection";
 
-const mocks = {
+const props = {
   adminEmail: "test@test.com",
   description: "Test arrays keyword arrays arrays arrays arrays",
   featured: false,
@@ -12,20 +11,17 @@ const mocks = {
   keywords: ["yo", "foo", "bar", "dude", "hey"],
   name: "Ima collection",
   published: false,
-  works: []
+  works: [],
 };
 
-it("renders collection section", async () => {
-  const { getByTestId, getByText } = render(<Collection {...mocks} />);
-  const collectionSection = await waitForElement(() =>
-    getByTestId("collection")
-  );
-  await wait();
+it("renders Collection component", async () => {
+  const { getByTestId } = render(<Collection {...props} />);
+  const collectionSection = getByTestId("collection");
   expect(collectionSection).toBeInTheDocument();
 });
 
 it("renders collection properties", async () => {
-  const { getByText } = render(<Collection {...mocks} />);
+  const { getByText } = render(<Collection {...props} />);
   expect(getByText("test@test.com")).toBeInTheDocument();
   expect(
     getByText("Test arrays keyword arrays arrays arrays arrays")

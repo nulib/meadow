@@ -3,15 +3,15 @@ import ScreensCollectionForm from "./Form";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
-import { wait } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 const mocks = [
   {
     request: {
       query: GET_COLLECTION,
       variables: {
-        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
-      }
+        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
+      },
     },
     result: {
       data: {
@@ -24,11 +24,11 @@ const mocks = [
           keywords: ["yo", "foo", "bar", "dude", "hey"],
           name: "Ima collection",
           published: false,
-          works: []
-        }
-      }
-    }
-  }
+          works: [],
+        },
+      },
+    },
+  },
 ];
 
 function setupTests() {
@@ -36,7 +36,7 @@ function setupTests() {
     <Route path="/collection/form/:id" component={ScreensCollectionForm} />,
     {
       mocks,
-      route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
+      route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
     }
   );
 }
@@ -46,51 +46,56 @@ it("renders without crashing", async () => {
 
   expect(queryByTestId("loading")).toBeInTheDocument();
 
-  // This "wait()" magically makes Apollo MockProvider warning messages go away
-  await wait();
-  expect(queryByTestId("loading")).not.toBeInTheDocument();
-  expect(container).toBeTruthy();
+  // This "waitFor()" magically makes Apollo MockProvider warning messages go away
+  await waitFor(() => {
+    expect(queryByTestId("loading")).not.toBeInTheDocument();
+    expect(container).toBeTruthy();
+  });
 });
 
-it("renders hero section", async () => {
+it("renders add collection title", async () => {
   const { getByTestId } = setupTests();
 
-  await wait();
-  expect(getByTestId("collection-form-hero")).toBeInTheDocument();
+  await waitFor(() => {
+    expect(getByTestId("collection-form-title")).toBeInTheDocument();
+  });
 });
 
 it("renders breadcrumbs", async () => {
   const { getByTestId } = setupTests();
 
-  await wait();
-  expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+  await waitFor(() => {
+    expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+  });
 });
 
 it("renders no initial form values when creating a collection", async () => {
   const { getByTestId } = renderWithRouterApollo(
     <Route path="/collection/form/" component={ScreensCollectionForm} />,
     {
-      route: "/collection/form/"
+      route: "/collection/form/",
     }
   );
 
-  await wait();
-  expect(getByTestId("input-collection-name")).toHaveValue("");
-  expect(getByTestId("textarea-description")).toHaveValue("");
-  expect(getByTestId("input-finding-aid-url")).toHaveValue("");
-  expect(getByTestId("input-admin-email")).toHaveValue("");
-  expect(getByTestId("input-keywords")).toHaveValue("");
+  await waitFor(() => {
+    expect(getByTestId("input-collection-name")).toHaveValue("");
+    expect(getByTestId("textarea-description")).toHaveValue("");
+    expect(getByTestId("input-finding-aid-url")).toHaveValue("");
+    expect(getByTestId("input-admin-email")).toHaveValue("");
+    expect(getByTestId("input-keywords")).toHaveValue("");
+  });
 });
 
 it("renders existing collection values in the form when editing a form", async () => {
   const { getByTestId } = setupTests();
 
-  await wait();
-  expect(getByTestId("input-collection-name")).toHaveValue("Ima collection");
-  expect(getByTestId("textarea-description")).toHaveValue(
-    "Test arrays keyword arrays arrays arrays arrays"
-  );
-  expect(getByTestId("input-finding-aid-url")).toHaveValue("http://go.com");
-  expect(getByTestId("input-admin-email")).toHaveValue("test@test.com");
-  expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,dude,hey");
+  await waitFor(() => {
+    expect(getByTestId("input-collection-name")).toHaveValue("Ima collection");
+    expect(getByTestId("textarea-description")).toHaveValue(
+      "Test arrays keyword arrays arrays arrays arrays"
+    );
+    expect(getByTestId("input-finding-aid-url")).toHaveValue("http://go.com");
+    expect(getByTestId("input-admin-email")).toHaveValue("test@test.com");
+    expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,dude,hey");
+  });
 });

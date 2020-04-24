@@ -19,7 +19,7 @@ import ScrollToTop from "../components/ScrollToTop";
 import { ReactiveBase } from "@appbaseio/reactivesearch";
 import {
   ELASTICSEARCH_PROXY_ENDPOINT,
-  ELASTICSEARCH_INDEX_NAME
+  ELASTICSEARCH_INDEX_NAME,
 } from "../services/elasticsearch";
 import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
 

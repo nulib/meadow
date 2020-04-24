@@ -20,7 +20,7 @@ const SearchResultItem = ({ res }) => {
   const fileSetsToDisplay = 5;
 
   return (
-    <div className="card">
+    <div className="card is-shadowless">
       <div className="card-image">
         <figure className="image is-square">
           {file_sets.length > 0 && (

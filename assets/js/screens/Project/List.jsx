@@ -2,36 +2,57 @@ import React, { useState } from "react";
 import Layout from "../Layout";
 import ProjectList from "../../components/Project/List";
 import ProjectForm from "../../components/Project/Form";
-import { PrimaryButton } from "nulib-admin-ui-components";
+// import { PrimaryButton } from "nulib-admin-ui-components";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
 
   return (
     <Layout>
-      <section className="hero is-light" data-testid="screen-hero">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">Projects</h1>
-            <h2 className="subtitle">
-              What is a project? Projects contain{" "}
-              <span className="is-italic">Ingest Sheets</span>
-            </h2>
-            <PrimaryButton
-              data-testid="button-new-project"
-              onClick={() => setShowForm(!showForm)}
-            >
-              Add Project
-            </PrimaryButton>
+      <section className="section">
+        <div className="container">
+          <UIBreadcrumbs
+            items={[{ label: "Projects", route: "/project/list" }]}
+          />
+          <div className="box">
+            <div className="columns" data-testid="screen-header">
+              <div className="column is-8">
+                <h1 className="title">Projects</h1>
+                <h2 className="subtitle">
+                  Projects contain{" "}
+                  <span className="is-italic">Ingest Sheets</span>
+                </h2>
+              </div>
+              <div className="column is-4 has-text-right">
+                <button
+                  className="is-primary"
+                  data-testid="button-new-project"
+                  onClick={() => setShowForm(!showForm)}
+                >
+                  Add Project
+                </button>
+                {/* <PrimaryButton
+                  data-testid="button-new-project"
+                  onClick={() => setShowForm(!showForm)}
+                >
+                  Add Project
+                </PrimaryButton> */}
+              </div>
+            </div>
+            <div className="field">
+              <input
+                className="input"
+                type="text"
+                placeholder="Search projects"
+              />
+            </div>
+            <div data-testid="screen-content">
+              <ProjectList />
+            </div>
           </div>
         </div>
       </section>
-
-      <div className="section" data-testid="screen-content">
-        <div className="container">
-          <ProjectList />
-        </div>
-      </div>
 
       <ProjectForm showForm={showForm} setShowForm={setShowForm} />
     </Layout>

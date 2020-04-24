@@ -16,7 +16,7 @@ export function renderWithRouter(
   ui,
   {
     route = "/",
-    history = createMemoryHistory({ initialEntries: [route] })
+    history = createMemoryHistory({ initialEntries: [route] }),
   } = {}
 ) {
   const Wrapper = ({ children }) => (
@@ -28,7 +28,7 @@ export function renderWithRouter(
     // adding `history` to the returned utilities to allow us
     // to reference it in our tests (just try to avoid using
     // this to test implementation details).
-    history
+    history,
   };
 }
 
@@ -46,7 +46,7 @@ export function renderWithRouterApollo(
   {
     mocks = [],
     route = "/",
-    history = createMemoryHistory({ initialEntries: [route] })
+    history = createMemoryHistory({ initialEntries: [route] }),
   } = {}
 ) {
   const Wrapper = ({ children }) => (
@@ -56,7 +56,7 @@ export function renderWithRouterApollo(
   );
 
   return {
-    ...render(ui, { wrapper: Wrapper })
+    ...render(ui, { wrapper: Wrapper }),
   };
 }
 
@@ -68,7 +68,7 @@ export function renderWithApollo(ui, { mocks = [] }) {
   );
 
   return {
-    ...render(ui, { wrapper: Wrapper })
+    ...render(ui, { wrapper: Wrapper }),
   };
 }
 
@@ -82,8 +82,8 @@ export const mockWork = {
         description: "Lorem Ipsum",
         original_filename: "foo.tiff",
         location: "s3://bucket/foo/bar",
-        label: "foo.tiff"
-      }
+        label: "foo.tiff",
+      },
     },
     {
       accessionNumber: "Example-34-4",
@@ -92,15 +92,15 @@ export const mockWork = {
         description: "Lorem Ipsum",
         original_filename: "foo.tiff",
         location: "s3://bucket/foo/bar",
-        label: "foo.tiff"
-      }
-    }
+        label: "foo.tiff",
+      },
+    },
   ],
   id: "01DV4BAE9NDQHSMRHKM8KC4FNC",
   insertedAt: "2019-12-02T22:22:30",
   descriptiveMetadata: {
     title: "Ima title",
-    description: "Ima description"
+    description: "Ima description",
   },
   updatedAt: "2019-12-02T22:22:30",
   visibility: "RESTRICTED",
@@ -108,12 +108,12 @@ export const mockWork = {
   published: false,
   project: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-    name: "Foo"
+    name: "Foo",
   },
   sheet: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-    name: "Bar"
+    name: "Bar",
   },
   manifestUrl: "http://foobar",
-  representativeImage: "http://foobar"
+  representativeImage: "http://foobar",
 };

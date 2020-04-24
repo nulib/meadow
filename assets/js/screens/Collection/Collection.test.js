@@ -3,20 +3,15 @@ import ScreensCollection from "./Collection";
 import { GET_COLLECTION } from "../../components/Collection/collection.query";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
-import {
-  wait,
-  fireEvent,
-  waitForElement,
-  getByText
-} from "@testing-library/react";
+import { waitFor, fireEvent } from "@testing-library/react";
 
 const mocks = [
   {
     request: {
       query: GET_COLLECTION,
       variables: {
-        id: "form"
-      }
+        id: "form",
+      },
     },
     result: {
       data: {
@@ -29,17 +24,17 @@ const mocks = [
           keywords: ["yo", "foo", "bar", "dude", "hey"],
           name: "Ima collection",
           published: false,
-          works: []
-        }
-      }
-    }
+          works: [],
+        },
+      },
+    },
   },
   {
     request: {
       query: GET_COLLECTION,
       variables: {
-        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
-      }
+        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
+      },
     },
     result: {
       data: {
@@ -52,11 +47,11 @@ const mocks = [
           keywords: ["yo", "foo", "bar", "dude", "hey"],
           name: "Ima collection",
           published: false,
-          works: []
-        }
-      }
-    }
-  }
+          works: [],
+        },
+      },
+    },
+  },
 ];
 
 function setupTests() {
@@ -64,7 +59,7 @@ function setupTests() {
     <Route path="/collection/:id" component={ScreensCollection} />,
     {
       mocks,
-      route: "/collection/7a6c7b35-41a6-465a-9be2-0587c6b39ae0"
+      route: "/collection/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
     }
   );
 }
@@ -74,36 +69,35 @@ it("renders without crashing", async () => {
 
   expect(queryByTestId("loading")).toBeInTheDocument();
 
-  // This "wait()" magically makes Apollo MockProvider warning messages go away
-  await wait();
-  expect(queryByTestId("loading")).not.toBeInTheDocument();
-  expect(container).toBeTruthy();
+  // This "waitFor()" magically makes Apollo MockProvider warning messages go away
+  await waitFor(() => {
+    expect(queryByTestId("loading")).not.toBeInTheDocument();
+    expect(container).toBeTruthy();
+  });
 });
 
 it("renders hero section", async () => {
-  const { getByTestId } = setupTests();
-  await wait();
-  expect(getByTestId("collection-screen-hero")).toBeInTheDocument();
+  const { findByTestId } = setupTests();
+  const el = await findByTestId("collection-screen-hero");
+  expect(el).toBeInTheDocument();
 });
 
 it("renders breadcrumbs", async () => {
-  const { getByTestId } = setupTests();
-  await wait();
-  expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+  const { findByTestId } = setupTests();
+  const breadcrumbs = await findByTestId("breadcrumbs");
+  expect(breadcrumbs).toBeInTheDocument();
 });
 
 it("opens up Delete dialog", async () => {
-  const { getByTestId } = setupTests();
-  const deleteButtonEl = await waitForElement(() =>
-    getByTestId("delete-button")
-  );
+  const { findByTestId } = setupTests();
+  const deleteButtonEl = await findByTestId("delete-button");
   fireEvent.click(deleteButtonEl);
-  const deleteModalEl = await waitForElement(() => getByTestId("delete-modal"));
+  const deleteModalEl = await findByTestId("delete-modal");
   expect(deleteModalEl).toBeInTheDocument();
 });
 
 it("renders Edit button", async () => {
-  const { getByTestId } = setupTests();
-  await wait();
-  expect(getByTestId("edit-button")).toBeInTheDocument();
+  const { findByTestId } = setupTests();
+  const button = await findByTestId("edit-button");
+  expect(button).toBeInTheDocument();
 });

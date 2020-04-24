@@ -1,5 +1,5 @@
 export const REACTIVE_SEARCH_THEME = {
   typography: {
-    fontFamily: "Akkurat Pro Regular"
-  }
+    fontFamily: "Akkurat Pro Regular",
+  },
 };

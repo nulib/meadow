@@ -3,12 +3,12 @@ import ScreensCollectionList from "./List";
 import { GET_COLLECTIONS } from "../../components/Collection/collection.query";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
-import { wait } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 const mocks = [
   {
     request: {
-      query: GET_COLLECTIONS
+      query: GET_COLLECTIONS,
     },
     result: {
       data: {
@@ -22,12 +22,12 @@ const mocks = [
             keywords: [""],
             name: "First List item",
             published: false,
-            works: []
-          }
-        ]
-      }
-    }
-  }
+            works: [],
+          },
+        ],
+      },
+    },
+  },
 ];
 
 function setupTests() {
@@ -35,28 +35,32 @@ function setupTests() {
     <Route path="/collection/list/" component={ScreensCollectionList} />,
     {
       mocks,
-      route: "/collection/list/"
+      route: "/collection/list/",
     }
   );
 }
 
 describe("ScreensCollectionList component", () => {
-  it("renders collection hero", async () => {
-    const { getByTestId } = setupTests();
-    await wait();
-    expect(getByTestId("collection-list-hero")).toBeInTheDocument();
+  it("renders list wrapping element", async () => {
+    const { getByTestId, debug } = setupTests();
+
+    await waitFor(() => {
+      expect(getByTestId("collection-list-wrapper")).toBeInTheDocument();
+    });
   });
 
   it("renders collection list", async () => {
     const { getByTestId, getByText } = setupTests();
-    await wait();
-    expect(getByText("Create collection")).toBeInTheDocument();
-    expect(getByTestId("collection-list")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByText("Add new collection")).toBeInTheDocument();
+      expect(getByTestId("collection-list")).toBeInTheDocument();
+    });
   });
 
   it("renders collection list row item from mock", async () => {
     const { getByText } = setupTests();
-    await wait();
-    expect(getByText("First List item")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByText("First List item")).toBeInTheDocument();
+    });
   });
 });

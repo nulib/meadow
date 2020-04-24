@@ -47,108 +47,39 @@ const UILayoutNavBar = () => {
     window.location.pathname = `/auth/nusso`;
   };
 
-  const NavbarStartLinks = () => {
-    return (
-      <>
-        <Link to="/" className="navbar-item">
-          <FontAwesomeIcon icon="home" />
-        </Link>
-        <Link
-          to="/project/list"
-          className={`navbar-item ${isActive("project") ? "is-active" : ""}`}
-        >
-          Projects
-        </Link>
-
-        <Link
-          to="/collection/list"
-          className={`navbar-item ${isActive("collection") ? "is-active" : ""}`}
-        >
-          Themes &amp; Collections
-        </Link>
-      </>
-    );
-  };
-
-  const NavbarEndLinks = () => {
-    return (
-      <>
-        <div className="navbar-item has-dropdown is-hoverable">
-          <input
-            type="checkbox"
-            id="dropdown1"
-            aria-haspopup="true"
-            aria-labelledby="dropdown1-label"
-          />
-          <label
-            id="dropdown1-label"
-            htmlFor="dropdown1"
-            className="navbar-link"
-          >
-            <FontAwesomeIcon icon="bell" />
-          </label>
-
-          <div className="navbar-dropdown is-right" aria-expanded="true">
-            <a role="menuitem" className="navbar-item">
-              Some alert #1
-            </a>
-            <a role="menuitem" className="navbar-item">
-              Some alert #2
-            </a>
-          </div>
-        </div>
-        <div className="navbar-item has-dropdown is-hoverable">
-          <input
-            type="checkbox"
-            id="dropdown2"
-            aria-haspopup="true"
-            aria-labelledby="dropdown2-label"
-          />
-          <label
-            id="dropdown2-label"
-            htmlFor="dropdown2"
-            className="navbar-link"
-          >
-            <FontAwesomeIcon icon="user" />
-          </label>
-          <div className="navbar-dropdown is-right" aria-expanded="true">
-            <span className="navbar-item">{currentUser.displayName}</span>
-            <a
-              role="menuitem"
-              className="navbar-item"
-              onClick={handleLogoutClick}
-            >
-              Logout
-            </a>
-          </div>
-        </div>
-      </>
-    );
-  };
-
   return (
     <>
       <nav
         role="navigation"
-        className="navbar is-dark is-fixed-top"
+        className="navbar is-fixed-top"
         aria-label="main navigation"
       >
         <div className="navbar-brand">
-          <a
-            className="navbar-item"
-            href="https://www.library.northwestern.edu/"
-          >
-            <img
-              src="/images/northwestern-white.png"
-              alt="Northwestern Libraries logo"
-            />
-          </a>
+          <Link className="navbar-item" to="/">
+            <div className="level is-mobile">
+              <div className="level-left">
+                <div className="level-item">
+                  <img
+                    src="/images/N-purple-120.png"
+                    alt="Northwestern Libraries logo"
+                  />
+                </div>
+
+                <div className="level-item is-family-secondary is-size-4">
+                  <div>
+                    Meadow{" "}
+                    <span className="has-text-grey is-size-6">v 1.x.x</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
           <button
             role="button"
             aria-label="menu"
             aria-expanded={mobileNavOpen}
             aria-controls="navbarMenu"
-            className={`button is-dark navbar-burger burger ${
+            className={`button navbar-burger burger ${
               mobileNavOpen ? "is-active" : ""
             }`}
             data-target="navbarMenu"
@@ -176,9 +107,9 @@ const UILayoutNavBar = () => {
           {currentUser && (
             <>
               <div className="navbar-start">
-                <Link to="/" className="navbar-item">
+                {/* <Link to="/" className="navbar-item">
                   <FontAwesomeIcon icon="home" />
-                </Link>
+                </Link> */}
                 <Link
                   to="/project/list"
                   className={`navbar-item ${
@@ -268,10 +199,10 @@ const UILayoutNavBar = () => {
 
                 <div className="navbar-item">
                   <button
-                    className="button is-dark is-hidden-touch"
+                    className="button is-hidden-touch"
                     onClick={handleSearchButtonClick}
                   >
-                    <FontAwesomeIcon icon="search" size="2x" />
+                    <FontAwesomeIcon icon="search" />
                   </button>
 
                   <button
