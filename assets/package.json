@@ -58,7 +58,7 @@
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^5.1.1",
     "coveralls": "^3.0.13",
-    "css-loader": "^3.5.2",
+    "css-loader": "^3.5.3",
     "file-loader": "^6.0.0",
     "jest": "^25.4.0",
     "lodash.debounce": "^4.0.8",
