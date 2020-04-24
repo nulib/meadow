@@ -1,12 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const styles = {
-  span: {
-    paddingLeft: "1rem"
-  }
-};
-
 const UILayoutFooter = () => {
   return (
     <footer className="footer has-background-white has-text-grey">
@@ -27,10 +21,7 @@ const UILayoutFooter = () => {
           </div>
           <div className="level-item">
             <div>
-              <span className="icon">
-                <FontAwesomeIcon icon="leaf" />
-              </span>
-              <strong>Meadow v1.0</strong> by{" "}
+              <span className="is-family-secondary">Meadow v1.x.x</span> by{" "}
               <a href="https://github.com/nulib" target="_blank">
                 @nulib
               </a>

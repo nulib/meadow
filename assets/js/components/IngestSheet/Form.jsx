@@ -6,24 +6,21 @@ import IngestSheetUpload from "./Upload";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_PRESIGNED_URL } from "./ingestSheet.query.js";
 
-const IngestSheetForm = ({ projectId }) => {
+const IngestSheetForm = ({ project }) => {
   const { loading, error, data } = useQuery(GET_PRESIGNED_URL, {
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
   return (
-    <IngestSheetUpload
-      projectId={projectId}
-      presignedUrl={data.presignedUrl.url}
-    />
+    <IngestSheetUpload project={project} presignedUrl={data.presignedUrl.url} />
   );
 };
 
 IngestSheetForm.propTypes = {
-  projectId: PropTypes.string.isRequired
+  project: PropTypes.object.isRequired,
 };
 
 export default IngestSheetForm;

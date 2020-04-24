@@ -10,7 +10,7 @@ export const IIIFProvider = ({ children }) => {
   const { loading, error, data } = useQuery(IIIF_SERVER_URL);
 
   if (error) return <Error error={error} />;
-  if (loading) return <UILoadingPage />;
+  if (loading) return null;
 
   return (
     <IIIFContext.Provider value={data ? data.iiifServerUrl.url : null}>

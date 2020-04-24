@@ -9,7 +9,7 @@ import { useQuery } from "@apollo/react-hooks";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
   GET_PROJECT,
-  INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION
+  INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
 } from "../../components/Project/project.query";
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const ScreensProject = () => {
   const { id } = useParams();
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
-    variables: { projectId: id }
+    variables: { projectId: id },
   });
 
   const handleIngestSheetStatusChange = (prev, { subscriptionData }) => {
@@ -32,12 +32,12 @@ const ScreensProject = () => {
         break;
       case "DELETED":
         updatedIngestSheets = prev.project.ingestSheets.filter(
-          i => i.id !== ingestSheet.id
+          (i) => i.id !== ingestSheet.id
         );
         break;
       default:
         updatedIngestSheets = prev.project.ingestSheets.filter(
-          i => i.id !== ingestSheet.id
+          (i) => i.id !== ingestSheet.id
         );
         updatedIngestSheets = [ingestSheet, ...updatedIngestSheets];
     }
@@ -45,29 +45,31 @@ const ScreensProject = () => {
     return {
       project: {
         ...prev.project,
-        ingestSheets: updatedIngestSheets
-      }
+        ingestSheets: updatedIngestSheets,
+      },
     };
   };
 
   if (loading) return <UILoadingPage />;
   if (error) return <Error error={error} />;
 
+  const { project } = data;
+
   const breadCrumbs = [
     {
       label: "Projects",
-      route: "/project/list"
+      route: "/project/list",
     },
     {
-      label: `${data.project.title}`,
-      route: `/project/${data.project.id}`,
-      isActive: true
-    }
+      label: `${project.title}`,
+      route: `/project/${project.id}`,
+      isActive: true,
+    },
   ];
 
   return (
     <Layout>
-      {data.project && (
+      {project && (
         <div>
           <section className="section">
             <div className="container">
@@ -75,26 +77,23 @@ const ScreensProject = () => {
                 items={breadCrumbs}
                 data-testid="project-breadcrumbs"
               />
-              <div className="columns" data-testid="screen-header">
-                <div className="column is-two-thirds">
-                  <div className="box">
-                    <h1 className="title">{data.project.title}</h1>
-                    <h2 className="subtitle">
-                      Last updated:{" "}
-                      <span className="is-italic">
-                        {formatDate(data.project.updatedAt)}
-                      </span>
-                    </h2>
+              <div className="box">
+                <div className="columns" data-testid="screen-header">
+                  <div className="column is-two-thirds content">
+                    <h1 className="title">{project.title}</h1>
+                    <dl>
+                      <dt>Last updated</dt>
+                      <dd>{formatDate(project.updatedAt)}</dd>
+                      <dt>Total Ingest Sheets</dt>
+                      <dd>{project.ingestSheets.length}</dd>
+                    </dl>
                   </div>
-                </div>
-                <div className="column is-one-third">
-                  <div className="box content">
-                    <p>[x] Ingest Sheets in project</p>
-                    <p>
+                  <div className="column is-one-third">
+                    <div className="buttons is-right">
                       <Link
                         to={{
                           pathname: `/project/${id}/ingest-sheet/upload`,
-                          state: { projectId: data.project.id }
+                          state: { projectId: project.id },
                         }}
                         className="button is-primary"
                         data-testid="button-new-ingest-sheet"
@@ -104,18 +103,18 @@ const ScreensProject = () => {
                         </span>{" "}
                         <span>Add an Ingest Sheet</span>
                       </Link>
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="box" data-testid="screen-content">
                 <IngestSheetList
-                  project={data.project}
+                  project={project}
                   subscribeToIngestSheetStatusChanges={() =>
                     subscribeToMore({
                       document: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-                      variables: { projectId: data.project.id },
-                      updateQuery: handleIngestSheetStatusChange
+                      variables: { projectId: project.id },
+                      updateQuery: handleIngestSheetStatusChange,
                     })
                   }
                 />

@@ -89,7 +89,7 @@ const ScreensCollectionList = () => {
     <Layout>
       <section className="section" data-testid="collection-list-wrapper">
         <div className="container">
-          <UIBreadcrumbs items={[{ label: "Collections" }]} />
+          <UIBreadcrumbs items={[{ label: "Themes & Collections" }]} />
 
           <div className="columns">
             <div className="column is-6">
@@ -98,9 +98,6 @@ const ScreensCollectionList = () => {
                 <h2 className="subtitle">
                   Each <span className="is-italic">Work</span> must live in a
                   Collection.
-                  <br />
-                  <strong>Themes</strong> are customized groupings of{" "}
-                  <span className="is-italic">Works</span>.
                 </h2>
                 <Link to="/collection/form" className="button is-primary">
                   Add new collection
@@ -121,7 +118,7 @@ const ScreensCollectionList = () => {
             </div>
           </div>
           <div className="box" data-testid="collection-list">
-            <h3 className="subtitle">All Collections</h3>
+            <h3 className="title is-size-5">All Collections</h3>
             <div className="field">
               <input
                 className="input"

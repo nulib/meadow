@@ -5,7 +5,7 @@ import input from "../UI/Form/Input";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
-  GET_COLLECTIONS
+  GET_COLLECTIONS,
 } from "./collection.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
@@ -32,13 +32,13 @@ const CollectionForm = ({ collection }) => {
       },
       refetchQueries(mutationResult) {
         return [{ query: GET_COLLECTIONS }];
-      }
+      },
     }
   );
 
   const [
     updateCollection,
-    { loading: updateLoading, error: updateError, data: updateData }
+    { loading: updateLoading, error: updateError, data: updateData },
   ] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
       toastWrapper(
@@ -46,7 +46,7 @@ const CollectionForm = ({ collection }) => {
         `Collection ${updateCollection.name} updated successfully`
       );
       history.push(`/collection/${collection.id}`);
-    }
+    },
   });
 
   if (error || updateError) return <Error error={error} />;
@@ -57,14 +57,14 @@ const CollectionForm = ({ collection }) => {
     history.push("/collection/list");
   };
 
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     if (!collection) {
       createCollection({
-        variables: { ...data }
+        variables: { ...data },
       });
     } else {
       updateCollection({
-        variables: { ...data, collectionId: collection.id }
+        variables: { ...data, collectionId: collection.id },
       });
     }
   };
@@ -93,8 +93,8 @@ const CollectionForm = ({ collection }) => {
               <p className="help">Name for the Collection</p>
             </div>
           </div>
-          <div className="column is-one-third">
-            <div className="field">
+          <div className="column is-one-third has-text-right">
+            <div className="field is-inline-block">
               <div className="control">
                 <input
                   type="checkbox"
@@ -215,7 +215,7 @@ const CollectionForm = ({ collection }) => {
         <div className="buttons is-right">
           <button
             type="button"
-            className="button"
+            className="button is-text"
             data-testid="button-cancel"
             onClick={handleCancel}
           >

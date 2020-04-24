@@ -12,7 +12,7 @@ const ScreensIngestSheetForm = ({ match }) => {
   const params = useParams();
   const { id } = params;
   const { loading, error, data } = useQuery(GET_PROJECT, {
-    variables: { projectId: id }
+    variables: { projectId: id },
   });
 
   if (loading) return <Loading />;
@@ -29,13 +29,13 @@ const ScreensIngestSheetForm = ({ match }) => {
               <UIBreadcrumbs
                 items={[
                   { label: "Projects", route: "/project/list" },
-                  { label: "Project Name", route: "/" },
-                  { label: "Upload Ingest Sheet" }
+                  { label: project.title, route: `/project/${project.id}` },
+                  { label: "Upload Ingest Sheet" },
                 ]}
               />
               <div className="box">
                 <h1 className="title">Upload a new Ingest Sheet</h1>
-                {id && <IngestSheetForm projectId={id} />}
+                {id && <IngestSheetForm project={project} />}
               </div>
             </div>
           </div>
