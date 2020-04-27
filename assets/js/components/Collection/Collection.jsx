@@ -13,7 +13,13 @@ const Collection = ({
       <div className="columns">
         <div className="column is-one-quarter-desktop is-half-tablet">
           <figure className="image is-square">
-            <img src={`${representativeImage}/square/500,500/0/default.jpg`} />
+            <img
+              src={
+                representativeImage != null
+                  ? representativeImage + "/square/500,500/0/default.jpg"
+                  : "/images/480x480.png"
+              }
+            />
           </figure>
         </div>
         <div className="column content">

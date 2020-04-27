@@ -23,6 +23,7 @@ const mocks = [
             name: "First List item",
             published: false,
             works: [],
+            representativeImage: "",
           },
         ],
       },

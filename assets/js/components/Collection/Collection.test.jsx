@@ -12,6 +12,7 @@ const props = {
   name: "Ima collection",
   published: false,
   works: [],
+  representativeImage: "",
 };
 
 it("renders Collection component", async () => {

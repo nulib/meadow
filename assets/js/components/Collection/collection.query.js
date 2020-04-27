@@ -88,6 +88,9 @@ export const GET_COLLECTION = gql`
       works {
         id
         representativeImage
+        descriptiveMetadata {
+          title
+        }
       }
     }
   }
@@ -116,16 +119,8 @@ export const GET_COLLECTIONS = gql`
       works {
         id
         representativeImage
-        fileSets {
-          metadata {
-            label
-            originalFilename
-          }
-          work {
-            id
-            accessionNumber
-            representativeImage
-          }
+        descriptiveMetadata {
+          title
         }
       }
     }
