@@ -46,6 +46,10 @@ it("displays the collection form", () => {
 
 it("displays all form fields", () => {
   const { queryByTestId } = setupMatchTests();
+  expect(queryByTestId("collection-image")).toBeInTheDocument();
+  expect(queryByTestId("button-collection-image")).toBeInTheDocument();
+  expect(queryByTestId("modal-collection-thumbnail")).toBeInTheDocument();
+
   expect(queryByTestId("input-collection-name")).toBeInTheDocument();
   expect(queryByTestId("input-collection-type")).toBeInTheDocument();
   expect(queryByTestId("checkbox-featured")).toBeInTheDocument();

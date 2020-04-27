@@ -4,15 +4,16 @@ import PropTypes, { shape } from "prop-types";
 const Collection = ({
   adminEmail,
   description,
+  representativeImage,
   findingAidUrl,
-  keywords = []
+  keywords = [],
 }) => {
   return (
     <div data-testid="collection">
       <div className="columns">
         <div className="column is-one-quarter-desktop is-half-tablet">
           <figure className="image is-square">
-            <img src="https://bulma.io/images/placeholders/480x480.png" />
+            <img src={`${representativeImage}/square/500,500/0/default.jpg`} />
           </figure>
         </div>
         <div className="column content">
@@ -49,8 +50,8 @@ Collection.propTypes = {
     adminEmail: PropTypes.string,
     featured: PropTypes.bool,
     findingAidUrl: PropTypes.string,
-    works: PropTypes.array
-  })
+    works: PropTypes.array,
+  }),
 };
 
 export default Collection;
