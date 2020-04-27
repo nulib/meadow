@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const { loading, error, data } = useQuery(GET_CURRENT_USER_QUERY);
 
   if (error) return <Error error={error} />;
-  if (loading) return <UILoadingPage />;
+  if (loading) return null;
 
   return (
     <AuthContext.Provider value={data.me}>{children}</AuthContext.Provider>

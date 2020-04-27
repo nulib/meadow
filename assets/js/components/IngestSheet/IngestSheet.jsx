@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
+import UILoading from "../UI/Loading";
 import IngestSheetValidations from "./Validations";
 import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.query";
 import IngestSheetAlert from "./Alert";
@@ -18,7 +19,7 @@ import IngestSheetCompleted from "./Completed";
 const IngestSheet = ({
   ingestSheetData,
   projectId,
-  subscribeToIngestSheetUpdates
+  subscribeToIngestSheetUpdates,
 }) => {
   const { id, status, name } = ingestSheetData;
 
@@ -26,17 +27,17 @@ const IngestSheet = ({
     data: progressData,
     loading: progressLoading,
     error: progressError,
-    subscribeToMore: progressSubscribeToMore
+    subscribeToMore: progressSubscribeToMore,
   } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => {
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (progressLoading) return <UILoadingPage />;
+  if (progressLoading) return <UILoading />;
   if (progressError) return <Error error={progressError} />;
 
   return (
@@ -55,15 +56,12 @@ const IngestSheet = ({
       )}
 
       {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
-        <div className="box">
-          {/* <IngestSheetAlert ingestSheet={ingestSheetData} /> */}
-          <IngestSheetValidations
-            sheetId={id}
-            status={status}
-            initialProgress={progressData.ingestSheetValidationProgress}
-            subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
-          />
-        </div>
+        <IngestSheetValidations
+          sheetId={id}
+          status={status}
+          initialProgress={progressData.ingestSheetValidationProgress}
+          subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
+        />
       )}
     </>
   );
@@ -72,7 +70,7 @@ const IngestSheet = ({
 IngestSheet.propTypes = {
   ingestSheetData: PropTypes.object,
   projectId: PropTypes.string,
-  subscribeToIngestSheetUpdates: PropTypes.func
+  subscribeToIngestSheetUpdates: PropTypes.func,
 };
 
 export default IngestSheet;

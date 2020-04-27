@@ -10,7 +10,7 @@ import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
 import { toastWrapper } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const IngestSheetUpload = ({ projectId, presignedUrl }) => {
+const IngestSheetUpload = ({ project, presignedUrl }) => {
   const history = useHistory();
   const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
   const [fileNameString, setFileNameString] = useState("No file uploaded");
@@ -19,21 +19,21 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
     {
       onCompleted({ createIngestSheet }) {
         history.push(
-          `/project/${projectId}/ingest-sheet/${createIngestSheet.id}`
+          `/project/${project.id}/ingest-sheet/${createIngestSheet.id}`
         );
       },
       refetchQueries(mutationResult) {
         return [
           {
             query: GET_PROJECT,
-            variables: { projectId }
-          }
+            variables: { projectId: project.id },
+          },
         ];
-      }
+      },
     }
   );
 
-  const handleInputChange = event => {
+  const handleInputChange = (event) => {
     event.persist();
     const { name, value } = event.target;
     setValues({ ...values, [name]: value });
@@ -45,23 +45,23 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
     }
   };
 
-  const handleCancel = e => {
-    history.push(`/project/${projectId}`);
+  const handleCancel = (e) => {
+    history.push(`/project/${project.id}`);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     await uploadToS3();
     await createIngestSheet({
       variables: {
         name: ingest_sheet_name,
-        projectId: projectId,
+        projectId: project.id,
         filename: `s3://${presignedUrl
           .split("?")[0]
           .split("/")
           .slice(-3)
-          .join("/")}`
-      }
+          .join("/")}`,
+      },
     });
     toastWrapper(
       "is-success",
@@ -79,7 +79,7 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
 
       const file = document.getElementById("file").files[0];
       const reader = new FileReader();
-      reader.onload = event => {
+      reader.onload = (event) => {
         const headers = { "Content-Type": file.type };
         submitFile(event.target.result, headers);
       };
@@ -158,8 +158,8 @@ const IngestSheetUpload = ({ projectId, presignedUrl }) => {
 };
 
 IngestSheetUpload.propTypes = {
-  projectId: PropTypes.string.isRequired,
-  presignedUrl: PropTypes.string.isRequired
+  project: PropTypes.object.isRequired,
+  presignedUrl: PropTypes.string.isRequired,
 };
 
 export default IngestSheetUpload;

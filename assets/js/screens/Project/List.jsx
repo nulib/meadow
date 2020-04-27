@@ -26,7 +26,7 @@ const ScreensProjectList = () => {
               </div>
               <div className="column is-4 has-text-right">
                 <button
-                  className="is-primary"
+                  className="button is-primary"
                   data-testid="button-new-project"
                   onClick={() => setShowForm(!showForm)}
                 >

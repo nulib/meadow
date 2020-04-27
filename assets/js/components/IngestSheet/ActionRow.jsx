@@ -3,7 +3,7 @@ import UIModalDelete from "../UI/Modal/Delete";
 import {
   DELETE_INGEST_SHEET,
   APPROVE_INGEST_SHEET,
-  GET_INGEST_SHEETS
+  GET_INGEST_SHEETS,
 } from "./ingestSheet.query";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
@@ -23,15 +23,15 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
         try {
           const { project } = client.readQuery({
             query: GET_INGEST_SHEETS,
-            variables: { projectId }
+            variables: { projectId },
           });
           const index = project.ingestSheets.findIndex(
-            ingestSheet => ingestSheet.id === deleteIngestSheet.id
+            (ingestSheet) => ingestSheet.id === deleteIngestSheet.id
           );
           project.ingestSheets.splice(index, 1);
           client.writeQuery({
             query: GET_INGEST_SHEETS,
-            data: { project }
+            data: { project },
           });
         } catch (error) {
           console.log("Error reading from cache", error);
@@ -40,12 +40,12 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
       onCompleted({ deleteIngestSheet }) {
         toastWrapper("is-success", `Ingest sheet ${name} deleted successfully`);
         history.push(`/project/${projectId}`);
-      }
+      },
     }
   );
   const [
     approveIngestSheet,
-    { loading: approveLoading, error: approveError }
+    { loading: approveLoading, error: approveError },
   ] = useMutation(APPROVE_INGEST_SHEET);
 
   const handleApproveClick = () => {
@@ -65,8 +65,8 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
   };
 
   return (
-    <div className="">
-      <div className="buttons">
+    <>
+      <div className="buttons is-right">
         {status === "VALID" && (
           <button className="button is-primary" onClick={handleApproveClick}>
             <span className="icon">
@@ -84,7 +84,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
             <span className="icon">
               <FontAwesomeIcon icon="trash" />
             </span>{" "}
-            <span>Delete ingest sheet and start over</span>
+            <span>Delete and start over</span>
           </button>
         )}
       </div>
@@ -98,7 +98,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
         handleConfirm={handleDeleteClick}
         thingToDeleteLabel={`Ingest Sheet ${name}`}
       />
-    </div>
+    </>
   );
 };
 
@@ -106,7 +106,7 @@ IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
   sheetId: PropTypes.string,
   status: PropTypes.string,
-  name: PropTypes.string
+  name: PropTypes.string,
 };
 
 export default IngestSheetActionRow;

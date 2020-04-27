@@ -9,7 +9,7 @@ const UIProgressBar = ({ percentComplete, totalValue }) => {
         <div className="has-text-centered is-size-4">{`${Math.round(
           percentComplete
         )} % complete`}</div>
-        <ProgressBar percent={percentComplete} strokeColor="#765da0" />
+        <ProgressBar percent={percentComplete} strokeColor="#4e2a84" />
         <p className="has-text-centered">{`Ingesting ${totalValue} file sets.`}</p>
       </>
     );
@@ -19,7 +19,7 @@ const UIProgressBar = ({ percentComplete, totalValue }) => {
 
 UIProgressBar.propTypes = {
   percentComplete: PropTypes.number,
-  totalValue: PropTypes.number
+  totalValue: PropTypes.number,
 };
 
 export default UIProgressBar;

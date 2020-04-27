@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import {
   INGEST_SHEET_WORKS,
-  INGEST_SHEET_COMPLETED_ERRORS
+  INGEST_SHEET_COMPLETED_ERRORS,
 } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
@@ -13,15 +13,15 @@ const IngestSheetCompleted = ({ sheetId }) => {
   const {
     loading: worksLoading,
     error: worksError,
-    data: worksData
+    data: worksData,
   } = useQuery(INGEST_SHEET_WORKS, {
     variables: { id: sheetId },
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
   const {
     loading: errorsLoading,
     error: errorsError,
-    data: errorsData
+    data: errorsData,
   } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
 
   if (worksLoading || errorsLoading)
@@ -46,25 +46,22 @@ const IngestSheetCompleted = ({ sheetId }) => {
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
 
-      <div className="box">
-        <h2 className="title is-size-4">Works</h2>
-        <div className="columns is-multiline">
-          {works.map(work => (
-            <div
-              key={work.id}
-              className="column is-half-tablet is-one-quarter-desktop"
-            >
-              <WorkListItem key={work.id} work={work} />
-            </div>
-          ))}
-        </div>
+      <div className="columns is-multiline">
+        {works.map((work) => (
+          <div
+            key={work.id}
+            className="column is-half-tablet is-one-quarter-desktop"
+          >
+            <WorkListItem key={work.id} work={work} />
+          </div>
+        ))}
       </div>
     </>
   );
 };
 
 IngestSheetCompleted.propTypes = {
-  sheetId: PropTypes.string
+  sheetId: PropTypes.string,
 };
 
 export default IngestSheetCompleted;

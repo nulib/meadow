@@ -1,18 +1,18 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
+import UILoading from "../../components/UI/Loading";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import {
   INGEST_SHEET_SUBSCRIPTION,
-  INGEST_SHEET_QUERY
+  INGEST_SHEET_QUERY,
 } from "../../components/IngestSheet/ingestSheet.query";
 import Layout from "../Layout";
 import {
   getClassFromIngestSheetStatus,
-  TEMP_USER_FRIENDLY_STATUS
+  TEMP_USER_FRIENDLY_STATUS,
 } from "../../services/helpers";
 import IngestSheetAlert from "../../components/IngestSheet/Alert";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
@@ -36,22 +36,22 @@ const ScreensIngestSheet = ({ match }) => {
   const {
     loading: crumbsLoading,
     error: crumbsError,
-    data: crumbsData
+    data: crumbsData,
   } = useQuery(GET_CRUMB_DATA, {
-    variables: { sheetId }
+    variables: { sheetId },
   });
 
   const {
     subscribeToMore,
     data: sheetData,
     loading: sheetLoading,
-    error: sheetError
+    error: sheetError,
   } = useQuery(INGEST_SHEET_QUERY, {
     variables: { sheetId },
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
-  if (crumbsLoading || sheetLoading) return <UILoadingPage />;
+  if (crumbsLoading || sheetLoading) return <UILoading />;
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
 
@@ -60,17 +60,21 @@ const ScreensIngestSheet = ({ match }) => {
     return [
       {
         label: `Projects`,
-        route: `/project/list`
+        route: `/project/list`,
       },
       {
         label: `${ingestSheet.project.title}`,
-        route: `/project/${id}`
+        route: `/project/${id}`,
+      },
+      {
+        label: "Ingest Sheet",
+        route: `/project/${ingestSheet.project.id}/ingest-sheet/upload`,
       },
       {
         label: ingestSheet.name,
         route: `/project/${id}/ingest-sheet/${sheetId}`,
-        isActive: true
-      }
+        isActive: true,
+      },
     ];
   };
 
@@ -79,9 +83,9 @@ const ScreensIngestSheet = ({ match }) => {
       <section className="section">
         <div className="container">
           <UIBreadcrumbs items={createCrumbs()} />
-          <div className="columns">
-            <div className="column is-half">
-              <div className="box">
+          <div className="box">
+            <div className="columns">
+              <div className="column is-half">
                 <h1 className="title">
                   {ingestSheet.name}{" "}
                   <span
@@ -93,6 +97,8 @@ const ScreensIngestSheet = ({ match }) => {
                   </span>
                 </h1>
                 <h2 className="subtitle">Ingest Sheet</h2>
+              </div>
+              <div className="column is-half">
                 <IngestSheetActionRow
                   sheetId={sheetId}
                   projectId={id}
@@ -101,33 +107,33 @@ const ScreensIngestSheet = ({ match }) => {
                 />
               </div>
             </div>
-            <div className="column is-half">
-              <div className="box">
-                <h3 className="subtitle">Ingest Sheet Status</h3>
-                <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
-              </div>
-            </div>
+
+            <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
           </div>
 
-          <IngestSheet
-            ingestSheetData={sheetData.ingestSheet}
-            projectId={id}
-            subscribeToIngestSheetUpdates={() =>
-              subscribeToMore({
-                document: INGEST_SHEET_SUBSCRIPTION,
-                variables: { sheetId },
-                updateQuery: (prev, { subscriptionData }) => {
-                  if (!subscriptionData.data) return prev;
-                  const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-                  return { ingestSheet: { ...updatedSheet } };
-                }
-              })
-            }
-          />
+          <div className="box">
+            <h2 className="title is-size-5">Ingest Sheet Contents</h2>
+            <IngestSheet
+              ingestSheetData={sheetData.ingestSheet}
+              projectId={id}
+              subscribeToIngestSheetUpdates={() =>
+                subscribeToMore({
+                  document: INGEST_SHEET_SUBSCRIPTION,
+                  variables: { sheetId },
+                  updateQuery: (prev, { subscriptionData }) => {
+                    if (!subscriptionData.data) return prev;
+                    const updatedSheet =
+                      subscriptionData.data.ingestSheetUpdate;
+                    return { ingestSheet: { ...updatedSheet } };
+                  },
+                })
+              }
+            />
+          </div>
         </div>
       </section>
     </Layout>
   );
 };
 
-export default withRouter(ScreensIngestSheet);
+export default ScreensIngestSheet;
