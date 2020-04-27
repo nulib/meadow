@@ -203,6 +203,26 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Fetches all works for a given collection ID.
+
+  Returns [] if the query returns no matches
+
+  ## Examples
+
+      iex> get_works_by_collection("db36d92c-dc17-417b-b662-f8c9e112de31")
+      [%Work{},...]
+
+      iex> get_work!("db36d92c-dc17-417b-b662-f8c9e112de32")
+      []
+
+  """
+  def get_works_by_collection(collection_id) do
+    from(w in Work, where: w.collection_id == ^collection_id)
+    |> Repo.all()
+    |> add_representative_image()
+  end
+
+  @doc """
   Fetches all works that include a Metadata title.
 
   Returns [] if the query returns no matches

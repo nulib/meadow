@@ -33,6 +33,11 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
     assert collection.representative_image == expected_work.representative_image
 
     url = get_in(query_data, [:data, "setCollectionImage", "representativeImage"])
+
+    assert get_in(query_data, [:data, "setCollectionImage", "works"])
+           |> Enum.at(1)
+           |> Map.get("representativeImage") == expected_work.representative_image
+
     assert url == expected_work.representative_image
   end
 end
