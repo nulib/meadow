@@ -14,6 +14,10 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     {:ok, Collections.get_collection!(id)}
   end
 
+  def collection_works(collection, _, _) do
+    {:ok, Works.get_works_by_collection(collection.id)}
+  end
+
   def create_collection(_, args, _) do
     case Collections.create_collection(args) do
       {:error, changeset} ->

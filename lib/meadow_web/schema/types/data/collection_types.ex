@@ -4,10 +4,8 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
 
   """
   use Absinthe.Schema.Notation
-  alias Meadow.Data
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
-  import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   object :collection_queries do
     @desc "Get a list of collections"
@@ -98,7 +96,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :admin_email, :string
     field :finding_aid_url, :string
     field :published, :boolean
-    field :works, list_of(:work), resolve: dataloader(Data)
+    field :works, list_of(:work), resolve: &Resolvers.Data.Collections.collection_works/3
     field :representative_image, :string
   end
 end
