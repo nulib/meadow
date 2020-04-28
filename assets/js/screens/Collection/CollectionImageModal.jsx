@@ -16,9 +16,9 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
       return setFilteredWorkImages(collection ? collection.works : []);
     }
     const filteredList = collection.works.filter((work) => {
-      return (
-        work.descriptiveMetadata.title.toUpperCase().indexOf(filterValue) > -1
-      );
+      return work.descriptiveMetadata.title
+        ? work.descriptiveMetadata.title.toUpperCase().indexOf(filterValue) > -1
+        : false;
     });
     setFilteredWorkImages(filteredList);
   };
@@ -51,7 +51,10 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
     });
   };
 
-  const styles = { highlightImage: { border: "10px solid #4e2a84 " } };
+  const styles = {
+    highlightImage: { outline: "10px solid #4e2a84 " },
+    fullWidth: { width: "85%" },
+  };
 
   return (
     <div
@@ -59,13 +62,13 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
       data-testid="modal-collection-thumbnail"
     >
       <div className="modal-background"></div>
-      <div className="modal-card">
+      <div className="modal-card" style={styles.fullWidth}>
         <header className="modal-card-head">
           <p className="modal-card-title">
             Representative Image for Collection
           </p>
           <button
-            className="delete"
+            className="modal-close is-large"
             aria-label="close"
             onClick={handleClose}
           ></button>
@@ -84,13 +87,13 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
               filteredWorkImages.map((work) => (
                 <div
                   key={work.id}
-                  className="column is-half is-narrow"
+                  className="column  is-narrow"
                   style={selectedWork == work.id ? styles.highlightImage : {}}
                   onClick={() => {
                     setWork(work.id);
                   }}
                 >
-                  <figure style={{ width: "250px", height: "250px" }}>
+                  <figure style={{ width: "128px", height: "128px" }}>
                     <p className="image is-square">
                       <img
                         src={
@@ -111,7 +114,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
               ))}
           </div>
         </section>
-        <footer className="modal-card-foot">
+        <footer className="modal-card-foot buttons is-right">
           <button
             className="button is-primary"
             onClick={() => {

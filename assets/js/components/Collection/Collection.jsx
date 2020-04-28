@@ -28,15 +28,15 @@ const Collection = ({ collection }) => {
                   : "/images/480x480.png"
               }
             />
-            <button
-              data-testid="button-open-image-modal"
-              type="button"
-              className="button is-primary is-light"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Update Image
-            </button>
           </figure>
+          <button
+            data-testid="button-open-image-modal"
+            type="button"
+            className="button is-text is-light is-fullwidth"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Update Image
+          </button>
         </div>
         <div className="column content">
           <dl>
