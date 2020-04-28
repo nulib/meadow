@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
+import CollectionImageModal from "../../screens/Collection/CollectionImageModal";
 
-const Collection = ({
-  adminEmail,
-  description,
-  representativeImage,
-  findingAidUrl,
-  keywords = [],
-}) => {
+const Collection = ({ collection }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    adminEmail,
+    description,
+    representativeImage,
+    findingAidUrl,
+    keywords = [],
+  } = collection;
+
+  const onCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div data-testid="collection">
       <div className="columns">
@@ -20,6 +28,14 @@ const Collection = ({
                   : "/images/480x480.png"
               }
             />
+            <button
+              data-testid="button-open-image-modal"
+              type="button"
+              className="button is-primary is-light"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Update Image
+            </button>
           </figure>
         </div>
         <div className="column content">
@@ -43,6 +59,11 @@ const Collection = ({
           </dl>
         </div>
       </div>
+      <CollectionImageModal
+        collection={collection}
+        isModalOpen={isModalOpen}
+        handleClose={onCloseModal}
+      />
     </div>
   );
 };

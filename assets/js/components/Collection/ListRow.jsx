@@ -11,7 +11,14 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
-            <img src="https://bulma.io/images/placeholders/128x128.png" />
+            <img
+              src={
+                collection.representativeImage
+                  ? collection.representativeImage +
+                    "/square/500,500/0/default.jpg"
+                  : "https://bulma.io/images/placeholders/128x128.png"
+              }
+            />
           </p>
         </figure>
         <div className="media-content">
@@ -64,7 +71,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
 };
 
 CollectionListRow.propTypes = {
-  collection: PropTypes.object
+  collection: PropTypes.object,
 };
 
 export default CollectionListRow;

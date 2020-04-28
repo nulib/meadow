@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import input from "../UI/Form/Input";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
   GET_COLLECTIONS,
-  SET_COLLECTION_IMAGE,
 } from "./collection.query.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
@@ -16,13 +14,9 @@ import { useForm } from "react-hook-form";
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
   const [pageLoading, setPageLoading] = useState(true);
-  const [selectedWork, setSelectedWork] = useState();
-  const [filteredWorkImages, setFilteredWorkImages] = useState();
-  const [thumbnailModalOpen, setThumbnailModalOpen] = useState(false);
   const { register, handleSubmit, watch, errors } = useForm();
   useEffect(() => {
     setPageLoading(false);
-    setFilteredWorkImages(collection ? collection.works : []);
   }, []);
   const [createCollection, { loading, error, data }] = useMutation(
     CREATE_COLLECTION,
@@ -40,19 +34,6 @@ const CollectionForm = ({ collection }) => {
     }
   );
 
-  const handleFilterChange = (e) => {
-    const filterValue = e.target.value.toUpperCase();
-    if (!filterValue) {
-      return setFilteredWorkImages(collection ? collection.works : []);
-    }
-    const filteredList = collection.works.filter((work) => {
-      return (
-        work.descriptiveMetadata.title.toUpperCase().indexOf(filterValue) > -1
-      );
-    });
-    setFilteredWorkImages(filteredList);
-  };
-
   const [
     updateCollection,
     { loading: updateLoading, error: updateError, data: updateData },
@@ -66,13 +47,6 @@ const CollectionForm = ({ collection }) => {
     },
   });
 
-  const [setCollectionImage] = useMutation(SET_COLLECTION_IMAGE, {
-    onCompleted({ setCollectionImage }) {
-      toastWrapper("is-success", "Collection image has been updated");
-      history.push(`/collection/${collection.id}`);
-    },
-  });
-
   if (error || updateError) return <Error error={error} />;
   if (loading || updateLoading) return <Loading />;
   if (pageLoading) return <Loading />;
@@ -80,19 +54,6 @@ const CollectionForm = ({ collection }) => {
   const handleCancel = () => {
     history.push("/collection/list");
   };
-
-  const handleThumbnailChange = () => {
-    if (!selectedWork) {
-      toastWrapper("is-danger", `Please select an image to add to collection`);
-
-      return false;
-    }
-    setCollectionImage({
-      variables: { collectionId: collection.id, workId: selectedWork },
-    });
-  };
-
-  const styles = { highlightImage: { border: "10px solid #4e2a84 " } };
 
   const onSubmit = (data) => {
     if (!collection) {
@@ -111,46 +72,6 @@ const CollectionForm = ({ collection }) => {
       <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
         <div className="columns">
           <div className="column is-two-thirds">
-            <div className="field">
-              <div className="control">
-                <article className="media">
-                  <figure className="media-left">
-                    <p
-                      className="image is-square"
-                      style={{ width: "200px", height: "200px" }}
-                    >
-                      <img
-                        data-testid="collection-image"
-                        src={`${
-                          collection && collection.representativeImage != null
-                            ? collection.representativeImage +
-                              "/square/500,500/0/default.jpg"
-                            : "/images/480x480.png"
-                        }`}
-                      />
-                    </p>
-                  </figure>
-                  <div
-                    className="media-right"
-                    style={{ marginTop: "auto" }}
-                  ></div>
-                </article>
-              </div>
-              <p className="help">Image for the collection</p>
-            </div>
-            <div className="field">
-              <div className="control">
-                <button
-                  data-testid="button-open-image-modal"
-                  type="button"
-                  className="button is-primary is-light"
-                  onClick={() => setThumbnailModalOpen(true)}
-                >
-                  Choose Representative Image
-                </button>
-              </div>
-            </div>
-
             <div className="field">
               <label htmlFor="collection-name" className="label">
                 Collection Name
@@ -307,81 +228,6 @@ const CollectionForm = ({ collection }) => {
           </button>
         </div>
       </form>
-      <div
-        className={`modal ${thumbnailModalOpen ? "is-active" : ""}`}
-        data-testid="modal-collection-thumbnail"
-      >
-        <div className="modal-background"></div>
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">
-              Representative Image for Collection
-            </p>
-            <button
-              className="delete"
-              aria-label="close"
-              onClick={() => setThumbnailModalOpen(false)}
-            ></button>
-          </header>
-          <section className="modal-card-body">
-            <div className="control">
-              <input
-                className="input"
-                onChange={handleFilterChange}
-                placeholder="Filter collections"
-                data-testid="input-collection-filter"
-              />
-            </div>
-            <div className="section columns is-multiline">
-              {filteredWorkImages.map((work) => (
-                <div
-                  key={work.id}
-                  className="column is-half is-narrow"
-                  style={selectedWork == work.id ? styles.highlightImage : {}}
-                  onClick={() => {
-                    setSelectedWork(work.id);
-                  }}
-                >
-                  <figure style={{ width: "250px", height: "250px" }}>
-                    <p className="image is-square">
-                      <img
-                        src={
-                          work && work.representativeImage != null
-                            ? work.representativeImage +
-                              "/square/500,500/0/default.jpg"
-                            : "/images/480x480.png"
-                        }
-                      />
-                    </p>
-                  </figure>
-                  <h2>
-                    {work.descriptiveMetadata
-                      ? work.descriptiveMetadata.title
-                      : work.accessionNumber}
-                  </h2>
-                </div>
-              ))}
-            </div>
-          </section>
-          <footer className="modal-card-foot">
-            <button
-              className="button is-primary"
-              onClick={() => {
-                handleThumbnailChange();
-              }}
-              data-testid="button-set-image"
-            >
-              Set Image
-            </button>
-            <button
-              className="button"
-              onClick={() => setThumbnailModalOpen(false)}
-            >
-              Cancel
-            </button>
-          </footer>
-        </div>
-      </div>
     </div>
   );
 };

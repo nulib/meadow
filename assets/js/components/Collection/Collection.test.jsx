@@ -1,8 +1,9 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { Route } from "react-router-dom";
 import Collection from "./Collection";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 
-const props = {
+const mockCollection = {
   adminEmail: "test@test.com",
   description: "Test arrays keyword arrays arrays arrays arrays",
   featured: false,
@@ -15,14 +16,18 @@ const props = {
   representativeImage: "",
 };
 
+function setUpTests() {
+  return renderWithRouterApollo(<Collection collection={mockCollection} />, {});
+}
+
 it("renders Collection component", async () => {
-  const { getByTestId } = render(<Collection {...props} />);
+  const { getByTestId } = setUpTests();
   const collectionSection = getByTestId("collection");
   expect(collectionSection).toBeInTheDocument();
 });
 
 it("renders collection properties", async () => {
-  const { getByText } = render(<Collection {...props} />);
+  const { getByText } = setUpTests();
   expect(getByText("test@test.com")).toBeInTheDocument();
   expect(
     getByText("Test arrays keyword arrays arrays arrays arrays")
