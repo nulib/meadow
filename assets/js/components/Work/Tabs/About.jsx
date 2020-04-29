@@ -8,6 +8,10 @@ import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { UPDATE_WORK } from "../work.query";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
+import UIInput from "../../UI/Form/Input";
+import UIFormTextarea from "../../UI/Form/Textarea";
+import UIFormField from "../../UI/Form/Field";
+import WorkTabsHeader from "./Header";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
@@ -40,131 +44,129 @@ const WorkTabsAbout = ({ work }) => {
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
-      <div className="columns is-centered">
-        <div className="column is-two-thirds">
-          <h2 className="title is-size-5">
-            Core Metadata{" "}
-            <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
-              <FontAwesomeIcon
-                icon={
-                  showCoreMetadata
-                    ? "chevron-circle-down"
-                    : "chevron-circle-right"
-                }
-              />
-            </a>
-          </h2>
-          {showCoreMetadata && (
-            <div className="box is-shadowless">
-              <div className="field">
-                <label className="label">Title</label>
-                <div className="control">
-                  {isEditing ? (
-                    <>
-                      <input
-                        ref={register({ required: true })}
-                        name="title"
-                        className={`input ${errors.title ? "is-danger" : ""}`}
-                        data-testid="title"
-                        placeholder="e.g. Best work ever"
-                        defaultValue={descriptiveMetadata.title}
-                      />
-                      {errors.title && (
-                        <p className="help is-danger">
-                          Title field is required
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p>{descriptiveMetadata.title || "No title provided"}</p>
-                  )}
-                </div>
-              </div>
-              <div className="field">
-                <label className="label">Description</label>
-                <div className="control">
-                  {isEditing ? (
-                    <>
-                      <textarea
-                        ref={register({ required: true })}
-                        name="description"
-                        className={`textarea ${
-                          errors.description ? "is-danger" : ""
-                        }`}
-                        data-testid="description"
-                        placeholder="Describe the work"
-                        defaultValue={descriptiveMetadata.description}
-                      />
-                      {errors.description && (
-                        <p className="help is-danger">
-                          Description field is required
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p>
-                      {descriptiveMetadata.description ||
-                        "No description provided"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="field">
-                <label className="label">
-                  Date Created{" "}
-                  <UITagNotYetSupported label="Display not yet supported" />
-                  <UITagNotYetSupported label="Update not yet supported" />
-                </label>
-                <div className="control">
-                  {isEditing ? (
-                    <>
-                      <input
-                        ref={register}
-                        name="dateCreated"
-                        data-testid="date-created"
-                        className={`input ${
-                          errors.dateCreated ? "is-danger" : ""
-                        }`}
-                      />
-                      {errors.dateCreated && (
-                        <p className="help is-danger">
-                          Date Created field is required
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p>Date will go here</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <h2 className="title is-size-5">
-            Descriptive Metadata{" "}
-            <a
-              onClick={() =>
-                setShowDescriptiveMetadata(!showDescriptiveMetadata)
-              }
+      <WorkTabsHeader title="Core and Descriptive Metadata">
+        {!isEditing && (
+          <button
+            type="button"
+            className="button is-primary"
+            data-testid="edit-button"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit
+          </button>
+        )}
+        {isEditing && (
+          <>
+            <button
+              type="submit"
+              className="button is-primary"
+              data-testid="save-button"
             >
-              <FontAwesomeIcon
-                icon={
-                  showDescriptiveMetadata
-                    ? "chevron-circle-down"
-                    : "chevron-circle-right"
+              Save
+            </button>
+            <button
+              type="button"
+              className="button is-text"
+              data-testid="cancel-button"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </WorkTabsHeader>
+
+      <div className="columns">
+        <div className="column is-half">
+          <div className="box">
+            <h2 className="title is-size-5">
+              Core Metadata{" "}
+              <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
+                <FontAwesomeIcon
+                  icon={showCoreMetadata ? "chevron-down" : "chevron-right"}
+                />
+              </a>
+            </h2>
+            {showCoreMetadata && (
+              <div>
+                {/* Title */}
+                <UIFormField label="Title">
+                  {isEditing ? (
+                    <UIInput
+                      register={register}
+                      required
+                      name="title"
+                      label="Title"
+                      data-testid="title"
+                      errors={errors}
+                      defaultValue={descriptiveMetadata.title}
+                    />
+                  ) : (
+                    <p>{descriptiveMetadata.title || "No value"}</p>
+                  )}
+                </UIFormField>
+
+                {/* Description */}
+                <UIFormField label="Description">
+                  {isEditing ? (
+                    <UIFormTextarea
+                      register={register}
+                      required
+                      name="description"
+                      label="Description"
+                      data-testid="description"
+                      errors={errors}
+                      defaultValue={descriptiveMetadata.description}
+                    />
+                  ) : (
+                    <p>{descriptiveMetadata.description || "No value"}</p>
+                  )}
+                </UIFormField>
+
+                {/* Date Created */}
+                <UIFormField label="Date Created" isEditing={isEditing}>
+                  {isEditing ? (
+                    <UIInput
+                      register={register}
+                      name="dateCreated"
+                      label="Date Created"
+                      type="date"
+                      data-testid="date-created"
+                      errors={errors}
+                      defaultValue={descriptiveMetadata.dateCreated}
+                    />
+                  ) : (
+                    <>
+                      <UITagNotYetSupported label="Display not yet supported" />
+                      <UITagNotYetSupported label="Update not yet supported" />
+                    </>
+                  )}
+                </UIFormField>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="column is-half">
+          <div className="box">
+            <h2 className="title is-size-5">
+              Descriptive Metadata{" "}
+              <a
+                onClick={() =>
+                  setShowDescriptiveMetadata(!showDescriptiveMetadata)
                 }
-              />
-            </a>
-          </h2>
-          {showDescriptiveMetadata && (
-            <div className="box is-shadowless">
-              <div className="field">
-                <label className="label">
-                  Creators{" "}
+              >
+                <FontAwesomeIcon
+                  icon={
+                    showDescriptiveMetadata ? "chevron-down" : "chevron-right"
+                  }
+                />
+              </a>
+            </h2>
+            {showDescriptiveMetadata && (
+              <>
+                <UIFormField label="Creators">
                   <UITagNotYetSupported label="Display not yet supported" />{" "}
                   <UITagNotYetSupported label="Update not yet supported" />
-                </label>
-                <div className="control">
                   <ul>
                     <li>
                       <Link to="/">Creator 1 as a link</Link>
@@ -176,59 +178,23 @@ const WorkTabsAbout = ({ work }) => {
                       <Link to="/">Creator 3 as a link</Link>
                     </li>
                   </ul>
-                </div>
-              </div>
+                </UIFormField>
 
-              <div className="field">
-                <label className="label">
-                  Contributors{" "}
+                <UIFormField label="Contributors">
                   <UITagNotYetSupported label="Display not yet supported" />{" "}
                   <UITagNotYetSupported label="Update not yet supported" />
-                </label>
-                <ul>
-                  <li>
-                    <Link to="/">Contributor 1 as a link</Link>
-                  </li>
-                  <li>
-                    <Link to="/">Contributor 2 as a link</Link>
-                  </li>
-                  <li>
-                    <Link to="/">Contributor 3 as a link</Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="column is-narrow">
-          <div className="buttons">
-            {!isEditing && (
-              <button
-                type="button"
-                className="button is-primary"
-                data-testid="edit-button"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </button>
-            )}
-            {isEditing && (
-              <>
-                <button
-                  type="submit"
-                  className="button is-primary"
-                  data-testid="save-button"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="button is-text"
-                  data-testid="cancel-button"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </button>
+                  <ul>
+                    <li>
+                      <Link to="/">Contributor 1 as a link</Link>
+                    </li>
+                    <li>
+                      <Link to="/">Contributor 2 as a link</Link>
+                    </li>
+                    <li>
+                      <Link to="/">Contributor 3 as a link</Link>
+                    </li>
+                  </ul>
+                </UIFormField>
               </>
             )}
           </div>

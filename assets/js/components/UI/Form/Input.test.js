@@ -2,38 +2,46 @@ import React from "react";
 import UIInput from "./Input";
 import { render, fireEvent } from "@testing-library/react";
 
+const registerFn = jest.fn();
 const props = {
-  id: "my-input",
+  errors: {},
+  register: registerFn,
+};
+const attrs = {
   label: "First name",
-  name: "my-input",
+  name: "tester",
   type: "text",
-  onChange: () => {}
+  "data-testid": "input-element",
+  required: true,
+  defaultValue: "Bob Smith",
 };
 
 it("renders without error", () => {
-  render(<UIInput {...props} />);
+  render(<UIInput {...props} {...attrs} />);
 });
 
-it("renders a label for the input element", () => {
-  const { getByLabelText } = render(<UIInput {...props} />);
-  expect(getByLabelText(props.label)).toBeInTheDocument();
+it("renders passed through attributes to the input element", () => {
+  const { getByTestId } = render(<UIInput {...props} {...attrs} />);
+  const input = getByTestId("input-element");
+
+  expect(input.name).toEqual(attrs.name);
+  expect(input.type).toEqual("text");
+  expect(input.value).toEqual("Bob Smith");
+  expect(registerFn).toHaveBeenCalled();
 });
 
-it("renders id and name attributes on the input element", () => {
-  const { getByLabelText } = render(<UIInput {...props} />);
-  const inputElement = getByLabelText(props.label);
-  expect(inputElement.id).toEqual(props.id);
-  expect(inputElement.name).toEqual(props.name);
-});
+it("renders error message when errors object passed in", () => {
+  const { getByTestId, getByText } = render(
+    <UIInput
+      {...props}
+      {...attrs}
+      errors={{ tester: { message: "required" } }}
+    />
+  );
+  const input = getByTestId("input-element");
+  const p = getByTestId("input-errors");
 
-it("fires the onChange function", () => {
-  const mockFn = jest.fn();
-  const newProps = { ...props, ...{ onChange: mockFn } };
-
-  const { getByLabelText } = render(<UIInput {...newProps} />);
-  const inputEl = getByLabelText(props.label);
-
-  fireEvent.change(inputEl, { target: { value: "foo" } });
-  expect(inputEl.value).toBe("foo");
-  expect(mockFn).toHaveBeenCalledTimes(1);
+  expect(input).toHaveClass("is-danger");
+  expect(p).toBeInTheDocument();
+  expect(getByText("First name field is required"));
 });

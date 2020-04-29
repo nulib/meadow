@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
   GET_WORK,
   UPDATE_WORK,
-  DELETE_WORK
+  DELETE_WORK,
 } from "../../components/Work/work.query";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
@@ -19,7 +19,7 @@ import { toastWrapper } from "../../services/helpers";
 const ScreensWork = () => {
   const { id } = useParams();
   const { data, loading, error } = useQuery(GET_WORK, {
-    variables: { id }
+    variables: { id },
   });
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -32,7 +32,7 @@ const ScreensWork = () => {
         } deleted successfully`
       );
       history.push(`/project/${project.id}/ingest-sheet/${sheet.id}`);
-    }
+    },
   });
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
@@ -40,7 +40,7 @@ const ScreensWork = () => {
         "is-success",
         `Work has been ${updateWork.published ? "published" : "unpublished"}`
       );
-    }
+    },
   });
 
   const handleDeleteClick = () => {
@@ -59,31 +59,39 @@ const ScreensWork = () => {
   if (error) return <Error error={error} />;
 
   const {
-    work: { accessionNumber, published, descriptiveMetadata, project, sheet }
+    work: { accessionNumber, published, descriptiveMetadata, project, sheet },
   } = data;
 
   const breadCrumbs = [
     {
+      label: `Projects`,
+      route: `/project/list`,
+    },
+    {
       label: `${project.name}`,
-      route: `/project/${project.id}`
+      route: `/project/${project.id}`,
+    },
+    {
+      label: "Ingest Sheets",
+      route: `/project/${project.id}`,
     },
     {
       label: `${sheet.name}`,
-      route: `/project/${project.id}/ingest-sheet/${sheet.id}`
+      route: `/project/${project.id}/ingest-sheet/${sheet.id}`,
     },
     {
       label: accessionNumber,
-      isActive: true
-    }
+      isActive: true,
+    },
   ];
 
   const handlePublishClick = () => {
     let workUpdateInput = {
-      published: !published
+      published: !published,
     };
 
     updateWork({
-      variables: { id, work: workUpdateInput }
+      variables: { id, work: workUpdateInput },
     });
   };
 
@@ -99,7 +107,7 @@ const ScreensWork = () => {
                 {published ? "Published" : "Not Published"}
               </span>
             </h1>
-            <h2 className="subtitle">Work Accession Number</h2>
+            <h2 className="subtitle">Work</h2>
             <ButtonGroup>
               <button
                 className="button is-primary is-outlined"

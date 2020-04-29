@@ -67,8 +67,8 @@ const ScreensIngestSheet = ({ match }) => {
         route: `/project/${id}`,
       },
       {
-        label: "Ingest Sheet",
-        route: `/project/${ingestSheet.project.id}/ingest-sheet/upload`,
+        label: "Ingest Sheets",
+        route: `/project/${id}`,
       },
       {
         label: ingestSheet.name,
