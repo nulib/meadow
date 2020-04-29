@@ -7,9 +7,11 @@ import {
 } from "./ingestSheet.query";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
-import WorkListItem from "../Work/ListItem";
+import WorkListItem from "../Work/UIWorkListItem";
+import WorkCardItem from "../Work/UIWorkCardItem";
 
 const IngestSheetCompleted = ({ sheetId }) => {
+  const [isListView, setIsListView] = useState(false);
   const {
     loading: worksLoading,
     error: worksError,
@@ -36,6 +38,10 @@ const IngestSheetCompleted = ({ sheetId }) => {
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
 
+  const handleWorksViewChange = () => {
+    setIsListView(!isListView);
+  };
+
   try {
     ingestSheetErrors = errorsData.ingestSheetErrors;
   } catch (e) {}
@@ -45,17 +51,37 @@ const IngestSheetCompleted = ({ sheetId }) => {
       {ingestSheetErrors.length > 0 && (
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
-
-      <div className="columns is-multiline">
-        {works.map((work) => (
-          <div
-            key={work.id}
-            className="column is-half-tablet is-one-quarter-desktop"
-          >
-            <WorkListItem key={work.id} work={work} />
-          </div>
-        ))}
+      <div className="field has-text-right is-hidden-touch">
+        <input
+          id="checkbox-switch-listitem-view"
+          type="checkbox"
+          className="switch"
+          checked={isListView}
+          onChange={(e) => handleWorksViewChange()}
+        />
+        <label htmlFor="checkbox-switch-listitem-view">List View</label>
       </div>
+      {!isListView && (
+        <div className="columns is-multiline">
+          {works.map((work) => (
+            <div
+              key={work.id}
+              className="column is-half-tablet is-one-quarter-desktop"
+            >
+              <WorkCardItem key={work.id} work={work} />
+            </div>
+          ))}
+        </div>
+      )}
+      {isListView && (
+        <div className="">
+          {works.map((work) => (
+            <div key={work.id}>
+              <WorkListItem key={work.id} work={work} />
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 };
