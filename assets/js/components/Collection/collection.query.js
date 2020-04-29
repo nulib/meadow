@@ -47,6 +47,15 @@ export const CREATE_COLLECTION = gql`
   }
 `;
 
+export const SET_COLLECTION_IMAGE = gql`
+  mutation SetCollectionImage($collectionId: ID!, $workId: ID!) {
+    setCollectionImage(collectionId: $collectionId, workId: $workId) {
+      id
+      representativeImage
+    }
+  }
+`;
+
 export const DELETE_COLLECTION = gql`
   mutation DeleteCollection($collectionId: ID!) {
     deleteCollection(collectionId: $collectionId) {
@@ -73,10 +82,15 @@ export const GET_COLLECTION = gql`
       published
       name
       description
+      representativeImage
       id
       keywords
       works {
         id
+        representativeImage
+        descriptiveMetadata {
+          title
+        }
       }
     }
   }
@@ -101,8 +115,13 @@ export const GET_COLLECTIONS = gql`
       description
       id
       keywords
+      representativeImage
       works {
         id
+        representativeImage
+        descriptiveMetadata {
+          title
+        }
       }
     }
   }

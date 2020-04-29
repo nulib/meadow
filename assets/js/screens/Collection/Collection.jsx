@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/react-hooks";
 import {
   GET_COLLECTION,
   GET_COLLECTIONS,
-  DELETE_COLLECTION
+  DELETE_COLLECTION,
 } from "../../components/Collection/collection.query";
 import Error from "../../components//UI/Error";
 import UILoadingPage from "../../components//UI/LoadingPage";
@@ -21,7 +21,7 @@ const ScreensCollection = () => {
   const history = useHistory();
   const [modalOpen, setModalOpen] = useState(false);
   const { data, loading, error } = useQuery(GET_COLLECTION, {
-    variables: { id }
+    variables: { id },
   });
   const [deleteCollection] = useMutation(DELETE_COLLECTION, {
     onCompleted({ deleteCollection }) {
@@ -33,7 +33,7 @@ const ScreensCollection = () => {
     },
     refetchQueries(mutationResult) {
       return [{ query: GET_COLLECTIONS }];
-    }
+    },
   });
 
   if (loading) return <UILoadingPage />;
@@ -55,13 +55,13 @@ const ScreensCollection = () => {
   const crumbs = [
     {
       label: "Collections",
-      route: "/collection/list"
+      route: "/collection/list",
     },
     {
       label: data.collection.name,
       route: `/collection/${id}`,
-      isActive: true
-    }
+      isActive: true,
+    },
   ];
 
   return (
@@ -92,7 +92,8 @@ const ScreensCollection = () => {
                 </button>
               </div>
             </div>
-            <Collection {...data.collection} />
+
+            <Collection collection={data.collection} />
           </div>
           <CollectionSearch />
         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
-import input from "../UI/Form/Input";
 import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
@@ -19,7 +18,6 @@ const CollectionForm = ({ collection }) => {
   useEffect(() => {
     setPageLoading(false);
   }, []);
-
   const [createCollection, { loading, error, data }] = useMutation(
     CREATE_COLLECTION,
     {
@@ -90,7 +88,7 @@ const CollectionForm = ({ collection }) => {
                   data-testid="input-collection-name"
                 />
               </div>
-              <p className="help">Name for the Collection</p>
+              <p className="help">Name of the Collection</p>
             </div>
           </div>
           <div className="column is-one-third has-text-right">

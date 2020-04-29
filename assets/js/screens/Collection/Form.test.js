@@ -19,6 +19,7 @@ const mocks = [
           adminEmail: "test@test.com",
           description: "Test arrays keyword arrays arrays arrays arrays",
           featured: false,
+          representativeImage: "",
           findingAidUrl: "http://go.com",
           id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
           keywords: ["yo", "foo", "bar", "dude", "hey"],

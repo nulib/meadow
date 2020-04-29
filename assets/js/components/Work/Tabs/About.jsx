@@ -19,22 +19,22 @@ const WorkTabsAbout = ({ work }) => {
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       toastWrapper("is-success", "Work form has been updated");
-    }
+    },
   });
 
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     const { description = "", title = "" } = data;
     let workUpdateInput = {
       descriptiveMetadata: {
         title,
-        description
+        description,
       },
-      published: true
+      published: true,
     };
 
     setIsEditing(false);
     updateWork({
-      variables: { id: work.id, work: workUpdateInput }
+      variables: { id: work.id, work: workUpdateInput },
     });
   };
 
@@ -69,7 +69,7 @@ const WorkTabsAbout = ({ work }) => {
                         placeholder="e.g. Best work ever"
                         defaultValue={descriptiveMetadata.title}
                       />
-                      {errors.description && (
+                      {errors.title && (
                         <p className="help is-danger">
                           Title field is required
                         </p>
@@ -239,7 +239,7 @@ const WorkTabsAbout = ({ work }) => {
 };
 
 WorkTabsAbout.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default WorkTabsAbout;

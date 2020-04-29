@@ -1,19 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
+import CollectionImageModal from "./CollectionImageModal";
 
-const Collection = ({
-  adminEmail,
-  description,
-  findingAidUrl,
-  keywords = []
-}) => {
+const Collection = ({ collection }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    adminEmail,
+    description,
+    representativeImage,
+    findingAidUrl,
+    keywords = [],
+  } = collection;
+
+  const onCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div data-testid="collection">
       <div className="columns">
         <div className="column is-one-quarter-desktop is-half-tablet">
           <figure className="image is-square">
-            <img src="https://bulma.io/images/placeholders/480x480.png" />
+            <img
+              src={
+                representativeImage != null
+                  ? representativeImage + "/square/500,500/0/default.jpg"
+                  : "/images/480x480.png"
+              }
+            />
           </figure>
+          <p className="has-text-centered">
+            <button
+              data-testid="button-open-image-modal"
+              type="button"
+              className="button is-light is-small"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Update Image
+            </button>
+          </p>
         </div>
         <div className="column content">
           <dl>
@@ -36,6 +61,11 @@ const Collection = ({
           </dl>
         </div>
       </div>
+      <CollectionImageModal
+        collection={collection}
+        isModalOpen={isModalOpen}
+        handleClose={onCloseModal}
+      />
     </div>
   );
 };
@@ -49,8 +79,8 @@ Collection.propTypes = {
     adminEmail: PropTypes.string,
     featured: PropTypes.bool,
     findingAidUrl: PropTypes.string,
-    works: PropTypes.array
-  })
+    works: PropTypes.array,
+  }),
 };
 
 export default Collection;
