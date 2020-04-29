@@ -1,10 +1,12 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
+  @app_version "0.1.0"
+
   def project do
     [
       app: :meadow,
-      version: "0.1.0",
+      version: @app_version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
