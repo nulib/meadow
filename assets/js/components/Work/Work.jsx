@@ -12,9 +12,7 @@ const Work = ({ work }) => {
       </section>
       <section className="section">
         <div className="container">
-          <div className="box">
-            <WorkTabs work={work} />
-          </div>
+          <WorkTabs work={work} />
         </div>
       </section>
     </>

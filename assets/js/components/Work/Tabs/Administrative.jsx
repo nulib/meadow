@@ -6,7 +6,7 @@ import { toastWrapper } from "../../../services/helpers";
 import {
   VISIBILITY_OPTIONS,
   RIGHTS_STATEMENTS,
-  PRESERVATION_LEVELS
+  PRESERVATION_LEVELS,
 } from "../../../services/global-vars";
 import { GET_COLLECTIONS } from "../../Collection/collection.query";
 import { UPDATE_WORK, ADD_WORK_TO_COLLECTION, GET_WORK } from "../work.query";
@@ -14,15 +14,18 @@ import { useForm } from "react-hook-form";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import { Link } from "react-router-dom";
 import { setVisibilityClass } from "../../../services/helpers";
+import UIFormSelect from "../../UI/Form/Select";
+import UIFormField from "../../UI/Form/Field";
+import WorkTabsHeader from "./Header";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
   const [isEditing, setIsEditing] = useIsEditing();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, errors } = useForm();
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       setIsEditing(false);
-    }
+    },
   });
 
   // TODO: Add Work to collection is disrupting changes made using updateWork,
@@ -34,190 +37,158 @@ const WorkTabsAdministrative = ({ work }) => {
     },
     refetchQueries(mutationResult) {
       return [{ query: GET_WORK, variables: { id } }];
-    }
+    },
   });
 
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     let workUpdateInput = {
       administrativeMetadata: {
         preservationLevel: Number(data.preservationLevel),
-        rightsStatement: data.rightsStatement
+        rightsStatement: data.rightsStatement,
       },
       visibility: data.visibility,
 
-      published: true
+      published: true,
     };
     updateWork({
-      variables: { id, work: workUpdateInput }
+      variables: { id, work: workUpdateInput },
     });
     addWorkToCollection({
-      variables: { workId: work.id, collectionId: data.collection }
+      variables: { workId: work.id, collectionId: data.collection },
     });
   };
 
   const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
   return (
     <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
-      <div className="columns is-centered">
+      <WorkTabsHeader title="Administrative Metadata">
+        {!isEditing && (
+          <button
+            type="button"
+            className="button is-primary"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit
+          </button>
+        )}
+        {isEditing && (
+          <>
+            <button type="submit" className="button is-primary">
+              Save
+            </button>
+            <button
+              type="button"
+              className="button is-text"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </WorkTabsHeader>
+
+      <div className="columns">
         <div className="column is-two-thirds">
-          <div className="box is-shadowless">
-            <div className="field">
-              <label className="label">Visibility</label>
-              <div className="control">
-                {isEditing ? (
-                  <div className="select">
-                    <select
-                      ref={register}
-                      name="visibility"
-                      defaultValue={work.visibility}
-                    >
-                      <option value="">Select option</option>
-                      {VISIBILITY_OPTIONS.map(({ label, value }) => (
-                        <option key={value} value={value}>
-                          {`${value} (${label})`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <p className={`tag ${setVisibilityClass(work.visibility)}`}>
-                    {work.visibility.toUpperCase()}
-                  </p>
-                )}
-              </div>
-            </div>
+          <div className="box">
+            <UIFormField label="Visibility">
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  required
+                  name="visibility"
+                  label="Visibility"
+                  options={VISIBILITY_OPTIONS}
+                  defaultValue={work.visibility}
+                  errors={errors}
+                />
+              ) : (
+                <p className={`tag ${setVisibilityClass(work.visibility)}`}>
+                  {work.visibility.toUpperCase()}
+                </p>
+              )}
+            </UIFormField>
 
-            <div className="field">
-              <label className="label">Collection</label>
-              <div className="control">
-                {isEditing ? (
-                  <div className="select">
-                    <select
-                      ref={register}
-                      name="collection"
-                      defaultValue={collection ? collection.id : ""}
-                    >
-                      <option value="">Select dropdown</option>
-                      {collectionsData.collections &&
-                        collectionsData.collections.map(({ name, id }) => (
-                          <option key={id} value={id}>
-                            {`${name}`}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                ) : (
-                  <p>
-                    {collection ? collection.name : "Not part of a collection"}
-                  </p>
-                )}
-              </div>
-            </div>
+            <UIFormField label="Collection">
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  required
+                  name="collection"
+                  label="Collection"
+                  options={collectionsData.collections.map((collection) => ({
+                    id: collection.id,
+                    value: collection.id,
+                    label: collection.name,
+                  }))}
+                  defaultValue={collection ? collection.id : ""}
+                  errors={errors}
+                />
+              ) : (
+                <p>
+                  {collection ? collection.name : "Not part of a collection"}
+                </p>
+              )}
+            </UIFormField>
 
-            <div className="field">
-              <label className="label">
-                Themes{" "}
-                <UITagNotYetSupported label="Display not yet supported" />
-                <UITagNotYetSupported label="Update not yet supported" />
-              </label>
-            </div>
+            <UIFormField label="Themes">
+              <UITagNotYetSupported label="Display not yet supported" />
+              <UITagNotYetSupported label="Update not yet supported" />
+            </UIFormField>
 
-            <div className="field">
-              <label className="label">Preservation Level</label>
-              <div className="control">
-                {isEditing ? (
-                  <div className="select">
-                    <select
-                      ref={register}
-                      name="preservationLevel"
-                      defaultValue={
-                        administrativeMetadata
-                          ? administrativeMetadata.preservationLevel
-                          : ""
-                      }
-                    >
-                      {PRESERVATION_LEVELS.map(({ label, id }) => (
-                        <option key={id} value={id}>
-                          {` ${label}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <p>
-                    {administrativeMetadata
+            <UIFormField label="Preservation Level">
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  name="preservationLevel"
+                  label="Preservation Level"
+                  options={PRESERVATION_LEVELS}
+                  defaultValue={
+                    administrativeMetadata
                       ? administrativeMetadata.preservationLevel
-                      : ""}
-                  </p>
-                )}
-              </div>
-            </div>
+                      : ""
+                  }
+                  errors={errors}
+                />
+              ) : (
+                <p>
+                  {administrativeMetadata
+                    ? administrativeMetadata.preservationLevel
+                    : "None selected"}
+                </p>
+              )}
+            </UIFormField>
 
-            <div className="field">
-              <label className="label">Rights Statement</label>
-              <div className="control">
-                {isEditing ? (
-                  <div className="select">
-                    <select
-                      ref={register}
-                      name="rightsStatement"
-                      defaultValue={administrativeMetadata.rightsStatement}
-                    >
-                      <option value="">Select dropdown</option>
-                      {RIGHTS_STATEMENTS.map(({ label, id }) => (
-                        <option key={id} value={id}>
-                          {`${label}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <p>
-                    {administrativeMetadata
-                      ? administrativeMetadata.rightsStatement
-                      : ""}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="field">
-              <label className="label">Project</label>
+            <UIFormField label="Rights Statement">
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  name="rightsStatement"
+                  label="Rights Statement"
+                  options={RIGHTS_STATEMENTS}
+                  defaultValue={administrativeMetadata.rightsStatement}
+                  errors={errors}
+                />
+              ) : (
+                <p>
+                  {administrativeMetadata
+                    ? administrativeMetadata.rightsStatement
+                    : "None selected"}
+                </p>
+              )}
+            </UIFormField>
+          </div>
+        </div>
+        <div className="column one-third">
+          <div className="box">
+            <UIFormField label="Project">
               <Link to={`/project/${project.id}`}>{project.name}</Link>
-            </div>
-            <div className="field">
-              <label className="label">Ingest Sheet</label>
+            </UIFormField>
+
+            <UIFormField label="Ingest Sheet">
               <Link to={`/project/${project.id}/ingest-sheet/${sheet.id}`}>
                 {sheet.name}
               </Link>
-            </div>
-          </div>
-        </div>
-        <div className="column is-narrow">
-          <div className="buttons is-right">
-            {!isEditing && (
-              <button
-                type="button"
-                className="button is-primary"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </button>
-            )}
-            {isEditing && (
-              <>
-                <button type="submit" className="button is-primary">
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="button is-text"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
+            </UIFormField>
           </div>
         </div>
       </div>
@@ -226,7 +197,7 @@ const WorkTabsAdministrative = ({ work }) => {
 };
 
 WorkTabsAdministrative.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default WorkTabsAdministrative;

@@ -2,11 +2,13 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
+import WorkTabsHeader from "./Header";
 
 const WorkTabsPreservation = ({ work }) => {
   return (
-    <div className="columns is-centered">
-      <div className="column">
+    <>
+      <WorkTabsHeader title="Preservation and Access Masters" />
+      <div className="box" style={{ marginTop: "1rem" }}>
         <table className="table is-fullwidth is-striped is-hoverable is-fixed">
           <thead>
             <tr>
@@ -20,7 +22,7 @@ const WorkTabsPreservation = ({ work }) => {
           </thead>
           <tbody>
             {work.fileSets &&
-              work.fileSets.map(fileset => {
+              work.fileSets.map((fileset) => {
                 const metadata = fileset.metadata;
                 return (
                   <tr key={fileset.id}>
@@ -50,12 +52,12 @@ const WorkTabsPreservation = ({ work }) => {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 };
 
 WorkTabsPreservation.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default WorkTabsPreservation;

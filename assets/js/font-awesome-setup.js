@@ -4,6 +4,8 @@ import {
   faAngleDown,
   faBell,
   faCheck,
+  faChevronDown,
+  faChevronRight,
   faChevronCircleRight,
   faChevronCircleDown,
   faEdit,
@@ -18,7 +20,7 @@ import {
   faSearch,
   faThumbsUp,
   faTrash,
-  faUser
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function setupFontAwesome() {
@@ -27,6 +29,8 @@ export default function setupFontAwesome() {
     faAngleDown,
     faBell,
     faCheck,
+    faChevronDown,
+    faChevronRight,
     faChevronCircleRight,
     faChevronCircleDown,
     faEdit,
