@@ -33,8 +33,7 @@ const Collection = ({ collection }) => {
             <button
               data-testid="button-open-image-modal"
               type="button"
-              className="button is-light "
-              style={{ marginTop: "1rem" }}
+              className="button is-light is-small"
               onClick={() => setIsModalOpen(true)}
             >
               Update Image
