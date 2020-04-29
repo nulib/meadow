@@ -13,6 +13,8 @@ defmodule Meadow.TestHelpers do
 
   alias Meadow.Repo
 
+  alias NimbleCSV.RFC4180, as: CSV
+
   use Meadow.Constants
 
   @test_users %{
@@ -52,7 +54,7 @@ defmodule Meadow.TestHelpers do
 
     sheet
     |> Repo.preload(:project)
-    |> Validator.load_rows(File.read!(file_fixture))
+    |> Validator.load_rows(File.read!(file_fixture) |> uniqify_ingest_sheet_rows())
 
     sheet
   end
@@ -207,4 +209,31 @@ defmodule Meadow.TestHelpers do
   def entry_names([entry | entries]), do: [entry_names(entry) | entry_names(entries)]
   def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,DC=library,DC=northwestern,DC=edu"
   def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,DC=library,DC=northwestern,DC=edu"
+
+  defp uniqify_ingest_sheet_rows(csv) do
+    with prefix <- test_id() do
+      [headers | rows] = CSV.parse_string(csv, skip_headers: false)
+
+      rows =
+        rows
+        |> Enum.map(fn [wan | [an | rest]] ->
+          ["#{prefix}_#{wan}", "#{prefix}_#{an}"] ++ rest
+        end)
+
+      [headers | rows]
+      |> CSV.dump_to_iodata()
+      |> IO.iodata_to_binary()
+    end
+  end
+
+  defp test_id() do
+    min = String.to_integer("100000", 36)
+    max = String.to_integer("ZZZZZZ", 36)
+
+    max
+    |> Kernel.-(min)
+    |> :rand.uniform()
+    |> Kernel.+(min)
+    |> Integer.to_string(36)
+  end
 end

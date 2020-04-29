@@ -7,7 +7,7 @@ jobs:
   test:
     working_directory: ~/meadow
     docker:
-      - image: circleci/elixir:1.9-node
+      - image: circleci/elixir:1.10-node
         environment:
           DATABASE_URL: ecto://root@localhost/circle_test
           DB_PORT: "5432"

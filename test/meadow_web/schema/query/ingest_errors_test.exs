@@ -7,7 +7,12 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
 
   describe "ingest with errors" do
     test "duplicate FileSet accession number", %{ingest_sheet: sheet} do
-      file_set_fixture(%{accession_number: "Donohue_001_02"})
+      accession_number =
+        Meadow.Ingest.Rows.list_ingest_sheet_rows(sheet: sheet)
+        |> Enum.at(1)
+        |> Map.get(:file_set_accession_number)
+
+      file_set_fixture(%{accession_number: accession_number})
       sheet = create_works(sheet)
 
       {:ok, result} = query_gql(variables: %{"sheetId" => sheet.id}, context: gql_context())
@@ -29,7 +34,14 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
     end
 
     test "duplicate Work accession number", %{ingest_sheet: sheet} do
-      work_fixture(%{accession_number: "Donohue_002"})
+      accession_number =
+        Meadow.Ingest.Rows.list_ingest_sheet_rows(sheet: sheet)
+        |> Enum.at(4)
+        |> Map.get(:fields)
+        |> Enum.find(fn %{header: header} -> header == "work_accession_number" end)
+        |> Map.get(:value)
+
+      work_fixture(%{accession_number: accession_number})
       sheet = create_works(sheet)
 
       {:ok, result} = query_gql(variables: %{"sheetId" => sheet.id}, context: gql_context())
