@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/react-hooks";
-import { SET_COLLECTION_IMAGE } from "../../components/Collection/collection.query";
+import { SET_COLLECTION_IMAGE } from "./collection.query";
 import { toastWrapper } from "../../services/helpers";
 
 const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
@@ -32,19 +32,20 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
       handleClose();
     },
     onError(error) {
-      console.log("Error: ", error);
+      toastWrapper("is-danger", "Error updating collection image");
+      console.log("Error updating collection image: ", error);
     },
   });
 
   const setWork = (workId) => {
     setSelectedWork(workId);
-    return false;
+    return;
   };
 
   const handleThumbnailChange = () => {
     if (!selectedWork) {
       toastWrapper("is-danger", `Please select an image to add to collection`);
-      return false;
+      return;
     }
     setCollectionImage({
       variables: { collectionId: collection.id, workId: selectedWork },
@@ -52,7 +53,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
   };
 
   const styles = {
-    highlightImage: { outline: "10px solid #4e2a84 " },
+    highlightImage: { outline: "5px solid #4e2a84" },
     fullWidth: { width: "85%" },
   };
 
@@ -87,29 +88,27 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
               filteredWorkImages.map((work) => (
                 <div
                   key={work.id}
-                  className="column  is-narrow"
+                  className="column is-3 has-text-centered"
                   style={selectedWork == work.id ? styles.highlightImage : {}}
                   onClick={() => {
                     setWork(work.id);
                   }}
                 >
-                  <figure style={{ width: "128px", height: "128px" }}>
-                    <p className="image is-square">
-                      <img
-                        src={
-                          work && work.representativeImage != null
-                            ? work.representativeImage +
-                              "/square/500,500/0/default.jpg"
-                            : "/images/480x480.png"
-                        }
-                      />
-                    </p>
+                  <figure className="image is-128x128 is-inline-block">
+                    <img
+                      src={
+                        work && work.representativeImage != null
+                          ? work.representativeImage +
+                            "/square/500,500/0/default.jpg"
+                          : "/images/480x480.png"
+                      }
+                    />
                   </figure>
-                  <h2>
+                  <p>
                     {work.descriptiveMetadata
                       ? work.descriptiveMetadata.title
                       : work.accessionNumber}
-                  </h2>
+                  </p>
                 </div>
               ))}
           </div>
@@ -124,7 +123,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
           >
             Set Image
           </button>
-          <button className="button" onClick={handleClose}>
+          <button className="button is-text" onClick={handleClose}>
             Cancel
           </button>
         </footer>

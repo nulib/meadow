@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
-import CollectionImageModal from "../../screens/Collection/CollectionImageModal";
+import CollectionImageModal from "./CollectionImageModal";
 
 const Collection = ({ collection }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,14 +29,17 @@ const Collection = ({ collection }) => {
               }
             />
           </figure>
-          <button
-            data-testid="button-open-image-modal"
-            type="button"
-            className="button is-text is-light is-fullwidth"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Update Image
-          </button>
+          <p className="has-text-centered">
+            <button
+              data-testid="button-open-image-modal"
+              type="button"
+              className="button is-light "
+              style={{ marginTop: "1rem" }}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Update Image
+            </button>
+          </p>
         </div>
         <div className="column content">
           <dl>

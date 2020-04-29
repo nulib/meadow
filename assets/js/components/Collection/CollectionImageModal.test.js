@@ -2,7 +2,7 @@ import React from "react";
 import CollectionImageModal from "./CollectionImageModal";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { SET_COLLECTION_IMAGE } from "../../components/Collection/collection.query";
+import { SET_COLLECTION_IMAGE } from "./collection.query";
 
 const mocks = [
   {
@@ -80,7 +80,6 @@ it("saves collection image", async () => {
     fireEvent.click(getByText("accessNumber1"));
     expect(getByTestId("button-set-image")).toBeInTheDocument();
     fireEvent.click(getByTestId("button-set-image"));
-
     // expect(getByTestId("modal-collection-thumbnail")).not.toHaveClass(
     //   "is-active "
     // );
