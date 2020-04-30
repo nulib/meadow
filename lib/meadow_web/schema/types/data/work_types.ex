@@ -137,7 +137,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     @desc "NOT YET IMPLEMENTED"
     field :subject, list_of(:controlled_vocabulary)
     field :technique, list_of(:controlled_vocabulary)
-    field :title, :string
+    field :title, list_of(:string)
   end
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
@@ -199,7 +199,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :subject, list_of(:controlled_vocabulary_input)
     @desc "NOT YET IMPLEMENTED"
     field :style_period, list_of(:controlled_vocabulary_input)
-    field :title, :string
+    field :title, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :technique, list_of(:controlled_vocabulary_input)
   end

@@ -11,7 +11,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     field :description, :string
     field :keywords, {:array, :string}, default: []
     field :nul_subject, {:array, :string}, default: []
-    field :title, :string
+    field :title, {:array, :string}, default: []
 
     timestamps()
   end

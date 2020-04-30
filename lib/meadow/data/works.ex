@@ -55,10 +55,7 @@ defmodule Meadow.Data.Works do
   defp filter_with(filters, query) do
     Enum.reduce(filters, query, fn
       {:matching, term}, query ->
-        map = %{"title" => term}
-
-        from q in query,
-          where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+        query |> title_filter(term)
 
       {:visibility, value}, query ->
         from q in query, where: q.visibility == ^value
@@ -237,11 +234,8 @@ defmodule Meadow.Data.Works do
 
   """
   def get_works_by_title(title) do
-    map = %{"title" => title}
-
-    from(Work,
-      where: fragment("descriptive_metadata @> ?::jsonb", ^map)
-    )
+    Work
+    |> title_filter(title)
     |> Repo.all()
     |> add_representative_image()
   end
@@ -353,4 +347,7 @@ defmodule Meadow.Data.Works do
       |> URI.to_string()
     end
   end
+
+  defp title_filter(query, title),
+    do: from(query, where: fragment("(descriptive_metadata -> 'title') @> ?", ^title))
 end

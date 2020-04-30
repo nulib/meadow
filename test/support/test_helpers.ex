@@ -125,7 +125,7 @@ defmodule Meadow.TestHelpers do
         descriptive_metadata:
           attrs[:descriptive_metadata] ||
             %{
-              title: "Test title"
+              title: ["Test title"]
             },
         file_sets: attrs[:file_sets] || []
       })

@@ -10,7 +10,7 @@ defmodule Meadow.Data.WorksTest do
       accession_number: "12345",
       visibility: "open",
       work_type: "image",
-      descriptive_metadata: %{title: "Test"}
+      descriptive_metadata: %{title: ["Test"]}
     }
     @invalid_attrs %{accession_number: nil}
 
@@ -45,9 +45,9 @@ defmodule Meadow.Data.WorksTest do
       work = work_fixture()
 
       assert {:ok, %Work{} = work} =
-               Works.update_work(work, %{descriptive_metadata: %{title: "New name"}})
+               Works.update_work(work, %{descriptive_metadata: %{title: ["New name"]}})
 
-      assert work.descriptive_metadata.title == "New name"
+      assert work.descriptive_metadata.title == ["New name"]
     end
 
     test "update_work/2 with invalid attributes returns an error" do
@@ -95,7 +95,7 @@ defmodule Meadow.Data.WorksTest do
       {:ok, work} =
         Works.create_work(%{accession_number: "abc", visibility: "open", work_type: "image"})
 
-      assert work.descriptive_metadata.title == nil
+      assert work.descriptive_metadata.title == []
       assert work.administrative_metadata.preservation_level == nil
     end
   end

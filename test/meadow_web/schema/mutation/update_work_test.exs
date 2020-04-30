@@ -18,7 +18,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
           "id" => work.id,
           "collection_id" => collection.id,
           "visibility" => "RESTRICTED",
-          "descriptive_metadata" => %{"title" => "Something"}
+          "descriptive_metadata" => %{"title" => ["Something"]}
         },
         context: gql_context()
       )
@@ -26,7 +26,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
     assert {:ok, query_data} = result
 
     title = get_in(query_data, [:data, "updateWork", "descriptiveMetadata", "title"])
-    assert title == "Something"
+    assert title == ["Something"]
 
     work = Works.get_work!(work.id) |> Repo.preload(:collection)
     assert work.collection.id == collection.id

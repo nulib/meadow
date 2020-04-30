@@ -27,7 +27,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
       "accession_number" => "99999",
       "visibility" => "OPEN",
       "work_type" => "IMAGE",
-      "descriptive_metadata" => %{"title" => "Something"},
+      "descriptive_metadata" => %{"title" => ["Something"]},
       "administrative_metadata" => %{"preservation_level" => 1}
     }
 
