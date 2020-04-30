@@ -40,8 +40,16 @@ const IngestSheet = ({
   if (progressLoading) return <UILoading />;
   if (progressError) return <Error error={progressError} />;
 
+  const styles = { h2IsHidden: { display: "none" } };
+
   return (
     <>
+      <h2
+        className="title is-size-5"
+        style={["COMPLETED"].indexOf(status) > -1 ? styles.h2IsHidden : {}}
+      >
+        Ingest Sheet Contents
+      </h2>
       {["APPROVED"].indexOf(status) > -1 && (
         <>
           {/* <IngestSheetAlert ingestSheet={ingestSheetData} /> */}

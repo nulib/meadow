@@ -5,6 +5,8 @@ import {
   INGEST_SHEET_WORKS,
   INGEST_SHEET_COMPLETED_ERRORS,
 } from "./ingestSheet.query";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import WorkListItem from "../Work/UIWorkListItem";
@@ -51,15 +53,23 @@ const IngestSheetCompleted = ({ sheetId }) => {
       {ingestSheetErrors.length > 0 && (
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
-      <div className="field has-text-right is-hidden-touch">
-        <input
-          id="checkbox-switch-listitem-view"
-          type="checkbox"
-          className="switch"
-          checked={isListView}
-          onChange={(e) => handleWorksViewChange()}
-        />
-        <label htmlFor="checkbox-switch-listitem-view">List View</label>
+
+      <div className="columns">
+        <div className="column is-half">
+          <h2 className="title is-size-5 column is-size-8">
+            Ingest Sheet Contents
+          </h2>
+        </div>
+        <div className="column is-half">
+          <div className="buttons is-right ">
+            <FontAwesomeIcon
+              id="icon-switch-listitem-view"
+              size="2x"
+              onClick={(e) => handleWorksViewChange()}
+              icon={isListView ? "th-large" : "th-list"}
+            />
+          </div>
+        </div>
       </div>
       {!isListView && (
         <div className="columns is-multiline">
@@ -74,13 +84,13 @@ const IngestSheetCompleted = ({ sheetId }) => {
         </div>
       )}
       {isListView && (
-        <div className="">
+        <>
           {works.map((work) => (
-            <div key={work.id}>
+            <div key={work.id} className="box">
               <WorkListItem key={work.id} work={work} />
             </div>
           ))}
-        </div>
+        </>
       )}
     </>
   );

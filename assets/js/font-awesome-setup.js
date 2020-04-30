@@ -21,6 +21,8 @@ import {
   faThumbsUp,
   faTrash,
   faUser,
+  faThList,
+  faThLarge,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function setupFontAwesome() {
@@ -45,6 +47,8 @@ export default function setupFontAwesome() {
     faSearch,
     faThumbsUp,
     faTrash,
-    faUser
+    faUser,
+    faThList,
+    faThLarge
   );
 }
