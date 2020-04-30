@@ -1,14 +1,14 @@
 import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
-import { INGEST_SHEET_EXPORT_CSV } from "../ingestSheet.query";
+import { INGEST_SHEET_WORKS } from "../ingestSheet.query";
 import { CSVLink } from "react-csv";
 import Error from "../../UI/Error";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const IngestSheetDownload = ({ sheetId }) => {
-  const { loading, error, data } = useQuery(INGEST_SHEET_EXPORT_CSV, {
-    variables: { id: sheetId }
+  const { loading, error, data } = useQuery(INGEST_SHEET_WORKS, {
+    variables: { id: sheetId },
   });
 
   if (loading) return "Loading...";
@@ -17,7 +17,7 @@ const IngestSheetDownload = ({ sheetId }) => {
   const works = data.ingestSheetWorks;
 
   //Temporary. Ultimately CSV prep will be handled on the backend.
-  const reformattedWorks = works.map(work => {
+  const reformattedWorks = works.map((work) => {
     let rWork = {};
 
     try {
@@ -61,6 +61,6 @@ const IngestSheetDownload = ({ sheetId }) => {
 };
 
 IngestSheetDownload.propTypes = {
-  sheetId: PropTypes.string
+  sheetId: PropTypes.string,
 };
 export default IngestSheetDownload;

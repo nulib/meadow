@@ -8,6 +8,19 @@ export const GET_WORK = gql`
       descriptiveMetadata {
         title
         description
+        contributor @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
+        }
+        creator @client {
+          id
+          label
+        }
         genre @client {
           id
           label
@@ -23,6 +36,15 @@ export const GET_WORK = gql`
         stylePeriod @client {
           id
           label
+        }
+        subject @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
         }
         technique @client {
           id
@@ -76,6 +98,19 @@ export const GET_WORKS = gql`
       descriptiveMetadata {
         title
         description
+        contributor @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
+        }
+        creator @client {
+          id
+          label
+        }
         genre @client {
           id
           label
@@ -91,6 +126,15 @@ export const GET_WORKS = gql`
         stylePeriod @client {
           id
           label
+        }
+        subject @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
         }
         technique @client {
           id
