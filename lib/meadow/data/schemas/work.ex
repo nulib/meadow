@@ -80,9 +80,7 @@ defmodule Meadow.Data.Schemas.Work do
     def encode(work) do
       %{
         model: %{application: "Meadow", name: String.capitalize(work.work_type)},
-        title: work.descriptive_metadata.title,
         accession_number: work.accession_number,
-        description: work.descriptive_metadata.description,
         visibility: work.visibility,
         published: work.published,
         collection:
@@ -104,7 +102,18 @@ defmodule Meadow.Data.Schemas.Work do
         modified_date: work.updated_at,
         representative_file_set_id: work.representative_file_set_id
       }
+      |> Map.merge(work |> descriptive_metadata_fields())
       |> Map.merge(work.extra_index_fields)
+    end
+
+    defp descriptive_metadata_fields(work) do
+      with md <- work.descriptive_metadata do
+        WorkDescriptiveMetadata.field_names()
+        |> Enum.map(fn field_name ->
+          {field_name, md |> Map.get(field_name)}
+        end)
+        |> Enum.into(%{})
+      end
     end
   end
 end
