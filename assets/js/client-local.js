@@ -57,7 +57,7 @@ export const mockContributors = () => {
 };
 
 export const mockSubjects = () => {
-  let ids = ["topcial", "temporal", "geographical"];
+  let ids = ["topicial", "temporal", "geographical"];
   let results = [];
   let size = Math.floor(Math.random() * Math.floor(4));
   for (let i = 0; i < size; i++) {
