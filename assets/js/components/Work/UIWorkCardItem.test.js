@@ -20,12 +20,6 @@ it("Displays Representative Image for Work", () => {
   );
 });
 
-it("Displays Filesets for Work", () => {
-  const { getByTestId, debug } = setupTests();
-  expect(getByTestId("fileset-01DV4BAEAGKNT5P3GH10X263K1")).toBeInTheDocument();
-  expect(getByTestId("fileset-01DV4BAEANHGYQKQ2EPBWJVJSR")).toBeInTheDocument();
-});
-
 it("Displays Visibility tag", () => {
   const { getByTestId, findByText } = setupTests();
   expect(getByTestId("tag-visibility")).toBeInTheDocument();

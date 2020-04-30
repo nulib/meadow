@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
 
 const WorkCardItem = ({ work }) => {
-  console.log(work);
   return (
     <div className="card is-shadowless" data-testid="ui-workcard">
       <div className="card-image">
@@ -55,7 +54,9 @@ const WorkCardItem = ({ work }) => {
               </a>
             </dd>
             <dt>Published:</dt>
-            <dd>{work.published}</dd>
+            <dd>
+              <span className="tag">{work.published ? "True" : "False"}</span>
+            </dd>
           </dl>
         </div>
       </div>
