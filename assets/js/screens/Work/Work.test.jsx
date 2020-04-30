@@ -10,8 +10,8 @@ const mocks = [
     request: {
       query: GET_WORK,
       variables: {
-        id: "ABC123",
-      },
+        id: "ABC123"
+      }
     },
     result: {
       data: {
@@ -19,15 +19,45 @@ const mocks = [
           accessionNumber: "Donohue_001",
           administrativeMetadata: {
             preservationLevel: 1,
-            rightsStatement: "https://northwestern.edu",
+            rightsStatement: "https://northwestern.edu"
           },
           collection: {
             id: "1287312378238293126321308",
-            name: " Collection 1232432 Name",
+            name: " Collection 1232432 Name"
           },
           descriptiveMetadata: {
             description: "Some description here",
             title: "Ima work title",
+            genre: [
+              {
+                id: "https://theurioftheresource123",
+                label: "This is the label"
+              }
+            ],
+            language: [
+              {
+                id: "https://theurioftheresource",
+                label: "This is the label"
+              }
+            ],
+            location: [
+              {
+                id: "https://theurioftheresource",
+                label: "This is the label"
+              }
+            ],
+            stylePeriod: [
+              {
+                id: "https://theurioftheresource",
+                label: "This is the label"
+              }
+            ],
+            technique: [
+              {
+                id: "https://theurioftheresource",
+                label: "This is the label"
+              }
+            ]
           },
           fileSets: [
             {
@@ -39,8 +69,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar",
-              },
+                sha256: "foobar"
+              }
             },
             {
               accessionNumber: "Donohue_001_01",
@@ -51,8 +81,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar",
-              },
+                sha256: "foobar"
+              }
             },
             {
               accessionNumber: "Donohue_001_03",
@@ -63,8 +93,8 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar",
-              },
+                sha256: "foobar"
+              }
             },
             {
               accessionNumber: "Donohue_001_02",
@@ -75,30 +105,30 @@ const mocks = [
                 originalFilename: "coffee.jpg",
                 location: "s3://bucket/foo/bar",
                 label: "foo.tiff",
-                sha256: "foobar",
-              },
-            },
+                sha256: "foobar"
+              }
+            }
           ],
           id: "ABC123",
           insertedAt: "2020-02-04T19:16:16",
           published: false,
           project: {
             id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-            name: "Foo",
+            name: "Foo"
           },
           sheet: {
             id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-            name: "Bar",
+            name: "Bar"
           },
           updatedAt: "2020-02-04T19:16:16",
           visibility: "RESTRICTED",
           workType: "IMAGE",
           manifestUrl: "http://foobar",
-          representativeImage: "http://foobar",
-        },
-      },
-    },
-  },
+          representativeImage: "http://foobar"
+        }
+      }
+    }
+  }
 ];
 
 // This function helps mock out a component's dependency on
@@ -108,7 +138,7 @@ function setupMatchTests() {
     <Route path="/work/:id" component={ScreensWork} />,
     {
       mocks,
-      route: "/work/ABC123",
+      route: "/work/ABC123"
     }
   );
 }

@@ -8,6 +8,26 @@ export const GET_WORK = gql`
       descriptiveMetadata {
         title
         description
+        genre @client {
+          id
+          label
+        }
+        language @client {
+          id
+          label
+        }
+        location @client {
+          id
+          label
+        }
+        stylePeriod @client {
+          id
+          label
+        }
+        technique @client {
+          id
+          label
+        }
       }
       fileSets {
         id
@@ -56,6 +76,26 @@ export const GET_WORKS = gql`
       descriptiveMetadata {
         title
         description
+        genre @client {
+          id
+          label
+        }
+        language @client {
+          id
+          label
+        }
+        location @client {
+          id
+          label
+        }
+        stylePeriod @client {
+          id
+          label
+        }
+        technique @client {
+          id
+          label
+        }
       }
       fileSets {
         id

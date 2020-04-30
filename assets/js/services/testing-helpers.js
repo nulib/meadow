@@ -4,6 +4,7 @@ import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/react-testing";
 import { ReactiveBase } from "@appbaseio/reactivesearch";
+import { resolvers } from "../client-local";
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
@@ -50,7 +51,7 @@ export function renderWithRouterApollo(
   } = {}
 ) {
   const Wrapper = ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks} addTypename={false} resolvers={resolvers}>
       <Router history={history}>{children}</Router>
     </MockedProvider>
   );
@@ -62,7 +63,7 @@ export function renderWithRouterApollo(
 
 export function renderWithApollo(ui, { mocks = [] }) {
   const Wrapper = ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks} addTypename={false} resolvers={resolvers}>
       {children}
     </MockedProvider>
   );
@@ -101,6 +102,36 @@ export const mockWork = {
   descriptiveMetadata: {
     title: "Ima title",
     description: "Ima description",
+    genre: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
+    language: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
+    location: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
+    stylePeriod: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
+    technique: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
   },
   updatedAt: "2019-12-02T22:22:30",
   visibility: "RESTRICTED",

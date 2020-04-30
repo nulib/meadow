@@ -9,10 +9,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
     field :description, :string
-    field :genre, {:array, :string}, default: []
     field :keywords, {:array, :string}, default: []
     field :nul_subject, {:array, :string}, default: []
-    field :technique, :string
     field :title, :string
 
     timestamps()
@@ -22,10 +20,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     metadata
     |> cast(params, [
       :description,
-      :genre,
       :keywords,
       :nul_subject,
-      :technique,
       :title
     ])
   end

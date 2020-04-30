@@ -195,6 +195,23 @@ const WorkTabsAbout = ({ work }) => {
                     </li>
                   </ul>
                 </UIFormField>
+
+                {descriptiveMetadata.genre &&
+                  descriptiveMetadata.genre.length > 0 && (
+                    <UIFormField label="Genre">
+                      <UITagNotYetSupported label="Data is mocked" />{" "}
+                      <UITagNotYetSupported label="Update not yet supported" />
+                      <ul>
+                        {descriptiveMetadata.genre.map((genre) => {
+                          return (
+                            <li key={genre.id}>
+                              <a href={genre.id}>{genre.label}</a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </UIFormField>
+                  )}
               </>
             )}
           </div>
