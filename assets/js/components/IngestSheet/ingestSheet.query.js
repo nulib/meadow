@@ -26,7 +26,7 @@ IngestSheet.fragments = {
       }
       status
     }
-  `
+  `,
 };
 
 export const CREATE_INGEST_SHEET = gql`
@@ -198,41 +198,6 @@ export const INGEST_PROGRESS_SUBSCRIPTION = gql`
   }
 `;
 
-export const INGEST_SHEET_EXPORT_CSV = gql`
-  query IngestSheetWorks($id: ID!) {
-    ingestSheetWorks(id: $id) {
-      accessionNumber
-      id
-      visibility
-      workType
-      descriptiveMetadata {
-        title
-        description
-        genre @client {
-          id
-          label
-        }
-        language @client {
-          id
-          label
-        }
-        location @client {
-          id
-          label
-        }
-        stylePeriod @client {
-          id
-          label
-        }
-        technique @client {
-          id
-          label
-        }
-      }
-    }
-  }
-`;
-
 export const INGEST_SHEET_WORKS = gql`
   query IngestSheetWorks($id: ID!) {
     ingestSheetWorks(id: $id) {
@@ -241,6 +206,19 @@ export const INGEST_SHEET_WORKS = gql`
       descriptiveMetadata {
         title
         description
+        contributor @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
+        }
+        creator @client {
+          id
+          label
+        }
         genre @client {
           id
           label
@@ -256,6 +234,15 @@ export const INGEST_SHEET_WORKS = gql`
         stylePeriod @client {
           id
           label
+        }
+        subject @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
         }
         technique @client {
           id

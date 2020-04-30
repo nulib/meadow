@@ -196,11 +196,11 @@ const WorkTabsAbout = ({ work }) => {
                   </ul>
                 </UIFormField>
 
-                {descriptiveMetadata.genre &&
-                  descriptiveMetadata.genre.length > 0 && (
-                    <UIFormField label="Genre">
-                      <UITagNotYetSupported label="Data is mocked" />{" "}
-                      <UITagNotYetSupported label="Update not yet supported" />
+                <UIFormField label="Genre">
+                  <UITagNotYetSupported label="Data is mocked" />{" "}
+                  <UITagNotYetSupported label="Update not yet supported" />
+                  {descriptiveMetadata.genre &&
+                    descriptiveMetadata.genre.length > 0 && (
                       <ul>
                         {descriptiveMetadata.genre.map((genre) => {
                           return (
@@ -210,8 +210,8 @@ const WorkTabsAbout = ({ work }) => {
                           );
                         })}
                       </ul>
-                    </UIFormField>
-                  )}
+                    )}
+                </UIFormField>
               </>
             )}
           </div>
