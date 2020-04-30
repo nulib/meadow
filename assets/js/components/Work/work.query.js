@@ -196,6 +196,48 @@ export const UPDATE_WORK = gql`
       descriptiveMetadata {
         title
         description
+        contributor @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
+        }
+        creator @client {
+          id
+          label
+        }
+        genre @client {
+          id
+          label
+        }
+        language @client {
+          id
+          label
+        }
+        location @client {
+          id
+          label
+        }
+        stylePeriod @client {
+          id
+          label
+        }
+        subject @client {
+          id
+          label
+          role {
+            id
+            label
+            scheme
+          }
+        }
+        technique @client {
+          id
+          label
+        }
       }
       insertedAt
       published

@@ -119,14 +119,23 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
   object :work_descriptive_metadata do
+    @desc "NOT YET IMPLEMENTED"
+    field :contributor, list_of(:controlled_vocabulary)
+    @desc "NOT YET IMPLEMENTED"
+    field :creator, list_of(:controlled_vocabulary)
     field :description, :string
     @desc "NOT YET IMPLEMENTED"
     field :genre, list_of(:controlled_vocabulary)
     field :keywords, list_of(:string)
+    @desc "NOT YET IMPLEMENTED"
+    field :language, list_of(:controlled_vocabulary)
+    @desc "NOT YET IMPLEMENTED"
+    field :location, list_of(:controlled_vocabulary)
     field :nul_subject, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :style_period, list_of(:controlled_vocabulary)
     @desc "NOT YET IMPLEMENTED"
+    field :subject, list_of(:controlled_vocabulary)
     field :technique, list_of(:controlled_vocabulary)
     field :title, :string
   end
@@ -147,12 +156,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_sheet do
     field :id, :id
     field :name, :string
-  end
-
-  @desc "Controlled Vocabulary"
-  object :controlled_vocabulary do
-    field :id, :string
-    field :label, :string
   end
 
   #
@@ -180,10 +183,25 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "Same as `work_descriptive_metadata`. This represents all descriptive metadata associated with a work object. It is stored in a single json field."
   input_object :work_descriptive_metadata_input do
     field :description, :string
-    field :genre, list_of(:string)
+    @desc "NOT YET IMPLEMENTED"
+    field :contributor, list_of(:controlled_vocabulary_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :creator, list_of(:controlled_vocabulary_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :genre, list_of(:controlled_vocabulary_input)
     field :keywords, list_of(:string)
+    @desc "NOT YET IMPLEMENTED"
+    field :language, list_of(:controlled_vocabulary_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :location, list_of(:controlled_vocabulary_input)
     field :nul_subject, list_of(:string)
+    @desc "NOT YET IMPLEMENTED"
+    field :subject, list_of(:controlled_vocabulary_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :style_period, list_of(:controlled_vocabulary_input)
     field :title, :string
+    @desc "NOT YET IMPLEMENTED"
+    field :technique, list_of(:controlled_vocabulary_input)
   end
 
   @desc "Fields that can be updated on a work object"

@@ -13,6 +13,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.AccountTypes)
   import_types(__MODULE__.IngestTypes)
   import_types(__MODULE__.Data.CollectionTypes)
+  import_types(__MODULE__.Data.ControlledVocabularyTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
   import_types(__MODULE__.HelperTypes)
