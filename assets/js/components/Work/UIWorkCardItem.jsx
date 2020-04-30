@@ -40,13 +40,15 @@ const WorkCardItem = ({ work }) => {
           </p>
           <dl>
             <dt>Accession Number:</dt>
-            <dd>{work.accessionNumber}</dd>
+            <dd data-testid="dd-accession-number">{work.accessionNumber}</dd>
             <dt>Filesets:</dt>
             <dd>
-              <span className="tag is-light">{work.fileSets.length}</span>
+              <span className="tag is-light" data-testid="dd-filesets-length">
+                {work.fileSets.length}
+              </span>
             </dd>
             <dt>Last Updated: </dt>
-            <dd>{formatDate(work.updatedAt)}</dd>
+            <dd data-testid="dd-updated-date">{formatDate(work.updatedAt)}</dd>
             <dt>IIIF Manifest:</dt>
             <dd>
               <a href={work.manifestUrl} target="_blank">
@@ -55,7 +57,9 @@ const WorkCardItem = ({ work }) => {
             </dd>
             <dt>Published:</dt>
             <dd>
-              <span className="tag">{work.published ? "True" : "False"}</span>
+              <span data-testid="dd-published" className="tag">
+                {work.published ? "True" : "False"}
+              </span>
             </dd>
           </dl>
         </div>
