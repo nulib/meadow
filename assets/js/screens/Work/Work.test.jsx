@@ -18,8 +18,7 @@ const mocks = [
         work: {
           accessionNumber: "Donohue_001",
           administrativeMetadata: {
-            preservationLevel: 1,
-            rightsStatement: "https://northwestern.edu",
+            preservationLevel: { id: 1, label: "Level 1" },
           },
           collection: {
             id: "1287312378238293126321308",
@@ -63,6 +62,10 @@ const mocks = [
                 label: "This is the label",
               },
             ],
+            rightsStatement: {
+              id: "https://northwestern.edu",
+              label: "The label",
+            },
             stylePeriod: [
               {
                 id: "https://theurioftheresource",
@@ -77,9 +80,9 @@ const mocks = [
                   id: "geographical",
                   label: "geographical",
                   scheme: "SUBJECT",
-                  __typename: "CodeListItem",
+                  __typename: "ControlledTerm",
                 },
-                __typename: "ControlledVocabulary",
+                __typename: "ControlledTerm",
               },
             ],
             technique: [
@@ -151,8 +154,6 @@ const mocks = [
             name: "Bar",
           },
           updatedAt: "2020-02-04T19:16:16",
-          visibility: "RESTRICTED",
-          workType: "IMAGE",
           manifestUrl: "http://foobar",
           representativeImage: "http://foobar",
         },

@@ -51,7 +51,15 @@ export function renderWithRouterApollo(
   } = {}
 ) {
   const Wrapper = ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false} resolvers={resolvers}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+      resolvers={resolvers}
+      defaultOptions={{
+        watchQuery: { fetchPolicy: "no-cache" },
+        query: { fetchPolicy: "no-cache" },
+      }}
+    >
       <Router history={history}>{children}</Router>
     </MockedProvider>
   );
@@ -63,7 +71,15 @@ export function renderWithRouterApollo(
 
 export function renderWithApollo(ui, { mocks = [] }) {
   const Wrapper = ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false} resolvers={resolvers}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+      resolvers={resolvers}
+      defaultOptions={{
+        watchQuery: { fetchPolicy: "no-cache" },
+        query: { fetchPolicy: "no-cache" },
+      }}
+    >
       {children}
     </MockedProvider>
   );
@@ -75,25 +91,43 @@ export function renderWithApollo(ui, { mocks = [] }) {
 
 export const mockWork = {
   accessionNumber: "Example-34",
+  administrativeMetadata: {
+    preservationLevel: {
+      id: "0",
+      label: "Level 0",
+    },
+    status: {
+      id: "DONE",
+      label: "Done",
+    },
+  },
+  collection: {
+    id: "147238",
+    name: "Collection Name",
+  },
   fileSets: [
     {
       accessionNumber: "Example-34-3",
+      role: "AM",
       id: "01DV4BAEAGKNT5P3GH10X263K1",
       metadata: {
         description: "Lorem Ipsum",
         original_filename: "foo.tiff",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        sha256: "123481439834-098349-8",
       },
     },
     {
       accessionNumber: "Example-34-4",
       id: "01DV4BAEANHGYQKQ2EPBWJVJSR",
+      role: "AM",
       metadata: {
         description: "Lorem Ipsum",
         original_filename: "foo.tiff",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        sha256: "123481439834-098349-8",
       },
     },
   ],
@@ -102,6 +136,23 @@ export const mockWork = {
   descriptiveMetadata: {
     title: "Ima title",
     description: "Ima description",
+    contributor: [
+      {
+        id: "http://id.gov.loc/someone",
+        label: "Some One",
+        role: {
+          id: "aut",
+          label: "Author",
+          scheme: "MARC_RELATOR",
+        },
+      },
+    ],
+    creator: [
+      {
+        id: "https://theurioftheresource",
+        label: "This is the label",
+      },
+    ],
     genre: [
       {
         id: "https://theurioftheresource",
@@ -114,16 +165,35 @@ export const mockWork = {
         label: "This is the label",
       },
     ],
+    license: {
+      id: "https://theurioftheresource",
+      label: "This is the label",
+    },
     location: [
       {
         id: "https://theurioftheresource",
         label: "This is the label",
       },
     ],
+    rightsStatement: {
+      id: "https://theurioftheresource",
+      label: "This is the label",
+    },
     stylePeriod: [
       {
         id: "https://theurioftheresource",
         label: "This is the label",
+      },
+    ],
+    subject: [
+      {
+        id: "http://id.gov.loc/something",
+        label: "Some Thing",
+        role: {
+          id: "topical",
+          label: "Topical",
+          scheme: "SUBJECT",
+        },
       },
     ],
     technique: [
@@ -134,8 +204,6 @@ export const mockWork = {
     ],
   },
   updatedAt: "2019-12-02T22:22:30",
-  visibility: "RESTRICTED",
-  workType: "IMAGE",
   published: false,
   project: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
@@ -147,4 +215,12 @@ export const mockWork = {
   },
   manifestUrl: "http://foobar",
   representativeImage: "http://foobar",
+  visibility: {
+    id: "OPEN",
+    label: "Public",
+  },
+  workType: {
+    id: "IMAGE",
+    label: "Image",
+  },
 };

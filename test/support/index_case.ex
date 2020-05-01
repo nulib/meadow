@@ -51,7 +51,6 @@ defmodule Meadow.IndexCase do
             work_fixture(%{
               descriptive_metadata: %{title: "Test Work #{i}"},
               collection_id: collection.id,
-              visibility: "restricted",
               published: false
             })
           end)

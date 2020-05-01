@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { toastWrapper } from "../../../services/helpers";
@@ -12,7 +13,9 @@ import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
+import UIFormSelect from "../../UI/Form/Select";
 import WorkTabsHeader from "./Header";
+import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
@@ -27,6 +30,13 @@ const WorkTabsAbout = ({ work }) => {
   });
 
   const [isEditing, setIsEditing] = useIsEditing();
+  const {
+    loading: rightsStatementsLoading,
+    error: rightsStatementsError,
+    data: rightsStatementsData,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "RIGHTS_STATEMENT" },
+  });
 
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
@@ -40,6 +50,9 @@ const WorkTabsAbout = ({ work }) => {
       descriptiveMetadata: {
         title,
         description,
+        rightsStatement: {
+          id: data.rightsStatement,
+        },
       },
       published: true,
     };
@@ -147,6 +160,33 @@ const WorkTabsAbout = ({ work }) => {
                     />
                   ) : (
                     <p>{descriptiveMetadata.description || "No value"}</p>
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Rights Statement">
+                  {isEditing ? (
+                    <UIFormSelect
+                      register={register}
+                      name="rightsStatement"
+                      label="Rights Statement"
+                      options={
+                        rightsStatementsData
+                          ? rightsStatementsData.codeList
+                          : []
+                      }
+                      defaultValue={descriptiveMetadata.rightsStatement.id}
+                      errors={errors}
+                    />
+                  ) : (
+                    <>
+                      <UITagNotYetSupported label="Data is mocked" />
+                      <UITagNotYetSupported label="Update not yet supported" />
+                      <p>
+                        {descriptiveMetadata
+                          ? descriptiveMetadata.rightsStatement.label
+                          : "None selected"}
+                      </p>
+                    </>
                   )}
                 </UIFormField>
 

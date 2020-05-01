@@ -10,7 +10,6 @@ defmodule Meadow.Utils.DataLoader do
     FileSet,
     FileSetMetadata,
     Work,
-    WorkAdministrativeMetadata,
     WorkDescriptiveMetadata
   }
 
@@ -23,13 +22,7 @@ defmodule Meadow.Utils.DataLoader do
 
   defp insert_work do
     Repo.insert!(%Work{
-      work_type: Faker.Util.pick(@work_types),
-      visibility: Faker.Util.pick(@visibility),
       accession_number: Faker.String.base64(),
-      administrative_metadata: %WorkAdministrativeMetadata{
-        preservation_level: Enum.random(1..3),
-        rights_statement: Faker.Lorem.sentence()
-      },
       descriptive_metadata: %WorkDescriptiveMetadata{
         description: [Faker.Lorem.sentence()],
         keywords: Faker.Lorem.words(1..5),

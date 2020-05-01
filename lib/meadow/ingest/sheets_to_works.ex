@@ -49,9 +49,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     attrs = %{
       accession_number: accession_number,
-      visibility: @default_visibility,
       published: false,
-      work_type: "image",
       administrative_metadata: %{
         project: "",
         sheet: ""

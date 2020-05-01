@@ -14,7 +14,7 @@ const WorkListItem = ({ work }) => {
             <img
               src={`${work.representativeImage}/full/1280,960/0/default.jpg`}
               alt={work.title}
-              onError={e => {
+              onError={(e) => {
                 e.target.src = "/images/1280x960.png";
               }}
             />
@@ -23,7 +23,8 @@ const WorkListItem = ({ work }) => {
       </div>
       <div className="card-content">
         <h3 className="title is-size-4">
-          {work.accessionNumber} <span className="tag">{work.workType}</span>
+          {work.accessionNumber}{" "}
+          <span className="tag">WorkType not yet supported</span>
         </h3>
         <p className="subtitle is-size-6">Accession Number</p>
         <h4 className="subtitle">
@@ -42,9 +43,11 @@ const WorkListItem = ({ work }) => {
           )}
         </div>
         <p>
-          <span className={`tag ${setVisibilityClass(work.visibility)}`}>
-            {work.visibility.toUpperCase()}
-          </span>
+          {work.visibility && (
+            <span className={`tag ${setVisibilityClass(work.visibility.id)}`}>
+              {work.visibility.label.toUpperCase()}
+            </span>
+          )}
         </p>
       </div>
     </div>
@@ -52,7 +55,7 @@ const WorkListItem = ({ work }) => {
 };
 
 WorkListItem.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default WorkListItem;

@@ -21,8 +21,6 @@ defmodule Meadow.Data.Schemas.Work do
   @timestamps_opts [type: :utc_datetime_usec]
   schema "works" do
     field :accession_number, :string
-    field :visibility, :string
-    field :work_type, :string
     field :published, :boolean, default: false
     field :representative_file_set_id, Ecto.UUID, default: nil
     timestamps()
@@ -44,7 +42,7 @@ defmodule Meadow.Data.Schemas.Work do
   end
 
   def changeset(work, attrs) do
-    required_params = [:accession_number, :visibility, :work_type]
+    required_params = [:accession_number]
     optional_params = [:collection_id, :representative_file_set_id]
 
     work
@@ -56,13 +54,11 @@ defmodule Meadow.Data.Schemas.Work do
     |> cast_assoc(:file_sets)
     |> assoc_constraint(:collection)
     |> validate_required(required_params)
-    |> validate_inclusion(:visibility, @visibility)
-    |> validate_inclusion(:work_type, @work_types)
     |> unique_constraint(:accession_number)
   end
 
   def update_changeset(work, attrs) do
-    allowed_params = [:published, :visibility, :collection_id, :representative_file_set_id]
+    allowed_params = [:published, :collection_id, :representative_file_set_id]
 
     work
     |> cast(attrs, allowed_params)
@@ -79,9 +75,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     def encode(work) do
       %{
-        model: %{application: "Meadow", name: String.capitalize(work.work_type)},
+        model: %{application: "Meadow", name: "Image"},
         accession_number: work.accession_number,
-        visibility: work.visibility,
         published: work.published,
         collection:
           case work.collection do

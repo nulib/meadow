@@ -55,7 +55,6 @@ defmodule Meadow.Data.Schemas.Collection do
         model: %{application: "Meadow", name: "Collection"},
         title: collection.name,
         published: collection.published,
-        visibility: "open",
         create_date: collection.inserted_at,
         modified_date: collection.updated_at
       }

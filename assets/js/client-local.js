@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import faker from "faker";
+import { codeListMock } from "./client-mocks";
 
 export const typeDefs = gql`
   extend type Work {
@@ -9,21 +10,32 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Work: {
-    foo: () => "An additional client side property",
+    foo: () => "An additional client-side only property on the work object",
+    visibility: () => mockVisibility(),
+    workType: () => mockWorkType(),
   },
   WorkDescriptiveMetadata: {
     contributor: () => mockContributors(),
-    creator: () => mockControlledVocabulary(),
-    genre: () => mockControlledVocabulary(),
-    location: () => mockControlledVocabulary(),
-    language: () => mockControlledVocabulary(),
-    stylePeriod: () => mockControlledVocabulary(),
+    creator: () => mockControlledTerm(),
+    genre: () => mockControlledTerm(),
+    license: () => mockLicense(),
+    location: () => mockControlledTerm(),
+    language: () => mockControlledTerm(),
+    rightsStatement: () => mockRightsStatement(),
+    stylePeriod: () => mockControlledTerm(),
     subject: () => mockSubjects(),
-    technique: () => mockControlledVocabulary(),
+    technique: () => mockControlledTerm(),
+  },
+  WorkAdministrativeMetadata: {
+    preservationLevel: () => mockPreservationLevel(),
+    status: () => mockStatus(),
+  },
+  Query: {
+    codeList: (root, { scheme }) => codeListMock(scheme),
   },
 };
 
-export const mockControlledVocabulary = () => {
+export const mockControlledTerm = () => {
   let results = [];
   let size = Math.floor(Math.random() * Math.floor(4));
   for (let i = 0; i < size; i++) {
@@ -31,7 +43,7 @@ export const mockControlledVocabulary = () => {
       id: faker.internet.url(),
       label: faker.lorem.words(),
       role: null,
-      __typename: "ControlledVocabulary",
+      __typename: "ControlledTerm",
     });
   }
   return results;
@@ -48,9 +60,9 @@ export const mockContributors = () => {
         id: "aut",
         label: "Author",
         scheme: "MARC_RELATOR",
-        __typename: "CodeListItem",
+        __typename: "CodedTerm",
       },
-      __typename: "ControlledVocabulary",
+      __typename: "ControlledTerm",
     });
   }
   return results;
@@ -69,10 +81,58 @@ export const mockSubjects = () => {
         id: random_subject,
         label: random_subject,
         scheme: "SUBJECT",
-        __typename: "CodeListItem",
+        __typename: "CodedTerm",
       },
-      __typename: "ControlledVocabulary",
+      __typename: "ControlledTerm",
     });
   }
   return results;
+};
+
+const mockRightsStatement = () => {
+  return {
+    id: "http://rightsstatements.org/vocab/InC/1.0/",
+    label: "In Copyright",
+    __typename: "CodedTerm",
+  };
+};
+
+const mockPreservationLevel = () => {
+  return {
+    id: "1",
+    label: "Level 1",
+    __typename: "CodedTerm",
+  };
+};
+
+const mockLicense = () => {
+  return {
+    id: "https://creativecommons.org/licenses/by-nc/4.0/",
+    label: "Attribution-NonCommercial 4.0 International",
+    __typename: "CodedTerm",
+  };
+};
+
+const mockStatus = () => {
+  return {
+    id: "IN PROGRESS",
+    label: "In Progresss",
+    __typename: "CodedTerm",
+  };
+};
+
+const mockVisibility = () => {
+  return {
+    label: "Institution",
+    id: "AUTHENTICATED",
+    __typename: "CodedTerm",
+  };
+};
+
+const mockWorkType = () => {
+  return {
+    id: "IMAGE",
+    label: "Image",
+    __typename: "CodedTerm",
+  };
 };

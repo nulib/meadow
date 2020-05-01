@@ -1,14 +1,45 @@
 import React from "react";
 import {
   mockWork,
-  renderWithRouterApollo
+  renderWithRouterApollo,
 } from "../../../services/testing-helpers";
 import WorkTabsAbout from "./About";
 import { fireEvent } from "@testing-library/react";
 
+import { CODE_LIST_QUERY } from "../controlledVocabulary.query";
+
+const mocks = [
+  {
+    request: {
+      query: CODE_LIST_QUERY,
+      variables: { scheme: "RIGHTS_STATEMENT" },
+    },
+    result: {
+      data: {
+        codeList: [
+          {
+            id: "http://rightsstatements.org/vocab/InC/1.0/",
+            label: "In Copyright",
+            __typename: "CodedTerm",
+          },
+          {
+            id: "http://rightsstatements.org/vocab/InC-OW-EU/1.0/",
+            label: "In Copyright - EU Orphan Work",
+            __typename: "CodedTerm",
+          },
+          {
+            id: " http://rightsstatements.org/vocab/InC-EDU/1.0/",
+            label: "In Copyright - Educational Use Permitted",
+          },
+        ],
+      },
+    },
+  },
+];
+
 describe("Work About tab component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {});
+    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, { mocks });
   }
   it("renders without crashing", () => {
     expect(setupTests());

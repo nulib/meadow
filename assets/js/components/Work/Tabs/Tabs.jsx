@@ -8,7 +8,7 @@ import { IIIFProvider } from "../../IIIF/IIIFProvider";
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
 
-  const handleTabClick = e => {
+  const handleTabClick = (e) => {
     setActiveTab(e.target.id);
   };
 
