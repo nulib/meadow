@@ -78,7 +78,7 @@ jobs:
       - run:
           name: JS Tests
           command: |
-            yarn ci
+            yarn ci -w 1
           working_directory: ~/meadow/assets
       - run:
           name: Test Webpack Build
