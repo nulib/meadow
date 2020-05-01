@@ -117,27 +117,58 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     end
   end
 
+  @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
+  object :uncontrolled_descriptive_fields do
+    field :abstract, list_of(:string)
+    field :alternate_title, list_of(:string)
+    field :box_name, list_of(:string)
+    field :box_number, list_of(:string)
+    field :call_number, list_of(:string)
+    field :caption, list_of(:string)
+    field :catalog_key, list_of(:string)
+    field :description, list_of(:string)
+    field :folder_name, list_of(:string)
+    field :folder_number, list_of(:string)
+    field :identifier, list_of(:string)
+    field :keywords, list_of(:string)
+    field :legacy_identifier, list_of(:string)
+    field :notes, list_of(:string)
+    field :physical_description_material, list_of(:string)
+    field :physical_description_size, list_of(:string)
+    field :provenance, list_of(:string)
+    field :publisher, list_of(:string)
+    field :related_url, list_of(:string)
+    field :related_material, list_of(:string)
+    field :rights_holder, list_of(:string)
+    field :scope_and_contents, list_of(:string)
+    field :series, list_of(:string)
+    field :source, list_of(:string)
+    field :table_of_contents, list_of(:string)
+    field :title, :string
+  end
+
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
   object :work_descriptive_metadata do
     @desc "NOT YET IMPLEMENTED"
     field :contributor, list_of(:controlled_vocabulary)
     @desc "NOT YET IMPLEMENTED"
     field :creator, list_of(:controlled_vocabulary)
-    field :description, :string
     @desc "NOT YET IMPLEMENTED"
     field :genre, list_of(:controlled_vocabulary)
-    field :keywords, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :language, list_of(:controlled_vocabulary)
     @desc "NOT YET IMPLEMENTED"
     field :location, list_of(:controlled_vocabulary)
-    field :nul_subject, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :style_period, list_of(:controlled_vocabulary)
     @desc "NOT YET IMPLEMENTED"
     field :subject, list_of(:controlled_vocabulary)
+    @desc "NOT YET IMPLEMENTED"
     field :technique, list_of(:controlled_vocabulary)
-    field :title, :string
+
+    field :ark, :string
+    field :citation, list_of(:string)
+    import_fields(:uncontrolled_descriptive_fields)
   end
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
@@ -170,7 +201,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     @desc "By visibility"
     field :visibility, :visibility
 
-    @desc "By work_type"
+    @desc "By work type"
     field :work_type, :work_type
   end
 
@@ -182,26 +213,24 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Same as `work_descriptive_metadata`. This represents all descriptive metadata associated with a work object. It is stored in a single json field."
   input_object :work_descriptive_metadata_input do
-    field :description, :string
     @desc "NOT YET IMPLEMENTED"
     field :contributor, list_of(:controlled_vocabulary_input)
     @desc "NOT YET IMPLEMENTED"
     field :creator, list_of(:controlled_vocabulary_input)
     @desc "NOT YET IMPLEMENTED"
     field :genre, list_of(:controlled_vocabulary_input)
-    field :keywords, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :language, list_of(:controlled_vocabulary_input)
     @desc "NOT YET IMPLEMENTED"
     field :location, list_of(:controlled_vocabulary_input)
-    field :nul_subject, list_of(:string)
     @desc "NOT YET IMPLEMENTED"
     field :subject, list_of(:controlled_vocabulary_input)
     @desc "NOT YET IMPLEMENTED"
     field :style_period, list_of(:controlled_vocabulary_input)
-    field :title, :string
     @desc "NOT YET IMPLEMENTED"
     field :technique, list_of(:controlled_vocabulary_input)
+
+    import_fields(:uncontrolled_descriptive_fields)
   end
 
   @desc "Fields that can be updated on a work object"

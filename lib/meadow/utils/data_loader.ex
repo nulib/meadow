@@ -31,9 +31,8 @@ defmodule Meadow.Utils.DataLoader do
         rights_statement: Faker.Lorem.sentence()
       },
       descriptive_metadata: %WorkDescriptiveMetadata{
-        description: Faker.Lorem.sentence(),
+        description: [Faker.Lorem.sentence()],
         keywords: Faker.Lorem.words(1..5),
-        nul_subject: Faker.Lorem.words(1..5),
         title: Faker.Lorem.sentence()
       },
       file_sets: insert_file_sets()
