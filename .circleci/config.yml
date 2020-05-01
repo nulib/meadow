@@ -19,9 +19,9 @@ jobs:
           POSTGRES_PASSWORD: d0ck3r
       - image: nulib/goaws
       - image: nulib/ldap-alpine
-      - image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      - image: bitnami/elasticsearch:6
         environment:
-          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          ELASTICSEARCH_HEAP_SIZE: "256m"
       - image: minio/minio
         environment:
           MINIO_ACCESS_KEY: minio
