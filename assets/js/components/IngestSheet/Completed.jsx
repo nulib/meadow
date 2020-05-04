@@ -78,7 +78,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
               </span>
             </button>
             <button
-              className="button has-cursor-pointer is-marginless"
+              className="button has-cursor-pointer is-marginless is-hidden-touch"
               disabled={isListView}
               style={{ border: "0px" }}
               onClick={(e) => handleWorksViewChange()}

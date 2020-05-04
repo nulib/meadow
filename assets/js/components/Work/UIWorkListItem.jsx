@@ -4,12 +4,14 @@ import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
 
 const WorkListItem = ({ work }) => {
-  const fileSetsToDisplay = 5;
   return (
     <>
       <article className="media " data-testid="ui-worklist-item">
         <figure className="media-left">
-          <p className="image is-128x128">
+          <p
+            className="image is-square"
+            style={{ width: "250px", height: "250px" }}
+          >
             <Link to={`/work/${work.id}`}>
               <img
                 src={`${
