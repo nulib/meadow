@@ -95,7 +95,7 @@ const ScreensCollection = () => {
 
             <Collection collection={data.collection} />
           </div>
-          <CollectionSearch />
+          <CollectionSearch collection={data.collection} />
         </div>
       </section>
       <UIModalDelete

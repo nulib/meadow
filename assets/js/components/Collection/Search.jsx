@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 
-const CollectionSearch = () => {
-  let items = [];
+const CollectionSearch = ({ collection }) => {
+  const [filteredWorks, setFilteredWorks] = useState(collection.works);
+  // useEffect(() => {
+  //   setFilteredWorks(collection ? collection.works : []);
+  // }, []);
 
-  for (let i = 0; i < 20; i++) {
-    items.push(
-      <li className="column is-one-quarter-desktop is-half-tablet" key={i}>
-        <figure className="image is-square">
-          <img src="/images/480x480.png" />
-        </figure>
-        <p className="text-center">{`Image title ${i} `}</p>
-      </li>
-    );
-  }
+  const handleFilterChange = (e) => {
+    const filterValue = e.target.value.toUpperCase();
+    if (!filterValue) {
+      return setFilteredWorks(collection ? collection.works : []);
+    }
+    const filteredList = collection.works.filter((work) => {
+      return work.descriptiveMetadata.title
+        ? work.descriptiveMetadata.title.toUpperCase().indexOf(filterValue) > -1
+        : false;
+    });
+    setFilteredWorks(filteredList);
+  };
 
   return (
     <>
@@ -24,7 +30,8 @@ const CollectionSearch = () => {
             <input
               className="input"
               type="text"
-              placeholder="Search collections"
+              placeholder="Search collection works"
+              onChange={handleFilterChange}
             />
             <span className="icon is-small is-left">
               <FontAwesomeIcon icon="search" />
@@ -37,8 +44,11 @@ const CollectionSearch = () => {
         <nav className="level">
           <div className="level-left">
             <div className="level-item">
-              <p className="is-size-5">
-                <strong>3000 results...</strong>
+              <p
+                className="is-size-5 has-text-weight-bold"
+                data-testid="number-of-works"
+              >
+                {filteredWorks.length} results...
               </p>
             </div>
           </div>
@@ -51,7 +61,36 @@ const CollectionSearch = () => {
             </div>
           </div>
         </nav>
-        <ul className="columns is-multiline">{items}</ul>
+        <ul className="columns is-multiline">
+          {filteredWorks.map((work) => (
+            <li
+              className="column is-one-quarter-desktop is-half-tablet"
+              key={work.id}
+            >
+              <Link to={`/work/${work.id}`}>
+                <figure className="image is-square">
+                  <img
+                    data-testid={`work-image-${work.id}`}
+                    src={`${
+                      work.representativeImage
+                        ? work.representativeImage +
+                          "/square/500,500/0/default.jpg"
+                        : "/images/480x480.png"
+                    }`}
+                  />
+                </figure>
+                <p
+                  className="text-center"
+                  data-testid={`work-title-${work.id}`}
+                >{`${
+                  work.descriptiveMetadata.title
+                    ? work.descriptiveMetadata.title
+                    : "Untitled"
+                }`}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </>
   );
