@@ -29,7 +29,7 @@ const WorkListItem = ({ work }) => {
               ? work.descriptiveMetadata.title
               : "Untitled"}
           </h3>
-          <div className="content">
+          <div className="content ">
             <p>
               <span className="tag">{work.workType}</span>
               <span
@@ -38,33 +38,45 @@ const WorkListItem = ({ work }) => {
               >
                 {work.visibility.toUpperCase()}
               </span>
+              {work.published && (
+                <span data-testid="dd-published" className="tag is-success">
+                  PUBLISHED
+                </span>
+              )}
             </p>
-            <dl>
-              <dt>Accession Number:</dt>
-              <dd data-testid="dd-accession-number">{work.accessionNumber}</dd>
-              <dt>Filesets:</dt>
-              <dd>
-                <span className="tag is-light" data-testid="dd-filesets-length">
-                  {work.fileSets.length}
-                </span>
-              </dd>
-              <dt>Last Updated: </dt>
-              <dd data-testid="dd-updated-date">
-                {formatDate(work.updatedAt)}
-              </dd>
-              <dt>IIIF Manifest:</dt>
-              <dd>
-                <a href={work.manifestUrl} target="_blank">
-                  <u>JSON File</u>
-                </a>
-              </dd>
-              <dt>Published:</dt>
-              <dd>
-                <span data-testid="dd-published" className="tag">
-                  {work.published ? "True" : "False"}
-                </span>
-              </dd>
-            </dl>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Accession Number</th>
+                  <th>Filesets</th>
+                  <th>Last Updated</th>
+                  <th>IIIF Manifest</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-testid="dd-accession-number">
+                    {work.accessionNumber}
+                  </td>
+                  <td>
+                    <span
+                      className="tag is-light"
+                      data-testid="dd-filesets-length"
+                    >
+                      {work.fileSets.length}
+                    </span>
+                  </td>
+                  <td data-testid="dd-updated-date">
+                    {formatDate(work.updatedAt)}
+                  </td>
+                  <td>
+                    <a href={work.manifestUrl} target="_blank">
+                      <u>JSON File</u>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <div className="media-right "></div>

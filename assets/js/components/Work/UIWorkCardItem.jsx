@@ -5,7 +5,7 @@ import { setVisibilityClass, formatDate } from "../../services/helpers";
 
 const WorkCardItem = ({ work }) => {
   return (
-    <div className="card is-shadowless" data-testid="ui-workcard">
+    <div className="card " data-testid="ui-workcard">
       <div className="card-image">
         <figure className="image is-4by3">
           <Link to={`/work/${work.id}`}>
@@ -37,6 +37,11 @@ const WorkCardItem = ({ work }) => {
             >
               {work.visibility.toUpperCase()}
             </span>
+            {work.published && (
+              <span data-testid="dd-published" className="tag is-success">
+                PUBLISHED
+              </span>
+            )}
           </p>
           <dl>
             <dt>Accession Number:</dt>
@@ -54,12 +59,6 @@ const WorkCardItem = ({ work }) => {
               <a href={work.manifestUrl} target="_blank">
                 <u>JSON File</u>
               </a>
-            </dd>
-            <dt>Published:</dt>
-            <dd>
-              <span data-testid="dd-published" className="tag">
-                {work.published ? "True" : "False"}
-              </span>
             </dd>
           </dl>
         </div>

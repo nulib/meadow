@@ -62,12 +62,36 @@ const IngestSheetCompleted = ({ sheetId }) => {
         </div>
         <div className="column is-half">
           <div className="buttons is-right ">
-            <FontAwesomeIcon
-              id="icon-switch-listitem-view"
-              size="2x"
+            <button
+              className="button has-cursor-pointer is-marginless"
+              style={{ border: "0px" }}
+              disabled={!isListView}
               onClick={(e) => handleWorksViewChange()}
-              icon={isListView ? "th-large" : "th-list"}
-            />
+              title="Grid View"
+            >
+              <span className="icon">
+                <FontAwesomeIcon
+                  id="icon-switch-listitem-view"
+                  size="2x"
+                  icon="th-large"
+                />
+              </span>
+            </button>
+            <button
+              className="button has-cursor-pointer is-marginless"
+              disabled={isListView}
+              style={{ border: "0px" }}
+              onClick={(e) => handleWorksViewChange()}
+              title="List View"
+            >
+              <span className="icon">
+                <FontAwesomeIcon
+                  id="icon-switch-listitem-view"
+                  size="2x"
+                  icon="th-list"
+                />
+              </span>
+            </button>
           </div>
         </div>
       </div>

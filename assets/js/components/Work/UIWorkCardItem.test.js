@@ -40,8 +40,8 @@ describe("Shows Work content", () => {
       "Dec 2, 2019 10:22 PM"
     );
   });
-  it("Displays Published Flad", () => {
-    const { getByTestId } = setupTests();
-    expect(getByTestId("dd-published").innerHTML).toBe("False");
+  it("Displays Published Flag", () => {
+    const { queryByTestId } = setupTests();
+    expect(queryByTestId("dd-published")).not.toBeInTheDocument();
   });
 });
