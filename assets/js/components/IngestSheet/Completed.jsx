@@ -40,8 +40,18 @@ const IngestSheetCompleted = ({ sheetId }) => {
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
 
-  const handleWorksViewChange = () => {
-    setIsListView(!isListView);
+  const styles = {
+    isBorderLess: { border: "0px" },
+    isActiveView: {
+      backgroundColor: "#fff",
+      opacity: 0.5,
+      border: "0px",
+    },
+    isDivider: { margin: "0 .25rem", fontSize: "2rem" },
+  };
+
+  const handleWorksViewChange = (val) => {
+    setIsListView(val);
   };
 
   try {
@@ -64,9 +74,8 @@ const IngestSheetCompleted = ({ sheetId }) => {
           <div className="buttons is-right ">
             <button
               className="button has-cursor-pointer is-marginless"
-              style={{ border: "0px" }}
-              disabled={!isListView}
-              onClick={(e) => handleWorksViewChange()}
+              style={isListView ? styles.isActiveView : styles.isBorderLess}
+              onClick={(e) => handleWorksViewChange(false)}
               title="Grid View"
             >
               <span className="icon">
@@ -77,11 +86,16 @@ const IngestSheetCompleted = ({ sheetId }) => {
                 />
               </span>
             </button>
+            <span
+              className="has-text-grey-light is-hidden-touch"
+              style={styles.isDivider}
+            >
+              |
+            </span>
             <button
               className="button has-cursor-pointer is-marginless is-hidden-touch"
-              disabled={isListView}
-              style={{ border: "0px" }}
-              onClick={(e) => handleWorksViewChange()}
+              style={!isListView ? styles.isActiveView : styles.isBorderLess}
+              onClick={(e) => handleWorksViewChange(true)}
               title="List View"
             >
               <span className="icon">
