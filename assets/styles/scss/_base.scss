@@ -6,6 +6,16 @@ dt {
   font-weight: bold;
 }
 
+fieldset {
+  border: 1px dashed $rich-black-20;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  legend {
+    font-weight: bold;
+  }
+}
+
 footer {
   .logo {
     max-width: 250px;
