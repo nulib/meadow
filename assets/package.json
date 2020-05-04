@@ -59,7 +59,7 @@
     "coveralls": "^3.1.0",
     "css-loader": "^3.5.3",
     "file-loader": "^6.0.0",
-    "jest": "^25.5.3",
+    "jest": "^25.5.4",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
