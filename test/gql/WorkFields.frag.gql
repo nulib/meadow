@@ -2,17 +2,21 @@ fragment WorkFields on Work {
   id
   accessionNumber
   representativeImage
-  visibility
-  workType
   fileSets {
     ...FileSetFields
   }
   administrativeMetadata {
-    preservationLevel
-    rightsStatement
+    preservationLevel {
+      id
+      label
+    }
   }
   descriptiveMetadata {
     title
     description
+    rightsStatement {
+      id
+      label
+    }
   }
 }

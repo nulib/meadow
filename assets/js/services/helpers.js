@@ -1,5 +1,6 @@
 import moment from "moment";
 import { toast } from "bulma-toast";
+import { visibilityMock } from "../client-mocks";
 
 /**
  * Escape double quotes (which may interfere with Search queries)

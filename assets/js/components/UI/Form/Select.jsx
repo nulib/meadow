@@ -23,7 +23,10 @@ const UIFormSelect = ({
         >
           <option value="">-- Select --</option>
           {options.map((option) => (
-            <option key={option.id || option.value} value={option.value}>
+            <option
+              key={option.id || option.value}
+              value={option.id || option.value}
+            >
               {option.label}
             </option>
           ))}

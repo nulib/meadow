@@ -17,7 +17,6 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
         variables: %{
           "id" => work.id,
           "collection_id" => collection.id,
-          "visibility" => "RESTRICTED",
           "descriptive_metadata" => %{"title" => "Something"}
         },
         context: gql_context()

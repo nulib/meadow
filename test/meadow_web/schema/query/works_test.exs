@@ -59,14 +59,10 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
 
   @match_attrs %{
     accession_number: "12345",
-    visibility: "open",
-    work_type: "image",
     descriptive_metadata: %{title: "This Title"}
   }
   @no_match_attrs %{
     accession_number: "123456",
-    visibility: "restricted",
-    work_type: "video",
     descriptive_metadata: %{title: "Other One"}
   }
 
@@ -81,42 +77,6 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
   """
   @variables %{"filter" => %{"matching" => "This Title"}}
   test "works query returns works filtered by title" do
-    work_fixture(@match_attrs)
-    work_fixture(@no_match_attrs)
-
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
-               ]
-             }
-           } == json_response(response, 200)
-  end
-
-  @variables %{"filter" => %{"workType" => "IMAGE"}}
-  test "works query returns works filtered by workType" do
-    work_fixture(@match_attrs)
-    work_fixture(@no_match_attrs)
-
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
-               ]
-             }
-           } == json_response(response, 200)
-  end
-
-  @variables %{"filter" => %{"visibility" => "OPEN"}}
-  test "works query returns works filtered by visibility" do
     work_fixture(@match_attrs)
     work_fixture(@no_match_attrs)
 

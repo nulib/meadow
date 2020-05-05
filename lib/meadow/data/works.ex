@@ -31,7 +31,7 @@ defmodule Meadow.Data.Works do
 
   Example Criteria:
 
-  [{:limit, 15}, {:order, :asc}, {:filter, [{:visibility, :open}, {:work_type, :image}]}]
+  [{:limit, 15}, {:order, :asc}]}]
   """
 
   def list_works(criteria) do
@@ -59,12 +59,6 @@ defmodule Meadow.Data.Works do
 
         from q in query,
           where: fragment("descriptive_metadata @> ?::jsonb", ^map)
-
-      {:visibility, value}, query ->
-        from q in query, where: q.visibility == ^value
-
-      {:work_type, value}, query ->
-        from q in query, where: q.work_type == ^value
     end)
   end
 

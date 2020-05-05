@@ -3,20 +3,16 @@ import PropTypes from "prop-types";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { toastWrapper } from "../../../services/helpers";
-import {
-  VISIBILITY_OPTIONS,
-  RIGHTS_STATEMENTS,
-  PRESERVATION_LEVELS,
-} from "../../../services/global-vars";
 import { GET_COLLECTIONS } from "../../Collection/collection.query";
 import { UPDATE_WORK, ADD_WORK_TO_COLLECTION, GET_WORK } from "../work.query";
 import { useForm } from "react-hook-form";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import { Link } from "react-router-dom";
-import { setVisibilityClass } from "../../../services/helpers";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
 import WorkTabsHeader from "./Header";
+import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
+import { setVisibilityClass } from "../../../services/helpers";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
@@ -27,6 +23,18 @@ const WorkTabsAdministrative = ({ work }) => {
       setIsEditing(false);
     },
   });
+  const {
+    loading: preservationLevelsLoading,
+    error: preservationLevelsError,
+    data: preservationLevelsData,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "PRESERVATION_LEVEL" },
+  });
+  const {
+    loading: visibilityLoading,
+    error: visibilityError,
+    data: visibilityData,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
 
   // TODO: Add Work to collection is disrupting changes made using updateWork,
   // need to verify apolloclient update/rollback options upon adding collection to work.
@@ -43,8 +51,7 @@ const WorkTabsAdministrative = ({ work }) => {
   const onSubmit = (data) => {
     let workUpdateInput = {
       administrativeMetadata: {
-        preservationLevel: Number(data.preservationLevel),
-        rightsStatement: data.rightsStatement,
+        preservationLevel: { id: Number(data.preservationLevel) },
       },
       visibility: data.visibility,
 
@@ -91,20 +98,26 @@ const WorkTabsAdministrative = ({ work }) => {
         <div className="column is-two-thirds">
           <div className="box">
             <UIFormField label="Visibility">
+              <UITagNotYetSupported label="Data is mocked" />
+              <UITagNotYetSupported label="Update not yet supported" />
               {isEditing ? (
                 <UIFormSelect
                   register={register}
                   required
                   name="visibility"
                   label="Visibility"
-                  options={VISIBILITY_OPTIONS}
-                  defaultValue={work.visibility}
+                  options={visibilityData.codeList}
+                  defaultValue={work.visibility && work.visibility.id}
                   errors={errors}
                 />
               ) : (
-                <p className={`tag ${setVisibilityClass(work.visibility)}`}>
-                  {work.visibility.toUpperCase()}
-                </p>
+                work.visibility && (
+                  <p
+                    className={`tag ${setVisibilityClass(work.visibility.id)}`}
+                  >
+                    {work.visibility.label.toUpperCase()}
+                  </p>
+                )
               )}
             </UIFormField>
 
@@ -136,15 +149,17 @@ const WorkTabsAdministrative = ({ work }) => {
             </UIFormField>
 
             <UIFormField label="Preservation Level">
+              <UITagNotYetSupported label="Data is mocked" />
+              <UITagNotYetSupported label="Update not yet supported" />
               {isEditing ? (
                 <UIFormSelect
                   register={register}
                   name="preservationLevel"
                   label="Preservation Level"
-                  options={PRESERVATION_LEVELS}
+                  options={preservationLevelsData.codeList}
                   defaultValue={
                     administrativeMetadata
-                      ? administrativeMetadata.preservationLevel
+                      ? administrativeMetadata.preservationLevel.id
                       : ""
                   }
                   errors={errors}
@@ -152,26 +167,7 @@ const WorkTabsAdministrative = ({ work }) => {
               ) : (
                 <p>
                   {administrativeMetadata
-                    ? administrativeMetadata.preservationLevel
-                    : "None selected"}
-                </p>
-              )}
-            </UIFormField>
-
-            <UIFormField label="Rights Statement">
-              {isEditing ? (
-                <UIFormSelect
-                  register={register}
-                  name="rightsStatement"
-                  label="Rights Statement"
-                  options={RIGHTS_STATEMENTS}
-                  defaultValue={administrativeMetadata.rightsStatement}
-                  errors={errors}
-                />
-              ) : (
-                <p>
-                  {administrativeMetadata
-                    ? administrativeMetadata.rightsStatement
+                    ? administrativeMetadata.preservationLevel.label
                     : "None selected"}
                 </p>
               )}

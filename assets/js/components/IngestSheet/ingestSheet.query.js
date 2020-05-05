@@ -206,48 +206,6 @@ export const INGEST_SHEET_WORKS = gql`
       descriptiveMetadata {
         title
         description
-        contributor @client {
-          id
-          label
-          role {
-            id
-            label
-            scheme
-          }
-        }
-        creator @client {
-          id
-          label
-        }
-        genre @client {
-          id
-          label
-        }
-        language @client {
-          id
-          label
-        }
-        location @client {
-          id
-          label
-        }
-        stylePeriod @client {
-          id
-          label
-        }
-        subject @client {
-          id
-          label
-          role {
-            id
-            label
-            scheme
-          }
-        }
-        technique @client {
-          id
-          label
-        }
       }
       fileSets {
         id
@@ -265,8 +223,14 @@ export const INGEST_SHEET_WORKS = gql`
       published
       representativeImage
       updatedAt
-      visibility
-      workType
+      workType @client {
+        id
+        label
+      }
+      visibility @client {
+        id
+        label
+      }
     }
   }
 `;

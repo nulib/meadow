@@ -13,7 +13,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.AccountTypes)
   import_types(__MODULE__.IngestTypes)
   import_types(__MODULE__.Data.CollectionTypes)
-  import_types(__MODULE__.Data.ControlledVocabularyTypes)
+  import_types(__MODULE__.Data.ControlledTermTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
   import_types(__MODULE__.HelperTypes)
@@ -21,6 +21,7 @@ defmodule MeadowWeb.Schema do
   query do
     import_fields(:account_queries)
     import_fields(:collection_queries)
+    import_fields(:controlled_term_queries)
     import_fields(:ingest_queries)
     import_fields(:work_queries)
     import_fields(:file_set_queries)

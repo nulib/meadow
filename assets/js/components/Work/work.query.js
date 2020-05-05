@@ -5,6 +5,20 @@ export const GET_WORK = gql`
     work(id: $id) {
       id
       accessionNumber
+      administrativeMetadata {
+        preservationLevel @client {
+          id
+          label
+        }
+        status @client {
+          id
+          label
+        }
+      }
+      collection {
+        id
+        name
+      }
       descriptiveMetadata {
         title
         description
@@ -29,7 +43,15 @@ export const GET_WORK = gql`
           id
           label
         }
+        license @client {
+          id
+          label
+        }
         location @client {
+          id
+          label
+        }
+        rightsStatement @client {
           id
           label
         }
@@ -69,22 +91,20 @@ export const GET_WORK = gql`
         id
         name
       }
+      published
+      representativeImage
       sheet {
         id
         name
       }
-      published
-      representativeImage
       updatedAt
-      visibility
-      workType
-      collection {
+      visibility {
         id
-        name
+        label
       }
-      administrativeMetadata {
-        preservationLevel
-        rightsStatement
+      workType {
+        id
+        label
       }
     }
   }
@@ -98,48 +118,6 @@ export const GET_WORKS = gql`
       descriptiveMetadata {
         title
         description
-        contributor @client {
-          id
-          label
-          role {
-            id
-            label
-            scheme
-          }
-        }
-        creator @client {
-          id
-          label
-        }
-        genre @client {
-          id
-          label
-        }
-        language @client {
-          id
-          label
-        }
-        location @client {
-          id
-          label
-        }
-        stylePeriod @client {
-          id
-          label
-        }
-        subject @client {
-          id
-          label
-          role {
-            id
-            label
-            scheme
-          }
-        }
-        technique @client {
-          id
-          label
-        }
       }
       fileSets {
         id
@@ -166,8 +144,14 @@ export const GET_WORKS = gql`
       published
       representativeImage
       updatedAt
-      visibility
-      workType
+      workType {
+        id
+        label
+      }
+      visibility {
+        id
+        label
+      }
     }
   }
 `;
@@ -186,8 +170,14 @@ export const UPDATE_WORK = gql`
     updateWork(id: $id, work: $work) {
       id
       administrativeMetadata {
-        preservationLevel
-        rightsStatement
+        preservationLevel @client {
+          id
+          label
+        }
+        status @client {
+          id
+          label
+        }
       }
       collection {
         name
@@ -217,7 +207,15 @@ export const UPDATE_WORK = gql`
           id
           label
         }
+        license @client {
+          id
+          label
+        }
         location @client {
+          id
+          label
+        }
+        rightsStatement @client {
           id
           label
         }
@@ -241,7 +239,14 @@ export const UPDATE_WORK = gql`
       }
       insertedAt
       published
-      visibility
+      workType {
+        id
+        label
+      }
+      visibility {
+        id
+        label
+      }
     }
   }
 `;

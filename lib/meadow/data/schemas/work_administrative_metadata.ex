@@ -8,17 +8,11 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
 
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
-    field :preservation_level, :integer
-    field :rights_statement, :string
-
     timestamps()
   end
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [
-      :preservation_level,
-      :rights_statement
-    ])
+    |> cast(params, [])
   end
 end

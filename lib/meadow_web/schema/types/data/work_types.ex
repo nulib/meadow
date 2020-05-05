@@ -42,8 +42,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:administrative_metadata, non_null(:work_administrative_metadata_input))
       arg(:descriptive_metadata, non_null(:work_descriptive_metadata_input))
       arg(:accession_number, non_null(:string))
-      arg(:work_type, non_null(:work_type))
-      arg(:visibility, non_null(:visibility))
+      arg(:work_type, :coded_term_input)
+      arg(:visibility, :coded_term_input)
       arg(:published, :boolean)
       arg(:file_sets, list_of(:file_set_input))
       middleware(Middleware.Authenticate)
@@ -88,8 +88,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :accession_number, non_null(:string)
     field :administrative_metadata, :work_administrative_metadata
     field :descriptive_metadata, :work_descriptive_metadata
-    field :work_type, non_null(:work_type)
-    field :visibility, non_null(:visibility)
+    field :work_type, :coded_term
+    field :visibility, :coded_term
     field :published, :boolean
 
     field :manifest_url, :string do
@@ -147,24 +147,28 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :title, :string
   end
 
-  @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object. It is stored in a single json field."
+  @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
     @desc "NOT YET IMPLEMENTED"
-    field :contributor, list_of(:controlled_vocabulary)
+    field :contributor, list_of(:controlled_term)
     @desc "NOT YET IMPLEMENTED"
-    field :creator, list_of(:controlled_vocabulary)
+    field :creator, list_of(:controlled_term)
     @desc "NOT YET IMPLEMENTED"
-    field :genre, list_of(:controlled_vocabulary)
+    field :genre, list_of(:controlled_term)
     @desc "NOT YET IMPLEMENTED"
-    field :language, list_of(:controlled_vocabulary)
+    field :language, list_of(:controlled_term)
     @desc "NOT YET IMPLEMENTED"
-    field :location, list_of(:controlled_vocabulary)
+    field :license, :coded_term
     @desc "NOT YET IMPLEMENTED"
-    field :style_period, list_of(:controlled_vocabulary)
+    field :location, list_of(:controlled_term)
     @desc "NOT YET IMPLEMENTED"
-    field :subject, list_of(:controlled_vocabulary)
+    field :rights_statement, :coded_term
     @desc "NOT YET IMPLEMENTED"
-    field :technique, list_of(:controlled_vocabulary)
+    field :style_period, list_of(:controlled_term)
+    @desc "NOT YET IMPLEMENTED"
+    field :subject, list_of(:controlled_term)
+    @desc "NOT YET IMPLEMENTED"
+    field :technique, list_of(:controlled_term)
 
     field :ark, :string
     field :citation, list_of(:string)
@@ -173,8 +177,10 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
   object :work_administrative_metadata do
-    field :preservation_level, :integer
-    field :rights_statement, :string
+    @desc "NOT YET IMPLEMENTED"
+    field :preservation_level, :coded_term
+    @desc "NOT YET IMPLEMENTED"
+    field :status, :coded_term
   end
 
   @desc "Project info"
@@ -193,67 +199,52 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   # Input Object Types
   #
 
-  @desc "Filters for the list of works"
-  input_object :work_filter do
-    @desc "Matching a title"
-    field :matching, :string
-
-    @desc "By visibility"
-    field :visibility, :visibility
-
-    @desc "By work type"
-    field :work_type, :work_type
-  end
-
-  @desc "Same as `work_administrative_metadata`. This represents all administrative metadata associated with a work object. It is stored in a single json field."
-  input_object :work_administrative_metadata_input do
-    field :preservation_level, :integer
-    field :rights_statement, :string
-  end
-
-  @desc "Same as `work_descriptive_metadata`. This represents all descriptive metadata associated with a work object. It is stored in a single json field."
-  input_object :work_descriptive_metadata_input do
-    @desc "NOT YET IMPLEMENTED"
-    field :contributor, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :creator, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :genre, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :language, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :location, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :subject, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :style_period, list_of(:controlled_vocabulary_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :technique, list_of(:controlled_vocabulary_input)
-
-    import_fields(:uncontrolled_descriptive_fields)
-  end
-
   @desc "Fields that can be updated on a work object"
   input_object :work_update_input do
     field :administrative_metadata, :work_administrative_metadata_input
     field :descriptive_metadata, :work_descriptive_metadata_input
-    field :visibility, :visibility
+    field :visibility, :coded_term_input
     field :published, :boolean
     field :collection_id, :id
   end
 
-  @desc "visibility setting for the object"
-  enum :visibility do
-    value(:open, as: "open", description: "Public")
-    value(:authenticated, as: "authenticated", description: "Institution")
-    value(:restricted, as: "restricted", description: "Private")
+  @desc "Input fields for works administrative metadata"
+  input_object :work_administrative_metadata_input do
+    @desc "NOT YET IMPLEMENTED"
+    field :preservation_level, :coded_term_input
+    @desc "NOT YET IMPLEMENTED"
+    field :status, :coded_term_input
   end
 
-  @desc "work types"
-  enum :work_type do
-    value(:image, as: "image", description: "Image")
-    value(:audio, as: "audio", description: "Audio")
-    value(:video, as: "video", description: "Video")
-    value(:document, as: "document", description: "Document")
+  @desc "Input fields for works descriptive metadata"
+  input_object :work_descriptive_metadata_input do
+    @desc "NOT YET IMPLEMENTED"
+    field :contributor, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :creator, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :genre, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :language, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :license, :coded_term_input
+    @desc "NOT YET IMPLEMENTED"
+    field :location, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :rights_statement, :coded_term_input
+    @desc "NOT YET IMPLEMENTED"
+    field :subject, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :style_period, list_of(:controlled_term_input)
+    @desc "NOT YET IMPLEMENTED"
+    field :technique, list_of(:controlled_term_input)
+
+    import_fields(:uncontrolled_descriptive_fields)
+  end
+
+  @desc "Filters for the list of works"
+  input_object :work_filter do
+    @desc "Matching a title"
+    field :matching, :string
   end
 end

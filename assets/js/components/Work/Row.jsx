@@ -22,9 +22,9 @@ const WorkRow = ({ work }) => {
             <dt>Accession Number:</dt>
             <dd>{work.accessionNumber}</dd>
             <dt>Work Type:</dt>
-            <dd>{work.workType}</dd>
+            <dd>Not yet supported</dd>
             <dt>Visibility:</dt>
-            <dd>{work.visibility}</dd>
+            <dd>Not yet supported</dd>
           </dl>
         </div>
         <div className="text-right">
@@ -55,7 +55,7 @@ const WorkRow = ({ work }) => {
 };
 
 WorkRow.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default WorkRow;

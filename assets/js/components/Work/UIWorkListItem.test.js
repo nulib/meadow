@@ -24,7 +24,7 @@ describe("Shows Work content", () => {
   it("Displays Visibility Tag", () => {
     const { getByTestId, findByText } = setupTests();
     expect(getByTestId("tag-visibility")).toBeInTheDocument();
-    expect(findByText("RESTRICTED")).toBeTruthy();
+    expect(findByText("PUBLIC")).toBeTruthy();
   });
   it("Displays Accession Number", () => {
     const { getByTestId } = setupTests();

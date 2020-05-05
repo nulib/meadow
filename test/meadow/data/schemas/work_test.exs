@@ -6,8 +6,6 @@ defmodule Meadow.Data.Schemas.WorkTest do
   describe "works" do
     @valid_attrs %{
       accession_number: "12345",
-      visibility: "open",
-      work_type: "image",
       descriptive_metadata: %{title: "Test"}
     }
 

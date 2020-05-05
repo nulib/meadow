@@ -8,8 +8,6 @@ defmodule Meadow.Data.WorksTest do
   describe "queries" do
     @valid_attrs %{
       accession_number: "12345",
-      visibility: "open",
-      work_type: "image",
       descriptive_metadata: %{title: "Test"}
     }
     @invalid_attrs %{accession_number: nil}
@@ -92,11 +90,9 @@ defmodule Meadow.Data.WorksTest do
     end
 
     test "work metadata should default to empty maps" do
-      {:ok, work} =
-        Works.create_work(%{accession_number: "abc", visibility: "open", work_type: "image"})
+      {:ok, work} = Works.create_work(%{accession_number: "abc"})
 
       assert work.descriptive_metadata.title == nil
-      assert work.administrative_metadata.preservation_level == nil
     end
   end
 

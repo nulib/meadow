@@ -23,8 +23,6 @@ const IngestSheetDownload = ({ sheetId }) => {
     try {
       rWork.accession_number = work.accessionNumber;
       rWork.id = work.id;
-      rWork.visibility = work.visibility;
-      rWork.workype = work.workType;
       rWork.title = work.descriptiveMetadata
         ? work.descriptiveMetadata.title
         : "";

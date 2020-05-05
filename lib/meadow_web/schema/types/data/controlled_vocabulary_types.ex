@@ -1,33 +1,56 @@
-defmodule MeadowWeb.Schema.Data.ControlledVocabularyTypes do
+defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   @moduledoc """
-  Absinthe Schema for ControlledVocabularyTypes
+  Absinthe Schema for ControlledTermTypes
 
   """
   use Absinthe.Schema.Notation
+  alias MeadowWeb.Schema.Middleware
 
-  @desc "NOT YET IMPLEMENTED"
-  object :controlled_vocabulary do
-    field :id, :id
-    field :label, :string
-    field :role, :code_list_item
+  object :controlled_term_queries do
+    @desc "NOT YET IMPLEMENTED. Get values from a code list table (for use in dropdowns, etc)"
+    field :code_list, list_of(:coded_term) do
+      arg(:scheme, non_null(:code_list_scheme))
+      middleware(Middleware.Authenticate)
+
+      resolve(fn %{scheme: _scheme}, _ ->
+        {:ok, []}
+      end)
+    end
+
+    @desc "NOT YET IMPLEMENTED Get the label for a code list item by its id"
+    field :coded_term, :coded_term do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+
+      resolve(fn %{id: _id}, _ ->
+        {:ok, nil}
+      end)
+    end
   end
 
   @desc "NOT YET IMPLEMENTED"
-  object :code_list_item do
+  object :controlled_term do
+    field :id, :id
+    field :label, :string
+    field :role, :coded_term
+  end
+
+  @desc "NOT YET IMPLEMENTED"
+  object :coded_term do
     field :id, :id
     field :label, :string
     field :scheme, :code_list_scheme
   end
 
   @desc "NOT YET IMPLEMENTED Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
-  input_object :controlled_vocabulary_input do
-    field :id, :id
-    field :role, :code_list_item_input
+  input_object :controlled_term_input do
+    field :id, non_null(:id)
+    field :role, :coded_term_input
   end
 
   @desc "NOT YET IMPLEMENTED Input for code lookup in code list table. Provide id and scheme"
-  input_object :code_list_item_input do
-    field :id, :id
+  input_object :coded_term_input do
+    field :id, non_null(:id)
     field :scheme, :code_list_scheme
   end
 
@@ -39,5 +62,7 @@ defmodule MeadowWeb.Schema.Data.ControlledVocabularyTypes do
     value(:license, as: "license", description: "License")
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:subject, as: "subjects", description: "Subject")
+    value(:visibility, as: "visibility", description: "Visibility")
+    value(:work_type, as: "work_type", description: "Work Type")
   end
 end

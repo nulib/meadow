@@ -3,9 +3,7 @@ defmodule Meadow.Repo.Migrations.CreateWorks do
 
   def change do
     create table("works") do
-      add(:work_type, :string)
       add(:collection_id, references(:collections, type: :binary_id))
-      add(:visibility, :string)
       add(:accession_number, :string)
       add(:descriptive_metadata, :map, default: %{})
       add(:administrative_metadata, :map, default: %{})

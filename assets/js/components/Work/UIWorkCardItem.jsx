@@ -30,13 +30,15 @@ const WorkCardItem = ({ work }) => {
 
         <div className="content">
           <p>
-            <span className="tag">{work.workType}</span>
-            <span
-              data-testid="tag-visibility"
-              className={`tag ${setVisibilityClass(work.visibility)}`}
-            >
-              {work.visibility.toUpperCase()}
-            </span>
+            <span className="tag">{work.workType && work.workType.label}</span>
+            {work.visibility && (
+              <span
+                data-testid="tag-visibility"
+                className={`tag ${setVisibilityClass(work.visibility.id)}`}
+              >
+                {work.visibility.label.toUpperCase()}
+              </span>
+            )}
             {work.published && (
               <span data-testid="dd-published" className="tag is-success">
                 PUBLISHED

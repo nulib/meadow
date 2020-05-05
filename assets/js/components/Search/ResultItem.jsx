@@ -13,9 +13,9 @@ const SearchResultItem = ({ res }) => {
     file_sets = [],
     model,
     representative_file_set_id,
+    visibility,
     published,
     title,
-    visibility
   } = res;
   const fileSetsToDisplay = 5;
 
@@ -51,9 +51,11 @@ const SearchResultItem = ({ res }) => {
           )}
         </div>
         <p>
-          <span className={`tag ${setVisibilityClass(visibility)}`}>
-            {visibility.toUpperCase()}
-          </span>
+          {visibility && (
+            <span className={`tag ${setVisibilityClass(visibility.id)}`}>
+              {visibility.label.toUpperCase()}
+            </span>
+          )}
         </p>
       </div>
     </div>
@@ -61,7 +63,7 @@ const SearchResultItem = ({ res }) => {
 };
 
 SearchResultItem.propTypes = {
-  work: PropTypes.object
+  work: PropTypes.object,
 };
 
 export default SearchResultItem;
