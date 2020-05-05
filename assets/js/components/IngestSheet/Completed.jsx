@@ -40,20 +40,6 @@ const IngestSheetCompleted = ({ sheetId }) => {
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
 
-  const styles = {
-    isBorderLess: { border: "0px" },
-    isActiveView: {
-      backgroundColor: "#fff",
-      opacity: 0.5,
-      border: "0px",
-    },
-    isDivider: { margin: "0 .25rem", fontSize: "2rem" },
-  };
-
-  const handleWorksViewChange = (val) => {
-    setIsListView(val);
-  };
-
   try {
     ingestSheetErrors = errorsData.ingestSheetErrors;
   } catch (e) {}
@@ -70,40 +56,25 @@ const IngestSheetCompleted = ({ sheetId }) => {
             Ingest Sheet Contents
           </h2>
         </div>
-        <div className="column is-half">
+        <div className="column is-half is-hidden-touch">
           <div className="buttons is-right ">
             <button
-              className="button has-cursor-pointer is-marginless"
-              style={isListView ? styles.isActiveView : styles.isBorderLess}
-              onClick={(e) => handleWorksViewChange(false)}
+              className="button is-text"
+              onClick={() => setIsListView(false)}
               title="Grid View"
             >
-              <span className="icon">
-                <FontAwesomeIcon
-                  id="icon-switch-listitem-view"
-                  size="2x"
-                  icon="th-large"
-                />
+              <span className={`icon ${isListView ? "has-text-grey" : ""}`}>
+                <FontAwesomeIcon size="2x" icon="th-large" />
               </span>
             </button>
-            <span
-              className="has-text-grey-light is-hidden-touch"
-              style={styles.isDivider}
-            >
-              |
-            </span>
+
             <button
-              className="button has-cursor-pointer is-marginless is-hidden-touch"
-              style={!isListView ? styles.isActiveView : styles.isBorderLess}
-              onClick={(e) => handleWorksViewChange(true)}
+              className="button is-text"
+              onClick={() => setIsListView(true)}
               title="List View"
             >
-              <span className="icon">
-                <FontAwesomeIcon
-                  id="icon-switch-listitem-view"
-                  size="2x"
-                  icon="th-list"
-                />
+              <span className={`icon ${!isListView ? "has-text-grey" : ""}`}>
+                <FontAwesomeIcon size="2x" icon="th-list" />
               </span>
             </button>
           </div>
