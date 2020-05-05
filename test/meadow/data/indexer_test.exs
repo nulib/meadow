@@ -123,7 +123,14 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
-      assert doc |> get_in(["title"]) == subject.descriptive_metadata.title
+
+      with metadata <- subject.descriptive_metadata do
+        assert doc |> get_in(["title"]) == metadata.title
+      end
+
+      with metadata <- subject.administrative_metadata do
+        assert doc |> get_in(["project_name"]) == metadata.project_name
+      end
     end
 
     test "file set encoding", %{file_set: subject} do

@@ -133,6 +133,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :keywords, list_of(:string)
     field :legacy_identifier, list_of(:string)
     field :notes, list_of(:string)
+    field :nul_use_statement, :string
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
     field :provenance, list_of(:string)
