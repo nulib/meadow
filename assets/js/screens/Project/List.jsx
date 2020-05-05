@@ -5,7 +5,7 @@ import ProjectForm from "../../components/Project/Form";
 // import { PrimaryButton } from "nulib-admin-ui-components";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UIFormInput from "../../components/UI/Form/Input";
-import UIFormFieldAndDisplay from "../../components/UI/Form/Field";
+import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensProjectList = () => {
@@ -43,10 +43,8 @@ const ScreensProjectList = () => {
                 </PrimaryButton> */}
               </div>
             </div>
-            <UIFormFieldAndDisplay childClass="has-icons-left">
+            <UIFormField childClass="has-icons-left">
               <UIFormInput
-                className="input"
-                type="text"
                 placeholder="Search projects"
                 name="projectsSearch"
                 label="Filter projects"
@@ -54,7 +52,7 @@ const ScreensProjectList = () => {
               <span className="icon is-small is-left">
                 <FontAwesomeIcon icon="search" />
               </span>
-            </UIFormFieldAndDisplay>
+            </UIFormField>
             <div data-testid="screen-content">
               <ProjectList />
             </div>

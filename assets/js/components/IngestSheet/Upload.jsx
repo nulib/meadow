@@ -113,9 +113,7 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
           required
           label="Ingest Sheet Name"
           errors={errors}
-          type="text"
           name="ingest_sheet_name"
-          className="input"
           placeholder="Ingest Sheet Name"
         />
       </UIFormField>

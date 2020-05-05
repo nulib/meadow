@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import UIFormInput from "../UI/Form/Input";
-import UIFormFieldAndDisplay from "../UI/Form/Field";
+import UIFormField from "../UI/Form/Field";
 
 const CollectionSearch = ({ collection }) => {
   const [filteredWorks, setFilteredWorks] = useState(collection.works);
@@ -28,10 +28,8 @@ const CollectionSearch = ({ collection }) => {
       <section data-testid="collection-search" className="box">
         <h2 className="title is-size-4">Collection Works</h2>
 
-        <UIFormFieldAndDisplay childClass="has-icons-left">
+        <UIFormField childClass="has-icons-left">
           <UIFormInput
-            className="input "
-            type="text"
             placeholder="Search collection works"
             onChange={handleFilterChange}
             name="collectionSearch"
@@ -40,7 +38,7 @@ const CollectionSearch = ({ collection }) => {
           <span className="icon is-small is-left">
             <FontAwesomeIcon icon="search" />
           </span>
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
         <p className="field">
           <a>Show Filters</a>

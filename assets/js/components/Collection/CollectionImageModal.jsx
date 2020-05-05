@@ -77,7 +77,6 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
         </header>
         <section className="modal-card-body">
           <UIFormInput
-            className="input"
             onChange={handleFilterChange}
             placeholder="Filter works by title"
             data-testid="input-collection-filter"

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UIFormFieldAndDisplay = ({ label, children, childClass = "" }) => {
+const UIFormField = ({ label, children, childClass = "" }) => {
   return (
     <div className="field">
       <label className="label">{label}</label>
@@ -10,10 +10,10 @@ const UIFormFieldAndDisplay = ({ label, children, childClass = "" }) => {
   );
 };
 
-UIFormFieldAndDisplay.propTypes = {
+UIFormField.propTypes = {
   label: PropTypes.string,
   children: PropTypes.node,
   childClass: PropTypes.string,
 };
 
-export default UIFormFieldAndDisplay;
+export default UIFormField;
