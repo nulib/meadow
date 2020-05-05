@@ -14,7 +14,7 @@ import Layout from "../Layout";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UIFormInput from "../../components/UI/Form/Input";
-import UIFormFieldAndDisplay from "../../components/UI/Form/Field";
+import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensCollectionList = () => {
@@ -122,10 +122,8 @@ const ScreensCollectionList = () => {
           </div>
           <div className="box" data-testid="collection-list">
             <h3 className="title is-size-5">All Collections</h3>
-            <UIFormFieldAndDisplay childClass="has-icons-left">
+            <UIFormField childClass="has-icons-left">
               <UIFormInput
-                className="input "
-                type="text"
                 placeholder="Search collections"
                 name="collectionSearch"
                 label="Filter collections"
@@ -133,7 +131,7 @@ const ScreensCollectionList = () => {
               <span className="icon is-small is-left">
                 <FontAwesomeIcon icon="search" />
               </span>
-            </UIFormFieldAndDisplay>
+            </UIFormField>
 
             <ul>
               {filteredCollections.length > 0 &&

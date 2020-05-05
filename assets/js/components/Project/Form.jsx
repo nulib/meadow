@@ -57,10 +57,8 @@ const ProjectForm = ({ showForm, setShowForm }) => {
                   required
                   label="Project Title"
                   errors={errors}
-                  type="text"
                   data-testid="project-title-input"
                   name="title"
-                  className="input"
                   placeholder="Name your project..."
                 />
               </UIFormField>

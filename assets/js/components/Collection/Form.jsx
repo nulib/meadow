@@ -10,7 +10,7 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import { useForm } from "react-hook-form";
-import UIFormFieldAndDisplay from "../UI/Form/Field.jsx";
+import UIFormField from "../UI/Form/Field.jsx";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
@@ -79,11 +79,9 @@ const CollectionForm = ({ collection }) => {
       <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
         <div className="columns">
           <div className="column is-two-thirds">
-            <UIFormFieldAndDisplay label="Collection Name">
+            <UIFormField label="Collection Name">
               <UIFormInput
                 placeholder="Add collection Name"
-                className={`input ${errors.collectionName ? "is-danger" : ""}`}
-                type="text"
                 register={register}
                 required
                 name="collectionName"
@@ -92,7 +90,7 @@ const CollectionForm = ({ collection }) => {
                 defaultValue={collection ? collection.name : ""}
                 data-testid="input-collection-name"
               />
-            </UIFormFieldAndDisplay>
+            </UIFormField>
           </div>
           <div className="column is-one-third has-text-right">
             <div className="field is-inline-block">
@@ -114,7 +112,7 @@ const CollectionForm = ({ collection }) => {
           </div>
         </div>
 
-        <UIFormFieldAndDisplay label="Collection Type">
+        <UIFormField label="Collection Type">
           <UIFormSelect
             register={register}
             name="collectionType"
@@ -126,59 +124,54 @@ const CollectionForm = ({ collection }) => {
           />
           <UITagNotYetSupported label="Display not yet supported" />
           <UITagNotYetSupported label="Update not yet supported" />{" "}
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
-        <UIFormFieldAndDisplay label="Description">
+        <UIFormField label="Description">
           <UIFormTextarea
             register={register}
             errors={errors}
             name="description"
             label="Description"
             defaultValue={collection ? collection.description : ""}
-            className="textarea"
             rows="8"
             data-testid="textarea-description"
           />
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
-        <UIFormFieldAndDisplay label="Finding Aid URL">
+        <UIFormField label="Finding Aid URL">
           <UIFormInput
             register={register}
             errors={errors}
             name="findingAidUrl"
-            className="input"
-            type="text"
             defaultValue={collection ? collection.findingAidUrl : ""}
             label="Finding Aid Url"
             data-testid="input-finding-aid-url"
           />
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
-        <UIFormFieldAndDisplay label="Admin Email">
+        <UIFormField label="Admin Email">
           <UIFormInput
             register={register}
             errors={errors}
             name="adminEmail"
-            className="input"
             defaultValue={collection ? collection.adminEmail : ""}
             type="email"
             label="Admin Email"
             data-testid="input-admin-email"
           />
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
-        <UIFormFieldAndDisplay label="Keywords">
+        <UIFormField label="Keywords">
           <UIFormInput
             register={register}
             name="keywords"
             errors={errors}
-            className="input"
             defaultValue={collection ? collection.keywords : ""}
             label="Keywords"
             placeholder="multiple, separated, by, commas"
             data-testid="input-keywords"
           />
-        </UIFormFieldAndDisplay>
+        </UIFormField>
 
         <div className="buttons is-right">
           <button

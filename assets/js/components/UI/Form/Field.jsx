@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UIFormFieldAndDisplay = ({ label, children, childClass = "" }) => {
+const UIFormField = ({ label, children, childClass = "" }) => {
   return (
     <div className="field">
       <label className="label">{label}</label>
