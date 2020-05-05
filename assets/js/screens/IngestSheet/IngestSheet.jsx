@@ -111,8 +111,7 @@ const ScreensIngestSheet = ({ match }) => {
             <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
           </div>
 
-          <div className="box">
-            <h2 className="title is-size-5">Ingest Sheet Contents</h2>
+          <div className="">
             <IngestSheet
               ingestSheetData={sheetData.ingestSheet}
               projectId={id}
