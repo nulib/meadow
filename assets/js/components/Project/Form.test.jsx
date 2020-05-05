@@ -1,6 +1,6 @@
 import React from "react";
 import ProjectForm from "./Form";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, act } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 
 describe("ProjectForm component", () => {
@@ -19,21 +19,18 @@ describe("ProjectForm component", () => {
     expect(getByTestId("cancel-button")).toBeInTheDocument();
   });
 
-  it("disables the submit button when project title text input has no value", () => {
-    const { getByLabelText, getByTestId, debug } = setUpTests();
-    const el = getByLabelText(/project/i);
-    const button = getByTestId("submit-button");
-
+  it("displays input error when project title text input has no value", async () => {
+    const { getByTestId } = setUpTests();
+    const el = getByTestId("project-title-input");
     expect(el).toBeInTheDocument();
-    expect(button).toHaveAttribute("disabled");
 
-    // Add some text
-    fireEvent.change(el, { target: { value: "abc" } });
-    expect(el.value).toBe("abc");
-    expect(button).not.toHaveAttribute("disabled");
+    await act(async () => {
+      fireEvent.change(el, { target: { value: "" } });
+    });
+    await act(async () => {
+      fireEvent.submit(getByTestId("project-form"));
+    });
 
-    // Remove all input text
-    fireEvent.change(el, { target: { value: "" } });
-    expect(button).toHaveAttribute("disabled");
+    expect(getByTestId("input-errors")).toBeInTheDocument();
   });
 });

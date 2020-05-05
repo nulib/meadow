@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { useForm } from "react-hook-form";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
+import UIFormInput from "../UI/Form/Input.jsx";
+import UIFormField from "../UI/Form/Field.jsx";
 
 const ProjectForm = ({ showForm, setShowForm }) => {
-  let inputTitle;
-  const [submitDisabled, setSubmitDisabled] = useState(true);
   const [formError, setFormError] = useState();
+  const { register, handleSubmit, watch, errors } = useForm();
   let [createProject, { loading, error: mutationError, data }] = useMutation(
     CREATE_PROJECT,
     {
@@ -24,30 +26,22 @@ const ProjectForm = ({ showForm, setShowForm }) => {
       },
       refetchQueries(mutationResult) {
         return [{ query: GET_PROJECTS }];
-      }
+      },
     }
   );
 
   if (loading) return <Loading />;
 
-  const handleSubmit = e => {
-    e.preventDefault();
+  const onSubmit = (data) => {
     createProject({
-      variables: { projectTitle: inputTitle.value }
+      variables: { projectTitle: data.title },
     });
-  };
-
-  const handleInputChange = () => {
-    setSubmitDisabled(inputTitle.value === "");
-    if (formError) {
-      setFormError(false);
-    }
   };
 
   return (
     <div>
       <div className={`modal ${showForm ? "is-active" : ""}`}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)} data-testid="project-form">
           <div className="modal-background"></div>
           <div className="modal-content">
             <div className="box">
@@ -56,26 +50,29 @@ const ProjectForm = ({ showForm, setShowForm }) => {
                   <Error error={formError} />
                 </div>
               )}
-              <div className="field">
-                <label className="label" htmlFor="project-title">
-                  Project
-                </label>
-                <div className="control">
-                  <input
-                    id="project-title"
-                    type="text"
-                    data-testid="project-title-input"
-                    name="project-title"
-                    className="input"
-                    placeholder="Name your project..."
-                    ref={node => {
-                      inputTitle = node;
-                    }}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
+
+              <UIFormField label="Project Title">
+                <UIFormInput
+                  register={register}
+                  required
+                  label="Project Title"
+                  errors={errors}
+                  type="text"
+                  data-testid="project-title-input"
+                  name="title"
+                  className="input"
+                  placeholder="Name your project..."
+                />
+              </UIFormField>
+
               <div className="buttons is-right">
+                <button
+                  type="submit"
+                  className="button is-primary"
+                  data-testid="submit-button"
+                >
+                  Create
+                </button>
                 <button
                   type="button"
                   className="button is-text"
@@ -83,14 +80,6 @@ const ProjectForm = ({ showForm, setShowForm }) => {
                   data-testid="cancel-button"
                 >
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="button is-primary"
-                  disabled={submitDisabled || formError}
-                  data-testid="submit-button"
-                >
-                  Create
                 </button>
               </div>
             </div>

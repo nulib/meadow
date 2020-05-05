@@ -10,6 +10,13 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import { useForm } from "react-hook-form";
+import UIFormFieldAndDisplay from "../UI/Form/Field.jsx";
+import UIFormInput from "../UI/Form/Input.jsx";
+import UIFormTextarea from "../UI/Form/Textarea.jsx";
+import UIFormSelect from "../UI/Form/Select.jsx";
+import UITagNotYetSupported from "../UI/TagNotYetSupported";
+
+import { COLLECTION_TYPES } from "../../services/global-vars";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
@@ -72,24 +79,20 @@ const CollectionForm = ({ collection }) => {
       <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
         <div className="columns">
           <div className="column is-two-thirds">
-            <div className="field">
-              <label htmlFor="collection-name" className="label">
-                Collection Name
-              </label>
-              <div className="control">
-                <input
-                  placeholder="Add collection Name"
-                  className={`input ${errors.collectioName ? "is-danger" : ""}`}
-                  type="text"
-                  ref={register({ required: true })}
-                  name="collectionName"
-                  id="collection-name"
-                  defaultValue={collection ? collection.name : ""}
-                  data-testid="input-collection-name"
-                />
-              </div>
-              <p className="help">Name of the Collection</p>
-            </div>
+            <UIFormFieldAndDisplay label="Collection Name">
+              <UIFormInput
+                placeholder="Add collection Name"
+                className={`input ${errors.collectionName ? "is-danger" : ""}`}
+                type="text"
+                register={register}
+                required
+                name="collectionName"
+                label="Collection Name"
+                errors={errors}
+                defaultValue={collection ? collection.name : ""}
+                data-testid="input-collection-name"
+              />
+            </UIFormFieldAndDisplay>
           </div>
           <div className="column is-one-third has-text-right">
             <div className="field is-inline-block">
@@ -111,104 +114,71 @@ const CollectionForm = ({ collection }) => {
           </div>
         </div>
 
-        <div className="field">
-          <label htmlFor="collection-type" className="label">
-            Collection Type
-          </label>
-          <div className="control">
-            <div className="select">
-              <select
-                ref={register}
-                id="collection-type"
-                name="collectionType"
-                data-testid="input-collection-type"
-              >
-                <option>NUL Collection</option>
-                <option>NUL Theme</option>
-              </select>
-            </div>
-          </div>
-          <p className="help">Type of Collection</p>
-        </div>
+        <UIFormFieldAndDisplay label="Collection Type">
+          <UIFormSelect
+            register={register}
+            name="collectionType"
+            label="Collection Type"
+            options={COLLECTION_TYPES}
+            defaultValue={collection ? collection.collectionType : ""}
+            errors={errors}
+            data-testid="input-collection-type"
+          />
+          <UITagNotYetSupported label="Display not yet supported" />
+          <UITagNotYetSupported label="Update not yet supported" />{" "}
+        </UIFormFieldAndDisplay>
 
-        <div className="field">
-          <p className="notification is-warning">
-            TODO: Wire up [Select thumbnail]
-          </p>
-        </div>
+        <UIFormFieldAndDisplay label="Description">
+          <UIFormTextarea
+            register={register}
+            errors={errors}
+            name="description"
+            label="Description"
+            defaultValue={collection ? collection.description : ""}
+            className="textarea"
+            rows="8"
+            data-testid="textarea-description"
+          />
+        </UIFormFieldAndDisplay>
 
-        <div className="field">
-          <label htmlFor="description" className="label">
-            Description
-          </label>
-          <div className="control">
-            <textarea
-              ref={register}
-              name="description"
-              id="description"
-              defaultValue={collection ? collection.description : ""}
-              className="textarea"
-              rows="8"
-              data-testid="textarea-description"
-            ></textarea>
-          </div>
-          <p className="help">Describe the Collection</p>
-        </div>
+        <UIFormFieldAndDisplay label="Finding Aid URL">
+          <UIFormInput
+            register={register}
+            errors={errors}
+            name="findingAidUrl"
+            className="input"
+            type="text"
+            defaultValue={collection ? collection.findingAidUrl : ""}
+            label="Finding Aid Url"
+            data-testid="input-finding-aid-url"
+          />
+        </UIFormFieldAndDisplay>
 
-        <div className="field">
-          <label htmlFor="finding-aid-url" className="label">
-            Finding Aid URL
-          </label>
-          <div className="control">
-            <input
-              ref={register}
-              name="findingAidUrl"
-              id="finding-aid-url"
-              className="input"
-              type="text"
-              defaultValue={collection ? collection.findingAidUrl : ""}
-              label="Finding Aid Url"
-              data-testid="input-finding-aid-url"
-            />
-          </div>
-          <p className="help">Finding Aid URL for the Collection</p>
-        </div>
+        <UIFormFieldAndDisplay label="Admin Email">
+          <UIFormInput
+            register={register}
+            errors={errors}
+            name="adminEmail"
+            className="input"
+            defaultValue={collection ? collection.adminEmail : ""}
+            type="email"
+            label="Admin Email"
+            data-testid="input-admin-email"
+          />
+        </UIFormFieldAndDisplay>
 
-        <div className="field">
-          <label htmlFor="admin-email" className="label">
-            Admin Email
-          </label>
-          <div className="control">
-            <input
-              ref={register}
-              name="adminEmail"
-              id="admin-email"
-              className="input"
-              defaultValue={collection ? collection.adminEmail : ""}
-              type="email"
-              data-testid="input-admin-email"
-            />
-          </div>
-          <p className="help">Email of the Admin for this Collection</p>
-        </div>
-
-        <div className="field">
-          <label htmlFor="keywords" className="label">
-            Keywords
-          </label>
-          <div className="control">
-            <input
-              ref={register}
-              name="keywords"
-              id="keywords"
-              className="input"
-              defaultValue={collection ? collection.keywords : ""}
-              label="Keywords"
-              placeholder="multiple, separated, by, commas"
-              data-testid="input-keywords"
-            />
-          </div>
-        </div>
+        <UIFormFieldAndDisplay label="Keywords">
+          <UIFormInput
+            register={register}
+            name="keywords"
+            errors={errors}
+            className="input"
+            defaultValue={collection ? collection.keywords : ""}
+            label="Keywords"
+            placeholder="multiple, separated, by, commas"
+            data-testid="input-keywords"
+          />
+        </UIFormFieldAndDisplay>
 
         <div className="buttons is-right">
           <button
