@@ -5,7 +5,7 @@ const UIFormInput = ({
   name,
   label,
   type = "text",
-  errors,
+  errors = {},
   register,
   required,
   ...passedInProps

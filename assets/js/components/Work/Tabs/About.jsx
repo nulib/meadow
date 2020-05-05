@@ -11,13 +11,21 @@ import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
+import UIFormFieldArray from "../../UI/Form/FieldArray";
 import WorkTabsHeader from "./Header";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
-  const { register, handleSubmit, watch, errors } = useForm();
+
+  // React hook form setup
+  const { register, handleSubmit, watch, errors, control } = useForm({
+    defaultValues: {
+      imaMulti: [{ value: "New Ima Multi" }],
+    },
+  });
+
   const [isEditing, setIsEditing] = useIsEditing();
 
   const [updateWork] = useMutation(UPDATE_WORK, {
@@ -105,6 +113,25 @@ const WorkTabsAbout = ({ work }) => {
                     <p>{descriptiveMetadata.title || "No value"}</p>
                   )}
                 </UIFormField>
+
+                {/* Test form field array element */}
+                {isEditing ? (
+                  <UIFormFieldArray
+                    register={register}
+                    control={control}
+                    required
+                    name="imaMulti"
+                    label="Ima Multi"
+                    data-testid="fieldset-ima-multi"
+                    errors={errors}
+                  />
+                ) : (
+                  <div className="field">
+                    <label className="label">Ima Multi</label>
+                    <UITagNotYetSupported label="Display not yet supported" />
+                    <UITagNotYetSupported label="Update not yet supported" />
+                  </div>
+                )}
 
                 {/* Description */}
                 <UIFormField label="Description">
