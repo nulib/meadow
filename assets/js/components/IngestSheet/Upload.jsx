@@ -9,11 +9,15 @@ import { useMutation } from "@apollo/react-hooks";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.query";
 import { toastWrapper } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useForm } from "react-hook-form";
+import UIFormInput from "../UI/Form/Input.jsx";
+import UIFormField from "../UI/Form/Field.jsx";
 
 const IngestSheetUpload = ({ project, presignedUrl }) => {
   const history = useHistory();
-  const [values, setValues] = useState({ ingest_sheet_name: "", file: "" });
+  const [values, setValues] = useState({ file: "" });
   const [fileNameString, setFileNameString] = useState("No file uploaded");
+  const { register, handleSubmit, watch, errors } = useForm();
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
     {
@@ -49,26 +53,30 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
     history.push(`/project/${project.id}`);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await uploadToS3();
-    await createIngestSheet({
-      variables: {
-        name: ingest_sheet_name,
-        projectId: project.id,
-        filename: `s3://${presignedUrl
-          .split("?")[0]
-          .split("/")
-          .slice(-3)
-          .join("/")}`,
-      },
-    });
-    toastWrapper(
-      "is-success",
-      `Ingest Sheet ${ingest_sheet_name} created successfully`
-    );
-
-    console.log("done creating IngestSheet");
+  const onSubmit = async (data) => {
+    if (values.file.length > 0) {
+      await uploadToS3();
+      await createIngestSheet({
+        variables: {
+          name: data.ingest_sheet_name,
+          projectId: project.id,
+          filename: `s3://${presignedUrl
+            .split("?")[0]
+            .split("/")
+            .slice(-3)
+            .join("/")}`,
+        },
+      });
+      toastWrapper(
+        "is-success",
+        `Ingest Sheet ${data.ingest_sheet_name} created successfully`
+      );
+    } else {
+      toastWrapper(
+        "is-danger",
+        `Choose a file to ingest into ${data.ingest_sheet_name}`
+      );
+    }
   };
 
   const uploadToS3 = async () => {
@@ -91,32 +99,25 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
     }
   };
 
-  const { ingest_sheet_name, file } = values;
-
-  const isSubmitDisabled = () => {
-    return values.ingest_sheet_name.length === 0 || values.file.length === 0;
-  };
+  const { file } = values;
 
   if (loading) return <Loading />;
   if (error) return <Error error={error} />;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Error error={error} />
-      <div className="field">
-        <label htmlFor="ingest_sheet_name" className="label">
-          Ingest Sheet Name
-        </label>
-        <div className="control">
-          <input
-            id={"ingest_sheet_name"}
-            name="ingest_sheet_name"
-            type="text"
-            className="input"
-            onChange={handleInputChange}
-          />
-        </div>
-      </div>
+      <UIFormField label="Ingest Sheet Name">
+        <UIFormInput
+          register={register}
+          required
+          label="Ingest Sheet Name"
+          errors={errors}
+          name="ingest_sheet_name"
+          placeholder="Ingest Sheet Name"
+        />
+      </UIFormField>
+
       <div className="field">
         <div id="file-js-example" className="file has-name">
           <label className="file-label">
@@ -142,11 +143,7 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
         <button type="button" className="button" onClick={handleCancel}>
           Cancel
         </button>
-        <button
-          type="submit"
-          className="button is-primary"
-          disabled={isSubmitDisabled()}
-        >
+        <button type="submit" className="button is-primary">
           <span className="icon">
             <FontAwesomeIcon icon="file-upload" />
           </span>

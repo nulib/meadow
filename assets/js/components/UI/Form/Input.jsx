@@ -6,7 +6,7 @@ const UIFormInput = ({
   label,
   type = "text",
   errors = {},
-  register,
+  register = () => {},
   required,
   ...passedInProps
 }) => {
@@ -31,8 +31,8 @@ const UIFormInput = ({
 UIFormInput.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(["date", "number", "text"]),
-  errors: PropTypes.object.isRequired,
+  type: PropTypes.oneOf(["date", "number", "text", "email"]),
+  errors: PropTypes.object,
   register: PropTypes.func,
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { SET_COLLECTION_IMAGE } from "./collection.query";
 import { toastWrapper } from "../../services/helpers";
+import UIFormInput from "../UI/Form/Input";
 
 const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
   const [selectedWork, setSelectedWork] = useState();
@@ -75,14 +76,13 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
           ></button>
         </header>
         <section className="modal-card-body">
-          <div className="control">
-            <input
-              className="input"
-              onChange={handleFilterChange}
-              placeholder="Filter collections"
-              data-testid="input-collection-filter"
-            />
-          </div>
+          <UIFormInput
+            onChange={handleFilterChange}
+            placeholder="Filter works by title"
+            data-testid="input-collection-filter"
+            name="collectionName"
+            label="Filter works by title"
+          />
           <div className="section columns is-multiline">
             {filteredWorkImages &&
               filteredWorkImages.map((work) => (

@@ -13,6 +13,9 @@ import { toastWrapper } from "../../services/helpers";
 import Layout from "../Layout";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import UIFormInput from "../../components/UI/Form/Input";
+import UIFormField from "../../components/UI/Form/Field";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -119,13 +122,17 @@ const ScreensCollectionList = () => {
           </div>
           <div className="box" data-testid="collection-list">
             <h3 className="title is-size-5">All Collections</h3>
-            <div className="field">
-              <input
-                className="input"
-                type="text"
+            <UIFormField childClass="has-icons-left">
+              <UIFormInput
                 placeholder="Search collections"
+                name="collectionSearch"
+                label="Filter collections"
               />
-            </div>
+              <span className="icon is-small is-left">
+                <FontAwesomeIcon icon="search" />
+              </span>
+            </UIFormField>
+
             <ul>
               {filteredCollections.length > 0 &&
                 filteredCollections.map((collection) => (
