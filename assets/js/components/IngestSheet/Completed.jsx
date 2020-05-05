@@ -30,8 +30,8 @@ const IngestSheetCompleted = ({ sheetId }) => {
         30%
       </progress>
     );
-  if (worksError) return <Error error={worksError.message} />;
-  if (errorsError) return <Error error={errorsError.message} />;
+  if (worksError) return <Error error={worksError} />;
+  if (errorsError) return <Error error={errorsError} />;
 
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
