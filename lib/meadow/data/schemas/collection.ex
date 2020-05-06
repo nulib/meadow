@@ -58,7 +58,21 @@ defmodule Meadow.Data.Schemas.Collection do
         create_date: collection.inserted_at,
         modified_date: collection.updated_at,
         visibility: "RESTRICTED",
-        visibility_term: %{id: "RESTRICTED", label: "Private"}
+        visibility_term: %{id: "RESTRICTED", label: "Private"},
+        representative_image:
+          case collection.representative_work_id do
+            nil ->
+              %{}
+
+            representative_work_id ->
+              %{
+                work_id: representative_work_id,
+                url:
+                  Meadow.IIIF.image_service_id(
+                    collection.representative_work.representative_file_set_id
+                  )
+              }
+          end
       }
     end
   end

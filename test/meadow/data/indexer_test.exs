@@ -53,7 +53,20 @@ defmodule Meadow.Data.IndexerTest do
       end)
     end
 
-    # @tag :skip
+    @tag unboxed: true
+    test "work representative image change cascades to a collection" do
+      Sandbox.unboxed_run(Repo, fn ->
+        %{collection: collection, works: [work | _]} = indexable_data()
+        Meadow.Data.Collections.set_representative_image(collection, work)
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(collection.id) |> get_in(["representative_image", "work_id"]) ==
+                 work.id
+      end)
+    end
+
+    # @tag unboxed: true
     # test "work visibility cascades to file set" do
     #   Sandbox.unboxed_run(Repo, fn ->
     #     %{works: [work | _], file_sets: [file_set | _]} = indexable_data()

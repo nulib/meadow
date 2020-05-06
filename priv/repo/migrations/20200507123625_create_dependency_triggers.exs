@@ -4,14 +4,26 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   def up do
     create_dependency_trigger(:collections, :works, [:name])
     create_dependency_trigger(:works, :file_sets, [:published])
+
+    create_dependency_trigger(
+      :works,
+      :collections,
+      [:representative_file_set_id],
+      :representative_work
+    )
   end
 
   def down do
     drop_dependency_trigger(:collections, :works)
     drop_dependency_trigger(:works, :file_sets)
+    drop_dependency_trigger(:works, :collections)
   end
 
   defp create_dependency_trigger(parent, child, fields) do
+    create_dependency_trigger(parent, child, fields, parent)
+  end
+
+  defp create_dependency_trigger(parent, child, fields, column_name) do
     with {function_name, trigger_name} <- object_names(parent, child) do
       condition = fields |> Enum.map(&"NEW.#{&1} <> OLD.#{&1}") |> Enum.join(" OR ")
 
@@ -20,7 +32,7 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
         RETURNS trigger AS $$
       BEGIN
         IF #{condition} THEN
-          UPDATE #{child} SET updated_at = NOW() WHERE #{Inflex.singularize(parent)}_id = NEW.id;
+          UPDATE #{child} SET updated_at = NOW() WHERE #{Inflex.singularize(column_name)}_id = NEW.id;
         END IF;
         RETURN NEW;
       END;

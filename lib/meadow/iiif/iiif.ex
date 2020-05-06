@@ -45,7 +45,13 @@ defmodule Meadow.IIIF do
     "http://localhost:8184/iiif/2/37ad25ec-7eff-45d0-b759-eca65c9d560f"
   """
   def image_service_id(file_set_id) do
-    Config.iiif_server_url() <> file_set_id
+    case file_set_id do
+      nil ->
+        nil
+
+      id ->
+        Config.iiif_server_url() <> id
+    end
   end
 
   defp write_to_s3(manifest, key) do
