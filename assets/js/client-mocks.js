@@ -1,5 +1,8 @@
 export const codeListMock = (scheme) => {
   switch (scheme) {
+    case "AUTHORITY":
+      return authorityMock;
+      break;
     case "RIGHTS_STATEMENT":
       return rightsStatementMock;
       break;
@@ -239,6 +242,44 @@ export const subjectRoleMock = [
   {
     id: "TOPICAL",
     label: "Topical",
+    __typename: "CodedTerm",
+  },
+];
+
+export const authorityMock = [
+  {
+    id: "AAT",
+    label: "Getty Art & Architecture Thesaurus© (AAT)",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "FAST",
+    label: "OCLC FAST (Faceted Application of Subject Terminology)",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "GEONAMES",
+    label: "Geonames",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "LCNAF",
+    label: "Library of Congress Name Authority File (LCNAF) ",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "LCSH",
+    label: "Library of Congress Subject Headings (LCSH)",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "ULAN",
+    label: "Getty Union List of Artist Names® (ULAN)",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "VIAF",
+    label: "Virtual International Authority File",
     __typename: "CodedTerm",
   },
 ];
