@@ -11,7 +11,7 @@ defmodule Meadow.Data.Schemas.Validations do
   def prepare_embed(%Ecto.Changeset{data: data, params: params} = change, field)
       when is_atom(field) do
     empty_struct = fn ->
-      {:embed, field_spec} = change.data.__struct__.__schema__(:type, field)
+      {:embed, field_spec} = data.__struct__.__schema__(:type, field)
       field_spec.related.__struct__ |> Map.from_struct()
     end
 
