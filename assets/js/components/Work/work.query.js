@@ -98,11 +98,11 @@ export const GET_WORK = gql`
         name
       }
       updatedAt
-      visibility {
+      visibility @client {
         id
         label
       }
-      workType {
+      workType @client {
         id
         label
       }
@@ -144,11 +144,11 @@ export const GET_WORKS = gql`
       published
       representativeImage
       updatedAt
-      workType {
+      workType @client {
         id
         label
       }
-      visibility {
+      visibility @client {
         id
         label
       }

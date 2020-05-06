@@ -17,8 +17,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
       end)
     end
 
-    @desc "NOT YET IMPLEMENTED Get the label for a code list item by its id"
-    field :coded_term, :coded_term do
+    @desc "NOT YET IMPLEMENTED Get the label for a controlled_term by its id"
+    field :fetch_controlled_term_label, :controlled_term do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
 
@@ -26,12 +26,39 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
         {:ok, nil}
       end)
     end
+
+    @desc "NOT YET IMPLEMENTED Get the label for a coded_term by its id and scheme"
+    field :fetch_coded_term_label, :coded_term do
+      arg(:id, non_null(:id))
+      arg(:scheme, non_null(:code_list_scheme))
+      middleware(Middleware.Authenticate)
+
+      resolve(fn %{id: _id}, _ ->
+        {:ok, nil}
+      end)
+    end
+
+    @desc "NOT YET IMPLEMENTED Get the label for a code list item by its id"
+    field :authorities_search, list_of(:controlled_value) do
+      arg(:authority, non_null(:coded_term_input))
+      arg(:query, non_null(:string))
+      middleware(Middleware.Authenticate)
+
+      resolve(fn %{authority: _authority, query: _query}, _ ->
+        {:ok, nil}
+      end)
+    end
+  end
+
+  @desc "NOT YET IMPLEMENTED"
+  object :controlled_value do
+    field :id, :id
+    field :label, :string
   end
 
   @desc "NOT YET IMPLEMENTED"
   object :controlled_term do
-    field :id, :id
-    field :label, :string
+    import_fields(:controlled_value)
     field :role, :coded_term
   end
 
@@ -56,12 +83,13 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "NOT YET IMPLEMENTED: Schemes for code list table. (Ex: Subjects, MARC relators, prevervation levels, etc)"
   enum :code_list_scheme do
-    value(:rights_statement, as: "rights_statement", description: "Rights Statement")
-    value(:preservation_level, as: "preservation_level", description: "Preservation Level")
-    value(:status, as: "status", description: "Status")
+    value(:authorities, as: "authorities", description: "Authorities")
     value(:license, as: "license", description: "License")
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
+    value(:preservation_level, as: "preservation_level", description: "Preservation Level")
+    value(:rights_statement, as: "rights_statement", description: "Rights Statement")
     value(:subject, as: "subjects", description: "Subject")
+    value(:status, as: "status", description: "Status")
     value(:visibility, as: "visibility", description: "Visibility")
     value(:work_type, as: "work_type", description: "Work Type")
   end
