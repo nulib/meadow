@@ -1,18 +1,15 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { IIIFContext } from "../IIIF/IIIFProvider";
 import { setVisibilityClass } from "../../services/helpers";
 
 const SearchResultItem = ({ res }) => {
-  const iiifServerUrl = useContext(IIIFContext);
-
   const {
     _id,
     accession_number,
     file_sets = [],
     model,
-    representative_file_set_id,
+    representative_file_set,
     visibility,
     published,
     title,
@@ -26,7 +23,7 @@ const SearchResultItem = ({ res }) => {
           {file_sets.length > 0 && (
             <Link to={`/work/${_id}`}>
               <img
-                src={`${iiifServerUrl}${representative_file_set_id}/square/500,500/0/default.jpg`}
+                src={`${representative_file_set.url}/square/500,500/0/default.jpg`}
                 alt="Placeholder image"
               />
             </Link>

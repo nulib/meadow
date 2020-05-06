@@ -95,7 +95,17 @@ defmodule Meadow.Data.Schemas.Work do
         create_date: work.inserted_at,
         iiif_manifest: IIIF.manifest_id(work.id),
         modified_date: work.updated_at,
-        representative_file_set_id: work.representative_file_set_id
+        representative_file_set:
+          case work.representative_file_set_id do
+            nil ->
+              %{}
+
+            representative_file_set_id ->
+              %{
+                id: representative_file_set_id,
+                url: IIIF.image_service_id(representative_file_set_id)
+              }
+          end
       }
       |> Map.merge(work |> descriptive_metadata_fields())
       |> Map.merge(work.extra_index_fields)
