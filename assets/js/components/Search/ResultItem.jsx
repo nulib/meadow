@@ -48,11 +48,7 @@ const SearchResultItem = ({ res }) => {
           )}
         </div>
         <p>
-          {visibility && (
-            <span className={`tag ${setVisibilityClass(visibility.id)}`}>
-              {visibility.label.toUpperCase()}
-            </span>
-          )}
+          <span className="tag is-info">Not Yet Supported</span>
         </p>
       </div>
     </div>
