@@ -1,0 +1,56 @@
+fragment WorkDescriptiveMetadataFields on Work {
+  descriptiveMetadata {
+    title
+    description
+    contributor {
+      id
+      label
+      role {
+        id
+        label
+        scheme
+      }
+    }
+    creator {
+      id
+      label
+    }
+    genre {
+      id
+      label
+    }
+    language {
+      id
+      label
+    }
+    license {
+      id
+      label
+    }
+    location {
+      id
+      label
+    }
+    rightsStatement {
+      id
+      label
+    }
+    stylePeriod {
+      id
+      label
+    }
+    subject {
+      id
+      label
+      role {
+        id
+        label
+        scheme
+      }
+    }
+    technique {
+      id
+      label
+    }
+  }
+}
