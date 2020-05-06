@@ -1,10 +1,24 @@
 import React from "react";
 import UIWorkListItem from "./UIWorkListItem";
-import { mockWork } from "../../services/testing-helpers";
+import { mockWork as work } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
+const workObject = {
+  id: work.id,
+  representativeImage: work.representativeImage,
+  title: work.title,
+  descriptiveMetadata: work.descriptiveMetadata,
+  workType: work.workType,
+  visibility: work.visibility,
+  published: work.published,
+  accessionNumber: work.accessionNumber,
+  fileSets: work.fileSets,
+  manifestUrl: work.manifestUrl,
+  updatedAt: work.updatedAt,
+};
+
 function setupTests() {
-  return renderWithRouter(<UIWorkListItem work={mockWork} />);
+  return renderWithRouter(<UIWorkListItem {...workObject} />);
 }
 
 it("Displays Work List Item", () => {

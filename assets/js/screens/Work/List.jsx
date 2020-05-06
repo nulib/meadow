@@ -1,53 +1,103 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "../Layout";
-import SearchResultItem from "../../components/Search/ResultItem";
 import { ReactiveList } from "@appbaseio/reactivesearch";
-import { IIIFProvider } from "../../components/IIIF/IIIFProvider";
+import { IIIFProvider, IIIFContext } from "../../components/IIIF/IIIFProvider";
+import WorkCardItem from "../../components/Work/UIWorkCardItem";
+import WorkListItem from "../../components/Work/UIWorkListItem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensWorkList = () => {
+  const [isListView, setIsListView] = useState(false);
+
+  const getWorkItem = (res) => {
+    return {
+      id: res._id,
+      title: res.title,
+      updatedAt: res.modified_date,
+      representativeImage: { id: res.representative_file_set_id, value: null },
+      manifestUrl: res.iiif_manifest,
+      published: res.published,
+      visibility: res.visibility.id
+        ? res.visibility
+        : { id: res.visibility, label: res.visibility },
+      descriptiveMetadata: { title: res.title, description: res.description },
+      fileSets: res.file_sets,
+      accessionNumber: res.accession_number,
+      workType: { label: res.model.name, id: res.model.name },
+    };
+  };
+
   return (
     <Layout>
       <section className="section">
+        <div className="column is-hidden-touch">
+          <div className="buttons is-right ">
+            <button
+              className="button is-text"
+              onClick={() => setIsListView(false)}
+              title="Grid View"
+            >
+              <span className={`icon ${isListView ? "has-text-grey" : ""}`}>
+                <FontAwesomeIcon size="2x" icon="th-large" />
+              </span>
+            </button>
+
+            <button
+              className="button is-text"
+              onClick={() => setIsListView(true)}
+              title="List View"
+            >
+              <span className={`icon ${!isListView ? "has-text-grey" : ""}`}>
+                <FontAwesomeIcon size="2x" icon="th-list" />
+              </span>
+            </button>
+          </div>
+        </div>
         <div className="container">
-          <div className="box">
-            <IIIFProvider>
-              <ReactiveList
-                componentId="SearchResult"
-                dataField="accession_number"
-                defaultQuery={() => ({
-                  query: {
-                    bool: {
-                      must: [
-                        {
-                          match: {
-                            "model.name": "Image"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                })}
-                innerClass={{
-                  list: "columns is-multiline",
-                  resultStats: "is-size-6 has-text-grey"
-                }}
-                react={{
-                  and: ["SearchSensor"]
-                }}
-                renderItem={res => {
+          <IIIFProvider>
+            <ReactiveList
+              componentId="SearchResult"
+              dataField="accession_number"
+              defaultQuery={() => ({
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          "model.name": "Image",
+                        },
+                      },
+                    ],
+                  },
+                },
+              })}
+              innerClass={{
+                list: `${isListView ? "" : "columns is-multiline"}`,
+                resultStats: "is-size-6 has-text-grey",
+              }}
+              react={{
+                and: ["SearchSensor"],
+              }}
+              renderItem={(res) => {
+                if (isListView) {
                   return (
-                    <div
-                      key={res._id}
-                      className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
-                    >
-                      <SearchResultItem res={res} />
+                    <div key={res._id} className="box">
+                      <WorkListItem key={res._id} {...getWorkItem(res)} />
                     </div>
                   );
-                }}
-                showResultStats={true}
-              />
-            </IIIFProvider>
-          </div>
+                }
+                return (
+                  <div
+                    key={res._id}
+                    className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
+                  >
+                    <WorkCardItem key={res._id} {...getWorkItem(res)} />
+                  </div>
+                );
+              }}
+              showResultStats={true}
+            />
+          </IIIFProvider>
         </div>
       </section>
     </Layout>
