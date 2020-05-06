@@ -32,6 +32,11 @@ export const resolvers = {
   },
   Query: {
     codeList: (root, { scheme }) => codeListMock(scheme),
+    authoritiesSearch: (root, { _authority, _query }) =>
+      mockAuthoritiesSearch(),
+    fetchControlledTermLabel: (root, { _id }) =>
+      mockLabelFetch("ControlledTerm"),
+    fetchCodedTermLabel: () => mockLabelFetch("CodedTerm"),
   },
 };
 
@@ -87,6 +92,28 @@ export const mockSubjects = () => {
     });
   }
   return results;
+};
+
+export const mockAuthoritiesSearch = () => {
+  let results = [];
+  let size = Math.floor(Math.random() * Math.floor(4));
+  for (let i = 0; i < size; i++) {
+    results.push({
+      id: faker.internet.url(),
+      label: faker.lorem.words(),
+      role: null,
+      __typename: "CodedTerm",
+    });
+  }
+  return results;
+};
+
+export const mockLabelFetch = (typename) => {
+  return {
+    id: faker.internet.url(),
+    label: faker.lorem.words(),
+    __typename: typename,
+  };
 };
 
 const mockRightsStatement = () => {
