@@ -23,6 +23,8 @@ defmodule Meadow.Data.Schemas.Work do
     field :accession_number, :string
     field :published, :boolean, default: false
     field :representative_file_set_id, Ecto.UUID, default: nil
+    field :visibility, :string
+    field :work_type, :string
     timestamps()
 
     embeds_one :descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update

@@ -236,7 +236,7 @@ defmodule Meadow.TestHelpers do
     end
   end
 
-  defp test_id() do
+  defp test_id do
     min = String.to_integer("100000", 36)
     max = String.to_integer("ZZZZZZ", 36)
 

@@ -8,12 +8,14 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
 
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
+    field :preservation_level, :string
     field :project_name, {:array, :string}, default: []
     field :project_desc, {:array, :string}, default: []
     field :project_proposer, {:array, :string}, default: []
     field :project_manager, {:array, :string}, default: []
     field :project_task_number, {:array, :string}, default: []
     field :project_cycle, :string
+    field :status, :string
 
     timestamps()
   end
@@ -21,12 +23,14 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
   def changeset(metadata, params) do
     metadata
     |> cast(params, [
+      :preservation_level,
       :project_name,
       :project_desc,
       :project_proposer,
       :project_manager,
       :project_task_number,
-      :project_cycle
+      :project_cycle,
+      :status
     ])
 
     # The following are marked as required on the metadata

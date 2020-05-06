@@ -3,12 +3,14 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
+  alias Meadow.Ingest.Rows
+
   load_gql(MeadowWeb.Schema, "test/gql/GetIngestErrors.gql")
 
   describe "ingest with errors" do
     test "duplicate FileSet accession number", %{ingest_sheet: sheet} do
       accession_number =
-        Meadow.Ingest.Rows.list_ingest_sheet_rows(sheet: sheet)
+        Rows.list_ingest_sheet_rows(sheet: sheet)
         |> Enum.at(1)
         |> Map.get(:file_set_accession_number)
 
@@ -35,7 +37,7 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
 
     test "duplicate Work accession number", %{ingest_sheet: sheet} do
       accession_number =
-        Meadow.Ingest.Rows.list_ingest_sheet_rows(sheet: sheet)
+        Rows.list_ingest_sheet_rows(sheet: sheet)
         |> Enum.at(4)
         |> Map.get(:fields)
         |> Enum.find(fn %{header: header} -> header == "work_accession_number" end)

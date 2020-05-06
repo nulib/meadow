@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Meadow.Version do
     err in RuntimeError -> Logger.error("Error: #{err.message}")
   end
 
-  defp working_copy_dirty?() do
+  defp working_copy_dirty? do
     with {result, _} <- System.cmd("git", ["status", "--porcelain"]) do
       result
       |> String.split(~r/\n/)
