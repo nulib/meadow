@@ -63,16 +63,18 @@ const sendToDestination = (data, location) => {
   portlog("info", `Writing to ${location}`);
   let uri = URI.parse(location);
   return new Promise((resolve, reject) => {
-    new AWS.S3().upload(
-      { Bucket: uri.host, Key: getS3Key(uri), Body: data },
-      (err, _data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(location);
+    sharp(data).metadata().then(({width, height}) => {
+      new AWS.S3().upload(
+        { Bucket: uri.host, Key: getS3Key(uri), Body: data, Metadata: { width: width.toString(), height: height.toString() } },
+        (err, _data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(location);
+          }
         }
-      }
-    );
+      );
+    });
   });
 };
 
