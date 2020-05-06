@@ -4,7 +4,7 @@ import {
   renderWithRouterApollo,
 } from "../../../services/testing-helpers";
 import WorkTabsAbout from "./About";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
 
 import { CODE_LIST_QUERY } from "../controlledVocabulary.query";
 
@@ -41,6 +41,7 @@ describe("Work About tab component", () => {
   function setupTests() {
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, { mocks });
   }
+
   it("renders without crashing", () => {
     expect(setupTests());
   });
