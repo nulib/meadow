@@ -6,7 +6,6 @@ import { toastWrapper } from "../../../services/helpers";
 import { GET_COLLECTIONS } from "../../Collection/collection.query";
 import { UPDATE_WORK, ADD_WORK_TO_COLLECTION, GET_WORK } from "../work.query";
 import { useForm } from "react-hook-form";
-import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import { Link } from "react-router-dom";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
@@ -18,11 +17,21 @@ const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
   const [isEditing, setIsEditing] = useIsEditing();
   const { register, handleSubmit, errors } = useForm();
+
+  const {
+    data: collectionsData,
+    loading: collectionsLoading,
+    error: collectionsError,
+  } = useQuery(GET_COLLECTIONS);
+
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       setIsEditing(false);
+      toastWrapper("is-success", "Work Administrative data has been updated");
     },
   });
+
+  // Get select dropdown options.  Need a better way to organize this
   const {
     loading: preservationLevelsLoading,
     error: preservationLevelsError,
@@ -31,41 +40,54 @@ const WorkTabsAdministrative = ({ work }) => {
     variables: { scheme: "PRESERVATION_LEVEL" },
   });
   const {
+    loading: statusLoading,
+    error: statusError,
+    data: statusData,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "STATUS" },
+  });
+  const {
     loading: visibilityLoading,
     error: visibilityError,
     data: visibilityData,
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
 
-  // TODO: Add Work to collection is disrupting changes made using updateWork,
-  // need to verify apolloclient update/rollback options upon adding collection to work.
-  const [addWorkToCollection] = useMutation(ADD_WORK_TO_COLLECTION, {
-    onCompleted({ addWorkToCollection }) {
-      setIsEditing(false);
-      toastWrapper("is-success", "Work form has been updated");
-    },
-    refetchQueries(mutationResult) {
-      return [{ query: GET_WORK, variables: { id } }];
-    },
-  });
-
   const onSubmit = (data) => {
     let workUpdateInput = {
       administrativeMetadata: {
-        preservationLevel: { id: Number(data.preservationLevel) },
+        preservationLevel: { id: data.preservationLevel },
+        status: { id: data.status },
       },
+      collectionId: data.collection,
       visibility: data.visibility,
-
-      published: true,
     };
     updateWork({
       variables: { id, work: workUpdateInput },
     });
-    addWorkToCollection({
-      variables: { workId: work.id, collectionId: data.collection },
-    });
   };
 
-  const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
+  if (
+    collectionsLoading ||
+    preservationLevelsLoading ||
+    statusLoading ||
+    visibilityLoading
+  ) {
+    return null;
+  }
+
+  if (
+    collectionsError ||
+    preservationLevelsError ||
+    statusError ||
+    visibilityError
+  ) {
+    return (
+      <p className="notification is-danger">
+        There was an error loading GraphQL data on the Work Administrative tab
+      </p>
+    );
+  }
+
   return (
     <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
       <WorkTabsHeader title="Administrative Metadata">
@@ -96,31 +118,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
       <div className="columns">
         <div className="column is-two-thirds">
-          <div className="box">
-            <UIFormField label="Visibility">
-              <UITagNotYetSupported label="Data is mocked" />
-              <UITagNotYetSupported label="Update not yet supported" />
-              {isEditing ? (
-                <UIFormSelect
-                  register={register}
-                  required
-                  name="visibility"
-                  label="Visibility"
-                  options={visibilityData.codeList}
-                  defaultValue={work.visibility && work.visibility.id}
-                  errors={errors}
-                />
-              ) : (
-                work.visibility && (
-                  <p
-                    className={`tag ${setVisibilityClass(work.visibility.id)}`}
-                  >
-                    {work.visibility.label.toUpperCase()}
-                  </p>
-                )
-              )}
-            </UIFormField>
-
+          <div className="box content">
             <UIFormField label="Collection">
               {isEditing ? (
                 <UIFormSelect
@@ -143,14 +141,7 @@ const WorkTabsAdministrative = ({ work }) => {
               )}
             </UIFormField>
 
-            <UIFormField label="Themes">
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </UIFormField>
-
-            <UIFormField label="Preservation Level">
-              <UITagNotYetSupported label="Data is mocked" />
-              <UITagNotYetSupported label="Update not yet supported" />
+            <UIFormField label="Preservation Level" mocked notLive>
               {isEditing ? (
                 <UIFormSelect
                   register={register}
@@ -166,10 +157,59 @@ const WorkTabsAdministrative = ({ work }) => {
                 />
               ) : (
                 <p>
-                  {administrativeMetadata
+                  {administrativeMetadata.preservationLevel
                     ? administrativeMetadata.preservationLevel.label
                     : "None selected"}
                 </p>
+              )}
+            </UIFormField>
+
+            <UIFormField label="Status" mocked notLive>
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  name="status"
+                  label="Status"
+                  options={statusData.codeList}
+                  defaultValue={
+                    administrativeMetadata.status
+                      ? administrativeMetadata.status.id
+                      : ""
+                  }
+                  errors={errors}
+                />
+              ) : (
+                <p>
+                  {administrativeMetadata
+                    ? administrativeMetadata.status.label
+                    : "None selected"}
+                </p>
+              )}
+            </UIFormField>
+
+            <UIFormField label="Themes" mocked notLive>
+              <p>Nothing yet</p>
+            </UIFormField>
+
+            <UIFormField label="Visibility" mocked notLive>
+              {isEditing ? (
+                <UIFormSelect
+                  register={register}
+                  required
+                  name="visibility"
+                  label="Visibility"
+                  options={visibilityData.codeList}
+                  defaultValue={work.visibility ? work.visibility.id : ""}
+                  errors={errors}
+                />
+              ) : (
+                work.visibility && (
+                  <p
+                    className={`tag ${setVisibilityClass(work.visibility.id)}`}
+                  >
+                    {work.visibility.label.toUpperCase()}
+                  </p>
+                )
               )}
             </UIFormField>
           </div>
