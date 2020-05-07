@@ -47,7 +47,7 @@ const WorkListItem = ({
           </h3>
           <div className="content ">
             <p>
-              <span className="tag">{workType.label}</span>
+              <span className="tag">{workType.label.toUpperCase()}</span>
               {visibility && (
                 <span
                   data-testid="tag-visibility"

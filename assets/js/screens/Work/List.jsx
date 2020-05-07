@@ -14,16 +14,14 @@ const ScreensWorkList = () => {
       id: res._id,
       title: res.title,
       updatedAt: res.modified_date,
-      representativeImage: { id: res.representative_file_set_id, value: null },
+      representativeImage: res.representative_file_set,
       manifestUrl: res.iiif_manifest,
       published: res.published,
-      visibility: res.visibility.id
-        ? res.visibility
-        : { id: res.visibility, label: res.visibility },
+      visibility: res.visibility_term,
       descriptiveMetadata: { title: res.title, description: res.description },
       fileSets: res.file_sets,
       accessionNumber: res.accession_number,
-      workType: { label: res.model.name, id: res.model.name },
+      workType: res.work_type,
     };
   };
 
