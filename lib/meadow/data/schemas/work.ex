@@ -70,6 +70,12 @@ defmodule Meadow.Data.Schemas.Work do
   end
 
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
+    alias Elasticsearch.Document.Meadow.Data.Schemas.WorkAdministrativeMetadata,
+      as: AdministrativeMetadataDocument
+
+    alias Elasticsearch.Document.Meadow.Data.Schemas.WorkDescriptiveMetadata,
+      as: DescriptiveMetadataDocument
+
     def id(work), do: work.id
     def routing(_), do: false
 
@@ -107,18 +113,9 @@ defmodule Meadow.Data.Schemas.Work do
               }
           end
       }
-      |> Map.merge(work |> descriptive_metadata_fields())
       |> Map.merge(work.extra_index_fields)
-    end
-
-    defp descriptive_metadata_fields(work) do
-      with md <- work.descriptive_metadata do
-        WorkDescriptiveMetadata.field_names()
-        |> Enum.map(fn field_name ->
-          {field_name, md |> Map.get(field_name)}
-        end)
-        |> Enum.into(%{})
-      end
+      |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
+      |> Map.merge(work.administrative_metadata |> AdministrativeMetadataDocument.encode())
     end
   end
 end

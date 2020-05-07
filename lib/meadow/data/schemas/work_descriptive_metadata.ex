@@ -24,6 +24,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:keywords, true},
     {:legacy_identifier, true},
     {:notes, true},
+    {:nul_use_statement, false},
     {:physical_description_material, true},
     {:physical_description_size, true},
     {:provenance, true},
@@ -52,7 +53,28 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   def changeset(metadata, params) do
     metadata
     |> cast(params, field_names())
+
+    # The following are marked as required on the metadata
+    # spreadsheet, but commented out so that works can be
+    # created without them from ingest sheets.
+    #
+    # |> validate_required([:ark, :nul_use_statement, :title])
   end
 
-  def field_names, do: @fields |> Enum.map(fn {f, _} -> f end)
+  def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
+
+  defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.WorkDescriptiveMetadata do
+    alias Meadow.Data.Schemas.WorkDescriptiveMetadata, as: Source
+
+    def id(md), do: md.id
+    def routing(_), do: false
+
+    def encode(md) do
+      Source.field_names()
+      |> Enum.map(fn field_name ->
+        {field_name, md |> Map.get(field_name)}
+      end)
+      |> Enum.into(%{})
+    end
+  end
 end

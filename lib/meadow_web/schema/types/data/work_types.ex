@@ -133,6 +133,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :keywords, list_of(:string)
     field :legacy_identifier, list_of(:string)
     field :notes, list_of(:string)
+    field :nul_use_statement, :string
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
     field :provenance, list_of(:string)
@@ -175,12 +176,23 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     import_fields(:uncontrolled_descriptive_fields)
   end
 
+  object :uncontrolled_administrative_fields do
+    field :project_name, list_of(:string)
+    field :project_desc, list_of(:string)
+    field :project_proposer, list_of(:string)
+    field :project_manager, list_of(:string)
+    field :project_task_number, list_of(:string)
+    field :project_cycle, :string
+  end
+
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
   object :work_administrative_metadata do
     @desc "NOT YET IMPLEMENTED"
     field :preservation_level, :coded_term
     @desc "NOT YET IMPLEMENTED"
     field :status, :coded_term
+
+    import_fields(:uncontrolled_administrative_fields)
   end
 
   @desc "Project info"
@@ -214,6 +226,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :preservation_level, :coded_term_input
     @desc "NOT YET IMPLEMENTED"
     field :status, :coded_term_input
+
+    import_fields(:uncontrolled_administrative_fields)
   end
 
   @desc "Input fields for works descriptive metadata"
