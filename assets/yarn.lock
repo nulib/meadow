@@ -85,10 +85,10 @@
     fast-json-stable-stringify "^2.0.0"
     tslib "^1.10.0"
 
-"@appbaseio/reactivecore@9.5.7":
-  version "9.5.7"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.5.7.tgz#d9e11bc5167cd93df2274f5917c008ac459cab56"
-  integrity sha512-R1r71lHeqQ0DJzIGhdKdxaC2N8NPOSfllhLLDSH35OjSS4ddocsEZ3ESD/XR6L7RqxFWje0xj01uJJNcbAA0ng==
+"@appbaseio/reactivecore@9.5.8":
+  version "9.5.8"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.5.8.tgz#3a0b305aaf6f78c5db73d0242cbb308bcb63a857"
+  integrity sha512-yfjSYE6QLv1F7EFtz5n85Vk/KLxMRnY5hyn3kvBKBUiosAbedXxvnW7qoqdYe8NY3GmhCgI1Pj1x1YnngNfPYw==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -96,13 +96,13 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@^3.8.1":
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.8.1.tgz#19685490f22bdb0deb22326d2c06455a896adc1b"
-  integrity sha512-AAtZkGuj/2/asCjyDEUoU/l0PyoMrVyWmRh+ABjSHkSoSoy9RqF9xEWeIt+PFo31VsYHiHyEtrwNe0rgqOs5sQ==
+"@appbaseio/reactivesearch@^3.8.2":
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.8.2.tgz#389eec66f74bb569ef5adf84d0f54ad0ef052c37"
+  integrity sha512-TEMGdTddAv/7b/6e42qTXB+vMhzDIJlPUcM7jkjuq4gLhpV0LUUD76TSzwJ4xFeTK7b+FF6Rorm6vSCzf6AdpA==
   dependencies:
-    "@appbaseio/reactivecore" "9.5.7"
-    appbase-js "^4.0.4"
+    "@appbaseio/reactivecore" "9.5.8"
+    appbase-js "^4.0.6"
     cross-env "^5.2.0"
     downshift "^1.31.2"
     emotion "^9.0.0"
@@ -2014,10 +2014,10 @@ apollo-utilities@1.3.3, apollo-utilities@^1.0.0, apollo-utilities@^1.3.0, apollo
     ts-invariant "^0.4.0"
     tslib "^1.10.0"
 
-appbase-js@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/appbase-js/-/appbase-js-4.0.4.tgz#ffd8e3afe563cd5f30601efcc32d54e18c6e7828"
-  integrity sha512-h4KScox8gwVbpOA1YA9pbjDsZ9qtx8D7YuRcV5VeoVa9oTOMetPGIbzvaUHuDKFuYDuLvQpFrX7FIBtVK+JObQ==
+appbase-js@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/appbase-js/-/appbase-js-4.0.6.tgz#3adec9d14ca63d3e06c921e18376d9e885d0697b"
+  integrity sha512-QVi+jB157ZF6GOElbpVQRLefD6bXc6YqOfFRCtW0eIIXwyEXtGIZbOkaBiXKl6jzM+vJ6Q4pbR8/cCForSw0TQ==
   dependencies:
     cross-fetch "^2.2.2"
     json-stable-stringify "^1.0.1"
