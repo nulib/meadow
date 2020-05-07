@@ -2,13 +2,11 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
-import { IIIFProvider, IIIFContext } from "../../components/IIIF/IIIFProvider";
 
 const WorkCardItem = ({
   id,
   representativeImage,
   title,
-  descriptiveMetadata,
   workType,
   visibility,
   published,
@@ -17,7 +15,6 @@ const WorkCardItem = ({
   manifestUrl,
   updatedAt,
 }) => {
-  const iiifServerUrl = useContext(IIIFContext);
   return (
     <div className="card " data-testid="ui-workcard">
       <div className="card-image">
@@ -26,9 +23,7 @@ const WorkCardItem = ({
             <img
               src={`${
                 representativeImage.id
-                  ? iiifServerUrl +
-                    representativeImage.id +
-                    "/square/500,500/0/default.jpg"
+                  ? representativeImage.url + "/square/500,500/0/default.jpg"
                   : representativeImage + "/full/1280,960/0/default.jpg"
               }`}
               data-testid="image-work"
@@ -38,9 +33,7 @@ const WorkCardItem = ({
         </figure>
       </div>
       <div className="card-content">
-        <h3 className="title is-size-4">
-          {descriptiveMetadata.title ? descriptiveMetadata.title : "Untitled"}
-        </h3>
+        <h3 className="title is-size-4">{title ? title : "Untitled"}</h3>
 
         <div className="content">
           <p>
@@ -54,22 +47,32 @@ const WorkCardItem = ({
               </span>
             )}
             {published && (
-              <span data-testid="dd-published" className="tag is-success">
+              <span
+                data-testid="result-item-published"
+                className="tag is-success"
+              >
                 PUBLISHED
               </span>
             )}
           </p>
           <dl>
             <dt>Accession Number:</dt>
-            <dd data-testid="dd-accession-number">{accessionNumber}</dd>
+            <dd data-testid="result-item-accession-number">
+              {accessionNumber}
+            </dd>
             <dt>Filesets:</dt>
             <dd>
-              <span className="tag is-light" data-testid="dd-filesets-length">
-                {fileSets.length}
+              <span
+                className="tag is-light"
+                data-testid="result-item-filesets-length"
+              >
+                {fileSets}
               </span>
             </dd>
             <dt>Last Updated: </dt>
-            <dd data-testid="dd-updated-date">{formatDate(updatedAt)}</dd>
+            <dd data-testid="result-item-updated-date">
+              {formatDate(updatedAt)}
+            </dd>
             <dt>IIIF Manifest:</dt>
             <dd>
               <a href={manifestUrl} target="_blank">

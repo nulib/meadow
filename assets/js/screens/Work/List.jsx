@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../Layout";
 import { ReactiveList } from "@appbaseio/reactivesearch";
-import { IIIFProvider, IIIFContext } from "../../components/IIIF/IIIFProvider";
+import { IIIFProvider } from "../../components/IIIF/IIIFProvider";
 import WorkCardItem from "../../components/Work/UIWorkCardItem";
 import WorkListItem from "../../components/Work/UIWorkListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,8 +18,7 @@ const ScreensWorkList = () => {
       manifestUrl: res.iiif_manifest,
       published: res.published,
       visibility: res.visibility_term,
-      descriptiveMetadata: { title: res.title, description: res.description },
-      fileSets: res.file_sets,
+      fileSets: res.file_sets.length,
       accessionNumber: res.accession_number,
       workType: res.work_type,
     };
@@ -71,7 +70,7 @@ const ScreensWorkList = () => {
               })}
               innerClass={{
                 list: `${isListView ? "" : "columns is-multiline"}`,
-                resultStats: "is-size-6 has-text-grey",
+                resultStats: "column is-size-6 has-text-grey",
               }}
               react={{
                 and: ["SearchSensor"],

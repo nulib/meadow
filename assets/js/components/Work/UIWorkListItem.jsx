@@ -2,13 +2,11 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
-import { IIIFProvider, IIIFContext } from "../../components/IIIF/IIIFProvider";
 
 const WorkListItem = ({
   id,
   representativeImage,
   title,
-  descriptiveMetadata,
   workType,
   visibility,
   published,
@@ -17,7 +15,6 @@ const WorkListItem = ({
   manifestUrl,
   updatedAt,
 }) => {
-  const iiifServerUrl = useContext(IIIFContext);
   return (
     <>
       <article className="media" data-testid="ui-worklist-item">
@@ -30,9 +27,7 @@ const WorkListItem = ({
               <img
                 src={`${
                   representativeImage.id
-                    ? iiifServerUrl +
-                      representativeImage.id +
-                      "/square/500,500/0/default.jpg"
+                    ? representativeImage.url + "/square/500,500/0/default.jpg"
                     : representativeImage + "/full/1280,960/0/default.jpg"
                 }`}
                 data-testid="image-work"
@@ -42,9 +37,7 @@ const WorkListItem = ({
           </p>
         </figure>
         <div className="media-content">
-          <h3 className="title is-size-4">
-            {descriptiveMetadata.title ? descriptiveMetadata.title : "Untitled"}
-          </h3>
+          <h3 className="title is-size-4">{title ? title : "Untitled"}</h3>
           <div className="content ">
             <p>
               <span className="tag">{workType.label.toUpperCase()}</span>
@@ -57,7 +50,10 @@ const WorkListItem = ({
                 </span>
               )}
               {published && (
-                <span data-testid="dd-published" className="tag is-success">
+                <span
+                  data-testid="result-item-published"
+                  className="tag is-success"
+                >
                   PUBLISHED
                 </span>
               )}
@@ -73,16 +69,20 @@ const WorkListItem = ({
               </thead>
               <tbody>
                 <tr>
-                  <td data-testid="dd-accession-number">{accessionNumber}</td>
+                  <td data-testid="result-item-accession-number">
+                    {accessionNumber}
+                  </td>
                   <td>
                     <span
                       className="tag is-light"
-                      data-testid="dd-filesets-length"
+                      data-testid="result-item-filesets-length"
                     >
-                      {fileSets.length}
+                      {fileSets}
                     </span>
                   </td>
-                  <td data-testid="dd-updated-date">{formatDate(updatedAt)}</td>
+                  <td data-testid="result-item-updated-date">
+                    {formatDate(updatedAt)}
+                  </td>
                   <td>
                     <a href={manifestUrl} target="_blank">
                       <u>JSON File</u>

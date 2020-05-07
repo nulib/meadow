@@ -47,13 +47,12 @@ const IngestSheetCompleted = ({ sheetId }) => {
     return {
       id: work.id,
       representativeImage: work.representativeImage,
-      title: work.title,
-      descriptiveMetadata: work.descriptiveMetadata,
+      title: work.descriptiveMetadata.title,
       workType: work.workType,
       visibility: work.visibility,
       published: work.published,
       accessionNumber: work.accessionNumber,
-      fileSets: work.fileSets,
+      fileSets: work.fileSets.length,
       manifestUrl: work.manifestUrl,
       updatedAt: work.updatedAt,
     };
