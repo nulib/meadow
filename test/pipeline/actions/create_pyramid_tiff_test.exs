@@ -48,6 +48,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
       assert(object_exists?(@pyramid_bucket, dest))
+      with metadata <- object_metadata(@pyramid_bucket, dest) do
+        assert metadata.height == "1024"
+        assert metadata.width == "1024"
+      end
 
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})

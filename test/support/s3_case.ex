@@ -49,6 +49,19 @@ defmodule Meadow.S3Case do
         end
       end
 
+      defp object_metadata(bucket, key) do
+        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
+          {:ok, %{headers: headers}} ->
+            headers
+            |> Enum.filter(fn {header, value} -> header |> String.starts_with?("X-Amz-Meta") end)
+            |> Enum.map(fn {"X-Amz-Meta-" <> key, value} ->
+              {key |> String.downcase() |> String.to_atom(), value}
+            end)
+            |> Enum.into(%{})
+          _ -> nil
+        end
+      end
+
       defp delete_bucket(bucket) do
         bucket
         |> empty_bucket()
