@@ -101,6 +101,9 @@ defmodule Meadow.Data.Schemas.Work do
         create_date: work.inserted_at,
         iiif_manifest: IIIF.manifest_id(work.id),
         modified_date: work.updated_at,
+        visibility: "RESTRICTED",
+        visibility_term: %{id: "RESTRICTED", label: "Private"},
+        work_type: %{id: "IMAGE", label: "Image"},
         representative_file_set:
           case work.representative_file_set_id do
             nil ->

@@ -56,7 +56,9 @@ defmodule Meadow.Data.Schemas.Collection do
         title: collection.name,
         published: collection.published,
         create_date: collection.inserted_at,
-        modified_date: collection.updated_at
+        modified_date: collection.updated_at,
+        visibility: "RESTRICTED",
+        visibility_term: %{id: "RESTRICTED", label: "Private"}
       }
     end
   end
