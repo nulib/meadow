@@ -1,0 +1,7 @@
+#import "./CodedTermFields.frag.gql"
+
+query CodeList($scheme: ID!) {
+  codeList(scheme: $scheme) {
+    ...CodedTermFields
+  }
+}

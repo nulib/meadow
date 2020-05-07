@@ -1,0 +1,5 @@
+fragment CodedTermFields on CodedTerm {
+  id
+  label
+  scheme
+}

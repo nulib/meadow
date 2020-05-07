@@ -7,6 +7,7 @@ fragment FileSetFields on FileSet {
   metadata {
     description
     sha256
+    label
     location
     original_filename
   }

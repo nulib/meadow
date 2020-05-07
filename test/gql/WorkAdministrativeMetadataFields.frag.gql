@@ -1,0 +1,12 @@
+fragment WorkAdministrativeMetadataFields on Work {
+  administrativeMetadata {
+    preservationLevel {
+      id
+      label
+    }
+    status {
+      id
+      label
+    }
+  }
+}

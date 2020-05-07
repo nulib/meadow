@@ -5,6 +5,8 @@ defmodule MeadowWeb.Schema.Mutation.AddWorksToCollectionTest do
   alias Meadow.Data.Collections
   alias Meadow.Repo
 
+  import Assertions
+
   load_gql(MeadowWeb.Schema, "test/gql/AddWorksToCollection.gql")
 
   test "should be a valid mutation" do
@@ -26,7 +28,7 @@ defmodule MeadowWeb.Schema.Mutation.AddWorksToCollectionTest do
       get_in(query_data, [:data, "addWorksToCollection", "works"])
       |> Enum.map(& &1["id"])
 
-    assert work_list == work_ids
+    assert_lists_equal(work_list, work_ids)
 
     collection = Collections.get_collection!(collection.id) |> Repo.preload(:works)
     assert collection.works |> length() == 3

@@ -1,0 +1,4 @@
+fragment ControlledTermFields on ControlledTerm {
+  ...ControlledValueFields
+  role
+}
