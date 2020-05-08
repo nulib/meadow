@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
 
-const WorkListItem = ({ work }) => {
+const ListViewItem = ({ work }) => {
   return (
     <>
       <article className="media " data-testid="ui-worklist-item">
@@ -89,8 +89,8 @@ const WorkListItem = ({ work }) => {
   );
 };
 
-WorkListItem.propTypes = {
+ListViewItem.propTypes = {
   work: PropTypes.object,
 };
 
-export default WorkListItem;
+export default ListViewItem;

@@ -1,10 +1,10 @@
 import React from "react";
-import UIWorkCardItem from "./UIWorkCardItem";
+import CardViewItem from "./CardViewItem";
 import { mockWork } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
 function setupTests() {
-  return renderWithRouter(<UIWorkCardItem work={mockWork} />);
+  return renderWithRouter(<CardViewItem work={mockWork} />);
 }
 
 it("Displays Work card", () => {

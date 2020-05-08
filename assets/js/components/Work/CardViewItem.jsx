@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
 
-const WorkCardItem = ({ work }) => {
+const WorkCardViewItem = ({ work }) => {
   return (
     <div className="card " data-testid="ui-workcard">
       <div className="card-image">
@@ -69,8 +69,8 @@ const WorkCardItem = ({ work }) => {
   );
 };
 
-WorkCardItem.propTypes = {
+WorkCardViewItem.propTypes = {
   work: PropTypes.object,
 };
 
-export default WorkCardItem;
+export default WorkCardViewItem;

@@ -1,10 +1,10 @@
 import React from "react";
-import UIWorkListItem from "./UIWorkListItem";
+import ListViewItem from "./ListViewItem";
 import { mockWork } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
 function setupTests() {
-  return renderWithRouter(<UIWorkListItem work={mockWork} />);
+  return renderWithRouter(<ListViewItem work={mockWork} />);
 }
 
 it("Displays Work List Item", () => {

@@ -7,7 +7,6 @@ import {
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
-import { waitFor } from "@testing-library/react";
 
 const MOCK_PROJECT_TITLE = "Mock project title";
 const mocks = [
