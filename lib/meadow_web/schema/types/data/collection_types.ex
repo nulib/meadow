@@ -97,6 +97,18 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :finding_aid_url, :string
     field :published, :boolean
     field :works, list_of(:work), resolve: &Resolvers.Data.Collections.collection_works/3
-    field :representative_image, :string
+
+    field :representative_image, :string do
+      deprecate("Use  `representativeWork`.")
+    end
+
+    field :representative_work, :representative_work,
+      resolve: &Resolvers.Data.Collections.representative_work/3
+  end
+
+  object :representative_work do
+    field :work_id, :string
+    field :label, :string
+    field :url, :string
   end
 end

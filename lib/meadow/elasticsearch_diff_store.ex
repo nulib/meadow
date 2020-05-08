@@ -35,6 +35,17 @@ defmodule Meadow.ElasticsearchDiffStore do
   end
 
   @impl true
+  def stream(Schemas.Collection = schema) do
+    schema
+    |> out_of_date()
+    |> Repo.stream()
+    |> Stream.chunk_every(@chunk_size)
+    |> Stream.flat_map(fn chunk ->
+      Repo.preload(chunk, :representative_work)
+    end)
+  end
+
+  @impl true
   def stream(Schemas.FileSet = schema) do
     schema
     |> out_of_date()

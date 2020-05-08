@@ -30,6 +30,16 @@ defmodule Meadow.ElasticsearchStore do
   end
 
   @impl true
+  def stream(Schemas.Collection = schema) do
+    schema
+    |> Repo.stream()
+    |> Stream.chunk_every(10)
+    |> Stream.flat_map(fn chunk ->
+      Repo.preload(chunk, :representative_work)
+    end)
+  end
+
+  @impl true
   def stream(schema) do
     schema
     |> Repo.stream()

@@ -83,6 +83,13 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
+  def get_work(id) do
+    Work
+    |> Sheets.works_with_sheets()
+    |> Repo.get(id)
+    |> add_representative_image()
+  end
+
   @doc """
   Gets a work by accession_number
 
