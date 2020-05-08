@@ -1,10 +1,23 @@
 import React from "react";
 import UIWorkListItem from "./UIWorkListItem";
-import { mockWork } from "../../services/testing-helpers";
+import { mockWork as work } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
+const workObject = {
+  id: work.id,
+  representativeImage: work.representativeImage,
+  title: work.title,
+  workType: work.workType,
+  visibility: work.visibility,
+  published: work.published,
+  accessionNumber: work.accessionNumber,
+  fileSets: work.fileSets.length,
+  manifestUrl: work.manifestUrl,
+  updatedAt: work.updatedAt,
+};
+
 function setupTests() {
-  return renderWithRouter(<UIWorkListItem work={mockWork} />);
+  return renderWithRouter(<UIWorkListItem {...workObject} />);
 }
 
 it("Displays Work List Item", () => {
@@ -28,20 +41,22 @@ describe("Shows Work content", () => {
   });
   it("Displays Accession Number", () => {
     const { getByTestId } = setupTests();
-    expect(getByTestId("dd-accession-number").innerHTML).toBe("Example-34");
+    expect(getByTestId("result-item-accession-number").innerHTML).toBe(
+      "Example-34"
+    );
   });
   it("Displays FileSets Length", () => {
     const { getByTestId } = setupTests();
-    expect(getByTestId("dd-filesets-length").innerHTML).toBe("2");
+    expect(getByTestId("result-item-filesets-length").innerHTML).toBe("2");
   });
   it("Displays Updated Date", () => {
     const { getByTestId } = setupTests();
-    expect(getByTestId("dd-updated-date").innerHTML).toBe(
+    expect(getByTestId("result-item-updated-date").innerHTML).toBe(
       "Dec 2, 2019 10:22 PM"
     );
   });
   it("Displays Published Flag", () => {
     const { queryByTestId } = setupTests();
-    expect(queryByTestId("dd-published")).not.toBeInTheDocument();
+    expect(queryByTestId("result-item-published")).not.toBeInTheDocument();
   });
 });

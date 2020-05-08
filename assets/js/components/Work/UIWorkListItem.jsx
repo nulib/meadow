@@ -1,49 +1,59 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
 
-const WorkListItem = ({ work }) => {
+const WorkListItem = ({
+  id,
+  representativeImage,
+  title,
+  workType,
+  visibility,
+  published,
+  accessionNumber,
+  fileSets,
+  manifestUrl,
+  updatedAt,
+}) => {
   return (
     <>
-      <article className="media " data-testid="ui-worklist-item">
+      <article className="media" data-testid="ui-worklist-item">
         <figure className="media-left">
           <p
             className="image is-square"
             style={{ width: "250px", height: "250px" }}
           >
-            <Link to={`/work/${work.id}`}>
+            <Link to={`/work/${id}`}>
               <img
                 src={`${
-                  work.representativeImage
-                    ? work.representativeImage + "/full/1280,960/0/default.jpg"
-                    : "/images/1280x960.png"
+                  representativeImage.id
+                    ? representativeImage.url + "/square/500,500/0/default.jpg"
+                    : representativeImage + "/full/1280,960/0/default.jpg"
                 }`}
                 data-testid="image-work"
-                alt={work.title}
+                alt={title}
               />
             </Link>
           </p>
         </figure>
         <div className="media-content">
-          <h3 className="title is-size-4">
-            {work.descriptiveMetadata.title
-              ? work.descriptiveMetadata.title
-              : "Untitled"}
-          </h3>
+          <h3 className="title is-size-4">{title ? title : "Untitled"}</h3>
           <div className="content ">
             <p>
-              <span className="tag">{work.workType.label}</span>
-              {work.visibility && (
+              <span className="tag">{workType.label.toUpperCase()}</span>
+              {visibility && (
                 <span
                   data-testid="tag-visibility"
-                  className={`tag ${setVisibilityClass(work.visibility.id)}`}
+                  className={`tag ${setVisibilityClass(visibility.id)}`}
                 >
-                  {work.visibility.label.toUpperCase()}
+                  {visibility.label.toUpperCase()}
                 </span>
               )}
-              {work.published && (
-                <span data-testid="dd-published" className="tag is-success">
+              {published && (
+                <span
+                  data-testid="result-item-published"
+                  className="tag is-success"
+                >
                   PUBLISHED
                 </span>
               )}
@@ -59,22 +69,22 @@ const WorkListItem = ({ work }) => {
               </thead>
               <tbody>
                 <tr>
-                  <td data-testid="dd-accession-number">
-                    {work.accessionNumber}
+                  <td data-testid="result-item-accession-number">
+                    {accessionNumber}
                   </td>
                   <td>
                     <span
                       className="tag is-light"
-                      data-testid="dd-filesets-length"
+                      data-testid="result-item-filesets-length"
                     >
-                      {work.fileSets.length}
+                      {fileSets}
                     </span>
                   </td>
-                  <td data-testid="dd-updated-date">
-                    {formatDate(work.updatedAt)}
+                  <td data-testid="result-item-updated-date">
+                    {formatDate(updatedAt)}
                   </td>
                   <td>
-                    <a href={work.manifestUrl} target="_blank">
+                    <a href={manifestUrl} target="_blank">
                       <u>JSON File</u>
                     </a>
                   </td>

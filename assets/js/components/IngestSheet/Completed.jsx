@@ -6,7 +6,6 @@ import {
   INGEST_SHEET_COMPLETED_ERRORS,
 } from "./ingestSheet.query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import WorkListItem from "../Work/UIWorkListItem";
@@ -39,6 +38,25 @@ const IngestSheetCompleted = ({ sheetId }) => {
 
   const works = worksData.ingestSheetWorks;
   let ingestSheetErrors = [];
+
+  const getWorkObject = (work) => {
+    // Destructuring work here involves assigning a const to each
+    // field and returning all constants. Tried various mappings to assign
+    // destructured props to new obj and return with single liner
+    // but nothing good with DRY kind of code.
+    return {
+      id: work.id,
+      representativeImage: work.representativeImage,
+      title: work.descriptiveMetadata.title,
+      workType: work.workType,
+      visibility: work.visibility,
+      published: work.published,
+      accessionNumber: work.accessionNumber,
+      fileSets: work.fileSets.length,
+      manifestUrl: work.manifestUrl,
+      updatedAt: work.updatedAt,
+    };
+  };
 
   try {
     ingestSheetErrors = errorsData.ingestSheetErrors;
@@ -87,7 +105,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
               key={work.id}
               className="column is-half-tablet is-one-quarter-desktop"
             >
-              <WorkCardItem key={work.id} work={work} />
+              <WorkCardItem key={work.id} {...getWorkObject(work)} />
             </div>
           ))}
         </div>
@@ -96,7 +114,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
         <>
           {works.map((work) => (
             <div key={work.id} className="box">
-              <WorkListItem key={work.id} work={work} />
+              <WorkListItem key={work.id} {...getWorkObject(work)} />
             </div>
           ))}
         </>
