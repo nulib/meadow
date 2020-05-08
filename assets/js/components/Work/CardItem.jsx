@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, formatDate } from "../../services/helpers";
@@ -37,7 +37,7 @@ const WorkCardItem = ({
 
         <div className="content">
           <p>
-            <span className="tag">{workType.label.toUpperCase()}</span>
+            <span className="tag">{workType.label.toUpperCase()}</span>{" "}
             {visibility && (
               <span
                 data-testid="tag-visibility"
@@ -45,7 +45,7 @@ const WorkCardItem = ({
               >
                 {visibility.label.toUpperCase()}
               </span>
-            )}
+            )}{" "}
             {published && (
               <span
                 data-testid="result-item-published"
@@ -60,28 +60,29 @@ const WorkCardItem = ({
             <dd data-testid="result-item-accession-number">
               {accessionNumber}
             </dd>
-            <dt>Filesets:</dt>
-            <dd>
-              <span
-                className="tag is-light"
-                data-testid="result-item-filesets-length"
-              >
-                {fileSets}
-              </span>
-            </dd>
+            <dt># Filesets:</dt>
+            <dd data-testid="result-item-filesets-length">{fileSets}</dd>
             <dt>Last Updated: </dt>
             <dd data-testid="result-item-updated-date">
               {formatDate(updatedAt)}
             </dd>
-            <dt>IIIF Manifest:</dt>
-            <dd>
-              <a href={manifestUrl} target="_blank">
-                <u>JSON File</u>
-              </a>
-            </dd>
           </dl>
         </div>
       </div>
+      <footer className="card-footer">
+        <a href="#" className="card-footer-item">
+          View Work
+        </a>
+        <a href={manifestUrl} target="_blank" className="card-footer-item">
+          <figure className="image is-32x32">
+            <img
+              src="/images/IIIF-logo.png"
+              alt="IIIF logo"
+              title="View IIIF manifest"
+            />
+          </figure>
+        </a>
+      </footer>
     </div>
   );
 };

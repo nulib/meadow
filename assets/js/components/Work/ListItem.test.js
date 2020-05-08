@@ -1,5 +1,5 @@
 import React from "react";
-import UIWorkListItem from "./UIWorkListItem";
+import WorkListItem from "./ListItem";
 import { mockWork as work } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
@@ -17,7 +17,7 @@ const workObject = {
 };
 
 function setupTests() {
-  return renderWithRouter(<UIWorkListItem {...workObject} />);
+  return renderWithRouter(<WorkListItem {...workObject} />);
 }
 
 it("Displays Work List Item", () => {
