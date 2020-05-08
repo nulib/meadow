@@ -5,6 +5,7 @@ defmodule Meadow.ElasticsearchStore do
   @behaviour Elasticsearch.Store
 
   alias Meadow.Data.Schemas
+  alias Meadow.Data.{Collections, Works}
   alias Meadow.Ingest.Sheets
   alias Meadow.Repo
 
@@ -15,7 +16,9 @@ defmodule Meadow.ElasticsearchStore do
     |> Repo.stream()
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->
-      Repo.preload(chunk, [:collection, :file_sets])
+      chunk
+      |> Repo.preload([:collection, :file_sets])
+      |> Works.add_representative_image()
     end)
   end
 
@@ -35,7 +38,9 @@ defmodule Meadow.ElasticsearchStore do
     |> Repo.stream()
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->
-      Repo.preload(chunk, :representative_work)
+      chunk
+      |> Repo.preload(:representative_work)
+      |> Collections.add_representative_image()
     end)
   end
 

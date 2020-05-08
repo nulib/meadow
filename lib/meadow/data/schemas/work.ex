@@ -114,14 +114,14 @@ defmodule Meadow.Data.Schemas.Work do
 
             representative_file_set_id ->
               %{
-                id: representative_file_set_id,
-                url: IIIF.image_service_id(representative_file_set_id)
+                file_set_id: representative_file_set_id,
+                url: work.representative_image
               }
           end
       }
       |> Map.merge(work.extra_index_fields)
-      |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
       |> Map.merge(work.administrative_metadata |> AdministrativeMetadataDocument.encode())
+      |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
     end
   end
 end

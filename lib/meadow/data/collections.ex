@@ -100,11 +100,11 @@ defmodule Meadow.Data.Collections do
         Map.put(collection, :representative_image, nil)
 
       work ->
-        Map.put(
-          collection,
-          :representative_image,
-          work |> Works.add_representative_image() |> Map.get(:representative_image)
-        )
+        with updated_work <- work |> Works.add_representative_image() do
+          collection
+          |> Map.put(:representative_work, updated_work)
+          |> Map.put(:representative_image, updated_work.representative_image)
+        end
     end
   end
 

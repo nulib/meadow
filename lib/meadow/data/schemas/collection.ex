@@ -60,17 +60,14 @@ defmodule Meadow.Data.Schemas.Collection do
         visibility: "RESTRICTED",
         visibility_term: %{id: "RESTRICTED", label: "Private"},
         representative_image:
-          case collection.representative_work_id do
+          case collection.representative_work do
             nil ->
               %{}
 
-            representative_work_id ->
+            work ->
               %{
-                work_id: representative_work_id,
-                url:
-                  Meadow.IIIF.image_service_id(
-                    collection.representative_work.representative_file_set_id
-                  )
+                work_id: work.id,
+                url: work.representative_image
               }
           end
       }
