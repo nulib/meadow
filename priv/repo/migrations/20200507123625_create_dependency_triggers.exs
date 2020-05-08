@@ -25,7 +25,16 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
 
   defp create_dependency_trigger(parent, child, fields, column_name) do
     with {function_name, trigger_name} <- object_names(parent, child) do
-      condition = fields |> Enum.map(&"NEW.#{&1} <> OLD.#{&1}") |> Enum.join(" OR ")
+      condition =
+        fields
+        |> Enum.flat_map(
+          &[
+            "(NEW.#{&1} <> OLD.#{&1})",
+            "(NEW.#{&1} IS NULL AND OLD.#{&1} IS NOT NULL)",
+            "(NEW.#{&1} IS NOT NULL AND OLD.#{&1} IS NULL)"
+          ]
+        )
+        |> Enum.join(" OR ")
 
       execute """
       CREATE OR REPLACE FUNCTION #{function_name}()

@@ -5,6 +5,7 @@ defmodule Meadow.Data.IndexerTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, Indexer, Works}
   alias Meadow.Ingest.SheetWorks
+  alias Meadow.Repo
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
   describe "indexing" do
@@ -57,12 +58,24 @@ defmodule Meadow.Data.IndexerTest do
     test "work representative image change cascades to a collection" do
       Sandbox.unboxed_run(Repo, fn ->
         %{collection: collection, works: [work | _]} = indexable_data()
-        Meadow.Data.Collections.set_representative_image(collection, work)
+        Collections.set_representative_image(collection, work)
 
         Indexer.synchronize_index()
 
         assert indexed_doc(collection.id) |> get_in(["representative_image", "work_id"]) ==
                  work.id
+
+        file_set = file_set_fixture(%{work_id: work.id})
+        {:ok, work} = Works.update_work(work, %{file_sets: [file_set]})
+        {:ok, work} = Works.set_representative_image(work, file_set)
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(work.id)
+               |> get_in(["representative_file_set", "id"]) == file_set.id
+
+        assert indexed_doc(collection.id)
+               |> get_in(["representative_image", "url"]) == work.representative_image
       end)
     end
 
