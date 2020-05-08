@@ -84,6 +84,7 @@ defmodule Meadow.Data.Schemas.Work do
     def encode(work) do
       %{
         model: %{application: "Meadow", name: "Image"},
+        id: work.id,
         accession_number: work.accession_number,
         published: work.published,
         collection:
