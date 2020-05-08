@@ -4,6 +4,7 @@ defmodule Meadow.IndexCase do
   """
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
+  alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
   alias Meadow.Ingest.Schemas.{Project, Sheet}
@@ -43,7 +44,7 @@ defmodule Meadow.IndexCase do
       end
 
       def indexable_data do
-        collection = collection_fixture()
+        collection = collection_fixture() |> Collections.add_representative_image()
 
         works =
           1..5
@@ -54,6 +55,7 @@ defmodule Meadow.IndexCase do
               published: false
             })
           end)
+          |> Works.add_representative_image()
 
         file_sets =
           works
