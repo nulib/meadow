@@ -8,8 +8,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
-import WorkListItem from "../Work/UIWorkListItem";
-import WorkCardItem from "../Work/UIWorkCardItem";
+import WorkListItem from "../Work/ListItem";
+import WorkCardItem from "../Work/CardItem";
 
 const IngestSheetCompleted = ({ sheetId }) => {
   const [isListView, setIsListView] = useState(false);

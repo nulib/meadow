@@ -1,5 +1,5 @@
 import React from "react";
-import UIWorkCardItem from "./UIWorkCardItem";
+import WorkCardItem from "./CardItem";
 import { mockWork as work } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
 
@@ -17,7 +17,7 @@ const workObject = {
 };
 
 function setupTests() {
-  return renderWithRouter(<UIWorkCardItem {...workObject} />);
+  return renderWithRouter(<WorkCardItem {...workObject} />);
 }
 
 it("Displays Work card", () => {

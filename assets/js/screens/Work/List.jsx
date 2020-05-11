@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Layout from "../Layout";
 import { ReactiveList } from "@appbaseio/reactivesearch";
 import { IIIFProvider } from "../../components/IIIF/IIIFProvider";
-import WorkCardItem from "../../components/Work/UIWorkCardItem";
-import WorkListItem from "../../components/Work/UIWorkListItem";
+import WorkCardItem from "../../components/Work/CardItem";
+import WorkListItem from "../../components/Work/ListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensWorkList = () => {
