@@ -36,6 +36,7 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
       get_in(query_data, [
         :data,
         "setCollectionImage",
+        "representativeWork",
         "representativeImage"
       ])
 

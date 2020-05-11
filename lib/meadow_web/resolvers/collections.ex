@@ -18,22 +18,6 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     {:ok, Works.get_works_by_collection(collection.id)}
   end
 
-  def representative_work(collection, _, _) do
-    case collection.representative_work do
-      nil ->
-        {:ok, nil}
-
-      representative_work ->
-        work = Works.get_work(representative_work.id)
-
-        {:ok,
-         %{
-           work_id: representative_work.id,
-           url: work.representative_image
-         }}
-    end
-  end
-
   def create_collection(_, args, _) do
     case Collections.create_collection(args) do
       {:error, changeset} ->

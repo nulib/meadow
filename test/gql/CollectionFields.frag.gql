@@ -6,5 +6,8 @@ fragment CollectionFields on Collection {
   findingAidUrl
   adminEmail
   featured
-  representativeImage
+  representativeWork {
+    id
+    representativeImage
+  }
 }

@@ -72,7 +72,7 @@ defmodule Meadow.Data.IndexerTest do
         Indexer.synchronize_index()
 
         assert indexed_doc(work.id)
-               |> get_in(["representative_file_set", "id"]) == file_set.id
+               |> get_in(["representative_file_set", "file_set_id"]) == file_set.id
 
         assert indexed_doc(collection.id)
                |> get_in(["representative_image", "url"]) == work.representative_image
