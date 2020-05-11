@@ -13,8 +13,8 @@ import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import ButtonGroup from "../../components/UI/ButtonGroup";
-import { toastWrapper } from "../../services/helpers";
+import { setVisibilityClass, toastWrapper } from "../../services/helpers";
+import { Link } from "react-router-dom";
 
 const ScreensWork = () => {
   const { id } = useParams();
@@ -59,28 +59,24 @@ const ScreensWork = () => {
   if (error) return <Error error={error} />;
 
   const {
-    work: { accessionNumber, published, descriptiveMetadata, project, sheet },
+    work: {
+      accessionNumber,
+      published,
+      descriptiveMetadata,
+      project,
+      sheet,
+      visibility,
+      workType,
+    },
   } = data;
 
   const breadCrumbs = [
     {
-      label: `Projects`,
-      route: `/project/list`,
+      label: `Search Works`,
+      route: `/work/list`,
     },
     {
-      label: `${project.name}`,
-      route: `/project/${project.id}`,
-    },
-    {
-      label: "Ingest Sheets",
-      route: `/project/${project.id}`,
-    },
-    {
-      label: `${sheet.name}`,
-      route: `/project/${project.id}/ingest-sheet/${sheet.id}`,
-    },
-    {
-      label: accessionNumber,
+      label: "Work",
       isActive: true,
     },
   ];
@@ -101,29 +97,55 @@ const ScreensWork = () => {
         <div className="container">
           <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
           <div className="box">
-            <h1 className="title">
-              {accessionNumber}{" "}
-              <span className={`tag ${published ? "is-info" : "is-warning"}`}>
-                {published ? "Published" : "Not Published"}
-              </span>
-            </h1>
-            <h2 className="subtitle">Work</h2>
-            <ButtonGroup>
-              <button
-                className="button is-primary is-outlined"
-                data-testid="publish-button"
-                onClick={handlePublishClick}
-              >
-                {!published ? "Publish" : "Unpublish"}
-              </button>
-              <button
-                className="button"
-                data-testid="delete-button"
-                onClick={onOpenModal}
-              >
-                Delete
-              </button>
-            </ButtonGroup>
+            <div className="columns">
+              <div className="column is-two-thirds">
+                <h1 className="title">
+                  {descriptiveMetadata.title || "Untitled"}{" "}
+                </h1>
+                <p>
+                  <span
+                    className={`tag ${published ? "is-info" : "is-warning"}`}
+                  >
+                    {published ? "Published" : "Not Published"}
+                  </span>{" "}
+                  <span className={`tag ${setVisibilityClass(visibility.id)}`}>
+                    {visibility.label}
+                  </span>{" "}
+                  <span className={`tag is-info`}>{workType.label}</span>
+                </p>
+              </div>
+              <div className="column is-one-third">
+                <div className="buttons is-right">
+                  <button
+                    className={`button is-primary ${
+                      published ? "is-outlined" : ""
+                    }`}
+                    data-testid="publish-button"
+                    onClick={handlePublishClick}
+                  >
+                    {!published ? "Publish" : "Unpublish"}
+                  </button>
+                  <button
+                    className="button"
+                    data-testid="delete-button"
+                    onClick={onOpenModal}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="content">
+              <dl>
+                <dt>Accession Number</dt>
+                <dd>{accessionNumber}</dd>
+                <dt>Project</dt>
+                <dd>
+                  <Link to={`/project/${id}`}>{project.name}</Link>
+                </dd>
+              </dl>
+            </div>
           </div>
         </div>
       </section>

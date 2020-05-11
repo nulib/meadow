@@ -12,6 +12,7 @@ import UIFormField from "../../UI/Form/Field";
 import WorkTabsHeader from "./Header";
 import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
 import { setVisibilityClass } from "../../../services/helpers";
+import UICodedTermItem from "../../UI/CodedTerm/Item";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
@@ -203,13 +204,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   errors={errors}
                 />
               ) : (
-                work.visibility && (
-                  <p
-                    className={`tag ${setVisibilityClass(work.visibility.id)}`}
-                  >
-                    {work.visibility.label.toUpperCase()}
-                  </p>
-                )
+                <UICodedTermItem item={work.visibility} />
               )}
             </UIFormField>
           </div>

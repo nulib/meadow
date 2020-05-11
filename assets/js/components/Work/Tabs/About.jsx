@@ -14,6 +14,8 @@ import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormSelect from "../../UI/Form/Select";
+import UIControlledTermList from "../../UI/ControlledTerm/List";
+import UICodedTermItem from "../../UI/CodedTerm/Item";
 import WorkTabsHeader from "./Header";
 import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
 
@@ -163,7 +165,7 @@ const WorkTabsAbout = ({ work }) => {
                   )}
                 </UIFormField>
 
-                <UIFormField label="Rights Statement">
+                <UIFormField label="Rights Statement" notLive mocked>
                   {isEditing ? (
                     <UIFormSelect
                       register={register}
@@ -178,15 +180,9 @@ const WorkTabsAbout = ({ work }) => {
                       errors={errors}
                     />
                   ) : (
-                    <>
-                      <UITagNotYetSupported label="Data is mocked" />
-                      <UITagNotYetSupported label="Update not yet supported" />
-                      <p>
-                        {descriptiveMetadata
-                          ? descriptiveMetadata.rightsStatement.label
-                          : "None selected"}
-                      </p>
-                    </>
+                    <UICodedTermItem
+                      item={descriptiveMetadata.rightsStatement}
+                    />
                   )}
                 </UIFormField>
 
@@ -230,56 +226,89 @@ const WorkTabsAbout = ({ work }) => {
               </a>
             </h2>
             {showDescriptiveMetadata && (
-              <>
-                <UIFormField label="Creators">
-                  <UITagNotYetSupported label="Display not yet supported" />{" "}
-                  <UITagNotYetSupported label="Update not yet supported" />
-                  <ul>
-                    <li>
-                      <Link to="/">Creator 1 as a link</Link>
-                    </li>
-                    <li>
-                      <Link to="/">Creator 2 as a link</Link>
-                    </li>
-                    <li>
-                      <Link to="/">Creator 3 as a link</Link>
-                    </li>
-                  </ul>
+              <div className="content">
+                <UIFormField label="Contributors" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.contributor}
+                    />
+                  )}
                 </UIFormField>
 
-                <UIFormField label="Contributors">
-                  <UITagNotYetSupported label="Display not yet supported" />{" "}
-                  <UITagNotYetSupported label="Update not yet supported" />
-                  <ul>
-                    <li>
-                      <Link to="/">Contributor 1 as a link</Link>
-                    </li>
-                    <li>
-                      <Link to="/">Contributor 2 as a link</Link>
-                    </li>
-                    <li>
-                      <Link to="/">Contributor 3 as a link</Link>
-                    </li>
-                  </ul>
+                <UIFormField label="Creators" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList items={descriptiveMetadata.creator} />
+                  )}
                 </UIFormField>
 
-                <UIFormField label="Genre">
-                  <UITagNotYetSupported label="Data is mocked" />{" "}
-                  <UITagNotYetSupported label="Update not yet supported" />
-                  {descriptiveMetadata.genre &&
-                    descriptiveMetadata.genre.length > 0 && (
-                      <ul>
-                        {descriptiveMetadata.genre.map((genre) => {
-                          return (
-                            <li key={genre.id}>
-                              <a href={genre.id}>{genre.label}</a>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
+                <UIFormField label="Genre" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList items={descriptiveMetadata.genre} />
+                  )}
                 </UIFormField>
-              </>
+
+                <UIFormField label="License" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UICodedTermItem item={descriptiveMetadata.license} />
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Location" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.location}
+                    />
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Language" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.language}
+                    />
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Style Period" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.stylePeriod}
+                    />
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Subject" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList items={descriptiveMetadata.subject} />
+                  )}
+                </UIFormField>
+
+                <UIFormField label="Technique" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.technique}
+                    />
+                  )}
+                </UIFormField>
+              </div>
             )}
           </div>
         </div>
