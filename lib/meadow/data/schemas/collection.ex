@@ -57,8 +57,8 @@ defmodule Meadow.Data.Schemas.Collection do
         published: collection.published,
         create_date: collection.inserted_at,
         modified_date: collection.updated_at,
-        visibility: "RESTRICTED",
-        visibility_term: %{id: "RESTRICTED", label: "Private"},
+        visibility: "OPEN",
+        visibility_term: %{id: "OPEN", label: "Public"},
         representative_image:
           case collection.representative_work do
             nil ->
