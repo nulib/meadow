@@ -4,6 +4,7 @@ import { Route } from "react-router-dom";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { GET_WORK } from "../../components/Work/work.query";
 import { waitForElement } from "@testing-library/react";
+import { mockVisibility, mockWorkType } from "../../client-local";
 
 const mocks = [
   {
@@ -145,6 +146,8 @@ const mocks = [
           id: "ABC123",
           insertedAt: "2020-02-04T19:16:16",
           published: false,
+          visibility: mockVisibility(),
+          workType: mockWorkType(),
           project: {
             id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
             name: "Foo",

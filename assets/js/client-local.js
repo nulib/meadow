@@ -60,7 +60,7 @@ export const mockContributors = () => {
   for (let i = 0; i < size; i++) {
     results.push({
       id: faker.internet.url(),
-      label: faker.lorem.words(),
+      label: faker.name.findName(),
       role: {
         id: "aut",
         label: "Author",
@@ -148,7 +148,7 @@ const mockStatus = () => {
   };
 };
 
-const mockVisibility = () => {
+export const mockVisibility = () => {
   return {
     label: "Institution",
     id: "AUTHENTICATED",
@@ -156,7 +156,7 @@ const mockVisibility = () => {
   };
 };
 
-const mockWorkType = () => {
+export const mockWorkType = () => {
   return {
     id: "IMAGE",
     label: "Image",
