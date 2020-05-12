@@ -18,7 +18,7 @@ import UIControlledTermList from "../../UI/ControlledTerm/List";
 import UICodedTermItem from "../../UI/CodedTerm/Item";
 import WorkTabsHeader from "./Header";
 import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
-import UILoading from "../../UI/Loading";
+import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
 import UIPlaceholder from "../../UI/Placeholder";
 
 const WorkTabsAbout = ({ work }) => {
@@ -28,17 +28,16 @@ const WorkTabsAbout = ({ work }) => {
   const [isEditing, setIsEditing] = useIsEditing();
 
   // React hook form setup
-  const { register, handleSubmit, watch, errors, control, reset } = useForm({
+  const { register, handleSubmit, errors, control, reset } = useForm({
+    // Declare form "field array" fields here
     defaultValues: {
-      abstract: descriptiveMetadata.abstract.map((item) => ({ value: item })),
-      alternateTitle: descriptiveMetadata.alternateTitle.map((item) => ({
-        value: item,
-      })),
+      abstract: descriptiveMetadata.abstract || [],
+      alternateTitle: descriptiveMetadata.alternateTitle || [],
     },
   });
 
   useEffect(() => {
-    console.log("useEffect() fires :>> ", descriptiveMetadata);
+    // Tell React Hook Form to update field array form values when a Work updates
     reset({
       abstract: descriptiveMetadata.abstract,
       alternateTitle: descriptiveMetadata.alternateTitle,
@@ -75,8 +74,8 @@ const WorkTabsAbout = ({ work }) => {
 
     let workUpdateInput = {
       descriptiveMetadata: {
-        abstract: abstract.map((item) => item.value),
-        alternateTitle: alternateTitle.map((item) => item.value),
+        abstract,
+        alternateTitle,
         description,
         rightsStatement: {
           id: data.rightsStatement,
@@ -250,14 +249,10 @@ const WorkTabsAbout = ({ work }) => {
                     errors={errors}
                   />
                 ) : (
-                  <div className="field content">
-                    <label className="label">Abstract</label>
-                    <ul>
-                      {descriptiveMetadata.abstract.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <UIFormFieldArrayDisplay
+                    items={descriptiveMetadata.abstract}
+                    label="Abstract"
+                  />
                 )}
 
                 {isEditing ? (
@@ -271,14 +266,10 @@ const WorkTabsAbout = ({ work }) => {
                     errors={errors}
                   />
                 ) : (
-                  <div className="field content">
-                    <label className="label">Alternate Title</label>
-                    <ul>
-                      {descriptiveMetadata.alternateTitle.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <UIFormFieldArrayDisplay
+                    items={descriptiveMetadata.alternateTitle}
+                    label="Alternate Title"
+                  />
                 )}
 
                 <UIFormField label="Contributors" mocked notLive>
