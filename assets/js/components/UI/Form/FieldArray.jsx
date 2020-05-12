@@ -16,11 +16,11 @@ const UIFormFieldArray = ({
   name,
   label,
   type = "text",
-  errors,
+  errors = {},
   register,
   control,
   required,
-  defaultValue = { value: `New ${label}` },
+  defaultValue = `New ${label}`,
   ...passedInProps
 }) => {
   const { fields, append, remove } = useFieldArray({
@@ -39,9 +39,9 @@ const UIFormFieldArray = ({
               <>
                 <div className="is-flex">
                   <input
-                    name={`${[name]}[${index}].value`}
+                    name={`${[name]}[${index}]`}
                     className="input"
-                    defaultValue={`${item.value}`} // make sure to set up defaultValue
+                    defaultValue={item.value} // make sure to set up defaultValue
                     ref={register({ required })}
                     data-testid="input-field-array"
                   />
@@ -77,16 +77,20 @@ const UIFormFieldArray = ({
         <span className="icon">
           <FontAwesomeIcon icon="plus" />
         </span>
-        <span>Add another</span>
+        <span>Add {fields.length > 0 && "another"}</span>
       </button>
     </fieldset>
   );
 };
 
 UIFormFieldArray.propTypes = {
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
   control: PropTypes.object.isRequired,
+  defaultValue: PropTypes.string,
+  label: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  register: PropTypes.func,
+  required: PropTypes.bool,
+  type: PropTypes.string,
 };
 
 export default UIFormFieldArray;

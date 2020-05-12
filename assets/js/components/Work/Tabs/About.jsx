@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
-import { UPDATE_WORK } from "../work.query";
+import { GET_WORK, UPDATE_WORK } from "../work.query";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
@@ -18,20 +18,32 @@ import UIControlledTermList from "../../UI/ControlledTerm/List";
 import UICodedTermItem from "../../UI/CodedTerm/Item";
 import WorkTabsHeader from "./Header";
 import { CODE_LIST_QUERY } from "../controlledVocabulary.query.js";
+import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
+import UIPlaceholder from "../../UI/Placeholder";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
+  const [isEditing, setIsEditing] = useIsEditing();
 
   // React hook form setup
-  const { register, handleSubmit, watch, errors, control } = useForm({
+  const { register, handleSubmit, errors, control, reset } = useForm({
+    // Declare form "field array" fields here
     defaultValues: {
-      imaMulti: [{ value: "New Ima Multi" }],
+      abstract: descriptiveMetadata.abstract || [],
+      alternateTitle: descriptiveMetadata.alternateTitle || [],
     },
   });
 
-  const [isEditing, setIsEditing] = useIsEditing();
+  useEffect(() => {
+    // Tell React Hook Form to update field array form values when a Work updates
+    reset({
+      abstract: descriptiveMetadata.abstract,
+      alternateTitle: descriptiveMetadata.alternateTitle,
+    });
+  }, [work]);
+
   const {
     loading: rightsStatementsLoading,
     error: rightsStatementsError,
@@ -40,21 +52,35 @@ const WorkTabsAbout = ({ work }) => {
     variables: { scheme: "RIGHTS_STATEMENT" },
   });
 
-  const [updateWork] = useMutation(UPDATE_WORK, {
-    onCompleted({ updateWork }) {
-      toastWrapper("is-success", "Work form has been updated");
-    },
-  });
+  const [updateWork, { loading: updateWorkLoading }] = useMutation(
+    UPDATE_WORK,
+    {
+      onCompleted({ updateWork }) {
+        toastWrapper("is-success", "Work form updated successfully");
+      },
+      refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+      awaitRefetchQueries: true,
+    }
+  );
 
   const onSubmit = (data) => {
-    const { description = "", title = "" } = data;
+    const {
+      abstract = [],
+      alternateTitle = [],
+      description = "",
+      title = "",
+    } = data;
+    console.log("data", data);
+
     let workUpdateInput = {
       descriptiveMetadata: {
-        title,
+        abstract,
+        alternateTitle,
         description,
         rightsStatement: {
           id: data.rightsStatement,
         },
+        title,
       },
       published: true,
     };
@@ -101,7 +127,9 @@ const WorkTabsAbout = ({ work }) => {
 
       <div className="columns">
         <div className="column is-half">
-          <div className="box">
+          <div className="box is-relative">
+            <UIPlaceholder isActive={updateWorkLoading} rows={10} />
+
             <h2 className="title is-size-5">
               Core Metadata{" "}
               <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
@@ -128,25 +156,6 @@ const WorkTabsAbout = ({ work }) => {
                     <p>{descriptiveMetadata.title || "No value"}</p>
                   )}
                 </UIFormField>
-
-                {/* Test form field array element */}
-                {isEditing ? (
-                  <UIFormFieldArray
-                    register={register}
-                    control={control}
-                    required
-                    name="imaMulti"
-                    label="Ima Multi"
-                    data-testid="fieldset-ima-multi"
-                    errors={errors}
-                  />
-                ) : (
-                  <div className="field">
-                    <label className="label">Ima Multi</label>
-                    <UITagNotYetSupported label="Display not yet supported" />
-                    <UITagNotYetSupported label="Update not yet supported" />
-                  </div>
-                )}
 
                 {/* Description */}
                 <UIFormField label="Description">
@@ -210,7 +219,9 @@ const WorkTabsAbout = ({ work }) => {
           </div>
         </div>
         <div className="column is-half">
-          <div className="box">
+          <div className="box is-relative">
+            <UIPlaceholder isActive={updateWorkLoading} rows={10} />
+
             <h2 className="title is-size-5">
               Descriptive Metadata{" "}
               <a
@@ -226,7 +237,41 @@ const WorkTabsAbout = ({ work }) => {
               </a>
             </h2>
             {showDescriptiveMetadata && (
-              <div className="content">
+              <div>
+                {isEditing ? (
+                  <UIFormFieldArray
+                    register={register}
+                    control={control}
+                    required
+                    name="abstract"
+                    label="Abstract"
+                    data-testid="fieldset-abstract"
+                    errors={errors}
+                  />
+                ) : (
+                  <UIFormFieldArrayDisplay
+                    items={descriptiveMetadata.abstract}
+                    label="Abstract"
+                  />
+                )}
+
+                {isEditing ? (
+                  <UIFormFieldArray
+                    register={register}
+                    control={control}
+                    required
+                    name="alternateTitle"
+                    label="Alternate Title"
+                    data-testid="fieldset-alternate-title"
+                    errors={errors}
+                  />
+                ) : (
+                  <UIFormFieldArrayDisplay
+                    items={descriptiveMetadata.alternateTitle}
+                    label="Alternate Title"
+                  />
+                )}
+
                 <UIFormField label="Contributors" mocked notLive>
                   {isEditing ? (
                     <p>Form elements go here</p>
