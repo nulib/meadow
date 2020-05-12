@@ -20,7 +20,7 @@ const mocks = [
           {
             adminEmail: "admin@nu.com",
             description: "asdf asdfasdf",
-            representativeImage: "https://thisIsTest.com",
+            representativeWork: null,
             featured: true,
             findingAidUrl: "http://something.com",
             id: "01DWHQQYTVKC2THHW8SHRBH2XP",
@@ -49,7 +49,7 @@ const mocks = [
 const mockCollection = {
   adminEmail: "admin@nu.com",
   description: "asdf asdfasdf",
-  representativeImage: "https://thisIsTest.com",
+  representativeWork: null,
   featured: true,
   findingAidUrl: "http://something.com",
   id: "01DWHQQYTVKC2THHW8SHRBH2XP",

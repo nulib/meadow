@@ -22,7 +22,7 @@ const WorkCardItem = ({
           <Link to={`/work/${id}`}>
             <img
               src={`${
-                representativeImage.id
+                representativeImage.file_set_id
                   ? representativeImage.url + "/square/500,500/0/default.jpg"
                   : representativeImage + "/full/1280,960/0/default.jpg"
               }`}

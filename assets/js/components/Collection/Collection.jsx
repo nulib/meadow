@@ -7,7 +7,7 @@ const Collection = ({ collection }) => {
   const {
     adminEmail,
     description,
-    representativeImage,
+    representativeWork,
     findingAidUrl,
     keywords = [],
   } = collection;
@@ -23,8 +23,9 @@ const Collection = ({ collection }) => {
           <figure className="image is-square">
             <img
               src={
-                representativeImage != null
-                  ? representativeImage + "/square/500,500/0/default.jpg"
+                representativeWork
+                  ? representativeWork.representativeImage +
+                    "/square/500,500/0/default.jpg"
                   : "/images/480x480.png"
               }
             />

@@ -51,7 +51,10 @@ export const SET_COLLECTION_IMAGE = gql`
   mutation SetCollectionImage($collectionId: ID!, $workId: ID!) {
     setCollectionImage(collectionId: $collectionId, workId: $workId) {
       id
-      representativeImage
+      representativeWork {
+        id
+        representativeImage
+      }
     }
   }
 `;
@@ -82,7 +85,10 @@ export const GET_COLLECTION = gql`
       published
       name
       description
-      representativeImage
+      representativeWork {
+        id
+        representativeImage
+      }
       id
       keywords
       works {
@@ -115,7 +121,10 @@ export const GET_COLLECTIONS = gql`
       description
       id
       keywords
-      representativeImage
+      representativeWork {
+        id
+        representativeImage
+      }
       works {
         id
         representativeImage

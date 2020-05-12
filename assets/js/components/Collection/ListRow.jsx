@@ -4,7 +4,13 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
-  const { id, name = "", description = "", keywords = [] } = collection;
+  const {
+    id,
+    name = "",
+    description = "",
+    keywords = [],
+    representativeWork,
+  } = collection;
   const styles = { listItem: { marginBottom: "1rem" } };
   return (
     <li data-testid="collection-list-row" style={styles.listItem}>
@@ -13,10 +19,10 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
           <p className="image is-128x128">
             <img
               src={
-                collection.representativeImage
-                  ? collection.representativeImage +
+                representativeWork
+                  ? representativeWork.representativeImage +
                     "/square/500,500/0/default.jpg"
-                  : "https://bulma.io/images/placeholders/128x128.png"
+                  : "/images/480x480.png"
               }
             />
           </p>

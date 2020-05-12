@@ -8,6 +8,9 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
   const [selectedWork, setSelectedWork] = useState();
   const [filteredWorkImages, setFilteredWorkImages] = useState();
   useEffect(() => {
+    setSelectedWork(
+      collection.representativeWork ? collection.representativeWork.id : ""
+    );
     setFilteredWorkImages(collection ? collection.works : []);
   }, []);
 
