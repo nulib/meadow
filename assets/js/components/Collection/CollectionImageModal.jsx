@@ -101,8 +101,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
                     <img
                       src={
                         work && work.representativeImage != null
-                          ? work.representativeImage +
-                            "/square/500,500/0/default.jpg"
+                          ? `${work.representativeImage}/square/500,500/0/default.jpg`
                           : "/images/480x480.png"
                       }
                     />

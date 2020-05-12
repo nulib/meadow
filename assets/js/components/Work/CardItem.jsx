@@ -21,11 +21,11 @@ const WorkCardItem = ({
         <figure className="image is-4by3">
           <Link to={`/work/${id}`}>
             <img
-              src={`${
+              src={
                 representativeImage.file_set_id
-                  ? representativeImage.url + "/square/500,500/0/default.jpg"
-                  : representativeImage + "/full/1280,960/0/default.jpg"
-              }`}
+                  ? `${representativeImage.url}/square/500,500/0/default.jpg`
+                  : `${representativeImage}/full/1280,960/0/default.jpg`
+              }
               data-testid="image-work"
               alt={title}
             />
