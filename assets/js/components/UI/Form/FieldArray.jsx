@@ -77,7 +77,7 @@ const UIFormFieldArray = ({
         <span className="icon">
           <FontAwesomeIcon icon="plus" />
         </span>
-        <span>Add another</span>
+        <span>Add {fields.length > 0 && "another"}</span>
       </button>
     </fieldset>
   );

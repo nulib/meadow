@@ -20,7 +20,10 @@ export const GET_WORK = gql`
         name
       }
       descriptiveMetadata {
-        title
+        abstract
+        alternateTitle
+        boxName
+        boxNumber
         description
         contributor @client {
           id
@@ -72,6 +75,7 @@ export const GET_WORK = gql`
           id
           label
         }
+        title
       }
       fileSets {
         id

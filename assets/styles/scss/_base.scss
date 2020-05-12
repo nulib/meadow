@@ -58,13 +58,6 @@ table {
   @include small-title;
 }
 
-// This override is only necessary due to a CSS nameing collision with npm "react-toastify" package
-.notification {
-  &.is-danger {
-    background-color: $red2 !important;
-  }
-}
-
 // navbar-dropdown collapse options for mobile menu
 .navbar-dropdown,
 .has-dropdown input[type="checkbox"] {
