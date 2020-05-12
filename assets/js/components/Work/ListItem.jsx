@@ -22,11 +22,11 @@ const WorkListItem = ({
           <p className="image is-128x128">
             <Link to={`/work/${id}`}>
               <img
-                src={`${
-                  representativeImage.id
-                    ? representativeImage.url + "/square/500,500/0/default.jpg"
-                    : representativeImage + "/full/1280,960/0/default.jpg"
-                }`}
+                src={
+                  representativeImage.file_set_id
+                    ? `${representativeImage.url}/square/500,500/0/default.jpg`
+                    : `${representativeImage}/full/1280,960/0/default.jpg`
+                }
                 data-testid="image-work"
                 alt={title}
               />

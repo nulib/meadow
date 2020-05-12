@@ -13,7 +13,7 @@ const mockCollection = {
   name: "Ima collection",
   published: false,
   works: [],
-  representativeImage: "",
+  representativeWork: null,
 };
 
 function setUpTests() {

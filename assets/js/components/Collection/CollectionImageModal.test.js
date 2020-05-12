@@ -17,7 +17,10 @@ const mocks = [
       data: {
         setCollectionImage: {
           id: "01DWHQQYTVKC2THHW8SHRBH2XP",
-          representativeImage: "repImage1url.com",
+          representativeWork: {
+            id: "1id-23343432",
+            representativeImage: "repImage1url.com",
+          },
         },
       },
     },
@@ -27,7 +30,7 @@ const mocks = [
 const mockCollection = {
   adminEmail: "admin@nu.com",
   description: "asdf asdfasdf",
-  representativeImage: "https://thisIsTest.com",
+  representativeWork: null,
   featured: true,
   findingAidUrl: "http://something.com",
   id: "01DWHQQYTVKC2THHW8SHRBH2XP",

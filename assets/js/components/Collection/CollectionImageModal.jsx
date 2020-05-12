@@ -8,6 +8,9 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
   const [selectedWork, setSelectedWork] = useState();
   const [filteredWorkImages, setFilteredWorkImages] = useState();
   useEffect(() => {
+    setSelectedWork(
+      collection.representativeWork ? collection.representativeWork.id : ""
+    );
     setFilteredWorkImages(collection ? collection.works : []);
   }, []);
 
@@ -98,8 +101,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
                     <img
                       src={
                         work && work.representativeImage != null
-                          ? work.representativeImage +
-                            "/square/500,500/0/default.jpg"
+                          ? `${work.representativeImage}/square/500,500/0/default.jpg`
                           : "/images/480x480.png"
                       }
                     />
