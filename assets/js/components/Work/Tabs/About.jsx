@@ -27,32 +27,35 @@ const WorkTabsAbout = ({ work }) => {
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
   const [isEditing, setIsEditing] = useIsEditing();
 
-  const mapDescriptiveMetadata = {
-    abstract: "Abstract",
-    alternateTitle: "Alternate Title",
-    boxName: "Box Name",
-    boxNumber: "Box Number",
-    callNumber: "Call Number",
-    caption: "Caption",
-    catalogKey: "Catalog Key",
-    folderName: "Folder Name",
-    folderNumber: "Folder Number",
-    identifier: "Identifier",
-    keywords: "Keywords",
-    legacyIdentifier: "Legacy Identifier",
-    notes: "Notes",
-    physicalDescriptionMaterial: "Physical Description Material",
-    physicalDescriptionSize: "Physical Description Size",
-    provenance: "Provenance",
-    publisher: "Publisher",
-    relatedUrl: "Related URL",
-    relatedMaterial: "Related Material",
-    rightsHolder: "Rights Holder",
-    scopeAndContents: "Scope and Content",
-    series: "Series",
-    source: "Source",
-    tableOfContents: "Table of Contents",
-  };
+  const genericDescriptiveMetadata = [
+    { name: "abstract", label: "Abstract" },
+    { name: "alternateTitle", label: "Alternate Title" },
+    { name: "boxName", label: "Box Name" },
+    { name: "boxNumber", label: "Box Number" },
+    { name: "callNumber", label: "Call Number" },
+    { name: "caption", label: "Caption" },
+    { name: "catalogKey", label: "Catalog Key" },
+    { name: "folderName", label: "Folder Name" },
+    { name: "folderNumber", label: "Folder Number" },
+    { name: "identifier", label: "Identifier" },
+    { name: "keywords", label: "Keywords" },
+    { name: "legacyIdentifier", label: "Legacy Identifier" },
+    { name: "notes", label: "Notes" },
+    {
+      name: "physicalDescriptionMaterial",
+      label: "Physical Description Material",
+    },
+    { name: "physicalDescriptionSize", label: "Physical Description Size" },
+    { name: "provenance", label: "Provenance" },
+    { name: "publisher", label: "Publisher" },
+    { name: "relatedUrl", label: "Related URL" },
+    { name: "relatedMaterial", label: "Related Material" },
+    { name: "rightsHolder", label: "Rights Holder" },
+    { name: "scopeAndContents", label: "Scope and Content" },
+    { name: "series", label: "Series" },
+    { name: "source", label: "Source" },
+    { name: "tableOfContents", label: "Table of Contents" },
+  ];
   // React hook form setup
   const { register, handleSubmit, errors, control, reset } = useForm({
     // Declare form "field array" fields here
@@ -325,30 +328,31 @@ const WorkTabsAbout = ({ work }) => {
                 />
               </a>
             </h2>
-
+            <h3 className="subtitle is-size-5 is-marginless">Generic Terms</h3>
             {showDescriptiveMetadata &&
               isEditing &&
-              Object.entries(mapDescriptiveMetadata).map(([key, val]) => (
+              genericDescriptiveMetadata.map((item) => (
                 <UIFormFieldArray
                   register={register}
                   control={control}
-                  required
-                  name={key}
-                  label={val}
+                  required={item.required}
+                  name={item.name}
+                  label={item.label}
                   errors={errors}
-                  key={key}
+                  key={item.name}
                 />
               ))}
 
             {showDescriptiveMetadata &&
               !isEditing &&
-              Object.entries(mapDescriptiveMetadata).map(([key, val]) => (
+              genericDescriptiveMetadata.map((item) => (
                 <UIFormFieldArrayDisplay
-                  items={descriptiveMetadata[key]}
-                  label={val}
-                  key={key}
+                  items={descriptiveMetadata[item.name]}
+                  label={item.label}
+                  key={item.name}
                 />
               ))}
+            <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
 
             {showDescriptiveMetadata && (
               <>
@@ -377,7 +381,15 @@ const WorkTabsAbout = ({ work }) => {
                     <UIControlledTermList items={descriptiveMetadata.genre} />
                   )}
                 </UIFormField>
-
+                <UIFormField label="Language" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.language}
+                    />
+                  )}
+                </UIFormField>
                 <UIFormField label="License" mocked notLive>
                   {isEditing ? (
                     <p>Form elements go here</p>
@@ -392,16 +404,6 @@ const WorkTabsAbout = ({ work }) => {
                   ) : (
                     <UIControlledTermList
                       items={descriptiveMetadata.location}
-                    />
-                  )}
-                </UIFormField>
-
-                <UIFormField label="Language" mocked notLive>
-                  {isEditing ? (
-                    <p>Form elements go here</p>
-                  ) : (
-                    <UIControlledTermList
-                      items={descriptiveMetadata.language}
                     />
                   )}
                 </UIFormField>

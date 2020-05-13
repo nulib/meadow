@@ -253,21 +253,21 @@ const WorkTabsAdministrative = ({ work }) => {
               <Link to={`/project/${project.id}`}>{project.name}</Link>
             </UIFormField>
 
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectName"
-                label="Project Name"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectName}
-                label="Project Name"
-              />
-            )}
+            <UIFormField label="Project Cycle">
+              {isEditing ? (
+                <UIFormInput
+                  placeholder="Project Cycle"
+                  register={register}
+                  required
+                  name="projectCycle"
+                  label="Project Cycle"
+                  errors={errors}
+                  defaultValue={projectCycle}
+                />
+              ) : (
+                <p>{projectCycle}</p>
+              )}
+            </UIFormField>
             {isEditing ? (
               <UIFormFieldArray
                 register={register}
@@ -281,6 +281,36 @@ const WorkTabsAdministrative = ({ work }) => {
               <UIFormFieldArrayDisplay
                 items={projectDesc}
                 label="Project Description"
+              />
+            )}
+            {isEditing ? (
+              <UIFormFieldArray
+                register={register}
+                control={control}
+                required
+                name="projectManager"
+                label="Project Manager"
+                errors={errors}
+              />
+            ) : (
+              <UIFormFieldArrayDisplay
+                items={projectManager}
+                label="Project Manager"
+              />
+            )}
+            {isEditing ? (
+              <UIFormFieldArray
+                register={register}
+                control={control}
+                required
+                name="projectName"
+                label="Project Name"
+                errors={errors}
+              />
+            ) : (
+              <UIFormFieldArrayDisplay
+                items={projectName}
+                label="Project Name"
               />
             )}
 
@@ -305,22 +335,6 @@ const WorkTabsAdministrative = ({ work }) => {
                 register={register}
                 control={control}
                 required
-                name="projectManager"
-                label="Project Manager"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectManager}
-                label="Project Manager"
-              />
-            )}
-
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
                 name="projectTaskNumber"
                 label="Project Task Number"
                 errors={errors}
@@ -331,28 +345,6 @@ const WorkTabsAdministrative = ({ work }) => {
                 label="Project Task Number"
               />
             )}
-
-            <UIFormField label="Project Cycle">
-              {isEditing ? (
-                <UIFormInput
-                  placeholder="Project Cycle"
-                  register={register}
-                  required
-                  name="projectCycle"
-                  label="Project Cycle"
-                  errors={errors}
-                  defaultValue={projectCycle}
-                />
-              ) : (
-                <p>{projectCycle}</p>
-              )}
-            </UIFormField>
-
-            <UIFormField label="Ingest Sheet">
-              <Link to={`/project/${project.id}/ingest-sheet/${sheet.id}`}>
-                {sheet.name}
-              </Link>
-            </UIFormField>
           </div>
         </div>
       </div>
