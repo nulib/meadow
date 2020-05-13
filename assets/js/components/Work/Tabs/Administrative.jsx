@@ -19,16 +19,6 @@ import UIPlaceholder from "../../UI/Placeholder";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
-  const {
-    status,
-    preservationLevel,
-    projectName = [],
-    projectDesc = [],
-    projectProposer = [],
-    projectManager = [],
-    projectTaskNumber = [],
-    projectCycle,
-  } = administrativeMetadata;
   const [isEditing, setIsEditing] = useIsEditing();
 
   const {
@@ -48,17 +38,25 @@ const WorkTabsAdministrative = ({ work }) => {
       awaitRefetchQueries: true,
     }
   );
+  const { preservationLevel, status, projectCycle } = administrativeMetadata;
+  const projectMetadata = [
+    { name: "projectDesc", label: "Project Description" },
+    { name: "projectManager", label: "Project Manager" },
+    { name: "projectName", label: "Project Name" },
+    { name: "projectProposer", label: "Project Proposer" },
+    { name: "projectTaskNumber", label: "Project Task Number" },
+  ];
 
   const { register, handleSubmit, errors, control, reset } = useForm({});
 
   useEffect(() => {
     reset({
-      projectName,
-      projectDesc,
-      projectProposer,
-      projectManager,
-      projectTaskNumber,
-      projectCycle,
+      projectName: administrativeMetadata.projectName,
+      projectDesc: administrativeMetadata.projectDesc,
+      projectProposer: administrativeMetadata.projectProposer,
+      projectManager: administrativeMetadata.projectManager,
+      projectTaskNumber: administrativeMetadata.projectTaskNumber,
+      projectCycle: administrativeMetadata.projectCycle,
     });
   }, [work]);
 
@@ -268,83 +266,27 @@ const WorkTabsAdministrative = ({ work }) => {
                 <p>{projectCycle}</p>
               )}
             </UIFormField>
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectDesc"
-                label="Project Description"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectDesc}
-                label="Project Description"
-              />
-            )}
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectManager"
-                label="Project Manager"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectManager}
-                label="Project Manager"
-              />
-            )}
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectName"
-                label="Project Name"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectName}
-                label="Project Name"
-              />
-            )}
 
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectProposer"
-                label="Project Proposer"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectProposer}
-                label="Project Proposer"
-              />
-            )}
-
-            {isEditing ? (
-              <UIFormFieldArray
-                register={register}
-                control={control}
-                required
-                name="projectTaskNumber"
-                label="Project Task Number"
-                errors={errors}
-              />
-            ) : (
-              <UIFormFieldArrayDisplay
-                items={projectTaskNumber}
-                label="Project Task Number"
-              />
-            )}
+            {isEditing &&
+              projectMetadata.map((item) => (
+                <UIFormFieldArray
+                  register={register}
+                  control={control}
+                  required={item.required}
+                  name={item.name}
+                  label={item.label}
+                  errors={errors}
+                  key={item.name}
+                />
+              ))}
+            {!isEditing &&
+              projectMetadata.map((item) => (
+                <UIFormFieldArrayDisplay
+                  items={administrativeMetadata[item.name]}
+                  label={item.label}
+                  key={item.name}
+                />
+              ))}
           </div>
         </div>
       </div>
