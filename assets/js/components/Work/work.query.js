@@ -14,6 +14,12 @@ export const GET_WORK = gql`
           id
           label
         }
+        projectName
+        projectDesc
+        projectProposer
+        projectManager
+        projectTaskNumber
+        projectCycle
       }
       collection {
         id
