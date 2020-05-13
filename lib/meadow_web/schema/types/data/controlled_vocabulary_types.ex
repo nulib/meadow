@@ -18,7 +18,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     end
 
     @desc "NOT YET IMPLEMENTED Get the label for a controlled_term by its id"
-    field :fetch_controlled_term_label, :controlled_term do
+    field :fetch_controlled_term_label, :controlled_value do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
 
@@ -54,6 +54,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   object :controlled_value do
     field :id, :id
     field :label, :string
+    field :hint, :string
   end
 
   @desc "NOT YET IMPLEMENTED"

@@ -35,7 +35,7 @@ export const resolvers = {
     authoritiesSearch: (root, { _authority, _query }) =>
       mockAuthoritiesSearch(),
     fetchControlledTermLabel: (root, { _id }) =>
-      mockLabelFetch("ControlledTerm"),
+      mockLabelFetch("ControlledValue"),
     fetchCodedTermLabel: () => mockLabelFetch("CodedTerm"),
   },
 };
@@ -74,7 +74,7 @@ export const mockContributors = () => {
 };
 
 export const mockSubjects = () => {
-  let ids = ["topicial", "temporal", "geographical"];
+  let ids = ["topicial", "geographical"];
   let results = [];
   let size = Math.floor(Math.random() * Math.floor(4));
   for (let i = 0; i < size; i++) {
@@ -96,13 +96,13 @@ export const mockSubjects = () => {
 
 export const mockAuthoritiesSearch = () => {
   let results = [];
-  let size = Math.floor(Math.random() * Math.floor(4));
+  let size = Math.floor(Math.random() * Math.floor(10));
   for (let i = 0; i < size; i++) {
     results.push({
       id: faker.internet.url(),
       label: faker.lorem.words(),
-      role: null,
-      __typename: "CodedTerm",
+      hint: faker.lorem.words(),
+      __typename: "ControlledValue",
     });
   }
   return results;
