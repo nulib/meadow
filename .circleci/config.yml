@@ -34,10 +34,17 @@ jobs:
       - checkout
       - restore_cache:
           keys:
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}-{{ .Branch }}
             - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}
             - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-
             - npm-cache-{{ .Environment.CACHE_PREFIX }}-
@@ -47,6 +54,8 @@ jobs:
       - run:
           name: Install Elixir Dependencies
           command: mix do deps.get, deps.compile
+          environment:
+            MIX_ENV: test
       - run:
           name: Install JS Dependencies
           command: yarn install
@@ -56,18 +65,23 @@ jobs:
           command: yarn install
           working_directory: ~/meadow/priv/tiff
       - save_cache:
-          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
           paths:
             - ~/meadow/deps
+      - save_cache:
+          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+          paths:
             - ~/meadow/_build
       - save_cache:
-          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}
+          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}-{{ .Branch }}
           paths:
             - ~/meadow/assets/node_modules
             - ~/meadow/priv/tiff/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo
+          environment:
+            MIX_ENV: test
       - run:
           name: Elixir Tests
           command: mix coveralls.circle
