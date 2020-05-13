@@ -30,6 +30,26 @@ export const GET_WORK = gql`
         alternateTitle
         boxName
         boxNumber
+        callNumber
+        caption
+        catalogKey
+        folderName
+        folderNumber
+        identifier
+        keywords
+        legacyIdentifier
+        notes
+        physicalDescriptionMaterial
+        physicalDescriptionSize
+        provenance
+        publisher
+        relatedUrl
+        relatedMaterial
+        rightsHolder
+        scopeAndContents
+        series
+        source
+        tableOfContents
         description
         contributor @client {
           id

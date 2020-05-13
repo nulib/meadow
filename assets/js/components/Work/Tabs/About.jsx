@@ -27,13 +27,36 @@ const WorkTabsAbout = ({ work }) => {
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
   const [isEditing, setIsEditing] = useIsEditing();
 
+  const mapDescriptiveMetadata = {
+    abstract: "Abstract",
+    alternateTitle: "Alternate Title",
+    boxName: "Box Name",
+    boxNumber: "Box Number",
+    callNumber: "Call Number",
+    caption: "Caption",
+    catalogKey: "Catalog Key",
+    folderName: "Folder Name",
+    folderNumber: "Folder Number",
+    identifier: "Identifier",
+    keywords: "Keywords",
+    legacyIdentifier: "Legacy Identifier",
+    notes: "Notes",
+    physicalDescriptionMaterial: "Physical Description Material",
+    physicalDescriptionSize: "Physical Description Size",
+    provenance: "Provenance",
+    publisher: "Publisher",
+    relatedUrl: "Related URL",
+    relatedMaterial: "Related Material",
+    rightsHolder: "Rights Holder",
+    scopeAndContents: "Scope and Content",
+    series: "Series",
+    source: "Source",
+    tableOfContents: "Table of Contents",
+  };
   // React hook form setup
   const { register, handleSubmit, errors, control, reset } = useForm({
     // Declare form "field array" fields here
-    defaultValues: {
-      abstract: descriptiveMetadata.abstract || [],
-      alternateTitle: descriptiveMetadata.alternateTitle || [],
-    },
+    defaultValues: {},
   });
 
   useEffect(() => {
@@ -41,6 +64,29 @@ const WorkTabsAbout = ({ work }) => {
     reset({
       abstract: descriptiveMetadata.abstract,
       alternateTitle: descriptiveMetadata.alternateTitle,
+      boxName: descriptiveMetadata.boxName,
+      boxNumber: descriptiveMetadata.boxNumber,
+      callNumber: descriptiveMetadata.callNumber,
+      caption: descriptiveMetadata.caption,
+      catalogKey: descriptiveMetadata.catalogKey,
+      folderName: descriptiveMetadata.folderName,
+      folderNumber: descriptiveMetadata.folderNumber,
+      identifier: descriptiveMetadata.identifier,
+      keywords: descriptiveMetadata.keywords,
+      legacyIdentifier: descriptiveMetadata.legacyIdentifier,
+      notes: descriptiveMetadata.notes,
+      physicalDescriptionMaterial:
+        descriptiveMetadata.physicalDescriptionMaterial,
+      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
+      provenance: descriptiveMetadata.provenance,
+      publisher: descriptiveMetadata.publisher,
+      relatedUrl: descriptiveMetadata.relatedUrl,
+      relatedMaterial: descriptiveMetadata.relatedMaterial,
+      rightsHolder: descriptiveMetadata.rightsHolder,
+      scopeAndContents: descriptiveMetadata.scopeAndContents,
+      series: descriptiveMetadata.series,
+      source: descriptiveMetadata.source,
+      tableOfContents: descriptiveMetadata.tableOfContents,
     });
   }, [work]);
 
@@ -56,6 +102,7 @@ const WorkTabsAbout = ({ work }) => {
     UPDATE_WORK,
     {
       onCompleted({ updateWork }) {
+        setIsEditing(false);
         toastWrapper("is-success", "Work form updated successfully");
       },
       refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
@@ -67,15 +114,58 @@ const WorkTabsAbout = ({ work }) => {
     const {
       abstract = [],
       alternateTitle = [],
+      boxName = [],
+      boxNumber = [],
+      callNumber = [],
+      caption = [],
+      catalogKey = [],
+      folderName = [],
+      folderNumber = [],
+      identifier = [],
+      keywords = [],
+      legacyIdentifier = [],
+      notes = [],
+      physicalDescriptionMaterial = [],
+      physicalDescriptionSize = [],
+      provenance = [],
+      publisher = [],
+      relatedUrl = [],
+      relatedMaterial = [],
+      rightsHolder = [],
+      scopeAndContents = [],
+      series = [],
+      source = [],
+      tableOfContents = [],
       description = "",
       title = "",
     } = data;
-    console.log("data", data);
 
     let workUpdateInput = {
       descriptiveMetadata: {
         abstract,
         alternateTitle,
+        boxName,
+        boxNumber,
+        callNumber,
+        caption,
+        catalogKey,
+        folderName,
+        folderNumber,
+        identifier,
+        keywords,
+        legacyIdentifier,
+        notes,
+        physicalDescriptionMaterial,
+        physicalDescriptionSize,
+        provenance,
+        publisher,
+        relatedUrl,
+        relatedMaterial,
+        rightsHolder,
+        scopeAndContents,
+        series,
+        source,
+        tableOfContents,
         description,
         rightsStatement: {
           id: data.rightsStatement,
@@ -85,7 +175,6 @@ const WorkTabsAbout = ({ work }) => {
       published: true,
     };
 
-    setIsEditing(false);
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
     });
@@ -236,42 +325,33 @@ const WorkTabsAbout = ({ work }) => {
                 />
               </a>
             </h2>
+
+            {showDescriptiveMetadata &&
+              isEditing &&
+              Object.entries(mapDescriptiveMetadata).map(([key, val]) => (
+                <UIFormFieldArray
+                  register={register}
+                  control={control}
+                  required
+                  name={key}
+                  label={val}
+                  errors={errors}
+                  key={key}
+                />
+              ))}
+
+            {showDescriptiveMetadata &&
+              !isEditing &&
+              Object.entries(mapDescriptiveMetadata).map(([key, val]) => (
+                <UIFormFieldArrayDisplay
+                  items={descriptiveMetadata[key]}
+                  label={val}
+                  key={key}
+                />
+              ))}
+
             {showDescriptiveMetadata && (
-              <div>
-                {isEditing ? (
-                  <UIFormFieldArray
-                    register={register}
-                    control={control}
-                    required
-                    name="abstract"
-                    label="Abstract"
-                    data-testid="fieldset-abstract"
-                    errors={errors}
-                  />
-                ) : (
-                  <UIFormFieldArrayDisplay
-                    items={descriptiveMetadata.abstract}
-                    label="Abstract"
-                  />
-                )}
-
-                {isEditing ? (
-                  <UIFormFieldArray
-                    register={register}
-                    control={control}
-                    required
-                    name="alternateTitle"
-                    label="Alternate Title"
-                    data-testid="fieldset-alternate-title"
-                    errors={errors}
-                  />
-                ) : (
-                  <UIFormFieldArrayDisplay
-                    items={descriptiveMetadata.alternateTitle}
-                    label="Alternate Title"
-                  />
-                )}
-
+              <>
                 <UIFormField label="Contributors" mocked notLive>
                   {isEditing ? (
                     <p>Form elements go here</p>
@@ -353,7 +433,7 @@ const WorkTabsAbout = ({ work }) => {
                     />
                   )}
                 </UIFormField>
-              </div>
+              </>
             )}
           </div>
         </div>
