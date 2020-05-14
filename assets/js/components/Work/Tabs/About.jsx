@@ -27,13 +27,39 @@ const WorkTabsAbout = ({ work }) => {
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
   const [isEditing, setIsEditing] = useIsEditing();
 
+  const genericDescriptiveMetadata = [
+    { name: "abstract", label: "Abstract" },
+    { name: "alternateTitle", label: "Alternate Title" },
+    { name: "boxName", label: "Box Name" },
+    { name: "boxNumber", label: "Box Number" },
+    { name: "callNumber", label: "Call Number" },
+    { name: "caption", label: "Caption" },
+    { name: "catalogKey", label: "Catalog Key" },
+    { name: "folderName", label: "Folder Name" },
+    { name: "folderNumber", label: "Folder Number" },
+    { name: "identifier", label: "Identifier" },
+    { name: "keywords", label: "Keywords" },
+    { name: "legacyIdentifier", label: "Legacy Identifier" },
+    { name: "notes", label: "Notes" },
+    {
+      name: "physicalDescriptionMaterial",
+      label: "Physical Description Material",
+    },
+    { name: "physicalDescriptionSize", label: "Physical Description Size" },
+    { name: "provenance", label: "Provenance" },
+    { name: "publisher", label: "Publisher" },
+    { name: "relatedUrl", label: "Related URL" },
+    { name: "relatedMaterial", label: "Related Material" },
+    { name: "rightsHolder", label: "Rights Holder" },
+    { name: "scopeAndContents", label: "Scope and Content" },
+    { name: "series", label: "Series" },
+    { name: "source", label: "Source" },
+    { name: "tableOfContents", label: "Table of Contents" },
+  ];
   // React hook form setup
   const { register, handleSubmit, errors, control, reset } = useForm({
     // Declare form "field array" fields here
-    defaultValues: {
-      abstract: descriptiveMetadata.abstract || [],
-      alternateTitle: descriptiveMetadata.alternateTitle || [],
-    },
+    defaultValues: {},
   });
 
   useEffect(() => {
@@ -41,6 +67,29 @@ const WorkTabsAbout = ({ work }) => {
     reset({
       abstract: descriptiveMetadata.abstract,
       alternateTitle: descriptiveMetadata.alternateTitle,
+      boxName: descriptiveMetadata.boxName,
+      boxNumber: descriptiveMetadata.boxNumber,
+      callNumber: descriptiveMetadata.callNumber,
+      caption: descriptiveMetadata.caption,
+      catalogKey: descriptiveMetadata.catalogKey,
+      folderName: descriptiveMetadata.folderName,
+      folderNumber: descriptiveMetadata.folderNumber,
+      identifier: descriptiveMetadata.identifier,
+      keywords: descriptiveMetadata.keywords,
+      legacyIdentifier: descriptiveMetadata.legacyIdentifier,
+      notes: descriptiveMetadata.notes,
+      physicalDescriptionMaterial:
+        descriptiveMetadata.physicalDescriptionMaterial,
+      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
+      provenance: descriptiveMetadata.provenance,
+      publisher: descriptiveMetadata.publisher,
+      relatedUrl: descriptiveMetadata.relatedUrl,
+      relatedMaterial: descriptiveMetadata.relatedMaterial,
+      rightsHolder: descriptiveMetadata.rightsHolder,
+      scopeAndContents: descriptiveMetadata.scopeAndContents,
+      series: descriptiveMetadata.series,
+      source: descriptiveMetadata.source,
+      tableOfContents: descriptiveMetadata.tableOfContents,
     });
   }, [work]);
 
@@ -56,6 +105,7 @@ const WorkTabsAbout = ({ work }) => {
     UPDATE_WORK,
     {
       onCompleted({ updateWork }) {
+        setIsEditing(false);
         toastWrapper("is-success", "Work form updated successfully");
       },
       refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
@@ -67,15 +117,58 @@ const WorkTabsAbout = ({ work }) => {
     const {
       abstract = [],
       alternateTitle = [],
+      boxName = [],
+      boxNumber = [],
+      callNumber = [],
+      caption = [],
+      catalogKey = [],
+      folderName = [],
+      folderNumber = [],
+      identifier = [],
+      keywords = [],
+      legacyIdentifier = [],
+      notes = [],
+      physicalDescriptionMaterial = [],
+      physicalDescriptionSize = [],
+      provenance = [],
+      publisher = [],
+      relatedUrl = [],
+      relatedMaterial = [],
+      rightsHolder = [],
+      scopeAndContents = [],
+      series = [],
+      source = [],
+      tableOfContents = [],
       description = "",
       title = "",
     } = data;
-    console.log("data", data);
 
     let workUpdateInput = {
       descriptiveMetadata: {
         abstract,
         alternateTitle,
+        boxName,
+        boxNumber,
+        callNumber,
+        caption,
+        catalogKey,
+        folderName,
+        folderNumber,
+        identifier,
+        keywords,
+        legacyIdentifier,
+        notes,
+        physicalDescriptionMaterial,
+        physicalDescriptionSize,
+        provenance,
+        publisher,
+        relatedUrl,
+        relatedMaterial,
+        rightsHolder,
+        scopeAndContents,
+        series,
+        source,
+        tableOfContents,
         description,
         rightsStatement: {
           id: data.rightsStatement,
@@ -85,7 +178,6 @@ const WorkTabsAbout = ({ work }) => {
       published: true,
     };
 
-    setIsEditing(false);
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
     });
@@ -236,42 +328,34 @@ const WorkTabsAbout = ({ work }) => {
                 />
               </a>
             </h2>
+            <h3 className="subtitle is-size-5 is-marginless">Generic Terms</h3>
+            {showDescriptiveMetadata &&
+              isEditing &&
+              genericDescriptiveMetadata.map((item) => (
+                <UIFormFieldArray
+                  register={register}
+                  control={control}
+                  required={item.required}
+                  name={item.name}
+                  label={item.label}
+                  errors={errors}
+                  key={item.name}
+                />
+              ))}
+
+            {showDescriptiveMetadata &&
+              !isEditing &&
+              genericDescriptiveMetadata.map((item) => (
+                <UIFormFieldArrayDisplay
+                  items={descriptiveMetadata[item.name]}
+                  label={item.label}
+                  key={item.name}
+                />
+              ))}
+            <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
+
             {showDescriptiveMetadata && (
-              <div>
-                {isEditing ? (
-                  <UIFormFieldArray
-                    register={register}
-                    control={control}
-                    required
-                    name="abstract"
-                    label="Abstract"
-                    data-testid="fieldset-abstract"
-                    errors={errors}
-                  />
-                ) : (
-                  <UIFormFieldArrayDisplay
-                    items={descriptiveMetadata.abstract}
-                    label="Abstract"
-                  />
-                )}
-
-                {isEditing ? (
-                  <UIFormFieldArray
-                    register={register}
-                    control={control}
-                    required
-                    name="alternateTitle"
-                    label="Alternate Title"
-                    data-testid="fieldset-alternate-title"
-                    errors={errors}
-                  />
-                ) : (
-                  <UIFormFieldArrayDisplay
-                    items={descriptiveMetadata.alternateTitle}
-                    label="Alternate Title"
-                  />
-                )}
-
+              <>
                 <UIFormField label="Contributors" mocked notLive>
                   {isEditing ? (
                     <p>Form elements go here</p>
@@ -297,7 +381,15 @@ const WorkTabsAbout = ({ work }) => {
                     <UIControlledTermList items={descriptiveMetadata.genre} />
                   )}
                 </UIFormField>
-
+                <UIFormField label="Language" mocked notLive>
+                  {isEditing ? (
+                    <p>Form elements go here</p>
+                  ) : (
+                    <UIControlledTermList
+                      items={descriptiveMetadata.language}
+                    />
+                  )}
+                </UIFormField>
                 <UIFormField label="License" mocked notLive>
                   {isEditing ? (
                     <p>Form elements go here</p>
@@ -312,16 +404,6 @@ const WorkTabsAbout = ({ work }) => {
                   ) : (
                     <UIControlledTermList
                       items={descriptiveMetadata.location}
-                    />
-                  )}
-                </UIFormField>
-
-                <UIFormField label="Language" mocked notLive>
-                  {isEditing ? (
-                    <p>Form elements go here</p>
-                  ) : (
-                    <UIControlledTermList
-                      items={descriptiveMetadata.language}
                     />
                   )}
                 </UIFormField>
@@ -353,7 +435,7 @@ const WorkTabsAbout = ({ work }) => {
                     />
                   )}
                 </UIFormField>
-              </div>
+              </>
             )}
           </div>
         </div>

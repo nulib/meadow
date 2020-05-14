@@ -142,7 +142,13 @@ const ScreensWork = () => {
                 <dd>{accessionNumber}</dd>
                 <dt>Project</dt>
                 <dd>
-                  <Link to={`/project/${id}`}>{project.name}</Link>
+                  <Link to={`/project/${project.id}`}>{project.name}</Link>
+                </dd>
+                <dt>Ingest Sheet</dt>
+                <dd>
+                  <Link to={`/project/${project.id}/ingest-sheet/${sheet.id}`}>
+                    {sheet.name}
+                  </Link>
                 </dd>
               </dl>
             </div>
