@@ -7257,10 +7257,10 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
-rc-progress@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/rc-progress/-/rc-progress-2.6.0.tgz#502b34974c1c5ec7c72493bb698559f7bdc870ea"
-  integrity sha512-YGeOBYOYYOFtSBNkUnSvgta8sRva9Bp0/3VzEAHnuWta4n1xOJ6+kVuCjvpmb8kJQrNN1OZP6D4vzsaCU8uA2g==
+rc-progress@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rc-progress/-/rc-progress-3.0.0.tgz#cea324ce8fc31421cd815d94a4649a8a29f8f8db"
+  integrity sha512-dQv1KU3o6Vay604FMYMF4S0x4GNXAgXf1tbQ1QoxeIeQt4d5fUeB7Ri82YPu+G+aRvH/AtxYAlEcnxyVZ1/4Hw==
   dependencies:
     classnames "^2.2.6"
 
