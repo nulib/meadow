@@ -57,6 +57,7 @@ defmodule Meadow.Data.Schemas.FileSet do
         description: file_set.metadata.description,
         create_date: file_set.inserted_at,
         modified_date: file_set.updated_at,
+        visibility: "open",
         work_id: file_set.work.id
       }
     end
