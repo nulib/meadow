@@ -6,11 +6,11 @@ import PropTypes from "prop-types";
 const Work = ({ work }) => {
   return (
     <>
-      <section>
+      {/* <section>
         <div data-testid="viewer">
           <OpenSeadragonViewer manifestUrl={work.manifestUrl} />
         </div>
-      </section>
+      </section> */}
       <section className="section">
         <div className="container">
           <WorkTabs work={work} />

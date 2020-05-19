@@ -9,6 +9,7 @@ const UIFormSelect = ({
   required,
   options = [],
   defaultValue,
+  showHelper,
   ...passedInProps
 }) => {
   return (
@@ -17,11 +18,11 @@ const UIFormSelect = ({
         <select
           name={name}
           ref={register({ required })}
-          className={`input ${errors[name] ? "is-danger" : ""}`}
+          className={`${errors[name] ? "is-danger" : ""}`}
           defaultValue={defaultValue}
           {...passedInProps}
         >
-          <option value="">-- Select --</option>
+          {showHelper && <option value="">-- Select --</option>}
           {options.map((option) => (
             <option
               key={option.id || option.value}
@@ -44,7 +45,7 @@ const UIFormSelect = ({
 UIFormSelect.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
-  errors: PropTypes.object.isRequired,
+  errors: PropTypes.object,
   register: PropTypes.func,
   required: PropTypes.bool,
   options: PropTypes.arrayOf(
@@ -54,6 +55,7 @@ UIFormSelect.propTypes = {
       value: PropTypes.string,
     })
   ),
+  showHelper: PropTypes.bool,
 };
 
 export default UIFormSelect;
