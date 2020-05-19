@@ -39,29 +39,32 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
         ],
         "Version" => "2012-10-17"
       }
+      |> Jason.encode!()
 
-      bucket |> ExAws.S3.put_bucket_policy(policy |> Jason.encode!()) |> ExAws.request!()
+      bucket |> ExAws.S3.put_bucket_policy(policy) |> ExAws.request!()
     end
   end
 end
 
-defmodule Mix.Tasks.Meadow.Setup do
+defmodule Mix.Tasks.Meadow.Seed do
   @moduledoc """
-  Set up the Meadow development environment
+  Run database seeds
   """
-
   use Mix.Task
-  alias Mix.Tasks.Assets
-  alias Mix.Tasks.Ecto
-  alias Mix.Tasks.Meadow.{Buckets, Elasticsearch, Pipeline}
 
-  @shortdoc @moduledoc
-  def run(args) do
-    Assets.Install.run(args)
-    Pipeline.Setup.run(args)
-    Buckets.Create.run(args)
-    Ecto.Create.run(args)
-    Ecto.Migrate.run(args)
-    Elasticsearch.Setup.run(args)
+  def run([]), do: run("seeds.exs")
+  def run([name|[]]), do: run("seeds/#{name}.exs")
+
+  def run([name|names]) do
+    run("seeds/#{name}.exs")
+    run(names)
+  end
+
+  def run(name) do
+    Ecto.Migrator.with_repo(Meadow.Repo, fn _ ->
+      Path.expand("priv/repo/#{name}")
+      |> Code.compile_file()
+      |> Enum.each(fn {module, _} -> module.run() end)
+    end)
   end
 end

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "AUDIO",
+    "label": "Audio"
+  },
+  {
+    "id": "DOCUMENT",
+    "label": "Document"
+  },
+  {
+    "id": "IMAGE",
+    "label": "Image"
+  },
+  {
+    "id": "VIDEO",
+    "label": "Video"
+  }
+]

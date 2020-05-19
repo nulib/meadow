@@ -5,14 +5,30 @@ defmodule MeadowWeb.Schema.Query.FetchCodedTermLabelTest do
   load_gql(MeadowWeb.Schema, "test/gql/FetchCodedTermLabel.gql")
 
   describe "FetchCodedTermLabel.gql" do
-    test "Is a valid query" do
-      result =
-        query_gql(
-          variables: %{id: "http://vocab.getty.edu/aat/300021797"},
-          context: gql_context()
-        )
+    setup tags do
+      {:ok,
+       %{
+         gql_result:
+           query_gql(
+             variables: %{
+               "scheme" => "RIGHTS_STATEMENT",
+               "id" => tags[:id]
+             },
+             context: gql_context()
+           )
+       }}
+    end
 
-      assert {:ok, query_data} = result
+    @tag id: "http://rightsstatements.org/vocab/InC/1.0/"
+    test "retrieves a term", %{gql_result: result} do
+      assert {:ok, %{data: query_data}} = result
+      assert get_in(query_data, ["fetchCodedTermLabel", "label"]) == "In Copyright"
+    end
+
+    @tag id: "http://wrongsstatements.org/vocab/InC/1.0/"
+    test "retrieves nil for a bad query", %{gql_result: result} do
+      assert {:ok, %{data: query_data}} = result
+      assert get_in(query_data, ["fetchCodedTermLabel"]) |> is_nil()
     end
   end
 end

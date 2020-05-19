@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
 import faker from "faker";
-import { codeListMock } from "./client-mocks";
 
 export const typeDefs = gql`
   extend type Work {
@@ -31,7 +30,6 @@ export const resolvers = {
     status: () => mockStatus(),
   },
   Query: {
-    codeList: (root, { scheme }) => codeListMock(scheme),
     authoritiesSearch: (root, { _authority, _query }) =>
       mockAuthoritiesSearch(),
     fetchControlledTermLabel: (root, { _id }) =>

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "AUTHENTICATED",
+    "label": "Institution"
+  },
+  {
+    "id": "RESTRICTED",
+    "label": "Private"
+  },
+  {
+    "id": "OPEN",
+    "label": "Public"
+  }
+]

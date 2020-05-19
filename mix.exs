@@ -109,15 +109,21 @@ defmodule Meadow.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create --quiet", "ecto.migrate", "meadow.seed"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "meadow.setup": [
+        "assets.install",
+        "meadow.pipeline.setup",
+        "meadow.buckets.create",
+        "ecto.setup",
+        "meadow.elasticsearch.setup"
+      ],
       test: [
         "meadow.pipeline.setup",
         "meadow.buckets.create",
         "meadow.ldap.teardown test/fixtures/ldap_seed.ldif",
         "meadow.ldap.setup test/fixtures/ldap_seed.ldif",
-        "ecto.create --quiet",
-        "ecto.migrate",
+        "ecto.setup",
         "test"
       ]
     ]

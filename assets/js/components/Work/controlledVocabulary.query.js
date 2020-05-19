@@ -18,7 +18,7 @@ export const FETCH_CONTROLLED_TERM_QUERY = gql`
 
 export const CODE_LIST_QUERY = gql`
   query CodeListQuery($scheme: CodeListScheme!) {
-    codeList(scheme: $scheme) @client {
+    codeList(scheme: $scheme) {
       id
       label
     }
