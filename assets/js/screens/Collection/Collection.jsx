@@ -73,7 +73,6 @@ const ScreensCollection = () => {
             <div className="columns">
               <div className="column is-two-thirds">
                 <h1 className="title">{data.collection.name || ""}</h1>
-                <h2 className="subtitle">Collection</h2>
               </div>
               <div className="column is-one-third buttons has-text-right">
                 <Link

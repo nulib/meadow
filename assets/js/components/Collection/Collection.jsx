@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
 import CollectionImageModal from "./CollectionImageModal";
+import { Link } from "react-router-dom";
 
 const Collection = ({ collection }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,6 +11,7 @@ const Collection = ({ collection }) => {
     representativeWork,
     findingAidUrl,
     keywords = [],
+    works,
   } = collection;
 
   const onCloseModal = () => {
@@ -29,16 +31,18 @@ const Collection = ({ collection }) => {
               }
             />
           </figure>
-          <p className="has-text-centered">
-            <button
-              data-testid="button-open-image-modal"
-              type="button"
-              className="button is-light is-small"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Update Image
-            </button>
-          </p>
+          {works.length > 0 && (
+            <p className="has-text-centered" style={{ paddingTop: "1rem" }}>
+              <button
+                data-testid="button-open-image-modal"
+                type="button"
+                className="button is-light is-small"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Update Image
+              </button>
+            </p>
+          )}
         </div>
         <div className="column content">
           <dl>
@@ -53,7 +57,11 @@ const Collection = ({ collection }) => {
             <dt>
               <strong>Finding Aid URL</strong>
             </dt>
-            <dd>{findingAidUrl}</dd>
+            <dd>
+              <a href={findingAidUrl} target="_blank">
+                {findingAidUrl}
+              </a>
+            </dd>
             <dt>
               <strong>Keywords</strong>
             </dt>
