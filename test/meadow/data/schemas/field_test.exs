@@ -6,10 +6,9 @@ defmodule Meadow.Data.Schemas.FieldTest do
 
   describe "fields" do
     @valid_attrs %{
-      id: "contributor",
-      label: "Contributor",
+      id: "foo",
+      label: "Foo",
       metadata_class: "descriptive",
-      source_type: "image",
       repeating: true,
       required: false
     }

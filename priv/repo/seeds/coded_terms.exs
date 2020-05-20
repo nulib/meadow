@@ -5,17 +5,11 @@ defmodule Meadow.Repo.Seeds.CodedTerms do
   require Logger
 
   def run do
-    old_level = Logger.level()
-    try do
-      Logger.configure(level: :info)
-      Path.relative_to_cwd(__ENV__.file)
-      |> Path.dirname()
-      |> Path.join("coded_terms/*.json")
-      |> Path.wildcard()
-      |> Enum.each(&seed/1)
-    after
-      Logger.configure(level: old_level)
-    end
+    Path.relative_to_cwd(__ENV__.file)
+    |> Path.dirname()
+    |> Path.join("coded_terms/*.json")
+    |> Path.wildcard()
+    |> Enum.each(&seed/1)
   end
 
   def seed(file) do
