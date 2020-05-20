@@ -39,7 +39,6 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
         ],
         "Version" => "2012-10-17"
       }
-      |> Jason.encode!()
 
       bucket |> ExAws.S3.put_bucket_policy(policy) |> ExAws.request!()
     end
