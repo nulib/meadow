@@ -6,12 +6,14 @@ defmodule Meadow.Data.Schemas.Work do
   use Ecto.Schema
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Data.Schemas.Collection
+  alias Meadow.Data.Schemas.ControlledMetadataEntry
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.IIIF
 
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import Meadow.Data.Schemas.Validations
 
   use Meadow.Constants
@@ -29,6 +31,11 @@ defmodule Meadow.Data.Schemas.Work do
     embeds_one :administrative_metadata, WorkAdministrativeMetadata, on_replace: :update
 
     has_many :file_sets, FileSet
+
+    has_many :controlled_metadata_entries, ControlledMetadataEntry,
+      references: :id,
+      foreign_key: :object_id,
+      on_delete: :delete_all
 
     has_many :action_states, ActionState,
       references: :id,
@@ -52,6 +59,7 @@ defmodule Meadow.Data.Schemas.Work do
     |> cast_embed(:administrative_metadata)
     |> cast_embed(:descriptive_metadata)
     |> cast_assoc(:file_sets)
+    |> cast_assoc(:controlled_metadata_entries)
     |> assoc_constraint(:collection)
     |> validate_required(required_params)
     |> unique_constraint(:accession_number)

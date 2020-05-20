@@ -1,6 +1,7 @@
 defmodule Meadow.Data.WorksTest do
   use Meadow.DataCase
 
+  alias Authoritex.Mock
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
@@ -180,6 +181,34 @@ defmodule Meadow.Data.WorksTest do
       assert(Works.get_work!(work.id) |> Map.get(:representative_image) == image_url)
       FileSets.get_file_set!(image_id) |> FileSets.delete_file_set()
       assert(is_nil(Works.get_work!(work.id) |> Map.get(:representative_image)))
+    end
+  end
+
+  describe "works with controlled fields" do
+    @valid %{
+      accession_number: "12345",
+      descriptive_metadata: %{title: "Test"}
+    }
+    @data [
+      %{
+        id: "mock:result1",
+        label: "First Result",
+        qualified_label: "First Result (1)",
+        hint: "(1)"
+      }
+    ]
+    setup do
+      Mock.set_data(@data)
+      :ok
+    end
+
+    test "create_work/1 with valid contributor creates a work" do
+      attrs =
+        Map.put(@valid, :descriptive_metadata, %{
+          contributor: [%{id: "mock:result1", role: %{id: "aut"}}]
+        })
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
     end
   end
 end

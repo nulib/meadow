@@ -51,7 +51,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Controlled value associated with a role"
   object :controlled_term do
-    import_fields(:controlled_value)
+    field :id, :id
+    field :label, :string
     field :role, :coded_term
   end
 
@@ -81,7 +82,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")
     value(:rights_statement, as: "rights_statement", description: "Rights Statement")
-    value(:subject, as: "subjects", description: "Subject")
+    value(:subject_role, as: "subject_role", description: "Subject Role")
     value(:status, as: "status", description: "Status")
     value(:visibility, as: "visibility", description: "Visibility")
     value(:work_type, as: "work_type", description: "Work Type")

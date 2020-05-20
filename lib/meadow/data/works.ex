@@ -2,10 +2,10 @@ defmodule Meadow.Data.Works do
   @moduledoc """
   The Works context.
   """
-
   import Ecto.Query, warn: false
   alias Meadow.Config
-  alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Data.CodedTerms
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work, WorkDescriptiveMetadata}
   alias Meadow.Ingest.Sheets
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -137,10 +137,73 @@ defmodule Meadow.Data.Works do
 
   """
   def create_work(attrs \\ %{}) do
-    case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
-      {:ok, work} -> set_default_representative_image(work)
-      other -> other
+    case %Work{} |> Work.changeset(marshal(attrs)) |> Repo.insert() do
+      {:ok, work} ->
+        with {:ok, work} <- set_default_representative_image(work) do
+          {:ok, unmarshal(work)}
+        end
+
+      other ->
+        other
     end
+  end
+
+  def marshal(attrs) do
+    case Map.get(attrs, :descriptive_metadata) do
+      nil ->
+        attrs
+
+      descriptive_metadata ->
+        controlled_entries =
+          WorkDescriptiveMetadata.controlled_fields()
+          |> Enum.filter(fn x -> Map.has_key?(descriptive_metadata, x) end)
+          |> Enum.flat_map(fn x ->
+            Map.get(descriptive_metadata, x)
+            |> Enum.map(fn y ->
+              %{value_id: y.id, role_id: y.role.id, field_id: Atom.to_string(x)}
+            end)
+          end)
+
+        Map.put(attrs, :controlled_metadata_entries, controlled_entries)
+    end
+  end
+
+  def unmarshal(%{controlled_metadata_entries: []} = work), do: work
+  def unmarshal(%{controlled_metadata_entries: %Ecto.Association.NotLoaded{}} = work), do: work
+
+  def unmarshal(%{controlled_metadata_entries: fields} = work) do
+    controlled_fields =
+      fields
+      |> Enum.map(fn x -> Map.take(Map.from_struct(x), [:value_id, :role_id, :field_id]) end)
+      |> Enum.map(fn x -> Map.put(x, :id, get_in(x, [:value_id])) end)
+      # TODO - figure out why this is not loading through from the custom type
+      |> Enum.map(fn x -> Map.put(x, :label, "THIS LABEL IS NOT LOADING") end)
+      |> Enum.map(fn x ->
+        role_id = Map.get(x, :role_id)
+        field_id = Map.get(x, :field_id)
+        # TODO - temporary. this should ultimately come through a custom type
+        Map.put(x, :role, %{
+          id: role_id,
+          label: CodedTerms.label(role_id, ControlledMetadataEntry.scheme_for(field_id)),
+          scheme: ControlledMetadataEntry.scheme_for(field_id)
+        })
+      end)
+      |> Enum.map(fn x -> Map.delete(x, :value_id) end)
+      |> Enum.map(fn x -> Map.delete(x, :role_id) end)
+      |> Enum.group_by(fn %{field_id: field_id} -> String.to_atom(field_id) end)
+      |> Enum.map(fn {k, v} -> {k, Enum.map(v, fn x -> Map.delete(x, :field_id) end)} end)
+      |> Enum.into(%{})
+
+    new_descriptive_metadata =
+      work
+      |> Map.get(:descriptive_metadata)
+      |> Map.from_struct()
+      |> Map.merge(controlled_fields)
+
+    work
+    |> Map.delete(:descriptive_metadata)
+    |> Map.delete(:controlled_metadata_entries)
+    |> Map.put(:descriptive_metadata, new_descriptive_metadata)
   end
 
   @doc """
@@ -163,6 +226,13 @@ defmodule Meadow.Data.Works do
         {:error, changeset} -> Repo.rollback(changeset)
       end
     end)
+  end
+
+  def create_work_all_fields(attrs \\ %{}) do
+    case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
+      {:ok, work} -> set_default_representative_image(work)
+      other -> other
+    end
   end
 
   @doc """

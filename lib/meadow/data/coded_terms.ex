@@ -17,7 +17,7 @@ defmodule Meadow.Data.CodedTerms do
   def list_schemes do
     from(ct in CodedTerm, distinct: ct.scheme, select: [:scheme])
     |> Repo.all()
-    |> Enum.map(&(&1.scheme))
+    |> Enum.map(& &1.scheme)
   end
 
   @doc """
@@ -75,11 +75,21 @@ defmodule Meadow.Data.CodedTerms do
   """
   def get_coded_term(id, scheme) do
     with scheme <- normalize(scheme) do
-        from(ct in CodedTerm,
+      from(ct in CodedTerm,
         where: ct.scheme == ^scheme and ct.id == ^id,
         order_by: ct.label
       )
       |> Repo.one()
+    end
+  end
+
+  def label(id, scheme) do
+    case get_coded_term(id, scheme) do
+      term ->
+        term.label
+
+      nil ->
+        nil
     end
   end
 

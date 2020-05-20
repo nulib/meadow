@@ -24,10 +24,21 @@ defmodule MeadowWeb.Resolvers.Data do
         {:error,
          message: "Could not create work", details: ChangesetErrors.error_details(changeset)}
 
+      {:error, operation, changeset} ->
+        {:error,
+         message: "Could not create work",
+         details:
+           Enum.map(ChangesetErrors.error_details(changeset), fn error ->
+             set_error_key(error, operation)
+           end)}
+
       {:ok, work} ->
         {:ok, work}
     end
   end
+
+  defp set_error_key({:value_id, value}, operation), do: %{operation => value}
+  defp set_error_key(property, _), do: property
 
   def create_file_set(_, args, _) do
     case FileSets.create_file_set(args) do

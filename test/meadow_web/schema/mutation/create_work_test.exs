@@ -1,43 +1,51 @@
 defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
   use MeadowWeb.ConnCase, async: true
+  use Wormwood.GQLCase
 
-  @query """
-    mutation (
-      $accession_number: String!
-      $administrative_metadata: WorkAdministrativeMetadataInput!
-      $descriptive_metadata: WorkDescriptiveMetadataInput!
-      ) {
-      createWork(
-        accessionNumber: $accession_number
-        administrativeMetadata: $administrative_metadata
-        descriptiveMetadata: $descriptive_metadata
-        )
-      {
-        id
+  alias Authoritex.Mock
+  alias Meadow.Data.Works
+  alias Meadow.Repo
+
+  load_gql(MeadowWeb.Schema, "test/gql/CreateWork.gql")
+
+  describe "CreateWork mutation" do
+    @data [
+      %{
+        id: "mock:result1",
+        label: "First Result",
+        qualified_label: "First Result (1)",
+        hint: "(1)"
       }
-    }
-  """
+    ]
 
-  test "createWork mutation creates a work", _context do
-    input = %{
-      "accession_number" => "99999",
-      "administrative_metadata" => %{},
-      "descriptive_metadata" => %{"title" => "Something"}
-    }
+    setup do
+      Mock.set_data(@data)
+      :ok
+    end
 
-    conn = build_conn() |> auth_user(user_fixture())
+    test "should be a valid mutation" do
+      result =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{
+              "title" => "Something",
+              "contributor" => %{"id" => "mock:result1", "role" => %{"id" => "aut"}}
+            },
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE"},
+            "visibility" => %{"id" => "OPEN"}
+          },
+          context: gql_context()
+        )
 
-    conn =
-      post conn, "/api/graphql",
-        query: @query,
-        variables: input
+      assert {:ok, query_data} = result
 
-    assert %{
-             "data" => %{
-               "createWork" => %{
-                 "id" => _
-               }
-             }
-           } = json_response(conn, 200)
+      title = get_in(query_data, [:data, "createWork", "descriptiveMetadata", "title"])
+      assert title == "Something"
+
+      work = Works.get_work_by_accession_number!("12345.abc")
+    end
   end
 end

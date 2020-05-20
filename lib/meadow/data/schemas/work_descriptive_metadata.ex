@@ -39,12 +39,28 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:title, false}
   ]
 
+  @controlled_fields [
+    :contributor,
+    :creator,
+    :genre,
+    :language,
+    :location,
+    :style_period,
+    :subject,
+    :technique
+  ]
+
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
     @fields
     |> Enum.each(fn
       {f, true} -> field f, {:array, :string}, default: []
       {f, false} -> field f, :string
+    end)
+
+    @controlled_fields
+    |> Enum.each(fn
+      f -> field f, {:array, :string}, virtual: true, default: []
     end)
 
     timestamps()
@@ -62,6 +78,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   end
 
   def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
+
+  def controlled_fields, do: @controlled_fields
 
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.WorkDescriptiveMetadata do
     alias Meadow.Data.Schemas.WorkDescriptiveMetadata, as: Source
