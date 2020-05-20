@@ -9,3 +9,13 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+# Run all modules
+Path.relative_to_cwd(__ENV__.file)
+|> Path.dirname()
+|> Path.join("seeds/**/*.exs")
+|> Path.wildcard()
+|> Enum.each(fn seed_file ->
+     Code.compile_file(seed_file)
+     |> Enum.each(fn {module, _} -> module.run() end)
+   end)

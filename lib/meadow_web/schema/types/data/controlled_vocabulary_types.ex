@@ -4,6 +4,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   """
   use Absinthe.Schema.Notation
+  alias MeadowWeb.Resolvers.Data.ControlledVocabulary
   alias MeadowWeb.Schema.Middleware
 
   object :controlled_term_queries do
@@ -11,10 +12,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :code_list, list_of(:coded_term) do
       arg(:scheme, non_null(:code_list_scheme))
       middleware(Middleware.Authenticate)
-
-      resolve(fn %{scheme: _scheme}, _ ->
-        {:ok, []}
-      end)
+      resolve(&ControlledVocabulary.code_list/3)
     end
 
     @desc "NOT YET IMPLEMENTED Get the label for a controlled_term by its id"
@@ -27,15 +25,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
       end)
     end
 
-    @desc "NOT YET IMPLEMENTED Get the label for a coded_term by its id and scheme"
+    @desc "Get the label for a coded_term by its id and scheme"
     field :fetch_coded_term_label, :coded_term do
       arg(:id, non_null(:id))
       arg(:scheme, non_null(:code_list_scheme))
       middleware(Middleware.Authenticate)
-
-      resolve(fn %{id: _id}, _ ->
-        {:ok, nil}
-      end)
+      resolve(&ControlledVocabulary.fetch_controlled_term_label/3)
     end
 
     @desc "NOT YET IMPLEMENTED Get the label for a code list item by its id"
@@ -76,13 +71,13 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :role, :coded_term_input
   end
 
-  @desc "NOT YET IMPLEMENTED Input for code lookup in code list table. Provide id and scheme"
+  @desc "Input for code lookup in code list table. Provide id and scheme"
   input_object :coded_term_input do
     field :id, non_null(:id)
     field :scheme, :code_list_scheme
   end
 
-  @desc "NOT YET IMPLEMENTED: Schemes for code list table. (Ex: Subjects, MARC relators, prevervation levels, etc)"
+  @desc "Schemes for code list table. (Ex: Subjects, MARC relators, prevervation levels, etc)"
   enum :code_list_scheme do
     value(:authority, as: "authority", description: "Authority")
     value(:license, as: "license", description: "License")

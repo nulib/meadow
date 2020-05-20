@@ -1,0 +1,14 @@
+[
+  {
+    "id": "DONE",
+    "label": "Done"
+  },
+  {
+    "id": "IN PROGRESS",
+    "label": "In Progresss"
+  },
+  {
+    "id": "STARTED",
+    "label": "Started"
+  }
+]

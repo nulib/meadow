@@ -20,6 +20,13 @@ defmodule Meadow.ReleaseTasks do
     Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, @elastic_search_index)
   end
 
+  def seed(name \\ nil) do
+    file_name = if is_nil(name) or name == "", do: "seeds.exs", else: "seeds/#{name}.exs"
+    Path.join(Application.app_dir(:meadow), "priv/repo/#{file_name}")
+    |> Code.compile_file()
+    |> Enum.each(fn {module, _} -> module.run() end)
+  end
+
   def reset! do
     for repo <- repos() do
       SQL.query!(
@@ -33,6 +40,7 @@ defmodule Meadow.ReleaseTasks do
     end
 
     migrate()
+    seed()
   end
 
   defp create_storage_for(repo) do

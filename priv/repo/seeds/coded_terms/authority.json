@@ -1,0 +1,70 @@
+[
+  {
+    "id": "fast-corporate-name",
+    "label": "Faceted Application of Subject Terminology -- Corporate Name"
+  },
+  {
+    "id": "fast-event-name",
+    "label": "Faceted Application of Subject Terminology -- Event Name"
+  },
+  {
+    "id": "fast-form",
+    "label": "Faceted Application of Subject Terminology -- Form/Genre"
+  },
+  {
+    "id": "fast-geographic",
+    "label": "Faceted Application of Subject Terminology -- Geographic"
+  },
+  {
+    "id": "fast-personal",
+    "label": "Faceted Application of Subject Terminology -- Personal"
+  },
+  {
+    "id": "fast-topical",
+    "label": "Faceted Application of Subject Terminology -- Topical"
+  },
+  {
+    "id": "fast-uniform-title",
+    "label": "Faceted Application of Subject Terminology -- Uniform Title"
+  },
+  {
+    "id": "fast",
+    "label": "Faceted Application of Subject Terminology"
+  },
+  {
+    "id": "geonames",
+    "label": "GeoNames geographical database"
+  },
+  {
+    "id": "aat",
+    "label": "Getty Art & Architecture Thesaurus (AAT)"
+  },
+  {
+    "id": "tgn",
+    "label": "Getty Thesaurus of Geographic Names (TGN)"
+  },
+  {
+    "id": "ulan",
+    "label": "Getty Union List of Artist Names (ULAN)"
+  },
+  {
+    "id": "getty",
+    "label": "Getty Vocabularies"
+  },
+  {
+    "id": "lclang",
+    "label": "Library of Congress MARC List for Languages"
+  },
+  {
+    "id": "lcnaf",
+    "label": "Library of Congress Name Authority File"
+  },
+  {
+    "id": "lcsh",
+    "label": "Library of Congress Subject Headings"
+  },
+  {
+    "id": "loc",
+    "label": "Library of Congress Linked Data"
+  }
+]
