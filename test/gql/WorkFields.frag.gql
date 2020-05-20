@@ -12,11 +12,11 @@ fragment WorkFields on Work {
   manifestUrl
   project {
     id
-    name
+    title
   }
   published
   representativeImage
-  sheet {
+  ingest_sheet {
     id
     name
   }

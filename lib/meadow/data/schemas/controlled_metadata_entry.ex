@@ -1,23 +1,21 @@
 defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
   @moduledoc """
-  ControlledMetadataEntry schema.
+  Schema for Controlled Entry with Role qualifier
   """
-  use Ecto.Schema
+
   import Ecto.Changeset
+  use Ecto.Schema
+  alias Meadow.Data.Types
 
-  @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
-  schema "controlled_metadata_entries" do
-    field :object_id, Ecto.UUID
-    field :role_id, :string
-    field :field_id, :string
-    field :value_id, :string
-
-    timestamps()
+  @primary_key false
+  embedded_schema do
+    field :role, Types.CodedTerm
+    field :term, Types.ControlledTerm
   end
 
-  @doc false
-  def changeset(controlled_metadata_entry, attrs) do
-    controlled_metadata_entry
-    |> cast(attrs, [:object_id, :role_id])
+  def changeset(metadata, params) do
+    metadata
+    |> cast(params, [:role, :term])
+    |> validate_required([:term])
   end
 end

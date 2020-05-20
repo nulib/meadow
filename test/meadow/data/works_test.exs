@@ -1,6 +1,7 @@
 defmodule Meadow.Data.WorksTest do
   use Meadow.DataCase
 
+  alias Authoritex.Mock
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
@@ -180,6 +181,119 @@ defmodule Meadow.Data.WorksTest do
       assert(Works.get_work!(work.id) |> Map.get(:representative_image) == image_url)
       FileSets.get_file_set!(image_id) |> FileSets.delete_file_set()
       assert(is_nil(Works.get_work!(work.id) |> Map.get(:representative_image)))
+    end
+  end
+
+  describe "works with controlled fields" do
+    @valid %{
+      accession_number: "12345",
+      descriptive_metadata: %{title: "Test"}
+    }
+    @data [
+      %{
+        id: "mock:result1",
+        label: "First Result",
+        qualified_label: "First Result (1)",
+        hint: "(1)"
+      },
+      %{
+        id: "mock:result2",
+        label: "Second Result",
+        qualified_label: "Second Result (2)",
+        hint: "(2)"
+      },
+      %{
+        id: "mock:result3",
+        label: "Third Result",
+        qualified_label: "Third Result (3)",
+        hint: "(3)"
+      }
+    ]
+    setup do
+      Mock.set_data(@data)
+      :ok
+    end
+
+    test "create_work/1 with valid controlled entries creates a work" do
+      attrs =
+        Map.put(@valid, :descriptive_metadata, %{
+          contributor: [%{term: "mock:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+          subject: [%{term: "mock:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+          genre: [%{term: "mock:result3"}]
+        })
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      with md <- work.descriptive_metadata do
+        assert length(md.contributor) == 1
+        assert length(md.subject) == 1
+        assert length(md.genre) == 1
+
+        with value <- List.first(md.contributor) do
+          assert value.term.label == "First Result"
+          assert value.role.label == "Author"
+        end
+
+        with value <- List.first(md.subject) do
+          assert value.term.label == "Second Result"
+          assert value.role.label == "Topical"
+        end
+
+        with value <- List.first(md.genre) do
+          assert value.term.label == "Third Result"
+          assert is_nil(value.role)
+        end
+      end
+    end
+
+    test "update_work/2 with valid controlled entries updates a work" do
+      attrs =
+        Map.put(@valid, :descriptive_metadata, %{
+          contributor: [%{term: "mock:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+          subject: [
+            %{term: "mock:result1", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}},
+            %{term: "mock:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
+          ]
+        })
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      with md <- work.descriptive_metadata do
+        assert length(md.contributor) == 1
+        assert length(md.subject) == 2
+        assert Enum.empty?(md.genre)
+      end
+
+      assert {:ok, %Work{} = work} =
+               Works.update_work(work, %{
+                 descriptive_metadata: %{
+                   genre: [%{term: "mock:result2"}],
+                   subject: [
+                     %{term: "mock:result3", role: %{id: "TOPICAL", scheme: "subject_role"}}
+                   ]
+                 }
+               })
+
+      with md <- work.descriptive_metadata do
+        assert length(md.contributor) == 1
+        assert length(md.subject) == 1
+        assert length(md.genre) == 1
+
+        with value <- List.first(md.contributor) do
+          assert value.term.label == "First Result"
+          assert value.role.label == "Author"
+        end
+
+        with value <- List.first(md.subject) do
+          assert value.term.label == "Third Result"
+          assert value.role.label == "Topical"
+        end
+
+        with value <- List.first(md.genre) do
+          assert value.term.label == "Second Result"
+          assert is_nil(value.role)
+        end
+      end
     end
   end
 end

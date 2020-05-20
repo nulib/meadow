@@ -104,17 +104,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :file_sets, list_of(:file_set), resolve: dataloader(Data)
     field :representative_image, :string
 
-    field :project, :work_project do
-      resolve(fn work, _, _ ->
-        {:ok, work.extra_index_fields.project}
-      end)
-    end
-
-    field :sheet, :work_sheet do
-      resolve(fn work, _, _ ->
-        {:ok, work.extra_index_fields.sheet}
-      end)
-    end
+    field :project, :project, resolve: dataloader(Data)
+    field :ingest_sheet, :ingest_sheet, resolve: dataloader(Data)
   end
 
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
@@ -150,29 +141,20 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    @desc "NOT YET IMPLEMENTED"
-    field :contributor, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :creator, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :genre, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :language, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :license, :coded_term
-    @desc "NOT YET IMPLEMENTED"
-    field :location, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :rights_statement, :coded_term
-    @desc "NOT YET IMPLEMENTED"
-    field :style_period, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :subject, list_of(:controlled_term)
-    @desc "NOT YET IMPLEMENTED"
-    field :technique, list_of(:controlled_term)
-
     field :ark, :string
     field :citation, list_of(:string)
+    field :contributor, list_of(:controlled_metadata_entry)
+    field :creator, list_of(:controlled_metadata_entry)
+    field :genre, list_of(:controlled_metadata_entry)
+    field :language, list_of(:controlled_metadata_entry)
+    @desc "NOT YET IMPLEMENTED"
+    field :license, :coded_term
+    field :location, list_of(:controlled_metadata_entry)
+    @desc "NOT YET IMPLEMENTED"
+    field :rights_statement, :coded_term
+    field :style_period, list_of(:controlled_metadata_entry)
+    field :subject, list_of(:controlled_metadata_entry)
+    field :technique, list_of(:controlled_metadata_entry)
     import_fields(:uncontrolled_descriptive_fields)
   end
 
@@ -232,26 +214,18 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works descriptive metadata"
   input_object :work_descriptive_metadata_input do
-    @desc "NOT YET IMPLEMENTED"
-    field :contributor, list_of(:controlled_term_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :creator, list_of(:controlled_term_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :genre, list_of(:controlled_term_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :language, list_of(:controlled_term_input)
+    field :contributor, list_of(:controlled_metadata_entry_input)
+    field :creator, list_of(:controlled_metadata_entry_input)
+    field :genre, list_of(:controlled_metadata_entry_input)
+    field :language, list_of(:controlled_metadata_entry_input)
     @desc "NOT YET IMPLEMENTED"
     field :license, :coded_term_input
-    @desc "NOT YET IMPLEMENTED"
-    field :location, list_of(:controlled_term_input)
+    field :location, list_of(:controlled_metadata_entry_input)
     @desc "NOT YET IMPLEMENTED"
     field :rights_statement, :coded_term_input
-    @desc "NOT YET IMPLEMENTED"
-    field :subject, list_of(:controlled_term_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :style_period, list_of(:controlled_term_input)
-    @desc "NOT YET IMPLEMENTED"
-    field :technique, list_of(:controlled_term_input)
+    field :subject, list_of(:controlled_metadata_entry_input)
+    field :style_period, list_of(:controlled_metadata_entry_input)
+    field :technique, list_of(:controlled_metadata_entry_input)
 
     import_fields(:uncontrolled_descriptive_fields)
   end

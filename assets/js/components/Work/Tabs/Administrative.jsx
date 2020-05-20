@@ -250,7 +250,7 @@ const WorkTabsAdministrative = ({ work }) => {
           <div className="box is-relative">
             {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
             <UIFormField label="Project">
-              <Link to={`/project/${project.id}`}>{project.name}</Link>
+              <Link to={`/project/${project.id}`}>{project.title}</Link>
             </UIFormField>
 
             <UIFormField label="Project Cycle" notLive>

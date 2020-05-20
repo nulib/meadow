@@ -14,16 +14,8 @@ export const resolvers = {
     workType: () => mockWorkType(),
   },
   WorkDescriptiveMetadata: {
-    contributor: () => mockContributors(),
-    creator: () => mockControlledTerm(),
-    genre: () => mockControlledTerm(),
     license: () => mockLicense(),
-    location: () => mockControlledTerm(),
-    language: () => mockControlledTerm(),
     rightsStatement: () => mockRightsStatement(),
-    stylePeriod: () => mockControlledTerm(),
-    subject: () => mockSubjects(),
-    technique: () => mockControlledTerm(),
   },
   WorkAdministrativeMetadata: {
     preservationLevel: () => mockPreservationLevel(),

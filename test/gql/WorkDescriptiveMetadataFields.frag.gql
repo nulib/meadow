@@ -3,8 +3,10 @@ fragment WorkDescriptiveMetadataFields on Work {
     title
     description
     contributor {
-      id
-      label
+      term {
+        id
+        label
+      }
       role {
         id
         label
@@ -12,36 +14,53 @@ fragment WorkDescriptiveMetadataFields on Work {
       }
     }
     creator {
-      id
-      label
+      term {
+        id
+        label
+      }
     }
     genre {
-      id
-      label
+      term {
+        id
+        label
+      }
     }
     language {
-      id
-      label
+      term {
+        id
+        label
+      }
     }
     license {
       id
       label
     }
     location {
-      id
-      label
+      term {
+        id
+        label
+      }
     }
     rightsStatement {
       id
       label
     }
     stylePeriod {
-      id
-      label
+      term {
+        id
+        label
+      }
+      role {
+        id
+        label
+        scheme
+      }
     }
     subject {
-      id
-      label
+      term {
+        id
+        label
+      }
       role {
         id
         label
@@ -49,8 +68,10 @@ fragment WorkDescriptiveMetadataFields on Work {
       }
     }
     technique {
-      id
-      label
+      term {
+        id
+        label
+      }
     }
   }
 }

@@ -1,0 +1,24 @@
+#import "./WorkFields.frag.gql"
+#import "./FileSetFields.frag.gql"
+#import "./WorkDescriptiveMetadataFields.frag.gql"
+#import "./WorkAdministrativeMetadataFields.frag.gql"
+
+mutation(
+  $accessionNumber: String!
+  $published: Boolean!
+  $descriptiveMetadata: WorkDescriptiveMetadataInput!
+  $administrativeMetadata: WorkAdministrativMetadataInput!
+  $visibility: CodedTermInput!
+  $workType: CodedTermInput!
+) {
+  createWork(
+    accessionNumber: $accessionNumber
+    descriptiveMetadata: $descriptiveMetadata
+    administrativeMetadata: $administrativeMetadata
+    published: $published
+    visibility: $visibility
+    workType: $workType
+  ) {
+    ...WorkFields
+  }
+}

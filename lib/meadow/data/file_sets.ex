@@ -46,6 +46,25 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Gets a file_set with its work and ingest_sheet preloaded
+
+  Raises `Ecto.NoResultsError` if the FileSet does not exist.
+
+  ## Examples
+
+      iex> get_file_set_with_work_and_sheet!("123")
+      %FileSet{}
+
+      iex> get_file_set_with_work_and_sheet!("456")
+      ** (Ecto.NoResultsError)
+  """
+  def get_file_set_with_work_and_sheet!(id) do
+    FileSet
+    |> preload(work: [:ingest_sheet])
+    |> Repo.get!(id)
+  end
+
+  @doc """
   Check if accession number already exists in system
 
   iex> accession_exists?("123")

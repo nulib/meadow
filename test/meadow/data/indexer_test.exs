@@ -4,7 +4,7 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, Indexer, Works}
-  alias Meadow.Ingest.SheetWorks
+  alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Repo
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
@@ -36,7 +36,7 @@ defmodule Meadow.Data.IndexerTest do
     end
   end
 
-  describe "dependent updates" do
+  describe "dependent update triggers" do
     @tag unboxed: true
     test "collection name cascades to work" do
       Sandbox.unboxed_run(Repo, fn ->
@@ -99,18 +99,7 @@ defmodule Meadow.Data.IndexerTest do
     @tag unboxed: true
     test "work includes ingest sheet details" do
       Sandbox.unboxed_run(Repo, fn ->
-        project = project_fixture()
-
-        ingest_sheet =
-          ingest_sheet_fixture(%{
-            project_id: project.id,
-            name: "sheet name",
-            filename: "sheet_name.csv"
-          })
-
-        %{works: [work | _]} = indexable_data()
-        work |> Works.update_work(%{collection_id: nil})
-        SheetWorks.link_works_to_ingest_sheet([work], ingest_sheet)
+        {project, ingest_sheet, work} = project_sheet_and_work()
         Indexer.synchronize_index()
 
         with doc <- indexed_doc(work.id) do
@@ -124,6 +113,56 @@ defmodule Meadow.Data.IndexerTest do
         end
       end)
     end
+
+    @tag unboxed: true
+    test "ingest sheet change cascades to work" do
+      Sandbox.unboxed_run(Repo, fn ->
+        {_project, ingest_sheet, work} = project_sheet_and_work()
+        Indexer.synchronize_index()
+
+        with doc <- indexed_doc(work.id) do
+          assert doc |> get_in(["sheet"]) == %{
+                   "id" => ingest_sheet.id,
+                   "name" => ingest_sheet.name
+                 }
+        end
+
+        ingest_sheet |> Sheets.update_ingest_sheet(%{name: "New Name"})
+        Indexer.synchronize_index()
+
+        with doc <- indexed_doc(work.id) do
+          assert doc |> get_in(["sheet"]) == %{
+                   "id" => ingest_sheet.id,
+                   "name" => "New Name"
+                 }
+        end
+      end)
+    end
+
+    @tag unboxed: true
+    test "project change cascades to work" do
+      Sandbox.unboxed_run(Repo, fn ->
+        {project, _ingest_sheet, work} = project_sheet_and_work()
+        Indexer.synchronize_index()
+
+        with doc <- indexed_doc(work.id) do
+          assert doc |> get_in(["project"]) == %{
+                   "id" => project.id,
+                   "name" => project.title
+                 }
+        end
+
+        project |> Projects.update_project(%{title: "New Name"})
+        Indexer.synchronize_index()
+
+        with doc <- indexed_doc(work.id) do
+          assert doc |> get_in(["project"]) == %{
+                   "id" => project.id,
+                   "name" => "New Name"
+                 }
+        end
+      end)
+    end
   end
 
   describe "encoding" do
@@ -132,7 +171,7 @@ defmodule Meadow.Data.IndexerTest do
         {:ok,
          %{
            collection: collection,
-           work: List.first(works) |> Repo.preload(:collection),
+           work: List.first(works) |> Repo.preload([:collection, :ingest_sheet, :project]),
            file_set: List.first(file_sets) |> Repo.preload(:work)
          }}
       end

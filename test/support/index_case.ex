@@ -18,7 +18,7 @@ defmodule Meadow.IndexCase do
     on_exit(fn ->
       if tags[:unboxed] do
         Sandbox.unboxed_run(Repo, fn ->
-          [IndexTime, FileSet, Project, Sheet, Work, Collection]
+          [IndexTime, FileSet, Sheet, Project, Work, Collection]
           |> Enum.each(fn schema -> Repo.delete_all(schema) end)
         end)
       end
@@ -41,6 +41,22 @@ defmodule Meadow.IndexCase do
 
       def decode_njson(data) do
         data |> String.split(~r/\n/) |> Enum.map(&Jason.decode!/1)
+      end
+
+      def project_sheet_and_work do
+        project = project_fixture()
+
+        ingest_sheet =
+          ingest_sheet_fixture(%{
+            project_id: project.id,
+            name: "sheet name",
+            filename: "sheet_name.csv"
+          })
+
+        %{works: [work | _]} = indexable_data()
+        work |> Works.update_work(%{collection_id: nil, ingest_sheet_id: ingest_sheet.id})
+
+        {project, ingest_sheet, work}
       end
 
       def indexable_data do

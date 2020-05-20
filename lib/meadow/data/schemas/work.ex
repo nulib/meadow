@@ -10,8 +10,10 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.IIIF
+  alias Meadow.Ingest.Schemas.Sheet
 
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import Meadow.Data.Schemas.Validations
 
   use Meadow.Constants
@@ -37,13 +39,15 @@ defmodule Meadow.Data.Schemas.Work do
 
     belongs_to :collection, Collection
 
+    belongs_to :ingest_sheet, Sheet
+    has_one :project, through: [:ingest_sheet, :project]
+
     field :representative_image, :string, virtual: true, default: nil
-    field :extra_index_fields, :map, virtual: true, default: %{}
   end
 
   def changeset(work, attrs) do
     required_params = [:accession_number]
-    optional_params = [:collection_id, :representative_file_set_id]
+    optional_params = [:collection_id, :representative_file_set_id, :ingest_sheet_id]
 
     work
     |> cast(attrs, required_params ++ optional_params)
@@ -58,7 +62,7 @@ defmodule Meadow.Data.Schemas.Work do
   end
 
   def update_changeset(work, attrs) do
-    allowed_params = [:published, :collection_id, :representative_file_set_id]
+    allowed_params = [:published, :collection_id, :representative_file_set_id, :ingest_sheet_id]
 
     work
     |> cast(attrs, allowed_params)
@@ -105,6 +109,16 @@ defmodule Meadow.Data.Schemas.Work do
         visibility: "open",
         visibility_term: %{id: "open", label: "Public"},
         work_type: %{id: "IMAGE", label: "Image"},
+        project:
+          case work.project do
+            nil -> %{}
+            project -> %{id: project.id, name: project.title}
+          end,
+        sheet:
+          case work.ingest_sheet do
+            nil -> %{}
+            sheet -> %{id: sheet.id, name: sheet.name}
+          end,
         representative_file_set:
           case work.representative_file_set_id do
             nil ->
@@ -117,7 +131,6 @@ defmodule Meadow.Data.Schemas.Work do
               }
           end
       }
-      |> Map.merge(work.extra_index_fields)
       |> Map.merge(work.administrative_metadata |> AdministrativeMetadataDocument.encode())
       |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
     end
