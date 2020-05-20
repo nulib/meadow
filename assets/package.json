@@ -51,7 +51,7 @@
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "@nulib/prettier-config": "^1.2.0",
-    "@testing-library/jest-dom": "^5.7.0",
+    "@testing-library/jest-dom": "^5.8.0",
     "@testing-library/react": "^10.0.4",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
