@@ -1,0 +1,100 @@
+[
+  {
+    "metadata_class": "administrative",
+    "id": "preservation_level",
+    "label": "Preservation Level",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "core",
+    "id": "resource_type",
+    "label": "Resource Type",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "core",
+    "id": "status",
+    "label": "Status",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "core",
+    "id": "visibility",
+    "label": "Visibility",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "based_near",
+    "label": "Location (Place of Publication)",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "contributor",
+    "label": "Contributor",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "creator",
+    "label": "Creator",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "genre",
+    "label": "Genre",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "language",
+    "label": "Language",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "license",
+    "label": "License",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "rights_statement",
+    "label": "Rights Statement",
+    "required": true,
+    "repeating": false
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "style_period",
+    "label": "Style Period",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "subject",
+    "label": "Subject",
+    "required": false,
+    "repeating": true
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "technique",
+    "label": "Technique",
+    "required": false,
+    "repeating": true
+  }
+]

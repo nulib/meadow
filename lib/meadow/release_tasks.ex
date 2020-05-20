@@ -7,6 +7,7 @@ defmodule Meadow.ReleaseTasks do
 
   alias Ecto.Adapters.SQL
   alias Meadow.Pipeline
+  alias Meadow.Utils.Logging
 
   def migrate do
     [:elasticsearch, :ex_aws, :hackney, :sequins] |> Enum.each(&Application.ensure_all_started/1)
@@ -20,11 +21,20 @@ defmodule Meadow.ReleaseTasks do
     Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, @elastic_search_index)
   end
 
-  def seed(name \\ nil) do
-    file_name = if is_nil(name) or name == "", do: "seeds.exs", else: "seeds/#{name}.exs"
-    Path.join(Application.app_dir(:meadow), "priv/repo/#{file_name}")
-    |> Code.compile_file()
-    |> Enum.each(fn {module, _} -> module.run() end)
+  def seed, do: _seed("priv/repo/seeds.exs")
+  def seed(name) when is_binary(name), do: _seed("priv/repo/seeds/#{name}.exs")
+  def seed([name|[]]), do: seed(name)
+  def seed([name|names]) do
+    seed(name)
+    seed(names)
+  end
+
+  defp _seed(file) do
+    Logging.with_log_level(:info, fn ->
+      Path.join(Application.app_dir(:meadow), file)
+      |> Code.compile_file()
+      |> Enum.each(fn {module, _} -> module.run() end)
+    end)
   end
 
   def reset! do
