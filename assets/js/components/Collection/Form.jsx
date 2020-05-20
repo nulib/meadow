@@ -173,7 +173,14 @@ const CollectionForm = ({ collection }) => {
           />
         </UIFormField>
 
-        <div className="buttons is-right">
+        <div className="buttons is-left">
+          <button
+            type="submit"
+            className="button is-primary"
+            data-testid="button-save"
+          >
+            Save
+          </button>
           <button
             type="button"
             className="button is-text"
@@ -181,13 +188,6 @@ const CollectionForm = ({ collection }) => {
             onClick={handleCancel}
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="button is-primary"
-            data-testid="button-save"
-          >
-            Save
           </button>
         </div>
       </form>

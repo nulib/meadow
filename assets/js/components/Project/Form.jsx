@@ -65,19 +65,19 @@ const ProjectForm = ({ showForm, setShowForm }) => {
 
               <div className="buttons is-right">
                 <button
-                  type="submit"
-                  className="button is-primary"
-                  data-testid="submit-button"
-                >
-                  Create
-                </button>
-                <button
                   type="button"
                   className="button is-text"
                   onClick={() => setShowForm(false)}
                   data-testid="cancel-button"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="button is-primary"
+                  data-testid="submit-button"
+                >
+                  Create
                 </button>
               </div>
             </div>
