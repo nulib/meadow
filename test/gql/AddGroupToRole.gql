@@ -1,5 +1,3 @@
-#import "./EntryFields.frag.gql"
-
 mutation($groupId: ID!, $roleId: ID!) {
   addGroupToRole(groupId: $groupId, roleId: $roleId) {
     message

@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Query.ProjectTest do
   use MeadowWeb.ConnCase, async: true
 
   @query """
-  query($id: String!) {
+  query($id: ID!) {
     project(id: $id) {
       title
     }

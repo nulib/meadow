@@ -19,10 +19,11 @@ defmodule MeadowWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      alias Meadow.Accounts.Schemas.User
       alias MeadowWeb.Router.Helpers, as: Routes
       import Meadow.TestHelpers
-      alias Meadow.Accounts.Schemas.User
+      import Phoenix.ConnTest
+      import Plug.Conn
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint

@@ -178,16 +178,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
     end
   end
 
-  object :project do
-    field :id, non_null(:id)
-    field :title, non_null(:string)
-    field :folder, non_null(:string)
-    field :inserted_at, non_null(:datetime)
-    field :updated_at, non_null(:datetime)
-
-    field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
-  end
-
   @desc "Sheet object"
   object :ingest_sheet do
     field :id, non_null(:id)
@@ -225,13 +215,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:approved, as: "approved", description: "Approved, ingest in progress")
     value(:completed, as: "completed", description: "Ingest Completed")
     value(:deleted, as: "deleted", description: "Ingest Sheet deleted")
-  end
-
-  @desc "states: PENDING, PASS or FAIL"
-  enum :state do
-    value(:pending, as: "pending")
-    value(:pass, as: "pass")
-    value(:fail, as: "fail")
   end
 
   @desc "Action outcomes"

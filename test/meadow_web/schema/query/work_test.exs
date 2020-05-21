@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Query.WorkTest do
   use MeadowWeb.ConnCase, async: true
 
   @query """
-  query($id: String!) {
+  query($id: ID!) {
     work(id: $id) {
       id
     }

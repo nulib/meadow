@@ -19,7 +19,7 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
 
 const GET_CRUMB_DATA = gql`
-  query GetCrumbData($sheetId: String!) {
+  query GetCrumbData($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
       id
       name

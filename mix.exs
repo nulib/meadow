@@ -50,9 +50,9 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.4.2"},
-      {:absinthe_plug, "~> 1.4.0"},
-      {:absinthe_phoenix, "~> 1.4.0"},
+      {:absinthe, "~> 1.5.0"},
+      {:absinthe_plug, "~> 1.5.0"},
+      {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.15.0", only: :test},
       {:authoritex, "~> 0.1.0"},
       {:briefly, "~> 0.3.0", only: :test},
@@ -78,11 +78,11 @@ defmodule Meadow.MixProject do
       {:jason, "~> 1.0"},
       {:mox, "~> 0.5", only: :test},
       {:nimble_csv, "~> 0.7.0"},
-      {:phoenix, "~> 1.4.10"},
+      {:phoenix, "~> 1.5.1"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_ecto, "~> 4.1"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
