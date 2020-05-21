@@ -81,7 +81,7 @@ const WorkTabsStructure = ({ work }) => {
         )}
       </WorkTabsHeader>
 
-      <div style={{ marginTop: "1rem" }}>
+      <div>
         {work.fileSets.map(({ id, accessionNumber, metadata }) => (
           <article key={id} className="box">
             <div className="columns">
