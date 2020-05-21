@@ -11,6 +11,7 @@ import WorkTabsHeader from "./Header";
 import UIPlaceholder from "../../UI/Placeholder";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
 import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
+import { prepControlledTermInput } from "../../../services/controlled-vocabulary";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
@@ -48,10 +49,11 @@ const WorkTabsAbout = ({ work }) => {
     { name: "tableOfContents", label: "Table of Contents" },
   ];
   // React hook form setup
-  const { register, handleSubmit, errors, control, reset } = useForm({
-    // Declare form "field array" fields here
-    defaultValues: {},
-  });
+  const { register, handleSubmit, errors, control, reset, getValues } = useForm(
+    {
+      defaultValues: {},
+    }
+  );
 
   useEffect(() => {
     // Tell React Hook Form to update field array form values when a Work updates
@@ -63,6 +65,7 @@ const WorkTabsAbout = ({ work }) => {
       callNumber: descriptiveMetadata.callNumber,
       caption: descriptiveMetadata.caption,
       catalogKey: descriptiveMetadata.catalogKey,
+      contributor: descriptiveMetadata.contributor,
       folderName: descriptiveMetadata.folderName,
       folderNumber: descriptiveMetadata.folderNumber,
       identifier: descriptiveMetadata.identifier,
@@ -97,7 +100,6 @@ const WorkTabsAbout = ({ work }) => {
   );
 
   const onSubmit = (data) => {
-    console.log("data :>> ", data);
     const {
       abstract = [],
       alternateTitle = [],
@@ -106,6 +108,7 @@ const WorkTabsAbout = ({ work }) => {
       callNumber = [],
       caption = [],
       catalogKey = [],
+      contributor = [],
       folderName = [],
       folderNumber = [],
       identifier = [],
@@ -160,6 +163,11 @@ const WorkTabsAbout = ({ work }) => {
         title,
       },
     };
+
+    // Update controlled term values to match mutation type
+    workUpdateInput.descriptiveMetadata.contributor = prepControlledTermInput(
+      contributor
+    );
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },

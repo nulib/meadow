@@ -4,8 +4,10 @@ import PropTypes from "prop-types";
 const UIFormSelect = ({
   name,
   label,
+  // TODO: Clean up usages of UIFormSelect to use "hasErrors" instead of passing in "errors" object
   errors = {},
-  register,
+  hasErrors,
+  register = () => {},
   required,
   options = [],
   defaultValue,
@@ -14,11 +16,10 @@ const UIFormSelect = ({
 }) => {
   return (
     <>
-      <div className="select">
+      <div className={`select ${hasErrors || errors[name] ? "is-danger" : ""}`}>
         <select
           name={name}
           ref={register({ required })}
-          className={`${errors[name] ? "is-danger" : ""}`}
           defaultValue={defaultValue}
           {...passedInProps}
         >
@@ -33,7 +34,7 @@ const UIFormSelect = ({
           ))}
         </select>
       </div>
-      {errors[name] && (
+      {(hasErrors || errors[name]) && (
         <p data-testid="select-errors" className="help is-danger">
           {label || name} field is required
         </p>
@@ -46,6 +47,7 @@ UIFormSelect.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   errors: PropTypes.object,
+  hasErrors: PropTypes.bool,
   register: PropTypes.func,
   required: PropTypes.bool,
   options: PropTypes.arrayOf(

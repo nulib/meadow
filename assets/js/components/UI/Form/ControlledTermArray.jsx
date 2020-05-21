@@ -3,17 +3,15 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
-import { useQuery } from "@apollo/react-hooks";
-import { AUTHORITY_SEARCH } from "../../Work/controlledVocabulary.query";
-import UIError from "../Error";
-import UIInput from "./Input";
+import UIFormInput from "./Input";
+import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 
 const styles = {
   inputWrapper: {
     marginBottom: "1rem",
   },
   deleteButton: {
-    marginLeft: "5px",
+    marginTop: "1rem",
   },
 };
 
@@ -25,7 +23,6 @@ const UIFormControlledTermArray = ({
   name,
   register,
   required,
-  defaultValue = `New ${label}`,
   ...passedInProps
 }) => {
   const { fields, append, remove } = useFieldArray({
@@ -33,81 +30,71 @@ const UIFormControlledTermArray = ({
     name,
   });
 
-  const [searchVal, setSearchVal] = useState("");
-  const [currentAuthority, setCurrentAuthority] = useState(authorities[0].id);
-
-  const {
-    data: searchData,
-    loading: searchLoading,
-    errors: searchErrors,
-    refetch: searchRefetch,
-    networkStatus: searchNetWorkStatus,
-  } = useQuery(AUTHORITY_SEARCH, {
-    variables: {
-      authority: { id: currentAuthority, scheme: "AUTHORITY" },
-      query: searchVal,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const handleAuthorityChange = (e) => {
-    console.log("e.target.value :>> ", e.target.value);
-    setCurrentAuthority(e.target.value);
-  };
-
-  const handleInputChange = (e) => {
-    setSearchVal(e.target.value);
-    searchRefetch();
-  };
-
-  if (searchNetWorkStatus === 4) return "Refetching authority search query";
-  if (searchErrors) return <UIError error={searchErrors} />;
-
   return (
-    <div className="">
+    <>
       <ul style={styles.inputWrapper}>
         {fields.map((item, index) => {
+          const itemName = `${name}[${index}]`;
+
           return (
-            <li key={item.id} className="">
-              <fieldset {...passedInProps}>
+            <li key={item.id}>
+              <fieldset>
                 <legend data-testid="legend">{`${label} #${index + 1}`}</legend>
-                <div className="field">
-                  <label className="label">Role</label>
-                  <UIFormSelect
-                    name={`${[name]}-role[${index}]`}
-                    label="Role"
-                    options={marcRelators}
-                    register={register}
-                  />
-                </div>
-                <div className="field">
-                  <label className="label">Authority</label>
-                  <UIFormSelect
-                    name={`${[name]}-authority[${index}]`}
-                    label="Authority"
-                    options={authorities}
-                    register={register}
-                    onChange={handleAuthorityChange}
-                  />
-                </div>
-                <div className="field">
-                  <label className="label">{label}</label>
-                  <UIInput
-                    name={`${[name]}[${index}]`}
-                    label={label}
-                    register={register}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                {errors[name] && errors[name][index] && (
-                  <p data-testid="input-errors" className="help is-danger">
-                    {label || name} field is required
-                  </p>
+
+                {/* Existing values are NOT editable, so we save them in hidden fields */}
+                {!item.new && (
+                  <>
+                    <p>
+                      {item.label} ({item.role.label})
+                    </p>
+                    <input
+                      type="hidden"
+                      name={`${itemName}.roleId`}
+                      ref={register()}
+                      value={item.role ? item.role.id : null}
+                    />
+                    <input
+                      type="hidden"
+                      name={`${itemName}.id`}
+                      ref={register()}
+                      value={item.id}
+                    />
+                  </>
                 )}
+
+                {item.new && (
+                  <>
+                    <div className="field">
+                      <label className="label">Role</label>
+                      <UIFormSelect
+                        hasErrors={
+                          !!(errors[name] && errors[name][index].roleId)
+                        }
+                        name={`${itemName}.roleId`}
+                        label="Role"
+                        options={marcRelators}
+                        register={register}
+                        required
+                        showHelper
+                      />
+                    </div>
+
+                    <UIFormControlledTermArrayItem
+                      authorities={authorities}
+                      control={control}
+                      errors={errors}
+                      item={item}
+                      index={index}
+                      label={label}
+                      name={name}
+                      register={register}
+                    />
+                  </>
+                )}
+
                 <button
                   type="button"
-                  className="button is-fullwidth is-light"
+                  className="button is-fullwidth is-light is-small"
                   onClick={() => remove(index)}
                   style={styles.deleteButton}
                   data-testid="button-delete-field-array-row"
@@ -124,7 +111,7 @@ const UIFormControlledTermArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append(defaultValue);
+          append({ new: true });
         }}
         data-testid="button-add-field-array-row"
       >
@@ -133,7 +120,7 @@ const UIFormControlledTermArray = ({
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
       </button>
-    </div>
+    </>
   );
 };
 

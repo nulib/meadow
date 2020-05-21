@@ -39,7 +39,6 @@ const WorkTabsAboutDescriptiveMetadata = ({
     authorities: authorityData.codeList,
     marcRelators: marcData.codeList,
   };
-  console.log("codeLists :>> ", codeLists);
 
   return showDescriptiveMetadata ? (
     <div>
@@ -81,7 +80,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
                 control={control}
                 errors={errors}
                 label="Contributors"
-                name="contributors"
+                name="contributor"
                 register={register}
               />
             ) : (
