@@ -140,14 +140,14 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
       </div>
 
       <div className="buttons is-right">
-        <button type="button" className="button" onClick={handleCancel}>
-          Cancel
-        </button>
         <button type="submit" className="button is-primary">
           <span className="icon">
             <FontAwesomeIcon icon="file-upload" />
           </span>
           <span>Upload</span>
+        </button>
+        <button type="button" className="button is-text" onClick={handleCancel}>
+          Cancel
         </button>
       </div>
     </form>

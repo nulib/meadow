@@ -116,6 +116,9 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
           </div>
         </section>
         <footer className="modal-card-foot buttons is-right">
+          <button className="button is-text" onClick={handleClose}>
+            Cancel
+          </button>
           <button
             className="button is-primary"
             onClick={() => {
@@ -124,9 +127,6 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
             data-testid="button-set-image"
           >
             Set Image
-          </button>
-          <button className="button is-text" onClick={handleClose}>
-            Cancel
           </button>
         </footer>
       </div>
