@@ -7,7 +7,7 @@ defmodule MeadowWeb.Resolvers.Data.ControlledVocabulary do
     {:ok, CodedTerms.list_coded_terms(scheme)}
   end
 
-  def fetch_controlled_term_label(_, %{id: id, scheme: scheme}, _) do
+  def fetch_coded_term_label(_, %{id: id, scheme: scheme}, _) do
     {:ok, CodedTerms.get_coded_term(id, scheme)}
   end
 end

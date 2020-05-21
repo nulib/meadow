@@ -44,6 +44,8 @@ config :meadow,
 config :meadow,
   test_mode: true
 
+config :authoritex, authorities: [Authoritex.Mock]
+
 config :ueberauth, Ueberauth,
   providers: [
     nusso:

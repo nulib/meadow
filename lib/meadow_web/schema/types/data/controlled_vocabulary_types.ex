@@ -5,6 +5,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   """
   use Absinthe.Schema.Notation
   alias MeadowWeb.Resolvers.Data.ControlledVocabulary
+  alias MeadowWeb.Resolvers.Data.AuthoritiesSearch
   alias MeadowWeb.Schema.Middleware
 
   object :controlled_term_queries do
@@ -15,14 +16,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
       resolve(&ControlledVocabulary.code_list/3)
     end
 
-    @desc "NOT YET IMPLEMENTED Get the label for a controlled_term by its id"
+    @desc "Get the label for a controlled_term by its id"
     field :fetch_controlled_term_label, :controlled_value do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
 
-      resolve(fn %{id: _id}, _ ->
-        {:ok, nil}
-      end)
+      resolve(&AuthoritiesSearch.fetch_label/2)
     end
 
     @desc "Get the label for a coded_term by its id and scheme"
@@ -30,35 +29,33 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
       arg(:id, non_null(:id))
       arg(:scheme, non_null(:code_list_scheme))
       middleware(Middleware.Authenticate)
-      resolve(&ControlledVocabulary.fetch_controlled_term_label/3)
+      resolve(&ControlledVocabulary.fetch_coded_term_label/3)
     end
 
-    @desc "NOT YET IMPLEMENTED Get the label for a code list item by its id"
+    @desc "Get a list of authority search results by its authority"
     field :authorities_search, list_of(:controlled_value) do
-      arg(:authority, non_null(:coded_term_input))
+      arg(:authority, non_null(:id))
       arg(:query, non_null(:string))
       middleware(Middleware.Authenticate)
 
-      resolve(fn %{authority: _authority, query: _query}, _ ->
-        {:ok, nil}
-      end)
+      resolve(&AuthoritiesSearch.search/2)
     end
   end
 
-  @desc "NOT YET IMPLEMENTED"
+  @desc "Search or fetch result"
   object :controlled_value do
     field :id, :id
     field :label, :string
     field :hint, :string
   end
 
-  @desc "NOT YET IMPLEMENTED"
+  @desc "Controlled value associated with a role"
   object :controlled_term do
     import_fields(:controlled_value)
     field :role, :coded_term
   end
 
-  @desc "NOT YET IMPLEMENTED"
+  @desc "An entry from a code list"
   object :coded_term do
     field :id, :id
     field :label, :string
