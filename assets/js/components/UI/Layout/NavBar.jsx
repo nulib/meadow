@@ -22,11 +22,11 @@ const UILayoutNavBar = () => {
     }
   }, [location]);
 
-  const isActive = matcher => {
+  const isActive = (matcher) => {
     return location.pathname.includes(matcher);
   };
 
-  const handleLogoutClick = e => {
+  const handleLogoutClick = (e) => {
     e.preventDefault();
     client.resetStore();
     window.location.href = "/auth/logout";
@@ -53,6 +53,7 @@ const UILayoutNavBar = () => {
         role="navigation"
         className="navbar is-fixed-top"
         aria-label="main navigation"
+        id="main-navigation"
       >
         <div className="navbar-brand">
           <Link className="navbar-item" to="/">
