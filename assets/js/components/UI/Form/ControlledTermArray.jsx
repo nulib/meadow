@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
-import UIFormInput from "./Input";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
+import { hasRole } from "../../../services/metadata";
 
 const styles = {
   inputWrapper: {
@@ -69,20 +69,22 @@ const UIFormControlledTermArray = ({
 
                 {item.new && (
                   <>
-                    <div className="field">
-                      <label className="label">Role</label>
-                      <UIFormSelect
-                        hasErrors={
-                          !!(errors[name] && errors[name][index].roleId)
-                        }
-                        name={`${itemName}.roleId`}
-                        label="Role"
-                        options={marcRelators}
-                        register={register}
-                        required
-                        showHelper
-                      />
-                    </div>
+                    {hasRole(name) && (
+                      <div className="field">
+                        <label className="label">Role</label>
+                        <UIFormSelect
+                          hasErrors={
+                            !!(errors[name] && errors[name][index].roleId)
+                          }
+                          name={`${itemName}.roleId`}
+                          label="Role"
+                          options={marcRelators}
+                          register={register}
+                          required
+                          showHelper
+                        />
+                      </div>
+                    )}
 
                     <UIFormControlledTermArrayItem
                       authorities={authorities}

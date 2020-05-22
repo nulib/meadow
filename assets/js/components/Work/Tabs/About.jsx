@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,51 +10,29 @@ import WorkTabsHeader from "./Header";
 import UIPlaceholder from "../../UI/Placeholder";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
 import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
-import { prepControlledTermInput } from "../../../services/controlled-vocabulary";
+import {
+  DESCRIPTIVE_METADATA,
+  prepControlledTermInput,
+} from "../../../services/metadata";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
+
+  // Whether box dropdowns are open or closed
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
+
+  // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
 
-  const genericDescriptiveMetadata = [
-    { name: "abstract", label: "Abstract" },
-    { name: "alternateTitle", label: "Alternate Title" },
-    { name: "boxName", label: "Box Name" },
-    { name: "boxNumber", label: "Box Number" },
-    { name: "callNumber", label: "Call Number" },
-    { name: "caption", label: "Caption" },
-    { name: "catalogKey", label: "Catalog Key" },
-    { name: "folderName", label: "Folder Name" },
-    { name: "folderNumber", label: "Folder Number" },
-    { name: "identifier", label: "Identifier" },
-    { name: "keywords", label: "Keywords" },
-    { name: "legacyIdentifier", label: "Legacy Identifier" },
-    { name: "notes", label: "Notes" },
-    {
-      name: "physicalDescriptionMaterial",
-      label: "Physical Description Material",
-    },
-    { name: "physicalDescriptionSize", label: "Physical Description Size" },
-    { name: "provenance", label: "Provenance" },
-    { name: "publisher", label: "Publisher" },
-    { name: "relatedUrl", label: "Related URL" },
-    { name: "relatedMaterial", label: "Related Material" },
-    { name: "rightsHolder", label: "Rights Holder" },
-    { name: "scopeAndContents", label: "Scope and Content" },
-    { name: "series", label: "Series" },
-    { name: "source", label: "Source" },
-    { name: "tableOfContents", label: "Table of Contents" },
-  ];
-  // React hook form setup
-  const { register, handleSubmit, errors, control, reset, getValues } = useForm(
-    {
-      defaultValues: {},
-    }
-  );
+  // Initialize React hook form
+  const { register, handleSubmit, errors, control, reset } = useForm({
+    defaultValues: {},
+  });
 
   useEffect(() => {
+    // TODO: Automate the populating of values below from DESCRIPTIVE_METADATA constant
+
     // Tell React Hook Form to update field array form values when a Work updates
     reset({
       abstract: descriptiveMetadata.abstract,
@@ -106,6 +83,7 @@ const WorkTabsAbout = ({ work }) => {
     }
   );
 
+  // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
     const {
       abstract = [],
@@ -115,7 +93,6 @@ const WorkTabsAbout = ({ work }) => {
       callNumber = [],
       caption = [],
       catalogKey = [],
-      contributor = [],
       folderName = [],
       folderNumber = [],
       identifier = [],
@@ -171,10 +148,14 @@ const WorkTabsAbout = ({ work }) => {
       },
     };
 
-    // Update controlled term values to match mutation type
-    workUpdateInput.descriptiveMetadata.contributor = prepControlledTermInput(
-      contributor
-    );
+    // Update controlled term values to match shape the GraphQL mutation expects
+    for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
+      workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
+        data[term.name]
+      );
+    }
+
+    console.log("workUpdateInput", workUpdateInput);
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
@@ -254,7 +235,6 @@ const WorkTabsAbout = ({ work }) => {
           descriptiveMetadata={descriptiveMetadata}
           errors={errors}
           isEditing={isEditing}
-          genericDescriptiveMetadata={genericDescriptiveMetadata}
           register={register}
           showDescriptiveMetadata={showDescriptiveMetadata}
         />

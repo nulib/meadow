@@ -8,48 +8,13 @@ import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { useQuery } from "@apollo/react-hooks";
 import UIError from "../../../UI/Error";
-
-const controlledTerms = [
-  {
-    label: "Contributor",
-    name: "contributor",
-  },
-  {
-    label: "Creators",
-    name: "creator",
-  },
-  {
-    label: "Genre",
-    name: "genre",
-  },
-  {
-    label: "Language",
-    name: "language",
-  },
-  {
-    label: "Location",
-    name: "location",
-  },
-  {
-    label: "Style Period",
-    name: "stylePeriod",
-  },
-  {
-    label: "Subject",
-    name: "subject",
-  },
-  {
-    label: "Technique",
-    name: "technique",
-  },
-];
+import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
 
 const WorkTabsAboutDescriptiveMetadata = ({
   control,
   descriptiveMetadata,
   errors,
   isEditing,
-  genericDescriptiveMetadata,
   register,
   showDescriptiveMetadata,
 }) => {
@@ -80,10 +45,10 @@ const WorkTabsAboutDescriptiveMetadata = ({
         className="subtitle is-size-5 is-marginless"
         style={{ paddingBottom: "1rem" }}
       >
-        Generic Terms
+        Field Arrays
       </h3>
       <div className="columns is-multiline">
-        {genericDescriptiveMetadata.map((item) => (
+        {DESCRIPTIVE_METADATA.fieldArrays.map((item) => (
           <div key={item.name} className="column is-half">
             {isEditing ? (
               <UIFormFieldArray
@@ -103,10 +68,11 @@ const WorkTabsAboutDescriptiveMetadata = ({
           </div>
         ))}
       </div>
+
       <hr />
       <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
       <ul>
-        {controlledTerms.map(({ label, name }) => (
+        {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name }) => (
           <li key={name} style={{ marginBottom: "2rem" }}>
             <UIFormField label={label} mocked notLive>
               {isEditing ? (
@@ -134,7 +100,6 @@ WorkTabsAboutDescriptiveMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object.isRequired,
   errors: PropTypes.object,
   isEditing: PropTypes.bool,
-  genericDescriptiveMetadata: PropTypes.array.isRequired,
   register: PropTypes.func.isRequired,
   showDescriptiveMetadata: PropTypes.bool,
 };
