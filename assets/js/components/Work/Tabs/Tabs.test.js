@@ -5,11 +5,11 @@ import {
   renderWithRouterApollo,
   mockWork,
 } from "../../../services/testing-helpers";
-import { IIIF_SERVER_URL } from "../../IIIF/iiif.query";
+import { IIIF_SERVER_URL } from "../../IIIF/iiif.gql";
 import {
   codeListAuthorityMock,
   codeListMarcRelatorMock,
-} from "../controlledVocabulary.query.mock";
+} from "../controlledVocabulary.gql.mock";
 
 const mocks = [
   {

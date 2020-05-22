@@ -5,7 +5,7 @@ import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
   GET_COLLECTIONS,
-} from "./collection.query.js";
+} from "./collection.gql.js";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";

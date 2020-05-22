@@ -4,7 +4,7 @@ import {
   DELETE_INGEST_SHEET,
   APPROVE_INGEST_SHEET,
   GET_INGEST_SHEETS,
-} from "./ingestSheet.query";
+} from "./ingestSheet.gql";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";

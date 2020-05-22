@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIControlledTermList from "../../../UI/ControlledTerm/List";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.query.js";
+import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { useQuery } from "@apollo/react-hooks";

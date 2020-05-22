@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import IngestSheetForm from "../../components/IngestSheet/Form";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
-import { GET_PROJECT } from "../../components/Project/project.query";
+import { GET_PROJECT } from "../../components/Project/project.gql.js";
 import { useQuery } from "@apollo/react-hooks";
 import Layout from "../Layout";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";

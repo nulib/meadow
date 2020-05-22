@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
-import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { CREATE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import { useForm } from "react-hook-form";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";

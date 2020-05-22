@@ -7,7 +7,7 @@ import UIFormTextarea from "../../../UI/Form/Textarea";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormSelect from "../../../UI/Form/Select";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.query.js";
+import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,

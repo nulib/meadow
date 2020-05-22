@@ -10,7 +10,7 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-} from "../../components/Project/project.query";
+} from "../../components/Project/project.gql.js";
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

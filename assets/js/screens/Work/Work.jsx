@@ -4,7 +4,7 @@ import {
   GET_WORK,
   UPDATE_WORK,
   DELETE_WORK,
-} from "../../components/Work/work.query";
+} from "../../components/Work/work.gql.js";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";

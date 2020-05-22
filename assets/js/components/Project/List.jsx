@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
-import { DELETE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, toastWrapper } from "../../services/helpers";
@@ -18,15 +18,15 @@ const ProjectList = () => {
     update(cache, { data: { deleteProject } }) {
       const { projects } = client.readQuery({ query: GET_PROJECTS });
       const index = projects.findIndex(
-        project => project.id === deleteProject.id
+        (project) => project.id === deleteProject.id
       );
       projects.splice(index, 1);
       client.writeQuery({
         query: GET_PROJECTS,
-        data: { projects }
+        data: { projects },
       });
       toastWrapper("is-success", `Project deleted successfully`);
-    }
+    },
   });
 
   if (loading) return <Loading />;
@@ -74,7 +74,7 @@ const ProjectList = () => {
         <tbody>
           {projectsData.projects &&
             projectsData.projects.length > 0 &&
-            projectsData.projects.map(project => {
+            projectsData.projects.map((project) => {
               const { id, folder, title, updatedAt, ingestSheets } = project;
               return (
                 <tr key={id}>
@@ -95,7 +95,7 @@ const ProjectList = () => {
                         <button
                           className="button"
                           data-testid="delete-button"
-                          onClick={e => onOpenModal(e, project)}
+                          onClick={(e) => onOpenModal(e, project)}
                         >
                           <FontAwesomeIcon icon="trash" />
                         </button>

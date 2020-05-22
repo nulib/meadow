@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
-import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
+import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
 import UINotification from "../UI/Notification";
@@ -21,11 +21,11 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const client = useApolloClient();
   const [
     deleteIngestSheet,
-    { data: deleteIngestSheetData, error: deleteIngestSheetError }
+    { data: deleteIngestSheetData, error: deleteIngestSheetError },
   ] = useMutation(DELETE_INGEST_SHEET, {
     onCompleted({ deleteIngestSheet }) {
       toastWrapper("is-success", "Ingest sheet deleted successfully");
-    }
+    },
   });
 
   if (deleteIngestSheetError) {
@@ -89,7 +89,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     ) > -1 && (
                       <button
                         className="button"
-                        onClick={e => onOpenModal(e, { id, name })}
+                        onClick={(e) => onOpenModal(e, { id, name })}
                       >
                         {<FontAwesomeIcon icon="trash" />}{" "}
                         <span className="sr-only">Delete</span>
@@ -116,7 +116,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
 
 IngestSheetList.propTypes = {
   project: PropTypes.object.isRequired,
-  subscribeToIngestSheetStatusChanges: PropTypes.func.isRequired
+  subscribeToIngestSheetStatusChanges: PropTypes.func.isRequired,
 };
 
 export default IngestSheetList;

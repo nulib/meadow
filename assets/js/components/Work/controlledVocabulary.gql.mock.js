@@ -1,4 +1,4 @@
-import { CODE_LIST_QUERY } from "./controlledVocabulary.query";
+import { CODE_LIST_QUERY } from "./controlledVocabulary.gql";
 
 export const codeListAuthorityMock = {
   request: {

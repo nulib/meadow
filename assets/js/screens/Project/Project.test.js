@@ -3,7 +3,7 @@ import ScreensProject from "./Project";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-} from "../../components/Project/project.query";
+} from "../../components/Project/project.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";

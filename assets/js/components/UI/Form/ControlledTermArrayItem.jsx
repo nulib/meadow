@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLazyQuery } from "@apollo/react-hooks";
-import { AUTHORITY_SEARCH } from "../../Work/controlledVocabulary.query";
+import { AUTHORITY_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIError from "../Error";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";

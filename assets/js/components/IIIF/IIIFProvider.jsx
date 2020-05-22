@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
-import { IIIF_SERVER_URL } from "./iiif.query";
+import { IIIF_SERVER_URL } from "./iiif.gql";
 
 export const IIIFContext = React.createContext();
 

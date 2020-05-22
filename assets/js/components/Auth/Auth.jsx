@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
-import { GET_CURRENT_USER_QUERY } from "./auth.query";
+import { GET_CURRENT_USER_QUERY } from "./auth.gql";
 
 export const AuthContext = React.createContext();
 

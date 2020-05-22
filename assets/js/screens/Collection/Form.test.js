@@ -1,6 +1,6 @@
 import React from "react";
 import ScreensCollectionForm from "./Form";
-import { GET_COLLECTION } from "../../components/Collection/collection.query";
+import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor } from "@testing-library/react";

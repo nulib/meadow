@@ -5,7 +5,7 @@ import { IIIFContext } from "../../IIIF/IIIFProvider";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
-import { SET_WORK_IMAGE } from "../work.query";
+import { SET_WORK_IMAGE } from "../work.gql.js";
 import { toastWrapper } from "../../../services/helpers";
 import WorkTabsHeader from "./Header";
 import UIFormInput from "../../UI/Form/Input";

@@ -2,7 +2,7 @@ import React from "react";
 import ScreensWork from "./Work";
 import { Route } from "react-router-dom";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { GET_WORK } from "../../components/Work/work.query";
+import { GET_WORK } from "../../components/Work/work.gql.js";
 import { waitForElement } from "@testing-library/react";
 import { mockVisibility, mockWorkType } from "../../client-local";
 
