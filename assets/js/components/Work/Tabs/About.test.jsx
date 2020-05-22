@@ -4,37 +4,17 @@ import {
   renderWithRouterApollo,
 } from "../../../services/testing-helpers";
 import WorkTabsAbout from "./About";
-import { act, fireEvent } from "@testing-library/react";
-
-import { CODE_LIST_QUERY } from "../controlledVocabulary.query";
+import { fireEvent } from "@testing-library/react";
+import {
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
+  codeListRightsStatementMock,
+} from "../controlledVocabulary.query.mock";
 
 const mocks = [
-  {
-    request: {
-      query: CODE_LIST_QUERY,
-      variables: { scheme: "RIGHTS_STATEMENT" },
-    },
-    result: {
-      data: {
-        codeList: [
-          {
-            id: "http://rightsstatements.org/vocab/InC/1.0/",
-            label: "In Copyright",
-            __typename: "CodedTerm",
-          },
-          {
-            id: "http://rightsstatements.org/vocab/InC-OW-EU/1.0/",
-            label: "In Copyright - EU Orphan Work",
-            __typename: "CodedTerm",
-          },
-          {
-            id: " http://rightsstatements.org/vocab/InC-EDU/1.0/",
-            label: "In Copyright - Educational Use Permitted",
-          },
-        ],
-      },
-    },
-  },
+  codeListRightsStatementMock,
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
 ];
 
 describe("Work About tab component", () => {

@@ -26,7 +26,7 @@ export const CODE_LIST_QUERY = gql`
 `;
 
 export const AUTHORITY_SEARCH = gql`
-  query AuthoritiesSearch($authority: codedTermInput!, $query: String!) {
+  query AuthoritiesSearch($authority: CodedTermInput!, $query: String!) {
     authoritiesSearch(authority: $authority, query: $query) @client {
       id
       label

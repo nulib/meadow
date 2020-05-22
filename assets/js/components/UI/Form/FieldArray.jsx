@@ -40,7 +40,9 @@ const UIFormFieldArray = ({
                 <div className="is-flex">
                   <input
                     name={`${[name]}[${index}]`}
-                    className="input"
+                    className={`input ${
+                      errors[name] && errors[name][index] ? "is-danger" : ""
+                    }`}
                     defaultValue={item.value} // make sure to set up defaultValue
                     ref={register({ required })}
                     data-testid="input-field-array"

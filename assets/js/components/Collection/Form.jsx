@@ -77,40 +77,35 @@ const CollectionForm = ({ collection }) => {
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
-        <div className="columns">
-          <div className="column is-two-thirds">
-            <UIFormField label="Collection Name">
-              <UIFormInput
-                placeholder="Add collection Name"
-                register={register}
-                required
-                name="collectionName"
-                label="Collection Name"
-                errors={errors}
-                defaultValue={collection ? collection.name : ""}
-                data-testid="input-collection-name"
-              />
-            </UIFormField>
-          </div>
-          <div className="column is-one-third has-text-right">
-            <div className="field is-inline-block">
-              <div className="control">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  ref={register}
-                  className="is-checkradio"
-                  name="featured"
-                  data-testid="checkbox-featured"
-                  defaultChecked={collection ? collection.featured : false}
-                />{" "}
-                <label htmlFor="featured" className="checkbox">
-                  Featured?
-                </label>
-              </div>
-            </div>
+        <div className="field">
+          <div className="control">
+            <input
+              type="checkbox"
+              id="featured"
+              ref={register}
+              className="is-checkradio"
+              name="featured"
+              data-testid="checkbox-featured"
+              defaultChecked={collection ? collection.featured : false}
+            />{" "}
+            <label htmlFor="featured" className="checkbox">
+              Featured?
+            </label>
           </div>
         </div>
+
+        <UIFormField label="Collection Name">
+          <UIFormInput
+            placeholder="Add collection Name"
+            register={register}
+            required
+            name="collectionName"
+            label="Collection Name"
+            errors={errors}
+            defaultValue={collection ? collection.name : ""}
+            data-testid="input-collection-name"
+          />
+        </UIFormField>
 
         <UIFormField label="Collection Type">
           <UIFormSelect

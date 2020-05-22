@@ -1,11 +1,15 @@
 import React from "react";
 import Work from "./Work";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 import {
   renderWithRouterApollo,
   mockWork,
 } from "../../services/testing-helpers";
 import { IIIF_SERVER_URL } from "../IIIF/iiif.query";
+import {
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
+} from "./controlledVocabulary.query.mock";
 
 const mocks = [
   {
@@ -20,6 +24,8 @@ const mocks = [
       },
     },
   },
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
 ];
 
 describe("Work component", () => {
