@@ -4,7 +4,7 @@ import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
 import UILoading from "../UI/Loading";
 import IngestSheetValidations from "./Validations";
-import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.query";
+import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.gql";
 import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
 import IngestSheetActionRow from "./ActionRow";

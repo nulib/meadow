@@ -8,7 +8,7 @@ import { useQuery } from "@apollo/react-hooks";
 import {
   INGEST_SHEET_SUBSCRIPTION,
   INGEST_SHEET_QUERY,
-} from "../../components/IngestSheet/ingestSheet.query";
+} from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";
 import {
   getClassFromIngestSheetStatus,

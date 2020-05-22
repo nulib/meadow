@@ -4,7 +4,7 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetUpload from "./Upload";
 import { useQuery } from "@apollo/react-hooks";
-import { GET_PRESIGNED_URL } from "./ingestSheet.query.js";
+import { GET_PRESIGNED_URL } from "./ingestSheet.gql.js";
 
 const IngestSheetForm = ({ project }) => {
   const { loading, error, data } = useQuery(GET_PRESIGNED_URL, {

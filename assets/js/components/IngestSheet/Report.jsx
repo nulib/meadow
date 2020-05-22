@@ -7,8 +7,8 @@ import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
 import {
   GET_INGEST_SHEET_ROW_VALIDATION_ERRORS,
-  GET_INGEST_SHEET_ROW_VALIDATIONS
-} from "./ingestSheet.query";
+  GET_INGEST_SHEET_ROW_VALIDATIONS,
+} from "./ingestSheet.gql";
 
 function IngestSheetReport({ sheetId, progress, status }) {
   const sheetHasErrors = () => {
@@ -21,7 +21,7 @@ function IngestSheetReport({ sheetId, progress, status }) {
       : GET_INGEST_SHEET_ROW_VALIDATIONS,
     {
       variables: { sheetId },
-      fetchPolicy: "network-only"
+      fetchPolicy: "network-only",
     }
   );
 
@@ -51,7 +51,7 @@ function IngestSheetReport({ sheetId, progress, status }) {
 IngestSheetReport.propTypes = {
   sheetId: PropTypes.string.isRequired,
   progress: PropTypes.object.isRequired,
-  status: PropTypes.string
+  status: PropTypes.string,
 };
 
 export default IngestSheetReport;

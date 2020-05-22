@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {
   INGEST_SHEET_WORKS,
   INGEST_SHEET_COMPLETED_ERRORS,
-} from "./ingestSheet.query";
+} from "./ingestSheet.gql";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";

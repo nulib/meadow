@@ -4,7 +4,7 @@ import CollectionForm from "../../components/Collection/Form";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
-import { GET_COLLECTION } from "../../components/Collection/collection.query";
+import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
 import { useQuery } from "@apollo/react-hooks";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
@@ -15,13 +15,13 @@ const ScreensCollectionForm = () => {
   let crumbs = [
     {
       label: "Collections",
-      route: "/collection/list"
-    }
+      route: "/collection/list",
+    },
   ];
 
   if (edit) {
     const { data, loading, error } = useQuery(GET_COLLECTION, {
-      variables: { id }
+      variables: { id },
     });
 
     if (loading) return <UILoadingPage />;
@@ -30,11 +30,11 @@ const ScreensCollectionForm = () => {
     crumbs.push(
       {
         label: data.collection.name,
-        route: `/collection/${data.collection.id}`
+        route: `/collection/${data.collection.id}`,
       },
       {
         label: "Edit",
-        isActive: true
+        isActive: true,
       }
     );
 
@@ -44,7 +44,7 @@ const ScreensCollectionForm = () => {
   if (!edit) {
     crumbs.push({
       label: "Add",
-      isActive: true
+      isActive: true,
     });
   }
 

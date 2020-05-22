@@ -5,8 +5,8 @@ import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
 import {
   SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
-  START_VALIDATION
-} from "./ingestSheet.query";
+  START_VALIDATION,
+} from "./ingestSheet.gql";
 import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 
@@ -14,7 +14,7 @@ function IngestSheetValidations({
   sheetId,
   initialProgress,
   subscribeToIngestSheetValidationProgress,
-  status
+  status,
 }) {
   const [progress, setProgress] = useState({ states: [] });
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
@@ -24,7 +24,7 @@ function IngestSheetValidations({
     subscribeToIngestSheetValidationProgress({
       document: SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
       variables: { sheetId },
-      updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 })
+      updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 }),
     });
 
     startValidation({ variables: { id: sheetId } });
@@ -90,9 +90,9 @@ IngestSheetValidations.propTypes = {
     "FILE_FAIL",
     "ROW_FAIL",
     "UPLOADED",
-    "VALID"
+    "VALID",
   ]),
-  initialProgress: PropTypes.object.isRequired
+  initialProgress: PropTypes.object.isRequired,
 };
 
 export default withRouter(IngestSheetValidations);

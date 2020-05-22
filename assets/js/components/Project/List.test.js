@@ -1,6 +1,6 @@
 import React from "react";
 import ProjectList from "./List";
-import { GET_PROJECTS } from "../../components/Project/project.query";
+import { GET_PROJECTS } from "../../components/Project/project.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { fireEvent } from "@testing-library/react";
 import { Route } from "react-router-dom";

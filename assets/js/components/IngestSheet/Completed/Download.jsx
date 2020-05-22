@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
-import { INGEST_SHEET_WORKS } from "../ingestSheet.query";
+import { INGEST_SHEET_WORKS } from "../ingestSheet.gql";
 import { CSVLink } from "react-csv";
 import Error from "../../UI/Error";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

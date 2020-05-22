@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
-import { GET_WORK, UPDATE_WORK } from "../work.query";
+import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
 import WorkTabsHeader from "./Header";
 import UIPlaceholder from "../../UI/Placeholder";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
@@ -154,8 +154,6 @@ const WorkTabsAbout = ({ work }) => {
         data[term.name]
       );
     }
-
-    console.log("workUpdateInput", workUpdateInput);
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },

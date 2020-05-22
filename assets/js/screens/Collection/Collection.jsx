@@ -6,7 +6,7 @@ import {
   GET_COLLECTION,
   GET_COLLECTIONS,
   DELETE_COLLECTION,
-} from "../../components/Collection/collection.query";
+} from "../../components/Collection/collection.gql";
 import Error from "../../components//UI/Error";
 import UILoadingPage from "../../components//UI/LoadingPage";
 import { Link, useParams, useHistory } from "react-router-dom";

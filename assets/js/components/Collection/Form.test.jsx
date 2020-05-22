@@ -4,7 +4,7 @@ import {
   CREATE_COLLECTION,
   UPDATE_COLLECTION,
   GET_COLLECTIONS,
-} from "./collection.query.js";
+} from "./collection.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { fireEvent, waitFor, getAllByLabelText } from "@testing-library/react";
 import { Route } from "react-router-dom";

@@ -2,7 +2,7 @@ import React from "react";
 import CollectionImageModal from "./CollectionImageModal";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { SET_COLLECTION_IMAGE } from "./collection.query";
+import { SET_COLLECTION_IMAGE } from "./collection.gql.js";
 
 const mocks = [
   {

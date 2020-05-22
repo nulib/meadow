@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/react-hooks";
 import {
   GET_COLLECTIONS,
   DELETE_COLLECTION,
-} from "../../components/Collection/collection.query";
+} from "../../components/Collection/collection.gql.js";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
 import { Link, useHistory } from "react-router-dom";

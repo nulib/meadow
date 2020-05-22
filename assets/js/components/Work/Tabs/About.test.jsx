@@ -9,7 +9,7 @@ import {
   codeListAuthorityMock,
   codeListMarcRelatorMock,
   codeListRightsStatementMock,
-} from "../controlledVocabulary.query.mock";
+} from "../controlledVocabulary.gql.mock";
 
 const mocks = [
   codeListRightsStatementMock,
