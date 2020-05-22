@@ -83,7 +83,7 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {/* Date Created */}
-        <UIFormField label="Date Created" isEditing={isEditing}>
+        <UIFormField label="Date Created">
           {isEditing ? (
             <UIInput
               register={register}
@@ -99,6 +99,16 @@ const WorkTabsAboutCoreMetadata = ({
               <UITagNotYetSupported label="Display not yet supported" />
               <UITagNotYetSupported label="Update not yet supported" />
             </>
+          )}
+        </UIFormField>
+      </div>
+      <div className="column is-half">
+        {/* License */}
+        <UIFormField label="License" mocked notLive>
+          {isEditing ? (
+            <p>Form elements go here</p>
+          ) : (
+            <UICodedTermItem item={descriptiveMetadata.license} />
           )}
         </UIFormField>
       </div>

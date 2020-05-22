@@ -39,26 +39,31 @@ const UIFormControlledTermArray = ({
           return (
             <li key={item.id}>
               <fieldset>
-                <legend data-testid="legend">{`${label} #${index + 1}`}</legend>
+                <legend
+                  className="has-text-grey has-text-weight-light"
+                  data-testid="legend"
+                >{`${label} #${index + 1}`}</legend>
 
                 {/* Existing values are NOT editable, so we save them in hidden fields */}
                 {!item.new && (
                   <>
                     <p>
-                      {item.label} ({item.role.label})
+                      {item.label} {item.role && `(${item.role.label})`}
                     </p>
-                    <input
-                      type="hidden"
-                      name={`${itemName}.roleId`}
-                      ref={register()}
-                      value={item.role ? item.role.id : null}
-                    />
                     <input
                       type="hidden"
                       name={`${itemName}.id`}
                       ref={register()}
                       value={item.id}
                     />
+                    {item.role && (
+                      <input
+                        type="hidden"
+                        name={`${itemName}.roleId`}
+                        ref={register()}
+                        value={item.role ? item.role.id : null}
+                      />
+                    )}
                   </>
                 )}
 
@@ -94,12 +99,15 @@ const UIFormControlledTermArray = ({
 
                 <button
                   type="button"
-                  className="button is-fullwidth is-light is-small"
+                  className="button is-light is-small"
                   onClick={() => remove(index)}
                   style={styles.deleteButton}
                   data-testid="button-delete-field-array-row"
                 >
-                  <FontAwesomeIcon icon="trash" />
+                  <span className="icon">
+                    <FontAwesomeIcon icon="trash" />
+                  </span>
+                  <span>Remove</span>
                 </button>
               </fieldset>
             </li>

@@ -58,6 +58,10 @@ table {
   @include small-title;
 }
 
+.navbar {
+  border-bottom: 1px solid $rich-black-10;
+}
+
 // navbar-dropdown collapse options for mobile menu
 .navbar-dropdown,
 .has-dropdown input[type="checkbox"] {

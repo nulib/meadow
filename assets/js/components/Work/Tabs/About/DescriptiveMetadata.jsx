@@ -3,12 +3,46 @@ import PropTypes from "prop-types";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIControlledTermList from "../../../UI/ControlledTerm/List";
-import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.query.js";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { useQuery } from "@apollo/react-hooks";
 import UIError from "../../../UI/Error";
+
+const controlledTerms = [
+  {
+    label: "Contributor",
+    name: "contributor",
+  },
+  {
+    label: "Creators",
+    name: "creator",
+  },
+  {
+    label: "Genre",
+    name: "genre",
+  },
+  {
+    label: "Language",
+    name: "language",
+  },
+  {
+    label: "Location",
+    name: "location",
+  },
+  {
+    label: "Style Period",
+    name: "stylePeriod",
+  },
+  {
+    label: "Subject",
+    name: "subject",
+  },
+  {
+    label: "Technique",
+    name: "technique",
+  },
+];
 
 const WorkTabsAboutDescriptiveMetadata = ({
   control,
@@ -71,96 +105,26 @@ const WorkTabsAboutDescriptiveMetadata = ({
       </div>
       <hr />
       <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
-      <div className="columns is-multiline">
-        <div className="column is-half">
-          <UIFormField label="Contributors" mocked notLive>
-            {isEditing ? (
-              <UIFormControlledTermArray
-                codeLists={codeLists}
-                control={control}
-                errors={errors}
-                label="Contributors"
-                name="contributor"
-                register={register}
-              />
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.contributor} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Creators" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.creator} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Genre" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.genre} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Language" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.language} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="License" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UICodedTermItem item={descriptiveMetadata.license} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Location" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.location} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Style Period" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.stylePeriod} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Subject" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.subject} />
-            )}
-          </UIFormField>
-        </div>
-        <div className="column is-half">
-          <UIFormField label="Technique" mocked notLive>
-            {isEditing ? (
-              <p>Form elements go here</p>
-            ) : (
-              <UIControlledTermList items={descriptiveMetadata.technique} />
-            )}
-          </UIFormField>
-        </div>
-      </div>
+      <ul>
+        {controlledTerms.map(({ label, name }) => (
+          <li key={name} style={{ marginBottom: "2rem" }}>
+            <UIFormField label={label} mocked notLive>
+              {isEditing ? (
+                <UIFormControlledTermArray
+                  codeLists={codeLists}
+                  control={control}
+                  errors={errors}
+                  label={label}
+                  name={name}
+                  register={register}
+                />
+              ) : (
+                <UIControlledTermList items={descriptiveMetadata[name]} />
+              )}
+            </UIFormField>
+          </li>
+        ))}
+      </ul>
     </div>
   ) : null;
 };

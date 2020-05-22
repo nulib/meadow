@@ -66,11 +66,15 @@ const WorkTabsAbout = ({ work }) => {
       caption: descriptiveMetadata.caption,
       catalogKey: descriptiveMetadata.catalogKey,
       contributor: descriptiveMetadata.contributor,
+      creator: descriptiveMetadata.creator,
       folderName: descriptiveMetadata.folderName,
       folderNumber: descriptiveMetadata.folderNumber,
+      genre: descriptiveMetadata.genre,
       identifier: descriptiveMetadata.identifier,
       keywords: descriptiveMetadata.keywords,
+      language: descriptiveMetadata.language,
       legacyIdentifier: descriptiveMetadata.legacyIdentifier,
+      location: descriptiveMetadata.location,
       notes: descriptiveMetadata.notes,
       physicalDescriptionMaterial:
         descriptiveMetadata.physicalDescriptionMaterial,
@@ -83,7 +87,10 @@ const WorkTabsAbout = ({ work }) => {
       scopeAndContents: descriptiveMetadata.scopeAndContents,
       series: descriptiveMetadata.series,
       source: descriptiveMetadata.source,
+      stylePeriod: descriptiveMetadata.stylePeriod,
+      subject: descriptiveMetadata.subject,
       tableOfContents: descriptiveMetadata.tableOfContents,
+      technique: descriptiveMetadata.technique,
     });
   }, [work]);
 
