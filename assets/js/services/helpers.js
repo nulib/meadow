@@ -65,7 +65,7 @@ export function setVisibilityClass(visibility) {
     return "is-danger";
   }
   if (visibility.toUpperCase() === "AUTHENTICATED") {
-    return "is-primary is-light";
+    return "is-primary";
   }
   if (visibility.toUpperCase() === "OPEN") {
     return "is-success";

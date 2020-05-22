@@ -7,6 +7,7 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UIFormInput from "../../components/UI/Form/Input";
 import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UILevelItem from "../../components/UI/LevelItem";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -22,10 +23,10 @@ const ScreensProjectList = () => {
             <div className="columns" data-testid="screen-header">
               <div className="column is-8">
                 <h1 className="title">Projects</h1>
-                <h2 className="subtitle">
-                  Projects contain{" "}
-                  <span className="is-italic">Ingest Sheets</span>
-                </h2>
+                <p>
+                  Projects are a way to organize{" "}
+                  <span className="is-italic">Ingest Sheets</span>.{" "}
+                </p>
               </div>
               <div className="column is-4 has-text-right">
                 <button
@@ -35,14 +36,16 @@ const ScreensProjectList = () => {
                 >
                   Add Project
                 </button>
-                {/* <PrimaryButton
-                  data-testid="button-new-project"
-                  onClick={() => setShowForm(!showForm)}
-                >
-                  Add Project
-                </PrimaryButton> */}
               </div>
             </div>
+            <div className="level">
+              <UILevelItem heading="Total Projects" content="XXX" />
+              <UILevelItem heading="Total Sheets Ingested" content="12" />
+              <UILevelItem heading="Total Works Processed" content="5,384" />
+            </div>
+          </div>
+
+          <div className="box">
             <UIFormField childClass="has-icons-left">
               <UIFormInput
                 placeholder="Search projects"

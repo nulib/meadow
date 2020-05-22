@@ -108,7 +108,9 @@ const ScreensIngestSheet = ({ match }) => {
               </div>
             </div>
 
-            <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
+            {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED", "VALID"].indexOf(
+              sheetData.ingestSheet.status
+            ) > -1 && <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />}
           </div>
 
           <div className="">

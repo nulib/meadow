@@ -11,18 +11,18 @@ const fileFail = {
   state: [
     {
       name: "file",
-      state: "FAIL"
+      state: "FAIL",
     },
     {
       name: "rows",
-      state: "PENDING"
+      state: "PENDING",
     },
     {
       name: "overall",
-      state: "FAIL"
-    }
+      state: "FAIL",
+    },
   ],
-  status: "FILE_FAIL"
+  status: "FILE_FAIL",
 };
 
 it("renders without crashing", () => {
@@ -38,9 +38,11 @@ it("displays danger alert with file fail message when the Ingest Sheet status is
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-danger");
-  expect(getByText("File errors")).toBeInTheDocument();
+  expect(getByText("File errors", { exact: false })).toBeInTheDocument();
   expect(
-    getByText("Invalid csv file: unexpected escape character...")
+    getByText("Invalid csv file: unexpected escape character...", {
+      exact: false,
+    })
   ).toBeInTheDocument();
 });
 
@@ -53,18 +55,18 @@ const rowFail = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "FAIL"
+      state: "FAIL",
     },
     {
       name: "overall",
-      state: "FAIL"
-    }
+      state: "FAIL",
+    },
   ],
-  status: "ROW_FAIL"
+  status: "ROW_FAIL",
 };
 
 it("renders without crashing", () => {
@@ -80,7 +82,9 @@ it("displays danger alert with row fail message when the Ingest Sheet status is 
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-danger");
-  expect(getByText("File has failing rows")).toBeInTheDocument();
+  expect(
+    getByText("File has failing rows", { exact: false })
+  ).toBeInTheDocument();
 });
 
 const valid = {
@@ -92,18 +96,18 @@ const valid = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "VALID"
+  status: "VALID",
 };
 
 it("renders without crashing", () => {
@@ -119,9 +123,11 @@ it("displays success alert with valid file message when the Ingest Sheet status 
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-success");
-  expect(getByText("File is valid")).toBeInTheDocument();
+  expect(getByText("File is valid", { exact: false })).toBeInTheDocument();
   expect(
-    getByText("All checks have passed and the ingest sheet is valid.")
+    getByText("All checks have passed and the ingest sheet is valid.", {
+      exact: false,
+    })
   ).toBeInTheDocument();
 });
 
@@ -134,18 +140,18 @@ const approved = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "APPROVED"
+  status: "APPROVED",
 };
 
 it("renders without crashing", () => {
@@ -161,10 +167,11 @@ it("displays info alert with approved message when the Ingest Sheet status is AP
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-info");
-  expect(getByText("Approved")).toBeInTheDocument();
+  expect(getByText("Approved", { exact: false })).toBeInTheDocument();
   expect(
     getByText(
-      "The Ingest Sheet has been approved and the ingest is in progress."
+      "The Ingest Sheet has been approved and the ingest is in progress.",
+      { exact: false }
     )
   ).toBeInTheDocument();
 });
@@ -178,18 +185,18 @@ const completed = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "COMPLETED"
+  status: "COMPLETED",
 };
 
 it("renders without crashing", () => {
@@ -205,8 +212,10 @@ it("displays success alert with completed message when the Ingest Sheet status i
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-success");
-  expect(getByText("Ingestion Complete")).toBeInTheDocument();
-  expect(getByText("All files have been processed.")).toBeInTheDocument();
+  expect(getByText("Ingestion Complete", { exact: false })).toBeInTheDocument();
+  expect(
+    getByText("All files have been processed.", { exact: false })
+  ).toBeInTheDocument();
 });
 
 const deleted = {
@@ -218,18 +227,18 @@ const deleted = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "DELETED"
+  status: "DELETED",
 };
 
 it("renders without crashing", () => {
@@ -245,6 +254,8 @@ it("displays success alert with completed message when the Ingest Sheet status i
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-danger");
-  expect(getByText("Deleted")).toBeInTheDocument();
-  expect(getByText("Ingest sheet no longer exists.")).toBeInTheDocument();
+  expect(getByText("Deleted", { exact: false })).toBeInTheDocument();
+  expect(
+    getByText("Ingest sheet no longer exists.", { exact: false })
+  ).toBeInTheDocument();
 });

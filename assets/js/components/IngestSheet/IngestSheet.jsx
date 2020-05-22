@@ -43,7 +43,7 @@ const IngestSheet = ({
   const styles = { h2IsHidden: { display: "none" } };
 
   return (
-    <>
+    <div className="box">
       <h2
         className="title is-size-5"
         style={["COMPLETED"].indexOf(status) > -1 ? styles.h2IsHidden : {}}
@@ -52,7 +52,6 @@ const IngestSheet = ({
       </h2>
       {["APPROVED"].indexOf(status) > -1 && (
         <>
-          {/* <IngestSheetAlert ingestSheet={ingestSheetData} /> */}
           <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
         </>
       )}
@@ -71,7 +70,7 @@ const IngestSheet = ({
           subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
         />
       )}
-    </>
+    </div>
   );
 };
 
