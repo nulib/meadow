@@ -22,12 +22,12 @@ const Error = ({ error }) => {
   if (isNetworkError) {
     if (error.networkError.statusCode === 404) {
       return (
-        <UIAlert type="danger" title="Network Error" body="404: Not Found" />
+        <UIAlert type="is-danger" title="Network Error" body="404: Not Found" />
       );
     } else {
       return (
         <UIAlert
-          type="danger"
+          type="is-danger"
           title="Network Error"
           body={`${error.networkError.statusCode}: ${error.networkError.message}`}
         />
@@ -42,7 +42,7 @@ const Error = ({ error }) => {
               <span className="message">{message}</span>
               {details && (
                 <ul>
-                  {Object.keys(details).map(key => (
+                  {Object.keys(details).map((key) => (
                     <li key={key}>
                       {key} {details[key]}
                     </li>
@@ -54,18 +54,20 @@ const Error = ({ error }) => {
         </ul>
       </>
     );
-    return <UIAlert type="danger" title="GraphQL Error" body={errorMessage} />;
+    return (
+      <UIAlert type="is-danger" title="GraphQL Error" body={errorMessage} />
+    );
   } else {
-    return <UIAlert type="danger" title="Whoops!" body={error.message} />;
+    return <UIAlert type="is-danger" title="Whoops!" body={error.message} />;
   }
 };
 
 Error.propTypes = {
-  error: PropTypes.object
+  error: PropTypes.object,
 };
 
 Error.defaultProps = {
-  error: {}
+  error: {},
 };
 
 export default Error;

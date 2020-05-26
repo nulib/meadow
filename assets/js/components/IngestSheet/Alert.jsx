@@ -14,14 +14,14 @@ const IngestSheetAlert = ({ ingestSheet }) => {
         type: "is-info",
         title: "Approved",
         body:
-          "The Ingest Sheet has been approved and the ingest is in progress."
+          "The Ingest Sheet has been approved and the ingest is in progress.",
       };
       break;
     case "COMPLETED":
       alertObj = {
         type: "is-success",
         title: "Ingestion Complete",
-        body: "All files have been processed."
+        body: "All files have been processed.",
       };
       break;
     case "DELETED":
@@ -29,14 +29,14 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "is-danger",
         title: "Deleted",
-        body: "Ingest sheet no longer exists."
+        body: "Ingest sheet no longer exists.",
       };
       break;
     case "FILE_FAIL":
       alertObj = {
         type: "is-danger",
         title: "File errors",
-        body: fileErrors.length > 0 ? fileErrors.join(", ") : ""
+        body: fileErrors.length > 0 ? fileErrors.join(", ") : "",
       };
       break;
     case "ROW_FAIL":
@@ -45,21 +45,21 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "is-danger",
         title: "File has failing rows",
-        body: "See the error report below for details."
+        body: "See the error report below for details.",
       };
       break;
     case "UPLOADED":
       alertObj = {
         type: "is-info",
         title: "File uploaded",
-        body: "Ingest sheet validation is in progress."
+        body: "Ingest sheet validation is in progress.",
       };
       break;
     case "VALID":
       alertObj = {
         type: "is-success",
         title: "File is valid",
-        body: "All checks have passed and the ingest sheet is valid."
+        body: "All checks have passed and the ingest sheet is valid.",
       };
       break;
     default:
@@ -67,22 +67,19 @@ const IngestSheetAlert = ({ ingestSheet }) => {
   }
 
   return showMessage ? (
-    <article className={`message ${alertObj.type}`} data-testid="ui-alert">
-      <div className="message-header">
-        <p>{alertObj.title}</p>
-        <button
-          className="delete"
-          aria-label="delete"
-          onClick={() => setShowMessage(false)}
-        ></button>
-      </div>
-      <div className="message-body">{alertObj.body}</div>
+    <article
+      className={`notification is-light ${alertObj.type}`}
+      data-testid="ui-alert"
+    >
+      <p>
+        {alertObj.title}. {alertObj.body}
+      </p>
     </article>
   ) : null;
 };
 
 IngestSheetAlert.propTypes = {
-  ingestSheet: PropTypes.object
+  ingestSheet: PropTypes.object,
 };
 
 export default IngestSheetAlert;
