@@ -1,125 +1,113 @@
 defmodule MeadowWeb.Schema.Query.WorksTest do
-  use MeadowWeb.ConnCase, async: true
-  alias Meadow.Data.Works
+  defmodule All do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
 
-  @query """
-  query {
-    works{
-      id
-    }
-  }
-  """
-
-  test "works query returns all works" do
-    work_fixture()
-    work_fixture()
-    work_fixture()
-
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query)
-
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{"id" => _},
-                 %{"id" => _},
-                 %{"id" => _}
-               ]
-             }
-           } = json_response(response, 200)
-  end
-
-  @query """
-  query($limit: Int!) {
-    works(limit: $limit){
-      id
-    }
-  }
-  """
-  @variables %{"limit" => 2}
-  test "works query limits the number of works returned" do
-    work_fixture()
-    work_fixture()
-    work_fixture()
-
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{"id" => _},
-                 %{"id" => _}
-               ]
-             }
-           } = json_response(response, 200)
-  end
-
-  @match_attrs %{
-    accession_number: "12345",
-    descriptive_metadata: %{title: "This Title"}
-  }
-  @no_match_attrs %{
-    accession_number: "123456",
-    descriptive_metadata: %{title: "Other One"}
-  }
-
-  @query """
-  query ($filter: WorkFilter!) {
-    works(filter: $filter) {
-      descriptiveMetadata{
-        title
+    set_gql MeadowWeb.Schema, """
+    query {
+      works{
+        id
       }
     }
-  }
-  """
-  @variables %{"filter" => %{"matching" => "This Title"}}
-  test "works query returns works filtered by title" do
-    work_fixture(@match_attrs)
-    work_fixture(@no_match_attrs)
+    """
 
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{"descriptiveMetadata" => %{"title" => "This Title"}}
-               ]
-             }
-           } == json_response(response, 200)
+    test "works query returns all works" do
+      Enum.each(1..3, fn _ -> work_fixture() end)
+      assert {:ok, %{data: query_data}} = query_gql(context: gql_context())
+      assert [
+               %{"id" => _},
+               %{"id" => _},
+               %{"id" => _}
+             ] = query_data["works"]
+    end
   end
 
-  @query """
-  query {
-    works{
-      id
-      representativeImage
+  defmodule Limit do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
+
+    set_gql MeadowWeb.Schema, """
+    query($limit: Int!) {
+      works(limit: $limit){
+        id
+      }
     }
-  }
-  """
-  test "works query returns work with representative image" do
-    work = work_fixture()
-    %{id: image_id} = file_set_fixture(%{work_id: work.id})
-    work |> Works.update_work(%{representative_file_set_id: image_id})
+    """
+    test "works query limits the number of works returned" do
+      Enum.each(1..3, fn _ -> work_fixture() end)
+      assert {:ok, %{data: query_data}} = query_gql(
+                                            variables: %{"limit" => 2},
+                                            context: gql_context()
+                                          )
+      assert [
+        %{"id" => _},
+        %{"id" => _}
+      ] = query_data["works"]
+    end
+  end
 
-    conn = build_conn() |> auth_user(user_fixture())
+  defmodule TitleMatch do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
 
-    response = get(conn, "/api/graphql", query: @query)
-    expected = "#{Meadow.Config.iiif_server_url()}#{image_id}"
+    set_gql MeadowWeb.Schema, """
+    query ($filter: WorkFilter!) {
+      works(filter: $filter) {
+        descriptiveMetadata{
+          title
+        }
+      }
+    }
+    """
 
-    assert %{
-             "data" => %{
-               "works" => [
-                 %{
-                   "id" => _,
-                   "representativeImage" => ^expected
-                 }
-               ]
-             }
-           } = json_response(response, 200)
+    test "works query returns works filtered by title" do
+      work_fixture(%{
+        accession_number: "12345",
+        descriptive_metadata: %{title: "This Title"}
+      })
+      work_fixture(%{
+        accession_number: "123456",
+        descriptive_metadata: %{title: "Other One"}
+      })
+
+      assert {:ok, %{data: query_data}} = query_gql(
+                                            variables: %{"filter" => %{"matching" => "This Title"}},
+                                            context: gql_context()
+                                          )
+
+      assert query_data["works"] ==
+        [%{"descriptiveMetadata" => %{"title" => "This Title"}}]
+    end
+  end
+
+  defmodule RepresentativeImage do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
+    alias Meadow.Data.Works
+
+    set_gql MeadowWeb.Schema, """
+    query {
+      works{
+        id
+        representativeImage
+      }
+    }
+    """
+
+    test "works query returns work with representative image" do
+      work = work_fixture()
+      %{id: image_id} = file_set_fixture(%{work_id: work.id})
+      work |> Works.update_work(%{representative_file_set_id: image_id})
+
+      assert {:ok, %{data: query_data}} = query_gql(context: gql_context())
+      expected = "#{Meadow.Config.iiif_server_url()}#{image_id}"
+
+      assert [
+               %{
+                 "id" => _,
+                 "representativeImage" => ^expected
+               }
+             ] = query_data["works"]
+    end
   end
 end

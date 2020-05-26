@@ -1,90 +1,82 @@
 defmodule MeadowWeb.Schema.Query.ProjectsTest do
-  use MeadowWeb.ConnCase, async: true
+  defmodule All do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
 
-  @query """
-  query {
-    projects{
-      id
-      title
+    set_gql MeadowWeb.Schema, """
+    query {
+      projects{
+        id
+        title
+      }
     }
-  }
-  """
+    """
 
-  test "projects query returns all projects" do
-    projects_fixture()
-    conn = build_conn() |> auth_user(user_fixture())
+    test "projects query returns all projects" do
+      projects_fixture()
 
-    response = get(conn, "/api/graphql", query: @query)
-
-    assert %{
-             "data" => %{
-               "projects" => [
-                 %{"title" => "Project 3"},
-                 %{"title" => "Project 2"},
-                 %{"title" => "Project 1"}
-               ]
-             }
-           } = json_response(response, 200)
+      assert {:ok, %{data: query_data}} = query_gql(context: gql_context())
+      assert [
+               %{"title" => "Project 3"},
+               %{"title" => "Project 2"},
+               %{"title" => "Project 1"}
+             ] = query_data["projects"]
+    end
   end
 
-  @query """
-  query($limit: Int!) {
-    projects(limit: $limit){
-      id
-      title
+  defmodule Limit do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
+
+    set_gql MeadowWeb.Schema, """
+    query($limit: Int) {
+      projects(limit: $limit){
+        id
+        title
+      }
     }
-  }
-  """
-  @variables %{"limit" => 2}
-  test "projects query limits the number of projects returned" do
-    projects_fixture()
-    conn = build_conn() |> auth_user(user_fixture())
+    """
+    @tag variables: %{"limit" => "2"}
+    test "projects query limits the number of projects returned" do
+      projects_fixture()
 
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "projects" => [
-                 %{"title" => "Project 3"},
-                 %{"title" => "Project 2"}
-               ]
-             }
-           } = json_response(response, 200)
+      assert {:ok, %{data: query_data}} = query_gql(variables: %{"limit" => 2}, context: gql_context())
+      assert [
+               %{"title" => "Project 3"},
+               %{"title" => "Project 2"}
+             ] = query_data["projects"]
+    end
   end
 
-  @query """
-  query($order: SortOrder!) {
-    projects(order: $order){
-      id
-      title
+  defmodule Order do
+    use MeadowWeb.ConnCase, async: true
+    use Wormwood.GQLCase
+
+    set_gql MeadowWeb.Schema, """
+    query($order: SortOrder!) {
+      projects(order: $order){
+        id
+        title
+      }
     }
-  }
-  """
-  @variables %{"order" => "ASC"}
-  test "projects query returns projects ascending" do
-    projects_fixture()
-    conn = build_conn() |> auth_user(user_fixture())
+    """
 
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
+    setup tags do
+      projects_fixture()
+      {:ok,
+       %{result: query_gql(variables: tags[:variables], context: gql_context())}}
+    end
 
-    assert %{
-             "data" => %{
-               "projects" => [%{"title" => "Project 1"} | _]
-             }
-           } = json_response(response, 200)
-  end
+    @tag variables: %{"order" => "ASC"}
+    test "projects query returns projects ascending", %{result: result} do
+      assert {:ok, %{data: query_data}} = result
+      assert [%{"title" => "Project 1"} | _] = query_data["projects"]
+    end
 
-  @variables %{"order" => "DESC"}
-  test "projects query returns projects descending" do
-    projects_fixture()
-    conn = build_conn() |> auth_user(user_fixture())
-
-    response = get(conn, "/api/graphql", query: @query, variables: @variables)
-
-    assert %{
-             "data" => %{
-               "projects" => [%{"title" => "Project 3"} | _]
-             }
-           } = json_response(response, 200)
+    @tag variables: %{"order" => "DESC"}
+    test "projects query returns projects descending", %{result: result} do
+      assert {:ok, %{data: query_data}} = result
+      assert [%{"title" => "Project 3"} | _] = query_data["projects"]
+    end
   end
 end

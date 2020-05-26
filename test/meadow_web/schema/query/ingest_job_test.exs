@@ -2,7 +2,7 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
   use MeadowWeb.ConnCase, async: true
 
   @query """
-  query($id: String!) {
+  query($id: ID!) {
     ingest_sheet(id: $id) {
       name
     }

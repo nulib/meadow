@@ -8,18 +8,17 @@ defmodule Meadow.Application do
   alias Meadow.Pipeline
 
   def start(_type, _args) do
-    import Supervisor.Spec
-
     # List all child processes to be supervised
     # Start the Ecto repository
     # Start the endpoint when the application starts
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
     base_children = [
+      {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.ElasticsearchCluster,
       Meadow.Repo,
       MeadowWeb.Endpoint,
-      supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
+      {Absinthe.Subscription, MeadowWeb.Endpoint},
       {Registry, keys: :unique, name: Meadow.TaskRegistry},
       {ConCache, [name: Meadow.Cache, ttl_check_interval: false]}
     ]

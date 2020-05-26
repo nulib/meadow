@@ -8,12 +8,13 @@ defmodule MeadowWeb.SubscriptionCase do
 
   using do
     quote do
-      use Phoenix.ConnTest
       use MeadowWeb.ChannelCase
       use Wormwood.GQLCase
       use SubscriptionTest, schema: MeadowWeb.Schema
       import Meadow.TestHelpers
       import MeadowWeb.SubscriptionCase
+      import Phoenix.ConnTest
+      import Plug.Conn
 
       defmacro subscribe_gql(socket, opts \\ []) do
         quote do

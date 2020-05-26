@@ -32,7 +32,7 @@ IngestSheet.fragments = {
 export const CREATE_INGEST_SHEET = gql`
   mutation CreateIngestSheet(
     $name: String!
-    $projectId: String!
+    $projectId: ID!
     $filename: String!
   ) {
     createIngestSheet(
@@ -77,7 +77,7 @@ export const GET_INGEST_SHEETS = gql`
 `;
 
 export const GET_INGEST_SHEET_STATE = gql`
-  query IngestSheetState($sheetId: String!) {
+  query IngestSheetState($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
       id
       state {
@@ -89,7 +89,7 @@ export const GET_INGEST_SHEET_STATE = gql`
 `;
 
 export const GET_INGEST_SHEET_ROW_VALIDATION_ERRORS = gql`
-  query IngestSheetRowValidationErrors($sheetId: String!) {
+  query IngestSheetRowValidationErrors($sheetId: ID!) {
     ingestSheetRows(sheetId: $sheetId, state: FAIL) {
       row
       fields {
@@ -106,7 +106,7 @@ export const GET_INGEST_SHEET_ROW_VALIDATION_ERRORS = gql`
 `;
 
 export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
-  query IngestSheetValidationProgress($sheetId: String!) {
+  query IngestSheetValidationProgress($sheetId: ID!) {
     ingestSheetValidationProgress(id: $sheetId) {
       states {
         state
@@ -118,7 +118,7 @@ export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
 `;
 
 export const GET_INGEST_SHEET_ROW_VALIDATIONS = gql`
-  query IngestSheetRows($sheetId: String!) {
+  query IngestSheetRows($sheetId: ID!) {
     ingestSheetRows(sheetId: $sheetId) {
       row
       fields {
@@ -143,7 +143,7 @@ export const GET_PRESIGNED_URL = gql`
 `;
 
 export const START_VALIDATION = gql`
-  mutation ValidateIngestSheet($id: String!) {
+  mutation ValidateIngestSheet($id: ID!) {
     validateIngestSheet(sheetId: $id) {
       message
     }
@@ -169,7 +169,7 @@ export const INGEST_SHEET_SUBSCRIPTION = gql`
 `;
 
 export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS = gql`
-  subscription IngestSheetValidationProgress($sheetId: String!) {
+  subscription IngestSheetValidationProgress($sheetId: ID!) {
     ingestSheetValidationProgress(sheetId: $sheetId) {
       states {
         state

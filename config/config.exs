@@ -26,7 +26,7 @@ config :meadow, MeadowWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B",
   render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: Meadow.PubSub
 
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
