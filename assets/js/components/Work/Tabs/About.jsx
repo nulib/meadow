@@ -165,7 +165,7 @@ const WorkTabsAbout = ({ work }) => {
   };
 
   if (updateWorkError) return <UIError error={updateWorkError} />;
-  if (updateWorkLoading) return <UISkeleton rows={20} />;
+  //if (updateWorkLoading) return <UISkeleton rows={20} />;
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
@@ -210,14 +210,18 @@ const WorkTabsAbout = ({ work }) => {
             />
           </a>
         </h2>
-        <WorkTabsAboutCoreMetadata
-          descriptiveMetadata={descriptiveMetadata}
-          errors={errors}
-          isEditing={isEditing}
-          register={register}
-          showCoreMetadata={showCoreMetadata}
-          updateWorkLoading={updateWorkLoading}
-        />
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutCoreMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            showCoreMetadata={showCoreMetadata}
+            updateWorkLoading={updateWorkLoading}
+          />
+        )}
       </div>
 
       <div className="box is-relative">
@@ -231,14 +235,18 @@ const WorkTabsAbout = ({ work }) => {
             />
           </a>
         </h2>
-        <WorkTabsAboutDescriptiveMetadata
-          control={control}
-          descriptiveMetadata={descriptiveMetadata}
-          errors={errors}
-          isEditing={isEditing}
-          register={register}
-          showDescriptiveMetadata={showDescriptiveMetadata}
-        />
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutDescriptiveMetadata
+            control={control}
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            showDescriptiveMetadata={showDescriptiveMetadata}
+          />
+        )}
       </div>
     </form>
   );

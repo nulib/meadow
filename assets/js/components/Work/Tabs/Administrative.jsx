@@ -15,7 +15,7 @@ import UICodedTermItem from "../../UI/CodedTerm/Item";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
 import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
-import UIPlaceholder from "../../UI/Skeleton";
+import UISkeleton from "../../UI/Skeleton";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
@@ -98,16 +98,18 @@ const WorkTabsAdministrative = ({ work }) => {
       administrativeMetadata: {
         preservationLevel: { id: preservationLevel },
         status: { id: status },
-        projectName,
-        projectDesc,
-        projectProposer,
-        projectManager,
-        projectTaskNumber,
-        projectCycle,
+        // TODO: Should these be field arrays or singular values?
+        // projectName,
+        // projectDesc,
+        // projectProposer,
+        // projectManager,
+        // projectTaskNumber,
+        // projectCycle,
       },
       collectionId: collection,
-      visibility: visibility,
+      visibility: { id: visibility },
     };
+
     updateWork({
       variables: { id, work: workUpdateInput },
     });
@@ -251,7 +253,7 @@ const WorkTabsAdministrative = ({ work }) => {
               <Link to={`/project/${project.id}`}>{project.name}</Link>
             </UIFormField>
 
-            <UIFormField label="Project Cycle">
+            <UIFormField label="Project Cycle" notLive>
               {isEditing ? (
                 <UIFormInput
                   placeholder="Project Cycle"
@@ -277,6 +279,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   label={item.label}
                   errors={errors}
                   key={item.name}
+                  notLive
                 />
               ))}
             {!isEditing &&
@@ -285,6 +288,8 @@ const WorkTabsAdministrative = ({ work }) => {
                   items={administrativeMetadata[item.name]}
                   label={item.label}
                   key={item.name}
+                  mocked
+                  notLive
                 />
               ))}
           </div>

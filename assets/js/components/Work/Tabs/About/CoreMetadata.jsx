@@ -83,7 +83,7 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {/* Date Created */}
-        <UIFormField label="Date Created">
+        <UIFormField label="Date Created" notLive>
           {isEditing ? (
             <UIInput
               register={register}

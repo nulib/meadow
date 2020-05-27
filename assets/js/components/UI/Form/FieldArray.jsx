@@ -21,6 +21,8 @@ const UIFormFieldArray = ({
   control,
   required,
   defaultValue = `New ${label}`,
+  mocked,
+  notLive,
   ...passedInProps
 }) => {
   const { fields, append, remove } = useFieldArray({
@@ -30,7 +32,10 @@ const UIFormFieldArray = ({
 
   return (
     <fieldset {...passedInProps}>
-      <legend data-testid="legend">{label}</legend>
+      <legend data-testid="legend">
+        {label} {mocked && <span className="tag">Mocked</span>}{" "}
+        {notLive && <span className="tag">Not Live</span>}
+      </legend>
 
       <ul style={styles.inputWrapper}>
         {fields.map((item, index) => {
@@ -89,7 +94,9 @@ UIFormFieldArray.propTypes = {
   control: PropTypes.object.isRequired,
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
+  mocked: PropTypes.bool,
   name: PropTypes.string.isRequired,
+  notLive: PropTypes.bool,
   register: PropTypes.func,
   required: PropTypes.bool,
   type: PropTypes.string,

@@ -41,7 +41,7 @@ describe("InputMultiple component", () => {
     const { getByTestId, getByLabelText } = setUpTests();
     expect(getByTestId("fieldset-ima-multi"));
     const legend = getByTestId("legend");
-    expect(legend.innerHTML).toEqual(props.label);
+    expect(legend.innerHTML.trim()).toEqual(props.label);
   });
 
   it("renders a field group with a form input, default value, and delete button", () => {
