@@ -6,7 +6,7 @@ import {
   DELETE_COLLECTION,
 } from "../../components/Collection/collection.gql.js";
 import Error from "../../components/UI/Error";
-import UILoadingPage from "../../components/UI/LoadingPage";
+import UISkeleton from "../../components/UI/Skeleton";
 import { Link, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { toastWrapper } from "../../services/helpers";
@@ -42,9 +42,6 @@ const ScreensCollectionList = () => {
     },
   });
 
-  if (loading) {
-    return <UILoadingPage />;
-  }
   if (error) {
     return <Error error={error} />;
   }
@@ -65,15 +62,6 @@ const ScreensCollectionList = () => {
     setActiveCollection();
   };
 
-  const createCrumbs = () => {
-    return [
-      {
-        label: "Collections",
-        link: "/collection/list",
-      },
-    ];
-  };
-
   const handleFilterChange = (e) => {
     const searchValue = inputEl.current.value.toLowerCase();
 
@@ -92,7 +80,9 @@ const ScreensCollectionList = () => {
     <Layout>
       <section className="section" data-testid="collection-list-wrapper">
         <div className="container">
-          <UIBreadcrumbs items={[{ label: "Themes & Collections" }]} />
+          <UIBreadcrumbs
+            items={[{ label: "Themes & Collections", isActive: true }]}
+          />
 
           <div className="columns">
             <div className="column is-6">
@@ -121,32 +111,38 @@ const ScreensCollectionList = () => {
             </div>
           </div>
           <div className="box" data-testid="collection-list">
-            <h3 className="title is-size-5">All Collections</h3>
-            <UIFormField childClass="has-icons-left">
-              <UIFormInput
-                placeholder="Search collections"
-                name="collectionSearch"
-                label="Filter collections"
-              />
-              <span className="icon is-small is-left">
-                <FontAwesomeIcon icon="search" />
-              </span>
-            </UIFormField>
-
-            <ul>
-              {filteredCollections.length > 0 &&
-                filteredCollections.map((collection) => (
-                  <CollectionListRow
-                    key={collection.id}
-                    collection={collection}
-                    onOpenModal={onOpenModal}
+            {loading ? (
+              <UISkeleton rows={10} />
+            ) : (
+              <>
+                <h3 className="title is-size-5">All Collections</h3>
+                <UIFormField childClass="has-icons-left">
+                  <UIFormInput
+                    placeholder="Search collections"
+                    name="collectionSearch"
+                    label="Filter collections"
                   />
-                ))}
-            </ul>
-            {data.collections.length === 0 && (
-              <div className="content">
-                <p className="notification">No collections returned</p>
-              </div>
+                  <span className="icon is-small is-left">
+                    <FontAwesomeIcon icon="search" />
+                  </span>
+                </UIFormField>
+
+                <ul>
+                  {filteredCollections.length > 0 &&
+                    filteredCollections.map((collection) => (
+                      <CollectionListRow
+                        key={collection.id}
+                        collection={collection}
+                        onOpenModal={onOpenModal}
+                      />
+                    ))}
+                </ul>
+                {data.collections.length === 0 && (
+                  <div className="content">
+                    <p className="notification">No collections returned</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

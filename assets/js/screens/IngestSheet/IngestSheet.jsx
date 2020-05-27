@@ -2,6 +2,7 @@ import React from "react";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
 import UILoading from "../../components/UI/Loading";
+import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
@@ -51,11 +52,9 @@ const ScreensIngestSheet = ({ match }) => {
     fetchPolicy: "network-only",
   });
 
-  if (crumbsLoading || sheetLoading) return <UILoading />;
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
 
-  const { ingestSheet } = crumbsData;
   const createCrumbs = () => {
     return [
       {
@@ -63,7 +62,7 @@ const ScreensIngestSheet = ({ match }) => {
         route: `/project/list`,
       },
       {
-        label: `${ingestSheet.project.title}`,
+        label: `${crumbsData.ingestSheet.project.title}`,
         route: `/project/${id}`,
       },
       {
@@ -71,7 +70,7 @@ const ScreensIngestSheet = ({ match }) => {
         route: `/project/${id}`,
       },
       {
-        label: ingestSheet.name,
+        label: crumbsData.ingestSheet.name,
         route: `/project/${id}/ingest-sheet/${sheetId}`,
         isActive: true,
       },
@@ -82,38 +81,61 @@ const ScreensIngestSheet = ({ match }) => {
     <Layout>
       <section className="section">
         <div className="container">
-          <UIBreadcrumbs items={createCrumbs()} />
-          <div className="box">
-            <div className="columns">
-              <div className="column is-half">
-                <h1 className="title">
-                  {ingestSheet.name}{" "}
-                  <span
-                    className={`tag ${getClassFromIngestSheetStatus(
-                      sheetData.ingestSheet.status
-                    )}`}
-                  >
-                    {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
-                  </span>
-                </h1>
-                <h2 className="subtitle">Ingest Sheet</h2>
-              </div>
-              <div className="column is-half">
-                <IngestSheetActionRow
-                  sheetId={sheetId}
-                  projectId={id}
-                  status={sheetData.ingestSheet.status}
-                  name={sheetData.ingestSheet.name}
-                />
-              </div>
-            </div>
+          {crumbsLoading ? (
+            <UISkeleton rows={2} />
+          ) : (
+            <UIBreadcrumbs items={createCrumbs()} />
+          )}
 
-            {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED", "VALID"].indexOf(
-              sheetData.ingestSheet.status
-            ) > -1 && <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />}
+          <div className="box">
+            {sheetLoading ? (
+              <UISkeleton rows={5} />
+            ) : (
+              <>
+                <div className="columns">
+                  <div className="column is-half">
+                    <h1 className="title">
+                      {sheetData.ingestSheet.name}{" "}
+                      <span
+                        className={`tag ${getClassFromIngestSheetStatus(
+                          sheetData.ingestSheet.status
+                        )}`}
+                      >
+                        {
+                          TEMP_USER_FRIENDLY_STATUS[
+                            sheetData.ingestSheet.status
+                          ]
+                        }
+                      </span>
+                    </h1>
+                    <h2 className="subtitle">Ingest Sheet</h2>
+                  </div>
+                  <div className="column is-half">
+                    <IngestSheetActionRow
+                      sheetId={sheetId}
+                      projectId={id}
+                      status={sheetData.ingestSheet.status}
+                      name={sheetData.ingestSheet.name}
+                    />
+                  </div>
+                </div>
+
+                {[
+                  "APPROVED",
+                  "FILE_FAIL",
+                  "ROW_FAIL",
+                  "UPLOADED",
+                  "VALID",
+                ].indexOf(sheetData.ingestSheet.status) > -1 && (
+                  <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
+                )}
+              </>
+            )}
           </div>
 
-          <div className="">
+          {sheetLoading ? (
+            <UISkeleton rows={20} />
+          ) : (
             <IngestSheet
               ingestSheetData={sheetData.ingestSheet}
               projectId={id}
@@ -130,7 +152,7 @@ const ScreensIngestSheet = ({ match }) => {
                 })
               }
             />
-          </div>
+          )}
         </div>
       </section>
     </Layout>

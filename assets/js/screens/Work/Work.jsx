@@ -10,7 +10,7 @@ import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
-import UILoadingPage from "../../components/UI/LoadingPage";
+import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { setVisibilityClass, toastWrapper } from "../../services/helpers";
@@ -55,20 +55,7 @@ const ScreensWork = () => {
     setDeleteModalOpen(false);
   };
 
-  if (loading) return <UILoadingPage />;
   if (error) return <Error error={error} />;
-
-  const {
-    work: {
-      accessionNumber,
-      published,
-      descriptiveMetadata,
-      project,
-      sheet,
-      visibility,
-      workType,
-    },
-  } = data;
 
   const breadCrumbs = [
     {
@@ -83,7 +70,7 @@ const ScreensWork = () => {
 
   const handlePublishClick = () => {
     let workUpdateInput = {
-      published: !published,
+      published: !data.work.published,
     };
 
     updateWork({
@@ -97,76 +84,97 @@ const ScreensWork = () => {
         <div className="container">
           <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
           <div className="box">
-            <div className="columns">
-              <div className="column is-two-thirds">
-                <h1 className="title">
-                  {descriptiveMetadata.title || "Untitled"}{" "}
-                </h1>
-                <p>
-                  <span
-                    className={`tag ${published ? "is-info" : "is-warning"}`}
-                  >
-                    {published ? "Published" : "Not Published"}
-                  </span>{" "}
-                  <span className={`tag ${setVisibilityClass(visibility.id)}`}>
-                    {visibility.label}
-                  </span>{" "}
-                  <span className={`tag is-info`}>{workType.label}</span>
-                </p>
-              </div>
-              <div className="column is-one-third">
-                <div className="buttons is-right">
-                  <button
-                    className={`button is-primary ${
-                      published ? "is-outlined" : ""
-                    }`}
-                    data-testid="publish-button"
-                    onClick={handlePublishClick}
-                  >
-                    {!published ? "Publish" : "Unpublish"}
-                  </button>
-                  <button
-                    className="button"
-                    data-testid="delete-button"
-                    onClick={onOpenModal}
-                  >
-                    Delete
-                  </button>
+            {loading ? (
+              <UISkeleton rows={5} />
+            ) : (
+              <>
+                <div className="columns">
+                  <div className="column is-two-thirds">
+                    <h1 className="title">
+                      {data.work.descriptiveMetadata.title || "Untitled"}{" "}
+                    </h1>
+                    <p>
+                      <span
+                        className={`tag ${
+                          data.work.published ? "is-info" : "is-warning"
+                        }`}
+                      >
+                        {data.work.published ? "Published" : "Not Published"}
+                      </span>{" "}
+                      <span
+                        className={`tag ${setVisibilityClass(
+                          data.work.visibility.id
+                        )}`}
+                      >
+                        {data.work.visibility.label}
+                      </span>{" "}
+                      <span className={`tag is-info`}>
+                        {data.work.workType.label}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="column is-one-third">
+                    <div className="buttons is-right">
+                      <button
+                        className={`button is-primary ${
+                          data.work.published ? "is-outlined" : ""
+                        }`}
+                        data-testid="publish-button"
+                        onClick={handlePublishClick}
+                      >
+                        {!data.work.published ? "Publish" : "Unpublish"}
+                      </button>
+                      <button
+                        className="button"
+                        data-testid="delete-button"
+                        onClick={onOpenModal}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="content">
-              <dl>
-                <dt>Accession Number</dt>
-                <dd>{accessionNumber}</dd>
-                <dt>Project</dt>
-                <dd>
-                  <Link to={`/project/${project.id}`}>{project.name}</Link>
-                </dd>
-                <dt>Ingest Sheet</dt>
-                <dd>
-                  <Link to={`/project/${project.id}/ingest-sheet/${sheet.id}`}>
-                    {sheet.name}
-                  </Link>
-                </dd>
-              </dl>
-            </div>
+                <div className="content">
+                  <dl>
+                    <dt>Accession Number</dt>
+                    <dd>{data.work.accessionNumber}</dd>
+                    <dt>Project</dt>
+                    <dd>
+                      <Link to={`/project/${data.work.project.id}`}>
+                        {data.work.project.name}
+                      </Link>
+                    </dd>
+                    <dt>Ingest Sheet</dt>
+                    <dd>
+                      <Link
+                        to={`/project/${data.work.project.id}/ingest-sheet/${data.work.sheet.id}`}
+                      >
+                        {data.work.sheet.name}
+                      </Link>
+                    </dd>
+                  </dl>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
-      <Work work={data.work} />
 
-      <UIModalDelete
-        isOpen={deleteModalOpen}
-        handleClose={onCloseModal}
-        handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Work ${
-          descriptiveMetadata
-            ? descriptiveMetadata.title || accessionNumber
-            : accessionNumber
-        }`}
-      />
+      {loading ? <UISkeleton rows={20} /> : <Work work={data.work} />}
+
+      {data && (
+        <UIModalDelete
+          isOpen={deleteModalOpen}
+          handleClose={onCloseModal}
+          handleConfirm={handleDeleteClick}
+          thingToDeleteLabel={`Work ${
+            data.work.descriptiveMetadata
+              ? data.work.descriptiveMetadata.title || data.work.accessionNumber
+              : data.work.accessionNumber
+          }`}
+        />
+      )}
     </Layout>
   );
 };

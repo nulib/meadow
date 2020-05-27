@@ -7,7 +7,7 @@ import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
 import WorkTabsHeader from "./Header";
-import UIPlaceholder from "../../UI/Placeholder";
+import UISkeleton from "../../UI/Skeleton";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
 import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
 import {
@@ -165,6 +165,7 @@ const WorkTabsAbout = ({ work }) => {
   };
 
   if (updateWorkError) return <UIError error={updateWorkError} />;
+  if (updateWorkLoading) return <UISkeleton rows={20} />;
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
@@ -201,8 +202,6 @@ const WorkTabsAbout = ({ work }) => {
       </WorkTabsHeader>
 
       <div className="box is-relative" style={{ marginTop: "1rem" }}>
-        <UIPlaceholder isActive={updateWorkLoading} rows={10} />
-
         <h2 className="title is-size-5">
           Core Metadata{" "}
           <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
@@ -222,8 +221,6 @@ const WorkTabsAbout = ({ work }) => {
       </div>
 
       <div className="box is-relative">
-        <UIPlaceholder isActive={updateWorkLoading} rows={10} />
-
         <h2 className="title is-size-5">
           Descriptive Metadata{" "}
           <a

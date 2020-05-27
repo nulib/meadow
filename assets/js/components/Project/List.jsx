@@ -8,6 +8,7 @@ import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, toastWrapper } from "../../services/helpers";
+import UISkeleton from "../UI/Skeleton";
 
 const ProjectList = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -29,7 +30,7 @@ const ProjectList = () => {
     },
   });
 
-  if (loading) return <Loading />;
+  if (loading) return <UISkeleton rows={20} />;
   if (error) return <Error error={error} />;
 
   const onOpenModal = (e, project) => {

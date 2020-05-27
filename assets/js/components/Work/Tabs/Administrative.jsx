@@ -15,7 +15,7 @@ import UICodedTermItem from "../../UI/CodedTerm/Item";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
 import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
-import UIPlaceholder from "../../UI/Placeholder";
+import UIPlaceholder from "../../UI/Skeleton";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, project, sheet } = work;
@@ -166,7 +166,7 @@ const WorkTabsAdministrative = ({ work }) => {
       <div className="columns">
         <div className="column is-two-thirds">
           <div className="box is-relative">
-            <UIPlaceholder isActive={updateWorkLoading} rows={10} />
+            {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
             <UIFormField label="Collection">
               {isEditing ? (
                 <UIFormSelect
@@ -246,7 +246,7 @@ const WorkTabsAdministrative = ({ work }) => {
         </div>
         <div className="column one-third">
           <div className="box is-relative">
-            <UIPlaceholder isActive={updateWorkLoading} rows={10} />
+            {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
             <UIFormField label="Project">
               <Link to={`/project/${project.id}`}>{project.name}</Link>
             </UIFormField>

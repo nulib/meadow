@@ -10,6 +10,7 @@ import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import WorkListItem from "../Work/ListItem";
 import WorkCardItem from "../Work/CardItem";
+import UISkeleton from "../UI/Skeleton";
 
 const IngestSheetCompleted = ({ sheetId }) => {
   const [isListView, setIsListView] = useState(false);
@@ -27,12 +28,7 @@ const IngestSheetCompleted = ({ sheetId }) => {
     data: errorsData,
   } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
 
-  if (worksLoading || errorsLoading)
-    return (
-      <progress className="progress is-primary" max="100">
-        30%
-      </progress>
-    );
+  if (worksLoading || errorsLoading) return <UISkeleton rows={10} />;
   if (worksError) return <Error error={worksError} />;
   if (errorsError) return <Error error={errorsError} />;
 

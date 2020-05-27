@@ -9,6 +9,7 @@ import {
 } from "../../components/Collection/collection.gql";
 import Error from "../../components//UI/Error";
 import UILoadingPage from "../../components//UI/LoadingPage";
+import UISkeleton from "../../components//UI/Skeleton";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import UIModalDelete from "../../components/UI/Modal/Delete";
@@ -36,7 +37,6 @@ const ScreensCollection = () => {
     },
   });
 
-  if (loading) return <UILoadingPage />;
   if (error) return <Error error={error} />;
 
   const onOpenModal = () => {
@@ -52,57 +52,78 @@ const ScreensCollection = () => {
     deleteCollection({ variables: { collectionId: id } });
   };
 
-  const crumbs = [
-    {
-      label: "Collections",
-      route: "/collection/list",
-    },
-    {
-      label: data.collection.name,
-      route: `/collection/${id}`,
-      isActive: true,
-    },
-  ];
+  function getCrumbs() {
+    return [
+      {
+        label: "Collections",
+        route: "/collection/list",
+      },
+      {
+        label: data.collection.name,
+        route: `/collection/${id}`,
+        isActive: true,
+      },
+    ];
+  }
 
   return (
     <Layout>
       <section className="section" data-testid="collection-screen-hero">
         <div className="container">
-          <UIBreadcrumbs items={crumbs} />
-          <div className="box">
-            <div className="columns">
-              <div className="column is-two-thirds">
-                <h1 className="title">{data.collection.name || ""}</h1>
-              </div>
-              <div className="column is-one-third buttons has-text-right">
-                <Link
-                  to={`/collection/form/${id}`}
-                  className="button is-primary"
-                  data-testid="edit-button"
-                >
-                  Edit
-                </Link>
-                <button
-                  className="button"
-                  onClick={onOpenModal}
-                  data-testid="delete-button"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+          {loading ? (
+            <UISkeleton rows={1} />
+          ) : (
+            <UIBreadcrumbs items={getCrumbs()} />
+          )}
 
-            <Collection collection={data.collection} />
+          <div className="box">
+            {loading ? (
+              <UISkeleton rows={10} />
+            ) : (
+              <>
+                <div className="columns">
+                  <div className="column is-two-thirds">
+                    <h1 className="title">{data.collection.name || ""}</h1>
+                  </div>
+                  <div className="column is-one-third buttons has-text-right">
+                    <Link
+                      to={`/collection/form/${id}`}
+                      className="button is-primary"
+                      data-testid="edit-button"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      className="button"
+                      onClick={onOpenModal}
+                      data-testid="delete-button"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                <Collection collection={data.collection} />
+              </>
+            )}
           </div>
-          <CollectionSearch collection={data.collection} />
+
+          {loading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <CollectionSearch collection={data.collection} />
+          )}
         </div>
       </section>
-      <UIModalDelete
-        isOpen={modalOpen}
-        handleClose={onCloseModal}
-        handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Collection ${data.collection.name}`}
-      />
+
+      {data && (
+        <UIModalDelete
+          isOpen={modalOpen}
+          handleClose={onCloseModal}
+          handleConfirm={handleDeleteClick}
+          thingToDeleteLabel={`Collection ${data.collection.name}`}
+        />
+      )}
     </Layout>
   );
 };

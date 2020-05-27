@@ -1,13 +1,10 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import Error from "../UI/Error";
-import UILoadingPage from "../UI/LoadingPage";
-import UILoading from "../UI/Loading";
+import UISkeleton from "../UI/Skeleton";
 import IngestSheetValidations from "./Validations";
 import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.gql";
-import IngestSheetAlert from "./Alert";
 import PropTypes from "prop-types";
-import IngestSheetActionRow from "./ActionRow";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
 
@@ -37,38 +34,45 @@ const IngestSheet = ({
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (progressLoading) return <UILoading />;
+  //if (progressLoading) return <UILoading />;
   if (progressError) return <Error error={progressError} />;
 
   const styles = { h2IsHidden: { display: "none" } };
 
   return (
     <div className="box">
-      <h2
-        className="title is-size-5"
-        style={["COMPLETED"].indexOf(status) > -1 ? styles.h2IsHidden : {}}
-      >
-        Ingest Sheet Contents
-      </h2>
-      {["APPROVED"].indexOf(status) > -1 && (
+      {progressLoading ? (
+        <UISkeleton rows={15} />
+      ) : (
         <>
-          <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
-        </>
-      )}
+          <h2
+            className="title is-size-5"
+            style={["COMPLETED"].indexOf(status) > -1 ? styles.h2IsHidden : {}}
+          >
+            Ingest Sheet Contents
+          </h2>
+          {["APPROVED"].indexOf(status) > -1 && (
+            <>
+              <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+            </>
+          )}
 
-      {["COMPLETED"].indexOf(status) > -1 && (
-        <>
-          <IngestSheetCompleted sheetId={ingestSheetData.id} />
-        </>
-      )}
+          {["COMPLETED"].indexOf(status) > -1 && (
+            <>
+              <IngestSheetCompleted sheetId={ingestSheetData.id} />
+            </>
+          )}
 
-      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
-        <IngestSheetValidations
-          sheetId={id}
-          status={status}
-          initialProgress={progressData.ingestSheetValidationProgress}
-          subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
-        />
+          {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
+            -1 && (
+            <IngestSheetValidations
+              sheetId={id}
+              status={status}
+              initialProgress={progressData.ingestSheetValidationProgress}
+              subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
+            />
+          )}
+        </>
       )}
     </div>
   );
