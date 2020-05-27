@@ -75,12 +75,14 @@ export const DESCRIPTIVE_METADATA = {
  * Prepares React Hook Form array fields of type "Controlled Term"
  * for the form request post shape
  * @param {Array} arr
- * @returns {Array} // Currently the shape the API wants is [ { id: "ABC", role: "act" }]
+ * @returns {Array} // Currently the shape the API wants is [{ id: "ABC", role: { id: "XYZ" } }]
  */
 export function prepControlledTermInput(formItems = []) {
   return formItems.map(({ id, roleId }) => {
     let obj = { id };
-    obj.role = roleId || false;
+    if (roleId) {
+      obj.role = { id: roleId };
+    }
     return obj;
   });
 }
