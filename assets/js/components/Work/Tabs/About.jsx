@@ -14,6 +14,7 @@ import {
   DESCRIPTIVE_METADATA,
   prepControlledTermInput,
 } from "../../../services/metadata";
+import UIError from "../../UI/Error";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
@@ -71,17 +72,20 @@ const WorkTabsAbout = ({ work }) => {
     });
   }, [work]);
 
-  const [updateWork, { loading: updateWorkLoading }] = useMutation(
-    UPDATE_WORK,
-    {
-      onCompleted({ updateWork }) {
-        setIsEditing(false);
-        toastWrapper("is-success", "Work form updated successfully");
-      },
-      refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
-      awaitRefetchQueries: true,
-    }
-  );
+  const [
+    updateWork,
+    { loading: updateWorkLoading, error: updateWorkError },
+  ] = useMutation(UPDATE_WORK, {
+    onCompleted({ updateWork }) {
+      setIsEditing(false);
+      toastWrapper("is-success", "Work form updated successfully");
+    },
+    onError(error) {
+      console.log("error :>> ", error);
+    },
+    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+    awaitRefetchQueries: true,
+  });
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
@@ -93,6 +97,7 @@ const WorkTabsAbout = ({ work }) => {
       callNumber = [],
       caption = [],
       catalogKey = [],
+      description = "",
       folderName = [],
       folderNumber = [],
       identifier = [],
@@ -110,7 +115,6 @@ const WorkTabsAbout = ({ work }) => {
       series = [],
       source = [],
       tableOfContents = [],
-      description = "",
       title = "",
     } = data;
 
@@ -159,6 +163,8 @@ const WorkTabsAbout = ({ work }) => {
       variables: { id: work.id, work: workUpdateInput },
     });
   };
+
+  if (updateWorkError) return <UIError error={updateWorkError} />;
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
