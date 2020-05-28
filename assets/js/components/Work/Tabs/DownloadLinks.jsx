@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IIIFContext } from "../../IIIF/IIIFProvider";
+import { IIIF_SIZES } from "../../../services/global-vars";
 
-const WorkTabsDownloadLinks = ({ handleDownloadClick }) => {
+const WorkTabsDownloadLinks = ({ handleDownloadClick, filesetId }) => {
+  const iiifServerUrl = useContext(IIIFContext);
+
   return (
     <div className="field has-addons is-pulled-right">
       <p className="control">
@@ -14,12 +18,16 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick }) => {
         </button>
       </p>
       <p className="control">
-        <button className="button" onClick={() => handleDownloadClick("JPG")}>
+        <a
+          href={`${iiifServerUrl}${filesetId}${IIIF_SIZES.IIIF_FULL}`}
+          target="_blank"
+          className="button"
+        >
           <span className="icon">
             <FontAwesomeIcon icon="file-download" />
           </span>{" "}
           <span>JPG</span>
-        </button>
+        </a>
       </p>
     </div>
   );
@@ -27,6 +35,7 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick }) => {
 
 WorkTabsDownloadLinks.propTypes = {
   handleDownloadClick: PropTypes.func,
+  filesetId: PropTypes.string,
 };
 
 export default WorkTabsDownloadLinks;

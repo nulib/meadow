@@ -150,6 +150,7 @@ const WorkTabsStructure = ({ work }) => {
 
                     <WorkTabsDownloadLinks
                       handleDownloadClick={handleDownloadClick}
+                      filesetId={id}
                     />
                   </>
                 )}
