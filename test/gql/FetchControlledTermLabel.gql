@@ -1,8 +1,5 @@
-#import "./ControlledTermFields.frag.gql"
-#import "./ControlledValueFields.frag.gql"
-
 query FetchControlledTermLabel($id: ID!) {
-  codeList(id: $id) {
-    ...ControlledTermFields
+  fetchControlledTermLabel(id: $id) {
+    label
   }
 }
