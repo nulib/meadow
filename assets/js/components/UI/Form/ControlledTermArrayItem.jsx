@@ -29,10 +29,7 @@ const UIFormControlledTermArrayItem = ({
   const handleInputChange = (val) => {
     getAuthResults({
       variables: {
-        authority: {
-          id: currentAuthority,
-          scheme: "AUTHORITY",
-        },
+        authority: currentAuthority,
         query: val,
       },
     });
