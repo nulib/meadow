@@ -14,7 +14,7 @@
     "@absinthe/socket-apollo-link": "^0.2.1",
     "@apollo/react-hooks": "^3.1.5",
     "@apollo/react-testing": "^3.1.4",
-    "@appbaseio/reactivesearch": "^3.9.4",
+    "@appbaseio/reactivesearch": "^3.10.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
