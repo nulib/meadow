@@ -9,6 +9,7 @@ import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { useQuery } from "@apollo/react-hooks";
 import UIError from "../../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
+import UISkeleton from "../../../UI/Skeleton";
 
 const WorkTabsAboutDescriptiveMetadata = ({
   control,
@@ -30,7 +31,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
     errors: authorityErrors,
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "AUTHORITY" } });
 
-  if (marcLoading || authorityLoading) return null;
+  if (marcLoading || authorityLoading) return <UISkeleton rows={20} />;
   if (marcErrors || authorityErrors)
     return <UIError error={marcErrors || authorityErrors} />;
 

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 // Reference: https://cssninja.io/blog/post/facebook-placeholders
 
-const UIPlaceholder = ({ isActive, type = "text", rows = 10 }) => {
+const UISkeleton = ({ type = "text", rows = 10 }) => {
   const buildRows = () => {
     let arr = [];
     for (let i = 0; i < rows; i++) {
@@ -11,8 +11,9 @@ const UIPlaceholder = ({ isActive, type = "text", rows = 10 }) => {
     }
     return arr;
   };
+
   return (
-    <div className={`loader-wrapper ${isActive ? "is-active" : ""}`}>
+    <div className="loader-wrapper is-active">
       <div className="placeload">
         {type === "text" && (
           <div className="header">
@@ -42,10 +43,10 @@ const UIPlaceholder = ({ isActive, type = "text", rows = 10 }) => {
   );
 };
 
-UIPlaceholder.propTypes = {
-  isActive: PropTypes.bool,
+UISkeleton.propTypes = {
+  loading: PropTypes.bool,
   rows: PropTypes.number,
   type: PropTypes.oneOf(["text", "full"]),
 };
 
-export default UIPlaceholder;
+export default UISkeleton;

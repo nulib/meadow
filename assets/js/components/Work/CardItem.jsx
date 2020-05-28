@@ -70,9 +70,9 @@ const WorkCardItem = ({
         </div>
       </div>
       <footer className="card-footer">
-        <a href="#" className="card-footer-item">
+        <Link to={`/work/${id}`} className="card-footer-item">
           View Work
-        </a>
+        </Link>
         <a href={manifestUrl} target="_blank" className="card-footer-item">
           <figure className="image is-32x32">
             <img

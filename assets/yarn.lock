@@ -6675,10 +6675,10 @@ phoenix@^1.4.0:
   integrity sha512-0cTQ5XfAqt8l3+KnnX0AW3hww0N37bOgTTeyt1cH80VJNeEMab8+0bK421XhVoaQ8R0Vsc0GS3W6CyI4eND0Ew==
 
 "phoenix@file:../deps/phoenix":
-  version "1.4.17"
+  version "1.5.2"
 
 "phoenix_html@file:../deps/phoenix_html":
-  version "2.14.1"
+  version "2.14.2"
 
 picomatch@^2.0.4, picomatch@^2.0.5:
   version "2.2.2"
