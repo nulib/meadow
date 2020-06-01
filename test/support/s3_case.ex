@@ -53,12 +53,15 @@ defmodule Meadow.S3Case do
         case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
           {:ok, %{headers: headers}} ->
             headers
-            |> Enum.filter(fn {header, value} -> header |> String.starts_with?("X-Amz-Meta") end)
-            |> Enum.map(fn {"X-Amz-Meta-" <> key, value} ->
+            |> Enum.map(fn {header, value} -> {String.downcase(header), value} end)
+            |> Enum.filter(fn {header, value} -> header |> String.starts_with?("x-amz-meta") end)
+            |> Enum.map(fn {"x-amz-meta-" <> key, value} ->
               {key |> String.downcase() |> String.to_atom(), value}
             end)
             |> Enum.into(%{})
-          _ -> nil
+
+          _ ->
+            nil
         end
       end
 
