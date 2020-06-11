@@ -107,9 +107,20 @@ defmodule Meadow.Data.Works do
   def with_file_sets(id) do
     Work
     |> preload(ingest_sheet: [:project])
-    |> where([work], work.id == ^id)
     |> preload(:file_sets)
-    |> Repo.one()
+    |> Repo.get!(id)
+    |> add_representative_image()
+  end
+
+  @doc """
+  Gets a work with Ingest Sheet preloaded
+
+  Raises `Ecto.NoResultsError` if the Work does not exist
+  """
+  def with_sheet(id) do
+    Work
+    |> preload(:ingest_sheet)
+    |> Repo.get!(id)
     |> add_representative_image()
   end
 
