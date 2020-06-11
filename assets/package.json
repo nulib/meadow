@@ -30,7 +30,7 @@
     "bulma-toast": "^2.0.1",
     "elasticsearch": "^16.7.1",
     "faker": "^4.1.0",
-    "graphql": "^15.0.0",
+    "graphql": "^15.1.0",
     "graphql-tag": "^2.10.3",
     "js-cookie": "^2.2.1",
     "moment": "^2.26.0",
