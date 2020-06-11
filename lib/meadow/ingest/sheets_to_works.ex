@@ -15,11 +15,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
   use Meadow.Constants
 
   def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet) do
-    work_records = group_by_works(ingest_sheet)
-
-    work_records
-    |> Enum.map(fn work_record -> ingest_work(work_record, ingest_sheet) end)
-    |> Enum.reject(fn work -> is_nil(work) end)
+    group_by_works(ingest_sheet)
+    |> Enum.each(fn work_record -> ingest_work(work_record, ingest_sheet) end)
 
     ingest_sheet
   end

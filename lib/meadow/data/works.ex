@@ -20,7 +20,7 @@ defmodule Meadow.Data.Works do
   """
   def list_works do
     Work
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
@@ -46,7 +46,7 @@ defmodule Meadow.Data.Works do
       {:order, order}, query ->
         from p in query, order_by: [{^order, :id}]
     end)
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
@@ -77,14 +77,14 @@ defmodule Meadow.Data.Works do
   """
   def get_work!(id) do
     Work
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> Repo.get!(id)
     |> add_representative_image()
   end
 
   def get_work(id) do
     Work
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> Repo.get(id)
     |> add_representative_image()
   end
@@ -96,7 +96,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work_by_accession_number!(accession_number) do
     Work
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> Repo.get_by!(accession_number: accession_number)
     |> add_representative_image()
   end
@@ -106,7 +106,7 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
-    |> preload(ingest_sheet: [:project])
+    |> preload([:ingest_sheet, :project])
     |> preload(:file_sets)
     |> Repo.get!(id)
     |> add_representative_image()

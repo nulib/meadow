@@ -30,7 +30,7 @@ defmodule Meadow.ElasticsearchDiffStore do
     |> Stream.chunk_every(@chunk_size)
     |> Stream.flat_map(fn chunk ->
       chunk
-      |> Repo.preload([:collection, :file_sets, ingest_sheet: [:project]])
+      |> Repo.preload([:collection, :file_sets, :ingest_sheet, :project])
       |> Works.add_representative_image()
     end)
   end

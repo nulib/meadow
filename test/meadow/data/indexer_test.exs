@@ -108,7 +108,7 @@ defmodule Meadow.Data.IndexerTest do
           })
 
         %{works: [work | _]} = indexable_data()
-        work |> Works.update_work(%{collection_id: nil, ingest_sheet: ingest_sheet})
+        work |> Works.update_work(%{collection_id: nil, ingest_sheet_id: ingest_sheet.id})
         Indexer.synchronize_index()
 
         with doc <- indexed_doc(work.id) do
@@ -130,7 +130,7 @@ defmodule Meadow.Data.IndexerTest do
         {:ok,
          %{
            collection: collection,
-           work: List.first(works) |> Repo.preload(:collection),
+           work: List.first(works) |> Repo.preload([:collection, :ingest_sheet, :project]),
            file_set: List.first(file_sets) |> Repo.preload(:work)
          }}
       end

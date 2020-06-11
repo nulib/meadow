@@ -46,6 +46,7 @@ defmodule Meadow.Data.Schemas.Work do
     belongs_to :collection, Collection
 
     belongs_to :ingest_sheet, Sheet
+    has_one :project, through: [:ingest_sheet, :project]
 
     field :representative_image, :string, virtual: true, default: nil
   end
@@ -68,7 +69,7 @@ defmodule Meadow.Data.Schemas.Work do
   end
 
   def update_changeset(work, attrs) do
-    allowed_params = [:published, :collection_id, :representative_file_set_id]
+    allowed_params = [:published, :collection_id, :representative_file_set_id, :ingest_sheet_id]
 
     work
     |> cast(attrs, allowed_params)
@@ -115,6 +116,16 @@ defmodule Meadow.Data.Schemas.Work do
         visibility: "open",
         visibility_term: %{id: "open", label: "Public"},
         work_type: %{id: "IMAGE", label: "Image"},
+        project:
+          case work.project do
+            nil -> %{}
+            project -> %{id: project.id, name: project.title}
+          end,
+        sheet:
+          case work.ingest_sheet do
+            nil -> %{}
+            sheet -> %{id: sheet.id, name: sheet.name}
+          end,
         representative_file_set:
           case work.representative_file_set_id do
             nil ->

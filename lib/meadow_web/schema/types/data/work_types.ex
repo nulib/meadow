@@ -106,7 +106,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     field :project, :work_project do
       resolve(fn work, _, _ ->
-        {:ok, work.ingest_sheet.project}
+        {:ok, work.project}
       end)
     end
 
