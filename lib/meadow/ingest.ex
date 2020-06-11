@@ -5,14 +5,15 @@ defmodule Meadow.Ingest do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest.Schemas.{Row, Sheet, SheetWorks}
+  alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
 
   def ingest_sheet_for_file_set(file_set_id) do
     FileSet
     |> preload(work: [:ingest_sheet])
     |> Repo.get!(file_set_id)
-    |> get_in([:work, :ingest_sheet])
+    |> Map.get(:work)
+    |> Map.get(:ingest_sheet)
   end
 
   def get_file_sets_and_rows(%Sheet{} = sheet) do

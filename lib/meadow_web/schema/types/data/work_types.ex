@@ -106,13 +106,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     field :project, :work_project do
       resolve(fn work, _, _ ->
-        {:ok, work.extra_index_fields.project}
+        {:ok, work.ingest_sheet.project}
       end)
     end
 
     field :sheet, :work_sheet do
       resolve(fn work, _, _ ->
-        {:ok, work.extra_index_fields.sheet}
+        {:ok, work.ingest_sheet}
       end)
     end
   end

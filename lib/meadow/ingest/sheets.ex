@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Ingest.Notifications
-  alias Meadow.Ingest.Schemas.{Project, Row, Sheet, SheetWorks}
+  alias Meadow.Ingest.Schemas.{Project, Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
@@ -413,24 +413,18 @@ defmodule Meadow.Ingest.Sheets do
       on: f.id == a.object_id,
       join: w in Work,
       on: w.id == f.work_id,
-      join: iw in SheetWorks,
-      on: iw.work_id == w.id,
       join: r in Row,
       as: :row,
-      on:
-        r.sheet_id == iw.sheet_id and
-          r.file_set_accession_number == f.accession_number,
-      where: iw.sheet_id == ^sheet_id
+      on: r.file_set_accession_number == f.accession_number,
+      where: w.ingest_sheet_id == ^sheet_id
     )
   end
 
   @doc "Composable query to add sheet_name and project_name to works"
   def works_with_sheets(query \\ Work) do
     from w in query,
-      left_join: sw in SheetWorks,
-      on: w.id == sw.work_id,
       left_join: s in Sheet,
-      on: sw.sheet_id == s.id,
+      on: s.id == w.ingest_sheet_id,
       left_join: p in Project,
       on: s.project_id == p.id,
       select_merge: %{

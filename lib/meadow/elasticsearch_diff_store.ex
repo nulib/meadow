@@ -7,7 +7,6 @@ defmodule Meadow.ElasticsearchDiffStore do
 
   alias Meadow.Data.Schemas
   alias Meadow.Data.{Collections, Works}
-  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
   import Ecto.Query
 
@@ -27,12 +26,11 @@ defmodule Meadow.ElasticsearchDiffStore do
   def stream(Schemas.Work = schema) do
     schema
     |> out_of_date()
-    |> Sheets.works_with_sheets()
     |> Repo.stream()
     |> Stream.chunk_every(@chunk_size)
     |> Stream.flat_map(fn chunk ->
       chunk
-      |> Repo.preload([:collection, :file_sets])
+      |> Repo.preload([:collection, :file_sets, ingest_sheet: [:project]])
       |> Works.add_representative_image()
     end)
   end

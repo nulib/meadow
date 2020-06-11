@@ -4,7 +4,6 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, Indexer, Works}
-  alias Meadow.Ingest.SheetWorks
   alias Meadow.Repo
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
@@ -109,8 +108,7 @@ defmodule Meadow.Data.IndexerTest do
           })
 
         %{works: [work | _]} = indexable_data()
-        work |> Works.update_work(%{collection_id: nil})
-        SheetWorks.link_works_to_ingest_sheet([work], ingest_sheet)
+        work |> Works.update_work(%{collection_id: nil, ingest_sheet: ingest_sheet})
         Indexer.synchronize_index()
 
         with doc <- indexed_doc(work.id) do

@@ -7,7 +7,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Data.Schemas.Work
-  alias Meadow.Ingest.{Rows, SheetWorks, Status}
+  alias Meadow.Ingest
+  alias Meadow.Ingest.{Rows, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Pipeline
 
@@ -17,9 +18,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
     work_records = group_by_works(ingest_sheet)
 
     work_records
-    |> Enum.map(fn work_record -> ingest_work(work_record) end)
+    |> Enum.map(fn work_record -> ingest_work(work_record, ingest_sheet) end)
     |> Enum.reject(fn work -> is_nil(work) end)
-    |> SheetWorks.link_works_to_ingest_sheet(ingest_sheet)
 
     ingest_sheet
   end
@@ -30,7 +30,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   end
 
   def send_to_pipeline(ingest_sheet) do
-    SheetWorks.get_file_sets_and_rows(ingest_sheet)
+    Ingest.get_file_sets_and_rows(ingest_sheet)
     |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
       Status.change(ingest_sheet.id, row_num, "pending")
 
@@ -44,16 +44,13 @@ defmodule Meadow.Ingest.SheetsToWorks do
     ingest_sheet
   end
 
-  defp ingest_work({accession_number, file_set_rows}) do
+  defp ingest_work({accession_number, file_set_rows}, ingest_sheet) do
     ingest_bucket = Config.ingest_bucket()
 
     attrs = %{
       accession_number: accession_number,
       published: false,
-      administrative_metadata: %{
-        project: "",
-        sheet: ""
-      },
+      ingest_sheet: ingest_sheet,
       file_sets:
         file_set_rows
         |> Enum.map(fn row ->

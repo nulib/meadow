@@ -30,8 +30,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     belongs_to :project, Meadow.Ingest.Schemas.Project
     has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row
 
-    has_many :ingest_sheet_works, Meadow.Ingest.Schemas.SheetWorks
-    has_many :works, Meadow.Data.Schemas.Work
+    has_many :works, Meadow.Data.Schemas.Work, foreign_key: :ingest_sheet_id
 
     timestamps()
   end

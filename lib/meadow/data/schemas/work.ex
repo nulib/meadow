@@ -127,7 +127,6 @@ defmodule Meadow.Data.Schemas.Work do
               }
           end
       }
-      |> Map.merge(work.extra_index_fields)
       |> Map.merge(work.administrative_metadata |> AdministrativeMetadataDocument.encode())
       |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
     end

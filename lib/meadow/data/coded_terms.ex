@@ -85,11 +85,11 @@ defmodule Meadow.Data.CodedTerms do
 
   def label(id, scheme) do
     case get_coded_term(id, scheme) do
-      term ->
-        term.label
-
       nil ->
         nil
+
+      term ->
+        term.label
     end
   end
 
