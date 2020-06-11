@@ -8,6 +8,7 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.ControlledMetadataEntry
   alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.IIIF
@@ -44,13 +45,14 @@ defmodule Meadow.Data.Schemas.Work do
 
     belongs_to :collection, Collection
 
+    belongs_to :ingest_sheet, Sheet
+
     field :representative_image, :string, virtual: true, default: nil
-    field :extra_index_fields, :map, virtual: true, default: %{}
   end
 
   def changeset(work, attrs) do
     required_params = [:accession_number]
-    optional_params = [:collection_id, :representative_file_set_id]
+    optional_params = [:collection_id, :representative_file_set_id, :ingest_sheet_id]
 
     work
     |> cast(attrs, required_params ++ optional_params)

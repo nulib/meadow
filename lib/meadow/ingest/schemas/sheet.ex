@@ -31,7 +31,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row
 
     has_many :ingest_sheet_works, Meadow.Ingest.Schemas.SheetWorks
-    has_many :works, through: [:ingest_sheet_works, :work]
+    has_many :works, Meadow.Data.Schemas.Work
 
     timestamps()
   end
@@ -46,6 +46,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     ingest_sheet
     |> cast(attrs, [:name, :filename, :project_id, :file_errors, :status])
     |> cast_embed(:state, with: &state_changeset/2)
+    |> cast_assoc(:works)
     |> validate_required([:name, :filename, :project_id])
     |> assoc_constraint(:project)
     |> unique_constraint(:name)

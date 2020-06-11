@@ -10,16 +10,16 @@ fragment WorkFields on Work {
   }
   insertedAt
   manifestUrl
-  # project {
-  #   id
-  #   name
-  # }
+  project {
+    id
+    name
+  }
   published
   representativeImage
-  # sheet {
-  #   id
-  #   name
-  # }
+  sheet {
+    id
+    name
+  }
   updatedAt
   visibility {
     id
