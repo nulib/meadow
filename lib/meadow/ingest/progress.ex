@@ -7,6 +7,9 @@ defmodule Meadow.Ingest.Progress do
   alias Meadow.Ingest.Sheets
 
   def send_notification(action_state) do
+    require IEx
+    IEx.pry()
+
     case Ingest.ingest_sheet_for_file_set(action_state.object_id) do
       nil ->
         :noop

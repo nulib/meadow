@@ -4,7 +4,6 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
 
   alias Authoritex.Mock
   alias Meadow.Data.Works
-  alias Meadow.Repo
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateWork.gql")
 
@@ -45,7 +44,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
       title = get_in(query_data, [:data, "createWork", "descriptiveMetadata", "title"])
       assert title == "Something"
 
-      work = Works.get_work_by_accession_number!("12345.abc")
+      Works.get_work_by_accession_number!("12345.abc")
     end
   end
 end
