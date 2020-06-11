@@ -50,7 +50,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
     attrs = %{
       accession_number: accession_number,
       published: false,
-      ingest_sheet: ingest_sheet,
+      ingest_sheet_id: ingest_sheet.id,
       file_sets:
         file_set_rows
         |> Enum.map(fn row ->

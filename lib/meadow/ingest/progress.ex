@@ -33,9 +33,6 @@ defmodule Meadow.Ingest.Progress do
   def send_notification(_), do: :noop
 
   defp pipeline_progress(ingest_sheet) do
-    require IEx
-    IEx.pry()
-
     case Sheets.total_action_count(ingest_sheet) do
       0 ->
         %{

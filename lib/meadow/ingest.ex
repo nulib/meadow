@@ -5,7 +5,7 @@ defmodule Meadow.Ingest do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
 
@@ -28,8 +28,6 @@ defmodule Meadow.Ingest do
   def file_sets_and_rows(ingest_sheet) do
     from(f in FileSet,
       as: :file_set,
-      join: w in Work,
-      on: w.ingest_sheet_id == ^ingest_sheet.id,
       join: r in Row,
       as: :row,
       on: r.file_set_accession_number == f.accession_number,
