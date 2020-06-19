@@ -17,7 +17,7 @@
     "@appbaseio/reactivesearch": "^3.11.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.29",
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
-    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/react-fontawesome": "^0.1.11",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",
