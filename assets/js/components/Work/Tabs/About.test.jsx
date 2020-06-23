@@ -1,8 +1,6 @@
 import React from "react";
-import {
-  mockWork,
-  renderWithRouterApollo,
-} from "../../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent } from "@testing-library/react";
 import {
@@ -49,10 +47,10 @@ describe("Work About tab component", () => {
   it("dislays correct work item metadata values", () => {
     const { getByText, getByTestId, getByDisplayValue } = setupTests();
 
-    expect(getByText(/Ima description/i)).toBeInTheDocument();
+    expect(getByText(/Work description here/i)).toBeInTheDocument();
 
     // And ensure the values transfer to the form elements when in edit mode
     fireEvent.click(getByTestId("edit-button"));
-    expect(getByDisplayValue(/ima description/i)).toBeInTheDocument();
+    expect(getByDisplayValue(/Work description here/i)).toBeInTheDocument();
   });
 });

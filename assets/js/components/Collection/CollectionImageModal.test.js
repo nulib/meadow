@@ -2,54 +2,9 @@ import React from "react";
 import CollectionImageModal from "./CollectionImageModal";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { SET_COLLECTION_IMAGE } from "./collection.gql.js";
+import { collectionMock, setCollectionImageMock } from "./collection.gql.mock";
 
-const mocks = [
-  {
-    request: {
-      query: SET_COLLECTION_IMAGE,
-      variables: {
-        collectionId: "01DWHQQYTVKC2THHW8SHRBH2XP",
-        workId: "1id-23343432",
-      },
-    },
-    result: {
-      data: {
-        setCollectionImage: {
-          id: "01DWHQQYTVKC2THHW8SHRBH2XP",
-          representativeWork: {
-            id: "1id-23343432",
-            representativeImage: "repImage1url.com",
-          },
-        },
-      },
-    },
-  },
-];
-
-const mockCollection = {
-  adminEmail: "admin@nu.com",
-  description: "asdf asdfasdf",
-  representativeWork: null,
-  featured: true,
-  findingAidUrl: "http://something.com",
-  id: "01DWHQQYTVKC2THHW8SHRBH2XP",
-  keywords: ["any", " work", "foo", "bar"],
-  name: "Great collection",
-  published: false,
-  works: [
-    {
-      id: "1id-23343432",
-      accessionNumber: "accessNumber1",
-      representativeImage: "repImage1url.com",
-    },
-    {
-      id: "2is-234o24332-id",
-      accessionNumber: "accessNumber2",
-      representativeImage: "repImage2url.com",
-    },
-  ],
-};
+const mocks = [setCollectionImageMock];
 
 let isModalOpen = true;
 
@@ -60,7 +15,7 @@ const handleClose = () => {
 function setupMatchTests() {
   return renderWithRouterApollo(
     <CollectionImageModal
-      collection={mockCollection}
+      collection={collectionMock}
       isModalOpen={isModalOpen}
       handleClose={handleClose}
     />,
@@ -79,8 +34,8 @@ it("saves collection image", async () => {
   const { getByTestId, getByText, debug } = setupMatchTests();
   await waitFor(() => {
     expect(getByTestId("modal-collection-thumbnail")).toHaveClass(" is-active");
-    expect(getByText("accessNumber1")).toBeInTheDocument();
-    fireEvent.click(getByText("accessNumber1"));
+    expect(getByText("Title 1")).toBeInTheDocument();
+    fireEvent.click(getByText("Title 1"));
     expect(getByTestId("button-set-image")).toBeInTheDocument();
 
     //TO-DO use MockedProvider to render mocks and set collection thumbnail

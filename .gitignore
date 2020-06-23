@@ -56,3 +56,6 @@ node_modules
 
 # Ide files
 /.vscode
+
+# Ignore tool versions file
+.tool-versions
