@@ -1,10 +1,8 @@
 import React from "react";
 import WorkTabs from "./Tabs";
 import { fireEvent, waitFor } from "@testing-library/react";
-import {
-  renderWithRouterApollo,
-  mockWork,
-} from "../../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import { mockWork } from "../work.gql.mock";
 import { IIIF_SERVER_URL } from "../../IIIF/iiif.gql";
 import {
   codeListAuthorityMock,

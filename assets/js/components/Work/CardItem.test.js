@@ -1,7 +1,7 @@
 import React from "react";
 import WorkCardItem from "./CardItem";
-import { mockWork as work } from "../../services/testing-helpers";
 import { renderWithRouter } from "../../services/testing-helpers";
+import { mockWork as work } from "./work.gql.mock";
 
 const workObject = {
   id: work.id,
@@ -42,12 +42,12 @@ describe("Shows Work content", () => {
   it("Displays Accession Number", () => {
     const { getByTestId } = setupTests();
     expect(getByTestId("result-item-accession-number").innerHTML).toBe(
-      "Example-34"
+      "Donohue_001"
     );
   });
   it("Displays FileSets Length", () => {
     const { getByTestId } = setupTests();
-    expect(getByTestId("result-item-filesets-length").innerHTML).toBe("2");
+    expect(getByTestId("result-item-filesets-length").innerHTML).toBe("4");
   });
   it("Displays Updated Date", () => {
     const { getByTestId } = setupTests();

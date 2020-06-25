@@ -1,60 +1,11 @@
 import React from "react";
 import ScreensCollection from "./Collection";
-import { GET_COLLECTION } from "../../components/Collection/collection.gql";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor, fireEvent } from "@testing-library/react";
 
-const mocks = [
-  {
-    request: {
-      query: GET_COLLECTION,
-      variables: {
-        id: "form",
-      },
-    },
-    result: {
-      data: {
-        collection: {
-          adminEmail: "test@test.com",
-          description: "Test arrays keyword arrays arrays arrays arrays",
-          featured: false,
-          representativeImage: "",
-          findingAidUrl: "http://go.com",
-          id: "form",
-          keywords: ["yo", "foo", "bar", "dude", "hey"],
-          name: "Ima collection",
-          published: false,
-          works: [],
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: GET_COLLECTION,
-      variables: {
-        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-      },
-    },
-    result: {
-      data: {
-        collection: {
-          adminEmail: "test@test.com",
-          description: "Test arrays keyword arrays arrays arrays arrays",
-          featured: false,
-          findingAidUrl: "http://go.com",
-          representativeImage: "",
-          id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-          keywords: ["yo", "foo", "bar", "dude", "hey"],
-          name: "Ima collection",
-          published: false,
-          works: [],
-        },
-      },
-    },
-  },
-];
+import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
+const mocks = [getCollectionMock];
 
 function setupTests() {
   return renderWithRouterApollo(

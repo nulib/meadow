@@ -1,36 +1,10 @@
 import React from "react";
 import ScreensCollectionForm from "./Form";
-import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor } from "@testing-library/react";
-
-const mocks = [
-  {
-    request: {
-      query: GET_COLLECTION,
-      variables: {
-        id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-      },
-    },
-    result: {
-      data: {
-        collection: {
-          adminEmail: "test@test.com",
-          description: "Test arrays keyword arrays arrays arrays arrays",
-          featured: false,
-          representativeImage: "",
-          findingAidUrl: "http://go.com",
-          id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-          keywords: ["yo", "foo", "bar", "dude", "hey"],
-          name: "Ima collection",
-          published: false,
-          works: [],
-        },
-      },
-    },
-  },
-];
+import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
+const mocks = [getCollectionMock];
 
 function setupTests() {
   return renderWithRouterApollo(
@@ -91,12 +65,16 @@ it("renders existing collection values in the form when editing a form", async (
   const { getByTestId } = setupTests();
 
   await waitFor(() => {
-    expect(getByTestId("input-collection-name")).toHaveValue("Ima collection");
-    expect(getByTestId("textarea-description")).toHaveValue(
-      "Test arrays keyword arrays arrays arrays arrays"
+    expect(getByTestId("input-collection-name")).toHaveValue(
+      "Great collection"
     );
-    expect(getByTestId("input-finding-aid-url")).toHaveValue("http://go.com");
-    expect(getByTestId("input-admin-email")).toHaveValue("test@test.com");
-    expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,dude,hey");
+    expect(getByTestId("textarea-description")).toHaveValue(
+      "Collection description lorem ipsum"
+    );
+    expect(getByTestId("input-finding-aid-url")).toHaveValue(
+      "https://northwestern.edu"
+    );
+    expect(getByTestId("input-admin-email")).toHaveValue("admin@nu.com");
+    expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,work,hey");
   });
 });

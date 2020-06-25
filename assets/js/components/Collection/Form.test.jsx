@@ -1,74 +1,8 @@
 import React from "react";
 import CollectionForm from "./Form";
-import {
-  CREATE_COLLECTION,
-  UPDATE_COLLECTION,
-  GET_COLLECTIONS,
-} from "./collection.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { fireEvent, waitFor, getAllByLabelText } from "@testing-library/react";
-import { Route } from "react-router-dom";
-
-const mocks = [
-  {
-    request: {
-      query: GET_COLLECTIONS,
-    },
-    result: {
-      data: {
-        collections: [
-          {
-            adminEmail: "admin@nu.com",
-            description: "asdf asdfasdf",
-            representativeWork: null,
-            featured: true,
-            findingAidUrl: "http://something.com",
-            id: "01DWHQQYTVKC2THHW8SHRBH2XP",
-            keywords: ["any", " work", "foo", "bar"],
-            name: "Great collection",
-            published: false,
-            works: [
-              {
-                id: "1id-23343432",
-                accessionNumber: "accessNumber1",
-                representativeImage: "repImage1url.com",
-              },
-              {
-                id: "2is-234o24332-id",
-                accessionNumber: "accessNumber2",
-                representativeImage: "repImage1url.com",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  },
-];
-
-const mockCollection = {
-  adminEmail: "admin@nu.com",
-  description: "asdf asdfasdf",
-  representativeWork: null,
-  featured: true,
-  findingAidUrl: "http://something.com",
-  id: "01DWHQQYTVKC2THHW8SHRBH2XP",
-  keywords: ["any", " work", "foo", "bar"],
-  name: "Great collection",
-  published: false,
-  works: [
-    {
-      id: "1id-23343432",
-      accessionNumber: "accessNumber1",
-      representativeImage: "repImage1url.com",
-    },
-    {
-      id: "2is-234o24332-id",
-      accessionNumber: "accessNumber2",
-      representativeImage: "repImage1url.com",
-    },
-  ],
-};
+import { waitFor } from "@testing-library/react";
+import { collectionMock } from "./collection.gql.mock";
 
 function setupMatchTests() {
   return renderWithRouterApollo(<CollectionForm />, {
@@ -108,20 +42,22 @@ it("renders no initial form values when creating a collection", async () => {
 
 it("renders existing collection values in the form when editing a form", async () => {
   const { getByTestId, debug } = renderWithRouterApollo(
-    <CollectionForm collection={mockCollection} />,
+    <CollectionForm collection={collectionMock} />,
     {}
   );
   await waitFor(() => {
     expect(getByTestId("input-collection-name")).toHaveValue(
       "Great collection"
     );
-    expect(getByTestId("textarea-description")).toHaveValue("asdf asdfasdf");
+    expect(getByTestId("textarea-description")).toHaveValue(
+      "Collection description lorem ipsum"
+    );
     expect(getByTestId("input-finding-aid-url")).toHaveValue(
-      "http://something.com"
+      "https://northwestern.edu"
     );
 
     expect(getByTestId("input-admin-email")).toHaveValue("admin@nu.com");
-    expect(getByTestId("input-keywords")).toHaveValue("any, work,foo,bar");
+    expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,work,hey");
   });
 });
 

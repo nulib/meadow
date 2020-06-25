@@ -1,32 +1,8 @@
 import React from "react";
 import ScreensProjectList from "./List";
-import { GET_PROJECTS } from "../../components/Project/project.gql.js";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-
-const mocks = [
-  {
-    request: {
-      query: GET_PROJECTS,
-    },
-    result: {
-      data: {
-        projects: [
-          {
-            folder: "asdfasdf-1569333444",
-            id: "01DNHRZZF8M2GF7RXD7K0MJV2V",
-            ingestSheets: [
-              {
-                id: "01DNJ161YWWVSMHMWZM4V2J7S1",
-              },
-            ],
-            title: "Mock project title",
-            updatedAt: "2019-09-24T13:57:24",
-          },
-        ],
-      },
-    },
-  },
-];
+import { getProjectsMock } from "../../components/Project/project.gql.mock";
+const mocks = [getProjectsMock];
 
 it("renders a create new project button", async () => {
   const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />);
