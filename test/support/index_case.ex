@@ -18,7 +18,7 @@ defmodule Meadow.IndexCase do
     on_exit(fn ->
       if tags[:unboxed] do
         Sandbox.unboxed_run(Repo, fn ->
-          [IndexTime, FileSet, Work, Sheet, Project, Collection]
+          [IndexTime, FileSet, Sheet, Project, Work, Collection]
           |> Enum.each(fn schema -> Repo.delete_all(schema) end)
         end)
       end

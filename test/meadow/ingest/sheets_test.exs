@@ -1,6 +1,7 @@
 defmodule Meadow.Ingest.SheetsTest do
   use Meadow.DataCase
 
+  alias Meadow.Data.Works
   alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Ingest.Sheets
 
@@ -75,6 +76,22 @@ defmodule Meadow.Ingest.SheetsTest do
 
       assert_raise Ecto.NoResultsError, fn ->
         Sheets.get_ingest_sheet!(ingest_sheet.id)
+      end
+    end
+
+    test "deleting an ingest sheet retains its works" do
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+      work = work_fixture(%{ingest_sheet_id: ingest_sheet.id})
+
+      with test_work <- Works.get_work!(work.id) do
+        assert test_work.ingest_sheet_id == ingest_sheet.id
+      end
+
+      assert {:ok, %Sheet{}} = Sheets.delete_ingest_sheet(ingest_sheet)
+
+      with test_work <- Works.get_work!(work.id) do
+        assert is_nil(test_work.ingest_sheet_id)
       end
     end
 
