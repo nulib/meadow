@@ -68,10 +68,18 @@ module.exports = (env, options) => ({
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-    new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
+    // new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
+    new CopyWebpackPlugin({
+      patterns: [{ from: "static/", to: "../" }],
+    }),
   ],
   devtool: "source-map",
   resolve: {
     extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
+    // When testing npm components locally, tell Meadow to only
+    // use it's React, not the npm module's React
+    alias: {
+      react: path.resolve(__dirname, "./node_modules/react"),
+    },
   },
 });

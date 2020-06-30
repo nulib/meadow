@@ -1,3 +1,5 @@
-const fn = () => "foo";
+const OpenSeadragonViewer = () => {
+  return "foo";
+};
 
-export default fn;
+export { OpenSeadragonViewer };

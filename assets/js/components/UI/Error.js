@@ -8,7 +8,7 @@ import UIAlert from "./Alert";
 // 'QueryResult' object that has 'graphQLErrors' and 'networkError' properties.
 
 const Error = ({ error }) => {
-  if (!error || !error.message) return null;
+  if (!error.message) return null;
 
   const isNetworkError =
     error.networkError &&
@@ -63,7 +63,9 @@ const Error = ({ error }) => {
 };
 
 Error.propTypes = {
-  error: PropTypes.object,
+  error: PropTypes.shape({
+    message: PropTypes.string,
+  }),
 };
 
 Error.defaultProps = {
