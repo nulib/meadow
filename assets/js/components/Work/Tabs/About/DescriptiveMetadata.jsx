@@ -34,7 +34,6 @@ const WorkTabsAboutDescriptiveMetadata = ({
   if (marcLoading || authorityLoading) return <UISkeleton rows={20} />;
   if (marcErrors || authorityErrors)
     return <UIError error={marcErrors || authorityErrors} />;
-
   if (!authorityData || !marcData) {
     return <UIError error={{ message: "No Authority data or no Marc data" }} />;
   }

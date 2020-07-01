@@ -19,6 +19,7 @@ const UIFormControlledTermArrayItem = ({
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
     AUTHORITY_SEARCH
   );
+
   const inputName = `${[name]}[${index}]`;
   const hasErrors = errors[name] && errors[name][index].label;
 
@@ -26,6 +27,7 @@ const UIFormControlledTermArrayItem = ({
     setCurrentAuthority(e.target.value);
   };
 
+  // Handle user entering search input
   const handleInputChange = (val) => {
     getAuthResults({
       variables: {
@@ -35,8 +37,10 @@ const UIFormControlledTermArrayItem = ({
     });
   };
 
+  // Handle user selecting an item in the dropdown list
   const handleItemSelected = (val) => {
-    control.setValue([{ [`${inputName}.id`]: val.id }]);
+    // Set new value with React Hook Form of the hidden variable below
+    control.setValue(`${inputName}.id`, val.id);
   };
 
   return (
@@ -44,10 +48,12 @@ const UIFormControlledTermArrayItem = ({
       <div className="field">
         <label className="label">Authority</label>
         <UIFormSelect
-          name={`${[name]}Authority[${index}]`}
+          defaultValue={item.authority}
+          name={`${inputName}.authority`}
           label="Authority"
-          options={authorities}
           onChange={handleAuthorityChange}
+          options={authorities}
+          register={register}
         />
       </div>
 
@@ -61,6 +67,7 @@ const UIFormControlledTermArrayItem = ({
           handleItemSelected={handleItemSelected}
           hasErrors={hasErrors}
           inputName={inputName}
+          initialInputValue={item.label || ""}
           register={register}
         />
         {hasErrors && (
@@ -79,6 +86,7 @@ function DropDownComboBox({
   handleItemSelected,
   hasErrors,
   inputName,
+  initialInputValue,
   register,
 }) {
   const {
@@ -91,6 +99,7 @@ function DropDownComboBox({
     isOpen,
     selectedItem,
   } = useCombobox({
+    initialInputValue,
     items: authoritiesSearch,
     itemToString: (item) => (item ? item.label : ""),
     onInputValueChange: ({ inputValue }) => {
