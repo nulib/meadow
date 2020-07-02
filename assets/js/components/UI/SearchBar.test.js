@@ -9,6 +9,6 @@ describe("UISearchBar component", () => {
 
   it("renders the search bar component", () => {
     const { getByTestId } = render(<UISearchBar />);
-    expect(getByTestId("reactive-search-bar")).toBeInTheDocument();
+    expect(getByTestId("reactive-search-wrapper")).toBeInTheDocument();
   });
 });

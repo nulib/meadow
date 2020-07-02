@@ -33,7 +33,10 @@ const WorkCardItem = ({
         </figure>
       </div>
       <div className="card-content">
-        <h3 className="title is-size-4">{title ? title : "Untitled"}</h3>
+        <h3
+          className="title is-size-4"
+          dangerouslySetInnerHTML={{ __html: title ? title : "Untitled" }}
+        ></h3>
 
         <div className="content">
           <p>
@@ -57,9 +60,10 @@ const WorkCardItem = ({
           </p>
           <dl>
             <dt>Accession Number:</dt>
-            <dd data-testid="result-item-accession-number">
-              {accessionNumber}
-            </dd>
+            <dd
+              data-testid="result-item-accession-number"
+              dangerouslySetInnerHTML={{ __html: accessionNumber }}
+            ></dd>
             <dt># Filesets:</dt>
             <dd data-testid="result-item-filesets-length">{fileSets}</dd>
             <dt>Last Updated: </dt>

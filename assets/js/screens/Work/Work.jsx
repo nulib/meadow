@@ -60,7 +60,7 @@ const ScreensWork = () => {
   const breadCrumbs = [
     {
       label: `Search Works`,
-      route: `/work/list`,
+      route: `/search`,
     },
     {
       label: "Work",
