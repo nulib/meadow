@@ -38,7 +38,12 @@ const WorkListItem = ({
             <div className="level-left">
               <div className="level-item">
                 <h3 className="title is-size-4">
-                  <Link to={`/work/${id}`}>{title || "Untitled"}</Link>{" "}
+                  <Link
+                    to={`/work/${id}`}
+                    dangerouslySetInnerHTML={{
+                      __html: title ? title : "Untitled",
+                    }}
+                  ></Link>{" "}
                 </h3>
               </div>
               <div className="level-item">
@@ -95,9 +100,10 @@ const WorkListItem = ({
               </thead>
               <tbody>
                 <tr>
-                  <td data-testid="result-item-accession-number">
-                    {accessionNumber}
-                  </td>
+                  <td
+                    data-testid="result-item-accession-number"
+                    dangerouslySetInnerHTML={{ __html: accessionNumber }}
+                  ></td>
                   <td data-testid="result-item-filesets-length">{fileSets}</td>
                   <td data-testid="result-item-updated-date">
                     {formatDate(updatedAt)}

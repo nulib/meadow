@@ -10,6 +10,7 @@ import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensIngestSheetForm from "./IngestSheet/Form";
 import ScreensWork from "./Work/Work";
 import ScreensWorkList from "./Work/List";
+import ScreensSearch from "./Search/Search";
 import ScreensCollectionList from "./Collection/List";
 import ScreensCollection from "./Collection/Collection";
 import ScreensCollectionForm from "./Collection/Form";
@@ -67,11 +68,7 @@ export default class Root extends React.Component {
                 path="/project/:id"
                 component={ScreensProject}
               />
-              <PrivateRoute
-                exact
-                path="/work/list"
-                component={ScreensWorkList}
-              />
+
               <PrivateRoute exact path="/work/:id" component={ScreensWork} />
               <PrivateRoute
                 exact
@@ -88,6 +85,7 @@ export default class Root extends React.Component {
                 path="/collection/:id"
                 component={ScreensCollection}
               />
+              <PrivateRoute exact path="/search" component={ScreensSearch} />
               <PrivateRoute exact path="/" component={Home} />
               <PrivateRoute component={NotFoundPage} />
             </Switch>

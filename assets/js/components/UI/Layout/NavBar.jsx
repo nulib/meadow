@@ -13,15 +13,6 @@ const UILayoutNavBar = () => {
   const location = useLocation();
   const history = useHistory();
 
-  useEffect(() => {
-    if (
-      (location.state && location.state.showSearch) ||
-      location.pathname === "/work/list"
-    ) {
-      setShowSearch(true);
-    }
-  }, [location]);
-
   const isActive = (matcher) => {
     return location.pathname.includes(matcher);
   };
@@ -30,13 +21,6 @@ const UILayoutNavBar = () => {
     e.preventDefault();
     client.resetStore();
     window.location.href = "/auth/logout";
-  };
-
-  const handleSearchButtonClick = () => {
-    setShowSearch(!showSearch);
-    if (location.pathname !== "/work/list") {
-      history.push("/work/list", { showSearch: true });
-    }
   };
 
   const handleMobileMenuClick = () => {
@@ -108,9 +92,6 @@ const UILayoutNavBar = () => {
           {currentUser && (
             <>
               <div className="navbar-start">
-                {/* <Link to="/" className="navbar-item">
-                  <FontAwesomeIcon icon="home" />
-                </Link> */}
                 <Link
                   to="/project/list"
                   className={`navbar-item ${
@@ -199,23 +180,21 @@ const UILayoutNavBar = () => {
                 </div>
 
                 <div className="navbar-item">
-                  <button
-                    className="button is-hidden-touch"
-                    onClick={handleSearchButtonClick}
-                  >
+                  {/* Desktop search button */}
+                  <Link to="/search" className="button is-hidden-touch">
                     <FontAwesomeIcon icon="search" />
-                  </button>
+                  </Link>
 
-                  <button
-                    role="menuitem"
+                  {/* Mobile search button */}
+                  <Link
+                    to="/search"
                     className="button is-text is-hidden-desktop"
-                    onClick={handleSearchButtonClick}
                   >
                     <span className="icon">
                       <FontAwesomeIcon icon="search" />
                     </span>
                     <span>Search</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </>
