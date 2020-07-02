@@ -5,6 +5,7 @@ import { IIIFProvider } from "../../components/IIIF/IIIFProvider";
 import WorkCardItem from "../../components/Work/CardItem";
 import WorkListItem from "../../components/Work/ListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 
 const ScreensWorkList = () => {
   const [isListView, setIsListView] = useState(false);
@@ -51,6 +52,9 @@ const ScreensWorkList = () => {
           </div>
         </div>
         <div className="container">
+          <p>
+            <Link to="/batch-edit">Go to batch edit</Link>
+          </p>
           <IIIFProvider>
             <ReactiveList
               componentId="SearchResult"

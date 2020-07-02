@@ -13,6 +13,7 @@ import ScreensWorkList from "./Work/List";
 import ScreensCollectionList from "./Collection/List";
 import ScreensCollection from "./Collection/Collection";
 import ScreensCollectionForm from "./Collection/Form";
+import ScreensBatchEdit from "./BatchEdit/BatchEdit";
 import Login from "./Login";
 import PrivateRoute from "../components/Auth/PrivateRoute";
 import ScrollToTop from "../components/ScrollToTop";
@@ -36,6 +37,11 @@ export default class Root extends React.Component {
             <ScrollToTop />
             <Switch>
               <Route exact path="/login" component={Login} />
+              <PrivateRoute
+                exact
+                path="/batch-edit"
+                component={ScreensBatchEdit}
+              />
               <PrivateRoute
                 exact
                 path="/project/list"
