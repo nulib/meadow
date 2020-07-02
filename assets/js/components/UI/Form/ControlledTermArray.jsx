@@ -6,15 +6,6 @@ import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
 
-const styles = {
-  inputWrapper: {
-    marginBottom: "1rem",
-  },
-  deleteButton: {
-    marginTop: "1rem",
-  },
-};
-
 const UIFormControlledTermArray = ({
   codeLists: { authorities = [], marcRelators = [] },
   control,
@@ -27,24 +18,26 @@ const UIFormControlledTermArray = ({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name,
+    name, // Metadata item form name
+    keyName: "useFieldArrayId",
   });
 
   return (
     <>
-      <ul style={styles.inputWrapper}>
+      <ul className="mb-3">
         {fields.map((item, index) => {
+          // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
 
           return (
-            <li key={item.id}>
+            <li key={item.useFieldArrayId}>
               <fieldset>
                 <legend
                   className="has-text-grey has-text-weight-light"
                   data-testid="legend"
                 >{`${label} #${index + 1}`}</legend>
 
-                {/* Existing values are NOT editable, so we save them in hidden fields */}
+                {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
                 {!item.new && (
                   <>
                     <p>
@@ -67,6 +60,7 @@ const UIFormControlledTermArray = ({
                   </>
                 )}
 
+                {/* New form entries */}
                 {item.new && (
                   <>
                     {hasRole(name) && (
@@ -77,6 +71,7 @@ const UIFormControlledTermArray = ({
                             !!(errors[name] && errors[name][index].roleId)
                           }
                           name={`${itemName}.roleId`}
+                          defaultValue={item.roleId}
                           label="Role"
                           options={marcRelators}
                           register={register}
@@ -101,9 +96,8 @@ const UIFormControlledTermArray = ({
 
                 <button
                   type="button"
-                  className="button is-light is-small"
+                  className="button is-light is-small mt-3"
                   onClick={() => remove(index)}
-                  style={styles.deleteButton}
                   data-testid="button-delete-field-array-row"
                 >
                   <span className="icon">
@@ -121,7 +115,7 @@ const UIFormControlledTermArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append({ new: true });
+          append({ new: true, id: "", label: "", roleId: "" });
         }}
         data-testid="button-add-field-array-row"
       >

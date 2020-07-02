@@ -34,7 +34,8 @@ const WorkTabsAbout = ({ work }) => {
   useEffect(() => {
     // TODO: Automate the populating of values below from DESCRIPTIVE_METADATA constant
 
-    // Tell React Hook Form to update field array form values when a Work updates
+    // Tell React Hook Form to update field array form values
+    // with existing values, or when a Work updates
     reset({
       abstract: descriptiveMetadata.abstract,
       alternateTitle: descriptiveMetadata.alternateTitle,
