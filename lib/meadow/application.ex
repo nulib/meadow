@@ -20,7 +20,7 @@ defmodule Meadow.Application do
       MeadowWeb.Endpoint,
       {Absinthe.Subscription, MeadowWeb.Endpoint},
       {Registry, keys: :unique, name: Meadow.TaskRegistry},
-      {ConCache, [name: Meadow.Cache, ttl_check_interval: false]}
+      {Cachex, Meadow.Cache}
     ]
 
     children =

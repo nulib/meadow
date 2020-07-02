@@ -11,7 +11,7 @@ defmodule Meadow.Accounts.Ldap do
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
 
   def connection(force_new \\ false) do
-    if force_new, do: Meadow.Cache |> ConCache.delete(:ldap_address)
+    if force_new, do: Meadow.Cache |> Cachex.del(:ldap_address)
 
     settings =
       with config <- Application.get_env(:exldap, :settings) do
@@ -151,16 +151,22 @@ defmodule Meadow.Accounts.Ldap do
       end
     end
 
-    Meadow.Cache
-    |> ConCache.get_or_store(:ldap_address, fn ->
-      {:ok, ldap_addrs} =
-        config[:server]
-        |> to_charlist()
-        |> :inet.getaddrs(:inet, @connect_timeout)
+    cache_response =
+      Meadow.Cache
+      |> Cachex.fetch(:ldap_address, fn ->
+        {:ok, ldap_addrs} =
+          config[:server]
+          |> to_charlist()
+          |> :inet.getaddrs(:inet, @connect_timeout)
 
-      ldap_addrs
-      |> Enum.find_value(find_connection)
-    end)
+        {:commit, ldap_addrs |> Enum.find_value(find_connection)}
+      end)
+
+    case cache_response do
+      {:ok, val} -> val
+      {:commit, val} -> val
+      other -> {:error, other}
+    end
   end
 
   defp extract_members(connection, %Exldap.Entry{} = group) do
