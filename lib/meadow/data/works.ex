@@ -2,11 +2,9 @@ defmodule Meadow.Data.Works do
   @moduledoc """
   The Works context.
   """
-
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest.Sheets
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
@@ -21,7 +19,7 @@ defmodule Meadow.Data.Works do
   """
   def list_works do
     Work
-    |> Sheets.works_with_sheets()
+    |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
@@ -47,7 +45,7 @@ defmodule Meadow.Data.Works do
       {:order, order}, query ->
         from p in query, order_by: [{^order, :id}]
     end)
-    |> Sheets.works_with_sheets()
+    |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
@@ -78,14 +76,14 @@ defmodule Meadow.Data.Works do
   """
   def get_work!(id) do
     Work
-    |> Sheets.works_with_sheets()
+    |> preload([:ingest_sheet, :project])
     |> Repo.get!(id)
     |> add_representative_image()
   end
 
   def get_work(id) do
     Work
-    |> Sheets.works_with_sheets()
+    |> preload([:ingest_sheet, :project])
     |> Repo.get(id)
     |> add_representative_image()
   end
@@ -97,7 +95,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work_by_accession_number!(accession_number) do
     Work
-    |> Sheets.works_with_sheets()
+    |> preload([:ingest_sheet, :project])
     |> Repo.get_by!(accession_number: accession_number)
     |> add_representative_image()
   end
@@ -107,10 +105,21 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
-    |> Sheets.works_with_sheets()
-    |> where([work], work.id == ^id)
+    |> preload([:ingest_sheet, :project])
     |> preload(:file_sets)
-    |> Repo.one()
+    |> Repo.get!(id)
+    |> add_representative_image()
+  end
+
+  @doc """
+  Gets a work with Ingest Sheet preloaded
+
+  Raises `Ecto.NoResultsError` if the Work does not exist
+  """
+  def with_sheet(id) do
+    Work
+    |> preload(:ingest_sheet)
+    |> Repo.get!(id)
     |> add_representative_image()
   end
 
@@ -163,6 +172,13 @@ defmodule Meadow.Data.Works do
         {:error, changeset} -> Repo.rollback(changeset)
       end
     end)
+  end
+
+  def create_work_all_fields(attrs \\ %{}) do
+    case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
+      {:ok, work} -> set_default_representative_image(work)
+      other -> other
+    end
   end
 
   @doc """

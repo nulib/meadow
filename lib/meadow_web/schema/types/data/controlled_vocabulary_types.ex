@@ -4,8 +4,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   """
   use Absinthe.Schema.Notation
-  alias MeadowWeb.Resolvers.Data.ControlledVocabulary
   alias MeadowWeb.Resolvers.Data.AuthoritiesSearch
+  alias MeadowWeb.Resolvers.Data.ControlledVocabulary
   alias MeadowWeb.Schema.Middleware
 
   object :controlled_term_queries do
@@ -51,7 +51,13 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Controlled value associated with a role"
   object :controlled_term do
-    import_fields(:controlled_value)
+    field :id, :id
+    field :label, :string
+  end
+
+  @desc "Controlled metadata entry"
+  object :controlled_metadata_entry do
+    field :term, :controlled_term
     field :role, :coded_term
   end
 
@@ -63,8 +69,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   end
 
   @desc "NOT YET IMPLEMENTED Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
-  input_object :controlled_term_input do
-    field :id, non_null(:id)
+  input_object :controlled_metadata_entry_input do
+    field :term, non_null(:id)
     field :role, :coded_term_input
   end
 
@@ -81,7 +87,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")
     value(:rights_statement, as: "rights_statement", description: "Rights Statement")
-    value(:subject, as: "subjects", description: "Subject")
+    value(:subject_role, as: "subject_role", description: "Subject Role")
     value(:status, as: "status", description: "Status")
     value(:visibility, as: "visibility", description: "Visibility")
     value(:work_type, as: "work_type", description: "Work Type")

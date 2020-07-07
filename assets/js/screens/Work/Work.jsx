@@ -77,6 +77,7 @@ const ScreensWork = () => {
       variables: { id, work: workUpdateInput },
     });
   };
+  console.log(data);
 
   return (
     <Layout>
@@ -142,15 +143,15 @@ const ScreensWork = () => {
                     <dt>Project</dt>
                     <dd>
                       <Link to={`/project/${data.work.project.id}`}>
-                        {data.work.project.name}
+                        {data.work.project.title}
                       </Link>
                     </dd>
                     <dt>Ingest Sheet</dt>
                     <dd>
                       <Link
-                        to={`/project/${data.work.project.id}/ingest-sheet/${data.work.sheet.id}`}
+                        to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
                       >
-                        {data.work.sheet.name}
+                        {data.work.ingestSheet.name}
                       </Link>
                     </dd>
                   </dl>

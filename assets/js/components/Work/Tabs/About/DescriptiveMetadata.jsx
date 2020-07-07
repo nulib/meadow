@@ -35,7 +35,11 @@ const WorkTabsAboutDescriptiveMetadata = ({
   if (marcErrors || authorityErrors)
     return <UIError error={marcErrors || authorityErrors} />;
   if (!authorityData || !marcData) {
-    return <UIError error={{ message: "No Authority data or no Marc data" }} />;
+    return (
+      <UIError
+        error={{ message: "No Authority data or no MARC relator data" }}
+      />
+    );
   }
 
   const codeLists = {

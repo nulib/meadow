@@ -2,11 +2,12 @@ defmodule Meadow.Ingest.Progress do
   @moduledoc """
   Translate action state notifications into ingest sheet progress notifications
   """
+  alias Meadow.Data.Works
+  alias Meadow.Ingest
+  alias Meadow.Ingest.Sheets
 
-  alias Meadow.Ingest.{Sheets, SheetWorks}
-
-  def send_notification(action_state) do
-    case SheetWorks.ingest_sheet_for_file_set(action_state.object_id) do
+  def send_notification(%{object_id: file_set_id, object_type: "Meadow.Data.Schemas.FileSet"}) do
+    case Ingest.ingest_sheet_for_file_set(file_set_id) do
       nil ->
         :noop
 
@@ -18,6 +19,18 @@ defmodule Meadow.Ingest.Progress do
         )
     end
   end
+
+  def send_notification(%{object_id: work_id, object_type: "Meadow.Data.Schemas.Work"}) do
+    with work <- Works.with_sheet(work_id) do
+      Absinthe.Subscription.publish(
+        MeadowWeb.Endpoint,
+        pipeline_progress(work.ingest_sheet),
+        ingest_progress: work.ingest_sheet_id
+      )
+    end
+  end
+
+  def send_notification(_), do: :noop
 
   defp pipeline_progress(ingest_sheet) do
     case Sheets.total_action_count(ingest_sheet) do

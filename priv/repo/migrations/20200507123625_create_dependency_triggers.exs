@@ -2,6 +2,7 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   use Ecto.Migration
 
   def up do
+    create_dependency_trigger(:ingest_sheets, :works, [:name])
     create_dependency_trigger(:collections, :works, [:name])
     create_dependency_trigger(:works, :file_sets, [:published])
 
@@ -14,6 +15,7 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   end
 
   def down do
+    drop_dependency_trigger(:ingest_sheets, :works)
     drop_dependency_trigger(:collections, :works)
     drop_dependency_trigger(:works, :file_sets)
     drop_dependency_trigger(:works, :collections)

@@ -51,55 +51,71 @@ export const GET_WORK = gql`
         source
         tableOfContents
         description
-        contributor @client {
-          id
-          label
+        contributor {
+          term {
+            id
+            label
+          }
           role {
             id
             label
             scheme
           }
         }
-        creator @client {
-          id
-          label
+        creator {
+          term {
+            id
+            label
+          }
         }
-        genre @client {
-          id
-          label
+        genre {
+          term {
+            id
+            label
+          }
         }
-        language @client {
-          id
-          label
+        language {
+          term {
+            id
+            label
+          }
         }
         license @client {
           id
           label
         }
-        location @client {
-          id
-          label
+        location {
+          term {
+            id
+            label
+          }
         }
         rightsStatement @client {
           id
           label
         }
-        stylePeriod @client {
-          id
-          label
+        stylePeriod {
+          term {
+            id
+            label
+          }
         }
-        subject @client {
-          id
-          label
+        subject {
+          term {
+            id
+            label
+          }
           role {
             id
             label
             scheme
           }
         }
-        technique @client {
-          id
-          label
+        technique {
+          term {
+            id
+            label
+          }
         }
         title
       }
@@ -119,11 +135,11 @@ export const GET_WORK = gql`
       manifestUrl
       project {
         id
-        name
+        title
       }
       published
       representativeImage
-      sheet {
+      ingestSheet {
         id
         name
       }
@@ -165,9 +181,9 @@ export const GET_WORKS = gql`
       manifestUrl
       project {
         id
-        name
+        title
       }
-      sheet {
+      ingestSheet {
         id
         name
       }
@@ -216,55 +232,71 @@ export const UPDATE_WORK = gql`
       descriptiveMetadata {
         title
         description
-        contributor @client {
-          id
-          label
+        contributor {
+          term {
+            id
+            label
+          }
           role {
             id
             label
             scheme
           }
         }
-        creator @client {
-          id
-          label
+        creator {
+          term {
+            id
+            label
+          }
         }
-        genre @client {
-          id
-          label
+        genre {
+          term {
+            id
+            label
+          }
         }
-        language @client {
-          id
-          label
+        language {
+          term {
+            id
+            label
+          }
         }
         license @client {
           id
           label
         }
-        location @client {
-          id
-          label
+        location {
+          term {
+            id
+            label
+          }
         }
         rightsStatement @client {
           id
           label
         }
-        stylePeriod @client {
-          id
-          label
+        stylePeriod {
+          term {
+            id
+            label
+          }
         }
-        subject @client {
-          id
-          label
+        subject {
+          term {
+            id
+            label
+          }
           role {
             id
             label
             scheme
           }
         }
-        technique @client {
-          id
-          label
+        technique {
+          term {
+            id
+            label
+          }
         }
       }
       insertedAt
@@ -296,13 +328,13 @@ export const DELETE_WORK = gql`
       descriptiveMetadata {
         title
       }
-      sheet {
+      ingestSheet {
         id
         name
       }
       project {
         id
-        name
+        title
       }
     }
   }

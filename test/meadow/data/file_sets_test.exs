@@ -57,9 +57,14 @@ defmodule Meadow.Data.FileSetsTest do
       assert FileSets.get_file_set!(file_set.id) == file_set
     end
 
-    test "get_file_set_by_accessionb_number!/1 returns a file set by accession_number" do
+    test "get_file_set_by_accession_number!/1 returns a file set by accession_number" do
       file_set = file_set_fixture()
       assert FileSets.get_file_set_by_accession_number!(file_set.accession_number) == file_set
+    end
+
+    test "get_file_set_with_work_and_sheet!/1 returns a file set with work and ingest sheet preloaded" do
+      file_set = file_set_fixture() |> Repo.preload(:work)
+      assert FileSets.get_file_set_with_work_and_sheet!(file_set.id) == file_set
     end
 
     test "accession_exists?/1 returns true if accession is already taken" do

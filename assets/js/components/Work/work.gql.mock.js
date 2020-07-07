@@ -15,8 +15,10 @@ export const mockWork = {
     title: "Work title here",
     contributor: [
       {
-        id: "https://kadin.org",
-        label: "veniam et et",
+        term: {
+          id: "https://kadin.org",
+          label: "veniam et et",
+        },
         role: {
           id: "aut",
           label: "Author",
@@ -26,26 +28,34 @@ export const mockWork = {
     ],
     creator: [
       {
-        id: "https://theurioftheresource123",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
     genre: [
       {
-        id: "https://theurioftheresource123",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
     language: [
       {
-        id: "https://theurioftheresource",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
     location: [
       {
-        id: "https://theurioftheresource",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
     rightsStatement: {
@@ -54,14 +64,18 @@ export const mockWork = {
     },
     stylePeriod: [
       {
-        id: "https://theurioftheresource",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
     subject: [
       {
-        id: "https://clint.biz",
-        label: "veritatis omnis est",
+        term: {
+          id: "https://clint.biz",
+          label: "veritatis omnis est",
+        },
         role: {
           id: "geographical",
           label: "geographical",
@@ -73,8 +87,10 @@ export const mockWork = {
     ],
     technique: [
       {
-        id: "https://theurioftheresource",
-        label: "This is the label",
+        term: {
+          id: "https://theurioftheresource123",
+          label: "This is the label",
+        },
       },
     ],
   },
@@ -135,9 +151,9 @@ export const mockWork = {
   workType: mockWorkType(),
   project: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-    name: "Foo",
+    title: "Foo",
   },
-  sheet: {
+  ingestSheet: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
     name: "Bar",
   },
