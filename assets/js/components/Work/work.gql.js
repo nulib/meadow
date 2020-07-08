@@ -6,11 +6,11 @@ export const GET_WORK = gql`
       id
       accessionNumber
       administrativeMetadata {
-        preservationLevel @client {
+        preservationLevel {
           id
           label
         }
-        status @client {
+        status {
           id
           label
         }
@@ -80,7 +80,7 @@ export const GET_WORK = gql`
             label
           }
         }
-        license @client {
+        license {
           id
           label
         }
@@ -90,7 +90,7 @@ export const GET_WORK = gql`
             label
           }
         }
-        rightsStatement @client {
+        rightsStatement {
           id
           label
         }
@@ -144,11 +144,11 @@ export const GET_WORK = gql`
         name
       }
       updatedAt
-      visibility @client {
+      visibility {
         id
         label
       }
-      workType @client {
+      workType {
         id
         label
       }
@@ -190,11 +190,11 @@ export const GET_WORKS = gql`
       published
       representativeImage
       updatedAt
-      workType @client {
+      workType {
         id
         label
       }
-      visibility @client {
+      visibility {
         id
         label
       }
@@ -216,11 +216,11 @@ export const UPDATE_WORK = gql`
     updateWork(id: $id, work: $work) {
       id
       administrativeMetadata {
-        preservationLevel @client {
+        preservationLevel {
           id
           label
         }
-        status @client {
+        status {
           id
           label
         }
@@ -261,7 +261,7 @@ export const UPDATE_WORK = gql`
             label
           }
         }
-        license @client {
+        license {
           id
           label
         }
@@ -271,7 +271,7 @@ export const UPDATE_WORK = gql`
             label
           }
         }
-        rightsStatement @client {
+        rightsStatement {
           id
           label
         }

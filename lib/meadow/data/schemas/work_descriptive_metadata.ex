@@ -6,6 +6,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   import Ecto.Changeset
   use Ecto.Schema
   alias Meadow.Data.Schemas.ControlledMetadataEntry
+  alias Meadow.Data.Types
 
   # {field_name, repeating}
   @fields [
@@ -40,6 +41,11 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:title, false}
   ]
 
+  @coded_fields [
+    :license,
+    :rights_statement
+  ]
+
   @controlled_fields [
     :contributor,
     :creator,
@@ -59,6 +65,11 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       {f, false} -> field f, :string
     end)
 
+    @coded_fields
+    |> Enum.each(fn f ->
+      field f, Types.CodedTerm
+    end)
+
     @controlled_fields
     |> Enum.each(fn f ->
       embeds_many(f, ControlledMetadataEntry, on_replace: :delete)
@@ -68,7 +79,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   end
 
   def changeset(metadata, params) do
-    with change <- cast(metadata, params, scalar_fields()) do
+    with change <- cast(metadata, params, permitted()) do
       @controlled_fields
       |> Enum.reduce(change, fn field, acc ->
         cast_embed(acc, field)
@@ -82,7 +93,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     # |> validate_required([:ark, :nul_use_statement, :title])
   end
 
-  def scalar_fields, do: @fields |> Enum.map(fn {name, _} -> name end)
+  defp permitted, do: @coded_fields ++ scalar_fields()
+  defp scalar_fields, do: @fields |> Enum.map(fn {name, _} -> name end)
   def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
 
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.WorkDescriptiveMetadata do
@@ -93,11 +105,14 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     def routing(_), do: false
 
     def encode(md) do
-      Source.field_names()
-      |> Enum.map(fn field_name ->
-        {field_name, encode_field(Map.get(md, field_name))}
-      end)
-      |> Enum.into(%{})
+      %{
+        descriptive_metadata:
+          Source.field_names()
+          |> Enum.map(fn field_name ->
+            {field_name, encode_field(Map.get(md, field_name))}
+          end)
+          |> Enum.into(%{})
+      }
     end
 
     def encode_field([field | []]), do: [encode_field(field)]

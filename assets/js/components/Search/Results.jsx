@@ -13,7 +13,7 @@ const SearchResults = ({ handleSelectItem }) => {
   const getWorkItem = (res) => {
     return {
       id: res._id,
-      title: res.title,
+      title: res.descriptive_metadata.title,
       updatedAt: res.modified_date,
       representativeImage: res.representative_file_set,
       manifestUrl: res.iiif_manifest,

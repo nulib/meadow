@@ -43,14 +43,14 @@ defmodule Meadow.Data.IndexerTest do
         %{collection: collection, works: [work | _]} = indexable_data()
 
         Indexer.synchronize_index()
-        assert indexed_doc(collection.id) |> get_in(["title"]) == collection.name
-        assert indexed_doc(work.id) |> get_in(["collection", "title"]) == collection.name
+        assert indexed_doc(collection.id) |> get_in(["name"]) == collection.name
+        assert indexed_doc(work.id) |> get_in(["collection", "name"]) == collection.name
 
         {:ok, collection} = collection |> Collections.update_collection(%{name: "New Name"})
 
         Indexer.synchronize_index()
-        assert indexed_doc(collection.id) |> get_in(["title"]) == "New Name"
-        assert indexed_doc(work.id) |> get_in(["collection", "title"]) == "New Name"
+        assert indexed_doc(collection.id) |> get_in(["name"]) == "New Name"
+        assert indexed_doc(work.id) |> get_in(["collection", "name"]) == "New Name"
       end)
     end
 
@@ -104,7 +104,7 @@ defmodule Meadow.Data.IndexerTest do
 
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["collection"]) == %{}
-          assert doc |> get_in(["project"]) == %{"id" => project.id, "name" => project.title}
+          assert doc |> get_in(["project"]) == %{"id" => project.id, "title" => project.title}
 
           assert doc |> get_in(["sheet"]) == %{
                    "id" => ingest_sheet.id,
@@ -148,7 +148,7 @@ defmodule Meadow.Data.IndexerTest do
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["project"]) == %{
                    "id" => project.id,
-                   "name" => project.title
+                   "title" => project.title
                  }
         end
 
@@ -158,7 +158,7 @@ defmodule Meadow.Data.IndexerTest do
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["project"]) == %{
                    "id" => project.id,
-                   "name" => "New Name"
+                   "title" => "New Name"
                  }
         end
       end)
@@ -181,7 +181,7 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
-      assert doc |> get_in(["title"]) == subject.name
+      assert doc |> get_in(["name"]) == subject.name
     end
 
     test "work encoding", %{work: subject} do
@@ -190,11 +190,12 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "application"]) == "Meadow"
 
       with metadata <- subject.descriptive_metadata do
-        assert doc |> get_in(["title"]) == metadata.title
+        assert doc |> get_in(["descriptive_metadata", "title"]) ==
+                 metadata.title
       end
 
       with metadata <- subject.administrative_metadata do
-        assert doc |> get_in(["project_name"]) == metadata.project_name
+        assert doc |> get_in(["administrative_metadata", "project_name"]) == metadata.project_name
       end
     end
 

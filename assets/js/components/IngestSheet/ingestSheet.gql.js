@@ -223,11 +223,11 @@ export const INGEST_SHEET_WORKS = gql`
       published
       representativeImage
       updatedAt
-      workType @client {
+      workType {
         id
         label
       }
-      visibility @client {
+      visibility {
         id
         label
       }

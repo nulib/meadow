@@ -9,8 +9,8 @@ defmodule Meadow.Repo.Migrations.CreateWorks do
       add(:descriptive_metadata, :map, default: %{})
       add(:administrative_metadata, :map, default: %{})
       add(:published, :boolean)
-      add(:visibility, :string)
-      add(:work_type, :string)
+      add(:visibility, :map)
+      add(:work_type, :map)
       timestamps()
     end
 

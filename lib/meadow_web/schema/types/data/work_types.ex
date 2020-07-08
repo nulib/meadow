@@ -147,10 +147,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :creator, list_of(:controlled_metadata_entry)
     field :genre, list_of(:controlled_metadata_entry)
     field :language, list_of(:controlled_metadata_entry)
-    @desc "NOT YET IMPLEMENTED"
     field :license, :coded_term
     field :location, list_of(:controlled_metadata_entry)
-    @desc "NOT YET IMPLEMENTED"
     field :rights_statement, :coded_term
     field :style_period, list_of(:controlled_metadata_entry)
     field :subject, list_of(:controlled_metadata_entry)
@@ -169,9 +167,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
   object :work_administrative_metadata do
-    @desc "NOT YET IMPLEMENTED"
     field :preservation_level, :coded_term
-    @desc "NOT YET IMPLEMENTED"
     field :status, :coded_term
 
     import_fields(:uncontrolled_administrative_fields)
@@ -204,9 +200,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works administrative metadata"
   input_object :work_administrative_metadata_input do
-    @desc "NOT YET IMPLEMENTED"
     field :preservation_level, :coded_term_input
-    @desc "NOT YET IMPLEMENTED"
     field :status, :coded_term_input
 
     import_fields(:uncontrolled_administrative_fields)
@@ -218,10 +212,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :creator, list_of(:controlled_metadata_entry_input)
     field :genre, list_of(:controlled_metadata_entry_input)
     field :language, list_of(:controlled_metadata_entry_input)
-    @desc "NOT YET IMPLEMENTED"
     field :license, :coded_term_input
     field :location, list_of(:controlled_metadata_entry_input)
-    @desc "NOT YET IMPLEMENTED"
     field :rights_statement, :coded_term_input
     field :subject, list_of(:controlled_metadata_entry_input)
     field :style_period, list_of(:controlled_metadata_entry_input)
