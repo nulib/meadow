@@ -3,6 +3,7 @@ import Layout from "../Layout";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import BatchEditPreviewItems from "../../components/BatchEdit/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
+import { mockBatchEditData } from "../../mock-data/batchEditData";
 
 export default function BatchEdit() {
   return (
@@ -22,7 +23,7 @@ export default function BatchEdit() {
           </div>
 
           <div className="box" data-testid="preview-wrapper">
-            <BatchEditPreviewItems />
+            <BatchEditPreviewItems items={mockBatchEditData} />
           </div>
 
           <div className="box" data-testid="tabs-wrapper">
