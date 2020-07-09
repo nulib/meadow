@@ -1,0 +1,167 @@
+export const mockBatchEditData = [
+  {
+    accessionNumber: "Xample-b-25",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 1",
+    },
+    id: "0239eeb9-1763-4c78-8948-853365e487dc",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-39",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 2",
+    },
+    id: "0335b57f-33ad-4c85-bfd9-5260b2c183d6",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-31",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 3",
+    },
+    id: "03a28ff0-ced5-4a9f-ad86-b4316150626a",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-1",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 4",
+    },
+    id: "0eabf045-6ab3-4e56-bce4-85b2d31c288f",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-26",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 5",
+    },
+    id: "1572ca68-68a7-45e0-8feb-7e480e9a6c00",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-12",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 6",
+    },
+    id: "175d9637-2122-4dda-bcd8-3e27c541f29f",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-46",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 7",
+    },
+    id: "182cb6b8-da7c-4a36-8eb8-39a225c5eb60",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-4",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 8",
+    },
+    id: "221d72cd-d270-496e-96e2-2468427e7282",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-38",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 9",
+    },
+    id: "23c1937e-cf15-40ea-bdd8-214b317c2b3c",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-29",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 10",
+    },
+    id: "2f6212c3-a54b-467d-a24f-bcff05e45164",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-42",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 11",
+    },
+    id: "345a4bc6-4d1c-4d9e-a3eb-0f6017a48ad5",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-7",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 12",
+    },
+    id: "35f495e9-8568-448f-8e9f-30b327997354",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-50",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "This is the tiele",
+    },
+    id: "3623e511-ccce-4a97-875b-ada07d6bda8d",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-40",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 13",
+    },
+    id: "39197371-f6fb-4cf5-9c91-3e5db18948e0",
+    representativeImage: null,
+  },
+  {
+    accessionNumber: "Xample-b-11",
+    collection: null,
+    descriptiveMetadata: {
+      caption: [],
+      identifier: [],
+      title: "Sample Title 14",
+    },
+    id: "3a37aacb-6f5f-4c9d-89f4-cb0ea4025224",
+    representativeImage: null,
+  },
+];
