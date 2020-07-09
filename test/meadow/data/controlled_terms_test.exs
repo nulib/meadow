@@ -1,34 +1,12 @@
 defmodule Meadow.Data.ControlledTermsTest do
+  use Meadow.AuthorityCase
   use Meadow.DataCase
 
-  alias Authoritex.Mock
   alias Meadow.Data.ControlledTerms
   alias Meadow.Data.Schemas.ControlledTermCache
   alias Meadow.Repo
 
-  @data [
-    %{
-      id: "mock1:result1",
-      label: "First Result",
-      qualified_label: "First Result (1)",
-      hint: "(1)"
-    },
-    %{
-      id: "mock1:result2",
-      label: "Second Result",
-      qualified_label: "Second Result (2)",
-      hint: "(2)"
-    },
-    %{
-      id: "mock2:result3",
-      label: "Third Result",
-      qualified_label: "Third Result (3)",
-      hint: "(3)"
-    }
-  ]
-
   setup do
-    Mock.set_data(@data)
     ControlledTerms.clear!()
     :ok
   end

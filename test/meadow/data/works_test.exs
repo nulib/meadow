@@ -1,7 +1,7 @@
 defmodule Meadow.Data.WorksTest do
+  use Meadow.AuthorityCase
   use Meadow.DataCase
 
-  alias Authoritex.Mock
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
@@ -189,37 +189,13 @@ defmodule Meadow.Data.WorksTest do
       accession_number: "12345",
       descriptive_metadata: %{title: "Test"}
     }
-    @data [
-      %{
-        id: "mock:result1",
-        label: "First Result",
-        qualified_label: "First Result (1)",
-        hint: "(1)"
-      },
-      %{
-        id: "mock:result2",
-        label: "Second Result",
-        qualified_label: "Second Result (2)",
-        hint: "(2)"
-      },
-      %{
-        id: "mock:result3",
-        label: "Third Result",
-        qualified_label: "Third Result (3)",
-        hint: "(3)"
-      }
-    ]
-    setup do
-      Mock.set_data(@data)
-      :ok
-    end
 
     test "create_work/1 with valid controlled entries creates a work" do
       attrs =
         Map.put(@valid, :descriptive_metadata, %{
-          contributor: [%{term: "mock:result1", role: %{id: "aut", scheme: "marc_relator"}}],
-          subject: [%{term: "mock:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
-          genre: [%{term: "mock:result3"}]
+          contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+          genre: [%{term: "mock2:result3"}]
         })
 
       assert {:ok, %Work{} = work} = Works.create_work(attrs)
@@ -249,10 +225,10 @@ defmodule Meadow.Data.WorksTest do
     test "update_work/2 with valid controlled entries updates a work" do
       attrs =
         Map.put(@valid, :descriptive_metadata, %{
-          contributor: [%{term: "mock:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+          contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
           subject: [
-            %{term: "mock:result1", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}},
-            %{term: "mock:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
+            %{term: "mock1:result1", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}},
+            %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
           ]
         })
 
@@ -267,9 +243,9 @@ defmodule Meadow.Data.WorksTest do
       assert {:ok, %Work{} = work} =
                Works.update_work(work, %{
                  descriptive_metadata: %{
-                   genre: [%{term: "mock:result2"}],
+                   genre: [%{term: "mock1:result2"}],
                    subject: [
-                     %{term: "mock:result3", role: %{id: "TOPICAL", scheme: "subject_role"}}
+                     %{term: "mock2:result3", role: %{id: "TOPICAL", scheme: "subject_role"}}
                    ]
                  }
                })
