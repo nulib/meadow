@@ -7,6 +7,8 @@ defmodule Meadow.Application do
   alias Meadow.Config
   alias Meadow.Pipeline
 
+  require Cachex.Spec
+
   def start(_type, _args) do
     # List all child processes to be supervised
     # Start the Ecto repository
@@ -20,7 +22,13 @@ defmodule Meadow.Application do
       MeadowWeb.Endpoint,
       {Absinthe.Subscription, MeadowWeb.Endpoint},
       {Registry, keys: :unique, name: Meadow.TaskRegistry},
-      {Cachex, Meadow.Cache}
+      cache_spec(:global_cache, Meadow.Cache),
+      cache_spec(
+        :controlled_term_cache,
+        Meadow.Cache.ControlledTerms,
+        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        stats: true
+      )
     ]
 
     children =
@@ -49,5 +57,13 @@ defmodule Meadow.Application do
   def config_change(changed, _new, removed) do
     MeadowWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp cache_spec(id, name, args \\ []) do
+    %{
+      id: id,
+      start: {Cachex, :start_link, [name, args]},
+      type: :supervisor
+    }
   end
 end

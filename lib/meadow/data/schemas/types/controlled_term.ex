@@ -4,6 +4,7 @@ defmodule Meadow.Data.Types.ControlledTerm do
   """
 
   use Ecto.Type
+  alias Meadow.Data.ControlledTerms
 
   def embed_as(:json), do: :dump
 
@@ -24,8 +25,8 @@ defmodule Meadow.Data.Types.ControlledTerm do
 
   defp validate_uri(uri) do
     # replace with real lookup/cache call
-    case Authoritex.fetch(uri) do
-      {:ok, %{label: label}} ->
+    case ControlledTerms.fetch(uri) do
+      {{:ok, _}, %{label: label}} ->
         {:ok, %{id: uri, label: label}}
 
       {:error, error} ->
