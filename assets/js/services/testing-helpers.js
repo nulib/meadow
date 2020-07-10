@@ -18,8 +18,13 @@ export function renderWithRouter(
   {
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
+    state = {},
   } = {}
 ) {
+  if (Object.keys(state).length > 0) {
+    history.push(route, state);
+  }
+
   const Wrapper = ({ children }) => (
     <Router history={history}>{children}</Router>
   );

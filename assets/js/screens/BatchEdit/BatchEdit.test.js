@@ -1,11 +1,13 @@
 import React from "react";
-import { render } from "@testing-library/react";
 import { renderWithRouter } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 
 describe("BatchEdit component", () => {
   function setupComponent() {
-    return renderWithRouter(<ScreensBatchEdit />);
+    return renderWithRouter(<ScreensBatchEdit />, {
+      // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
+      state: { items: ["abc123", "bez444"] },
+    });
   }
 
   it("renders without crashing", () => {
@@ -18,10 +20,11 @@ describe("BatchEdit component", () => {
   });
 
   it("renders screen title and number of records editing", () => {
-    const { getByTestId, queryByText } = setupComponent();
+    const { getByTestId, queryByText, debug } = setupComponent();
+
     expect(getByTestId("title")).toBeInTheDocument();
     expect(getByTestId("num-results")).toBeInTheDocument();
-    expect(queryByText("Editing 50 rows")).toBeInTheDocument();
+    expect(queryByText("Editing 2 rows")).toBeInTheDocument();
   });
 
   it("renders the item preview window", () => {
