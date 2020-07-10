@@ -13,15 +13,15 @@ const SearchResults = ({ handleSelectItem }) => {
   const getWorkItem = (res) => {
     return {
       id: res._id,
-      title: res.descriptive_metadata.title,
+      title: res.descriptiveMetadata.title,
       updatedAt: res.modified_date,
-      representativeImage: res.representative_file_set,
-      manifestUrl: res.iiif_manifest,
+      representativeImage: res.representativeFileSet,
+      manifestUrl: res.iiifManifest,
       published: res.published,
-      visibility: res.visibility_term,
-      fileSets: res.file_sets.length,
-      accessionNumber: res.accession_number,
-      workType: res.work_type,
+      visibility: res.visibility,
+      fileSets: res.fileSets.length,
+      accessionNumber: res.accessionNumber,
+      workType: res.workType,
     };
   };
 

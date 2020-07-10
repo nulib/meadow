@@ -62,7 +62,7 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(collection.id) |> get_in(["representative_image", "work_id"]) ==
+        assert indexed_doc(collection.id) |> get_in(["representativeImage", "workId"]) ==
                  work.id
 
         file_set = file_set_fixture(%{work_id: work.id})
@@ -72,10 +72,10 @@ defmodule Meadow.Data.IndexerTest do
         Indexer.synchronize_index()
 
         assert indexed_doc(work.id)
-               |> get_in(["representative_file_set", "file_set_id"]) == file_set.id
+               |> get_in(["representativeFileSet", "fileSetId"]) == file_set.id
 
         assert indexed_doc(collection.id)
-               |> get_in(["representative_image", "url"]) == work.representative_image
+               |> get_in(["representativeImage", "url"]) == work.representative_image
       end)
     end
 
@@ -171,7 +171,8 @@ defmodule Meadow.Data.IndexerTest do
         {:ok,
          %{
            collection: collection,
-           work: List.first(works) |> Repo.preload([:collection, :ingest_sheet, :project]),
+           work:
+             List.first(works) |> Repo.preload([:collection, :file_sets, :ingest_sheet, :project]),
            file_set: List.first(file_sets) |> Repo.preload(:work)
          }}
       end
@@ -188,14 +189,15 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
+      assert doc |> get_in(["fileSets"]) |> length == 2
 
       with metadata <- subject.descriptive_metadata do
-        assert doc |> get_in(["descriptive_metadata", "title"]) ==
+        assert doc |> get_in(["descriptiveMetadata", "title"]) ==
                  metadata.title
       end
 
       with metadata <- subject.administrative_metadata do
-        assert doc |> get_in(["administrative_metadata", "project_name"]) == metadata.project_name
+        assert doc |> get_in(["administrativeMetadata", "projectName"]) == metadata.project_name
       end
     end
 

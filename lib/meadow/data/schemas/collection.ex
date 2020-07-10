@@ -13,20 +13,20 @@ defmodule Meadow.Data.Schemas.Collection do
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "collections" do
-    field :name, :string
-    field :description, :string
-    field :keywords, {:array, :string}, default: []
-    field :featured, :boolean
-    field :finding_aid_url, :string
-    field :admin_email, :string
-    field :published, :boolean, default: false
+    field(:name, :string)
+    field(:description, :string)
+    field(:keywords, {:array, :string}, default: [])
+    field(:featured, :boolean)
+    field(:finding_aid_url, :string)
+    field(:admin_email, :string)
+    field(:published, :boolean, default: false)
 
     timestamps()
 
-    belongs_to :representative_work, Work, on_replace: :nilify
-    has_many :works, Work
+    belongs_to(:representative_work, Work, on_replace: :nilify)
+    has_many(:works, Work)
 
-    field :representative_image, :string, virtual: true
+    field(:representative_image, :string, virtual: true)
   end
 
   def changeset(collection, params \\ %{}) do
@@ -52,24 +52,27 @@ defmodule Meadow.Data.Schemas.Collection do
 
     def encode(collection) do
       %{
+        createDate: collection.inserted_at,
+        description: collection.description,
+        featured: collection.featured,
+        findingAidUrl: collection.finding_aid_url,
+        keywords: collection.keywords,
         model: %{application: "Meadow", name: "Collection"},
-        name: collection.name,
+        modifiedDate: collection.updated_at,
         published: collection.published,
-        create_date: collection.inserted_at,
-        modified_date: collection.updated_at,
-        visibility: "open",
-        visibility_term: %{id: "open", label: "Public"},
-        representative_image:
+        representativeImage:
           case collection.representative_work do
             nil ->
               %{}
 
             work ->
               %{
-                work_id: work.id,
+                workId: work.id,
                 url: work.representative_image
               }
-          end
+          end,
+        name: collection.name,
+        visibility: %{id: "OPEN", label: "Public", scheme: "visibility"}
       }
     end
   end

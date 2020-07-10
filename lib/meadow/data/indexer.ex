@@ -13,7 +13,7 @@ defmodule Meadow.Data.Indexer do
   @index :meadow
 
   def synchronize_index do
-    [:deleted, Work, FileSet, Collection]
+    [:deleted, FileSet, Work, Collection]
     |> Enum.each(&synchronize_schema/1)
 
     Elasticsearch.Index.refresh(Cluster, to_string(@index))

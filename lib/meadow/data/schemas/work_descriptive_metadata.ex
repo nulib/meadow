@@ -106,10 +106,10 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
     def encode(md) do
       %{
-        descriptive_metadata:
+        descriptiveMetadata:
           Source.field_names()
           |> Enum.map(fn field_name ->
-            {field_name, encode_field(Map.get(md, field_name))}
+            {Inflex.camelize(field_name, :lower), encode_field(Map.get(md, field_name))}
           end)
           |> Enum.into(%{})
       }
