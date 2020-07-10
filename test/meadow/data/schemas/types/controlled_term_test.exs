@@ -1,8 +1,8 @@
 defmodule Meadow.Data.Types.ControlledTermTest do
   @moduledoc false
+  use Meadow.AuthorityCase
   use Meadow.DataCase
 
-  alias Authoritex.Mock
   alias Meadow.Data.Types.ControlledTerm
 
   @controlled_term %{
@@ -10,21 +10,7 @@ defmodule Meadow.Data.Types.ControlledTermTest do
     label: "Border Collie Trust Great Britain"
   }
 
-  @data [
-    %{
-      id: "http://id.loc.gov/authorities/names/nb2015010626",
-      label: "Border Collie Trust Great Britain",
-      qualified_label: "Border Collie Trust Great Britain",
-      hint: "Border Collie Trust Great Britain"
-    }
-  ]
-
   describe "FetchControlledTermLabel.gql" do
-    setup do
-      Mock.set_data(@data)
-      :ok
-    end
-
     test "cast function" do
       assert {:ok, @controlled_term} == ControlledTerm.cast(@controlled_term)
       assert {:ok, @controlled_term} == ControlledTerm.cast(@controlled_term.id)

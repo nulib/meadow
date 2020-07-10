@@ -1,26 +1,11 @@
 defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
+  use Meadow.AuthorityCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
-
-  alias Authoritex.Mock
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateWork.gql")
 
   describe "CreateWork mutation" do
-    @data [
-      %{
-        id: "mock:result1",
-        label: "First Result",
-        qualified_label: "First Result (1)",
-        hint: "(1)"
-      }
-    ]
-
-    setup do
-      Mock.set_data(@data)
-      :ok
-    end
-
     test "should be a valid mutation" do
       result =
         query_gql(
@@ -31,13 +16,13 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
               "title" => "Something",
               "contributor" => [
                 %{
-                  "term" => "mock:result1",
+                  "term" => "mock1:result1",
                   "role" => %{"id" => "aut", "scheme" => "MARC_RELATOR"}
                 }
               ],
               "stylePeriod" => [
                 %{
-                  "term" => "mock:result1"
+                  "term" => "mock1:result1"
                 }
               ]
             },
