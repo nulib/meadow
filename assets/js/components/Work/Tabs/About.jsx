@@ -133,6 +133,10 @@ const WorkTabsAbout = ({ work }) => {
         identifier,
         keywords,
         legacyIdentifier,
+        license: {
+          id: data.license,
+          scheme: "LICENSE",
+        },
         notes,
         physicalDescriptionMaterial,
         physicalDescriptionSize,
@@ -148,6 +152,7 @@ const WorkTabsAbout = ({ work }) => {
         description,
         rightsStatement: {
           id: data.rightsStatement,
+          scheme: "RIGHTS_STATEMENT",
         },
         title,
       },

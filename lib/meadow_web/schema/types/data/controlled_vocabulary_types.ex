@@ -9,7 +9,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   alias MeadowWeb.Schema.Middleware
 
   object :controlled_term_queries do
-    @desc "NOT YET IMPLEMENTED. Get values from a code list table (for use in dropdowns, etc)"
+    @desc "Get values from a code list table (for use in dropdowns, etc)"
     field :code_list, list_of(:coded_term) do
       arg(:scheme, non_null(:code_list_scheme))
       middleware(Middleware.Authenticate)
@@ -68,7 +68,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :scheme, :code_list_scheme
   end
 
-  @desc "NOT YET IMPLEMENTED Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
+  @desc "Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
   input_object :controlled_metadata_entry_input do
     field :term, non_null(:id)
     field :role, :coded_term_input

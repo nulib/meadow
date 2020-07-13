@@ -77,7 +77,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
       <ul>
         {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name }) => (
           <li key={name} className="mb-5">
-            <UIFormField label={label} mocked notLive>
+            <UIFormField label={label}>
               {isEditing ? (
                 <UIFormControlledTermArray
                   codeLists={codeLists}

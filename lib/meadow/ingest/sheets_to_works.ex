@@ -46,8 +46,6 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     attrs = %{
       accession_number: accession_number,
-      published: false,
-      ingest_sheet_id: ingest_sheet.id,
       file_sets:
         file_set_rows
         |> Enum.map(fn row ->
@@ -64,7 +62,11 @@ defmodule Meadow.Ingest.SheetsToWorks do
               label: Path.basename(file_path)
             }
           }
-        end)
+        end),
+      ingest_sheet_id: ingest_sheet.id,
+      published: false,
+      visibility: %{id: "RESTRICTED", scheme: "visibility"},
+      work_type: %{id: "IMAGE", scheme: "work_type"}
     }
 
     case Works.ensure_create_work(attrs) do

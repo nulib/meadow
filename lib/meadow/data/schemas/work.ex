@@ -9,6 +9,7 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
+  alias Meadow.Data.Types
   alias Meadow.IIIF
   alias Meadow.Ingest.Schemas.Sheet
 
@@ -22,32 +23,43 @@ defmodule Meadow.Data.Schemas.Work do
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "works" do
-    field :accession_number, :string
-    field :published, :boolean, default: false
-    field :representative_file_set_id, Ecto.UUID, default: nil
+    field(:accession_number, :string)
+    field(:published, :boolean, default: false)
+    field(:representative_file_set_id, Ecto.UUID, default: nil)
+    field(:visibility, Types.CodedTerm)
+    field(:work_type, Types.CodedTerm)
+
     timestamps()
 
-    embeds_one :descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update
-    embeds_one :administrative_metadata, WorkAdministrativeMetadata, on_replace: :update
+    embeds_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
+    embeds_one(:administrative_metadata, WorkAdministrativeMetadata, on_replace: :update)
 
-    has_many :file_sets, FileSet
+    has_many(:file_sets, FileSet)
 
-    has_many :action_states, ActionState,
+    has_many(:action_states, ActionState,
       references: :id,
       foreign_key: :object_id,
       on_delete: :delete_all
+    )
 
-    belongs_to :collection, Collection
+    belongs_to(:collection, Collection)
 
-    belongs_to :ingest_sheet, Sheet
-    has_one :project, through: [:ingest_sheet, :project]
+    belongs_to(:ingest_sheet, Sheet)
+    has_one(:project, through: [:ingest_sheet, :project])
 
-    field :representative_image, :string, virtual: true, default: nil
+    field(:representative_image, :string, virtual: true, default: nil)
   end
 
   def changeset(work, attrs) do
     required_params = [:accession_number]
-    optional_params = [:collection_id, :representative_file_set_id, :ingest_sheet_id]
+
+    optional_params = [
+      :collection_id,
+      :representative_file_set_id,
+      :ingest_sheet_id,
+      :visibility,
+      :work_type
+    ]
 
     work
     |> cast(attrs, required_params ++ optional_params)
@@ -62,7 +74,13 @@ defmodule Meadow.Data.Schemas.Work do
   end
 
   def update_changeset(work, attrs) do
-    allowed_params = [:published, :collection_id, :representative_file_set_id, :ingest_sheet_id]
+    allowed_params = [
+      :collection_id,
+      :ingest_sheet_id,
+      :published,
+      :representative_file_set_id,
+      :visibility
+    ]
 
     work
     |> cast(attrs, allowed_params)
@@ -89,11 +107,7 @@ defmodule Meadow.Data.Schemas.Work do
         id: work.id,
         accession_number: work.accession_number,
         published: work.published,
-        collection:
-          case work.collection do
-            nil -> %{}
-            collection -> %{id: collection.id, title: collection.name}
-          end,
+        collection: format(work.collection),
         file_sets:
           work.file_sets
           |> Enum.map(fn file_set ->
@@ -106,19 +120,15 @@ defmodule Meadow.Data.Schemas.Work do
         create_date: work.inserted_at,
         iiif_manifest: IIIF.manifest_id(work.id),
         modified_date: work.updated_at,
-        visibility: "open",
-        visibility_term: %{id: "open", label: "Public"},
-        work_type: %{id: "IMAGE", label: "Image"},
-        project:
-          case work.project do
+        visibility_term: format(work.visibility),
+        visibility:
+          case work.visibility do
             nil -> %{}
-            project -> %{id: project.id, name: project.title}
+            visibility -> visibility.id
           end,
-        sheet:
-          case work.ingest_sheet do
-            nil -> %{}
-            sheet -> %{id: sheet.id, name: sheet.name}
-          end,
+        work_type: format(work.work_type),
+        project: format(work.project),
+        sheet: format(work.ingest_sheet),
         representative_file_set:
           case work.representative_file_set_id do
             nil ->
@@ -131,8 +141,13 @@ defmodule Meadow.Data.Schemas.Work do
               }
           end
       }
-      |> Map.merge(work.administrative_metadata |> AdministrativeMetadataDocument.encode())
-      |> Map.merge(work.descriptive_metadata |> DescriptiveMetadataDocument.encode())
+      |> Map.merge(AdministrativeMetadataDocument.encode(work.administrative_metadata))
+      |> Map.merge(DescriptiveMetadataDocument.encode(work.descriptive_metadata))
     end
+
+    defp format(%{id: id, name: name}), do: %{id: id, name: name}
+    defp format(%{id: id, title: title}), do: %{id: id, title: title}
+    defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: field
+    defp format(_), do: %{}
   end
 end

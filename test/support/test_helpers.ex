@@ -120,8 +120,8 @@ defmodule Meadow.TestHelpers do
     attrs =
       Enum.into(attrs, %{
         accession_number: attrs[:accession_number] || Faker.String.base64(),
-        visibility: attrs[:visibility] || Faker.Util.pick(@visibility),
-        work_type: attrs[:work_type] || Faker.Util.pick(@work_types),
+        visibility: attrs[:visibility] || %{id: "OPEN", scheme: "visibility"},
+        work_type: attrs[:work_type] || %{id: "IMAGE", scheme: "work_type"},
         administrative_metadata:
           attrs[:administrative_metadata] ||
             %{

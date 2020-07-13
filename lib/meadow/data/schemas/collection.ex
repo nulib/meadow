@@ -53,7 +53,7 @@ defmodule Meadow.Data.Schemas.Collection do
     def encode(collection) do
       %{
         model: %{application: "Meadow", name: "Collection"},
-        title: collection.name,
+        name: collection.name,
         published: collection.published,
         create_date: collection.inserted_at,
         modified_date: collection.updated_at,

@@ -27,8 +27,8 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
               ]
             },
             "administrativeMetadata" => %{},
-            "workType" => %{"id" => "IMAGE"},
-            "visibility" => %{"id" => "OPEN"}
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
           },
           context: gql_context()
         )

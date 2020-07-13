@@ -184,6 +184,72 @@ defmodule Meadow.Data.WorksTest do
     end
   end
 
+  describe "works with coded term fields" do
+    test "create_work/1 with valid coded term fields creates a work" do
+      attrs = %{
+        accession_number: "12345",
+        administrative_metadata: %{
+          preservation_level: %{
+            id: "1",
+            scheme: "preservation_level"
+          }
+        },
+        descriptive_metadata: %{
+          title: "Test",
+          rights_statement: %{
+            id: "http://rightsstatements.org/vocab/NoC-US/1.0/",
+            scheme: "rights_statement"
+          }
+        },
+        visibility: %{
+          id: "OPEN",
+          scheme: "visibility"
+        }
+      }
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+      assert work.visibility.id == "OPEN"
+      assert work.visibility.label == "Public"
+      assert work.visibility.scheme == "visibility"
+
+      with administrative_metadata <- work.administrative_metadata do
+        assert administrative_metadata.preservation_level.id == "1"
+        assert administrative_metadata.preservation_level.label == "Level 1"
+        assert administrative_metadata.preservation_level.scheme == "preservation_level"
+      end
+
+      with descriptive_metadata <- work.descriptive_metadata do
+        assert descriptive_metadata.rights_statement.id ==
+                 "http://rightsstatements.org/vocab/NoC-US/1.0/"
+
+        assert descriptive_metadata.rights_statement.label == "No Copyright - United States"
+        assert descriptive_metadata.rights_statement.scheme == "rights_statement"
+      end
+    end
+
+    test "update_work/2 with valid coded term fields updates a work" do
+      attrs = %{
+        accession_number: "12345",
+        visibility: %{
+          id: "OPEN",
+          scheme: "visibility"
+        }
+      }
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      assert {:ok, %Work{} = work} =
+               Works.update_work(work, %{
+                 visibility: %{
+                   id: "RESTRICTED",
+                   scheme: "visibility"
+                 }
+               })
+
+      assert work.visibility.label == "Private"
+    end
+  end
+
   describe "works with controlled fields" do
     @valid %{
       accession_number: "12345",
@@ -200,22 +266,22 @@ defmodule Meadow.Data.WorksTest do
 
       assert {:ok, %Work{} = work} = Works.create_work(attrs)
 
-      with md <- work.descriptive_metadata do
-        assert length(md.contributor) == 1
-        assert length(md.subject) == 1
-        assert length(md.genre) == 1
+      with descriptive_metadata <- work.descriptive_metadata do
+        assert length(descriptive_metadata.contributor) == 1
+        assert length(descriptive_metadata.subject) == 1
+        assert length(descriptive_metadata.genre) == 1
 
-        with value <- List.first(md.contributor) do
+        with value <- List.first(descriptive_metadata.contributor) do
           assert value.term.label == "First Result"
           assert value.role.label == "Author"
         end
 
-        with value <- List.first(md.subject) do
+        with value <- List.first(descriptive_metadata.subject) do
           assert value.term.label == "Second Result"
           assert value.role.label == "Topical"
         end
 
-        with value <- List.first(md.genre) do
+        with value <- List.first(descriptive_metadata.genre) do
           assert value.term.label == "Third Result"
           assert is_nil(value.role)
         end
@@ -234,10 +300,10 @@ defmodule Meadow.Data.WorksTest do
 
       assert {:ok, %Work{} = work} = Works.create_work(attrs)
 
-      with md <- work.descriptive_metadata do
-        assert length(md.contributor) == 1
-        assert length(md.subject) == 2
-        assert Enum.empty?(md.genre)
+      with descriptive_metadata <- work.descriptive_metadata do
+        assert length(descriptive_metadata.contributor) == 1
+        assert length(descriptive_metadata.subject) == 2
+        assert Enum.empty?(descriptive_metadata.genre)
       end
 
       assert {:ok, %Work{} = work} =
@@ -250,22 +316,22 @@ defmodule Meadow.Data.WorksTest do
                  }
                })
 
-      with md <- work.descriptive_metadata do
-        assert length(md.contributor) == 1
-        assert length(md.subject) == 1
-        assert length(md.genre) == 1
+      with descriptive_metadata <- work.descriptive_metadata do
+        assert length(descriptive_metadata.contributor) == 1
+        assert length(descriptive_metadata.subject) == 1
+        assert length(descriptive_metadata.genre) == 1
 
-        with value <- List.first(md.contributor) do
+        with value <- List.first(descriptive_metadata.contributor) do
           assert value.term.label == "First Result"
           assert value.role.label == "Author"
         end
 
-        with value <- List.first(md.subject) do
+        with value <- List.first(descriptive_metadata.subject) do
           assert value.term.label == "Third Result"
           assert value.role.label == "Topical"
         end
 
-        with value <- List.first(md.genre) do
+        with value <- List.first(descriptive_metadata.genre) do
           assert value.term.label == "Second Result"
           assert is_nil(value.role)
         end

@@ -96,8 +96,11 @@ const WorkTabsAdministrative = ({ work }) => {
     } = data;
     let workUpdateInput = {
       administrativeMetadata: {
-        preservationLevel: { id: preservationLevel },
-        status: { id: status },
+        preservationLevel: {
+          id: preservationLevel,
+          scheme: "PRESERVATION_LEVEL",
+        },
+        status: { id: status, scheme: "STATUS" },
         // TODO: Should these be field arrays or singular values?
         // projectName,
         // projectDesc,
@@ -107,7 +110,7 @@ const WorkTabsAdministrative = ({ work }) => {
         // projectCycle,
       },
       collectionId: collection,
-      visibility: { id: visibility },
+      visibility: { id: visibility, scheme: "VISIBILITY" },
     };
 
     updateWork({
@@ -191,7 +194,7 @@ const WorkTabsAdministrative = ({ work }) => {
               )}
             </UIFormField>
 
-            <UIFormField label="Preservation Level" mocked notLive>
+            <UIFormField label="Preservation Level">
               {isEditing ? (
                 <UIFormSelect
                   register={register}
@@ -210,7 +213,7 @@ const WorkTabsAdministrative = ({ work }) => {
               )}
             </UIFormField>
 
-            <UIFormField label="Status" mocked notLive>
+            <UIFormField label="Status">
               {isEditing ? (
                 <UIFormSelect
                   register={register}
@@ -229,7 +232,7 @@ const WorkTabsAdministrative = ({ work }) => {
               <p>Nothing yet</p>
             </UIFormField>
 
-            <UIFormField label="Visibility" mocked notLive>
+            <UIFormField label="Visibility">
               {isEditing ? (
                 <UIFormSelect
                   register={register}

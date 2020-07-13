@@ -23,6 +23,13 @@ const WorkTabsAboutCoreMetadata = ({
   } = useQuery(CODE_LIST_QUERY, {
     variables: { scheme: "RIGHTS_STATEMENT" },
   });
+  const {
+    loading: licenseLoading,
+    error: licenseError,
+    data: licenseData,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "LICENSE" },
+  });
 
   return showCoreMetadata ? (
     <div className="columns is-multiline">
@@ -64,7 +71,7 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
 
       <div className="column is-half">
-        <UIFormField label="Rights Statement" notLive mocked>
+        <UIFormField label="Rights Statement">
           {isEditing ? (
             <UIFormSelect
               register={register}
@@ -73,7 +80,11 @@ const WorkTabsAboutCoreMetadata = ({
               options={
                 rightsStatementsData ? rightsStatementsData.codeList : []
               }
-              defaultValue={descriptiveMetadata.rightsStatement.id}
+              defaultValue={
+                descriptiveMetadata.rightsStatement
+                  ? descriptiveMetadata.rightsStatement.id
+                  : ""
+              }
               errors={errors}
             />
           ) : (
@@ -104,9 +115,20 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {/* License */}
-        <UIFormField label="License" mocked notLive>
+        <UIFormField label="License">
           {isEditing ? (
-            <p>Form elements go here</p>
+            <UIFormSelect
+              register={register}
+              name="license"
+              label="License"
+              options={licenseData ? licenseData.codeList : []}
+              defaultValue={
+                descriptiveMetadata.licenseStatement
+                  ? descriptiveMetadata.licenseStatement.id
+                  : ""
+              }
+              errors={errors}
+            />
           ) : (
             <UICodedTermItem item={descriptiveMetadata.license} />
           )}
