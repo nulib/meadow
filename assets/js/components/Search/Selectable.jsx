@@ -17,7 +17,6 @@ const SearchSelectable = ({
     z-index: 10;
   `;
   const label = css`
-    padding-left: 0 !important;
     &:before {
       background: #fff;
     }
@@ -38,7 +37,11 @@ const SearchSelectable = ({
           name={`search-select-${id}`}
           onChange={handleChecked}
         />
-        <label css={label} htmlFor={`search-select-${id}`}></label>
+        <label
+          className="pl-0"
+          css={label}
+          htmlFor={`search-select-${id}`}
+        ></label>
       </div>
       {children}
     </div>

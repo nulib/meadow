@@ -49,12 +49,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
 
   return showDescriptiveMetadata ? (
     <div>
-      <h3
-        className="subtitle is-size-5 is-marginless"
-        style={{ paddingBottom: "1rem" }}
-      >
-        Field Arrays
-      </h3>
+      <h3 className="subtitle is-size-5 is-marginless pb-4">Field Arrays</h3>
       <div className="columns is-multiline">
         {DESCRIPTIVE_METADATA.fieldArrays.map((item) => (
           <div key={item.name} className="column is-half">
@@ -81,7 +76,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
       <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
       <ul>
         {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name }) => (
-          <li key={name} style={{ marginBottom: "2rem" }}>
+          <li key={name} className="mb-5">
             <UIFormField label={label} mocked notLive>
               {isEditing ? (
                 <UIFormControlledTermArray

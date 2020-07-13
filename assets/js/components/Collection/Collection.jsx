@@ -32,7 +32,7 @@ const Collection = ({ collection }) => {
             />
           </figure>
           {works.length > 0 && (
-            <p className="has-text-centered" style={{ paddingTop: "1rem" }}>
+            <p className="has-text-centered pt-4">
               <button
                 data-testid="button-open-image-modal"
                 type="button"

@@ -202,7 +202,7 @@ const WorkTabsAbout = ({ work }) => {
         )}
       </WorkTabsHeader>
 
-      <div className="box is-relative" style={{ marginTop: "1rem" }}>
+      <div className="box is-relative mt-4">
         <h2 className="title is-size-5">
           Core Metadata{" "}
           <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>

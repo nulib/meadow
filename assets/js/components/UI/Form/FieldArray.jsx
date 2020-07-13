@@ -3,15 +3,6 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 
-const styles = {
-  inputWrapper: {
-    marginBottom: "1rem",
-  },
-  deleteButton: {
-    marginLeft: "5px",
-  },
-};
-
 const UIFormFieldArray = ({
   name,
   label,
@@ -37,7 +28,7 @@ const UIFormFieldArray = ({
         {notLive && <span className="tag">Not Live</span>}
       </legend>
 
-      <ul style={styles.inputWrapper}>
+      <ul className="mb-4">
         {fields.map((item, index) => {
           return (
             <li key={item.id} className="field">
@@ -54,9 +45,8 @@ const UIFormFieldArray = ({
                   />
                   <button
                     type="button"
-                    className="button"
+                    className="button ml-1"
                     onClick={() => remove(index)}
-                    style={styles.deleteButton}
                     data-testid="button-delete-field-array-row"
                   >
                     <FontAwesomeIcon icon="trash" />
