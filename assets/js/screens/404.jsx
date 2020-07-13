@@ -1,15 +1,25 @@
-import React, { useEffect, useState } from "react";
-import Main from "../components/UI/Main";
+import React from "react";
+import { useLocation } from "react-router-dom";
+import Layout from "./Layout";
 
-const NotFoundPage = () => {
+const NotFound = () => {
+  const { state } = useLocation();
   return (
-    <Main>
-      <h1>404</h1>
-      <section className="content-block">
-        <p>Page / route not found</p>
+    <Layout>
+      <section className="section" data-testid="notfound-hero">
+        <div className="container">
+          <div className="box">
+            <h1 className="title">Page not found</h1>
+            <p>
+              {state
+                ? state.message
+                : "There was an error retrieving the page you requested, or the page does not exist."}
+            </p>
+          </div>
+        </div>
       </section>
-    </Main>
+    </Layout>
   );
 };
 
-export default NotFoundPage;
+export default NotFound;

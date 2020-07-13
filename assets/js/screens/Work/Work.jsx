@@ -9,7 +9,6 @@ import UIModalDelete from "../../components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
-import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
@@ -20,6 +19,12 @@ const ScreensWork = () => {
   const { id } = useParams();
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id },
+    onError() {
+      history.push("/404", {
+        message:
+          "There was an error retrieving the work, or the work id does not exist.",
+      });
+    },
   });
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -43,6 +48,10 @@ const ScreensWork = () => {
     },
   });
 
+  if (error) {
+    return null;
+  }
+
   const handleDeleteClick = () => {
     deleteWork({ variables: { workId: id } });
   };
@@ -54,8 +63,6 @@ const ScreensWork = () => {
   const onCloseModal = () => {
     setDeleteModalOpen(false);
   };
-
-  if (error) return <Error error={error} />;
 
   const breadCrumbs = [
     {
@@ -77,7 +84,6 @@ const ScreensWork = () => {
       variables: { id, work: workUpdateInput },
     });
   };
-  console.log(data);
 
   return (
     <Layout>

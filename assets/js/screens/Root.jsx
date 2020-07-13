@@ -5,7 +5,7 @@ import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
 import Home from "./Home/Home";
-import NotFoundPage from "./404";
+import NotFound from "./404";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensIngestSheetForm from "./IngestSheet/Form";
 import ScreensWork from "./Work/Work";
@@ -87,7 +87,7 @@ export default class Root extends React.Component {
               />
               <PrivateRoute exact path="/search" component={ScreensSearch} />
               <PrivateRoute exact path="/" component={Home} />
-              <PrivateRoute component={NotFoundPage} />
+              <PrivateRoute component={NotFound} />
             </Switch>
           </BrowserRouter>
         </AuthProvider>
