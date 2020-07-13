@@ -25,7 +25,6 @@ const inlineList = css`
 
 const inlineListElem = css`
   display: inline-block;
-  margin: 0 1rem 1rem 0;
 `;
 
 export default function BatchEditPreviewItems(props) {
@@ -36,7 +35,7 @@ export default function BatchEditPreviewItems(props) {
       <div className="is-centered ">
         <ul css={inlineList} data-testid="list-preview-items">
           {items.map((item) => (
-            <li key={item.id} css={inlineListElem}>
+            <li key={item.id} className="mr-4 mb-4" css={inlineListElem}>
               <Link to={`/work/${item.id}`} target="_blank">
                 <figure>
                   <img

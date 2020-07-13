@@ -9,7 +9,6 @@ const WorkTabsHeader = ({ title, children }) => {
       position: "sticky",
       top: headerHeight,
       zIndex: 1110,
-      padding: "0 1rem",
     },
   };
 
@@ -23,7 +22,7 @@ const WorkTabsHeader = ({ title, children }) => {
   return (
     <header
       style={styles.headerStyle}
-      className="box is-shadowless is-marginless has-background-light"
+      className="box is-shadowless is-marginless has-background-light py-0 px-4"
     >
       <div className="columns is-mobile">
         <div className="column is-half">

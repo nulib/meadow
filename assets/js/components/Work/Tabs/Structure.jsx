@@ -159,10 +159,7 @@ const WorkTabsStructure = ({ work }) => {
           </article>
         ))}
 
-        <section
-          className="section has-background-dark has-text-white"
-          style={{ marginTop: "1rem" }}
-        >
+        <section className="section has-background-dark has-text-white mt-4">
           <h3 className="subtitle has-text-white">Download all files as zip</h3>
           <div className="columns">
             <div className="column">

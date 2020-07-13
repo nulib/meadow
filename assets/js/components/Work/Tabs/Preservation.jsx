@@ -8,7 +8,7 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <>
       <WorkTabsHeader title="Preservation and Access Masters" />
-      <div className="box" style={{ marginTop: "1rem" }}>
+      <div className="box mt-4">
         <table className="table is-fullwidth is-striped is-hoverable is-fixed">
           <thead>
             <tr>

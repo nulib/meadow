@@ -11,9 +11,8 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
     keywords = [],
     representativeWork,
   } = collection;
-  const styles = { listItem: { marginBottom: "1rem" } };
   return (
-    <li data-testid="collection-list-row" style={styles.listItem}>
+    <li data-testid="collection-list-row" className="mb-4">
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
