@@ -54,10 +54,10 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
 
     def encode(md) do
       %{
-        administrative_metadata:
+        administrativeMetadata:
           Source.field_names()
           |> Enum.map(fn field_name ->
-            {field_name, md |> Map.get(field_name)}
+            {Inflex.camelize(field_name, :lower), md |> Map.get(field_name)}
           end)
           |> Enum.into(%{})
       }

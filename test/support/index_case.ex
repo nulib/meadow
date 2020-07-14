@@ -82,7 +82,7 @@ defmodule Meadow.IndexCase do
         %{
           count: length(works) + length(file_sets) + 1,
           collection: collection,
-          works: works,
+          works: Works.list_works(),
           file_sets: file_sets
         }
       end

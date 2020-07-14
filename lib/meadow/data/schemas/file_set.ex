@@ -52,18 +52,19 @@ defmodule Meadow.Data.Schemas.FileSet do
 
     def encode(file_set) do
       %{
-        model: %{application: "Meadow", name: "FileSet"},
-        label: file_set.metadata.label,
+        createDate: file_set.inserted_at,
         description: file_set.metadata.description,
-        create_date: file_set.inserted_at,
-        modified_date: file_set.updated_at,
-        visibility:
-          case file_set.work.visibility do
-            nil -> %{}
-            visibility -> visibility.id
-          end,
-        work_id: file_set.work.id
+        label: file_set.metadata.label,
+        model: %{application: "Meadow", name: "FileSet"},
+        modifiedDate: file_set.updated_at,
+        visibility: format(file_set.work.visibility),
+        workId: file_set.work.id
       }
     end
+
+    defp format(%{id: id, name: name}), do: %{id: id, name: name}
+    defp format(%{id: id, title: title}), do: %{id: id, title: title}
+    defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: field
+    defp format(_), do: %{}
   end
 end

@@ -103,43 +103,38 @@ defmodule Meadow.Data.Schemas.Work do
 
     def encode(work) do
       %{
-        model: %{application: "Meadow", name: "Image"},
-        id: work.id,
-        accession_number: work.accession_number,
-        published: work.published,
+        accessionNumber: work.accession_number,
         collection: format(work.collection),
-        file_sets:
+        createDate: work.inserted_at,
+        fileSets:
           work.file_sets
           |> Enum.map(fn file_set ->
             %{
               id: file_set.id,
-              accession_number: file_set.accession_number,
+              accessionNumber: file_set.accession_number,
               label: file_set.metadata.label
             }
           end),
-        create_date: work.inserted_at,
-        iiif_manifest: IIIF.manifest_id(work.id),
-        modified_date: work.updated_at,
-        visibility_term: format(work.visibility),
-        visibility:
-          case work.visibility do
-            nil -> %{}
-            visibility -> visibility.id
-          end,
-        work_type: format(work.work_type),
+        id: work.id,
+        iiifManifest: IIIF.manifest_id(work.id),
+        model: %{application: "Meadow", name: "Image"},
+        modifiedDate: work.updated_at,
         project: format(work.project),
-        sheet: format(work.ingest_sheet),
-        representative_file_set:
+        published: work.published,
+        representativeFileSet:
           case work.representative_file_set_id do
             nil ->
               %{}
 
             representative_file_set_id ->
               %{
-                file_set_id: representative_file_set_id,
+                fileSetId: representative_file_set_id,
                 url: work.representative_image
               }
-          end
+          end,
+        sheet: format(work.ingest_sheet),
+        visibility: format(work.visibility),
+        workType: format(work.work_type)
       }
       |> Map.merge(AdministrativeMetadataDocument.encode(work.administrative_metadata))
       |> Map.merge(DescriptiveMetadataDocument.encode(work.descriptive_metadata))
