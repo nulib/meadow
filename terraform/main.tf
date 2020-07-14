@@ -57,6 +57,14 @@ resource "aws_s3_bucket" "meadow_uploads" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT"]
+    allowed_origins = ["https://${aws_route53_record.app_hostname.fqdn}"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 
 resource "aws_s3_bucket" "meadow_preservation" {
