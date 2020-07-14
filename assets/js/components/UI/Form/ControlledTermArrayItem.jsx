@@ -19,7 +19,6 @@ const UIFormControlledTermArrayItem = ({
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
     AUTHORITY_SEARCH
   );
-  console.log("getAuthResults() data :>> ", data);
 
   const inputName = `${[name]}[${index}]`;
   const hasErrors = errors[name] && errors[name][index].label;
@@ -30,7 +29,6 @@ const UIFormControlledTermArrayItem = ({
 
   // Handle user entering search input
   const handleInputChange = (val) => {
-    console.log("val", val);
     getAuthResults({
       variables: {
         authority: currentAuthority,
@@ -42,7 +40,7 @@ const UIFormControlledTermArrayItem = ({
   // Handle user selecting an item in the dropdown list
   const handleItemSelected = (val) => {
     // Set new value with React Hook Form of the hidden variable below
-    control.setValue(`${inputName}.id`, val.id);
+    control.setValue(`${inputName}.termId`, val.id);
   };
 
   return (
@@ -60,7 +58,7 @@ const UIFormControlledTermArrayItem = ({
       </div>
 
       {/* Hidden form field which tracks the "id" of selection, which we need in form submit */}
-      <input type="hidden" name={`${inputName}.id`} ref={register()} />
+      <input type="hidden" name={`${inputName}.termId`} ref={register()} />
 
       <div className="field">
         <DropDownComboBox
@@ -72,6 +70,7 @@ const UIFormControlledTermArrayItem = ({
           initialInputValue={item.label || ""}
           register={register}
         />
+
         {hasErrors && (
           <p data-testid="input-errors" className="help is-danger">
             {label || name} field is required

@@ -27,7 +27,15 @@ const WorkTabsAbout = ({ work }) => {
   const [isEditing, setIsEditing] = useIsEditing();
 
   // Initialize React hook form
-  const { register, handleSubmit, errors, control, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    errors,
+    control,
+    getValues,
+    formState,
+    reset,
+  } = useForm({
     defaultValues: {},
   });
 
@@ -90,7 +98,12 @@ const WorkTabsAbout = ({ work }) => {
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
-    console.log("data", data);
+    // "data" here returns everything (which was set above in the useEffect()),
+    // including fields that are either outdated or which no values were ever registered
+    // with React Hook Form's register().   So, we'll use getValues() to get the real data
+    // updated.
+    let currentFormValues = getValues();
+
     const {
       abstract = [],
       alternateTitle = [],
@@ -118,7 +131,7 @@ const WorkTabsAbout = ({ work }) => {
       source = [],
       tableOfContents = [],
       title = "",
-    } = data;
+    } = currentFormValues;
 
     let workUpdateInput = {
       descriptiveMetadata: {
@@ -165,7 +178,7 @@ const WorkTabsAbout = ({ work }) => {
     for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
         term,
-        data[term.name]
+        currentFormValues[term.name]
       );
     }
 

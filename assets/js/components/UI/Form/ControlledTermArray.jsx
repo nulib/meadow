@@ -23,17 +23,12 @@ const UIFormControlledTermArray = ({
     keyName: "useFieldArrayId",
   });
 
-  console.log(" ");
-  console.log("name :>> ", name);
-  console.log("fields :>> ", fields);
-
   return (
     <>
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
-          console.log("itemName :>> ", itemName);
 
           return (
             <li key={item.useFieldArrayId}>
@@ -51,7 +46,7 @@ const UIFormControlledTermArray = ({
                     </p>
                     <input
                       type="hidden"
-                      name={`${itemName}.id`}
+                      name={`${itemName}.termId`}
                       ref={register()}
                       value={item.term.id}
                     />
@@ -121,7 +116,7 @@ const UIFormControlledTermArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append({ new: true, id: "", label: "", roleId: "" });
+          append({ new: true, termId: "", label: "", roleId: "" });
         }}
         data-testid="button-add-field-array-row"
       >

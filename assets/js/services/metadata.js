@@ -77,8 +77,6 @@ export function findScheme(termToFind) {
   let term = DESCRIPTIVE_METADATA.controlledTerms.find(
     (ct) => ct.name === termToFind.name
   );
-  console.log("termToFind", termToFind);
-  console.log("term", term);
   return term.scheme || "";
 }
 
@@ -86,21 +84,19 @@ export function findScheme(termToFind) {
  * Shapes React Hook Form array fields of type "Controlled Term"
  * into the POST format the API wants
  * @param {Object} controlledTerm Individual object from DESCRIPTIVE_METADATA.controlledTerm constant
- * @param {Array} arr
+ * @param {Array} formItems All entries (one to many) of a controlled term metadata field
  * @returns {Array} // Currently the shape the API wants is [{ term: "ABC", role: { id: "XYZ", scheme: "THE_SCHEME" } }]
  */
 export function prepControlledTermInput(controlledTerm = {}, formItems = []) {
-  console.log("controlledTerm", controlledTerm);
-  console.log("formItems", formItems);
-
-  return formItems.map(({ id, roleId }) => {
-    let obj = { term: id };
+  let arr = formItems.map(({ termId, roleId }) => {
+    let obj = { term: termId };
     if (roleId) {
-      // scheme should be "SUBJECT_ROLE" for the subject field
       obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
     }
     return obj;
   });
+
+  return arr;
 }
 
 export function hasRole(name) {
