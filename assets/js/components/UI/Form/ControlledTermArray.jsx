@@ -7,13 +7,14 @@ import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
 
 const UIFormControlledTermArray = ({
-  codeLists: { authorities = [], marcRelators = [] },
+  authorities = [],
   control,
   errors = {},
   label,
   name,
   register,
   required,
+  roleDropdownOptions = [],
   ...passedInProps
 }) => {
   const { fields, append, remove } = useFieldArray({
@@ -22,12 +23,17 @@ const UIFormControlledTermArray = ({
     keyName: "useFieldArrayId",
   });
 
+  console.log(" ");
+  console.log("name :>> ", name);
+  console.log("fields :>> ", fields);
+
   return (
     <>
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
+          console.log("itemName :>> ", itemName);
 
           return (
             <li key={item.useFieldArrayId}>
@@ -73,7 +79,7 @@ const UIFormControlledTermArray = ({
                           name={`${itemName}.roleId`}
                           defaultValue={item.roleId}
                           label="Role"
-                          options={marcRelators}
+                          options={roleDropdownOptions}
                           register={register}
                           required
                           showHelper
@@ -129,16 +135,14 @@ const UIFormControlledTermArray = ({
 };
 
 UIFormControlledTermArray.propTypes = {
-  codeLists: PropTypes.shape({
-    authorities: PropTypes.array,
-    marcRelators: PropTypes.array,
-  }),
+  authorities: PropTypes.array,
   control: PropTypes.object.isRequired,
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   register: PropTypes.func,
   required: PropTypes.bool,
+  roleDropdownOptions: PropTypes.array,
 };
 
 export default UIFormControlledTermArray;

@@ -90,6 +90,7 @@ const WorkTabsAbout = ({ work }) => {
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
+    console.log("data", data);
     const {
       abstract = [],
       alternateTitle = [],
@@ -128,6 +129,7 @@ const WorkTabsAbout = ({ work }) => {
         callNumber,
         caption,
         catalogKey,
+        description,
         folderName,
         folderNumber,
         identifier,
@@ -145,25 +147,29 @@ const WorkTabsAbout = ({ work }) => {
         relatedUrl,
         relatedMaterial,
         rightsHolder,
-        scopeAndContents,
-        series,
-        source,
-        tableOfContents,
-        description,
         rightsStatement: {
           id: data.rightsStatement,
           scheme: "RIGHTS_STATEMENT",
         },
+        scopeAndContents,
+        series,
+        source,
+        tableOfContents,
         title,
       },
     };
 
+    console.log("workUpdateInput BEFORE :>> ", workUpdateInput);
+
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
+        term,
         data[term.name]
       );
     }
+
+    console.log("workUpdateInput AFTER :>> ", workUpdateInput);
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
@@ -171,7 +177,6 @@ const WorkTabsAbout = ({ work }) => {
   };
 
   if (updateWorkError) return <UIError error={updateWorkError} />;
-  //if (updateWorkLoading) return <UISkeleton rows={20} />;
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>

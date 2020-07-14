@@ -14,14 +14,14 @@ const osdOptions = {
 const Work = ({ work }) => {
   return (
     <>
-      <section>
+      {/* <section>
         <div data-testid="viewer">
           <OpenSeadragonViewer
             manifestUrl={work.manifestUrl}
             options={osdOptions}
           />
         </div>
-      </section>
+      </section> */}
       <section className="section">
         <div className="container">
           <WorkTabs work={work} />

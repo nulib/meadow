@@ -19,6 +19,7 @@ const UIFormControlledTermArrayItem = ({
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
     AUTHORITY_SEARCH
   );
+  console.log("getAuthResults() data :>> ", data);
 
   const inputName = `${[name]}[${index}]`;
   const hasErrors = errors[name] && errors[name][index].label;
@@ -29,6 +30,7 @@ const UIFormControlledTermArrayItem = ({
 
   // Handle user entering search input
   const handleInputChange = (val) => {
+    console.log("val", val);
     getAuthResults({
       variables: {
         authority: currentAuthority,

@@ -24,28 +24,46 @@ const WorkTabsAboutDescriptiveMetadata = ({
     loading: marcLoading,
     errors: marcErrors,
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "MARC_RELATOR" } });
-
+  const {
+    data: subjectRoleData,
+    loading: subjectRoleLoading,
+    errors: subjectRoleErrors,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "SUBJECT_ROLE" } });
   const {
     data: authorityData,
     loading: authorityLoading,
     errors: authorityErrors,
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "AUTHORITY" } });
 
-  if (marcLoading || authorityLoading) return <UISkeleton rows={20} />;
-  if (marcErrors || authorityErrors)
-    return <UIError error={marcErrors || authorityErrors} />;
-  if (!authorityData || !marcData) {
+  if (marcLoading || authorityLoading || subjectRoleLoading)
+    return <UISkeleton rows={20} />;
+  if (marcErrors || authorityErrors || subjectRoleErrors)
+    return (
+      <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
+    );
+  if (!authorityData || !marcData || !subjectRoleData) {
     return (
       <UIError
-        error={{ message: "No Authority data or no MARC relator data" }}
+        error={{ message: "No Authority, MARC, or Subject Role data" }}
       />
     );
   }
 
-  const codeLists = {
-    authorities: authorityData.codeList,
-    marcRelators: marcData.codeList,
-  };
+  function getRoleDropDownOptions(scheme) {
+    if (scheme === "MARC_RELATOR") {
+      return marcData.codeList;
+    }
+    if (scheme === "SUBJECT_ROLE") {
+      return subjectRoleData.codeList;
+    }
+    return [];
+  }
+
+  // const codeLists = {
+  //   authorities: authorityData.codeList,
+  //   marcRelators: marcData.codeList,
+  //   subjectRole: subjectRoleData.codeList
+  // };
 
   return showDescriptiveMetadata ? (
     <div>
@@ -75,12 +93,13 @@ const WorkTabsAboutDescriptiveMetadata = ({
       <hr />
       <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
       <ul>
-        {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name }) => (
+        {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name, scheme }) => (
           <li key={name} className="mb-5">
             <UIFormField label={label}>
               {isEditing ? (
                 <UIFormControlledTermArray
-                  codeLists={codeLists}
+                  authorities={authorityData.codeList}
+                  roleDropdownOptions={getRoleDropDownOptions(scheme)}
                   control={control}
                   errors={errors}
                   label={label}
