@@ -12,6 +12,10 @@ variable "availability_zones" {
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
+variable "geonames_username" {
+  type    = string
+}
+
 variable "honeybadger_api_key" {
   type    = string
   default = ""

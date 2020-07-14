@@ -115,6 +115,7 @@ data "template_file" "container_definitions" {
     elasticsearch_key    = aws_iam_access_key.meadow_elasticsearch_access_key.id
     elasticsearch_secret = aws_iam_access_key.meadow_elasticsearch_access_key.secret
     elasticsearch_url    = var.elasticsearch_url
+    geonames_username    = var.geonames_username
     honeybadger_api_key  = var.honeybadger_api_key
     host_name            = aws_route53_record.app_hostname.fqdn
     iiif_manifest_url    = var.iiif_manifest_url
