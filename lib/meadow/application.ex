@@ -28,6 +28,12 @@ defmodule Meadow.Application do
         Meadow.Cache.ControlledTerms,
         expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
         stats: true
+      ),
+      cache_spec(
+        :user_cache,
+        Meadow.Cache.Users,
+        expiration: Cachex.Spec.expiration(default: :timer.minutes(20)),
+        stats: true
       )
     ]
 

@@ -47,4 +47,46 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
                conn.assigns[:current_user]
     end
   end
+
+  describe "Meadow.Cache.Users cache" do
+    setup do
+      user = user_fixture("TestAdmins")
+      {:ok, %{user: user}}
+    end
+
+    test "With a cached user, SetCurrentUser plug adds the user to the Conn/Absinthe Context from the cache",
+         %{user: user} do
+      Cachex.put!(Meadow.Cache.Users, user.username, user)
+
+      conn =
+        build_conn()
+        |> Plug.Test.init_test_session(
+          current_user: %{
+            username: user.username,
+            display_name: nil,
+            email: nil,
+            role: nil
+          }
+        )
+        |> SetCurrentUser.call(nil)
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.private.absinthe.context.current_user
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.assigns[:current_user]
+    end
+  end
 end
