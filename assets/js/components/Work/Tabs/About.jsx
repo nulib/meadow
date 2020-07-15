@@ -27,7 +27,15 @@ const WorkTabsAbout = ({ work }) => {
   const [isEditing, setIsEditing] = useIsEditing();
 
   // Initialize React hook form
-  const { register, handleSubmit, errors, control, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    errors,
+    control,
+    getValues,
+    formState,
+    reset,
+  } = useForm({
     defaultValues: {},
   });
 
@@ -90,6 +98,12 @@ const WorkTabsAbout = ({ work }) => {
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
+    // "data" here returns everything (which was set above in the useEffect()),
+    // including fields that are either outdated or which no values were ever registered
+    // with React Hook Form's register().   So, we'll use getValues() to get the real data
+    // updated.
+    let currentFormValues = getValues();
+
     const {
       abstract = [],
       alternateTitle = [],
@@ -117,7 +131,7 @@ const WorkTabsAbout = ({ work }) => {
       source = [],
       tableOfContents = [],
       title = "",
-    } = data;
+    } = currentFormValues;
 
     let workUpdateInput = {
       descriptiveMetadata: {
@@ -128,6 +142,7 @@ const WorkTabsAbout = ({ work }) => {
         callNumber,
         caption,
         catalogKey,
+        description,
         folderName,
         folderNumber,
         identifier,
@@ -145,25 +160,29 @@ const WorkTabsAbout = ({ work }) => {
         relatedUrl,
         relatedMaterial,
         rightsHolder,
-        scopeAndContents,
-        series,
-        source,
-        tableOfContents,
-        description,
         rightsStatement: {
           id: data.rightsStatement,
           scheme: "RIGHTS_STATEMENT",
         },
+        scopeAndContents,
+        series,
+        source,
+        tableOfContents,
         title,
       },
     };
 
+    console.log("workUpdateInput BEFORE :>> ", workUpdateInput);
+
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
-        data[term.name]
+        term,
+        currentFormValues[term.name]
       );
     }
+
+    console.log("workUpdateInput AFTER :>> ", workUpdateInput);
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
@@ -171,7 +190,6 @@ const WorkTabsAbout = ({ work }) => {
   };
 
   if (updateWorkError) return <UIError error={updateWorkError} />;
-  //if (updateWorkLoading) return <UISkeleton rows={20} />;
 
   return (
     <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>

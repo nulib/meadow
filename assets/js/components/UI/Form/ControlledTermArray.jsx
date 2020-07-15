@@ -7,13 +7,14 @@ import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
 
 const UIFormControlledTermArray = ({
-  codeLists: { authorities = [], marcRelators = [] },
+  authorities = [],
   control,
   errors = {},
   label,
   name,
   register,
   required,
+  roleDropdownOptions = [],
   ...passedInProps
 }) => {
   const { fields, append, remove } = useFieldArray({
@@ -45,7 +46,7 @@ const UIFormControlledTermArray = ({
                     </p>
                     <input
                       type="hidden"
-                      name={`${itemName}.id`}
+                      name={`${itemName}.termId`}
                       ref={register()}
                       value={item.term.id}
                     />
@@ -73,7 +74,7 @@ const UIFormControlledTermArray = ({
                           name={`${itemName}.roleId`}
                           defaultValue={item.roleId}
                           label="Role"
-                          options={marcRelators}
+                          options={roleDropdownOptions}
                           register={register}
                           required
                           showHelper
@@ -115,7 +116,7 @@ const UIFormControlledTermArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append({ new: true, id: "", label: "", roleId: "" });
+          append({ new: true, termId: "", label: "", roleId: "" });
         }}
         data-testid="button-add-field-array-row"
       >
@@ -129,16 +130,14 @@ const UIFormControlledTermArray = ({
 };
 
 UIFormControlledTermArray.propTypes = {
-  codeLists: PropTypes.shape({
-    authorities: PropTypes.array,
-    marcRelators: PropTypes.array,
-  }),
+  authorities: PropTypes.array,
   control: PropTypes.object.isRequired,
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   register: PropTypes.func,
   required: PropTypes.bool,
+  roleDropdownOptions: PropTypes.array,
 };
 
 export default UIFormControlledTermArray;

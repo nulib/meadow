@@ -12,8 +12,9 @@ import Layout from "../Layout";
 import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import { setVisibilityClass, toastWrapper } from "../../services/helpers";
+import { toastWrapper } from "../../services/helpers";
 import { Link } from "react-router-dom";
+import WorkTagsList from "../../components/Work/TagsList";
 
 const ScreensWork = () => {
   const { id } = useParams();
@@ -100,25 +101,7 @@ const ScreensWork = () => {
                     <h1 className="title">
                       {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                     </h1>
-                    <p>
-                      <span
-                        className={`tag ${
-                          data.work.published ? "is-info" : "is-warning"
-                        }`}
-                      >
-                        {data.work.published ? "Published" : "Not Published"}
-                      </span>{" "}
-                      <span
-                        className={`tag ${setVisibilityClass(
-                          data.work.visibility.id
-                        )}`}
-                      >
-                        {data.work.visibility.label}
-                      </span>{" "}
-                      <span className={`tag is-info`}>
-                        {data.work.workType.label}
-                      </span>
-                    </p>
+                    <WorkTagsList work={data.work} />
                   </div>
                   <div className="column is-one-third">
                     <div className="buttons is-right">

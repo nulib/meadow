@@ -4,6 +4,7 @@ export const DESCRIPTIVE_METADATA = {
       hasRole,
       label: "Contributor",
       name: "contributor",
+      scheme: "MARC_RELATOR",
     },
     {
       label: "Creators",
@@ -29,6 +30,7 @@ export const DESCRIPTIVE_METADATA = {
       hasRole,
       label: "Subject",
       name: "subject",
+      scheme: "SUBJECT_ROLE",
     },
     {
       label: "Technique",
@@ -71,21 +73,30 @@ export const DESCRIPTIVE_METADATA = {
   ],
 };
 
+export function findScheme(termToFind) {
+  let term = DESCRIPTIVE_METADATA.controlledTerms.find(
+    (ct) => ct.name === termToFind.name
+  );
+  return term.scheme || "";
+}
+
 /**
- * Prepares React Hook Form array fields of type "Controlled Term"
- * for the form request post shape
- * @param {Array} arr
+ * Shapes React Hook Form array fields of type "Controlled Term"
+ * into the POST format the API wants
+ * @param {Object} controlledTerm Individual object from DESCRIPTIVE_METADATA.controlledTerm constant
+ * @param {Array} formItems All entries (one to many) of a controlled term metadata field
  * @returns {Array} // Currently the shape the API wants is [{ term: "ABC", role: { id: "XYZ", scheme: "THE_SCHEME" } }]
  */
-export function prepControlledTermInput(formItems = []) {
-  return formItems.map(({ id, roleId }) => {
-    let obj = { term: id };
+export function prepControlledTermInput(controlledTerm = {}, formItems = []) {
+  let arr = formItems.map(({ termId, roleId }) => {
+    let obj = { term: termId };
     if (roleId) {
-      // scheme should be "SUBJECT_ROLE" for the subject field
-      obj.role = { id: roleId, scheme: "MARC_RELATOR" };
+      obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
     }
     return obj;
   });
+
+  return arr;
 }
 
 export function hasRole(name) {
