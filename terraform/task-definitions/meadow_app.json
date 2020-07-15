@@ -31,6 +31,10 @@
         "value": "${elasticsearch_url}"
       },
       {
+        "name": "GEONAMES_USERNAME",
+        "value": "${geonames_username}"
+      },
+      {
         "name": "IIIF_MANIFEST_URL",
         "value": "${iiif_manifest_url}"
       },
