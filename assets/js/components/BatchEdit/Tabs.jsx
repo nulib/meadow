@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import BatchEditAbout from "./About/About";
 
 export default function BatchEditTabs() {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -34,7 +35,7 @@ export default function BatchEditTabs() {
           data-testid="tab-about-content"
           className={`${activeTab !== "tab-about" ? "is-hidden" : ""}`}
         >
-          <p>content here</p>
+          <BatchEditAbout />
         </div>
         <div
           data-testid="tab-administrative-content"

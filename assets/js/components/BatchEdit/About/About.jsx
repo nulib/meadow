@@ -10,9 +10,7 @@ import UISkeleton from "../../UI/Skeleton";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import UIError from "../../UI/Error";
 
-const BatchEditAbout = ({ work }) => {
-  const { descriptiveMetadata } = work;
-
+const BatchEditAbout = () => {
   // Whether box dropdowns are open or closed
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
@@ -81,7 +79,7 @@ const BatchEditAbout = ({ work }) => {
             data-testid="edit-button"
             onClick={() => setIsEditing(true)}
           >
-            Edit
+            Update All Items
           </button>
         )}
         {isEditing && (
@@ -114,21 +112,15 @@ const BatchEditAbout = ({ work }) => {
             />
           </a>
         </h2>
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <BatchEditCoreMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            showCoreMetadata={showCoreMetadata}
-            updateWorkLoading={updateWorkLoading}
-          />
-        )}
+        <BatchEditAboutCoreMetadata
+          errors={errors}
+          isEditing={isEditing}
+          register={register}
+          showCoreMetadata={showCoreMetadata}
+        />
       </div>
 
-      <div className="box is-relative">
+      {/* <div className="box is-relative">
         <h2 className="title is-size-5">
           Descriptive Metadata{" "}
           <a
@@ -151,7 +143,7 @@ const BatchEditAbout = ({ work }) => {
             showDescriptiveMetadata={showDescriptiveMetadata}
           />
         )}
-      </div>
+      </div> */}
     </form>
   );
 };

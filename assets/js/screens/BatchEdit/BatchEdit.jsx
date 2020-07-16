@@ -5,6 +5,7 @@ import BatchEditPreviewItems from "../../components/BatchEdit/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { mockBatchEditData } from "../../mock-data/batchEditData";
 import { useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function BatchEdit() {
   let location = useLocation();
@@ -24,6 +25,12 @@ export default function BatchEdit() {
             <h1 className="title" data-testid="title">
               Batch Edit
             </h1>
+            <p className="notification is-danger is-light">
+              <span className="icon">
+                <FontAwesomeIcon icon="exclamation-triangle" />
+              </span>
+              You are editing {items.length} items. Be careful.
+            </p>
             <p data-testid="num-results">Editing {items.length} rows</p>
             <ul>
               {items.map((item) => (
@@ -36,7 +43,7 @@ export default function BatchEdit() {
             <BatchEditPreviewItems items={mockBatchEditData} />
           </div>
 
-          <div className="box" data-testid="tabs-wrapper">
+          <div data-testid="tabs-wrapper">
             <BatchEditTabs />
           </div>
         </div>
