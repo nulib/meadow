@@ -10,6 +10,15 @@ import { useQuery } from "@apollo/react-hooks";
 import UIError from "../../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
 import UISkeleton from "../../../UI/Skeleton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const cacheNotification = css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 const WorkTabsAboutDescriptiveMetadata = ({
   control,
@@ -28,8 +37,14 @@ const WorkTabsAboutDescriptiveMetadata = ({
   }, [codeLists]);
 
   const refreshCache = () => {
+    console.log("Refreshing cache :>> ");
     setCodeLists({});
     localStorage.clear();
+
+    // TODO: I think we need to specify 3 more GraphQL queries here, but use "useLazyQuery"
+    // and manually fetch the Code List data from the API, then update localStorage similar to
+    // how it's currently set up.  Unfortunately the "skip" parameter gets ignored if the current
+    // queries change to "useLazyQuery", so we might just have to double up.
   };
 
   const { data: marcData, loading: marcLoading, errors: marcErrors } = useQuery(
@@ -58,6 +73,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
       }
     },
   });
+
   const {
     data: authorityData,
     loading: authorityLoading,
@@ -102,14 +118,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
 
   return showDescriptiveMetadata ? (
     <div>
-      <h3 className="subtitle is-size-5 is-marginless pb-4">
-        Field Arrays
-        {localList && (
-          <span className="tag is-warning ml-4" onClick={refreshCache}>
-            Refresh cache
-          </span>
-        )}
-      </h3>
+      <h3 className="subtitle is-size-5 is-marginless pb-4">Field Arrays</h3>
 
       <div className="columns is-multiline">
         {DESCRIPTIVE_METADATA.fieldArrays.map((item) => (
@@ -135,6 +144,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
 
       <hr />
       <h3 className="subtitle is-size-5 ">Controlled Terms</h3>
+
       <ul>
         {DESCRIPTIVE_METADATA.controlledTerms.map(({ label, name, scheme }) => (
           <li key={name} className="mb-5">
@@ -156,6 +166,24 @@ const WorkTabsAboutDescriptiveMetadata = ({
           </li>
         ))}
       </ul>
+      {isEditing && (
+        <div className="notification is-size-7" css={cacheNotification}>
+          <p>
+            <span className="icon">
+              <FontAwesomeIcon icon="bell" />
+            </span>
+            Role and Authority fields are using cached, dropdown values (as
+            these rarely change).
+          </p>
+          <button
+            type="button"
+            className="button is-text is-small"
+            onClick={refreshCache}
+          >
+            Sync with latest values
+          </button>{" "}
+        </div>
+      )}
     </div>
   ) : null;
 };
