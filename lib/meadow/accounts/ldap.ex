@@ -4,9 +4,12 @@ defmodule Meadow.Accounts.Ldap do
   groups and group membership.
   """
 
+  require Logger
+
   alias Meadow.Accounts.Ldap.Entry
 
   @connect_timeout 1500
+  @retries 3
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
   @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
 
@@ -26,7 +29,14 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   @doc "Find a user entry by its common name (NetID)"
-  def find_user(cn) do
+  def find_user(cn), do: find_user(cn, @retries)
+
+  defp find_user(cn, 0) do
+    Logger.error("Error retrieving user #{cn} from LDAP after #{@retries} retries")
+    nil
+  end
+
+  defp find_user(cn, retries) do
     case connection()
          |> Exldap.search_with_filter(
            Exldap.with_and([
@@ -34,10 +44,18 @@ defmodule Meadow.Accounts.Ldap do
              Exldap.equalityMatch("objectClass", "user")
            ])
          ) do
-      {:ok, []} -> nil
-      {:ok, [entry]} -> Entry.new(entry)
-      {:ok, [_ | _]} -> {:error, :tooManyResults}
-      other -> other
+      {:ok, []} ->
+        nil
+
+      {:ok, [entry]} ->
+        Entry.new(entry)
+
+      {:ok, [_ | _]} ->
+        {:error, :tooManyResults}
+
+      {:error, error} ->
+        Logger.error("#{inspect(error)}")
+        find_user(cn, retries - 1)
     end
   end
 
