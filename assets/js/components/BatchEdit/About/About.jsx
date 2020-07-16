@@ -4,19 +4,15 @@ import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
-import useIsEditing from "../../../hooks/useIsEditing";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
-import UISkeleton from "../../UI/Skeleton";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
+import BatchEditDescriptiveMetadata from "./DescriptiveMetadata";
 import UIError from "../../UI/Error";
 
-const BatchEditAbout = () => {
+const BatchEditAbout = ({ items }) => {
   // Whether box dropdowns are open or closed
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
-
-  // Is form being edited?
-  const [isEditing, setIsEditing] = useIsEditing();
 
   // Initialize React hook form
   const {
@@ -38,70 +34,41 @@ const BatchEditAbout = () => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
     let currentFormValues = getValues();
-
-    const {
-      abstract = [],
-      alternateTitle = [],
-      boxName = [],
-      boxNumber = [],
-      callNumber = [],
-      caption = [],
-      catalogKey = [],
-      description = "",
-      folderName = [],
-      folderNumber = [],
-      identifier = [],
-      keywords = [],
-      legacyIdentifier = [],
-      notes = [],
-      physicalDescriptionMaterial = [],
-      physicalDescriptionSize = [],
-      provenance = [],
-      publisher = [],
-      relatedUrl = [],
-      relatedMaterial = [],
-      rightsHolder = [],
-      scopeAndContents = [],
-      series = [],
-      source = [],
-      tableOfContents = [],
-      title = "",
-    } = currentFormValues;
+    console.log("currentFormValues :>> ", currentFormValues);
+    toastWrapper(
+      "is-success",
+      "Form successfully submitted.  Check the console for form values."
+    );
   };
 
   return (
     <form name="batch-edit-about-form" onSubmit={handleSubmit(onSubmit)}>
       <UITabsStickyHeader title="Core and Descriptive Metadata">
-        {!isEditing && (
+        <>
+          <button
+            type="submit"
+            className="button is-primary"
+            data-testid="save-button"
+          >
+            Save Data for {items.length} Items
+          </button>
           <button
             type="button"
-            className="button is-primary"
-            data-testid="edit-button"
-            onClick={() => setIsEditing(true)}
+            className="button is-text"
+            data-testid="cancel-button"
+            onClick={() => reset()}
           >
-            Update All Items
+            Clear Form
           </button>
-        )}
-        {isEditing && (
-          <>
-            <button
-              type="submit"
-              className="button is-primary"
-              data-testid="save-button"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="button is-text"
-              data-testid="cancel-button"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </button>
-          </>
-        )}
+        </>
       </UITabsStickyHeader>
+
+      <p className="notification is-warning mt-5">
+        <span className="icon">
+          <FontAwesomeIcon icon="exclamation-triangle" />
+        </span>
+        You are editing {items.length} items. Be careful.
+      </p>
 
       <div className="box is-relative mt-4">
         <h2 className="title is-size-5">
@@ -114,13 +81,12 @@ const BatchEditAbout = () => {
         </h2>
         <BatchEditAboutCoreMetadata
           errors={errors}
-          isEditing={isEditing}
           register={register}
           showCoreMetadata={showCoreMetadata}
         />
       </div>
 
-      {/* <div className="box is-relative">
+      <div className="box is-relative">
         <h2 className="title is-size-5">
           Descriptive Metadata{" "}
           <a
@@ -131,23 +97,19 @@ const BatchEditAbout = () => {
             />
           </a>
         </h2>
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <BatchEditDescriptiveMetadata
-            control={control}
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            showDescriptiveMetadata={showDescriptiveMetadata}
-          />
-        )}
-      </div> */}
+        <BatchEditDescriptiveMetadata
+          control={control}
+          errors={errors}
+          register={register}
+          showDescriptiveMetadata={showDescriptiveMetadata}
+        />
+      </div>
     </form>
   );
 };
 
-BatchEditAbout.propTypes = {};
+BatchEditAbout.propTypes = {
+  items: PropTypes.array,
+};
 
 export default BatchEditAbout;

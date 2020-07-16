@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import BatchEditAbout from "./About/About";
+import PropTypes from "prop-types";
 
-export default function BatchEditTabs() {
+export default function BatchEditTabs({ items }) {
   const [activeTab, setActiveTab] = useState("tab-about");
 
   const handleTabClick = (e) => {
@@ -35,7 +36,7 @@ export default function BatchEditTabs() {
           data-testid="tab-about-content"
           className={`${activeTab !== "tab-about" ? "is-hidden" : ""}`}
         >
-          <BatchEditAbout />
+          <BatchEditAbout items={items} />
         </div>
         <div
           data-testid="tab-administrative-content"
@@ -47,3 +48,7 @@ export default function BatchEditTabs() {
     </>
   );
 }
+
+BatchEditTabs.propTypes = {
+  items: PropTypes.array,
+};

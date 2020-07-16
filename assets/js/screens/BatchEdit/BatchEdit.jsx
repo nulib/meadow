@@ -25,12 +25,7 @@ export default function BatchEdit() {
             <h1 className="title" data-testid="title">
               Batch Edit
             </h1>
-            <p className="notification is-danger is-light">
-              <span className="icon">
-                <FontAwesomeIcon icon="exclamation-triangle" />
-              </span>
-              You are editing {items.length} items. Be careful.
-            </p>
+
             <p data-testid="num-results">Editing {items.length} rows</p>
             <ul>
               {items.map((item) => (
@@ -42,10 +37,11 @@ export default function BatchEdit() {
           <div className="box" data-testid="preview-wrapper">
             <BatchEditPreviewItems items={mockBatchEditData} />
           </div>
-
-          <div data-testid="tabs-wrapper">
-            <BatchEditTabs />
-          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container" data-testid="tabs-wrapper">
+          <BatchEditTabs items={items} />
         </div>
       </section>
     </Layout>

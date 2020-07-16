@@ -8,12 +8,7 @@ import UIFormField from "../../UI/Form/Field";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 
-const BatchEditAboutCoreMetadata = ({
-  errors,
-  isEditing,
-  register,
-  showCoreMetadata,
-}) => {
+const BatchEditAboutCoreMetadata = ({ errors, register, showCoreMetadata }) => {
   const {
     loading: rightsStatementsLoading,
     error: rightsStatementsError,
@@ -33,7 +28,7 @@ const BatchEditAboutCoreMetadata = ({
     <div className="columns is-multiline">
       <div className="column is-half">
         {/* Title */}
-        <UIFormField label="Title">
+        <UIFormField label="Title" required>
           <UIInput
             register={register}
             required
@@ -46,7 +41,7 @@ const BatchEditAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {/* Description */}
-        <UIFormField label="Description">
+        <UIFormField label="Description" required>
           <UIFormTextarea
             register={register}
             required
@@ -104,7 +99,7 @@ const BatchEditAboutCoreMetadata = ({
 
 BatchEditAboutCoreMetadata.propTypes = {
   errors: PropTypes.object,
-  isEditing: PropTypes.bool,
+
   register: PropTypes.func,
   showCoreMetadata: PropTypes.bool,
 };
