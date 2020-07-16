@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-const WorkTabsHeader = ({ title, children }) => {
+const UITabsStickyHeader = ({ title, children }) => {
   const [headerHeight, setHeaderHeight] = useState();
   const styles = {
     headerStyle: {
@@ -36,9 +36,9 @@ const WorkTabsHeader = ({ title, children }) => {
   );
 };
 
-WorkTabsHeader.propTypes = {
+UITabsStickyHeader.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
 };
 
-export default WorkTabsHeader;
+export default UITabsStickyHeader;

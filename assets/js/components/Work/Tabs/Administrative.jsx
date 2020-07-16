@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
-import WorkTabsHeader from "./Header";
+import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import { CODE_LIST_QUERY } from "../controlledVocabulary.gql.js";
 import UICodedTermItem from "../../UI/CodedTerm/Item";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
@@ -142,7 +142,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   return (
     <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
-      <WorkTabsHeader title="Administrative Metadata">
+      <UITabsStickyHeader title="Administrative Metadata">
         {!isEditing && (
           <button
             type="button"
@@ -166,7 +166,7 @@ const WorkTabsAdministrative = ({ work }) => {
             </button>
           </>
         )}
-      </WorkTabsHeader>
+      </UITabsStickyHeader>
 
       <div className="columns">
         <div className="column is-two-thirds">

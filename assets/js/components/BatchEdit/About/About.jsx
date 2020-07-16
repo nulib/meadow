@@ -5,18 +5,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
-import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import UISkeleton from "../../UI/Skeleton";
-import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
-import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
-import {
-  DESCRIPTIVE_METADATA,
-  prepControlledTermInput,
-} from "../../../services/metadata";
+import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import UIError from "../../UI/Error";
 
-const WorkTabsAbout = ({ work }) => {
+const BatchEditAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
 
   // Whether box dropdowns are open or closed
@@ -37,63 +31,6 @@ const WorkTabsAbout = ({ work }) => {
     reset,
   } = useForm({
     defaultValues: {},
-  });
-
-  useEffect(() => {
-    // TODO: Automate the populating of values below from DESCRIPTIVE_METADATA constant
-
-    // Tell React Hook Form to update field array form values
-    // with existing values, or when a Work updates
-    reset({
-      abstract: descriptiveMetadata.abstract,
-      alternateTitle: descriptiveMetadata.alternateTitle,
-      boxName: descriptiveMetadata.boxName,
-      boxNumber: descriptiveMetadata.boxNumber,
-      callNumber: descriptiveMetadata.callNumber,
-      caption: descriptiveMetadata.caption,
-      catalogKey: descriptiveMetadata.catalogKey,
-      contributor: descriptiveMetadata.contributor,
-      creator: descriptiveMetadata.creator,
-      folderName: descriptiveMetadata.folderName,
-      folderNumber: descriptiveMetadata.folderNumber,
-      genre: descriptiveMetadata.genre,
-      identifier: descriptiveMetadata.identifier,
-      keywords: descriptiveMetadata.keywords,
-      language: descriptiveMetadata.language,
-      legacyIdentifier: descriptiveMetadata.legacyIdentifier,
-      location: descriptiveMetadata.location,
-      notes: descriptiveMetadata.notes,
-      physicalDescriptionMaterial:
-        descriptiveMetadata.physicalDescriptionMaterial,
-      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
-      provenance: descriptiveMetadata.provenance,
-      publisher: descriptiveMetadata.publisher,
-      relatedUrl: descriptiveMetadata.relatedUrl,
-      relatedMaterial: descriptiveMetadata.relatedMaterial,
-      rightsHolder: descriptiveMetadata.rightsHolder,
-      scopeAndContents: descriptiveMetadata.scopeAndContents,
-      series: descriptiveMetadata.series,
-      source: descriptiveMetadata.source,
-      stylePeriod: descriptiveMetadata.stylePeriod,
-      subject: descriptiveMetadata.subject,
-      tableOfContents: descriptiveMetadata.tableOfContents,
-      technique: descriptiveMetadata.technique,
-    });
-  }, [work]);
-
-  const [
-    updateWork,
-    { loading: updateWorkLoading, error: updateWorkError },
-  ] = useMutation(UPDATE_WORK, {
-    onCompleted({ updateWork }) {
-      setIsEditing(false);
-      toastWrapper("is-success", "Work form updated successfully");
-    },
-    onError(error) {
-      console.log("error :>> ", error);
-    },
-    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
-    awaitRefetchQueries: true,
   });
 
   // Handle About tab form submit (Core and Descriptive metadata)
@@ -132,63 +69,10 @@ const WorkTabsAbout = ({ work }) => {
       tableOfContents = [],
       title = "",
     } = currentFormValues;
-
-    let workUpdateInput = {
-      descriptiveMetadata: {
-        abstract,
-        alternateTitle,
-        boxName,
-        boxNumber,
-        callNumber,
-        caption,
-        catalogKey,
-        description,
-        folderName,
-        folderNumber,
-        identifier,
-        keywords,
-        legacyIdentifier,
-        license: {
-          id: data.license,
-          scheme: "LICENSE",
-        },
-        notes,
-        physicalDescriptionMaterial,
-        physicalDescriptionSize,
-        provenance,
-        publisher,
-        relatedUrl,
-        relatedMaterial,
-        rightsHolder,
-        rightsStatement: {
-          id: data.rightsStatement,
-          scheme: "RIGHTS_STATEMENT",
-        },
-        scopeAndContents,
-        series,
-        source,
-        tableOfContents,
-        title,
-      },
-    };
-
-    // Update controlled term values to match shape the GraphQL mutation expects
-    for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
-      workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
-        term,
-        currentFormValues[term.name]
-      );
-    }
-
-    updateWork({
-      variables: { id: work.id, work: workUpdateInput },
-    });
   };
 
-  if (updateWorkError) return <UIError error={updateWorkError} />;
-
   return (
-    <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
+    <form name="batch-edit-about-form" onSubmit={handleSubmit(onSubmit)}>
       <UITabsStickyHeader title="Core and Descriptive Metadata">
         {!isEditing && (
           <button
@@ -233,7 +117,7 @@ const WorkTabsAbout = ({ work }) => {
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
-          <WorkTabsAboutCoreMetadata
+          <BatchEditCoreMetadata
             descriptiveMetadata={descriptiveMetadata}
             errors={errors}
             isEditing={isEditing}
@@ -258,7 +142,7 @@ const WorkTabsAbout = ({ work }) => {
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
-          <WorkTabsAboutDescriptiveMetadata
+          <BatchEditDescriptiveMetadata
             control={control}
             descriptiveMetadata={descriptiveMetadata}
             errors={errors}
@@ -272,8 +156,6 @@ const WorkTabsAbout = ({ work }) => {
   );
 };
 
-WorkTabsAbout.propTypes = {
-  work: PropTypes.object,
-};
+BatchEditAbout.propTypes = {};
 
-export default WorkTabsAbout;
+export default BatchEditAbout;

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
 import { SET_WORK_IMAGE } from "../work.gql.js";
 import { toastWrapper } from "../../../services/helpers";
-import WorkTabsHeader from "./Header";
+import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import UIFormInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
@@ -55,7 +55,7 @@ const WorkTabsStructure = ({ work }) => {
 
   return (
     <form name="work-structure-form" onSubmit={handleSubmit(onSubmit)}>
-      <WorkTabsHeader title="Filesets">
+      <UITabsStickyHeader title="Filesets">
         {!isEditing && (
           <button
             type="button"
@@ -79,7 +79,7 @@ const WorkTabsStructure = ({ work }) => {
             </button>
           </>
         )}
-      </WorkTabsHeader>
+      </UITabsStickyHeader>
 
       <div>
         {work.fileSets.map(({ id, accessionNumber, metadata }) => (
