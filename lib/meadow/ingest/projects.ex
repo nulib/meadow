@@ -43,6 +43,16 @@ defmodule Meadow.Ingest.Projects do
   def get_project!(id), do: Repo.get!(Project, id)
 
   @doc """
+  Gets a project by title.
+
+  Returns nil if the Project with that title does not exist.
+  """
+  def get_project_by_title(title) do
+    from(p in Project, where: p.title == ^title)
+    |> Repo.one()
+  end
+
+  @doc """
   Creates a project.
   """
   def create_project(attrs \\ %{}) do

@@ -41,6 +41,7 @@ npm-debug.log
 # this depending on your deployment strategy.
 /priv/static/
 /priv/cert/
+/priv/seed_data/
 
 /.elixir_ls/
 

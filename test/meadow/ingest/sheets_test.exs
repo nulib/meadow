@@ -30,6 +30,13 @@ defmodule Meadow.Ingest.SheetsTest do
       assert Sheets.get_ingest_sheet!(ingest_sheet.id) == ingest_sheet
     end
 
+    test "get_ingest_sheet_by_name/1 returns the sheet with given name" do
+      assert is_nil(Sheets.get_ingest_sheet_by_name(@valid_attrs.name))
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+      assert Sheets.get_ingest_sheet_by_name(@valid_attrs.name) == ingest_sheet
+    end
+
     test "create_ingest_sheet/1 with valid data creates a sheet" do
       project = project_fixture()
 

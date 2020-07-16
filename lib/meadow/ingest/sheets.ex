@@ -82,6 +82,22 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
+  Get an ingest sheet by its name
+
+  ## Examples
+
+    iex> get_ingest_sheet_by_name("sheet name")
+    %Sheet{name: "sheet name"}
+
+    iex> get_ingest_sheet_by_name("does not exist")
+    nil
+  """
+  def get_ingest_sheet_by_name(name) do
+    from(s in Sheet, where: s.name == ^name)
+    |> Repo.one()
+  end
+
+  @doc """
   Returns the list of ingest_sheets in a project.
 
   ## Examples
@@ -434,4 +450,6 @@ defmodule Meadow.Ingest.Sheets do
         }
       }
   end
+
+  def find_state(ingest_sheet, key \\ "overall"), do: Sheet.find_state(ingest_sheet, key)
 end
