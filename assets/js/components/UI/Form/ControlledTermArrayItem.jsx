@@ -131,6 +131,7 @@ function DropDownComboBox({
         {isOpen &&
           authoritiesSearch.map((item, index) => (
             <li
+              className="py-3 px-3"
               style={
                 highlightedIndex === index
                   ? { backgroundColor: "whitesmoke" }
@@ -139,7 +140,8 @@ function DropDownComboBox({
               key={`${item}${index}`}
               {...getItemProps({ item, index })}
             >
-              {item.label}
+              <strong>{item.label}</strong>
+              {item.hint ? ` • ${item.hint}` : ""}
             </li>
           ))}
       </ul>
