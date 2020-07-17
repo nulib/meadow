@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
@@ -28,13 +28,21 @@ const WorkTabsAboutDescriptiveMetadata = ({
   register,
   showDescriptiveMetadata,
 }) => {
-  const localList = localStorage.getItem("codeLists");
+  const firstLaunch = useRef(true);
   const [codeLists, setCodeLists] = useState(
-    localList ? JSON.parse(localList) : {}
+    localStorage.getItem("codeLists")
+      ? JSON.parse(localStorage.getItem("codeLists"))
+      : {}
   );
+
   useEffect(() => {
+    if (firstLaunch.current) {
+      firstLaunch.current = false;
+      return;
+    }
     localStorage.setItem("codeLists", JSON.stringify(codeLists));
   }, [codeLists]);
+
   const [
     getMarcData,
     { data: marcData, loading: marcLoading, errors: marcErrors },
@@ -112,17 +120,6 @@ const WorkTabsAboutDescriptiveMetadata = ({
     return (
       <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
     );
-  if (
-    !codeLists.AUTHORITY ||
-    !codeLists.MARC_RELATOR ||
-    !codeLists.SUBJECT_ROLE
-  ) {
-    return (
-      <UIError
-        error={{ message: "No Authority, MARC, or Subject Role data" }}
-      />
-    );
-  }
 
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {
