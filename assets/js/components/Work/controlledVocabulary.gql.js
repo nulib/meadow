@@ -28,6 +28,7 @@ export const CODE_LIST_QUERY = gql`
 export const AUTHORITY_SEARCH = gql`
   query AuthoritiesSearch($authority: ID!, $query: String!) {
     authoritiesSearch(authority: $authority, query: $query) {
+      hint
       id
       label
     }
