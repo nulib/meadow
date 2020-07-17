@@ -42,7 +42,11 @@ const BatchEditAbout = ({ items }) => {
   };
 
   return (
-    <form name="batch-edit-about-form" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      name="batch-edit-about-form"
+      data-testid="batch-edit-about-form"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <UITabsStickyHeader title="Core and Descriptive Metadata">
         <>
           <button

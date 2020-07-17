@@ -1,39 +1,56 @@
 import React from "react";
-import { renderWithRouter } from "../../services/testing-helpers";
+import { waitFor } from "@testing-library/react";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
+import { codeListMarcRelatorMock } from "../../components/Work/controlledVocabulary.gql.mock";
 
 describe("BatchEdit component", () => {
   function setupComponent() {
-    return renderWithRouter(<ScreensBatchEdit />, {
+    return renderWithRouterApollo(<ScreensBatchEdit />, {
+      mocks: [codeListMarcRelatorMock],
       // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
       state: { items: ["abc123", "bez444"] },
     });
   }
 
-  it("renders without crashing", () => {
-    expect(setupComponent());
-  });
-
-  it("renders breadcrumbs", () => {
+  it("renders without crashing", async () => {
     const { getByTestId } = setupComponent();
-    expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByTestId("batch-edit-screen")).toBeInTheDocument();
+    });
   });
 
-  it("renders screen title and number of records editing", () => {
+  it("renders breadcrumbs", async () => {
+    const { getByTestId } = setupComponent();
+
+    await waitFor(() => {
+      expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+    });
+  });
+
+  it("renders screen title and number of records editing", async () => {
     const { getByTestId, queryByText, debug } = setupComponent();
 
-    expect(getByTestId("title")).toBeInTheDocument();
-    expect(getByTestId("num-results")).toBeInTheDocument();
-    expect(queryByText("Editing 2 rows")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByTestId("batch-edit-title")).toBeInTheDocument();
+      expect(getByTestId("num-results")).toBeInTheDocument();
+      expect(queryByText("Editing 2 rows")).toBeInTheDocument();
+    });
   });
 
-  it("renders the item preview window", () => {
+  it("renders the item preview window", async () => {
     const { getByTestId } = setupComponent();
-    expect(getByTestId("preview-wrapper")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getByTestId("preview-wrapper")).toBeInTheDocument();
+    });
   });
 
-  it("renders Tabs section", () => {
+  it("renders Tabs section", async () => {
     const { getByTestId } = setupComponent();
-    expect(getByTestId("tabs-wrapper")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getByTestId("tabs-wrapper")).toBeInTheDocument();
+    });
   });
 });

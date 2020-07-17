@@ -5,7 +5,6 @@ import BatchEditPreviewItems from "../../components/BatchEdit/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { mockBatchEditData } from "../../mock-data/batchEditData";
 import { useLocation } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function BatchEdit() {
   let location = useLocation();
@@ -13,7 +12,7 @@ export default function BatchEdit() {
 
   return (
     <Layout>
-      <section className="section">
+      <section className="section" data-testid="batch-edit-screen">
         <div className="container">
           <UIBreadcrumbs
             items={[
@@ -22,7 +21,7 @@ export default function BatchEdit() {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="title">
+            <h1 className="title" data-testid="batch-edit-title">
               Batch Edit
             </h1>
 

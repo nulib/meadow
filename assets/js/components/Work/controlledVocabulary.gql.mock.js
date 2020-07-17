@@ -25,6 +25,34 @@ export const codeListAuthorityMock = {
   },
 };
 
+export const codeListLicenseMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "LICENSE" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          __typename: "CodedTerm",
+          id: "http://creativecommons.org/licenses/by-nc-sa/3.0/us/",
+          label: "Attribution-NonCommercial-ShareAlike 3.0 United States",
+        },
+        {
+          __typename: "CodedTerm",
+          id: "http://www.europeana.eu/portal/rights/rr-r.html",
+          label: "All rights reserved",
+        },
+        {
+          __typename: "CodedTerm",
+          id: "http://creativecommons.org/licenses/by/3.0/us/",
+          label: "Attribution 3.0 United States",
+        },
+      ],
+    },
+  },
+};
+
 export const codeListMarcRelatorMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -76,6 +104,29 @@ export const codeListRightsStatementMock = {
         {
           id: " http://rightsstatements.org/vocab/InC-EDU/1.0/",
           label: "In Copyright - Educational Use Permitted",
+        },
+      ],
+    },
+  },
+};
+
+export const codeListSubjectRoleMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "SUBJECT_ROLE" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          __typename: "CodedTerm",
+          id: "GEOGRAPHICAL",
+          label: "Geographical",
+        },
+        {
+          __typename: "CodedTerm",
+          id: "TOPICAL",
+          label: "Topical",
         },
       ],
     },

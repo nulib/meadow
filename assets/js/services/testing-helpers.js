@@ -53,8 +53,15 @@ export function renderWithRouterApollo(
     mocks = [],
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
+    state = {},
   } = {}
 ) {
+  // This allows us to pass in history state variables in tests,
+  // like we do in the real application
+  if (Object.keys(state).length > 0) {
+    history.push(route, state);
+  }
+
   const Wrapper = ({ children }) => (
     <MockedProvider
       mocks={mocks}

@@ -188,7 +188,11 @@ const WorkTabsAbout = ({ work }) => {
   if (updateWorkError) return <UIError error={updateWorkError} />;
 
   return (
-    <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      name="work-about-form"
+      data-testid="work-about-form"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <UITabsStickyHeader title="Core and Descriptive Metadata">
         {!isEditing && (
           <button
