@@ -6,7 +6,7 @@ import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
-import { useQuery } from "@apollo/react-hooks";
+import { useLazyQuery } from "@apollo/react-hooks";
 import UIError from "../../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
 import UISkeleton from "../../../UI/Skeleton";
@@ -35,58 +35,76 @@ const WorkTabsAboutDescriptiveMetadata = ({
   useEffect(() => {
     localStorage.setItem("codeLists", JSON.stringify(codeLists));
   }, [codeLists]);
-
-  const refreshCache = () => {
-    console.log("Refreshing cache :>> ");
-    setCodeLists({});
-    localStorage.clear();
-
-    // TODO: I think we need to specify 3 more GraphQL queries here, but use "useLazyQuery"
-    // and manually fetch the Code List data from the API, then update localStorage similar to
-    // how it's currently set up.  Unfortunately the "skip" parameter gets ignored if the current
-    // queries change to "useLazyQuery", so we might just have to double up.
-  };
-
-  const { data: marcData, loading: marcLoading, errors: marcErrors } = useQuery(
-    CODE_LIST_QUERY,
-    {
-      variables: { scheme: "MARC_RELATOR" },
-      skip: codeLists["MARC_RELATOR"] ? true : false,
-      onCompleted: (data) => {
-        if (!marcErrors && data) {
-          setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
-        }
-      },
-    }
-  );
-
-  const {
-    data: subjectRoleData,
-    loading: subjectRoleLoading,
-    errors: subjectRoleErrors,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "SUBJECT_ROLE" },
-    skip: codeLists["SUBJECT_ROLE"] ? true : false,
+  const [
+    getMarcData,
+    { data: marcData, loading: marcLoading, errors: marcErrors },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
       if (!marcErrors && data) {
+        setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
+      }
+    },
+  });
+
+  const [
+    getSubjectRoleData,
+    {
+      data: subjectRoleData,
+      loading: subjectRoleLoading,
+      errors: subjectRoleErrors,
+    },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
+    onCompleted: (data) => {
+      if (!subjectRoleErrors && data) {
         setCodeLists({ ...codeLists, ["SUBJECT_ROLE"]: data.codeList });
       }
     },
   });
 
-  const {
-    data: authorityData,
-    loading: authorityLoading,
-    errors: authorityErrors,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "AUTHORITY" },
-    skip: codeLists["AUTHORITY"] ? true : false,
+  const [
+    getAuthorityData,
+    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
-      if (!marcErrors && data) {
+      if (!authorityErrors && data) {
         setCodeLists({ ...codeLists, ["AUTHORITY"]: data.codeList });
       }
     },
   });
+
+  useEffect(() => {
+    if (!codeLists || !codeLists.MARC_RELATOR) {
+      getMarcData({
+        variables: { scheme: "MARC_RELATOR" },
+      });
+    }
+
+    if (!codeLists || !codeLists.SUBJECT_ROLE) {
+      getSubjectRoleData({
+        variables: { scheme: "SUBJECT_ROLE" },
+      });
+    }
+
+    if (!codeLists || !codeLists.AUTHORITY) {
+      getAuthorityData({
+        variables: { scheme: "AUTHORITY" },
+      });
+    }
+  }, []);
+
+  const refreshCache = () => {
+    setCodeLists({});
+    localStorage.clear();
+    getMarcData({
+      variables: { scheme: "MARC_RELATOR" },
+    });
+    getSubjectRoleData({
+      variables: { scheme: "SUBJECT_ROLE" },
+    });
+    getAuthorityData({
+      variables: { scheme: "AUTHORITY" },
+    });
+  };
 
   if (marcLoading || authorityLoading || subjectRoleLoading)
     return <UISkeleton rows={20} />;
@@ -172,8 +190,8 @@ const WorkTabsAboutDescriptiveMetadata = ({
             <span className="icon">
               <FontAwesomeIcon icon="bell" />
             </span>
-            Role and Authority fields are using cached, dropdown values (as
-            these rarely change).
+            Role and Authority fields are using cached dropdown values (as these
+            rarely change).
           </p>
           <button
             type="button"
@@ -181,7 +199,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
             onClick={refreshCache}
           >
             Sync with latest values
-          </button>{" "}
+          </button>
         </div>
       )}
     </div>
