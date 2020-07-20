@@ -90,7 +90,7 @@ const BatchEditAbout = ({ items }) => {
         <span className="icon">
           <FontAwesomeIcon icon="exclamation-triangle" />
         </span>
-        You are editing {items.length} items. Be careful.
+        You are editing {items.length} items. Proceed with caution.
       </p>
 
       <div className="box is-relative mt-4" data-testid="core-metadata-wrapper">
