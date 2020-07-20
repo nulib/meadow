@@ -79,22 +79,36 @@ defmodule Meadow.Data.IndexerTest do
       end)
     end
 
-    # @tag unboxed: true
-    # test "work visibility cascades to file set" do
-    #   Sandbox.unboxed_run(Repo, fn ->
-    #     %{works: [work | _], file_sets: [file_set | _]} = indexable_data()
+    @tag unboxed: true
+    test "work visibility cascades to file set" do
+      Sandbox.unboxed_run(Repo, fn ->
+        %{works: [work | _], file_sets: [file_set | _]} = indexable_data()
 
-    #     Indexer.synchronize_index()
-    #     assert indexed_doc(work.id) |> get_in(["visibility"]) == "restricted"
-    #     assert indexed_doc(file_set.id) |> get_in(["visibility"]) == "restricted"
+        Indexer.synchronize_index()
+        assert indexed_doc(work.id) |> get_in(["visibility", "id"]) == "OPEN"
+        assert indexed_doc(file_set.id) |> get_in(["visibility", "id"]) == "OPEN"
 
-    #     {:ok, work} = work |> Works.update_work(%{visibility: "open"})
+        {:ok, work} =
+          work
+          |> Works.update_work(%{
+            visibility: %{"id" => "RESTRICTED", "scheme" => "visibility"}
+          })
 
-    #     Indexer.synchronize_index()
-    #     assert indexed_doc(work.id) |> get_in(["visibility"]) == "open"
-    #     assert indexed_doc(file_set.id) |> get_in(["visibility"]) == "open"
-    #   end)
-    # end
+        Indexer.synchronize_index()
+
+        assert indexed_doc(work.id) |> get_in(["visibility"]) == %{
+                 "id" => "RESTRICTED",
+                 "label" => "Private",
+                 "scheme" => "visibility"
+               }
+
+        assert indexed_doc(file_set.id) |> get_in(["visibility"]) == %{
+                 "id" => "RESTRICTED",
+                 "label" => "Private",
+                 "scheme" => "visibility"
+               }
+      end)
+    end
 
     @tag unboxed: true
     test "work includes ingest sheet details" do

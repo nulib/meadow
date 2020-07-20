@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   def up do
     create_dependency_trigger(:ingest_sheets, :works, [:name])
     create_dependency_trigger(:collections, :works, [:name])
-    create_dependency_trigger(:works, :file_sets, [:published])
+    create_dependency_trigger(:works, :file_sets, [:published, :visibility])
 
     create_dependency_trigger(
       :works,
