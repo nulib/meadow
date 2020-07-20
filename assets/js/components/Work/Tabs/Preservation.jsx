@@ -2,12 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
-import WorkTabsHeader from "./Header";
+import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 
 const WorkTabsPreservation = ({ work }) => {
   return (
     <>
-      <WorkTabsHeader title="Preservation and Access Masters" />
+      <UITabsStickyHeader title="Preservation and Access Masters" />
       <div className="box mt-4">
         <table className="table is-fullwidth is-striped is-hoverable is-fixed">
           <thead>

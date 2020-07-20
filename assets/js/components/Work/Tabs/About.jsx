@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/react-hooks";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
-import WorkTabsHeader from "./Header";
+import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import UISkeleton from "../../UI/Skeleton";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
 import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
@@ -172,8 +172,6 @@ const WorkTabsAbout = ({ work }) => {
       },
     };
 
-    console.log("workUpdateInput BEFORE :>> ", workUpdateInput);
-
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
@@ -181,8 +179,6 @@ const WorkTabsAbout = ({ work }) => {
         currentFormValues[term.name]
       );
     }
-
-    console.log("workUpdateInput AFTER :>> ", workUpdateInput);
 
     updateWork({
       variables: { id: work.id, work: workUpdateInput },
@@ -192,8 +188,12 @@ const WorkTabsAbout = ({ work }) => {
   if (updateWorkError) return <UIError error={updateWorkError} />;
 
   return (
-    <form name="work-about-form" onSubmit={handleSubmit(onSubmit)}>
-      <WorkTabsHeader title="Core and Descriptive Metadata">
+    <form
+      name="work-about-form"
+      data-testid="work-about-form"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <UITabsStickyHeader title="Core and Descriptive Metadata">
         {!isEditing && (
           <button
             type="button"
@@ -223,7 +223,7 @@ const WorkTabsAbout = ({ work }) => {
             </button>
           </>
         )}
-      </WorkTabsHeader>
+      </UITabsStickyHeader>
 
       <div className="box is-relative mt-4">
         <h2 className="title is-size-5">

@@ -12,7 +12,7 @@ export default function BatchEdit() {
 
   return (
     <Layout>
-      <section className="section">
+      <section className="section" data-testid="batch-edit-screen">
         <div className="container">
           <UIBreadcrumbs
             items={[
@@ -21,9 +21,10 @@ export default function BatchEdit() {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="title">
+            <h1 className="title" data-testid="batch-edit-title">
               Batch Edit
             </h1>
+
             <p data-testid="num-results">Editing {items.length} rows</p>
             <ul>
               {items.map((item) => (
@@ -35,10 +36,11 @@ export default function BatchEdit() {
           <div className="box" data-testid="preview-wrapper">
             <BatchEditPreviewItems items={mockBatchEditData} />
           </div>
-
-          <div className="box" data-testid="tabs-wrapper">
-            <BatchEditTabs />
-          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container" data-testid="tabs-wrapper">
+          <BatchEditTabs items={items} />
         </div>
       </section>
     </Layout>

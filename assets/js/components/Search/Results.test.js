@@ -2,13 +2,18 @@ import React from "react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import SearchResults from "./Results";
 import { iiifServerUrlMock } from "../IIIF/iiif.gql.mock";
+import { waitFor } from "@testing-library/react";
 
 // Mock GraphQL queries
 const mocks = [iiifServerUrlMock];
 
 describe("SearchResults component", () => {
-  it("renders", () => {
-    expect(renderWithRouterApollo(<SearchResults />));
+  it("renders", async () => {
+    const { getByTestId } = renderWithRouterApollo(<SearchResults />);
+
+    await waitFor(() => {
+      expect(getByTestId("search-results-component")).toBeInTheDocument();
+    });
   });
 
   // Note currently doesn't seem that ReactiveSearch provides any kind of mocking

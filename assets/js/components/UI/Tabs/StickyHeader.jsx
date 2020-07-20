@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-const WorkTabsHeader = ({ title, children }) => {
+const UITabsStickyHeader = ({ title, children, ...restProps }) => {
   const [headerHeight, setHeaderHeight] = useState();
   const styles = {
     headerStyle: {
@@ -23,6 +23,7 @@ const WorkTabsHeader = ({ title, children }) => {
     <header
       style={styles.headerStyle}
       className="box is-shadowless is-marginless has-background-light py-0 px-4"
+      {...restProps}
     >
       <div className="columns is-mobile">
         <div className="column is-half">
@@ -36,9 +37,9 @@ const WorkTabsHeader = ({ title, children }) => {
   );
 };
 
-WorkTabsHeader.propTypes = {
+UITabsStickyHeader.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
 };
 
-export default WorkTabsHeader;
+export default UITabsStickyHeader;

@@ -26,72 +26,74 @@ const SearchResults = ({ handleSelectItem }) => {
   };
 
   return (
-    <IIIFProvider>
-      <div>
-        <UIResultsDisplaySwitcher
-          isListView={isListView}
-          onGridClick={() => setIsListView(false)}
-          onListClick={() => setIsListView(true)}
-        />
-      </div>
-      <ReactiveList
-        componentId="SearchResult"
-        dataField="accession_number"
-        defaultQuery={() => ({
-          query: {
-            bool: {
-              must: [
-                {
-                  match: {
-                    "model.name": "Image",
+    <div data-testid="search-results-component">
+      <IIIFProvider>
+        <div>
+          <UIResultsDisplaySwitcher
+            isListView={isListView}
+            onGridClick={() => setIsListView(false)}
+            onListClick={() => setIsListView(true)}
+          />
+        </div>
+        <ReactiveList
+          componentId="SearchResult"
+          dataField="accession_number"
+          defaultQuery={() => ({
+            query: {
+              bool: {
+                must: [
+                  {
+                    match: {
+                      "model.name": "Image",
+                    },
                   },
-                },
-              ],
+                ],
+              },
             },
-          },
-        })}
-        innerClass={{
-          list: `${isListView ? "" : "columns is-multiline"}`,
-          resultStats: "column is-size-6 has-text-grey",
-        }}
-        loader={<UISkeleton rows={10} />}
-        react={{
-          and: ["SearchSensor"],
-        }}
-        renderItem={(res) => {
-          if (isListView) {
+          })}
+          innerClass={{
+            list: `${isListView ? "" : "columns is-multiline"}`,
+            resultStats: "column is-size-6 has-text-grey",
+          }}
+          loader={<UISkeleton rows={10} />}
+          react={{
+            and: ["SearchSensor"],
+          }}
+          renderItem={(res) => {
+            if (isListView) {
+              return (
+                <div key={res._id} className="box">
+                  <SearchSelectable
+                    key={res._id}
+                    id={res._id}
+                    handleSelectItem={handleSelectItem}
+                    wrapsItemType="list"
+                  >
+                    <WorkListItem key={res._id} {...getWorkItem(res)} />
+                  </SearchSelectable>
+                </div>
+              );
+            }
             return (
-              <div key={res._id} className="box">
+              <div
+                key={res._id}
+                className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
+              >
                 <SearchSelectable
                   key={res._id}
                   id={res._id}
                   handleSelectItem={handleSelectItem}
-                  wrapsItemType="list"
+                  wrapsItemType="card"
                 >
-                  <WorkListItem key={res._id} {...getWorkItem(res)} />
+                  <WorkCardItem key={res._id} {...getWorkItem(res)} />
                 </SearchSelectable>
               </div>
             );
-          }
-          return (
-            <div
-              key={res._id}
-              className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
-            >
-              <SearchSelectable
-                key={res._id}
-                id={res._id}
-                handleSelectItem={handleSelectItem}
-                wrapsItemType="card"
-              >
-                <WorkCardItem key={res._id} {...getWorkItem(res)} />
-              </SearchSelectable>
-            </div>
-          );
-        }}
-        showResultStats={true}
-      />
-    </IIIFProvider>
+          }}
+          showResultStats={true}
+        />
+      </IIIFProvider>
+    </div>
   );
 };
 
