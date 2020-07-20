@@ -9,10 +9,23 @@ import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import BatchEditDescriptiveMetadata from "./DescriptiveMetadata";
 import UIError from "../../UI/Error";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+
 const BatchEditAbout = ({ items }) => {
   // Whether box dropdowns are open or closed
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
+
+  const coreMetadataWrapper = css`
+    visibility: ${showCoreMetadata ? "visible" : "hidden"};
+    height: ${showCoreMetadata ? "auto" : "0"};
+  `;
+
+  const descriptiveMetadataWrapper = css`
+    visibility: ${showDescriptiveMetadata ? "visible" : "hidden"};
+    height: ${showDescriptiveMetadata ? "auto" : "0"};
+  `;
 
   // Initialize React hook form
   const {
@@ -47,7 +60,10 @@ const BatchEditAbout = ({ items }) => {
       data-testid="batch-edit-about-form"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <UITabsStickyHeader title="Core and Descriptive Metadata">
+      <UITabsStickyHeader
+        title="Core and Descriptive Metadata"
+        data-testid="batch-edit-about-sticky-header"
+      >
         <>
           <button
             type="submit"
@@ -67,14 +83,17 @@ const BatchEditAbout = ({ items }) => {
         </>
       </UITabsStickyHeader>
 
-      <p className="notification is-warning mt-5">
+      <p
+        className="notification is-warning mt-5"
+        data-testid="batch-edit-warning-notification"
+      >
         <span className="icon">
           <FontAwesomeIcon icon="exclamation-triangle" />
         </span>
         You are editing {items.length} items. Be careful.
       </p>
 
-      <div className="box is-relative mt-4">
+      <div className="box is-relative mt-4" data-testid="core-metadata-wrapper">
         <h2 className="title is-size-5">
           Core Metadata{" "}
           <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
@@ -83,14 +102,15 @@ const BatchEditAbout = ({ items }) => {
             />
           </a>
         </h2>
-        <BatchEditAboutCoreMetadata
-          errors={errors}
-          register={register}
-          showCoreMetadata={showCoreMetadata}
-        />
+        <div css={coreMetadataWrapper}>
+          <BatchEditAboutCoreMetadata errors={errors} register={register} />
+        </div>
       </div>
 
-      <div className="box is-relative">
+      <div
+        className="box is-relative"
+        data-testid="descriptive-metadata-wrapper"
+      >
         <h2 className="title is-size-5">
           Descriptive Metadata{" "}
           <a
@@ -101,12 +121,13 @@ const BatchEditAbout = ({ items }) => {
             />
           </a>
         </h2>
-        <BatchEditDescriptiveMetadata
-          control={control}
-          errors={errors}
-          register={register}
-          showDescriptiveMetadata={showDescriptiveMetadata}
-        />
+        <div css={descriptiveMetadataWrapper}>
+          <BatchEditDescriptiveMetadata
+            control={control}
+            errors={errors}
+            register={register}
+          />
+        </div>
       </div>
     </form>
   );

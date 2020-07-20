@@ -11,7 +11,7 @@ export default function BatchEditTabs({ items }) {
 
   return (
     <>
-      <div className="tabs is-centered is-boxed" data-testid="tabs">
+      <div className="tabs is-centered is-boxed" data-testid="batch-edit-tabs">
         <ul>
           <li className={`${activeTab === "tab-about" && "is-active"}`}>
             <a id="tab-about" data-testid="tab-about" onClick={handleTabClick}>

@@ -8,7 +8,7 @@ import UIFormField from "../../UI/Form/Field";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 
-const BatchEditAboutCoreMetadata = ({ errors, register, showCoreMetadata }) => {
+const BatchEditAboutCoreMetadata = ({ errors, register, ...restProps }) => {
   const {
     loading: rightsStatementsLoading,
     error: rightsStatementsError,
@@ -24,8 +24,12 @@ const BatchEditAboutCoreMetadata = ({ errors, register, showCoreMetadata }) => {
     variables: { scheme: "LICENSE" },
   });
 
-  return showCoreMetadata ? (
-    <div className="columns is-multiline">
+  return (
+    <div
+      className="columns is-multiline"
+      data-testid="core-metadata"
+      {...restProps}
+    >
       <div className="column is-half">
         {/* Title */}
         <UIFormField label="Title" required>
@@ -61,6 +65,7 @@ const BatchEditAboutCoreMetadata = ({ errors, register, showCoreMetadata }) => {
             label="Rights Statement"
             options={rightsStatementsData ? rightsStatementsData.codeList : []}
             errors={errors}
+            data-testid="rights-statement"
             showHelper
           />
         </UIFormField>
@@ -89,19 +94,19 @@ const BatchEditAboutCoreMetadata = ({ errors, register, showCoreMetadata }) => {
             label="License"
             options={licenseData ? licenseData.codeList : []}
             errors={errors}
+            data-testid="license"
             showHelper
           />
         </UIFormField>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 BatchEditAboutCoreMetadata.propTypes = {
   errors: PropTypes.object,
-
   register: PropTypes.func,
-  showCoreMetadata: PropTypes.bool,
+  restProps: PropTypes.object,
 };
 
 export default BatchEditAboutCoreMetadata;

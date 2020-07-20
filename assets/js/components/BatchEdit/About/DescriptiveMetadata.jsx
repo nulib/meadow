@@ -12,9 +12,8 @@ import UISkeleton from "../../UI/Skeleton";
 const BatchEditAboutDescriptiveMetadata = ({
   control,
   errors,
-
   register,
-  showDescriptiveMetadata,
+  ...restProps
 }) => {
   const {
     data: marcData,
@@ -36,13 +35,17 @@ const BatchEditAboutDescriptiveMetadata = ({
     return <UISkeleton rows={20} />;
   if (marcErrors || authorityErrors || subjectRoleErrors)
     return (
-      <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
+      <div {...restProps}>
+        <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
+      </div>
     );
   if (!authorityData || !marcData || !subjectRoleData) {
     return (
-      <UIError
-        error={{ message: "No Authority, MARC, or Subject Role data" }}
-      />
+      <div {...restProps}>
+        <UIError
+          error={{ message: "No Authority, MARC, or Subject Role data" }}
+        />
+      </div>
     );
   }
 
@@ -56,8 +59,8 @@ const BatchEditAboutDescriptiveMetadata = ({
     return [];
   }
 
-  return showDescriptiveMetadata ? (
-    <div>
+  return (
+    <div data-testid="descriptive-metadata" {...restProps}>
       <h3 className="subtitle is-size-5 is-marginless pb-4">Field Arrays</h3>
       <div className="columns is-multiline">
         {DESCRIPTIVE_METADATA.fieldArrays.map((item) => (
@@ -94,15 +97,14 @@ const BatchEditAboutDescriptiveMetadata = ({
         ))}
       </ul>
     </div>
-  ) : null;
+  );
 };
 
 BatchEditAboutDescriptiveMetadata.propTypes = {
   control: PropTypes.object.isRequired,
   errors: PropTypes.object,
-
   register: PropTypes.func.isRequired,
-  showDescriptiveMetadata: PropTypes.bool,
+  restProps: PropTypes.object,
 };
 
 export default BatchEditAboutDescriptiveMetadata;

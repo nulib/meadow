@@ -23,10 +23,40 @@ describe("BatchEditAbout component", () => {
     });
   }
 
-  it("renders collection image modal", async () => {
+  it("renders Batch Edit About form", async () => {
     const { getByTestId, debug } = setupTest();
     await waitFor(() => {
       expect(getByTestId("batch-edit-about-form")).toBeInTheDocument();
+    });
+  });
+
+  it("renders the sticky header", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("batch-edit-about-sticky-header")).toBeInTheDocument();
+    });
+  });
+
+  it("renders the warning notification", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(
+        getByTestId("batch-edit-warning-notification")
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("renders core metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("core-metadata-wrapper")).toBeInTheDocument();
+    });
+  });
+
+  it("renders descriptive metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("descriptive-metadata-wrapper")).toBeInTheDocument();
     });
   });
 });
