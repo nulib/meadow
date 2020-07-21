@@ -7,9 +7,12 @@ import WorkCardItem from "../../components/Work/CardItem";
 import UISkeleton from "../../components/UI/Skeleton";
 import SearchSelectable from "../../components/Search/Selectable";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
+import { FACET_SENSORS } from "../../services/reactive-search";
 
 const SearchResults = ({ handleSelectItem }) => {
   const [isListView, setIsListView] = useState(false);
+  const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+
   const getWorkItem = (res) => {
     return {
       id: res._id,
@@ -57,7 +60,7 @@ const SearchResults = ({ handleSelectItem }) => {
           }}
           loader={<UISkeleton rows={10} />}
           react={{
-            and: ["SearchSensor"],
+            and: [...facetSensors, "SearchSensor"],
           }}
           renderItem={(res) => {
             if (isListView) {

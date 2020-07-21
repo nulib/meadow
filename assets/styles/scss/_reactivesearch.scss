@@ -1,0 +1,11 @@
+.facet-checkbox + label:hover {
+  color: $nu-purple !important;
+}
+.facet-checkbox:hover + label::before {
+  border-color: $nu-purple !important;
+  color: $nu-purple !important;
+}
+.facet-checkbox:checked + label::before {
+  border-color: $nu-purple !important;
+  background-color: $nu-purple !important;
+}
