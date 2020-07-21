@@ -5,19 +5,27 @@ import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
 import {
   codeListAuthorityMock,
+  codeListLicenseMock,
   codeListMarcRelatorMock,
   codeListRightsStatementMock,
+  codeListSubjectRoleMock,
 } from "../controlledVocabulary.gql.mock";
-
-const mocks = [
-  codeListRightsStatementMock,
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-];
 
 describe("Work About tab component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, { mocks });
+    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
+      mocks: [
+        codeListAuthorityMock,
+        codeListAuthorityMock,
+        codeListAuthorityMock,
+        codeListLicenseMock,
+        codeListMarcRelatorMock,
+        codeListMarcRelatorMock,
+        codeListRightsStatementMock,
+        codeListSubjectRoleMock,
+        codeListSubjectRoleMock,
+      ],
+    });
   }
 
   it("renders without crashing", async () => {

@@ -9,7 +9,9 @@ const mocks = [iiifServerUrlMock];
 
 describe("SearchResults component", () => {
   it("renders", async () => {
-    const { getByTestId } = renderWithRouterApollo(<SearchResults />);
+    const { getByTestId } = renderWithRouterApollo(<SearchResults />, {
+      mocks: [iiifServerUrlMock],
+    });
 
     await waitFor(() => {
       expect(getByTestId("search-results-component")).toBeInTheDocument();

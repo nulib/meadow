@@ -2,13 +2,21 @@ import React from "react";
 import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
+import {
+  codeListAuthorityMock,
+  codeListLicenseMock,
+  codeListRightsStatementMock,
+  codeListMarcRelatorMock,
+  codeListSubjectRoleMock,
+} from "../../Work/controlledVocabulary.gql.mock";
 
 const registerMock = jest.fn();
 
 describe("BatchEditAboutCoreMetadata component", () => {
   function setupTest() {
     return renderWithRouterApollo(
-      <BatchEditAboutCoreMetadata register={registerMock} />
+      <BatchEditAboutCoreMetadata register={registerMock} />,
+      { mocks: [codeListLicenseMock, codeListRightsStatementMock] }
     );
   }
   it("renders the component", async () => {
