@@ -28,6 +28,20 @@
 
 Now you can visit [`https://devbox.library.northwestern.edu:3001/`](https://devbox.library.northwestern.edu:3001/) from your browser.
 
+## Importing seed/sample data
+
+Meadow includes two mix tasks to make it easy to export images and data from Digital Collections and import it into Meadow.
+
+To export seed data from Digital Collections (in this case, 30 works from the World War II Poster Collection):
+
+    mix meadow.dc_download wwii_posters faf4f60e-78e0-4fbf-96ce-4ca8b4df597a 30
+
+Then to import it into Meadow:
+
+    mix meadow.seed_data wwii_posters
+
+You can pass any public collection ID or valid Elasticsearch query to the download task. Run [`mix help meadow.dc_download`](lib/mix/tasks/dc_download.ex) and [`mix help meadow.seed_data`](lib/mix/tasks/seed_data.ex) for details.
+
 ## Running the application
 
 Start the Phoenix with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
