@@ -21,28 +21,28 @@ import Collection from "./Collection";
 
 export const CREATE_COLLECTION = gql`
   mutation CreateCollection(
-    $description: String
-    $collectionName: String!
-    $keywords: [String]
-    $findingAidUrl: String
     $adminEmail: String
+    $collectionName: String!
+    $description: String
     $featured: Boolean
+    $findingAidUrl: String
+    $keywords: [String]
   ) {
     createCollection(
-      description: $description
-      name: $collectionName
-      keywords: $keywords
-      findingAidUrl: $findingAidUrl
       adminEmail: $adminEmail
+      description: $description
       featured: $featured
+      findingAidUrl: $findingAidUrl
+      keywords: $keywords
+      name: $collectionName
     ) {
       id
-      description
-      name
-      keywords
-      findingAidUrl
       adminEmail
+      description
       featured
+      findingAidUrl
+      keywords
+      name
     }
   }
 `;

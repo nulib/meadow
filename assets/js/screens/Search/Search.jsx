@@ -3,6 +3,7 @@ import Layout from "../Layout";
 import { SelectedFilters } from "@appbaseio/reactivesearch";
 import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
+import SearchFacetSidebar from "../../components/Search/FacetSidebar";
 import { useHistory } from "react-router-dom";
 
 const ScreensSearch = () => {
@@ -30,32 +31,39 @@ const ScreensSearch = () => {
   return (
     <Layout>
       <section className="section">
-        <div className="container">
-          <div className="box">
-            <div className="columns">
-              <div className="column">
-                <h1 className="title">Search</h1>
-              </div>
-              <div className="column">
-                <div className="buttons is-right">
-                  <button
-                    className="button is-primary"
-                    onClick={handleGoToEditClick}
-                    disabled={selectedItems.length === 0}
-                  >
-                    Edit Selected Items
-                  </button>
-                </div>
-              </div>
-            </div>
-            <SearchBar />
-            <div className="mt-2">
-              <SelectedFilters />
+        <div className="columns">
+          <div className="column is-one-quarter">
+            <div className="box">
+              <h2 className="title is-size-4">Filter/Facet</h2>
+              <SearchFacetSidebar />
             </div>
           </div>
-        </div>
-        <div className="container mt-4">
-          <SearchResults handleSelectItem={handleSelectItem} />
+          <div className="column is-three-quarters">
+            <div className="box">
+              <div className="columns">
+                <div className="column">
+                  <h1 className="title">Search</h1>
+                </div>
+                <div className="column">
+                  <div className="buttons is-right">
+                    <button
+                      className="button is-primary"
+                      onClick={handleGoToEditClick}
+                      disabled={selectedItems.length === 0}
+                    >
+                      Edit Selected Items
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <SearchBar />
+              <div className="mt-2">
+                <SelectedFilters />
+              </div>
+            </div>
+
+            <SearchResults handleSelectItem={handleSelectItem} />
+          </div>
         </div>
       </section>
     </Layout>

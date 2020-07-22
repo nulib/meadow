@@ -267,7 +267,6 @@ const WorkTabsAdministrative = ({ work }) => {
                 <UIFormInput
                   placeholder="Project Cycle"
                   register={register}
-                  required
                   name="projectCycle"
                   label="Project Cycle"
                   errors={errors}
