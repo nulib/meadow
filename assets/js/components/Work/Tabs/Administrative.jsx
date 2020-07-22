@@ -205,6 +205,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={preservationLevelsData.codeList}
                   defaultValue={preservationLevel ? preservationLevel.id : ""}
                   errors={errors}
+                  required
                 />
               ) : (
                 <p>
@@ -225,6 +226,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={statusData.codeList}
                   defaultValue={status ? status.id : ""}
                   errors={errors}
+                  required
                 />
               ) : (
                 <p>{status ? status.label : "None selected"}</p>

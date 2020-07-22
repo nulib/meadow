@@ -86,6 +86,7 @@ const WorkTabsAboutCoreMetadata = ({
                   ? descriptiveMetadata.rightsStatement.id
                   : ""
               }
+              required
               errors={errors}
             />
           ) : (
@@ -129,6 +130,7 @@ const WorkTabsAboutCoreMetadata = ({
                   ? descriptiveMetadata.license.id
                   : ""
               }
+              required
               errors={errors}
             />
           ) : (
