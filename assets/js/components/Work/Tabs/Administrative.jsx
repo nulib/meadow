@@ -179,6 +179,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   required
                   name="collection"
                   label="Collection"
+                  showHelper={true}
                   options={collectionsData.collections.map((collection) => ({
                     id: collection.id,
                     value: collection.id,
@@ -199,6 +200,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 <UIFormSelect
                   register={register}
                   name="preservationLevel"
+                  showHelper={true}
                   label="Preservation Level"
                   options={preservationLevelsData.codeList}
                   defaultValue={preservationLevel ? preservationLevel.id : ""}
@@ -219,6 +221,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   register={register}
                   name="status"
                   label="Status"
+                  showHelper={true}
                   options={statusData.codeList}
                   defaultValue={status ? status.id : ""}
                   errors={errors}
@@ -239,6 +242,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   required
                   name="visibility"
                   label="Visibility"
+                  showHelper={true}
                   options={visibilityData.codeList}
                   defaultValue={work.visibility ? work.visibility.id : ""}
                   errors={errors}

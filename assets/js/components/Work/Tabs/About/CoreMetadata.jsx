@@ -77,6 +77,7 @@ const WorkTabsAboutCoreMetadata = ({
               register={register}
               name="rightsStatement"
               label="Rights Statement"
+              showHelper={true}
               options={
                 rightsStatementsData ? rightsStatementsData.codeList : []
               }
@@ -120,11 +121,12 @@ const WorkTabsAboutCoreMetadata = ({
             <UIFormSelect
               register={register}
               name="license"
+              showHelper={true}
               label="License"
               options={licenseData ? licenseData.codeList : []}
               defaultValue={
-                descriptiveMetadata.licenseStatement
-                  ? descriptiveMetadata.licenseStatement.id
+                descriptiveMetadata.license
+                  ? descriptiveMetadata.license.id
                   : ""
               }
               errors={errors}
