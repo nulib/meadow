@@ -3,9 +3,17 @@ defmodule Meadow.Data.CodedTermsTest do
   alias Meadow.Data.CodedTerms
   import Assertions
 
-  @schemes ["authority", "license", "marc_relator", "preservation_level",
-            "rights_statement", "status", "subject_role", "visibility",
-            "work_type"]
+  @schemes [
+    "authority",
+    "license",
+    "marc_relator",
+    "preservation_level",
+    "rights_statement",
+    "status",
+    "subject_role",
+    "visibility",
+    "work_type"
+  ]
 
   describe "CodedTerms context" do
     test "lists schemes" do
@@ -14,8 +22,14 @@ defmodule Meadow.Data.CodedTermsTest do
 
     test "lists terms within a scheme" do
       with results <- CodedTerms.list_coded_terms("work_type") do
-        assert_lists_equal(results |> Enum.map(&(&1.id)), ["AUDIO", "DOCUMENT", "IMAGE", "VIDEO"])
-        assert_lists_equal(results |> Enum.map(&(&1.label)), ["Audio", "Document", "Image", "Video"])
+        assert_lists_equal(results |> Enum.map(& &1.id), ["AUDIO", "DOCUMENT", "IMAGE", "VIDEO"])
+
+        assert_lists_equal(results |> Enum.map(& &1.label), [
+          "Audio",
+          "Document",
+          "Image",
+          "Video"
+        ])
       end
     end
 

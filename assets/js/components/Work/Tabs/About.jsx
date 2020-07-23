@@ -148,10 +148,12 @@ const WorkTabsAbout = ({ work }) => {
         identifier,
         keywords,
         legacyIdentifier,
-        license: {
-          id: data.license,
-          scheme: "LICENSE",
-        },
+        license: data.license
+          ? {
+              id: data.license,
+              scheme: "LICENSE",
+            }
+          : {},
         notes,
         physicalDescriptionMaterial,
         physicalDescriptionSize,
@@ -160,10 +162,12 @@ const WorkTabsAbout = ({ work }) => {
         relatedUrl,
         relatedMaterial,
         rightsHolder,
-        rightsStatement: {
-          id: data.rightsStatement,
-          scheme: "RIGHTS_STATEMENT",
-        },
+        rightsStatement: data.rightsStatement
+          ? {
+              id: data.rightsStatement,
+              scheme: "RIGHTS_STATEMENT",
+            }
+          : {},
         scopeAndContents,
         series,
         source,

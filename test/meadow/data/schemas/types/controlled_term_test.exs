@@ -10,7 +10,7 @@ defmodule Meadow.Data.Types.ControlledTermTest do
     label: "Border Collie Trust Great Britain"
   }
 
-  describe "FetchControlledTermLabel.gql" do
+  describe "Meadow.Data.Types.ControlledTerm" do
     test "cast function" do
       assert {:ok, @controlled_term} == ControlledTerm.cast(@controlled_term)
       assert {:ok, @controlled_term} == ControlledTerm.cast(@controlled_term.id)

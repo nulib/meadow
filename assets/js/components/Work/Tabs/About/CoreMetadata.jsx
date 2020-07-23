@@ -39,7 +39,6 @@ const WorkTabsAboutCoreMetadata = ({
           {isEditing ? (
             <UIInput
               register={register}
-              required
               name="title"
               label="Title"
               data-testid="title"
@@ -57,7 +56,6 @@ const WorkTabsAboutCoreMetadata = ({
           {isEditing ? (
             <UIFormTextarea
               register={register}
-              required
               name="description"
               label="Description"
               data-testid="description"
@@ -86,7 +84,6 @@ const WorkTabsAboutCoreMetadata = ({
                   ? descriptiveMetadata.rightsStatement.id
                   : ""
               }
-              required
               errors={errors}
             />
           ) : (
@@ -130,7 +127,6 @@ const WorkTabsAboutCoreMetadata = ({
                   ? descriptiveMetadata.license.id
                   : ""
               }
-              required
               errors={errors}
             />
           ) : (

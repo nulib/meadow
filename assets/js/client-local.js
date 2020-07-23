@@ -133,7 +133,7 @@ const mockLicense = () => {
 const mockStatus = () => {
   return {
     id: "IN PROGRESS",
-    label: "In Progresss",
+    label: "In Progress",
     __typename: "CodedTerm",
   };
 };
