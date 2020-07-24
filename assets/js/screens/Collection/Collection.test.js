@@ -53,3 +53,9 @@ it("renders Edit button", async () => {
   const button = await findByTestId("edit-button");
   expect(button).toBeInTheDocument();
 });
+
+it("renders Publish button", async () => {
+  const { findByTestId } = setupTests();
+  const button = await findByTestId("publish-button");
+  expect(button).toBeInTheDocument();
+});

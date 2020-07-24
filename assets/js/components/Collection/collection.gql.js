@@ -145,6 +145,7 @@ export const UPDATE_COLLECTION = gql`
     $findingAidUrl: String
     $adminEmail: String
     $featured: Boolean
+    $published: Boolean
   ) {
     updateCollection(
       collectionId: $collectionId
@@ -154,6 +155,7 @@ export const UPDATE_COLLECTION = gql`
       findingAidUrl: $findingAidUrl
       adminEmail: $adminEmail
       featured: $featured
+      published: $published
     ) {
       id
       description
@@ -162,6 +164,7 @@ export const UPDATE_COLLECTION = gql`
       findingAidUrl
       adminEmail
       featured
+      published
     }
   }
 `;
