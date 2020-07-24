@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import UIProgressBar from "../UI/UIProgressBar";
 import PropTypes from "prop-types";
-import { useSubscription } from "@apollo/react-hooks";
+import { useSubscription } from "@apollo/client";
 import { INGEST_PROGRESS_SUBSCRIPTION } from "./ingestSheet.gql";
 
 const IngestSheetApprovedInProgress = ({ ingestSheet }) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetErrorsState from "./ErrorsState";

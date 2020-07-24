@@ -2,12 +2,24 @@ import React from "react";
 import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
-import { codeListMarcRelatorMock } from "../../components/Work/controlledVocabulary.gql.mock";
+import {
+  codeListAuthorityMock,
+  codeListLicenseMock,
+  codeListMarcRelatorMock,
+  codeListRightsStatementMock,
+  codeListSubjectRoleMock,
+} from "../../components/Work/controlledVocabulary.gql.mock";
 
 describe("BatchEdit component", () => {
   function setupComponent() {
     return renderWithRouterApollo(<ScreensBatchEdit />, {
-      mocks: [codeListMarcRelatorMock],
+      mocks: [
+        codeListAuthorityMock,
+        codeListLicenseMock,
+        codeListMarcRelatorMock,
+        codeListRightsStatementMock,
+        codeListSubjectRoleMock,
+      ],
       // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
       state: { items: ["abc123", "bez444"] },
     });

@@ -6,7 +6,7 @@ import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import UIError from "../../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
 import UISkeleton from "../../../UI/Skeleton";
@@ -28,91 +28,28 @@ const WorkTabsAboutDescriptiveMetadata = ({
   register,
   showDescriptiveMetadata,
 }) => {
-  const firstLaunch = useRef(true);
-  const [codeLists, setCodeLists] = useState(
-    localStorage.getItem("codeLists")
-      ? JSON.parse(localStorage.getItem("codeLists"))
-      : {}
+  const { data: marcData, loading: marcLoading, errors: marcErrors } = useQuery(
+    CODE_LIST_QUERY,
+    {
+      variables: { scheme: "MARC_RELATOR" },
+    }
   );
 
-  useEffect(() => {
-    if (firstLaunch.current) {
-      firstLaunch.current = false;
-      return;
-    }
-    localStorage.setItem("codeLists", JSON.stringify(codeLists));
-  }, [codeLists]);
-
-  const [
-    getMarcData,
-    { data: marcData, loading: marcLoading, errors: marcErrors },
-  ] = useQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!marcErrors && data) {
-        setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
-      }
-    },
+  const {
+    data: subjectRoleData,
+    loading: subjectRoleLoading,
+    errors: subjectRoleErrors,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "SUBJECT_ROLE" },
   });
 
-  const [
-    getSubjectRoleData,
-    {
-      data: subjectRoleData,
-      loading: subjectRoleLoading,
-      errors: subjectRoleErrors,
-    },
-  ] = useQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!subjectRoleErrors && data) {
-        setCodeLists({ ...codeLists, ["SUBJECT_ROLE"]: data.codeList });
-      }
-    },
+  const {
+    data: authorityData,
+    loading: authorityLoading,
+    errors: authorityErrors,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "AUTHORITY" },
   });
-
-  const [
-    getAuthorityData,
-    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
-  ] = useQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!authorityErrors && data) {
-        setCodeLists({ ...codeLists, ["AUTHORITY"]: data.codeList });
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (!codeLists || !codeLists.MARC_RELATOR) {
-      getMarcData({
-        variables: { scheme: "MARC_RELATOR" },
-      });
-    }
-
-    if (!codeLists || !codeLists.SUBJECT_ROLE) {
-      getSubjectRoleData({
-        variables: { scheme: "SUBJECT_ROLE" },
-      });
-    }
-
-    if (!codeLists || !codeLists.AUTHORITY) {
-      getAuthorityData({
-        variables: { scheme: "AUTHORITY" },
-      });
-    }
-  }, []);
-
-  const refreshCache = () => {
-    setCodeLists({});
-    localStorage.clear();
-    getMarcData({
-      variables: { scheme: "MARC_RELATOR" },
-    });
-    getSubjectRoleData({
-      variables: { scheme: "SUBJECT_ROLE" },
-    });
-    getAuthorityData({
-      variables: { scheme: "AUTHORITY" },
-    });
-  };
 
   if (marcLoading || authorityLoading || subjectRoleLoading)
     return <UISkeleton rows={20} />;
@@ -120,6 +57,15 @@ const WorkTabsAboutDescriptiveMetadata = ({
     return (
       <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
     );
+  if (!marcData || !authorityData || !subjectRoleData) {
+    return <p>No CodeList data</p>;
+  }
+
+  const codeLists = {
+    AUTHORITY: authorityData.codeList,
+    MARC_RELATOR: marcData.codeList,
+    SUBJECT_ROLE: subjectRoleData.codeList,
+  };
 
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {
@@ -190,11 +136,7 @@ const WorkTabsAboutDescriptiveMetadata = ({
             Role and Authority fields are using cached dropdown values (as these
             rarely change).
           </p>
-          <button
-            type="button"
-            className="button is-text is-small"
-            onClick={refreshCache}
-          >
+          <button type="button" className="button is-text is-small">
             Sync with latest values
           </button>
         </div>

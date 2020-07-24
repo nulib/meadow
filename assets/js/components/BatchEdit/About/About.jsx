@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import BatchEditDescriptiveMetadata from "./DescriptiveMetadata";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Collection from "../../components/Collection/Collection";
 import CollectionSearch from "../../components/Collection/Search";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
   GET_COLLECTIONS,
@@ -11,7 +11,7 @@ import Error from "../../components//UI/Error";
 import UILoadingPage from "../../components//UI/LoadingPage";
 import UISkeleton from "../../components//UI/Skeleton";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import UIModalDelete from "../../components/UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";

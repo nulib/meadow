@@ -2,10 +2,11 @@ import {
   GET_PROJECTS,
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-} from "../../components/Project/project.gql.js";
+} from "./project.gql.js";
 
 export const MOCK_PROJECT_TITLE = "Mock project title";
 export const MOCK_PROJECT_ID = "01DNFK4B8XASXNKBSAKQ6YVNF3";
+
 export const ingestSheetUpdatesMock = {
   request: {
     query: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
@@ -24,6 +25,7 @@ export const ingestSheetUpdatesMock = {
     },
   },
 };
+
 export const getProjectMock = {
   request: {
     query: GET_PROJECT,
@@ -55,6 +57,7 @@ export const getProjectMock = {
     },
   },
 };
+
 export const getProjectsMock = {
   request: {
     query: GET_PROJECTS,

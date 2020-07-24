@@ -6,7 +6,7 @@ import Root from "./screens/Root";
 import setupFontAwesome from "./font-awesome-setup";
 
 // GraphQL-specific
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider } from "@apollo/client";
 import client from "./client";
 
 setupFontAwesome();

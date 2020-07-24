@@ -1,7 +1,6 @@
 import React from "react";
 import ScreensProject from "./Project";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import "@testing-library/jest-dom/extend-expect";
 import { Route } from "react-router-dom";
 import {
   getProjectMock,
@@ -21,16 +20,8 @@ function setupMatchTests() {
   );
 }
 
-// This throws an "act()" warning... not sure of the fix for now
-
-// it("renders a loading spinner initially", () => {
-//   const { getByTestId } = renderWithRouterApollo(<ScreensProject />);
-//   const loading = getByTestId("loading");
-//   expect(loading).toBeInTheDocument();
-// });
-
 it("displays the project title", async () => {
-  const { findAllByText, debug } = setupMatchTests();
+  const { findAllByText } = setupMatchTests();
   const projectTitleArray = await findAllByText(MOCK_PROJECT_TITLE);
   expect(projectTitleArray.length).toEqual(2);
 });

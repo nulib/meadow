@@ -5,13 +5,17 @@ import { getProjectsMock } from "../../components/Project/project.gql.mock";
 const mocks = [getProjectsMock];
 
 it("renders a create new project button", async () => {
-  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />);
+  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
+    mocks,
+  });
   const buttonElement = await findByTestId("button-new-project");
   expect(buttonElement).toBeInTheDocument();
 });
 
 it("renders header page section and main page content section", async () => {
-  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />);
+  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
+    mocks,
+  });
   const screenHeaderElement = await findByTestId("screen-header");
   const screenContentElement = await findByTestId("screen-content");
 

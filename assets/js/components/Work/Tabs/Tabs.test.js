@@ -3,27 +3,33 @@ import WorkTabs from "./Tabs";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
-import { IIIF_SERVER_URL } from "../../IIIF/iiif.gql";
+import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import {
   codeListAuthorityMock,
+  codeListLicenseMock,
   codeListMarcRelatorMock,
+  codeListPreservationLevelMock,
+  codeListRightsStatementMock,
+  codeListSubjectRoleMock,
+  codeListStatusMock,
+  codeListVisibilityMock,
 } from "../controlledVocabulary.gql.mock";
+import {
+  getCollectionMock,
+  getCollectionsMock,
+} from "../../Collection/collection.gql.mock";
 
 const mocks = [
-  {
-    request: {
-      query: IIIF_SERVER_URL,
-    },
-    result: {
-      data: {
-        iiifServerUrl: {
-          url: "http://localhost:8184/iiif/2/",
-        },
-      },
-    },
-  },
   codeListAuthorityMock,
+  codeListLicenseMock,
   codeListMarcRelatorMock,
+  codeListPreservationLevelMock,
+  codeListRightsStatementMock,
+  codeListSubjectRoleMock,
+  codeListStatusMock,
+  codeListVisibilityMock,
+  getCollectionsMock,
+  iiifServerUrlMock,
 ];
 
 describe("Tabs component", () => {
@@ -36,7 +42,7 @@ describe("Tabs component", () => {
   });
 
   it("renders tab section and all four tabs: About, Administrative, Structure, and Preservation", async () => {
-    const { getByText, getByTestId } = setupTests();
+    const { getByTestId } = setupTests();
 
     await waitFor(() => {
       expect(getByTestId("tabs")).toBeInTheDocument();

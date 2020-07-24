@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { toastWrapper } from "../../../services/helpers";
 import { GET_COLLECTIONS } from "../../Collection/collection.gql.js";

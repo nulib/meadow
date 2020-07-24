@@ -34,19 +34,19 @@ export const codeListLicenseMock = {
     data: {
       codeList: [
         {
-          __typename: "CodedTerm",
           id: "http://creativecommons.org/licenses/by-nc-sa/3.0/us/",
           label: "Attribution-NonCommercial-ShareAlike 3.0 United States",
+          __typename: "CodedTerm",
         },
         {
-          __typename: "CodedTerm",
           id: "http://www.europeana.eu/portal/rights/rr-r.html",
           label: "All rights reserved",
+          __typename: "CodedTerm",
         },
         {
-          __typename: "CodedTerm",
           id: "http://creativecommons.org/licenses/by/3.0/us/",
           label: "Attribution 3.0 United States",
+          __typename: "CodedTerm",
         },
       ],
     },
@@ -83,6 +83,36 @@ export const codeListMarcRelatorMock = {
   },
 };
 
+export const codeListPreservationLevelMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: {
+      scheme: "PRESERVATION_LEVEL",
+    },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "1",
+          label: "Level 1",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "2",
+          label: "Level 2",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "3",
+          label: "Level 3",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
 export const codeListRightsStatementMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -104,6 +134,35 @@ export const codeListRightsStatementMock = {
         {
           id: " http://rightsstatements.org/vocab/InC-EDU/1.0/",
           label: "In Copyright - Educational Use Permitted",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
+export const codeListStatusMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "STATUS" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "DONE",
+          label: "Done",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "IN PROGRESS",
+          label: "In Progresss",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "STARTED",
+          label: "Started",
+          __typename: "CodedTerm",
         },
       ],
     },
@@ -119,14 +178,42 @@ export const codeListSubjectRoleMock = {
     data: {
       codeList: [
         {
-          __typename: "CodedTerm",
           id: "GEOGRAPHICAL",
           label: "Geographical",
+          __typename: "CodedTerm",
         },
         {
-          __typename: "CodedTerm",
           id: "TOPICAL",
           label: "Topical",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
+export const codeListVisibilityMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "VISIBILITY" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "AUTHENTICATED",
+          label: "Institution",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "RESTRICTED",
+          label: "Private",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "OPEN",
+          label: "Public",
+          __typename: "CodedTerm",
         },
       ],
     },

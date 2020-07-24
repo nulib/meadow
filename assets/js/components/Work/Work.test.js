@@ -1,30 +1,10 @@
 import React from "react";
 import Work from "./Work";
-import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { mockWork } from "./work.gql.mock";
-import { IIIF_SERVER_URL } from "../IIIF/iiif.gql";
-import {
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-} from "./controlledVocabulary.gql.mock";
+import { iiifServerUrlMock } from "../IIIF/iiif.gql.mock";
 
-const mocks = [
-  {
-    request: {
-      query: IIIF_SERVER_URL,
-    },
-    result: {
-      data: {
-        iiifServerUrl: {
-          url: "http://localhost:8184/iiif/2/",
-        },
-      },
-    },
-  },
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-];
+const mocks = [iiifServerUrlMock];
 
 describe("Work component", () => {
   function setupTests() {
@@ -35,12 +15,10 @@ describe("Work component", () => {
     expect(setupTests()).toBeTruthy();
   });
 
-  it("renders the viewer and tabs", async () => {
+  it("renders the viewer and tabs", () => {
     const { getByTestId } = setupTests();
 
-    await waitFor(() => {
-      expect(getByTestId("viewer")).toBeInTheDocument();
-      expect(getByTestId("tabs")).toBeInTheDocument();
-    });
+    expect(getByTestId("viewer")).toBeInTheDocument();
+    expect(getByTestId("tabs-wrapper")).toBeInTheDocument();
   });
 });

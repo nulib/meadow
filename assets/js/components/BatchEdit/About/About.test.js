@@ -3,6 +3,7 @@ import { waitFor } from "@testing-library/react";
 import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import {
+  codeListAuthorityMock,
   codeListLicenseMock,
   codeListRightsStatementMock,
   codeListMarcRelatorMock,
@@ -15,6 +16,7 @@ describe("BatchEditAbout component", () => {
   function setupTest() {
     return renderWithRouterApollo(<BatchEditAbout items={items} />, {
       mocks: [
+        codeListAuthorityMock,
         codeListLicenseMock,
         codeListMarcRelatorMock,
         codeListRightsStatementMock,

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import IngestSheetUpload from "./Upload";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { GET_PRESIGNED_URL } from "./ingestSheet.gql.js";
 
 const IngestSheetForm = ({ project }) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { useApolloClient, useMutation } from "@apollo/react-hooks";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";

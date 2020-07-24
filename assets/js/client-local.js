@@ -22,8 +22,8 @@ export const resolvers = {
     status: () => mockStatus(),
   },
   Query: {
-    authoritiesSearch: (root, { _authority, _query }) =>
-      mockAuthoritiesSearch(),
+    // authoritiesSearch: (root, { _authority, _query }) =>
+    //   mockAuthoritiesSearch(),
     fetchControlledTermLabel: (root, { _id }) =>
       mockLabelFetch("ControlledValue"),
     fetchCodedTermLabel: () => mockLabelFetch("CodedTerm"),
