@@ -9,7 +9,7 @@ import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import UISkeleton from "../../UI/Skeleton";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
-import WorkTabsAboutDescriptiveMetadata from "./About/DescriptiveMetadata";
+import WorkTabsAboutDescriptiveMetadataNoCaching from "./About/DescriptiveMetadataNoCaching";
 import {
   DESCRIPTIVE_METADATA,
   prepControlledTermInput,
@@ -262,7 +262,7 @@ const WorkTabsAbout = ({ work }) => {
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
-          <WorkTabsAboutDescriptiveMetadata
+          <WorkTabsAboutDescriptiveMetadataNoCaching
             control={control}
             descriptiveMetadata={descriptiveMetadata}
             errors={errors}
