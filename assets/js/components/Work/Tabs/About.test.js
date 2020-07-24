@@ -47,7 +47,7 @@ describe("Work About tab component", () => {
     expect(getByTestId("cancel-button")).toBeInTheDocument();
   });
 
-  xit("displays form elements only when in edit mode", async () => {
+  it("displays form elements only when in edit mode", async () => {
     const { queryByTestId } = setupTests();
 
     await waitFor(() => {
@@ -60,7 +60,7 @@ describe("Work About tab component", () => {
     expect(queryByTestId("date-created")).toBeInTheDocument();
   });
 
-  xit("dislays correct work item metadata values", async () => {
+  it("dislays correct work item metadata values", async () => {
     const { getByText, getByTestId, getByDisplayValue } = setupTests();
 
     await waitFor(() => {

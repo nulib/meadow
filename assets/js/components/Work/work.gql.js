@@ -10,16 +10,16 @@ export const GET_WORK = gql`
           id
           label
         }
+        projectCycle
+        projectDesc
+        projectManager
+        projectName
+        projectProposer
+        projectTaskNumber
         status {
           id
           label
         }
-        projectName
-        projectDesc
-        projectProposer
-        projectManager
-        projectTaskNumber
-        projectCycle
       }
       collection {
         id
@@ -33,24 +33,6 @@ export const GET_WORK = gql`
         callNumber
         caption
         catalogKey
-        folderName
-        folderNumber
-        identifier
-        keywords
-        legacyIdentifier
-        notes
-        physicalDescriptionMaterial
-        physicalDescriptionSize
-        provenance
-        publisher
-        relatedUrl
-        relatedMaterial
-        rightsHolder
-        scopeAndContents
-        series
-        source
-        tableOfContents
-        description
         contributor {
           term {
             id
@@ -68,18 +50,24 @@ export const GET_WORK = gql`
             label
           }
         }
+        description
+        folderName
+        folderNumber
         genre {
           term {
             id
             label
           }
         }
+        identifier
+        keywords
         language {
           term {
             id
             label
           }
         }
+        legacyIdentifier
         license {
           id
           label
@@ -90,10 +78,21 @@ export const GET_WORK = gql`
             label
           }
         }
+        notes
+        physicalDescriptionMaterial
+        physicalDescriptionSize
+        provenance
+        publisher
+        relatedUrl
+        relatedMaterial
+        rightsHolder
         rightsStatement {
           id
           label
         }
+        scopeAndContents
+        series
+        source
         stylePeriod {
           term {
             id
@@ -111,6 +110,7 @@ export const GET_WORK = gql`
             scheme
           }
         }
+        tableOfContents
         technique {
           term {
             id
@@ -131,6 +131,10 @@ export const GET_WORK = gql`
           sha256
         }
       }
+      ingestSheet {
+        id
+        name
+      }
       insertedAt
       manifestUrl
       project {
@@ -139,10 +143,6 @@ export const GET_WORK = gql`
       }
       published
       representativeImage
-      ingestSheet {
-        id
-        name
-      }
       updatedAt
       visibility {
         id
