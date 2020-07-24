@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import PropTypes from "prop-types";
 import { INGEST_SHEET_WORKS } from "../ingestSheet.gql";
 import { CSVLink } from "react-csv";

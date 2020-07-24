@@ -5,7 +5,7 @@ import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { useHistory } from "react-router-dom";
 import { GET_PROJECT } from "../Project/project.gql.js";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import { toastWrapper } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

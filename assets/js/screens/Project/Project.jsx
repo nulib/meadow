@@ -5,7 +5,7 @@ import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
   GET_PROJECT,

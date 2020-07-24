@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { SET_COLLECTION_IMAGE } from "./collection.gql";
 import { toastWrapper } from "../../services/helpers";
 import UIFormInput from "../UI/Form/Input";

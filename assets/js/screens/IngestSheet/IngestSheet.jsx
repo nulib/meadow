@@ -5,7 +5,7 @@ import UILoading from "../../components/UI/Loading";
 import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import {
   INGEST_SHEET_SUBSCRIPTION,
   INGEST_SHEET_QUERY,

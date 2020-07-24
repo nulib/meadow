@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
-import { useMutation, useApolloClient } from "@apollo/react-hooks";
+import { useMutation, useApolloClient } from "@apollo/client";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -2,7 +2,7 @@ import React from "react";
 import { Router } from "react-router-dom";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider } from "@apollo/client/testing";
 import { ReactiveBase } from "@appbaseio/reactivesearch";
 import { resolvers } from "../client-local";
 
@@ -66,7 +66,7 @@ export function renderWithRouterApollo(
     <MockedProvider
       mocks={mocks}
       addTypename={false}
-      resolvers={resolvers}
+      //resolvers={resolvers}
       defaultOptions={{
         watchQuery: { fetchPolicy: "no-cache" },
         query: { fetchPolicy: "no-cache" },

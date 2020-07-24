@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CollectionListRow from "../../components/Collection/ListRow";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTIONS,
   DELETE_COLLECTION,
@@ -8,7 +8,7 @@ import {
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
 import { Link, useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { toastWrapper } from "../../services/helpers";
 import Layout from "../Layout";
 import UIModalDelete from "../../components/UI/Modal/Delete";

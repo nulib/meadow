@@ -23,7 +23,7 @@ const Work = ({ work }) => {
         </div>
       </section>
       <section className="section">
-        <div className="container">
+        <div className="container" data-testid="tabs-wrapper">
           <WorkTabs work={work} />
         </div>
       </section>

@@ -4,7 +4,7 @@ import IngestSheetForm from "../../components/IngestSheet/Form";
 import Error from "../../components/UI/Error";
 import Loading from "../../components/UI/Loading";
 import { GET_PROJECT } from "../../components/Project/project.gql.js";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import Layout from "../Layout";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 

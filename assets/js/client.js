@@ -1,9 +1,11 @@
 import fetch from "node-fetch";
-import { ApolloClient } from "apollo-client";
-import { ApolloLink } from "apollo-link";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { HttpLink } from "apollo-link-http";
-import { setContext } from "apollo-link-context";
+import {
+  ApolloClient,
+  ApolloLink,
+  InMemoryCache,
+  HttpLink,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { hasSubscription } from "@jumpn/utils-graphql";
 import * as AbsintheSocket from "@absinthe/socket";
 import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";

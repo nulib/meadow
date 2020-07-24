@@ -2,12 +2,27 @@ import React from "react";
 import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
+import {
+  codeListAuthorityMock,
+  codeListLicenseMock,
+  codeListMarcRelatorMock,
+  codeListRightsStatementMock,
+  codeListSubjectRoleMock,
+} from "../Work/controlledVocabulary.gql.mock.js";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
   function setupTest() {
-    return renderWithRouterApollo(<BatchEditTabs items={items} />);
+    return renderWithRouterApollo(<BatchEditTabs items={items} />, {
+      mocks: [
+        codeListAuthorityMock,
+        codeListLicenseMock,
+        codeListMarcRelatorMock,
+        codeListRightsStatementMock,
+        codeListSubjectRoleMock,
+      ],
+    });
   }
 
   it("renders the tabs header", async () => {

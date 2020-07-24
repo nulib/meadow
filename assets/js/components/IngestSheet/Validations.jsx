@@ -8,7 +8,7 @@ import {
   START_VALIDATION,
 } from "./ingestSheet.gql";
 import { withRouter } from "react-router-dom";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 
 function IngestSheetValidations({
   sheetId,

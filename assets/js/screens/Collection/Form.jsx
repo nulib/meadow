@@ -6,7 +6,7 @@ import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
 import UISkeleton from "../../components/UI/Skeleton";
 import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 
 const ScreensCollectionForm = () => {

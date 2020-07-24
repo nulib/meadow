@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
 import { GET_CURRENT_USER_QUERY } from "./auth.gql";

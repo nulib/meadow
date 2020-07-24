@@ -6,7 +6,7 @@ import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
-import { useLazyQuery } from "@apollo/react-hooks";
+import { useLazyQuery } from "@apollo/client";
 import UIError from "../../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../../services/metadata";
 import UISkeleton from "../../../UI/Skeleton";

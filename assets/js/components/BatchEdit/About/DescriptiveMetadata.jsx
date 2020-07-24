@@ -4,7 +4,7 @@ import UIFormField from "../../UI/Form/Field";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import UIFormControlledTermArray from "../../UI/Form/ControlledTermArray";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import UIError from "../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../services/metadata";
 import UISkeleton from "../../UI/Skeleton";
