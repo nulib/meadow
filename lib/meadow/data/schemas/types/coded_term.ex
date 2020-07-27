@@ -24,13 +24,15 @@ defmodule Meadow.Data.Types.CodedTerm do
 
   defp retrieve_term(nil), do: {:ok, nil}
 
+  defp retrieve_term(%{id: "", scheme: _scheme}), do: {:error, message: "id cannot be blank"}
+
   defp retrieve_term(%{"id" => id, "scheme" => scheme}),
     do: retrieve_term(%{id: id, scheme: scheme})
 
   defp retrieve_term(%{id: id, scheme: scheme}) do
     case CodedTerms.get_coded_term(id, scheme) do
       nil ->
-        nil
+        {:error, message: "#{id} is invalid coded term for scheme #{String.upcase(scheme)}"}
 
       %Schemas.CodedTerm{id: id, scheme: scheme, label: label} ->
         {:ok, %{id: id, scheme: scheme, label: label}}
@@ -40,5 +42,7 @@ defmodule Meadow.Data.Types.CodedTerm do
     end
   end
 
-  defp retrieve_term(_), do: :error
+  defp retrieve_term(%{}), do: {:ok, nil}
+
+  defp retrieve_term(_), do: {:error, message: "Invalid coded term type"}
 end

@@ -96,11 +96,13 @@ const WorkTabsAdministrative = ({ work }) => {
     } = data;
     let workUpdateInput = {
       administrativeMetadata: {
-        preservationLevel: {
-          id: preservationLevel,
-          scheme: "PRESERVATION_LEVEL",
-        },
-        status: { id: status, scheme: "STATUS" },
+        preservationLevel: preservationLevel
+          ? {
+              id: preservationLevel,
+              scheme: "PRESERVATION_LEVEL",
+            }
+          : {},
+        status: status ? { id: status, scheme: "STATUS" } : {},
         // TODO: Should these be field arrays or singular values?
         // projectName,
         // projectDesc,
@@ -110,7 +112,7 @@ const WorkTabsAdministrative = ({ work }) => {
         // projectCycle,
       },
       collectionId: collection,
-      visibility: { id: visibility, scheme: "VISIBILITY" },
+      visibility: visibility ? { id: visibility, scheme: "VISIBILITY" } : {},
     };
 
     updateWork({
@@ -176,7 +178,6 @@ const WorkTabsAdministrative = ({ work }) => {
               {isEditing ? (
                 <UIFormSelect
                   register={register}
-                  required
                   name="collection"
                   label="Collection"
                   showHelper={true}
@@ -205,7 +206,6 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={preservationLevelsData.codeList}
                   defaultValue={preservationLevel ? preservationLevel.id : ""}
                   errors={errors}
-                  required
                 />
               ) : (
                 <p>
@@ -226,7 +226,6 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={statusData.codeList}
                   defaultValue={status ? status.id : ""}
                   errors={errors}
-                  required
                 />
               ) : (
                 <p>{status ? status.label : "None selected"}</p>
@@ -241,7 +240,6 @@ const WorkTabsAdministrative = ({ work }) => {
               {isEditing ? (
                 <UIFormSelect
                   register={register}
-                  required
                   name="visibility"
                   label="Visibility"
                   showHelper={true}

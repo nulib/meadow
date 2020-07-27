@@ -76,7 +76,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Input for code lookup in code list table. Provide id and scheme"
   input_object :coded_term_input do
-    field :id, non_null(:id)
+    field :id, :id
     field :scheme, :code_list_scheme
   end
 
