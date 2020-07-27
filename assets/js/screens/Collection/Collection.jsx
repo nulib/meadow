@@ -9,7 +9,6 @@ import {
   UPDATE_COLLECTION,
 } from "../../components/Collection/collection.gql";
 import Error from "../../components//UI/Error";
-import UILoadingPage from "../../components//UI/LoadingPage";
 import UISkeleton from "../../components//UI/Skeleton";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/client";
@@ -27,12 +26,18 @@ const ScreensCollection = () => {
   });
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
+      console.log(updateCollection, "---------");
+
       toastWrapper(
         "is-success",
         `Collection has been ${
           updateCollection.published ? "published" : "unpublished"
         }`
       );
+    },
+    onError(error) {
+      toastWrapper("is-danger", "Error publishing Collection");
+      console.log("Error publishing collection: ", error);
     },
   });
 
@@ -103,14 +108,15 @@ const ScreensCollection = () => {
                   <div className="column is-two-thirds">
                     <h1 className="title">{data.collection.title || ""}</h1>
                     <span
-                      className={`tag ${
+                      data-testid="published-tag"
+                      className={`tag mr-1 ${
                         data.collection.published ? "is-info" : "is-warning"
                       }`}
                     >
                       {data.collection.published
                         ? "Published"
                         : "Not Published"}
-                    </span>{" "}
+                    </span>
                     {data.collection.featured && (
                       <span className={`tag is-danger`}>Featured</span>
                     )}

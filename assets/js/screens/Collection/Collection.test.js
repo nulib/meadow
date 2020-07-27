@@ -3,9 +3,12 @@ import ScreensCollection from "./Collection";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor, fireEvent } from "@testing-library/react";
-
-import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
-const mocks = [getCollectionMock];
+import {
+  getCollectionMock,
+  updateCollectionMock,
+} from "../../components/Collection/collection.gql.mock";
+import { UPDATE_COLLECTION } from "../../components/Collection/collection.gql";
+const mocks = [getCollectionMock, getCollectionMock, updateCollectionMock];
 
 function setupTests() {
   return renderWithRouterApollo(
@@ -58,4 +61,16 @@ it("renders Publish button", async () => {
   const { findByTestId } = setupTests();
   const button = await findByTestId("publish-button");
   expect(button).toBeInTheDocument();
+});
+
+xit("changes tags upon publish", async () => {
+  const { findByTestId } = setupTests();
+  const button = await findByTestId("publish-button");
+  expect(button).toBeInTheDocument();
+
+  const publishedTag = await findByTestId("published-tag");
+  expect(publishedTag).toHaveClass("is-warning");
+  fireEvent.click(button);
+  const publishedTag2 = await findByTestId("published-tag");
+  expect(publishedTag2).toHaveClass("is-info");
 });

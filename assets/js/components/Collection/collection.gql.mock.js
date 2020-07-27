@@ -1,7 +1,8 @@
-import { SET_COLLECTION_IMAGE } from "./collection.gql.js";
+import { SET_COLLECTION_IMAGE, UPDATE_COLLECTION } from "./collection.gql.js";
 import { GET_COLLECTIONS, GET_COLLECTION } from "./collection.gql.js";
 
 export const MOCK_COLLECTION_ID = "7a6c7b35-41a6-465a-9be2-0587c6b39ae0";
+
 export const collectionMock = {
   adminEmail: "admin@nu.com",
   description: "Collection description lorem ipsum",
@@ -73,6 +74,36 @@ export const setCollectionImageMock = {
           id: "1id-23343432",
           representativeImage: "repImage1url.com",
         },
+      },
+    },
+  },
+};
+
+export const updateCollectionMock = {
+  request: {
+    query: UPDATE_COLLECTION,
+    variables: {
+      collectionId: "6ea6387d-b4fe-4128-aace-8232c406050f",
+      published: false,
+      description: "test description",
+      name: "Test collection",
+      findingAidUrl: "",
+      keywords: ["yo", "foo", "bar", "work", "hey"],
+      adminEmail: "admin@nu.com",
+      featured: false,
+    },
+  },
+  result: {
+    data: {
+      updateCollection: {
+        adminEmail: "admin@nu.com",
+        description: "test description",
+        featured: false,
+        findingAidUrl: null,
+        id: "6ea6387d-b4fe-4128-aace-8232c406050f",
+        keywords: ["yo", "foo", "bar", "work", "hey"],
+        name: "Test collection",
+        published: false,
       },
     },
   },
