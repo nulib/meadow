@@ -24,10 +24,39 @@ const defaultListItemValues = {
 export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
+    componentId: "FacetContributor",
+    dataField: "descriptiveMetadata.contributor.displayFacet",
+    title: "Contributor",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "FacetCollection",
     dataField: "collection.id",
-    showSearch: true,
     title: "Collection",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetGenre",
+    dataField: "descriptiveMetadata.genre.displayFacet",
+    title: "Genre",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetLanguage",
+    dataField: "descriptiveMetadata.language.displayFacet",
+    title: "Language",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetLicense",
+    dataField: "descriptiveMetadata.license.label.keyword",
+    title: "License",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetLocation",
+    dataField: "descriptiveMetadata.location.displayFacet",
+    title: "Location",
   },
   {
     ...defaultListItemValues,
@@ -49,8 +78,14 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
+    componentId: "FacetRightsStatement",
+    dataField: "descriptiveMetadata.rightsStatement.label.keyword",
+    title: "Rights Statement",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "FacetVisibility",
-    dataField: "visibility.id",
+    dataField: "visibility.label.keyword",
     title: "Visibility",
   },
 ];
