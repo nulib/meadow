@@ -8,25 +8,14 @@
         "full_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding"]
         },
         "stopword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding",
-            "english_stop"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding", "english_stop"]
         }
       },
       "filter": {
@@ -62,7 +51,7 @@
       "dynamic_templates": [
         {
           "facets": {
-            "match": "*_facet",
+            "match": "*facet",
             "mapping": { "type": "keyword" }
           }
         },
