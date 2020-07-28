@@ -127,8 +127,8 @@ defmodule Meadow.TestHelpers do
             %{
               project_name: [Faker.Lorem.sentence(3)],
               project_desc: [Faker.Lorem.sentence()],
-              project_proposer: [Faker.Name.name()],
-              project_manager: [Faker.Name.name()],
+              project_proposer: [Faker.Person.name()],
+              project_manager: [Faker.Person.name()],
               project_task_number: [Faker.Code.issn()],
               project_cycle: Faker.Lorem.word()
             },
