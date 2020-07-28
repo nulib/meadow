@@ -12,7 +12,7 @@ import UIError from "../../UI/Error";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
 
-const BatchEditAbout = ({ items }) => {
+const BatchEditAbout = ({ numberOfResults }) => {
   // Whether box dropdowns are open or closed
   const [showCoreMetadata, setShowCoreMetadata] = useState(true);
   const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
@@ -70,7 +70,7 @@ const BatchEditAbout = ({ items }) => {
             className="button is-primary"
             data-testid="save-button"
           >
-            Save Data for {items.length} Items
+            Save Data for {numberOfResults} Items
           </button>
           <button
             type="button"
@@ -90,7 +90,7 @@ const BatchEditAbout = ({ items }) => {
         <span className="icon">
           <FontAwesomeIcon icon="exclamation-triangle" />
         </span>
-        You are editing {items.length} items. Proceed with caution.
+        You are editing {numberOfResults} items. Proceed with caution.
       </p>
 
       <div className="box is-relative mt-4" data-testid="core-metadata-wrapper">
@@ -134,7 +134,7 @@ const BatchEditAbout = ({ items }) => {
 };
 
 BatchEditAbout.propTypes = {
-  items: PropTypes.array,
+  numberOfResults: PropTypes.number,
 };
 
 export default BatchEditAbout;
