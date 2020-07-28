@@ -5,10 +5,32 @@ import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
 import SearchFacetSidebar from "../../components/Search/FacetSidebar";
 import { useHistory } from "react-router-dom";
+import SearchActionRow from "../../components/Search/ActionRow";
+import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
 
 const ScreensSearch = () => {
   let history = useHistory();
+  const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [esQuery, setEsQuery] = useState();
+  const [resultStats, setResultStats] = useState();
+
+  const handleEditAllItems = () => {
+    history.push("/batch-edit", {
+      esQuery: esQuery,
+      resultStats: resultStats,
+    });
+  };
+
+  const handleQueryChange = (query) => {
+    console.log("query :>> ", query);
+    setEsQuery(query);
+  };
+
+  const handleOnDataChange = (resultStats) => {
+    console.log("resulStats :>> ", resultStats);
+    setResultStats({ ...resultStats });
+  };
 
   const handleSelectItem = (id) => {
     let arr = [...selectedItems];
@@ -20,12 +42,6 @@ const ScreensSearch = () => {
     } else {
       setSelectedItems([...arr, id]);
     }
-  };
-
-  const handleGoToEditClick = () => {
-    history.push("/batch-edit", {
-      items: selectedItems,
-    });
   };
 
   return (
@@ -40,29 +56,32 @@ const ScreensSearch = () => {
           </div>
           <div className="column is-three-quarters">
             <div className="box">
-              <div className="columns">
-                <div className="column">
-                  <h1 className="title">Search</h1>
-                </div>
-                <div className="column">
-                  <div className="buttons is-right">
-                    <button
-                      className="button is-primary"
-                      onClick={handleGoToEditClick}
-                      disabled={selectedItems.length === 0}
-                    >
-                      Edit Selected Items
-                    </button>
-                  </div>
-                </div>
-              </div>
               <SearchBar />
               <div className="mt-2">
                 <SelectedFilters />
               </div>
             </div>
 
-            <SearchResults handleSelectItem={handleSelectItem} />
+            <div className="box pb-0">
+              <h1 className="title">Search Results</h1>
+              <SearchActionRow
+                handleEditAllItems={handleEditAllItems}
+                selectedItems={selectedItems}
+              />
+              <hr />
+              <UIResultsDisplaySwitcher
+                isListView={isListView}
+                onGridClick={() => setIsListView(false)}
+                onListClick={() => setIsListView(true)}
+              />
+            </div>
+
+            <SearchResults
+              handleOnDataChange={handleOnDataChange}
+              handleQueryChange={handleQueryChange}
+              handleSelectItem={handleSelectItem}
+              isListView={isListView}
+            />
           </div>
         </div>
       </section>

@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 export default function BatchEdit() {
   let location = useLocation();
   let items = location.state.items || [];
+  let { numberOfResults } = location.state.resultStats || null;
 
   return (
     <Layout>
@@ -25,7 +26,7 @@ export default function BatchEdit() {
               Batch Edit
             </h1>
 
-            <p data-testid="num-results">Editing {items.length} rows</p>
+            <p data-testid="num-results">Editing {numberOfResults} rows</p>
             <ul>
               {items.map((item) => (
                 <li key={item}>{item}</li>
@@ -40,7 +41,7 @@ export default function BatchEdit() {
       </section>
       <section className="section">
         <div className="container" data-testid="tabs-wrapper">
-          <BatchEditTabs items={items} />
+          <BatchEditTabs numberOfResults={numberOfResults} />
         </div>
       </section>
     </Layout>

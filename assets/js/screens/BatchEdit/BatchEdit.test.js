@@ -21,7 +21,7 @@ describe("BatchEdit component", () => {
         codeListSubjectRoleMock,
       ],
       // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
-      state: { items: ["abc123", "bez444"] },
+      state: { resultStats: { numberOfResults: 5 } },
     });
   }
 
@@ -46,7 +46,7 @@ describe("BatchEdit component", () => {
     await waitFor(() => {
       expect(getByTestId("batch-edit-title")).toBeInTheDocument();
       expect(getByTestId("num-results")).toBeInTheDocument();
-      expect(queryByText("Editing 2 rows")).toBeInTheDocument();
+      expect(queryByText("Editing 5 rows")).toBeInTheDocument();
     });
   });
 
