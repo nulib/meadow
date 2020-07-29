@@ -24,10 +24,9 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
+
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
-      console.log(updateCollection, "---------");
-
       toastWrapper(
         "is-success",
         `Collection has been ${

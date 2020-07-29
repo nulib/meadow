@@ -138,33 +138,33 @@ export const GET_COLLECTIONS = gql`
 
 export const UPDATE_COLLECTION = gql`
   mutation UpdateCollection(
-    $collectionId: ID!
-    $description: String
-    $collectionTitle: String!
-    $keywords: [String]
-    $findingAidUrl: String
     $adminEmail: String
+    $collectionId: ID!
+    $collectionTitle: String!
+    $description: String
+    $keywords: [String]
     $featured: Boolean
+    $findingAidUrl: String
     $published: Boolean
   ) {
     updateCollection(
+      adminEmail: $adminEmail
       collectionId: $collectionId
       description: $description
-      title: $collectionTitle
-      keywords: $keywords
-      findingAidUrl: $findingAidUrl
-      adminEmail: $adminEmail
       featured: $featured
+      findingAidUrl: $findingAidUrl
+      keywords: $keywords
       published: $published
+      title: $collectionTitle
     ) {
-      id
-      description
-      title
-      keywords
-      findingAidUrl
       adminEmail
+      description
       featured
+      findingAidUrl
+      id
+      keywords
       published
+      title
     }
   }
 `;
