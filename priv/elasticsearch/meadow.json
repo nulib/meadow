@@ -137,6 +137,7 @@
         {
           "labels": {
             "path_match": "*.label",
+            "path_unmatch": "descriptiveMetadata.relatedUrl.label",
             "mapping": {
               "type": "text",
               "analyzer": "full_analyzer",

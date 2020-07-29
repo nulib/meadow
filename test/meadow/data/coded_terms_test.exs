@@ -8,6 +8,7 @@ defmodule Meadow.Data.CodedTermsTest do
     "license",
     "marc_relator",
     "preservation_level",
+    "related_url",
     "rights_statement",
     "status",
     "subject_role",

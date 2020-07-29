@@ -45,6 +45,13 @@ fragment WorkDescriptiveMetadataFields on Work {
       id
       label
     }
+    relatedUrl {
+      url
+      label {
+        id
+        label
+      }
+    }
     stylePeriod {
       term {
         id

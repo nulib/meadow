@@ -5,7 +5,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
   import Ecto.Changeset
   use Ecto.Schema
-  alias Meadow.Data.Schemas.ControlledMetadataEntry
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, RelatedURLEntry}
   alias Meadow.Data.Types
 
   # {field_name, repeating}
@@ -32,7 +32,6 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:provenance, true},
     {:publisher, true},
     {:related_material, true},
-    {:related_url, true},
     {:rights_holder, true},
     {:scope_and_contents, true},
     {:series, true},
@@ -75,22 +74,18 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       embeds_many(f, ControlledMetadataEntry, on_replace: :delete)
     end)
 
+    embeds_many(:related_url, RelatedURLEntry, on_replace: :delete)
+
     timestamps()
   end
 
   def changeset(metadata, params) do
-    with change <- cast(metadata, params, permitted()) do
-      @controlled_fields
-      |> Enum.reduce(change, fn field, acc ->
-        cast_embed(acc, field)
-      end)
-    end
+    changeset =
+      metadata
+      |> cast(params, permitted())
+      |> cast_embed(:related_url)
 
-    # The following are marked as required on the metadata
-    # spreadsheet, but commented out so that works can be
-    # created without them from ingest sheets.
-    #
-    # |> validate_required([:ark, :nul_use_statement, :title])
+    Enum.reduce(@controlled_fields, changeset, fn field, acc -> cast_embed(acc, field) end)
   end
 
   defp permitted, do: @coded_fields ++ scalar_fields()
@@ -127,6 +122,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       Map.from_struct(field)
       |> Map.put(:displayFacet, "#{field.term.label} (#{field.role.label})")
     end
+
+    def encode_field(%RelatedURLEntry{} = field), do: Map.from_struct(field)
 
     def encode_field(field), do: field
   end

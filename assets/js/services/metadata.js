@@ -63,7 +63,6 @@ export const DESCRIPTIVE_METADATA = {
     },
     { name: "provenance", label: "Provenance" },
     { name: "publisher", label: "Publisher" },
-    { name: "relatedUrl", label: "Related URL" },
     { name: "relatedMaterial", label: "Related Material" },
     { name: "rightsHolder", label: "Rights Holder" },
     { name: "scopeAndContents", label: "Scope and Content" },
