@@ -29,21 +29,18 @@ defmodule Meadow.Accounts.Ldap do
   end
 
   @doc "Find a user entry by its common name (NetID)"
-  def find_user(cn), do: find_user(cn, @retries)
+  def find_user(cn) do
+    find_user_func = fn ->
+      connection()
+      |> Exldap.search_with_filter(
+        Exldap.with_and([
+          Exldap.equalityMatch("cn", cn),
+          Exldap.equalityMatch("objectClass", "user")
+        ])
+      )
+    end
 
-  defp find_user(cn, 0) do
-    Logger.error("Error retrieving user #{cn} from LDAP after #{@retries} retries")
-    nil
-  end
-
-  defp find_user(cn, retries) do
-    case connection()
-         |> Exldap.search_with_filter(
-           Exldap.with_and([
-             Exldap.equalityMatch("cn", cn),
-             Exldap.equalityMatch("objectClass", "user")
-           ])
-         ) do
+    case with_retry(find_user_func) do
       {:ok, []} ->
         nil
 
@@ -54,79 +51,123 @@ defmodule Meadow.Accounts.Ldap do
         {:error, :tooManyResults}
 
       {:error, error} ->
+        Logger.error("Error retrieving user #{cn} from LDAP after #{@retries} retries")
         Logger.error("#{inspect(error)}")
-        find_user(cn, retries - 1)
+        nil
     end
   end
 
   @doc "List all group names and DNs under the @meadow_base DN"
   def list_groups do
-    {:ok, meadow_groups} =
+    list_groups_func = fn ->
       connection()
       |> Exldap.search_with_filter(
         @meadow_base,
         Exldap.equalityMatch("objectClass", "group")
       )
+    end
 
-    meadow_groups
-    |> Enum.map(&Entry.new/1)
+    case with_retry(list_groups_func) do
+      {:ok, meadow_groups} ->
+        Enum.map(meadow_groups, &Entry.new/1)
+
+      {:error, error} ->
+        Logger.error("Error retrieving Meadow groups from LDAP after #{@retries} retries")
+        Logger.error("#{inspect(error)}")
+        []
+    end
   end
 
   @doc "List the members of a given group"
   def list_group_members(group_dn) do
-    with conn <- connection() do
-      case Exldap.search(conn,
-             base: group_dn,
-             scope: :eldap.baseObject(),
-             filter: Exldap.equalityMatch("objectClass", "group")
-           ) do
-        {:ok, [entry]} -> extract_members(conn, entry)
-        {:error, :noSuchObject} -> []
-        other -> other
+    list_group_members_func = fn ->
+      with conn <- connection() do
+        case Exldap.search(conn,
+               base: group_dn,
+               scope: :eldap.baseObject(),
+               filter: Exldap.equalityMatch("objectClass", "group")
+             ) do
+          {:ok, [entry]} -> extract_members(conn, entry)
+          {:error, :noSuchObject} -> []
+          other -> other
+        end
       end
+    end
+
+    case with_retry(list_group_members_func) do
+      {:error, error} ->
+        Logger.error("Error retrieving #{group_dn} members after #{@retries} retries")
+        Logger.error("#{inspect(error)}")
+        []
+
+      other ->
+        other
     end
   end
 
   @doc "List the groups a given user belongs to"
   def list_user_groups(user_dn) do
-    case connection()
-         |> Exldap.search_with_filter(
-           @meadow_base,
-           Exldap.with_and([
-             Exldap.equalityMatch("objectClass", "group"),
-             Exldap.extensibleMatch(user_dn,
-               type: "member",
-               matchingRule: @ldap_matching_rule_in_chain
-             )
-           ])
-         ) do
-      {:ok, results} -> results |> Enum.map(&Entry.new/1)
-      {:error, :noSuchObject} -> []
+    list_user_groups_func = fn ->
+      case connection()
+           |> Exldap.search_with_filter(
+             @meadow_base,
+             Exldap.with_and([
+               Exldap.equalityMatch("objectClass", "group"),
+               Exldap.extensibleMatch(user_dn,
+                 type: "member",
+                 matchingRule: @ldap_matching_rule_in_chain
+               )
+             ])
+           ) do
+        {:ok, results} -> results |> Enum.map(&Entry.new/1)
+        {:error, :noSuchObject} -> []
+      end
+    end
+
+    case with_retry(list_user_groups_func) do
+      {:error, error} ->
+        Logger.error("Error retrieving #{user_dn} groups after #{@retries} retries")
+        Logger.error("#{inspect(error)}")
+        []
+
+      other ->
+        other
     end
   end
 
   @doc "Create a group under the @meadow_base DN"
   def create_group(group_cn) do
-    with {:ok, connection} <- Exldap.connect(),
-         group_dn <- "CN=#{group_cn},#{@meadow_base}" do
-      attributes =
-        map_to_attributes(%{
-          objectClass: ["group", "top"],
-          groupType: 4,
-          cn: group_cn,
-          displayName: "#{group_cn} Group"
-        })
+    create_group_func = fn ->
+      with {:ok, connection} <- Exldap.connect(),
+           group_dn <- "CN=#{group_cn},#{@meadow_base}" do
+        attributes =
+          map_to_attributes(%{
+            objectClass: ["group", "top"],
+            groupType: 4,
+            cn: group_cn,
+            displayName: "#{group_cn} Group"
+          })
 
-      case :eldap.add(connection, to_charlist(group_dn), attributes) do
-        :ok ->
-          {:ok, Entry.new(connection, group_dn)}
+        case :eldap.add(connection, to_charlist(group_dn), attributes) do
+          :ok ->
+            {:ok, Entry.new(connection, group_dn)}
 
-        {:error, :entryAlreadyExists} ->
-          {:exists, Entry.new(connection, group_dn)}
+          {:error, :entryAlreadyExists} ->
+            {:exists, Entry.new(connection, group_dn)}
 
-        other ->
-          other
+          other ->
+            other
+        end
       end
+    end
+
+    case with_retry(create_group_func) do
+      {:error, error} ->
+        Logger.error("Unable to create group #{group_cn}: #{inspect(error)}")
+        {:error, error}
+
+      other ->
+        other
     end
   end
 
@@ -195,10 +236,15 @@ defmodule Meadow.Accounts.Ldap do
       |> Enum.map(fn dn -> Exldap.equalityMatch("distinguishedName", dn) end)
       |> Exldap.with_or()
 
-    with {:ok, members} <- connection |> Exldap.search_with_filter(filter) do
-      members
-      |> ensure_list()
-      |> Enum.map(fn entry -> Entry.new(entry) end)
+    case with_retry(fn -> connection |> Exldap.search_with_filter(filter) end) do
+      {:ok, members} ->
+        members
+        |> ensure_list()
+        |> Enum.map(fn entry -> Entry.new(entry) end)
+
+      {:error, error} ->
+        Logger.error("Unable to extract members from #{group.object_name}: #{inspect(error)}")
+        {:error, error}
     end
   end
 
@@ -207,10 +253,34 @@ defmodule Meadow.Accounts.Ldap do
   defp ensure_list(x), do: [x]
 
   defp modify_entry(dn, operation) do
-    case :eldap.modify(connection(), to_charlist(dn), [operation]) do
-      :ok -> {:ok, dn}
-      {:error, :entryAlreadyExists} -> {:exists, dn}
-      other -> other
+    modify_entry_func = fn ->
+      case :eldap.modify(connection(), to_charlist(dn), [operation]) do
+        :ok -> {:ok, dn}
+        {:error, :entryAlreadyExists} -> {:exists, dn}
+        other -> other
+      end
+    end
+
+    case with_retry(modify_entry_func) do
+      {:error, error} ->
+        Logger.error("Unable to modify #{dn}: #{inspect(error)}")
+        nil
+
+      other ->
+        other
+    end
+  end
+
+  defp with_retry(func, remaining_tries \\ @retries, last_response \\ nil)
+
+  defp with_retry(_, 0, last_response), do: last_response
+
+  defp with_retry(func, remaining_tries, _) do
+    with response <- func.() do
+      case response do
+        {:error, _} -> with_retry(func, remaining_tries - 1, response)
+        other -> other
+      end
     end
   end
 end
