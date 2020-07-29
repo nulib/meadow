@@ -68,6 +68,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :scheme, :code_list_scheme
   end
 
+  @desc "RelatedURLEntry"
+  object :related_url_entry do
+    field :url, :string
+    field :label, :coded_term
+  end
+
   @desc "Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
   input_object :controlled_metadata_entry_input do
     field :term, non_null(:id)
@@ -80,6 +86,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :scheme, :code_list_scheme
   end
 
+  @desc "Related URL input"
+  input_object :related_url_entry_input do
+    field :url, :string
+    field :label, :coded_term_input
+  end
+
   @desc "Schemes for code list table. (Ex: Subjects, MARC relators, prevervation levels, etc)"
   enum :code_list_scheme do
     value(:authority, as: "authority", description: "Authority")
@@ -87,6 +99,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")
     value(:rights_statement, as: "rights_statement", description: "Rights Statement")
+    value(:related_url, as: "related_url", description: "Related URL")
     value(:subject_role, as: "subject_role", description: "Subject Role")
     value(:status, as: "status", description: "Status")
     value(:visibility, as: "visibility", description: "Visibility")

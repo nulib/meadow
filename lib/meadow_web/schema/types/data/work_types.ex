@@ -129,7 +129,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :physical_description_size, list_of(:string)
     field :provenance, list_of(:string)
     field :publisher, list_of(:string)
-    field :related_url, list_of(:string)
     field :related_material, list_of(:string)
     field :rights_holder, list_of(:string)
     field :scope_and_contents, list_of(:string)
@@ -150,6 +149,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :license, :coded_term
     field :location, list_of(:controlled_metadata_entry)
     field :rights_statement, :coded_term
+    field :related_url, list_of(:related_url_entry)
     field :style_period, list_of(:controlled_metadata_entry)
     field :subject, list_of(:controlled_metadata_entry)
     field :technique, list_of(:controlled_metadata_entry)
@@ -215,6 +215,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :license, :coded_term_input
     field :location, list_of(:controlled_metadata_entry_input)
     field :rights_statement, :coded_term_input
+    field :related_url, list_of(:related_url_entry_input)
     field :subject, list_of(:controlled_metadata_entry_input)
     field :style_period, list_of(:controlled_metadata_entry_input)
     field :technique, list_of(:controlled_metadata_entry_input)

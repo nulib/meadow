@@ -68,7 +68,6 @@ const WorkTabsAbout = ({ work }) => {
       physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
       provenance: descriptiveMetadata.provenance,
       publisher: descriptiveMetadata.publisher,
-      relatedUrl: descriptiveMetadata.relatedUrl,
       relatedMaterial: descriptiveMetadata.relatedMaterial,
       rightsHolder: descriptiveMetadata.rightsHolder,
       scopeAndContents: descriptiveMetadata.scopeAndContents,
@@ -123,7 +122,6 @@ const WorkTabsAbout = ({ work }) => {
       physicalDescriptionSize = [],
       provenance = [],
       publisher = [],
-      relatedUrl = [],
       relatedMaterial = [],
       rightsHolder = [],
       scopeAndContents = [],
@@ -159,7 +157,6 @@ const WorkTabsAbout = ({ work }) => {
         physicalDescriptionSize,
         provenance,
         publisher,
-        relatedUrl,
         relatedMaterial,
         rightsHolder,
         rightsStatement: data.rightsStatement

@@ -83,7 +83,13 @@ export const GET_WORK = gql`
         physicalDescriptionSize
         provenance
         publisher
-        relatedUrl
+        relatedUrl {
+          url
+          label {
+            id
+            label
+          }
+        }
         relatedMaterial
         rightsHolder
         rightsStatement {

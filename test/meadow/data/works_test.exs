@@ -338,4 +338,32 @@ defmodule Meadow.Data.WorksTest do
       end
     end
   end
+
+  describe "works with related url entries" do
+    test "create_work/1 with valid related url fields creates a work" do
+      attrs = %{
+        accession_number: "12345",
+        descriptive_metadata: %{
+          title: "Test",
+          related_url: [
+            %{
+              url: "http://rightsstatements.org/vocab/NoC-US/1.0/",
+              label: %{id: "FINDING_AID", scheme: "related_url"}
+            }
+          ]
+        }
+      }
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      assert length(work.descriptive_metadata.related_url) == 1
+
+      with value <- List.first(work.descriptive_metadata.related_url) do
+        assert value.url ==
+                 "http://rightsstatements.org/vocab/NoC-US/1.0/"
+
+        assert value.label.label == "Finding Aid"
+      end
+    end
+  end
 end
