@@ -51,7 +51,7 @@
       "dynamic_templates": [
         {
           "facets": {
-            "match": ".*Facet|facet",
+            "match": ".*Facet|^facet",
             "match_pattern": "regex",
             "mapping": { "type": "keyword" }
           }
