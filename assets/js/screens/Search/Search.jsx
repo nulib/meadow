@@ -7,28 +7,44 @@ import SearchFacetSidebar from "../../components/Search/FacetSidebar";
 import { useHistory } from "react-router-dom";
 import SearchActionRow from "../../components/Search/ActionRow";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
+import {
+  getAggregationTextValues,
+  elasticsearchDirectSearch,
+  ELASTICSEARCH_AGGS,
+} from "../../services/elasticsearch";
 
 const ScreensSearch = () => {
   let history = useHistory();
   const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [esQuery, setEsQuery] = useState();
-  const [resultStats, setResultStats] = useState();
+  const [filteredQuery, setFilteredQuery] = useState();
+  const [resultStats, setResultStats] = useState(0);
 
-  const handleEditAllItems = () => {
+  const handleEditAllItems = async () => {
+    // Grab all aggregated Controlled Term items from Elasticsearch directly,
+    // to populate the "Remove" items in Batch Edit
+    let response = await elasticsearchDirectSearch({
+      aggs: { ...ELASTICSEARCH_AGGS },
+      query: { ...filteredQuery },
+    });
+    console.log("handleEditAllItems() response :>> ", response);
+
+    let parsedAggregations = getAggregationTextValues(response.aggregations);
+    console.log("parsedAggregations", parsedAggregations);
+
+    // Send Elasticsearch query and aggregated Controlled Term options to Batch Edit
     history.push("/batch-edit", {
-      esQuery: esQuery,
-      resultStats: resultStats,
+      filteredQuery,
+      resultStats,
+      parsedAggregations,
     });
   };
 
   const handleQueryChange = (query) => {
-    console.log("query :>> ", query);
-    setEsQuery(query);
+    setFilteredQuery(query.query);
   };
 
   const handleOnDataChange = (resultStats) => {
-    console.log("resulStats :>> ", resultStats);
     setResultStats({ ...resultStats });
   };
 
@@ -66,6 +82,7 @@ const ScreensSearch = () => {
               <h1 className="title">Search Results</h1>
               <SearchActionRow
                 handleEditAllItems={handleEditAllItems}
+                numberOfResults={resultStats.numberOfResults}
                 selectedItems={selectedItems}
               />
               <hr />
