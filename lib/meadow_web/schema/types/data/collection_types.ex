@@ -32,6 +32,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:finding_aid_url, :string)
       arg(:featured, :boolean)
       arg(:published, :boolean)
+      arg(:visibility, :coded_term_input)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.create_collection/3)
     end
@@ -46,6 +47,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:finding_aid_url, :string)
       arg(:featured, :boolean)
       arg(:published, :boolean)
+      arg(:visibility, :coded_term_input)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
@@ -97,6 +99,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :finding_aid_url, :string
     field :published, :boolean
     field :works, list_of(:work), resolve: &Resolvers.Data.Collections.collection_works/3
+    field :visibility, :coded_term
 
     field :representative_image, :string do
       deprecate("Use  `representativeWork`.")

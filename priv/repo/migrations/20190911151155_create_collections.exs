@@ -10,6 +10,7 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
       add(:admin_email, :text)
       add(:featured, :boolean)
       add(:published, :boolean)
+      add(:visibility, :map)
       timestamps()
     end
 

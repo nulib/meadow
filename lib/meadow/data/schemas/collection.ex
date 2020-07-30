@@ -8,18 +8,20 @@ defmodule Meadow.Data.Schemas.Collection do
   import Ecto.Changeset
 
   alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Types
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "collections" do
-    field(:name, :string)
+    field(:admin_email, :string)
     field(:description, :string)
-    field(:keywords, {:array, :string}, default: [])
     field(:featured, :boolean)
     field(:finding_aid_url, :string)
-    field(:admin_email, :string)
+    field(:keywords, {:array, :string}, default: [])
+    field(:name, :string)
     field(:published, :boolean, default: false)
+    field(:visibility, Types.CodedTerm)
 
     timestamps()
 
@@ -39,7 +41,8 @@ defmodule Meadow.Data.Schemas.Collection do
       :keywords,
       :name,
       :published,
-      :representative_work_id
+      :representative_work_id,
+      :visibility
     ])
     |> assoc_constraint(:representative_work)
     |> validate_required([:name])
@@ -72,8 +75,13 @@ defmodule Meadow.Data.Schemas.Collection do
               }
           end,
         name: collection.name,
-        visibility: %{id: "OPEN", label: "Public", scheme: "visibility"}
+        visibility: format(collection.visibility)
       }
     end
+
+    defp format(%{id: id, name: name}), do: %{id: id, name: name}
+    defp format(%{id: id, title: title}), do: %{id: id, title: title}
+    defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: field
+    defp format(_), do: %{}
   end
 end
