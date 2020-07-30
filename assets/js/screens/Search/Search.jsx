@@ -40,6 +40,11 @@ const ScreensSearch = () => {
     });
   };
 
+  const handleDeselectAll = () => {
+    console.log("handleDeselectAll ()");
+    setSelectedItems([]);
+  };
+
   const handleQueryChange = (query) => {
     setFilteredQuery(query.query);
   };
@@ -81,6 +86,7 @@ const ScreensSearch = () => {
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
               <SearchActionRow
+                handleDeselectAll={handleDeselectAll}
                 handleEditAllItems={handleEditAllItems}
                 numberOfResults={resultStats.numberOfResults}
                 selectedItems={selectedItems}
@@ -98,6 +104,7 @@ const ScreensSearch = () => {
               handleQueryChange={handleQueryChange}
               handleSelectItem={handleSelectItem}
               isListView={isListView}
+              selectedItems={selectedItems}
             />
           </div>
         </div>

@@ -6,9 +6,11 @@ export const REACTIVE_SEARCH_THEME = {
   },
 };
 
+// https://docs.appbase.io/docs/reactivesearch/v3/theming/classnameinjection/
 const facetClasses = {
-  label: "facet-item-label",
   checkbox: "facet-checkbox",
+  label: "facet-item-label",
+  title: "facet-title",
 };
 
 const defaultListItemValues = {
@@ -26,6 +28,7 @@ export const FACET_SENSORS = [
     ...defaultListItemValues,
     componentId: "FacetContributor",
     dataField: "descriptiveMetadata.contributor.displayFacet",
+    showSearch: true,
     title: "Contributor",
   },
   {
@@ -38,6 +41,7 @@ export const FACET_SENSORS = [
     ...defaultListItemValues,
     componentId: "FacetGenre",
     dataField: "descriptiveMetadata.genre.displayFacet",
+    showSearch: true,
     title: "Genre",
   },
   {
@@ -56,6 +60,7 @@ export const FACET_SENSORS = [
     ...defaultListItemValues,
     componentId: "FacetLocation",
     dataField: "descriptiveMetadata.location.displayFacet",
+    showSearch: true,
     title: "Location",
   },
   {

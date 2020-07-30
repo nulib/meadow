@@ -8,6 +8,7 @@ const SearchSelectable = ({
   children,
   id,
   handleSelectItem,
+  isSelected,
   wrapsItemType = "card",
 }) => {
   const field = css`
@@ -31,6 +32,7 @@ const SearchSelectable = ({
       <div className="field" css={field}>
         <input
           data-testid="checkbox-search-select"
+          checked={isSelected}
           className="is-checkradio"
           id={`search-select-${id}`}
           type="checkbox"
@@ -52,6 +54,7 @@ SearchSelectable.propTypes = {
   children: PropTypes.node,
   id: PropTypes.string,
   handleSelectItem: PropTypes.func,
+  isSelected: PropTypes.bool,
   wrapsItemType: PropTypes.oneOf(["card", "list"]),
 };
 
