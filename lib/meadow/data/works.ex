@@ -88,6 +88,11 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
+  def get_works(id_list) do
+    from(w in Work, where: w.id in ^id_list)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a work by accession_number
 

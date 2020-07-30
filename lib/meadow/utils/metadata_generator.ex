@@ -3,7 +3,7 @@ defmodule Meadow.Utils.MetadataGenerator do
   Generate random descriptive metadata for works
   """
 
-  alias Meadow.Data.{CodedTerms, ControlledTerms}
+  alias Meadow.Data.ControlledTerms
   alias Meadow.Data.Works
 
   @values %{
@@ -124,6 +124,11 @@ defmodule Meadow.Utils.MetadataGenerator do
     ]
   }
 
+  @roles %{
+    "marc_relator" => ~w(aut lil mrb pbl stl vac),
+    "subject_role" => ~w(GEOGRAPHICAL TOPICAL)
+  }
+
   def prewarm_cache do
     Enum.each(@values, fn {_field, value} ->
       Enum.each(value, fn term -> ControlledTerms.cache!(term) end)
@@ -179,7 +184,7 @@ defmodule Meadow.Utils.MetadataGenerator do
   end
 
   defp random_role(scheme) do
-    with id <- CodedTerms.list_coded_terms(scheme) |> Enum.random() |> Map.get(:id) do
+    with id <- @roles |> Map.get(scheme) |> Enum.random() do
       %{id: id, scheme: scheme}
     end
   end

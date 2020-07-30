@@ -123,6 +123,52 @@ defmodule Meadow.Data.ControlledTerms do
     |> Repo.insert(on_conflict: :replace_all, conflict_target: :id)
   end
 
+  @doc """
+  Test two controlled terms to see if they share a common term and role
+
+  ## Examples
+
+      iex> term_1 = %{role: %{id: "aut", scheme: "marc_relator"}, term: %{id: "http://id.loc.gov/authorities/names/n50034776", label: "Carver, George Washington, 1864?-1943"}}
+      iex> term_2 = %{role: %{id: "pub", scheme: "marc_relator"}, term: "http://id.loc.gov/authorities/names/n50034776"}
+      iex> term_3 = %{role: nil, term: "http://id.loc.gov/authorities/names/n50034776"}
+      iex> term_4 = %{role: %{id: "aut", scheme: "marc_relator"}, term: "http://id.loc.gov/authorities/names/no2011087251"}
+      iex> term_5 = %{role: %{id: "aut", scheme: "marc_relator"}, term: %{id: "http://id.loc.gov/authorities/names/no2011087251"}}
+      iex> terms_equal?(term_1, term_1)
+      true
+      iex> terms_equal?(term_3, term_3)
+      true
+      iex> terms_equal?(term_1, term_2)
+      false
+      iex> terms_equal?(term_1, term_3)
+      false
+      iex> terms_equal?(term_1, term_4)
+      false
+      iex> terms_equal?(term_4, term_5)
+      true
+  """
+  def terms_equal?(a, b) do
+    with term_a <- term_id(a.term),
+         role_a <- Map.get(a, :role),
+         term_b <- term_id(b.term),
+         role_b <- Map.get(b, :role) do
+      if is_nil(role_a) do
+        is_nil(role_b) and term_a == term_b
+      else
+        if is_nil(role_b) do
+          false
+        else
+          role_a.scheme == role_b.scheme and
+            role_a.id == role_b.id and
+            term_a == term_b
+        end
+      end
+    end
+  end
+
+  defp term_id(%{id: id}), do: id
+
+  defp term_id(term), do: term
+
   defp ets_fetch(id) do
     case Cachex.get!(Meadow.Cache.ControlledTerms, id) do
       nil ->

@@ -10,6 +10,7 @@ defmodule Meadow.TestHelpers do
   alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
+  alias Meadow.Utils.MetadataGenerator
 
   alias Meadow.Repo
 
@@ -24,6 +25,8 @@ defmodule Meadow.TestHelpers do
     :noAccess => ~w[aup9261 aup6836 aui9865 auj5680 auq9679],
     :unknown => ~w[unknownUser]
   }
+
+  def prewarm_controlled_term_cache, do: MetadataGenerator.prewarm_cache()
 
   def test_users(category \\ :access), do: @test_users |> Map.get(category)
   def random_user(category \\ :access), do: category |> test_users |> Enum.random()

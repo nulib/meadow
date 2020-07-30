@@ -6,6 +6,8 @@ defmodule Meadow.Data.ControlledTermsTest do
   alias Meadow.Data.Schemas.ControlledTermCache
   alias Meadow.Repo
 
+  doctest Meadow.Data.ControlledTerms, import: true, only: [{:terms_equal?, 2}]
+
   setup do
     ControlledTerms.clear!()
     :ok
