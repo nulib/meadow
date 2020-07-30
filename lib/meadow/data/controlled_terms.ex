@@ -117,6 +117,12 @@ defmodule Meadow.Data.ControlledTerms do
     end
   end
 
+  def cache!(%{id: id, label: label}) do
+    %ControlledTermCache{id: id}
+    |> ControlledTermCache.changeset(%{label: label})
+    |> Repo.insert(on_conflict: :replace_all, conflict_target: :id)
+  end
+
   defp ets_fetch(id) do
     case Cachex.get!(Meadow.Cache.ControlledTerms, id) do
       nil ->

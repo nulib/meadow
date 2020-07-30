@@ -110,6 +110,8 @@ config :ex_aws,
   ],
   region: aws_region
 
+config :httpoison_retry, wait: 50
+
 import_config "sequins.exs"
 
 # Import environment specific config. This must remain at the bottom

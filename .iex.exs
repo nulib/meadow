@@ -1,30 +1,54 @@
 alias Meadow.Repo
-alias Meadow.{Accounts, Ingest}
+
+alias Meadow.{
+  Accounts,
+  Constants,
+  Data,
+  ElasticsearchCluster,
+  ElasticsearchDiffStore,
+  ElasticsearchStore,
+  IIIF,
+  Ingest,
+  Pipeline,
+  Utils
+}
+
 alias Meadow.Accounts.Users
 alias Meadow.Accounts.Schemas.User
 
 alias Meadow.Data.{
   ActionStates,
+  CodedTerms,
   Collections,
+  ControlledTerms,
   FileSets,
+  Indexer,
+  IndexTimes,
   Works
 }
 
 alias Meadow.Data.Schemas.{
   ActionState,
+  CodedTerm,
   Collection,
+  ControlledMetadataEntry,
+  ControlledTermCache,
+  Field,
   FileSet,
-  Work
+  FileSetMetadata,
+  IndexTime,
+  Value,
+  Work,
+  WorkAdministrativeMetadata,
+  WorkDescriptiveMetadata
 }
 
-alias Meadow.Ingest.{Sheets, Projects}
-alias Meadow.Ingest.Projects.Bucket
+alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
 
 alias Meadow.Ingest.Schemas.{
   Project,
-  Sheet,
   Row,
-  Validator,
+  Sheet,
   Status
 }
 
