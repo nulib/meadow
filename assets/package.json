@@ -81,7 +81,7 @@
     "terser-webpack-plugin": "^3.0.8",
     "url-loader": "^4.1.0",
     "use-phoenix-channel": "^1.1.1",
-    "webpack": "4.44.0",
+    "webpack": "4.44.1",
     "webpack-cli": "^3.3.12"
   }
 }
