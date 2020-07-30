@@ -7,13 +7,13 @@ defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
   test "should be a valid mutation" do
     result =
       query_gql(
-        variables: %{"name" => "The collection name"},
+        variables: %{"title" => "The collection title"},
         context: gql_context()
       )
 
     assert {:ok, query_data} = result
 
-    collection_name = get_in(query_data, [:data, "createCollection", "name"])
-    assert collection_name == "The collection name"
+    collection_title = get_in(query_data, [:data, "createCollection", "title"])
+    assert collection_title == "The collection title"
   end
 end

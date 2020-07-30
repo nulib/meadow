@@ -25,7 +25,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
   object :collection_mutations do
     @desc "Create a new Collection"
     field :create_collection, :collection do
-      arg(:name, non_null(:string))
+      arg(:title, non_null(:string))
       arg(:description, :string)
       arg(:keywords, list_of(:string))
       arg(:admin_email, :string)
@@ -40,7 +40,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     @desc "Update a Collection"
     field :update_collection, :collection do
       arg(:collection_id, non_null(:id))
-      arg(:name, :string)
+      arg(:title, :string)
       arg(:description, :string)
       arg(:keywords, list_of(:string))
       arg(:admin_email, :string)
@@ -91,7 +91,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
   @desc "Fields for a `collection` object "
   object :collection do
     field :id, :id
-    field :name, :string
+    field :title, :string
     field :description, :string
     field :keywords, list_of(:string)
     field :featured, :boolean

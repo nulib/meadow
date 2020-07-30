@@ -83,7 +83,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
             onChange={handleFilterChange}
             placeholder="Filter works by title"
             data-testid="input-collection-filter"
-            name="collectionName"
+            name="collectionTitle"
             label="Filter works by title"
           />
           <div className="section columns is-multiline">

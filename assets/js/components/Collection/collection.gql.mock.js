@@ -9,7 +9,7 @@ export const collectionMock = {
   findingAidUrl: "https://northwestern.edu",
   id: MOCK_COLLECTION_ID,
   keywords: ["yo", "foo", "bar", "work", "hey"],
-  name: "Great collection",
+  title: "Great collection",
   published: false,
   works: [
     {

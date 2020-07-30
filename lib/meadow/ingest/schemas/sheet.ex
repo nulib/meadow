@@ -18,7 +18,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "ingest_sheets" do
-    field :name, :string
+    field :title, :string
     field :filename, :string
     field :status, :string, default: "uploaded"
     field :file_errors, {:array, :string}, default: []
@@ -43,12 +43,12 @@ defmodule Meadow.Ingest.Schemas.Sheet do
         else: attrs
 
     ingest_sheet
-    |> cast(attrs, [:name, :filename, :project_id, :file_errors, :status])
+    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status])
     |> cast_embed(:state, with: &state_changeset/2)
     |> cast_assoc(:works)
-    |> validate_required([:name, :filename, :project_id])
+    |> validate_required([:title, :filename, :project_id])
     |> assoc_constraint(:project)
-    |> unique_constraint(:name)
+    |> unique_constraint(:title)
   end
 
   def status_changeset(ingest_sheet, attrs) do

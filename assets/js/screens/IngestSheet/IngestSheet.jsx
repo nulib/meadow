@@ -23,7 +23,7 @@ const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
       id
-      name
+      title
       project {
         id
         title
@@ -70,7 +70,7 @@ const ScreensIngestSheet = ({ match }) => {
         route: `/project/${id}`,
       },
       {
-        label: crumbsData.ingestSheet.name,
+        label: crumbsData.ingestSheet.title,
         route: `/project/${id}/ingest-sheet/${sheetId}`,
         isActive: true,
       },
@@ -95,7 +95,7 @@ const ScreensIngestSheet = ({ match }) => {
                 <div className="columns">
                   <div className="column is-half">
                     <h1 className="title">
-                      {sheetData.ingestSheet.name}{" "}
+                      {sheetData.ingestSheet.title}{" "}
                       <span
                         className={`tag ${getClassFromIngestSheetStatus(
                           sheetData.ingestSheet.status
@@ -115,7 +115,7 @@ const ScreensIngestSheet = ({ match }) => {
                       sheetId={sheetId}
                       projectId={id}
                       status={sheetData.ingestSheet.status}
-                      name={sheetData.ingestSheet.name}
+                      name={sheetData.ingestSheet.title}
                     />
                   </div>
                 </div>

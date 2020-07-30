@@ -10,7 +10,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
     result =
       query_gql(
         variables: %{
-          "name" => "Test Ingest Sheet",
+          "title" => "Test Ingest Sheet",
           "filename" => "Test.csv",
           "projectId" => project.id
         },
@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
 
     assert {:ok, query_data} = result
 
-    name = get_in(query_data, [:data, "createIngestSheet", "name"])
-    assert name == "Test Ingest Sheet"
+    title = get_in(query_data, [:data, "createIngestSheet", "title"])
+    assert title == "Test Ingest Sheet"
   end
 end

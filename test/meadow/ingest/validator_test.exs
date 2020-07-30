@@ -17,7 +17,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
     sheet =
       ingest_sheet_fixture(%{
-        name: to_string(context.test),
+        title: to_string(context.test),
         project_id: project.id,
         filename: "s3://" <> @uploads_bucket <> @sheet_path <> context.sheet
       })

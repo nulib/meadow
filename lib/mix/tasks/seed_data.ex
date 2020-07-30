@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Meadow.SeedData do
   end
 
   defp check_for_existing_ingest_sheet(csv_path) do
-    case Sheets.get_ingest_sheet_by_name(Path.basename(csv_path)) do
+    case Sheets.get_ingest_sheet_by_title(Path.basename(csv_path)) do
       nil ->
         csv_path
 
@@ -128,8 +128,8 @@ defmodule Mix.Tasks.Meadow.SeedData do
   end
 
   defp create_ingest_sheet(csv_path) do
-    sheet_name = Path.basename(csv_path)
-    csv_key = "ingest_sheets/#{sheet_name}"
+    sheet_title = Path.basename(csv_path)
+    csv_key = "ingest_sheets/#{sheet_title}"
 
     Logger.info("Uploading #{csv_key} to upload bucket")
 
@@ -139,7 +139,7 @@ defmodule Mix.Tasks.Meadow.SeedData do
     {:ok, sheet} =
       Sheets.create_ingest_sheet(%{
         project_id: find_or_create_project() |> Map.get(:id),
-        name: sheet_name,
+        title: sheet_title,
         filename: "s3://#{Config.upload_bucket()}/#{csv_key}"
       })
 

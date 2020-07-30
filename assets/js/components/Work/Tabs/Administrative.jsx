@@ -184,14 +184,14 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={collectionsData.collections.map((collection) => ({
                     id: collection.id,
                     value: collection.id,
-                    label: collection.name,
+                    label: collection.title,
                   }))}
                   defaultValue={collection ? collection.id : ""}
                   errors={errors}
                 />
               ) : (
                 <p>
-                  {collection ? collection.name : "Not part of a collection"}
+                  {collection ? collection.title : "Not part of a collection"}
                 </p>
               )}
             </UIFormField>

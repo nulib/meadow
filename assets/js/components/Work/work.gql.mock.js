@@ -16,7 +16,7 @@ export const mockWork = {
   },
   collection: {
     id: "1287312378238293126321308",
-    name: "Collection 1232432 Name",
+    title: "Collection 1232432 Name",
   },
   descriptiveMetadata: {
     abstract: ["New Abstract Test", "New Abstract Again"],
@@ -180,7 +180,7 @@ export const mockWork = {
   ],
   ingestSheet: {
     id: "28b6dd45-ef3e-45df-b380-985c9af8b495",
-    name: "Bar",
+    title: "Bar",
   },
   insertedAt: "2019-02-04T19:16:16",
   manifestUrl: "http://foobar",
@@ -325,7 +325,7 @@ const mockWork2 = {
   ],
   ingestSheet: {
     id: "4651c546-d017-4322-911d-69e113070046",
-    name: "Ima sheet",
+    title: "Ima sheet",
   },
   insertedAt: "2020-07-23T19:55:46.427354Z",
   manifestUrl:

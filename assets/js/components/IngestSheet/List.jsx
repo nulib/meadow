@@ -68,11 +68,11 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
               </tr>
             </thead>
             <tbody>
-              {project.ingestSheets.map(({ id, name, status, updatedAt }) => (
+              {project.ingestSheets.map(({ id, title, status, updatedAt }) => (
                 <tr key={id}>
                   <td>
                     <Link to={`/project/${project.id}/ingest-sheet/${id}`}>
-                      {name}
+                      {title}
                     </Link>
                   </td>
                   <td className="has-text-right">{formatDate(updatedAt)}</td>
@@ -89,7 +89,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     ) > -1 && (
                       <button
                         className="button"
-                        onClick={(e) => onOpenModal(e, { id, name })}
+                        onClick={(e) => onOpenModal(e, { id, title })}
                       >
                         {<FontAwesomeIcon icon="trash" />}{" "}
                         <span className="sr-only">Delete</span>
@@ -105,7 +105,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
             handleClose={onCloseModal}
             handleConfirm={handleDeleteClick}
             thingToDeleteLabel={`Ingest Sheet ${
-              activeModal ? activeModal.name : ""
+              activeModal ? activeModal.title : ""
             }`}
           />
         </>

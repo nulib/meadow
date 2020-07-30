@@ -140,7 +140,7 @@ const ScreensWork = () => {
                       <Link
                         to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
                       >
-                        {data.work.ingestSheet.name}
+                        {data.work.ingestSheet.title}
                       </Link>
                     </dd>
                   </dl>

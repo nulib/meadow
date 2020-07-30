@@ -5,7 +5,7 @@ defmodule Meadow.Data.Schemas.CollectionTest do
 
   describe "collections" do
     @valid_attrs %{
-      name: "A Sample Collection",
+      title: "A Sample Collection",
       description: "A test description",
       keywords: ["one", "two", "three"]
     }
@@ -16,7 +16,7 @@ defmodule Meadow.Data.Schemas.CollectionTest do
       assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(collection.id)
     end
 
-    test "changeset is invalid if collection name is used already" do
+    test "changeset is invalid if collection title is used already" do
       %Collection{}
       |> Collection.changeset(@valid_attrs)
       |> Repo.insert!()
@@ -26,7 +26,7 @@ defmodule Meadow.Data.Schemas.CollectionTest do
         |> Collection.changeset(@valid_attrs)
 
       assert {:error, changeset} = Repo.insert(collection2)
-      assert {"has already been taken", _} = changeset.errors[:name]
+      assert {"has already been taken", _} = changeset.errors[:title]
     end
   end
 end

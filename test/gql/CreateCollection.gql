@@ -1,7 +1,7 @@
 #import "./CollectionFields.frag.gql"
 
-mutation($name: String!) {
-  createCollection(name: $name) {
+mutation($title: String!) {
+  createCollection(title: $title) {
     ...CollectionFields
   }
 }

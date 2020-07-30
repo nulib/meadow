@@ -31,7 +31,7 @@ const CollectionForm = ({ collection }) => {
       onCompleted({ createCollection }) {
         toastWrapper(
           "is-success",
-          `Collection ${createCollection.name} created successfully`
+          `Collection ${createCollection.title} created successfully`
         );
         history.push("/collection/list");
       },
@@ -51,7 +51,7 @@ const CollectionForm = ({ collection }) => {
     onCompleted({ updateCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${updateCollection.name} updated successfully`
+        `Collection ${updateCollection.title} updated successfully`
       );
       history.push(`/collection/${collection.id}`);
     },
@@ -100,16 +100,16 @@ const CollectionForm = ({ collection }) => {
           </div>
         </div>
 
-        <UIFormField label="Collection Name">
+        <UIFormField label="Collection Title">
           <UIFormInput
-            placeholder="Add collection Name"
+            placeholder="Add collection Title"
             register={register}
             required
-            name="collectionName"
-            label="Collection Name"
+            name="collectionTitle"
+            label="Collection Title"
             errors={errors}
-            defaultValue={collection ? collection.name : ""}
-            data-testid="input-collection-name"
+            defaultValue={collection ? collection.title : ""}
+            data-testid="input-collection-title"
           />
         </UIFormField>
 

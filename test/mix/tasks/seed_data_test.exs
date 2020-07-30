@@ -74,7 +74,7 @@ defmodule Mix.Tasks.Meadow.SeedDataTest do
         {:ok, _} =
           Sheets.create_ingest_sheet(%{
             project_id: project.id,
-            name: "seed_data.csv",
+            title: "seed_data.csv",
             filename: "s3://test-uploads/seed_data.csv"
           })
       end

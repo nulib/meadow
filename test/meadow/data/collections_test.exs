@@ -6,11 +6,11 @@ defmodule Meadow.Data.CollectionsTest do
 
   describe "queries" do
     @valid_attrs %{
-      name: "Collection 12345",
+      title: "Collection 12345",
       description: "A collection",
       keywords: ["one", "two"]
     }
-    @invalid_attrs %{name: nil}
+    @invalid_attrs %{title: nil}
 
     test "list_collections/0 returns all collections" do
       collection_fixture()
@@ -25,10 +25,10 @@ defmodule Meadow.Data.CollectionsTest do
       collection = collection_fixture()
 
       assert {:ok, %Collection{} = collection} =
-               Collections.update_collection(collection, %{name: "The new name"})
+               Collections.update_collection(collection, %{title: "The new title"})
 
       updated_collection = Collections.get_collection!(collection.id)
-      assert updated_collection.name == "The new name"
+      assert updated_collection.title == "The new title"
     end
 
     test "create_collection/1 with invalid data does not create a collection" do

@@ -140,7 +140,6 @@ defmodule Meadow.Data.Schemas.Work do
       |> Map.merge(DescriptiveMetadataDocument.encode(work.descriptive_metadata))
     end
 
-    defp format(%{id: id, name: name}), do: %{id: id, name: name}
     defp format(%{id: id, title: title}), do: %{id: id, title: title}
     defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: field
     defp format(_), do: %{}

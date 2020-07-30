@@ -18,7 +18,7 @@ const IngestSheet = ({
   projectId,
   subscribeToIngestSheetUpdates,
 }) => {
-  const { id, status, name } = ingestSheetData;
+  const { id, status, title } = ingestSheetData;
 
   const {
     data: progressData,

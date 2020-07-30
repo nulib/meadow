@@ -15,8 +15,8 @@ defmodule MeadowWeb.Schema.Query.GetCollectionByIdTest do
 
     assert {:ok, query_data} = result
 
-    collection_name = get_in(query_data, [:data, "collection", "name"])
-    assert collection_name == collection_fixture.name
+    collection_title = get_in(query_data, [:data, "collection", "title"])
+    assert collection_title == collection_fixture.title
   end
 
   test "Should return nil for a non-existant collection" do

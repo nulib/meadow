@@ -17,7 +17,7 @@ it("displays the collection form", () => {
 
 it("displays all form fields", () => {
   const { queryByTestId } = setupMatchTests();
-  expect(queryByTestId("input-collection-name")).toBeInTheDocument();
+  expect(queryByTestId("input-collection-title")).toBeInTheDocument();
   expect(queryByTestId("input-collection-type")).toBeInTheDocument();
   expect(queryByTestId("checkbox-featured")).toBeInTheDocument();
   expect(queryByTestId("textarea-description")).toBeInTheDocument();
@@ -32,7 +32,7 @@ it("renders no initial form values when creating a collection", async () => {
   });
 
   await waitFor(() => {
-    expect(getByTestId("input-collection-name")).toHaveValue("");
+    expect(getByTestId("input-collection-title")).toHaveValue("");
     expect(getByTestId("textarea-description")).toHaveValue("");
     expect(getByTestId("input-finding-aid-url")).toHaveValue("");
     expect(getByTestId("input-admin-email")).toHaveValue("");
@@ -46,7 +46,7 @@ it("renders existing collection values in the form when editing a form", async (
     {}
   );
   await waitFor(() => {
-    expect(getByTestId("input-collection-name")).toHaveValue(
+    expect(getByTestId("input-collection-title")).toHaveValue(
       "Great collection"
     );
     expect(getByTestId("textarea-description")).toHaveValue(

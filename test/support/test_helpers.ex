@@ -31,12 +31,12 @@ defmodule Meadow.TestHelpers do
 
   def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
-    name = "name-#{System.unique_integer([:positive])}"
+    title = "title-#{System.unique_integer([:positive])}"
     filename = "file-#{System.unique_integer([:positive])}.csv"
 
     attrs =
       Enum.into(attrs, %{
-        name: attrs[:name] || name,
+        title: attrs[:title] || title,
         filename: attrs[:filename] || filename,
         project_id: attrs[:project_id] || project.id
       })
@@ -103,7 +103,7 @@ defmodule Meadow.TestHelpers do
   def collection_fixture(attrs \\ %{}) do
     attrs =
       Enum.into(attrs, %{
-        name: attrs[:name] || "collection-#{System.unique_integer([:positive])}",
+        title: attrs[:title] || "collection-#{System.unique_integer([:positive])}",
         description: attrs[:description] || "Description of collection",
         keywords: attrs[:keywords] || ["keyword1", "keyword 2", "keyword 3"]
       })

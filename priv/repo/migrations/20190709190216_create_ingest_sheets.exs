@@ -3,7 +3,7 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheets do
 
   def change do
     create table(:ingest_sheets) do
-      add(:name, :string)
+      add(:title, :string)
       add(:filename, :string)
       add(:state, :jsonb)
       add(:status, :string)
@@ -13,6 +13,6 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheets do
       timestamps()
     end
 
-    create(unique_index(:ingest_sheets, [:name]))
+    create(unique_index(:ingest_sheets, [:title]))
   end
 end

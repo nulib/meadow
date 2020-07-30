@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const {
     id,
-    name = "",
+    title = "",
     description = "",
     keywords = [],
     representativeWork,
@@ -29,7 +29,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
           <div className="content">
             <p>
               <strong className="is-size-5">
-                <Link to={`/collection/${id}`}>{name}</Link>
+                <Link to={`/collection/${id}`}>{title}</Link>
               </strong>{" "}
               <br />
               {description}
@@ -62,7 +62,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
             <p className="control">
               <button
                 className="button"
-                onClick={() => onOpenModal({ id, name })}
+                onClick={() => onOpenModal({ id, title })}
               >
                 <FontAwesomeIcon icon="trash" />
               </button>

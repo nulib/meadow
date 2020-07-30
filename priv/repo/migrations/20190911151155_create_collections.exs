@@ -3,7 +3,7 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
 
   def change do
     create table("collections") do
-      add(:name, :string)
+      add(:title, :string)
       add(:description, :string)
       add(:keywords, {:array, :string}, default: [])
       add(:finding_aid_url, :text)
@@ -14,6 +14,6 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
       timestamps()
     end
 
-    create(unique_index(:collections, [:name]))
+    create(unique_index(:collections, [:title]))
   end
 end
