@@ -13,6 +13,7 @@ const SearchResults = ({
   handleQueryChange,
   handleSelectItem,
   isListView,
+  selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
 
@@ -89,6 +90,7 @@ const SearchResults = ({
                     key={res._id}
                     id={res._id}
                     handleSelectItem={handleSelectItem}
+                    isSelected={selectedItems.indexOf(res._id) > -1}
                     wrapsItemType="card"
                   >
                     <WorkCardItem key={res._id} {...getWorkItem(res)} />
@@ -109,6 +111,7 @@ SearchResults.propTypes = {
   handleQueryChange: PropTypes.func,
   handleSelectItem: PropTypes.func,
   isListView: PropTypes.bool,
+  selectedItems: PropTypes.array,
 };
 
 export default SearchResults;
