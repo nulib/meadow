@@ -1,0 +1,5 @@
+mutation($query: String!, $delete: BatchUpdateInput!) {
+  batchUpdate(query: $query, delete: $delete) {
+    message
+  }
+}

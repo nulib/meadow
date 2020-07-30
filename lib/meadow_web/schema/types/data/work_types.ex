@@ -108,6 +108,19 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :ingest_sheet, :ingest_sheet, resolve: dataloader(Data)
   end
 
+  @desc "`controlled_fields` represents all controlled descriptive metadata fields on a work."
+  object :controlled_fields do
+    field :contributor, list_of(:controlled_metadata_entry)
+    field :creator, list_of(:controlled_metadata_entry)
+    field :genre, list_of(:controlled_metadata_entry)
+    field :language, list_of(:controlled_metadata_entry)
+    field :location, list_of(:controlled_metadata_entry)
+    field :related_url, list_of(:related_url_entry)
+    field :style_period, list_of(:controlled_metadata_entry)
+    field :subject, list_of(:controlled_metadata_entry)
+    field :technique, list_of(:controlled_metadata_entry)
+  end
+
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
   object :uncontrolled_descriptive_fields do
     field :abstract, list_of(:string)
@@ -142,18 +155,11 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_descriptive_metadata do
     field :ark, :string
     field :citation, list_of(:string)
-    field :contributor, list_of(:controlled_metadata_entry)
-    field :creator, list_of(:controlled_metadata_entry)
-    field :genre, list_of(:controlled_metadata_entry)
-    field :language, list_of(:controlled_metadata_entry)
     field :license, :coded_term
-    field :location, list_of(:controlled_metadata_entry)
     field :rights_statement, :coded_term
     field :related_url, list_of(:related_url_entry)
-    field :style_period, list_of(:controlled_metadata_entry)
-    field :subject, list_of(:controlled_metadata_entry)
-    field :technique, list_of(:controlled_metadata_entry)
     import_fields(:uncontrolled_descriptive_fields)
+    import_fields(:controlled_fields)
   end
 
   object :uncontrolled_administrative_fields do
@@ -208,19 +214,23 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works descriptive metadata"
   input_object :work_descriptive_metadata_input do
+    field :license, :coded_term_input
+    field :rights_statement, :coded_term_input
+    field :related_url, list_of(:related_url_entry_input)
+    import_fields(:controlled_fields_input)
+    import_fields(:uncontrolled_descriptive_fields)
+  end
+
+  @desc "`controlled_fields_input` controlled fields that can be updated on a work object"
+  input_object :controlled_fields_input do
     field :contributor, list_of(:controlled_metadata_entry_input)
     field :creator, list_of(:controlled_metadata_entry_input)
     field :genre, list_of(:controlled_metadata_entry_input)
     field :language, list_of(:controlled_metadata_entry_input)
-    field :license, :coded_term_input
     field :location, list_of(:controlled_metadata_entry_input)
-    field :rights_statement, :coded_term_input
-    field :related_url, list_of(:related_url_entry_input)
     field :subject, list_of(:controlled_metadata_entry_input)
     field :style_period, list_of(:controlled_metadata_entry_input)
     field :technique, list_of(:controlled_metadata_entry_input)
-
-    import_fields(:uncontrolled_descriptive_fields)
   end
 
   @desc "Filters for the list of works"

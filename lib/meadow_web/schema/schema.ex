@@ -11,6 +11,7 @@ defmodule MeadowWeb.Schema do
   alias Meadow.Ingest
 
   import_types(__MODULE__.AccountTypes)
+  import_types(__MODULE__.Data.BatchTypes)
   import_types(__MODULE__.IngestTypes)
   import_types(__MODULE__.Data.CollectionTypes)
   import_types(__MODULE__.Data.ControlledTermTypes)
@@ -30,6 +31,7 @@ defmodule MeadowWeb.Schema do
 
   mutation do
     import_fields(:account_mutations)
+    import_fields(:batch_mutations)
     import_fields(:ingest_mutations)
     import_fields(:collection_mutations)
     import_fields(:work_mutations)
