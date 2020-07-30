@@ -1,12 +1,31 @@
 import React from "react";
 
+/**
+ * Helper function to parse out text presented to the user in Facet labels
+ *
+ * This assumes that the label text is the last item in the pipe ("|") delimited indexed field "facet"
+ *
+ * @param {String} label Default facet label
+ * @param {Number} count Default facet count
+ * @returns {Object} A React component
+ */
+function renderAggregationFacetLabel(label, count) {
+  let facetSplitArray = label.split("|");
+  return (
+    <span>
+      <span>{facetSplitArray[facetSplitArray.length - 1]}</span>
+      <span>{count}</span>
+    </span>
+  );
+}
+
 export const REACTIVE_SEARCH_THEME = {
   typography: {
     fontFamily: "Akkurat Pro Regular",
   },
 };
 
-// https://docs.appbase.io/docs/reactivesearch/v3/theming/classnameinjection/
+// Documention: https://docs.appbase.io/docs/reactivesearch/v3/theming/classnameinjection/
 const facetClasses = {
   checkbox: "facet-checkbox",
   label: "facet-item-label",
