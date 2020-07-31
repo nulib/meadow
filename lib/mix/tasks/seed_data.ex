@@ -17,7 +17,9 @@ defmodule Mix.Tasks.Meadow.SeedData do
   use Mix.Task
 
   alias Meadow.{Config, Repo}
+  alias Meadow.Data.Indexer
   alias Meadow.Ingest.{Progress, Projects, Rows, Sheets, SheetsToWorks, Validator}
+  alias Meadow.Utils.MetadataGenerator
 
   require Logger
 
@@ -79,6 +81,12 @@ defmodule Mix.Tasks.Meadow.SeedData do
 
       Logger.info("Ingest sheet sent to pipeline. Waiting for ingest to complete.")
       wait_for_completion(sheet)
+
+      sheet
+      |> Sheets.list_ingest_sheet_works()
+      |> MetadataGenerator.generate_descriptive_metadata_for()
+
+      Indexer.synchronize_index()
     end
   end
 
