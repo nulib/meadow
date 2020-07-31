@@ -112,6 +112,20 @@ In dev mode, the IIIF Server is available at: `http://localhost:8183/iiif/2`
 - In dev mode, Elasticsearch is available at: `http://localhost:9201`
 - In dev mode, Kibana (if started) is available at: `http://localhost:5602/`
 
+To force an Elasticsearch re-index, and not wait for the 2-minute cycle to kick in when updating a Meadow item:
+
+Run the interactive shell in a terminal tab
+
+```
+iex -S mix
+```
+
+And force a re-index:
+
+```
+Meadow.Data.Indexer.reindex_all!
+```
+
 ### LDAP
 
 The development LDAP is available at `localhost` port `390`

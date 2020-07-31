@@ -8,9 +8,9 @@ import { useHistory } from "react-router-dom";
 import SearchActionRow from "../../components/Search/ActionRow";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
 import {
-  getAggregationTextValues,
+  parseESAggregationResults,
   elasticsearchDirectSearch,
-  ELASTICSEARCH_AGGS,
+  ELASTICSEARCH_AGGREGATION_FIELDS,
 } from "../../services/elasticsearch";
 
 const ScreensSearch = () => {
@@ -24,12 +24,12 @@ const ScreensSearch = () => {
     // Grab all aggregated Controlled Term items from Elasticsearch directly,
     // to populate the "Remove" items in Batch Edit
     let response = await elasticsearchDirectSearch({
-      aggs: { ...ELASTICSEARCH_AGGS },
+      aggs: { ...ELASTICSEARCH_AGGREGATION_FIELDS },
       query: { ...filteredQuery },
     });
     console.log("handleEditAllItems() response :>> ", response);
 
-    let parsedAggregations = getAggregationTextValues(response.aggregations);
+    let parsedAggregations = parseESAggregationResults(response.aggregations);
     console.log("parsedAggregations", parsedAggregations);
 
     // Send Elasticsearch query and aggregated Controlled Term options to Batch Edit

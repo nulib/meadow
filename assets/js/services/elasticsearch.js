@@ -19,30 +19,30 @@ export const ELASTICSEARCH_FIELDS_TO_SEARCH = [
   "accessionNumber",
 ];
 
-export const ELASTICSEARCH_AGGS = {
+export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
     terms: {
-      field: "descriptiveMetadata.contributor.displayFacet",
+      field: "descriptiveMetadata.contributor.facet",
     },
   },
   genre: {
     terms: {
-      field: "descriptiveMetadata.genre.displayFacet",
+      field: "descriptiveMetadata.genre.facet",
     },
   },
   language: {
     terms: {
-      field: "descriptiveMetadata.language.displayFacet",
+      field: "descriptiveMetadata.language.facet",
     },
   },
   location: {
     terms: {
-      field: "descriptiveMetadata.location.displayFacet",
+      field: "descriptiveMetadata.location.facet",
     },
   },
   technique: {
     terms: {
-      field: "descriptiveMetadata.technique.displayFacet",
+      field: "descriptiveMetadata.technique.facet",
     },
   },
 };
@@ -52,18 +52,14 @@ export const ELASTICSEARCH_AGGS = {
  * @param {object} aggregations Value returned from the Elasticsearch direct query
  * @returns {object}
  */
-export function getAggregationTextValues(aggregations) {
-  let parsedAggregations = {};
+export function parseESAggregationResults(aggregations) {
+  let returnObj = {};
 
-  for (const prop in aggregations) {
-    let buckets = aggregations[prop].buckets;
-
-    // Pull out the aggregation text value we'll want to display to the user
-    parsedAggregations[prop] =
-      buckets.length > 0 ? buckets.map((bucket) => bucket.key) : [];
+  for (const property in aggregations) {
+    returnObj[property] = [...aggregations[property].buckets];
   }
 
-  return parsedAggregations;
+  return returnObj;
 }
 
 /**
