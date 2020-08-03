@@ -5,6 +5,7 @@ import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/client/testing";
 import { ReactiveBase } from "@appbaseio/reactivesearch";
 import { resolvers } from "../client-local";
+import { useForm } from "react-hook-form";
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
@@ -99,4 +100,19 @@ export function renderWithApollo(ui, { mocks = [] }) {
   return {
     ...render(ui, { wrapper: Wrapper }),
   };
+}
+
+export function withReactHookFormControl(WrappedComponent, restProps) {
+  const HOC = () => {
+    const { control, register } = useForm({
+      defaultValues: {
+        imaMulti: [{ value: "New Ima Multi" }],
+      },
+    });
+    return (
+      <WrappedComponent control={control} register={register} {...restProps} />
+    );
+  };
+
+  return HOC;
 }

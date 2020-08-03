@@ -7,21 +7,24 @@ import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
+import UIAccordion from "../../UI/Accordion";
+import UIFormField from "../../UI/Form/Field";
 import UISkeleton from "../../UI/Skeleton";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
+import WorkTabsAboutControlledMetadata from "./About/ControlledMetadata";
+import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
+import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
+import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
+import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import WorkTabsAboutDescriptiveMetadataNoCaching from "./About/DescriptiveMetadataNoCaching";
 import {
-  DESCRIPTIVE_METADATA,
   prepControlledTermInput,
+  CONTROLLED_METADATA,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
 
 const WorkTabsAbout = ({ work }) => {
   const { descriptiveMetadata } = work;
-
-  // Whether box dropdowns are open or closed
-  const [showCoreMetadata, setShowCoreMetadata] = useState(true);
-  const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
 
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
@@ -174,7 +177,7 @@ const WorkTabsAbout = ({ work }) => {
     };
 
     // Update controlled term values to match shape the GraphQL mutation expects
-    for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
+    for (let term of CONTROLLED_METADATA) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
         term,
         currentFormValues[term.name]
@@ -226,15 +229,24 @@ const WorkTabsAbout = ({ work }) => {
         )}
       </UITabsStickyHeader>
 
-      <div className="box is-relative mt-4">
-        <h2 className="title is-size-5">
-          Core Metadata{" "}
-          <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
-            <FontAwesomeIcon
-              icon={showCoreMetadata ? "chevron-down" : "chevron-right"}
-            />
-          </a>
-        </h2>
+      {isEditing ? (
+        <div className="box is-relative mt-4" data-testid="uneditable-metadata">
+          <h2 className="title is-size-5 mb-4">Uneditable Metadata </h2>
+          <div>
+            <UIFormField label="ARK">
+              <p>{work.ark}</p>
+            </UIFormField>
+            <UIFormField label="ID">
+              <p>{work.id}</p>
+            </UIFormField>
+            <UIFormField label="Accession Number">
+              <p>{work.accessionNumber}</p>
+            </UIFormField>
+          </div>
+        </div>
+      ) : null}
+
+      <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
@@ -243,13 +255,90 @@ const WorkTabsAbout = ({ work }) => {
             errors={errors}
             isEditing={isEditing}
             register={register}
-            showCoreMetadata={showCoreMetadata}
-            updateWorkLoading={updateWorkLoading}
+            control={control}
           />
         )}
-      </div>
+      </UIAccordion>
 
-      <div className="box is-relative">
+      <UIAccordion
+        testid="controlled-metadata-wrapper"
+        title="Creator and Subject Information"
+      >
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutControlledMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            control={control}
+          />
+        )}
+      </UIAccordion>
+      <UIAccordion
+        testid="uncontrolled-metadata-wrapper"
+        title="Description Information"
+      >
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutUncontrolledMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            control={control}
+          />
+        )}
+      </UIAccordion>
+
+      <UIAccordion
+        testid="physical-metadata-wrapper"
+        title="Physical Objects Information"
+      >
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutPhysicalMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            control={control}
+          />
+        )}
+      </UIAccordion>
+      <UIAccordion testid="rights-metadata-wrapper" title="Rights Information">
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutRightsMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            control={control}
+          />
+        )}
+      </UIAccordion>
+      <UIAccordion
+        testid="identifiers-metadata-wrapper"
+        title="Identifiers and Relationship Information"
+      >
+        {updateWorkLoading ? (
+          <UISkeleton rows={10} />
+        ) : (
+          <WorkTabsAboutIdentifiersMetadata
+            descriptiveMetadata={descriptiveMetadata}
+            errors={errors}
+            isEditing={isEditing}
+            register={register}
+            control={control}
+          />
+        )}
+      </UIAccordion>
+      {/* <div className="box is-relative">
         <h2 className="title is-size-5">
           Descriptive Metadata{" "}
           <a
@@ -272,7 +361,7 @@ const WorkTabsAbout = ({ work }) => {
             showDescriptiveMetadata={showDescriptiveMetadata}
           />
         )}
-      </div>
+      </div> */}
     </form>
   );
 };

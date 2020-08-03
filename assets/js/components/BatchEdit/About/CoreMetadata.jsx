@@ -5,23 +5,22 @@ import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
+import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 
-const BatchEditAboutCoreMetadata = ({ errors, register, ...restProps }) => {
+const BatchEditAboutCoreMetadata = ({
+  errors,
+  control,
+  register,
+  ...restProps
+}) => {
   const {
     loading: rightsStatementsLoading,
     error: rightsStatementsError,
     data: rightsStatementsData,
   } = useQuery(CODE_LIST_QUERY, {
     variables: { scheme: "RIGHTS_STATEMENT" },
-  });
-  const {
-    loading: licenseLoading,
-    error: licenseError,
-    data: licenseData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "LICENSE" },
   });
 
   return (
@@ -30,7 +29,7 @@ const BatchEditAboutCoreMetadata = ({ errors, register, ...restProps }) => {
       data-testid="core-metadata"
       {...restProps}
     >
-      <div className="column is-half">
+      <div className="column is-full">
         {/* Title */}
         <UIFormField label="Title" required>
           <UIInput
@@ -43,32 +42,17 @@ const BatchEditAboutCoreMetadata = ({ errors, register, ...restProps }) => {
           />
         </UIFormField>
       </div>
-      <div className="column is-half">
-        {/* Description */}
-        <UIFormField label="Description" required>
-          <UIFormTextarea
-            register={register}
-            required
-            name="description"
-            label="Description"
-            data-testid="description"
-            errors={errors}
-          />
-        </UIFormField>
-      </div>
 
-      <div className="column is-half">
-        <UIFormField label="Rights Statement">
-          <UIFormSelect
-            register={register}
-            name="rightsStatement"
-            label="Rights Statement"
-            options={rightsStatementsData ? rightsStatementsData.codeList : []}
-            errors={errors}
-            data-testid="rights-statement"
-            showHelper
-          />
-        </UIFormField>
+      <div className="column is-full">
+        {/* Alternate Title */}
+        <UIFormFieldArray
+          register={register}
+          control={control}
+          name="alternateTitle"
+          data-testid="alternate-title"
+          label="Alternate Title"
+          errors={errors}
+        />
       </div>
       <div className="column is-half">
         {/* Date Created */}
@@ -86,16 +70,28 @@ const BatchEditAboutCoreMetadata = ({ errors, register, ...restProps }) => {
         </UIFormField>
       </div>
       <div className="column is-half">
-        {/* License */}
-        <UIFormField label="License">
+        <UIFormField label="Rights Statement" required>
           <UIFormSelect
             register={register}
-            name="license"
-            label="License"
-            options={licenseData ? licenseData.codeList : []}
+            name="rightsStatement"
+            label="Rights Statement"
+            options={rightsStatementsData ? rightsStatementsData.codeList : []}
             errors={errors}
-            data-testid="license"
+            data-testid="rights-statement"
             showHelper
+            required
+          />
+        </UIFormField>
+      </div>
+      <div className="column is-full">
+        {/* Description */}
+        <UIFormField label="Description">
+          <UIFormTextarea
+            register={register}
+            name="description"
+            label="Description"
+            data-testid="description"
+            errors={errors}
           />
         </UIFormField>
       </div>

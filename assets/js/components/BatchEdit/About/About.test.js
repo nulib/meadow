@@ -51,14 +51,42 @@ describe("BatchEditAbout component", () => {
   it("renders core metadata component", async () => {
     const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("core-metadata-wrapper")).toBeInTheDocument();
+      expect(getByTestId("core-metadata")).toBeInTheDocument();
     });
   });
 
-  it("renders descriptive metadata component", async () => {
+  it("renders controlled metadata component", async () => {
     const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("descriptive-metadata-wrapper")).toBeInTheDocument();
+      expect(getByTestId("controlled-metadata")).toBeInTheDocument();
+    });
+  });
+
+  it("renders Identifiers metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("identifiers-metadata")).toBeInTheDocument();
+    });
+  });
+
+  it("renders physical metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("physical-metadata")).toBeInTheDocument();
+    });
+  });
+
+  it("renders rights metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("rights-metadata")).toBeInTheDocument();
+    });
+  });
+
+  it("renders uncontrolled metadata component", async () => {
+    const { getByTestId } = setupTest();
+    await waitFor(() => {
+      expect(getByTestId("uncontrolled-metadata")).toBeInTheDocument();
     });
   });
 });

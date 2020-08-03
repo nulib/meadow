@@ -1,3 +1,82 @@
+export const CONTROLLED_METADATA = [
+  {
+    hasRole,
+    label: "Contributor",
+    name: "contributor",
+    scheme: "MARC_RELATOR",
+  },
+  {
+    label: "Creators",
+    name: "creator",
+  },
+  {
+    label: "Genre",
+    name: "genre",
+  },
+  {
+    label: "Language",
+    name: "language",
+  },
+  {
+    label: "Location",
+    name: "location",
+  },
+  {
+    label: "Style Period",
+    name: "stylePeriod",
+  },
+  {
+    hasRole,
+    label: "Subject",
+    name: "subject",
+    scheme: "SUBJECT_ROLE",
+  },
+  {
+    label: "Technique",
+    name: "technique",
+  },
+];
+
+export const UNCONTROLLED_METADATA = [
+  { name: "abstract", label: "Abstract" },
+  { name: "caption", label: "Caption" },
+  { name: "keywords", label: "Keywords" },
+  { name: "notes", label: "Notes" },
+  { name: "tableOfContents", label: "Table of Contents" },
+];
+
+export const PHYSICAL_METADATA = [
+  {
+    name: "physicalDescriptionMaterial",
+    label: "Physical Description Material",
+  },
+  {
+    name: "physicalDescriptionSize",
+    label: "Physical Description Size",
+  },
+  { name: "boxName", label: "Box Name" },
+  { name: "boxNumber", label: "Box Number" },
+  { name: "folderName", label: "Folder Name" },
+  { name: "folderNumber", label: "Folder Number" },
+  { name: "scopeAndContents", label: "Scope and Content" },
+  { name: "series", label: "Series" },
+];
+
+export const RIGHTS_METADATA = [
+  { name: "publisher", label: "Publisher" },
+  { name: "provenance", label: "Provenance" },
+  { name: "rightsHolder", label: "Rights Holder" },
+];
+
+export const IDENTIFIER_METADATA = [
+  { name: "identifier", label: "Identifier" },
+  { name: "legacyIdentifier", label: "Legacy Identifier" },
+  { name: "callNumber", label: "Call Number" },
+  { name: "catalogKey", label: "Catalog Key" },
+  { name: "relatedMaterial", label: "Related Material" },
+  { name: "source", label: "Source" },
+];
+
 export const DESCRIPTIVE_METADATA = {
   controlledTerms: [
     {
@@ -37,45 +116,10 @@ export const DESCRIPTIVE_METADATA = {
       name: "technique",
     },
   ],
-
-  // Form metadata items which can have multiple "string" type values, handled in "FieldArray" components
-  fieldArrays: [
-    { name: "abstract", label: "Abstract" },
-    { name: "alternateTitle", label: "Alternate Title" },
-    { name: "boxName", label: "Box Name" },
-    { name: "boxNumber", label: "Box Number" },
-    { name: "callNumber", label: "Call Number" },
-    { name: "caption", label: "Caption" },
-    { name: "catalogKey", label: "Catalog Key" },
-    { name: "folderName", label: "Folder Name" },
-    { name: "folderNumber", label: "Folder Number" },
-    { name: "identifier", label: "Identifier" },
-    { name: "keywords", label: "Keywords" },
-    { name: "legacyIdentifier", label: "Legacy Identifier" },
-    { name: "notes", label: "Notes" },
-    {
-      name: "physicalDescriptionMaterial",
-      label: "Physical Description Material",
-    },
-    {
-      name: "physicalDescriptionSize",
-      label: "Physical Description Size",
-    },
-    { name: "provenance", label: "Provenance" },
-    { name: "publisher", label: "Publisher" },
-    { name: "relatedMaterial", label: "Related Material" },
-    { name: "rightsHolder", label: "Rights Holder" },
-    { name: "scopeAndContents", label: "Scope and Content" },
-    { name: "series", label: "Series" },
-    { name: "source", label: "Source" },
-    { name: "tableOfContents", label: "Table of Contents" },
-  ],
 };
 
 export function findScheme(termToFind) {
-  let term = DESCRIPTIVE_METADATA.controlledTerms.find(
-    (ct) => ct.name === termToFind.name
-  );
+  let term = CONTROLLED_METADATA.find((ct) => ct.name === termToFind.name);
   return term.scheme || "";
 }
 
