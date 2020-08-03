@@ -4,6 +4,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   """
   use Absinthe.Schema.Notation
+  alias MeadowWeb.Resolvers.Data.Batches
   alias MeadowWeb.Schema.Middleware
 
   object :batch_mutations do
@@ -12,10 +13,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
       arg(:query, non_null(:string))
       arg(:delete, non_null(:batch_update_input))
       middleware(Middleware.Authenticate)
-
-      resolve(fn _, _ ->
-        {:ok, %{message: "Batch started"}}
-      end)
+      resolve(&Batches.update/3)
     end
   end
 

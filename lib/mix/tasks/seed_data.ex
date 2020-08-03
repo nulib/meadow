@@ -82,10 +82,12 @@ defmodule Mix.Tasks.Meadow.SeedData do
       Logger.info("Ingest sheet sent to pipeline. Waiting for ingest to complete.")
       wait_for_completion(sheet)
 
-      sheet
-      |> Sheets.list_ingest_sheet_works()
-      |> MetadataGenerator.generate_descriptive_metadata_for()
+      with works <- Sheets.list_ingest_sheet_works(sheet) do
+        Logger.info("Generating random descriptive metadata for #{length(works)} works.")
+        MetadataGenerator.generate_descriptive_metadata_for(works)
+      end
 
+      Logger.info("Synchronizing Elasticsearch index.")
       Indexer.synchronize_index()
     end
   end
