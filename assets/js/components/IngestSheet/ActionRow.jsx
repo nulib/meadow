@@ -10,7 +10,6 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastWrapper } from "../../services/helpers";
-import IngestSheetDownload from "./Completed/Download";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
@@ -78,8 +77,6 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
             <span>Approve ingest sheet</span>
           </button>
         )}
-
-        {status === "COMPLETED" && <IngestSheetDownload sheetId={sheetId} />}
 
         {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
           -1 && (
