@@ -1,7 +1,8 @@
-import { SET_COLLECTION_IMAGE } from "./collection.gql.js";
+import { SET_COLLECTION_IMAGE, UPDATE_COLLECTION } from "./collection.gql.js";
 import { GET_COLLECTIONS, GET_COLLECTION } from "./collection.gql.js";
 
 export const MOCK_COLLECTION_ID = "7a6c7b35-41a6-465a-9be2-0587c6b39ae0";
+
 export const collectionMock = {
   adminEmail: "admin@nu.com",
   description: "Collection description lorem ipsum",

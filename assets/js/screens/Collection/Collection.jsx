@@ -6,9 +6,9 @@ import {
   GET_COLLECTION,
   GET_COLLECTIONS,
   DELETE_COLLECTION,
+  UPDATE_COLLECTION,
 } from "../../components/Collection/collection.gql";
 import Error from "../../components//UI/Error";
-import UILoadingPage from "../../components//UI/LoadingPage";
 import UISkeleton from "../../components//UI/Skeleton";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/client";
@@ -24,6 +24,22 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
+
+  const [updateCollection] = useMutation(UPDATE_COLLECTION, {
+    onCompleted({ updateCollection }) {
+      toastWrapper(
+        "is-success",
+        `Collection has been ${
+          updateCollection.published ? "published" : "unpublished"
+        }`
+      );
+    },
+    onError(error) {
+      toastWrapper("is-danger", "Error publishing Collection");
+      console.log("Error publishing collection: ", error);
+    },
+  });
+
   const [deleteCollection] = useMutation(DELETE_COLLECTION, {
     onCompleted({ deleteCollection }) {
       toastWrapper(
@@ -50,6 +66,12 @@ const ScreensCollection = () => {
   const handleDeleteClick = () => {
     setModalOpen(false);
     deleteCollection({ variables: { collectionId: id } });
+  };
+
+  const handlePublishClick = () => {
+    updateCollection({
+      variables: { collectionId: id, published: !data.collection.published },
+    });
   };
 
   function getCrumbs() {
@@ -84,8 +106,28 @@ const ScreensCollection = () => {
                 <div className="columns">
                   <div className="column is-two-thirds">
                     <h1 className="title">{data.collection.title || ""}</h1>
+                    <span
+                      data-testid="published-tag"
+                      className={`tag mr-1 ${
+                        data.collection.published ? "is-info" : "is-warning"
+                      }`}
+                    >
+                      {data.collection.published
+                        ? "Published"
+                        : "Not Published"}
+                    </span>
+                    {data.collection.featured && (
+                      <span className={`tag is-danger`}>Featured</span>
+                    )}
                   </div>
                   <div className="column is-one-third buttons has-text-right">
+                    <button
+                      className="button is-primary"
+                      onClick={handlePublishClick}
+                      data-testid="publish-button"
+                    >
+                      {!data.collection.published ? "Publish" : "Unpublish"}
+                    </button>
                     <Link
                       to={`/collection/form/${id}`}
                       className="button is-primary"
@@ -93,6 +135,7 @@ const ScreensCollection = () => {
                     >
                       Edit
                     </Link>
+
                     <button
                       className="button"
                       onClick={onOpenModal}
