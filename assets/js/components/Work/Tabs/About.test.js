@@ -60,6 +60,17 @@ describe("Work About tab component", () => {
     expect(queryByTestId("date-created")).toBeInTheDocument();
   });
 
+  it("displays readonly box when in edit mode", async () => {
+    const { queryByTestId } = setupTests();
+
+    await waitFor(() => {
+      expect(queryByTestId("uneditable-metadata")).toBeFalsy();
+    });
+
+    fireEvent.click(queryByTestId("edit-button"));
+    expect(queryByTestId("uneditable-metadata")).toBeInTheDocument();
+  });
+
   it("dislays correct work item metadata values", async () => {
     const { getByText, getByTestId, getByDisplayValue } = setupTests();
 

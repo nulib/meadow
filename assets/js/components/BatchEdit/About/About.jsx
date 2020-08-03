@@ -1,32 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@apollo/client";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
-import BatchEditDescriptiveMetadata from "./DescriptiveMetadata";
-import UIError from "../../UI/Error";
-
-/** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import BatchEditAboutControlledMetadata from "./ControlledMetadata";
+import BatchEditAboutUncontrolledMetadata from "./UncontrolledMetadata";
+import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
+import BatchEditAboutRightsMetadata from "./RightsMetadata";
+import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
+import UIAccordion from "../../UI/Accordion";
 
 const BatchEditAbout = ({ numberOfResults }) => {
-  // Whether box dropdowns are open or closed
-  const [showCoreMetadata, setShowCoreMetadata] = useState(true);
-  const [showDescriptiveMetadata, setShowDescriptiveMetadata] = useState(true);
-
-  const coreMetadataWrapper = css`
-    visibility: ${showCoreMetadata ? "visible" : "hidden"};
-    height: ${showCoreMetadata ? "auto" : "0"};
-  `;
-
-  const descriptiveMetadataWrapper = css`
-    visibility: ${showDescriptiveMetadata ? "visible" : "hidden"};
-    height: ${showDescriptiveMetadata ? "auto" : "0"};
-  `;
-
   // Initialize React hook form
   const {
     register,
@@ -92,43 +78,76 @@ const BatchEditAbout = ({ numberOfResults }) => {
         </span>
         You are editing {numberOfResults} items. Proceed with caution.
       </p>
-
-      <div className="box is-relative mt-4" data-testid="core-metadata-wrapper">
-        <h2 className="title is-size-5">
-          Core Metadata{" "}
-          <a onClick={() => setShowCoreMetadata(!showCoreMetadata)}>
-            <FontAwesomeIcon
-              icon={showCoreMetadata ? "chevron-down" : "chevron-right"}
-            />
-          </a>
-        </h2>
-        <div css={coreMetadataWrapper}>
-          <BatchEditAboutCoreMetadata errors={errors} register={register} />
-        </div>
-      </div>
-
-      <div
-        className="box is-relative"
-        data-testid="descriptive-metadata-wrapper"
+      <UIAccordion
+        testid="core-metadata-wrapper"
+        title="Core Metadata"
+        isVisible={true}
       >
-        <h2 className="title is-size-5">
-          Descriptive Metadata{" "}
-          <a
-            onClick={() => setShowDescriptiveMetadata(!showDescriptiveMetadata)}
-          >
-            <FontAwesomeIcon
-              icon={showDescriptiveMetadata ? "chevron-down" : "chevron-right"}
-            />
-          </a>
-        </h2>
-        <div css={descriptiveMetadataWrapper}>
-          <BatchEditDescriptiveMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
-        </div>
-      </div>
+        <BatchEditAboutCoreMetadata
+          errors={errors}
+          control={control}
+          register={register}
+        />
+      </UIAccordion>
+
+      <UIAccordion
+        testid="controlled-metadata-wrapper"
+        title="Creator and Subject Information"
+        isVisible={true}
+      >
+        <BatchEditAboutControlledMetadata
+          control={control}
+          errors={errors}
+          register={register}
+        />
+      </UIAccordion>
+
+      <UIAccordion
+        testid="uncontrolled-metadata-wrapper"
+        title="Description Information"
+        isVisible={true}
+      >
+        <BatchEditAboutUncontrolledMetadata
+          control={control}
+          errors={errors}
+          register={register}
+        />
+      </UIAccordion>
+      <UIAccordion
+        testid="physical-metadata-wrapper"
+        title="Physical Objects Information"
+        isVisible={true}
+      >
+        <BatchEditAboutPhysicalMetadata
+          control={control}
+          errors={errors}
+          register={register}
+        />
+      </UIAccordion>
+
+      <UIAccordion
+        testid="rights-metadata-wrapper"
+        title="Rights Information"
+        isVisible={true}
+      >
+        <BatchEditAboutRightsMetadata
+          control={control}
+          errors={errors}
+          register={register}
+        />
+      </UIAccordion>
+
+      <UIAccordion
+        testid="identifiers-metadata-wrapper"
+        title="Identifiers and Relationship Information"
+        isVisible={true}
+      >
+        <BatchEditAboutIdentifiersMetadata
+          control={control}
+          errors={errors}
+          register={register}
+        />
+      </UIAccordion>
     </form>
   );
 };

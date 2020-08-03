@@ -6,6 +6,8 @@ import UIInput from "../../../UI/Form/Input";
 import UIFormTextarea from "../../../UI/Form/Textarea";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormSelect from "../../../UI/Form/Select";
+import UIFormFieldArray from "../../../UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 
@@ -14,7 +16,7 @@ const WorkTabsAboutCoreMetadata = ({
   errors,
   isEditing,
   register,
-  showCoreMetadata,
+  control,
 }) => {
   const {
     loading: rightsStatementsLoading,
@@ -23,17 +25,10 @@ const WorkTabsAboutCoreMetadata = ({
   } = useQuery(CODE_LIST_QUERY, {
     variables: { scheme: "RIGHTS_STATEMENT" },
   });
-  const {
-    loading: licenseLoading,
-    error: licenseError,
-    data: licenseData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "LICENSE" },
-  });
 
-  return showCoreMetadata ? (
-    <div className="columns is-multiline">
-      <div className="column is-half">
+  return (
+    <div className="columns is-multiline" data-testid="core-metadata">
+      <div className="column is-full">
         {/* Title */}
         <UIFormField label="Title">
           {isEditing ? (
@@ -50,47 +45,25 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
-      <div className="column is-half">
-        {/* Description */}
-        <UIFormField label="Description">
-          {isEditing ? (
-            <UIFormTextarea
-              register={register}
-              name="description"
-              label="Description"
-              data-testid="description"
-              errors={errors}
-              defaultValue={descriptiveMetadata.description}
-            />
-          ) : (
-            <p>{descriptiveMetadata.description || "No value"}</p>
-          )}
-        </UIFormField>
+      <div className="column is-full">
+        {/* Alternate Title */}
+        {isEditing ? (
+          <UIFormFieldArray
+            register={register}
+            control={control}
+            name="alternateTitle"
+            data-testid="alternate-title"
+            label="Alternate Title"
+            errors={errors}
+          />
+        ) : (
+          <UIFormFieldArrayDisplay
+            items={descriptiveMetadata.alternateTitle}
+            label="Alternate Title"
+          />
+        )}
       </div>
 
-      <div className="column is-half">
-        <UIFormField label="Rights Statement">
-          {isEditing ? (
-            <UIFormSelect
-              register={register}
-              name="rightsStatement"
-              label="Rights Statement"
-              showHelper={true}
-              options={
-                rightsStatementsData ? rightsStatementsData.codeList : []
-              }
-              defaultValue={
-                descriptiveMetadata.rightsStatement
-                  ? descriptiveMetadata.rightsStatement.id
-                  : ""
-              }
-              errors={errors}
-            />
-          ) : (
-            <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
-          )}
-        </UIFormField>
-      </div>
       <div className="column is-half">
         {/* Date Created */}
         <UIFormField label="Date Created" notLive>
@@ -113,7 +86,48 @@ const WorkTabsAboutCoreMetadata = ({
         </UIFormField>
       </div>
       <div className="column is-half">
-        {/* License */}
+        <UIFormField label="Rights Statement">
+          {isEditing ? (
+            <UIFormSelect
+              register={register}
+              name="rightsStatement"
+              label="Rights Statement"
+              showHelper={true}
+              data-testid="rights-statement"
+              options={
+                rightsStatementsData ? rightsStatementsData.codeList : []
+              }
+              defaultValue={
+                descriptiveMetadata.rightsStatement
+                  ? descriptiveMetadata.rightsStatement.id
+                  : ""
+              }
+              errors={errors}
+            />
+          ) : (
+            <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
+          )}
+        </UIFormField>
+      </div>
+      <div className="column is-full">
+        {/* Description */}
+        <UIFormField label="Description">
+          {isEditing ? (
+            <UIFormTextarea
+              register={register}
+              name="description"
+              label="Description"
+              data-testid="description"
+              errors={errors}
+              defaultValue={descriptiveMetadata.description}
+            />
+          ) : (
+            <p>{descriptiveMetadata.description || "No value"}</p>
+          )}
+        </UIFormField>
+      </div>
+      {/* <div className="column is-half">
+        License
         <UIFormField label="License">
           {isEditing ? (
             <UIFormSelect
@@ -133,9 +147,9 @@ const WorkTabsAboutCoreMetadata = ({
             <UICodedTermItem item={descriptiveMetadata.license} />
           )}
         </UIFormField>
-      </div>
+      </div> */}
     </div>
-  ) : null;
+  );
 };
 
 WorkTabsAboutCoreMetadata.propTypes = {
@@ -143,7 +157,6 @@ WorkTabsAboutCoreMetadata.propTypes = {
   errors: PropTypes.object,
   isEditing: PropTypes.bool,
   register: PropTypes.func,
-  showCoreMetadata: PropTypes.bool,
 };
 
 export default WorkTabsAboutCoreMetadata;
