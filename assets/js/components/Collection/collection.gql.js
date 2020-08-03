@@ -140,11 +140,11 @@ export const UPDATE_COLLECTION = gql`
   mutation UpdateCollection(
     $adminEmail: String
     $collectionId: ID!
-    $collectionTitle: String!
+    $collectionTitle: String
     $description: String
-    $keywords: [String]
     $featured: Boolean
     $findingAidUrl: String
+    $keywords: [String]
     $published: Boolean
   ) {
     updateCollection(
