@@ -16,11 +16,10 @@ import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
 import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
-
 import WorkTabsAboutDescriptiveMetadataNoCaching from "./About/DescriptiveMetadataNoCaching";
 import {
-  DESCRIPTIVE_METADATA,
   prepControlledTermInput,
+  CONTROLLED_METADATA,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
 
@@ -178,7 +177,7 @@ const WorkTabsAbout = ({ work }) => {
     };
 
     // Update controlled term values to match shape the GraphQL mutation expects
-    for (let term of DESCRIPTIVE_METADATA.controlledTerms) {
+    for (let term of CONTROLLED_METADATA) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
         term,
         currentFormValues[term.name]

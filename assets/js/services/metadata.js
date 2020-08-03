@@ -119,9 +119,7 @@ export const DESCRIPTIVE_METADATA = {
 };
 
 export function findScheme(termToFind) {
-  let term = DESCRIPTIVE_METADATA.controlledTerms.find(
-    (ct) => ct.name === termToFind.name
-  );
+  let term = CONTROLLED_METADATA.find((ct) => ct.name === termToFind.name);
   return term.scheme || "";
 }
 
