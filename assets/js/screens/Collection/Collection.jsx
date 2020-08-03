@@ -28,7 +28,7 @@ const ScreensCollection = () => {
     onCompleted({ deleteCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${deleteCollection.name} deleted successfully`
+        `Collection ${deleteCollection.title} deleted successfully`
       );
       history.push("/collection/list");
     },
@@ -59,7 +59,7 @@ const ScreensCollection = () => {
         route: "/collection/list",
       },
       {
-        label: data.collection.name,
+        label: data.collection.title,
         route: `/collection/${id}`,
         isActive: true,
       },
@@ -83,7 +83,7 @@ const ScreensCollection = () => {
               <>
                 <div className="columns">
                   <div className="column is-two-thirds">
-                    <h1 className="title">{data.collection.name || ""}</h1>
+                    <h1 className="title">{data.collection.title || ""}</h1>
                   </div>
                   <div className="column is-one-third buttons has-text-right">
                     <Link
@@ -121,7 +121,7 @@ const ScreensCollection = () => {
           isOpen={modalOpen}
           handleClose={onCloseModal}
           handleConfirm={handleDeleteClick}
-          thingToDeleteLabel={`Collection ${data.collection.name}`}
+          thingToDeleteLabel={`Collection ${data.collection.title}`}
         />
       )}
     </Layout>

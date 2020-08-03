@@ -52,7 +52,7 @@ it("renders no initial form values when creating a collection", async () => {
   );
 
   await waitFor(() => {
-    expect(getByTestId("input-collection-name")).toHaveValue("");
+    expect(getByTestId("input-collection-title")).toHaveValue("");
     expect(getByTestId("textarea-description")).toHaveValue("");
     expect(getByTestId("input-finding-aid-url")).toHaveValue("");
     expect(getByTestId("input-admin-email")).toHaveValue("");
@@ -64,7 +64,7 @@ it("renders existing collection values in the form when editing a form", async (
   const { getByTestId } = setupTests();
 
   await waitFor(() => {
-    expect(getByTestId("input-collection-name")).toHaveValue(
+    expect(getByTestId("input-collection-title")).toHaveValue(
       "Great collection"
     );
     expect(getByTestId("textarea-description")).toHaveValue(

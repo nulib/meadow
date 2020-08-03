@@ -82,18 +82,18 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
-  Get an ingest sheet by its name
+  Get an ingest sheet by its title
 
   ## Examples
 
-    iex> get_ingest_sheet_by_name("sheet name")
-    %Sheet{name: "sheet name"}
+    iex> get_ingest_sheet_by_title("sheet title")
+    %Sheet{title: "sheet title"}
 
-    iex> get_ingest_sheet_by_name("does not exist")
+    iex> get_ingest_sheet_by_title("does not exist")
     nil
   """
-  def get_ingest_sheet_by_name(name) do
-    from(s in Sheet, where: s.name == ^name)
+  def get_ingest_sheet_by_title(title) do
+    from(s in Sheet, where: s.title == ^title)
     |> Repo.one()
   end
 
@@ -182,7 +182,7 @@ defmodule Meadow.Ingest.Sheets do
 
       iex> get_sheet_validation_state(123)
       [
-        %{ name: "overall", value: "pending" }
+        %{ title: "overall", value: "pending" }
       ]
   """
   def get_sheet_validation_state(id) do
@@ -436,7 +436,7 @@ defmodule Meadow.Ingest.Sheets do
     )
   end
 
-  @doc "Composable query to add sheet_name and project_name to works"
+  @doc "Composable query to add sheet_title and project_title to works"
   def works_with_sheets(query \\ Work) do
     from w in query,
       left_join: s in Sheet,
@@ -445,8 +445,8 @@ defmodule Meadow.Ingest.Sheets do
       on: s.project_id == p.id,
       select_merge: %{
         extra_index_fields: %{
-          sheet: %{id: s.id, name: s.name},
-          project: %{id: p.id, name: p.title}
+          sheet: %{id: s.id, title: s.title},
+          project: %{id: p.id, title: p.title}
         }
       }
   end

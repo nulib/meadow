@@ -26,7 +26,7 @@ export const GET_PROJECT = gql`
       title
       ingestSheets {
         id
-        name
+        title
         status
         updatedAt
       }
@@ -53,7 +53,7 @@ export const INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION = gql`
   subscription IngestSheetUpdatesForProject($projectId: ID!) {
     ingestSheetUpdatesForProject(projectId: $projectId) {
       id
-      name
+      title
       status
       updatedAt
     }

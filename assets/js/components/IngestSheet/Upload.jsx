@@ -58,7 +58,7 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
       await uploadToS3();
       await createIngestSheet({
         variables: {
-          name: data.ingest_sheet_name,
+          title: data.ingest_sheet_title,
           projectId: project.id,
           filename: `s3://${presignedUrl
             .split("?")[0]
@@ -69,12 +69,12 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
       });
       toastWrapper(
         "is-success",
-        `Ingest Sheet ${data.ingest_sheet_name} created successfully`
+        `Ingest Sheet ${data.ingest_sheet_title} created successfully`
       );
     } else {
       toastWrapper(
         "is-danger",
-        `Choose a file to ingest into ${data.ingest_sheet_name}`
+        `Choose a file to ingest into ${data.ingest_sheet_title}`
       );
     }
   };
@@ -107,14 +107,14 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Error error={error} />
-      <UIFormField label="Ingest Sheet Name">
+      <UIFormField label="Ingest Sheet Title">
         <UIFormInput
           register={register}
           required
-          label="Ingest Sheet Name"
+          label="Ingest Sheet Title"
           errors={errors}
-          name="ingest_sheet_name"
-          placeholder="Ingest Sheet Name"
+          name="ingest_sheet_title"
+          placeholder="Ingest Sheet Title"
         />
       </UIFormField>
 

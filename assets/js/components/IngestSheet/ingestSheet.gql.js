@@ -18,7 +18,7 @@ IngestSheet.fragments = {
         state
       }
       id
-      name
+      title
       filename
       state {
         name
@@ -31,17 +31,17 @@ IngestSheet.fragments = {
 
 export const CREATE_INGEST_SHEET = gql`
   mutation CreateIngestSheet(
-    $name: String!
+    $title: String!
     $projectId: ID!
     $filename: String!
   ) {
     createIngestSheet(
-      name: $name
+      title: $title
       project_id: $projectId
       filename: $filename
     ) {
       id
-      name
+      title
       status
       project {
         id
@@ -56,7 +56,7 @@ export const DELETE_INGEST_SHEET = gql`
   mutation DeleteIngestSheet($sheetId: ID!) {
     deleteIngestSheet(sheetId: $sheetId) {
       id
-      name
+      title
       status
     }
   }
@@ -68,7 +68,7 @@ export const GET_INGEST_SHEETS = gql`
       id
       ingestSheets {
         id
-        name
+        title
         status
         updatedAt
       }
@@ -81,7 +81,7 @@ export const GET_INGEST_SHEET_STATE = gql`
     ingestSheet(id: $sheetId) {
       id
       state {
-        name
+        title
         state
       }
     }

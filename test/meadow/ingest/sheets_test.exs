@@ -7,16 +7,16 @@ defmodule Meadow.Ingest.SheetsTest do
 
   describe "ingest_sheets" do
     @valid_attrs %{
-      name: "some name",
+      title: "some title",
       filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
     @update_attrs %{
-      name: "some updated name",
+      title: "some updated title",
       filename: "some_name.csv",
       project_id: "01DFC45C20ZMBD1R57HWTSKJ1N"
     }
-    @invalid_attrs %{name: nil, filename: nil}
+    @invalid_attrs %{title: nil, filename: nil}
 
     test "list_ingest_sheets/0 returns all ingest_sheets" do
       project = project_fixture()
@@ -30,11 +30,11 @@ defmodule Meadow.Ingest.SheetsTest do
       assert Sheets.get_ingest_sheet!(ingest_sheet.id) == ingest_sheet
     end
 
-    test "get_ingest_sheet_by_name/1 returns the sheet with given name" do
-      assert is_nil(Sheets.get_ingest_sheet_by_name(@valid_attrs.name))
+    test "get_ingest_sheet_by_title/1 returns the sheet with given title" do
+      assert is_nil(Sheets.get_ingest_sheet_by_title(@valid_attrs.title))
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      assert Sheets.get_ingest_sheet_by_name(@valid_attrs.name) == ingest_sheet
+      assert Sheets.get_ingest_sheet_by_title(@valid_attrs.title) == ingest_sheet
     end
 
     test "create_ingest_sheet/1 with valid data creates a sheet" do
@@ -43,7 +43,7 @@ defmodule Meadow.Ingest.SheetsTest do
       assert {:ok, %Sheet{} = ingest_sheet} =
                Sheets.create_ingest_sheet(Map.put(@valid_attrs, :project_id, project.id))
 
-      assert ingest_sheet.name == "some name"
+      assert ingest_sheet.title == "some title"
     end
 
     test "create_ingest_sheet/1 with invalid data returns error changeset" do
@@ -60,7 +60,7 @@ defmodule Meadow.Ingest.SheetsTest do
                  Map.put(@update_attrs, :project_id, project.id)
                )
 
-      assert ingest_sheet.name == "some updated name"
+      assert ingest_sheet.title == "some updated title"
     end
 
     test "update_ingest_sheet/2 with invalid data returns error changeset" do

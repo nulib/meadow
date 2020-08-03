@@ -8,7 +8,7 @@ import Collection from "./Collection";
 //       featured
 //       findingAidUrl
 //       published
-//       name
+//       title
 //       description
 //       id
 //       keywords
@@ -22,7 +22,7 @@ import Collection from "./Collection";
 export const CREATE_COLLECTION = gql`
   mutation CreateCollection(
     $adminEmail: String
-    $collectionName: String!
+    $collectionTitle: String!
     $description: String
     $featured: Boolean
     $findingAidUrl: String
@@ -34,7 +34,7 @@ export const CREATE_COLLECTION = gql`
       featured: $featured
       findingAidUrl: $findingAidUrl
       keywords: $keywords
-      name: $collectionName
+      title: $collectionTitle
     ) {
       id
       adminEmail
@@ -42,7 +42,7 @@ export const CREATE_COLLECTION = gql`
       featured
       findingAidUrl
       keywords
-      name
+      title
     }
   }
 `;
@@ -63,7 +63,7 @@ export const DELETE_COLLECTION = gql`
   mutation DeleteCollection($collectionId: ID!) {
     deleteCollection(collectionId: $collectionId) {
       id
-      name
+      title
     }
   }
 `;
@@ -83,7 +83,7 @@ export const GET_COLLECTION = gql`
       featured
       findingAidUrl
       published
-      name
+      title
       description
       representativeWork {
         id
@@ -117,7 +117,7 @@ export const GET_COLLECTIONS = gql`
       featured
       findingAidUrl
       published
-      name
+      title
       description
       id
       keywords
@@ -140,7 +140,7 @@ export const UPDATE_COLLECTION = gql`
   mutation UpdateCollection(
     $collectionId: ID!
     $description: String
-    $collectionName: String!
+    $collectionTitle: String!
     $keywords: [String]
     $findingAidUrl: String
     $adminEmail: String
@@ -149,7 +149,7 @@ export const UPDATE_COLLECTION = gql`
     updateCollection(
       collectionId: $collectionId
       description: $description
-      name: $collectionName
+      title: $collectionTitle
       keywords: $keywords
       findingAidUrl: $findingAidUrl
       adminEmail: $adminEmail
@@ -157,7 +157,7 @@ export const UPDATE_COLLECTION = gql`
     ) {
       id
       description
-      name
+      title
       keywords
       findingAidUrl
       adminEmail

@@ -81,7 +81,7 @@ const Collection = ({ collection }) => {
 Collection.propTypes = {
   collection: shape({
     id: PropTypes.string.isRequired,
-    name: PropTypes.string,
+    title: PropTypes.string,
     description: PropTypes.string,
     keywords: PropTypes.array,
     adminEmail: PropTypes.string,

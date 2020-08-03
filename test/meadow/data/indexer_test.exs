@@ -38,19 +38,19 @@ defmodule Meadow.Data.IndexerTest do
 
   describe "dependent update triggers" do
     @tag unboxed: true
-    test "collection name cascades to work" do
+    test "collection title cascades to work" do
       Sandbox.unboxed_run(Repo, fn ->
         %{collection: collection, works: [work | _]} = indexable_data()
 
         Indexer.synchronize_index()
-        assert indexed_doc(collection.id) |> get_in(["name"]) == collection.name
-        assert indexed_doc(work.id) |> get_in(["collection", "name"]) == collection.name
+        assert indexed_doc(collection.id) |> get_in(["title"]) == collection.title
+        assert indexed_doc(work.id) |> get_in(["collection", "title"]) == collection.title
 
-        {:ok, collection} = collection |> Collections.update_collection(%{name: "New Name"})
+        {:ok, collection} = collection |> Collections.update_collection(%{title: "New Title"})
 
         Indexer.synchronize_index()
-        assert indexed_doc(collection.id) |> get_in(["name"]) == "New Name"
-        assert indexed_doc(work.id) |> get_in(["collection", "name"]) == "New Name"
+        assert indexed_doc(collection.id) |> get_in(["title"]) == "New Title"
+        assert indexed_doc(work.id) |> get_in(["collection", "title"]) == "New Title"
       end)
     end
 
@@ -122,7 +122,7 @@ defmodule Meadow.Data.IndexerTest do
 
           assert doc |> get_in(["sheet"]) == %{
                    "id" => ingest_sheet.id,
-                   "name" => ingest_sheet.name
+                   "title" => ingest_sheet.title
                  }
         end
       end)
@@ -137,17 +137,17 @@ defmodule Meadow.Data.IndexerTest do
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["sheet"]) == %{
                    "id" => ingest_sheet.id,
-                   "name" => ingest_sheet.name
+                   "title" => ingest_sheet.title
                  }
         end
 
-        ingest_sheet |> Sheets.update_ingest_sheet(%{name: "New Name"})
+        ingest_sheet |> Sheets.update_ingest_sheet(%{title: "New Title"})
         Indexer.synchronize_index()
 
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["sheet"]) == %{
                    "id" => ingest_sheet.id,
-                   "name" => "New Name"
+                   "title" => "New Title"
                  }
         end
       end)
@@ -166,13 +166,13 @@ defmodule Meadow.Data.IndexerTest do
                  }
         end
 
-        project |> Projects.update_project(%{title: "New Name"})
+        project |> Projects.update_project(%{title: "New Title"})
         Indexer.synchronize_index()
 
         with doc <- indexed_doc(work.id) do
           assert doc |> get_in(["project"]) == %{
                    "id" => project.id,
-                   "title" => "New Name"
+                   "title" => "New Title"
                  }
         end
       end)
@@ -196,7 +196,7 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
-      assert doc |> get_in(["name"]) == subject.name
+      assert doc |> get_in(["title"]) == subject.title
     end
 
     test "work encoding", %{work: subject} do

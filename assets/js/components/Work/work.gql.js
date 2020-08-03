@@ -23,7 +23,7 @@ export const GET_WORK = gql`
       }
       collection {
         id
-        name
+        title
       }
       descriptiveMetadata {
         abstract
@@ -139,7 +139,7 @@ export const GET_WORK = gql`
       }
       ingestSheet {
         id
-        name
+        title
       }
       insertedAt
       manifestUrl
@@ -191,7 +191,7 @@ export const GET_WORKS = gql`
       }
       ingestSheet {
         id
-        name
+        title
       }
       published
       representativeImage
@@ -232,7 +232,7 @@ export const UPDATE_WORK = gql`
         }
       }
       collection {
-        name
+        title
         id
       }
       descriptiveMetadata {
@@ -336,7 +336,7 @@ export const DELETE_WORK = gql`
       }
       ingestSheet {
         id
-        name
+        title
       }
       project {
         id

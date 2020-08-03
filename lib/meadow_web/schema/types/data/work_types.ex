@@ -182,13 +182,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "Project info"
   object :work_project do
     field :id, :string
-    field :name, :string
+    field :title, :string
   end
 
   @desc "Sheet info"
   object :work_sheet do
     field :id, :id
-    field :name, :string
+    field :title, :string
   end
 
   #

@@ -49,7 +49,7 @@ defmodule Meadow.IndexCase do
         ingest_sheet =
           ingest_sheet_fixture(%{
             project_id: project.id,
-            name: "sheet name",
+            title: "sheet title",
             filename: "sheet_name.csv"
           })
 

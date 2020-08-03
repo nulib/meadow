@@ -34,7 +34,7 @@ const ScreensCollectionList = () => {
     onCompleted({ deleteCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${deleteCollection.name} deleted successfully`
+        `Collection ${deleteCollection.title} deleted successfully`
       );
     },
     refetchQueries(mutationResult) {
@@ -68,7 +68,7 @@ const ScreensCollectionList = () => {
     if (searchValue) {
       setFilteredCollections(
         data.collections.filter((collection) =>
-          collection.name.toLowerCase().includes(searchValue)
+          collection.title.toLowerCase().includes(searchValue)
         )
       );
     } else {
@@ -152,7 +152,7 @@ const ScreensCollectionList = () => {
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}
         thingToDeleteLabel={`Collection ${
-          activeCollection ? activeCollection.name : " "
+          activeCollection ? activeCollection.title : " "
         }`}
       />
     </Layout>

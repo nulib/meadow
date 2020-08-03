@@ -4,7 +4,7 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
   @query """
   query($id: ID!) {
     ingest_sheet(id: $id) {
-      name
+      title
     }
   }
   """
@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
 
     assert %{
              "data" => %{
-               "ingest_sheet" => %{"name" => ingest_sheet.name}
+               "ingest_sheet" => %{"title" => ingest_sheet.title}
              }
            } == json_response(conn, 200)
   end

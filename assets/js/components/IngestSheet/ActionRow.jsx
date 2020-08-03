@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastWrapper } from "../../services/helpers";
 import IngestSheetDownload from "./Completed/Download";
 
-const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
+const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const client = useApolloClient();
@@ -38,7 +38,10 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
         }
       },
       onCompleted({ deleteIngestSheet }) {
-        toastWrapper("is-success", `Ingest sheet ${name} deleted successfully`);
+        toastWrapper(
+          "is-success",
+          `Ingest sheet ${title} deleted successfully`
+        );
         history.push(`/project/${projectId}`);
       },
     }
@@ -96,7 +99,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, name }) => {
         isOpen={deleteModalOpen}
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Ingest Sheet ${name}`}
+        thingToDeleteLabel={`Ingest Sheet ${title}`}
       />
     </>
   );
@@ -106,7 +109,7 @@ IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
   sheetId: PropTypes.string,
   status: PropTypes.string,
-  name: PropTypes.string,
+  title: PropTypes.string,
 };
 
 export default IngestSheetActionRow;

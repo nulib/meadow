@@ -1,6 +1,6 @@
-mutation($name: String!, $filename: String!, $projectId: ID!) {
-  createIngestSheet(name: $name, filename: $filename, projectId: $projectId) {
-    name
+mutation($title: String!, $filename: String!, $projectId: ID!) {
+  createIngestSheet(title: $title, filename: $filename, projectId: $projectId) {
+    title
     filename
     project {
       id

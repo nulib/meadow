@@ -30,7 +30,7 @@ const ScreensCollectionForm = () => {
 
     crumbs.push(
       {
-        label: data.collection.name,
+        label: data.collection.title,
         route: `/collection/${data.collection.id}`,
       },
       {

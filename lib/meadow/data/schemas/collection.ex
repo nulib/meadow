@@ -19,7 +19,8 @@ defmodule Meadow.Data.Schemas.Collection do
     field(:featured, :boolean)
     field(:finding_aid_url, :string)
     field(:keywords, {:array, :string}, default: [])
-    field(:name, :string)
+    field(:title, :string)
+
     field(:published, :boolean, default: false)
     field(:visibility, Types.CodedTerm)
 
@@ -39,14 +40,14 @@ defmodule Meadow.Data.Schemas.Collection do
       :featured,
       :finding_aid_url,
       :keywords,
-      :name,
+      :title,
       :published,
       :representative_work_id,
       :visibility
     ])
     |> assoc_constraint(:representative_work)
-    |> validate_required([:name])
-    |> unique_constraint(:name)
+    |> validate_required([:title])
+    |> unique_constraint(:title)
   end
 
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
@@ -60,7 +61,7 @@ defmodule Meadow.Data.Schemas.Collection do
         featured: collection.featured,
         findingAidUrl: collection.finding_aid_url,
         keywords: collection.keywords,
-        model: %{application: "Meadow", name: "Collection"},
+        model: %{application: "Meadow", title: "Collection"},
         modifiedDate: collection.updated_at,
         published: collection.published,
         representativeImage:
@@ -74,7 +75,7 @@ defmodule Meadow.Data.Schemas.Collection do
                 url: work.representative_image
               }
           end,
-        name: collection.name,
+        title: collection.title,
         visibility: format(collection.visibility)
       }
     end

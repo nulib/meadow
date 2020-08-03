@@ -88,7 +88,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
 
     @desc "Create a new Ingest Sheet for a Project"
     field :create_ingest_sheet, :ingest_sheet do
-      arg(:name, non_null(:string))
+      arg(:title, non_null(:string))
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
       middleware(Middleware.Authenticate)
@@ -181,7 +181,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
   @desc "Sheet object"
   object :ingest_sheet do
     field :id, non_null(:id)
-    field :name, non_null(:string)
+    field :title, non_null(:string)
     @desc "Overall Status of the Ingest Sheet"
     field :status, :ingest_sheet_status
     field :state, list_of(:sheet_state)

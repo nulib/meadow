@@ -3,7 +3,7 @@ fragment WorkFields on Work {
   accessionNumber
   collection {
     id
-    name
+    title
   }
   fileSets {
     ...FileSetFields
@@ -18,7 +18,7 @@ fragment WorkFields on Work {
   representativeImage
   ingest_sheet {
     id
-    name
+    title
   }
   updatedAt
   visibility {
