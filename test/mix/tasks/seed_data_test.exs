@@ -59,7 +59,7 @@ defmodule Mix.Tasks.Meadow.SeedDataTest do
       log_output = capture_log(fn -> Mix.Task.rerun("meadow.seed_data", [export_name]) end)
 
       assert log_output =~ "[info]  Ingest complete."
-      assert Sheets.get_ingest_sheet_by_name("seed_data.csv")
+      assert Sheets.get_ingest_sheet_by_title("seed_data.csv")
 
       assert Works.list_works() |> length() ==
                test_data |> Enum.group_by(fn [x | _] -> x end) |> map_size()

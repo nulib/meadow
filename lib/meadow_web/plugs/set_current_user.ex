@@ -29,18 +29,6 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
   end
 
   defp refresh_user(%{username: username}) do
-    case Cachex.get!(Meadow.Cache.Users, username) do
-      nil ->
-        refresh_user_ldap(username)
-
-      user ->
-        user
-    end
-  end
-
-  defp refresh_user(_), do: nil
-
-  defp refresh_user_ldap(username) do
     case Accounts.authorize_user_login(username) do
       {:ok, user} ->
         user
@@ -49,4 +37,6 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
         nil
     end
   end
+
+  defp refresh_user(_), do: nil
 end
