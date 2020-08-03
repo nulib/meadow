@@ -56,7 +56,7 @@ const BatchEditAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {/* Date Created */}
-        <UIFormField label="Date Created" required notLive>
+        <UIFormField label="Date Created" notLive>
           <UIInput
             register={register}
             name="dateCreated"
@@ -64,7 +64,6 @@ const BatchEditAboutCoreMetadata = ({
             type="date"
             data-testid="date-created"
             errors={errors}
-            required
           />
           <UITagNotYetSupported label="Display not yet supported" />
           <UITagNotYetSupported label="Update not yet supported" />

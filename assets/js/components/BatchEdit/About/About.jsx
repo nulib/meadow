@@ -78,11 +78,7 @@ const BatchEditAbout = ({ numberOfResults }) => {
         </span>
         You are editing {numberOfResults} items. Proceed with caution.
       </p>
-      <UIAccordion
-        testid="core-metadata-wrapper"
-        title="Core Metadata"
-        isVisible={true}
-      >
+      <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         <BatchEditAboutCoreMetadata
           errors={errors}
           control={control}
@@ -93,7 +89,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
       <UIAccordion
         testid="controlled-metadata-wrapper"
         title="Creator and Subject Information"
-        isVisible={true}
       >
         <BatchEditAboutControlledMetadata
           control={control}
@@ -105,7 +100,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
       <UIAccordion
         testid="uncontrolled-metadata-wrapper"
         title="Description Information"
-        isVisible={true}
       >
         <BatchEditAboutUncontrolledMetadata
           control={control}
@@ -116,7 +110,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
       <UIAccordion
         testid="physical-metadata-wrapper"
         title="Physical Objects Information"
-        isVisible={true}
       >
         <BatchEditAboutPhysicalMetadata
           control={control}
@@ -125,11 +118,7 @@ const BatchEditAbout = ({ numberOfResults }) => {
         />
       </UIAccordion>
 
-      <UIAccordion
-        testid="rights-metadata-wrapper"
-        title="Rights Information"
-        isVisible={true}
-      >
+      <UIAccordion testid="rights-metadata-wrapper" title="Rights Information">
         <BatchEditAboutRightsMetadata
           control={control}
           errors={errors}
@@ -140,7 +129,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
       <UIAccordion
         testid="identifiers-metadata-wrapper"
         title="Identifiers and Relationship Information"
-        isVisible={true}
       >
         <BatchEditAboutIdentifiersMetadata
           control={control}

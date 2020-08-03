@@ -246,11 +246,7 @@ const WorkTabsAbout = ({ work }) => {
         </div>
       ) : null}
 
-      <UIAccordion
-        testid="core-metadata-wrapper"
-        title="Core Metadata"
-        isVisible={true}
-      >
+      <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
@@ -267,7 +263,6 @@ const WorkTabsAbout = ({ work }) => {
       <UIAccordion
         testid="controlled-metadata-wrapper"
         title="Creator and Subject Information"
-        isVisible={true}
       >
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
@@ -284,7 +279,6 @@ const WorkTabsAbout = ({ work }) => {
       <UIAccordion
         testid="uncontrolled-metadata-wrapper"
         title="Description Information"
-        isVisible={true}
       >
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
@@ -302,7 +296,6 @@ const WorkTabsAbout = ({ work }) => {
       <UIAccordion
         testid="physical-metadata-wrapper"
         title="Physical Objects Information"
-        isVisible={true}
       >
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
@@ -316,11 +309,7 @@ const WorkTabsAbout = ({ work }) => {
           />
         )}
       </UIAccordion>
-      <UIAccordion
-        testid="rights-metadata-wrapper"
-        title="Rights Information"
-        isVisible={true}
-      >
+      <UIAccordion testid="rights-metadata-wrapper" title="Rights Information">
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
         ) : (
@@ -336,7 +325,6 @@ const WorkTabsAbout = ({ work }) => {
       <UIAccordion
         testid="identifiers-metadata-wrapper"
         title="Identifiers and Relationship Information"
-        isVisible={true}
       >
         {updateWorkLoading ? (
           <UISkeleton rows={10} />
