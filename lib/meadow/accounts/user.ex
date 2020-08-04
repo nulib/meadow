@@ -4,24 +4,37 @@ defmodule Meadow.Accounts.User do
   """
   use Meadow.Constants
   alias Meadow.Accounts.Ldap
+  require Logger
 
   defstruct [:id, :username, :email, :display_name, :role]
 
   @doc "Find a user by username and populate the User struct"
   def find(username) do
-    case Ldap.find_user(username) do
-      nil ->
-        nil
+    {status, result} =
+      Cachex.fetch(Meadow.Cache.Users, username, fn _key ->
+        case Ldap.find_user(username) do
+          nil -> {:ignore, nil}
+          user_entry -> {:commit, make_struct(user_entry)}
+        end
+      end)
 
-      user_entry ->
-        %__MODULE__{
-          id: user_entry.id,
-          username: user_entry.name,
-          email: user_entry.attributes.mail,
-          display_name: user_entry.attributes.displayName,
-          role: user_role(user_entry)
-        }
+    case status do
+      :ok -> Logger.info("User #{username} found in cache")
+      :commit -> Logger.info("User #{username} found in LDAP and added to cache")
+      :ignore -> Logger.warn("User #{username} not found")
     end
+
+    result
+  end
+
+  defp make_struct(user_entry) do
+    %__MODULE__{
+      id: user_entry.id,
+      username: user_entry.name,
+      email: user_entry.attributes.mail,
+      display_name: user_entry.attributes.displayName,
+      role: user_role(user_entry)
+    }
   end
 
   defp user_role(user_entry) do
