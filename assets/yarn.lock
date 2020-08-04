@@ -96,10 +96,10 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@^3.11.9":
-  version "3.11.9"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.11.9.tgz#83f57c0f1fb29f71163568fbbd38cbd63ffd2047"
-  integrity sha512-KYcVIVGmJHxjmj/J7G+21H6uhSL8glDjUQRJkO+t9pGdG4Io1zR73zr2Iy5rrneC9gP4+QQMfZj/vItv+2PTOw==
+"@appbaseio/reactivesearch@^3.12.1":
+  version "3.12.1"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.1.tgz#58b584af6a3528ec967390f90f649192ad002097"
+  integrity sha512-aVmyFMrMOavqwB3h7z3MxAW56vlEILFPY1WRCnX8LVlC2IHnyUKoJ/dpWOcph6e6LOI3+3kQ9uKblebsgaDHaw==
   dependencies:
     "@appbaseio/reactivecore" "9.6.15"
     "@emotion/core" "^10.0.28"
