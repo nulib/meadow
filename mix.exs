@@ -80,6 +80,7 @@ defmodule Meadow.MixProject do
       {:nimble_csv, "~> 0.7.0"},
       {:phoenix, "~> 1.5.1"},
       {:phoenix_html, "~> 2.13"},
+      {:phoenix_live_dashboard, "~> 0.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.1"},

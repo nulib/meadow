@@ -1,6 +1,7 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
   use Honeybadger.Plug
+  import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -10,11 +11,26 @@ defmodule MeadowWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :secure_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug MeadowWeb.Plugs.SetCurrentUser
+    plug MeadowWeb.Plugs.RequireLogin
+  end
+
   pipeline :elasticsearch do
     plug :accepts, ["json"]
 
     plug MeadowWeb.Plugs.SetCurrentUser
     plug MeadowWeb.Plugs.RequireLogin
+  end
+
+  scope "/dashboard" do
+    pipe_through :secure_browser
+    live_dashboard "/"
   end
 
   scope "/elasticsearch" do
