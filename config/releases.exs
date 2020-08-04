@@ -28,7 +28,8 @@ port = String.to_integer(System.get_env("PORT", "4000"))
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
   http: [:inet6, port: port],
-  secret_key_base: get_required_var.("SECRET_KEY_BASE")
+  secret_key_base: get_required_var.("SECRET_KEY_BASE"),
+  live_view: [signing_salt: get_required_var.("SECRET_KEY_BASE")]
 
 config :meadow, Meadow.ElasticsearchCluster,
   url: get_required_var.("ELASTICSEARCH_URL"),
