@@ -70,7 +70,7 @@ defmodule Meadow.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},
-      {:faker, "~> 0.12", only: [:dev, :test]},
+      {:faker, "~> 0.12"},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.15"},
       {:honeybadger, "~> 0.7"},
