@@ -86,6 +86,14 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.create_project/3)
     end
 
+    @desc "Create a new Ingest Project"
+    field :update_project, :project do
+      arg(:id, non_null(:id))
+      arg(:title, :string)
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.update_project/3)
+    end
+
     @desc "Create a new Ingest Sheet for a Project"
     field :create_ingest_sheet, :ingest_sheet do
       arg(:title, non_null(:string))

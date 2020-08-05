@@ -1,0 +1,7 @@
+mutation($id: ID!, $title: String!) {
+  updateProject(id: $id, title: $title) {
+    id
+    title
+    folder
+  }
+}
