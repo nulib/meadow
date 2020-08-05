@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
   def change do
     create table("collections") do
       add(:title, :string)
-      add(:description, :string)
+      add(:description, :text)
       add(:keywords, {:array, :string}, default: [])
       add(:finding_aid_url, :text)
       add(:admin_email, :text)
