@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,8 +11,12 @@ import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import UIAccordion from "../../UI/Accordion";
+import BatchEditConfirmation from "./Confirmation";
 
 const BatchEditAbout = ({ numberOfResults }) => {
+  const [confirmationMetadata, setConfirmationMetadata] = useState();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Initialize React hook form
   const {
     register,
@@ -26,6 +30,12 @@ const BatchEditAbout = ({ numberOfResults }) => {
     defaultValues: {},
   });
 
+  const onCloseModal = () => {
+    console.log("handleClose called");
+
+    setIsModalOpen(false);
+  };
+
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
     // "data" here returns everything (which was set above in the useEffect()),
@@ -34,6 +44,8 @@ const BatchEditAbout = ({ numberOfResults }) => {
     // updated.
     let currentFormValues = getValues();
     console.log("currentFormValues :>> ", currentFormValues);
+    setConfirmationMetadata(currentFormValues);
+    setIsModalOpen(true);
     toastWrapper(
       "is-success",
       "Form successfully submitted.  Check the console for form values."
@@ -78,6 +90,13 @@ const BatchEditAbout = ({ numberOfResults }) => {
         </span>
         You are editing {numberOfResults} items. Proceed with caution.
       </p>
+      {confirmationMetadata && (
+        <BatchEditConfirmation
+          addMetadata={confirmationMetadata}
+          isModalOpen={isModalOpen}
+          handleClose={onCloseModal}
+        />
+      )}
       <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         <BatchEditAboutCoreMetadata
           errors={errors}

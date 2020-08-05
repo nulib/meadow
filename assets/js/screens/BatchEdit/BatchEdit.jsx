@@ -46,7 +46,7 @@ export default function BatchEdit() {
             </h1>
 
             <div className="content">
-              <h4>Filtered Elasticsearch Query</h4>
+              {/* <h4>Filtered Elasticsearch Query</h4>
               <JSONPretty data={filteredQuery} />
 
               <hr />
@@ -55,7 +55,7 @@ export default function BatchEdit() {
 
               <hr />
               <h4>Elasticsearch Query ResultStats</h4>
-              <JSONPretty data={resultStats} />
+              <JSONPretty data={resultStats} /> */}
 
               <hr />
               <p data-testid="num-results">Editing {numberOfResults} rows</p>
