@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import PropTypes, { object } from "prop-types";
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
   CONTROLLED_METADATA,
   UNCONTROLLED_METADATA,
@@ -8,6 +8,11 @@ import {
   IDENTIFIER_METADATA,
   OTHER_METADATA,
 } from "../../../services/metadata";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UIFormField from "../../UI/Form/Field";
+import UIFormInput from "../../UI/Form/Input";
+import { toastWrapper } from "../../../services/helpers";
+
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
 
@@ -15,13 +20,34 @@ const addWrapperCss = css`
   border: 1px solid green;
 `;
 
+const removeWrapperCss = css`
+  border: 1px solid red;
+`;
+
+const confirmationNote =
+  'NOTE: This will affect all works currently selected. Please proceed with extreme caution. To execute this change, type "I understand"';
+
+const deleteMetadata = {
+  contributor: [
+    {
+      role: { scheme: "MARC_RELATOR", id: "aut" },
+      term: "http://id.loc.gov/authorities/names/n79091588",
+    },
+  ],
+  genre: [{ term: "http://vocab.getty.edu/aat/300026031" }],
+  description: "123 this is set to be removed",
+};
+
 const BatchEditConfirmation = ({
   addMetadata,
   removeMetadata,
   isModalOpen,
   handleClose,
 }) => {
-  console.log("Here!", addMetadata, isModalOpen, handleClose);
+  const [confirmationError, setConfirmationError] = useState({});
+  const [parsedAddMetadata, setParsedAddMetadata] = useState();
+  const [parsedDeleteMetadata, setParsedDeleteMetadata] = useState();
+
   const metadataItems = CONTROLLED_METADATA.concat(
     UNCONTROLLED_METADATA,
     PHYSICAL_METADATA,
@@ -29,13 +55,39 @@ const BatchEditConfirmation = ({
     IDENTIFIER_METADATA,
     OTHER_METADATA
   );
+
   useEffect(() => {
-    //Get labels of metadata for display
-    Object.keys(addMetadata).map((item) => {
-      let obj = metadataItems.find((x) => x.name === item);
-      addMetadata[item] = { ...obj, metadata: addMetadata[item] };
+    let parsedAddData = {};
+    Object.keys(addMetadata).map((key) => {
+      let obj = metadataItems.find((item) => item.name === key);
+      parsedAddData[key] = { ...obj, metadata: addMetadata[key] };
     });
-  }, [addMetadata]);
+    setParsedAddMetadata(parsedAddData);
+
+    let parsedDeleteData = {};
+    Object.keys(deleteMetadata).map((key) => {
+      let obj = metadataItems.find((item) => item.name === key);
+      parsedDeleteData[key] = { ...obj, metadata: deleteMetadata[key] };
+    });
+    setParsedDeleteMetadata(parsedDeleteData);
+  }, []);
+
+  const handleConfirmationChange = (e) => {
+    const filterValue = e.target.value;
+    filterValue == "I understand"
+      ? setConfirmationError()
+      : setConfirmationError({
+          confirmationText: "Confirmation text is required.",
+        });
+  };
+
+  const handleBatchEditConfirm = () => {
+    toastWrapper(
+      "is-success",
+      "Form successfully submitted.  Check the console for form values."
+    );
+    handleClose();
+  };
 
   return (
     <div
@@ -49,47 +101,114 @@ const BatchEditConfirmation = ({
           <button
             className="modal-close is-large"
             aria-label="close"
+            type="button"
             onClick={handleClose}
           ></button>
         </header>
-        <section className="modal-card-body">
-          <h3 className="title is-size-5">Adding </h3>
-          <ul className="px-4 py-4" css={addWrapperCss}>
-            {Object.keys(addMetadata).map(
-              (items) =>
-                Array.isArray(addMetadata[items].metadata) &&
-                addMetadata[items].metadata.map((item, index) => (
-                  <li key={`${item}-${index}`} className="py-2">
-                    <strong>+ {addMetadata[items].label}: </strong>
-                    {/*Check If the metadata for this field is an array of strings */}
-                    {typeof addMetadata[items].metadata[index] === "string"
-                      ? addMetadata[items].metadata[index]
-                      : addMetadata[items].metadata[index].roleId}
-                  </li>
-                ))
-            )}
+        <div className="modal-card-body">
+          <section>
+            <h3 className="title is-size-5">Adding </h3>
+            <ul className="px-4 py-4" css={addWrapperCss}>
+              {parsedAddMetadata &&
+                Object.keys(parsedAddMetadata).map(
+                  (key) =>
+                    Array.isArray(parsedAddMetadata[key].metadata) &&
+                    parsedAddMetadata[key].metadata.map((innerKey, index) => (
+                      <li key={(innerKey, index)} className="py-2">
+                        <FontAwesomeIcon icon="plus" />
+                        <strong> {parsedAddMetadata[key].label}: </strong>
+                        {/*Check If the metadata for this field is an array of strings */}
+                        {typeof parsedAddMetadata[key].metadata[index] ===
+                        "string"
+                          ? parsedAddMetadata[key].metadata[index]
+                          : `${parsedAddMetadata[key].metadata[index].label},
+                      ${parsedAddMetadata[key].metadata[index].termId},
+                      ${parsedAddMetadata[key].metadata[index].roleId}`}
+                      </li>
+                    ))
+                )}
 
-            {Object.keys(addMetadata).map(
-              (items) =>
-                !Array.isArray(addMetadata[items].metadata) &&
-                addMetadata[items].metadata && (
-                  <li className="py-2">
-                    <strong>+ {addMetadata[items].label}: </strong>
-                    {addMetadata[items].metadata}
-                  </li>
-                )
-            )}
-          </ul>
-        </section>
+              {parsedAddMetadata &&
+                Object.keys(parsedAddMetadata).map(
+                  (key) =>
+                    !Array.isArray(parsedAddMetadata[key].metadata) &&
+                    parsedAddMetadata[key].metadata && (
+                      <li key={key} className="py-2">
+                        <FontAwesomeIcon icon="plus" />
+                        <strong> {parsedAddMetadata[key].label}: </strong>
+                        {parsedAddMetadata[key].metadata}
+                      </li>
+                    )
+                )}
+            </ul>
+          </section>
+
+          <section className="py-6">
+            <h3 className="title is-size-5">Removing </h3>
+            <ul className="px-4 py-4" css={removeWrapperCss}>
+              {parsedDeleteMetadata &&
+                Object.keys(parsedDeleteMetadata).map(
+                  (key) =>
+                    Array.isArray(parsedDeleteMetadata[key].metadata) &&
+                    parsedDeleteMetadata[key].metadata.map(
+                      (innerKey, index) => (
+                        <li key={(innerKey, index)} className="py-2">
+                          <FontAwesomeIcon icon="minus" />
+                          <strong> {parsedDeleteMetadata[key].label}: </strong>
+                          {/*Check If the metadata for this field is an array of strings */}
+                          {typeof parsedDeleteMetadata[key].metadata[index] ===
+                          "string"
+                            ? parsedDeleteMetadata[key].metadata[index]
+                            : parsedDeleteMetadata[key].metadata[index].term}
+                        </li>
+                      )
+                    )
+                )}
+
+              {parsedDeleteMetadata &&
+                Object.keys(parsedDeleteMetadata).map(
+                  (key) =>
+                    !Array.isArray(parsedDeleteMetadata[key].metadata) &&
+                    parsedDeleteMetadata[key].metadata && (
+                      <li key={key} className="py-2">
+                        <FontAwesomeIcon icon="minus" />
+                        <strong> {parsedDeleteMetadata[key].label}: </strong>
+                        {parsedDeleteMetadata[key].metadata}
+                      </li>
+                    )
+                )}
+            </ul>
+          </section>
+          <div className="columns">
+            <div className="column is-half">
+              <UIFormField label={confirmationNote}>
+                <UIFormInput
+                  errors={confirmationError}
+                  onChange={handleConfirmationChange}
+                  name="confirmationText"
+                  label="Confirmation Text"
+                  required
+                  data-testid="input-confirmation-text"
+                />
+              </UIFormField>
+            </div>
+          </div>
+        </div>
         <footer className="modal-card-foot buttons is-right">
-          <button className="button is-text" onClick={handleClose}>
+          <button
+            className="button is-text"
+            onClick={handleClose}
+            type="button"
+          >
             Cancel
           </button>
           <button
             className="button is-primary"
+            disabled={confirmationError}
             onClick={() => {
               handleBatchEditConfirm();
             }}
+            type="button"
             data-testid="button-set-image"
           >
             Confirm changes
@@ -102,7 +221,9 @@ const BatchEditConfirmation = ({
 
 BatchEditConfirmation.propTypes = {
   addMetadata: PropTypes.object,
-  removeMetadata: PropTypes.object,
+  deleteMetadata: PropTypes.object,
+  handleClose: PropTypes.func,
+  isModalOpen: PropTypes.bool,
 };
 
 export default BatchEditConfirmation;

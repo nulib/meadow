@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { toastWrapper } from "../../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
@@ -32,7 +31,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
 
   const onCloseModal = () => {
     console.log("handleClose called");
-
     setIsModalOpen(false);
   };
 
@@ -46,10 +44,6 @@ const BatchEditAbout = ({ numberOfResults }) => {
     console.log("currentFormValues :>> ", currentFormValues);
     setConfirmationMetadata(currentFormValues);
     setIsModalOpen(true);
-    toastWrapper(
-      "is-success",
-      "Form successfully submitted.  Check the console for form values."
-    );
   };
 
   return (
@@ -90,13 +84,13 @@ const BatchEditAbout = ({ numberOfResults }) => {
         </span>
         You are editing {numberOfResults} items. Proceed with caution.
       </p>
-      {confirmationMetadata && (
+      {isModalOpen ? (
         <BatchEditConfirmation
           addMetadata={confirmationMetadata}
           isModalOpen={isModalOpen}
           handleClose={onCloseModal}
         />
-      )}
+      ) : null}
       <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         <BatchEditAboutCoreMetadata
           errors={errors}
