@@ -1,0 +1,7 @@
+#import "./MetadataFields.frag.gql"
+
+query DescribeFields {
+  describeFields {
+    ...MetadataFields
+  }
+}

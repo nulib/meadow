@@ -18,6 +18,8 @@ defmodule Meadow.Data.Schemas.Field do
     field :label, :string
     field :repeating, :boolean, default: false
     field :required, :boolean, default: false
+    field :role, :string
+    field :scheme, :string
     field :metadata_class, MetadataClassEnum
 
     timestamps()
