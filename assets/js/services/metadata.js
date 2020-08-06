@@ -37,6 +37,15 @@ export const CONTROLLED_METADATA = [
   },
 ];
 
+export const OTHER_METADATA = [
+  { name: "title", label: "Title" },
+  { name: "alternateTitle", label: "Alternate Title" },
+  { name: "description", label: "Description" },
+  { name: "rightsStatement", label: "Rights Statement" },
+  { name: "license", label: "License" },
+  { name: "dateCreated", label: "Date Created" },
+];
+
 export const UNCONTROLLED_METADATA = [
   { name: "abstract", label: "Abstract" },
   { name: "caption", label: "Caption" },

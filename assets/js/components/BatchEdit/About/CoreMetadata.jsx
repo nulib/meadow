@@ -31,10 +31,9 @@ const BatchEditAboutCoreMetadata = ({
     >
       <div className="column is-full">
         {/* Title */}
-        <UIFormField label="Title" required>
+        <UIFormField label="Title">
           <UIInput
             register={register}
-            required
             name="title"
             label="Title"
             data-testid="title"
@@ -70,7 +69,7 @@ const BatchEditAboutCoreMetadata = ({
         </UIFormField>
       </div>
       <div className="column is-half">
-        <UIFormField label="Rights Statement" required>
+        <UIFormField label="Rights Statement">
           <UIFormSelect
             register={register}
             name="rightsStatement"
@@ -79,7 +78,6 @@ const BatchEditAboutCoreMetadata = ({
             errors={errors}
             data-testid="rights-statement"
             showHelper
-            required
           />
         </UIFormField>
       </div>

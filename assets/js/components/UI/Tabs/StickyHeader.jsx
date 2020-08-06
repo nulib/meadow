@@ -8,7 +8,7 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
       position: "-webkit-sticky",
       position: "sticky",
       top: headerHeight,
-      zIndex: 1110,
+      zIndex: 10,
     },
   };
 
