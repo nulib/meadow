@@ -27,7 +27,7 @@ const removeWrapperCss = css`
 const confirmationNote =
   'NOTE: This will affect all works currently selected. Please proceed with extreme caution. To execute this change, type "I understand"';
 
-const deleteMetadata = {
+const mockDeleteMetadata = {
   contributor: [
     {
       role: { scheme: "MARC_RELATOR", id: "aut" },
@@ -65,9 +65,9 @@ const BatchEditConfirmation = ({
     setParsedAddMetadata(parsedAddData);
 
     let parsedDeleteData = {};
-    Object.keys(deleteMetadata).map((key) => {
+    Object.keys(mockDeleteMetadata).map((key) => {
       let obj = metadataItems.find((item) => item.name === key);
-      parsedDeleteData[key] = { ...obj, metadata: deleteMetadata[key] };
+      parsedDeleteData[key] = { ...obj, metadata: mockDeleteMetadata[key] };
     });
     setParsedDeleteMetadata(parsedDeleteData);
   }, []);
@@ -92,7 +92,7 @@ const BatchEditConfirmation = ({
   return (
     <div
       className={`modal ${isModalOpen ? "is-active" : ""}`}
-      data-testid="modal-confirmation"
+      data-testid="modal-batch-edit-confirmation"
     >
       <div className="modal-background"></div>
       <div className="modal-card" style={{ width: "85%" }}>
@@ -221,7 +221,7 @@ const BatchEditConfirmation = ({
 
 BatchEditConfirmation.propTypes = {
   addMetadata: PropTypes.object,
-  deleteMetadata: PropTypes.object,
+  removeMetadata: PropTypes.object,
   handleClose: PropTypes.func,
   isModalOpen: PropTypes.bool,
 };
