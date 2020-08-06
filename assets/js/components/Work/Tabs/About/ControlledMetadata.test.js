@@ -6,7 +6,6 @@ import { waitFor } from "@testing-library/react";
 import {
   codeListAuthorityMock,
   codeListMarcRelatorMock,
-  codeListRightsStatementMock,
   codeListSubjectRoleMock,
 } from "../../controlledVocabulary.gql.mock";
 
@@ -20,7 +19,6 @@ describe("Work About tab Controlled Metadata component", () => {
         mocks: [
           codeListAuthorityMock,
           codeListMarcRelatorMock,
-          codeListRightsStatementMock,
           codeListSubjectRoleMock,
         ],
       }

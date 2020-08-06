@@ -3,19 +3,31 @@ import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import {
-  codeListAuthorityMock,
+  authorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
+  marcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  subjectMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupTest() {
+    prepLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <BatchEditTabs items={items} />

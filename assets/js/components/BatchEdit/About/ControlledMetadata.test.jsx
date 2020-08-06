@@ -6,15 +6,26 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import {
-  codeListSubjectRoleMock,
-  codeListMarcRelatorMock,
-  codeListAuthorityMock,
+  marcRelatorMock,
+  authorityMock,
+  subjectMock,
 } from "../../Work/controlledVocabulary.gql.mock";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupTest() {
+    prepLocalStorage();
     const Wrapped = withReactHookFormControl(BatchEditAboutControlledMetadata);
 
     return renderWithRouterApollo(

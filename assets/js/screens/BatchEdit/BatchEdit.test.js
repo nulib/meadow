@@ -3,17 +3,29 @@ import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import {
-  codeListAuthorityMock,
+  authorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
+  marcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  subjectMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
 describe("BatchEdit component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupComponent() {
+    prepLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider>
         <ScreensBatchEdit />

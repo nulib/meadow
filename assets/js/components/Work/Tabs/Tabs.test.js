@@ -5,12 +5,12 @@ import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import {
-  codeListAuthorityMock,
+  authorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
+  marcRelatorMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
+  subjectMock,
   codeListStatusMock,
   codeListVisibilityMock,
   codeListRelatedUrlMock,
@@ -21,12 +21,9 @@ import {
 } from "../../Collection/collection.gql.mock";
 
 const mocks = [
-  codeListAuthorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
   codeListStatusMock,
   codeListVisibilityMock,
   getCollectionsMock,
@@ -35,7 +32,18 @@ const mocks = [
 ];
 
 describe("Tabs component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupTests() {
+    prepLocalStorage();
     return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
   }
 

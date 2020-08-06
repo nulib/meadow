@@ -1,4 +1,49 @@
 import { CODE_LIST_QUERY } from "./controlledVocabulary.gql";
+import { makeReference } from "@apollo/client";
+
+export const marcRelatorMock = [
+  {
+    id: "abr",
+    label: "Abridger",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "act",
+    label: "Actor",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "adp",
+    label: "Adapter",
+    __typename: "CodedTerm",
+  },
+];
+
+export const authorityMock = [
+  {
+    id: "fast",
+    label: "Faceted Application of Subject Terminology",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "fast-corporate-name",
+    label: "Faceted Application of Subject Terminology -- Corporate Name",
+    __typename: "CodedTerm",
+  },
+];
+
+export const subjectMock = [
+  {
+    id: "GEOGRAPHICAL",
+    label: "Geographical",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "TOPICAL",
+    label: "Topical",
+    __typename: "CodedTerm",
+  },
+];
 
 export const codeListAuthorityMock = {
   request: {
@@ -9,18 +54,33 @@ export const codeListAuthorityMock = {
   },
   result: {
     data: {
-      codeList: [
-        {
-          id: "fast",
-          label: "Faceted Application of Subject Terminology",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "fast-corporate-name",
-          label: "Faceted Application of Subject Terminology -- Corporate Name",
-          __typename: "CodedTerm",
-        },
-      ],
+      codeList: authorityMock,
+    },
+  },
+};
+
+export const codeListMarcRelatorMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: {
+      scheme: "MARC_RELATOR",
+    },
+  },
+  result: {
+    data: {
+      codeList: marcRelatorMock,
+    },
+  },
+};
+
+export const codeListSubjectRoleMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "SUBJECT_ROLE" },
+  },
+  result: {
+    data: {
+      codeList: subjectMock,
     },
   },
 };
@@ -46,36 +106,6 @@ export const codeListLicenseMock = {
         {
           id: "http://creativecommons.org/licenses/by/3.0/us/",
           label: "Attribution 3.0 United States",
-          __typename: "CodedTerm",
-        },
-      ],
-    },
-  },
-};
-
-export const codeListMarcRelatorMock = {
-  request: {
-    query: CODE_LIST_QUERY,
-    variables: {
-      scheme: "MARC_RELATOR",
-    },
-  },
-  result: {
-    data: {
-      codeList: [
-        {
-          id: "abr",
-          label: "Abridger",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "act",
-          label: "Actor",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "adp",
-          label: "Adapter",
           __typename: "CodedTerm",
         },
       ],

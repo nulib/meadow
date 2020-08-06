@@ -10,22 +10,32 @@ import {
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  subjectMock,
+  authorityMock,
+  marcRelatorMock,
 } from "../controlledVocabulary.gql.mock";
 
 describe("Work About tab component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupTests() {
+    prepLocalStorage();
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
       mocks: [
         codeListAuthorityMock,
         codeListRelatedUrlMock,
-        // codeListAuthorityMock,
-        // codeListAuthorityMock,
         codeListLicenseMock,
         codeListMarcRelatorMock,
-        // codeListMarcRelatorMock,
         codeListRightsStatementMock,
         codeListSubjectRoleMock,
-        // codeListSubjectRoleMock,
       ],
     });
   }
