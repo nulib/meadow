@@ -24,6 +24,7 @@ import {
   ELASTICSEARCH_INDEX_NAME,
 } from "../services/elasticsearch";
 import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
+import { BatchProvider } from "../context/batch-edit-context";
 
 export default class Root extends React.Component {
   render() {
@@ -38,11 +39,7 @@ export default class Root extends React.Component {
             <ScrollToTop />
             <Switch>
               <Route exact path="/login" component={Login} />
-              <PrivateRoute
-                exact
-                path="/batch-edit"
-                component={ScreensBatchEdit}
-              />
+
               <PrivateRoute
                 exact
                 path="/project/list"
@@ -85,7 +82,15 @@ export default class Root extends React.Component {
                 path="/collection/:id"
                 component={ScreensCollection}
               />
-              <PrivateRoute exact path="/search" component={ScreensSearch} />
+              <BatchProvider>
+                <PrivateRoute exact path="/search" component={ScreensSearch} />
+                <PrivateRoute
+                  exact
+                  path="/batch-edit"
+                  component={ScreensBatchEdit}
+                />
+              </BatchProvider>
+
               <PrivateRoute exact path="/" component={Home} />
               <PrivateRoute component={NotFound} />
             </Switch>

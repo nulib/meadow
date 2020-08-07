@@ -12,6 +12,7 @@ import {
   elasticsearchDirectSearch,
   ELASTICSEARCH_AGGREGATION_FIELDS,
 } from "../../services/elasticsearch";
+import { useBatchDispatch } from "../../context/batch-edit-context";
 
 const ScreensSearch = () => {
   let history = useHistory();
@@ -19,6 +20,7 @@ const ScreensSearch = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteredQuery, setFilteredQuery] = useState();
   const [resultStats, setResultStats] = useState(0);
+  const dispatch = useBatchDispatch();
 
   const handleEditAllItems = async () => {
     // Grab all aggregated Controlled Term items from Elasticsearch directly,
@@ -27,10 +29,16 @@ const ScreensSearch = () => {
       aggs: { ...ELASTICSEARCH_AGGREGATION_FIELDS },
       query: { ...filteredQuery },
     });
-    console.log("handleEditAllItems() response :>> ", response);
 
     let parsedAggregations = parseESAggregationResults(response.aggregations);
-    console.log("parsedAggregations", parsedAggregations);
+
+    // Update the Context
+    dispatch({
+      type: "updateSearchResults",
+      filteredQuery,
+      parsedAggregations,
+      resultStats,
+    });
 
     // Send Elasticsearch query and aggregated Controlled Term options to Batch Edit
     history.push("/batch-edit", {
@@ -41,7 +49,6 @@ const ScreensSearch = () => {
   };
 
   const handleDeselectAll = () => {
-    console.log("handleDeselectAll ()");
     setSelectedItems([]);
   };
 

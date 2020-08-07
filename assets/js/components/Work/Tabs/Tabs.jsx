@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WorkTabAbout from "./About";
 import WorkTabStructure from "./Structure";
 import WorkTabsAdministrative from "./Administrative";
@@ -7,7 +7,6 @@ import { IIIFProvider } from "../../IIIF/IIIFProvider";
 
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
-
   const handleTabClick = (e) => {
     setActiveTab(e.target.id);
   };

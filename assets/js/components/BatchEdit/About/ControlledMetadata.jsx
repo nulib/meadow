@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
@@ -7,6 +7,9 @@ import { useQuery } from "@apollo/client";
 import UIError from "../../UI/Error";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import UISkeleton from "../../UI/Skeleton";
+import BatchEditRemove from "../Remove";
+import BatchEditModalRemove from "../ModalRemove";
+import { useBatchState } from "../../../context/batch-edit-context";
 
 const BatchEditAboutControlledMetadata = ({
   control,
@@ -14,6 +17,15 @@ const BatchEditAboutControlledMetadata = ({
   register,
   ...restProps
 }) => {
+  // This holds all the ElasticSearch Search info
+  const batchState = useBatchState();
+
+  const aggregations = batchState.parsedAggregations;
+
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState();
+  const [currentRemoveField, setCurrentRemoveField] = useState();
+
+  // Get GraphQL data
   const {
     data: marcData,
     loading: marcLoading,
@@ -58,6 +70,20 @@ const BatchEditAboutControlledMetadata = ({
     return [];
   }
 
+  function handleRemoveButtonClick(fieldObj) {
+    console.log("fieldObj", fieldObj);
+    setCurrentRemoveField(fieldObj);
+    setIsRemoveModalOpen(true);
+  }
+
+  function handleCloseRemoveModalClick() {
+    setIsRemoveModalOpen(false);
+  }
+
+  function handleSave(items) {
+    console.log("items :>> ", items);
+  }
+
   return (
     <div data-testid="controlled-metadata" {...restProps}>
       <ul>
@@ -74,9 +100,25 @@ const BatchEditAboutControlledMetadata = ({
                 register={register}
               />
             </UIFormField>
+            <BatchEditRemove
+              handleRemoveClick={handleRemoveButtonClick}
+              label={label}
+              name={name}
+            />
           </li>
         ))}
       </ul>
+      <BatchEditModalRemove
+        closeModal={handleCloseRemoveModalClick}
+        currentRemoveField={currentRemoveField}
+        handleSave={handleSave}
+        items={
+          aggregations && currentRemoveField
+            ? aggregations[currentRemoveField.name]
+            : []
+        }
+        isRemoveModalOpen={isRemoveModalOpen}
+      />
     </div>
   );
 };

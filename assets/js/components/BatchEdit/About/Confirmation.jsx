@@ -41,7 +41,7 @@ const mockDeleteMetadata = {
 const BatchEditConfirmation = ({
   addMetadata,
   removeMetadata,
-  isModalOpen,
+  isConfirmModalOpen,
   handleClose,
 }) => {
   const [confirmationError, setConfirmationError] = useState({});
@@ -91,7 +91,7 @@ const BatchEditConfirmation = ({
 
   return (
     <div
-      className={`modal ${isModalOpen ? "is-active" : ""}`}
+      className={`modal ${isConfirmModalOpen ? "is-active" : ""}`}
       data-testid="modal-batch-edit-confirmation"
     >
       <div className="modal-background"></div>
@@ -223,7 +223,7 @@ BatchEditConfirmation.propTypes = {
   addMetadata: PropTypes.object,
   removeMetadata: PropTypes.object,
   handleClose: PropTypes.func,
-  isModalOpen: PropTypes.bool,
+  isConfirmModalOpen: PropTypes.bool,
 };
 
 export default BatchEditConfirmation;

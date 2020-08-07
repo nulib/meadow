@@ -32,6 +32,11 @@ export default function BatchEditPreviewItems(props) {
   return (
     <div>
       <h2 className="title is-size-4">Preview of items go here</h2>
+      <p className="notification is-warning">
+        Note: We might need to write an Elasticsearch request that executes the
+        passed-in ES query, but only returns 40-50 items in order to populate
+        this area.
+      </p>
       <div className="is-centered ">
         <ul css={inlineList} data-testid="list-preview-items">
           {items.map((item) => (

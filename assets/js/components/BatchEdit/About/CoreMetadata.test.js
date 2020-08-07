@@ -6,13 +6,19 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import { codeListRightsStatementMock } from "../../Work/controlledVocabulary.gql.mock";
+import { BatchProvider } from "../../../context/batch-edit-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
   function setupTest() {
     const Wrapped = withReactHookFormControl(BatchEditAboutCoreMetadata);
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [codeListRightsStatementMock],
-    });
+    return renderWithRouterApollo(
+      <BatchProvider value={null}>
+        <Wrapped />
+      </BatchProvider>,
+      {
+        mocks: [codeListRightsStatementMock],
+      }
+    );
   }
   it("renders the component", async () => {
     let { queryByTestId } = setupTest();
