@@ -53,6 +53,7 @@ const BatchEditAboutControlledMetadata = ({
     { data: marcData, loading: marcLoading, errors: marcErrors },
   ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
+      console.log("Getting marcData");
       if (!marcErrors && data) {
         setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
       }

@@ -37,7 +37,6 @@ const WorkTabsAboutControlledMetadata = ({
       firstLaunch.current = false;
       return;
     }
-    console.log("Setting localstorage with ", codeLists);
     localStorage.setItem("codeLists", JSON.stringify(codeLists));
   }, [codeLists]);
 
@@ -60,6 +59,7 @@ const WorkTabsAboutControlledMetadata = ({
       errors: subjectRoleErrors,
     },
   ] = useLazyQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "SUBJECT_ROLE" },
     onCompleted: (data) => {
       if (!subjectRoleErrors && data) {
         setCodeLists({ ...codeLists, ["SUBJECT_ROLE"]: data.codeList });
@@ -73,9 +73,11 @@ const WorkTabsAboutControlledMetadata = ({
   ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
       if (!authorityErrors && data) {
-        console.log("Here with new data ", data);
         setCodeLists({ ...codeLists, ["AUTHORITY"]: data.codeList });
       }
+    },
+    onError: (data) => {
+      console.log("ON ERROR--", data);
     },
   });
 
@@ -102,6 +104,8 @@ const WorkTabsAboutControlledMetadata = ({
   const refreshCache = () => {
     setCodeLists({});
     localStorage.clear();
+    console.log("Refresh called---------\n");
+
     getMarcData({
       variables: { scheme: "MARC_RELATOR" },
     });

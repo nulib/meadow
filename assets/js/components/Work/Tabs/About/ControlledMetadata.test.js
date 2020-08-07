@@ -4,24 +4,28 @@ import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutControlledMetadata from "./ControlledMetadata";
 import { waitFor } from "@testing-library/react";
 import {
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-  codeListSubjectRoleMock,
+  marcRelatorMock,
+  authorityMock,
+  subjectMock,
 } from "../../controlledVocabulary.gql.mock";
 
 describe("Work About tab Controlled Metadata component", () => {
+  function prepLocalStorage() {
+    localStorage.setItem(
+      "codeLists",
+      JSON.stringify({
+        MARC_RELATOR: marcRelatorMock,
+        AUTHORITY: authorityMock,
+        SUBJECT_ROLE: subjectMock,
+      })
+    );
+  }
   function setupTests() {
+    prepLocalStorage();
     return renderWithRouterApollo(
       <WorkTabsAboutControlledMetadata
         descriptiveMetadata={mockWork.descriptiveMetadata}
-      />,
-      {
-        mocks: [
-          codeListAuthorityMock,
-          codeListMarcRelatorMock,
-          codeListSubjectRoleMock,
-        ],
-      }
+      />
     );
   }
 
