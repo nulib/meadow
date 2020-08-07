@@ -17,16 +17,18 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.ControlledTermTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
+  import_types(__MODULE__.Data.FieldTypes)
   import_types(__MODULE__.HelperTypes)
 
   query do
     import_fields(:account_queries)
     import_fields(:collection_queries)
     import_fields(:controlled_term_queries)
-    import_fields(:ingest_queries)
-    import_fields(:work_queries)
+    import_fields(:field_queries)
     import_fields(:file_set_queries)
     import_fields(:helper_queries)
+    import_fields(:ingest_queries)
+    import_fields(:work_queries)
   end
 
   mutation do

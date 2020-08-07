@@ -1,0 +1,9 @@
+fragment MetadataFields on FieldInfo {
+  id
+  label
+  role
+  scheme
+  metadataClass
+  repeating
+  required
+}
