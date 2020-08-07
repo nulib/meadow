@@ -9,7 +9,9 @@ alias Meadow.Pipeline.Actions.{
   UpdateSheetStatus
 }
 
-config :sequins, prefix: "meadow"
+config :sequins,
+  prefix: "meadow",
+  supervisor_opts: [max_restarts: 360]
 
 config :sequins, Meadow.Pipeline,
   actions: [

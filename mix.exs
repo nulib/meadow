@@ -30,14 +30,7 @@ defmodule Meadow.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Meadow.Application, []},
-      extra_applications: [
-        :honeybadger,
-        :logger,
-        :runtime_tools,
-        :sequins,
-        :ueberauth
-      ]
+      mod: {Meadow.Application, []}
     ]
   end
 
@@ -87,19 +80,12 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
-      {:sequins, sequins_version()},
+      {:sequins, "~> 0.5.1"},
       {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
       {:ueberauth_nusso, "~> 0.2.4"},
       {:wormwood, "~> 0.1.0"}
     ]
-  end
-
-  defp sequins_version do
-    case System.get_env("SEQUINS", nil) do
-      nil -> "~> 0.5.0"
-      path -> [path: path]
-    end
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
