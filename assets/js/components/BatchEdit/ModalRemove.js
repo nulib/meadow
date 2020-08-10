@@ -28,7 +28,10 @@ export default function BatchEditAboutModalRemove({
   const batchState = useBatchState();
   const dispatch = useBatchDispatch();
   const [candidateList, setCandidateList] = useState([]);
-  const selectedItems = batchState.removeItems[currentRemoveField.name] || [];
+  const selectedItems =
+    batchState.removeItems && batchState.removeItems[currentRemoveField.name]
+      ? batchState.removeItems[currentRemoveField.name]
+      : [];
 
   useEffect(() => {
     if (items.length > 0) {

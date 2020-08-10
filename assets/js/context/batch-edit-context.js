@@ -6,7 +6,7 @@ const BatchDispatchContext = React.createContext();
 const initialState = {
   filteredQuery: null,
   parsedAggregations: null,
-  removeItems: [],
+  removeItems: null,
   resultStats: null,
 };
 
@@ -24,9 +24,10 @@ function calculateItemList(state, action) {
   const { fieldName, key } = action;
   if (!fieldName) return {};
 
-  const previousItems = state.removeItems[fieldName]
-    ? [...state.removeItems[fieldName]]
-    : [];
+  const previousItems =
+    state.removeItems && state.removeItems[fieldName]
+      ? [...state.removeItems[fieldName]]
+      : [];
   const index = previousItems.indexOf(key);
 
   // Add new value to the list

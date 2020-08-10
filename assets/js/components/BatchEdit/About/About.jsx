@@ -95,8 +95,9 @@ const BatchEditAbout = () => {
         {isConfirmModalOpen ? (
           <BatchEditConfirmation
             addMetadata={confirmationMetadata}
-            isConfirmModalOpen={isConfirmModalOpen}
             handleClose={onCloseModal}
+            isConfirmModalOpen={isConfirmModalOpen}
+            removeMetadata={batchState.removeItems}
           />
         ) : null}
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">

@@ -11,8 +11,7 @@ export default function BatchEditRemove({
   removeItems,
 }) {
   return (
-    <fieldset className="remove" data-testid="batch-edit-remove">
-      <legend data-testid="legend-label">{label} (Remove)</legend>
+    <div data-testid="batch-edit-remove">
       <UIFormField>
         <button
           data-testid="button-remove"
@@ -31,12 +30,14 @@ export default function BatchEditRemove({
         <div className="content">
           <ul>
             {removeItems.map((item) => (
-              <li key={item}>{formatControlledTermKey(item)}</li>
+              <li key={item} className="has-text-danger">
+                {formatControlledTermKey(item)}
+              </li>
             ))}
           </ul>
         </div>
       )}
-    </fieldset>
+    </div>
   );
 }
 
