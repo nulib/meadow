@@ -11,18 +11,24 @@ import {
   codeListAuthorityMock,
 } from "../../Work/controlledVocabulary.gql.mock";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
+import { BatchProvider } from "../../../context/batch-edit-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
   function setupTest() {
     const Wrapped = withReactHookFormControl(BatchEditAboutControlledMetadata);
 
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [
-        codeListMarcRelatorMock,
-        codeListAuthorityMock,
-        codeListSubjectRoleMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <BatchProvider value={null}>
+        <Wrapped />
+      </BatchProvider>,
+      {
+        mocks: [
+          codeListMarcRelatorMock,
+          codeListAuthorityMock,
+          codeListSubjectRoleMock,
+        ],
+      }
+    );
   }
   it("renders controlled metadata component", async () => {
     let { queryByTestId } = setupTest();

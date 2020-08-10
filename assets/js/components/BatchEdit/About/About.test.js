@@ -9,20 +9,26 @@ import {
   codeListMarcRelatorMock,
   codeListSubjectRoleMock,
 } from "../../Work/controlledVocabulary.gql.mock";
+import { BatchProvider } from "../../../context/batch-edit-context";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAbout component", () => {
   function setupTest() {
-    return renderWithRouterApollo(<BatchEditAbout items={items} />, {
-      mocks: [
-        codeListAuthorityMock,
-        codeListLicenseMock,
-        codeListMarcRelatorMock,
-        codeListRightsStatementMock,
-        codeListSubjectRoleMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <BatchProvider value={null}>
+        <BatchEditAbout items={items} />
+      </BatchProvider>,
+      {
+        mocks: [
+          codeListAuthorityMock,
+          codeListLicenseMock,
+          codeListMarcRelatorMock,
+          codeListRightsStatementMock,
+          codeListSubjectRoleMock,
+        ],
+      }
+    );
   }
 
   it("renders Batch Edit About form", async () => {

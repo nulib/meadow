@@ -1,16 +1,20 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import BatchEditRemove from "./Remove";
+import { BatchProvider } from "../../context/batch-edit-context";
 
 const mockHandleRemoveClick = jest.fn();
 
 describe("BatchEditRemove component", () => {
   function setupTests() {
     return render(
-      <BatchEditRemove
-        label="Item title"
-        handleRemoveClick={mockHandleRemoveClick}
-      />
+      <BatchProvider value={null}>
+        <BatchEditRemove
+          label="Item title"
+          handleRemoveClick={mockHandleRemoveClick}
+          removeItems={["ABC123", "EFG888"]}
+        />
+      </BatchProvider>
     );
   }
   it("renders without crashing", () => {
@@ -18,16 +22,11 @@ describe("BatchEditRemove component", () => {
     expect(getByTestId("batch-edit-remove")).toBeInTheDocument();
   });
 
-  it("renders the correct legend label", () => {
-    const { getByTestId } = setupTests();
-    const el = getByTestId("legend-label");
-    expect(el).toHaveTextContent("Item title (Remove)");
-  });
-
   it("renders the remove button", () => {
     const { getByTestId } = setupTests();
     const el = getByTestId("button-remove");
     expect(el).toBeInTheDocument();
+    expect(el).toHaveTextContent(/^Remove entries in Item title$/);
 
     fireEvent.click(el);
     expect(mockHandleRemoveClick).toHaveBeenCalled();
