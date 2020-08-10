@@ -19,7 +19,6 @@ const BatchEditAboutControlledMetadata = ({
 }) => {
   // This holds all the ElasticSearch Search info
   const batchState = useBatchState();
-
   const aggregations = batchState.parsedAggregations;
 
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState();
@@ -80,10 +79,6 @@ const BatchEditAboutControlledMetadata = ({
     setIsRemoveModalOpen(false);
   }
 
-  function handleSave(items) {
-    console.log("items :>> ", items);
-  }
-
   return (
     <div data-testid="controlled-metadata" {...restProps}>
       <ul>
@@ -104,6 +99,9 @@ const BatchEditAboutControlledMetadata = ({
               handleRemoveClick={handleRemoveButtonClick}
               label={label}
               name={name}
+              removeItems={
+                (batchState.removeItems && batchState.removeItems[name]) || []
+              }
             />
           </li>
         ))}
@@ -111,7 +109,6 @@ const BatchEditAboutControlledMetadata = ({
       <BatchEditModalRemove
         closeModal={handleCloseRemoveModalClick}
         currentRemoveField={currentRemoveField}
-        handleSave={handleSave}
         items={
           aggregations && currentRemoveField
             ? aggregations[currentRemoveField.name]

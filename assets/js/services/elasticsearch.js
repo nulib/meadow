@@ -25,6 +25,11 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
       field: "descriptiveMetadata.contributor.facet",
     },
   },
+  creator: {
+    terms: {
+      field: "descriptiveMetadata.creator.facet",
+    },
+  },
   genre: {
     terms: {
       field: "descriptiveMetadata.genre.facet",
@@ -38,6 +43,16 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   location: {
     terms: {
       field: "descriptiveMetadata.location.facet",
+    },
+  },
+  stylePeriod: {
+    terms: {
+      field: "descriptiveMetadata.stylePeriod.facet",
+    },
+  },
+  subject: {
+    terms: {
+      field: "descriptiveMetadata.subject.facet",
     },
   },
   technique: {

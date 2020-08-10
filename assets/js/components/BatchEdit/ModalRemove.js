@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import {
+  useBatchDispatch,
+  useBatchState,
+} from "../../context/batch-edit-context";
 
-function setupRemoveList(items) {
+function setupCandidateList(items) {
   const newList = items.map((item) => {
     var arr = item.key.split("|");
     return {
@@ -16,85 +20,65 @@ function setupRemoveList(items) {
 export default function BatchEditAboutModalRemove({
   closeModal,
   currentRemoveField,
-  handleSave,
   isRemoveModalOpen,
   items = [],
 }) {
   if (!currentRemoveField) return null;
 
-  const [removeList, setRemoveList] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const batchState = useBatchState();
+  const dispatch = useBatchDispatch();
+  const [candidateList, setCandidateList] = useState([]);
+  const selectedItems = batchState.removeItems[currentRemoveField.name] || [];
 
   useEffect(() => {
     if (items.length > 0) {
-      setRemoveList(setupRemoveList(items));
+      setCandidateList(setupCandidateList(items));
     }
   }, [items]);
 
-  function handleChange({ key }) {
-    const index = selectedItems.indexOf(key);
-
-    if (index === -1) {
-      return setSelectedItems([...removeList, key]);
-    }
-    let list = [...removeList];
-    list.splice(index, 1);
-    setSelectedItems(list);
-  }
-
-  function handleSaveClick() {
-    handleSave();
-  }
-
-  function isItemSelected(item) {
-    return selectedItems.indexOf(item.key) > -1;
+  function handleCheckboxChange({ key }) {
+    dispatch({
+      type: "updateRemoveItem",
+      fieldName: currentRemoveField.name,
+      key: key,
+    });
   }
 
   return (
     <div className={`modal ${isRemoveModalOpen ? "is-active" : ""}`}>
       <div className="modal-background"></div>
-      <div className="modal-card">
-        <header className="modal-card-head">
-          <p className="modal-card-title">
-            Batch remove the following{" "}
-            <strong>{currentRemoveField.label}</strong>s
-          </p>
-          <button
-            type="button"
-            className="delete"
-            onClick={closeModal}
-            aria-label="close"
-          ></button>
-        </header>
-        <section className="modal-card-body">
-          {removeList.map((item) => (
-            <div className="field" key={`${item.key}`}>
-              <div className="control">
-                <label className="checkbox">
+      <div className="modal-content">
+        <div className="box">
+          <header>
+            <h3 className="title">{currentRemoveField.label}</h3>
+            <h4 className="subtitle">Batch remove the following entries</h4>
+          </header>
+          <div className="my-4">
+            {candidateList.map((item) => (
+              <div className="field" key={`${item.key}`}>
+                <div className="control">
                   <input
                     type="checkbox"
-                    checked={isItemSelected(item)}
-                    onChange={() => handleChange(item)}
+                    checked={selectedItems.indexOf(item.key) > -1}
+                    onChange={() => handleCheckboxChange(item)}
+                    className="is-checkradio"
+                    id={`remove-${item.key}`}
                   />{" "}
-                  {item.label}
-                </label>
+                  <label htmlFor={`remove-${item.key}`} className="checkbox">
+                    {item.label}
+                  </label>
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
-        <footer className="modal-card-foot">
-          <button
-            type="button"
-            className="button is-primary"
-            onClick={handleSaveClick}
-          >
-            Confirm selection
-          </button>
-          <button type="button" className="button" onClick={closeModal}>
-            Cancel
-          </button>
-        </footer>
+            ))}
+          </div>
+        </div>
       </div>
+      <button
+        className="modal-close is-large"
+        aria-label="close"
+        onClick={closeModal}
+        type="button"
+      ></button>
     </div>
   );
 }
@@ -102,7 +86,6 @@ export default function BatchEditAboutModalRemove({
 BatchEditAboutModalRemove.propTypes = {
   closeModal: PropTypes.func,
   currentRemoveField: PropTypes.object,
-  handleSave: PropTypes.func,
   isRemoveModalOpen: PropTypes.bool,
   items: PropTypes.array,
 };
