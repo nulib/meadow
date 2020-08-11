@@ -72,6 +72,7 @@ const WorkTabsAbout = ({ work }) => {
       provenance: descriptiveMetadata.provenance,
       publisher: descriptiveMetadata.publisher,
       relatedMaterial: descriptiveMetadata.relatedMaterial,
+      relatedUrl: descriptiveMetadata.relatedUrl,
       rightsHolder: descriptiveMetadata.rightsHolder,
       scopeAndContents: descriptiveMetadata.scopeAndContents,
       series: descriptiveMetadata.series,
@@ -126,6 +127,7 @@ const WorkTabsAbout = ({ work }) => {
       provenance = [],
       publisher = [],
       relatedMaterial = [],
+      relatedUrl = [],
       rightsHolder = [],
       scopeAndContents = [],
       series = [],
@@ -160,6 +162,7 @@ const WorkTabsAbout = ({ work }) => {
         physicalDescriptionSize,
         provenance,
         publisher,
+        relatedUrl,
         relatedMaterial,
         rightsHolder,
         rightsStatement: data.rightsStatement
@@ -182,6 +185,20 @@ const WorkTabsAbout = ({ work }) => {
         term,
         currentFormValues[term.name]
       );
+    }
+
+    // Update related url to match GraphQL mutation
+    for (let [
+      i,
+      item,
+    ] of workUpdateInput.descriptiveMetadata.relatedUrl.entries()) {
+      workUpdateInput.descriptiveMetadata.relatedUrl[i] = {
+        ...item,
+        label: {
+          scheme: "RELATED_URL",
+          id: item.label,
+        },
+      };
     }
 
     updateWork({

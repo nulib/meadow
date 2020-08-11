@@ -8,6 +8,7 @@ import {
   codeListMarcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
+  codeListRelatedUrlMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
 
@@ -26,6 +27,7 @@ describe("BatchEditTabs component", () => {
           codeListMarcRelatorMock,
           codeListRightsStatementMock,
           codeListSubjectRoleMock,
+          codeListRelatedUrlMock,
         ],
       }
     );

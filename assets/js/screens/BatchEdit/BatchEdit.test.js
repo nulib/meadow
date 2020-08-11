@@ -8,6 +8,7 @@ import {
   codeListMarcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
+  codeListRelatedUrlMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
@@ -24,6 +25,7 @@ describe("BatchEdit component", () => {
           codeListMarcRelatorMock,
           codeListRightsStatementMock,
           codeListSubjectRoleMock,
+          codeListRelatedUrlMock,
         ],
         // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
         state: { resultStats: { numberOfResults: 5 } },

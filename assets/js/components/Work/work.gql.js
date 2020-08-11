@@ -88,6 +88,7 @@ export const GET_WORK = gql`
           label {
             id
             label
+            scheme
           }
         }
         relatedMaterial

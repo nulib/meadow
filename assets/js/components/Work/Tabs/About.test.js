@@ -9,6 +9,7 @@ import {
   codeListMarcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
+  codeListRelatedUrlMock,
 } from "../controlledVocabulary.gql.mock";
 
 describe("Work About tab component", () => {
@@ -16,6 +17,7 @@ describe("Work About tab component", () => {
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
       mocks: [
         codeListAuthorityMock,
+        codeListRelatedUrlMock,
         // codeListAuthorityMock,
         // codeListAuthorityMock,
         codeListLicenseMock,

@@ -169,6 +169,35 @@ export const codeListStatusMock = {
   },
 };
 
+export const codeListRelatedUrlMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "RELATED_URL" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "FINDING_AID",
+          label: "Finding Aid",
+        },
+        {
+          id: "HATHI_TRUST_DIGITAL_LIBRARY",
+          label: "Hathi Trust Digital Library",
+        },
+        {
+          id: "RELATED_INFORMATION",
+          label: "Related Information",
+        },
+        {
+          id: "RESEARCH_GUIDE",
+          label: "Research Guide",
+        },
+      ],
+    },
+  },
+};
+
 export const codeListSubjectRoleMock = {
   request: {
     query: CODE_LIST_QUERY,
