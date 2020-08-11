@@ -8,7 +8,8 @@
 use Mix.Config
 
 config :meadow,
-  ecto_repos: [Meadow.Repo]
+  ecto_repos: [Meadow.Repo],
+  environment: Mix.env()
 
 # Shared database config
 config :meadow, Meadow.Repo,

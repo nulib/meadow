@@ -49,7 +49,6 @@ defmodule Meadow.MixProject do
       {:assertions, "~> 0.18.0", only: :test},
       {:authoritex, "~> 0.4.1"},
       {:briefly, "~> 0.3.0", only: :test},
-      {:bypass, "~> 1.0", only: :test},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},

@@ -59,9 +59,14 @@ defmodule Meadow.Config do
     ]
   end
 
-  @doc "Check whether Meadow is running in test mode"
-  def test_mode? do
-    Application.get_env(:meadow, :test_mode, false)
+  @doc "Retrieve the runtime environment"
+  def environment do
+    Application.get_env(:meadow, :environment, :dev)
+  end
+
+  @doc "Check the runtime environment against a value"
+  def environment?(env) do
+    environment() == env
   end
 
   @doc "Return the host:port to redirect to, or nil to use the current host on port 443"
@@ -72,6 +77,14 @@ defmodule Meadow.Config do
   @doc "Locate a path relative to the priv directory"
   def priv_path(path) do
     :code.priv_dir(:meadow) |> to_string() |> Path.join(path)
+  end
+
+  @default_ark_config %{url: "https://ezid.cdlib.org/"}
+  @doc "Get ARK/EZID configuration"
+  def ark_config do
+    with config <- Application.get_env(:meadow, :ark, %{}) do
+      Map.merge(@default_ark_config, config)
+    end
   end
 
   @doc "Gather AWS S3 configuration as environment for spawned process"

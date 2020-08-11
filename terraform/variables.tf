@@ -90,3 +90,19 @@ variable "iiif_server_url" {
 variable "iiif_manifest_url" {
   type = string
 }
+
+variable "ezid_password" {
+  type = string
+}
+
+variable "ezid_shoulder" {
+  type = string
+}
+
+variable "ezid_target_base_url" {
+  type = string
+}
+
+variable "ezid_user" {
+  type = string
+}

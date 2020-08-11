@@ -6,6 +6,7 @@ defmodule Meadow.Application do
   use Application
   alias Meadow.Config
   alias Meadow.Pipeline
+  alias Meadow.Utils
 
   require Cachex.Spec
 
@@ -37,20 +38,9 @@ defmodule Meadow.Application do
       )
     ]
 
-    children =
-      case Config.test_mode?() do
-        true ->
-          base_children
+    children = base_children ++ environment_specific_children(Config.environment())
 
-        _ ->
-          base_children ++
-            [
-              {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-              Meadow.IIIF.ManifestListener
-            ]
-      end
-
-    unless Meadow.Config.test_mode?(), do: Pipeline.start()
+    unless Meadow.Config.environment?(:test), do: Pipeline.start()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -71,5 +61,28 @@ defmodule Meadow.Application do
       start: {Cachex, :start_link, [name, args]},
       type: :supervisor
     }
+  end
+
+  def environment_specific_children(:dev) do
+    [
+      {Meadow.Data.IndexWorker, interval: Config.index_interval()},
+      Meadow.IIIF.ManifestListener,
+      {Plug.Cowboy, scheme: :http, plug: Utils.ArkClient.MockServer, options: [port: 3943]},
+      cache_spec(:ark_storage, Utils.ArkClient.MockServer.Cache)
+    ]
+  end
+
+  def environment_specific_children(:test) do
+    [
+      {Plug.Cowboy, scheme: :http, plug: Utils.ArkClient.MockServer, options: [port: 3944]},
+      cache_spec(:ark_storage, Utils.ArkClient.MockServer.Cache)
+    ]
+  end
+
+  def environment_specific_children(:prod) do
+    [
+      {Meadow.Data.IndexWorker, interval: Config.index_interval()},
+      Meadow.IIIF.ManifestListener
+    ]
   end
 end

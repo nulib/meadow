@@ -38,6 +38,7 @@ export const GET_WORK = gql`
       descriptiveMetadata {
         abstract
         alternateTitle
+        ark
         boxName
         boxNumber
         callNumber

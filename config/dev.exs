@@ -75,6 +75,13 @@ config :meadow, Meadow.ElasticsearchCluster,
 # Watch static and templates for browser reloading.
 
 config :meadow,
+  ark: %{
+    default_shoulder: System.get_env("EZID_SHOULDER", "ark:/12345/nu1"),
+    user: System.get_env("EZID_USER", "ark_user"),
+    password: System.get_env("EZID_PASSWORD", "ark_password"),
+    target_url: "https://devbox.library.northwestern.edu:3333/items/",
+    url: System.get_env("EZID_URL", "http://localhost:3943")
+  },
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
   preservation_bucket: "dev-preservation",

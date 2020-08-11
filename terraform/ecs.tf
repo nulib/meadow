@@ -4,7 +4,7 @@ resource "aws_ecs_cluster" "meadow" {
 }
 
 data "aws_acm_certificate" "meadow_cert" {
-  domain = "${var.stack_name}.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
+  domain = "*.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -115,6 +115,10 @@ data "template_file" "container_definitions" {
     elasticsearch_key    = aws_iam_access_key.meadow_elasticsearch_access_key.id
     elasticsearch_secret = aws_iam_access_key.meadow_elasticsearch_access_key.secret
     elasticsearch_url    = var.elasticsearch_url
+    ezid_password        = var.ezid_password
+    ezid_shoulder        = var.ezid_shoulder
+    ezid_target_base_url = var.ezid_target_base_url
+    ezid_user            = var.ezid_user
     geonames_username    = var.geonames_username
     honeybadger_api_key  = var.honeybadger_api_key
     host_name            = aws_route53_record.app_hostname.fqdn

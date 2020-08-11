@@ -1,5 +1,6 @@
 fragment WorkDescriptiveMetadataFields on Work {
   descriptiveMetadata {
+    ark
     title
     description
     contributor {

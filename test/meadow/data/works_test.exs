@@ -40,6 +40,18 @@ defmodule Meadow.Data.WorksTest do
       assert_raise(Ecto.InvalidChangesetError, fn -> Works.create_work!(@invalid_attrs) end)
     end
 
+    test "create_work/1 creates a work with an ark" do
+      with {:ok, work} <- Works.create_work(@valid_attrs) do
+        assert work.descriptive_metadata.ark |> String.match?(~r'^ark:/12345/nu2\d{8}$')
+      end
+    end
+
+    test "create_work!/1 creates a work with an ark" do
+      with work <- Works.create_work!(@valid_attrs) do
+        assert work.descriptive_metadata.ark |> String.match?(~r'^ark:/12345/nu2\d{8}$')
+      end
+    end
+
     test "update_work/2 updates a work" do
       work = work_fixture()
 
