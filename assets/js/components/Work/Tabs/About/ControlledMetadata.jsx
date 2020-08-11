@@ -18,6 +18,9 @@ const cacheNotification = css`
   align-items: center;
 `;
 
+// Browser localStorage variable used to hold code lists
+const LOCAL_STORAGE_KEY = "meadowCodeLists";
+
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
   errors,
@@ -25,29 +28,45 @@ const WorkTabsAboutControlledMetadata = ({
   register,
   control,
 }) => {
-  const firstLaunch = useRef(true);
   const [codeLists, setCodeLists] = useState(
-    localStorage.getItem("codeLists")
-      ? JSON.parse(localStorage.getItem("codeLists"))
-      : {}
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
   );
 
-  useEffect(() => {
-    if (firstLaunch.current) {
-      firstLaunch.current = false;
-      return;
-    }
-    localStorage.setItem("codeLists", JSON.stringify(codeLists));
-  }, [codeLists]);
+  /**
+   * Update code lists in local storage and local state
+   * @param {String} key
+   * @param {Array} data
+   */
+  function updateCodeLists(key, data) {
+    // Update localStorage
+    let currentLocalStorage =
+      JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
 
+    const newObj = {
+      ...currentLocalStorage,
+      [key]: data,
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObj));
+
+    //Update local state
+    setCodeLists({
+      ...codeLists,
+      [key]: data,
+    });
+  }
+
+  // GraphQL lazy queries
   const [
     getMarcData,
     { data: marcData, loading: marcLoading, errors: marcErrors },
   ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
       if (!marcErrors && data) {
-        setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
+        updateCodeLists("MARC_RELATOR", data.codeList);
       }
+    },
+    onError: (data) => {
+      console.log("getMarcData() error :>> ", data);
     },
   });
 
@@ -62,8 +81,11 @@ const WorkTabsAboutControlledMetadata = ({
     variables: { scheme: "SUBJECT_ROLE" },
     onCompleted: (data) => {
       if (!subjectRoleErrors && data) {
-        setCodeLists({ ...codeLists, ["SUBJECT_ROLE"]: data.codeList });
+        updateCodeLists("SUBJECT_ROLE", data.codeList);
       }
+    },
+    onError: (data) => {
+      console.log("getSubjectRoleData() error :>> ", data);
     },
   });
 
@@ -73,13 +95,14 @@ const WorkTabsAboutControlledMetadata = ({
   ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
       if (!authorityErrors && data) {
-        setCodeLists({ ...codeLists, ["AUTHORITY"]: data.codeList });
+        updateCodeLists("AUTHORITY", data.codeList);
       }
     },
     onError: (data) => {
-      console.log("ON ERROR--", data);
+      console.log("getAuthorityData()", data);
     },
   });
+  // End GraphQL lazy queries
 
   useEffect(() => {
     if (!codeLists || !codeLists.MARC_RELATOR) {
@@ -102,9 +125,11 @@ const WorkTabsAboutControlledMetadata = ({
   }, []);
 
   const refreshCache = () => {
-    setCodeLists({});
-    localStorage.clear();
-    console.log("Refresh called---------\n");
+    setCodeLists(null);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    console.log(
+      "Refreshing Code Lists local storage with fresh values from API---------\n"
+    );
 
     getMarcData({
       variables: { scheme: "MARC_RELATOR" },
@@ -132,6 +157,11 @@ const WorkTabsAboutControlledMetadata = ({
       return codeLists.SUBJECT_ROLE;
     }
     return [];
+  }
+
+  // Still updating, so return a null
+  if (!codeLists) {
+    return null;
   }
 
   return (
