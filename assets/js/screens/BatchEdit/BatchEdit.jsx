@@ -6,9 +6,8 @@ import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { mockBatchEditData } from "../../mock-data/batchEditData";
 import { useLocation, Link } from "react-router-dom";
 import JSONPretty from "react-json-pretty";
-import UIError from "../../components/UI/Error";
 
-export default function BatchEdit() {
+const ScreensBatchEdit = () => {
   let location = useLocation();
   let locationState = location.state;
 
@@ -102,4 +101,6 @@ export default function BatchEdit() {
       )}
     </Layout>
   );
-}
+};
+
+export default ScreensBatchEdit;
