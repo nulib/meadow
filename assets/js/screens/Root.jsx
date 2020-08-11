@@ -9,7 +9,6 @@ import NotFound from "./404";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensIngestSheetForm from "./IngestSheet/Form";
 import ScreensWork from "./Work/Work";
-import ScreensWorkList from "./Work/List";
 import ScreensSearch from "./Search/Search";
 import ScreensCollectionList from "./Collection/List";
 import ScreensCollection from "./Collection/Collection";
@@ -24,6 +23,7 @@ import {
   ELASTICSEARCH_INDEX_NAME,
 } from "../services/elasticsearch";
 import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
+import { BatchProvider } from "../context/batch-edit-context";
 
 export default class Root extends React.Component {
   render() {
@@ -34,62 +34,64 @@ export default class Root extends React.Component {
         url={ELASTICSEARCH_PROXY_ENDPOINT}
       >
         <AuthProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Switch>
-              <Route exact path="/login" component={Login} />
-              <PrivateRoute
-                exact
-                path="/batch-edit"
-                component={ScreensBatchEdit}
-              />
-              <PrivateRoute
-                exact
-                path="/project/list"
-                component={ScreensProjectList}
-              />
-              <PrivateRoute
-                exact
-                path="/project/create"
-                component={ScreensProjectForm}
-              />
-              <PrivateRoute
-                exact
-                path="/project/:id/ingest-sheet/upload"
-                component={ScreensIngestSheetForm}
-              />
-              <PrivateRoute
-                exact
-                path="/project/:id/ingest-sheet/:sheetId"
-                component={ScreensIngestSheet}
-              />
-              <PrivateRoute
-                exact
-                path="/project/:id"
-                component={ScreensProject}
-              />
+          <BatchProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <Switch>
+                <Route exact path="/login" component={Login} />
+                <PrivateRoute
+                  exact
+                  path="/project/list"
+                  component={ScreensProjectList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/project/create"
+                  component={ScreensProjectForm}
+                />
+                <PrivateRoute
+                  exact
+                  path="/project/:id/ingest-sheet/upload"
+                  component={ScreensIngestSheetForm}
+                />
+                <PrivateRoute
+                  exact
+                  path="/project/:id/ingest-sheet/:sheetId"
+                  component={ScreensIngestSheet}
+                />
+                <PrivateRoute
+                  exact
+                  path="/project/:id"
+                  component={ScreensProject}
+                />
 
-              <PrivateRoute exact path="/work/:id" component={ScreensWork} />
-              <PrivateRoute
-                exact
-                path="/collection/list"
-                component={ScreensCollectionList}
-              />
-              <PrivateRoute
-                exact
-                path="/collection/form/:id?"
-                component={ScreensCollectionForm}
-              />
-              <PrivateRoute
-                exact
-                path="/collection/:id"
-                component={ScreensCollection}
-              />
-              <PrivateRoute exact path="/search" component={ScreensSearch} />
-              <PrivateRoute exact path="/" component={Home} />
-              <PrivateRoute component={NotFound} />
-            </Switch>
-          </BrowserRouter>
+                <PrivateRoute exact path="/work/:id" component={ScreensWork} />
+                <PrivateRoute
+                  exact
+                  path="/collection/list"
+                  component={ScreensCollectionList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/collection/form/:id?"
+                  component={ScreensCollectionForm}
+                />
+                <PrivateRoute
+                  exact
+                  path="/collection/:id"
+                  component={ScreensCollection}
+                />
+                <PrivateRoute exact path="/search" component={ScreensSearch} />
+                <PrivateRoute
+                  exact
+                  path="/batch-edit"
+                  component={ScreensBatchEdit}
+                />
+                <PrivateRoute exact path="/" component={Home} />
+                <PrivateRoute component={NotFound} />
+              </Switch>
+            </BrowserRouter>
+          </BatchProvider>
         </AuthProvider>
       </ReactiveBase>
     );

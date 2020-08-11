@@ -22,6 +22,7 @@ const addWrapperCss = css`
 
 const removeWrapperCss = css`
   border: 1px solid red;
+  padding: 1rem;
 `;
 
 const confirmationNote =
@@ -41,7 +42,7 @@ const mockDeleteMetadata = {
 const BatchEditConfirmation = ({
   addMetadata,
   removeMetadata,
-  isModalOpen,
+  isConfirmModalOpen,
   handleClose,
 }) => {
   const [confirmationError, setConfirmationError] = useState({});
@@ -91,7 +92,7 @@ const BatchEditConfirmation = ({
 
   return (
     <div
-      className={`modal ${isModalOpen ? "is-active" : ""}`}
+      className={`modal ${isConfirmModalOpen ? "is-active" : ""}`}
       data-testid="modal-batch-edit-confirmation"
     >
       <div className="modal-background"></div>
@@ -144,6 +145,26 @@ const BatchEditConfirmation = ({
           </section>
 
           <section className="py-6">
+            <h3 className="title is-size-5">Removing</h3>
+            <ul
+              className="px-4 py-4"
+              className="content has-text-danger"
+              css={removeWrapperCss}
+            >
+              {Object.keys(removeMetadata).map((objKey) => (
+                <li>
+                  <h6 className="is-capitalized">{objKey}</h6>
+                  <ul>
+                    {removeMetadata[objKey].map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* <section className="py-6">
             <h3 className="title is-size-5">Removing </h3>
             <ul className="px-4 py-4" css={removeWrapperCss}>
               {parsedDeleteMetadata &&
@@ -155,7 +176,7 @@ const BatchEditConfirmation = ({
                         <li key={(innerKey, index)} className="py-2">
                           <FontAwesomeIcon icon="minus" />
                           <strong> {parsedDeleteMetadata[key].label}: </strong>
-                          {/*Check If the metadata for this field is an array of strings */}
+
                           {typeof parsedDeleteMetadata[key].metadata[index] ===
                           "string"
                             ? parsedDeleteMetadata[key].metadata[index]
@@ -178,7 +199,8 @@ const BatchEditConfirmation = ({
                     )
                 )}
             </ul>
-          </section>
+          </section> */}
+
           <div className="columns">
             <div className="column is-half">
               <UIFormField label={confirmationNote}>
@@ -223,7 +245,7 @@ BatchEditConfirmation.propTypes = {
   addMetadata: PropTypes.object,
   removeMetadata: PropTypes.object,
   handleClose: PropTypes.func,
-  isModalOpen: PropTypes.bool,
+  isConfirmModalOpen: PropTypes.bool,
 };
 
 export default BatchEditConfirmation;

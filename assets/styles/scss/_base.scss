@@ -14,6 +14,14 @@ fieldset {
   legend {
     font-weight: bold;
   }
+
+  &.add {
+    border-color: $success;
+  }
+
+  &.remove {
+    border-color: $danger;
+  }
 }
 
 footer {

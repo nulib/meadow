@@ -50,11 +50,19 @@ export const FACET_SENSORS = [
     showSearch: true,
     title: "Contributor",
   },
+
   {
     ...defaultListItemValues,
     componentId: "FacetCollection",
     dataField: "collection.id",
     title: "Collection",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetCreator",
+    dataField: "descriptiveMetadata.creator.displayFacet",
+    showSearch: true,
+    title: "Creator",
   },
   {
     ...defaultListItemValues,
@@ -105,6 +113,20 @@ export const FACET_SENSORS = [
     componentId: "FacetRightsStatement",
     dataField: "descriptiveMetadata.rightsStatement.label.keyword",
     title: "Rights Statement",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetSubject",
+    dataField: "descriptiveMetadata.subject.displayFacet",
+    showSearch: true,
+    title: "Subject",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FacetStylePeriod",
+    dataField: "descriptiveMetadata.stylePeriod.displayFacet",
+    showSearch: true,
+    title: "Style Period",
   },
   {
     ...defaultListItemValues,

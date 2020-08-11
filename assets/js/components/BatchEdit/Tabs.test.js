@@ -9,20 +9,26 @@ import {
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
+import { BatchProvider } from "../../context/batch-edit-context";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
   function setupTest() {
-    return renderWithRouterApollo(<BatchEditTabs items={items} />, {
-      mocks: [
-        codeListAuthorityMock,
-        codeListLicenseMock,
-        codeListMarcRelatorMock,
-        codeListRightsStatementMock,
-        codeListSubjectRoleMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <BatchProvider value={null}>
+        <BatchEditTabs items={items} />
+      </BatchProvider>,
+      {
+        mocks: [
+          codeListAuthorityMock,
+          codeListLicenseMock,
+          codeListMarcRelatorMock,
+          codeListRightsStatementMock,
+          codeListSubjectRoleMock,
+        ],
+      }
+    );
   }
 
   it("renders the tabs header", async () => {

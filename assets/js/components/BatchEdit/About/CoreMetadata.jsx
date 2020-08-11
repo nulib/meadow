@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
@@ -51,6 +51,7 @@ const BatchEditAboutCoreMetadata = ({
           data-testid="alternate-title"
           label="Alternate Title"
           errors={errors}
+          className="add"
         />
       </div>
       <div className="column is-half">

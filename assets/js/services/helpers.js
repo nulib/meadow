@@ -22,6 +22,17 @@ export function formatSimpleISODate(date) {
   return newDate;
 }
 
+/**
+ * Format a Controlled Term facet "key" value so it displays better in the UI
+ * @param {String} key ie. "http://id.loc.gov/authorities/names/n50053919|mrb|Ranganathan, S. R. (Shiyali Ramamrita), 1892-1972 (Marbler)"
+ */
+export function formatControlledTermKey(key) {
+  const arr = key.split("|");
+  return arr.length === 0
+    ? ""
+    : `${arr[arr.length - 1]} - ${arr[0]} - ${arr[1]}`;
+}
+
 export function getClassFromIngestSheetStatus(status) {
   if (["ROW_FAIL", "FILE_FAIL"].indexOf(status) > -1) {
     return "is-danger";
