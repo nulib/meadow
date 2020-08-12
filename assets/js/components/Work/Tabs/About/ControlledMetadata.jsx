@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import UIFormField from "../../../UI/Form/Field";
+import UIError from "../../../UI/Error";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";

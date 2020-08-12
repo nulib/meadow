@@ -13,6 +13,7 @@ import {
   codeListSubjectRoleMock,
   codeListStatusMock,
   codeListVisibilityMock,
+  codeListRelatedUrlMock,
 } from "../controlledVocabulary.gql.mock";
 import {
   getCollectionMock,
@@ -30,6 +31,7 @@ const mocks = [
   codeListVisibilityMock,
   getCollectionsMock,
   iiifServerUrlMock,
+  codeListRelatedUrlMock,
 ];
 
 describe("Tabs component", () => {

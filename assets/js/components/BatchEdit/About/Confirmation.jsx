@@ -122,9 +122,11 @@ const BatchEditConfirmation = ({
                         {typeof parsedAddMetadata[key].metadata[index] ===
                         "string"
                           ? parsedAddMetadata[key].metadata[index]
-                          : `${parsedAddMetadata[key].metadata[index].label},
-                      ${parsedAddMetadata[key].metadata[index].termId},
-                      ${parsedAddMetadata[key].metadata[index].roleId}`}
+                          : `${parsedAddMetadata[key].metadata[index].url || ""}
+                          ${parsedAddMetadata[key].metadata[index].label} 
+                      ${parsedAddMetadata[key].metadata[index].termId || ""} 
+                      ${parsedAddMetadata[key].metadata[index].roleId || ""}
+                      `}
                       </li>
                     ))
                 )}

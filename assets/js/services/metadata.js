@@ -44,6 +44,7 @@ export const OTHER_METADATA = [
   { name: "rightsStatement", label: "Rights Statement" },
   { name: "license", label: "License" },
   { name: "dateCreated", label: "Date Created" },
+  { name: "relatedUrl", label: "Related URL" },
 ];
 
 export const UNCONTROLLED_METADATA = [
