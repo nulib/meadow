@@ -102,6 +102,7 @@ const WorkListItem = ({
                 <tr>
                   <td
                     data-testid="result-item-accession-number"
+                    style={{ wordBreak: "break-all" }}
                     dangerouslySetInnerHTML={{ __html: accessionNumber }}
                   ></td>
                   <td data-testid="result-item-filesets-length">{fileSets}</td>

@@ -62,6 +62,7 @@ const WorkCardItem = ({
             <dt>Accession Number:</dt>
             <dd
               data-testid="result-item-accession-number"
+              style={{ wordBreak: "break-all" }}
               dangerouslySetInnerHTML={{ __html: accessionNumber }}
             ></dd>
             <dt># Filesets:</dt>
