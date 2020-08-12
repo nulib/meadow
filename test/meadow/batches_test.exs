@@ -82,12 +82,23 @@ defmodule Meadow.BatchesTest do
         ]
       }
 
-      assert {:ok, _result} = Batches.batch_update(query, delete)
+      add = %{
+        descriptive_metadata: %{
+          style_period: [
+            %{role: nil, term: %{id: "http://vocab.getty.edu/aat/300139140"}}
+          ]
+        }
+      }
+
+      assert {:ok, _result} = Batches.batch_update(query, delete, add)
 
       assert List.first(Works.get_works_by_title("Work 1")).descriptive_metadata.genre
              |> length() == 1
 
       assert List.first(Works.get_works_by_title("Work 2")).descriptive_metadata.contributor
+             |> length() == 1
+
+      assert List.first(Works.get_works_by_title("Work 2")).descriptive_metadata.style_period
              |> length() == 1
     end
   end
