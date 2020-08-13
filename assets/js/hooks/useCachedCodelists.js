@@ -11,15 +11,12 @@ export default function () {
   function refreshCodeLists() {
     setCodeLists(null);
     localStorage.removeItem(LOCAL_STORAGE_CODELIST_KEY);
-    console.log(
-      "Refreshing Code Lists local storage with fresh values from API---------\n"
-    );
 
-    getMarcData({
-      variables: { scheme: "MARC_RELATOR" },
-    });
     getAuthorityData({
       variables: { scheme: "AUTHORITY" },
+    });
+    getMarcData({
+      variables: { scheme: "MARC_RELATOR" },
     });
     getSubjectRoleData({
       variables: { scheme: "SUBJECT_ROLE" },
