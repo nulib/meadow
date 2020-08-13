@@ -15,10 +15,8 @@ import {
   codeListVisibilityMock,
   codeListRelatedUrlMock,
 } from "../controlledVocabulary.gql.mock";
-import {
-  getCollectionMock,
-  getCollectionsMock,
-} from "../../Collection/collection.gql.mock";
+import { getCollectionsMock } from "../../Collection/collection.gql.mock";
+import { LOCAL_STORAGE_CODELIST_KEY } from "../../../services/global-vars";
 
 const mocks = [
   codeListLicenseMock,
@@ -34,7 +32,7 @@ const mocks = [
 describe("Tabs component", () => {
   function prepLocalStorage() {
     localStorage.setItem(
-      "codeLists",
+      LOCAL_STORAGE_CODELIST_KEY,
       JSON.stringify({
         MARC_RELATOR: marcRelatorMock,
         AUTHORITY: authorityMock,

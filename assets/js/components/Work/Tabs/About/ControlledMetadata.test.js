@@ -8,11 +8,12 @@ import {
   authorityMock,
   subjectMock,
 } from "../../controlledVocabulary.gql.mock";
+import { LOCAL_STORAGE_CODELIST_KEY } from "../../../../services/global-vars";
 
 describe("Work About tab Controlled Metadata component", () => {
   function prepLocalStorage() {
     localStorage.setItem(
-      "codeLists",
+      LOCAL_STORAGE_CODELIST_KEY,
       JSON.stringify({
         MARC_RELATOR: marcRelatorMock,
         AUTHORITY: authorityMock,

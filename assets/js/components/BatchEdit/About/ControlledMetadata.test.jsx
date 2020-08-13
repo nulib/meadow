@@ -6,6 +6,9 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import {
+  codeListMarcRelatorMock,
+  codeListAuthorityMock,
+  codeListSubjectRoleMock,
   marcRelatorMock,
   authorityMock,
   subjectMock,
@@ -25,7 +28,7 @@ describe("BatchEditAboutCoreMetadata component", () => {
     );
   }
   function setupTest() {
-    prepLocalStorage();
+    //prepLocalStorage();
     const Wrapped = withReactHookFormControl(BatchEditAboutControlledMetadata);
 
     return renderWithRouterApollo(

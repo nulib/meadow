@@ -9,6 +9,8 @@ import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";
 import UISkeleton from "../../../UI/Skeleton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { LOCAL_STORAGE_CODELIST_KEY } from "../../../../services/global-vars";
+import useCachedCodelists from "../../../../hooks/useCachedCodelists";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -18,9 +20,6 @@ const cacheNotification = css`
   align-items: center;
 `;
 
-// Browser localStorage variable used to hold code lists
-const LOCAL_STORAGE_KEY = "meadowCodeLists";
-
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
   errors,
@@ -29,8 +28,11 @@ const WorkTabsAboutControlledMetadata = ({
   control,
 }) => {
   const [codeLists, setCodeLists] = useState(
-    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_CODELIST_KEY))
   );
+
+  const [fooBar, refreshCodeLists] = useCachedCodelists();
+  console.log("fooBar :>> ", fooBar);
 
   /**
    * Update code lists in local storage and local state
@@ -40,13 +42,13 @@ const WorkTabsAboutControlledMetadata = ({
   function updateCodeLists(key, data) {
     // Update localStorage
     let currentLocalStorage =
-      JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
+      JSON.parse(localStorage.getItem(LOCAL_STORAGE_CODELIST_KEY)) || {};
 
     const newObj = {
       ...currentLocalStorage,
       [key]: data,
     };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObj));
+    localStorage.setItem(LOCAL_STORAGE_CODELIST_KEY, JSON.stringify(newObj));
 
     //Update local state
     setCodeLists({
@@ -126,7 +128,7 @@ const WorkTabsAboutControlledMetadata = ({
 
   const refreshCache = () => {
     setCodeLists(null);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_CODELIST_KEY);
     console.log(
       "Refreshing Code Lists local storage with fresh values from API---------\n"
     );
@@ -166,6 +168,9 @@ const WorkTabsAboutControlledMetadata = ({
 
   return (
     <div data-testid="controlled-metadata">
+      <button type="button" onClick={() => refreshCodeLists()}>
+        Get Hook CodeLists
+      </button>
       <ul>
         {CONTROLLED_METADATA.map(({ label, name, scheme }) => (
           <li key={name} className="mb-5">

@@ -4,11 +4,13 @@ import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import {
   authorityMock,
+  codeListAuthorityMock,
   codeListLicenseMock,
-  marcRelatorMock,
+  codeListMarcRelatorMock,
   codeListRightsStatementMock,
   codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  marcRelatorMock,
   subjectMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -27,7 +29,7 @@ describe("BatchEditTabs component", () => {
     );
   }
   function setupTest() {
-    prepLocalStorage();
+    //prepLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <BatchEditTabs items={items} />

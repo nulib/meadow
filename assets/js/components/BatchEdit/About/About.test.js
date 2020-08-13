@@ -4,11 +4,12 @@ import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import {
   authorityMock,
+  codeListAuthorityMock,
   codeListLicenseMock,
-  codeListRightsStatementMock,
   codeListMarcRelatorMock,
   codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  codeListRightsStatementMock,
   marcRelatorMock,
   subjectMock,
 } from "../../Work/controlledVocabulary.gql.mock";
