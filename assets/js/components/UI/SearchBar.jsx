@@ -20,9 +20,6 @@ const UISearchBar = () => {
         innerClass={{ input: "input is-medium" }}
         queryFormat="or"
         placeholder="Search all works"
-        react={{
-          and: ["SearchResult"],
-        }}
         size={10}
         showClear={true}
         showFilter={true}

@@ -35,6 +35,7 @@ const facetClasses = {
 const defaultListItemValues = {
   innerClass: facetClasses,
   showSearch: false,
+  URLParams: true,
 };
 
 // Map of Facet "sensor id" values which ReactiveSearch needs to pull in
