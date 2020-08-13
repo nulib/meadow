@@ -69,7 +69,21 @@ defmodule Meadow.Utils.MetadataGenerator do
       %{id: "https://sws.geonames.org/3703443", label: "Panama City"},
       %{id: "https://sws.geonames.org/3582677", label: "Belize City"},
       %{id: "https://sws.geonames.org/2347283", label: "Benin City"},
-      %{id: "https://sws.geonames.org/292932", label: "Ajman"}
+      %{id: "https://sws.geonames.org/292932", label: "Ajman"},
+      %{id: "http://vocab.getty.edu/tgn/7549617", label: "Coco Channel"},
+      %{id: "http://vocab.getty.edu/tgn/1114106", label: "Coco Channel"},
+      %{
+        id: "https://sws.geonames.org/4921868",
+        label: "Indiana"
+      },
+      %{
+        id: "http://id.worldcat.org/fast/1204604",
+        label: "Indiana"
+      },
+      %{
+        id: "http://id.loc.gov/authorities/names/n79022925",
+        label: "Indiana"
+      }
     ],
     style_period: [
       %{id: "http://vocab.getty.edu/aat/300312140", label: "White Style"},
@@ -98,14 +112,6 @@ defmodule Meadow.Utils.MetadataGenerator do
       %{
         id: "http://id.loc.gov/authorities/subjects/sh85076671",
         label: "Library catalogs and users"
-      },
-      %{
-        id: "http://id.loc.gov/authorities/subjects/sh91004067",
-        label: "Library materials budgets"
-      },
-      %{
-        id: "http://id.loc.gov/authorities/subjects/sh85076678",
-        label: "Library cooperation"
       }
     ],
     technique: [
