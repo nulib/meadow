@@ -44,6 +44,16 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
             "genre" => [
               %{"term" => "http://vocab.getty.edu/aat/300139140"}
             ]
+          },
+          "add" => %{
+            "descriptive_metadata" => %{
+              "contributor" => [
+                %{
+                  "role" => %{"scheme" => "MARC_RELATOR", "id" => "pbl"},
+                  "term" => "http://id.loc.gov/authorities/names/n50053919"
+                }
+              ]
+            }
           }
         },
         context: gql_context()
@@ -53,5 +63,45 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
 
     response = get_in(query_data, [:data, "batchUpdate", "message"])
     assert response == "Batch started"
+  end
+
+  test "adds only should be a valid mutation" do
+    result =
+      query_gql(
+        variables: %{
+          "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+          "add" => %{
+            "descriptive_metadata" => %{
+              "contributor" => [
+                %{
+                  "role" => %{"scheme" => "MARC_RELATOR", "id" => "pbl"},
+                  "term" => "http://id.loc.gov/authorities/names/n50053919"
+                }
+              ]
+            }
+          }
+        },
+        context: gql_context()
+      )
+
+    assert {:ok, query_data} = result
+
+    response = get_in(query_data, [:data, "batchUpdate", "message"])
+    assert response == "Batch started"
+  end
+
+  test "no updates should not be a valid mutation" do
+    result =
+      query_gql(
+        variables: %{
+          "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+        },
+        context: gql_context()
+      )
+
+    assert {:ok, query_data} = result
+
+    response = get_in(query_data, [:data, "batchUpdate", "message"])
+    assert response == "No updates specified"
   end
 end
