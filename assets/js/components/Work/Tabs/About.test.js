@@ -1,31 +1,26 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
 import {
-  codeListAuthorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
-  codeListRightsStatementMock,
-  codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  codeListRightsStatementMock,
 } from "../controlledVocabulary.gql.mock";
 
 describe("Work About tab component", () => {
   function setupTests() {
+    setupCachedCodeListsLocalStorage();
+
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
       mocks: [
-        codeListAuthorityMock,
-        codeListRelatedUrlMock,
-        // codeListAuthorityMock,
-        // codeListAuthorityMock,
         codeListLicenseMock,
-        codeListMarcRelatorMock,
-        // codeListMarcRelatorMock,
+        codeListRelatedUrlMock,
         codeListRightsStatementMock,
-        codeListSubjectRoleMock,
-        // codeListSubjectRoleMock,
       ],
     });
   }
@@ -38,10 +33,11 @@ describe("Work About tab component", () => {
   });
 
   it("switches between edit and non edit mode", async () => {
-    const { getByTestId } = setupTests();
+    const { getByTestId, debug } = setupTests();
 
     await waitFor(() => {
       expect(getByTestId("edit-button")).toBeInTheDocument();
+      //debug();
     });
 
     fireEvent.click(getByTestId("edit-button"));

@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
 import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import UIFormField from "../../../UI/Form/Field";
 import UIError from "../../../UI/Error";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";
-import UISkeleton from "../../../UI/Skeleton";
+import useCachedCodeLists from "../../../../hooks/useCachedCodeLists";
+import UICodeListCacheRefresh from "../../../UI/CodeListCacheRefresh";
 
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
@@ -16,53 +15,27 @@ const WorkTabsAboutControlledMetadata = ({
   register,
   control,
 }) => {
-  const {
-    data: marcData,
-    loading: marcLoading,
-    errors: marcErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "MARC_RELATOR" } });
-  const {
-    data: subjectRoleData,
-    loading: subjectRoleLoading,
-    errors: subjectRoleErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "SUBJECT_ROLE" } });
-  const {
-    data: authorityData,
-    loading: authorityLoading,
-    errors: authorityErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "AUTHORITY" } });
+  const [codeLists, refreshCodeLists] = useCachedCodeLists();
 
-  if (marcLoading || authorityLoading || subjectRoleLoading)
-    return <UISkeleton rows={20} />;
-  if (marcErrors || authorityErrors || subjectRoleErrors)
-    return (
-      <div {...restProps}>
-        <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
-      </div>
-    );
-  if (!authorityData || !marcData || !subjectRoleData) {
-    return (
-      <div {...restProps}>
-        <UIError
-          error={{ message: "No Authority, MARC, or Subject Role data" }}
-        />
-      </div>
-    );
-  }
-
-  const codeLists = {
-    AUTHORITY: authorityData.codeList,
-    MARC_RELATOR: marcData.codeList,
-    SUBJECT_ROLE: subjectRoleData.codeList,
-  };
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {
-      return marcData.codeList;
+      return codeLists.MARC_RELATOR;
     }
     if (scheme === "SUBJECT_ROLE") {
-      return subjectRoleData.codeList;
+      return codeLists.SUBJECT_ROLE;
     }
     return [];
+  }
+
+  useEffect(() => {
+    if (!codeLists) {
+      refreshCodeLists();
+    }
+  }, []);
+
+  // Still updating, so return a null
+  if (!codeLists) {
+    return null;
   }
 
   return (
@@ -88,6 +61,12 @@ const WorkTabsAboutControlledMetadata = ({
           </li>
         ))}
       </ul>
+      <button type="button" onClick={async () => refreshCodeLists()}>
+        Click Me
+      </button>
+      {isEditing && (
+        <UICodeListCacheRefresh handleClick={() => refreshCodeLists()} />
+      )}
     </div>
   );
 };

@@ -1,32 +1,26 @@
 import React from "react";
 import WorkTabs from "./Tabs";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import {
-  codeListAuthorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
   codeListStatusMock,
   codeListVisibilityMock,
   codeListRelatedUrlMock,
 } from "../controlledVocabulary.gql.mock";
-import {
-  getCollectionMock,
-  getCollectionsMock,
-} from "../../Collection/collection.gql.mock";
+import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 
 const mocks = [
-  codeListAuthorityMock,
   codeListLicenseMock,
-  codeListMarcRelatorMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
   codeListStatusMock,
   codeListVisibilityMock,
   getCollectionsMock,
@@ -36,6 +30,7 @@ const mocks = [
 
 describe("Tabs component", () => {
   function setupTests() {
+    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
   }
 

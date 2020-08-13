@@ -1,4 +1,49 @@
 import { CODE_LIST_QUERY } from "./controlledVocabulary.gql";
+import { makeReference } from "@apollo/client";
+
+export const marcRelatorMock = [
+  {
+    id: "abr",
+    label: "Abridger",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "act",
+    label: "Actor",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "adp",
+    label: "Adapter",
+    __typename: "CodedTerm",
+  },
+];
+
+export const authorityMock = [
+  {
+    id: "fast",
+    label: "Faceted Application of Subject Terminology",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "fast-corporate-name",
+    label: "Faceted Application of Subject Terminology -- Corporate Name",
+    __typename: "CodedTerm",
+  },
+];
+
+export const subjectMock = [
+  {
+    id: "GEOGRAPHICAL",
+    label: "Geographical",
+    __typename: "CodedTerm",
+  },
+  {
+    id: "TOPICAL",
+    label: "Topical",
+    __typename: "CodedTerm",
+  },
+];
 
 export const codeListAuthorityMock = {
   request: {
@@ -9,18 +54,7 @@ export const codeListAuthorityMock = {
   },
   result: {
     data: {
-      codeList: [
-        {
-          id: "fast",
-          label: "Faceted Application of Subject Terminology",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "fast-corporate-name",
-          label: "Faceted Application of Subject Terminology -- Corporate Name",
-          __typename: "CodedTerm",
-        },
-      ],
+      codeList: authorityMock,
     },
   },
 };
@@ -62,23 +96,7 @@ export const codeListMarcRelatorMock = {
   },
   result: {
     data: {
-      codeList: [
-        {
-          id: "abr",
-          label: "Abridger",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "act",
-          label: "Actor",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "adp",
-          label: "Adapter",
-          __typename: "CodedTerm",
-        },
-      ],
+      codeList: marcRelatorMock,
     },
   },
 };
@@ -107,6 +125,35 @@ export const codeListPreservationLevelMock = {
           id: "3",
           label: "Level 3",
           __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
+export const codeListRelatedUrlMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "RELATED_URL" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "FINDING_AID",
+          label: "Finding Aid",
+        },
+        {
+          id: "HATHI_TRUST_DIGITAL_LIBRARY",
+          label: "Hathi Trust Digital Library",
+        },
+        {
+          id: "RELATED_INFORMATION",
+          label: "Related Information",
+        },
+        {
+          id: "RESEARCH_GUIDE",
+          label: "Research Guide",
         },
       ],
     },
@@ -169,35 +216,6 @@ export const codeListStatusMock = {
   },
 };
 
-export const codeListRelatedUrlMock = {
-  request: {
-    query: CODE_LIST_QUERY,
-    variables: { scheme: "RELATED_URL" },
-  },
-  result: {
-    data: {
-      codeList: [
-        {
-          id: "FINDING_AID",
-          label: "Finding Aid",
-        },
-        {
-          id: "HATHI_TRUST_DIGITAL_LIBRARY",
-          label: "Hathi Trust Digital Library",
-        },
-        {
-          id: "RELATED_INFORMATION",
-          label: "Related Information",
-        },
-        {
-          id: "RESEARCH_GUIDE",
-          label: "Research Guide",
-        },
-      ],
-    },
-  },
-};
-
 export const codeListSubjectRoleMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -205,18 +223,7 @@ export const codeListSubjectRoleMock = {
   },
   result: {
     data: {
-      codeList: [
-        {
-          id: "GEOGRAPHICAL",
-          label: "Geographical",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "TOPICAL",
-          label: "Topical",
-          __typename: "CodedTerm",
-        },
-      ],
+      codeList: subjectMock,
     },
   },
 };

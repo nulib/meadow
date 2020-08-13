@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
-import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import UIFormControlledTermArray from "../../UI/Form/ControlledTermArray";
-import { useQuery } from "@apollo/client";
-import UIError from "../../UI/Error";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
-import UISkeleton from "../../UI/Skeleton";
 import BatchEditRemove from "../Remove";
 import BatchEditModalRemove from "../ModalRemove";
 import { useBatchState } from "../../../context/batch-edit-context";
+import useCachedCodeLists from "../../../hooks/useCachedCodeLists";
+import UICodeListCacheRefresh from "../../UI/CodeListCacheRefresh";
 
 const BatchEditAboutControlledMetadata = ({
   control,
@@ -24,47 +22,20 @@ const BatchEditAboutControlledMetadata = ({
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState();
   const [currentRemoveField, setCurrentRemoveField] = useState();
 
-  // Get GraphQL data
-  const {
-    data: marcData,
-    loading: marcLoading,
-    errors: marcErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "MARC_RELATOR" } });
-  const {
-    data: subjectRoleData,
-    loading: subjectRoleLoading,
-    errors: subjectRoleErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "SUBJECT_ROLE" } });
-  const {
-    data: authorityData,
-    loading: authorityLoading,
-    errors: authorityErrors,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "AUTHORITY" } });
+  const [codeLists, refreshCodeLists] = useCachedCodeLists();
 
-  if (marcLoading || authorityLoading || subjectRoleLoading)
-    return <UISkeleton rows={20} />;
-  if (marcErrors || authorityErrors || subjectRoleErrors)
-    return (
-      <div {...restProps}>
-        <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
-      </div>
-    );
-  if (!authorityData || !marcData || !subjectRoleData) {
-    return (
-      <div {...restProps}>
-        <UIError
-          error={{ message: "No Authority, MARC, or Subject Role data" }}
-        />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!codeLists) {
+      refreshCodeLists();
+    }
+  }, []);
 
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {
-      return marcData.codeList;
+      return codeLists.MARC_RELATOR;
     }
     if (scheme === "SUBJECT_ROLE") {
-      return subjectRoleData.codeList;
+      return codeLists.SUBJECT_ROLE;
     }
     return [];
   }
@@ -79,6 +50,11 @@ const BatchEditAboutControlledMetadata = ({
     setIsRemoveModalOpen(false);
   }
 
+  // Still updating, so return a null
+  if (!codeLists) {
+    return null;
+  }
+
   return (
     <div data-testid="controlled-metadata" {...restProps}>
       <ul>
@@ -86,7 +62,7 @@ const BatchEditAboutControlledMetadata = ({
           <li key={name} className="mb-5" data-testid={name}>
             <UIFormField label={label}>
               <UIFormControlledTermArray
-                authorities={authorityData.codeList}
+                authorities={codeLists.AUTHORITY}
                 roleDropdownOptions={getRoleDropDownOptions(scheme)}
                 control={control}
                 errors={errors}
@@ -106,6 +82,9 @@ const BatchEditAboutControlledMetadata = ({
           </li>
         ))}
       </ul>
+
+      <UICodeListCacheRefresh handleClick={() => refreshCodeLists()} />
+
       <BatchEditModalRemove
         closeModal={handleCloseRemoveModalClick}
         currentRemoveField={currentRemoveField}

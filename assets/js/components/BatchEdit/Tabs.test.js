@@ -1,14 +1,14 @@
 import React from "react";
 import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
 import {
-  codeListAuthorityMock,
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../services/testing-helpers";
+import {
   codeListLicenseMock,
-  codeListMarcRelatorMock,
-  codeListRightsStatementMock,
-  codeListSubjectRoleMock,
   codeListRelatedUrlMock,
+  codeListRightsStatementMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
 
@@ -16,18 +16,16 @@ const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
   function setupTest() {
+    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <BatchEditTabs items={items} />
       </BatchProvider>,
       {
         mocks: [
-          codeListAuthorityMock,
           codeListLicenseMock,
-          codeListMarcRelatorMock,
-          codeListRightsStatementMock,
-          codeListSubjectRoleMock,
           codeListRelatedUrlMock,
+          codeListRightsStatementMock,
         ],
       }
     );
