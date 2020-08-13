@@ -40,12 +40,6 @@
           "analyzer": "full_analyzer",
           "search_analyzer": "stopword_analyzer",
           "search_quote_analyzer": "full_analyzer"
-        },
-        "all_subjects": {
-          "type": "text",
-          "analyzer": "full_analyzer",
-          "search_analyzer": "stopword_analyzer",
-          "search_quote_analyzer": "full_analyzer"
         }
       },
       "dynamic_templates": [
@@ -58,23 +52,9 @@
         },
         {
           "latlong": {
-            "match": "*_geo",
-            "mapping": { "type": "geo_point" }
-          }
-        },
-        {
-          "date_text": {
+            "match": ".*Geo|^geo",
             "match_pattern": "regex",
-            "match": "^date",
-            "mapping": {
-              "type": "text",
-              "analyzer": "full_analyzer",
-              "search_analyzer": "stopword_analyzer",
-              "search_quote_analyzer": "full_analyzer",
-              "fields": {
-                "keyword": { "type": "keyword" }
-              }
-            }
+            "mapping": { "type": "geo_point" }
           }
         },
         {
@@ -90,23 +70,9 @@
           }
         },
         {
-          "subjects": {
-            "path_match": "subject.label",
-            "mapping": {
-              "type": "text",
-              "analyzer": "full_analyzer",
-              "search_analyzer": "stopword_analyzer",
-              "search_quote_analyzer": "full_analyzer",
-              "copy_to": ["full_text", "all_subjects"],
-              "fields": {
-                "keyword": { "type": "keyword" }
-              }
-            }
-          }
-        },
-        {
           "titles": {
-            "path_match": "title.*",
+            "path_match": "^descriptiveMetadata\\..*[Tt]itle.*$",
+            "match_pattern": "regex",
             "mapping": {
               "type": "text",
               "analyzer": "full_analyzer",
@@ -116,21 +82,6 @@
                 "keyword": { "type": "keyword" }
               },
               "copy_to": ["full_text", "all_titles"]
-            }
-          }
-        },
-        {
-          "nested_titles": {
-            "path_match": "*.title",
-            "mapping": {
-              "type": "text",
-              "analyzer": "full_analyzer",
-              "search_analyzer": "stopword_analyzer",
-              "search_quote_analyzer": "full_analyzer",
-              "fields": {
-                "keyword": { "type": "keyword" }
-              },
-              "copy_to": ["full_text"]
             }
           }
         },
