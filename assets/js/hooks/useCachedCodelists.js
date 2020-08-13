@@ -8,13 +8,54 @@ export default function () {
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_CODELIST_KEY))
   );
 
+  function refreshCodeLists() {
+    setCodeLists(null);
+    localStorage.removeItem(LOCAL_STORAGE_CODELIST_KEY);
+    console.log(
+      "Refreshing Code Lists local storage with fresh values from API---------\n"
+    );
+
+    getMarcData({
+      variables: { scheme: "MARC_RELATOR" },
+    });
+    getSubjectRoleData({
+      variables: { scheme: "SUBJECT_ROLE" },
+    });
+    getAuthorityData({
+      variables: { scheme: "AUTHORITY" },
+    });
+  }
+
+  /**
+   * Update code lists in local storage and local state
+   * @param {String} key
+   * @param {Array} data
+   */
+  function updateCodeLists(key, data) {
+    // Update localStorage
+    let currentLocalStorage =
+      JSON.parse(localStorage.getItem(LOCAL_STORAGE_CODELIST_KEY)) || {};
+
+    const newObj = {
+      ...currentLocalStorage,
+      [key]: data,
+    };
+    localStorage.setItem(LOCAL_STORAGE_CODELIST_KEY, JSON.stringify(newObj));
+
+    //Update local state
+    setCodeLists({
+      ...codeLists,
+      [key]: data,
+    });
+  }
+
   const [
     getMarcData,
     { data: marcData, loading: marcLoading, errors: marcErrors },
   ] = useLazyQuery(CODE_LIST_QUERY, {
     onCompleted: (data) => {
       if (!marcErrors && data) {
-        console.log("Success data", data);
+        updateCodeLists("MARC_RELATOR", data.codeList);
       }
     },
     onError: (data) => {
@@ -22,11 +63,38 @@ export default function () {
     },
   });
 
-  function refreshCodeLists() {
-    getMarcData({
-      variables: { scheme: "MARC_RELATOR" },
-    });
-  }
+  const [
+    getSubjectRoleData,
+    {
+      data: subjectRoleData,
+      loading: subjectRoleLoading,
+      errors: subjectRoleErrors,
+    },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "SUBJECT_ROLE" },
+    onCompleted: (data) => {
+      if (!subjectRoleErrors && data) {
+        updateCodeLists("SUBJECT_ROLE", data.codeList);
+      }
+    },
+    onError: (data) => {
+      console.log("getSubjectRoleData() error :>> ", data);
+    },
+  });
+
+  const [
+    getAuthorityData,
+    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
+    onCompleted: (data) => {
+      if (!authorityErrors && data) {
+        updateCodeLists("AUTHORITY", data.codeList);
+      }
+    },
+    onError: (data) => {
+      console.log("getAuthorityData()", data);
+    },
+  });
 
   return [codeLists, refreshCodeLists];
 }
