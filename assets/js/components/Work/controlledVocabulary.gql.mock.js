@@ -59,32 +59,6 @@ export const codeListAuthorityMock = {
   },
 };
 
-export const codeListMarcRelatorMock = {
-  request: {
-    query: CODE_LIST_QUERY,
-    variables: {
-      scheme: "MARC_RELATOR",
-    },
-  },
-  result: {
-    data: {
-      codeList: marcRelatorMock,
-    },
-  },
-};
-
-export const codeListSubjectRoleMock = {
-  request: {
-    query: CODE_LIST_QUERY,
-    variables: { scheme: "SUBJECT_ROLE" },
-  },
-  result: {
-    data: {
-      codeList: subjectMock,
-    },
-  },
-};
-
 export const codeListLicenseMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -113,6 +87,20 @@ export const codeListLicenseMock = {
   },
 };
 
+export const codeListMarcRelatorMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: {
+      scheme: "MARC_RELATOR",
+    },
+  },
+  result: {
+    data: {
+      codeList: marcRelatorMock,
+    },
+  },
+};
+
 export const codeListPreservationLevelMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -137,6 +125,35 @@ export const codeListPreservationLevelMock = {
           id: "3",
           label: "Level 3",
           __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
+export const codeListRelatedUrlMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "RELATED_URL" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "FINDING_AID",
+          label: "Finding Aid",
+        },
+        {
+          id: "HATHI_TRUST_DIGITAL_LIBRARY",
+          label: "Hathi Trust Digital Library",
+        },
+        {
+          id: "RELATED_INFORMATION",
+          label: "Related Information",
+        },
+        {
+          id: "RESEARCH_GUIDE",
+          label: "Research Guide",
         },
       ],
     },
@@ -199,35 +216,6 @@ export const codeListStatusMock = {
   },
 };
 
-export const codeListRelatedUrlMock = {
-  request: {
-    query: CODE_LIST_QUERY,
-    variables: { scheme: "RELATED_URL" },
-  },
-  result: {
-    data: {
-      codeList: [
-        {
-          id: "FINDING_AID",
-          label: "Finding Aid",
-        },
-        {
-          id: "HATHI_TRUST_DIGITAL_LIBRARY",
-          label: "Hathi Trust Digital Library",
-        },
-        {
-          id: "RELATED_INFORMATION",
-          label: "Related Information",
-        },
-        {
-          id: "RESEARCH_GUIDE",
-          label: "Research Guide",
-        },
-      ],
-    },
-  },
-};
-
 export const codeListSubjectRoleMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -235,18 +223,7 @@ export const codeListSubjectRoleMock = {
   },
   result: {
     data: {
-      codeList: [
-        {
-          id: "GEOGRAPHICAL",
-          label: "Geographical",
-          __typename: "CodedTerm",
-        },
-        {
-          id: "TOPICAL",
-          label: "Topical",
-          __typename: "CodedTerm",
-        },
-      ],
+      codeList: subjectMock,
     },
   },
 };

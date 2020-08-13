@@ -7,6 +7,7 @@ import {
 } from "../../services/testing-helpers";
 import {
   codeListLicenseMock,
+  codeListRelatedUrlMock,
   codeListRightsStatementMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -21,7 +22,11 @@ describe("BatchEditTabs component", () => {
         <BatchEditTabs items={items} />
       </BatchProvider>,
       {
-        mocks: [codeListLicenseMock, codeListRightsStatementMock],
+        mocks: [
+          codeListLicenseMock,
+          codeListRelatedUrlMock,
+          codeListRightsStatementMock,
+        ],
       }
     );
   }

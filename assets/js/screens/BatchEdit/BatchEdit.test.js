@@ -7,6 +7,7 @@ import {
 import ScreensBatchEdit from "./BatchEdit";
 import {
   codeListLicenseMock,
+  codeListRelatedUrlMock,
   codeListRightsStatementMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -19,7 +20,11 @@ describe("BatchEdit component", () => {
         <ScreensBatchEdit />
       </BatchProvider>,
       {
-        mocks: [codeListLicenseMock, codeListRightsStatementMock],
+        mocks: [
+          codeListLicenseMock,
+          codeListRelatedUrlMock,
+          codeListRightsStatementMock,
+        ],
         // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
         state: { resultStats: { numberOfResults: 5 } },
       }

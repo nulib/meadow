@@ -8,6 +8,7 @@ import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
 import {
   codeListLicenseMock,
+  codeListRelatedUrlMock,
   codeListRightsStatementMock,
 } from "../controlledVocabulary.gql.mock";
 
@@ -16,7 +17,11 @@ describe("Work About tab component", () => {
     setupCachedCodeListsLocalStorage();
 
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
-      mocks: [codeListLicenseMock, codeListRightsStatementMock],
+      mocks: [
+        codeListLicenseMock,
+        codeListRelatedUrlMock,
+        codeListRightsStatementMock,
+      ],
     });
   }
 
