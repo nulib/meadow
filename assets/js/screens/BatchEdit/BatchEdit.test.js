@@ -1,44 +1,25 @@
 import React from "react";
 import { waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import {
-  authorityMock,
   codeListLicenseMock,
-  marcRelatorMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
-  codeListRelatedUrlMock,
-  subjectMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
 describe("BatchEdit component", () => {
-  function prepLocalStorage() {
-    localStorage.setItem(
-      "codeLists",
-      JSON.stringify({
-        MARC_RELATOR: marcRelatorMock,
-        AUTHORITY: authorityMock,
-        SUBJECT_ROLE: subjectMock,
-      })
-    );
-  }
   function setupComponent() {
-    prepLocalStorage();
+    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider>
         <ScreensBatchEdit />
       </BatchProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListLicenseMock,
-          codeListMarcRelatorMock,
-          codeListRightsStatementMock,
-          codeListSubjectRoleMock,
-          codeListRelatedUrlMock,
-        ],
+        mocks: [codeListLicenseMock, codeListRightsStatementMock],
         // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
         state: { resultStats: { numberOfResults: 5 } },
       }

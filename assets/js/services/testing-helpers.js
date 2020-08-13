@@ -3,9 +3,14 @@ import { Router } from "react-router-dom";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/client/testing";
-import { ReactiveBase } from "@appbaseio/reactivesearch";
 import { resolvers } from "../client-local";
 import { useForm } from "react-hook-form";
+import { LOCAL_STORAGE_CODELIST_KEY } from "../services/global-vars";
+import {
+  authorityMock,
+  marcRelatorMock,
+  subjectMock,
+} from "../components/Work/controlledVocabulary.gql.mock";
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
@@ -100,6 +105,22 @@ export function renderWithApollo(ui, { mocks = [] }) {
   return {
     ...render(ui, { wrapper: Wrapper }),
   };
+}
+
+/**
+ * Use the npm package https://www.npmjs.com/package/jest-localstorage-mock
+ * to mock localStorage for tests which test components which rely upon local
+ * cached values for some Code List GraphQL queries which rarely change.
+ */
+export function setupCachedCodeListsLocalStorage() {
+  localStorage.setItem(
+    LOCAL_STORAGE_CODELIST_KEY,
+    JSON.stringify({
+      MARC_RELATOR: marcRelatorMock,
+      AUTHORITY: authorityMock,
+      SUBJECT_ROLE: subjectMock,
+    })
+  );
 }
 
 export function withReactHookFormControl(WrappedComponent, restProps) {

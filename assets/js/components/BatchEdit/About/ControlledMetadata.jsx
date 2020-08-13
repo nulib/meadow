@@ -1,24 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
-import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import UIFormControlledTermArray from "../../UI/Form/ControlledTermArray";
-import { useLazyQuery } from "@apollo/client";
-import UIError from "../../UI/Error";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
-import UISkeleton from "../../UI/Skeleton";
 import BatchEditRemove from "../Remove";
 import BatchEditModalRemove from "../ModalRemove";
 import { useBatchState } from "../../../context/batch-edit-context";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-/** @jsx jsx */
-import { css, jsx } from "@emotion/core";
-const cacheNotification = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+import useCachedCodeLists from "../../../hooks/useCachedCodeLists";
+import UICodeListCacheRefresh from "../../UI/CodeListCacheRefresh";
 
 const BatchEditAboutControlledMetadata = ({
   control,
@@ -33,99 +22,13 @@ const BatchEditAboutControlledMetadata = ({
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState();
   const [currentRemoveField, setCurrentRemoveField] = useState();
 
-  const firstLaunch = useRef(true);
-  const [codeLists, setCodeLists] = useState(
-    localStorage.getItem("codeLists")
-      ? JSON.parse(localStorage.getItem("codeLists"))
-      : {}
-  );
+  const [codeLists, refreshCodeLists] = useCachedCodeLists();
 
   useEffect(() => {
-    if (firstLaunch.current) {
-      firstLaunch.current = false;
-      return;
-    }
-    localStorage.setItem("codeLists", JSON.stringify(codeLists));
-  }, [codeLists]);
-
-  const [
-    getMarcData,
-    { data: marcData, loading: marcLoading, errors: marcErrors },
-  ] = useLazyQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      console.log("Getting marcData");
-      if (!marcErrors && data) {
-        setCodeLists({ ...codeLists, ["MARC_RELATOR"]: data.codeList });
-      }
-    },
-  });
-
-  const [
-    getSubjectRoleData,
-    {
-      data: subjectRoleData,
-      loading: subjectRoleLoading,
-      errors: subjectRoleErrors,
-    },
-  ] = useLazyQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!subjectRoleErrors && data) {
-        setCodeLists({ ...codeLists, ["SUBJECT_ROLE"]: data.codeList });
-      }
-    },
-  });
-
-  const [
-    getAuthorityData,
-    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
-  ] = useLazyQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!authorityErrors && data) {
-        setCodeLists({ ...codeLists, ["AUTHORITY"]: data.codeList });
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (!codeLists || !codeLists.MARC_RELATOR) {
-      getMarcData({
-        variables: { scheme: "MARC_RELATOR" },
-      });
-    }
-
-    if (!codeLists || !codeLists.SUBJECT_ROLE) {
-      getSubjectRoleData({
-        variables: { scheme: "SUBJECT_ROLE" },
-      });
-    }
-
-    if (!codeLists || !codeLists.AUTHORITY) {
-      getAuthorityData({
-        variables: { scheme: "AUTHORITY" },
-      });
+    if (!codeLists) {
+      refreshCodeLists();
     }
   }, []);
-
-  const refreshCache = () => {
-    setCodeLists({});
-    localStorage.clear();
-    getMarcData({
-      variables: { scheme: "MARC_RELATOR" },
-    });
-    getSubjectRoleData({
-      variables: { scheme: "SUBJECT_ROLE" },
-    });
-    getAuthorityData({
-      variables: { scheme: "AUTHORITY" },
-    });
-  };
-
-  if (marcLoading || authorityLoading || subjectRoleLoading)
-    return <UISkeleton rows={20} />;
-  if (marcErrors || authorityErrors || subjectRoleErrors)
-    return (
-      <UIError error={marcErrors || authorityErrors || subjectRoleErrors} />
-    );
 
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {
@@ -145,6 +48,11 @@ const BatchEditAboutControlledMetadata = ({
 
   function handleCloseRemoveModalClick() {
     setIsRemoveModalOpen(false);
+  }
+
+  // Still updating, so return a null
+  if (!codeLists) {
+    return null;
   }
 
   return (
@@ -175,6 +83,8 @@ const BatchEditAboutControlledMetadata = ({
         ))}
       </ul>
 
+      <UICodeListCacheRefresh handleClick={() => refreshCodeLists()} />
+
       <BatchEditModalRemove
         closeModal={handleCloseRemoveModalClick}
         currentRemoveField={currentRemoveField}
@@ -185,23 +95,6 @@ const BatchEditAboutControlledMetadata = ({
         }
         isRemoveModalOpen={isRemoveModalOpen}
       />
-
-      <div className="notification is-size-7" css={cacheNotification}>
-        <p>
-          <span className="icon">
-            <FontAwesomeIcon icon="bell" />
-          </span>
-          Role and Authority fields are using cached dropdown values (as these
-          rarely change).
-        </p>
-        <button
-          type="button"
-          className="button is-text is-small"
-          onClick={refreshCache}
-        >
-          Sync with latest values
-        </button>
-      </div>
     </div>
   );
 };

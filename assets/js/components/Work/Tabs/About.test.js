@@ -1,33 +1,19 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
 import {
   codeListLicenseMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
-  codeListRelatedUrlMock,
-  subjectMock,
-  authorityMock,
-  marcRelatorMock,
 } from "../controlledVocabulary.gql.mock";
-import { LOCAL_STORAGE_CODELIST_KEY } from "../../../services/global-vars";
 
 describe("Work About tab component", () => {
-  // We're mocking localStorage here with the NPM package: https://www.npmjs.com/package/jest-localstorage-mock.  The <WorkTabsControlledMetadata /> component uses localStorage and if not mocked here, it complains.
-  function prepLocalStorage() {
-    localStorage.setItem(
-      LOCAL_STORAGE_CODELIST_KEY,
-      JSON.stringify({
-        MARC_RELATOR: marcRelatorMock,
-        AUTHORITY: authorityMock,
-        SUBJECT_ROLE: subjectMock,
-      })
-    );
-  }
   function setupTests() {
-    prepLocalStorage();
+    setupCachedCodeListsLocalStorage();
 
     return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
       mocks: [codeListLicenseMock, codeListRightsStatementMock],

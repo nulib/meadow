@@ -5,16 +5,8 @@ import UIFormField from "../../../UI/Form/Field";
 import UIError from "../../../UI/Error";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useCachedCodeLists from "../../../../hooks/useCachedCodeLists";
-
-/** @jsx jsx */
-import { css, jsx } from "@emotion/core";
-const cacheNotification = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+import UICodeListCacheRefresh from "../../../UI/CodeListCacheRefresh";
 
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
@@ -34,6 +26,12 @@ const WorkTabsAboutControlledMetadata = ({
     }
     return [];
   }
+
+  useEffect(() => {
+    if (!codeLists) {
+      refreshCodeLists();
+    }
+  }, []);
 
   // Still updating, so return a null
   if (!codeLists) {
@@ -64,22 +62,7 @@ const WorkTabsAboutControlledMetadata = ({
         ))}
       </ul>
       {isEditing && (
-        <div className="notification is-size-7" css={cacheNotification}>
-          <p>
-            <span className="icon">
-              <FontAwesomeIcon icon="bell" />
-            </span>
-            Role and Authority fields are using cached dropdown values (as these
-            rarely change).
-          </p>
-          <button
-            type="button"
-            className="button is-text is-small"
-            onClick={() => refreshCodeLists()}
-          >
-            Sync with latest values
-          </button>
-        </div>
+        <UICodeListCacheRefresh handleClick={() => refreshCodeLists()} />
       )}
     </div>
   );

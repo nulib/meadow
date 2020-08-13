@@ -2,33 +2,16 @@ import React from "react";
 import { waitFor } from "@testing-library/react";
 import {
   renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
   withReactHookFormControl,
 } from "../../../services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
-import {
-  codeListMarcRelatorMock,
-  codeListAuthorityMock,
-  codeListSubjectRoleMock,
-  marcRelatorMock,
-  authorityMock,
-  subjectMock,
-} from "../../Work/controlledVocabulary.gql.mock";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
-  function prepLocalStorage() {
-    localStorage.setItem(
-      "codeLists",
-      JSON.stringify({
-        MARC_RELATOR: marcRelatorMock,
-        AUTHORITY: authorityMock,
-        SUBJECT_ROLE: subjectMock,
-      })
-    );
-  }
   function setupTest() {
-    //prepLocalStorage();
+    setupCachedCodeListsLocalStorage();
     const Wrapped = withReactHookFormControl(BatchEditAboutControlledMetadata);
 
     return renderWithRouterApollo(
@@ -36,11 +19,7 @@ describe("BatchEditAboutCoreMetadata component", () => {
         <Wrapped />
       </BatchProvider>,
       {
-        mocks: [
-          codeListMarcRelatorMock,
-          codeListAuthorityMock,
-          codeListSubjectRoleMock,
-        ],
+        mocks: [],
       }
     );
   }

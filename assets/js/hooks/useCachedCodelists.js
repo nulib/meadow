@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { CODE_LIST_QUERY } from "../components/Work/controlledVocabulary.gql";
 import { LOCAL_STORAGE_CODELIST_KEY } from "../services/global-vars";
@@ -18,11 +18,11 @@ export default function () {
     getMarcData({
       variables: { scheme: "MARC_RELATOR" },
     });
-    getSubjectRoleData({
-      variables: { scheme: "SUBJECT_ROLE" },
-    });
     getAuthorityData({
       variables: { scheme: "AUTHORITY" },
+    });
+    getSubjectRoleData({
+      variables: { scheme: "SUBJECT_ROLE" },
     });
   }
 
@@ -48,6 +48,20 @@ export default function () {
       [key]: data,
     });
   }
+
+  const [
+    getAuthorityData,
+    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
+  ] = useLazyQuery(CODE_LIST_QUERY, {
+    onCompleted: (data) => {
+      if (!authorityErrors && data) {
+        updateCodeLists("AUTHORITY", data.codeList);
+      }
+    },
+    onError: (data) => {
+      console.log("getAuthorityData()", data);
+    },
+  });
 
   const [
     getMarcData,
@@ -79,20 +93,6 @@ export default function () {
     },
     onError: (data) => {
       console.log("getSubjectRoleData() error :>> ", data);
-    },
-  });
-
-  const [
-    getAuthorityData,
-    { data: authorityData, loading: authorityLoading, errors: authorityErrors },
-  ] = useLazyQuery(CODE_LIST_QUERY, {
-    onCompleted: (data) => {
-      if (!authorityErrors && data) {
-        updateCodeLists("AUTHORITY", data.codeList);
-      }
-    },
-    onError: (data) => {
-      console.log("getAuthorityData()", data);
     },
   });
 

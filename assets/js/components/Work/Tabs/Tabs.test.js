@@ -1,22 +1,21 @@
 import React from "react";
 import WorkTabs from "./Tabs";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import {
-  authorityMock,
   codeListLicenseMock,
-  marcRelatorMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
-  subjectMock,
   codeListStatusMock,
   codeListVisibilityMock,
   codeListRelatedUrlMock,
 } from "../controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
-import { LOCAL_STORAGE_CODELIST_KEY } from "../../../services/global-vars";
 
 const mocks = [
   codeListLicenseMock,
@@ -30,18 +29,8 @@ const mocks = [
 ];
 
 describe("Tabs component", () => {
-  function prepLocalStorage() {
-    localStorage.setItem(
-      LOCAL_STORAGE_CODELIST_KEY,
-      JSON.stringify({
-        MARC_RELATOR: marcRelatorMock,
-        AUTHORITY: authorityMock,
-        SUBJECT_ROLE: subjectMock,
-      })
-    );
-  }
   function setupTests() {
-    prepLocalStorage();
+    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
   }
 

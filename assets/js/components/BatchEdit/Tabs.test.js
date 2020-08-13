@@ -1,48 +1,27 @@
 import React from "react";
 import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
 import {
-  authorityMock,
-  codeListAuthorityMock,
+  renderWithRouterApollo,
+  setupCachedCodeListsLocalStorage,
+} from "../../services/testing-helpers";
+import {
   codeListLicenseMock,
-  codeListMarcRelatorMock,
   codeListRightsStatementMock,
-  codeListSubjectRoleMock,
-  codeListRelatedUrlMock,
-  marcRelatorMock,
-  subjectMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { BatchProvider } from "../../context/batch-edit-context";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
-  function prepLocalStorage() {
-    localStorage.setItem(
-      "codeLists",
-      JSON.stringify({
-        MARC_RELATOR: marcRelatorMock,
-        AUTHORITY: authorityMock,
-        SUBJECT_ROLE: subjectMock,
-      })
-    );
-  }
   function setupTest() {
-    //prepLocalStorage();
+    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <BatchEditTabs items={items} />
       </BatchProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListLicenseMock,
-          codeListMarcRelatorMock,
-          codeListRightsStatementMock,
-          codeListSubjectRoleMock,
-          codeListRelatedUrlMock,
-        ],
+        mocks: [codeListLicenseMock, codeListRightsStatementMock],
       }
     );
   }
