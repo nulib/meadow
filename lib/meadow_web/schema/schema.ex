@@ -18,6 +18,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
   import_types(__MODULE__.Data.FieldTypes)
+  import_types(__MODULE__.Data.SharedLinkTypes)
   import_types(__MODULE__.HelperTypes)
 
   query do
@@ -34,10 +35,11 @@ defmodule MeadowWeb.Schema do
   mutation do
     import_fields(:account_mutations)
     import_fields(:batch_mutations)
-    import_fields(:ingest_mutations)
     import_fields(:collection_mutations)
-    import_fields(:work_mutations)
     import_fields(:file_set_mutations)
+    import_fields(:ingest_mutations)
+    import_fields(:shared_link_mutations)
+    import_fields(:work_mutations)
   end
 
   subscription do

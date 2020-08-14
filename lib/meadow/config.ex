@@ -112,6 +112,11 @@ defmodule Meadow.Config do
     end
   end
 
+  @doc "Time to Live for Shared Links"
+  def shared_link_ttl do
+    Application.get_env(:meadow, :shared_link_ttl, :timer.hours(24 * 7 * 2))
+  end
+
   defp ensure_trailing_slash(value) do
     if value |> String.ends_with?("/"),
       do: value,
