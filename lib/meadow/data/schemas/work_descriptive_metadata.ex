@@ -116,7 +116,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     def encode_field(%ControlledMetadataEntry{role: nil} = field) do
       Map.from_struct(field)
       |> Map.put(:displayFacet, field.term.label)
-      |> Map.put(:facet, "#{field.term.id}|#{field.term.label}")
+      |> Map.put(:facet, "#{field.term.id}||#{field.term.label}|")
     end
 
     def encode_field(%ControlledMetadataEntry{} = field) do
