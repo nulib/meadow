@@ -3,7 +3,7 @@ import React from "react";
 const BatchStateContext = React.createContext();
 const BatchDispatchContext = React.createContext();
 
-const initialState = {
+const defaultState = {
   filteredQuery: null,
   parsedAggregations: null,
   removeItems: null,
@@ -45,7 +45,7 @@ function batchReducer(state, action) {
     case "clear": {
       return {
         ...state,
-        ...initialState,
+        ...defaultState,
       };
     }
     case "clearRemoveItems": {
@@ -77,7 +77,8 @@ function batchReducer(state, action) {
   }
 }
 
-function BatchProvider({ children }) {
+// By allowing "initialState" as a prop, we can pass in values in tests
+function BatchProvider({ initialState = defaultState, children }) {
   const [state, dispatch] = React.useReducer(batchReducer, initialState);
   return (
     <BatchStateContext.Provider value={state}>

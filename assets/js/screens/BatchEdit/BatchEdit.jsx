@@ -4,13 +4,13 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import BatchEditPreviewItems from "../../components/BatchEdit/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { mockBatchEditData } from "../../mock-data/batchEditData";
-import { useLocation, Link } from "react-router-dom";
-import JSONPretty from "react-json-pretty";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useBatchState } from "../../context/batch-edit-context";
 
 const ScreensBatchEdit = () => {
-  let location = useLocation();
-  let locationState = location.state;
+  const batchState = useBatchState();
+  const isActiveSearch = batchState.filteredQuery && batchState.resultStats;
 
   return (
     <Layout>
@@ -35,7 +35,7 @@ const ScreensBatchEdit = () => {
               Batch Edit
             </h1>
 
-            {!locationState && (
+            {!isActiveSearch && (
               <div className="notification content">
                 <p>
                   <FontAwesomeIcon icon="exclamation-triangle" /> No search
@@ -50,7 +50,7 @@ const ScreensBatchEdit = () => {
             )}
           </div>
 
-          {locationState && (
+          {isActiveSearch && (
             <div className="box" data-testid="preview-wrapper">
               <BatchEditPreviewItems items={mockBatchEditData} />
             </div>
@@ -58,7 +58,7 @@ const ScreensBatchEdit = () => {
         </div>
       </section>
 
-      {locationState && (
+      {isActiveSearch && (
         <section className="section">
           <div className="container" data-testid="tabs-wrapper">
             <BatchEditTabs />
