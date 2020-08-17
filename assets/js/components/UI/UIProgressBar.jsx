@@ -10,7 +10,9 @@ const UIProgressBar = ({ percentComplete, totalValue }) => {
           percentComplete
         )} % complete`}</div>
         <ProgressBar percent={percentComplete} strokeColor="#4e2a84" />
-        <p className="has-text-centered">{`Ingesting ${totalValue} file sets.`}</p>
+        <p className="has-text-centered">{`Ingesting ${
+          totalValue || ""
+        } file sets.`}</p>
       </>
     );
   }
