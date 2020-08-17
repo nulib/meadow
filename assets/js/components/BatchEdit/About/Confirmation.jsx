@@ -8,6 +8,18 @@ import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "./ConfirmationTable";
 import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const headerWrapper = css`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  span {
+    margin-left: 0.8rem;
+  }
+`;
+
 const BatchEditConfirmation = ({
   batchAdds,
   batchDeletes,
@@ -80,7 +92,11 @@ const BatchEditConfirmation = ({
         <div className="modal-card-body">
           {hasAdds && (
             <section className="content">
-              <h4>Adding</h4>
+              <div css={headerWrapper}>
+                <FontAwesomeIcon icon="plus" size="2x" />
+                <span class="subtitle">Adding</span>
+              </div>
+
               {Object.keys(batchAdds.descriptiveMetadata).map((key) => {
                 return (
                   <div
@@ -100,7 +116,11 @@ const BatchEditConfirmation = ({
 
           {hasDeletes && (
             <section className={`content ${hasAdds ? "py-6" : ""}`}>
-              <h4>Removing</h4>
+              <div css={headerWrapper}>
+                <FontAwesomeIcon icon="minus-square" size="2x" />
+                <span class="subtitle">Removing</span>
+              </div>
+
               <div className="p4">
                 {Object.keys(batchDeletes).map((key) => (
                   <div key={key} className="notification is-danger is-light">
