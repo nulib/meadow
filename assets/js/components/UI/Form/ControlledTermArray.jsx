@@ -43,6 +43,7 @@ const UIFormControlledTermArray = ({
                   <>
                     <p>
                       {item.term.label} {item.role && `(${item.role.label})`}
+                      {item.term.id && ` - ${item.term.id}`}
                     </p>
                     <input
                       type="hidden"

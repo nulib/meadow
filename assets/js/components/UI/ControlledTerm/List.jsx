@@ -8,6 +8,7 @@ const UIControlledTermList = ({ items = [] }) => {
         {items.map((item) => (
           <li key={item.term.id}>
             {item.term.label} {item.role && `(${item.role.label})`}
+            {item.term.id && ` - ${item.term.id}`}
           </li>
         ))}
       </ul>
