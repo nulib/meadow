@@ -48,6 +48,12 @@ function batchReducer(state, action) {
         ...initialState,
       };
     }
+    case "clearRemoveItems": {
+      return {
+        ...state,
+        removeItems: {},
+      };
+    }
     case "updateRemoveItem": {
       return {
         ...state,

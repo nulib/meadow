@@ -187,6 +187,7 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
+    // TODO: Move this to ""../../../services/metadata""
     // Update related url to match GraphQL mutation
     for (let [
       i,
@@ -202,7 +203,10 @@ const WorkTabsAbout = ({ work }) => {
     }
 
     updateWork({
-      variables: { id: work.id, work: workUpdateInput },
+      variables: {
+        id: work.id,
+        work: workUpdateInput,
+      },
     });
   };
 

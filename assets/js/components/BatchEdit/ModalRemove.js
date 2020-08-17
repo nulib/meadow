@@ -4,13 +4,25 @@ import {
   useBatchDispatch,
   useBatchState,
 } from "../../context/batch-edit-context";
+import { splitFacetKey } from "../../services/metadata";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+
+const modalContent = css`
+  width: 75%;
+`;
 
 function setupCandidateList(items) {
   const newList = items.map((item) => {
-    var arr = item.key.split("|");
+    const { label, role, term } = splitFacetKey(item.key);
     return {
       key: item.key,
-      label: `${arr[arr.length - 1]} ${arr[0]} (${item.doc_count})`,
+      label: (
+        <span>
+          <strong>{label}</strong> - {term} - ({item.doc_count})
+        </span>
+      ),
     };
   });
 
@@ -50,7 +62,7 @@ export default function BatchEditAboutModalRemove({
   return (
     <div className={`modal ${isRemoveModalOpen ? "is-active" : ""}`}>
       <div className="modal-background"></div>
-      <div className="modal-content">
+      <div className="modal-content" css={modalContent}>
         <div className="box">
           <header>
             <h3 className="title">{currentRemoveField.label}</h3>

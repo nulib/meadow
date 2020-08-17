@@ -6,6 +6,7 @@ import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { mockBatchEditData } from "../../mock-data/batchEditData";
 import { useLocation, Link } from "react-router-dom";
 import JSONPretty from "react-json-pretty";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensBatchEdit = () => {
   let location = useLocation();
@@ -52,10 +53,15 @@ const ScreensBatchEdit = () => {
             </h1>
 
             {!locationState && (
-              <div className="notification is-danger is-light content">
-                <p>No search results saved in the browsers memory</p>
+              <div className="notification content">
                 <p>
-                  <Link to="/search">Search again</Link>
+                  <FontAwesomeIcon icon="exclamation-triangle" /> No search
+                  results saved in the browsers memory
+                </p>
+                <p>
+                  <Link to="/search" className="button">
+                    Search again
+                  </Link>
                 </p>
               </div>
             )}
