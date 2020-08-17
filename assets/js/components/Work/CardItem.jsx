@@ -10,15 +10,12 @@ const WorkCardItem = ({
   workType,
   visibility,
   published,
-  accessionNumber,
-  fileSets,
-  manifestUrl,
-  updatedAt,
+  collectionName,
 }) => {
   return (
     <div className="card " data-testid="ui-workcard">
       <div className="card-image">
-        <figure className="image is-4by3">
+        <figure className="image is-3by3">
           <Link to={`/work/${id}`}>
             <img
               src={
@@ -33,11 +30,13 @@ const WorkCardItem = ({
         </figure>
       </div>
       <div className="card-content">
-        <h3
-          className="title is-size-4"
-          dangerouslySetInnerHTML={{ __html: title ? title : "Untitled" }}
-        ></h3>
-
+        <h2
+          className="subtitle"
+          dangerouslySetInnerHTML={{
+            __html: title ? title : "Untitled",
+          }}
+        ></h2>
+        {collectionName && <strong>{collectionName}</strong>}
         <div className="content">
           <p>
             <span className="tag">{workType.label.toUpperCase()}</span>{" "}
@@ -58,36 +57,8 @@ const WorkCardItem = ({
               </span>
             )}
           </p>
-          <dl>
-            <dt>Accession Number:</dt>
-            <dd
-              data-testid="result-item-accession-number"
-              style={{ wordBreak: "break-all" }}
-              dangerouslySetInnerHTML={{ __html: accessionNumber }}
-            ></dd>
-            <dt># Filesets:</dt>
-            <dd data-testid="result-item-filesets-length">{fileSets}</dd>
-            <dt>Last Updated: </dt>
-            <dd data-testid="result-item-updated-date">
-              {formatDate(updatedAt)}
-            </dd>
-          </dl>
         </div>
       </div>
-      <footer className="card-footer">
-        <Link to={`/work/${id}`} className="card-footer-item">
-          View Work
-        </Link>
-        <a href={manifestUrl} target="_blank" className="card-footer-item">
-          <figure className="image is-32x32">
-            <img
-              src="/images/IIIF-logo.png"
-              alt="IIIF logo"
-              title="View IIIF manifest"
-            />
-          </figure>
-        </a>
-      </footer>
     </div>
   );
 };

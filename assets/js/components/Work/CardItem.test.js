@@ -39,22 +39,12 @@ describe("Shows Work content", () => {
     expect(getByTestId("tag-visibility")).toBeInTheDocument();
     expect(findByText("PUBLIC")).toBeTruthy();
   });
-  it("Displays Accession Number", () => {
-    const { getByTestId } = setupTests();
-    expect(getByTestId("result-item-accession-number").innerHTML).toBe(
-      "Donohue_001"
-    );
+
+  it("Displays Collection Name", () => {
+    const { findByText } = setupTests();
+    expect(findByText("Collection 1232432 Name")).toBeTruthy();
   });
-  it("Displays FileSets Length", () => {
-    const { getByTestId } = setupTests();
-    expect(getByTestId("result-item-filesets-length").innerHTML).toBe("4");
-  });
-  it("Displays Updated Date", () => {
-    const { getByTestId } = setupTests();
-    expect(getByTestId("result-item-updated-date").innerHTML).toBe(
-      "Dec 2, 2019 10:22 PM"
-    );
-  });
+
   it("Displays Published Flag", () => {
     const { queryByTestId } = setupTests();
     expect(queryByTestId("result-item-published")).not.toBeInTheDocument();

@@ -20,6 +20,7 @@ const SearchResults = ({
   const getWorkItem = (res) => {
     return {
       id: res._id,
+      collectionName: res.collection ? res.collection.title : "",
       title: res.descriptiveMetadata.title,
       updatedAt: res.modified_date,
       representativeImage: res.representativeFileSet,
