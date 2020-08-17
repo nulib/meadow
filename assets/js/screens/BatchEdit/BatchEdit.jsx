@@ -12,23 +12,6 @@ const ScreensBatchEdit = () => {
   let location = useLocation();
   let locationState = location.state;
 
-  // "filteredQuery": Elasticsearch query used to generate results on Search page
-  // "parsedAggregations": Object of aggregations for "filteredQuery", holding text values
-  // "resultStats": Pulled out of Reactivesearch data
-  let filteredQuery = locationState ? locationState.filteredQuery : null;
-  let parsedAggregations = locationState
-    ? locationState.parsedAggregations
-    : null;
-  let resultStats = locationState ? locationState.resultStats : null;
-
-  // "items" would be an array of Work "id" values
-  let items = locationState && locationState.items ? locationState.items : [];
-
-  // Total number of results from the Elasticsearch query on Search page
-  let numberOfResults = locationState
-    ? locationState.resultStats.numberOfResults
-    : null;
-
   return (
     <Layout>
       <section className="section" data-testid="batch-edit-screen">
@@ -65,29 +48,6 @@ const ScreensBatchEdit = () => {
                 </p>
               </div>
             )}
-
-            {/* {locationState && (
-              <div className="content">
-                <h4>Filtered Elasticsearch Query</h4>
-                <JSONPretty data={filteredQuery} />
-
-                <hr />
-                <h4>Aggregations to populate Remove items</h4>
-                <JSONPretty data={parsedAggregations} />
-
-                <hr />
-                <h4>Elasticsearch Query ResultStats</h4>
-                <JSONPretty data={resultStats} />
-
-                <hr />
-                <p data-testid="num-results">Editing {numberOfResults} rows</p>
-                <ul>
-                  {items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )} */}
           </div>
 
           {locationState && (

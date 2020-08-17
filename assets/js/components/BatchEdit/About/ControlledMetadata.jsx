@@ -41,7 +41,6 @@ const BatchEditAboutControlledMetadata = ({
   }
 
   function handleRemoveButtonClick(fieldObj) {
-    console.log("fieldObj", fieldObj);
     setCurrentRemoveField(fieldObj);
     setIsRemoveModalOpen(true);
   }

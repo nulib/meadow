@@ -94,7 +94,7 @@ const BatchEditConfirmation = ({
             <section className="content">
               <div css={headerWrapper}>
                 <FontAwesomeIcon icon="plus" size="2x" />
-                <span class="subtitle">Adding</span>
+                <span className="subtitle">Adding</span>
               </div>
 
               {Object.keys(batchAdds.descriptiveMetadata).map((key) => {
@@ -118,7 +118,7 @@ const BatchEditConfirmation = ({
             <section className={`content ${hasAdds ? "py-6" : ""}`}>
               <div css={headerWrapper}>
                 <FontAwesomeIcon icon="minus-square" size="2x" />
-                <span class="subtitle">Removing</span>
+                <span className="subtitle">Removing</span>
               </div>
 
               <div className="p4">

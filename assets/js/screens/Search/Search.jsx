@@ -35,14 +35,14 @@ const ScreensSearch = () => {
     // Update the Context
     dispatch({
       type: "updateSearchResults",
-      filteredQuery,
+      filteredQuery: { query: filteredQuery },
       parsedAggregations,
       resultStats,
     });
 
     // Send Elasticsearch query and aggregated Controlled Term options to Batch Edit
     history.push("/batch-edit", {
-      filteredQuery,
+      filteredQuery: { query: filteredQuery },
       resultStats,
       parsedAggregations,
     });
