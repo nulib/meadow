@@ -12,14 +12,26 @@ import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import UIAccordion from "../../UI/Accordion";
 import BatchEditConfirmation from "./Confirmation";
 import BatchEditAboutModalRemove from "../ModalRemove";
-import { useBatchState } from "../../../context/batch-edit-context";
+import {
+  useBatchDispatch,
+  useBatchState,
+} from "../../../context/batch-edit-context";
+import {
+  CONTROLLED_METADATA,
+  prepControlledTermInput,
+  prepFacetKey,
+} from "../../../services/metadata";
 
 const BatchEditAbout = () => {
-  const [confirmationMetadata, setConfirmationMetadata] = useState();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [batchAdds, setBatchAdds] = useState({ descriptiveMetadata: {} });
+  const [batchDeletes, setBatchDeletes] = useState({});
+
+  const batchDispatch = useBatchDispatch();
 
   // Grab batch search data from Context
   const batchState = useBatchState();
+
   const numberOfResults = batchState.resultStats
     ? batchState.resultStats.numberOfResults
     : 0;
@@ -47,10 +59,40 @@ const BatchEditAbout = () => {
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
+
     let currentFormValues = getValues();
     console.log("currentFormValues :>> ", currentFormValues);
-    setConfirmationMetadata(currentFormValues);
+    let addItems = {};
+    let deleteReadyItems = {};
+
+    // Update controlled term values to match shape the GraphQL mutation expects
+    for (let term of CONTROLLED_METADATA) {
+      // Include only active form additions
+      if (currentFormValues[term.name]) {
+        addItems[term.name] = prepControlledTermInput(
+          term,
+          currentFormValues[term.name],
+          true
+        );
+      }
+
+      // Include only active removals
+      if (batchState.removeItems && batchState.removeItems[term.name]) {
+        deleteReadyItems[term.name] = prepFacetKey(
+          term,
+          batchState.removeItems[term.name]
+        );
+      }
+    }
+
+    setBatchAdds({ descriptiveMetadata: addItems });
+    setBatchDeletes(deleteReadyItems);
     setIsConfirmModalOpen(true);
+  };
+
+  const handleFormReset = () => {
+    reset();
+    batchDispatch({ type: "clearRemoveItems" });
   };
 
   return (
@@ -92,14 +134,7 @@ const BatchEditAbout = () => {
           </span>
           You are editing {numberOfResults} items. Proceed with caution.
         </p>
-        {isConfirmModalOpen ? (
-          <BatchEditConfirmation
-            addMetadata={confirmationMetadata}
-            handleClose={onCloseModal}
-            isConfirmModalOpen={isConfirmModalOpen}
-            removeMetadata={batchState.removeItems}
-          />
-        ) : null}
+
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
           <BatchEditAboutCoreMetadata
             errors={errors}
@@ -162,6 +197,17 @@ const BatchEditAbout = () => {
           />
         </UIAccordion>
       </form>
+
+      {isConfirmModalOpen ? (
+        <BatchEditConfirmation
+          batchAdds={batchAdds}
+          batchDeletes={batchDeletes}
+          filteredQuery={JSON.stringify(batchState.filteredQuery)}
+          handleClose={onCloseModal}
+          handleFormReset={handleFormReset}
+          isConfirmModalOpen={isConfirmModalOpen}
+        />
+      ) : null}
 
       <BatchEditAboutModalRemove />
     </div>

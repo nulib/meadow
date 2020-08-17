@@ -133,6 +133,13 @@ export function findScheme(termToFind) {
   return term.scheme || "";
 }
 
+export function hasRole(name) {
+  const controlledTermItem = DESCRIPTIVE_METADATA.controlledTerms.find(
+    (obj) => obj.name === name
+  );
+  return controlledTermItem.hasRole;
+}
+
 /**
  * Shapes React Hook Form array fields of type "Controlled Term"
  * into the POST format the API wants
@@ -140,9 +147,39 @@ export function findScheme(termToFind) {
  * @param {Array} formItems All entries (one to many) of a controlled term metadata field
  * @returns {Array} // Currently the shape the API wants is [{ term: "ABC", role: { id: "XYZ", scheme: "THE_SCHEME" } }]
  */
-export function prepControlledTermInput(controlledTerm = {}, formItems = []) {
-  let arr = formItems.map(({ termId, roleId }) => {
+export function prepControlledTermInput(
+  controlledTerm = {},
+  formItems = [],
+  includeLabel = false
+) {
+  let arr = formItems.map(({ termId, roleId, label }) => {
     let obj = { term: termId };
+    if (roleId) {
+      obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
+    }
+    if (includeLabel) {
+      obj.label = label;
+    }
+    return obj;
+  });
+
+  return arr;
+}
+
+/**
+ * Prepares fieldArray form data for an upcoming GraphQL post
+ * @param {Object} controlledTerm
+ * @param {Array} keyItems
+ * @returns {Array}
+ */
+export function prepFacetKey(controlledTerm = {}, keyItems = []) {
+  let arr = keyItems.map((item) => {
+    const itemArr = item.split("|");
+    const term = itemArr[0];
+    const roleId = itemArr[1];
+    const label = itemArr[2];
+
+    let obj = { term, label };
     if (roleId) {
       obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
     }
@@ -152,9 +189,59 @@ export function prepControlledTermInput(controlledTerm = {}, formItems = []) {
   return arr;
 }
 
-export function hasRole(name) {
-  const controlledTermItem = DESCRIPTIVE_METADATA.controlledTerms.find(
-    (obj) => obj.name === name
-  );
-  return controlledTermItem.hasRole;
+/**
+ * Remove helper labels from Batch Edit form post data
+ * @param {Object} batchAdds
+ * @param {Object} batchDeletes
+ * @param {Boolean} hasAdds
+ * @param {Boolean} hasDeletes
+ *
+ * @returns {Object}
+ */
+export function removeLabelsFromBatchEditPostData(
+  batchAdds,
+  batchDeletes,
+  hasAdds,
+  hasDeletes
+) {
+  let returnObj = { add: { descriptiveMetadata: {} }, delete: {} };
+
+  if (hasAdds) {
+    Object.keys(batchAdds.descriptiveMetadata).forEach((key) => {
+      returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
+        key
+      ].map((item) => {
+        let itemObj = { ...item };
+        delete itemObj.label;
+        return itemObj;
+      });
+    });
+  }
+
+  if (hasDeletes) {
+    Object.keys(batchDeletes).forEach((key) => {
+      returnObj.delete[key] = batchDeletes[key].map((item) => {
+        let itemObj = { ...item };
+        delete itemObj.label;
+        return itemObj;
+      });
+    });
+  }
+
+  return returnObj;
+}
+
+/**
+ * Helper function which parses the facet key used in Batch Edits
+ * @param {String} key
+ * @returns {Object}
+ */
+export function splitFacetKey(key) {
+  const arr = key.split("|");
+
+  return {
+    term: arr[0],
+    role: arr[1],
+    label: arr[2],
+  };
 }

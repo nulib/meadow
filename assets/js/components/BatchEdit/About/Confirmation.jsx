@@ -1,77 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import {
-  CONTROLLED_METADATA,
-  UNCONTROLLED_METADATA,
-  PHYSICAL_METADATA,
-  RIGHTS_METADATA,
-  IDENTIFIER_METADATA,
-  OTHER_METADATA,
-} from "../../../services/metadata";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UIFormField from "../../UI/Form/Field";
 import UIFormInput from "../../UI/Form/Input";
 import { toastWrapper } from "../../../services/helpers";
+import { BATCH_UPDATE } from "../batch-edit.gql";
+import { useMutation } from "@apollo/client";
+import BatchEditConfirmationTable from "./ConfirmationTable";
+import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
+const headerWrapper = css`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
 
-const addWrapperCss = css`
-  border: 1px solid green;
+  span {
+    margin-left: 0.8rem;
+  }
 `;
-
-const removeWrapperCss = css`
-  border: 1px solid red;
-  padding: 1rem;
-`;
-
-const confirmationNote =
-  'NOTE: This will affect all works currently selected. Please proceed with extreme caution. To execute this change, type "I understand"';
-
-const mockDeleteMetadata = {
-  contributor: [
-    {
-      role: { scheme: "MARC_RELATOR", id: "aut" },
-      term: "http://id.loc.gov/authorities/names/n79091588",
-    },
-  ],
-  genre: [{ term: "http://vocab.getty.edu/aat/300026031" }],
-  description: "123 this is set to be removed",
-};
 
 const BatchEditConfirmation = ({
-  addMetadata,
-  removeMetadata,
-  isConfirmModalOpen,
+  batchAdds,
+  batchDeletes,
+  filteredQuery,
   handleClose,
+  handleFormReset,
+  isConfirmModalOpen,
 }) => {
   const [confirmationError, setConfirmationError] = useState({});
-  const [parsedAddMetadata, setParsedAddMetadata] = useState();
-  const [parsedDeleteMetadata, setParsedDeleteMetadata] = useState();
 
-  const metadataItems = CONTROLLED_METADATA.concat(
-    UNCONTROLLED_METADATA,
-    PHYSICAL_METADATA,
-    RIGHTS_METADATA,
-    IDENTIFIER_METADATA,
-    OTHER_METADATA
-  );
-
-  useEffect(() => {
-    let parsedAddData = {};
-    Object.keys(addMetadata).map((key) => {
-      let obj = metadataItems.find((item) => item.name === key);
-      parsedAddData[key] = { ...obj, metadata: addMetadata[key] };
-    });
-    setParsedAddMetadata(parsedAddData);
-
-    let parsedDeleteData = {};
-    Object.keys(mockDeleteMetadata).map((key) => {
-      let obj = metadataItems.find((item) => item.name === key);
-      parsedDeleteData[key] = { ...obj, metadata: mockDeleteMetadata[key] };
-    });
-    setParsedDeleteMetadata(parsedDeleteData);
-  }, []);
+  const [batchUpdate] = useMutation(BATCH_UPDATE, {
+    onCompleted({ batchUpdate }) {
+      toastWrapper("is-success", "Batch edit job successfully submitted.");
+      handleFormReset();
+      handleClose();
+    },
+    onError(error) {
+      console.log("onError() error", error);
+      toastWrapper("is-danger", error);
+      handleClose();
+    },
+  });
 
   const handleConfirmationChange = (e) => {
     const filterValue = e.target.value;
@@ -83,12 +53,25 @@ const BatchEditConfirmation = ({
   };
 
   const handleBatchEditConfirm = () => {
-    toastWrapper(
-      "is-success",
-      "Form successfully submitted.  Check the console for form values."
+    const cleanedPostValues = removeLabelsFromBatchEditPostData(
+      batchAdds,
+      batchDeletes,
+      hasAdds,
+      hasDeletes
     );
-    handleClose();
+
+    batchUpdate({
+      variables: {
+        query: filteredQuery,
+        add: cleanedPostValues.add,
+        delete: cleanedPostValues.delete,
+      },
+    });
   };
+
+  const hasAdds =
+    batchAdds && Object.keys(batchAdds.descriptiveMetadata).length > 0;
+  const hasDeletes = batchDeletes && Object.keys(batchDeletes).length > 0;
 
   return (
     <div
@@ -107,105 +90,61 @@ const BatchEditConfirmation = ({
           ></button>
         </header>
         <div className="modal-card-body">
-          <section>
-            <h3 className="title is-size-5">Adding </h3>
-            <ul className="px-4 py-4" css={addWrapperCss}>
-              {parsedAddMetadata &&
-                Object.keys(parsedAddMetadata).map(
-                  (key) =>
-                    Array.isArray(parsedAddMetadata[key].metadata) &&
-                    parsedAddMetadata[key].metadata.map((innerKey, index) => (
-                      <li key={(innerKey, index)} className="py-2">
-                        <FontAwesomeIcon icon="plus" />
-                        <strong> {parsedAddMetadata[key].label}: </strong>
-                        {/*Check If the metadata for this field is an array of strings */}
-                        {typeof parsedAddMetadata[key].metadata[index] ===
-                        "string"
-                          ? parsedAddMetadata[key].metadata[index]
-                          : `${parsedAddMetadata[key].metadata[index].url || ""}
-                          ${parsedAddMetadata[key].metadata[index].label} 
-                      ${parsedAddMetadata[key].metadata[index].termId || ""} 
-                      ${parsedAddMetadata[key].metadata[index].roleId || ""}
-                      `}
-                      </li>
-                    ))
-                )}
+          {hasAdds && (
+            <section className="content">
+              <div css={headerWrapper}>
+                <FontAwesomeIcon icon="plus" size="2x" />
+                <span className="subtitle">Adding</span>
+              </div>
 
-              {parsedAddMetadata &&
-                Object.keys(parsedAddMetadata).map(
-                  (key) =>
-                    !Array.isArray(parsedAddMetadata[key].metadata) &&
-                    parsedAddMetadata[key].metadata && (
-                      <li key={key} className="py-2">
-                        <FontAwesomeIcon icon="plus" />
-                        <strong> {parsedAddMetadata[key].label}: </strong>
-                        {parsedAddMetadata[key].metadata}
-                      </li>
-                    )
-                )}
-            </ul>
-          </section>
+              {Object.keys(batchAdds.descriptiveMetadata).map((key) => {
+                return (
+                  <div
+                    key={key}
+                    className="px-4 py-4 notification is-success is-light"
+                  >
+                    <h5 className="is-capitalized">{key}</h5>
+                    <BatchEditConfirmationTable
+                      items={batchAdds.descriptiveMetadata[key]}
+                      type="add"
+                    />
+                  </div>
+                );
+              })}
+            </section>
+          )}
 
-          <section className="py-6">
-            <h3 className="title is-size-5">Removing</h3>
-            <ul
-              className="px-4 py-4"
-              className="content has-text-danger"
-              css={removeWrapperCss}
-            >
-              {Object.keys(removeMetadata).map((objKey) => (
-                <li>
-                  <h6 className="is-capitalized">{objKey}</h6>
-                  <ul>
-                    {removeMetadata[objKey].map((item) => (
-                      <li>{item}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {hasDeletes && (
+            <section className={`content ${hasAdds ? "py-6" : ""}`}>
+              <div css={headerWrapper}>
+                <FontAwesomeIcon icon="minus-square" size="2x" />
+                <span className="subtitle">Removing</span>
+              </div>
 
-          {/* <section className="py-6">
-            <h3 className="title is-size-5">Removing </h3>
-            <ul className="px-4 py-4" css={removeWrapperCss}>
-              {parsedDeleteMetadata &&
-                Object.keys(parsedDeleteMetadata).map(
-                  (key) =>
-                    Array.isArray(parsedDeleteMetadata[key].metadata) &&
-                    parsedDeleteMetadata[key].metadata.map(
-                      (innerKey, index) => (
-                        <li key={(innerKey, index)} className="py-2">
-                          <FontAwesomeIcon icon="minus" />
-                          <strong> {parsedDeleteMetadata[key].label}: </strong>
-
-                          {typeof parsedDeleteMetadata[key].metadata[index] ===
-                          "string"
-                            ? parsedDeleteMetadata[key].metadata[index]
-                            : parsedDeleteMetadata[key].metadata[index].term}
-                        </li>
-                      )
-                    )
-                )}
-
-              {parsedDeleteMetadata &&
-                Object.keys(parsedDeleteMetadata).map(
-                  (key) =>
-                    !Array.isArray(parsedDeleteMetadata[key].metadata) &&
-                    parsedDeleteMetadata[key].metadata && (
-                      <li key={key} className="py-2">
-                        <FontAwesomeIcon icon="minus" />
-                        <strong> {parsedDeleteMetadata[key].label}: </strong>
-                        {parsedDeleteMetadata[key].metadata}
-                      </li>
-                    )
-                )}
-            </ul>
-          </section> */}
+              <div className="p4">
+                {Object.keys(batchDeletes).map((key) => (
+                  <div key={key} className="notification is-danger is-light">
+                    <h5 className="is-capitalized">{key}</h5>
+                    <BatchEditConfirmationTable
+                      items={batchDeletes[key]}
+                      type="remove"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <div className="columns">
-            <div className="column is-half">
-              <UIFormField label={confirmationNote}>
+            <div className="column is-three-fifths is-offset-one-fifth">
+              <div className="notification is-white">
+                <p className="has-text-danger has-text-centered mb-3">
+                  <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
+                  will affect all works currently selected. Please proceed with
+                  extreme caution.{" "}
+                  <strong>To execute this change, type "I understand"</strong>
+                </p>
+
                 <UIFormInput
                   errors={confirmationError}
                   onChange={handleConfirmationChange}
@@ -214,7 +153,7 @@ const BatchEditConfirmation = ({
                   required
                   data-testid="input-confirmation-text"
                 />
-              </UIFormField>
+              </div>
             </div>
           </div>
         </div>
@@ -229,9 +168,7 @@ const BatchEditConfirmation = ({
           <button
             className="button is-primary"
             disabled={confirmationError}
-            onClick={() => {
-              handleBatchEditConfirm();
-            }}
+            onClick={handleBatchEditConfirm}
             type="button"
             data-testid="button-set-image"
           >
@@ -244,9 +181,11 @@ const BatchEditConfirmation = ({
 };
 
 BatchEditConfirmation.propTypes = {
-  addMetadata: PropTypes.object,
-  removeMetadata: PropTypes.object,
+  batchAdds: PropTypes.object,
+  batchDeletes: PropTypes.object,
+  filteredQuery: PropTypes.string,
   handleClose: PropTypes.func,
+  handleFormReset: PropTypes.func,
   isConfirmModalOpen: PropTypes.bool,
 };
 

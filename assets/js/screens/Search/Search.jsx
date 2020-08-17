@@ -32,20 +32,15 @@ const ScreensSearch = () => {
 
     let parsedAggregations = parseESAggregationResults(response.aggregations);
 
-    // Update the Context
+    // Update the global Batch Edit Context
     dispatch({
       type: "updateSearchResults",
-      filteredQuery,
+      filteredQuery: { query: filteredQuery },
       parsedAggregations,
       resultStats,
     });
 
-    // Send Elasticsearch query and aggregated Controlled Term options to Batch Edit
-    history.push("/batch-edit", {
-      filteredQuery,
-      resultStats,
-      parsedAggregations,
-    });
+    history.push("/batch-edit");
   };
 
   const handleDeselectAll = () => {

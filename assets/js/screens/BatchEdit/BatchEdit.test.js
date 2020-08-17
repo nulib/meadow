@@ -16,7 +16,20 @@ describe("BatchEdit component", () => {
   function setupComponent() {
     setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
-      <BatchProvider>
+      <BatchProvider
+        initialState={{
+          filteredQuery: { foo: "bar" },
+          resultStats: {
+            numberOfResults: 17,
+            numberOfPages: 2,
+            time: 23,
+            hidden: 0,
+            promoted: 0,
+            currentPage: 0,
+            displayedResults: 10,
+          },
+        }}
+      >
         <ScreensBatchEdit />
       </BatchProvider>,
       {
@@ -26,6 +39,8 @@ describe("BatchEdit component", () => {
           codeListRightsStatementMock,
         ],
         // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
+        // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
+        // reference in the future.
         state: { resultStats: { numberOfResults: 5 } },
       }
     );
