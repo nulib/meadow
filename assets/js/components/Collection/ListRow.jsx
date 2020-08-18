@@ -16,7 +16,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
-            <Link to={`/collection/${id}`} className="hvr-grow">
+            <Link to={`/collection/${id}`} className="hvr-shrink">
               <img
                 src={
                   representativeWork
