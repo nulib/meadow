@@ -18,6 +18,19 @@ export default function SearchFacetSidebar() {
           react={{
             and: filterList(sensor.componentId),
           }}
+          defaultQuery={() => ({
+            query: {
+              bool: {
+                must: [
+                  {
+                    match: {
+                      "model.name": "Image",
+                    },
+                  },
+                ],
+              },
+            },
+          })}
         />
       ))}
     </div>
