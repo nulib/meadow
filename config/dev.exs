@@ -87,6 +87,9 @@ config :meadow,
       "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/"
     )
 
+config :elastix,
+  custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
+
 config :ex_aws,
   access_key_id: "fake",
   secret_access_key: "fake"
