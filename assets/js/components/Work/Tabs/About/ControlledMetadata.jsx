@@ -61,9 +61,7 @@ const WorkTabsAboutControlledMetadata = ({
           </li>
         ))}
       </ul>
-      <button type="button" onClick={async () => refreshCodeLists()}>
-        Click Me
-      </button>
+
       {isEditing && (
         <UICodeListCacheRefresh handleClick={() => refreshCodeLists()} />
       )}

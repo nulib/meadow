@@ -46,7 +46,7 @@ export default function BatchEditPreviewItems({ items = [] }) {
               className="mr-4 mb-4 is-inline-block"
               css={previewItem}
             >
-              <Link to={`/work/${id}`} target="_blank" className="hvr-grow">
+              <Link to={`/work/${id}`} target="_blank" className="hvr-shrink">
                 <figure>
                   <img
                     data-testid="image-preview"
