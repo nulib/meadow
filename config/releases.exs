@@ -9,6 +9,15 @@ get_required_var = fn var ->
   System.get_env(var) || raise "environment variable #{var} is missing."
 end
 
+config :elastix,
+  custom_headers:
+    {Meadow.Utils.AWS, :add_aws_signature,
+     [
+       get_required_var.("AWS_REGION"),
+       get_required_var.("ELASTICSEARCH_KEY"),
+       get_required_var.("ELASTICSEARCH_SECRET")
+     ]}
+
 config :exldap, :settings,
   server: get_required_var.("LDAP_SERVER"),
   base: "DC=library,DC=northwestern,DC=edu",
