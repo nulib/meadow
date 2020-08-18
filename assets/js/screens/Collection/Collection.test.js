@@ -13,6 +13,8 @@ import {
   MOCK_COLLECTION_ID,
 } from "../../components/Collection/collection.gql.mock";
 
+jest.mock("../../services/elasticsearch");
+
 /**
  * Helper function to render the component for testing
  * @param {Array} mocks All the mocks needed to run each spec

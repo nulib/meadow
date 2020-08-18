@@ -7,6 +7,8 @@ import {
   ingestSheetUpdatesMock,
 } from "../../components/Project/project.gql.mock";
 
+jest.mock("../../services/elasticsearch");
+
 const MOCK_PROJECT_TITLE = "Mock project title";
 const mocks = [getProjectMock, ingestSheetUpdatesMock];
 

@@ -4,6 +4,8 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { getProjectsMock } from "../../components/Project/project.gql.mock";
 const mocks = [getProjectsMock];
 
+jest.mock("../../services/elasticsearch");
+
 it("renders a create new project button", async () => {
   const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
     mocks,
