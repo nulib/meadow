@@ -28,6 +28,7 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     <UIProgressBar
       percentComplete={Number(ingestProgress.percentComplete)}
       totalValue={ingestProgress.totalFileSets}
+      isIngest={true}
     />
   );
 };
