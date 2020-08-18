@@ -6,7 +6,7 @@ defmodule Meadow.Data.SharedLinks do
   alias Meadow.Config
 
   @index "shared_links"
-  @type_name "shared_link"
+  @type_name "_doc"
 
   @enforce_keys [:work_id, :expires]
   defstruct shared_link_id: nil, work_id: nil, expires: nil
