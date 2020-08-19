@@ -32,11 +32,7 @@ export default function BatchEditRemove({
             {removeItems.map((item) => {
               const { label, role, term } = splitFacetKey(item);
 
-              return (
-                <li key={item} className="has-text-danger">
-                  {`${label} - ${term} - ${role}`}
-                </li>
-              );
+              return <li key={item}>{`${label} - ${term}`}</li>;
             })}
           </ul>
         </div>

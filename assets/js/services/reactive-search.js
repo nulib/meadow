@@ -28,8 +28,8 @@ export const REACTIVE_SEARCH_THEME = {
 // Documention: https://docs.appbase.io/docs/reactivesearch/v3/theming/classnameinjection/
 const facetClasses = {
   checkbox: "facet-checkbox",
-  label: "facet-item-label",
-  title: "facet-title",
+  label: "facet-item-label mx-2",
+  title: "facet-title mt-4",
 };
 
 const defaultListItemValues = {
