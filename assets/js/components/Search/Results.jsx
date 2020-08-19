@@ -7,6 +7,7 @@ import WorkCardItem from "../../components/Work/CardItem";
 import UISkeleton from "../../components/UI/Skeleton";
 import SearchSelectable from "../../components/Search/Selectable";
 import { FACET_SENSORS } from "../../services/reactive-search";
+import { prepWorkItemForDisplay } from "../../services/helpers";
 
 const SearchResults = ({
   handleOnDataChange,
@@ -16,22 +17,6 @@ const SearchResults = ({
   selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
-
-  const getWorkItem = (res) => {
-    return {
-      id: res._id,
-      collectionName: res.collection ? res.collection.title : "",
-      title: res.descriptiveMetadata.title,
-      updatedAt: res.modified_date,
-      representativeImage: res.representativeFileSet,
-      manifestUrl: res.iiifManifest,
-      published: res.published,
-      visibility: res.visibility,
-      fileSets: res.fileSets.length,
-      accessionNumber: res.accessionNumber,
-      workType: res.workType,
-    };
-  };
 
   return (
     <>
@@ -77,7 +62,10 @@ const SearchResults = ({
                       handleSelectItem={handleSelectItem}
                       wrapsItemType="list"
                     >
-                      <WorkListItem key={res._id} {...getWorkItem(res)} />
+                      <WorkListItem
+                        key={res._id}
+                        {...prepWorkItemForDisplay(res)}
+                      />
                     </SearchSelectable>
                   </div>
                 );
@@ -94,7 +82,10 @@ const SearchResults = ({
                     isSelected={selectedItems.indexOf(res._id) > -1}
                     wrapsItemType="card"
                   >
-                    <WorkCardItem key={res._id} {...getWorkItem(res)} />
+                    <WorkCardItem
+                      key={res._id}
+                      {...prepWorkItemForDisplay(res)}
+                    />
                   </SearchSelectable>
                 </div>
               );

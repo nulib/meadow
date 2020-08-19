@@ -1,23 +1,13 @@
 import React from "react";
 import WorkListItem from "./ListItem";
-import { mockWork as work } from "./work.gql.mock";
+import { mockWork } from "./work.gql.mock";
 import { renderWithRouter } from "../../services/testing-helpers";
-
-const workObject = {
-  id: work.id,
-  representativeImage: work.representativeImage,
-  title: work.title,
-  workType: work.workType,
-  visibility: work.visibility,
-  published: work.published,
-  accessionNumber: work.accessionNumber,
-  fileSets: work.fileSets.length,
-  manifestUrl: work.manifestUrl,
-  updatedAt: work.updatedAt,
-};
+import { prepWorkItemForDisplay } from "../../services/helpers";
 
 function setupTests() {
-  return renderWithRouter(<WorkListItem {...workObject} />);
+  return renderWithRouter(
+    <WorkListItem {...prepWorkItemForDisplay(mockWork)} id={mockWork.id} />
+  );
 }
 
 it("Displays Work List Item", () => {

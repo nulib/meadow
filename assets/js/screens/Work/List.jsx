@@ -6,24 +6,10 @@ import WorkCardItem from "../../components/Work/CardItem";
 import WorkListItem from "../../components/Work/ListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import { prepWorkItemForDisplay } from "../../services/helpers";
 
 const ScreensWorkList = () => {
   const [isListView, setIsListView] = useState(false);
-
-  const getWorkItem = (res) => {
-    return {
-      id: res._id,
-      title: res.title,
-      updatedAt: res.modifiedDate,
-      representativeImage: res.representativeFileSet,
-      manifestUrl: res.iiifManifest,
-      published: res.published,
-      visibility: res.visibility,
-      fileSets: res.fileSets.length,
-      accessionNumber: res.accessionNumber,
-      workType: res.workType,
-    };
-  };
 
   return (
     <Layout>
@@ -83,7 +69,10 @@ const ScreensWorkList = () => {
                 if (isListView) {
                   return (
                     <div key={res._id} className="box">
-                      <WorkListItem key={res._id} {...getWorkItem(res)} />
+                      <WorkListItem
+                        key={res._id}
+                        {...prepWorkItemForDisplay(res)}
+                      />
                     </div>
                   );
                 }
@@ -92,7 +81,10 @@ const ScreensWorkList = () => {
                     key={res._id}
                     className="column is-half-tablet is-one-third-desktop is-one-quarter-widescreen"
                   >
-                    <WorkCardItem key={res._id} {...getWorkItem(res)} />
+                    <WorkCardItem
+                      key={res._id}
+                      {...prepWorkItemForDisplay(res)}
+                    />
                   </div>
                 );
               }}
