@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
 import CollectionImageModal from "./CollectionImageModal";
-import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Collection = ({ collection }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,10 +36,13 @@ const Collection = ({ collection }) => {
               <button
                 data-testid="button-open-image-modal"
                 type="button"
-                className="button is-light is-small"
+                className="button is-fullwidth"
                 onClick={() => setIsModalOpen(true)}
               >
-                Update Image
+                <span className="icon">
+                  <FontAwesomeIcon icon="edit" />
+                </span>
+                <span>Update Image</span>
               </button>
             </p>
           )}
