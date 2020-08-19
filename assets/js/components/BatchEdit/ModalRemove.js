@@ -18,6 +18,7 @@ function setupCandidateList(items) {
     const { label, role, term } = splitFacetKey(item.key);
     return {
       key: item.key,
+      title: label,
       label: (
         <span>
           <strong>{label}</strong> - {term} - ({item.doc_count})
@@ -25,7 +26,7 @@ function setupCandidateList(items) {
       ),
     };
   });
-
+  newList.sort((a, b) => (a.title > b.title ? 1 : -1));
   return newList;
 }
 

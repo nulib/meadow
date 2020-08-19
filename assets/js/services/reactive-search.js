@@ -55,7 +55,8 @@ export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "FacetCollection",
-    dataField: "collection.id",
+    dataField: "collection.title.keyword",
+    showSearch: true,
     title: "Collection",
   },
   {
