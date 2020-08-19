@@ -30,7 +30,7 @@ defmodule MeadowWeb.Router do
 
   scope "/dashboard" do
     pipe_through :secure_browser
-    live_dashboard "/"
+    live_dashboard "/", metrics: Meadow.Telemetry
   end
 
   scope "/elasticsearch" do

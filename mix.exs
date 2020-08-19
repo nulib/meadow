@@ -30,7 +30,8 @@ defmodule Meadow.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Meadow.Application, []}
+      mod: {Meadow.Application, []},
+      extra_applications: [:os_mon]
     ]
   end
 
@@ -83,6 +84,7 @@ defmodule Meadow.MixProject do
       {:sequins, "~> 0.6.0"},
       {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
+      {:telemetry_metrics, "~> 0.4"},
       {:ueberauth_nusso, "~> 0.2.4"},
       {:wormwood, "~> 0.1.0"}
     ]
@@ -125,6 +127,7 @@ defmodule Meadow.MixProject do
           observer: :permanent,
           runtime_tools: :permanent
         ],
+        extra_applications: [:os_mon],
         steps: [&build_assets/1, :assemble, :tar]
       ]
     ]

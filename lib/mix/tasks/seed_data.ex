@@ -77,7 +77,6 @@ defmodule Mix.Tasks.Meadow.SeedData do
     with {:ok, sheet} <- Sheets.update_ingest_sheet_status(sheet, "approved") do
       sheet
       |> SheetsToWorks.create_works_from_ingest_sheet()
-      |> SheetsToWorks.send_to_pipeline()
 
       Logger.info("Ingest sheet sent to pipeline. Waiting for ingest to complete.")
       wait_for_completion(sheet)

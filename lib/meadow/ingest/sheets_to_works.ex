@@ -6,7 +6,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
   import Ecto.Query, warn: false
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest
   alias Meadow.Ingest.{Progress, Rows, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
@@ -27,9 +27,10 @@ defmodule Meadow.Ingest.SheetsToWorks do
     |> Enum.group_by(fn row -> row |> Row.field_value(:work_accession_number) end)
   end
 
-  def send_to_pipeline(ingest_sheet) do
-    Ingest.get_file_sets_and_rows(ingest_sheet)
-    |> Enum.each(fn %{row_num: row_num, file_set_id: file_set_id} ->
+  def send_work_to_pipeline(ingest_sheet, work, file_set_rows) do
+    work.file_sets
+    |> Enum.zip(file_set_rows)
+    |> Enum.each(fn {%FileSet{id: file_set_id}, %Row{row: row_num}} ->
       Status.change(ingest_sheet.id, row_num, "pending")
 
       Pipeline.kickoff(file_set_id, %{
@@ -39,7 +40,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
       })
     end)
 
-    ingest_sheet
+    work
   end
 
   def initialize_progress(ingest_sheet) do
@@ -88,7 +89,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
       {:ok, %Work{} = work} ->
         Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
         ActionStates.set_state!(work, "Create Work", "ok")
-        work
+        send_work_to_pipeline(ingest_sheet, work, file_set_rows)
 
       {:error, changeset} ->
         create_changeset_errors(changeset, file_set_rows)
