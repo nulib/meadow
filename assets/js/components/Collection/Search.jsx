@@ -3,12 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import UIFormInput from "../UI/Form/Input";
 import UIFormField from "../UI/Form/Field";
+import WorkCardItem from "../Work/CardItem";
+import { prepWorkItemForDisplay } from "../../services/helpers";
 
 const CollectionSearch = ({ collection }) => {
   const [filteredWorks, setFilteredWorks] = useState(collection.works);
-  // useEffect(() => {
-  //   setFilteredWorks(collection ? collection.works : []);
-  // }, []);
 
   const handleFilterChange = (e) => {
     const filterValue = e.target.value.toUpperCase();
@@ -69,27 +68,7 @@ const CollectionSearch = ({ collection }) => {
               className="column is-one-quarter-desktop is-half-tablet"
               key={work.id}
             >
-              <Link to={`/work/${work.id}`}>
-                <figure className="image is-square">
-                  <img
-                    data-testid={`work-image-${work.id}`}
-                    src={`${
-                      work.representativeImage
-                        ? work.representativeImage +
-                          "/square/500,500/0/default.jpg"
-                        : "/images/480x480.png"
-                    }`}
-                  />
-                </figure>
-                <p
-                  className="text-center"
-                  data-testid={`work-title-${work.id}`}
-                >{`${
-                  work.descriptiveMetadata.title
-                    ? work.descriptiveMetadata.title
-                    : "Untitled"
-                }`}</p>
-              </Link>
+              <WorkCardItem {...prepWorkItemForDisplay(work)} id={work.id} />
             </li>
           ))}
         </ul>

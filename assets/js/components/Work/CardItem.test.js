@@ -1,23 +1,13 @@
 import React from "react";
 import WorkCardItem from "./CardItem";
 import { renderWithRouter } from "../../services/testing-helpers";
-import { mockWork as work } from "./work.gql.mock";
-
-const workObject = {
-  id: work.id,
-  representativeImage: work.representativeImage,
-  title: work.title,
-  workType: work.workType,
-  visibility: work.visibility,
-  published: work.published,
-  accessionNumber: work.accessionNumber,
-  fileSets: work.fileSets.length,
-  manifestUrl: work.manifestUrl,
-  updatedAt: work.updatedAt,
-};
+import { mockWork } from "./work.gql.mock";
+import { prepWorkItemForDisplay } from "../../services/helpers";
 
 function setupTests() {
-  return renderWithRouter(<WorkCardItem {...workObject} />);
+  return renderWithRouter(
+    <WorkCardItem {...prepWorkItemForDisplay(mockWork)} id={mockWork.id} />
+  );
 }
 
 it("Displays Work card", () => {
@@ -27,7 +17,7 @@ it("Displays Work card", () => {
 
 it("Displays Representative Image for Work", () => {
   const { getByTestId, debug } = setupTests();
-  const el = getByTestId("image-work");
+  const el = getByTestId("work-image-ABC123");
   expect(el.getAttribute("src")).toEqual(
     "http://foobar/full/1280,960/0/default.jpg"
   );

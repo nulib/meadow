@@ -21,9 +21,13 @@ const WorkCardItem = ({
               src={
                 representativeImage.fileSetId
                   ? `${representativeImage.url}/square/500,500/0/default.jpg`
-                  : `${representativeImage}/full/1280,960/0/default.jpg`
+                  : `${
+                      representativeImage
+                        ? `${representativeImage}/full/1280,960/0/default.jpg`
+                        : "/images/480x480.png"
+                    }`
               }
-              data-testid="image-work"
+              data-testid={`work-image-${id}`}
               alt={title}
             />
           </Link>
@@ -35,11 +39,14 @@ const WorkCardItem = ({
           dangerouslySetInnerHTML={{
             __html: title ? title : "Untitled",
           }}
+          data-testid={`work-title-${id}`}
         ></p>
         {collectionName && <strong>{collectionName}</strong>}
         <div className="content">
           <p>
-            <span className="tag">{workType.label.toUpperCase()}</span>{" "}
+            {workType && (
+              <span className="tag">{workType.label.toUpperCase()}</span>
+            )}{" "}
             {visibility && (
               <span
                 data-testid="tag-visibility"

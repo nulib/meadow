@@ -72,3 +72,21 @@ export function setVisibilityClass(visibility) {
   }
   return "";
 }
+
+export function prepWorkItemForDisplay(res) {
+  return {
+    id: res._id,
+    collectionName: res.collection ? res.collection.title : "",
+    title: res.descriptiveMetadata.title,
+    updatedAt: res.modified_date || res.updatedAt,
+    representativeImage:
+      res.representativeFileSet ||
+      (res.representativeImage ? res.representativeImage : ""),
+    manifestUrl: res.iiifManifest,
+    published: res.published,
+    visibility: res.visibility,
+    fileSets: res.fileSets ? res.fileSets.length : 0,
+    accessionNumber: res.accessionNumber,
+    workType: res.workType,
+  };
+}

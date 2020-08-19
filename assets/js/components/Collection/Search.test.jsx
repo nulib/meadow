@@ -33,7 +33,7 @@ describe("CollectionSearch component", () => {
     const { getByTestId } = setupTests();
     const el = getByTestId("work-image-1id-23343432");
     expect(el.getAttribute("src")).toEqual(
-      "repImage1url.com/square/500,500/0/default.jpg"
+      "repImage1url.com/full/1280,960/0/default.jpg"
     );
   });
 
