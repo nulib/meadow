@@ -1,5 +1,15 @@
 import gql from "graphql-tag";
 
+export const CREATE_SHARED_LINK = gql`
+  mutation CreateSharedLink($workId: ID!) {
+    createSharedLink(workId: $workId) {
+      expires
+      sharedLinkId
+      workId
+    }
+  }
+`;
+
 export const GET_WORK = gql`
   query WorkQuery($id: ID!) {
     work(id: $id) {

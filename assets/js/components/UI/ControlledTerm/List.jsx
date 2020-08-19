@@ -6,7 +6,7 @@ const UIControlledTermList = ({ items = [] }) => {
     <div className="content mb-4">
       <ul data-testid="controlled-term-list">
         {items.map((item) => (
-          <li key={item.term.id}>
+          <li key={`${item.term.id}-${item.role ? item.role.id : ""}`}>
             {item.term.label} {item.role && `(${item.role.label})`}
             {item.term.id && ` - ${item.term.id}`}
           </li>
