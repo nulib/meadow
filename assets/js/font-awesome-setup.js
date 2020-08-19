@@ -16,6 +16,9 @@ import {
   faFileUpload,
   faHome,
   faLeaf,
+  faLink,
+  faLock,
+  faLockOpen,
   faMinusSquare,
   faPlus,
   faMinus,
@@ -26,6 +29,7 @@ import {
   faUser,
   faThList,
   faThLarge,
+  faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function setupFontAwesome() {
@@ -46,6 +50,9 @@ export default function setupFontAwesome() {
     faFileUpload,
     faHome,
     faLeaf,
+    faLink,
+    faLock,
+    faLockOpen,
     faMinusSquare,
     faPlus,
     faMinus,
@@ -55,6 +62,7 @@ export default function setupFontAwesome() {
     faTrash,
     faUser,
     faThList,
-    faThLarge
+    faThLarge,
+    faUpload
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
+  CREATE_SHARED_LINK,
   GET_WORK,
   UPDATE_WORK,
   DELETE_WORK,
@@ -15,9 +16,14 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { toastWrapper } from "../../services/helpers";
 import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
+import WorkHeaderButtons from "../../components/Work/HeaderButtons";
+import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
 
 const ScreensWork = () => {
   const { id } = useParams();
+  const history = useHistory();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id },
     onError() {
@@ -27,8 +33,7 @@ const ScreensWork = () => {
       });
     },
   });
-  const history = useHistory();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
     onCompleted({ deleteWork: { project, sheet, descriptiveMetadata } }) {
       toastWrapper(
@@ -40,6 +45,7 @@ const ScreensWork = () => {
       history.push(`/project/${project.id}/ingest-sheet/${sheet.id}`);
     },
   });
+
   const [updateWork] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       toastWrapper(
@@ -49,9 +55,21 @@ const ScreensWork = () => {
     },
   });
 
+  const [createSharedLink, { data: createSharedLinkData }] = useMutation(
+    CREATE_SHARED_LINK
+  );
+
   if (error) {
     return null;
   }
+
+  const handleCreateSharableBtnClick = () => {
+    createSharedLink({
+      variables: {
+        workId: id,
+      },
+    });
+  };
 
   const handleDeleteClick = () => {
     deleteWork({ variables: { workId: id } });
@@ -97,35 +115,31 @@ const ScreensWork = () => {
             ) : (
               <>
                 <div className="columns">
-                  <div className="column is-two-thirds">
+                  <div className="column">
                     <h1 className="title">
                       {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                     </h1>
                     <WorkTagsList work={data.work} />
                   </div>
-                  <div className="column is-one-third">
-                    <div className="buttons is-right">
-                      <button
-                        className={`button is-primary ${
-                          data.work.published ? "is-outlined" : ""
-                        }`}
-                        data-testid="publish-button"
-                        onClick={handlePublishClick}
-                      >
-                        {!data.work.published ? "Publish" : "Unpublish"}
-                      </button>
-                      <button
-                        className="button"
-                        data-testid="delete-button"
-                        onClick={onOpenModal}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                  <div className="column">
+                    <WorkHeaderButtons
+                      handleCreateSharableBtnClick={
+                        handleCreateSharableBtnClick
+                      }
+                      handlePublishClick={handlePublishClick}
+                      onOpenModal={onOpenModal}
+                      published={data.work.published}
+                    />
                   </div>
                 </div>
 
                 <div className="content">
+                  {createSharedLinkData && (
+                    <WorkSharedLinkNotification
+                      linkData={createSharedLinkData.createSharedLink}
+                    />
+                  )}
+
                   <dl>
                     <dt>Accession Number</dt>
                     <dd>{data.work.accessionNumber}</dd>
