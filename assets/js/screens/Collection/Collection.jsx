@@ -117,7 +117,7 @@ const ScreensCollection = () => {
                         : "Not Published"}
                     </span>
                     {data.collection.featured && (
-                      <span className={`tag is-danger`}>Featured</span>
+                      <span className={`tag is-info`}>Featured</span>
                     )}
                   </div>
                   <div className="column is-one-third buttons has-text-right">
