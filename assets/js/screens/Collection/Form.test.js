@@ -6,6 +6,8 @@ import { waitFor } from "@testing-library/react";
 import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
 const mocks = [getCollectionMock];
 
+jest.mock("../../services/elasticsearch");
+
 function setupTests() {
   return renderWithRouterApollo(
     <Route path="/collection/form/:id" component={ScreensCollectionForm} />,

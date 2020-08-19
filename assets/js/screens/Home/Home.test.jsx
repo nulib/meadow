@@ -5,6 +5,8 @@ import "@testing-library/jest-dom/extend-expect";
 import HomePage from "./Home";
 import { renderWithRouter } from "../../services/testing-helpers";
 
+jest.mock("../../services/elasticsearch");
+
 afterEach(cleanup);
 
 test.skip("Home page component renders", () => {

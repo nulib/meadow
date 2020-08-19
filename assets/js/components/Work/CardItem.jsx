@@ -16,7 +16,7 @@ const WorkCardItem = ({
     <div className="card " data-testid="ui-workcard">
       <div className="card-image">
         <figure className="image is-3by3">
-          <Link to={`/work/${id}`}>
+          <Link to={`/work/${id}`} className="hvr-shrink">
             <img
               src={
                 representativeImage.fileSetId
@@ -30,12 +30,12 @@ const WorkCardItem = ({
         </figure>
       </div>
       <div className="card-content">
-        <h2
-          className="subtitle"
+        <p
+          className="mb-2"
           dangerouslySetInnerHTML={{
             __html: title ? title : "Untitled",
           }}
-        ></h2>
+        ></p>
         {collectionName && <strong>{collectionName}</strong>}
         <div className="content">
           <p>

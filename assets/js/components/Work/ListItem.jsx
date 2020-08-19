@@ -20,7 +20,7 @@ const WorkListItem = ({
       <article className="media" data-testid="ui-worklist-item">
         <figure className="media-left">
           <p className="image is-128x128">
-            <Link to={`/work/${id}`}>
+            <Link to={`/work/${id}`} className="hvr-shrink">
               <img
                 src={
                   representativeImage.fileSetId
@@ -34,60 +34,31 @@ const WorkListItem = ({
           </p>
         </figure>
         <div className="media-content">
-          <div className="level">
-            <div className="level-left">
-              <div className="level-item">
-                <h3 className="title is-size-4">
-                  <Link
-                    to={`/work/${id}`}
-                    dangerouslySetInnerHTML={{
-                      __html: title ? title : "Untitled",
-                    }}
-                  ></Link>{" "}
-                </h3>
-              </div>
-              <div className="level-item">
-                <span className="tag">{workType.label.toUpperCase()}</span>
-              </div>
-              {visibility && (
-                <div className="level-item">
-                  <span
-                    data-testid="tag-visibility"
-                    className={`tag ${setVisibilityClass(visibility.id)}`}
-                  >
-                    {visibility.label.toUpperCase()}
-                  </span>
-                </div>
-              )}
-
-              {published && (
-                <div className="level-item">
-                  <span
-                    data-testid="result-item-published"
-                    className="tag is-success"
-                  >
-                    PUBLISHED
-                  </span>
-                </div>
-              )}
-
-              <div className="level-item">
-                <a
-                  href={manifestUrl}
-                  target="_blank"
-                  className="card-footer-item"
-                >
-                  <figure className="image is-32x32">
-                    <img
-                      src="/images/IIIF-logo.png"
-                      alt="IIIF logo"
-                      title="View IIIF manifest"
-                    />
-                  </figure>
-                </a>
-              </div>
-            </div>
-          </div>
+          <h3 className="title is-size-5">
+            <Link
+              to={`/work/${id}`}
+              dangerouslySetInnerHTML={{
+                __html: title ? title : "Untitled",
+              }}
+            ></Link>{" "}
+          </h3>
+          <span className="tag">{workType.label.toUpperCase()}</span>
+          {visibility && (
+            <span
+              data-testid="tag-visibility"
+              className={`tag ${setVisibilityClass(visibility.id)}`}
+            >
+              {visibility.label.toUpperCase()}
+            </span>
+          )}
+          {published && (
+            <span
+              data-testid="result-item-published"
+              className="tag is-success"
+            >
+              PUBLISHED
+            </span>
+          )}
 
           <div className="content ">
             <table className="table">

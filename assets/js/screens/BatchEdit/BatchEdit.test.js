@@ -12,6 +12,8 @@ import {
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
+jest.mock("../../services/elasticsearch");
+
 describe("BatchEdit component", () => {
   function setupComponent() {
     setupCachedCodeListsLocalStorage();
@@ -38,7 +40,6 @@ describe("BatchEdit component", () => {
           codeListRelatedUrlMock,
           codeListRightsStatementMock,
         ],
-        // Mocks sending in 2 items to Batch Edit component via react-router-dom "state"
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
         // reference in the future.
         state: { resultStats: { numberOfResults: 5 } },
