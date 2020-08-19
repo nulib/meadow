@@ -57,8 +57,8 @@ config :meadow, Meadow.ElasticsearchCluster,
       settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
-      bulk_page_size: 5000,
-      bulk_wait_interval: 15_000
+      bulk_page_size: 500,
+      bulk_wait_interval: 2_000
     }
   }
 
@@ -74,7 +74,9 @@ config :honeybadger,
   environment_name: :prod,
   exclude_envs: [:dev, :test]
 
-config :sequins, prefix: "meadow"
+config :sequins,
+  prefix: "meadow",
+  supervisor_opts: [max_restarts: 360]
 
 config :ueberauth, Ueberauth,
   providers: [

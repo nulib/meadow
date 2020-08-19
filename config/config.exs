@@ -42,7 +42,7 @@ config :meadow, Meadow.ElasticsearchCluster,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
       ],
-      bulk_page_size: 5_000,
+      bulk_page_size: 500,
       bulk_wait_interval: 2_000
     }
   }
