@@ -16,8 +16,14 @@ const UIFormControlledTermArrayItem = ({
   register,
 }) => {
   const [currentAuthority, setCurrentAuthority] = useState(authorities[0].id);
+  const [isLoading, setIsLoading] = useState(false);
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
-    AUTHORITY_SEARCH
+    AUTHORITY_SEARCH,
+    {
+      onCompleted: (data) => {
+        setIsLoading(false);
+      },
+    }
   );
 
   const inputName = `${[name]}[${index}]`;
@@ -29,6 +35,7 @@ const UIFormControlledTermArrayItem = ({
 
   // Handle user entering search input
   const handleInputChange = (val) => {
+    setIsLoading(true);
     getAuthResults({
       variables: {
         authority: currentAuthority,
@@ -63,6 +70,7 @@ const UIFormControlledTermArrayItem = ({
       <div className="field">
         <DropDownComboBox
           data={data}
+          isLoading={isLoading}
           handleInputChange={handleInputChange}
           handleItemSelected={handleItemSelected}
           hasErrors={hasErrors}
@@ -89,6 +97,7 @@ function DropDownComboBox({
   inputName,
   initialInputValue,
   register,
+  isLoading,
 }) {
   const {
     getLabelProps,
@@ -127,6 +136,8 @@ function DropDownComboBox({
           })}
         />
       </div>
+      {isLoading && <div className="loader mt-4"></div>}
+
       <ul {...getMenuProps()}>
         {isOpen &&
           authoritiesSearch.map((item, index) => (
