@@ -7,6 +7,7 @@ import { BATCH_UPDATE } from "../batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "./ConfirmationTable";
 import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
+import { useHistory } from "react-router-dom";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -28,13 +29,18 @@ const BatchEditConfirmation = ({
   handleFormReset,
   isConfirmModalOpen,
 }) => {
+  const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
     onCompleted({ batchUpdate }) {
-      toastWrapper("is-success", "Batch edit job successfully submitted.");
+      toastWrapper(
+        "is-success",
+        "Batch edit job successfully submitted.  You'll be re-directed to the Search screen."
+      );
       handleFormReset();
       handleClose();
+      history.push("/search");
     },
     onError(error) {
       console.log("onError() error", error);
