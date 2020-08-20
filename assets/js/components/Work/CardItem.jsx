@@ -33,38 +33,30 @@ const WorkCardItem = ({
           </Link>
         </figure>
       </div>
-      <div className="card-content">
-        <p
-          className="mb-2"
-          dangerouslySetInnerHTML={{
-            __html: title ? title : "Untitled",
-          }}
-          data-testid={`work-title-${id}`}
-        ></p>
-        {collectionName && <strong>{collectionName}</strong>}
-        <div className="content">
-          <p>
-            {workType && (
-              <span className="tag">{workType.label.toUpperCase()}</span>
-            )}{" "}
-            {visibility && (
-              <span
-                data-testid="tag-visibility"
-                className={`tag ${setVisibilityClass(visibility.id)}`}
-              >
-                {visibility.label.toUpperCase()}
-              </span>
-            )}{" "}
-            {published && (
-              <span
-                data-testid="result-item-published"
-                className="tag is-success"
-              >
-                PUBLISHED
-              </span>
-            )}
-          </p>
-        </div>
+      <div className="card-content content">
+        <p data-testid={`work-title-${id}`}>{title}</p>
+
+        {collectionName && <p className="heading">{collectionName}</p>}
+
+        <p className="has-text-uppercase">
+          {workType && <span className="tag">{workType.label}</span>}{" "}
+          {visibility && (
+            <span
+              data-testid="tag-visibility"
+              className={`tag ${setVisibilityClass(visibility.id)}`}
+            >
+              {visibility.label}
+            </span>
+          )}{" "}
+          {published && (
+            <span
+              data-testid="result-item-published"
+              className="tag is-success"
+            >
+              PUBLISHED
+            </span>
+          )}
+        </p>
       </div>
     </div>
   );
