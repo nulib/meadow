@@ -40,13 +40,13 @@ const WorkListItem = ({
               dangerouslySetInnerHTML={{
                 __html: title ? title : "Untitled",
               }}
-            ></Link>{" "}
+            ></Link>
           </h3>
-          <span className="tag">{workType.label.toUpperCase()}</span>
+          <span className="tag mr-1">{workType.label.toUpperCase()}</span>
           {visibility && (
             <span
               data-testid="tag-visibility"
-              className={`tag ${setVisibilityClass(visibility.id)}`}
+              className={`tag mr-1 ${setVisibilityClass(visibility.id)}`}
             >
               {visibility.label.toUpperCase()}
             </span>
@@ -54,7 +54,7 @@ const WorkListItem = ({
           {published && (
             <span
               data-testid="result-item-published"
-              className="tag is-success"
+              className="tag is-success mr-1"
             >
               PUBLISHED
             </span>
