@@ -62,6 +62,15 @@ config :meadow, Meadow.ElasticsearchCluster,
     }
   }
 
+config :meadow,
+  ark: %{
+    default_shoulder: get_required_var.("EZID_SHOULDER"),
+    user: get_required_var.("EZID_USER"),
+    password: get_required_var.("EZID_PASSWORD"),
+    target_url: get_required_var.("EZID_TARGET_BASE_URL")
+  },
+  environment: :prod
+
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
 config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")

@@ -41,6 +41,19 @@ const WorkTabsAboutIdentifiersMetadata = ({
 
   return (
     <div className="columns is-multiline" data-testid="identifiers-metadata">
+      <div className="column is-half" key="ark" data-testid="ark">
+        <div className="field content">
+          <p data-testid="items-label">
+            <strong>ARK</strong>
+          </p>
+          <ul data-testid="field-array-item-list">
+            <li key="ark-value">
+              {descriptiveMetadata.ark}
+            </li>
+          </ul>
+        </div>
+      </div>
+
       {IDENTIFIER_METADATA.map((item) => (
         <div className="column is-half" key={item.name} data-testid={item.name}>
           {isEditing ? (

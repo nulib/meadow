@@ -42,7 +42,13 @@ config :meadow,
   iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/"
 
 config :meadow,
-  test_mode: true
+  ark: %{
+    default_shoulder: "ark:/12345/nu2",
+    user: "mockuser",
+    password: "mockpassword",
+    target_url: "https://devbox.library.northwestern.edu:3333/items/",
+    url: "http://localhost:3944/"
+  }
 
 config :authoritex, authorities: [Authoritex.Mock]
 

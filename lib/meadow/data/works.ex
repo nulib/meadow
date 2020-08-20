@@ -3,8 +3,9 @@ defmodule Meadow.Data.Works do
   The Works context.
   """
   import Ecto.Query, warn: false
+  alias Meadow.Ark
   alias Meadow.Config
-  alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work}
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
@@ -152,8 +153,14 @@ defmodule Meadow.Data.Works do
   """
   def create_work(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
-      {:ok, work} -> set_default_representative_image(work)
-      other -> other
+      {:ok, work} ->
+        case mint_ark(work) do
+          {:ok, work} -> set_default_representative_image(work)
+          _ -> set_default_representative_image(work)
+        end
+
+      other ->
+        other
     end
   end
 
@@ -164,6 +171,7 @@ defmodule Meadow.Data.Works do
     %Work{}
     |> Work.changeset(attrs)
     |> Repo.insert!()
+    |> mint_ark!()
     |> set_default_representative_image!()
   end
 
@@ -181,8 +189,14 @@ defmodule Meadow.Data.Works do
 
   def create_work_all_fields(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
-      {:ok, work} -> set_default_representative_image(work)
-      other -> other
+      {:ok, work} ->
+        case mint_ark(work) do
+          {:ok, work} -> set_default_representative_image(work)
+          _ -> set_default_representative_image(work)
+        end
+
+      other ->
+        other
     end
   end
 
@@ -290,6 +304,84 @@ defmodule Meadow.Data.Works do
 
   def iiif_manifest_url(work_id) do
     Config.iiif_manifest_url() <> Pairtree.manifest_path(work_id)
+  end
+
+  @doc """
+  Retrieves the ARK Target URL for a work
+  iex> ark_target_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47")
+  "https://dc.library.northwestern.edu/items/f352eb30-ae2f-4b49-81f9-6eb4659a3f47"
+
+  iex> ark_target_url(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47"})
+  "https://dc.library.northwestern.edu/items/f352eb30-ae2f-4b49-81f9-6eb4659a3f47"
+
+  """
+  def ark_target_url(%Work{id: id}) do
+    ark_target_url(id)
+  end
+
+  def ark_target_url(work_id) do
+    Map.get(Config.ark_config(), :target_url) <> work_id
+  end
+
+  @doc """
+  Mints an ARK for a work
+  iex> mint_ark(work)
+  {:ok,
+   %Work{
+     ...
+     descriptive_metadata: %WorkDescriptiveMetadata{
+       ...
+       ark: "ark:/99999/fk4newark"
+     }
+   }}
+
+  iex> mint_ark(work_with_existing_ark)
+  {:noop,
+   %Work{...}}
+  """
+  def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work, _)
+      when not is_nil(ark) do
+    {:noop, work}
+  end
+
+  def mint_ark(%Work{} = work) do
+    scalar_value = fn value ->
+      case value do
+        [%ControlledMetadataEntry{term: %{label: value}} | _] -> value
+        [value | _] -> value
+        %{label: value} -> value
+        [] -> nil
+        other -> other
+      end
+    end
+
+    status = if work.published, do: "public", else: "reserved"
+
+    attributes = [
+      creator: scalar_value.(work.descriptive_metadata.creator),
+      title: work.descriptive_metadata.title,
+      publisher: scalar_value.(work.descriptive_metadata.publisher),
+      publication_year: nil,
+      resource_type: scalar_value.(work.work_type),
+      status: status,
+      target: ark_target_url(work)
+    ]
+
+    case Ark.mint(attributes) do
+      {:ok, result} ->
+        update_work(work, %{descriptive_metadata: %{ark: result.ark}})
+
+      other ->
+        other
+    end
+  end
+
+  def mint_ark!(work) do
+    case mint_ark(work) do
+      {:noop, work} -> work
+      {:ok, work} -> work
+      {_, other} -> raise other
+    end
   end
 
   @doc """

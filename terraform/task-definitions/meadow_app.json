@@ -31,6 +31,22 @@
         "value": "${elasticsearch_url}"
       },
       {
+        "name": "EZID_PASSWORD",
+        "value": "${ezid_password}"
+      },
+      {
+        "name": "EZID_SHOULDER",
+        "value": "${ezid_shoulder}"
+      },
+      {
+        "name": "EZID_TARGET_BASE_URL",
+        "value": "${ezid_target_base_url}"
+      },
+      {
+        "name": "EZID_USER",
+        "value": "${ezid_user}"
+      },
+      {
         "name": "GEONAMES_USERNAME",
         "value": "${geonames_username}"
       },
