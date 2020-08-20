@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import moment from "moment";
 
 export default function WorkSharedLinkNotification({ linkData }) {
-  const linkUrl = `http://digital-collections.rdc-staging.library.northwestern.edu/shared/${linkData.sharedLinkId}`;
+  const linkUrl = `http://fen.rdc-staging.library.northwestern.edu/shared/${linkData.sharedLinkId}`;
 
   return (
     <div
