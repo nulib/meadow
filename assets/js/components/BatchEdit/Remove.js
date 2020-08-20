@@ -27,8 +27,8 @@ export default function BatchEditRemove({
       </UIFormField>
 
       {removeItems.length > 0 && (
-        <div className="content">
-          <ul>
+        <div className="content has-background-danger-light">
+          <ul className="py-4">
             {removeItems.map((item) => {
               const { label, role, term } = splitFacetKey(item);
 
