@@ -28,13 +28,20 @@ defmodule Meadow.Data.SharedLinks do
     expires = DateTime.utc_now() |> DateTime.add(ttl, :millisecond)
     link = %__MODULE__{shared_link_id: Ecto.UUID.generate(), expires: expires, work_id: work_id}
 
+    document = %{
+      shared_link_id: link.shared_link_id,
+      target_id: link.work_id,
+      expires: link.expires,
+      target_index: "meadow"
+    }
+
     result =
       Elastix.Document.index(
         elasticsearch_url(),
         @index,
         @type_name,
         link.shared_link_id,
-        link
+        document
       )
 
     Elastix.Index.refresh(elasticsearch_url(), @index)
