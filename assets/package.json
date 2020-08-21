@@ -54,7 +54,7 @@
     "@nulib/prettier-config": "^1.2.0",
     "@testing-library/jest-dom": "^5.11.3",
     "@testing-library/react": "^10.4.8",
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^6.0.3",
     "coveralls": "^3.1.0",
