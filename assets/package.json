@@ -21,6 +21,7 @@
     "@fortawesome/free-brands-svg-icons": "^5.14.0",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.11",
+    "@nulib/admin-react-components": "^1.2.0",
     "bulma": "^0.9.0",
     "bulma-checkradio": "^1.1.1",
     "bulma-pageloader": "^0.3.0",

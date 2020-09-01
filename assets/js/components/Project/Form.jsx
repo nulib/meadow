@@ -7,6 +7,7 @@ import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormField from "../UI/Form/Field.jsx";
+import { Button } from "@nulib/admin-react-components";
 
 const ProjectForm = ({ showForm, setShowForm }) => {
   const [formError, setFormError] = useState();
@@ -64,21 +65,17 @@ const ProjectForm = ({ showForm, setShowForm }) => {
               </UIFormField>
 
               <div className="buttons is-right">
-                <button
+                <Button
+                  isCancel
                   type="button"
-                  className="button is-text"
                   onClick={() => setShowForm(false)}
                   data-testid="cancel-button"
                 >
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="button is-primary"
-                  data-testid="submit-button"
-                >
+                </Button>
+                <Button isPrimary type="submit" data-testid="submit-button">
                   Create
-                </button>
+                </Button>
               </div>
             </div>
           </div>

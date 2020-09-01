@@ -1,11 +1,11 @@
 @charset "utf-8";
-@import "./scss/fonts";
+@import "~@nulib/admin-react-components/dist/public/styles/fonts";
 
 // Get access to Bulma variables
 // @import "bulma/sass/utilities/initial-variables";
 
 // Custom variables go before importing Bulma
-@import "./scss/variables";
+@import "~@nulib/admin-react-components/dist/public/styles/variables";
 
 @import "~bulma/bulma";
 @import "~bulma-switch/dist/css/bulma-switch";
@@ -16,4 +16,4 @@
 @import "./scss/base";
 @import "./scss/reactivesearch";
 @import "./scss/skeleton";
-@import "./scss//hover";
+@import "./scss/hover";

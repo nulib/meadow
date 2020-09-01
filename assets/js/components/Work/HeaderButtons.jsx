@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
 export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
@@ -17,19 +18,15 @@ export default function WorkHeaderButtons({
       >
         {!published ? "Publish" : "Unpublish"}
       </button>
-      <button className="button" onClick={handleCreateSharableBtnClick}>
+      <Button onClick={handleCreateSharableBtnClick}>
         <span className="icon">
           <FontAwesomeIcon icon="link" />
         </span>
         <span>Create Sharable Link</span>
-      </button>
-      <button
-        className="button"
-        data-testid="delete-button"
-        onClick={onOpenModal}
-      >
+      </Button>
+      <Button isCancel data-testid="delete-button" onClick={onOpenModal}>
         Delete
-      </button>
+      </Button>
     </div>
   );
 }

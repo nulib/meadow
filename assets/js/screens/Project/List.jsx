@@ -8,6 +8,7 @@ import UIFormInput from "../../components/UI/Form/Input";
 import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UILevelItem from "../../components/UI/LevelItem";
+import { Button } from "@nulib/admin-react-components";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -29,13 +30,13 @@ const ScreensProjectList = () => {
                 </p>
               </div>
               <div className="column is-4 has-text-right">
-                <button
-                  className="button is-primary"
+                <Button
+                  isPrimary
                   data-testid="button-new-project"
                   onClick={() => setShowForm(!showForm)}
                 >
                   Add Project
-                </button>
+                </Button>
               </div>
             </div>
             <div className="level">
