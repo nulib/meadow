@@ -24,7 +24,7 @@ export default function WorkHeaderButtons({
         </span>
         <span>Create Sharable Link</span>
       </Button>
-      <Button isCancel data-testid="delete-button" onClick={onOpenModal}>
+      <Button isText data-testid="delete-button" onClick={onOpenModal}>
         Delete
       </Button>
     </div>

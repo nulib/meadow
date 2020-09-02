@@ -1,11 +1,11 @@
 @charset "utf-8";
-@import "~@nulib/admin-react-components/dist/public/styles/fonts";
 
 // Get access to Bulma variables
 // @import "bulma/sass/utilities/initial-variables";
 
 // Custom variables go before importing Bulma
 @import "~@nulib/admin-react-components/dist/public/styles/variables";
+@import "~@nulib/admin-react-components/dist/public/styles/fonts";
 
 @import "~bulma/bulma";
 @import "~bulma-switch/dist/css/bulma-switch";

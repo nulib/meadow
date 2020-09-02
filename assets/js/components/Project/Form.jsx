@@ -66,7 +66,7 @@ const ProjectForm = ({ showForm, setShowForm }) => {
 
               <div className="buttons is-right">
                 <Button
-                  isCancel
+                  isText
                   type="button"
                   onClick={() => setShowForm(false)}
                   data-testid="cancel-button"
