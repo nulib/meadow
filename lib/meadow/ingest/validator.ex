@@ -163,9 +163,16 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_rows(sheet) do
+    existing_files =
+      Config.ingest_bucket()
+      |> ExAws.S3.list_objects()
+      |> ExAws.stream!()
+      |> Enum.to_list()
+      |> Enum.map(fn file -> Map.get(file, :key) end)
+
     row_check = fn
       row, result ->
-        case validate_row(row) do
+        case validate_row(row, existing_files) do
           "pass" -> result
           "fail" -> :error
         end
@@ -188,10 +195,10 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({field_name, value}) when byte_size(value) == 0,
+  defp validate_value({field_name, value}, _existing_files) when byte_size(value) == 0,
     do: {:error, field_name, "#{field_name} cannot be blank"}
 
-  defp validate_value({"role", value}) do
+  defp validate_value({"role", value}, _existing_files) do
     case Enum.member?(@file_set_roles, value) do
       true ->
         :ok
@@ -201,7 +208,7 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"accession_number", value}) do
+  defp validate_value({"accession_number", value}, _existing_files) do
     case FileSets.accession_exists?(value) do
       true ->
         {:error, "accession_number", "accession_number #{value} already exists in system"}
@@ -211,7 +218,7 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"work_accession_number", value}) do
+  defp validate_value({"work_accession_number", value}, _existing_files) do
     case Works.accession_exists?(value) do
       true ->
         {:error, "work_accession_number",
@@ -222,24 +229,18 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"filename", value}) do
-    response =
-      Config.ingest_bucket()
-      |> ExAws.S3.head_object(value)
-      |> ExAws.request()
-
-    case response do
-      {:ok, %{status_code: 200}} -> :ok
-      {:error, {:http_error, 404, _}} -> {:error, "filename", "File not Found: #{value}"}
-      {:error, {:http_error, code, _}} -> {:error, "filename", "Status: #{code}"}
+  defp validate_value({"filename", value}, existing_files) do
+    case Enum.member?(existing_files, value) do
+      true -> :ok
+      false -> {:error, "filename", "File not Found: #{value}"}
     end
   end
 
-  defp validate_value({_field_name, _value}), do: :ok
+  defp validate_value({_field_name, _value}, _existing_files), do: :ok
 
-  defp validate_row(%Row{state: "pending"} = row) do
+  defp validate_row(%Row{state: "pending"} = row, existing_files) do
     reducer = fn %Row.Field{header: field_name, value: value}, acc ->
-      case validate_value({field_name, value}) do
+      case validate_value({field_name, value}, existing_files) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: error} | acc]
       end
