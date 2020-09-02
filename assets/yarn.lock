@@ -1495,6 +1495,11 @@
   dependencies:
     mkdirp "^1.0.4"
 
+"@nulib/admin-react-components@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.2.2.tgz#fc8c668db6491b2ccee9b6e20cf0dcccf5b70d48"
+  integrity sha512-DW0MgIxRyD6R2uHa7UgYdP8FjOa5Cv21KJ4ncbMs4fT+FG1k90TVnOPEpfXEKcRR9lHBPxzlANJoeYwOo7v64A==
+
 "@nulib/prettier-config@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@nulib/prettier-config/-/prettier-config-1.2.0.tgz#c514ba973b18876935036a1998e5663b761cad2e"
