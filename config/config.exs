@@ -33,6 +33,8 @@ config :meadow, MeadowWeb.Endpoint,
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
   api: Elasticsearch.API.HTTP,
+  timeout: 15_000,
+  recv_timeout: 15_000,
   json_library: Jason,
   indexes: %{
     meadow: %{
