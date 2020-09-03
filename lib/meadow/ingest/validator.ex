@@ -152,7 +152,7 @@ defmodule Meadow.Ingest.Validator do
           updated_at: now
         }
       end)
-      |> Enum.chunk_every(10_000)
+      |> Enum.chunk_every(5_000)
       |> Enum.each(fn chunk ->
         Repo.insert_all(Row, chunk,
           on_conflict: {:replace_all_except, [:id]},
