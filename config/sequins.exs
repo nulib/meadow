@@ -23,7 +23,7 @@ config :sequins, Meadow.Pipeline,
     UpdateSheetStatus
   ]
 
-config :sequins, IngestFileSet, queue_config: [processor_stages: 1]
+config :sequins, IngestFileSet, queue_config: [processor_concurrency: 1]
 
 config :sequins, GenerateFileSetDigests,
   queue_config: [max_number_of_messages: 3, visibility_timeout: 180],
@@ -34,15 +34,15 @@ config :sequins, CopyFileToPreservation,
   notify_on: [GenerateFileSetDigests: [status: :ok]]
 
 config :sequins, CreatePyramidTiff,
-  queue_config: [processor_stages: 1],
+  queue_config: [processor_concurrency: 1],
   notify_on: [CopyFileToPreservation: [status: :ok]]
 
 config :sequins, FileSetComplete,
-  queue_config: [processor_stages: 1],
+  queue_config: [processor_concurrency: 1],
   notify_on: [CreatePyramidTiff: [status: :ok]]
 
 config :sequins, UpdateSheetStatus,
-  queue_config: [processor_stages: 1],
+  queue_config: [processor_concurrency: 1],
   ignore: true,
   notify_on: [
     IngestFileSet: [context: :Sheet, status: :error],
