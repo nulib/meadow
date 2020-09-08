@@ -27,7 +27,7 @@
     "bulma-pageloader": "^0.3.0",
     "bulma-switch": "^2.0.0",
     "bulma-toast": "^2.0.3",
-    "downshift": "^6.0.5",
+    "downshift": "^6.0.6",
     "elasticsearch": "^16.7.1",
     "faker": "^5.1.0",
     "graphql": "^15.3.0",
