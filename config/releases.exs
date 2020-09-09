@@ -85,7 +85,7 @@ config :honeybadger,
 
 config :sequins,
   prefix: "meadow",
-  supervisor_opts: [max_restarts: 360]
+  supervisor_opts: [max_restarts: 2048]
 
 config :ueberauth, Ueberauth,
   providers: [
