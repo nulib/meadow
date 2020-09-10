@@ -10,18 +10,11 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   alias Meadow.Utils
   alias Sequins.Pipeline.Action
   use Action
+  use Meadow.Pipeline.Actions.Common
   require Logger
 
   @actiondoc "Generate Digests for FileSet"
   @hashes [:sha256]
-
-  def process(data, attrs),
-    do: process(data, attrs, ActionStates.ok?(data.file_set_id, __MODULE__))
-
-  defp process(%{file_set_id: file_set_id}, _, true) do
-    Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
-    :ok
-  end
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     file_set = FileSets.get_file_set!(file_set_id)

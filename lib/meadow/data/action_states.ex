@@ -4,8 +4,9 @@ defmodule Meadow.Data.ActionStates do
   """
 
   import Ecto.Query, warn: false
+  import Meadow.Utils.Atoms
+
   alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Ingest.Progress
   alias Meadow.Repo
 
   def latest_outcome(object_id) do
@@ -62,7 +63,7 @@ defmodule Meadow.Data.ActionStates do
   def get_latest_state(object_id, action) do
     from(
       a in states(object_id),
-      where: a.action == ^ActionState.atom_to_string(action),
+      where: a.action == ^atom_to_string(action),
       limit: 1
     )
     |> Repo.one()
@@ -135,8 +136,6 @@ defmodule Meadow.Data.ActionStates do
       action_update: state.object_id,
       action_updates: :all
     )
-
-    Progress.send_notification(state)
 
     state
   end

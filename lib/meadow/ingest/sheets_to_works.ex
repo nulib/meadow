@@ -8,14 +8,15 @@ defmodule Meadow.Ingest.SheetsToWorks do
   alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Ingest
-  alias Meadow.Ingest.{Rows, Status}
+  alias Meadow.Ingest.{Progress, Rows, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Pipeline
 
   use Meadow.Constants
 
   def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet) do
-    group_by_works(ingest_sheet)
+    ingest_sheet
+    |> initialize_progress()
     |> Enum.each(fn work_record -> ingest_work(work_record, ingest_sheet) end)
 
     ingest_sheet
@@ -39,6 +40,20 @@ defmodule Meadow.Ingest.SheetsToWorks do
     end)
 
     ingest_sheet
+  end
+
+  def initialize_progress(ingest_sheet) do
+    with groups <- group_by_works(ingest_sheet) do
+      groups
+      |> Enum.flat_map(fn {_, rows} ->
+        rows
+        |> Enum.with_index()
+        |> Enum.map(fn {row, index} -> {row.id, index == 0} end)
+      end)
+      |> Progress.initialize_entries()
+
+      groups
+    end
   end
 
   defp ingest_work({accession_number, file_set_rows}, ingest_sheet) do
@@ -71,6 +86,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     case Works.ensure_create_work(attrs) do
       {:ok, %Work{} = work} ->
+        Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
         ActionStates.set_state!(work, "Create Work", "ok")
         work
 

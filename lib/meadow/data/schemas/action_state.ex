@@ -3,10 +3,10 @@ defmodule Meadow.Data.Schemas.ActionState do
   ActionStates keep track of actions performed on Works and FileSets
   """
   use Ecto.Schema
+  use Meadow.Constants
 
   import Ecto.Changeset
-
-  use Meadow.Constants
+  import Meadow.Utils.Atoms
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
@@ -26,14 +26,6 @@ defmodule Meadow.Data.Schemas.ActionState do
     |> cast_type(attrs[:object_type])
     |> cast(attrs, [:object_id, :outcome, :notes])
     |> validate_required([:object_id, :action, :outcome])
-  end
-
-  def atom_to_string(action) do
-    cond do
-      is_binary(action) -> action
-      is_atom(action) && Code.ensure_loaded?(action) -> Module.split(action) |> Enum.join(".")
-      true -> inspect(action)
-    end
   end
 
   defp cast_action(change, action) do
