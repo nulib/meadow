@@ -1,16 +1,32 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/assets"
-  schedule:
-    interval: daily
-    time: "11:00"
-  open-pull-requests-limit: 10
-  target-branch: dependencies
-- package-ecosystem: mix
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "11:00"
-  open-pull-requests-limit: 10
-  target-branch: dependencies
+  - package-ecosystem: npm
+    directory: "/assets"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
+  - package-ecosystem: npm
+    directory: "/priv/tiff"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
+  - package-ecosystem: mix
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
