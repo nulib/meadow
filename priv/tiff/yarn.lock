@@ -25,10 +25,10 @@ are-we-there-yet@~1.1.2:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
 
-aws-sdk@^2.393.0, aws-sdk@^2.394.0:
-  version "2.730.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.730.0.tgz#5b2775bb0c3cd7764031a17a9bcac3f1aafc385e"
-  integrity sha512-hYHplsbgUDP0XuaVJaHx2L/nC0E1i+4dGlkAQpkJz3qQ4NDfLnrbUFsA2g3AyWAsrnjrBNCkexPvwnV82Qng1g==
+aws-sdk@^2.394.0, aws-sdk@^2.443.0:
+  version "2.750.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.750.0.tgz#d269e0ab2eeea643d8fb50513c807526a3233bbb"
+  integrity sha512-eARIyZSd9j197XIMT0jk+4iYSh717AN0VyoAu8ir2IgkpbcB6pSEZPWPP0iuHEUbar+xqBHc4lfjegmMCbsxDw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -511,12 +511,12 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-sqs-consumer@^4.0.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-4.1.0.tgz#feda51d24c287f3423bf5235bfd573fc97a2285a"
-  integrity sha512-soKKAZSJQsSPiRTovzQGeVlSXSAOH2FcjEigILolAidDvc2DfhrFKnul9gI/S5PdLdCeV/aY4R5vbIJRgu9YxQ==
+sqs-consumer@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-5.4.0.tgz#bac47e50e2f7f86aade5b83baab16dd59ef6d45b"
+  integrity sha512-Wcv7tEMvAqDNEEglCYlOZKufKxRsFPp2J5znYbAvcgB66u64QyXrF5TBb2g4kVn2QKAt5UBoT/GB/gsPLoY3eA==
   dependencies:
-    aws-sdk "^2.393.0"
+    aws-sdk "^2.443.0"
     debug "^4.1.1"
 
 string-width@^1.0.1:
