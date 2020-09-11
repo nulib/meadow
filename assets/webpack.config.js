@@ -11,12 +11,19 @@ module.exports = (env, options) => ({
       new TerserPlugin({ cache: true, parallel: true, sourceMap: false }),
       new OptimizeCSSAssetsPlugin({}),
     ],
+    splitChunks: {
+      chunks: "all",
+    },
   },
   entry: {
     app: "./js/app.jsx",
   },
   output: {
-    filename: "app.js",
+    //filename: "app.js",
+    // `filename` provides a template for naming your bundles (remember to use `[name]`)
+    filename: "[name].bundle.js",
+    // `chunkFilename` provides a template for naming code-split bundles (optional)
+    chunkFilename: "[name].bundle.js",
     path: path.resolve(__dirname, "../priv/static/js"),
   },
   module: {
@@ -37,7 +44,6 @@ module.exports = (env, options) => ({
         test: /\.(sa|sc|c)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          // "style-loader",
           { loader: "css-loader", options: {} },
           { loader: "sass-loader", options: {} },
         ],

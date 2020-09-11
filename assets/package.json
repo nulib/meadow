@@ -57,6 +57,7 @@
     "@testing-library/react": "^10.4.9",
     "axios": "^0.20.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "copy-webpack-plugin": "^6.1.0",
     "coveralls": "^3.1.0",
     "css-loader": "^4.2.2",
