@@ -27,7 +27,27 @@
     core-js "2.6.0"
     zen-observable "0.8.11"
 
-"@apollo/client@^3.1.5", "@apollo/client@latest":
+"@apollo/client@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.2.0.tgz#d16ea4384a2126bf60e7d87b0a6c6df00382220b"
+  integrity sha512-6ISMYW9QpEykJAkN6ZZteTkXXwtYSPGbh+4iBZ478p/Eox1JOMGYlqosGgMGv2oduug9SnsR65y0iCAxKOFGiQ==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.0.0"
+    "@types/zen-observable" "^0.8.0"
+    "@wry/context" "^0.5.2"
+    "@wry/equality" "^0.2.0"
+    fast-json-stable-stringify "^2.0.0"
+    graphql-tag "^2.11.0"
+    hoist-non-react-statics "^3.3.2"
+    optimism "^0.12.1"
+    prop-types "^15.7.2"
+    symbol-observable "^2.0.0"
+    terser "^5.2.0"
+    ts-invariant "^0.4.4"
+    tslib "^1.10.0"
+    zen-observable "^0.8.14"
+
+"@apollo/client@latest":
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.1.5.tgz#5865f5c32f061cd520459c5809e8debea6f4886c"
   integrity sha512-nU/KpqzKN27iwVQwGvPaCkTH/+rNGPoXKr60ki02I8jPBIKXyePPov85Ro9phGxuBhLNqGYeP0uAUN0S+HlF1Q==
@@ -109,10 +129,10 @@
   dependencies:
     "@apollo/client" latest
 
-"@appbaseio/reactivecore@9.6.19":
-  version "9.6.19"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.19.tgz#901d75cdee8f07d53f2be4ed4658f56e1ebbcaec"
-  integrity sha512-12lNCL3E+CK2bRPdlqJZKsl1HzZzD9GuxjtZq5wSGa0HHoWbT7C6btb57gL5kbUbhP8qB+fDYzGlRw6VuEDrsQ==
+"@appbaseio/reactivecore@9.6.16":
+  version "9.6.16"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.16.tgz#ef5f53170e076c46adfee5a6472de865c20296c7"
+  integrity sha512-I3G19u+CqRU9TqEFep9Dg3K2/XxvbDGAtOgpkMO1kQrtHPWMhM+9FgttxGtSFqJr1eyAiI81pSlPk+gttx5yKA==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -120,12 +140,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@^3.12.4":
-  version "3.12.4"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.4.tgz#6842c9f004c456d9850e822aab2b4ee1e320dae6"
-  integrity sha512-jvo5QNVf/vmrdvHRTrXuC2tvsy9d4X2FudkKKyScL3+7sLUz1PAPGnQfFYJ4z5qfVFsBvIG47t7p3oSQdwgZLA==
+"@appbaseio/reactivesearch@3.12.3":
+  version "3.12.3"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.3.tgz#8aed64e79b1eeedf1c68f19a1fbb8a2d202e0a59"
+  integrity sha512-QS2QvW9wv26nXOEBxUzmKBN3Psf2/SmZWxLgDi9Sb27XzWkkitbb3hMCKrvpFFE9M7ZRV/SbopkmcAGj2kNyiw==
   dependencies:
-    "@appbaseio/reactivecore" "9.6.19"
+    "@appbaseio/reactivecore" "9.6.16"
     "@emotion/core" "^10.0.28"
     "@emotion/styled" "^10.0.27"
     appbase-js "^4.1.0"
@@ -1247,6 +1267,11 @@
   dependencies:
     prop-types "^15.7.2"
 
+"@graphql-typed-document-node/core@^3.0.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.0.tgz#0eee6373e11418bfe0b5638f654df7a4ca6a3950"
+  integrity sha512-wYn6r8zVZyQJ6rQaALBEln5B1pzxb9shV5Ef97kTvn6yVGrqyXVnDqnU24MXnFubR+rZjBY9NWuxX3FB2sTsjg==
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -1501,10 +1526,10 @@
   dependencies:
     mkdirp "^1.0.4"
 
-"@nulib/admin-react-components@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.5.0.tgz#b1df1f64d82ce1173e61908af19c85813be55dcf"
-  integrity sha512-W3P7ZzX7x5SCEAKcfWb2dj7hXzubx3Hq9xajPl8iRQDzlIMYKoaGQaG9iHuFaUdWE3/+frbc70DMkcjE6HTHgA==
+"@nulib/admin-react-components@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.6.0.tgz#ddcd58b25b6107634a5c077194f18a15ed69a8c6"
+  integrity sha512-u0pVPHhtkSoCC6vYafUzJNTUrAwXYZjW3P22zrPNjIcvgNywlCC+bJw0nqWUiEZ0KfQqJFIrZ4JF+6lp2ILojA==
 
 "@nulib/prettier-config@^1.2.0":
   version "1.2.0"
@@ -3145,11 +3170,11 @@ cross-fetch@^2.2.2:
     whatwg-fetch "2.0.4"
 
 cross-fetch@^3.0.4:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.5.tgz#2739d2981892e7ab488a7ad03b92df2816e03f4c"
-  integrity sha512-FFLcLtraisj5eteosnX1gf01qYDCOc4fDy0+euOt8Kn9YBY2NtXL/pCoYPavw24NIQkQqm5ZOLsGD5Zzj0gyew==
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.6.tgz#3a4040bc8941e653e0e9cf17f29ebcd177d3365c"
+  integrity sha512-KBPUbqgFjzWlVcURG+Svp9TlhA5uliYtiNx/0r8nv0pdypeQCRJ9IaSIc3q/x3q8t3F75cHuwxVql1HFGHCNJQ==
   dependencies:
-    node-fetch "2.6.0"
+    node-fetch "2.6.1"
 
 cross-spawn@^3.0.0:
   version "3.0.1"
@@ -6108,12 +6133,7 @@ node-fetch@2.1.2:
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.2.tgz#ab884e8e7e57e38a944753cec706f788d1768bb5"
   integrity sha1-q4hOjn5X44qUR1POxwb3iNF2i7U=
 
-node-fetch@2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
-  integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
-
-node-fetch@^2.6.1:
+node-fetch@2.6.1, node-fetch@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
@@ -8430,6 +8450,11 @@ symbol-observable@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
+
+symbol-observable@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-2.0.1.tgz#ce66c36a04ed0f3056e7293184749a6fdd7063ea"
+  integrity sha512-QrfHrrEUMadQCgMijc3YpfA4ncwgqGv58Xgvdu3JZVQB7iY7cAkiqobZEZbaA863jof8AdpR01CPnZ5UWeqZBQ==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
