@@ -35,7 +35,7 @@ const UIFormFieldArray = ({
               <>
                 <div className="is-flex">
                   <input
-                    name={`${[name]}[${index}]`}
+                    name={`${[name]}[${index}].name`}
                     className={`input ${
                       errors[name] && errors[name][index] ? "is-danger" : ""
                     }`}

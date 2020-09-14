@@ -45,12 +45,13 @@ describe("InputMultiple component", () => {
   });
 
   it("renders a field group with a form input, default value, and delete button", () => {
-    const { getByTestId, getAllByTestId } = setUpTests();
+    const { getByTestId, getAllByTestId, debug } = setUpTests();
+
     expect(getAllByTestId("input-field-array")).toHaveLength(1);
     expect(getByTestId("button-delete-field-array-row"));
   });
 
-  it("renders an Add field button, which when clicked adds a new field array input row", () => {
+  xit("renders an Add field button, which when clicked adds a new field array input row", () => {
     const { getByTestId, getAllByTestId } = setUpTests();
     const addButton = getByTestId("button-add-field-array-row");
     expect(addButton);
