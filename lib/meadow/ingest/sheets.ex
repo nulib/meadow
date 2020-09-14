@@ -329,41 +329,6 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.one()
   end
 
-  def completed_file_set_count(%Sheet{} = ingest_sheet),
-    do: completed_file_set_count(ingest_sheet.id)
-
-  def completed_file_set_count(sheet_id) do
-    from([entry: a] in file_set_action_states(sheet_id),
-      where: a.outcome in ["ok", "error"],
-      where: a.object_type == "Meadow.Data.Schemas.FileSet",
-      where: a.action == "Meadow.Pipeline.Actions.FileSetComplete",
-      select: count(a.id)
-    )
-    |> Repo.one()
-  end
-
-  def total_action_count(%Sheet{} = ingest_sheet), do: total_action_count(ingest_sheet.id)
-
-  def total_action_count(sheet_id) do
-    from([entry: a] in file_set_action_states(sheet_id),
-      where: a.object_type == "Meadow.Data.Schemas.FileSet",
-      select: count(a.id)
-    )
-    |> Repo.one()
-  end
-
-  def completed_action_count(%Sheet{} = ingest_sheet),
-    do: completed_action_count(ingest_sheet.id)
-
-  def completed_action_count(sheet_id) do
-    from([entry: a] in file_set_action_states(sheet_id),
-      where: a.object_type == "Meadow.Data.Schemas.FileSet",
-      where: a.outcome in ["ok", "error"],
-      select: count(a.id)
-    )
-    |> Repo.one()
-  end
-
   def ingest_errors(%Sheet{} = ingest_sheet), do: ingest_errors(ingest_sheet.id)
 
   def ingest_errors(sheet_id) do
