@@ -73,7 +73,51 @@ defmodule Meadow.Data.CodedTerms do
     iex> Meadow.Data.CodedTerms.get_coded_term("OPEN", "invisibility")
     nil
   """
-  def get_coded_term(id, scheme) do
+  def get_coded_term(id, scheme), do: ets_fetch(id, scheme)
+
+  def label(id, scheme) do
+    case get_coded_term(id, scheme) do
+      nil ->
+        nil
+
+      {{:ok, _}, term} ->
+        term.label
+    end
+  end
+
+  defp normalize(scheme), do: scheme |> to_string |> String.downcase()
+
+  defp ets_fetch(id, scheme) do
+    case Cachex.get!(Meadow.Cache.CodedTerms, cache_key(id, scheme)) do
+      nil ->
+        case db_fetch(id, scheme) do
+          {{:ok, _}, term} = result ->
+            ets_store(term)
+            result
+
+          other ->
+            other
+        end
+
+      term ->
+        {{:ok, :memory}, term}
+    end
+  end
+
+  defp ets_store(term),
+    do: Cachex.put!(Meadow.Cache.CodedTerms, cache_key(term.id, term.scheme), term)
+
+  defp db_fetch(id, scheme) do
+    case term_query(id, scheme) do
+      nil ->
+        nil
+
+      %CodedTerm{id: id, label: label, scheme: scheme} ->
+        {{:ok, :db}, %{id: id, label: label, scheme: scheme}}
+    end
+  end
+
+  defp term_query(id, scheme) do
     with scheme <- normalize(scheme) do
       from(ct in CodedTerm,
         where: ct.scheme == ^scheme and ct.id == ^id,
@@ -83,15 +127,5 @@ defmodule Meadow.Data.CodedTerms do
     end
   end
 
-  def label(id, scheme) do
-    case get_coded_term(id, scheme) do
-      nil ->
-        nil
-
-      term ->
-        term.label
-    end
-  end
-
-  defp normalize(scheme), do: scheme |> to_string |> String.downcase()
+  defp cache_key(id, scheme), do: scheme <> ":" <> id
 end

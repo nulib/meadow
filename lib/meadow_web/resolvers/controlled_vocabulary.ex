@@ -8,6 +8,12 @@ defmodule MeadowWeb.Resolvers.Data.ControlledVocabulary do
   end
 
   def fetch_coded_term_label(_, %{id: id, scheme: scheme}, _) do
-    {:ok, CodedTerms.get_coded_term(id, scheme)}
+    case CodedTerms.get_coded_term(id, scheme) do
+      nil ->
+        {:error, message: "#{id} is invalid coded term for scheme #{String.upcase(scheme)}"}
+
+      {{:ok, _}, term} ->
+        {:ok, term}
+    end
   end
 end
