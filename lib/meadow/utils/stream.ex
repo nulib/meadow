@@ -47,13 +47,6 @@ defmodule Meadow.Utils.Stream do
 
       %HTTPoison.AsyncEnd{id: ^id} ->
         {:halt, resp}
-
-      {:EXIT, _pid, :normal} ->
-        {[], resp}
-
-      other ->
-        Logger.warn("Unexpected message received from #{inspect(resp)}: #{inspect(other)}")
-        {[], resp}
     after
       5_000 ->
         with msg <- "No message received from #{inspect(resp)} in 5 seconds." do
