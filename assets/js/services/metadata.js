@@ -56,6 +56,10 @@ export const UNCONTROLLED_METADATA = [
 ];
 
 export const PHYSICAL_METADATA = [
+  { name: "boxName", label: "Box Name" },
+  { name: "boxNumber", label: "Box Number" },
+  { name: "folderName", label: "Folder Name" },
+  { name: "folderNumber", label: "Folder Number" },
   {
     name: "physicalDescriptionMaterial",
     label: "Physical Description Material",
@@ -64,10 +68,6 @@ export const PHYSICAL_METADATA = [
     name: "physicalDescriptionSize",
     label: "Physical Description Size",
   },
-  { name: "boxName", label: "Box Name" },
-  { name: "boxNumber", label: "Box Number" },
-  { name: "folderName", label: "Folder Name" },
-  { name: "folderNumber", label: "Folder Number" },
   { name: "scopeAndContents", label: "Scope and Content" },
   { name: "series", label: "Series" },
 ];
@@ -164,6 +164,15 @@ export function prepControlledTermInput(
   });
 
   return arr;
+}
+
+/**
+ * Convert form field array items from an array of objects to array of strings
+ * @param {Array} items Array of object entries possible in form
+ * @returns {Array} Array of strings
+ */
+export function prepFieldArrayItemsForPost(items = []) {
+  return items.map(({ metadataItem }) => metadataItem);
 }
 
 /**

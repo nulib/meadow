@@ -20,6 +20,8 @@ const UIFormFieldArray = ({
     control,
     name,
   });
+  console.log("name", name);
+  console.log("fields :>> ", fields);
 
   return (
     <fieldset {...passedInProps}>
@@ -30,16 +32,17 @@ const UIFormFieldArray = ({
 
       <ul className="mb-4">
         {fields.map((item, index) => {
+          console.log("item", item);
           return (
             <li key={item.id} className="field">
               <>
                 <div className="is-flex">
                   <input
-                    name={`${[name]}[${index}].name`}
+                    name={`${[name]}[${index}].metadataItem`}
                     className={`input ${
                       errors[name] && errors[name][index] ? "is-danger" : ""
                     }`}
-                    defaultValue={item.value} // make sure to set up defaultValue
+                    defaultValue={item.metadataItem} // make sure to set up defaultValue
                     ref={register({ required })}
                     data-testid="input-field-array"
                   />
@@ -67,7 +70,7 @@ const UIFormFieldArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append(defaultValue);
+          append({ metadataItem: defaultValue });
         }}
         data-testid="button-add-field-array-row"
       >

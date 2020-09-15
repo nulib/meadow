@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
@@ -16,10 +15,12 @@ import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
 import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
-import WorkTabsAboutDescriptiveMetadataNoCaching from "./About/DescriptiveMetadataNoCaching";
 import {
   prepControlledTermInput,
+  prepFieldArrayItemsForPost,
   CONTROLLED_METADATA,
+  PHYSICAL_METADATA,
+  UNCONTROLLED_METADATA,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
 
@@ -47,39 +48,79 @@ const WorkTabsAbout = ({ work }) => {
 
     // Tell React Hook Form to update field array form values
     // with existing values, or when a Work updates
+
+    let resetValues = {};
+
+    for (let group of [PHYSICAL_METADATA, UNCONTROLLED_METADATA]) {
+      for (let obj of group) {
+        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) => ({
+          metadataItem: value,
+        }));
+      }
+    }
+
     reset({
-      abstract: descriptiveMetadata.abstract,
+      abstract: descriptiveMetadata.abstract.map((value) => ({
+        metadataItem: value,
+      })),
       alternateTitle: descriptiveMetadata.alternateTitle,
-      boxName: descriptiveMetadata.boxName,
-      boxNumber: descriptiveMetadata.boxNumber,
+      boxName: descriptiveMetadata.boxName.map((value) => ({
+        metadataItem: value,
+      })),
+      boxNumber: descriptiveMetadata.boxNumber.map((value) => ({
+        metadataItem: value,
+      })),
       callNumber: descriptiveMetadata.callNumber,
-      caption: descriptiveMetadata.caption,
+      caption: descriptiveMetadata.caption.map((value) => ({
+        metadataItem: value,
+      })),
       catalogKey: descriptiveMetadata.catalogKey,
       contributor: descriptiveMetadata.contributor,
       creator: descriptiveMetadata.creator,
-      folderName: descriptiveMetadata.folderName,
-      folderNumber: descriptiveMetadata.folderNumber,
+      folderName: descriptiveMetadata.folderName.map((value) => ({
+        metadataItem: value,
+      })),
+      folderNumber: descriptiveMetadata.folderNumber.map((value) => ({
+        metadataItem: value,
+      })),
       genre: descriptiveMetadata.genre,
       identifier: descriptiveMetadata.identifier,
-      keywords: descriptiveMetadata.keywords,
+      keywords: descriptiveMetadata.keywords.map((value) => ({
+        metadataItem: value,
+      })),
       language: descriptiveMetadata.language,
       legacyIdentifier: descriptiveMetadata.legacyIdentifier,
       location: descriptiveMetadata.location,
-      notes: descriptiveMetadata.notes,
-      physicalDescriptionMaterial:
-        descriptiveMetadata.physicalDescriptionMaterial,
-      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
+      notes: descriptiveMetadata.notes.map((value) => ({
+        metadataItem: value,
+      })),
+      physicalDescriptionMaterial: descriptiveMetadata.physicalDescriptionMaterial.map(
+        (value) => ({
+          metadataItem: value,
+        })
+      ),
+      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize.map(
+        (value) => ({
+          metadataItem: value,
+        })
+      ),
       provenance: descriptiveMetadata.provenance,
       publisher: descriptiveMetadata.publisher,
       relatedMaterial: descriptiveMetadata.relatedMaterial,
       relatedUrl: descriptiveMetadata.relatedUrl,
       rightsHolder: descriptiveMetadata.rightsHolder,
-      scopeAndContents: descriptiveMetadata.scopeAndContents,
-      series: descriptiveMetadata.series,
+      scopeAndContents: descriptiveMetadata.scopeAndContents.map((value) => ({
+        metadataItem: value,
+      })),
+      series: descriptiveMetadata.series.map((value) => ({
+        metadataItem: value,
+      })),
       source: descriptiveMetadata.source,
       stylePeriod: descriptiveMetadata.stylePeriod,
       subject: descriptiveMetadata.subject,
-      tableOfContents: descriptiveMetadata.tableOfContents,
+      tableOfContents: descriptiveMetadata.tableOfContents.map((value) => ({
+        metadataItem: value,
+      })),
       technique: descriptiveMetadata.technique,
     });
   }, [work]);
@@ -108,48 +149,28 @@ const WorkTabsAbout = ({ work }) => {
     let currentFormValues = getValues();
 
     const {
-      abstract = [],
       alternateTitle = [],
-      boxName = [],
-      boxNumber = [],
       callNumber = [],
-      caption = [],
       catalogKey = [],
       description = "",
-      folderName = [],
-      folderNumber = [],
       identifier = [],
-      keywords = [],
       legacyIdentifier = [],
-      notes = [],
-      physicalDescriptionMaterial = [],
-      physicalDescriptionSize = [],
       provenance = [],
       publisher = [],
       relatedMaterial = [],
       relatedUrl = [],
       rightsHolder = [],
-      scopeAndContents = [],
-      series = [],
       source = [],
-      tableOfContents = [],
       title = "",
     } = currentFormValues;
 
     let workUpdateInput = {
       descriptiveMetadata: {
-        abstract,
         alternateTitle,
-        boxName,
-        boxNumber,
         callNumber,
-        caption,
         catalogKey,
         description,
-        folderName,
-        folderNumber,
         identifier,
-        keywords,
         legacyIdentifier,
         license: data.license
           ? {
@@ -157,9 +178,6 @@ const WorkTabsAbout = ({ work }) => {
               scheme: "LICENSE",
             }
           : {},
-        notes,
-        physicalDescriptionMaterial,
-        physicalDescriptionSize,
         provenance,
         publisher,
         relatedUrl,
@@ -171,13 +189,19 @@ const WorkTabsAbout = ({ work }) => {
               scheme: "RIGHTS_STATEMENT",
             }
           : {},
-        scopeAndContents,
-        series,
         source,
-        tableOfContents,
         title,
       },
     };
+
+    // Convert form field array items from an array of objects to array of strings
+    for (let group of [PHYSICAL_METADATA, UNCONTROLLED_METADATA]) {
+      for (let term of group) {
+        workUpdateInput.descriptiveMetadata[
+          term.name
+        ] = prepFieldArrayItemsForPost(currentFormValues[term.name]);
+      }
+    }
 
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of CONTROLLED_METADATA) {
