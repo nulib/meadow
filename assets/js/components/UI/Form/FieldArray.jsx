@@ -20,8 +20,6 @@ const UIFormFieldArray = ({
     control,
     name,
   });
-  console.log("name", name);
-  console.log("fields :>> ", fields);
 
   return (
     <fieldset {...passedInProps}>
@@ -32,7 +30,6 @@ const UIFormFieldArray = ({
 
       <ul className="mb-4">
         {fields.map((item, index) => {
-          console.log("item", item);
           return (
             <li key={item.id} className="field">
               <>
@@ -42,7 +39,7 @@ const UIFormFieldArray = ({
                     className={`input ${
                       errors[name] && errors[name][index] ? "is-danger" : ""
                     }`}
-                    defaultValue={item.metadataItem} // make sure to set up defaultValue
+                    defaultValue={item.metadataItem}
                     ref={register({ required })}
                     data-testid="input-field-array"
                   />
