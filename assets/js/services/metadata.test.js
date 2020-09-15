@@ -22,31 +22,6 @@ describe("prepControlledTermInput()", () => {
     },
   ];
 
-  // const controlledTermFormData = [
-  //   {
-  //     termId: "http://angelina.net",
-  //     roleId: "aut",
-  //   },
-  //   {
-  //     roleId: "anl",
-  //     termId: "http://elroy.info",
-  //     label: "autem occaecati quasi",
-  //   },
-  // ];
-
-  const codedTermFormData = [
-    {
-      id: "https://maureen.net",
-    },
-    {
-      id: "https://rylan.info",
-      label: "aut provident magnam",
-    },
-    {
-      id: "https://nu.edu",
-    },
-  ];
-
   it("preps controlled term with role form data successfully", () => {
     const response = metadata.prepControlledTermInput(
       controlledTerm,
@@ -60,13 +35,22 @@ describe("prepControlledTermInput()", () => {
     expect(response[1].role.id).toEqual("arc");
     expect(response[1].role.scheme).toEqual("MARC_RELATOR");
   });
+});
 
-  // it("preps controlled term form data successfully", () => {
-  //   const response = metadata.prepControlledTermInput(codedTermFormData);
-  //   expect(response).toHaveLength(3);
-  //   expect(response[0].term).toEqual("https://maureen.net");
-  //   expect(response[0].role).toBeUndefined();
-  //   expect(response[1].term).toEqual("https://rylan.info");
-  //   expect(response[2].term).toEqual("https://nu.edu");
-  // });
+describe("prepFieldArrayItemsForPost()", () => {
+  var metadataItems = [
+    { metadataItem: "Ima value" },
+    { metadataItem: "Ima second value" },
+  ];
+
+  it("returns an array of string values when items exist", () => {
+    let expectedValue = ["Ima value", "Ima second value"];
+    expect(metadata.prepFieldArrayItemsForPost(metadataItems)).toEqual(
+      expectedValue
+    );
+  });
+
+  it("return an empty array if no values exist", () => {
+    expect(metadata.prepFieldArrayItemsForPost()).toEqual([]);
+  });
 });

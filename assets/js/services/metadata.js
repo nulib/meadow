@@ -38,13 +38,13 @@ export const CONTROLLED_METADATA = [
 ];
 
 export const OTHER_METADATA = [
-  { name: "title", label: "Title" },
   { name: "alternateTitle", label: "Alternate Title" },
-  { name: "description", label: "Description" },
-  { name: "rightsStatement", label: "Rights Statement" },
-  { name: "license", label: "License" },
   { name: "dateCreated", label: "Date Created" },
+  { name: "description", label: "Description" },
+  { name: "license", label: "License" },
   { name: "relatedUrl", label: "Related URL" },
+  { name: "rightsStatement", label: "Rights Statement" },
+  { name: "title", label: "Title" },
 ];
 
 export const UNCONTROLLED_METADATA = [
@@ -56,6 +56,10 @@ export const UNCONTROLLED_METADATA = [
 ];
 
 export const PHYSICAL_METADATA = [
+  { name: "boxName", label: "Box Name" },
+  { name: "boxNumber", label: "Box Number" },
+  { name: "folderName", label: "Folder Name" },
+  { name: "folderNumber", label: "Folder Number" },
   {
     name: "physicalDescriptionMaterial",
     label: "Physical Description Material",
@@ -64,25 +68,21 @@ export const PHYSICAL_METADATA = [
     name: "physicalDescriptionSize",
     label: "Physical Description Size",
   },
-  { name: "boxName", label: "Box Name" },
-  { name: "boxNumber", label: "Box Number" },
-  { name: "folderName", label: "Folder Name" },
-  { name: "folderNumber", label: "Folder Number" },
   { name: "scopeAndContents", label: "Scope and Content" },
   { name: "series", label: "Series" },
 ];
 
 export const RIGHTS_METADATA = [
-  { name: "publisher", label: "Publisher" },
   { name: "provenance", label: "Provenance" },
+  { name: "publisher", label: "Publisher" },
   { name: "rightsHolder", label: "Rights Holder" },
 ];
 
 export const IDENTIFIER_METADATA = [
-  { name: "identifier", label: "Identifier" },
-  { name: "legacyIdentifier", label: "Legacy Identifier" },
   { name: "callNumber", label: "Call Number" },
   { name: "catalogKey", label: "Catalog Key" },
+  { name: "identifier", label: "Identifier" },
+  { name: "legacyIdentifier", label: "Legacy Identifier" },
   { name: "relatedMaterial", label: "Related Material" },
   { name: "source", label: "Source" },
 ];
@@ -164,6 +164,15 @@ export function prepControlledTermInput(
   });
 
   return arr;
+}
+
+/**
+ * Convert form field array items from an array of objects to array of strings
+ * @param {Array} items Array of object entries possible in form
+ * @returns {Array} Array of strings
+ */
+export function prepFieldArrayItemsForPost(items = []) {
+  return items.map(({ metadataItem }) => metadataItem);
 }
 
 /**

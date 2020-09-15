@@ -35,11 +35,11 @@ const UIFormFieldArray = ({
               <>
                 <div className="is-flex">
                   <input
-                    name={`${[name]}[${index}].name`}
+                    name={`${[name]}[${index}].metadataItem`}
                     className={`input ${
                       errors[name] && errors[name][index] ? "is-danger" : ""
                     }`}
-                    defaultValue={item.value} // make sure to set up defaultValue
+                    defaultValue={item.metadataItem}
                     ref={register({ required })}
                     data-testid="input-field-array"
                   />
@@ -67,7 +67,7 @@ const UIFormFieldArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append(defaultValue);
+          append({ metadataItem: defaultValue });
         }}
         data-testid="button-add-field-array-row"
       >

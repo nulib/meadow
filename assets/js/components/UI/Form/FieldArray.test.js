@@ -51,7 +51,7 @@ describe("InputMultiple component", () => {
     expect(getByTestId("button-delete-field-array-row"));
   });
 
-  xit("renders an Add field button, which when clicked adds a new field array input row", () => {
+  it("renders an Add field button, which when clicked adds a new field array input row", () => {
     const { getByTestId, getAllByTestId } = setUpTests();
     const addButton = getByTestId("button-add-field-array-row");
     expect(addButton);

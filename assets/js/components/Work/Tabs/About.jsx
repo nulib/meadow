@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
@@ -16,10 +15,14 @@ import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
 import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
-import WorkTabsAboutDescriptiveMetadataNoCaching from "./About/DescriptiveMetadataNoCaching";
 import {
   prepControlledTermInput,
+  prepFieldArrayItemsForPost,
   CONTROLLED_METADATA,
+  IDENTIFIER_METADATA,
+  PHYSICAL_METADATA,
+  RIGHTS_METADATA,
+  UNCONTROLLED_METADATA,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
 
@@ -30,57 +33,42 @@ const WorkTabsAbout = ({ work }) => {
   const [isEditing, setIsEditing] = useIsEditing();
 
   // Initialize React hook form
-  const {
-    register,
-    handleSubmit,
-    errors,
-    control,
-    getValues,
-    formState,
-    reset,
-  } = useForm({
-    defaultValues: {},
-  });
+  const { register, handleSubmit, errors, control, getValues, reset } = useForm(
+    {
+      defaultValues: {},
+    }
+  );
 
   useEffect(() => {
-    // TODO: Automate the populating of values below from DESCRIPTIVE_METADATA constant
-
     // Tell React Hook Form to update field array form values
     // with existing values, or when a Work updates
+    let resetValues = {};
+
+    for (let group of [
+      IDENTIFIER_METADATA,
+      PHYSICAL_METADATA,
+      RIGHTS_METADATA,
+      UNCONTROLLED_METADATA,
+    ]) {
+      for (let obj of group) {
+        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) => ({
+          metadataItem: value,
+        }));
+      }
+    }
+
     reset({
-      abstract: descriptiveMetadata.abstract,
       alternateTitle: descriptiveMetadata.alternateTitle,
-      boxName: descriptiveMetadata.boxName,
-      boxNumber: descriptiveMetadata.boxNumber,
-      callNumber: descriptiveMetadata.callNumber,
-      caption: descriptiveMetadata.caption,
-      catalogKey: descriptiveMetadata.catalogKey,
       contributor: descriptiveMetadata.contributor,
       creator: descriptiveMetadata.creator,
-      folderName: descriptiveMetadata.folderName,
-      folderNumber: descriptiveMetadata.folderNumber,
       genre: descriptiveMetadata.genre,
-      identifier: descriptiveMetadata.identifier,
-      keywords: descriptiveMetadata.keywords,
       language: descriptiveMetadata.language,
-      legacyIdentifier: descriptiveMetadata.legacyIdentifier,
       location: descriptiveMetadata.location,
-      notes: descriptiveMetadata.notes,
-      physicalDescriptionMaterial:
-        descriptiveMetadata.physicalDescriptionMaterial,
-      physicalDescriptionSize: descriptiveMetadata.physicalDescriptionSize,
-      provenance: descriptiveMetadata.provenance,
-      publisher: descriptiveMetadata.publisher,
-      relatedMaterial: descriptiveMetadata.relatedMaterial,
       relatedUrl: descriptiveMetadata.relatedUrl,
-      rightsHolder: descriptiveMetadata.rightsHolder,
-      scopeAndContents: descriptiveMetadata.scopeAndContents,
-      series: descriptiveMetadata.series,
-      source: descriptiveMetadata.source,
       stylePeriod: descriptiveMetadata.stylePeriod,
       subject: descriptiveMetadata.subject,
-      tableOfContents: descriptiveMetadata.tableOfContents,
       technique: descriptiveMetadata.technique,
+      ...resetValues,
     });
   }, [work]);
 
@@ -108,76 +96,46 @@ const WorkTabsAbout = ({ work }) => {
     let currentFormValues = getValues();
 
     const {
-      abstract = [],
       alternateTitle = [],
-      boxName = [],
-      boxNumber = [],
-      callNumber = [],
-      caption = [],
-      catalogKey = [],
       description = "",
-      folderName = [],
-      folderNumber = [],
-      identifier = [],
-      keywords = [],
-      legacyIdentifier = [],
-      notes = [],
-      physicalDescriptionMaterial = [],
-      physicalDescriptionSize = [],
-      provenance = [],
-      publisher = [],
-      relatedMaterial = [],
       relatedUrl = [],
-      rightsHolder = [],
-      scopeAndContents = [],
-      series = [],
-      source = [],
-      tableOfContents = [],
       title = "",
     } = currentFormValues;
 
     let workUpdateInput = {
       descriptiveMetadata: {
-        abstract,
         alternateTitle,
-        boxName,
-        boxNumber,
-        callNumber,
-        caption,
-        catalogKey,
         description,
-        folderName,
-        folderNumber,
-        identifier,
-        keywords,
-        legacyIdentifier,
         license: data.license
           ? {
               id: data.license,
               scheme: "LICENSE",
             }
           : {},
-        notes,
-        physicalDescriptionMaterial,
-        physicalDescriptionSize,
-        provenance,
-        publisher,
         relatedUrl,
-        relatedMaterial,
-        rightsHolder,
         rightsStatement: data.rightsStatement
           ? {
               id: data.rightsStatement,
               scheme: "RIGHTS_STATEMENT",
             }
           : {},
-        scopeAndContents,
-        series,
-        source,
-        tableOfContents,
         title,
       },
     };
+
+    // Convert form field array items from an array of objects to array of strings
+    for (let group of [
+      IDENTIFIER_METADATA,
+      PHYSICAL_METADATA,
+      RIGHTS_METADATA,
+      UNCONTROLLED_METADATA,
+    ]) {
+      for (let term of group) {
+        workUpdateInput.descriptiveMetadata[
+          term.name
+        ] = prepFieldArrayItemsForPost(currentFormValues[term.name]);
+      }
+    }
 
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of CONTROLLED_METADATA) {
