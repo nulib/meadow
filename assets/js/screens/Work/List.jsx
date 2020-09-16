@@ -7,6 +7,8 @@ import WorkListItem from "../../components/Work/ListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { prepWorkItemForDisplay } from "../../services/helpers";
+import { allImagesQuery } from "../../services/elasticsearch";
+import { SEARCH_SENSOR } from "../../services/reactive-search";
 
 const ScreensWorkList = () => {
   const [isListView, setIsListView] = useState(false);
@@ -45,25 +47,13 @@ const ScreensWorkList = () => {
             <ReactiveList
               componentId="SearchResult"
               dataField="accession_number"
-              defaultQuery={() => ({
-                query: {
-                  bool: {
-                    must: [
-                      {
-                        match: {
-                          "model.name": "Image",
-                        },
-                      },
-                    ],
-                  },
-                },
-              })}
+              defaultQuery={() => allImagesQuery}
               innerClass={{
                 list: `${isListView ? "" : "columns is-multiline"}`,
                 resultStats: "column is-size-6 has-text-grey",
               }}
               react={{
-                and: ["SearchSensor"],
+                and: [SEARCH_SENSOR],
               }}
               renderItem={(res) => {
                 if (isListView) {
