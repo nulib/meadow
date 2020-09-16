@@ -118,7 +118,7 @@ const BatchEditAbout = () => {
               type="button"
               className="button is-text"
               data-testid="cancel-button"
-              onClick={() => reset()}
+              onClick={handleFormReset}
             >
               Clear Form
             </button>
