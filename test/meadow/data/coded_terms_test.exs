@@ -39,7 +39,7 @@ defmodule Meadow.Data.CodedTermsTest do
     end
 
     test "fetches a term by scheme and id" do
-      with result <- CodedTerms.get_coded_term("cmp", "marc_relator") do
+      with {{:ok, _}, result} <- CodedTerms.get_coded_term("cmp", "marc_relator") do
         assert result.id == "cmp"
         assert result.label == "Composer"
       end
@@ -51,6 +51,21 @@ defmodule Meadow.Data.CodedTermsTest do
 
     test "returns nil for an unknown scheme" do
       assert CodedTerms.get_coded_term("cmp", "nope_still_not_here") |> is_nil()
+    end
+  end
+
+  describe "get_coded_term/2" do
+    test "cache miss" do
+      assert {{:ok, :db}, term} = CodedTerms.get_coded_term("cpl", "marc_relator")
+    end
+
+    test "cache hit" do
+      assert {{:ok, :db}, term} = CodedTerms.get_coded_term("ive", "marc_relator")
+      assert {{:ok, :memory}, term} = CodedTerms.get_coded_term("ive", "marc_relator")
+    end
+
+    test "db miss (invalid coded term)" do
+      assert nil == CodedTerms.get_coded_term("ivdde", "marc_relator")
     end
   end
 end

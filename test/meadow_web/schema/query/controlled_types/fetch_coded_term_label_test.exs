@@ -27,8 +27,11 @@ defmodule MeadowWeb.Schema.Query.FetchCodedTermLabelTest do
 
     @tag id: "http://wrongsstatements.org/vocab/InC/1.0/"
     test "retrieves nil for a bad query", %{gql_result: result} do
-      assert {:ok, %{data: query_data}} = result
+      assert {:ok, %{data: query_data, errors: errors}} = result
       assert get_in(query_data, ["fetchCodedTermLabel"]) |> is_nil()
+
+      assert get_in(List.first(errors), [:message]) ==
+               "http://wrongsstatements.org/vocab/InC/1.0/ is invalid coded term for scheme RIGHTS_STATEMENT"
     end
   end
 end

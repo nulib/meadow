@@ -34,7 +34,7 @@ defmodule Meadow.Data.Types.CodedTerm do
       nil ->
         {:error, message: "#{id} is invalid coded term for scheme #{String.upcase(scheme)}"}
 
-      %Schemas.CodedTerm{id: id, scheme: scheme, label: label} ->
+      {{:ok, _}, %{id: id, scheme: scheme, label: label}} ->
         {:ok, %{id: id, scheme: scheme, label: label}}
 
       other ->
