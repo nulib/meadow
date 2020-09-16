@@ -18,6 +18,7 @@ import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
   prepControlledTermInput,
   prepFieldArrayItemsForPost,
+  prepRelatedUrl,
   CONTROLLED_METADATA,
   IDENTIFIER_METADATA,
   PHYSICAL_METADATA,
@@ -43,7 +44,11 @@ const WorkTabsAbout = ({ work }) => {
     // Tell React Hook Form to update field array form values
     // with existing values, or when a Work updates
     let resetValues = {};
+    let controlledTermResetValues = {};
 
+    // Prepare back-end data for a shape the form (and React Hook Form) want
+    // These are all field array form items: type [String], and we need
+    // to turn them into: type [Object] ie. [{ metadataItem: "value here" }]
     for (let group of [
       IDENTIFIER_METADATA,
       PHYSICAL_METADATA,
@@ -57,18 +62,19 @@ const WorkTabsAbout = ({ work }) => {
       }
     }
 
+    // Prepare Controlled Term back-end data for a shape the form wants
+    // We can just pass back-end values straight through for controlled terms
+    for (let obj of CONTROLLED_METADATA) {
+      controlledTermResetValues[obj.name] = [...descriptiveMetadata[obj.name]];
+    }
+
     reset({
-      alternateTitle: descriptiveMetadata.alternateTitle,
-      contributor: descriptiveMetadata.contributor,
-      creator: descriptiveMetadata.creator,
-      genre: descriptiveMetadata.genre,
-      language: descriptiveMetadata.language,
-      location: descriptiveMetadata.location,
+      alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
+        metadataItem: value,
+      })),
       relatedUrl: descriptiveMetadata.relatedUrl,
-      stylePeriod: descriptiveMetadata.stylePeriod,
-      subject: descriptiveMetadata.subject,
-      technique: descriptiveMetadata.technique,
       ...resetValues,
+      ...controlledTermResetValues,
     });
   }, [work]);
 
@@ -95,16 +101,13 @@ const WorkTabsAbout = ({ work }) => {
     // updated.
     let currentFormValues = getValues();
 
-    const {
-      alternateTitle = [],
-      description = "",
-      relatedUrl = [],
-      title = "",
-    } = currentFormValues;
+    const { description = "", title = "" } = currentFormValues;
 
     let workUpdateInput = {
       descriptiveMetadata: {
-        alternateTitle,
+        alternateTitle: prepFieldArrayItemsForPost(
+          currentFormValues.alternateTitle
+        ),
         description,
         license: data.license
           ? {
@@ -112,7 +115,6 @@ const WorkTabsAbout = ({ work }) => {
               scheme: "LICENSE",
             }
           : {},
-        relatedUrl,
         rightsStatement: data.rightsStatement
           ? {
               id: data.rightsStatement,
@@ -145,20 +147,10 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
-    // TODO: Move this to ""../../../services/metadata""
-    // Update related url to match GraphQL mutation
-    for (let [
-      i,
-      item,
-    ] of workUpdateInput.descriptiveMetadata.relatedUrl.entries()) {
-      workUpdateInput.descriptiveMetadata.relatedUrl[i] = {
-        ...item,
-        label: {
-          scheme: "RELATED_URL",
-          id: item.label,
-        },
-      };
-    }
+    // Update Related Url, which is a unique controlled term
+    workUpdateInput.descriptiveMetadata.relatedUrl = prepRelatedUrl(
+      currentFormValues.relatedUrl
+    );
 
     updateWork({
       variables: {

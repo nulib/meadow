@@ -47,9 +47,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
             <strong>ARK</strong>
           </p>
           <ul data-testid="field-array-item-list">
-            <li key="ark-value">
-              {descriptiveMetadata.ark}
-            </li>
+            <li key="ark-value">{descriptiveMetadata.ark}</li>
           </ul>
         </div>
       </div>
@@ -91,14 +89,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
               <ul data-testid="field-array-item-list">
                 {descriptiveMetadata.relatedUrl.map((relatedUrlEntry, i) => (
                   <li className="mb-4" key={i}>
-                    <p>
-                      <strong>URL </strong>
-                      {relatedUrlEntry.url}
-                    </p>
-                    <p>
-                      <strong>Label </strong>
-                      {relatedUrlEntry.label.label}
-                    </p>
+                    {relatedUrlEntry.label.label} - {relatedUrlEntry.url}
                   </li>
                 ))}
               </ul>

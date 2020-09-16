@@ -199,6 +199,33 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
 }
 
 /**
+ * Prepares Related Url form data for an upcoming GraphQL post
+ * @param {Array} items Array of object entries possible in form
+ * @returns {Array} of properly shaped values for Related Url
+ */
+export function prepRelatedUrl(items) {
+  let returnArray = [];
+
+  returnArray = items.map((item) => {
+    return {
+      url: item.url,
+      label: {
+        scheme: "RELATED_URL",
+        id: item.label,
+      },
+    };
+  });
+
+  // Check for empty values caused by any kind of error
+  const badData = returnArray.find((item) => !item.url || !item.label.id);
+  if (badData) {
+    console.log("Error preparing Related Url value for form post");
+  }
+
+  return badData ? [] : returnArray;
+}
+
+/**
  * Remove helper labels from Batch Edit form post data
  * @param {Object} batchAdds
  * @param {Object} batchDeletes
