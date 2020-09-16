@@ -12,7 +12,7 @@
   "prettier": "@nulib/prettier-config",
   "dependencies": {
     "@absinthe/socket-apollo-link": "^0.2.1",
-    "@apollo/client": "^3.0.2",
+    "@apollo/client": "^3.2.0",
     "@apollo/react-hooks": "^3.1.5",
     "@apollo/react-testing": "^3.1.4",
     "@appbaseio/reactivesearch": "^3.12.4",
