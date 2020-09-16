@@ -39,7 +39,7 @@ const UIFormControlledTermArray = ({
                 >{`${label} #${index + 1}`}</legend>
 
                 {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
-                {!item.new && (
+                {(item.term || item.termId) && (
                   <>
                     <p>
                       {item.term.label} {item.role && `(${item.role.label})`}
@@ -63,7 +63,7 @@ const UIFormControlledTermArray = ({
                 )}
 
                 {/* New form entries */}
-                {item.new && (
+                {!item.termId && !item.term && (
                   <>
                     {hasRole(name) && (
                       <div className="field">
@@ -117,7 +117,7 @@ const UIFormControlledTermArray = ({
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append({ new: true, termId: "", label: "", roleId: "" });
+          append({ termId: "", label: "", roleId: "" });
         }}
         data-testid="button-add-field-array-row"
       >
