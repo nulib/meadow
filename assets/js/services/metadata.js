@@ -36,6 +36,13 @@ export const CONTROLLED_METADATA = [
     name: "technique",
   },
 ];
+export const PROJECT_METADATA = [
+  { name: "projectDesc", label: "Project Description" },
+  { name: "projectManager", label: "Project Manager" },
+  { name: "projectName", label: "Project Name" },
+  { name: "projectProposer", label: "Project Proposer" },
+  { name: "projectTaskNumber", label: "Project Task Number" },
+];
 
 export const OTHER_METADATA = [
   { name: "alternateTitle", label: "Alternate Title" },

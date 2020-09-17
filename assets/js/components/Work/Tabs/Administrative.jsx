@@ -6,7 +6,6 @@ import { toastWrapper } from "../../../services/helpers";
 import { GET_COLLECTIONS } from "../../Collection/collection.gql.js";
 import { UPDATE_WORK, GET_WORK } from "../work.gql.js";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
@@ -16,6 +15,11 @@ import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
 import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
 import UISkeleton from "../../UI/Skeleton";
+import {
+  PROJECT_METADATA,
+  prepFieldArrayItemsForPost,
+} from "../../../services/metadata";
+import { Button } from "@nulib/admin-react-components";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, published } = work;
@@ -27,35 +31,38 @@ const WorkTabsAdministrative = ({ work }) => {
     error: collectionsError,
   } = useQuery(GET_COLLECTIONS);
 
-  const [updateWork, { loading: updateWorkLoading }] = useMutation(
-    UPDATE_WORK,
+  const [
+    updateWork,
+    { loading: updateWorkLoading, error: updateWorkError },
+  ] = useMutation(UPDATE_WORK, {
+    onCompleted({ updateWork }) {
+      setIsEditing(false);
+      toastWrapper("is-success", "Work form updated successfully");
+    },
+    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+    awaitRefetchQueries: true,
+  });
+  const { preservationLevel, status, projectCycle } = administrativeMetadata;
+
+  const { register, handleSubmit, errors, control, reset, getValues } = useForm(
     {
-      onCompleted({ updateWork }) {
-        setIsEditing(false);
-        toastWrapper("is-success", "Work form updated successfully");
-      },
-      refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
-      awaitRefetchQueries: true,
+      defaultValues: {},
     }
   );
-  const { preservationLevel, status, projectCycle } = administrativeMetadata;
-  const projectMetadata = [
-    { name: "projectDesc", label: "Project Description" },
-    { name: "projectManager", label: "Project Manager" },
-    { name: "projectName", label: "Project Name" },
-    { name: "projectProposer", label: "Project Proposer" },
-    { name: "projectTaskNumber", label: "Project Task Number" },
-  ];
-
-  const { register, handleSubmit, errors, control, reset } = useForm({});
 
   useEffect(() => {
+    let resetValues = {};
+    for (let group of [PROJECT_METADATA]) {
+      for (let obj of group) {
+        resetValues[obj.name] = administrativeMetadata[obj.name].map(
+          (value) => ({
+            metadataItem: value,
+          })
+        );
+      }
+    }
     reset({
-      projectName: administrativeMetadata.projectName,
-      projectDesc: administrativeMetadata.projectDesc,
-      projectProposer: administrativeMetadata.projectProposer,
-      projectManager: administrativeMetadata.projectManager,
-      projectTaskNumber: administrativeMetadata.projectTaskNumber,
+      ...resetValues,
       projectCycle: administrativeMetadata.projectCycle,
     });
   }, [work]);
@@ -82,38 +89,33 @@ const WorkTabsAdministrative = ({ work }) => {
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
 
   const onSubmit = (data) => {
-    const {
-      status,
-      preservationLevel,
-      projectName = [],
-      projectDesc = [],
-      projectProposer = [],
-      projectManager = [],
-      projectTaskNumber = [],
-      projectCycle,
-      collection,
-      visibility,
-    } = data;
+    let currentFormValues = getValues();
+
     let workUpdateInput = {
       administrativeMetadata: {
-        preservationLevel: preservationLevel
+        preservationLevel: currentFormValues.preservationLevel
           ? {
-              id: preservationLevel,
+              id: currentFormValues.preservationLevel,
               scheme: "PRESERVATION_LEVEL",
             }
           : {},
-        status: status ? { id: status, scheme: "STATUS" } : {},
-        // TODO: Should these be field arrays or singular values?
-        // projectName,
-        // projectDesc,
-        // projectProposer,
-        // projectManager,
-        // projectTaskNumber,
-        // projectCycle,
+        status: currentFormValues.status
+          ? { id: currentFormValues.status, scheme: "STATUS" }
+          : {},
+
+        projectCycle: currentFormValues.projectCycle,
       },
-      collectionId: collection,
-      visibility: visibility ? { id: visibility, scheme: "VISIBILITY" } : {},
+      collectionId: currentFormValues.collection,
+      visibility: currentFormValues.visibility
+        ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
+        : {},
     };
+
+    for (let term of PROJECT_METADATA) {
+      workUpdateInput.administrativeMetadata[
+        term.name
+      ] = prepFieldArrayItemsForPost(currentFormValues[term.name]);
+    }
 
     updateWork({
       variables: { id, work: workUpdateInput },
@@ -124,16 +126,18 @@ const WorkTabsAdministrative = ({ work }) => {
     collectionsLoading ||
     preservationLevelsLoading ||
     statusLoading ||
-    visibilityLoading
+    visibilityLoading ||
+    updateWorkLoading
   ) {
-    return null;
+    <UISkeleton rows={10} />;
   }
 
   if (
     collectionsError ||
     preservationLevelsError ||
     statusError ||
-    visibilityError
+    visibilityError ||
+    updateWorkError
   ) {
     return (
       <p className="notification is-danger">
@@ -143,29 +147,39 @@ const WorkTabsAdministrative = ({ work }) => {
   }
 
   return (
-    <form name="work-administrative-form" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      name="work-administrative-form"
+      data-testid="work-administrative-form"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <UITabsStickyHeader title="Administrative Metadata">
         {!isEditing && (
-          <button
+          <Button
             type="button"
             className="button is-primary"
             onClick={() => setIsEditing(true)}
+            data-testid="edit-button"
           >
             Edit
-          </button>
+          </Button>
         )}
         {isEditing && (
           <>
-            <button type="submit" className="button is-primary">
+            <Button
+              type="submit"
+              className="button is-primary"
+              data-testid="save-button"
+            >
               Save
-            </button>
-            <button
+            </Button>
+            <Button
+              data-testid="cancel-button"
               type="button"
               className="button is-text"
               onClick={() => setIsEditing(false)}
             >
               Cancel
-            </button>
+            </Button>
           </>
         )}
       </UITabsStickyHeader>
@@ -220,6 +234,7 @@ const WorkTabsAdministrative = ({ work }) => {
             <UIFormField label="Status" required={published}>
               {isEditing ? (
                 <UIFormSelect
+                  data-testid="status"
                   register={register}
                   name="status"
                   label="Status"
@@ -241,6 +256,7 @@ const WorkTabsAdministrative = ({ work }) => {
             <UIFormField label="Visibility">
               {isEditing ? (
                 <UIFormSelect
+                  data-testid="visibility"
                   register={register}
                   name="visibility"
                   label="Visibility"
@@ -257,12 +273,12 @@ const WorkTabsAdministrative = ({ work }) => {
         </div>
         <div className="column one-third">
           <div className="box is-relative">
-            {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
-
-            <UIFormField label="Project Cycle" notLive>
+            <UIFormField label="Project Cycle">
               {isEditing ? (
                 <UIFormInput
+                  data-testid="project-cycle"
                   placeholder="Project Cycle"
+                  control={control}
                   register={register}
                   name="projectCycle"
                   label="Project Cycle"
@@ -273,30 +289,27 @@ const WorkTabsAdministrative = ({ work }) => {
                 <p>{projectCycle}</p>
               )}
             </UIFormField>
-
-            {isEditing &&
-              projectMetadata.map((item) => (
-                <UIFormFieldArray
-                  register={register}
-                  control={control}
-                  required={item.required}
-                  name={item.name}
-                  label={item.label}
-                  errors={errors}
-                  key={item.name}
-                  notLive
-                />
-              ))}
-            {!isEditing &&
-              projectMetadata.map((item) => (
-                <UIFormFieldArrayDisplay
-                  items={administrativeMetadata[item.name]}
-                  label={item.label}
-                  key={item.name}
-                  mocked
-                  notLive
-                />
-              ))}
+            {PROJECT_METADATA.map((item) => {
+              return (
+                <div key={item.name} data-testid={item.name}>
+                  {isEditing ? (
+                    <UIFormFieldArray
+                      register={register}
+                      control={control}
+                      required
+                      name={item.name}
+                      label={item.label}
+                      errors={errors}
+                    />
+                  ) : (
+                    <UIFormFieldArrayDisplay
+                      items={administrativeMetadata[item.name]}
+                      label={item.label}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
