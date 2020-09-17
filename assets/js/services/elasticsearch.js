@@ -62,6 +62,20 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   },
 };
 
+export const allImagesQuery = {
+  query: {
+    bool: {
+      must: [
+        {
+          match: {
+            "model.name": "Image",
+          },
+        },
+      ],
+    },
+  },
+};
+
 /**
  * Create a text-only, label values object for an Elasticsearch aggregations result object
  * @param {object} aggregations Value returned from the Elasticsearch direct query

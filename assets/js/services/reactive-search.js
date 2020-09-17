@@ -46,7 +46,7 @@ const defaultListItemValues = {
 export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
-    componentId: "FacetContributor",
+    componentId: "Contributor",
     dataField: "descriptiveMetadata.contributor.displayFacet",
     showSearch: true,
     title: "Contributor",
@@ -54,47 +54,47 @@ export const FACET_SENSORS = [
 
   {
     ...defaultListItemValues,
-    componentId: "FacetCollection",
+    componentId: "Collection",
     dataField: "collection.title.keyword",
     showSearch: true,
     title: "Collection",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetCreator",
+    componentId: "Creator",
     dataField: "descriptiveMetadata.creator.displayFacet",
     showSearch: true,
     title: "Creator",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetGenre",
+    componentId: "Genre",
     dataField: "descriptiveMetadata.genre.displayFacet",
     showSearch: true,
     title: "Genre",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetLanguage",
+    componentId: "Language",
     dataField: "descriptiveMetadata.language.displayFacet",
     title: "Language",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetLicense",
+    componentId: "License",
     dataField: "descriptiveMetadata.license.label.keyword",
     title: "License",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetLocation",
+    componentId: "Location",
     dataField: "descriptiveMetadata.location.displayFacet",
     showSearch: true,
     title: "Location",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetPublished",
+    componentId: "Published",
     dataField: "published",
     renderItem: function (label, count) {
       return (
@@ -112,28 +112,30 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetRightsStatement",
+    componentId: "RightsStatement",
     dataField: "descriptiveMetadata.rightsStatement.label.keyword",
     title: "Rights Statement",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetSubject",
+    componentId: "Subject",
     dataField: "descriptiveMetadata.subject.displayFacet",
     showSearch: true,
     title: "Subject",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetStylePeriod",
+    componentId: "StylePeriod",
     dataField: "descriptiveMetadata.stylePeriod.displayFacet",
     showSearch: true,
     title: "Style Period",
   },
   {
     ...defaultListItemValues,
-    componentId: "FacetVisibility",
+    componentId: "Visibility",
     dataField: "visibility.label.keyword",
     title: "Visibility",
   },
 ];
+
+export const SEARCH_SENSOR = "SearchSensor";

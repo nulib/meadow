@@ -6,8 +6,9 @@ import WorkListItem from "../../components/Work/ListItem";
 import WorkCardItem from "../../components/Work/CardItem";
 import UISkeleton from "../../components/UI/Skeleton";
 import SearchSelectable from "../../components/Search/Selectable";
-import { FACET_SENSORS } from "../../services/reactive-search";
+import { FACET_SENSORS, SEARCH_SENSOR } from "../../services/reactive-search";
 import { prepWorkItemForDisplay } from "../../services/helpers";
+import { allImagesQuery } from "../../services/elasticsearch";
 
 const SearchResults = ({
   handleOnDataChange,
@@ -25,19 +26,7 @@ const SearchResults = ({
           <ReactiveList
             componentId="SearchResult"
             dataField="accession_number"
-            defaultQuery={() => ({
-              query: {
-                bool: {
-                  must: [
-                    {
-                      match: {
-                        "model.name": "Image",
-                      },
-                    },
-                  ],
-                },
-              },
-            })}
+            defaultQuery={() => allImagesQuery}
             innerClass={{
               list: `${isListView ? "" : "columns is-multiline"}`,
               resultStats: "column is-size-6 has-text-grey",
@@ -50,7 +39,7 @@ const SearchResults = ({
               handleQueryChange(nextQuery);
             }}
             react={{
-              and: [...facetSensors, "SearchSensor"],
+              and: [...facetSensors, SEARCH_SENSOR],
             }}
             renderItem={(res) => {
               if (isListView) {

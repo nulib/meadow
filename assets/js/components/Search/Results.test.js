@@ -4,6 +4,8 @@ import SearchResults from "./Results";
 import { iiifServerUrlMock } from "../IIIF/iiif.gql.mock";
 import { waitFor } from "@testing-library/react";
 
+jest.mock("../../services/elasticsearch");
+
 // Mock GraphQL queries
 const mocks = [iiifServerUrlMock];
 
