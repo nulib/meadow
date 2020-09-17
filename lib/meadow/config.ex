@@ -130,6 +130,14 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :shared_link_ttl, :timer.hours(24 * 7 * 2))
   end
 
+  @doc "Time to wait (in ms) before starting the ingest pipeline"
+  def pipeline_delay do
+    case Application.get_env(:meadow, :pipeline_delay, 0) do
+      n when is_binary(n) -> String.to_integer(n)
+      n -> n
+    end
+  end
+
   defp ensure_trailing_slash(value) do
     if value |> String.ends_with?("/"),
       do: value,
