@@ -6,19 +6,25 @@ import { Button } from "@nulib/admin-react-components";
 export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
   handlePublishClick,
+  hasCollection,
   onOpenModal,
   published,
 }) {
   return (
-    <div className="buttons is-right">
-      <button
-        className={`button is-primary ${published ? "is-outlined" : ""}`}
+    <div className="buttons is-right" data-testid="work-header-buttons">
+      <Button
+        isPrimary
+        className={`${published ? "is-outlined" : ""}`}
         data-testid="publish-button"
         onClick={handlePublishClick}
+        disabled={!hasCollection}
       >
         {!published ? "Publish" : "Unpublish"}
-      </button>
-      <Button onClick={handleCreateSharableBtnClick}>
+      </Button>
+      <Button
+        onClick={handleCreateSharableBtnClick}
+        data-testid="button-sharable-link"
+      >
         <span className="icon">
           <FontAwesomeIcon icon="link" />
         </span>
@@ -34,6 +40,7 @@ export default function WorkHeaderButtons({
 WorkHeaderButtons.propTypes = {
   handleCreateSharableBtnClick: PropTypes.func,
   handlePublishClick: PropTypes.func,
+  hasCollection: PropTypes.bool,
   onOpenModal: PropTypes.func,
   published: PropTypes.bool,
 };

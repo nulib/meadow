@@ -223,11 +223,12 @@ const WorkTabsAbout = ({ work }) => {
           <UISkeleton rows={10} />
         ) : (
           <WorkTabsAboutCoreMetadata
+            control={control}
             descriptiveMetadata={descriptiveMetadata}
             errors={errors}
             isEditing={isEditing}
+            published={work.published}
             register={register}
-            control={control}
           />
         )}
       </UIAccordion>

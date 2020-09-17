@@ -18,7 +18,7 @@ import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
 import UISkeleton from "../../UI/Skeleton";
 
 const WorkTabsAdministrative = ({ work }) => {
-  const { id, administrativeMetadata, collection, project, sheet } = work;
+  const { id, administrativeMetadata, collection, published } = work;
   const [isEditing, setIsEditing] = useIsEditing();
 
   const {
@@ -196,7 +196,7 @@ const WorkTabsAdministrative = ({ work }) => {
               )}
             </UIFormField>
 
-            <UIFormField label="Preservation Level">
+            <UIFormField label="Preservation Level" required={published}>
               {isEditing ? (
                 <UIFormSelect
                   register={register}
@@ -206,6 +206,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={preservationLevelsData.codeList}
                   defaultValue={preservationLevel ? preservationLevel.id : ""}
                   errors={errors}
+                  required={work.published}
                 />
               ) : (
                 <p>
@@ -216,7 +217,7 @@ const WorkTabsAdministrative = ({ work }) => {
               )}
             </UIFormField>
 
-            <UIFormField label="Status">
+            <UIFormField label="Status" required={published}>
               {isEditing ? (
                 <UIFormSelect
                   register={register}
@@ -226,6 +227,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   options={statusData.codeList}
                   defaultValue={status ? status.id : ""}
                   errors={errors}
+                  required={work.published}
                 />
               ) : (
                 <p>{status ? status.label : "None selected"}</p>

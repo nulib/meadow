@@ -100,7 +100,7 @@ const CollectionForm = ({ collection }) => {
           </div>
         </div>
 
-        <UIFormField label="Collection Title">
+        <UIFormField label="Collection Title" required>
           <UIFormInput
             placeholder="Add collection Title"
             register={register}

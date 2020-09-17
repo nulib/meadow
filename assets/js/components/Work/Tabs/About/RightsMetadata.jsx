@@ -46,7 +46,6 @@ const WorkTabsAboutRightsMetadata = ({
       ))}
       <div className="column is-three-quarters" data-testid="license">
         {/* License */}
-
         <UIFormField label="License">
           {isEditing ? (
             <UIFormSelect
