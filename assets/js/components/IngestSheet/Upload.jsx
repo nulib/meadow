@@ -79,24 +79,22 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
     }
   };
 
-  const uploadToS3 = async () => {
-    try {
-      const submitFile = async (data, headers) => {
-        await axios.put(presignedUrl, data, { headers: headers });
-      };
-
+  const uploadToS3 = () => {
+    return new Promise((resolve, _reject) => {
       const file = document.getElementById("file").files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         const headers = { "Content-Type": file.type };
-        submitFile(event.target.result, headers);
+        axios.put(presignedUrl, event.target.result, { headers: headers })
+        .then(_ => resolve())
+        .catch(error => {
+          console.log(error);
+          toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
+          resolve();
+        });
       };
       reader.readAsText(file);
-    } catch (error) {
-      Promise.resolve(null);
-      console.log(error);
-      toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
-    }
+    })
   };
 
   const { file } = values;
