@@ -35,6 +35,34 @@ describe("prepControlledTermInput()", () => {
     expect(response[1].role.id).toEqual("arc");
     expect(response[1].role.scheme).toEqual("MARC_RELATOR");
   });
+
+  it("filters out any fieldset items which contain an undefined term id", () => {
+    const response = metadata.prepControlledTermInput(
+      {
+        hasRole: true,
+        label: "Creator",
+        name: "creator",
+        scheme: "MARC_RELATOR",
+      },
+      [
+        {
+          authority: "loc",
+          termId: "http://vocab.getty.edu/ulan/500276588",
+          label: "Getty Lee",
+        },
+        {
+          authority: "getty",
+          termId: "",
+          label: "Foot, D. D.",
+        },
+      ]
+    );
+
+    expect(response).toHaveLength(1);
+    expect(response).toEqual([
+      { term: "http://vocab.getty.edu/ulan/500276588" },
+    ]);
+  });
 });
 
 describe("prepFieldArrayItemsForPost()", () => {

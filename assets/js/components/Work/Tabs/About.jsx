@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
 import { useForm } from "react-hook-form";
@@ -87,7 +87,7 @@ const WorkTabsAbout = ({ work }) => {
       toastWrapper("is-success", "Work form updated successfully");
     },
     onError(error) {
-      console.log("error :>> ", error);
+      console.log("error in the updateWork GraphQL mutation :>> ", error);
     },
     refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
     awaitRefetchQueries: true,
@@ -160,6 +160,7 @@ const WorkTabsAbout = ({ work }) => {
     });
   };
 
+  // TODO: Eventually figure out why this doesn't get set on certain GraphQL errors?
   if (updateWorkError) return <UIError error={updateWorkError} />;
 
   return (

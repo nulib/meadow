@@ -152,16 +152,26 @@ export function prepControlledTermInput(
   formItems = [],
   includeLabel = false
 ) {
-  let arr = formItems.map(({ termId, roleId, label }) => {
-    let obj = { term: termId };
-    if (roleId) {
-      obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
-    }
-    if (includeLabel) {
-      obj.label = label;
-    }
-    return obj;
-  });
+  // First, filter out any controlled term fieldsets which come through without
+  // a valid controlled term id selected
+  let arr = formItems
+    .filter((item) => {
+      if (!item.termId) {
+        return false;
+      }
+      return true;
+    })
+    // Next prepare the object in the right shape
+    .map(({ termId, roleId, label }) => {
+      let obj = { term: termId };
+      if (roleId) {
+        obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
+      }
+      if (includeLabel) {
+        obj.label = label;
+      }
+      return obj;
+    });
 
   return arr;
 }
