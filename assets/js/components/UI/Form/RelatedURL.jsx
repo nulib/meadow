@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
-import UIInput from "./Input";
+import { isUrlValid } from "../../../services/helpers";
 
 const UIFormRelatedURL = ({
   codeLists = [],
@@ -27,6 +27,7 @@ const UIFormRelatedURL = ({
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
+
           return (
             <li key={item.useFieldArrayId}>
               <fieldset>
@@ -62,13 +63,30 @@ const UIFormRelatedURL = ({
                   <>
                     <div className="field">
                       <label className="label">URL</label>
-                      <UIInput
-                        register={register}
+                      <input
+                        type="text"
                         name={`${itemName}.url`}
-                        label="URL"
+                        className={`input ${
+                          errors[name] && errors[name][index].url
+                            ? "is-danger"
+                            : ""
+                        }`}
+                        ref={register({
+                          required: "Related URL is required",
+                          validate: (value) =>
+                            isUrlValid(value) || "Please enter a valid URL",
+                        })}
+                        defaultValue=""
                         data-testid="url"
-                        errors={errors}
                       />
+                      {errors[name] && errors[name][index].url && (
+                        <p
+                          data-testid="input-errors"
+                          className="help is-danger"
+                        >
+                          {errors[name][index].url.message}
+                        </p>
+                      )}
                     </div>
                     <div className="field">
                       <UIFormSelect
@@ -78,7 +96,9 @@ const UIFormRelatedURL = ({
                         showHelper={true}
                         data-testid="label"
                         options={codeLists}
-                        errors={errors}
+                        hasErrors={
+                          !!(errors[name] && errors[name][index].label)
+                        }
                         required
                       />
                     </div>
