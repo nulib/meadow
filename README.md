@@ -10,10 +10,10 @@
   - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
 - Install Node (you can use `nvm` (`brew install nvm`) or `asdf` to install node)
 - Install libffi `brew install libffi`
+- Make sure you've completed the [Developer Setup](http://docs.rdc.library.northwestern.edu/2._Developer_Guides/Environment_and_Tools/Developer-Tools---Dev-Environment-Setup/#setup)
 
 ## Initial setup:
 
-- Make sure you've done the [Local Authentication Setup](http://docs.rdc.library.northwestern.edu/2._Developer_Guides/Environment_and_Tools/Developer-Tools---Dev-Environment-Setup/#setup)
 - Install yarn if it's not already present: `npm -g install yarn`, or `asdf install yarn [VERSION]`
 - From the `meadow` project root, install Elixir dependencies with `mix deps.get`
 - Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
