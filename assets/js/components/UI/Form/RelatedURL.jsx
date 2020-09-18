@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import { isUrlValid } from "../../../services/helpers";
+import { Button } from "@nulib/admin-react-components";
 
 const UIFormRelatedURL = ({
   codeLists = [],
@@ -20,7 +21,6 @@ const UIFormRelatedURL = ({
     name, // Metadata item form name
     keyName: "useFieldArrayId",
   });
-
   return (
     <>
       <ul className="mb-3">
@@ -29,7 +29,10 @@ const UIFormRelatedURL = ({
           const itemName = `${name}[${index}]`;
 
           return (
-            <li key={item.useFieldArrayId}>
+            <li
+              key={item.useFieldArrayId}
+              data-testid={`relatedURL-item-${index}`}
+            >
               <fieldset>
                 <legend
                   className="has-text-grey has-text-weight-light"
@@ -77,11 +80,11 @@ const UIFormRelatedURL = ({
                             isUrlValid(value) || "Please enter a valid URL",
                         })}
                         defaultValue=""
-                        data-testid="url"
+                        data-testid={`relatedURL-input-url-${index}`}
                       />
                       {errors[name] && errors[name][index].url && (
                         <p
-                          data-testid="input-errors"
+                          data-testid={`relatedURL-input-errors-${index}`}
                           className="help is-danger"
                         >
                           {errors[name][index].url.message}
@@ -94,7 +97,7 @@ const UIFormRelatedURL = ({
                         name={`${itemName}.label`}
                         label="Label"
                         showHelper={true}
-                        data-testid="label"
+                        data-testid={`relatedURL-input-select-${index}`}
                         options={codeLists}
                         hasErrors={
                           !!(errors[name] && errors[name][index].label)
@@ -105,24 +108,24 @@ const UIFormRelatedURL = ({
                   </>
                 )}
 
-                <button
+                <Button
                   type="button"
                   className="button is-light is-small mt-3"
                   onClick={() => remove(index)}
-                  data-testid="button-delete-field-array-row"
+                  data-testid={`button-delete-field-array-row-${index}`}
                 >
                   <span className="icon">
                     <FontAwesomeIcon icon="trash" />
                   </span>
                   <span>Remove</span>
-                </button>
+                </Button>
               </fieldset>
             </li>
           );
         })}
       </ul>
 
-      <button
+      <Button
         type="button"
         className="button is-text is-small"
         onClick={() => {
@@ -134,7 +137,7 @@ const UIFormRelatedURL = ({
           <FontAwesomeIcon icon="plus" />
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
-      </button>
+      </Button>
     </>
   );
 };

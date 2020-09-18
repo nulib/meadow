@@ -23,8 +23,7 @@ export function formatSimpleISODate(date) {
 }
 
 export function isUrlValid(url) {
-  const res = url.match(URL_PATTERN_MATCH);
-  return res ? true : false;
+  return url.match(URL_PATTERN_MATCH) ? true : false;
 }
 
 export function getClassFromIngestSheetStatus(status) {
