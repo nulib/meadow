@@ -25,7 +25,12 @@ defmodule Meadow.Application do
 
     children = base_children ++ Children.specs()
 
-    unless Config.environment?(:test), do: Pipeline.start()
+    unless Config.environment?(:test) do
+      Task.async(fn ->
+        :timer.sleep(Config.pipeline_delay())
+        Pipeline.start()
+      end)
+    end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -69,7 +69,8 @@ config :meadow,
     password: get_required_var.("EZID_PASSWORD"),
     target_url: get_required_var.("EZID_TARGET_BASE_URL")
   },
-  environment: :prod
+  environment: :prod,
+  pipeline_delay: System.get_env("PIPElINE_DELAY", :timer.minutes(2))
 
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")

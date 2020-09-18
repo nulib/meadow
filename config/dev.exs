@@ -84,6 +84,7 @@ config :meadow,
   },
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
+  pipeline_delay: :timer.seconds(5),
   preservation_bucket: "dev-preservation",
   pyramid_bucket: "dev-pyramids",
   iiif_server_url:
