@@ -45,4 +45,6 @@ defmodule Meadow.IIIF.ManifestListener do
         {:stop, error, []}
     end
   end
+
+  def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
 end
