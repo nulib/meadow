@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensWork = () => {
   const { id } = useParams();
@@ -129,6 +130,7 @@ const ScreensWork = () => {
                       handlePublishClick={handlePublishClick}
                       onOpenModal={onOpenModal}
                       published={data.work.published}
+                      hasCollection={data.work.collection}
                     />
                   </div>
                 </div>
@@ -158,6 +160,15 @@ const ScreensWork = () => {
                       </Link>
                     </dd>
                   </dl>
+
+                  {!data.work.collection && (
+                    <p className="notification has-text-centered">
+                      <FontAwesomeIcon icon="exclamation-triangle" /> A work
+                      must belong to a Collection in order to be published.
+                      Click on the Administrative tab below, to add this work to
+                      a Collection.
+                    </p>
+                  )}
                 </div>
               </>
             )}

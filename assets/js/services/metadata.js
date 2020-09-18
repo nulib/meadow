@@ -213,7 +213,7 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
  * @param {Array} items Array of object entries possible in form
  * @returns {Array} of properly shaped values for Related Url
  */
-export function prepRelatedUrl(items) {
+export function prepRelatedUrl(items = []) {
   let returnArray = [];
 
   returnArray = items.map((item) => {

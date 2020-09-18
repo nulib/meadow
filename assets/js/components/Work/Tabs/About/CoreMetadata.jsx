@@ -12,11 +12,12 @@ import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 
 const WorkTabsAboutCoreMetadata = ({
+  control,
   descriptiveMetadata,
   errors,
   isEditing,
+  published,
   register,
-  control,
 }) => {
   const {
     loading: rightsStatementsLoading,
@@ -30,7 +31,7 @@ const WorkTabsAboutCoreMetadata = ({
     <div className="columns is-multiline" data-testid="core-metadata">
       <div className="column is-full">
         {/* Title */}
-        <UIFormField label="Title">
+        <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
               register={register}
@@ -38,6 +39,7 @@ const WorkTabsAboutCoreMetadata = ({
               label="Title"
               data-testid="title"
               errors={errors}
+              required={published}
               defaultValue={descriptiveMetadata.title}
             />
           ) : (
@@ -86,6 +88,7 @@ const WorkTabsAboutCoreMetadata = ({
         </UIFormField>
       </div>
       <div className="column is-half">
+        {/* Rights Statement */}
         <UIFormField label="Rights Statement">
           {isEditing ? (
             <UIFormSelect
@@ -126,36 +129,16 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
-      {/* <div className="column is-half">
-        License
-        <UIFormField label="License">
-          {isEditing ? (
-            <UIFormSelect
-              register={register}
-              name="license"
-              showHelper={true}
-              label="License"
-              options={licenseData ? licenseData.codeList : []}
-              defaultValue={
-                descriptiveMetadata.license
-                  ? descriptiveMetadata.license.id
-                  : ""
-              }
-              errors={errors}
-            />
-          ) : (
-            <UICodedTermItem item={descriptiveMetadata.license} />
-          )}
-        </UIFormField>
-      </div> */}
     </div>
   );
 };
 
 WorkTabsAboutCoreMetadata.propTypes = {
+  control: PropTypes.object,
   descriptiveMetadata: PropTypes.object,
   errors: PropTypes.object,
   isEditing: PropTypes.bool,
+  published: PropTypes.bool,
   register: PropTypes.func,
 };
 
