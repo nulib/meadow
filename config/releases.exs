@@ -29,7 +29,7 @@ config :exldap, :settings,
 config :meadow, Meadow.Repo,
   # ssl: true,
   url: get_required_var.("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+  pool_size: String.to_integer(System.get_env("POOL_SIZE", "10"))
 
 host = System.get_env("MEADOW_HOSTNAME", "example.com")
 port = String.to_integer(System.get_env("PORT", "4000"))
@@ -70,7 +70,7 @@ config :meadow,
     target_url: get_required_var.("EZID_TARGET_BASE_URL")
   },
   environment: :prod,
-  pipeline_delay: System.get_env("PIPElINE_DELAY", :timer.minutes(2))
+  pipeline_delay: System.get_env("PIPELINE_DELAY", "120000")
 
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
