@@ -79,7 +79,7 @@
     "react-svg-loader": "^3.0.3",
     "sass-loader": "^10.0.2",
     "style-loader": "^1.2.1",
-    "terser-webpack-plugin": "^4.2.1",
+    "terser-webpack-plugin": "^4.2.2",
     "url-loader": "^4.1.0",
     "use-phoenix-channel": "^1.1.1",
     "webpack": "4.44.2",
