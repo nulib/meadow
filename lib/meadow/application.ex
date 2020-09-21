@@ -18,6 +18,7 @@ defmodule Meadow.Application do
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.ElasticsearchCluster,
       Meadow.Repo,
+      Meadow.Telemetry,
       MeadowWeb.Endpoint,
       {Absinthe.Subscription, MeadowWeb.Endpoint},
       {Registry, keys: :unique, name: Meadow.TaskRegistry}

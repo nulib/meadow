@@ -3,7 +3,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
   alias Meadow.Data.ActionStates
-  alias Meadow.Pipeline.Actions.GenerateFileSetDigests
+  alias Meadow.Pipeline.Actions.{GenerateFileSetDigests, IngestFileSet}
   import Assertions
 
   load_gql(MeadowWeb.Schema, "test/gql/GetActionStates.gql")
@@ -13,25 +13,32 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     {:ok, ingest_sheet: sheet, file_set: file_sets_for(sheet) |> List.first()}
   end
 
-  test "initially empty", %{file_set: file_set} do
-    {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
-    assert(get_in(result, [:data, "actionStates"]) == [])
-  end
-
-  test "contains records", %{file_set: file_set} do
-    ActionStates.set_state!(file_set, "Create FileSet", "ok")
-    ActionStates.set_state!(file_set, Meadow.Pipeline.Actions.GenerateFileSetDigests, "ok")
+  test "initializes properly", %{file_set: file_set} do
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      assert(length(trail) == 2)
+      assert(length(trail) == 5)
+      assert_all_have_value(trail, "outcome", "WAITING")
+    end
+  end
 
-      assert_lists_equal(trail |> Enum.map(fn %{"action" => v} -> v end), [
-        "Create FileSet",
-        GenerateFileSetDigests.actiondoc()
-      ])
+  test "contains records", %{file_set: file_set} do
+    ActionStates.set_state!(file_set, IngestFileSet, "ok")
+    ActionStates.set_state!(file_set, GenerateFileSetDigests, "ok")
+    {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
-      assert_lists_equal(trail |> Enum.map(fn %{"outcome" => v} -> v end), ["OK", "OK"])
+    with trail <- get_in(result, [:data, "actionStates"]) do
+      assert(length(trail) == 5)
+
+      assert(
+        Enum.all?(trail, fn %{"action" => action, "outcome" => outcome} ->
+          case action do
+            "Start Ingesting a FileSet" -> outcome == "OK"
+            "Generate Digests for FileSet" -> outcome == "OK"
+            _ -> outcome == "WAITING"
+          end
+        end)
+      )
     end
   end
 end
