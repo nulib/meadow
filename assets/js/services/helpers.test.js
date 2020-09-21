@@ -3,12 +3,24 @@ import {
   escapeDoubleQuotes,
   formatDate,
   getClassFromIngestSheetStatus,
+  isUrlValid,
 } from "./helpers";
 
 it("should escape double quotes", () => {
   const expected = 'This is a %5C"doubleQuoted%5C" expression';
   const actual = escapeDoubleQuotes(`This is a "doubleQuoted" expression`);
   expect(expected).toMatch(actual);
+});
+
+it("should validate URL pattern", () => {
+  expect(isUrlValid("htttp://northwestern.edu")).toBe(false);
+  expect(isUrlValid("ww.northwestern.edu")).toBe(false);
+  expect(isUrlValid("northwestern.edu")).toBe(false);
+
+  expect(isUrlValid("www.google.cc")).toBe(true);
+  expect(isUrlValid("www.google.co.uk")).toBe(true);
+  expect(isUrlValid("http://www.northwestern.edu")).toBe(true);
+  expect(isUrlValid("https://www.northwestern.edu")).toBe(true);
 });
 
 describe("Convert String to Date function", () => {

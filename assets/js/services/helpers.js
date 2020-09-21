@@ -1,5 +1,6 @@
 import moment from "moment";
 import { toast } from "bulma-toast";
+import { URL_PATTERN_MATCH } from "./global-vars";
 
 /**
  * Escape double quotes (which may interfere with Search queries)
@@ -18,8 +19,11 @@ export function formatDate(date) {
 export function formatSimpleISODate(date) {
   if (!date) return "";
   let newDate = moment(date).format().substring(0, 16);
-
   return newDate;
+}
+
+export function isUrlValid(url) {
+  return url.match(URL_PATTERN_MATCH) ? true : false;
 }
 
 export function getClassFromIngestSheetStatus(status) {
