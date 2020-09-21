@@ -18,7 +18,7 @@
 - From the `meadow` project root, install Elixir dependencies with `mix deps.get`
 - Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
   - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
-  - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
+    - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
 - Setup/seed the LDAP ([see below](###seeding-the-ldap-server) for instructions)
   - You can run both the general setup and the LDAP setup at the same time with `mix do meadow.setup, meadow.ldap.setup /path/to/seed/file/filename.ldif`
