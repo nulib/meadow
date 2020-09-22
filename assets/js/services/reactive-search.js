@@ -61,6 +61,20 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
+    componentId: "Project",
+    dataField: "project.title.keyword",
+    showSearch: true,
+    title: "Project",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "IngestSheet",
+    dataField: "sheet.title.keyword",
+    showSearch: true,
+    title: "Ingest Sheet",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "Creator",
     dataField: "descriptiveMetadata.creator.displayFacet",
     showSearch: true,
