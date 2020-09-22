@@ -3,12 +3,15 @@ defmodule Meadow.Ingest.Progress do
   Translate action state notifications into ingest sheet progress notifications
   """
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
-  alias Meadow.Ingest.Rows
+  alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Pipeline
   alias Meadow.Repo
 
   import Ecto.Query
   import Meadow.Utils.Atoms
+
+  use GenServer
+  require Logger
 
   defstruct sheet_id: nil,
             total_file_sets: 0,
@@ -137,8 +140,6 @@ defmodule Meadow.Ingest.Progress do
       |> Progress.changeset(%{status: status})
       |> Repo.insert_or_update!()
 
-    send_notification(progress)
-
     progress
   end
 
@@ -228,18 +229,32 @@ defmodule Meadow.Ingest.Progress do
     end
   end
 
-  @doc """
-  Send a progress report notification every time a progress record changes
-  """
-  def send_notification(%Progress{} = record) do
-    with sheet_id <- record |> Repo.preload(:row) |> Map.get(:row) |> Map.get(:sheet_id) do
-      Absinthe.Subscription.publish(
-        MeadowWeb.Endpoint,
-        pipeline_progress(sheet_id),
-        ingest_progress: sheet_id
-      )
-    end
+  def send_notifications do
+    Sheets.list_ingest_sheets_by_status(:approved)
+    |> Enum.each(&send_notification(&1.id))
   end
 
-  def send_notification(_), do: :noop
+  def send_notification(sheet_id) do
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      pipeline_progress(sheet_id),
+      ingest_progress: sheet_id
+    )
+  end
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, Keyword.get(opts, :interval, 500), [])
+  end
+
+  def init(interval) do
+    Logger.disable(self())
+    send(self(), :update)
+    {:ok, interval}
+  end
+
+  def handle_info(:update, interval) do
+    send_notifications()
+    Process.send_after(self(), :update, interval)
+    {:noreply, interval}
+  end
 end

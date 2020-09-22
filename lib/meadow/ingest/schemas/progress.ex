@@ -19,7 +19,7 @@ defmodule Meadow.Ingest.Schemas.Progress do
 
   def changeset(record, attrs \\ %{}) do
     record
-    |> cast(attrs, [:row_id, :action, :status])
+    |> cast(attrs, [:row_id, :action, :status, :updated_at])
     |> validate_required([:row_id, :action, :status])
   end
 end

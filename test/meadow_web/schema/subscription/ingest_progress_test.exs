@@ -13,6 +13,8 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
 
   setup %{socket: socket, ingest_sheet: sheet} do
+    start_supervised!({Progress, [interval: 100]})
+    {:ok, sheet} = Sheets.update_ingest_sheet_status(sheet, "approved")
     groups = SheetsToWorks.initialize_progress(sheet)
 
     {:ok,
@@ -30,12 +32,8 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     assert_reply ref, :ok, %{subscriptionId: subscription_id}
 
     Progress.update_entry(first_row, "CreateWork", "ok")
-
-    assert_push "subscription:data", %{
-      result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
-    }
-
     Progress.update_entry(first_row, GenerateFileSetDigests, "ok")
+    Progress.send_notifications()
 
     assert_push "subscription:data", %{
       result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
@@ -57,7 +55,6 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     work_rows
     |> Enum.each(fn row ->
       Progress.update_entry(row, "CreateWork", "ok")
-      assert_push "subscription:data", _
     end)
 
     file_set_rows
@@ -65,16 +62,17 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
       Pipeline.actions()
       |> Enum.map(fn action -> {row, action} end)
     end)
-    |> Enum.with_index(3)
-    |> Enum.each(fn {{row, action}, i} ->
+    |> Enum.each(fn {row, action} ->
       Progress.update_entry(row, action, "ok")
-
-      assert_push "subscription:data", %{
-        result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
-      }
-
-      assert_in_delta(pct, i * @pct_factor, 0.10)
     end)
+
+    Progress.send_notification(sheet.id)
+
+    assert_push "subscription:data", %{
+      result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
+    }
+
+    assert_in_delta(pct, 100, 0.10)
 
     assert Progress.pipeline_progress(sheet) |> Map.get(:percent_complete) == 100
   end

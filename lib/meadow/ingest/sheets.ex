@@ -417,4 +417,11 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   def find_state(ingest_sheet, key \\ "overall"), do: Sheet.find_state(ingest_sheet, key)
+
+  def list_ingest_sheets_by_status(status) do
+    with status_string <- to_string(status) do
+      from(s in Sheet, where: s.status == ^status_string)
+      |> Repo.all()
+    end
+  end
 end

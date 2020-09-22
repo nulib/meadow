@@ -82,7 +82,6 @@ defmodule Meadow.Data.ActionStates do
       on_conflict: [set: [outcome: outcome, notes: notes, updated_at: DateTime.utc_now()]],
       conflict_target: [:object_id, :action]
     )
-    |> send_action_notification()
   end
 
   def set_state(object, action, outcome, notes) do
@@ -98,7 +97,6 @@ defmodule Meadow.Data.ActionStates do
       on_conflict: [set: [outcome: outcome, notes: notes, updated_at: DateTime.utc_now()]],
       conflict_target: [:object_id, :action]
     )
-    |> send_action_notification()
   end
 
   def set_state!(object, action, outcome, notes) do
@@ -122,21 +120,5 @@ defmodule Meadow.Data.ActionStates do
       outcome: outcome,
       notes: notes
     })
-  end
-
-  # Absinthe Notifications
-
-  defp send_action_notification({:ok, state}),
-    do: {:ok, send_action_notification(state)}
-
-  defp send_action_notification(%ActionState{} = state) do
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      state,
-      action_update: state.object_id,
-      action_updates: :all
-    )
-
-    state
   end
 end

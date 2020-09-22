@@ -22,6 +22,7 @@ defmodule Meadow.Pipeline.Actions.Common do
 
       def update_progress(attrs, {status, _, _}, _), do: update_progress(attrs, status)
       def update_progress(attrs, {status, _}, _), do: update_progress(attrs, status)
+      def update_progress(attrs, {status, _}), do: update_progress(attrs, status)
 
       def update_progress(%{ingest_sheet: sheet_id, ingest_sheet_row: row_num}, status) do
         Rows.get_row(sheet_id, row_num)
