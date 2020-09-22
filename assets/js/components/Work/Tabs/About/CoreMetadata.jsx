@@ -12,12 +12,9 @@ import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
 
 const WorkTabsAboutCoreMetadata = ({
-  control,
   descriptiveMetadata,
-  errors,
   isEditing,
   published,
-  register,
 }) => {
   const {
     loading: rightsStatementsLoading,
@@ -34,11 +31,9 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
-              register={register}
               name="title"
               label="Title"
               data-testid="title"
-              errors={errors}
               required={published}
               defaultValue={descriptiveMetadata.title}
             />
@@ -51,12 +46,9 @@ const WorkTabsAboutCoreMetadata = ({
         {/* Alternate Title */}
         {isEditing ? (
           <UIFormFieldArray
-            register={register}
-            control={control}
             name="alternateTitle"
             data-testid="alternate-title"
             label="Alternate Title"
-            errors={errors}
           />
         ) : (
           <UIFormFieldArrayDisplay
@@ -71,12 +63,10 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Date Created" notLive>
           {isEditing ? (
             <UIInput
-              register={register}
               name="dateCreated"
               label="Date Created"
               type="date"
               data-testid="date-created"
-              errors={errors}
               defaultValue={descriptiveMetadata.dateCreated}
             />
           ) : (
@@ -92,7 +82,6 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Rights Statement">
           {isEditing ? (
             <UIFormSelect
-              register={register}
               name="rightsStatement"
               label="Rights Statement"
               showHelper={true}
@@ -105,7 +94,6 @@ const WorkTabsAboutCoreMetadata = ({
                   ? descriptiveMetadata.rightsStatement.id
                   : ""
               }
-              errors={errors}
             />
           ) : (
             <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
@@ -117,11 +105,9 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Description">
           {isEditing ? (
             <UIFormTextarea
-              register={register}
               name="description"
               label="Description"
               data-testid="description"
-              errors={errors}
               defaultValue={descriptiveMetadata.description}
             />
           ) : (
@@ -134,12 +120,9 @@ const WorkTabsAboutCoreMetadata = ({
 };
 
 WorkTabsAboutCoreMetadata.propTypes = {
-  control: PropTypes.object,
   descriptiveMetadata: PropTypes.object,
-  errors: PropTypes.object,
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
-  register: PropTypes.func,
 };
 
 export default WorkTabsAboutCoreMetadata;

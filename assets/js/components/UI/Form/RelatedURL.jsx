@@ -5,17 +5,16 @@ import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import { isUrlValid } from "../../../services/helpers";
 import { Button } from "@nulib/admin-react-components";
+import { useFormContext } from "react-hook-form";
 
 const UIFormRelatedURL = ({
   codeLists = [],
-  control,
-  errors = {},
   label,
   name,
-  register,
   required,
   ...passedInProps
 }) => {
+  const { control, errors, register } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name, // Metadata item form name
@@ -93,7 +92,6 @@ const UIFormRelatedURL = ({
                     </div>
                     <div className="field">
                       <UIFormSelect
-                        register={register}
                         name={`${itemName}.label`}
                         label="Label"
                         showHelper={true}
@@ -144,10 +142,8 @@ const UIFormRelatedURL = ({
 
 UIFormRelatedURL.propTypes = {
   codeLists: PropTypes.array,
-  control: PropTypes.object.isRequired,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  register: PropTypes.func,
   roleDropdownOptions: PropTypes.array,
 };
 

@@ -1,14 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 
-const UIFormTextarea = ({
-  name,
-  label,
-  errors = {},
-  register,
-  required,
-  ...passedInProps
-}) => {
+const UIFormTextarea = ({ name, label, required, ...passedInProps }) => {
+  const { errors, register } = useFormContext();
+
   return (
     <>
       <textarea
@@ -27,8 +23,6 @@ const UIFormTextarea = ({
 UIFormTextarea.propTypes = {
   name: PropTypes.string,
   label: PropTypes.string,
-  errors: PropTypes.object,
-  register: PropTypes.func,
   required: PropTypes.bool,
 };
 

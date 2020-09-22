@@ -10,10 +10,7 @@ import UICodeListCacheRefresh from "../../../UI/CodeListCacheRefresh";
 
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
-  errors,
   isEditing,
-  register,
-  control,
 }) => {
   const [codeLists, refreshCodeLists] = useCachedCodeLists();
 
@@ -48,11 +45,8 @@ const WorkTabsAboutControlledMetadata = ({
                 <UIFormControlledTermArray
                   authorities={codeLists.AUTHORITY}
                   roleDropdownOptions={getRoleDropDownOptions(scheme)}
-                  control={control}
-                  errors={errors}
                   label={label}
                   name={name}
-                  register={register}
                 />
               ) : (
                 <UIControlledTermList items={descriptiveMetadata[name]} />
@@ -70,10 +64,7 @@ const WorkTabsAboutControlledMetadata = ({
 
 WorkTabsAboutControlledMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
-  errors: PropTypes.object,
   isEditing: PropTypes.bool,
-  register: PropTypes.func,
-  control: PropTypes.object,
 };
 
 export default WorkTabsAboutControlledMetadata;

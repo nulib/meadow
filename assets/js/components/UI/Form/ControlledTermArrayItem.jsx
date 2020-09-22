@@ -3,17 +3,16 @@ import { useLazyQuery } from "@apollo/client";
 import { AUTHORITY_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";
+import { useFormContext } from "react-hook-form";
 
 const UIFormControlledTermArrayItem = ({
   authorities,
-  control,
-  errors,
   index,
   item,
   label,
   name,
-  register,
 }) => {
+  const { control, errors, register } = useFormContext();
   const [currentAuthority, setCurrentAuthority] = useState(authorities[0].id);
   const [isLoading, setIsLoading] = useState(false);
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
@@ -59,7 +58,6 @@ const UIFormControlledTermArrayItem = ({
           label="Authority"
           onChange={handleAuthorityChange}
           options={authorities}
-          register={register}
         />
       </div>
 
@@ -75,7 +73,6 @@ const UIFormControlledTermArrayItem = ({
           hasErrors={hasErrors}
           inputName={inputName}
           initialInputValue={item.label || ""}
-          register={register}
         />
 
         {hasErrors && (
@@ -95,9 +92,10 @@ function DropDownComboBox({
   hasErrors,
   inputName,
   initialInputValue,
-  register,
   isLoading,
 }) {
+  const { register } = useFormContext();
+
   const {
     getLabelProps,
     getMenuProps,

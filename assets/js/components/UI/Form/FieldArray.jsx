@@ -2,20 +2,19 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 const UIFormFieldArray = ({
   name,
   label,
   type = "text",
-  errors = {},
-  register,
-  control,
   required,
   defaultValue = `New ${label}`,
   mocked,
   notLive,
   ...passedInProps
 }) => {
+  const { control, errors, register } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name,
@@ -81,13 +80,11 @@ const UIFormFieldArray = ({
 };
 
 UIFormFieldArray.propTypes = {
-  control: PropTypes.object.isRequired,
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   mocked: PropTypes.bool,
   name: PropTypes.string.isRequired,
   notLive: PropTypes.bool,
-  register: PropTypes.func,
   required: PropTypes.bool,
   type: PropTypes.string,
 };
