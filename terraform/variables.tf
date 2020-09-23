@@ -12,6 +12,10 @@ variable "availability_zones" {
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
+variable "digital_collections_url" {
+  type    = string
+}
+
 variable "geonames_username" {
   type    = string
 }

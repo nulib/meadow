@@ -11,6 +11,10 @@
         "value": "${secret_key_base}"
       },
       {
+        "name": "DIGITAL_COLLECTIONS_URL",
+        "value": "${digital_collections_url}"
+      },
+      {
         "name": "DATABASE_URL",
         "value": "${database_url}"
       },

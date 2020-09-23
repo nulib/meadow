@@ -78,6 +78,7 @@ config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
 config :meadow, pyramid_bucket: get_required_var.("PYRAMID_BUCKET")
 config :meadow, iiif_server_url: get_required_var.("IIIF_SERVER_URL")
 config :meadow, iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL")
+config :meadow, digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
 
 config :honeybadger,
   api_key: get_required_var.("HONEYBADGER_API_KEY"),

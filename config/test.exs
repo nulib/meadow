@@ -39,7 +39,8 @@ config :meadow,
   preservation_bucket: "test-preservation",
   pyramid_bucket: "test-pyramids",
   iiif_server_url: "http://localhost:8184/iiif/2/",
-  iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/"
+  iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
+  digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
 
 config :meadow,
   ark: %{

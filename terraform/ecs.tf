@@ -110,6 +110,7 @@ data "template_file" "container_definitions" {
 
   vars = {
     agentless_sso_key    = var.agentless_sso_key
+    digital_collections_url =  var.digital_collections_url
     database_url         = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
     docker_tag           = terraform.workspace
     elasticsearch_key    = aws_iam_access_key.meadow_elasticsearch_access_key.id

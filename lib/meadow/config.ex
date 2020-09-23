@@ -3,6 +3,12 @@ defmodule Meadow.Config do
   Convenience methods for retrieving Meadow configuration
   """
 
+  @doc "Retrieve the environment specific URL for the Digital Collections website"
+  def digital_collections_url do
+    Application.get_env(:meadow, :digital_collections_url)
+    |> ensure_trailing_slash()
+  end
+
   @doc "Retrieve the configured indexing interval"
   def index_interval do
     Application.get_env(:meadow, :index_interval, 120_000)
