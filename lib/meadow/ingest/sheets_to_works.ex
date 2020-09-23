@@ -7,7 +7,6 @@ defmodule Meadow.Ingest.SheetsToWorks do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest
   alias Meadow.Ingest.{Progress, Rows, Status}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Pipeline

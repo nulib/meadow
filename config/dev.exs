@@ -93,7 +93,9 @@ config :meadow,
     System.get_env(
       "IIIF_MANIFEST_URL",
       "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/"
-    )
+    ),
+  digital_collections_url:
+    System.get_env("DIGITAL_COLLECTIONS_URL", "https://fen.rdc-staging.library.northwestern.edu/")
 
 config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
