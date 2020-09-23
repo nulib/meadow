@@ -144,12 +144,13 @@ locals {
 }
 
 resource "aws_ecs_service" "meadow" {
-  name            = "meadow"
-  cluster         = aws_ecs_cluster.meadow.id
-  task_definition = aws_ecs_task_definition.meadow_app.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-  depends_on      = [aws_alb.meadow_load_balancer]
+  name                                = "meadow"
+  cluster                             = aws_ecs_cluster.meadow.id
+  task_definition                     = aws_ecs_task_definition.meadow_app.arn
+  desired_count                       = 1
+  health_check_grace_period_seconds   = 360
+  launch_type                         = "FARGATE"
+  depends_on                          = [aws_alb.meadow_load_balancer]
 
   dynamic "load_balancer" {
     for_each = local.container_ports
