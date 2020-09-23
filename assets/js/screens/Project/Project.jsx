@@ -88,6 +88,8 @@ const ScreensProject = () => {
                         <dd>{formatDate(data.project.updatedAt)}</dd>
                         <dt>Total Ingest Sheets</dt>
                         <dd>{data.project.ingestSheets.length}</dd>
+                        <dt>S3 Bucket Folder</dt>
+                        <dd>{data.project.folder}</dd>
                       </dl>
                     </div>
                     <div className="column is-one-third">

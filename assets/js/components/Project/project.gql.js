@@ -23,6 +23,7 @@ export const GET_PROJECT = gql`
   query GetProject($projectId: ID!) {
     project(id: $projectId) {
       id
+      folder
       title
       ingestSheets {
         id
