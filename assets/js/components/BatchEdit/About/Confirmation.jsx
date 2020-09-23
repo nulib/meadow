@@ -6,7 +6,10 @@ import { toastWrapper } from "../../../services/helpers";
 import { BATCH_UPDATE } from "../batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "./ConfirmationTable";
-import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
+import {
+  CONTROLLED_METADATA,
+  removeLabelsFromBatchEditPostData,
+} from "../../../services/metadata";
 import { useHistory } from "react-router-dom";
 
 /** @jsx jsx */
@@ -140,28 +143,43 @@ const BatchEditConfirmation = ({
               </div>
             </section>
           )}
+          {!hasDeletes && !hasAdds ? (
+            <div className="notification is-white">
+              <p className="mb-3">
+                <strong>
+                  Batch edit currently only supports the following form items:
+                </strong>
+              </p>
 
-          <div className="columns">
-            <div className="column is-three-fifths is-offset-one-fifth">
-              <div className="notification is-white">
-                <p className="has-text-danger has-text-centered mb-3">
-                  <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
-                  will affect all works currently selected. Please proceed with
-                  extreme caution.{" "}
-                  <strong>To execute this change, type "I understand"</strong>
-                </p>
+              <ul>
+                {CONTROLLED_METADATA.map((item) => (
+                  <li key={item.name}>{item.label}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="columns">
+              <div className="column is-three-fifths is-offset-one-fifth">
+                <div className="notification is-white">
+                  <p className="has-text-danger has-text-centered mb-3">
+                    <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
+                    will affect all works currently selected. Please proceed
+                    with extreme caution.{" "}
+                    <strong>To execute this change, type "I understand"</strong>
+                  </p>
 
-                <UIFormInput
-                  errors={confirmationError}
-                  onChange={handleConfirmationChange}
-                  name="confirmationText"
-                  label="Confirmation Text"
-                  required
-                  data-testid="input-confirmation-text"
-                />
+                  <UIFormInput
+                    errors={confirmationError}
+                    onChange={handleConfirmationChange}
+                    name="confirmationText"
+                    label="Confirmation Text"
+                    required
+                    data-testid="input-confirmation-text"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <footer className="modal-card-foot buttons is-right">
           <button
@@ -173,7 +191,7 @@ const BatchEditConfirmation = ({
           </button>
           <button
             className="button is-primary"
-            disabled={confirmationError}
+            disabled={confirmationError || (!hasAdds && !hasDeletes)}
             onClick={handleBatchEditConfirm}
             type="button"
             data-testid="button-set-image"
