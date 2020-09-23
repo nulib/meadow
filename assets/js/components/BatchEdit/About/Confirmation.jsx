@@ -6,7 +6,10 @@ import { toastWrapper } from "../../../services/helpers";
 import { BATCH_UPDATE } from "../batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "./ConfirmationTable";
-import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
+import {
+  CONTROLLED_METADATA,
+  removeLabelsFromBatchEditPostData,
+} from "../../../services/metadata";
 import { useHistory } from "react-router-dom";
 
 /** @jsx jsx */
@@ -142,11 +145,17 @@ const BatchEditConfirmation = ({
           )}
           {!hasDeletes && !hasAdds ? (
             <div className="notification is-white">
-              <p className="has-text-danger has-text-centered mb-3">
-                <FontAwesomeIcon icon="exclamation-triangle" />
-                <strong> NOTE: </strong> Please edit at least one variable to
-                submit Batch Edit Changes.
+              <p className="mb-3">
+                <strong>
+                  Batch edit currently only supports the following form items:
+                </strong>
               </p>
+
+              <ul>
+                {CONTROLLED_METADATA.map((item) => (
+                  <li key={item.name}>{item.label}</li>
+                ))}
+              </ul>
             </div>
           ) : (
             <div className="columns">
