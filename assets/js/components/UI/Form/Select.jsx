@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 
 const UIFormSelect = ({
+  isReactHookForm,
   name,
   label,
   // TODO: Clean up usages of UIFormSelect to use "hasErrors" instead of passing in "errors" object
@@ -13,14 +14,21 @@ const UIFormSelect = ({
   showHelper,
   ...passedInProps
 }) => {
-  const { errors, register } = useFormContext();
+  let errors = {},
+    register;
+
+  if (isReactHookForm) {
+    const context = useFormContext();
+    errors = context.errors;
+    register = context.register;
+  }
 
   return (
     <>
       <div className={`select ${hasErrors || errors[name] ? "is-danger" : ""}`}>
         <select
           name={name}
-          ref={register({ required })}
+          ref={register && register({ required })}
           defaultValue={defaultValue}
           {...passedInProps}
         >
@@ -45,6 +53,7 @@ const UIFormSelect = ({
 };
 
 UIFormSelect.propTypes = {
+  isReactHookForm: PropTypes.bool,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   hasErrors: PropTypes.bool,

@@ -16,6 +16,7 @@ import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
+  convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
   prepFieldArrayItemsForPost,
   prepRelatedUrl,
@@ -52,9 +53,9 @@ const WorkTabsAbout = ({ work }) => {
       UNCONTROLLED_METADATA,
     ]) {
       for (let obj of group) {
-        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) => ({
-          metadataItem: value,
-        }));
+        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) =>
+          convertFieldArrayValToHookFormVal(value)
+        );
       }
     }
 
@@ -63,6 +64,11 @@ const WorkTabsAbout = ({ work }) => {
     for (let obj of CONTROLLED_METADATA) {
       controlledTermResetValues[obj.name] = [...descriptiveMetadata[obj.name]];
     }
+
+    console.log(
+      "descriptiveMetadata.relatedUrl",
+      descriptiveMetadata.relatedUrl
+    );
 
     methods.reset({
       alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({

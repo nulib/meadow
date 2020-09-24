@@ -2,18 +2,20 @@ import React from "react";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 import {
   codeListPreservationLevelMock,
   codeListStatusMock,
   codeListVisibilityMock,
 } from "../controlledVocabulary.gql.mock";
+import userEvent from "@testing-library/user-event";
 
-describe("Work Administrative tab component", () => {
+xdescribe("Work Administrative tab component", () => {
   function setupTests() {
     return renderWithRouterApollo(<WorkTabsAdministrative work={mockWork} />, {
       mocks: [
+        getCollectionsMock,
         getCollectionsMock,
         codeListPreservationLevelMock,
         codeListStatusMock,
@@ -30,16 +32,15 @@ describe("Work Administrative tab component", () => {
   });
 
   it("switches between edit and non edit mode", async () => {
-    const { getByTestId, debug } = setupTests();
+    const { getByTestId, findByTestId, debug } = setupTests();
 
-    await waitFor(() => {
-      expect(getByTestId("edit-button")).toBeInTheDocument();
-      //debug();
-    });
+    const editButton = await findByTestId("edit-button");
+    expect(editButton);
+    debug();
+    userEvent.click(editButton);
 
-    fireEvent.click(getByTestId("edit-button"));
-    expect(getByTestId("save-button")).toBeInTheDocument();
-    expect(getByTestId("cancel-button")).toBeInTheDocument();
+    expect(await findByTestId("save-button"));
+    expect(await findByTestId("cancel-button"));
   });
 
   it("displays form elements only when in edit mode", async () => {

@@ -20,8 +20,9 @@ const UIFormRelatedURL = ({
     name, // Metadata item form name
     keyName: "useFieldArrayId",
   });
+
   return (
-    <>
+    <div data-testid="related-url-wrapper">
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
@@ -30,7 +31,7 @@ const UIFormRelatedURL = ({
           return (
             <li
               key={item.useFieldArrayId}
-              data-testid={`relatedURL-item-${index}`}
+              data-testid={`related-url-list-item`}
             >
               <fieldset>
                 <legend
@@ -40,7 +41,7 @@ const UIFormRelatedURL = ({
 
                 {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
                 {!item.new && (
-                  <>
+                  <div data-testid="related-url-existing-value">
                     <p>
                       {item.url}
                       {item.label && `, ${item.label.label}`}
@@ -49,20 +50,18 @@ const UIFormRelatedURL = ({
                       type="hidden"
                       name={`${itemName}.url`}
                       ref={register()}
-                      value={item.url}
                     />
                     <input
                       type="hidden"
                       name={`${itemName}.label`}
                       ref={register()}
-                      value={item.label.id}
                     />
-                  </>
+                  </div>
                 )}
 
                 {/* New form entries */}
                 {item.new && (
-                  <>
+                  <div data-testid="related-url-form-item">
                     <div className="field">
                       <label className="label">URL</label>
                       <input
@@ -79,7 +78,7 @@ const UIFormRelatedURL = ({
                             isUrlValid(value) || "Please enter a valid URL",
                         })}
                         defaultValue=""
-                        data-testid={`relatedURL-input-url-${index}`}
+                        data-testid={`related-url-url-input`}
                       />
                       {errors[name] && errors[name][index].url && (
                         <p
@@ -92,10 +91,11 @@ const UIFormRelatedURL = ({
                     </div>
                     <div className="field">
                       <UIFormSelect
+                        isReactHookForm
                         name={`${itemName}.label`}
                         label="Label"
                         showHelper={true}
-                        data-testid={`relatedURL-input-select-${index}`}
+                        data-testid={`related-url-select`}
                         options={codeLists}
                         hasErrors={
                           !!(errors[name] && errors[name][index].label)
@@ -103,14 +103,14 @@ const UIFormRelatedURL = ({
                         required
                       />
                     </div>
-                  </>
+                  </div>
                 )}
 
                 <Button
                   type="button"
                   className="button is-light is-small mt-3"
                   onClick={() => remove(index)}
-                  data-testid={`button-delete-field-array-row-${index}`}
+                  data-testid={`button-related-url-remove`}
                 >
                   <span className="icon">
                     <FontAwesomeIcon icon="trash" />
@@ -136,7 +136,7 @@ const UIFormRelatedURL = ({
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
       </Button>
-    </>
+    </div>
   );
 };
 

@@ -1,12 +1,8 @@
 import React from "react";
 import UIInput from "./Input";
-import { render, fireEvent } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
+import { renderWithReactHookForm } from "../../../services/testing-helpers";
 
-const registerFn = jest.fn();
-const props = {
-  errors: {},
-  register: registerFn,
-};
 const attrs = {
   label: "First name",
   name: "tester",
@@ -17,31 +13,35 @@ const attrs = {
 };
 
 it("renders without error", () => {
-  render(<UIInput {...props} {...attrs} />);
+  renderWithReactHookForm(<UIInput {...attrs} />);
 });
 
 it("renders passed through attributes to the input element", () => {
-  const { getByTestId } = render(<UIInput {...props} {...attrs} />);
+  const { getByTestId } = renderWithReactHookForm(<UIInput {...attrs} />);
   const input = getByTestId("input-element");
 
   expect(input.name).toEqual(attrs.name);
   expect(input.type).toEqual("text");
   expect(input.value).toEqual("Bob Smith");
-  expect(registerFn).toHaveBeenCalled();
 });
 
-it("renders error message when errors object passed in", () => {
-  const { getByTestId, getByText } = render(
-    <UIInput
-      {...props}
-      {...attrs}
-      errors={{ tester: { message: "required" } }}
-    />
-  );
-  const input = getByTestId("input-element");
-  const p = getByTestId("input-errors");
+it("renders error message when errors", async () => {
+  const {
+    getByTestId,
+    getByText,
+    reactHookFormMethods,
+  } = renderWithReactHookForm(<UIInput isReactHookForm {...attrs} />, {
+    toPassBack: ["setError"],
+  });
 
-  expect(input).toHaveClass("is-danger");
-  expect(p).toBeInTheDocument();
+  await waitFor(() => {
+    reactHookFormMethods.setError(attrs.name, {
+      type: "manual",
+      message: "required",
+    });
+  });
+
+  expect(getByTestId("input-element")).toHaveClass("is-danger");
+  expect(getByTestId("input-errors")).toBeInTheDocument();
   expect(getByText("First name field is required"));
 });

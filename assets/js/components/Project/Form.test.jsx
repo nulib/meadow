@@ -1,36 +1,30 @@
 import React from "react";
 import ProjectForm from "./Form";
-import { fireEvent, act } from "@testing-library/react";
+import { fireEvent, act, screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
+import userEvent from "@testing-library/user-event";
 
 describe("ProjectForm component", () => {
-  function setUpTests() {
-    return renderWithRouterApollo(<ProjectForm />);
-  }
+  beforeEach(() => {
+    renderWithRouterApollo(<ProjectForm />);
+  });
 
   it("renders without crashing", () => {
-    expect(setUpTests());
+    expect(screen.getAllByTestId("project-form"));
   });
 
   it("renders form input and buttons", () => {
-    const { getByTestId, debug } = setUpTests();
-    expect(getByTestId("project-title-input")).toBeInTheDocument();
-    expect(getByTestId("submit-button")).toBeInTheDocument();
-    expect(getByTestId("cancel-button")).toBeInTheDocument();
+    expect(screen.getByTestId("project-title-input"));
+    expect(screen.getByTestId("submit-button"));
+    expect(screen.getByTestId("cancel-button"));
   });
 
   it("displays input error when project title text input has no value", async () => {
-    const { getByTestId } = setUpTests();
-    const el = getByTestId("project-title-input");
-    expect(el).toBeInTheDocument();
+    const el = screen.getByTestId("project-title-input");
+    expect(el);
 
-    await act(async () => {
-      fireEvent.change(el, { target: { value: "" } });
-    });
-    await act(async () => {
-      fireEvent.submit(getByTestId("project-form"));
-    });
-
-    expect(getByTestId("input-errors")).toBeInTheDocument();
+    userEvent.type(el, "");
+    userEvent.click(screen.getByTestId("submit-button"));
+    expect(screen.findByTestId("input-errors"));
   });
 });

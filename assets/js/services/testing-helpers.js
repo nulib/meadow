@@ -4,13 +4,43 @@ import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/client/testing";
 import { resolvers } from "../client-local";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { LOCAL_STORAGE_CODELIST_KEY } from "../services/global-vars";
 import {
   authorityMock,
   marcRelatorMock,
   subjectMock,
 } from "../components/Work/controlledVocabulary.gql.mock";
+
+/**
+ * Testing Library utility function to wrap tested component in React Hook Form
+ * @param {ReactElement} ui A React component
+ * @param objectParameters
+ * @param {Object} objectParameters.defaultValues Initial form values to pass into
+ * React Hook Form, which you can then assert against
+ * @param {Array} objectParameters.toPassBack React Hook Form method names which we'd
+ * like to pass back and use in tests.  A primary use case is sending back 'setError',
+ * so we can manually setErrors on React Hook Form components and test error handling
+ */
+export function renderWithReactHookForm(
+  ui,
+  { defaultValues = {}, toPassBack = [] } = {}
+) {
+  let reactHookFormMethods = {};
+
+  const Wrapper = ({ children }) => {
+    const methods = useForm({ defaultValues });
+    for (let reactHookFormItem of toPassBack) {
+      reactHookFormMethods[reactHookFormItem] = methods[reactHookFormItem];
+    }
+    return <FormProvider {...methods}>{children}</FormProvider>;
+  };
+
+  return {
+    ...render(ui, { wrapper: Wrapper }),
+    reactHookFormMethods,
+  };
+}
 
 /**
  * Testing Library utility function to wrap tested component in React Router history
@@ -123,15 +153,29 @@ export function setupCachedCodeListsLocalStorage() {
   );
 }
 
-export function withReactHookFormControl(WrappedComponent, restProps) {
+// export function withReactHookFormControl(WrappedComponent, restProps) {
+//   const HOC = () => {
+//     const { control, register } = useForm({
+//       defaultValues: {
+//         imaMulti: [{ value: "New Ima Multi" }],
+//       },
+//     });
+//     return (
+//       <WrappedComponent control={control} register={register} {...restProps} />
+//     );
+//   };
+
+//   return HOC;
+// }
+
+export function withReactHookForm(WrappedComponent, restProps) {
   const HOC = () => {
-    const { control, register } = useForm({
-      defaultValues: {
-        imaMulti: [{ value: "New Ima Multi" }],
-      },
-    });
+    const methods = useForm();
+
     return (
-      <WrappedComponent control={control} register={register} {...restProps} />
+      <FormProvider {...methods}>
+        <WrappedComponent {...restProps} />
+      </FormProvider>
     );
   };
 
