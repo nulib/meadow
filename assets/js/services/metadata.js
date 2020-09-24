@@ -86,7 +86,6 @@ export const RIGHTS_METADATA = [
 ];
 
 export const IDENTIFIER_METADATA = [
-  { name: "callNumber", label: "Call Number" },
   { name: "catalogKey", label: "Catalog Key" },
   { name: "identifier", label: "Identifier" },
   { name: "legacyIdentifier", label: "Legacy Identifier" },

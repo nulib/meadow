@@ -41,7 +41,6 @@ export const GET_WORK = gql`
         ark
         boxName
         boxNumber
-        callNumber
         caption
         catalogKey
         contributor {

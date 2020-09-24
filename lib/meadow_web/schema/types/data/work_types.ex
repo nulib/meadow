@@ -127,7 +127,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :alternate_title, list_of(:string)
     field :box_name, list_of(:string)
     field :box_number, list_of(:string)
-    field :call_number, list_of(:string)
     field :caption, list_of(:string)
     field :catalog_key, list_of(:string)
     field :description, list_of(:string)
@@ -137,7 +136,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :keywords, list_of(:string)
     field :legacy_identifier, list_of(:string)
     field :notes, list_of(:string)
-    field :nul_use_statement, :string
+    field :terms_of_use, :string
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
     field :provenance, list_of(:string)

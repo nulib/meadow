@@ -60,6 +60,7 @@ defmodule Meadow.Data.Schemas.Collection do
         description: collection.description,
         featured: collection.featured,
         findingAidUrl: collection.finding_aid_url,
+        id: collection.id,
         keywords: collection.keywords,
         model: %{application: "Meadow", title: "Collection"},
         modifiedDate: collection.updated_at,

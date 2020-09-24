@@ -302,8 +302,7 @@ export const elasticSearchResponse = {
                 },
               },
             ],
-            nulUseStatement: null,
-            callNumber: [],
+            termsOfUse: null,
           },
           fileSets: [
             {
@@ -691,8 +690,7 @@ export const elasticSearchResponse = {
                 },
               },
             ],
-            nulUseStatement: null,
-            callNumber: [],
+            termsOfUse: null,
           },
           fileSets: [
             {
