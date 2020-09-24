@@ -178,11 +178,13 @@ defmodule Meadow.Data.Works do
   @doc """
   Creates a work inside a transaction.
   """
-  def ensure_create_work(attrs \\ %{}) do
+  def ensure_create_work(attrs), do: ensure_create_work(attrs, & &1)
+
+  def ensure_create_work(attrs, on_complete) do
     Repo.transaction(
       fn ->
         case create_work(attrs) do
-          {:ok, work} -> work
+          {:ok, work} -> on_complete.(work)
           {:error, changeset} -> Repo.rollback(changeset)
         end
       end,

@@ -17,7 +17,7 @@ defmodule Meadow.Ingest.SheetsToWorksTest do
   end
 
   test "create works from ingest sheet", %{sheet: sheet} do
-    SheetsToWorks.create_works_from_ingest_sheet(sheet)
+    SheetsToWorks.create_works_from_ingest_sheet(sheet, :sync)
     sheet = sheet |> Repo.preload(:works)
     assert length(sheet.works) == @fixture_works
     assert length(Works.list_works()) == @fixture_works

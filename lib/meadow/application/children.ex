@@ -17,6 +17,7 @@ defmodule Meadow.Application.Children do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
+      Meadow.Ingest.WorkCreator,
       mock_ark_server(3943)
     ]
   end
@@ -28,7 +29,8 @@ defmodule Meadow.Application.Children do
   defp specs(:prod) do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-      Meadow.IIIF.ManifestListener
+      Meadow.IIIF.ManifestListener,
+      Meadow.Ingest.WorkCreator
     ]
   end
 

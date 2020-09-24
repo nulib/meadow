@@ -9,6 +9,13 @@ defmodule Meadow.Ingest.Rows do
   """
 
   @doc """
+  Gets a row by id
+  """
+  def get_row(row_id) do
+    Repo.get!(Row, row_id)
+  end
+
+  @doc """
   Gets a row by ingest sheet and row number
   """
   def get_row(sheet_id, row_num) do
@@ -37,6 +44,32 @@ defmodule Meadow.Ingest.Rows do
     |> Row.state_changeset(%{state: state})
     |> Repo.update()
     |> Notifications.ingest_sheet_validation()
+  end
+
+  @doc """
+  Get all of the rows needed to create and single work and all of its file sets
+  """
+  def get_rows_by_work_accession_number(sheet_id, work_accession_number) do
+    # Query to unroll the array of fields into multiple rows with one field def each
+    rows_with_fields =
+      from(r in Row,
+        select: %{r | single_field_pair: fragment("jsonb_array_elements(?.fields)", r)}
+      )
+
+    # Query to select only those rows from the above where the field header is
+    # 'work_accession_number' and the value is the desired work_accession_number
+    from(r in subquery(rows_with_fields),
+      where:
+        r.sheet_id == ^sheet_id and
+          fragment(
+            "?.single_field_pair->>'header' = 'work_accession_number' and ?.single_field_pair->>'value' = ?",
+            r,
+            r,
+            ^work_accession_number
+          ),
+      order_by: r.row
+    )
+    |> Repo.all()
   end
 
   @doc """

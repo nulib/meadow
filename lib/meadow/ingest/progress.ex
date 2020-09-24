@@ -3,6 +3,7 @@ defmodule Meadow.Ingest.Progress do
   Translate action state notifications into ingest sheet progress notifications
   """
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
+  alias Meadow.Ingest.Rows
   alias Meadow.Pipeline
   alias Meadow.Repo
 
@@ -36,6 +37,38 @@ defmodule Meadow.Ingest.Progress do
     |> Repo.one()
   end
 
+  def get_pending_work_entries(sheet_id, limit) do
+    from(q in pending_work_entry_query(limit),
+      join: r in Row,
+      on: q.row_id == r.id,
+      where: r.sheet_id == ^sheet_id
+    )
+    |> Repo.all()
+  end
+
+  def get_pending_work_entries(limit) do
+    pending_work_entry_query(limit)
+    |> Repo.all()
+  end
+
+  defp pending_work_entry_query(limit) do
+    with q <- from(p in Progress, where: p.action == "CreateWork" and p.status == "pending") do
+      if limit == :all, do: q, else: limit(q, ^limit)
+    end
+  end
+
+  def works_processing_longer_than(seconds) do
+    now = DateTime.utc_now()
+    timeout = DateTime.add(now, -seconds, :second)
+
+    from(p in Progress,
+      where:
+        p.action == "CreateWork" and
+          p.status == "processing" and
+          p.updated_at <= ^timeout
+    )
+  end
+
   @doc """
   Initialize progress entries for a given ingest sheet row, including
   an additional entry if the row creates a new work
@@ -50,9 +83,11 @@ defmodule Meadow.Ingest.Progress do
   def initialize_entries(entries) do
     timestamp = DateTime.utc_now()
 
-    entries
-    |> Enum.chunk_every(500)
-    |> Enum.each(&initialize_chunk(&1, timestamp))
+    Repo.transaction(fn ->
+      entries
+      |> Enum.chunk_every(500)
+      |> Enum.each(&initialize_chunk(&1, timestamp))
+    end)
   end
 
   defp initialize_chunk(chunk, timestamp) do
@@ -74,14 +109,29 @@ defmodule Meadow.Ingest.Progress do
   end
 
   @doc """
+  Update the status of several progress entries at once
+  """
+  def update_entries(entries, action, status) do
+    now = DateTime.utc_now()
+    row_ids = Enum.map(entries, fn %{row_id: id} -> id end)
+
+    {_count, result} =
+      from(p in Progress,
+        where: p.row_id in ^row_ids and p.action == ^action,
+        select: p
+      )
+      |> Repo.update_all(set: [status: status, updated_at: now])
+
+    result
+  end
+
+  @doc """
   Update the status of a progress entry for a given ingest sheet row and action
   """
-  def update_entry(%Row{} = row, action, status), do: update_entry(row.id, action, status)
-
-  def update_entry(row_id, action, status) do
+  def update_entry(%Row{} = row, action, status) do
     progress =
-      case get_entry(row_id, action) do
-        nil -> %Progress{row_id: row_id, action: atom_to_string(action)}
+      case get_entry(row.id, action) do
+        nil -> %Progress{row_id: row.id, action: atom_to_string(action)}
         row -> row
       end
       |> Progress.changeset(%{status: status})
@@ -91,6 +141,9 @@ defmodule Meadow.Ingest.Progress do
 
     progress
   end
+
+  def update_entry(row_id, action, status),
+    do: update_entry(Rows.get_row(row_id), action, status)
 
   @doc """
   Get the total number of actions for an ingest sheet
