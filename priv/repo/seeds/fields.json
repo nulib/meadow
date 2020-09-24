@@ -55,15 +55,6 @@
   },
   {
     "metadata_class": "descriptive",
-    "id": "call_number",
-    "label": "Call Number",
-    "required": false,
-    "repeating": true,
-    "scheme": null,
-    "role": null
-  },
-  {
-    "metadata_class": "descriptive",
     "id": "caption",
     "label": "Caption",
     "required": false,
@@ -212,15 +203,6 @@
     "label": "Notes",
     "required": false,
     "repeating": true,
-    "scheme": null,
-    "role": null
-  },
-  {
-    "metadata_class": "descriptive",
-    "id": "nul_use_statement",
-    "label": "NUL Use Statement",
-    "required": true,
-    "repeating": false,
     "scheme": null,
     "role": null
   },
@@ -437,6 +419,15 @@
     "label": "Technique",
     "required": false,
     "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "terms_of_use",
+    "label": "Terms of Use",
+    "required": true,
+    "repeating": false,
     "scheme": null,
     "role": null
   },

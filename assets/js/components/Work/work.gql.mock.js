@@ -28,7 +28,6 @@ export const mockWork = {
     alternateTitle: [],
     boxName: [],
     boxNumber: [],
-    callNumber: [],
     caption: [],
     catalogKey: [],
     contributor: [
@@ -282,7 +281,6 @@ const mockWork2 = {
     physicalDescriptionSize: [],
     boxNumber: [],
     subject: [],
-    callNumber: [],
   },
   fileSets: [
     {
