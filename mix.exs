@@ -69,7 +69,7 @@ defmodule Meadow.MixProject do
       {:honeybadger, "~> 0.7"},
       {:inflex, "~> 2.0.0"},
       {:jason, "~> 1.0"},
-      {:mox, "~> 0.5", only: :test},
+      {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 0.7.0"},
       {:phoenix, "~> 1.5.1"},
       {:phoenix_html, "~> 2.13"},
