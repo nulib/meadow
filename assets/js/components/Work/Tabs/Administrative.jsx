@@ -22,7 +22,6 @@ import {
 import { Button } from "@nulib/admin-react-components";
 
 const WorkTabsAdministrative = ({ work }) => {
-  console.log("LOADS");
   const { id, administrativeMetadata, collection, published } = work;
   const [isEditing, setIsEditing] = useIsEditing();
 
@@ -50,7 +49,6 @@ const WorkTabsAdministrative = ({ work }) => {
   });
 
   useEffect(() => {
-    console.log("useEffect");
     let resetValues = {};
     for (let group of [PROJECT_METADATA]) {
       for (let obj of group) {
@@ -186,7 +184,7 @@ const WorkTabsAdministrative = ({ work }) => {
         </UITabsStickyHeader>
 
         <div className="columns">
-          <div className="column is-two-thirds">
+          <div className="column">
             <div className="box is-relative">
               {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
               <UIFormField label="Collection">
@@ -268,7 +266,7 @@ const WorkTabsAdministrative = ({ work }) => {
               </UIFormField>
             </div>
           </div>
-          <div className="column one-third">
+          <div className="column">
             <div className="box is-relative">
               <UIFormField label="Project Cycle">
                 {isEditing ? (

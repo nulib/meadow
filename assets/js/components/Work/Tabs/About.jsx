@@ -65,11 +65,6 @@ const WorkTabsAbout = ({ work }) => {
       controlledTermResetValues[obj.name] = [...descriptiveMetadata[obj.name]];
     }
 
-    console.log(
-      "descriptiveMetadata.relatedUrl",
-      descriptiveMetadata.relatedUrl
-    );
-
     methods.reset({
       alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
         metadataItem: value,

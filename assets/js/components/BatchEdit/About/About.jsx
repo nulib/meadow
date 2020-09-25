@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
@@ -21,6 +21,7 @@ import {
   prepControlledTermInput,
   prepFacetKey,
 } from "../../../services/metadata";
+import { Button } from "@nulib/admin-react-components";
 
 const BatchEditAbout = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -37,15 +38,7 @@ const BatchEditAbout = () => {
     : 0;
 
   // Initialize React hook form
-  const {
-    register,
-    handleSubmit,
-    errors,
-    control,
-    getValues,
-    formState,
-    reset,
-  } = useForm({
+  const methods = useForm({
     defaultValues: {},
   });
 
@@ -60,7 +53,7 @@ const BatchEditAbout = () => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
 
-    let currentFormValues = getValues();
+    let currentFormValues = methods.getValues();
     console.log("currentFormValues :>> ", currentFormValues);
     let addItems = {};
     let deleteReadyItems = {};
@@ -91,37 +84,32 @@ const BatchEditAbout = () => {
   };
 
   const handleFormReset = () => {
-    reset();
+    methods.reset();
     batchDispatch({ type: "clearRemoveItems" });
   };
 
   return (
-    <div>
+    <FormProvider {...methods}>
       <form
         name="batch-edit-about-form"
         data-testid="batch-edit-about-form"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={methods.handleSubmit(onSubmit)}
       >
         <UITabsStickyHeader
           title="Core and Descriptive Metadata"
           data-testid="batch-edit-about-sticky-header"
         >
           <>
-            <button
-              type="submit"
-              className="button is-primary"
-              data-testid="save-button"
-            >
+            <Button type="submit" isPrimary data-testid="save-button">
               Save Data for {numberOfResults} Items
-            </button>
-            <button
-              type="button"
-              className="button is-text"
+            </Button>
+            <Button
+              isText
               data-testid="cancel-button"
               onClick={handleFormReset}
             >
               Clear Form
-            </button>
+            </Button>
           </>
         </UITabsStickyHeader>
 
@@ -136,65 +124,41 @@ const BatchEditAbout = () => {
         </p>
 
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
-          <BatchEditAboutCoreMetadata
-            errors={errors}
-            control={control}
-            register={register}
-          />
+          <BatchEditAboutCoreMetadata />
         </UIAccordion>
 
         <UIAccordion
           testid="controlled-metadata-wrapper"
           title="Creator and Subject Information"
         >
-          <BatchEditAboutControlledMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
+          <BatchEditAboutControlledMetadata />
         </UIAccordion>
 
         <UIAccordion
           testid="uncontrolled-metadata-wrapper"
           title="Description Information"
         >
-          <BatchEditAboutUncontrolledMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
+          <BatchEditAboutUncontrolledMetadata />
         </UIAccordion>
         <UIAccordion
           testid="physical-metadata-wrapper"
           title="Physical Objects Information"
         >
-          <BatchEditAboutPhysicalMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
+          <BatchEditAboutPhysicalMetadata />
         </UIAccordion>
 
         <UIAccordion
           testid="rights-metadata-wrapper"
           title="Rights Information"
         >
-          <BatchEditAboutRightsMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
+          <BatchEditAboutRightsMetadata />
         </UIAccordion>
 
         <UIAccordion
           testid="identifiers-metadata-wrapper"
           title="Identifiers and Relationship Information"
         >
-          <BatchEditAboutIdentifiersMetadata
-            control={control}
-            errors={errors}
-            register={register}
-          />
+          <BatchEditAboutIdentifiersMetadata />
         </UIAccordion>
       </form>
 
@@ -210,7 +174,7 @@ const BatchEditAbout = () => {
       ) : null}
 
       <BatchEditAboutModalRemove />
-    </div>
+    </FormProvider>
   );
 };
 

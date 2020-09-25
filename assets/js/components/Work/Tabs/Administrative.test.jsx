@@ -11,7 +11,7 @@ import {
 } from "../controlledVocabulary.gql.mock";
 import userEvent from "@testing-library/user-event";
 
-xdescribe("Work Administrative tab component", () => {
+describe("Work Administrative tab component", () => {
   function setupTests() {
     return renderWithRouterApollo(<WorkTabsAdministrative work={mockWork} />, {
       mocks: [
@@ -32,11 +32,11 @@ xdescribe("Work Administrative tab component", () => {
   });
 
   it("switches between edit and non edit mode", async () => {
-    const { getByTestId, findByTestId, debug } = setupTests();
+    const { findByTestId, debug } = setupTests();
 
     const editButton = await findByTestId("edit-button");
     expect(editButton);
-    debug();
+
     userEvent.click(editButton);
 
     expect(await findByTestId("save-button"));

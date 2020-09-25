@@ -9,12 +9,7 @@ import UIError from "../../UI/Error";
 import { DESCRIPTIVE_METADATA } from "../../../services/metadata";
 import UISkeleton from "../../UI/Skeleton";
 
-const BatchEditAboutDescriptiveMetadata = ({
-  control,
-  errors,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutDescriptiveMetadata = ({ ...restProps }) => {
   const {
     data: marcData,
     loading: marcLoading,
@@ -65,14 +60,7 @@ const BatchEditAboutDescriptiveMetadata = ({
       <div className="columns is-multiline">
         {DESCRIPTIVE_METADATA.fieldArrays.map((item) => (
           <div key={item.name} className="column is-half">
-            <UIFormFieldArray
-              register={register}
-              control={control}
-              required
-              name={item.name}
-              label={item.label}
-              errors={errors}
-            />
+            <UIFormFieldArray required name={item.name} label={item.label} />
           </div>
         ))}
       </div>
@@ -86,11 +74,8 @@ const BatchEditAboutDescriptiveMetadata = ({
               <UIFormControlledTermArray
                 authorities={authorityData.codeList}
                 roleDropdownOptions={getRoleDropDownOptions(scheme)}
-                control={control}
-                errors={errors}
                 label={label}
                 name={name}
-                register={register}
               />
             </UIFormField>
           </li>
@@ -101,9 +86,6 @@ const BatchEditAboutDescriptiveMetadata = ({
 };
 
 BatchEditAboutDescriptiveMetadata.propTypes = {
-  control: PropTypes.object.isRequired,
-  errors: PropTypes.object,
-  register: PropTypes.func.isRequired,
   restProps: PropTypes.object,
 };
 

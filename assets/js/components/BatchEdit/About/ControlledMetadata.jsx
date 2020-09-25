@@ -9,12 +9,7 @@ import { useBatchState } from "../../../context/batch-edit-context";
 import useCachedCodeLists from "../../../hooks/useCachedCodeLists";
 import UICodeListCacheRefresh from "../../UI/CodeListCacheRefresh";
 
-const BatchEditAboutControlledMetadata = ({
-  control,
-  errors,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutControlledMetadata = ({ ...restProps }) => {
   // This holds all the ElasticSearch Search info
   const batchState = useBatchState();
   const aggregations = batchState.parsedAggregations;
@@ -63,11 +58,8 @@ const BatchEditAboutControlledMetadata = ({
               <UIFormControlledTermArray
                 authorities={codeLists.AUTHORITY}
                 roleDropdownOptions={getRoleDropDownOptions(scheme)}
-                control={control}
-                errors={errors}
                 label={label}
                 name={name}
-                register={register}
               />
             </UIFormField>
             <BatchEditRemove
@@ -99,9 +91,6 @@ const BatchEditAboutControlledMetadata = ({
 };
 
 BatchEditAboutControlledMetadata.propTypes = {
-  control: PropTypes.object.isRequired,
-  errors: PropTypes.object,
-  register: PropTypes.func.isRequired,
   restProps: PropTypes.object,
 };
 

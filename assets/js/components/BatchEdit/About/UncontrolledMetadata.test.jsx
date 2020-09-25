@@ -1,33 +1,25 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
-  withReactHookFormControl,
+  withReactHookForm,
 } from "../../../services/testing-helpers";
 import BatchEditAboutUncontrolledMetadata from "./UncontrolledMetadata";
 import { UNCONTROLLED_METADATA } from "../../../services/metadata";
 
 describe("BatchEditAboutUncontrolledMetadata component", () => {
-  function setupTest() {
-    const Wrapped = withReactHookFormControl(
-      BatchEditAboutUncontrolledMetadata
-    );
+  beforeEach(() => {
+    const Wrapped = withReactHookForm(BatchEditAboutUncontrolledMetadata);
     return renderWithRouterApollo(<Wrapped />);
-  }
-  it("renders the component", async () => {
-    let { queryByTestId } = setupTest();
-    await waitFor(() => {
-      expect(queryByTestId("uncontrolled-metadata")).toBeInTheDocument();
-    });
   });
 
-  it("renders expected uncontrolled metadata fields", async () => {
-    let { getByTestId } = setupTest();
+  it("renders the component", () => {
+    expect(screen.getByTestId("uncontrolled-metadata"));
+  });
 
-    await waitFor(() => {
-      for (let item of UNCONTROLLED_METADATA) {
-        expect(getByTestId(item.name)).toBeInTheDocument();
-      }
-    });
+  it("renders expected uncontrolled metadata fields", () => {
+    for (let item of UNCONTROLLED_METADATA) {
+      expect(screen.getByTestId(item.name));
+    }
   });
 });

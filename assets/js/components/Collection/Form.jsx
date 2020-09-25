@@ -9,22 +9,23 @@ import {
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import UIFormField from "../UI/Form/Field.jsx";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
 import UITagNotYetSupported from "../UI/TagNotYetSupported";
-
+import { Button } from "@nulib/admin-react-components";
 import { COLLECTION_TYPES } from "../../services/global-vars";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
   const [pageLoading, setPageLoading] = useState(true);
-  const { register, handleSubmit, watch, errors } = useForm();
+  // TODO: Fix this, put it somewhere better or refactor its implementation
   useEffect(() => {
     setPageLoading(false);
   }, []);
+  const methods = useForm();
   const [createCollection, { loading, error, data }] = useMutation(
     CREATE_COLLECTION,
     {
@@ -81,14 +82,17 @@ const CollectionForm = ({ collection }) => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)} data-testid="collection-form">
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        data-testid="collection-form"
+      >
         <div className="field">
           <div className="control">
             <input
               type="checkbox"
               id="featured"
-              ref={register}
+              ref={methods.register}
               className="is-checkradio"
               name="featured"
               data-testid="checkbox-featured"
@@ -102,12 +106,11 @@ const CollectionForm = ({ collection }) => {
 
         <UIFormField label="Collection Title" required>
           <UIFormInput
+            isReactHookForm
             placeholder="Add collection Title"
-            register={register}
             required
             name="collectionTitle"
             label="Collection Title"
-            errors={errors}
             defaultValue={collection ? collection.title : ""}
             data-testid="input-collection-title"
           />
@@ -115,12 +118,11 @@ const CollectionForm = ({ collection }) => {
 
         <UIFormField label="Collection Type">
           <UIFormSelect
-            register={register}
+            isReactHookForm
             name="collectionType"
             label="Collection Type"
             options={COLLECTION_TYPES}
             defaultValue={collection ? collection.collectionType : ""}
-            errors={errors}
             data-testid="input-collection-type"
           />
           <UITagNotYetSupported label="Display not yet supported" />
@@ -129,20 +131,18 @@ const CollectionForm = ({ collection }) => {
 
         <UIFormField label="Description">
           <UIFormTextarea
-            register={register}
-            errors={errors}
+            isReactHookForm
             name="description"
             label="Description"
             defaultValue={collection ? collection.description : ""}
-            rows="8"
+            rows="6"
             data-testid="textarea-description"
           />
         </UIFormField>
 
         <UIFormField label="Finding Aid URL">
           <UIFormInput
-            register={register}
-            errors={errors}
+            isReactHookForm
             name="findingAidUrl"
             defaultValue={collection ? collection.findingAidUrl : ""}
             label="Finding Aid Url"
@@ -152,8 +152,7 @@ const CollectionForm = ({ collection }) => {
 
         <UIFormField label="Admin Email">
           <UIFormInput
-            register={register}
-            errors={errors}
+            isReactHookForm
             name="adminEmail"
             defaultValue={collection ? collection.adminEmail : ""}
             type="email"
@@ -164,35 +163,25 @@ const CollectionForm = ({ collection }) => {
 
         <UIFormField label="Keywords">
           <UIFormInput
-            register={register}
+            isReactHookForm
             name="keywords"
-            errors={errors}
             defaultValue={collection ? collection.keywords : ""}
             label="Keywords"
-            placeholder="multiple, separated, by, commas"
             data-testid="input-keywords"
           />
+          <p className="help">multiple, separated, by, commas</p>
         </UIFormField>
 
         <div className="buttons is-left">
-          <button
-            type="submit"
-            className="button is-primary"
-            data-testid="button-save"
-          >
+          <Button type="submit" isPrimary data-testid="button-save">
             Save
-          </button>
-          <button
-            type="button"
-            className="button is-text"
-            data-testid="button-cancel"
-            onClick={handleCancel}
-          >
+          </Button>
+          <Button isText data-testid="button-cancel" onClick={handleCancel}>
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
-    </div>
+    </FormProvider>
   );
 };
 
