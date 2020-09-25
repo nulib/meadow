@@ -153,21 +153,12 @@ export function setupCachedCodeListsLocalStorage() {
   );
 }
 
-// export function withReactHookFormControl(WrappedComponent, restProps) {
-//   const HOC = () => {
-//     const { control, register } = useForm({
-//       defaultValues: {
-//         imaMulti: [{ value: "New Ima Multi" }],
-//       },
-//     });
-//     return (
-//       <WrappedComponent control={control} register={register} {...restProps} />
-//     );
-//   };
-
-//   return HOC;
-// }
-
+/**
+ * Higher order helper function which wraps a component w/ React Hook Form
+ * @param {React Component} WrappedComponent to pass into
+ * @param {*} restProps any other remaining props
+ * @returns {React Component}
+ */
 export function withReactHookForm(WrappedComponent, restProps) {
   const HOC = () => {
     const methods = useForm();
