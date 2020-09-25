@@ -3,12 +3,7 @@ import PropTypes from "prop-types";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import { UNCONTROLLED_METADATA } from "../../../services/metadata";
 
-const BatchEditAboutUncontrolledMetadata = ({
-  control,
-  errors,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
   return (
     <div
       className="columns is-multiline"
@@ -17,14 +12,7 @@ const BatchEditAboutUncontrolledMetadata = ({
     >
       {UNCONTROLLED_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray
-            register={register}
-            control={control}
-            required
-            name={item.name}
-            label={item.label}
-            errors={errors}
-          />
+          <UIFormFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
     </div>
@@ -32,9 +20,6 @@ const BatchEditAboutUncontrolledMetadata = ({
 };
 
 BatchEditAboutUncontrolledMetadata.propTypes = {
-  control: PropTypes.object.isRequired,
-  errors: PropTypes.object,
-  register: PropTypes.func.isRequired,
   restProps: PropTypes.object,
 };
 

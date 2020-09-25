@@ -1,18 +1,18 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
   setupCachedCodeListsLocalStorage,
-  withReactHookFormControl,
+  withReactHookForm,
 } from "../../../services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
-  function setupTest() {
+  beforeEach(() => {
     setupCachedCodeListsLocalStorage();
-    const Wrapped = withReactHookFormControl(BatchEditAboutControlledMetadata);
+    const Wrapped = withReactHookForm(BatchEditAboutControlledMetadata);
 
     return renderWithRouterApollo(
       <BatchProvider value={null}>
@@ -22,19 +22,14 @@ describe("BatchEditAboutCoreMetadata component", () => {
         mocks: [],
       }
     );
-  }
-  it("renders controlled metadata component", async () => {
-    let { queryByTestId } = setupTest();
-    await waitFor(() => {
-      expect(queryByTestId("controlled-metadata")).toBeInTheDocument();
-    });
   });
+  it("renders controlled metadata component", async () => {
+    expect(await screen.findByTestId("controlled-metadata"));
+  });
+
   it("renders expected controlled metadata fields", async () => {
-    let { getByTestId } = setupTest();
-    await waitFor(() => {
-      for (let item of CONTROLLED_METADATA) {
-        expect(getByTestId(item.name)).toBeInTheDocument();
-      }
-    });
+    for (let item of CONTROLLED_METADATA) {
+      expect(await screen.findByTestId(item.name));
+    }
   });
 });

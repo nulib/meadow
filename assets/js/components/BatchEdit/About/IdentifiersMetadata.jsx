@@ -9,12 +9,7 @@ import UISkeleton from "../../UI/Skeleton";
 import UIError from "../../UI/Error";
 import UIFormRelatedURL from "../../UI/Form/RelatedURL";
 
-const BatchEditAboutIdentifiersMetadata = ({
-  control,
-  errors,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutIdentifiersMetadata = ({ ...restProps }) => {
   const { data: relatedUrlData, loading, relatedUrlErrors } = useQuery(
     CODE_LIST_QUERY,
     {
@@ -43,25 +38,15 @@ const BatchEditAboutIdentifiersMetadata = ({
     >
       {IDENTIFIER_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray
-            register={register}
-            control={control}
-            required
-            name={item.name}
-            label={item.label}
-            errors={errors}
-          />
+          <UIFormFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
       <div className="column is-full" data-testid="relatedUrl">
         <UIFormField label="Related URL">
           <UIFormRelatedURL
             codeLists={relatedUrlData.codeList}
-            control={control}
-            errors={errors}
             label="Related URL"
             name="relatedUrl"
-            register={register}
           />
         </UIFormField>
       </div>
@@ -70,9 +55,6 @@ const BatchEditAboutIdentifiersMetadata = ({
 };
 
 BatchEditAboutIdentifiersMetadata.propTypes = {
-  control: PropTypes.object.isRequired,
-  errors: PropTypes.object,
-  register: PropTypes.func.isRequired,
   restProps: PropTypes.object,
 };
 

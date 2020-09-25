@@ -1,10 +1,9 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import UIFormSelect from "./Select";
+import { renderWithReactHookForm } from "../../../services/testing-helpers";
 
 describe("Select component", () => {
-  const registerFn = jest.fn();
-
   const options = [
     { label: "Level 1", id: "1", value: "1" },
     { label: "Level 2", id: "2", value: "2" },
@@ -14,29 +13,26 @@ describe("Select component", () => {
   const props = {
     name: "level",
     label: "Level",
-    errors: {},
     "data-testid": "select-level",
-    register: registerFn,
     options,
   };
 
   it("renders without crashing", () => {
-    expect(render(<UIFormSelect {...props} />));
+    expect(renderWithReactHookForm(<UIFormSelect {...props} />));
   });
 
   it("renders passed through attributes to the input element", () => {
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithReactHookForm(
       <UIFormSelect {...props} defaultValue={2} disabled />
     );
     const select = getByTestId("select-level");
 
     expect(select.name).toEqual(props.name);
-    expect(registerFn).toHaveBeenCalled();
     expect(select.disabled).toBeTruthy();
   });
 
   it("renders supplied options and a default value", () => {
-    const { getByTestId, getByText } = render(
+    const { getByTestId, getByText } = renderWithReactHookForm(
       <UIFormSelect {...props} defaultValue={2} />
     );
 
@@ -49,16 +45,29 @@ describe("Select component", () => {
   });
 
   it("selects different option values correctly", () => {
-    const { getByTestId } = render(<UIFormSelect {...props} />);
+    const { getByTestId } = renderWithReactHookForm(
+      <UIFormSelect {...props} />
+    );
     const select = getByTestId("select-level");
     fireEvent.change(select, { target: { value: "3" } });
     expect(select.value).toEqual("3");
   });
 
-  it("displays error message when error object present", () => {
-    const { getByTestId, getByText } = render(
-      <UIFormSelect {...props} errors={{ level: { message: "required" } }} />
-    );
+  it("displays error message when errors", async () => {
+    const {
+      getByTestId,
+      getByText,
+      reactHookFormMethods,
+    } = renderWithReactHookForm(<UIFormSelect isReactHookForm {...props} />, {
+      toPassBack: ["setError"],
+    });
+
+    await waitFor(() => {
+      reactHookFormMethods.setError(props.name, {
+        type: "manual",
+        message: "Level field is required",
+      });
+    });
 
     expect(getByTestId("select-errors")).toBeInTheDocument();
     expect(getByText("Level field is required"));

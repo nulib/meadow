@@ -1,64 +1,68 @@
 import React from "react";
 import CollectionForm from "./Form";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { waitFor } from "@testing-library/react";
+import {
+  renderWithRouterApollo,
+  withReactHookForm,
+} from "../../services/testing-helpers";
+import { screen } from "@testing-library/react";
 import { collectionMock } from "./collection.gql.mock";
 
-function setupMatchTests() {
-  return renderWithRouterApollo(<CollectionForm />, {
-    route: "/collection/form",
-  });
-}
-
-it("displays the collection form", () => {
-  const { getByTestId, debug } = setupMatchTests();
-  expect(getByTestId("collection-form")).toBeInTheDocument();
-});
-
-it("displays all form fields", () => {
-  const { queryByTestId } = setupMatchTests();
-  expect(queryByTestId("input-collection-title")).toBeInTheDocument();
-  expect(queryByTestId("input-collection-type")).toBeInTheDocument();
-  expect(queryByTestId("checkbox-featured")).toBeInTheDocument();
-  expect(queryByTestId("textarea-description")).toBeInTheDocument();
-  expect(queryByTestId("input-finding-aid-url")).toBeInTheDocument();
-  expect(queryByTestId("input-admin-email")).toBeInTheDocument();
-  expect(queryByTestId("input-keywords")).toBeInTheDocument();
-});
-
-it("renders no initial form values when creating a collection", async () => {
-  const { getByTestId, debug } = renderWithRouterApollo(<CollectionForm />, {
-    route: "/collection/form",
+describe("Collection Form component", () => {
+  beforeEach(() => {
+    const Wrapped = withReactHookForm(CollectionForm);
+    return renderWithRouterApollo(<Wrapped />, {
+      route: "/collection/form",
+    });
   });
 
-  await waitFor(() => {
-    expect(getByTestId("input-collection-title")).toHaveValue("");
-    expect(getByTestId("textarea-description")).toHaveValue("");
-    expect(getByTestId("input-finding-aid-url")).toHaveValue("");
-    expect(getByTestId("input-admin-email")).toHaveValue("");
-    expect(getByTestId("input-keywords")).toHaveValue("");
+  it("displays the collection form", async () => {
+    expect(screen.findByTestId("collection-form"));
+  });
+
+  it("displays all form fields", async () => {
+    expect(await screen.findByTestId("input-collection-title"));
+    expect(await screen.findByTestId("input-collection-title"));
+    expect(await screen.findByTestId("input-collection-type"));
+    expect(await screen.findByTestId("checkbox-featured"));
+    expect(await screen.findByTestId("textarea-description"));
+    expect(await screen.findByTestId("input-finding-aid-url"));
+    expect(await screen.findByTestId("input-admin-email"));
+    expect(await screen.findByTestId("input-keywords"));
+  });
+
+  it("renders no initial form values when creating a collection", async () => {
+    expect(await screen.findByTestId("input-collection-title")).toHaveValue("");
+    expect(await screen.findByTestId("textarea-description")).toHaveValue("");
+    expect(await screen.findByTestId("input-finding-aid-url")).toHaveValue("");
+    expect(await screen.findByTestId("input-admin-email")).toHaveValue("");
+    expect(await screen.findByTestId("input-keywords")).toHaveValue("");
   });
 });
 
 it("renders existing collection values in the form when editing a form", async () => {
-  const { getByTestId, debug } = renderWithRouterApollo(
-    <CollectionForm collection={collectionMock} />,
-    {}
-  );
-  await waitFor(() => {
-    expect(getByTestId("input-collection-title")).toHaveValue(
-      "Great collection"
-    );
-    expect(getByTestId("textarea-description")).toHaveValue(
-      "Collection description lorem ipsum"
-    );
-    expect(getByTestId("input-finding-aid-url")).toHaveValue(
-      "https://northwestern.edu"
-    );
-
-    expect(getByTestId("input-admin-email")).toHaveValue("admin@nu.com");
-    expect(getByTestId("input-keywords")).toHaveValue("yo,foo,bar,work,hey");
+  const Wrapped = withReactHookForm(CollectionForm, {
+    collection: collectionMock,
   });
+  renderWithRouterApollo(<Wrapped />, {
+    route: "/collection/form",
+  });
+
+  expect(await screen.findByTestId("input-collection-title")).toHaveValue(
+    "Great collection"
+  );
+  expect(await screen.findByTestId("textarea-description")).toHaveValue(
+    "Collection description lorem ipsum"
+  );
+  expect(await screen.findByTestId("input-finding-aid-url")).toHaveValue(
+    "https://northwestern.edu"
+  );
+
+  expect(await screen.findByTestId("input-admin-email")).toHaveValue(
+    "admin@nu.com"
+  );
+  expect(await screen.findByTestId("input-keywords")).toHaveValue(
+    "yo,foo,bar,work,hey"
+  );
 });
 
 //TODO: How to test this form with route changes, using useHistory() hook

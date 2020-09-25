@@ -7,12 +7,7 @@ import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import { useQuery } from "@apollo/client";
 import UIFormField from "../../UI/Form/Field";
 
-const BatchEditAboutRightsMetadata = ({
-  control,
-  errors,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
   const {
     loading: licenseLoading,
     error: licenseError,
@@ -28,25 +23,17 @@ const BatchEditAboutRightsMetadata = ({
     >
       {RIGHTS_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray
-            register={register}
-            control={control}
-            required
-            name={item.name}
-            label={item.label}
-            errors={errors}
-          />
+          <UIFormFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
       <div className="column is-three-quarters">
         {/* License */}
         <UIFormField label="License" data-testid="license">
           <UIFormSelect
-            register={register}
+            isReactHookForm
             name="license"
             label="License"
             options={licenseData ? licenseData.codeList : []}
-            errors={errors}
             data-testid="license"
             showHelper
           />
@@ -57,9 +44,6 @@ const BatchEditAboutRightsMetadata = ({
 };
 
 BatchEditAboutRightsMetadata.propTypes = {
-  control: PropTypes.object.isRequired,
-  errors: PropTypes.object,
-  register: PropTypes.func.isRequired,
   restProps: PropTypes.object,
 };
 

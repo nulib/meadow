@@ -5,18 +5,17 @@ import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
+import { useFormContext } from "react-hook-form";
 
 const UIFormControlledTermArray = ({
   authorities = [],
-  control,
-  errors = {},
   label,
   name,
-  register,
   required,
   roleDropdownOptions = [],
   ...passedInProps
 }) => {
+  const { control, errors, register } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name, // Metadata item form name
@@ -76,7 +75,6 @@ const UIFormControlledTermArray = ({
                           defaultValue={item.roleId}
                           label="Role"
                           options={roleDropdownOptions}
-                          register={register}
                           required
                           showHelper
                         />
@@ -85,13 +83,10 @@ const UIFormControlledTermArray = ({
 
                     <UIFormControlledTermArrayItem
                       authorities={authorities}
-                      control={control}
-                      errors={errors}
                       item={item}
                       index={index}
                       label={label}
                       name={name}
-                      register={register}
                     />
                   </>
                 )}
@@ -132,11 +127,9 @@ const UIFormControlledTermArray = ({
 
 UIFormControlledTermArray.propTypes = {
   authorities: PropTypes.array,
-  control: PropTypes.object.isRequired,
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  register: PropTypes.func,
   required: PropTypes.bool,
   roleDropdownOptions: PropTypes.array,
 };

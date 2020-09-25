@@ -12,10 +12,7 @@ import UIFormRelatedURL from "../../../UI/Form/RelatedURL";
 
 const WorkTabsAboutIdentifiersMetadata = ({
   descriptiveMetadata,
-  errors,
   isEditing,
-  register,
-  control,
 }) => {
   const { data: relatedUrlData, loading, relatedUrlErrors } = useQuery(
     CODE_LIST_QUERY,
@@ -55,14 +52,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
       {IDENTIFIER_METADATA.map((item) => (
         <div className="column is-half" key={item.name} data-testid={item.name}>
           {isEditing ? (
-            <UIFormFieldArray
-              register={register}
-              control={control}
-              required
-              name={item.name}
-              label={item.label}
-              errors={errors}
-            />
+            <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
             <UIFormFieldArrayDisplay
               items={descriptiveMetadata[item.name]}
@@ -78,11 +68,8 @@ const WorkTabsAboutIdentifiersMetadata = ({
           {isEditing ? (
             <UIFormRelatedURL
               codeLists={relatedUrlData.codeList}
-              control={control}
-              errors={errors}
               label="Related URL"
               name="relatedUrl"
-              register={register}
             />
           ) : (
             <div className="field content">
@@ -103,9 +90,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
 
 WorkTabsAboutIdentifiersMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
-  errors: PropTypes.object,
   isEditing: PropTypes.bool,
-  register: PropTypes.func,
 };
 
 export default WorkTabsAboutIdentifiersMetadata;

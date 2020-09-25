@@ -1,21 +1,30 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 
 const UIFormInput = ({
-  name,
+  isReactHookForm,
   label,
-  type = "text",
-  errors = {},
-  register = () => {},
+  name,
   required,
+  type = "text",
   ...passedInProps
 }) => {
+  let errors = {},
+    register;
+
+  if (isReactHookForm) {
+    const context = useFormContext();
+    errors = context.errors;
+    register = context.register;
+  }
+
   return (
     <>
       <input
         name={name}
         type={type}
-        ref={register({ required })}
+        ref={register && register({ required })}
         className={`input ${errors[name] ? "is-danger" : ""}`}
         {...passedInProps}
       />
@@ -29,11 +38,10 @@ const UIFormInput = ({
 };
 
 UIFormInput.propTypes = {
+  isReactHookForm: PropTypes.bool,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   type: PropTypes.oneOf(["date", "number", "text", "email", "hidden"]),
-  errors: PropTypes.object,
-  register: PropTypes.func,
 };
 
 export default UIFormInput;

@@ -1,31 +1,25 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
-  withReactHookFormControl,
+  withReactHookForm,
 } from "../../../services/testing-helpers";
 import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import { PHYSICAL_METADATA } from "../../../services/metadata";
 
 describe("BatchEditAboutPhysicalMetadata component", () => {
-  function setupTest() {
-    const Wrapped = withReactHookFormControl(BatchEditAboutPhysicalMetadata);
+  beforeEach(() => {
+    const Wrapped = withReactHookForm(BatchEditAboutPhysicalMetadata);
     return renderWithRouterApollo(<Wrapped />);
-  }
-  it("renders the component", async () => {
-    let { queryByTestId } = setupTest();
-    await waitFor(() => {
-      expect(queryByTestId("physical-metadata")).toBeInTheDocument();
-    });
+  });
+
+  it("renders the component", () => {
+    expect(screen.getByTestId("physical-metadata"));
   });
 
   it("renders expected physical metadata fields", async () => {
-    let { getByTestId } = setupTest();
-
-    await waitFor(() => {
-      for (let item of PHYSICAL_METADATA) {
-        expect(getByTestId(item.name)).toBeInTheDocument();
-      }
-    });
+    for (let item of PHYSICAL_METADATA) {
+      expect(screen.getByTestId(item.name));
+    }
   });
 });

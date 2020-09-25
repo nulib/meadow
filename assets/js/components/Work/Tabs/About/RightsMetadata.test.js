@@ -1,7 +1,7 @@
 import React from "react";
 import {
   renderWithRouterApollo,
-  withReactHookFormControl,
+  withReactHookForm,
 } from "../../../../services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutRightsMetadata from "./RightsMetadata";
@@ -11,7 +11,7 @@ import { RIGHTS_METADATA } from "../../../../services/metadata";
 
 describe("Work About tab Idenfiers Metadata component", () => {
   function setupTests() {
-    const Wrapped = withReactHookFormControl(WorkTabsAboutRightsMetadata, {
+    const Wrapped = withReactHookForm(WorkTabsAboutRightsMetadata, {
       isEditing: true,
       descriptiveMetadata: mockWork.descriptiveMetadata,
     });

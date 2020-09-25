@@ -1,7 +1,7 @@
 import React from "react";
 import {
   renderWithRouterApollo,
-  withReactHookFormControl,
+  withReactHookForm,
 } from "../../../../services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutCoreMetadata from "./CoreMetadata";
@@ -10,7 +10,7 @@ import { codeListRightsStatementMock } from "../../controlledVocabulary.gql.mock
 
 describe("WorkTabsAboutCoreMetadata component", () => {
   function setupTests() {
-    const Wrapped = withReactHookFormControl(WorkTabsAboutCoreMetadata, {
+    const Wrapped = withReactHookForm(WorkTabsAboutCoreMetadata, {
       isEditing: true,
       descriptiveMetadata: mockWork.descriptiveMetadata,
     });

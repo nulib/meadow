@@ -9,12 +9,7 @@ import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 
-const BatchEditAboutCoreMetadata = ({
-  errors,
-  control,
-  register,
-  ...restProps
-}) => {
+const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const {
     loading: rightsStatementsLoading,
     error: rightsStatementsError,
@@ -33,11 +28,10 @@ const BatchEditAboutCoreMetadata = ({
         {/* Title */}
         <UIFormField label="Title">
           <UIInput
-            register={register}
+            isReactHookForm
             name="title"
             label="Title"
             data-testid="title"
-            errors={errors}
           />
         </UIFormField>
       </div>
@@ -45,12 +39,9 @@ const BatchEditAboutCoreMetadata = ({
       <div className="column is-full">
         {/* Alternate Title */}
         <UIFormFieldArray
-          register={register}
-          control={control}
           name="alternateTitle"
           data-testid="alternate-title"
           label="Alternate Title"
-          errors={errors}
           className="add"
         />
       </div>
@@ -58,12 +49,11 @@ const BatchEditAboutCoreMetadata = ({
         {/* Date Created */}
         <UIFormField label="Date Created" notLive>
           <UIInput
-            register={register}
+            isReactHookForm
             name="dateCreated"
             label="Date Created"
             type="date"
             data-testid="date-created"
-            errors={errors}
           />
           <UITagNotYetSupported label="Display not yet supported" />
           <UITagNotYetSupported label="Update not yet supported" />
@@ -72,11 +62,10 @@ const BatchEditAboutCoreMetadata = ({
       <div className="column is-half">
         <UIFormField label="Rights Statement">
           <UIFormSelect
-            register={register}
+            isReactHookForm
             name="rightsStatement"
             label="Rights Statement"
             options={rightsStatementsData ? rightsStatementsData.codeList : []}
-            errors={errors}
             data-testid="rights-statement"
             showHelper
           />
@@ -86,11 +75,10 @@ const BatchEditAboutCoreMetadata = ({
         {/* Description */}
         <UIFormField label="Description">
           <UIFormTextarea
-            register={register}
+            isReactHookForm
             name="description"
             label="Description"
             data-testid="description"
-            errors={errors}
           />
         </UIFormField>
       </div>
@@ -99,8 +87,6 @@ const BatchEditAboutCoreMetadata = ({
 };
 
 BatchEditAboutCoreMetadata.propTypes = {
-  errors: PropTypes.object,
-  register: PropTypes.func,
   restProps: PropTypes.object,
 };
 

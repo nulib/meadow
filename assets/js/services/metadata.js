@@ -297,3 +297,7 @@ export function splitFacetKey(key) {
     label: arr[2],
   };
 }
+
+export function convertFieldArrayValToHookFormVal(value) {
+  return { metadataItem: value };
+}

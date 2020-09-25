@@ -5,7 +5,7 @@ import useIsEditing from "../../../hooks/useIsEditing";
 import { toastWrapper } from "../../../services/helpers";
 import { GET_COLLECTIONS } from "../../Collection/collection.gql.js";
 import { UPDATE_WORK, GET_WORK } from "../work.gql.js";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
@@ -44,11 +44,9 @@ const WorkTabsAdministrative = ({ work }) => {
   });
   const { preservationLevel, status, projectCycle } = administrativeMetadata;
 
-  const { register, handleSubmit, errors, control, reset, getValues } = useForm(
-    {
-      defaultValues: {},
-    }
-  );
+  const methods = useForm({
+    defaultValues: {},
+  });
 
   useEffect(() => {
     let resetValues = {};
@@ -61,7 +59,7 @@ const WorkTabsAdministrative = ({ work }) => {
         );
       }
     }
-    reset({
+    methods.reset({
       ...resetValues,
       projectCycle: administrativeMetadata.projectCycle,
     });
@@ -89,7 +87,7 @@ const WorkTabsAdministrative = ({ work }) => {
   } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
 
   const onSubmit = (data) => {
-    let currentFormValues = getValues();
+    let currentFormValues = methods.getValues();
 
     let workUpdateInput = {
       administrativeMetadata: {
@@ -147,173 +145,166 @@ const WorkTabsAdministrative = ({ work }) => {
   }
 
   return (
-    <form
-      name="work-administrative-form"
-      data-testid="work-administrative-form"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <UITabsStickyHeader title="Administrative Metadata">
-        {!isEditing && (
-          <Button
-            type="button"
-            className="button is-primary"
-            onClick={() => setIsEditing(true)}
-            data-testid="edit-button"
-          >
-            Edit
-          </Button>
-        )}
-        {isEditing && (
-          <>
+    <FormProvider {...methods}>
+      <form
+        name="work-administrative-form"
+        data-testid="work-administrative-form"
+        onSubmit={methods.handleSubmit(onSubmit)}
+      >
+        <UITabsStickyHeader title="Administrative Metadata">
+          {!isEditing && (
             <Button
-              type="submit"
-              className="button is-primary"
-              data-testid="save-button"
-            >
-              Save
-            </Button>
-            <Button
-              data-testid="cancel-button"
               type="button"
-              className="button is-text"
-              onClick={() => setIsEditing(false)}
+              className="button is-primary"
+              onClick={() => setIsEditing(true)}
+              data-testid="edit-button"
             >
-              Cancel
+              Edit
             </Button>
-          </>
-        )}
-      </UITabsStickyHeader>
+          )}
+          {isEditing && (
+            <>
+              <Button
+                type="submit"
+                className="button is-primary"
+                data-testid="save-button"
+              >
+                Save
+              </Button>
+              <Button
+                data-testid="cancel-button"
+                type="button"
+                className="button is-text"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+            </>
+          )}
+        </UITabsStickyHeader>
 
-      <div className="columns">
-        <div className="column is-two-thirds">
-          <div className="box is-relative">
-            {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
-            <UIFormField label="Collection">
-              {isEditing ? (
-                <UIFormSelect
-                  register={register}
-                  name="collection"
-                  label="Collection"
-                  showHelper={true}
-                  options={collectionsData.collections.map((collection) => ({
-                    id: collection.id,
-                    value: collection.id,
-                    label: collection.title,
-                  }))}
-                  defaultValue={collection ? collection.id : ""}
-                  errors={errors}
-                />
-              ) : (
-                <p>
-                  {collection ? collection.title : "Not part of a collection"}
-                </p>
-              )}
-            </UIFormField>
+        <div className="columns">
+          <div className="column">
+            <div className="box is-relative">
+              {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
+              <UIFormField label="Collection">
+                {isEditing ? (
+                  <UIFormSelect
+                    isReactHookForm
+                    name="collection"
+                    label="Collection"
+                    showHelper={true}
+                    options={collectionsData.collections.map((collection) => ({
+                      id: collection.id,
+                      value: collection.id,
+                      label: collection.title,
+                    }))}
+                    defaultValue={collection ? collection.id : ""}
+                  />
+                ) : (
+                  <p>
+                    {collection ? collection.title : "Not part of a collection"}
+                  </p>
+                )}
+              </UIFormField>
 
-            <UIFormField label="Preservation Level" required={published}>
-              {isEditing ? (
-                <UIFormSelect
-                  register={register}
-                  name="preservationLevel"
-                  showHelper={true}
-                  label="Preservation Level"
-                  options={preservationLevelsData.codeList}
-                  defaultValue={preservationLevel ? preservationLevel.id : ""}
-                  errors={errors}
-                  required={work.published}
-                />
-              ) : (
-                <p>
-                  {preservationLevel
-                    ? preservationLevel.label
-                    : "None selected"}
-                </p>
-              )}
-            </UIFormField>
+              <UIFormField label="Preservation Level" required={published}>
+                {isEditing ? (
+                  <UIFormSelect
+                    isReactHookForm
+                    name="preservationLevel"
+                    showHelper={true}
+                    label="Preservation Level"
+                    options={preservationLevelsData.codeList}
+                    defaultValue={preservationLevel ? preservationLevel.id : ""}
+                    required={work.published}
+                  />
+                ) : (
+                  <p>
+                    {preservationLevel
+                      ? preservationLevel.label
+                      : "None selected"}
+                  </p>
+                )}
+              </UIFormField>
 
-            <UIFormField label="Status" required={published}>
-              {isEditing ? (
-                <UIFormSelect
-                  data-testid="status"
-                  register={register}
-                  name="status"
-                  label="Status"
-                  showHelper={true}
-                  options={statusData.codeList}
-                  defaultValue={status ? status.id : ""}
-                  errors={errors}
-                  required={work.published}
-                />
-              ) : (
-                <p>{status ? status.label : "None selected"}</p>
-              )}
-            </UIFormField>
+              <UIFormField label="Status" required={published}>
+                {isEditing ? (
+                  <UIFormSelect
+                    data-testid="status"
+                    isReactHookForm
+                    name="status"
+                    label="Status"
+                    showHelper={true}
+                    options={statusData.codeList}
+                    defaultValue={status ? status.id : ""}
+                    required={work.published}
+                  />
+                ) : (
+                  <p>{status ? status.label : "None selected"}</p>
+                )}
+              </UIFormField>
 
-            <UIFormField label="Themes" mocked notLive>
-              <p>Nothing yet</p>
-            </UIFormField>
+              <UIFormField label="Themes" mocked notLive>
+                <p>Nothing yet</p>
+              </UIFormField>
 
-            <UIFormField label="Visibility">
-              {isEditing ? (
-                <UIFormSelect
-                  data-testid="visibility"
-                  register={register}
-                  name="visibility"
-                  label="Visibility"
-                  showHelper={true}
-                  options={visibilityData.codeList}
-                  defaultValue={work.visibility ? work.visibility.id : ""}
-                  errors={errors}
-                />
-              ) : (
-                <UICodedTermItem item={work.visibility} />
-              )}
-            </UIFormField>
+              <UIFormField label="Visibility">
+                {isEditing ? (
+                  <UIFormSelect
+                    data-testid="visibility"
+                    isReactHookForm
+                    name="visibility"
+                    label="Visibility"
+                    showHelper={true}
+                    options={visibilityData.codeList}
+                    defaultValue={work.visibility ? work.visibility.id : ""}
+                  />
+                ) : (
+                  <UICodedTermItem item={work.visibility} />
+                )}
+              </UIFormField>
+            </div>
+          </div>
+          <div className="column">
+            <div className="box is-relative">
+              <UIFormField label="Project Cycle">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-cycle"
+                    isReactHookForm
+                    placeholder="Project Cycle"
+                    name="projectCycle"
+                    label="Project Cycle"
+                    defaultValue={projectCycle}
+                  />
+                ) : (
+                  <p>{projectCycle}</p>
+                )}
+              </UIFormField>
+              {PROJECT_METADATA.map((item) => {
+                return (
+                  <div key={item.name} data-testid={item.name}>
+                    {isEditing ? (
+                      <UIFormFieldArray
+                        required
+                        name={item.name}
+                        label={item.label}
+                      />
+                    ) : (
+                      <UIFormFieldArrayDisplay
+                        items={administrativeMetadata[item.name]}
+                        label={item.label}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-        <div className="column one-third">
-          <div className="box is-relative">
-            <UIFormField label="Project Cycle">
-              {isEditing ? (
-                <UIFormInput
-                  data-testid="project-cycle"
-                  placeholder="Project Cycle"
-                  control={control}
-                  register={register}
-                  name="projectCycle"
-                  label="Project Cycle"
-                  errors={errors}
-                  defaultValue={projectCycle}
-                />
-              ) : (
-                <p>{projectCycle}</p>
-              )}
-            </UIFormField>
-            {PROJECT_METADATA.map((item) => {
-              return (
-                <div key={item.name} data-testid={item.name}>
-                  {isEditing ? (
-                    <UIFormFieldArray
-                      register={register}
-                      control={control}
-                      required
-                      name={item.name}
-                      label={item.label}
-                      errors={errors}
-                    />
-                  ) : (
-                    <UIFormFieldArrayDisplay
-                      items={administrativeMetadata[item.name]}
-                      label={item.label}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 };
 

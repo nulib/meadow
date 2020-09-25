@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_PROJECT, GET_PROJECTS } from "./project.gql.js";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
@@ -11,7 +11,7 @@ import { Button } from "@nulib/admin-react-components";
 
 const ProjectForm = ({ showForm, setShowForm }) => {
   const [formError, setFormError] = useState();
-  const { register, handleSubmit, watch, errors } = useForm();
+  const methods = useForm();
   let [createProject, { loading, error: mutationError, data }] = useMutation(
     CREATE_PROJECT,
     {
@@ -42,50 +42,54 @@ const ProjectForm = ({ showForm, setShowForm }) => {
   return (
     <div>
       <div className={`modal ${showForm ? "is-active" : ""}`}>
-        <form onSubmit={handleSubmit(onSubmit)} data-testid="project-form">
-          <div className="modal-background"></div>
-          <div className="modal-content">
-            <div className="box">
-              {formError && (
-                <div className="notification">
-                  <Error error={formError} />
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods.handleSubmit(onSubmit)}
+            data-testid="project-form"
+          >
+            <div className="modal-background"></div>
+            <div className="modal-content">
+              <div className="box">
+                {formError && (
+                  <div className="notification">
+                    <Error error={formError} />
+                  </div>
+                )}
+
+                <UIFormField label="Project Title">
+                  <UIFormInput
+                    isReactHookForm
+                    required
+                    label="Project Title"
+                    data-testid="project-title-input"
+                    name="title"
+                    placeholder="Name your project..."
+                  />
+                </UIFormField>
+
+                <div className="buttons is-right">
+                  <Button
+                    isText
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    data-testid="cancel-button"
+                  >
+                    Cancel
+                  </Button>
+                  <Button isPrimary type="submit" data-testid="submit-button">
+                    Create
+                  </Button>
                 </div>
-              )}
-
-              <UIFormField label="Project Title">
-                <UIFormInput
-                  register={register}
-                  required
-                  label="Project Title"
-                  errors={errors}
-                  data-testid="project-title-input"
-                  name="title"
-                  placeholder="Name your project..."
-                />
-              </UIFormField>
-
-              <div className="buttons is-right">
-                <Button
-                  isText
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  data-testid="cancel-button"
-                >
-                  Cancel
-                </Button>
-                <Button isPrimary type="submit" data-testid="submit-button">
-                  Create
-                </Button>
               </div>
             </div>
-          </div>
-          <button
-            className="modal-close is-large"
-            type="button"
-            aria-label="close"
-            onClick={() => setShowForm(false)}
-          ></button>
-        </form>
+            <button
+              className="modal-close is-large"
+              type="button"
+              aria-label="close"
+              onClick={() => setShowForm(false)}
+            ></button>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

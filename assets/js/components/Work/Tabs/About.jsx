@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
@@ -16,6 +16,7 @@ import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
+  convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
   prepFieldArrayItemsForPost,
   prepRelatedUrl,
@@ -28,17 +29,13 @@ import {
 import UIError from "../../UI/Error";
 
 const WorkTabsAbout = ({ work }) => {
+  // Initialize React Hook Form
+  const methods = useForm({ defaultValues: {} });
+
   const { descriptiveMetadata } = work;
 
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
-
-  // Initialize React hook form
-  const { register, handleSubmit, errors, control, getValues, reset } = useForm(
-    {
-      defaultValues: {},
-    }
-  );
 
   useEffect(() => {
     // Tell React Hook Form to update field array form values
@@ -56,9 +53,9 @@ const WorkTabsAbout = ({ work }) => {
       UNCONTROLLED_METADATA,
     ]) {
       for (let obj of group) {
-        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) => ({
-          metadataItem: value,
-        }));
+        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) =>
+          convertFieldArrayValToHookFormVal(value)
+        );
       }
     }
 
@@ -68,7 +65,7 @@ const WorkTabsAbout = ({ work }) => {
       controlledTermResetValues[obj.name] = [...descriptiveMetadata[obj.name]];
     }
 
-    reset({
+    methods.reset({
       alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
         metadataItem: value,
       })),
@@ -99,7 +96,7 @@ const WorkTabsAbout = ({ work }) => {
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
-    let currentFormValues = getValues();
+    let currentFormValues = methods.getValues();
 
     const { description = "", title = "" } = currentFormValues;
 
@@ -164,178 +161,144 @@ const WorkTabsAbout = ({ work }) => {
   if (updateWorkError) return <UIError error={updateWorkError} />;
 
   return (
-    <form
-      name="work-about-form"
-      data-testid="work-about-form"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <UITabsStickyHeader title="Core and Descriptive Metadata">
-        {!isEditing && (
-          <button
-            type="button"
-            className="button is-primary"
-            data-testid="edit-button"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit
-          </button>
-        )}
-        {isEditing && (
-          <>
-            <button
-              type="submit"
-              className="button is-primary"
-              data-testid="save-button"
-            >
-              Save
-            </button>
+    <FormProvider {...methods}>
+      <form
+        name="work-about-form"
+        data-testid="work-about-form"
+        onSubmit={methods.handleSubmit(onSubmit)}
+      >
+        <UITabsStickyHeader title="Core and Descriptive Metadata">
+          {!isEditing && (
             <button
               type="button"
-              className="button is-text"
-              data-testid="cancel-button"
-              onClick={() => setIsEditing(false)}
+              className="button is-primary"
+              data-testid="edit-button"
+              onClick={() => setIsEditing(true)}
             >
-              Cancel
+              Edit
             </button>
-          </>
-        )}
-      </UITabsStickyHeader>
+          )}
+          {isEditing && (
+            <>
+              <button
+                type="submit"
+                className="button is-primary"
+                data-testid="save-button"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="button is-text"
+                data-testid="cancel-button"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </UITabsStickyHeader>
 
-      {isEditing ? (
-        <div className="box is-relative mt-4" data-testid="uneditable-metadata">
-          <h2 className="title is-size-5 mb-4">Uneditable Metadata </h2>
-          <div>
-            <UIFormField label="ARK">
-              <p>{work.ark}</p>
-            </UIFormField>
-            <UIFormField label="ID">
-              <p>{work.id}</p>
-            </UIFormField>
-            <UIFormField label="Accession Number">
-              <p>{work.accessionNumber}</p>
-            </UIFormField>
-          </div>
-        </div>
-      ) : null}
-
-      <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutCoreMetadata
-            control={control}
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            published={work.published}
-            register={register}
-          />
-        )}
-      </UIAccordion>
-
-      <UIAccordion
-        testid="controlled-metadata-wrapper"
-        title="Creator and Subject Information"
-      >
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutControlledMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            control={control}
-          />
-        )}
-      </UIAccordion>
-      <UIAccordion
-        testid="uncontrolled-metadata-wrapper"
-        title="Description Information"
-      >
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutUncontrolledMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            control={control}
-          />
-        )}
-      </UIAccordion>
-
-      <UIAccordion
-        testid="physical-metadata-wrapper"
-        title="Physical Objects Information"
-      >
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutPhysicalMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            control={control}
-          />
-        )}
-      </UIAccordion>
-      <UIAccordion testid="rights-metadata-wrapper" title="Rights Information">
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutRightsMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            control={control}
-          />
-        )}
-      </UIAccordion>
-      <UIAccordion
-        testid="identifiers-metadata-wrapper"
-        title="Identifiers and Relationship Information"
-      >
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutIdentifiersMetadata
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            control={control}
-          />
-        )}
-      </UIAccordion>
-      {/* <div className="box is-relative">
-        <h2 className="title is-size-5">
-          Descriptive Metadata{" "}
-          <a
-            onClick={() => setShowDescriptiveMetadata(!showDescriptiveMetadata)}
+        {isEditing ? (
+          <div
+            className="box is-relative mt-4"
+            data-testid="uneditable-metadata"
           >
-            <FontAwesomeIcon
-              icon={showDescriptiveMetadata ? "chevron-down" : "chevron-right"}
+            <h2 className="title is-size-5 mb-4">Uneditable Metadata </h2>
+            <div>
+              <UIFormField label="ARK">
+                <p>{work.ark}</p>
+              </UIFormField>
+              <UIFormField label="ID">
+                <p>{work.id}</p>
+              </UIFormField>
+              <UIFormField label="Accession Number">
+                <p>{work.accessionNumber}</p>
+              </UIFormField>
+            </div>
+          </div>
+        ) : null}
+
+        <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutCoreMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+              published={work.published}
             />
-          </a>
-        </h2>
-        {updateWorkLoading ? (
-          <UISkeleton rows={10} />
-        ) : (
-          <WorkTabsAboutDescriptiveMetadataNoCaching
-            control={control}
-            descriptiveMetadata={descriptiveMetadata}
-            errors={errors}
-            isEditing={isEditing}
-            register={register}
-            showDescriptiveMetadata={showDescriptiveMetadata}
-          />
-        )}
-      </div> */}
-    </form>
+          )}
+        </UIAccordion>
+
+        <UIAccordion
+          testid="controlled-metadata-wrapper"
+          title="Creator and Subject Information"
+        >
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutControlledMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+        <UIAccordion
+          testid="uncontrolled-metadata-wrapper"
+          title="Description Information"
+        >
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutUncontrolledMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+
+        <UIAccordion
+          testid="physical-metadata-wrapper"
+          title="Physical Objects Information"
+        >
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutPhysicalMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+        <UIAccordion
+          testid="rights-metadata-wrapper"
+          title="Rights Information"
+        >
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutRightsMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+        <UIAccordion
+          testid="identifiers-metadata-wrapper"
+          title="Identifiers and Relationship Information"
+        >
+          {updateWorkLoading ? (
+            <UISkeleton rows={10} />
+          ) : (
+            <WorkTabsAboutIdentifiersMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+      </form>
+    </FormProvider>
   );
 };
 

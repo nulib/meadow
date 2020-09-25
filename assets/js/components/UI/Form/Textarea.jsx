@@ -1,19 +1,28 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 
 const UIFormTextarea = ({
+  isReactHookForm,
   name,
   label,
-  errors = {},
-  register,
   required,
   ...passedInProps
 }) => {
+  let errors = {},
+    register;
+
+  if (isReactHookForm) {
+    const context = useFormContext();
+    errors = context.errors;
+    register = context.register;
+  }
+
   return (
     <>
       <textarea
         name={name}
-        ref={register({ required })}
+        ref={register && register({ required })}
         className={`textarea ${errors[name] ? "is-danger" : ""}`}
         {...passedInProps}
       />
@@ -25,10 +34,9 @@ const UIFormTextarea = ({
 };
 
 UIFormTextarea.propTypes = {
+  isReactHookForm: PropTypes.bool,
   name: PropTypes.string,
   label: PropTypes.string,
-  errors: PropTypes.object,
-  register: PropTypes.func,
   required: PropTypes.bool,
 };
 
