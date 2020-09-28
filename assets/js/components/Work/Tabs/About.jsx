@@ -119,6 +119,7 @@ const WorkTabsAbout = ({ work }) => {
             }
           : {},
         title,
+        termsOfUse: data.termsOfUse,
       },
     };
 

@@ -134,6 +134,7 @@ export const GET_WORK = gql`
             label
           }
         }
+        termsOfUse
         title
       }
       fileSets {
@@ -260,6 +261,7 @@ export const UPDATE_WORK = gql`
             scheme
           }
         }
+        termsOfUse
         creator {
           term {
             id
