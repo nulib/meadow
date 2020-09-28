@@ -6,6 +6,7 @@ import { RIGHTS_METADATA } from "../../../../services/metadata";
 import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql";
 import { useQuery } from "@apollo/client";
 import UIFormField from "../../../UI/Form/Field";
+import UIFormInput from "../../../UI/Form/Input";
 import UIFormSelect from "../../../UI/Form/Select";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 
@@ -31,7 +32,8 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
           )}
         </div>
       ))}
-      <div className="column is-three-quarters" data-testid="license">
+
+      <div className="column is-half" data-testid="license">
         {/* License */}
         <UIFormField label="License">
           {isEditing ? (
@@ -48,6 +50,22 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
             />
           ) : (
             <UICodedTermItem item={descriptiveMetadata.license} />
+          )}
+        </UIFormField>
+      </div>
+
+      <div className="column is-half" data-testid="input-terms-of-use">
+        <UIFormField label="Terms of Use">
+          {isEditing ? (
+            <UIFormInput
+              isReactHookForm
+              required
+              label="Terms of Use"
+              name="termsOfUse"
+              defaultValue={descriptiveMetadata.termsOfUse}
+            />
+          ) : (
+            <p>{descriptiveMetadata.termsOfUse || "No value"}</p>
           )}
         </UIFormField>
       </div>
