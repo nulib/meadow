@@ -25,6 +25,7 @@ defmodule Meadow.Ingest.Schemas.Row do
       field :value, :string
     end
 
+    field :single_field_pair, :string, virtual: true
     timestamps()
   end
 

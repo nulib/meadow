@@ -5,8 +5,7 @@ alias Meadow.Pipeline.Actions.{
   CreatePyramidTiff,
   FileSetComplete,
   GenerateFileSetDigests,
-  IngestFileSet,
-  UpdateSheetStatus
+  IngestFileSet
 }
 
 config :sequins,
@@ -19,8 +18,7 @@ config :sequins, Meadow.Pipeline,
     GenerateFileSetDigests,
     CopyFileToPreservation,
     CreatePyramidTiff,
-    FileSetComplete,
-    UpdateSheetStatus
+    FileSetComplete
   ]
 
 config :sequins, IngestFileSet, queue_config: [processor_concurrency: 1]
@@ -40,15 +38,3 @@ config :sequins, CreatePyramidTiff,
 config :sequins, FileSetComplete,
   queue_config: [processor_concurrency: 1],
   notify_on: [CreatePyramidTiff: [status: :ok], FileSetComplete: [status: :retry]]
-
-config :sequins, UpdateSheetStatus,
-  queue_config: [processor_concurrency: 1],
-  ignore: true,
-  notify_on: [
-    IngestFileSet: [context: :Sheet, status: :error],
-    GenerateFileSetDigests: [context: :Sheet, status: :error],
-    CopyFileToPreservation: [context: :Sheet, status: :error],
-    CreatePyramidTiff: [context: :Sheet, status: :error],
-    FileSetComplete: [context: :Sheet, status: [:ok, :error]],
-    UpdateSheetStatus: [context: :Sheet, status: :retry]
-  ]

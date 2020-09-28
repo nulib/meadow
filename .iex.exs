@@ -43,7 +43,7 @@ alias Meadow.Data.Schemas.{
   WorkDescriptiveMetadata
 }
 
-alias Meadow.Ingest.{Projects, Sheets, SheetsToWorks}
+alias Meadow.Ingest.{Progress, Projects, Sheets, SheetsToWorks}
 
 alias Meadow.Ingest.Schemas.{
   Project,

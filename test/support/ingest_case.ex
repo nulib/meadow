@@ -20,7 +20,7 @@ defmodule Meadow.IngestCase do
 
       def create_works(sheet) do
         sheet
-        |> SheetsToWorks.create_works_from_ingest_sheet()
+        |> SheetsToWorks.create_works_from_ingest_sheet(:sync)
         |> Repo.preload(:works)
       end
     end

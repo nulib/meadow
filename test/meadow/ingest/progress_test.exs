@@ -7,6 +7,19 @@ defmodule Meadow.Ingest.ProgressTest do
 
   @bad_sheet_id "deadface-c0de-feed-cafe-addedbadbeef"
 
+  describe "single row" do
+    setup %{ingest_sheet: sheet} do
+      {:ok, %{ingest_sheet: sheet}}
+    end
+
+    test "initialize_entry/1", %{ingest_sheet: sheet} do
+      with [row | _] <- Rows.list_ingest_sheet_rows(sheet: sheet) do
+        Progress.initialize_entry(row, true)
+        assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
+      end
+    end
+  end
+
   describe "Meadow.Ingest.Progress" do
     setup %{ingest_sheet: sheet} do
       with rows <- Rows.list_ingest_sheet_rows(sheet: sheet) do
@@ -15,13 +28,27 @@ defmodule Meadow.Ingest.ProgressTest do
         |> Enum.map(fn {row, index} -> {row.id, rem(index, 4) == 0} end)
         |> Progress.initialize_entries()
 
-        {:ok, %{rows: rows}}
+        {:ok, %{ingest_sheet: sheet, rows: rows}}
       end
     end
 
-    test "get/2", %{rows: [row | _]} do
+    test "get_entry/2", %{rows: [row | _]} do
       assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
       assert Progress.get_entry(row.id, "CreateWork") |> Map.get(:status) == "pending"
+    end
+
+    test "get_pending_work_entries/2", %{ingest_sheet: %{id: sheet_id}, rows: [row | _]} do
+      assert Progress.get_pending_work_entries(sheet_id, :all) |> length() == 2
+      assert Progress.get_pending_work_entries(sheet_id, 1) |> length() == 1
+      Progress.update_entry(row, "CreateWork", "in_process")
+      assert Progress.get_pending_work_entries(sheet_id, :all) |> length() == 1
+    end
+
+    test "get_pending_work_entries/1", %{rows: [row | _]} do
+      assert Progress.get_pending_work_entries(:all) |> length() == 2
+      assert Progress.get_pending_work_entries(1) |> length() == 1
+      Progress.update_entry(row, "CreateWork", "in_process")
+      assert Progress.get_pending_work_entries(:all) |> length() == 1
     end
 
     test "update_entry/3", %{rows: [row | _]} do
@@ -30,6 +57,14 @@ defmodule Meadow.Ingest.ProgressTest do
 
       Progress.update_entry(row, Actions.IngestFileSet, "ok")
       assert Progress.get_entry(row.id, Actions.IngestFileSet) |> Map.get(:status) == "ok"
+    end
+
+    test "update_entries/3", %{ingest_sheet: sheet} do
+      Progress.get_entries(sheet)
+      |> Progress.update_entries("CreateWork", "processing")
+      |> Enum.each(fn result ->
+        assert result.status == "processing"
+      end)
     end
 
     test "action_count/1", %{ingest_sheet: sheet} do
@@ -93,9 +128,4 @@ defmodule Meadow.Ingest.ProgressTest do
       end
     end
   end
-
-  # pipeline_progress(%Sheet{} = sheet), do: pipeline_progress(sheet.id)
-  # pipeline_progress(sheet_id) do
-  # send_notification(%Progress{} = record) do
-  # send_notification(_), do: :noop
 end
