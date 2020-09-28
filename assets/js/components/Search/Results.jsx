@@ -31,6 +31,7 @@ const SearchResults = ({
               list: `${isListView ? "" : "columns is-multiline"}`,
               resultStats: "column is-size-6 has-text-grey",
             }}
+            URLParams={true}
             loader={<UISkeleton rows={10} />}
             onData={(obj) => {
               handleOnDataChange({ ...obj.resultStats });

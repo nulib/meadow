@@ -6,7 +6,7 @@ export const CONTROLLED_METADATA = [
     scheme: "MARC_RELATOR",
   },
   {
-    label: "Creators",
+    label: "Creator",
     name: "creator",
   },
   {

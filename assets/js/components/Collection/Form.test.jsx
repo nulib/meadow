@@ -21,7 +21,6 @@ describe("Collection Form component", () => {
 
   it("displays all form fields", async () => {
     expect(await screen.findByTestId("input-collection-title"));
-    expect(await screen.findByTestId("input-collection-title"));
     expect(await screen.findByTestId("input-collection-type"));
     expect(await screen.findByTestId("checkbox-featured"));
     expect(await screen.findByTestId("textarea-description"));

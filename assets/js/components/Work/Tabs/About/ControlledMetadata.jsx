@@ -49,7 +49,10 @@ const WorkTabsAboutControlledMetadata = ({
                   name={name}
                 />
               ) : (
-                <UIControlledTermList items={descriptiveMetadata[name]} />
+                <UIControlledTermList
+                  items={descriptiveMetadata[name]}
+                  title={label}
+                />
               )}
             </UIFormField>
           </li>

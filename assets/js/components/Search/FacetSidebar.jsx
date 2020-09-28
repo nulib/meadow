@@ -24,6 +24,7 @@ export default function SearchFacetSidebar() {
             and: filterList(sensor.componentId),
           }}
           defaultQuery={() => allImagesQuery}
+          URLParams={true}
         />
       ))}
     </div>
