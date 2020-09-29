@@ -17,6 +17,7 @@ defmodule Meadow.Application.Children do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
+      Meadow.Ingest.Progress,
       Meadow.Ingest.WorkCreator,
       mock_ark_server(3943)
     ]
@@ -30,6 +31,7 @@ defmodule Meadow.Application.Children do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
+      Meadow.Ingest.Progress,
       Meadow.Ingest.WorkCreator
     ]
   end

@@ -3,7 +3,9 @@ defmodule Meadow.Ingest.ProgressTest do
   use Meadow.IngestCase
 
   alias Meadow.Ingest.{Progress, Rows}
+  alias Meadow.Ingest.Schemas.Progress, as: ProgressSchema
   alias Meadow.Pipeline.Actions
+  alias Meadow.Repo
 
   @bad_sheet_id "deadface-c0de-feed-cafe-addedbadbeef"
 
@@ -49,6 +51,19 @@ defmodule Meadow.Ingest.ProgressTest do
       assert Progress.get_pending_work_entries(1) |> length() == 1
       Progress.update_entry(row, "CreateWork", "in_process")
       assert Progress.get_pending_work_entries(:all) |> length() == 1
+    end
+
+    test "get_timed_out_work_entries", %{rows: [row | _]} do
+      assert Progress.works_processing_longer_than(10) |> Repo.aggregate(:count) == 0
+
+      Progress.get_entry(row, "CreateWork")
+      |> ProgressSchema.changeset(%{
+        status: "processing",
+        updated_at: DateTime.add(DateTime.utc_now(), -15, :second)
+      })
+      |> Repo.update!()
+
+      assert Progress.works_processing_longer_than(10) |> Repo.aggregate(:count) == 1
     end
 
     test "update_entry/3", %{rows: [row | _]} do
