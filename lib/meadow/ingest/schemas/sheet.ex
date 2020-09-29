@@ -43,7 +43,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
         else: attrs
 
     ingest_sheet
-    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status])
+    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status, :updated_at])
     |> cast_embed(:state, with: &state_changeset/2)
     |> cast_assoc(:works)
     |> validate_required([:title, :filename, :project_id])

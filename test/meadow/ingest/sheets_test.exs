@@ -107,5 +107,24 @@ defmodule Meadow.Ingest.SheetsTest do
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
       assert %Ecto.Changeset{} = Sheets.change_ingest_sheet(ingest_sheet)
     end
+
+    test "list_ingest_sheets_by_status/1" do
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+      assert Sheets.list_ingest_sheets_by_status(ingest_sheet.status) == [ingest_sheet]
+      assert Sheets.list_ingest_sheets_by_status(:completed) == []
+    end
+
+    test "list_recently_updated/1" do
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+      assert Sheets.list_recently_updated(60) == [ingest_sheet]
+
+      Sheets.update_ingest_sheet(ingest_sheet, %{
+        updated_at: DateTime.add(DateTime.utc_now(), -120, :second)
+      })
+
+      assert Sheets.list_recently_updated(60) == []
+    end
   end
 end

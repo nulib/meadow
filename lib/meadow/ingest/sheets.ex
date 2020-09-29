@@ -424,4 +424,13 @@ defmodule Meadow.Ingest.Sheets do
       |> Repo.all()
     end
   end
+
+  def list_recently_updated(seconds) do
+    since = DateTime.utc_now() |> DateTime.add(-seconds, :second)
+
+    from(s in Sheet,
+      where: s.updated_at >= ^since
+    )
+    |> Repo.all()
+  end
 end
