@@ -112,10 +112,7 @@ const ProjectList = () => {
             return (
               <tr key={id}>
                 <td>
-                  <Link
-                    to={`/project/${id}`}
-                    data-testid={`project-title-${id}`}
-                  >
+                  <Link to={`/project/${id}`} data-testid="project-title-row">
                     {title}
                   </Link>
                 </td>
@@ -132,7 +129,7 @@ const ProjectList = () => {
                     <p className="control">
                       <Button
                         className="button"
-                        data-testid={`delete-button-${id}`}
+                        data-testid="delete-button-row"
                         onClick={(e) => onOpenModal(e, project)}
                       >
                         <FontAwesomeIcon icon="trash" />

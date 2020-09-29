@@ -1,70 +1,42 @@
 import React from "react";
 import ProjectList from "./List";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { fireEvent, act } from "@testing-library/react";
 import { Route } from "react-router-dom";
-import {
-  getProjectsMock,
-  MOCK_PROJECT_ID,
-  MOCK_PROJECT_ID_2,
-} from "./project.gql.mock";
+import { getProjectsMock } from "./project.gql.mock";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
-const mocks = [getProjectsMock];
-
-function setupMatchTests() {
-  return renderWithRouterApollo(
-    <Route path="/project/list" component={ProjectList} />,
-    {
-      mocks,
-      route: "/project/list",
-    }
-  );
-}
-
-it("render without crashing", () => {
-  setupMatchTests();
-});
-
-it("renders the ProjectsList component", async () => {
-  const { findByTestId, debug } = setupMatchTests();
-  const projectListEl = await findByTestId("project-list");
-  expect(projectListEl).toBeInTheDocument();
-});
-
-it("renders list of projects", async () => {
-  const { findByTestId, debug } = setupMatchTests();
-  const projectEl1 = await findByTestId(`project-title-${MOCK_PROJECT_ID}`);
-  const projectEl2 = await findByTestId(`project-title-${MOCK_PROJECT_ID_2}`);
-  expect(projectEl1).toBeInTheDocument();
-  expect(projectEl2).toBeInTheDocument();
-});
-
-it("filters for a project by title", async () => {
-  const { findByTestId, debug } = setupMatchTests();
-  const el = await findByTestId("input-project-filter");
-  expect(el).toBeInTheDocument();
-
-  const projectEl1 = await findByTestId(`project-title-${MOCK_PROJECT_ID}`);
-  const projectEl2 = await findByTestId(`project-title-${MOCK_PROJECT_ID_2}`);
-  expect(projectEl1).toBeInTheDocument();
-  expect(projectEl2).toBeInTheDocument();
-
-  await act(async () => {
-    fireEvent.change(el, { target: { value: "Second" } });
+describe("BatchEditAboutDescriptiveMetadata component", () => {
+  beforeEach(() => {
+    return renderWithRouterApollo(
+      <Route path="/project/list" component={ProjectList} />,
+      {
+        mocks: [getProjectsMock],
+        route: "/project/list",
+      }
+    );
   });
-  expect(el.value).toEqual("Second");
 
-  expect(projectEl1).not.toBeInTheDocument();
-  expect(projectEl2).toBeInTheDocument();
-});
+  it("renders the ProjectsList component", () => {
+    expect(screen.queryByTestId("project-list"));
+  });
 
-it("opens delete modal", async () => {
-  const { findByTestId, debug } = setupMatchTests();
-  const deleteButtonEl = await findByTestId(
-    "delete-button-01DNFK4B8XASXNKBSAKQ6YVNF3"
-  );
-  expect(deleteButtonEl).toBeInTheDocument();
-  fireEvent.click(deleteButtonEl);
-  const deleteModalEl = await findByTestId("delete-modal");
-  expect(deleteModalEl).toBeInTheDocument();
+  it("renders list of projects", async () => {
+    expect(await screen.findAllByTestId("project-title-row")).toHaveLength(2);
+  });
+
+  it("filters for a project by title", async () => {
+    const el = await screen.findByTestId("input-project-filter");
+    expect(el);
+    expect(screen.getAllByTestId("project-title-row")).toHaveLength(2);
+    //filter for project title
+    userEvent.type(el, "Second");
+    expect(screen.getAllByTestId("project-title-row")).toHaveLength(1);
+  });
+
+  it("opens delete modal", async () => {
+    expect(await screen.findAllByTestId("delete-button-row")).toHaveLength(2);
+    userEvent.click(screen.getAllByTestId("delete-button-row")[0]);
+    expect(screen.getAllByTestId("delete-modal")).toHaveLength(1);
+  });
 });
