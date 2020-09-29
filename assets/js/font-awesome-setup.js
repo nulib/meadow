@@ -10,6 +10,7 @@ import {
   faChevronCircleDown,
   faEdit,
   faEye,
+  faExternalLinkAlt,
   faExclamationTriangle,
   faFileCsv,
   faFileDownload,
@@ -62,6 +63,7 @@ export default function setupFontAwesome() {
     faTrash,
     faUser,
     faThList,
+    faExternalLinkAlt,
     faThLarge,
     faUpload
   );
