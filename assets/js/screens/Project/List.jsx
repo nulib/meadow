@@ -4,9 +4,6 @@ import ProjectList from "../../components/Project/List";
 import ProjectForm from "../../components/Project/Form";
 // import { PrimaryButton } from "nulib-admin-ui-components";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import UIFormInput from "../../components/UI/Form/Input";
-import UIFormField from "../../components/UI/Form/Field";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UILevelItem from "../../components/UI/LevelItem";
 import { Button } from "@nulib/admin-react-components";
 
@@ -47,16 +44,6 @@ const ScreensProjectList = () => {
           </div>
 
           <div className="box">
-            <UIFormField childClass="has-icons-left">
-              <UIFormInput
-                placeholder="Search projects"
-                name="projectsSearch"
-                label="Filter projects"
-              />
-              <span className="icon is-small is-left">
-                <FontAwesomeIcon icon="search" />
-              </span>
-            </UIFormField>
             <div data-testid="screen-content">
               <ProjectList />
             </div>
