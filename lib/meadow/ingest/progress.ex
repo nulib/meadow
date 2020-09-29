@@ -61,8 +61,7 @@ defmodule Meadow.Ingest.Progress do
   end
 
   def works_processing_longer_than(seconds) do
-    now = DateTime.utc_now()
-    timeout = DateTime.add(now, -seconds, :second)
+    timeout = DateTime.utc_now() |> DateTime.add(-seconds, :second)
 
     from(p in Progress,
       where:
@@ -231,6 +230,9 @@ defmodule Meadow.Ingest.Progress do
 
   def send_notifications do
     Sheets.list_ingest_sheets_by_status(:approved)
+    |> Enum.each(&send_notification(&1.id))
+
+    Sheets.list_recently_updated(60)
     |> Enum.each(&send_notification(&1.id))
   end
 

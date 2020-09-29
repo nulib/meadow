@@ -6668,13 +6668,8 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-phoenix@^1.4.0:
+phoenix@^1.4.0, "phoenix@file:../deps/phoenix":
   version "1.5.5"
-  resolved "https://registry.yarnpkg.com/phoenix/-/phoenix-1.5.5.tgz#0db2b7fb8c798c594cab91e16995afedd3d2e228"
-  integrity sha512-4QenJ+pEFZvAqA73uFXhkRAWZhGYaV+IN1pAJ3SHamsFkPAYkTnyvFZmU6HxzxnZxDts5gNox/XzzUE6lY9eLg==
-
-"phoenix@file:../deps/phoenix":
-  version "1.5.4"
 
 "phoenix_html@file:../deps/phoenix_html":
   version "2.14.2"

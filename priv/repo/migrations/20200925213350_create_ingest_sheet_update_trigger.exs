@@ -19,7 +19,9 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetUpdateTrigger do
       AND ingest_progress.status NOT IN ('ok', 'error');
 
       IF pending = 0 THEN
-        UPDATE ingest_sheets SET status = 'completed' WHERE ingest_sheets.id = current_sheet_id;
+        UPDATE ingest_sheets
+        SET status = 'completed', updated_at = NOW() AT TIME ZONE 'utc'
+        WHERE ingest_sheets.id = current_sheet_id;
       END IF;
       RETURN NEW;
     END;
