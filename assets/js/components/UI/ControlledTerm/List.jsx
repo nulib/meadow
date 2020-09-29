@@ -12,14 +12,22 @@ const UIControlledTermList = ({ items = [], title }) => {
     <div className="content mb-4">
       <ul data-testid="controlled-term-list">
         {items.map((item) => (
-          <li key={`${item.term.id}-${item.role ? item.role.id : ""}`}>
+          <li
+            key={`${item.term.id}-${item.role ? item.role.id : ""}`}
+            data-testid="controlled-term-list-row"
+          >
             {componentId ? (
               <UIFacetLink facetComponentId={componentId} item={item} />
             ) : (
               item.term.label
             )}
             {item.term.id && (
-              <a href={item.term.id} target="_blank" className="ml-1">
+              <a
+                href={item.term.id}
+                target="_blank"
+                className="ml-1"
+                data-testid="external-link"
+              >
                 - {item.term.id}
                 <span className="icon" title={item.term.id}>
                   <FontAwesomeIcon icon="external-link-alt" />
