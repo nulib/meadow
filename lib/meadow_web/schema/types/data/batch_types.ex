@@ -12,7 +12,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :batch_update, :message do
       arg(:query, non_null(:string))
       arg(:delete, :batch_delete_input, default_value: %{})
-      arg(:add, :batch_add_input, default_value: %{})
+      arg(:add, :batch_add_input, default_value: nil)
       middleware(Middleware.Authenticate)
       resolve(&Batches.update/3)
     end
@@ -24,16 +24,11 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   @desc "Input fields for batch add operations"
   input_object :batch_add_input do
-    field :descriptive_metadata, :batch_add_descriptive_metadata_input
+    field :descriptive_metadata, :work_descriptive_metadata_input
   end
 
   @desc "Input fields for batch delete operations"
   input_object :batch_delete_input do
-    import_fields(:controlled_fields_input)
-  end
-
-  @desc "Descriptive metadata input fields for batch add operations"
-  input_object :batch_add_descriptive_metadata_input do
     import_fields(:controlled_fields_input)
   end
 end

@@ -9,6 +9,8 @@ defmodule Meadow.Data.Works do
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
+  use Meadow.Data.Works.BatchFunctions
+
   @doc """
   Returns the list of Works.
 

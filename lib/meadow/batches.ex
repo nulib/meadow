@@ -4,10 +4,17 @@ defmodule Meadow.Batches do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.{ControlledTerms, Indexer, Works}
-  alias Meadow.Utils.StructMap
+  alias Meadow.Data.{Indexer, Works}
+  alias Meadow.Data.Schemas.Work
+  alias Meadow.Repo
+
+  require Logger
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+  @uncontrolled_fields ~w(abstract alternate_title box_name box_number caption catalog_key citation
+                          description folder_name folder_number keywords notes terms_of_use
+                          physical_description_material physical_description_size provenance publisher
+                          related_material rights_holder scope_and_contents series source table_of_contents title)a
 
   def batch_update(query, delete, add) do
     Meadow.Repo.transaction(
@@ -21,58 +28,60 @@ defmodule Meadow.Batches do
 
   defp apply_changes([], _delete, _add), do: []
 
-  defp apply_changes([work | works], delete, add),
-    do: [apply_changes(work, delete, add) | apply_changes(works, delete, add)]
+  defp apply_changes(work_ids, delete, nil),
+    do: apply_changes(work_ids, delete, %{descriptive_metadata: %{}})
 
-  defp apply_changes(work, delete, add) do
-    with descriptive_metadata <- Map.from_struct(work.descriptive_metadata) do
-      new_descriptive_metadata =
-        Enum.reduce(@controlled_fields, descriptive_metadata, fn field, result ->
-          apply_changes(result, field, delete, add)
-        end)
+  defp apply_changes(work_ids, delete, add) do
+    @controlled_fields
+    |> Enum.each(fn field ->
+      apply_changes(
+        work_ids,
+        field,
+        get_in(delete, [field]),
+        get_in(add, [:descriptive_metadata, field])
+      )
+    end)
 
-      Works.update_work(work, %{descriptive_metadata: new_descriptive_metadata})
-    end
-  end
+    @uncontrolled_fields
+    |> Enum.each(fn field ->
+      case add |> Map.get(:descriptive_metadata) |> Map.get(field, :not_present) do
+        :not_present ->
+          :noop
 
-  defp apply_changes(metadata, field, delete, add) do
-    new_value = apply_deletes(metadata, field, delete)
-    values_to_add = apply_adds(new_value, field, add)
-
-    metadata
-    |> Map.put(field, new_value ++ values_to_add)
-    |> StructMap.deep_struct_to_map()
-  end
-
-  defp apply_deletes(metadata, field, delete) when map_size(delete) == 0 do
-    metadata
-    |> Map.get(field, [])
-  end
-
-  defp apply_deletes(metadata, field, delete) do
-    values_to_delete = delete |> Map.get(field, [])
-
-    metadata
-    |> Map.get(field, [])
-    |> Enum.reject(fn existing_value ->
-      Enum.any?(values_to_delete, fn delete_value ->
-        ControlledTerms.terms_equal?(existing_value, delete_value)
-      end)
+        value ->
+          from(w in Work, where: w.id in ^work_ids)
+          |> Works.replace_uncontrolled_value(:descriptive_metadata, to_string(field), value)
+          |> Repo.update_all([])
+      end
     end)
   end
 
-  defp apply_adds(metadata, _field, add) when map_size(add) == 0, do: metadata
+  defp apply_changes(_work_ids, _field, nil, nil), do: :noop
+  defp apply_changes(_work_ids, _field, [], nil), do: :noop
+  defp apply_changes(_work_ids, _field, nil, []), do: :noop
+  defp apply_changes(_work_ids, _field, [], []), do: :noop
 
-  defp apply_adds(metadata, field, add) do
-    add
-    |> Map.get(:descriptive_metadata, %{})
-    |> Map.get(field, [])
-    |> Enum.reject(fn add_value ->
-      Enum.any?(metadata, fn existing_value ->
-        ControlledTerms.terms_equal?(existing_value, add_value)
-      end)
-    end)
+  defp apply_changes(work_ids, field, delete, add) do
+    delete = prepare_data(delete)
+    add = prepare_data(add)
+
+    Logger.debug(
+      "Deleting #{inspect(delete)} and adding #{inspect(add)} to descriptive_metadata.#{field} on #{
+        length(work_ids)
+      } works"
+    )
+
+    from(w in Work, where: w.id in ^work_ids)
+    |> Works.replace_controlled_value(:descriptive_metadata, to_string(field), delete, add)
+    |> Repo.update_all([])
   end
+
+  defp prepare_data(nil), do: []
+
+  defp prepare_data(data) when is_list(data),
+    do: Enum.map(data, fn entry -> Map.put(entry, :role, Map.get(entry, :role, nil)) end)
+
+  defp prepare_data(data), do: prepare_data([data])
 
   defp process_updates({:ok, %{"hits" => %{"hits" => []}}}, _delete, _add) do
     {:ok, :noop}
@@ -82,7 +91,6 @@ defmodule Meadow.Batches do
     hits
     |> Map.get("hits")
     |> Enum.map(&Map.get(&1, "_id"))
-    |> Works.get_works()
     |> apply_changes(delete, add)
 
     Meadow.ElasticsearchCluster

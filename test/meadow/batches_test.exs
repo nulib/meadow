@@ -13,6 +13,8 @@ defmodule Meadow.BatchesTest do
         work_fixture(%{
           descriptive_metadata: %{
             title: "Work 1",
+            box_name: ["Michael Jordan"],
+            box_number: ["23"],
             contributor: [
               %{
                 role: %{scheme: "marc_relator", id: "aut"},
@@ -28,6 +30,8 @@ defmodule Meadow.BatchesTest do
         work_fixture(%{
           descriptive_metadata: %{
             title: "Work 2",
+            box_name: ["Michael Jordan"],
+            box_number: ["23"],
             contributor: [
               %{
                 role: %{scheme: "marc_relator", id: "aut"},
@@ -46,6 +50,8 @@ defmodule Meadow.BatchesTest do
         work_fixture(%{
           descriptive_metadata: %{
             title: "Work 3",
+            box_name: ["Michael Jordan"],
+            box_number: ["23"],
             contributor: [
               %{
                 role: %{scheme: "marc_relator", id: "aut"},
@@ -67,14 +73,37 @@ defmodule Meadow.BatchesTest do
       {:ok, %{works: works}}
     end
 
-    test "batch_update/2" do
+    test "batch_update/2 handles uncontrolled fields" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+
+      add = %{
+        descriptive_metadata: %{
+          title: "All these values",
+          alternate_title: ["New Alternate 1", "New Alternate 2"],
+          box_number: []
+        }
+      }
+
+      assert {:ok, _result} = Batches.batch_update(query, nil, add)
+
+      assert Works.get_works_by_title("All these values") |> length() == 3
+
+      Works.list_works()
+      |> Enum.each(fn work ->
+        assert work.descriptive_metadata.alternate_title |> length() == 2
+        assert work.descriptive_metadata.box_name == ["Michael Jordan"]
+        assert work.descriptive_metadata.box_number == []
+      end)
+    end
+
+    test "batch_update/2 handles controlled fields" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
 
       delete = %{
         contributor: [
           %{
             role: %{scheme: "marc_relator", id: "aut"},
-            term: %{id: "http://id.loc.gov/authorities/names/n50053919"}
+            term: "http://id.loc.gov/authorities/names/n50053919"
           }
         ],
         genre: [
@@ -85,7 +114,7 @@ defmodule Meadow.BatchesTest do
       add = %{
         descriptive_metadata: %{
           style_period: [
-            %{role: nil, term: %{id: "http://vocab.getty.edu/aat/300139140"}}
+            %{role: nil, term: "http://vocab.getty.edu/aat/300139140"}
           ]
         }
       }
