@@ -129,10 +129,10 @@
   dependencies:
     "@apollo/client" latest
 
-"@appbaseio/reactivecore@9.6.19":
-  version "9.6.19"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.19.tgz#901d75cdee8f07d53f2be4ed4658f56e1ebbcaec"
-  integrity sha512-12lNCL3E+CK2bRPdlqJZKsl1HzZzD9GuxjtZq5wSGa0HHoWbT7C6btb57gL5kbUbhP8qB+fDYzGlRw6VuEDrsQ==
+"@appbaseio/reactivecore@9.6.20":
+  version "9.6.20"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.20.tgz#c1287a23c3bbacb0ab134104a94b1e8ecfaf9100"
+  integrity sha512-yrC+BnIprmeM2T9hLE8NpAWn1LogYqeZpqqw7na2xyeHUtk13K6C68E1L9JOLOus2kY5aMXfqdipS6qIjINiGA==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -140,12 +140,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@3.12.4":
-  version "3.12.4"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.4.tgz#6842c9f004c456d9850e822aab2b4ee1e320dae6"
-  integrity sha512-jvo5QNVf/vmrdvHRTrXuC2tvsy9d4X2FudkKKyScL3+7sLUz1PAPGnQfFYJ4z5qfVFsBvIG47t7p3oSQdwgZLA==
+"@appbaseio/reactivesearch@3.12.5":
+  version "3.12.5"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.5.tgz#fa006b4fdbb6f16e5d317d86fe28a5efe53ab38a"
+  integrity sha512-EDVRrkU/5jt/y6xsMqLor31Eh3FPUFdSxwbY9X5u0r6/mn7ae4UjlJG8qnFNVVBekOX23sQBsB3hQ0yMZNSvhw==
   dependencies:
-    "@appbaseio/reactivecore" "9.6.19"
+    "@appbaseio/reactivecore" "9.6.20"
     "@emotion/core" "^10.0.28"
     "@emotion/styled" "^10.0.27"
     appbase-js "^4.1.0"
@@ -1234,7 +1234,7 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.2.5.tgz#8eed982e2ee6f7f4e44c253e12962980791efd46"
   integrity sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==
 
-"@fortawesome/fontawesome-common-types@^0.2.30", "@fortawesome/fontawesome-common-types@^0.2.31":
+"@fortawesome/fontawesome-common-types@^0.2.31":
   version "0.2.31"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.31.tgz#f15a39e5ab4e5dfda0717733bcacb9580e666ad9"
   integrity sha512-xfnPyH6NN5r/h1/qDYoGB0BlHSID902UkQzxR8QsoKDh55KAPr8ruAoie12WQEEQT8lRE2wtV7LoUllJ1HqCag==
