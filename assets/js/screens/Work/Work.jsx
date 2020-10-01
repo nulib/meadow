@@ -7,8 +7,7 @@ import {
   DELETE_WORK,
 } from "../../components/Work/work.gql.js";
 import UIModalDelete from "../../components/UI/Modal/Delete";
-import { useHistory } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import Layout from "../Layout";
 import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
@@ -19,11 +18,22 @@ import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import WorkMultiEditBar from "../../components/Work/MultiEditBar";
+import { useBatchState } from "../../context/batch-edit-context";
 
 const ScreensWork = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const { id } = params;
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const batchState = useBatchState();
+
+  const multiCurrentIndex = params.counter
+    ? parseInt(params.counter.split(",")[0])
+    : null;
+  const multiTotalItems = params.counter
+    ? parseInt(params.counter.split(",")[1])
+    : null;
 
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id },
@@ -76,6 +86,23 @@ const ScreensWork = () => {
     deleteWork({ variables: { workId: id } });
   };
 
+  const handleMultiNavClick = (nextWorkIndex) => {
+    history.push(
+      `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`
+    );
+  };
+
+  const isMulti = () => {
+    if (!params.multi) {
+      return false;
+    }
+    return (
+      multiCurrentIndex > -1 &&
+      multiTotalItems &&
+      batchState.editAndViewWorks.length > 0
+    );
+  };
+
   const onOpenModal = () => {
     setDeleteModalOpen(true);
   };
@@ -110,6 +137,15 @@ const ScreensWork = () => {
       <section className="section" data-testid="work-hero">
         <div className="container">
           <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
+
+          {isMulti() && (
+            <WorkMultiEditBar
+              currentIndex={multiCurrentIndex}
+              handleMultiNavClick={handleMultiNavClick}
+              totalItems={multiTotalItems}
+            />
+          )}
+
           <div className="box">
             {loading ? (
               <UISkeleton rows={5} />
