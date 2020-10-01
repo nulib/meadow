@@ -196,6 +196,7 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
+      assert doc |> get_in(["model", "name"]) == "Collection"
       assert doc |> get_in(["title"]) == subject.title
     end
 
@@ -203,6 +204,7 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
+      assert doc |> get_in(["model", "name"]) == "Image"
       assert doc |> get_in(["fileSets"]) |> length == 2
 
       with metadata <- subject.descriptive_metadata do
@@ -219,6 +221,7 @@ defmodule Meadow.Data.IndexerTest do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
+      assert doc |> get_in(["model", "name"]) == "FileSet"
       assert doc |> get_in(["description"]) == subject.metadata.description
       assert doc |> get_in(["label"]) == subject.metadata.label
     end
