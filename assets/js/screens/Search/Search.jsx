@@ -67,6 +67,17 @@ const ScreensSearch = () => {
     }
   };
 
+  const handleViewAndEdit = () => {
+    dispatch({
+      type: "updateEditAndViewWorks",
+      items: selectedItems,
+    });
+
+    history.push(
+      `/work/${selectedItems[0]}/multi/${0},${selectedItems.length}`
+    );
+  };
+
   return (
     <Layout>
       <section className="section">
@@ -90,6 +101,7 @@ const ScreensSearch = () => {
               <SearchActionRow
                 handleDeselectAll={handleDeselectAll}
                 handleEditAllItems={handleEditAllItems}
+                handleViewAndEdit={handleViewAndEdit}
                 numberOfResults={resultStats.numberOfResults}
                 selectedItems={selectedItems}
               />

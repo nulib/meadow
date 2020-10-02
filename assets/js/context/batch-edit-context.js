@@ -4,6 +4,7 @@ const BatchStateContext = React.createContext();
 const BatchDispatchContext = React.createContext();
 
 const defaultState = {
+  editAndViewWorks: [],
   filteredQuery: null,
   parsedAggregations: null,
   removeItems: null,
@@ -61,6 +62,13 @@ function batchReducer(state, action) {
           ...state.removeItems,
           ...calculateItemList(state, action),
         },
+      };
+    }
+    // This is new
+    case "updateEditAndViewWorks": {
+      return {
+        ...state,
+        editAndViewWorks: [...action.items],
       };
     }
     case "updateSearchResults": {

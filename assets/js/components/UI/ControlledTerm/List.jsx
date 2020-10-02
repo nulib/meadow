@@ -16,24 +16,26 @@ const UIControlledTermList = ({ items = [], title }) => {
             key={`${item.term.id}-${item.role ? item.role.id : ""}`}
             data-testid="controlled-term-list-row"
           >
-            {componentId ? (
-              <UIFacetLink facetComponentId={componentId} item={item} />
-            ) : (
-              item.term.label
-            )}
-            {item.term.id && (
-              <a
-                href={item.term.id}
-                target="_blank"
-                className="ml-1"
-                data-testid="external-link"
-              >
-                - {item.term.id}
-                <span className="icon" title={item.term.id}>
-                  <FontAwesomeIcon icon="external-link-alt" />
-                </span>
-              </a>
-            )}
+            <div className="buttons">
+              {componentId ? (
+                <UIFacetLink facetComponentId={componentId} item={item} />
+              ) : (
+                item.term.label
+              )}
+              {item.term.id && (
+                <a
+                  href={item.term.id}
+                  target="_blank"
+                  className="ml-1 button is-text is-small"
+                  data-testid="external-link"
+                >
+                  <span className="icon" title={item.term.id}>
+                    <FontAwesomeIcon icon="external-link-alt" />
+                  </span>
+                  <span>{item.term.id}</span>
+                </a>
+              )}
+            </div>
           </li>
         ))}
       </ul>

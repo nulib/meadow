@@ -66,7 +66,11 @@ export default class Root extends React.Component {
                   component={ScreensProject}
                 />
 
-                <PrivateRoute exact path="/work/:id" component={ScreensWork} />
+                <PrivateRoute
+                  exact
+                  path="/work/:id/:multi?/:counter?"
+                  component={ScreensWork}
+                />
                 <PrivateRoute
                   exact
                   path="/collection/list"

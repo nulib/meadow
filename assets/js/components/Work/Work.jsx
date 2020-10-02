@@ -7,11 +7,12 @@ const osdOptions = {
   showDropdown: true,
   showThumbnails: true,
   showToolbar: true,
-  deepLinking: true,
+  deepLinking: false,
   height: 800,
 };
 
 const Work = ({ work }) => {
+  console.log("work.id :>> ", work.id);
   return (
     <>
       <section>
