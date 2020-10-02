@@ -67,9 +67,6 @@ const CollectionForm = ({ collection }) => {
   };
 
   const onSubmit = (data) => {
-    console.log("data", data);
-    console.log("collection", collection);
-
     if (!collection) {
       createCollection({
         variables: { ...data },

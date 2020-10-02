@@ -12,7 +12,6 @@ const osdOptions = {
 };
 
 const Work = ({ work }) => {
-  console.log("work.id :>> ", work.id);
   return (
     <>
       <section>

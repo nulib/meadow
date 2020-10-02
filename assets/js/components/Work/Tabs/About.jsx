@@ -97,7 +97,6 @@ const WorkTabsAbout = ({ work }) => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
     let currentFormValues = methods.getValues();
-
     const { description = "", title = "" } = currentFormValues;
 
     let workUpdateInput = {
