@@ -31,6 +31,7 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
+              isReactHookForm
               name="title"
               label="Title"
               data-testid="title"
@@ -42,6 +43,7 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
+
       <div className="column is-full">
         {/* Alternate Title */}
         {isEditing ? (
@@ -65,7 +67,6 @@ const WorkTabsAboutCoreMetadata = ({
             <UIInput
               name="dateCreated"
               label="Date Created"
-              type="date"
               data-testid="date-created"
               defaultValue={descriptiveMetadata.dateCreated}
             />
@@ -82,6 +83,7 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Rights Statement">
           {isEditing ? (
             <UIFormSelect
+              isReactHookForm
               name="rightsStatement"
               label="Rights Statement"
               showHelper={true}
@@ -105,6 +107,7 @@ const WorkTabsAboutCoreMetadata = ({
         <UIFormField label="Description">
           {isEditing ? (
             <UIFormTextarea
+              isReactHookForm
               name="description"
               label="Description"
               data-testid="description"
