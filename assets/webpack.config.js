@@ -85,6 +85,7 @@ module.exports = (env, options) => ({
     // use it's React, not the npm module's React
     alias: {
       react: path.resolve(__dirname, "./node_modules/react"),
+      "@js": path.resolve(__dirname, "./js"),
     },
   },
 });

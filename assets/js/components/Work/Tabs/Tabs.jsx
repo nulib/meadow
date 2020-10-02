@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import WorkTabAbout from "./About";
-import WorkTabStructure from "./Structure";
+import WorkTabStructure from "./Structure/Structure";
 import WorkTabsAdministrative from "./Administrative";
 import WorkTabsPreservation from "./Preservation";
 import { IIIFProvider } from "../../IIIF/IIIFProvider";
@@ -10,6 +10,10 @@ const WorkTabs = ({ work }) => {
   const handleTabClick = (e) => {
     setActiveTab(e.target.id);
   };
+
+  if (!work) {
+    return null;
+  }
 
   return (
     <>
