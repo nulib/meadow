@@ -176,6 +176,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
      |> Enum.map(&update_action_doc/1)}
   end
 
+  def ingest_sheet_works(_, %{id: sheet_id, limit: limit}, _) do
+    {:ok, sheet_id |> Sheets.list_ingest_sheet_works(limit)}
+  end
+
   def ingest_sheet_works(_, %{id: sheet_id}, _) do
     {:ok, sheet_id |> Sheets.list_ingest_sheet_works()}
   end
