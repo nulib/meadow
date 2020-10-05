@@ -1,5 +1,13 @@
 import gql from "graphql-tag";
 
+export const UPDATE_FILE_SETS = gql`
+  mutation UpdateFileSets($id: ID!) {
+    updateFileSets(id: $id) @client {
+      id
+    }
+  }
+`;
+
 export const CREATE_SHARED_LINK = gql`
   mutation CreateSharedLink($workId: ID!) {
     createSharedLink(workId: $workId) {

@@ -4,7 +4,10 @@ import PropTypes from "prop-types";
 import useIsEditing from "@js/hooks/useIsEditing";
 import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
-import { SET_WORK_IMAGE } from "@js/components/Work/work.gql.js";
+import {
+  SET_WORK_IMAGE,
+  UPDATE_FILE_SETS,
+} from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { mockFileSets } from "@js/mock-data/filesets";
@@ -20,6 +23,12 @@ const WorkTabsStructure = ({ work }) => {
   if (!work) {
     return null;
   }
+
+  const [updateFileSets] = useMutation(UPDATE_FILE_SETS, {
+    onCompleted({ updateFileSets }) {
+      console.log("updateFileSets HERE", updateFileSets);
+    },
+  });
 
   const [isEditing, setIsEditing] = useIsEditing();
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
@@ -47,6 +56,20 @@ const WorkTabsStructure = ({ work }) => {
   const onSubmit = (data) => {
     // TODO : add logic to update filesets for given work.
     console.log(data);
+
+    // Send POST data to mutation
+    // Looks like?
+    /**
+     * [{
+     *  id,
+     *  metadata: {
+     *    label: "",
+     *    description: ""
+     * }
+     * }]
+     *
+     */
+    updateFileSets({ variables: { items: ["ABC123"] } });
   };
 
   return (
