@@ -31,4 +31,9 @@ describe("BatchEditRemove component", () => {
     fireEvent.click(el);
     expect(mockHandleRemoveClick).toHaveBeenCalled();
   });
+
+  it("renders clear entries button", () => {
+    const { getAllByTestId } = setupTests();
+    expect(getAllByTestId("remove-delete-entries")).toHaveLength(2);
+  });
 });

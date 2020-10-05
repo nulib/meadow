@@ -80,7 +80,9 @@ const BatchEditConfirmation = ({
 
   const hasAdds =
     batchAdds && Object.keys(batchAdds.descriptiveMetadata).length > 0;
-  const hasDeletes = batchDeletes && Object.keys(batchDeletes).length > 0;
+
+  const hasDeletes =
+    batchDeletes && !Object.values(batchDeletes).every((item) => !item.length);
 
   return (
     <div

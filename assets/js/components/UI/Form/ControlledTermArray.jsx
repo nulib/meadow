@@ -71,6 +71,7 @@ const UIFormControlledTermArray = ({
                           hasErrors={
                             !!(errors[name] && errors[name][index].roleId)
                           }
+                          isReactHookForm
                           name={`${itemName}.roleId`}
                           defaultValue={item.roleId}
                           label="Role"
