@@ -65,6 +65,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     @desc "Get works created for an Ingest Sheet"
     field :ingest_sheet_works, list_of(:work) do
       arg(:id, non_null(:id))
+      arg(:limit, :integer)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Ingest.ingest_sheet_works/3)
     end

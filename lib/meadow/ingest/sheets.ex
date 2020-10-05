@@ -302,20 +302,19 @@ defmodule Meadow.Ingest.Sheets do
     list_ingest_sheet_row_counts(sheet.id)
   end
 
-  def list_ingest_sheet_works(%Sheet{} = ingest_sheet) do
-    ingest_sheet
-    |> Repo.preload(:works)
-    |> Map.get(:works)
-    |> Works.add_representative_image()
+  def list_ingest_sheet_works(ingest_sheet, limit \\ nil)
+
+  def list_ingest_sheet_works(%Sheet{} = ingest_sheet, limit) do
+    ingest_sheet.id
+    |> list_ingest_sheet_works(limit)
   end
 
-  def list_ingest_sheet_works(sheet_id) do
-    from(s in Meadow.Ingest.Schemas.Sheet,
-      where: s.id == ^sheet_id,
-      preload: :works
+  def list_ingest_sheet_works(sheet_id, limit) do
+    from(w in Work,
+      where: w.ingest_sheet_id == ^sheet_id,
+      limit: ^limit
     )
-    |> Repo.one()
-    |> Map.get(:works)
+    |> Repo.all()
     |> Works.add_representative_image()
   end
 
