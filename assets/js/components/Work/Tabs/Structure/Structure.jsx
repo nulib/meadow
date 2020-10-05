@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 import useIsEditing from "@js/hooks/useIsEditing";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SET_WORK_IMAGE } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { mockFileSets } from "@js/mock-data/filesets";
-import WorkTabsStructureFilesets from "./Filesets";
+import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -25,7 +25,7 @@ const WorkTabsStructure = ({ work }) => {
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
     parseWorkRepresentativeImage(work)
   );
-  const { register, handleSubmit, errors } = useForm();
+  const methods = useForm();
 
   const [setWorkImage] = useMutation(SET_WORK_IMAGE, {
     onCompleted({ setWorkImage }) {
@@ -50,76 +50,82 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   return (
-    <form name="work-structure-form" onSubmit={handleSubmit(onSubmit)}>
-      <UITabsStickyHeader title="Filesets">
-        {!isEditing && (
-          <button
-            type="button"
-            className="button is-primary"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit
-          </button>
-        )}
-        {isEditing && (
-          <>
-            <button type="submit" className="button is-primary">
-              Save
-            </button>
+    <FormProvider {...methods}>
+      <form
+        name="work-structure-form"
+        onSubmit={methods.handleSubmit(onSubmit)}
+      >
+        <UITabsStickyHeader title="Filesets">
+          {!isEditing && (
             <button
               type="button"
-              className="button is-text"
-              onClick={() => setIsEditing(false)}
+              className="button is-primary"
+              onClick={() => setIsEditing(true)}
             >
-              Cancel
+              Edit
             </button>
-          </>
-        )}
-      </UITabsStickyHeader>
+          )}
+          {isEditing && (
+            <>
+              <button type="submit" className="button is-primary">
+                Save
+              </button>
+              <button
+                type="button"
+                className="button is-text"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </UITabsStickyHeader>
 
-      <WorkTabsStructureFilesets
-        filesets={mockFileSets}
-        handleDownloadClick={handleDownloadClick}
-        isEditing={isEditing}
-        workImageFilesetId={workImageFilesetId}
-      />
+        <WorkTabsStructureFilesetsDragAndDrop
+          filesets={mockFileSets}
+          handleDownloadClick={handleDownloadClick}
+          handleWorkImageChange={handleWorkImageChange}
+          isEditing={isEditing}
+          workImageFilesetId={workImageFilesetId}
+        />
 
-      <div className="box">
-        <h3 className="subtitle">Download all files as zip</h3>
-        <div className="columns">
-          <div className="column">
-            <div className="field">
-              <input
-                type="radio"
-                className="is-checkradio"
-                name="downloadsize"
-                id="downloadsize1"
-              />
-              <label htmlFor="downloadsize1"> Full size</label>
-              <input
-                type="radio"
-                className="is-checkradio"
-                name="downloadsize"
-                id="downloadsize2"
-              />
-              <label htmlFor="downloadsize2"> 3000x3000</label>
-              <input
-                type="radio"
-                className="is-checkradio"
-                name="downloadsize"
-                id="downloadsize3"
-              />
-              <label htmlFor="downloadsize3"> 1000x1000</label>
+        <div className="box">
+          <h3 className="subtitle">Download all files as zip</h3>
+          <div className="columns">
+            <div className="column">
+              <div className="field">
+                <input
+                  type="radio"
+                  className="is-checkradio"
+                  name="downloadsize"
+                  id="downloadsize1"
+                />
+                <label htmlFor="downloadsize1"> Full size</label>
+                <input
+                  type="radio"
+                  className="is-checkradio"
+                  name="downloadsize"
+                  id="downloadsize2"
+                />
+                <label htmlFor="downloadsize2"> 3000x3000</label>
+                <input
+                  type="radio"
+                  className="is-checkradio"
+                  name="downloadsize"
+                  id="downloadsize3"
+                />
+                <label htmlFor="downloadsize3"> 1000x1000</label>
+              </div>
+            </div>
+
+            <div className="column buttons has-text-right">
+              <button className="button">Download Tiffs</button>
+              <button className="button is-primary">Download JPGs</button>
             </div>
           </div>
-
-          <div className="column buttons has-text-right">
-            <button className="button">Download Tiffs</button>
-            <button className="button is-primary">Download JPGs</button>
-          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 };
 

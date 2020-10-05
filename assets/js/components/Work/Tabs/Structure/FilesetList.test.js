@@ -1,17 +1,23 @@
 import React from "react";
-import WorkTabsStructureFilesets from "./Filesets";
+import WorkTabsStructureFilesetList from "./FilesetList";
 import { render, screen } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
+import { withReactBeautifulDND } from "@js/services/testing-helpers";
 
 describe("WorkTabsStructureFilesets components", () => {
+  beforeEach(() => {
+    render(
+      withReactBeautifulDND(WorkTabsStructureFilesetList, {
+        filesets: mockFileSets,
+      })
+    );
+  });
+
   it("renders the component", () => {
-    render(<WorkTabsStructureFilesets filesets={mockFileSets} />);
     expect(screen.getByTestId("fileset-list"));
   });
 
   it("renders a list of filesets with an image, label and description", () => {
-    render(<WorkTabsStructureFilesets filesets={mockFileSets} />);
-
     const filesetEls = screen.getAllByTestId("fileset-item");
     expect(filesetEls).toHaveLength(3);
     expect(filesetEls[0]).toHaveTextContent(
@@ -25,7 +31,6 @@ describe("WorkTabsStructureFilesets components", () => {
   });
 
   it("renders a selector element to make fileset a work representative image", () => {
-    render(<WorkTabsStructureFilesets filesets={mockFileSets} />);
     expect(screen.getAllByTestId("work-image-selector")).toHaveLength(3);
   });
 });
