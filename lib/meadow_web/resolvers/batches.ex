@@ -4,17 +4,20 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
   """
   alias Meadow.Batches
 
-  def update(_, %{query: _query, delete: delete, add: add}, _)
-      when map_size(delete) == 0 and map_size(add) == 0 do
-    {:ok, %{message: "No updates specified"}}
-  end
-
   def update(_, %{query: query, delete: delete, add: add}, _) do
-    {_response, _pid} =
-      Meadow.Async.run_once("batch_update", fn ->
-        Batches.batch_update(query, delete, add)
-      end)
-
-    {:ok, %{message: "Batch started"}}
+    if empty_param(add) and empty_param(delete) do
+      {:ok, %{message: "No updates specified"}}
+    else
+      Meadow.Async.run_once("batch_update", fn -> Batches.batch_update(query, delete, add) end)
+      {:ok, %{message: "Batch started"}}
+    end
   end
+
+  def update(arg1, %{query: query, delete: delete}, arg3),
+    do: update(arg1, %{query: query, delete: delete, add: %{descriptive_metadata: %{}}}, arg3)
+
+  defp empty_param(nil), do: true
+  defp empty_param(param) when map_size(param) == 0, do: true
+  defp empty_param(%{descriptive_metadata: param}) when map_size(param) == 0, do: true
+  defp empty_param(_), do: false
 end

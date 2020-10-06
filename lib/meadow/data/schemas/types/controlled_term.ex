@@ -16,6 +16,8 @@ defmodule Meadow.Data.Types.ControlledTerm do
   def cast(_), do: {:error, message: "Invalid controlled term type"}
 
   def load(uri) when is_binary(uri), do: validate_uri(uri)
+  def load(%{id: id}), do: validate_uri(id)
+  def load(%{"id" => id}), do: validate_uri(id)
   def load(_), do: :error
 
   def dump(uri) when is_binary(uri), do: {:ok, uri}
