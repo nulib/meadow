@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import Layout from "../Layout";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import BatchEditPreviewItems from "../../components/BatchEdit/PreviewItems";
+import PreviewItems from "../../components/BatchEdit/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -65,7 +65,12 @@ const ScreensBatchEdit = () => {
                 {isLoadingPreviewItems ? (
                   <UISkeleton rows={5} />
                 ) : (
-                  <BatchEditPreviewItems items={previewItems} />
+                  <div>
+                    <p className="mb-2">
+                      <strong>Items preview</strong>
+                    </p>
+                    <PreviewItems items={previewItems} />
+                  </div>
                 )}
               </div>
             )}

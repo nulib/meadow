@@ -1,13 +1,11 @@
 import React from "react";
-import BatchEditPreviewItems from "./PreviewItems";
+import PreviewItems from "./PreviewItems";
 import { renderWithRouter } from "../../services/testing-helpers";
 import { batchEditPreviewItems } from "../../mock-data/batch-edit-preview-items";
 
 describe("Batch-edit preview items component", () => {
   function setUpTests() {
-    return renderWithRouter(
-      <BatchEditPreviewItems items={batchEditPreviewItems} />
-    );
+    return renderWithRouter(<PreviewItems items={batchEditPreviewItems} />);
   }
   it("renders the list", () => {
     const { getByTestId, debug } = setUpTests();

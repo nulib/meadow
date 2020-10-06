@@ -59,7 +59,10 @@ const IngestSheet = ({
 
           {["COMPLETED"].indexOf(status) > -1 && (
             <>
-              <IngestSheetCompleted sheetId={ingestSheetData.id} />
+              <IngestSheetCompleted
+                sheetId={ingestSheetData.id}
+                title={title}
+              />
             </>
           )}
 
