@@ -11,6 +11,7 @@ import {
   marcRelatorMock,
   subjectMock,
 } from "../components/Work/controlledVocabulary.gql.mock";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 
 /**
  * Testing Library utility function to wrap tested component in React Hook Form
@@ -150,6 +151,26 @@ export function setupCachedCodeListsLocalStorage() {
       AUTHORITY: authorityMock,
       SUBJECT_ROLE: subjectMock,
     })
+  );
+}
+
+/**
+ * Higher order helper function which wraps a component w/ React Beautiful DND
+ * @param {React Component} WrappedComponent to pass into
+ * @param {*} restProps any other remaining props
+ * @returns {React Component}
+ */
+export function withReactBeautifulDND(WrappedComponent, restProps) {
+  return (
+    <DragDropContext>
+      <Droppable droppableId="list">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <WrappedComponent {...restProps} />
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 }
 

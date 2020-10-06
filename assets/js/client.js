@@ -10,6 +10,7 @@ import { hasSubscription } from "@jumpn/utils-graphql";
 import * as AbsintheSocket from "@absinthe/socket";
 import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
 import { Socket as PhoenixSocket } from "phoenix";
+import { typeDefs, resolvers } from "./client-local";
 
 // Create an HTTP link that fetches GraphQL results over an HTTP
 // connection from the Phoenix app's GraphQL API endpoint URL.
@@ -39,6 +40,8 @@ const link = new ApolloLink.split(
 const client = new ApolloClient({
   link: link,
   cache: new InMemoryCache(),
+  typeDefs,
+  resolvers,
 });
 
 export default client;

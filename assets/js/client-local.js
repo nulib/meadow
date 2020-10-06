@@ -5,6 +5,10 @@ export const typeDefs = gql`
   extend type Work {
     foo: String!
   }
+
+  extend type Mutation {
+    updateFileSets(fileSets: [FileSet]): String
+  }
 `;
 
 export const resolvers = {
@@ -27,6 +31,9 @@ export const resolvers = {
     fetchControlledTermLabel: (root, { _id }) =>
       mockLabelFetch("ControlledValue"),
     fetchCodedTermLabel: () => mockLabelFetch("CodedTerm"),
+  },
+  Mutation: {
+    updateFileSets: () => "Return message or id of individually updated item",
   },
 };
 
