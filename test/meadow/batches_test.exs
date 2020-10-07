@@ -9,8 +9,11 @@ defmodule Meadow.BatchesTest do
     setup do
       MetadataGenerator.prewarm_cache()
 
+      collection = collection_fixture(%{title: "Original Collection"})
+
       works = [
         work_fixture(%{
+          collection: collection,
           descriptive_metadata: %{
             title: "Work 1",
             box_name: ["Michael Jordan"],
@@ -28,6 +31,7 @@ defmodule Meadow.BatchesTest do
           }
         }),
         work_fixture(%{
+          collection: collection,
           descriptive_metadata: %{
             title: "Work 2",
             box_name: ["Michael Jordan"],
@@ -48,6 +52,7 @@ defmodule Meadow.BatchesTest do
           }
         }),
         work_fixture(%{
+          collection: collection,
           descriptive_metadata: %{
             title: "Work 3",
             box_name: ["Michael Jordan"],
@@ -129,6 +134,18 @@ defmodule Meadow.BatchesTest do
 
       assert List.first(Works.get_works_by_title("Work 2")).descriptive_metadata.style_period
              |> length() == 1
+    end
+
+    test "batch_update/2 updates collection" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      new_collection = collection_fixture(%{title: "New Collection"})
+
+      assert Works.list_works(collection_id: new_collection.id) |> length == 0
+
+      assert {:ok, _result} =
+               Batches.batch_update(query, nil, %{collection_id: new_collection.id})
+
+      assert Works.list_works(collection_id: new_collection.id) |> length == 3
     end
   end
 end

@@ -39,6 +39,12 @@ defmodule Meadow.Data.Works do
     query = from(Work)
 
     Enum.reduce(criteria, query, fn
+      {:collection, collection}, query ->
+        from w in query, where: w.collection_id == ^collection.id
+
+      {:collection_id, collection_id}, query ->
+        from w in query, where: w.collection_id == ^collection_id
+
       {:limit, limit}, query ->
         from w in query, limit: ^limit
 

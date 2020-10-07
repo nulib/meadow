@@ -24,6 +24,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   @desc "Input fields for batch add operations"
   input_object :batch_add_input do
+    field :collection_id, :id
     field :descriptive_metadata, :work_descriptive_metadata_input
   end
 
