@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import UIWorkImage from "./Image";
+import { getImageUrl } from "../../services/helpers";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -36,19 +38,13 @@ export default function PreviewItems({ items = [] }) {
   return (
     <div className="is-centered ">
       <ul css={inlineList} data-testid="list-preview-items">
-        {items.map(({ id, representativeFileSet, representativeImage }) => (
+        {items.map(({ id, representativeImage }) => (
           <li key={id} className="mr-4 mb-4 is-inline-block" css={previewItem}>
             <Link to={`/work/${id}`} target="_blank" className="hvr-shrink">
               <figure>
-                <img
-                  data-testid="image-preview"
-                  src={
-                    representativeImage
-                      ? `${representativeImage}/square/128,128/0/default.jpg`
-                      : representativeFileSet.url
-                      ? `${representativeFileSet.url}/square/128,128/0/default.jpg`
-                      : "https://bulma.io/images/placeholders/128x128.png"
-                  }
+                <UIWorkImage
+                  imageUrl={getImageUrl(representativeImage)}
+                  size={128}
                 />
               </figure>
             </Link>

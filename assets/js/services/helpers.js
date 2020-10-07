@@ -42,6 +42,13 @@ export function getClassFromIngestSheetStatus(status) {
   return "";
 }
 
+export function getImageUrl(representativeImage) {
+  if (typeof representativeImage === "object") {
+    return representativeImage.url || "";
+  }
+  return representativeImage;
+}
+
 export const TEMP_USER_FRIENDLY_STATUS = {
   UPLOADED: "Validation in progress...",
   ROW_FAIL: "Validation Errors",

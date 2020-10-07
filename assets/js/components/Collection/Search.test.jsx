@@ -29,18 +29,4 @@ describe("CollectionSearch component", () => {
       "Untitled"
     );
   });
-
-  it("displays work image", () => {
-    const { getByTestId } = setupTests();
-    const el = getByTestId("work-image-1id-23343432");
-    expect(el.getAttribute("src")).toEqual(
-      "repImage1url.com/full/1280,960/0/default.jpg"
-    );
-  });
-
-  it("displays default work image", () => {
-    const { getByTestId } = setupTests();
-    const el = getByTestId("work-image-2is-234o24332-id");
-    expect(el.getAttribute("src")).toEqual("/images/480x480.png");
-  });
 });

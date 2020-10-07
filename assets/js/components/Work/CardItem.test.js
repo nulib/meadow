@@ -15,14 +15,6 @@ it("Displays Work card", () => {
   expect(getByTestId("ui-workcard")).toBeInTheDocument();
 });
 
-it("Displays Representative Image for Work", () => {
-  const { getByTestId, debug } = setupTests();
-  const el = getByTestId("work-image-ABC123");
-  expect(el.getAttribute("src")).toEqual(
-    "http://foobar/full/1280,960/0/default.jpg"
-  );
-});
-
 describe("Shows Work content", () => {
   it("Displays Visibility Tag", () => {
     const { getByTestId, findByText } = setupTests();

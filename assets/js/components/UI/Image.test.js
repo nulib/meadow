@@ -1,0 +1,24 @@
+import React from "react";
+import { screen, render } from "@testing-library/react";
+import UIWorkImage from "./Image";
+import { getImageUrl } from "../../services/helpers";
+
+const imageUrl = getImageUrl("www.northwestern.edu");
+describe("UIWorkImage component", () => {
+  it("renders UIWorkImage placeholder", () => {
+    render(<UIWorkImage imageUrl="" />);
+    const imageEl = screen.getByTestId("image-source");
+    expect(imageEl);
+    expect(imageEl.getAttribute("src")).toContain(
+      `https://bulma.io/images/placeholders/128x128.png`
+    );
+  });
+
+  it("renders correct Image source", () => {
+    render(<UIWorkImage imageUrl={imageUrl} size={500} />);
+    const imageEl = screen.getByTestId("image-source");
+    expect(imageEl.getAttribute("src")).toContain(
+      `www.northwestern.edu/square/500,500/0/default.jpg`
+    );
+  });
+});

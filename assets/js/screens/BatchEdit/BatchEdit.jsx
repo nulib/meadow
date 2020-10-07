@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import Layout from "../Layout";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import PreviewItems from "../../components/BatchEdit/PreviewItems";
+import PreviewItems from "../../components/UI/PreviewItems";
 import BatchEditTabs from "../../components/BatchEdit/Tabs";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -27,7 +27,7 @@ const ScreensBatchEdit = () => {
         resultItems = results.hits.hits.map((hit) => {
           return {
             id: hit._source.id,
-            representativeFileSet: hit._source.representativeFileSet,
+            representativeImage: hit._source.representativeFileSet,
           };
         });
       }

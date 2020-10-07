@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useHistory } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import PropTypes from "prop-types";
 import {
@@ -7,11 +8,12 @@ import {
 } from "./ingestSheet.gql";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
-import PreviewItems from "../BatchEdit/PreviewItems";
+import PreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
-import UIFacetLink from "../UI/FacetLink";
+import { Button } from "@nulib/admin-react-components";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
+  const history = useHistory();
   const {
     loading: worksLoading,
     error: worksError,
@@ -31,8 +33,14 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   if (errorsError) return <Error error={errorsError} />;
 
   const works = worksData.ingestSheetWorks;
-  const facetItem = { term: { label: title } };
-
+  const handleClick = () => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: "IngestSheet",
+        value: title,
+      },
+    });
+  };
   let ingestSheetErrors = [];
 
   try {
@@ -45,9 +53,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
 
-      <h2 className="title is-size-5 is-size-8">
-        Ingest Sheet Content Preview
-      </h2>
+      <h2 className="title is-size-5 is-size-8">Works Preview</h2>
 
       <div data-testid="preview-wrapper">
         {errorsLoading || worksLoading ? (
@@ -55,10 +61,13 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
         ) : (
           <div>
             <PreviewItems items={works} />
-            <p className="notification has-text-centered">
+
+            <p className="pt-4 has-text-centered">
               This is a preview of Ingest Sheet works. To view full list of
               works in this Ingest Sheet click here <br />
-              <UIFacetLink facetComponentId="IngestSheet" item={facetItem} />
+              <Button isPrimary className="mt-4" onClick={handleClick}>
+                View All Ingest Sheet Works
+              </Button>
             </p>
           </div>
         )}
