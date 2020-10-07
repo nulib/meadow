@@ -11,36 +11,28 @@ defmodule Meadow.Batches do
   require Logger
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
-  @uncontrolled_fields ~w(abstract alternate_title box_name box_number caption catalog_key citation
-                          description folder_name folder_number keywords notes terms_of_use
-                          physical_description_material physical_description_size provenance publisher
-                          related_material rights_holder scope_and_contents series source table_of_contents title)a
 
-  def batch_update(query, delete, add) do
-    delete = if is_nil(delete), do: %{}, else: delete
-
-    add =
-      cond do
-        is_nil(add) -> %{descriptive_metadata: %{}}
-        is_nil(add |> Map.get(:descriptive_metadata)) -> Map.put(add, :descriptive_metadata, %{})
-        true -> add
-      end
-
+  def batch_update(query, delete, add, replace) do
     Meadow.Repo.transaction(
       fn ->
-        process_updates(query, delete, add)
+        process_updates(query, delete, add, replace)
         Indexer.synchronize_index()
       end,
       timeout: :infinity
     )
   end
 
-  defp apply_changes([], _delete, _add), do: []
+  # Apply sets of controlled field deletes/adds to a batch of works
 
-  defp apply_changes(work_ids, delete, add) do
+  defp apply_controlled_field_changes([], _delete, _add), do: []
+
+  defp apply_controlled_field_changes(work_ids, delete, nil),
+    do: apply_controlled_field_changes(work_ids, delete, %{descriptive_metadata: %{}})
+
+  defp apply_controlled_field_changes(work_ids, delete, add) do
     @controlled_fields
     |> Enum.each(fn field ->
-      apply_changes(
+      apply_controlled_field_changes(
         work_ids,
         field,
         get_in(delete, [field]),
@@ -48,82 +40,106 @@ defmodule Meadow.Batches do
       )
     end)
 
-    @uncontrolled_fields
-    |> Enum.each(fn field ->
-      case add |> Map.get(:descriptive_metadata) |> Map.get(field, :not_present) do
-        :not_present ->
-          :noop
+    work_ids
+  end
 
-        value ->
-          from(w in Work, where: w.id in ^work_ids)
-          |> Works.replace_uncontrolled_value(:descriptive_metadata, to_string(field), value)
-          |> Repo.update_all([])
-      end
-    end)
+  defp apply_controlled_field_changes(work_ids, _field, nil, nil), do: work_ids
+  defp apply_controlled_field_changes(work_ids, _field, [], nil), do: work_ids
+  defp apply_controlled_field_changes(work_ids, _field, nil, []), do: work_ids
+  defp apply_controlled_field_changes(work_ids, _field, [], []), do: work_ids
 
-    case add |> Map.get(:collection_id, :not_present) do
-      :not_present ->
-        :noop
+  defp apply_controlled_field_changes(work_ids, field, delete, add) do
+    delete = prepare_controlled_field_list(delete)
+    add = prepare_controlled_field_list(add)
 
-      value ->
-        from(w in Work, where: w.id in ^work_ids)
-        |> Repo.update_all(
-          set: [
-            collection_id: value,
-            updated_at: DateTime.utc_now()
-          ]
-        )
+    from(w in Work, where: w.id in ^work_ids)
+    |> Works.replace_controlled_value(
+      :descriptive_metadata,
+      to_string(field),
+      delete,
+      add
+    )
+    |> Repo.update_all([])
+
+    work_ids
+  end
+
+  # Make sure all controlled field lists are lists, and that each value has a role
+
+  defp prepare_controlled_field_list(nil), do: []
+
+  defp prepare_controlled_field_list(data) when is_list(data),
+    do: Enum.map(data, fn entry -> Map.put(entry, :role, Map.get(entry, :role, nil)) end)
+
+  defp prepare_controlled_field_list(data), do: prepare_controlled_field_list([data])
+
+  # Apply sets of controlled field adds/replacements to a batch of works
+
+  defp apply_uncontrolled_field_changes([], _add, _replace), do: []
+
+  defp apply_uncontrolled_field_changes(work_ids, add, replace) do
+    add = if is_nil(add), do: %{}, else: add
+    replace = if is_nil(replace), do: %{}, else: replace
+
+    with collection_id <- add |> Map.merge(replace) |> Map.get(:collection_id, :not_present) do
+      update_collection_id(work_ids, collection_id)
+      |> merge_uncontrolled_fields(add, :append)
+      |> merge_uncontrolled_fields(replace, :replace)
+    end
+  end
+
+  defp merge_uncontrolled_fields(work_ids, new_values, mode) do
+    mergeable =
+      new_values
+      |> Map.get(:descriptive_metadata, %{})
+      |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
+      |> Enum.into(%{})
+
+    if map_size(mergeable) > 0 do
+      from(w in Work, where: w.id in ^work_ids)
+      |> Works.merge_metadata_values(:descriptive_metadata, mergeable, mode)
+      |> Repo.update_all([])
     end
 
     work_ids
   end
 
-  defp apply_changes(_work_ids, _field, nil, nil), do: :noop
-  defp apply_changes(_work_ids, _field, [], nil), do: :noop
-  defp apply_changes(_work_ids, _field, nil, []), do: :noop
-  defp apply_changes(_work_ids, _field, [], []), do: :noop
+  defp update_collection_id(work_ids, :not_present), do: work_ids
 
-  defp apply_changes(work_ids, field, delete, add) do
-    delete = prepare_data(delete)
-    add = prepare_data(add)
-
-    Logger.debug(
-      "Deleting #{inspect(delete)} and adding #{inspect(add)} to descriptive_metadata.#{field} on #{
-        length(work_ids)
-      } works"
+  defp update_collection_id(work_ids, value) do
+    from(w in Work, where: w.id in ^work_ids)
+    |> Repo.update_all(
+      set: [
+        collection_id: value,
+        updated_at: DateTime.utc_now()
+      ]
     )
 
-    from(w in Work, where: w.id in ^work_ids)
-    |> Works.replace_controlled_value(:descriptive_metadata, to_string(field), delete, add)
-    |> Repo.update_all([])
+    work_ids
   end
 
-  defp prepare_data(nil), do: []
+  # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
 
-  defp prepare_data(data) when is_list(data),
-    do: Enum.map(data, fn entry -> Map.put(entry, :role, Map.get(entry, :role, nil)) end)
-
-  defp prepare_data(data), do: prepare_data([data])
-
-  defp process_updates({:ok, %{"hits" => %{"hits" => []}}}, _delete, _add) do
+  defp process_updates({:ok, %{"hits" => %{"hits" => []}}}, _delete, _add, _replace) do
     {:ok, :noop}
   end
 
-  defp process_updates({:ok, %{"_scroll_id" => scroll_id, "hits" => hits}}, delete, add) do
+  defp process_updates({:ok, %{"_scroll_id" => scroll_id, "hits" => hits}}, delete, add, replace) do
     hits
     |> Map.get("hits")
     |> Enum.map(&Map.get(&1, "_id"))
-    |> apply_changes(delete, add)
+    |> apply_controlled_field_changes(delete, add)
+    |> apply_uncontrolled_field_changes(add, replace)
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post(
       "/_search/scroll",
       Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
     )
-    |> process_updates(delete, add)
+    |> process_updates(delete, add, replace)
   end
 
-  defp process_updates(query, delete, add) do
+  defp process_updates(query, delete, add, replace) do
     query =
       Jason.decode!(query)
       |> Map.put("_source", "")
@@ -131,6 +147,6 @@ defmodule Meadow.Batches do
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
-    |> process_updates(delete, add)
+    |> process_updates(delete, add, replace)
   end
 end

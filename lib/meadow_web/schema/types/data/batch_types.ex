@@ -13,6 +13,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
       arg(:query, non_null(:string))
       arg(:delete, :batch_delete_input, default_value: %{})
       arg(:add, :batch_add_input, default_value: nil)
+      arg(:replace, :batch_add_input, default_value: nil)
       middleware(Middleware.Authenticate)
       resolve(&Batches.update/3)
     end

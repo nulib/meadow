@@ -83,20 +83,26 @@ defmodule Meadow.BatchesTest do
 
       add = %{
         descriptive_metadata: %{
+          box_name: ["His Airness"]
+        }
+      }
+
+      replace = %{
+        descriptive_metadata: %{
           title: "All these values",
           alternate_title: ["New Alternate 1", "New Alternate 2"],
           box_number: []
         }
       }
 
-      assert {:ok, _result} = Batches.batch_update(query, nil, add)
+      assert {:ok, _result} = Batches.batch_update(query, nil, add, replace)
 
       assert Works.get_works_by_title("All these values") |> length() == 3
 
       Works.list_works()
       |> Enum.each(fn work ->
         assert work.descriptive_metadata.alternate_title |> length() == 2
-        assert work.descriptive_metadata.box_name == ["Michael Jordan"]
+        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
         assert work.descriptive_metadata.box_number == []
       end)
     end
@@ -124,7 +130,7 @@ defmodule Meadow.BatchesTest do
         }
       }
 
-      assert {:ok, _result} = Batches.batch_update(query, delete, add)
+      assert {:ok, _result} = Batches.batch_update(query, delete, add, nil)
 
       assert List.first(Works.get_works_by_title("Work 1")).descriptive_metadata.genre
              |> length() == 1
@@ -143,7 +149,7 @@ defmodule Meadow.BatchesTest do
       assert Works.list_works(collection_id: new_collection.id) |> length == 0
 
       assert {:ok, _result} =
-               Batches.batch_update(query, nil, %{collection_id: new_collection.id})
+               Batches.batch_update(query, nil, nil, %{collection_id: new_collection.id})
 
       assert Works.list_works(collection_id: new_collection.id) |> length == 3
     end
