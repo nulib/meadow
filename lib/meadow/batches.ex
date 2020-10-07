@@ -17,6 +17,15 @@ defmodule Meadow.Batches do
                           related_material rights_holder scope_and_contents series source table_of_contents title)a
 
   def batch_update(query, delete, add) do
+    delete = if is_nil(delete), do: %{}, else: delete
+
+    add =
+      cond do
+        is_nil(add) -> %{descriptive_metadata: %{}}
+        is_nil(add |> Map.get(:descriptive_metadata)) -> Map.put(add, :descriptive_metadata, %{})
+        true -> add
+      end
+
     Meadow.Repo.transaction(
       fn ->
         process_updates(query, delete, add)
@@ -27,9 +36,6 @@ defmodule Meadow.Batches do
   end
 
   defp apply_changes([], _delete, _add), do: []
-
-  defp apply_changes(work_ids, delete, nil),
-    do: apply_changes(work_ids, delete, %{descriptive_metadata: %{}})
 
   defp apply_changes(work_ids, delete, add) do
     @controlled_fields
@@ -54,6 +60,22 @@ defmodule Meadow.Batches do
           |> Repo.update_all([])
       end
     end)
+
+    case add |> Map.get(:collection_id, :not_present) do
+      :not_present ->
+        :noop
+
+      value ->
+        from(w in Work, where: w.id in ^work_ids)
+        |> Repo.update_all(
+          set: [
+            collection_id: value,
+            updated_at: DateTime.utc_now()
+          ]
+        )
+    end
+
+    work_ids
   end
 
   defp apply_changes(_work_ids, _field, nil, nil), do: :noop
