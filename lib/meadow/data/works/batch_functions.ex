@@ -34,17 +34,17 @@ defmodule Meadow.Data.Works.BatchFunctions do
           end
 
           @doc """
-          Batch update uncontrolled #{unquote(schema)} values
+          Merge map of values into #{unquote(schema)}
           """
-          def replace_uncontrolled_value(query, unquote(schema), field_name, new_value) do
+          def merge_metadata_values(query, unquote(schema), values, mode) do
             from query,
               update: [
                 set: [
                   {unquote(schema),
                    fragment(
-                     unquote("replace_uncontrolled_value(#{schema}, ?::text, ?::jsonb)"),
-                     ^field_name,
-                     ^new_value
+                     unquote("merge_jsonb_values(#{schema}, ?::jsonb, ?::text)"),
+                     ^values,
+                     ^to_string(mode)
                    )},
                   {:updated_at, ^DateTime.utc_now()}
                 ]
