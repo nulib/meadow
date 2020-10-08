@@ -89,6 +89,8 @@ defmodule Meadow.Ingest.WorkCreator do
     Logger.enable(self())
   end
 
+  def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
+
   @doc """
   Create works from pending `CreateWork` progress rows
   """
