@@ -9,15 +9,17 @@ import { useMutation } from "@apollo/client";
 import { CREATE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import { toastWrapper } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormField from "../UI/Form/Field.jsx";
+import { Button } from "@nulib/admin-react-components";
 
 const IngestSheetUpload = ({ project, presignedUrl }) => {
   const history = useHistory();
+  const methods = useForm();
   const [values, setValues] = useState({ file: "" });
   const [fileNameString, setFileNameString] = useState("No file uploaded");
-  const { register, handleSubmit, watch, errors } = useForm();
+
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
     {
@@ -85,16 +87,17 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const headers = { "Content-Type": file.type };
-        axios.put(presignedUrl, event.target.result, { headers: headers })
-        .then(_ => resolve())
-        .catch(error => {
-          console.log(error);
-          toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
-          resolve();
-        });
+        axios
+          .put(presignedUrl, event.target.result, { headers: headers })
+          .then((_) => resolve())
+          .catch((error) => {
+            console.log(error);
+            toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
+            resolve();
+          });
       };
       reader.readAsText(file);
-    })
+    });
   };
 
   const { file } = values;
@@ -103,52 +106,53 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
   if (error) return <Error error={error} />;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Error error={error} />
-      <UIFormField label="Ingest Sheet Title">
-        <UIFormInput
-          register={register}
-          required
-          label="Ingest Sheet Title"
-          errors={errors}
-          name="ingest_sheet_title"
-          placeholder="Ingest Sheet Title"
-        />
-      </UIFormField>
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <Error error={error} />
+        <UIFormField label="Ingest Sheet Title">
+          <UIFormInput
+            isReactHookForm
+            required
+            label="Ingest Sheet Title"
+            name="ingest_sheet_title"
+            placeholder="Ingest Sheet Title"
+          />
+        </UIFormField>
 
-      <div className="field">
-        <div id="file-js-example" className="file has-name">
-          <label className="file-label">
-            <input
-              className="file-input"
-              id="file"
-              name="file"
-              type="file"
-              onChange={handleInputChange}
-            />
-            <span className="file-cta">
-              <span className="file-icon">
-                <FontAwesomeIcon icon="file-csv" />
+        <div className="field">
+          <div id="file-js-example" className="file has-name">
+            <label className="file-label">
+              <input
+                className="file-input"
+                id="file"
+                name="file"
+                type="file"
+                onChange={handleInputChange}
+              />
+              <span className="file-cta">
+                <span className="file-icon">
+                  <FontAwesomeIcon icon="file-csv" />
+                </span>
+                <span className="file-label">Choose a file…</span>
               </span>
-              <span className="file-label">Choose a file…</span>
-            </span>
-            <span className="file-name">{fileNameString}</span>
-          </label>
+              <span className="file-name">{fileNameString}</span>
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div className="buttons is-right">
-        <button type="submit" className="button is-primary">
-          <span className="icon">
-            <FontAwesomeIcon icon="file-upload" />
-          </span>
-          <span>Upload</span>
-        </button>
-        <button type="button" className="button is-text" onClick={handleCancel}>
-          Cancel
-        </button>
-      </div>
-    </form>
+        <div className="buttons is-right">
+          <Button type="submit" isPrimary>
+            <span className="icon">
+              <FontAwesomeIcon icon="file-upload" />
+            </span>
+            <span>Upload</span>
+          </Button>
+          <Button isText onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 };
 
