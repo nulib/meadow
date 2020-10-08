@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IIIFContext } from "../../IIIF/IIIFProvider";
 import { IIIF_SIZES } from "../../../services/global-vars";
 
-const WorkTabsDownloadLinks = ({ handleDownloadClick, filesetId }) => {
+const WorkTabsDownloadLinks = ({ handleDownloadClick, fileSetId }) => {
   const iiifServerUrl = useContext(IIIFContext);
 
   return (
@@ -19,7 +19,7 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick, filesetId }) => {
       </p>
       <p className="control">
         <a
-          href={`${iiifServerUrl}${filesetId}${IIIF_SIZES.IIIF_FULL}`}
+          href={`${iiifServerUrl}${fileSetId}${IIIF_SIZES.IIIF_FULL}`}
           target="_blank"
           className="button"
         >
@@ -35,7 +35,7 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick, filesetId }) => {
 
 WorkTabsDownloadLinks.propTypes = {
   handleDownloadClick: PropTypes.func,
-  filesetId: PropTypes.string,
+  fileSetId: PropTypes.string,
 };
 
 export default WorkTabsDownloadLinks;

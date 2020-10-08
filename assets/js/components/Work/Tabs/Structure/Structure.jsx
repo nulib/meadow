@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-
 import useIsEditing from "@js/hooks/useIsEditing";
 import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
@@ -10,8 +9,10 @@ import {
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import { mockFileSets } from "@js/mock-data/filesets";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
+import { Button } from "@nulib/admin-react-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import WorkTabsStructureFilesetList from "./FilesetList";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -24,26 +25,45 @@ const WorkTabsStructure = ({ work }) => {
     return null;
   }
 
-  const [updateFileSets] = useMutation(UPDATE_FILE_SETS, {
-    onCompleted({ updateFileSets }) {
-      console.log("updateFileSets HERE", updateFileSets);
-    },
-  });
-
   const [isEditing, setIsEditing] = useIsEditing();
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
     parseWorkRepresentativeImage(work)
   );
+  const [isReordering, setIsReordering] = useState();
+
   const methods = useForm();
 
+  // GraphQL mutations
   const [setWorkImage] = useMutation(SET_WORK_IMAGE, {
     onCompleted({ setWorkImage }) {
       toastWrapper("is-success", "Work image has been updated");
     },
   });
+  const [updateFileSets] = useMutation(UPDATE_FILE_SETS, {
+    onCompleted({ updateFileSets }) {
+      console.log("onCompleted() updateFileSets", updateFileSets);
+    },
+  });
+
+  const handleCancelReorder = () => {
+    setIsReordering(false);
+  };
 
   const handleDownloadClick = (type) => {
     console.log("Download clicked and type: ", type);
+  };
+
+  const handleSaveReorder = (orderedFileSets = []) => {
+    console.log("handleSaveReorder called", orderedFileSets);
+
+    // TODO: Submit to GraphQL re-order mutation
+
+    toastWrapper(
+      "is-success",
+      "File sets order has been saved (not wired up yet)"
+    );
+
+    setIsReordering(false);
   };
 
   const handleWorkImageChange = (id) => {
@@ -80,37 +100,53 @@ const WorkTabsStructure = ({ work }) => {
       >
         <UITabsStickyHeader title="Filesets">
           {!isEditing && (
-            <button
-              type="button"
-              className="button is-primary"
+            <Button
+              isPrimary
               onClick={() => setIsEditing(true)}
+              disabled={isReordering}
             >
               Edit
-            </button>
+            </Button>
           )}
           {isEditing && (
             <>
-              <button type="submit" className="button is-primary">
+              <Button isPrimary type="submit">
                 Save
-              </button>
-              <button
-                type="button"
-                className="button is-text"
-                onClick={() => setIsEditing(false)}
-              >
+              </Button>
+              <Button isText onClick={() => setIsEditing(false)}>
                 Cancel
-              </button>
+              </Button>
             </>
           )}
+
+          <Button
+            onClick={() => setIsReordering(true)}
+            disabled={isEditing || isReordering}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="sort" />
+            </span>{" "}
+            <span>Re-order</span>
+          </Button>
         </UITabsStickyHeader>
 
-        <WorkTabsStructureFilesetsDragAndDrop
-          filesets={mockFileSets}
-          handleDownloadClick={handleDownloadClick}
-          handleWorkImageChange={handleWorkImageChange}
-          isEditing={isEditing}
-          workImageFilesetId={workImageFilesetId}
-        />
+        <div className="mt-4">
+          {isReordering ? (
+            <WorkTabsStructureFilesetsDragAndDrop
+              fileSets={work.fileSets}
+              handleCancelReorder={handleCancelReorder}
+              handleSaveReorder={handleSaveReorder}
+            />
+          ) : (
+            <WorkTabsStructureFilesetList
+              fileSets={work.fileSets}
+              handleDownloadClick={handleDownloadClick}
+              handleWorkImageChange={handleWorkImageChange}
+              isEditing={isEditing}
+              workImageFilesetId={workImageFilesetId}
+            />
+          )}
+        </div>
 
         <div className="box">
           <h3 className="subtitle">Download all files as zip</h3>

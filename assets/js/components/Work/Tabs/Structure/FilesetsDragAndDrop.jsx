@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import WorkTabsStructureFilesetList from "@js/components/Work/Tabs/Structure/FilesetList";
 import PropTypes from "prop-types";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { Button } from "@nulib/admin-react-components";
 
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
@@ -12,13 +13,16 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 function FilesetsDragAndDrop({
-  filesets,
-  handleDownloadClick,
-  handleWorkImageChange,
-  isEditing,
-  workImageFilesetId,
+  fileSets,
+  handleCancelReorder,
+  handleSaveReorder,
 }) {
-  const [state, setState] = useState({ filesets });
+  const [state, setState] = useState({ fileSets });
+
+  function handleCancelClick() {
+    setState({ fileSets });
+    handleCancelReorder();
+  }
 
   function onDragEnd(result) {
     if (!result.destination) {
@@ -29,41 +33,59 @@ function FilesetsDragAndDrop({
       return;
     }
 
-    const updatedFilesets = reorder(
-      state.filesets,
+    const updatedFileSets = reorder(
+      state.fileSets,
       result.source.index,
       result.destination.index
     );
 
-    setState({ filesets: updatedFilesets });
+    setState({ fileSets: updatedFileSets });
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="list">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
-            <WorkTabsStructureFilesetList
-              filesets={state.filesets}
-              handleDownloadClick={handleDownloadClick}
-              handleWorkImageChange={handleWorkImageChange}
-              isEditing={isEditing}
-              workImageFilesetId={workImageFilesetId}
-            />
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <div data-testid="fileset-dnd-wrapper">
+      <div className="columns">
+        <div className="column">
+          <Button
+            className="is-fullwidth"
+            onClick={() => handleSaveReorder(state.fileSets.map((fs) => fs.id))}
+            data-testid="button-reorder-save"
+          >
+            Save Order
+          </Button>
+        </div>
+        <div className="column">
+          <Button
+            isText
+            className="is-fullwidth"
+            onClick={handleCancelClick}
+            data-testid="button-reorder-cancel"
+          >
+            Cancel
+          </Button>
+        </div>
+      </div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="list">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              <WorkTabsStructureFilesetList
+                fileSets={state.fileSets}
+                isReordering
+              />
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
   );
 }
 
 FilesetsDragAndDrop.propTypes = {
-  filesets: PropTypes.array,
-  handleDownloadClick: PropTypes.func,
-  handleWorkImageChange: PropTypes.func,
-  isEditing: PropTypes.bool,
-  workImageFilesetId: PropTypes.string,
+  fileSets: PropTypes.array,
+  handleCancelReorder: PropTypes.func,
+  handleSaveReorder: PropTypes.func,
 };
 
 export default FilesetsDragAndDrop;
