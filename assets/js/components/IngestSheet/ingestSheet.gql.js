@@ -199,8 +199,8 @@ export const INGEST_PROGRESS_SUBSCRIPTION = gql`
 `;
 
 export const INGEST_SHEET_WORKS = gql`
-  query IngestSheetWorks($id: ID!) {
-    ingestSheetWorks(id: $id) {
+  query IngestSheetWorks($id: ID!, $limit: Int) {
+    ingestSheetWorks(id: $id, limit: $limit) {
       id
       accessionNumber
       descriptiveMetadata {

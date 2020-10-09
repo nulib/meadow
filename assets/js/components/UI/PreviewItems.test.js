@@ -1,13 +1,11 @@
 import React from "react";
-import BatchEditPreviewItems from "./PreviewItems";
+import UIPreviewItems from "./PreviewItems";
 import { renderWithRouter } from "../../services/testing-helpers";
 import { batchEditPreviewItems } from "../../mock-data/batch-edit-preview-items";
 
 describe("Batch-edit preview items component", () => {
   function setUpTests() {
-    return renderWithRouter(
-      <BatchEditPreviewItems items={batchEditPreviewItems} />
-    );
+    return renderWithRouter(<UIPreviewItems items={batchEditPreviewItems} />);
   }
   it("renders the list", () => {
     const { getByTestId, debug } = setUpTests();
@@ -41,7 +39,7 @@ describe("Batch-edit preview items component", () => {
 
     //Renders correct image
     expect(imageEls[0].getAttribute("src")).toContain(
-      `${batchEditPreviewItems[0].representativeFileSet.url}/square/128,128/0/default.jpg`
+      `${batchEditPreviewItems[0].representativeImage.url}/square/128,128/0/default.jpg`
     );
 
     // Renders default image

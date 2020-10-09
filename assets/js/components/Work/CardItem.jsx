@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { setVisibilityClass, formatDate } from "../../services/helpers";
+import {
+  setVisibilityClass,
+  formatDate,
+  getImageUrl,
+} from "@js/services/helpers";
+import UIWorkImage from "../UI/WorkImage";
 
 const WorkCardItem = ({
   id,
@@ -17,18 +22,9 @@ const WorkCardItem = ({
       <div className="card-image">
         <figure className="image is-3by3">
           <Link to={`/work/${id}`} className="hvr-shrink">
-            <img
-              src={
-                representativeImage.fileSetId
-                  ? `${representativeImage.url}/square/500,500/0/default.jpg`
-                  : `${
-                      representativeImage
-                        ? `${representativeImage}/full/1280,960/0/default.jpg`
-                        : "/images/480x480.png"
-                    }`
-              }
-              data-testid={`work-image-${id}`}
-              alt={title}
+            <UIWorkImage
+              imageUrl={getImageUrl(representativeImage)}
+              size={500}
             />
           </Link>
         </figure>

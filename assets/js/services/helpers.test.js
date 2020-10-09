@@ -4,6 +4,7 @@ import {
   formatDate,
   getClassFromIngestSheetStatus,
   isUrlValid,
+  getImageUrl,
 } from "./helpers";
 
 it("should escape double quotes", () => {
@@ -21,6 +22,15 @@ it("should validate URL pattern", () => {
   expect(isUrlValid("www.google.co.uk")).toBe(true);
   expect(isUrlValid("http://www.northwestern.edu")).toBe(true);
   expect(isUrlValid("https://www.northwestern.edu")).toBe(true);
+});
+
+it("should return representative image URL", () => {
+  expect(getImageUrl({ url: "www.northwestern.edu" })).toBe(
+    "www.northwestern.edu"
+  );
+  expect(getImageUrl({})).toBe("");
+  expect(getImageUrl("www.northwestern.edu")).toBe("www.northwestern.edu");
+  expect(getImageUrl()).toBe("");
 });
 
 describe("Convert String to Date function", () => {

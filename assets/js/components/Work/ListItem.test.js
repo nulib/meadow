@@ -1,8 +1,8 @@
 import React from "react";
 import WorkListItem from "./ListItem";
 import { mockWork } from "./work.gql.mock";
-import { renderWithRouter } from "../../services/testing-helpers";
-import { prepWorkItemForDisplay } from "../../services/helpers";
+import { renderWithRouter } from "@js/services/testing-helpers";
+import { prepWorkItemForDisplay } from "@js/services/helpers";
 
 function setupTests() {
   return renderWithRouter(
@@ -13,14 +13,6 @@ function setupTests() {
 it("Displays Work List Item", () => {
   const { getByTestId, debug } = setupTests();
   expect(getByTestId("ui-worklist-item")).toBeInTheDocument();
-});
-
-it("Displays Representative Image for Work", () => {
-  const { getByTestId, debug } = setupTests();
-  const el = getByTestId("image-work");
-  expect(el.getAttribute("src")).toEqual(
-    "http://foobar/full/1280,960/0/default.jpg"
-  );
 });
 
 describe("Shows Work content", () => {
