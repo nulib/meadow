@@ -1,8 +1,8 @@
 import React from "react";
 import WorkListItem from "./ListItem";
 import { mockWork } from "./work.gql.mock";
-import { renderWithRouter } from "../../services/testing-helpers";
-import { prepWorkItemForDisplay } from "../../services/helpers";
+import { renderWithRouter } from "@js/services/testing-helpers";
+import { prepWorkItemForDisplay } from "@js/services/helpers";
 
 function setupTests() {
   return renderWithRouter(

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, Suspense } from "react";
 import Layout from "../Layout";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import PreviewItems from "../../components/UI/PreviewItems";
-import BatchEditTabs from "../../components/BatchEdit/Tabs";
+import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
+import UIPreviewItems from "@js/components/UI/PreviewItems";
+import BatchEditTabs from "@js/components/BatchEdit/Tabs";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useBatchState } from "../../context/batch-edit-context";
-import { elasticsearchDirectSearch } from "../../services/elasticsearch";
-import UISkeleton from "../../components/UI/Skeleton";
+import { useBatchState } from "@js/context/batch-edit-context";
+import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
+import UISkeleton from "@js/components/UI/Skeleton";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -69,7 +69,7 @@ const ScreensBatchEdit = () => {
                     <p className="mb-2">
                       <strong>Items preview</strong>
                     </p>
-                    <PreviewItems items={previewItems} />
+                    <UIPreviewItems items={previewItems} />
                   </div>
                 )}
               </div>

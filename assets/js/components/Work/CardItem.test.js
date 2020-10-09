@@ -1,8 +1,8 @@
 import React from "react";
 import WorkCardItem from "./CardItem";
-import { renderWithRouter } from "../../services/testing-helpers";
+import { renderWithRouter } from "@js/services/testing-helpers";
 import { mockWork } from "./work.gql.mock";
-import { prepWorkItemForDisplay } from "../../services/helpers";
+import { prepWorkItemForDisplay } from "@js/services/helpers";
 
 function setupTests() {
   return renderWithRouter(

@@ -46,7 +46,7 @@ export function getImageUrl(representativeImage) {
   if (typeof representativeImage === "object") {
     return representativeImage.url || "";
   }
-  return representativeImage;
+  return representativeImage || "";
 }
 
 export const TEMP_USER_FRIENDLY_STATUS = {

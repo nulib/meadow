@@ -5,8 +5,8 @@ import {
   setVisibilityClass,
   formatDate,
   getImageUrl,
-} from "../../services/helpers";
-import UIWorkImage from "../UI/Image";
+} from "@js/services/helpers";
+import UIWorkImage from "../UI/WorkImage";
 
 const WorkListItem = ({
   id,

@@ -8,7 +8,7 @@ import {
 } from "./ingestSheet.gql";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
-import PreviewItems from "../UI/PreviewItems";
+import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
 
@@ -60,7 +60,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
           <UISkeleton rows={5} />
         ) : (
           <div>
-            <PreviewItems items={works} />
+            <UIPreviewItems items={works} />
 
             <p className="pt-4 has-text-centered">
               This is a preview of Ingest Sheet works. To view full list of

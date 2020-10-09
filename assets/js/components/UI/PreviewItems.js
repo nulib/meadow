@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import UIWorkImage from "./Image";
-import { getImageUrl } from "../../services/helpers";
+import UIWorkImage from "./WorkImage";
+import { getImageUrl } from "@js/services/helpers";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -34,7 +34,7 @@ const previewItem = css`
   }
 `;
 
-export default function PreviewItems({ items = [] }) {
+export default function UIPreviewItems({ items = [] }) {
   return (
     <div className="is-centered ">
       <ul css={inlineList} data-testid="list-preview-items">
@@ -55,7 +55,7 @@ export default function PreviewItems({ items = [] }) {
   );
 }
 
-PreviewItems.propTypes = {
+UIPreviewItems.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,

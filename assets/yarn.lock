@@ -27,31 +27,7 @@
     core-js "2.6.0"
     zen-observable "0.8.11"
 
-"@apollo/client@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.2.1.tgz#178dfcc1eb3a35052df8f2bd44be195b78f56e93"
-  integrity sha512-w1EdCf3lvSwsxG2zbn8Rm31nPh9gQrB7u61BnU1QCM5BNIfOxiuuldzGNMHi5kI9KleisFvZl/9OA7pEkVg/yw==
-"@apollo/client@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.2.2.tgz#fe5cad4d53373979f13a925e9da02d8743e798a5"
-  integrity sha512-lw80L0i8PHhv863iLEwf5AvNak9STPNC6/0MWQYGZHV4yEryj7muLAueRzXkZHpoddGAou80xL8KqLAODNy0/A==
-  dependencies:
-    "@graphql-typed-document-node/core" "^3.0.0"
-    "@types/zen-observable" "^0.8.0"
-    "@wry/context" "^0.5.2"
-    "@wry/equality" "^0.2.0"
-    fast-json-stable-stringify "^2.0.0"
-    graphql-tag "^2.11.0"
-    hoist-non-react-statics "^3.3.2"
-    optimism "^0.12.1"
-    prop-types "^15.7.2"
-    symbol-observable "^2.0.0"
-    terser "^5.2.0"
-    ts-invariant "^0.4.4"
-    tslib "^1.10.0"
-    zen-observable "^0.8.14"
-
-"@apollo/client@latest":
+"@apollo/client@^3.2.2", "@apollo/client@latest":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.2.2.tgz#fe5cad4d53373979f13a925e9da02d8743e798a5"
   integrity sha512-lw80L0i8PHhv863iLEwf5AvNak9STPNC6/0MWQYGZHV4yEryj7muLAueRzXkZHpoddGAou80xL8KqLAODNy0/A==
@@ -134,10 +110,10 @@
   dependencies:
     "@apollo/client" latest
 
-"@appbaseio/reactivecore@9.6.20":
-  version "9.6.20"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.20.tgz#c1287a23c3bbacb0ab134104a94b1e8ecfaf9100"
-  integrity sha512-yrC+BnIprmeM2T9hLE8NpAWn1LogYqeZpqqw7na2xyeHUtk13K6C68E1L9JOLOus2kY5aMXfqdipS6qIjINiGA==
+"@appbaseio/reactivecore@9.6.16":
+  version "9.6.16"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.6.16.tgz#ef5f53170e076c46adfee5a6472de865c20296c7"
+  integrity sha512-I3G19u+CqRU9TqEFep9Dg3K2/XxvbDGAtOgpkMO1kQrtHPWMhM+9FgttxGtSFqJr1eyAiI81pSlPk+gttx5yKA==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -145,12 +121,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@3.12.5":
-  version "3.12.5"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.5.tgz#fa006b4fdbb6f16e5d317d86fe28a5efe53ab38a"
-  integrity sha512-EDVRrkU/5jt/y6xsMqLor31Eh3FPUFdSxwbY9X5u0r6/mn7ae4UjlJG8qnFNVVBekOX23sQBsB3hQ0yMZNSvhw==
+"@appbaseio/reactivesearch@3.12.3":
+  version "3.12.3"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.12.3.tgz#8aed64e79b1eeedf1c68f19a1fbb8a2d202e0a59"
+  integrity sha512-QS2QvW9wv26nXOEBxUzmKBN3Psf2/SmZWxLgDi9Sb27XzWkkitbb3hMCKrvpFFE9M7ZRV/SbopkmcAGj2kNyiw==
   dependencies:
-    "@appbaseio/reactivecore" "9.6.20"
+    "@appbaseio/reactivecore" "9.6.16"
     "@emotion/core" "^10.0.28"
     "@emotion/styled" "^10.0.27"
     appbase-js "^4.1.0"
@@ -1617,14 +1593,7 @@
     "@babel/parser" "^7.1.0"
     "@babel/types" "^7.0.0"
 
-"@types/babel__traverse@*", "@types/babel__traverse@^7.0.6":
-  version "7.0.15"
-  resolved "https://registry.yarnpkg.com/@types/babel__traverse/-/babel__traverse-7.0.15.tgz#db9e4238931eb69ef8aab0ad6523d4d4caa39d03"
-  integrity sha512-Pzh9O3sTK8V6I1olsXpCfj2k/ygO2q1X0vhhnDrEQyYLHZesWz+zMZMVcwXLCYf0U36EtmyYaFGPfXlTtDHe3A==
-  dependencies:
-    "@babel/types" "^7.3.0"
-
-"@types/babel__traverse@^7.0.4":
+"@types/babel__traverse@*", "@types/babel__traverse@^7.0.4", "@types/babel__traverse@^7.0.6":
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/babel__traverse/-/babel__traverse-7.0.15.tgz#db9e4238931eb69ef8aab0ad6523d4d4caa39d03"
   integrity sha512-Pzh9O3sTK8V6I1olsXpCfj2k/ygO2q1X0vhhnDrEQyYLHZesWz+zMZMVcwXLCYf0U36EtmyYaFGPfXlTtDHe3A==
