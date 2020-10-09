@@ -10,12 +10,7 @@ import {
 describe("Fileset component", () => {
   describe("when not editing", () => {
     it("renders the image preview, label and description", () => {
-      render(
-        withReactBeautifulDND(WorkTabsStructureFileset, {
-          fileset: mockFileSets[0],
-          index: 1,
-        })
-      );
+      render(<WorkTabsStructureFileset fileSet={mockFileSets[0]} />);
 
       expect(screen.getByTestId("fileset-item"));
       expect(screen.getByTestId("fileset-image"));
@@ -25,11 +20,10 @@ describe("Fileset component", () => {
 
     it("renders an checked Work image toggle if current fileset is a representative Work image", () => {
       render(
-        withReactBeautifulDND(WorkTabsStructureFileset, {
-          fileset: mockFileSets[0],
-          index: 1,
-          workImageFilesetId: mockFileSets[0].id,
-        })
+        <WorkTabsStructureFileset
+          fileSet={mockFileSets[0]}
+          workImageFilesetId={mockFileSets[0].id}
+        />
       );
 
       const toggleEl = screen.getByTestId("work-image-selector");
@@ -38,11 +32,10 @@ describe("Fileset component", () => {
 
     it("renders an unchecked Work image toggle if current fileset is NOT a representative Work image", () => {
       render(
-        withReactBeautifulDND(WorkTabsStructureFileset, {
-          fileset: mockFileSets[0],
-          index: 1,
-          workImageFilesetId: "ABC123",
-        })
+        <WorkTabsStructureFileset
+          fileSet={mockFileSets[0]}
+          workImageFilesetId="ABC123"
+        />
       );
 
       const toggleEl = screen.getByTestId("work-image-selector");
@@ -54,8 +47,8 @@ describe("Fileset component", () => {
     beforeEach(() => {
       renderWithReactHookForm(
         withReactBeautifulDND(WorkTabsStructureFileset, {
-          fileset: mockFileSets[0],
-          index: 1,
+          fileSet: mockFileSets[0],
+          index: 0,
           isEditing: true,
         })
       );
