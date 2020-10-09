@@ -68,7 +68,7 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.15"},
       {:honeybadger, "~> 0.7"},
-      {:inflex, "~> 2.0.0"},
+      {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.1.0"},
