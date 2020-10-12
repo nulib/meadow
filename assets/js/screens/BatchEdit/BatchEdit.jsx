@@ -66,8 +66,15 @@ const ScreensBatchEdit = () => {
                   <UISkeleton rows={5} />
                 ) : (
                   <div>
-                    <p className="mb-2">
-                      <strong>Items preview</strong>
+                    <p
+                      className="notification is-warning mt-5"
+                      data-testid="batch-edit-preview-notification"
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="exclamation-triangle" />
+                      </span>
+                      You are batch editing the following {previewItems.length}{" "}
+                      items.
                     </p>
                     <UIPreviewItems items={previewItems} />
                   </div>
