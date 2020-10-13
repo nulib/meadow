@@ -12,6 +12,10 @@ import UISkeleton from "@js/components/UI/Skeleton";
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
   const isActiveSearch = batchState.filteredQuery && batchState.resultStats;
+  const resultsCount = batchState.resultStats
+    ? batchState.resultStats.numberOfResults
+    : "";
+
   const [previewItems, setPreviewItems] = useState([]);
   const [isLoadingPreviewItems, setIsLoadingPreviewItems] = useState(true);
 
@@ -73,8 +77,7 @@ const ScreensBatchEdit = () => {
                       <span className="icon">
                         <FontAwesomeIcon icon="exclamation-triangle" />
                       </span>
-                      You are batch editing the following {previewItems.length}{" "}
-                      items.
+                      You are batch editing the following {resultsCount} items.
                     </p>
                     <UIPreviewItems items={previewItems} />
                   </div>
