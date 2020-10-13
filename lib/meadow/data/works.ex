@@ -480,4 +480,16 @@ defmodule Meadow.Data.Works do
       |> URI.to_string()
     end
   end
+
+  @doc """
+  Set :updated_at
+  """
+  def merge_updated_at(query) do
+    from query,
+      update: [
+        set: [
+          {:updated_at, ^DateTime.utc_now()}
+        ]
+      ]
+  end
 end
