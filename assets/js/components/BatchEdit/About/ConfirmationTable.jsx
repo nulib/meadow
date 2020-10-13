@@ -57,5 +57,5 @@ export default function BatchEditAboutConfirmationTable({
 
 BatchEditAboutConfirmationTable.propTypes = {
   items: PropTypes.array,
-  type: PropTypes.oneOf(["add", "remove"]),
+  type: PropTypes.oneOf(["add", "remove", "replace"]),
 };

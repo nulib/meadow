@@ -6,11 +6,9 @@ import { toastWrapper } from "../../../services/helpers";
 import { BATCH_UPDATE } from "../batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "./ConfirmationTable";
-import {
-  CONTROLLED_METADATA,
-  removeLabelsFromBatchEditPostData,
-} from "../../../services/metadata";
+import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
 import { useHistory } from "react-router-dom";
+import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -27,20 +25,19 @@ const headerWrapper = css`
 const BatchEditConfirmation = ({
   batchAdds,
   batchDeletes,
+  batchReplaces,
   filteredQuery,
   handleClose,
   handleFormReset,
   isConfirmModalOpen,
+  numberOfResults,
 }) => {
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
     onCompleted({ batchUpdate }) {
-      toastWrapper(
-        "is-success",
-        "Batch edit job successfully submitted.  You'll be re-directed to the Search screen."
-      );
+      toastWrapper("is-success", "Batch edit job successfully submitted.");
       handleFormReset();
       handleClose();
       history.push("/search");
@@ -74,6 +71,7 @@ const BatchEditConfirmation = ({
         query: filteredQuery,
         add: cleanedPostValues.add,
         delete: cleanedPostValues.delete,
+        replace: batchReplaces,
       },
     });
   };
@@ -83,6 +81,11 @@ const BatchEditConfirmation = ({
 
   const hasDeletes =
     batchDeletes && !Object.values(batchDeletes).every((item) => !item.length);
+
+  const hasReplaces =
+    batchReplaces && Object.keys(batchReplaces.descriptiveMetadata).length > 0;
+
+  const hasDataToPost = hasAdds || hasDeletes || hasReplaces;
 
   return (
     <div
@@ -100,6 +103,7 @@ const BatchEditConfirmation = ({
             onClick={handleClose}
           ></button>
         </header>
+
         <div className="modal-card-body">
           {hasAdds && (
             <section className="content">
@@ -145,28 +149,37 @@ const BatchEditConfirmation = ({
               </div>
             </section>
           )}
-          {!hasDeletes && !hasAdds ? (
-            <div className="notification is-white">
-              <p className="mb-3">
-                <strong>
-                  Batch edit currently only supports the following form items:
-                </strong>
-              </p>
 
-              <ul>
-                {CONTROLLED_METADATA.map((item) => (
-                  <li key={item.name}>{item.label}</li>
+          {hasReplaces && (
+            <section>
+              <div css={headerWrapper}>
+                <FontAwesomeIcon icon="eraser" size="2x" />
+                <span className="subtitle">Replacing</span>
+              </div>
+
+              <div className="p4 content">
+                {Object.keys(batchReplaces.descriptiveMetadata).map((key) => (
+                  <div
+                    key={key}
+                    className="notification is-warning is-light has-text-dark"
+                  >
+                    <h5 className="is-capitalized">{key}</h5>
+                    <p className="has-text-dark">
+                      {batchReplaces.descriptiveMetadata[key]}
+                    </p>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          ) : (
+              </div>
+            </section>
+          )}
+
+          {hasDataToPost ? (
             <div className="columns">
               <div className="column is-three-fifths is-offset-one-fifth">
                 <div className="notification is-white">
                   <p className="has-text-danger has-text-centered mb-3">
                     <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
-                    will affect all works currently selected. Please proceed
-                    with extreme caution.{" "}
+                    batch edit will affect {numberOfResults} works. <br />
                     <strong>To execute this change, type "I understand"</strong>
                   </p>
 
@@ -181,25 +194,25 @@ const BatchEditConfirmation = ({
                 </div>
               </div>
             </div>
+          ) : (
+            <p className="notification is-white">
+              No data currently selected to batch update.
+            </p>
           )}
         </div>
+
         <footer className="modal-card-foot buttons is-right">
-          <button
-            className="button is-text"
-            onClick={handleClose}
-            type="button"
-          >
+          <Button isText onClick={handleClose}>
             Cancel
-          </button>
-          <button
-            className="button is-primary"
-            disabled={confirmationError || (!hasAdds && !hasDeletes)}
+          </Button>
+          <Button
+            isPrimary
+            disabled={confirmationError || !hasDataToPost}
             onClick={handleBatchEditConfirm}
-            type="button"
             data-testid="button-set-image"
           >
             Confirm changes
-          </button>
+          </Button>
         </footer>
       </div>
     </div>
@@ -209,10 +222,12 @@ const BatchEditConfirmation = ({
 BatchEditConfirmation.propTypes = {
   batchAdds: PropTypes.object,
   batchDeletes: PropTypes.object,
+  batchReplaces: PropTypes.object,
   filteredQuery: PropTypes.string,
   handleClose: PropTypes.func,
   handleFormReset: PropTypes.func,
   isConfirmModalOpen: PropTypes.bool,
+  numberOfResults: PropTypes.number,
 };
 
 export default BatchEditConfirmation;

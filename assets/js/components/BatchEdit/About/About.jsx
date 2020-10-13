@@ -27,6 +27,9 @@ const BatchEditAbout = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [batchAdds, setBatchAdds] = useState({ descriptiveMetadata: {} });
   const [batchDeletes, setBatchDeletes] = useState({});
+  const [batchReplaces, setBatchReplaces] = useState({
+    descriptiveMetadata: {},
+  });
 
   const batchDispatch = useBatchDispatch();
 
@@ -41,6 +44,7 @@ const BatchEditAbout = () => {
   const methods = useForm({
     defaultValues: {},
   });
+  const { dirtyFields, touched } = methods.formState;
 
   const onCloseModal = () => {
     setIsConfirmModalOpen(false);
@@ -48,6 +52,8 @@ const BatchEditAbout = () => {
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
+    console.log("data", data);
+
     // "data" here returns everything (which was set above in the useEffect()),
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
@@ -56,6 +62,14 @@ const BatchEditAbout = () => {
     let currentFormValues = methods.getValues();
     let addItems = {};
     let deleteReadyItems = {};
+    let replaceItems = {};
+
+    // Update single value items
+    ["description", "title"].forEach((item) => {
+      if (currentFormValues[item]) {
+        replaceItems[item] = currentFormValues[item];
+      }
+    });
 
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of CONTROLLED_METADATA) {
@@ -79,6 +93,7 @@ const BatchEditAbout = () => {
 
     setBatchAdds({ descriptiveMetadata: addItems });
     setBatchDeletes(deleteReadyItems);
+    setBatchReplaces({ descriptiveMetadata: replaceItems });
     setIsConfirmModalOpen(true);
   };
 
@@ -111,16 +126,6 @@ const BatchEditAbout = () => {
             </Button>
           </>
         </UITabsStickyHeader>
-
-        <p
-          className="notification is-warning mt-5"
-          data-testid="batch-edit-warning-notification"
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="exclamation-triangle" />
-          </span>
-          You are editing {numberOfResults} items. Proceed with caution.
-        </p>
 
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
           <BatchEditAboutCoreMetadata />
@@ -165,10 +170,12 @@ const BatchEditAbout = () => {
         <BatchEditConfirmation
           batchAdds={batchAdds}
           batchDeletes={batchDeletes}
+          batchReplaces={batchReplaces}
           filteredQuery={JSON.stringify(batchState.filteredQuery)}
           handleClose={onCloseModal}
           handleFormReset={handleFormReset}
           isConfirmModalOpen={isConfirmModalOpen}
+          numberOfResults={numberOfResults}
         />
       ) : null}
 

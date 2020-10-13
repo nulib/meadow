@@ -45,15 +45,6 @@ describe("BatchEditAbout component", () => {
     });
   });
 
-  it("renders the warning notification", async () => {
-    const { getByTestId } = setupTest();
-    await waitFor(() => {
-      expect(
-        getByTestId("batch-edit-warning-notification")
-      ).toBeInTheDocument();
-    });
-  });
-
   it("renders core metadata component", async () => {
     const { getByTestId } = setupTest();
     await waitFor(() => {
