@@ -11,9 +11,12 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     @desc "Start a batch update operation"
     field :batch_update, :message do
       arg(:query, non_null(:string))
+      @desc "`delete` deletes specific existing controlled values"
       arg(:delete, :batch_delete_input, default_value: %{})
+      @desc "`add` appends to existing values (multi-valued fields only)"
       arg(:add, :batch_add_input, default_value: nil)
-      arg(:replace, :batch_add_input, default_value: nil)
+      @desc "`replace` replaces existing values (single and multi valued fields)"
+      arg(:replace, :batch_replace_input, default_value: nil)
       middleware(Middleware.Authenticate)
       resolve(&Batches.update/3)
     end
@@ -26,11 +29,57 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
   @desc "Input fields for batch add operations"
   input_object :batch_add_input do
     field :collection_id, :id
-    field :descriptive_metadata, :work_descriptive_metadata_input
+    field :descriptive_metadata, :batch_add_descriptive_metadata_input
+  end
+
+  @desc "Input fields for batch replace operations"
+  input_object :batch_replace_input do
+    field :collection_id, :id
+    field :descriptive_metadata, :batch_replace_descriptive_metadata_input
   end
 
   @desc "Input fields for batch delete operations"
   input_object :batch_delete_input do
     import_fields(:controlled_fields_input)
+  end
+
+  @desc "Input fields available for batch add (append) operations on works descriptive metadata"
+  input_object :batch_add_descriptive_metadata_input do
+    import_fields(:batch_editable_multi_valued_descriptive_metadata_input)
+    import_fields(:controlled_fields_input)
+  end
+
+  @desc "Input fields available for batch replace operations on works descriptive metadata"
+  input_object :batch_replace_descriptive_metadata_input do
+    field :title, :string
+    import_fields(:batch_editable_multi_valued_descriptive_metadata_input)
+  end
+
+  input_object :batch_editable_multi_valued_descriptive_metadata_input do
+    field :abstract, list_of(:string)
+    field :alternate_title, list_of(:string)
+    field :box_name, list_of(:string)
+    field :box_number, list_of(:string)
+    field :caption, list_of(:string)
+    field :catalog_key, list_of(:string)
+    field :description, list_of(:string)
+    field :folder_name, list_of(:string)
+    field :folder_number, list_of(:string)
+    field :keywords, list_of(:string)
+    field :license, :coded_term_input
+    field :notes, list_of(:string)
+    field :terms_of_use, :string
+    field :physical_description_material, list_of(:string)
+    field :physical_description_size, list_of(:string)
+    field :provenance, list_of(:string)
+    field :publisher, list_of(:string)
+    field :related_material, list_of(:string)
+    field :related_url, list_of(:related_url_entry_input)
+    field :rights_holder, list_of(:string)
+    field :rights_statement, :coded_term_input
+    field :scope_and_contents, list_of(:string)
+    field :series, list_of(:string)
+    field :source, list_of(:string)
+    field :table_of_contents, list_of(:string)
   end
 end
