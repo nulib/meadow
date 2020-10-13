@@ -10,6 +10,8 @@ updates:
       - "automerge"
     open-pull-requests-limit: 10
     target-branch: dependencies
+    ignore:
+      - dependency-name: "webpack-cli"
   - package-ecosystem: npm
     directory: "/priv/tiff"
     schedule:
