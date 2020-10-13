@@ -35,8 +35,8 @@ defmodule MeadowWeb.AuthControllerTest do
         |> SetCurrentUser.call(nil)
 
       Cachex.put!(Meadow.Cache.Users, user.username, user)
-
       get(conn, "/auth/logout")
+      :timer.sleep(100)
 
       assert Cachex.get!(Meadow.Cache.Users, user.username) == nil
     end
