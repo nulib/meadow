@@ -14,6 +14,7 @@ export const elasticSearchResponse = {
         _source: {
           accessionNumber: "Voyager:2586736",
           administrativeMetadata: {
+            libraryUnit: null,
             preservationLevel: null,
             projectCycle: null,
             projectDesc: [],
@@ -353,6 +354,7 @@ export const elasticSearchResponse = {
         _source: {
           accessionNumber: "BFMF_B21_F04_037",
           administrativeMetadata: {
+            libraryUnit: null,
             preservationLevel: null,
             projectCycle: null,
             projectDesc: [],

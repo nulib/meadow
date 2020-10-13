@@ -42,7 +42,12 @@ const WorkTabsAdministrative = ({ work }) => {
     refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
     awaitRefetchQueries: true,
   });
-  const { preservationLevel, status, projectCycle } = administrativeMetadata;
+  const {
+    libraryUnit,
+    preservationLevel,
+    status,
+    projectCycle,
+  } = administrativeMetadata;
 
   const methods = useForm({
     defaultValues: {},
@@ -66,6 +71,13 @@ const WorkTabsAdministrative = ({ work }) => {
   }, [work]);
 
   // Get select dropdown options.  Need a better way to organize this
+  const {
+    loading: libraryUnitLoading,
+    error: libraryUnitError,
+    data: libraryUnitData,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "LIBRARY_UNIT" },
+  });
   const {
     loading: preservationLevelsLoading,
     error: preservationLevelsError,
@@ -91,6 +103,9 @@ const WorkTabsAdministrative = ({ work }) => {
 
     let workUpdateInput = {
       administrativeMetadata: {
+        libraryUnit: currentFormValues.libraryUnit
+          ? { id: currentFormValues.libraryUnit, scheme: "LIBRARY_UNIT" }
+          : {},
         preservationLevel: currentFormValues.preservationLevel
           ? {
               id: currentFormValues.preservationLevel,
@@ -122,6 +137,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   if (
     collectionsLoading ||
+    libraryUnitLoading ||
     preservationLevelsLoading ||
     statusLoading ||
     visibilityLoading ||
@@ -132,6 +148,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   if (
     collectionsError ||
+    libraryUnitError ||
     preservationLevelsError ||
     statusError ||
     visibilityError ||
@@ -205,6 +222,22 @@ const WorkTabsAdministrative = ({ work }) => {
                   <p>
                     {collection ? collection.title : "Not part of a collection"}
                   </p>
+                )}
+              </UIFormField>
+
+              <UIFormField label="Library Unit" required={published}>
+                {isEditing ? (
+                  <UIFormSelect
+                    isReactHookForm
+                    name="libraryUnit"
+                    showHelper={true}
+                    label="Library Unit"
+                    options={libraryUnitData.codeList}
+                    defaultValue={libraryUnit ? libraryUnit.id : ""}
+                    required={work.published}
+                  />
+                ) : (
+                  <p>{libraryUnit ? libraryUnit.label : "None selected"}</p>
                 )}
               </UIFormField>
 

@@ -5,6 +5,7 @@ import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 import {
+  codeListLibraryUnitMock,
   codeListPreservationLevelMock,
   codeListStatusMock,
   codeListVisibilityMock,
@@ -17,6 +18,7 @@ describe("Work Administrative tab component", () => {
       mocks: [
         getCollectionsMock,
         getCollectionsMock,
+        codeListLibraryUnitMock,
         codeListPreservationLevelMock,
         codeListStatusMock,
         codeListVisibilityMock,
