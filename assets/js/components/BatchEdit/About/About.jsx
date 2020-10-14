@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm, FormProvider } from "react-hook-form";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
@@ -18,6 +17,7 @@ import {
 } from "../../../context/batch-edit-context";
 import {
   CONTROLLED_METADATA,
+  UNCONTROLLED_MULTI_VALUE_METADATA,
   prepControlledTermInput,
   prepFacetKey,
 } from "../../../services/metadata";
@@ -64,6 +64,8 @@ const BatchEditAbout = () => {
     let addItems = {};
     let deleteReadyItems = {};
     let replaceItems = {};
+    let multiValueAdds = {};
+    let multiValueReplaces = {};
 
     // Update single value items
     ["description", "title"].forEach((item) => {
@@ -91,6 +93,8 @@ const BatchEditAbout = () => {
         );
       }
     }
+
+    // Update non-controlled term multi-value items
 
     setBatchAdds({ descriptiveMetadata: addItems });
     setBatchDeletes(deleteReadyItems);

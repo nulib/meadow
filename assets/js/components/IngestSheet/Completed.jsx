@@ -62,13 +62,11 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
           <div>
             <UIPreviewItems items={works} />
 
-            <p className="pt-4 has-text-centered">
-              This is a preview of Ingest Sheet works. To view full list of
-              works in this Ingest Sheet click here <br />
-              <Button isPrimary className="mt-4" onClick={handleClick}>
+            <div className="has-text-centered mt-6 mb-3">
+              <Button isPrimary onClick={handleClick}>
                 View All Ingest Sheet Works
               </Button>
-            </p>
+            </div>
           </div>
         )}
       </div>

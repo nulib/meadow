@@ -1,41 +1,136 @@
-export const CONTROLLED_METADATA = [
-  {
-    hasRole,
+export const METADATA_FIELDS = {
+  ABSTRACT: { name: "abstract", label: "Abstract" },
+  ALTERNATE_TITLE: {
+    name: "alternateTitle",
+    label: "Alternate Title",
+  },
+  BOX_NAME: { name: "boxName", label: "Box Name" },
+  BOX_NUMBER: { name: "boxNumber", label: "Box Number" },
+  CAPTION: { name: "caption", label: "Caption" },
+  CATALOG_KEY: { name: "catalogKey", label: "Catalog Key" },
+  CONTRIBUTOR: {
+    hasRole: true,
     label: "Contributor",
     name: "contributor",
     scheme: "MARC_RELATOR",
   },
-  {
-    label: "Creator",
-    name: "creator",
+  CREATOR: { name: "creator", label: "Creator" },
+  DATE_CREATED: { name: "dateCreated", label: "Date Created" },
+  DESCRIPTION: { name: "description", label: "Description" },
+  FOLDER_NAME: { name: "folderName", label: "Folder Name" },
+  FOLDER_NUMBER: { name: "folderNumber", label: "Folder Number" },
+  GENRE: { name: "genre", label: "Genre" },
+  IDENTIFIER: { name: "identifier", label: "Identifier" },
+  KEYWORDS: { name: "keywords", label: "Keywords" },
+  LANGUAGE: { name: "language", label: "Language" },
+  LEGACY_IDENTIFIER: { name: "legacyIdentifier", label: "Legacy Identifier" },
+  LICENSE: { name: "license", label: "License" },
+  LOCATION: { name: "location", label: "Location" },
+  NOTES: { name: "notes", label: "Notes" },
+  PHYSICAL_DESCRIPTION_MATERIAL: {
+    name: "physicalDescriptionMaterial",
+    label: "Physical Description Material",
   },
-  {
-    label: "Genre",
-    name: "genre",
+  PHYSICAL_DESCRIPTION_SIZE: {
+    name: "physicalDescriptionSize",
+    label: "Physical Description Size",
   },
-  {
-    label: "Language",
-    name: "language",
-  },
-  {
-    label: "Location",
-    name: "location",
-  },
-  {
-    label: "Style Period",
-    name: "stylePeriod",
-  },
-  {
+  PROVENANCE: { name: "provenance", label: "Provenance" },
+  PUBLISHER: { name: "publisher", label: "Publisher" },
+  RELATED_MATERIAL: { name: "relatedMaterial", label: "Related Material" },
+  RELATED_URL: { name: "relatedUrl", label: "Related URL" },
+  RIGHTS_HOLDER: { name: "rightsHolder", label: "Rights Holder" },
+  RIGHTS_STATEMENT: { name: "rightsStatement", label: "Rights Statement" },
+  SCOPE_AND_CONTENT: { name: "scopeAndContents", label: "Scope and Content" },
+  SERIES: { name: "series", label: "Series" },
+  SOURCE: { name: "source", label: "Source" },
+  STYLE_PERIOD: { name: "stylePeriod", label: "Style Period" },
+  SUBJECT_ROLE: {
     hasRole,
     label: "Subject",
     name: "subject",
     scheme: "SUBJECT_ROLE",
   },
-  {
-    label: "Technique",
-    name: "technique",
-  },
+  TABLE_OF_CONTENTS: { name: "tableOfContents", label: "Table of Contents" },
+  TECHNIQUE: { label: "Technique", name: "technique" },
+  TITLE: { name: "title", label: "Title" },
+};
+
+const {
+  ABSTRACT,
+  ALTERNATE_TITLE,
+  BOX_NAME,
+  BOX_NUMBER,
+  CAPTION,
+  CATALOG_KEY,
+  CONTRIBUTOR,
+  CREATOR,
+  DATE_CREATED,
+  DESCRIPTION,
+  FOLDER_NAME,
+  FOLDER_NUMBER,
+  GENRE,
+  IDENTIFIER,
+  KEYWORDS,
+  LANGUAGE,
+  LEGACY_IDENTIFIER,
+  LICENSE,
+  LOCATION,
+  NOTES,
+  PHYSICAL_DESCRIPTION_MATERIAL,
+  PHYSICAL_DESCRIPTION_SIZE,
+  PROVENANCE,
+  PUBLISHER,
+  RELATED_MATERIAL,
+  RELATED_URL,
+  RIGHTS_HOLDER,
+  RIGHTS_STATEMENT,
+  SCOPE_AND_CONTENT,
+  SERIES,
+  SOURCE,
+  STYLE_PERIOD,
+  SUBJECT_ROLE,
+  TABLE_OF_CONTENTS,
+  TECHNIQUE,
+  TITLE,
+} = METADATA_FIELDS;
+
+export const CONTROLLED_METADATA = [
+  CONTRIBUTOR,
+  CREATOR,
+  GENRE,
+  LANGUAGE,
+  LOCATION,
+  STYLE_PERIOD,
+  SUBJECT_ROLE,
+  TECHNIQUE,
 ];
+
+export const UNCONTROLLED_MULTI_VALUE_METADATA = [
+  ABSTRACT,
+  ALTERNATE_TITLE,
+  BOX_NAME,
+  BOX_NUMBER,
+  CAPTION,
+  CATALOG_KEY,
+  FOLDER_NAME,
+  FOLDER_NUMBER,
+  IDENTIFIER,
+  KEYWORDS,
+  LEGACY_IDENTIFIER,
+  NOTES,
+  PHYSICAL_DESCRIPTION_MATERIAL,
+  PHYSICAL_DESCRIPTION_SIZE,
+  PROVENANCE,
+  PUBLISHER,
+  RELATED_MATERIAL,
+  RIGHTS_HOLDER,
+  SCOPE_AND_CONTENT,
+  SERIES,
+  SOURCE,
+  TABLE_OF_CONTENTS,
+];
+
 export const PROJECT_METADATA = [
   { name: "projectDesc", label: "Project Description" },
   { name: "projectManager", label: "Project Manager" },
@@ -45,92 +140,54 @@ export const PROJECT_METADATA = [
 ];
 
 export const OTHER_METADATA = [
-  { name: "alternateTitle", label: "Alternate Title" },
-  { name: "dateCreated", label: "Date Created" },
-  { name: "description", label: "Description" },
-  { name: "license", label: "License" },
-  { name: "relatedUrl", label: "Related URL" },
-  { name: "rightsStatement", label: "Rights Statement" },
-  { name: "title", label: "Title" },
+  ALTERNATE_TITLE,
+  DATE_CREATED,
+  DESCRIPTION,
+  LICENSE,
+  RELATED_URL,
+  RIGHTS_STATEMENT,
+  TITLE,
 ];
 
 export const UNCONTROLLED_METADATA = [
-  { name: "abstract", label: "Abstract" },
-  { name: "caption", label: "Caption" },
-  { name: "keywords", label: "Keywords" },
-  { name: "notes", label: "Notes" },
-  { name: "tableOfContents", label: "Table of Contents" },
+  ABSTRACT,
+  CAPTION,
+  KEYWORDS,
+  NOTES,
+  TABLE_OF_CONTENTS,
 ];
 
 export const PHYSICAL_METADATA = [
-  { name: "boxName", label: "Box Name" },
-  { name: "boxNumber", label: "Box Number" },
-  { name: "folderName", label: "Folder Name" },
-  { name: "folderNumber", label: "Folder Number" },
-  {
-    name: "physicalDescriptionMaterial",
-    label: "Physical Description Material",
-  },
-  {
-    name: "physicalDescriptionSize",
-    label: "Physical Description Size",
-  },
-  { name: "scopeAndContents", label: "Scope and Content" },
-  { name: "series", label: "Series" },
+  BOX_NAME,
+  BOX_NUMBER,
+  FOLDER_NAME,
+  FOLDER_NUMBER,
+  PHYSICAL_DESCRIPTION_MATERIAL,
+  PHYSICAL_DESCRIPTION_SIZE,
+  SCOPE_AND_CONTENT,
+  SERIES,
 ];
 
-export const RIGHTS_METADATA = [
-  { name: "provenance", label: "Provenance" },
-  { name: "publisher", label: "Publisher" },
-  { name: "rightsHolder", label: "Rights Holder" },
-];
+export const RIGHTS_METADATA = [PROVENANCE, PUBLISHER, RIGHTS_HOLDER];
 
 export const IDENTIFIER_METADATA = [
-  { name: "catalogKey", label: "Catalog Key" },
-  { name: "identifier", label: "Identifier" },
-  { name: "legacyIdentifier", label: "Legacy Identifier" },
-  { name: "relatedMaterial", label: "Related Material" },
-  { name: "source", label: "Source" },
+  CATALOG_KEY,
+  IDENTIFIER,
+  LEGACY_IDENTIFIER,
+  RELATED_MATERIAL,
+  SOURCE,
 ];
 
 export const DESCRIPTIVE_METADATA = {
   controlledTerms: [
-    {
-      hasRole,
-      label: "Contributor",
-      name: "contributor",
-      scheme: "MARC_RELATOR",
-    },
-    {
-      label: "Creators",
-      name: "creator",
-    },
-    {
-      label: "Genre",
-      name: "genre",
-    },
-    {
-      label: "Language",
-      name: "language",
-    },
-    {
-      label: "Location",
-      name: "location",
-    },
-    {
-      label: "Style Period",
-      name: "stylePeriod",
-    },
-    {
-      hasRole,
-      label: "Subject",
-      name: "subject",
-      scheme: "SUBJECT_ROLE",
-    },
-    {
-      label: "Technique",
-      name: "technique",
-    },
+    CONTRIBUTOR,
+    CREATOR,
+    GENRE,
+    LANGUAGE,
+    LOCATION,
+    STYLE_PERIOD,
+    SUBJECT_ROLE,
+    TECHNIQUE,
   ],
 };
 
