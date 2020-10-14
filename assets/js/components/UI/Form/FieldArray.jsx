@@ -1,8 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
+import UIFormFieldArrayRow from "@js/components/UI/Form/FieldArrayRow";
+import UIFormFieldArrayAddButton from "@js/components/UI/Form/FieldArrayAddButton";
 
 const UIFormFieldArray = ({
   name,
@@ -14,11 +15,19 @@ const UIFormFieldArray = ({
   notLive,
   ...passedInProps
 }) => {
-  const { control, errors, register } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
+
+  function handleAddClick() {
+    append({ metadataItem: defaultValue });
+  }
+
+  function handleRemoveClick(index) {
+    remove(index);
+  }
 
   return (
     <fieldset {...passedInProps}>
@@ -30,51 +39,22 @@ const UIFormFieldArray = ({
       <ul className="mb-4">
         {fields.map((item, index) => {
           return (
-            <li key={item.id} className="field">
-              <>
-                <div className="is-flex">
-                  <input
-                    name={`${[name]}[${index}].metadataItem`}
-                    className={`input ${
-                      errors[name] && errors[name][index] ? "is-danger" : ""
-                    }`}
-                    defaultValue={item.metadataItem}
-                    ref={register({ required })}
-                    data-testid="input-field-array"
-                  />
-                  <button
-                    type="button"
-                    className="button ml-1"
-                    onClick={() => remove(index)}
-                    data-testid="button-delete-field-array-row"
-                  >
-                    <FontAwesomeIcon icon="trash" />
-                  </button>
-                </div>
-                {errors[name] && errors[name][index] && (
-                  <p data-testid="input-errors" className="help is-danger">
-                    {label || name} field is required
-                  </p>
-                )}
-              </>
-            </li>
+            <UIFormFieldArrayRow
+              key={item.id}
+              handleRemoveClick={handleRemoveClick}
+              item={item}
+              index={index}
+              label={label}
+              name={name}
+            />
           );
         })}
       </ul>
 
-      <button
-        type="button"
-        className="button is-text is-small"
-        onClick={() => {
-          append({ metadataItem: defaultValue });
-        }}
-        data-testid="button-add-field-array-row"
-      >
-        <span className="icon">
-          <FontAwesomeIcon icon="plus" />
-        </span>
-        <span>Add {fields.length > 0 && "another"}</span>
-      </button>
+      <UIFormFieldArrayAddButton
+        btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
+        handleAddClick={handleAddClick}
+      />
     </fieldset>
   );
 };

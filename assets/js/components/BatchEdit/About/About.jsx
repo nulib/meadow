@@ -60,6 +60,7 @@ const BatchEditAbout = () => {
     // updated.
 
     let currentFormValues = methods.getValues();
+    console.log("currentFormValues", currentFormValues);
     let addItems = {};
     let deleteReadyItems = {};
     let replaceItems = {};
