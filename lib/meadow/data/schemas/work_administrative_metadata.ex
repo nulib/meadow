@@ -9,6 +9,7 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
 
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
+    field :library_unit, Types.CodedTerm
     field :preservation_level, Types.CodedTerm
     field :project_name, {:array, :string}, default: []
     field :project_desc, {:array, :string}, default: []
@@ -24,6 +25,7 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
   def changeset(metadata, params) do
     metadata
     |> cast(params, [
+      :library_unit,
       :preservation_level,
       :project_name,
       :project_desc,

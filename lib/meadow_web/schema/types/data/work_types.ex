@@ -172,6 +172,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
   object :work_administrative_metadata do
+    field :library_unit, :coded_term
     field :preservation_level, :coded_term
     field :status, :coded_term
 
@@ -205,6 +206,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works administrative metadata"
   input_object :work_administrative_metadata_input do
+    field :library_unit, :coded_term_input
     field :preservation_level, :coded_term_input
     field :status, :coded_term_input
 

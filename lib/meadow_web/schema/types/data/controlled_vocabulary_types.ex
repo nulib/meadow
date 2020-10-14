@@ -95,6 +95,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   @desc "Schemes for code list table. (Ex: Subjects, MARC relators, prevervation levels, etc)"
   enum :code_list_scheme do
     value(:authority, as: "authority", description: "Authority")
+    value(:library_unit, as: "library_unit", description: "Library Unit")
     value(:license, as: "license", description: "License")
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")

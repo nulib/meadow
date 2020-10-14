@@ -120,6 +120,36 @@ export const codeListMarcRelatorMock = {
   },
 };
 
+export const codeListLibraryUnitMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: {
+      scheme: "LIBRARY_UNIT",
+    },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "1",
+          label: "Unit 1",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "2",
+          label: "Unit 2",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "3",
+          label: "Unit 3",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
 export const codeListPreservationLevelMock = {
   request: {
     query: CODE_LIST_QUERY,

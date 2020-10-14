@@ -1,5 +1,9 @@
 fragment WorkAdministrativeMetadataFields on Work {
   administrativeMetadata {
+    libraryUnit {
+      id
+      label
+    }
     preservationLevel {
       id
       label

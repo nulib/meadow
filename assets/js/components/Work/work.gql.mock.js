@@ -5,6 +5,7 @@ export const mockWork = {
   id: "ABC123",
   accessionNumber: "Donohue_001",
   administrativeMetadata: {
+    libraryUnit: { id: "Unit 1", label: "Unit 1" },
     preservationLevel: { id: 1, label: "Level 1" },
     projectCycle: "Project Cycle Name",
     projectDesc: ["New Project Description", "Another Project Description"],
@@ -203,6 +204,7 @@ const mockWork2 = {
   id: "ABC123",
   accessionNumber: "Donohue_002b",
   administrativeMetadata: {
+    libraryUnit: null,
     preservationLevel: null,
     projectCycle: null,
     projectDesc: [],

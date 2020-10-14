@@ -9,6 +9,7 @@ import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import {
   codeListLicenseMock,
+  codeListLibraryUnitMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
   codeListStatusMock,
@@ -19,6 +20,7 @@ import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 
 const mocks = [
   codeListLicenseMock,
+  codeListLibraryUnitMock,
   codeListPreservationLevelMock,
   codeListRightsStatementMock,
   codeListStatusMock,

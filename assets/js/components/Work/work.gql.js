@@ -24,6 +24,10 @@ export const GET_WORK = gql`
       id
       accessionNumber
       administrativeMetadata {
+        libraryUnit {
+          id
+          label
+        }
         preservationLevel {
           id
           label
@@ -242,6 +246,10 @@ export const UPDATE_WORK = gql`
     updateWork(id: $id, work: $work) {
       id
       administrativeMetadata {
+        libraryUnit {
+          id
+          label
+        }
         preservationLevel {
           id
           label
