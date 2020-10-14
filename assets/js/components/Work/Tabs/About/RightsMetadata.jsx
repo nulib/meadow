@@ -59,7 +59,6 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
           {isEditing ? (
             <UIFormInput
               isReactHookForm
-              required
               label="Terms of Use"
               name="termsOfUse"
               defaultValue={descriptiveMetadata.termsOfUse}
