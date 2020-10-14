@@ -14,6 +14,10 @@ defmodule Meadow.BatchesTest do
       works = [
         work_fixture(%{
           collection: collection,
+          administrative_metadata: %{
+            project_desc: ["Existing Value"],
+            preservation_level: %{id: "1", scheme: "PRESERVATION_LEVEL"}
+          },
           descriptive_metadata: %{
             title: "Work 1",
             box_name: ["Michael Jordan"],
@@ -32,6 +36,7 @@ defmodule Meadow.BatchesTest do
         }),
         work_fixture(%{
           collection: collection,
+          administrative_metadata: %{project_desc: ["Existing Value"]},
           descriptive_metadata: %{
             title: "Work 2",
             box_name: ["Michael Jordan"],
@@ -53,6 +58,7 @@ defmodule Meadow.BatchesTest do
         }),
         work_fixture(%{
           collection: collection,
+          administrative_metadata: %{project_desc: ["Existing Value"]},
           descriptive_metadata: %{
             title: "Work 3",
             box_name: ["Michael Jordan"],
@@ -78,7 +84,7 @@ defmodule Meadow.BatchesTest do
       {:ok, %{works: works}}
     end
 
-    test "batch_update/2 handles uncontrolled fields" do
+    test "batch_update/4 handles uncontrolled fields" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
 
       add = %{
@@ -107,7 +113,7 @@ defmodule Meadow.BatchesTest do
       end)
     end
 
-    test "batch_update/2 handles controlled fields" do
+    test "batch_update/4 handles controlled fields" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
 
       delete = %{
@@ -142,7 +148,7 @@ defmodule Meadow.BatchesTest do
              |> length() == 1
     end
 
-    test "batch_update/2 updates collection" do
+    test "batch_update/4 updates collection" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
       new_collection = collection_fixture(%{title: "New Collection"})
 
@@ -152,6 +158,57 @@ defmodule Meadow.BatchesTest do
                Batches.batch_update(query, nil, nil, %{collection_id: new_collection.id})
 
       assert Works.list_works(collection_id: new_collection.id) |> length == 3
+    end
+
+    test "batch_update/4 handles administrative metadata" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+
+      add = %{
+        administrative_metadata: %{
+          project_desc: ["A very fun project", "A not so fun project"]
+        }
+      }
+
+      replace = %{
+        administrative_metadata: %{
+          status: %{id: "IN PROGRESS", scheme: "STATUS"},
+          project_cycle: "The first one"
+        }
+      }
+
+      assert Works.list_works() |> length() == 3
+
+      assert {:ok, _result} = Batches.batch_update(query, nil, add, replace)
+
+      Works.list_works()
+      |> Enum.each(fn work ->
+        assert work.administrative_metadata.project_desc |> length() == 3
+
+        assert work.administrative_metadata.status == %{
+                 id: "IN PROGRESS",
+                 label: "In Progress",
+                 scheme: "status"
+               }
+
+        assert work.administrative_metadata.project_cycle == "The first one"
+      end)
+    end
+
+    test "batch_update/4 handles core metadata" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+
+      replace = %{
+        visibility: %{id: "OPEN", scheme: "VISIBILITY"}
+      }
+
+      assert Works.list_works() |> length() == 3
+
+      assert {:ok, _result} = Batches.batch_update(query, nil, nil, replace)
+
+      Works.list_works()
+      |> Enum.each(fn work ->
+        assert work.visibility.id == "OPEN"
+      end)
     end
   end
 end

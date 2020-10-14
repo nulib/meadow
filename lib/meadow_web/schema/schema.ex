@@ -11,11 +11,11 @@ defmodule MeadowWeb.Schema do
   alias Meadow.Ingest
 
   import_types(__MODULE__.AccountTypes)
+  import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.BatchTypes)
   import_types(__MODULE__.IngestTypes)
   import_types(__MODULE__.Data.CollectionTypes)
   import_types(__MODULE__.Data.ControlledTermTypes)
-  import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.FileSetTypes)
   import_types(__MODULE__.Data.FieldTypes)
   import_types(__MODULE__.Data.SharedLinkTypes)

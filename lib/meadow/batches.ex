@@ -81,32 +81,63 @@ defmodule Meadow.Batches do
     add = if is_nil(add), do: %{}, else: add
     replace = if is_nil(replace), do: %{}, else: replace
 
+    visibility = Map.get(replace, :visibility, :not_present)
+    published = Map.get(replace, :published, :not_present)
+
     with collection_id <- add |> Map.merge(replace) |> Map.get(:collection_id, :not_present) do
-      update_collection_id(work_ids, collection_id)
+      update_collection(work_ids, collection_id)
+      |> update_top_level_field(:visibility, visibility)
+      |> update_top_level_field(:published, published)
       |> merge_uncontrolled_fields(add, :append)
       |> merge_uncontrolled_fields(replace, :replace)
     end
   end
 
   defp merge_uncontrolled_fields(work_ids, new_values, mode) do
-    mergeable =
+    mergeable_descriptive_metadata =
       new_values
       |> Map.get(:descriptive_metadata, %{})
       |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
       |> Enum.into(%{})
 
-    if map_size(mergeable) > 0 do
+    mergeable_administrative_metadata =
+      new_values
+      |> Map.get(:administrative_metadata, %{})
+      |> Enum.into(%{})
+
+    if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
       from(w in Work, where: w.id in ^work_ids)
-      |> Works.merge_metadata_values(:descriptive_metadata, mergeable, mode)
+      |> Works.merge_metadata_values(:descriptive_metadata, mergeable_descriptive_metadata, mode)
+      |> Works.merge_metadata_values(
+        :administrative_metadata,
+        mergeable_administrative_metadata,
+        mode
+      )
+      |> Works.merge_updated_at()
       |> Repo.update_all([])
     end
 
     work_ids
   end
 
-  defp update_collection_id(work_ids, :not_present), do: work_ids
+  defp update_top_level_field(work_ids, _field, :not_present), do: work_ids
 
-  defp update_collection_id(work_ids, value) do
+  defp update_top_level_field(work_ids, field, value) do
+    update_args = Keyword.new([{field, value}, {:updated_at, DateTime.utc_now()}])
+
+    from(
+      w in Work,
+      update: [set: ^update_args],
+      where: w.id in ^work_ids
+    )
+    |> Repo.update_all([])
+
+    work_ids
+  end
+
+  defp update_collection(work_ids, :not_present), do: work_ids
+
+  defp update_collection(work_ids, value) do
     from(w in Work, where: w.id in ^work_ids)
     |> Repo.update_all(
       set: [

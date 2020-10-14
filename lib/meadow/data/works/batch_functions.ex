@@ -45,8 +45,7 @@ defmodule Meadow.Data.Works.BatchFunctions do
                      unquote("merge_jsonb_values(#{schema}, ?::jsonb, ?::text)"),
                      ^values,
                      ^to_string(mode)
-                   )},
-                  {:updated_at, ^DateTime.utc_now()}
+                   )}
                 ]
               ]
           end
