@@ -12,7 +12,7 @@ const UISearchBar = () => {
         autosuggest={true}
         dataField={ELASTICSEARCH_FIELDS_TO_SEARCH}
         debounce={100}
-        fieldWeights={[1, 2, 3]}
+        fieldWeights={[5, 2]}
         filterLabel="Search"
         fuzziness={0}
         highlight={true}

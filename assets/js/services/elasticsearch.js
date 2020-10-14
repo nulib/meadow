@@ -14,8 +14,9 @@ const client = new Elasticsearch.Client({
 
 // ES Index fields we tell ReactiveSearch to search against
 export const ELASTICSEARCH_FIELDS_TO_SEARCH = [
-  "descriptiveMetadata.title",
+  "all_titles",
   "descriptiveMetadata.description",
+  "full_text",
   "accessionNumber",
 ];
 
