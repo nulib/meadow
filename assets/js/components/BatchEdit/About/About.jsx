@@ -9,7 +9,7 @@ import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import UIAccordion from "../../UI/Accordion";
-import BatchEditConfirmation from "./Confirmation";
+import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
 import BatchEditAboutModalRemove from "../ModalRemove";
 import {
   useBatchDispatch,
@@ -18,6 +18,7 @@ import {
 import {
   CONTROLLED_METADATA,
   UNCONTROLLED_MULTI_VALUE_METADATA,
+  getBatchMultiValueDataFromForm,
   prepControlledTermInput,
   prepFacetKey,
 } from "../../../services/metadata";
@@ -64,8 +65,7 @@ const BatchEditAbout = () => {
     let addItems = {};
     let deleteReadyItems = {};
     let replaceItems = {};
-    let multiValueAdds = {};
-    let multiValueReplaces = {};
+    let multiValues = {};
 
     // Update single value items
     ["description", "title"].forEach((item) => {
@@ -95,10 +95,13 @@ const BatchEditAbout = () => {
     }
 
     // Update non-controlled term multi-value items
+    multiValues = getBatchMultiValueDataFromForm(currentFormValues);
 
-    setBatchAdds({ descriptiveMetadata: addItems });
+    setBatchAdds({ descriptiveMetadata: { ...addItems, ...multiValues.add } });
     setBatchDeletes(deleteReadyItems);
-    setBatchReplaces({ descriptiveMetadata: replaceItems });
+    setBatchReplaces({
+      descriptiveMetadata: { ...replaceItems, ...multiValues.replace },
+    });
     setIsConfirmModalOpen(true);
   };
 

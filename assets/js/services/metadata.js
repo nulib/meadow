@@ -191,6 +191,73 @@ export const DESCRIPTIVE_METADATA = {
   ],
 };
 
+/**
+ * Prepare an object of adds and replaces for uncontrolled, multi-value fields
+ * from batch edit form values
+ * @param {Object} currentFormValues React Hook Form getValues() return obj
+ * @returns {Object} // 2 children objects "add" and "replace"
+ */
+export function getBatchMultiValueDataFromForm(currentFormValues) {
+  let returnObj = { add: {}, replace: {} };
+  const formDataKeys = Object.keys(currentFormValues);
+  const metadataNames = UNCONTROLLED_MULTI_VALUE_METADATA.map(
+    (umvm) => umvm.name
+  );
+
+  // Filter form values by multi value entries only
+  const formMultiOnly = formDataKeys.filter(
+    (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1
+  );
+
+  for (const key of formMultiOnly) {
+    // Handle "replace all" condition
+    if (key.includes("removeCheckbox") && currentFormValues[key]) {
+      returnObj.replace[key.split("--")[0]] = [];
+    }
+    // Handle "replace" or "add"
+    else {
+      let rootName = key.split("--")[0];
+      // Verify a value exists
+      if (
+        key.includes("replaceCheckbox") &&
+        formMultiOnly.indexOf(rootName) > -1
+      ) {
+        returnObj[currentFormValues[key] ? "replace" : "add"][rootName] = [
+          ...currentFormValues[rootName],
+        ];
+      }
+    }
+  }
+
+  // Clean up the data for form post
+  let adds = Object.keys(returnObj.add);
+  let replaces = Object.keys(returnObj.replace);
+
+  if (adds.length > 0) {
+    for (let elName of adds) {
+      returnObj.add[elName] = [
+        ...prepFieldArrayItemsForPost(returnObj.add[elName]),
+      ];
+    }
+  }
+  if (replaces.length > 0) {
+    for (let elName of replaces) {
+      returnObj.replace[elName] = [
+        ...prepFieldArrayItemsForPost(returnObj.replace[elName]),
+      ];
+    }
+  }
+
+  return returnObj;
+}
+
+export function getMetadataLabel(name) {
+  let foundItem = Object.keys(METADATA_FIELDS).filter(
+    (key) => METADATA_FIELDS[key].name === name
+  );
+  return METADATA_FIELDS[foundItem[0]].label;
+}
+
 export function findScheme(termToFind) {
   let term = CONTROLLED_METADATA.find((ct) => ct.name === termToFind.name);
   return term.scheme || "";

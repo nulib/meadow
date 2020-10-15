@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormFieldArray from "../../UI/Form/FieldArray";
+import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import { UNCONTROLLED_METADATA } from "../../../services/metadata";
 
 const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
@@ -12,7 +12,7 @@ const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
     >
       {UNCONTROLLED_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray required name={item.name} label={item.label} />
+          <UIFormBatchFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
     </div>

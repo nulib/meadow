@@ -77,16 +77,13 @@ const UIFormBatchFieldArray = ({
       <div className="field">
         <input
           className="is-checkradio"
-          id={`alternateTitle--removeCheckbox`}
+          id={`${name}--removeCheckbox`}
           type="checkbox"
-          name={`alternateTitle--removeCheckbox`}
+          name={`${name}--removeCheckbox`}
           onChange={() => setIsRemove(!isRemove)}
           ref={register()}
         />
-        <label
-          className="has-text-grey"
-          htmlFor={`alternateTitle--removeCheckbox`}
-        >
+        <label className="has-text-grey" htmlFor={`${name}--removeCheckbox`}>
           Remove all values
         </label>
       </div>
