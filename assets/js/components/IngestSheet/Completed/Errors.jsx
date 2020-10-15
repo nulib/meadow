@@ -4,15 +4,15 @@ import PropTypes from "prop-types";
 const styles = {
   tableWrapper: {
     height: "500px",
-    overflowY: "auto"
-  }
+    overflowY: "auto",
+  },
 };
 
 const IngestSheetCompletedErrors = ({ errors = [] }) => {
   return (
     <>
       <p className="notification is-danger">
-        There were errrors creating works from filesets
+        There were errors creating works from filesets
       </p>
       <div className="box" style={styles.tableWrapper}>
         <table className="table is-fullwidth is-striped">
@@ -28,7 +28,7 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {errors.map(row => {
+            {errors.map((row) => {
               var errorMsg =
                 row.outcome == "SKIPPED"
                   ? "Skipped due to error(s) on other row(s)"
@@ -39,12 +39,7 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
                   <td>{row.workAccessionNumber}</td>
                   <td>{row.accessionNumber}</td>
                   <td>{row.filename}</td>
-                  <td>
-                    {row.action
-                      .split(".")
-                      .slice(-1)
-                      .pop()}
-                  </td>
+                  <td>{row.action.split(".").slice(-1).pop()}</td>
                   <td>{errorMsg}</td>
                   <td></td>
                 </tr>
@@ -58,7 +53,7 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
 };
 
 IngestSheetCompletedErrors.propTypes = {
-  errors: PropTypes.array
+  errors: PropTypes.array,
 };
 
 export default IngestSheetCompletedErrors;
