@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
-import UIFormFieldArray from "../../UI/Form/FieldArray";
+import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import { IDENTIFIER_METADATA } from "../../../services/metadata";
 import { useQuery } from "@apollo/client";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
@@ -38,7 +38,7 @@ const BatchEditAboutIdentifiersMetadata = ({ ...restProps }) => {
     >
       {IDENTIFIER_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray required name={item.name} label={item.label} />
+          <UIFormBatchFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
       <div className="column is-full" data-testid="relatedUrl">

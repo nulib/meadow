@@ -6,6 +6,7 @@ import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
+import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 
@@ -38,11 +39,10 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
 
       <div className="column is-full">
         {/* Alternate Title */}
-        <UIFormFieldArray
+        <UIFormBatchFieldArray
           name="alternateTitle"
           data-testid="alternate-title"
           label="Alternate Title"
-          className="add"
         />
       </div>
       <div className="column is-half">

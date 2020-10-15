@@ -1,25 +1,21 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UIFormInput from "../../UI/Form/Input";
-import { toastWrapper } from "../../../services/helpers";
-import { BATCH_UPDATE } from "../batch-edit.gql";
+import UIFormInput from "@js/components/UI/Form/Input";
+import { toastWrapper } from "@js/services/helpers";
+import { BATCH_UPDATE } from "@js/components/BatchEdit/batch-edit.gql";
 import { useMutation } from "@apollo/client";
-import BatchEditConfirmationTable from "./ConfirmationTable";
-import { removeLabelsFromBatchEditPostData } from "../../../services/metadata";
+import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
+import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
-const headerWrapper = css`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  span {
-    margin-left: 0.8rem;
-  }
+const verifyInputWrapper = css`
+  width: 100%;
+  max-width: 400px;
+  display: inline-block;
 `;
 
 const BatchEditConfirmation = ({
@@ -107,91 +103,50 @@ const BatchEditConfirmation = ({
         <div className="modal-card-body">
           {hasAdds && (
             <section className="content">
-              <div css={headerWrapper}>
-                <FontAwesomeIcon icon="plus" size="2x" />
-                <span className="subtitle">Adding</span>
-              </div>
-
-              {Object.keys(batchAdds.descriptiveMetadata).map((key) => {
-                return (
-                  <div
-                    key={key}
-                    className="px-4 py-4 notification is-success is-light"
-                  >
-                    <h5 className="is-capitalized">{key}</h5>
-                    <BatchEditConfirmationTable
-                      items={batchAdds.descriptiveMetadata[key]}
-                      type="add"
-                    />
-                  </div>
-                );
-              })}
+              <h3>Adding</h3>
+              <BatchEditConfirmationTable
+                itemsObj={batchAdds.descriptiveMetadata}
+                type="add"
+              />
             </section>
           )}
 
           {hasDeletes && (
             <section className={`content ${hasAdds ? "py-6" : ""}`}>
-              <div css={headerWrapper}>
-                <FontAwesomeIcon icon="minus-square" size="2x" />
-                <span className="subtitle">Removing</span>
-              </div>
-
-              <div className="p4">
-                {Object.keys(batchDeletes).map((key) => (
-                  <div key={key} className="notification is-danger is-light">
-                    <h5 className="is-capitalized">{key}</h5>
-                    <BatchEditConfirmationTable
-                      items={batchDeletes[key]}
-                      type="remove"
-                    />
-                  </div>
-                ))}
-              </div>
+              <h3>Removing</h3>
+              <BatchEditConfirmationTable
+                itemsObj={batchDeletes}
+                type="remove"
+              />
             </section>
           )}
 
           {hasReplaces && (
-            <section>
-              <div css={headerWrapper}>
-                <FontAwesomeIcon icon="eraser" size="2x" />
-                <span className="subtitle">Replacing</span>
-              </div>
-
-              <div className="p4 content">
-                {Object.keys(batchReplaces.descriptiveMetadata).map((key) => (
-                  <div
-                    key={key}
-                    className="notification is-warning is-light has-text-dark"
-                  >
-                    <h5 className="is-capitalized">{key}</h5>
-                    <p className="has-text-dark">
-                      {batchReplaces.descriptiveMetadata[key]}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <section className="content">
+              <h3>Replacing</h3>
+              <BatchEditConfirmationTable
+                itemsObj={batchReplaces.descriptiveMetadata}
+                type="replace"
+              />
             </section>
           )}
 
           {hasDataToPost ? (
-            <div className="columns">
-              <div className="column is-three-fifths is-offset-one-fifth">
-                <div className="notification is-white">
-                  <p className="has-text-danger has-text-centered mb-3">
-                    <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
-                    batch edit will affect {numberOfResults} works. <br />
-                    <strong>To execute this change, type "I understand"</strong>
-                  </p>
+            <div className="notification is-white has-text-centered">
+              <p className="has-text-danger mb-3">
+                <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This batch
+                edit will affect {numberOfResults} works. To execute this
+                change, type "I understand"
+              </p>
 
-                  <UIFormInput
-                    errors={confirmationError}
-                    onChange={handleConfirmationChange}
-                    name="confirmationText"
-                    label="Confirmation Text"
-                    required
-                    data-testid="input-confirmation-text"
-                  />
-                </div>
+              <div css={verifyInputWrapper}>
+                <UIFormInput
+                  onChange={handleConfirmationChange}
+                  name="confirmationText"
+                  label="Confirmation Text"
+                  required
+                  data-testid="input-confirmation-text"
+                />
               </div>
             </div>
           ) : (

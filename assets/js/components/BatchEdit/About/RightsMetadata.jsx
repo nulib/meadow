@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormFieldArray from "../../UI/Form/FieldArray";
+import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { RIGHTS_METADATA } from "../../../services/metadata";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
@@ -23,7 +23,7 @@ const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
     >
       {RIGHTS_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormFieldArray required name={item.name} label={item.label} />
+          <UIFormBatchFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
       <div className="column is-three-quarters">

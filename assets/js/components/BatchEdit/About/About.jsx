@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm, FormProvider } from "react-hook-form";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
@@ -10,7 +9,7 @@ import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import UIAccordion from "../../UI/Accordion";
-import BatchEditConfirmation from "./Confirmation";
+import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
 import BatchEditAboutModalRemove from "../ModalRemove";
 import {
   useBatchDispatch,
@@ -18,6 +17,7 @@ import {
 } from "../../../context/batch-edit-context";
 import {
   CONTROLLED_METADATA,
+  getBatchMultiValueDataFromForm,
   prepControlledTermInput,
   prepFacetKey,
 } from "../../../services/metadata";
@@ -60,9 +60,11 @@ const BatchEditAbout = () => {
     // updated.
 
     let currentFormValues = methods.getValues();
+    console.log("currentFormValues", currentFormValues);
     let addItems = {};
     let deleteReadyItems = {};
     let replaceItems = {};
+    let multiValues = {};
 
     // Update single value items
     ["description", "title"].forEach((item) => {
@@ -91,9 +93,14 @@ const BatchEditAbout = () => {
       }
     }
 
-    setBatchAdds({ descriptiveMetadata: addItems });
+    // Update non-controlled term multi-value items
+    multiValues = getBatchMultiValueDataFromForm(currentFormValues);
+
+    setBatchAdds({ descriptiveMetadata: { ...addItems, ...multiValues.add } });
     setBatchDeletes(deleteReadyItems);
-    setBatchReplaces({ descriptiveMetadata: replaceItems });
+    setBatchReplaces({
+      descriptiveMetadata: { ...replaceItems, ...multiValues.replace },
+    });
     setIsConfirmModalOpen(true);
   };
 
