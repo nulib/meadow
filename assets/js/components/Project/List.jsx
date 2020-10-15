@@ -107,39 +107,40 @@ const ProjectList = () => {
           </tr>
         </thead>
         <tbody>
-          {projectList.map((project) => {
-            const { id, folder, title, updatedAt, ingestSheets } = project;
-            return (
-              <tr key={id}>
-                <td>
-                  <Link to={`/project/${id}`} data-testid="project-title-row">
-                    {title}
-                  </Link>
-                </td>
-                <td>{folder}</td>
-                <td className="has-text-right">{ingestSheets.length}</td>
-                <td className="has-text-right">{formatDate(updatedAt)}</td>
-                <td>
-                  <div className="buttons-end">
-                    <p className="control">
-                      <Button className="button">
-                        <FontAwesomeIcon icon="edit" />
-                      </Button>
-                    </p>
-                    <p className="control">
-                      <Button
-                        className="button"
-                        data-testid="delete-button-row"
-                        onClick={(e) => onOpenModal(e, project)}
-                      >
-                        <FontAwesomeIcon icon="trash" />
-                      </Button>
-                    </p>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+          {projectList &&
+            projectList.map((project) => {
+              const { id, folder, title, updatedAt, ingestSheets } = project;
+              return (
+                <tr key={id}>
+                  <td>
+                    <Link to={`/project/${id}`} data-testid="project-title-row">
+                      {title}
+                    </Link>
+                  </td>
+                  <td>{folder}</td>
+                  <td className="has-text-right">{ingestSheets.length}</td>
+                  <td className="has-text-right">{formatDate(updatedAt)}</td>
+                  <td>
+                    <div className="buttons-end">
+                      <p className="control">
+                        <Button className="button">
+                          <FontAwesomeIcon icon="edit" />
+                        </Button>
+                      </p>
+                      <p className="control">
+                        <Button
+                          className="button"
+                          data-testid="delete-button-row"
+                          onClick={(e) => onOpenModal(e, project)}
+                        >
+                          <FontAwesomeIcon icon="trash" />
+                        </Button>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
       <UIModalDelete
