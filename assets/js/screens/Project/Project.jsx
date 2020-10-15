@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
 import Layout from "../Layout";
 import IngestSheetList from "../../components/IngestSheet/List";
 import { Link } from "react-router-dom";
@@ -13,8 +14,10 @@ import {
 } from "../../components/Project/project.gql.js";
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
 const ScreensProject = () => {
+  const history = useHistory();
   const { id } = useParams();
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id },
@@ -48,6 +51,14 @@ const ScreensProject = () => {
         ingestSheets: updatedIngestSheets,
       },
     };
+  };
+  const handleFacetClick = () => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: "Project",
+        value: data.project.title,
+      },
+    });
   };
 
   if (error) return <Error error={error} />;
@@ -107,6 +118,13 @@ const ScreensProject = () => {
                           </span>{" "}
                           <span>Add an Ingest Sheet</span>
                         </Link>
+                        <Button
+                          isPrimary
+                          onClick={handleFacetClick}
+                          data-testid="button-view-all-works"
+                        >
+                          View Project Works
+                        </Button>
                       </div>
                     </div>
                   </div>
