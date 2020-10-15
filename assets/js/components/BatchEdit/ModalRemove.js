@@ -5,6 +5,7 @@ import {
   useBatchState,
 } from "../../context/batch-edit-context";
 import { splitFacetKey } from "../../services/metadata";
+import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -87,6 +88,13 @@ export default function BatchEditAboutModalRemove({
               </div>
             ))}
           </div>
+          <footer>
+            <div className="buttons is-right">
+              <Button isText onClick={closeModal}>
+                Close
+              </Button>
+            </div>
+          </footer>
         </div>
       </div>
       <button
