@@ -387,6 +387,11 @@ export function removeLabelsFromBatchEditPostData(
       returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
         key
       ].map((item) => {
+        // Regular string value
+        if (typeof item !== "object") {
+          return item;
+        }
+        // Controlled term object value
         let itemObj = { ...item };
         delete itemObj.label;
         return itemObj;
@@ -397,6 +402,11 @@ export function removeLabelsFromBatchEditPostData(
   if (hasDeletes) {
     Object.keys(batchDeletes).forEach((key) => {
       returnObj.delete[key] = batchDeletes[key].map((item) => {
+        // Regular string value
+        if (typeof item !== "object") {
+          return item;
+        }
+        // Controlled term object value
         let itemObj = { ...item };
         delete itemObj.label;
         return itemObj;

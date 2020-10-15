@@ -17,7 +17,6 @@ import {
 } from "../../../context/batch-edit-context";
 import {
   CONTROLLED_METADATA,
-  UNCONTROLLED_MULTI_VALUE_METADATA,
   getBatchMultiValueDataFromForm,
   prepControlledTermInput,
   prepFacetKey,
