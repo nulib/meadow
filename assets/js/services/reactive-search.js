@@ -146,6 +146,13 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
+    componentId: "Technique",
+    dataField: "descriptiveMetadata.technique.displayFacet",
+    showSearch: true,
+    title: "Technique",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "Visibility",
     dataField: "visibility.label.keyword",
     title: "Visibility",
