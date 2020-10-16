@@ -10,6 +10,7 @@ import {
   codeListRelatedUrlMock,
   codeListRightsStatementMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
+import { getCollectionsMock } from "../Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
 const items = ["ABC123", "ZYC889"];
@@ -26,6 +27,7 @@ describe("BatchEditTabs component", () => {
           codeListLicenseMock,
           codeListRelatedUrlMock,
           codeListRightsStatementMock,
+          getCollectionsMock,
         ],
       }
     );

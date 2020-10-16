@@ -81,7 +81,12 @@ const BatchEditConfirmation = ({
   const hasReplaces =
     batchReplaces && Object.keys(batchReplaces.descriptiveMetadata).length > 0;
 
-  const hasDataToPost = hasAdds || hasDeletes || hasReplaces;
+  const collection =
+    batchReplaces && batchReplaces.collectionId
+      ? { collectionId: batchReplaces.collectionId }
+      : false;
+
+  const hasDataToPost = hasAdds || hasDeletes || hasReplaces || collection;
 
   return (
     <div
@@ -121,11 +126,14 @@ const BatchEditConfirmation = ({
             </section>
           )}
 
-          {hasReplaces && (
+          {(hasReplaces || collection) && (
             <section className="content">
               <h3>Replacing</h3>
               <BatchEditConfirmationTable
-                itemsObj={batchReplaces.descriptiveMetadata}
+                itemsObj={{
+                  ...batchReplaces.descriptiveMetadata,
+                  ...collection,
+                }}
                 type="replace"
               />
             </section>

@@ -100,6 +100,7 @@ const BatchEditAbout = () => {
     setBatchDeletes(deleteReadyItems);
     setBatchReplaces({
       descriptiveMetadata: { ...replaceItems, ...multiValues.replace },
+      collectionId: currentFormValues["collectionId"],
     });
     setIsConfirmModalOpen(true);
   };

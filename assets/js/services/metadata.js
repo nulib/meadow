@@ -8,6 +8,7 @@ export const METADATA_FIELDS = {
   BOX_NUMBER: { name: "boxNumber", label: "Box Number" },
   CAPTION: { name: "caption", label: "Caption" },
   CATALOG_KEY: { name: "catalogKey", label: "Catalog Key" },
+  COLLECTION: { name: "collectionId", label: "Collection" },
   CONTRIBUTOR: {
     hasRole: true,
     label: "Contributor",

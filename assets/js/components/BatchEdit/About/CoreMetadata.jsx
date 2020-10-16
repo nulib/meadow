@@ -9,6 +9,7 @@ import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
+import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const {
@@ -18,6 +19,12 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   } = useQuery(CODE_LIST_QUERY, {
     variables: { scheme: "RIGHTS_STATEMENT" },
   });
+
+  const {
+    loading: collectionLoading,
+    error: collectionError,
+    data: collectionData,
+  } = useQuery(GET_COLLECTIONS);
 
   return (
     <div
@@ -44,6 +51,25 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
           data-testid="alternate-title"
           label="Alternate Title"
         />
+      </div>
+      <div className="column is-full">
+        <UIFormField label="Collection">
+          <UIFormSelect
+            isReactHookForm
+            name="collectionId"
+            label="Collection"
+            options={
+              collectionData &&
+              collectionData.collections.map((collection) => ({
+                id: collection.id,
+                value: collection.id,
+                label: collection.title,
+              }))
+            }
+            data-testid="collection"
+            showHelper
+          />
+        </UIFormField>
       </div>
       <div className="column is-half">
         {/* Date Created */}
