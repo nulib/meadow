@@ -10,6 +10,7 @@ import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
+import { useFormContext } from "react-hook-form";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const {
@@ -25,6 +26,9 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
     error: collectionError,
     data: collectionData,
   } = useQuery(GET_COLLECTIONS);
+
+  const context = useFormContext();
+  const register = context.register;
 
   return (
     <div
@@ -54,21 +58,20 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
       <div className="column is-full">
         <UIFormField label="Collection">
-          <UIFormSelect
-            isReactHookForm
-            name="collectionId"
-            label="Collection"
-            options={
-              collectionData &&
-              collectionData.collections.map((collection) => ({
-                id: collection.id,
-                value: collection.id,
-                label: collection.title,
-              }))
-            }
-            data-testid="collection"
-            showHelper
-          />
+          <div className="select">
+            <select name="collection" ref={register()} data-testid="collection">
+              <option value="">-- Select --</option>
+              {collectionData &&
+                collectionData.collections.map((collection) => (
+                  <option
+                    key={collection.id}
+                    value={JSON.stringify(collection)}
+                  >
+                    {collection.title}
+                  </option>
+                ))}
+            </select>
+          </div>
         </UIFormField>
       </div>
       <div className="column is-half">
