@@ -76,7 +76,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "prettier": "^2.1.2",
     "react": "^16.14.0",
-    "react-dom": "^16.13.1",
+    "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0",
     "react-router-prop-types": "^1.0.5",
     "react-svg-loader": "^3.0.3",
