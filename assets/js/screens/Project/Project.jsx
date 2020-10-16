@@ -92,7 +92,7 @@ const ScreensProject = () => {
                   <UISkeleton rows={5} />
                 ) : (
                   <div className="columns" data-testid="screen-header">
-                    <div className="column is-two-thirds content">
+                    <div className="column is-three-fifths content">
                       <h1 className="title">{data.project.title}</h1>
                       <dl>
                         <dt>Last updated</dt>
@@ -103,7 +103,7 @@ const ScreensProject = () => {
                         <dd>{data.project.folder}</dd>
                       </dl>
                     </div>
-                    <div className="column is-one-third">
+                    <div className="column is-two-fifths">
                       <div className="buttons is-right">
                         <Link
                           to={{
@@ -119,7 +119,6 @@ const ScreensProject = () => {
                           <span>Add an Ingest Sheet</span>
                         </Link>
                         <Button
-                          isPrimary
                           onClick={handleFacetClick}
                           data-testid="button-view-all-works"
                         >
