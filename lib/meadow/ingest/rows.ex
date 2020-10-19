@@ -1,6 +1,5 @@
 defmodule Meadow.Ingest.Rows do
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.Notifications
   alias Meadow.Ingest.Schemas.Row
   alias Meadow.Repo
 
@@ -33,7 +32,6 @@ defmodule Meadow.Ingest.Rows do
     ingest_sheet_row
     |> Row.state_changeset(%{state: "fail", errors: errors})
     |> Repo.update()
-    |> Notifications.ingest_sheet_validation()
   end
 
   @doc """
@@ -43,7 +41,6 @@ defmodule Meadow.Ingest.Rows do
     ingest_sheet_row
     |> Row.state_changeset(%{state: state})
     |> Repo.update()
-    |> Notifications.ingest_sheet_validation()
   end
 
   @doc """

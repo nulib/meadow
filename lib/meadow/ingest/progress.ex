@@ -4,13 +4,15 @@ defmodule Meadow.Ingest.Progress do
   """
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
+  alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
 
   import Ecto.Query
   import Meadow.Utils.Atoms
+  import Meadow.Utils.Logging
 
-  use GenServer
+  use IntervalTask, default_interval: 500, function: :send_progress_notifications
   require Logger
 
   defstruct sheet_id: nil,
@@ -244,19 +246,8 @@ defmodule Meadow.Ingest.Progress do
     )
   end
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, Keyword.get(opts, :interval, 500), [])
-  end
-
-  def init(interval) do
-    Logger.disable(self())
-    send(self(), :update)
-    {:ok, interval}
-  end
-
-  def handle_info(:update, interval) do
-    send_notifications()
-    Process.send_after(self(), :update, interval)
-    {:noreply, interval}
+  def send_progress_notifications(state) do
+    with_log_level(:info, &send_notifications/0)
+    {:noreply, state}
   end
 end

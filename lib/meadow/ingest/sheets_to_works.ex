@@ -13,7 +13,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
 
     Progress.get_pending_work_entries(ingest_sheet.id, :all)
     |> Repo.preload(row: :sheet)
-    |> WorkCreator.create_works()
+    |> WorkCreator.create_works_from_rows()
 
     Sheets.get_ingest_sheet!(ingest_sheet.id)
   end

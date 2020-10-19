@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.Notifications do
   @moduledoc """
   functions for notifications to absinthe subscriptions
   """
-  alias Meadow.Ingest.Schemas.{Row, Sheet}
+  alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Ingest.Sheets
 
   def ingest_sheet({:ok, sheet}),
@@ -26,17 +26,14 @@ defmodule Meadow.Ingest.Notifications do
 
   def ingest_sheet(other), do: other
 
-  def ingest_sheet_validation({:ok, row}),
-    do: {:ok, ingest_sheet_validation(row)}
-
-  def ingest_sheet_validation(%Row{} = row) do
+  def ingest_sheet_validation(%Sheet{} = sheet) do
     Absinthe.Subscription.publish(
       MeadowWeb.Endpoint,
-      Sheets.get_sheet_validation_progress(row.sheet_id),
-      ingest_sheet_validation_progress: Enum.join(["validation_progress", row.sheet_id], ":")
+      Sheets.get_sheet_validation_progress(sheet.id),
+      ingest_sheet_validation_progress: Enum.join(["validation_progress", sheet.id], ":")
     )
 
-    row
+    sheet
   end
 
   def ingest_sheet_validation(other), do: other

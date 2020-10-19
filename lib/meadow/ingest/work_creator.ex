@@ -1,100 +1,53 @@
 defmodule Meadow.Ingest.WorkCreator do
   @moduledoc """
-  GenServer to create works from pending ingest sheet rows
+  IntervalTask to create works from pending ingest sheet rows
   """
-  use GenServer
-
   import Ecto.Query, warn: false
+  import Meadow.Utils.Logging
+
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Ingest.Schemas.Row
+  alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
 
-  use Meadow.Constants
+  use IntervalTask, default_interval: 500, function: :create_works
 
   require Logger
 
-  @timeout 60
-
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]}
-    }
-  end
-
-  def start_link(args \\ []) do
-    GenServer.start_link(__MODULE__, args)
-  end
-
-  def init(args) do
-    Logger.info("Starting #{__MODULE__}")
-
-    state = %{
-      create_interval: Keyword.get(args, :create_interval, 500),
-      redrive_interval: Keyword.get(args, :redrive_interval, :timer.seconds(60)),
-      batch_size: Keyword.get(args, :batch_size, 20)
-    }
-
-    Process.send_after(self(), :create_works, state.create_interval)
-    Process.send_after(self(), :redrive_works, state.redrive_interval)
-
-    {:ok, state}
-  end
-
-  @doc """
-  Find works that have been processing longer than @timeout and
-  reset them to pending
-  """
-  def handle_info(:redrive_works, state) do
-    Logger.disable(self())
-
-    {count, _} =
-      Progress.works_processing_longer_than(@timeout)
-      |> Repo.update_all(set: [status: "pending", updated_at: DateTime.utc_now()])
-
-    Logger.enable(self())
-
-    if count > 0,
-      do: Logger.info("Redriving #{count} works processing longer than #{@timeout} seconds")
-
-    Process.send_after(self(), :redrive_works, state.redrive_interval)
-    {:noreply, state}
+  @impl IntervalTask
+  def initial_state(args) do
+    %{batch_size: Keyword.get(args, :batch_size, 20)}
   end
 
   @doc """
   Turn a batch of pending work rows into works
   """
-  def handle_info(:create_works, state) do
-    Logger.disable(self())
+  def create_works(state) do
+    with_log_level(:info, fn ->
+      case Progress.get_pending_work_entries(state.batch_size)
+           |> Progress.update_entries("CreateWork", "processing")
+           |> Repo.preload(row: :sheet) do
+        [] ->
+          :noop
 
-    case Progress.get_pending_work_entries(state.batch_size)
-         |> Progress.update_entries("CreateWork", "processing")
-         |> Repo.preload(row: :sheet) do
-      [] ->
-        :noop
+        work_rows ->
+          Logger.enable(self())
+          Logger.info("Creating #{length(work_rows)} works")
+          create_works_from_rows(work_rows)
+      end
+    end)
 
-      work_rows ->
-        Logger.enable(self())
-        Logger.info("Creating #{length(work_rows)} works")
-        create_works(work_rows)
-    end
-
-    Process.send_after(self(), :create_works, state.create_interval)
     {:noreply, state}
-  after
-    Logger.enable(self())
   end
-
-  def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
 
   @doc """
   Create works from pending `CreateWork` progress rows
   """
-  def create_works(work_rows) do
+  def create_works_from_rows(work_rows) do
     work_rows
     |> Enum.map(fn pending_work_row ->
       sheet = pending_work_row.row.sheet
@@ -104,11 +57,9 @@ defmodule Meadow.Ingest.WorkCreator do
     end)
   end
 
-  @doc """
-  Send a single work to the ingest pipeline with the proper
-  ingest sheet metadata
-  """
-  def send_work_to_pipeline(ingest_sheet, work, file_set_rows) do
+  # Send a single work to the ingest pipeline with the proper
+  # ingest sheet metadata
+  defp send_work_to_pipeline(ingest_sheet, work, file_set_rows) do
     work.file_sets
     |> Enum.zip(file_set_rows)
     |> Enum.each(fn {%FileSet{id: file_set_id}, %Row{row: row_num}} ->
@@ -122,10 +73,8 @@ defmodule Meadow.Ingest.WorkCreator do
     work
   end
 
-  @doc """
-  Ingest a single work and update its status inside a single atomic transaction
-  """
-  def ingest_work({accession_number, file_set_rows}, ingest_sheet) do
+  # Ingest a single work and update its status inside a single atomic transaction
+  defp ingest_work({accession_number, file_set_rows}, ingest_sheet) do
     Logger.info("Creating work #{accession_number} with #{length(file_set_rows)} file sets")
 
     ingest_bucket = Config.ingest_bucket()

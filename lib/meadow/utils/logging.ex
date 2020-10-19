@@ -11,7 +11,15 @@ defmodule Meadow.Utils.Logging do
     64
   """
   def with_log_level(level, fun) do
+    case Logger.level() do
+      ^level -> fun.()
+      _ -> temp_change_log_level(level, fun)
+    end
+  end
+
+  defp temp_change_log_level(level, fun) do
     old_level = Logger.level()
+
     try do
       Logger.configure(level: level)
       fun.()
