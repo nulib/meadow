@@ -31,7 +31,6 @@ const BatchEditConfirmation = ({
 }) => {
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
-  let collectionForDisplay;
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
     onCompleted({ batchUpdate }) {
@@ -64,6 +63,10 @@ const BatchEditConfirmation = ({
       hasDeletes
     );
 
+    if (hasCollection) {
+      batchReplaces.collectionId = batchCollection.id;
+    }
+
     batchUpdate({
       variables: {
         query: filteredQuery,
@@ -85,11 +88,6 @@ const BatchEditConfirmation = ({
 
   const hasCollection =
     batchCollection && Object.keys(batchCollection).length > 0;
-
-  if (hasCollection) {
-    batchReplaces.collectionId = batchCollection.id;
-    collectionForDisplay = { collectionId: batchCollection.title };
-  }
 
   const hasDataToPost = hasAdds || hasDeletes || hasReplaces || hasCollection;
 
@@ -137,7 +135,9 @@ const BatchEditConfirmation = ({
               <BatchEditConfirmationTable
                 itemsObj={{
                   ...batchReplaces.descriptiveMetadata,
-                  ...collectionForDisplay,
+                  ...(batchCollection.title && {
+                    collection: batchCollection.title,
+                  }),
                 }}
                 type="replace"
               />
