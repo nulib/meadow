@@ -34,7 +34,6 @@ const IngestSheet = ({
     subscribeToIngestSheetUpdates();
   }, []);
 
-  //if (progressLoading) return <UILoading />;
   if (progressError) return <Error error={progressError} />;
 
   const styles = { h2IsHidden: { display: "none" } };

@@ -20,7 +20,7 @@ function IngestSheetReport({ sheetId, progress, status }) {
       ? GET_INGEST_SHEET_ROW_VALIDATION_ERRORS
       : GET_INGEST_SHEET_ROW_VALIDATIONS,
     {
-      variables: { sheetId },
+      variables: { sheetId, limit: 100 },
       fetchPolicy: "network-only",
     }
   );
