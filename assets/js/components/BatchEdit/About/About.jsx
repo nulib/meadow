@@ -30,6 +30,7 @@ const BatchEditAbout = () => {
   const [batchReplaces, setBatchReplaces] = useState({
     descriptiveMetadata: {},
   });
+  const [batchCollection, setBatchCollection] = useState({});
 
   const batchDispatch = useBatchDispatch();
 
@@ -101,6 +102,11 @@ const BatchEditAbout = () => {
     setBatchReplaces({
       descriptiveMetadata: { ...replaceItems, ...multiValues.replace },
     });
+
+    Object.keys(currentFormValues["collection"]).length > 0
+      ? setBatchCollection(JSON.parse(currentFormValues["collection"]))
+      : setBatchCollection({});
+
     setIsConfirmModalOpen(true);
   };
 
@@ -178,6 +184,7 @@ const BatchEditAbout = () => {
           batchAdds={batchAdds}
           batchDeletes={batchDeletes}
           batchReplaces={batchReplaces}
+          batchCollection={batchCollection}
           filteredQuery={JSON.stringify(batchState.filteredQuery)}
           handleClose={onCloseModal}
           handleFormReset={handleFormReset}

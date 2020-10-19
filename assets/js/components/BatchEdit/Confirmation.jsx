@@ -22,6 +22,7 @@ const BatchEditConfirmation = ({
   batchAdds,
   batchDeletes,
   batchReplaces,
+  batchCollection,
   filteredQuery,
   handleClose,
   handleFormReset,
@@ -62,6 +63,10 @@ const BatchEditConfirmation = ({
       hasDeletes
     );
 
+    if (hasCollection) {
+      batchReplaces.collectionId = batchCollection.id;
+    }
+
     batchUpdate({
       variables: {
         query: filteredQuery,
@@ -81,7 +86,10 @@ const BatchEditConfirmation = ({
   const hasReplaces =
     batchReplaces && Object.keys(batchReplaces.descriptiveMetadata).length > 0;
 
-  const hasDataToPost = hasAdds || hasDeletes || hasReplaces;
+  const hasCollection =
+    batchCollection && Object.keys(batchCollection).length > 0;
+
+  const hasDataToPost = hasAdds || hasDeletes || hasReplaces || hasCollection;
 
   return (
     <div
@@ -121,11 +129,16 @@ const BatchEditConfirmation = ({
             </section>
           )}
 
-          {hasReplaces && (
+          {(hasReplaces || hasCollection) && (
             <section className="content">
               <h3>Replacing</h3>
               <BatchEditConfirmationTable
-                itemsObj={batchReplaces.descriptiveMetadata}
+                itemsObj={{
+                  ...batchReplaces.descriptiveMetadata,
+                  ...(batchCollection.title && {
+                    collection: batchCollection.title,
+                  }),
+                }}
                 type="replace"
               />
             </section>
@@ -178,6 +191,7 @@ BatchEditConfirmation.propTypes = {
   batchAdds: PropTypes.object,
   batchDeletes: PropTypes.object,
   batchReplaces: PropTypes.object,
+  batchCollection: PropTypes.object,
   filteredQuery: PropTypes.string,
   handleClose: PropTypes.func,
   handleFormReset: PropTypes.func,
