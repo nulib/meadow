@@ -11,6 +11,7 @@ defmodule Meadow.Ingest.SheetsToWorksTest do
   @fixture_file_sets 7
 
   setup do
+    start_supervised!({Meadow.Ingest.ValidationNotifier, interval: 10})
     sheet = ingest_sheet_rows_fixture(@fixture)
 
     {:ok, sheet: sheet}

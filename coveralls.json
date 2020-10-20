@@ -7,6 +7,7 @@
     "lib/meadow_web/channels/user_socket.ex",
     "lib/meadow_web/router.ex",
     "lib/meadow/application.ex",
+    "lib/meadow/data/works/batch_functions.ex",
     "lib/meadow/release_tasks.ex",
     "lib/mix/",
     "priv/",

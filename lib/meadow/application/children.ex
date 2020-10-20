@@ -17,8 +17,10 @@ defmodule Meadow.Application.Children do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
-      Meadow.Ingest.Progress,
+      {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
+      {Meadow.Ingest.ValidationNotifier, interval: Config.validation_ping_interval()},
       Meadow.Ingest.WorkCreator,
+      Meadow.Ingest.WorkRedriver,
       mock_ark_server(3943)
     ]
   end
@@ -31,8 +33,10 @@ defmodule Meadow.Application.Children do
     [
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
-      Meadow.Ingest.Progress,
-      Meadow.Ingest.WorkCreator
+      {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
+      {Meadow.Ingest.ValidationNotifier, interval: Config.validation_ping_interval()},
+      Meadow.Ingest.WorkCreator,
+      Meadow.Ingest.WorkRedriver
     ]
   end
 

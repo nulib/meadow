@@ -144,6 +144,12 @@ defmodule Meadow.Config do
     end
   end
 
+  @doc "Ingest progress update interval"
+  def progress_ping_interval, do: :timer.seconds(15)
+
+  @doc "Validation subscription update interval"
+  def validation_ping_interval, do: :timer.seconds(15)
+
   defp ensure_trailing_slash(value) do
     if value |> String.ends_with?("/"),
       do: value,
