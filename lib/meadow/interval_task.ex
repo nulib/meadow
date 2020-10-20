@@ -1,6 +1,7 @@
 defmodule Meadow.IntervalTask do
   @moduledoc """
-  Perform periodic tasks
+  Perform periodic tasks. *Note*: The given interval is the delay between the _end_ of one
+  call and the start of the next, not a reliable clock-tick.
 
   Example:
 
@@ -35,7 +36,7 @@ defmodule Meadow.IntervalTask do
   ```
   """
 
-  @callback initial_state(args :: list()) :: map()
+  @callback initial_state(args :: any()) :: map()
 
   defmacro __using__(use_opts) do
     quote location: :keep,
