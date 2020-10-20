@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AuthProvider } from "../components/Auth/Auth";
+import ScreensDashboardsBatchEdit from "@js/screens/Dashboards/BatchEdit";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
@@ -42,6 +43,11 @@ export default class Root extends React.Component {
                 <Route exact path="/login" component={Login} />
                 <PrivateRoute
                   exact
+                  path="/dashboards/batch-edit"
+                  component={ScreensDashboardsBatchEdit}
+                />
+                <PrivateRoute
+                  exact
                   path="/project/list"
                   component={ScreensProjectList}
                 />
@@ -65,7 +71,6 @@ export default class Root extends React.Component {
                   path="/project/:id"
                   component={ScreensProject}
                 />
-
                 <PrivateRoute
                   exact
                   path="/work/:id/:multi?/:counter?"
