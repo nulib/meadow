@@ -5,11 +5,16 @@ import { useLocation, useHistory } from "react-router-dom";
 import { AuthContext } from "../../Auth/Auth";
 import client from "../../../client";
 import UISearchBar from "../SearchBar";
+import UILayoutNavDropdown from "@js/components/UI/Layout/NavDropdown";
+import UILayoutNavDropdownHeader from "./NavDropdownHeader";
+import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
+import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 
 const UILayoutNavBar = () => {
   const currentUser = useContext(AuthContext);
   const [showSearch, setShowSearch] = useState();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [activeHoverNav, setActiveHoverNav] = useState("adam");
   const location = useLocation();
   const history = useHistory();
 
@@ -93,10 +98,10 @@ const UILayoutNavBar = () => {
             <>
               <div className="navbar-start">
                 <Link
-                  to="/project/list"
                   className={`navbar-item ${
                     isActive("project") ? "is-active" : ""
                   }`}
+                  to="/project/list"
                 >
                   Projects
                 </Link>
@@ -112,72 +117,59 @@ const UILayoutNavBar = () => {
               </div>
 
               <div className="navbar-end">
-                <Link
-                  to="/"
-                  className={`navbar-item ${
-                    isActive("dashboard") ? "is-active" : ""
-                  }`}
+                <UILayoutNavDropdown
+                  onMouseEnter={() => setActiveHoverNav("Dashboards")}
+                  onMouseLeave={() => setActiveHoverNav("")}
                 >
-                  Dashboards
-                </Link>
-
-                <div className="navbar-item has-dropdown is-hoverable">
-                  <input
-                    type="checkbox"
-                    id="dropdown1"
-                    aria-haspopup="true"
-                    aria-labelledby="dropdown1-label"
-                  />
-                  <label
-                    id="dropdown1-label"
-                    htmlFor="dropdown1"
-                    className="navbar-link"
+                  <UILayoutNavDropdownHeader label="Dashboards">
+                    Dashboards
+                  </UILayoutNavDropdownHeader>
+                  <UILayoutNavDropdownBody
+                    isExpanded={activeHoverNav === "Dashboards"}
                   >
+                    <UILayoutNavDropdownItem>
+                      <Link to="/dashboards/batch-edit">Batch Edit</Link>
+                    </UILayoutNavDropdownItem>
+                  </UILayoutNavDropdownBody>
+                </UILayoutNavDropdown>
+
+                <UILayoutNavDropdown
+                  onMouseEnter={() => setActiveHoverNav("Alerts")}
+                  onMouseLeave={() => setActiveHoverNav("")}
+                >
+                  <UILayoutNavDropdownHeader label="Alerts">
                     <FontAwesomeIcon icon="bell" />
-                  </label>
+                  </UILayoutNavDropdownHeader>
+                  <UILayoutNavDropdownBody
+                    isExpanded={activeHoverNav === "Alerts"}
+                  >
+                    <UILayoutNavDropdownItem>alert 1</UILayoutNavDropdownItem>
+                    <UILayoutNavDropdownItem>alert 2</UILayoutNavDropdownItem>
+                  </UILayoutNavDropdownBody>
+                </UILayoutNavDropdown>
 
-                  <div
-                    className="navbar-dropdown is-right"
-                    aria-expanded="true"
-                  >
-                    <a role="menuitem" className="navbar-item">
-                      Some alert #1
-                    </a>
-                    <a role="menuitem" className="navbar-item">
-                      Some alert #2
-                    </a>
-                  </div>
-                </div>
-                <div className="navbar-item has-dropdown is-hoverable">
-                  <input
-                    type="checkbox"
-                    id="dropdown2"
-                    aria-haspopup="true"
-                    aria-labelledby="dropdown2-label"
-                  />
-                  <label
-                    id="dropdown2-label"
-                    htmlFor="dropdown2"
-                    className="navbar-link"
-                  >
+                <UILayoutNavDropdown
+                  onMouseEnter={() => setActiveHoverNav("User")}
+                  onMouseLeave={() => setActiveHoverNav("")}
+                >
+                  <UILayoutNavDropdownHeader label="User">
                     <FontAwesomeIcon icon="user" />
-                  </label>
-                  <div
-                    className="navbar-dropdown is-right"
-                    aria-expanded="true"
-                  >
-                    <span className="navbar-item">
+                  </UILayoutNavDropdownHeader>
+                  <UILayoutNavDropdownBody>
+                    <UILayoutNavDropdownItem>
                       {currentUser.displayName}
-                    </span>
-                    <a
-                      role="menuitem"
-                      className="navbar-item"
-                      onClick={handleLogoutClick}
-                    >
-                      Logout
-                    </a>
-                  </div>
-                </div>
+                    </UILayoutNavDropdownItem>
+                    <UILayoutNavDropdownItem>
+                      <a
+                        role="menuitem"
+                        className="navbar-item"
+                        onClick={handleLogoutClick}
+                      >
+                        Logout
+                      </a>
+                    </UILayoutNavDropdownItem>
+                  </UILayoutNavDropdownBody>
+                </UILayoutNavDropdown>
 
                 <div className="navbar-item">
                   {/* Desktop search button */}
