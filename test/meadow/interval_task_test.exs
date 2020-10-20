@@ -47,7 +47,7 @@ defmodule Meadow.IntervalTaskTest do
 
     Meadow.IntervalTask.resume!(IntervalSender)
     :timer.sleep(@test_interval * 3)
+    assert_received(%{tick: 1})
     assert_received(%{tick: 2})
-    assert_received(%{tick: 3})
   end
 end
