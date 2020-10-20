@@ -5,7 +5,6 @@ import { useApolloClient, useMutation } from "@apollo/client";
 import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
-import UINotification from "../UI/Notification";
 import { getClassFromIngestSheetStatus } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
@@ -50,9 +49,9 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   return (
     <div>
       {project.ingestSheets.length === 0 && (
-        <UINotification data-testid="no-ingest-sheets-notification">
+        <p className="notification" data-testid="no-ingest-sheets-notification">
           No ingest sheets are found.
-        </UINotification>
+        </p>
       )}
 
       {project.ingestSheets.length > 0 && (

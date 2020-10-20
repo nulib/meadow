@@ -89,8 +89,8 @@ export const GET_INGEST_SHEET_STATE = gql`
 `;
 
 export const GET_INGEST_SHEET_ROW_VALIDATION_ERRORS = gql`
-  query IngestSheetRowValidationErrors($sheetId: ID!) {
-    ingestSheetRows(sheetId: $sheetId, state: FAIL) {
+  query IngestSheetRowValidationErrors($limit: Int, $sheetId: ID!) {
+    ingestSheetRows(limit: $limit, sheetId: $sheetId, state: FAIL) {
       row
       fields {
         header
@@ -118,8 +118,8 @@ export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
 `;
 
 export const GET_INGEST_SHEET_ROW_VALIDATIONS = gql`
-  query IngestSheetRows($sheetId: ID!) {
-    ingestSheetRows(sheetId: $sheetId) {
+  query IngestSheetRows($limit: Int, $sheetId: ID!) {
+    ingestSheetRows(limit: $limit, sheetId: $sheetId) {
       row
       fields {
         header

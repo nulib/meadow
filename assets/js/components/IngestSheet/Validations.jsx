@@ -59,6 +59,10 @@ function IngestSheetValidations({
     if (isFinished()) {
       return (
         <>
+          <p className="notification is-warning">
+            Currently setting a LIMIT = 100 on the <code>ingestSheetRows</code>{" "}
+            query for Ingest stress testing
+          </p>
           <IngestSheetReport
             progress={progress}
             status={status}
