@@ -95,7 +95,9 @@ config :meadow,
       "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/"
     ),
   digital_collections_url:
-    System.get_env("DIGITAL_COLLECTIONS_URL", "https://fen.rdc-staging.library.northwestern.edu/")
+    System.get_env("DIGITAL_COLLECTIONS_URL", "https://fen.rdc-staging.library.northwestern.edu/"),
+  progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
+  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
 config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}

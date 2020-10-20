@@ -80,6 +80,10 @@ config :meadow, iiif_server_url: get_required_var.("IIIF_SERVER_URL")
 config :meadow, iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL")
 config :meadow, digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
 
+config :meadow,
+  progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
+  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
+
 config :honeybadger,
   api_key: get_required_var.("HONEYBADGER_API_KEY"),
   environment_name: :prod,

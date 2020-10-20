@@ -137,18 +137,22 @@ defmodule Meadow.Config do
   end
 
   @doc "Time to wait (in ms) before starting the ingest pipeline"
-  def pipeline_delay do
-    case Application.get_env(:meadow, :pipeline_delay, 0) do
+  def pipeline_delay, do: configured_integer_value(:pipeline_delay)
+
+  @doc "Ingest progress update interval"
+  def progress_ping_interval,
+    do: configured_integer_value(:progress_ping_interval, :timer.seconds(15))
+
+  @doc "Validation subscription update interval"
+  def validation_ping_interval,
+    do: configured_integer_value(:validation_ping_interval, :timer.seconds(15))
+
+  defp configured_integer_value(key, default \\ 0) do
+    case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)
       n -> n
     end
   end
-
-  @doc "Ingest progress update interval"
-  def progress_ping_interval, do: :timer.seconds(15)
-
-  @doc "Validation subscription update interval"
-  def validation_ping_interval, do: :timer.seconds(15)
 
   defp ensure_trailing_slash(value) do
     if value |> String.ends_with?("/"),
