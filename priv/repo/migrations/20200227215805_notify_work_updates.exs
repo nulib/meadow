@@ -29,6 +29,7 @@ defmodule Meadow.Repo.Migrations.NotifyWorkUpdates do
   end
 
   def down do
-    execute("DROP TRIGGER 'works_changed'")
+    execute("DROP TRIGGER IF EXISTS works_changed ON works")
+    execute("DROP FUNCTION IF EXISTS notify_work_changes")
   end
 end

@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 alias Meadow.Pipeline.Actions.{
   CopyFileToPreservation,

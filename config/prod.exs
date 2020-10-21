@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 ### YOU PROBABLY WANT TO USE RELEASES.EXS INSTEAD ###
 

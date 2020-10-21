@@ -22,27 +22,49 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
     end)
 
     with bucket <- Meadow.Config.pyramid_bucket() do
-      policy = %{
-        "Statement" => [
-          %{
-            "Action" => ["s3:GetBucketLocation", "s3:ListBucket"],
-            "Effect" => "Allow",
-            "Principal" => %{"AWS" => ["*"]},
-            "Resource" => ["arn:aws:s3:::#{bucket}"]
-          },
-          %{
-            "Action" => ["s3:GetObject"],
-            "Effect" => "Allow",
-            "Principal" => %{"AWS" => ["*"]},
-            "Resource" => ["arn:aws:s3:::#{bucket}/*"]
-          }
-        ],
-        "Version" => "2012-10-17"
-      }
-      |> Jason.encode!()
+      policy =
+        %{
+          "Statement" => [
+            %{
+              "Action" => ["s3:GetBucketLocation", "s3:ListBucket"],
+              "Effect" => "Allow",
+              "Principal" => %{"AWS" => ["*"]},
+              "Resource" => ["arn:aws:s3:::#{bucket}"]
+            },
+            %{
+              "Action" => ["s3:GetObject"],
+              "Effect" => "Allow",
+              "Principal" => %{"AWS" => ["*"]},
+              "Resource" => ["arn:aws:s3:::#{bucket}/*"]
+            }
+          ],
+          "Version" => "2012-10-17"
+        }
+        |> Jason.encode!()
 
       bucket |> ExAws.S3.put_bucket_policy(policy) |> ExAws.request!()
     end
+  end
+end
+
+defmodule Mix.Tasks.Meadow.Reset do
+  @moduledoc """
+  Clear out meadow database, indices, and queues
+  """
+  use Mix.Task
+  require Logger
+  alias Mix.Tasks.Ecto
+  alias Mix.Tasks.Meadow.{Elasticsearch, Pipeline, Seed}
+
+  @shortdoc @moduledoc
+  def run(_) do
+    Code.compiler_options(ignore_module_conflict: true)
+    Pipeline.Purge.run([])
+    Ecto.Rollback.run(["--all"])
+    Ecto.Migrate.run([])
+    Pipeline.Setup.run([])
+    Elasticsearch.Clear.run([])
+    Seed.run([])
   end
 end
 
@@ -54,9 +76,9 @@ defmodule Mix.Tasks.Meadow.Seed do
   alias Meadow.Utils.Logging
 
   def run([]), do: run("seeds.exs")
-  def run([name|[]]), do: run("seeds/#{name}.exs")
+  def run([name | []]), do: run("seeds/#{name}.exs")
 
-  def run([name|names]) do
+  def run([name | names]) do
     run("seeds/#{name}.exs")
     run(names)
   end
