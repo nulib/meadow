@@ -153,10 +153,17 @@ export const START_VALIDATION = gql`
 export const INGEST_SHEET_QUERY = gql`
   query IngestSheetQuery($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
-      ...IngestSheetParts
+      fileErrors
+      id
+      title
+      filename
+      state {
+        name
+        state
+      }
+      status
     }
   }
-  ${IngestSheet.fragments.parts}
 `;
 
 export const INGEST_SHEET_SUBSCRIPTION = gql`

@@ -52,6 +52,7 @@ const ScreensProject = () => {
       },
     };
   };
+
   const handleFacetClick = () => {
     history.push("/search", {
       externalFacet: {
