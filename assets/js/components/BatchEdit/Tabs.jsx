@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import BatchEditAbout from "./About/About";
+import BatchEditAdministrative from "./Administrative/Administrative";
+
 import PropTypes from "prop-types";
 
 export default function BatchEditTabs() {
@@ -42,7 +44,7 @@ export default function BatchEditTabs() {
           data-testid="tab-administrative-content"
           className={`${activeTab !== "tab-administrative" ? "is-hidden" : ""}`}
         >
-          <p>administrative content here</p>
+          <BatchEditAdministrative />
         </div>
       </div>
     </>

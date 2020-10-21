@@ -36,6 +36,19 @@ export const METADATA_FIELDS = {
     name: "physicalDescriptionSize",
     label: "Physical Description Size",
   },
+  PRESERVATION_LEVEL: {
+    name: "preservationLevel",
+    label: "Preservation Level",
+  },
+  PROJECT_CYCLE: { name: "projectCycle", label: "Project Cycle" },
+  PROJECT_DESC: { name: "projectDesc", label: "Project Description" },
+  PROJECT_MANAGER: { name: "projectManager", label: "Project Manager" },
+  PROJECT_NAME: { name: "projectName", label: "Project Name" },
+  PROJECT_PROPOSER: { name: "projectProposer", label: "Project Proposer" },
+  PROJECT_TASK_NUMBER: {
+    name: "projectTaskNumber",
+    label: "Project Task Number",
+  },
   PROVENANCE: { name: "provenance", label: "Provenance" },
   PUBLISHER: { name: "publisher", label: "Publisher" },
   RELATED_MATERIAL: { name: "relatedMaterial", label: "Related Material" },
@@ -45,6 +58,7 @@ export const METADATA_FIELDS = {
   SCOPE_AND_CONTENT: { name: "scopeAndContents", label: "Scope and Content" },
   SERIES: { name: "series", label: "Series" },
   SOURCE: { name: "source", label: "Source" },
+  STATUS: { name: "status", label: "Status" },
   STYLE_PERIOD: { name: "stylePeriod", label: "Style Period" },
   SUBJECT_ROLE: {
     hasRole,
@@ -55,6 +69,7 @@ export const METADATA_FIELDS = {
   TABLE_OF_CONTENTS: { name: "tableOfContents", label: "Table of Contents" },
   TECHNIQUE: { label: "Technique", name: "technique" },
   TITLE: { name: "title", label: "Title" },
+  VISIBILITY: { name: "visibility", label: "Visibility" },
 };
 
 const {
@@ -80,6 +95,13 @@ const {
   NOTES,
   PHYSICAL_DESCRIPTION_MATERIAL,
   PHYSICAL_DESCRIPTION_SIZE,
+  PRESERVATION_LEVEL,
+  PROJECT_CYCLE,
+  PROJECT_DESC,
+  PROJECT_MANAGER,
+  PROJECT_NAME,
+  PROJECT_PROPOSER,
+  PROJECT_TASK_NUMBER,
   PROVENANCE,
   PUBLISHER,
   RELATED_MATERIAL,
@@ -89,11 +111,13 @@ const {
   SCOPE_AND_CONTENT,
   SERIES,
   SOURCE,
+  STATUS,
   STYLE_PERIOD,
   SUBJECT_ROLE,
   TABLE_OF_CONTENTS,
   TECHNIQUE,
   TITLE,
+  VISIBILITY,
 } = METADATA_FIELDS;
 
 export const CONTROLLED_METADATA = [
@@ -120,6 +144,13 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   NOTES,
   PHYSICAL_DESCRIPTION_MATERIAL,
   PHYSICAL_DESCRIPTION_SIZE,
+  PRESERVATION_LEVEL,
+  PROJECT_CYCLE,
+  PROJECT_DESC,
+  PROJECT_MANAGER,
+  PROJECT_NAME,
+  PROJECT_PROPOSER,
+  PROJECT_TASK_NUMBER,
   PROVENANCE,
   PUBLISHER,
   RELATED_MATERIAL,
@@ -127,15 +158,17 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   SCOPE_AND_CONTENT,
   SERIES,
   SOURCE,
+  STATUS,
   TABLE_OF_CONTENTS,
+  VISIBILITY,
 ];
 
 export const PROJECT_METADATA = [
-  { name: "projectDesc", label: "Project Description" },
-  { name: "projectManager", label: "Project Manager" },
-  { name: "projectName", label: "Project Name" },
-  { name: "projectProposer", label: "Project Proposer" },
-  { name: "projectTaskNumber", label: "Project Task Number" },
+  PROJECT_DESC,
+  PROJECT_MANAGER,
+  PROJECT_NAME,
+  PROJECT_PROPOSER,
+  PROJECT_TASK_NUMBER,
 ];
 
 export const OTHER_METADATA = [
@@ -197,10 +230,14 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
     (umvm) => umvm.name
   );
 
+  console.log(metadataNames);
+
   // Filter form values by multi value entries only
   const formMultiOnly = formDataKeys.filter(
     (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1
   );
+
+  console.log(formMultiOnly);
 
   for (const key of formMultiOnly) {
     // Handle "replace all" condition
@@ -245,6 +282,8 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
 }
 
 export function getMetadataLabel(name) {
+  console.log(name);
+
   let foundItem = Object.keys(METADATA_FIELDS).filter(
     (key) => METADATA_FIELDS[key].name === name
   );
@@ -373,23 +412,44 @@ export function removeLabelsFromBatchEditPostData(
   hasAdds,
   hasDeletes
 ) {
-  let returnObj = { add: { descriptiveMetadata: {} }, delete: {} };
+  let returnObj = {
+    add: { descriptiveMetadata: {}, adminstrativeMetadata: {} },
+    delete: {},
+  };
 
   if (hasAdds) {
-    Object.keys(batchAdds.descriptiveMetadata).forEach((key) => {
-      returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
-        key
-      ].map((item) => {
-        // Regular string value
-        if (typeof item !== "object") {
-          return item;
-        }
-        // Controlled term object value
-        let itemObj = { ...item };
-        delete itemObj.label;
-        return itemObj;
+    batchAdds.descriptiveMetadata &&
+      Object.keys(batchAdds.descriptiveMetadata).forEach((key) => {
+        returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
+          key
+        ].map((item) => {
+          // Regular string value
+          if (typeof item !== "object") {
+            return item;
+          }
+          // Controlled term object value
+          let itemObj = { ...item };
+          delete itemObj.label;
+          return itemObj;
+        });
       });
-    });
+    batchAdds.adminstrativeMetadata &&
+      Object.keys(batchAdds.adminstrativeMetadata).forEach((key) => {
+        returnObj.add.adminstrativeMetadata[
+          key
+        ] = batchAdds.adminstrativeMetadata[key].map((item) => {
+          // Regular string value
+          if (typeof item !== "object") {
+            return item;
+          }
+          // Controlled term object value
+          let itemObj = { ...item };
+          delete itemObj.label;
+          console.log(itemObj);
+
+          return itemObj;
+        });
+      });
   }
 
   if (hasDeletes) {
