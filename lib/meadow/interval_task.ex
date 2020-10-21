@@ -71,19 +71,28 @@ defmodule Meadow.IntervalTask do
           initial_state(args)
           |> Map.merge(%{interval: interval, status: :running})
 
-        Process.send_after(self(), :interval_task, state.interval)
-        {:ok, state}
+        {:ok, schedule(state)}
       end
 
       @impl Meadow.IntervalTask
       def initial_state(_args), do: %{}
       defoverridable initial_state: 1
 
-      def handle_info(:pause, state), do: {:noreply, Map.put(state, :status, :paused)}
+      def handle_info(:pause, state) do
+        state = Map.put(state, :status, :paused)
+
+        case Map.get(state, :timer_ref) do
+          nil ->
+            {:noreply, state}
+
+          ref ->
+            Process.cancel_timer(ref)
+            {:noreply, Map.delete(state, :timer_ref)}
+        end
+      end
 
       def handle_info(:resume, %{status: :paused} = state) do
-        Process.send_after(self(), :interval_task, state.interval)
-        {:noreply, Map.put(state, :status, :running)}
+        {:noreply, Map.put(schedule(state), :status, :running)}
       end
 
       def handle_info(:resume, state), do: {:noreply, state}
@@ -91,13 +100,19 @@ defmodule Meadow.IntervalTask do
       def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
 
       def handle_info(:interval_task, state) do
-        with {response, new_state} <- apply(__MODULE__, unquote(function), [state]) do
-          if new_state.status == :running do
-            Process.send_after(self(), :interval_task, new_state.interval)
-          end
+        state = Map.delete(state, :timer_ref)
 
-          {response, new_state}
+        with {response, new_state} <- apply(__MODULE__, unquote(function), [state]) do
+          case new_state.status do
+            :running -> {response, schedule(new_state)}
+            _ -> {response, new_state}
+          end
         end
+      end
+
+      defp schedule(state) do
+        ref = Process.send_after(self(), :interval_task, state.interval)
+        Map.put(state, :timer_ref, ref)
       end
     end
   end

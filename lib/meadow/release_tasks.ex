@@ -4,9 +4,16 @@ defmodule Meadow.ReleaseTasks do
   """
   @app :meadow
   @elastic_search_index @app
+  @modules [
+    Meadow.Data.IndexWorker,
+    Meadow.Ingest.Progress,
+    Meadow.Ingest.ValidationNotifier,
+    Meadow.Ingest.WorkCreator,
+    Meadow.Ingest.WorkRedriver
+  ]
 
   alias Ecto.Adapters.SQL
-  alias Meadow.Pipeline
+  alias Meadow.{IntervalTask, Pipeline}
   alias Meadow.Utils.Logging
 
   def migrate do
@@ -23,8 +30,9 @@ defmodule Meadow.ReleaseTasks do
 
   def seed, do: _seed("priv/repo/seeds.exs")
   def seed(name) when is_binary(name), do: _seed("priv/repo/seeds/#{name}.exs")
-  def seed([name|[]]), do: seed(name)
-  def seed([name|names]) do
+  def seed([name | []]), do: seed(name)
+
+  def seed([name | names]) do
     seed(name)
     seed(names)
   end
@@ -38,6 +46,8 @@ defmodule Meadow.ReleaseTasks do
   end
 
   def reset! do
+    Enum.each(@modules, &IntervalTask.pause!(&1))
+
     for repo <- repos() do
       SQL.query!(
         repo,
@@ -51,6 +61,8 @@ defmodule Meadow.ReleaseTasks do
 
     migrate()
     seed()
+  after
+    Enum.each(@modules, &IntervalTask.resume!(&1))
   end
 
   defp create_storage_for(repo) do

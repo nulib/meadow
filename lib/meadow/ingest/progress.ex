@@ -87,11 +87,14 @@ defmodule Meadow.Ingest.Progress do
   def initialize_entries(entries) do
     timestamp = DateTime.utc_now()
 
-    Repo.transaction(fn ->
-      entries
-      |> Enum.chunk_every(500)
-      |> Enum.each(&initialize_chunk(&1, timestamp))
-    end)
+    Repo.transaction(
+      fn ->
+        entries
+        |> Enum.chunk_every(500)
+        |> Enum.each(&initialize_chunk(&1, timestamp))
+      end,
+      timeout: :infinity
+    )
   end
 
   defp initialize_chunk(chunk, timestamp) do

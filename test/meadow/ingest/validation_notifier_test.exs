@@ -8,9 +8,9 @@ defmodule Meadow.Ingest.ValidationNotifierTest do
   end
 
   test "validation notifier running" do
-    assert Process.whereis(Meadow.Ingest.ValidationNotifier) |> :sys.get_state() == %{
+    assert %{
              interval: 100,
              status: :running
-           }
+           } = Process.whereis(Meadow.Ingest.ValidationNotifier) |> :sys.get_state()
   end
 end
