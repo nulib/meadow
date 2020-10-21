@@ -54,7 +54,7 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.1",
     "@nulib/prettier-config": "^1.2.0",
-    "@testing-library/dom": "^7.26.0",
+    "@testing-library/dom": "^7.26.3",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.9",
