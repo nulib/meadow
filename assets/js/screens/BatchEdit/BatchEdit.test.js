@@ -9,6 +9,10 @@ import {
   codeListLicenseMock,
   codeListRelatedUrlMock,
   codeListRightsStatementMock,
+  codeListLibraryUnitMock,
+  codeListPreservationLevelMock,
+  codeListStatusMock,
+  codeListVisibilityMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -40,6 +44,10 @@ describe("BatchEdit component", () => {
           codeListLicenseMock,
           codeListRelatedUrlMock,
           codeListRightsStatementMock,
+          codeListLibraryUnitMock,
+          codeListPreservationLevelMock,
+          codeListStatusMock,
+          codeListVisibilityMock,
           getCollectionsMock,
         ],
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
