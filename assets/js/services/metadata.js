@@ -282,8 +282,6 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
 }
 
 export function getMetadataLabel(name) {
-  console.log(name);
-
   let foundItem = Object.keys(METADATA_FIELDS).filter(
     (key) => METADATA_FIELDS[key].name === name
   );
@@ -371,6 +369,22 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
 }
 
 /**
+ * Prepares
+ * @param {Array} codeList
+ * @param {string} key
+ * @returns {Array}
+ */
+export function prepCodedTermInput(codeList = [], key = "") {
+  let arr = codeList.map((item) => {
+    return {
+      value: { scheme: key, id: item.id },
+      label: item.label,
+    };
+  });
+  return arr;
+}
+
+/**
  * Prepares Related Url form data for an upcoming GraphQL post
  * @param {Array} items Array of object entries possible in form
  * @returns {Array} of properly shaped values for Related Url
@@ -401,20 +415,24 @@ export function prepRelatedUrl(items = []) {
  * Remove helper labels from Batch Edit form post data
  * @param {Object} batchAdds
  * @param {Object} batchDeletes
+ * @param {Object} batchReplaces
  * @param {Boolean} hasAdds
  * @param {Boolean} hasDeletes
- *
+ * @param {Boolean} hasReplaces
  * @returns {Object}
  */
 export function removeLabelsFromBatchEditPostData(
   batchAdds,
   batchDeletes,
+  batchReplaces,
   hasAdds,
-  hasDeletes
+  hasDeletes,
+  hasReplaces
 ) {
   let returnObj = {
-    add: { descriptiveMetadata: {}, adminstrativeMetadata: {} },
+    add: { descriptiveMetadata: {}, administrativeMetadata: {} },
     delete: {},
+    replace: { administrativeMetadata: {}, descriptiveMetadata: {} },
   };
 
   if (hasAdds) {
@@ -433,11 +451,11 @@ export function removeLabelsFromBatchEditPostData(
           return itemObj;
         });
       });
-    batchAdds.adminstrativeMetadata &&
-      Object.keys(batchAdds.adminstrativeMetadata).forEach((key) => {
-        returnObj.add.adminstrativeMetadata[
+    batchAdds.administrativeMetadata &&
+      Object.keys(batchAdds.administrativeMetadata).forEach((key) => {
+        returnObj.add.administrativeMetadata[
           key
-        ] = batchAdds.adminstrativeMetadata[key].map((item) => {
+        ] = batchAdds.administrativeMetadata[key].map((item) => {
           // Regular string value
           if (typeof item !== "object") {
             return item;
@@ -445,10 +463,22 @@ export function removeLabelsFromBatchEditPostData(
           // Controlled term object value
           let itemObj = { ...item };
           delete itemObj.label;
-          console.log(itemObj);
-
           return itemObj;
         });
+      });
+  }
+
+  if (hasReplaces) {
+    batchReplaces.administrativeMetadata &&
+      Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
+        let item = batchReplaces.administrativeMetadata[key];
+        if (typeof item !== "object") {
+          returnObj.replace.administrativeMetadata[key] = item;
+        } else {
+          let itemObj = { ...item };
+          delete itemObj.label;
+          returnObj.replace.administrativeMetadata[key] = itemObj;
+        }
       });
   }
 
