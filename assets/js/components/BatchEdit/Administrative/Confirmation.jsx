@@ -22,6 +22,7 @@ const BatchEditConfirmation = ({
   batchAdds,
   batchDeletes,
   batchReplaces,
+  batchVisibility,
   filteredQuery,
   handleClose,
   handleFormReset,
@@ -55,8 +56,6 @@ const BatchEditConfirmation = ({
   };
 
   const handleBatchEditConfirm = () => {
-    console.log(batchReplaces);
-
     const cleanedPostValues = removeLabelsFromBatchEditPostData(
       batchAdds,
       batchDeletes,
@@ -65,15 +64,19 @@ const BatchEditConfirmation = ({
       hasDeletes,
       hasReplaces
     );
-
-    console.log(cleanedPostValues);
+    if (hasVisibility) {
+      cleanedPostValues.replace["visibility"] = {
+        id: batchVisibility.id,
+        scheme: batchVisibility.scheme,
+      };
+    }
 
     batchUpdate({
       variables: {
         query: filteredQuery,
         add: cleanedPostValues.add,
         delete: cleanedPostValues.delete,
-        replace: cleanedPostValues.batchReplaces,
+        replace: cleanedPostValues.replace,
       },
     });
   };
@@ -88,7 +91,10 @@ const BatchEditConfirmation = ({
     batchReplaces &&
     Object.keys(batchReplaces.administrativeMetadata).length > 0;
 
-  const hasDataToPost = hasAdds || hasDeletes || hasReplaces;
+  const hasVisibility =
+    batchVisibility && Object.keys(batchVisibility).length > 0;
+
+  const hasDataToPost = hasAdds || hasDeletes || hasReplaces || hasVisibility;
 
   return (
     <div
@@ -128,11 +134,16 @@ const BatchEditConfirmation = ({
             </section>
           )}
 
-          {hasReplaces && (
+          {(hasReplaces || hasVisibility) && (
             <section className="content">
               <h3>Replacing</h3>
               <BatchEditConfirmationTable
-                itemsObj={batchReplaces.administrativeMetadata}
+                itemsObj={{
+                  ...batchReplaces.administrativeMetadata,
+                  ...(batchVisibility.id && {
+                    visibility: batchVisibility,
+                  }),
+                }}
                 type="replace"
               />
             </section>

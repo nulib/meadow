@@ -230,14 +230,10 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
     (umvm) => umvm.name
   );
 
-  console.log(metadataNames);
-
   // Filter form values by multi value entries only
   const formMultiOnly = formDataKeys.filter(
     (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1
   );
-
-  console.log(formMultiOnly);
 
   for (const key of formMultiOnly) {
     // Handle "replace all" condition
@@ -472,7 +468,9 @@ export function removeLabelsFromBatchEditPostData(
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
-        if (typeof item !== "object") {
+        console.log(item, key);
+
+        if (typeof item !== "object" || Array.isArray(item)) {
           returnObj.replace.administrativeMetadata[key] = item;
         } else {
           let itemObj = { ...item };

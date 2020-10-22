@@ -25,6 +25,7 @@ const BatchEditAdministrative = () => {
   const [batchReplaces, setBatchReplaces] = useState({
     administrativeMetadata: {},
   });
+  const [batchVisibility, setBatchVisibility] = useState({});
   const batchDispatch = useBatchDispatch();
 
   // Grab batch search data from Context
@@ -67,18 +68,13 @@ const BatchEditAdministrative = () => {
       if (currentFormValues[item]) {
         replaceItems[item] = JSON.parse(currentFormValues[item]);
       }
-      console.log(replaceItems);
     });
     if (currentFormValues.projectCycle) {
       replaceItems.projectCycle = currentFormValues.projectCycle;
     }
-    console.log(replaceItems);
 
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of PROJECT_METADATA) {
-      // Include only active form additions
-      console.log(term.name);
-
       // Include only active removals
       if (batchState.removeItems && batchState.removeItems[term.name]) {
         deleteReadyItems[term.name] = prepFacetKey(
@@ -90,19 +86,19 @@ const BatchEditAdministrative = () => {
 
     // Update non-controlled term multi-value items
     multiValues = getBatchMultiValueDataFromForm(currentFormValues);
-    console.log(multiValues);
 
     setBatchAdds({
       administrativeMetadata: { ...addItems, ...multiValues.add },
     });
     setBatchDeletes(deleteReadyItems);
-    console.log("------------>", replaceItems);
 
     setBatchReplaces({
       administrativeMetadata: { ...replaceItems, ...multiValues.replace },
     });
 
-    console.log(batchReplaces);
+    Object.keys(currentFormValues["visibility"]).length > 0
+      ? setBatchVisibility(JSON.parse(currentFormValues["visibility"]))
+      : setBatchVisibility({});
 
     setIsConfirmModalOpen(true);
   };
@@ -154,6 +150,7 @@ const BatchEditAdministrative = () => {
           batchAdds={batchAdds}
           batchDeletes={batchDeletes}
           batchReplaces={batchReplaces}
+          batchVisibility={batchVisibility}
           filteredQuery={JSON.stringify(batchState.filteredQuery)}
           handleClose={onCloseModal}
           handleFormReset={handleFormReset}
@@ -161,8 +158,6 @@ const BatchEditAdministrative = () => {
           numberOfResults={numberOfResults}
         />
       ) : null}
-
-      {/* <BatchEditAdministrativeModalRemove /> */}
     </FormProvider>
   );
 };
