@@ -365,22 +365,6 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
 }
 
 /**
- * Prepares
- * @param {Array} codeList
- * @param {string} key
- * @returns {Array}
- */
-export function prepCodedTermInput(codeList = [], key = "") {
-  let arr = codeList.map((item) => {
-    return {
-      value: { scheme: key, id: item.id },
-      label: item.label,
-    };
-  });
-  return arr;
-}
-
-/**
  * Prepares Related Url form data for an upcoming GraphQL post
  * @param {Array} items Array of object entries possible in form
  * @returns {Array} of properly shaped values for Related Url
@@ -465,10 +449,11 @@ export function removeLabelsFromBatchEditPostData(
   }
 
   if (hasReplaces) {
+    returnObj.replace.descriptiveMetadata = batchReplaces.descriptiveMetadata;
+
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
-        console.log(item, key);
 
         if (typeof item !== "object" || Array.isArray(item)) {
           returnObj.replace.administrativeMetadata[key] = item;

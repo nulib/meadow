@@ -9,7 +9,7 @@ import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import UIAccordion from "../../UI/Accordion";
-import BatchEditConfirmation from "@js/components/BatchEdit/About/Confirmation";
+import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
 import BatchEditAboutModalRemove from "../ModalRemove";
 import {
   useBatchDispatch,
@@ -181,6 +181,7 @@ const BatchEditAbout = () => {
 
       {isConfirmModalOpen ? (
         <BatchEditConfirmation
+          batchEditType="descriptiveMetadata"
           batchAdds={batchAdds}
           batchDeletes={batchDeletes}
           batchReplaces={batchReplaces}

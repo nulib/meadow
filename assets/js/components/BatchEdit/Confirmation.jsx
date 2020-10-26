@@ -19,10 +19,12 @@ const verifyInputWrapper = css`
 `;
 
 const BatchEditConfirmation = ({
+  batchEditType,
   batchAdds,
   batchDeletes,
   batchReplaces,
   batchCollection,
+  batchVisibility,
   filteredQuery,
   handleClose,
   handleFormReset,
@@ -59,12 +61,21 @@ const BatchEditConfirmation = ({
     const cleanedPostValues = removeLabelsFromBatchEditPostData(
       batchAdds,
       batchDeletes,
+      batchReplaces,
       hasAdds,
-      hasDeletes
+      hasDeletes,
+      hasReplaces
     );
 
     if (hasCollection) {
-      batchReplaces.collectionId = batchCollection.id;
+      cleanedPostValues.replace.collectionId = batchCollection.id;
+    }
+
+    if (hasVisibility) {
+      cleanedPostValues.replace["visibility"] = {
+        id: batchVisibility.id,
+        scheme: batchVisibility.scheme,
+      };
     }
 
     batchUpdate({
@@ -72,24 +83,27 @@ const BatchEditConfirmation = ({
         query: filteredQuery,
         add: cleanedPostValues.add,
         delete: cleanedPostValues.delete,
-        replace: batchReplaces,
+        replace: cleanedPostValues.replace,
       },
     });
   };
 
-  const hasAdds =
-    batchAdds && Object.keys(batchAdds.descriptiveMetadata).length > 0;
+  const hasAdds = batchAdds && Object.keys(batchAdds[batchEditType]).length > 0;
 
   const hasDeletes =
     batchDeletes && !Object.values(batchDeletes).every((item) => !item.length);
 
   const hasReplaces =
-    batchReplaces && Object.keys(batchReplaces.descriptiveMetadata).length > 0;
+    batchReplaces && Object.keys(batchReplaces[batchEditType]).length > 0;
 
   const hasCollection =
     batchCollection && Object.keys(batchCollection).length > 0;
 
-  const hasDataToPost = hasAdds || hasDeletes || hasReplaces || hasCollection;
+  const hasVisibility =
+    batchVisibility && Object.keys(batchVisibility).length > 0;
+
+  const hasDataToPost =
+    hasAdds || hasDeletes || hasReplaces || hasCollection || hasVisibility;
 
   return (
     <div
@@ -113,7 +127,7 @@ const BatchEditConfirmation = ({
             <section className="content">
               <h3>Adding</h3>
               <BatchEditConfirmationTable
-                itemsObj={batchAdds.descriptiveMetadata}
+                itemsObj={batchAdds[batchEditType]}
                 type="add"
               />
             </section>
@@ -129,15 +143,20 @@ const BatchEditConfirmation = ({
             </section>
           )}
 
-          {(hasReplaces || hasCollection) && (
+          {(hasReplaces || hasCollection || hasVisibility) && (
             <section className="content">
               <h3>Replacing</h3>
               <BatchEditConfirmationTable
                 itemsObj={{
-                  ...batchReplaces.descriptiveMetadata,
-                  ...(batchCollection.title && {
-                    collection: batchCollection.title,
-                  }),
+                  ...batchReplaces[batchEditType],
+                  ...(batchCollection &&
+                    batchCollection.title && {
+                      collection: batchCollection.title,
+                    }),
+                  ...(batchVisibility &&
+                    batchVisibility.id && {
+                      visibility: batchVisibility,
+                    }),
                 }}
                 type="replace"
               />
@@ -188,9 +207,11 @@ const BatchEditConfirmation = ({
 };
 
 BatchEditConfirmation.propTypes = {
+  batchEditType: PropTypes.string,
   batchAdds: PropTypes.object,
   batchDeletes: PropTypes.object,
   batchReplaces: PropTypes.object,
+  batchVisibility: PropTypes.object,
   batchCollection: PropTypes.object,
   filteredQuery: PropTypes.string,
   handleClose: PropTypes.func,

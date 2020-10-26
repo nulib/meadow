@@ -4,24 +4,17 @@ import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAdministrativeProjectMetadata from "./ProjectMetadata";
 import BatchEditAdministrativeProjectStatusMetadata from "./ProjectStatusMetadata";
 import UIAccordion from "../../UI/Accordion";
-import BatchEditConfirmation from "@js/components/BatchEdit/Administrative/Confirmation";
-// import BatchEditAdministrativeModalRemove from "../ModalRemove";
+import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
 import {
   useBatchDispatch,
   useBatchState,
 } from "../../../context/batch-edit-context";
-import {
-  PROJECT_METADATA,
-  getBatchMultiValueDataFromForm,
-  prepControlledTermInput,
-  prepFacetKey,
-} from "../../../services/metadata";
+import { getBatchMultiValueDataFromForm } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 
 const BatchEditAdministrative = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [batchAdds, setBatchAdds] = useState({ administrativeMetadata: {} });
-  const [batchDeletes, setBatchDeletes] = useState({});
   const [batchReplaces, setBatchReplaces] = useState({
     administrativeMetadata: {},
   });
@@ -49,22 +42,14 @@ const BatchEditAdministrative = () => {
   const onSubmit = (data) => {
     console.log("data", data);
 
-    // "data" here returns everything (which was set above in the useEffect()),
-    // including fields that are either outdated or which no values were ever registered
-    // with React Hook Form's register().   So, we'll use getValues() to get the real data
-    // updated.
-
     let currentFormValues = methods.getValues();
     console.log("currentFormValues", currentFormValues);
     let addItems = {};
-    let deleteReadyItems = {};
     let replaceItems = {};
     let multiValues = {};
 
     // Update single value items
     ["preservationLevel", "status"].forEach((item) => {
-      console.log(item, currentFormValues[item]);
-
       if (currentFormValues[item]) {
         replaceItems[item] = JSON.parse(currentFormValues[item]);
       }
@@ -73,24 +58,12 @@ const BatchEditAdministrative = () => {
       replaceItems.projectCycle = currentFormValues.projectCycle;
     }
 
-    // Update controlled term values to match shape the GraphQL mutation expects
-    for (let term of PROJECT_METADATA) {
-      // Include only active removals
-      if (batchState.removeItems && batchState.removeItems[term.name]) {
-        deleteReadyItems[term.name] = prepFacetKey(
-          term,
-          batchState.removeItems[term.name]
-        );
-      }
-    }
-
     // Update non-controlled term multi-value items
     multiValues = getBatchMultiValueDataFromForm(currentFormValues);
 
     setBatchAdds({
       administrativeMetadata: { ...addItems, ...multiValues.add },
     });
-    setBatchDeletes(deleteReadyItems);
 
     setBatchReplaces({
       administrativeMetadata: { ...replaceItems, ...multiValues.replace },
@@ -111,13 +84,13 @@ const BatchEditAdministrative = () => {
   return (
     <FormProvider {...methods}>
       <form
-        name="batch-edit-about-form"
-        data-testid="batch-edit-about-form"
+        name="batch-edit-administrative-form"
+        data-testid="batch-edit-administrative-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
         <UITabsStickyHeader
           title="Administrative Metadata"
-          data-testid="batch-edit-about-sticky-header"
+          data-testid="batch-edit-administrative-sticky-header"
         >
           <>
             <Button type="submit" isPrimary data-testid="save-button">
@@ -147,8 +120,8 @@ const BatchEditAdministrative = () => {
 
       {isConfirmModalOpen ? (
         <BatchEditConfirmation
+          batchEditType="administrativeMetadata"
           batchAdds={batchAdds}
-          batchDeletes={batchDeletes}
           batchReplaces={batchReplaces}
           batchVisibility={batchVisibility}
           filteredQuery={JSON.stringify(batchState.filteredQuery)}

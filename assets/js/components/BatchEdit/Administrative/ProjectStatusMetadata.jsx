@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
-import UIFormSelect from "../../UI/Form/Select";
 import UIFormInput from "../../UI/Form/Input";
 import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql";
 import { useQuery, useMutation } from "@apollo/client";
-import { prepCodedTermInput } from "@js/services/metadata";
 import { useFormContext } from "react-hook-form";
 
 const BatchEditAdministrativeProjectStatusMetadata = ({ ...restProps }) => {
