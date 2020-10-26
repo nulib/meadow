@@ -123,7 +123,9 @@ it("displays success alert with valid file message when the Ingest Sheet status 
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-success");
-  expect(getByText("File is valid", { exact: false })).toBeInTheDocument();
+  expect(
+    getByText("the ingest sheet is valid", { exact: false })
+  ).toBeInTheDocument();
   expect(
     getByText("All checks have passed and the ingest sheet is valid.", {
       exact: false,
@@ -166,7 +168,7 @@ it("displays info alert with approved message when the Ingest Sheet status is AP
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("is-info");
+  expect(alertElement).toHaveClass("is-success");
   expect(getByText("Approved", { exact: false })).toBeInTheDocument();
   expect(
     getByText(
@@ -254,8 +256,7 @@ it("displays success alert with completed message when the Ingest Sheet status i
 
   expect(alertElement).toBeInTheDocument();
   expect(alertElement).toHaveClass("is-danger");
-  expect(getByText("Deleted", { exact: false })).toBeInTheDocument();
   expect(
-    getByText("Ingest sheet no longer exists.", { exact: false })
+    getByText("Ingest sheet no longer exists", { exact: false })
   ).toBeInTheDocument();
 });

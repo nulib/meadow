@@ -2,6 +2,7 @@
 
 // Custom variables go before importing Bulma
 @import "~@nulib/admin-react-components/dist/public/styles/variables";
+@import "./scss/local-vars";
 @import "~@nulib/admin-react-components/dist/public/styles/fonts";
 
 @import "~bulma/bulma";
