@@ -1,18 +1,18 @@
 import React from "react";
 import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import {
-  renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
-} from "../../services/testing-helpers";
-import {
+  codeListAuthorityMock,
   codeListLicenseMock,
+  codeListMarcRelatorMock,
   codeListRelatedUrlMock,
   codeListRightsStatementMock,
   codeListLibraryUnitMock,
   codeListPreservationLevelMock,
   codeListStatusMock,
   codeListVisibilityMock,
+  codeListSubjectRoleMock,
 } from "../Work/controlledVocabulary.gql.mock.js";
 import { getCollectionsMock } from "../Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -21,20 +21,22 @@ const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
   function setupTest() {
-    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <BatchEditTabs items={items} />
       </BatchProvider>,
       {
         mocks: [
+          codeListAuthorityMock,
           codeListLicenseMock,
+          codeListMarcRelatorMock,
           codeListRelatedUrlMock,
           codeListRightsStatementMock,
           codeListLibraryUnitMock,
           codeListPreservationLevelMock,
           codeListStatusMock,
           codeListVisibilityMock,
+          codeListSubjectRoleMock,
           getCollectionsMock,
         ],
       }

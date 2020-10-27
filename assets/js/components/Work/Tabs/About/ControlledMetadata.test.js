@@ -1,19 +1,30 @@
 import React from "react";
-import {
-  renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
-} from "../../../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../../../services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutControlledMetadata from "./ControlledMetadata";
 import { waitFor } from "@testing-library/react";
+import { CodeListProvider } from "@js/context/code-list-context";
+import {
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
+  codeListSubjectRoleMock,
+} from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("Work About tab Controlled Metadata component", () => {
   function setupTests() {
-    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
-      <WorkTabsAboutControlledMetadata
-        descriptiveMetadata={mockWork.descriptiveMetadata}
-      />
+      <CodeListProvider>
+        <WorkTabsAboutControlledMetadata
+          descriptiveMetadata={mockWork.descriptiveMetadata}
+        />
+      </CodeListProvider>,
+      {
+        mocks: [
+          codeListAuthorityMock,
+          codeListMarcRelatorMock,
+          codeListSubjectRoleMock,
+        ],
+      }
     );
   }
 

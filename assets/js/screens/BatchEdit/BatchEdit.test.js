@@ -1,9 +1,6 @@
 import React from "react";
 import { waitFor } from "@testing-library/react";
-import {
-  renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
-} from "../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import {
   codeListLicenseMock,
@@ -21,7 +18,6 @@ jest.mock("../../services/elasticsearch");
 
 describe("BatchEdit component", () => {
   function setupComponent() {
-    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider
         initialState={{

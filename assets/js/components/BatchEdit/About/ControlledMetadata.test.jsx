@@ -2,24 +2,34 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
   withReactHookForm,
 } from "../../../services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
+import { CodeListProvider } from "@js/context/code-list-context";
+import {
+  codeListAuthorityMock,
+  codeListMarcRelatorMock,
+  codeListSubjectRoleMock,
+} from "@js/components/Work/controlledVocabulary.gql.mock";
 
-describe("BatchEditAboutCoreMetadata component", () => {
+describe("BatchEditAboutControlledMetadata component", () => {
   beforeEach(() => {
-    setupCachedCodeListsLocalStorage();
     const Wrapped = withReactHookForm(BatchEditAboutControlledMetadata);
 
     return renderWithRouterApollo(
       <BatchProvider value={null}>
-        <Wrapped />
+        <CodeListProvider>
+          <Wrapped />
+        </CodeListProvider>
       </BatchProvider>,
       {
-        mocks: [],
+        mocks: [
+          codeListAuthorityMock,
+          codeListMarcRelatorMock,
+          codeListSubjectRoleMock,
+        ],
       }
     );
   });
