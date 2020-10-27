@@ -10,6 +10,7 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastWrapper } from "../../services/helpers";
+import { Button } from "@nulib/admin-react-components";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
@@ -70,22 +71,19 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
     <>
       <div className="buttons is-right">
         {status === "VALID" && (
-          <button className="button is-primary" onClick={handleApproveClick}>
-            <span className="icon">
-              <FontAwesomeIcon icon="thumbs-up" />
-            </span>{" "}
-            <span>Approve ingest sheet</span>
-          </button>
+          <Button isPrimary onClick={handleApproveClick}>
+            Approve ingest sheet
+          </Button>
         )}
 
         {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
           -1 && (
-          <button className={`button`} onClick={onOpenModal}>
+          <Button onClick={onOpenModal}>
             <span className="icon">
               <FontAwesomeIcon icon="trash" />
             </span>{" "}
             <span>Delete and start over</span>
-          </button>
+          </Button>
         )}
       </div>
 
