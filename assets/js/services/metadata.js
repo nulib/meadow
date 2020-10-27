@@ -392,6 +392,20 @@ export function prepRelatedUrl(items = []) {
 }
 
 /**
+ * Helper function which removes label from a given object
+ * @param {Object} item
+ * @returns {Object}
+ */
+export function deleteKeyFromObject(item) {
+  if (typeof item !== "object" || Array.isArray(item)) {
+    return item;
+  }
+  let itemObj = { ...item };
+  delete itemObj.label;
+  return itemObj;
+}
+
+/**
  * Remove helper labels from Batch Edit form post data
  * @param {Object} batchAdds
  * @param {Object} batchDeletes
@@ -421,14 +435,7 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
         ].map((item) => {
-          // Regular string value
-          if (typeof item !== "object") {
-            return item;
-          }
-          // Controlled term object value
-          let itemObj = { ...item };
-          delete itemObj.label;
-          return itemObj;
+          return deleteKeyFromObject(item);
         });
       });
     batchAdds.administrativeMetadata &&
@@ -436,46 +443,30 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.administrativeMetadata[
           key
         ] = batchAdds.administrativeMetadata[key].map((item) => {
-          // Regular string value
-          if (typeof item !== "object") {
-            return item;
-          }
-          // Controlled term object value
-          let itemObj = { ...item };
-          delete itemObj.label;
-          return itemObj;
+          return deleteKeyFromObject(item);
         });
       });
   }
 
   if (hasReplaces) {
-    returnObj.replace.descriptiveMetadata = batchReplaces.descriptiveMetadata;
-
+    batchReplaces.descriptiveMetadata &&
+      Object.keys(batchReplaces.descriptiveMetadata).forEach((key) => {
+        let item = batchReplaces.descriptiveMetadata[key];
+        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(item);
+      });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
-
-        if (typeof item !== "object" || Array.isArray(item)) {
-          returnObj.replace.administrativeMetadata[key] = item;
-        } else {
-          let itemObj = { ...item };
-          delete itemObj.label;
-          returnObj.replace.administrativeMetadata[key] = itemObj;
-        }
+        returnObj.replace.administrativeMetadata[key] = deleteKeyFromObject(
+          item
+        );
       });
   }
 
   if (hasDeletes) {
     Object.keys(batchDeletes).forEach((key) => {
       returnObj.delete[key] = batchDeletes[key].map((item) => {
-        // Regular string value
-        if (typeof item !== "object") {
-          return item;
-        }
-        // Controlled term object value
-        let itemObj = { ...item };
-        delete itemObj.label;
-        return itemObj;
+        return deleteKeyFromObject(item);
       });
     });
   }

@@ -74,6 +74,12 @@ const BatchEditAbout = () => {
       }
     });
 
+    if (currentFormValues.rightsStatement) {
+      replaceItems.rightsStatement = JSON.parse(
+        currentFormValues.rightsStatement
+      );
+    }
+
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of CONTROLLED_METADATA) {
       // Include only active form additions
