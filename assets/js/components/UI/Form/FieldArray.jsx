@@ -13,6 +13,7 @@ const UIFormFieldArray = ({
   defaultValue = `New ${label}`,
   mocked,
   notLive,
+  itemType = "input",
   ...passedInProps
 }) => {
   const { control } = useFormContext();
@@ -46,6 +47,7 @@ const UIFormFieldArray = ({
               index={index}
               label={label}
               name={name}
+              itemType={itemType}
             />
           );
         })}
@@ -67,6 +69,7 @@ UIFormFieldArray.propTypes = {
   notLive: PropTypes.bool,
   required: PropTypes.bool,
   type: PropTypes.string,
+  itemType: PropTypes.string,
 };
 
 export default UIFormFieldArray;

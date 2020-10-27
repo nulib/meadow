@@ -3,21 +3,47 @@ import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-function FieldArrayRow({ handleRemoveClick, index, item, label, name }) {
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const textareaWidth = css`
+  min-width: 80%;
+`;
+
+function FieldArrayRow({
+  handleRemoveClick,
+  index,
+  item,
+  label,
+  name,
+  itemType,
+}) {
   const { errors, register } = useFormContext();
 
   return (
     <li className="field" data-testid="field-array-row">
       <div className="is-flex">
-        <input
-          name={`${[name]}[${index}].metadataItem`}
-          className={`input ${
-            errors[name] && errors[name][index] ? "is-danger" : ""
-          }`}
-          defaultValue={item.metadataItem}
-          ref={register({ required: true })}
-          data-testid="input-field-array"
-        />
+        {itemType == "textarea" ? (
+          <textarea
+            name={`${[name]}[${index}].metadataItem`}
+            css={textareaWidth}
+            className={`textarea ${
+              errors[name] && errors[name][index] ? "is-danger" : ""
+            }`}
+            defaultValue={item.metadataItem}
+            ref={register({ required: true })}
+            data-testid="input-field-array"
+          />
+        ) : (
+          <input
+            name={`${[name]}[${index}].metadataItem`}
+            className={`input ${
+              errors[name] && errors[name][index] ? "is-danger" : ""
+            }`}
+            defaultValue={item.metadataItem}
+            ref={register({ required: true })}
+            data-testid="input-field-array"
+          />
+        )}
         <button
           type="button"
           className="button ml-1"
@@ -42,6 +68,7 @@ FieldArrayRow.propTypes = {
   item: PropTypes.object,
   label: PropTypes.string,
   name: PropTypes.string,
+  itemType: PropTypes.string,
 };
 
 export default FieldArrayRow;

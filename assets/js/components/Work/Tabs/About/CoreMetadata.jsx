@@ -104,19 +104,19 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
       <div className="column is-full">
         {/* Description */}
-        <UIFormField label="Description">
-          {isEditing ? (
-            <UIFormTextarea
-              isReactHookForm
-              name="description"
-              label="Description"
-              data-testid="description"
-              defaultValue={descriptiveMetadata.description}
-            />
-          ) : (
-            <p>{descriptiveMetadata.description || "No value"}</p>
-          )}
-        </UIFormField>
+        {isEditing ? (
+          <UIFormFieldArray
+            name="description"
+            data-testid="description"
+            label="Description"
+            itemType="textarea"
+          />
+        ) : (
+          <UIFormFieldArrayDisplay
+            items={descriptiveMetadata.description}
+            label="Description"
+          />
+        )}
       </div>
     </div>
   );
