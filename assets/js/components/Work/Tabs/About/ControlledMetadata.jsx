@@ -12,7 +12,6 @@ const WorkTabsAboutControlledMetadata = ({
   isEditing,
 }) => {
   const codeLists = useCodeLists();
-  console.log("codeLists", codeLists);
 
   function getRoleDropDownOptions(scheme) {
     if (scheme === "MARC_RELATOR") {

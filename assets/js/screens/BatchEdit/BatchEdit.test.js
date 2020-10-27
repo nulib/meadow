@@ -3,13 +3,16 @@ import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import {
+  codeListAuthorityMock,
   codeListLicenseMock,
+  codeListMarcRelatorMock,
   codeListRelatedUrlMock,
   codeListRightsStatementMock,
   codeListLibraryUnitMock,
   codeListPreservationLevelMock,
   codeListStatusMock,
   codeListVisibilityMock,
+  codeListSubjectRoleMock,
 } from "../../components/Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
@@ -37,13 +40,16 @@ describe("BatchEdit component", () => {
       </BatchProvider>,
       {
         mocks: [
+          codeListAuthorityMock,
           codeListLicenseMock,
+          codeListMarcRelatorMock,
           codeListRelatedUrlMock,
           codeListRightsStatementMock,
           codeListLibraryUnitMock,
           codeListPreservationLevelMock,
           codeListStatusMock,
           codeListVisibilityMock,
+          codeListSubjectRoleMock,
           getCollectionsMock,
         ],
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to

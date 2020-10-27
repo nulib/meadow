@@ -5,6 +5,6 @@ module.exports = {
       "<rootDir>/__mocks__/fileMock.js",
     "^@js(.*)$": "<rootDir>/js$1",
   },
-  setupFiles: ["jest-localstorage-mock"],
+  setupFiles: [],
   setupFilesAfterEnv: ["./jest.setup.js"],
 };

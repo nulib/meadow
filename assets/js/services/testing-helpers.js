@@ -139,22 +139,6 @@ export function renderWithApollo(ui, { mocks = [] }) {
 }
 
 /**
- * Use the npm package https://www.npmjs.com/package/jest-localstorage-mock
- * to mock localStorage for tests which test components which rely upon local
- * cached values for some Code List GraphQL queries which rarely change.
- */
-export function setupCachedCodeListsLocalStorage() {
-  localStorage.setItem(
-    LOCAL_STORAGE_CODELIST_KEY,
-    JSON.stringify({
-      MARC_RELATOR: marcRelatorMock,
-      AUTHORITY: authorityMock,
-      SUBJECT_ROLE: subjectMock,
-    })
-  );
-}
-
-/**
  * Higher order helper function which wraps a component w/ React Beautiful DND
  * @param {React Component} WrappedComponent to pass into
  * @param {*} restProps any other remaining props
