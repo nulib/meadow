@@ -62,9 +62,5 @@
   {
     "id": "lcsh",
     "label": "Library of Congress Subject Headings"
-  },
-  {
-    "id": "loc",
-    "label": "Library of Congress Linked Data"
   }
 ]
