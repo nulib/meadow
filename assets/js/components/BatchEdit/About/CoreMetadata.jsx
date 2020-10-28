@@ -112,14 +112,12 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
       <div className="column is-full">
         {/* Description */}
-        <UIFormField label="Description">
-          <UIFormTextarea
-            isReactHookForm
-            name="description"
-            label="Description"
-            data-testid="description"
-          />
-        </UIFormField>
+        <UIFormBatchFieldArray
+          name="description"
+          label="Description"
+          data-testid="description"
+          isTextarea={true}
+        />
       </div>
     </div>
   );

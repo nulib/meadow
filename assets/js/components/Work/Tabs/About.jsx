@@ -69,6 +69,9 @@ const WorkTabsAbout = ({ work }) => {
       alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
         metadataItem: value,
       })),
+      description: descriptiveMetadata.description.map((value) => ({
+        metadataItem: value,
+      })),
       relatedUrl: descriptiveMetadata.relatedUrl,
       ...resetValues,
       ...controlledTermResetValues,
@@ -104,7 +107,7 @@ const WorkTabsAbout = ({ work }) => {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
-        description,
+        description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {
               id: data.license,

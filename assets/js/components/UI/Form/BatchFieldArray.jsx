@@ -11,6 +11,7 @@ const UIFormBatchFieldArray = ({
   type = "text",
   required,
   defaultValue = `New ${label}`,
+  isTextarea,
   ...passedInProps
 }) => {
   const { control, errors, register } = useFormContext();
@@ -45,6 +46,7 @@ const UIFormBatchFieldArray = ({
                   index={index}
                   label={label}
                   name={name}
+                  isTextarea={isTextarea}
                 />
               );
             })}
@@ -97,6 +99,7 @@ UIFormBatchFieldArray.propTypes = {
   name: PropTypes.string.isRequired,
   required: PropTypes.bool,
   type: PropTypes.string,
+  isTextarea: PropTypes.bool,
 };
 
 export default UIFormBatchFieldArray;
