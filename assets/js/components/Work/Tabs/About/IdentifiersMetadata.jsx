@@ -4,37 +4,14 @@ import UIFormField from "../../../UI/Form/Field";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import { IDENTIFIER_METADATA } from "../../../../services/metadata";
-import { useQuery } from "@apollo/client";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
-import UISkeleton from "../../../UI/Skeleton";
-import UIError from "../../../UI/Error";
 import UIFormRelatedURL from "../../../UI/Form/RelatedURL";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutIdentifiersMetadata = ({
   descriptiveMetadata,
   isEditing,
 }) => {
-  const { data: relatedUrlData, loading, relatedUrlErrors } = useQuery(
-    CODE_LIST_QUERY,
-    {
-      variables: { scheme: "RELATED_URL" },
-    }
-  );
-
-  if (loading) return <UISkeleton rows={20} />;
-  if (relatedUrlErrors)
-    return (
-      <div>
-        <UIError error={relatedUrlErrors} />
-      </div>
-    );
-  if (!relatedUrlData) {
-    return (
-      <div>
-        <UIError error={{ message: "No Related URL data" }} />
-      </div>
-    );
-  }
+  const codeLists = useCodeLists();
 
   return (
     <div className="columns is-multiline" data-testid="identifiers-metadata">
@@ -67,7 +44,11 @@ const WorkTabsAboutIdentifiersMetadata = ({
         <UIFormField label="Related URL">
           {isEditing ? (
             <UIFormRelatedURL
-              codeLists={relatedUrlData.codeList}
+              codeLists={
+                codeLists.relatedUrlData
+                  ? codeLists.relatedUrlData.codeList
+                  : []
+              }
               label="Related URL"
               name="relatedUrl"
             />

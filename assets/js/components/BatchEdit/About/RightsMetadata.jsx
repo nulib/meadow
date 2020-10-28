@@ -3,18 +3,12 @@ import PropTypes from "prop-types";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
 import { RIGHTS_METADATA } from "../../../services/metadata";
-import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
-import { useQuery } from "@apollo/client";
 import UIFormField from "../../UI/Form/Field";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
-  const {
-    loading: licenseLoading,
-    error: licenseError,
-    data: licenseData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "LICENSE" },
-  });
+  const codeLists = useCodeLists();
+
   return (
     <div
       className="columns is-multiline"
@@ -33,7 +27,9 @@ const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
             isReactHookForm
             name="license"
             label="License"
-            options={licenseData ? licenseData.codeList : []}
+            options={
+              codeLists.licenseData ? codeLists.licenseData.codeList : []
+            }
             data-testid="license"
             showHelper
           />

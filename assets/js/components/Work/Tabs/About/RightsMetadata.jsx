@@ -3,21 +3,15 @@ import PropTypes from "prop-types";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import { RIGHTS_METADATA } from "../../../../services/metadata";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql";
-import { useQuery } from "@apollo/client";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormInput from "../../../UI/Form/Input";
 import UIFormSelect from "../../../UI/Form/Select";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
-  const {
-    loading: licenseLoading,
-    error: licenseError,
-    data: licenseData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "LICENSE" },
-  });
+  const codeLists = useCodeLists();
+
   return (
     <div className="columns is-multiline" data-testid="rights-metadata">
       {RIGHTS_METADATA.map((item) => (
@@ -41,7 +35,9 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               name="license"
               showHelper={true}
               label="License"
-              options={licenseData ? licenseData.codeList : []}
+              options={
+                codeLists.licenseData ? codeLists.licenseData.codeList : []
+              }
               defaultValue={
                 descriptiveMetadata.license
                   ? descriptiveMetadata.license.id

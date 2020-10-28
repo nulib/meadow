@@ -6,14 +6,20 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import { IDENTIFIER_METADATA } from "../../../services/metadata";
-import { codeListRelatedUrlMock } from "../../Work/controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("BatchEditAboutIdentifiersMetadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(BatchEditAboutIdentifiersMetadata);
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [codeListRelatedUrlMock],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   });
 
   it("renders the component", async () => {

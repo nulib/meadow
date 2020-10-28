@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { toastWrapper } from "../../../services/helpers";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";

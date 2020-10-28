@@ -7,7 +7,8 @@ import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutIdentifiersMetadata from "./IdentifiersMetadata";
 import { screen } from "@testing-library/react";
 import { IDENTIFIER_METADATA } from "../../../../services/metadata";
-import { codeListRelatedUrlMock } from "../../controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "../../controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work About Tab Identifiers metadata component", () => {
   beforeEach(() => {
@@ -15,9 +16,14 @@ describe("Work About Tab Identifiers metadata component", () => {
       isEditing: true,
       descriptiveMetadata: mockWork.descriptiveMetadata,
     });
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [codeListRelatedUrlMock],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   });
 
   it("renders identifiers metadata component", async () => {

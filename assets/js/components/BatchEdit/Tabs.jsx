@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import BatchEditAbout from "./About/About";
 import BatchEditAdministrative from "./Administrative/Administrative";
-
 import PropTypes from "prop-types";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 export default function BatchEditTabs() {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -12,7 +12,7 @@ export default function BatchEditTabs() {
   };
 
   return (
-    <>
+    <CodeListProvider>
       <div className="tabs is-centered is-boxed" data-testid="batch-edit-tabs">
         <ul>
           <li className={`${activeTab === "tab-about" && "is-active"}`}>
@@ -47,6 +47,6 @@ export default function BatchEditTabs() {
           <BatchEditAdministrative />
         </div>
       </div>
-    </>
+    </CodeListProvider>
   );
 }

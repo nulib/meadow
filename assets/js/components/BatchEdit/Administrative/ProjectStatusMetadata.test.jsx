@@ -6,6 +6,8 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAdministrativeProjectStatusMetadata from "./ProjectStatusMetadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("BatchEditAdministrativeProjectStatusMetadata component", () => {
   beforeEach(() => {
@@ -14,8 +16,11 @@ describe("BatchEditAdministrativeProjectStatusMetadata component", () => {
     );
     return renderWithRouterApollo(
       <BatchProvider value={null}>
-        <Wrapped />
-      </BatchProvider>
+        <CodeListProvider>
+          <Wrapped />
+        </CodeListProvider>
+      </BatchProvider>,
+      { mocks: allCodeListMocks }
     );
   });
 

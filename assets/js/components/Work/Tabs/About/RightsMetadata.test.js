@@ -5,10 +5,10 @@ import {
 } from "../../../../services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutRightsMetadata from "./RightsMetadata";
-import { waitFor } from "@testing-library/react";
-import { codeListLicenseMock } from "../../controlledVocabulary.gql.mock";
 import { RIGHTS_METADATA } from "../../../../services/metadata";
 import { screen } from "@testing-library/react";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("Work About tab Idenfiers Metadata component", () => {
   beforeEach(() => {
@@ -16,9 +16,14 @@ describe("Work About tab Idenfiers Metadata component", () => {
       isEditing: true,
       descriptiveMetadata: mockWork.descriptiveMetadata,
     });
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [codeListLicenseMock],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   });
 
   it("renders expected rights metadata fields", async () => {

@@ -1,28 +1,21 @@
 import React from "react";
-import {
-  renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
-} from "../../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
-import {
-  codeListLicenseMock,
-  codeListRelatedUrlMock,
-  codeListRightsStatementMock,
-} from "../controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work About tab component", () => {
   function setupTests() {
-    setupCachedCodeListsLocalStorage();
-
-    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
-      mocks: [
-        codeListLicenseMock,
-        codeListRelatedUrlMock,
-        codeListRightsStatementMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <WorkTabsAbout work={mockWork} />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   }
 
   it("renders without crashing", async () => {

@@ -38,7 +38,6 @@ export default class Root extends React.Component {
           <BatchProvider>
             <BrowserRouter>
               <ScrollToTop />
-
               <Switch>
                 <Route exact path="/login" component={Login} />
                 <PrivateRoute

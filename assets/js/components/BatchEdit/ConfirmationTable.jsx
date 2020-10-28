@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import useCachedCodeLists from "@js/hooks/useCachedCodeLists";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getMetadataLabel } from "@js/services/metadata";
+import { useCodeLists } from "@js/context/code-list-context";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -19,13 +19,15 @@ const displayTable = css`
 `;
 
 export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
-  const [codeLists] = useCachedCodeLists();
-  const marcRelators = codeLists.MARC_RELATOR;
+  const codeLists = useCodeLists();
+  const marcRelators = codeLists.marcData.codeList || [];
 
   function getRoleLabel(roleId) {
     let foundItem = marcRelators.find((item) => item.id === roleId);
     if (!foundItem) {
-      foundItem = codeLists.SUBJECT_ROLE.find((item) => item.id === roleId);
+      foundItem = codeLists.subjectRoleData.codeList.find(
+        (item) => item.id === roleId
+      );
     }
     return foundItem.label || "No role label found";
   }
