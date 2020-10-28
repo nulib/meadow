@@ -15,17 +15,19 @@ function FieldArrayRow({
   item,
   label,
   name,
-  itemType,
+  isTextarea,
 }) {
   const { errors, register } = useFormContext();
 
   return (
     <li className="field" data-testid="field-array-row">
       <div className="is-flex">
-        {itemType == "textarea" ? (
+        {isTextarea ? (
           <textarea
             name={`${[name]}[${index}].metadataItem`}
             css={textareaWidth}
+            rows={2}
+            cols={3}
             className={`textarea ${
               errors[name] && errors[name][index] ? "is-danger" : ""
             }`}
@@ -68,7 +70,7 @@ FieldArrayRow.propTypes = {
   item: PropTypes.object,
   label: PropTypes.string,
   name: PropTypes.string,
-  itemType: PropTypes.string,
+  isTextarea: PropTypes.bool,
 };
 
 export default FieldArrayRow;

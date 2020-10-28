@@ -68,7 +68,7 @@ const BatchEditAbout = () => {
     let multiValues = {};
 
     // Update single value items
-    ["description", "title"].forEach((item) => {
+    ["title"].forEach((item) => {
       if (currentFormValues[item]) {
         replaceItems[item] = currentFormValues[item];
       }

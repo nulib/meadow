@@ -109,7 +109,7 @@ const WorkTabsAboutCoreMetadata = ({
             name="description"
             data-testid="description"
             label="Description"
-            itemType="textarea"
+            isTextarea={true}
           />
         ) : (
           <UIFormFieldArrayDisplay
