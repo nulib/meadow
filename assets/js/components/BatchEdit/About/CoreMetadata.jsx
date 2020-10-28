@@ -90,14 +90,24 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
       <div className="column is-half">
         <UIFormField label="Rights Statement">
-          <UIFormSelect
-            isReactHookForm
-            name="rightsStatement"
-            label="Rights Statement"
-            options={rightsStatementsData ? rightsStatementsData.codeList : []}
-            data-testid="rights-statement"
-            showHelper
-          />
+          <div className="select" data-testid="rights-statement">
+            <select name="rightsStatement" ref={register()}>
+              <option value="">-- Select --</option>
+              {rightsStatementsData &&
+                rightsStatementsData.codeList.map((item) => (
+                  <option
+                    key={item.id}
+                    value={JSON.stringify({
+                      id: item.id,
+                      scheme: "RIGHTS_STATEMENT",
+                      label: item.label,
+                    })}
+                  >
+                    {item.label}
+                  </option>
+                ))}
+            </select>
+          </div>
         </UIFormField>
       </div>
       <div className="column is-full">

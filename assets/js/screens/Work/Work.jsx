@@ -166,7 +166,7 @@ const ScreensWork = () => {
                       handlePublishClick={handlePublishClick}
                       onOpenModal={onOpenModal}
                       published={data.work.published}
-                      hasCollection={data.work.collection}
+                      hasCollection={data.work.collection ? true : false}
                     />
                   </div>
                 </div>

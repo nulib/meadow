@@ -81,11 +81,17 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
             let rowKey = item;
 
             // Account for controlled term field values
-            if (typeof item === "object") {
+            if (typeof item === "object" && item.term) {
               rowKey = `${item.term}-${item.label}`;
               value = `${item.label} | ${item.term} | ${
                 item.role && getRoleLabel(item.role.id)
               }`;
+            }
+
+            // Account for Coded term field values
+            if (typeof item === "object" && item.scheme) {
+              rowKey = `${item.id}`;
+              value = `${item.label}`;
             }
 
             return (
