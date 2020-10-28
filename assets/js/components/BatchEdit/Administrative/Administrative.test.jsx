@@ -1,34 +1,23 @@
 import React from "react";
 import { waitFor } from "@testing-library/react";
 import BatchEditAdministrative from "./Administrative";
-import {
-  renderWithRouterApollo,
-  setupCachedCodeListsLocalStorage,
-} from "../../../services/testing-helpers";
-import {
-  codeListLibraryUnitMock,
-  codeListPreservationLevelMock,
-  codeListStatusMock,
-  codeListVisibilityMock,
-} from "../../Work/controlledVocabulary.gql.mock";
-import { BatchProvider } from "../../../context/batch-edit-context";
+import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { BatchProvider } from "@js/context/batch-edit-context";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAdministrative component", () => {
   function setupTest() {
-    setupCachedCodeListsLocalStorage();
     return renderWithRouterApollo(
       <BatchProvider value={null}>
-        <BatchEditAdministrative items={items} />
+        <CodeListProvider>
+          <BatchEditAdministrative items={items} />
+        </CodeListProvider>
       </BatchProvider>,
       {
-        mocks: [
-          codeListLibraryUnitMock,
-          codeListPreservationLevelMock,
-          codeListStatusMock,
-          codeListVisibilityMock,
-        ],
+        mocks: allCodeListMocks,
       }
     );
   }
