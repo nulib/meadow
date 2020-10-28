@@ -124,7 +124,6 @@ defmodule Meadow.MixProject do
         include_executables_for: [:unix],
         applications: [
           meadow: :permanent,
-          observer: :permanent,
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],

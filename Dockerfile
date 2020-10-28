@@ -1,5 +1,5 @@
 # Install elixir & npm dependencies
-FROM nulib/elixir-phoenix-base:1.10 AS deps
+FROM nulib/elixir-phoenix-base:1.11.1 AS deps
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
@@ -18,7 +18,7 @@ WORKDIR /app/priv/tiff
 RUN yarn install
 
 # Create elixir release
-FROM nulib/elixir-phoenix-base:1.10 AS release
+FROM nulib/elixir-phoenix-base:1.11.1 AS release
 ENV MIX_ENV=prod
 COPY . /app
 COPY --from=deps /app/_build /app/_build
@@ -29,7 +29,7 @@ WORKDIR /app
 RUN mix release --overwrite
 
 # Create runtime image
-FROM node:13-alpine
+FROM node:14-alpine
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add ncurses-libs openssl-dev

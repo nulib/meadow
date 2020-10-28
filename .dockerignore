@@ -9,6 +9,7 @@ doc
 Dockerfile
 Jenkinsfile
 priv/cert
+priv/seed_data
 priv/static
 priv/tiff/node_modules
 README.md
