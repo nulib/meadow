@@ -8,11 +8,6 @@ import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
 
-/**
- * Note: This component is dependent on the GraphQL "IngestSheet" data type "status" property.
- * Refer to latest values to clarify this component's logic.
- */
-
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
 
@@ -26,16 +21,13 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     fetchPolicy: "network-only",
   });
 
-  //console.log("\nIngestSheet() => progressData", progressData);
-  //console.log("IngestSheet() => status", status);
-
   useEffect(() => {
     subscribeToIngestSheetUpdates();
   }, []);
 
   if (progressError) return <Error error={progressError} />;
 
-  const styles = { h2IsHidden: { display: "none" } };
+  const isCompleted = status === "COMPLETED";
 
   return (
     <div className="box">
@@ -43,25 +35,16 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
         <UISkeleton rows={15} />
       ) : (
         <>
-          <h2
-            className="title is-size-5"
-            style={["COMPLETED"].indexOf(status) > -1 ? styles.h2IsHidden : {}}
-          >
+          <h2 className={`title is-size-5 ${isCompleted ? "is-hidden" : ""}`}>
             Ingest Sheet Contents
           </h2>
+
           {["APPROVED"].indexOf(status) > -1 && (
-            <>
-              <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
-            </>
+            <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
           )}
 
-          {["COMPLETED"].indexOf(status) > -1 && (
-            <>
-              <IngestSheetCompleted
-                sheetId={ingestSheetData.id}
-                title={title}
-              />
-            </>
+          {isCompleted && (
+            <IngestSheetCompleted sheetId={ingestSheetData.id} title={title} />
           )}
 
           {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
@@ -69,7 +52,9 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
             <IngestSheetValidations
               sheetId={id}
               status={status}
-              initialProgress={progressData.ingestSheetValidationProgress}
+              percentComplete={
+                progressData.ingestSheetValidationProgress.percentComplete
+              }
               subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
             />
           )}

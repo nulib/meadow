@@ -7,91 +7,60 @@ import {
   SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
   START_VALIDATION,
 } from "./ingestSheet.gql";
-import { withRouter } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 
 function IngestSheetValidations({
+  percentComplete,
   sheetId,
-  initialProgress,
   subscribeToIngestSheetValidationProgress,
   status,
 }) {
-  const [progress, setProgress] = useState({ states: [] });
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
-
-  // console.log("\nIngestSheetValidations() initialProgress", initialProgress);
-  // console.log("IngestSheetValidations() status", status);
+  const isValidating = status === "UPLOADED";
 
   useEffect(() => {
-    //console.log("Validations() useEffect()");
-    setProgress(initialProgress);
+    // Kick off the subscription
     subscribeToIngestSheetValidationProgress({
       document: SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
       variables: { sheetId },
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 }),
     });
 
-    //console.log("Validations() useEffect() calls startValidation");
     startValidation({ variables: { id: sheetId } });
   }, []);
 
   const handleProgressUpdate = (prev, { subscriptionData }) => {
-    //console.log("Validations() handleProgressUpdate", prev, subscriptionData);
     if (!subscriptionData.data) return prev;
 
-    const progress = subscriptionData.data.ingestSheetValidationProgress;
-    setProgress(progress);
-    return { ingestSheetValidationProgress: progress };
+    // Feed in latest subscription updates to the component
+    return {
+      ingestSheetValidationProgress:
+        subscriptionData.data.ingestSheetValidationProgress.percentComplete,
+    };
   };
 
-  const isFinished = () => {
-    return status !== "UPLOADED";
-  };
-
-  const showProgressBar = () => {
-    if (isFinished()) {
-      return null;
-    }
-    const { percentComplete } = progress;
-    return (
-      <UIProgressBar
-        percentComplete={Number(percentComplete)}
-        label="Please wait for validation"
-      />
-    );
-  };
-
-  const showReport = () => {
-    if (isFinished()) {
-      return (
+  return (
+    <section>
+      {isValidating ? (
+        <UIProgressBar
+          percentComplete={Number(percentComplete)}
+          label="Please wait for validation"
+        />
+      ) : (
         <>
-          <IngestSheetReport
-            progress={progress}
-            status={status}
-            sheetId={sheetId}
-          />
+          <IngestSheetReport status={status} sheetId={sheetId} />
           <p className="notification">
             Currently setting a LIMIT = 100 on the <code>ingestSheetRows</code>{" "}
             query for Ingest stress testing
           </p>
         </>
-      );
-    } else {
-      return <></>;
-    }
-  };
-
-  return (
-    <>
-      <section>
-        {showProgressBar()}
-        {showReport()}
-      </section>
-    </>
+      )}
+    </section>
   );
 }
 
 IngestSheetValidations.propTypes = {
+  percentComplete: PropTypes.number,
   sheetId: PropTypes.string.isRequired,
   status: PropTypes.oneOf([
     "APPROVED",
@@ -102,7 +71,7 @@ IngestSheetValidations.propTypes = {
     "UPLOADED",
     "VALID",
   ]),
-  initialProgress: PropTypes.object.isRequired,
+  subscribeToIngestSheetValidationProgress: PropTypes.func,
 };
 
-export default withRouter(IngestSheetValidations);
+export default IngestSheetValidations;
