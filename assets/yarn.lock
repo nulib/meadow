@@ -27,7 +27,7 @@
     core-js "2.6.0"
     zen-observable "0.8.11"
 
-"@apollo/client@^3.2.5", "@apollo/client@latest":
+"@apollo/client@latest":
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.2.5.tgz#24e0a6faa1d231ab44807af237c6227410c75c4d"
   integrity sha512-zpruxnFMz6K94gs2pqc3sidzFDbQpKT5D6P/J/I9s8ekHZ5eczgnRp6pqXC86Bh7+44j/btpmOT0kwiboyqTnA==
@@ -5282,10 +5282,15 @@ jest-leak-detector@^26.6.1:
     jest-get-type "^26.3.0"
     pretty-format "^26.6.1"
 
-jest-matcher-utils@^26.5.2:
-  version "26.5.2"
-  resolved "https://registry.yarnpkg.com/jest-matcher-utils/-/jest-matcher-utils-26.5.2.tgz#6aa2c76ce8b9c33e66f8856ff3a52bab59e6c85a"
-  integrity sha512-W9GO9KBIC4gIArsNqDUKsLnhivaqf8MSs6ujO/JDcPIQrmY+aasewweXVET8KdrJ6ADQaUne5UzysvF/RR7JYA==
+jest-localstorage-mock@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/jest-localstorage-mock/-/jest-localstorage-mock-2.4.3.tgz#29a77a892acdbe2303436a5eb28d03997d98a430"
+  integrity sha512-UgifkHKoWVRUoSqO4Z4Z+Hl1NbiYBVDlmkmulFFeRRneGECWAlAdGWJdyz+2NisjOZnnQoxQl0s5dQ7ch62Jxw==
+
+jest-matcher-utils@^26.6.1:
+  version "26.6.1"
+  resolved "https://registry.yarnpkg.com/jest-matcher-utils/-/jest-matcher-utils-26.6.1.tgz#bc90822d352c91c2ec1814731327691d06598400"
+  integrity sha512-9iu3zrsYlUnl8pByhREF9rr5eYoiEb1F7ymNKg6lJr/0qD37LWS5FSW/JcoDl8UdMX2+zAzabDs7sTO+QFKjCg==
   dependencies:
     chalk "^4.0.0"
     jest-diff "^26.6.1"
