@@ -13,10 +13,16 @@ defmodule Meadow.Batches do
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
 
   def batch_update(query, delete, add, replace) do
+    Logger.info("Beginning batch update using query: #{query}")
+    Logger.info("delete: #{inspect(delete)}")
+    Logger.info("add: #{inspect(add)}")
+    Logger.info("replace: #{inspect(replace)}")
+
     Meadow.Repo.transaction(
       fn ->
         process_updates(query, delete, add, replace)
         Indexer.synchronize_index()
+        Logger.info("Batch update complete")
       end,
       timeout: :infinity
     )
@@ -52,6 +58,8 @@ defmodule Meadow.Batches do
     delete = prepare_controlled_field_list(delete)
     add = prepare_controlled_field_list(add)
 
+    Logger.info("Batch updating controlled fields")
+
     from(w in Work, where: w.id in ^work_ids)
     |> Works.replace_controlled_value(
       :descriptive_metadata,
@@ -78,6 +86,8 @@ defmodule Meadow.Batches do
   defp apply_uncontrolled_field_changes([], _add, _replace), do: []
 
   defp apply_uncontrolled_field_changes(work_ids, add, replace) do
+    Logger.info("Batch updating uncontrolled fields")
+
     add = if is_nil(add), do: %{}, else: add
     replace = if is_nil(replace), do: %{}, else: replace
 
@@ -123,6 +133,8 @@ defmodule Meadow.Batches do
   defp update_top_level_field(work_ids, _field, :not_present), do: work_ids
 
   defp update_top_level_field(work_ids, field, value) do
+    Logger.info("Batch updating #{field}")
+
     update_args = Keyword.new([{field, value}, {:updated_at, DateTime.utc_now()}])
 
     from(
@@ -138,6 +150,8 @@ defmodule Meadow.Batches do
   defp update_collection(work_ids, :not_present), do: work_ids
 
   defp update_collection(work_ids, value) do
+    Logger.info("Batch updating collection_id: #{value}")
+
     from(w in Work, where: w.id in ^work_ids)
     |> Repo.update_all(
       set: [
@@ -156,11 +170,20 @@ defmodule Meadow.Batches do
   end
 
   defp process_updates({:ok, %{"_scroll_id" => scroll_id, "hits" => hits}}, delete, add, replace) do
-    hits
-    |> Map.get("hits")
+    current_hits = Map.get(hits, "hits")
+
+    current_hits
     |> Enum.map(&Map.get(&1, "_id"))
     |> apply_controlled_field_changes(delete, add)
     |> apply_uncontrolled_field_changes(add, replace)
+
+    total = Map.get(hits, "total")
+
+    Logger.info(
+      "Indexing for batch update scroll_id: #{scroll_id}, hits: #{length(current_hits)}, total: #{
+        total
+      }"
+    )
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post(
@@ -175,6 +198,8 @@ defmodule Meadow.Batches do
       Jason.decode!(query)
       |> Map.put("_source", "")
       |> Jason.encode!()
+
+    Logger.info("Starting Elasticsearch scroll for batch update")
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
