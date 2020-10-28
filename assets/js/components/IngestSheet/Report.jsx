@@ -30,22 +30,18 @@ function IngestSheetReport({ sheetId, progress, status }) {
 
   const ingestSheetRows = data.ingestSheetRows;
 
-  {
-    /* Don't show if sheet isn't complete */
-  }
-  if (progress.percentComplete === 0) {
+  // Validation is still running, so keep table hidden
+  if (status === "UPLOADED") {
     return null;
   }
 
+  // Render Errors table
   if (sheetHasErrors()) {
     return <IngestSheetErrorsState validations={ingestSheetRows} />;
-  } else {
-    return (
-      <>
-        <IngestSheetUnapprovedState validations={ingestSheetRows} />
-      </>
-    );
   }
+
+  // By default render valid Work groupings
+  return <IngestSheetUnapprovedState validations={ingestSheetRows} />;
 }
 
 IngestSheetReport.propTypes = {

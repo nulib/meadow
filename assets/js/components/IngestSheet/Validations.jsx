@@ -19,7 +19,11 @@ function IngestSheetValidations({
   const [progress, setProgress] = useState({ states: [] });
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
 
+  // console.log("\nIngestSheetValidations() initialProgress", initialProgress);
+  // console.log("IngestSheetValidations() status", status);
+
   useEffect(() => {
+    //console.log("Validations() useEffect()");
     setProgress(initialProgress);
     subscribeToIngestSheetValidationProgress({
       document: SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
@@ -27,10 +31,12 @@ function IngestSheetValidations({
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 }),
     });
 
+    //console.log("Validations() useEffect() calls startValidation");
     startValidation({ variables: { id: sheetId } });
   }, []);
 
   const handleProgressUpdate = (prev, { subscriptionData }) => {
+    //console.log("Validations() handleProgressUpdate", prev, subscriptionData);
     if (!subscriptionData.data) return prev;
 
     const progress = subscriptionData.data.ingestSheetValidationProgress;

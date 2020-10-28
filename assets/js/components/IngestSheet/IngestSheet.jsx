@@ -13,11 +13,7 @@ import IngestSheetCompleted from "./Completed";
  * Refer to latest values to clarify this component's logic.
  */
 
-const IngestSheet = ({
-  ingestSheetData,
-  projectId,
-  subscribeToIngestSheetUpdates,
-}) => {
+const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
 
   const {
@@ -29,6 +25,9 @@ const IngestSheet = ({
     variables: { sheetId: id },
     fetchPolicy: "network-only",
   });
+
+  //console.log("\nIngestSheet() => progressData", progressData);
+  //console.log("IngestSheet() => status", status);
 
   useEffect(() => {
     subscribeToIngestSheetUpdates();
