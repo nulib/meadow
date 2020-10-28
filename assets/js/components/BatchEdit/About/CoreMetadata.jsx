@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
-import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";
-import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
-  const {
-    loading: rightsStatementsLoading,
-    error: rightsStatementsError,
-    data: rightsStatementsData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "RIGHTS_STATEMENT" },
-  });
+  const codeLists = useCodeLists();
 
   const {
     loading: collectionLoading,
@@ -90,24 +83,18 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
       <div className="column is-half">
         <UIFormField label="Rights Statement">
-          <div className="select" data-testid="rights-statement">
-            <select name="rightsStatement" ref={register()}>
-              <option value="">-- Select --</option>
-              {rightsStatementsData &&
-                rightsStatementsData.codeList.map((item) => (
-                  <option
-                    key={item.id}
-                    value={JSON.stringify({
-                      id: item.id,
-                      scheme: "RIGHTS_STATEMENT",
-                      label: item.label,
-                    })}
-                  >
-                    {item.label}
-                  </option>
-                ))}
-            </select>
-          </div>
+          <UIFormSelect
+            isReactHookForm
+            name="rightsStatement"
+            label="Rights Statement"
+            options={
+              codeLists.rightsStatementData
+                ? codeLists.rightsStatementData.codeList
+                : []
+            }
+            data-testid="rights-statement"
+            showHelper
+          />
         </UIFormField>
       </div>
       <div className="column is-full">

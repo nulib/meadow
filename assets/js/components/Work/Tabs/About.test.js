@@ -3,27 +3,19 @@ import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent, waitFor } from "@testing-library/react";
-import {
-  codeListAuthorityMock,
-  codeListLicenseMock,
-  codeListMarcRelatorMock,
-  codeListRelatedUrlMock,
-  codeListRightsStatementMock,
-  codeListSubjectRoleMock,
-} from "../controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work About tab component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabsAbout work={mockWork} />, {
-      mocks: [
-        codeListAuthorityMock,
-        codeListLicenseMock,
-        codeListMarcRelatorMock,
-        codeListRelatedUrlMock,
-        codeListRightsStatementMock,
-        codeListSubjectRoleMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <WorkTabsAbout work={mockWork} />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   }
 
   it("renders without crashing", async () => {

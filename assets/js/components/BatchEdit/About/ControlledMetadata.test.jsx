@@ -8,11 +8,7 @@ import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import { CONTROLLED_METADATA } from "../../../services/metadata";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
-import {
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-  codeListSubjectRoleMock,
-} from "@js/components/Work/controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("BatchEditAboutControlledMetadata component", () => {
   beforeEach(() => {
@@ -25,14 +21,11 @@ describe("BatchEditAboutControlledMetadata component", () => {
         </CodeListProvider>
       </BatchProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListMarcRelatorMock,
-          codeListSubjectRoleMock,
-        ],
+        mocks: allCodeListMocks,
       }
     );
   });
+
   it("renders controlled metadata component", async () => {
     expect(await screen.findByTestId("controlled-metadata"));
   });

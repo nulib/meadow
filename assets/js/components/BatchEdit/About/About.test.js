@@ -2,14 +2,7 @@ import React from "react";
 import { waitFor } from "@testing-library/react";
 import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
-import {
-  codeListAuthorityMock,
-  codeListLicenseMock,
-  codeListMarcRelatorMock,
-  codeListRelatedUrlMock,
-  codeListRightsStatementMock,
-  codeListSubjectRoleMock,
-} from "../../Work/controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "../../Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
@@ -25,15 +18,7 @@ describe("BatchEditAbout component", () => {
         </CodeListProvider>
       </BatchProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListLicenseMock,
-          codeListMarcRelatorMock,
-          codeListRelatedUrlMock,
-          codeListRightsStatementMock,
-          codeListSubjectRoleMock,
-          getCollectionsMock,
-        ],
+        mocks: [...allCodeListMocks, getCollectionsMock],
       }
     );
   }

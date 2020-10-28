@@ -3,33 +3,12 @@ import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import { IDENTIFIER_METADATA } from "../../../services/metadata";
-import { useQuery } from "@apollo/client";
-import { CODE_LIST_QUERY } from "../../Work/controlledVocabulary.gql.js";
-import UISkeleton from "../../UI/Skeleton";
-import UIError from "../../UI/Error";
 import UIFormRelatedURL from "../../UI/Form/RelatedURL";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const BatchEditAboutIdentifiersMetadata = ({ ...restProps }) => {
-  const { data: relatedUrlData, loading, relatedUrlErrors } = useQuery(
-    CODE_LIST_QUERY,
-    {
-      variables: { scheme: "RELATED_URL" },
-    }
-  );
-  if (loading) return <UISkeleton rows={20} />;
-  if (relatedUrlErrors)
-    return (
-      <div>
-        <UIError error={relatedUrlErrors} />
-      </div>
-    );
-  if (!relatedUrlData) {
-    return (
-      <div>
-        <UIError error={{ message: "No Related URL data" }} />
-      </div>
-    );
-  }
+  const codeLists = useCodeLists();
+
   return (
     <div
       className="columns is-multiline"
@@ -44,7 +23,9 @@ const BatchEditAboutIdentifiersMetadata = ({ ...restProps }) => {
       <div className="column is-full" data-testid="relatedUrl">
         <UIFormField label="Related URL">
           <UIFormRelatedURL
-            codeLists={relatedUrlData.codeList}
+            codeLists={
+              codeLists.relatedUrlData ? codeLists.relatedUrlData.codeList : []
+            }
             label="Related URL"
             name="relatedUrl"
           />

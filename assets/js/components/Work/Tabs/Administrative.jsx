@@ -9,7 +9,6 @@ import { useForm, FormProvider } from "react-hook-form";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
-import { CODE_LIST_QUERY } from "../controlledVocabulary.gql.js";
 import UICodedTermItem from "../../UI/CodedTerm/Item";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
@@ -20,11 +19,12 @@ import {
   prepFieldArrayItemsForPost,
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAdministrative = ({ work }) => {
   const { id, administrativeMetadata, collection, published } = work;
   const [isEditing, setIsEditing] = useIsEditing();
-
+  const codeLists = useCodeLists();
   const {
     data: collectionsData,
     loading: collectionsLoading,
@@ -70,34 +70,6 @@ const WorkTabsAdministrative = ({ work }) => {
     });
   }, [work]);
 
-  // Get select dropdown options.  Need a better way to organize this
-  const {
-    loading: libraryUnitLoading,
-    error: libraryUnitError,
-    data: libraryUnitData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "LIBRARY_UNIT" },
-  });
-  const {
-    loading: preservationLevelsLoading,
-    error: preservationLevelsError,
-    data: preservationLevelsData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "PRESERVATION_LEVEL" },
-  });
-  const {
-    loading: statusLoading,
-    error: statusError,
-    data: statusData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "STATUS" },
-  });
-  const {
-    loading: visibilityLoading,
-    error: visibilityError,
-    data: visibilityData,
-  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
-
   const onSubmit = (data) => {
     let currentFormValues = methods.getValues();
 
@@ -135,25 +107,11 @@ const WorkTabsAdministrative = ({ work }) => {
     });
   };
 
-  if (
-    collectionsLoading ||
-    libraryUnitLoading ||
-    preservationLevelsLoading ||
-    statusLoading ||
-    visibilityLoading ||
-    updateWorkLoading
-  ) {
+  if (collectionsLoading || updateWorkLoading) {
     <UISkeleton rows={10} />;
   }
 
-  if (
-    collectionsError ||
-    libraryUnitError ||
-    preservationLevelsError ||
-    statusError ||
-    visibilityError ||
-    updateWorkError
-  ) {
+  if (collectionsError || updateWorkError) {
     return (
       <p className="notification is-danger">
         There was an error loading GraphQL data on the Work Administrative tab
@@ -232,7 +190,11 @@ const WorkTabsAdministrative = ({ work }) => {
                     name="libraryUnit"
                     showHelper={true}
                     label="Library Unit"
-                    options={libraryUnitData.codeList}
+                    options={
+                      codeLists.libraryUnitData
+                        ? codeLists.libraryUnitData.codeList
+                        : []
+                    }
                     defaultValue={libraryUnit ? libraryUnit.id : ""}
                     required={work.published}
                   />
@@ -248,7 +210,11 @@ const WorkTabsAdministrative = ({ work }) => {
                     name="preservationLevel"
                     showHelper={true}
                     label="Preservation Level"
-                    options={preservationLevelsData.codeList}
+                    options={
+                      codeLists.preservationLevelData
+                        ? codeLists.preservationLevelData.codeList
+                        : []
+                    }
                     defaultValue={preservationLevel ? preservationLevel.id : ""}
                     required={work.published}
                   />
@@ -269,7 +235,9 @@ const WorkTabsAdministrative = ({ work }) => {
                     name="status"
                     label="Status"
                     showHelper={true}
-                    options={statusData.codeList}
+                    options={
+                      codeLists.statusData ? codeLists.statusData.codeList : []
+                    }
                     defaultValue={status ? status.id : ""}
                     required={work.published}
                   />
@@ -290,7 +258,11 @@ const WorkTabsAdministrative = ({ work }) => {
                     name="visibility"
                     label="Visibility"
                     showHelper={true}
-                    options={visibilityData.codeList}
+                    options={
+                      codeLists.visibilityData
+                        ? codeLists.visibilityData.codeList
+                        : []
+                    }
                     defaultValue={work.visibility ? work.visibility.id : ""}
                   />
                 ) : (

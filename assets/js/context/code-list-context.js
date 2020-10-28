@@ -16,6 +16,28 @@ function CodeListProvider({ children }) {
     throw new Error("Error getting authority data");
   }
 
+  // GET LIBRARY UNIT
+  const {
+    data: libraryUnitData,
+    error: libraryUnitError,
+    loading: libraryUnitLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "LIBRARY_UNIT" } });
+
+  if (libraryUnitError) {
+    throw new Error("Error getting library unit data");
+  }
+
+  // GET LICENSE DATA
+  const {
+    data: licenseData,
+    error: licenseError,
+    loading: licenseLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "LICENSE" } });
+
+  if (licenseError) {
+    throw new Error("Error getting license data");
+  }
+
   // GET MARC_RELATOR DATA
   const {
     data: marcData,
@@ -25,6 +47,52 @@ function CodeListProvider({ children }) {
 
   if (marcError) {
     throw new Error("Error getting marc data");
+  }
+
+  // GET PRESERVATION_LEVEL DATA
+  const {
+    data: preservationLevelData,
+    error: preservationLevelError,
+    loading: preservationLevelLoading,
+  } = useQuery(CODE_LIST_QUERY, {
+    variables: { scheme: "PRESERVATION_LEVEL" },
+  });
+
+  if (preservationLevelError) {
+    throw new Error("Error getting preservation level data");
+  }
+
+  // GET RELATED_URL
+  const {
+    data: relatedUrlData,
+    error: relatedUrlError,
+    loading: relatedUrlLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "RELATED_URL" } });
+
+  if (relatedUrlError) {
+    throw new Error("Error getting related url data");
+  }
+
+  // GET RIGHTS STATEMENT
+  const {
+    data: rightsStatementData,
+    error: rightsStatementError,
+    loading: rightsStatementLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "RIGHTS_STATEMENT" } });
+
+  if (rightsStatementError) {
+    throw new Error("Error getting rights statement data");
+  }
+
+  // GET STATUS DATA
+  const {
+    data: statusData,
+    error: statusError,
+    loading: statusLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "STATUS" } });
+
+  if (statusError) {
+    throw new Error("Error getting status data");
   }
 
   // GET SUBJECT_ROLE DATA
@@ -38,13 +106,42 @@ function CodeListProvider({ children }) {
     throw new Error("Error getting subject role data");
   }
 
+  // GET VISIBILITY DATA
+  const {
+    data: visibilityData,
+    error: visibilityError,
+    loading: visibilityLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "VISIBILITY" } });
+
+  if (visibilityError) {
+    throw new Error("Error getting visibility data");
+  }
+
   return (
     <CodeListContext.Provider
       value={{
         authorityData,
+        libraryUnitData,
+        licenseData,
         marcData,
+        preservationLevelData,
+        relatedUrlData,
+        rightsStatementData,
+        statusData,
         subjectRoleData,
-        isLoading: authorityLoading || marcLoading || subjectRoleLoading,
+        visibilityData,
+        isLoading: Boolean(
+          authorityLoading ||
+            libraryUnitLoading ||
+            licenseLoading ||
+            marcLoading ||
+            preservationLevelLoading ||
+            relatedUrlLoading ||
+            rightsStatementLoading ||
+            statusLoading ||
+            subjectRoleLoading ||
+            visibilityLoading
+        ),
       }}
     >
       {children}

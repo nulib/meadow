@@ -5,18 +5,22 @@ import {
   withReactHookForm,
 } from "../../../services/testing-helpers";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
-import { codeListRightsStatementMock } from "../../Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("BatchEditAboutCoreMetadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(BatchEditAboutCoreMetadata);
     return renderWithRouterApollo(
-      <BatchProvider value={null}>
-        <Wrapped />
-      </BatchProvider>,
+      <CodeListProvider>
+        <BatchProvider value={null}>
+          <Wrapped />
+        </BatchProvider>
+        ,
+      </CodeListProvider>,
       {
-        mocks: [codeListRightsStatementMock],
+        mocks: allCodeListMocks,
       }
     );
   });

@@ -6,7 +6,8 @@ import {
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutCoreMetadata from "./CoreMetadata";
 import { waitFor } from "@testing-library/react";
-import { codeListRightsStatementMock } from "../../controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("WorkTabsAboutCoreMetadata component", () => {
   function setupTests() {
@@ -14,9 +15,14 @@ describe("WorkTabsAboutCoreMetadata component", () => {
       isEditing: true,
       descriptiveMetadata: mockWork.descriptiveMetadata,
     });
-    return renderWithRouterApollo(<Wrapped />, {
-      mocks: [codeListRightsStatementMock],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   }
 
   it("renders the component", async () => {

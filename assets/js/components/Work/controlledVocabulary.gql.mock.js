@@ -1,5 +1,6 @@
 import { CODE_LIST_QUERY } from "./controlledVocabulary.gql";
 import { makeReference } from "@apollo/client";
+import { mockAuthoritiesSearch } from "@js/client-local";
 
 export const marcRelatorMock = [
   {
@@ -287,3 +288,16 @@ export const codeListVisibilityMock = {
     },
   },
 };
+
+export const allCodeListMocks = [
+  codeListAuthorityMock,
+  codeListLibraryUnitMock,
+  codeListLicenseMock,
+  codeListMarcRelatorMock,
+  codeListPreservationLevelMock,
+  codeListRelatedUrlMock,
+  codeListRightsStatementMock,
+  codeListStatusMock,
+  codeListSubjectRoleMock,
+  codeListVisibilityMock,
+];

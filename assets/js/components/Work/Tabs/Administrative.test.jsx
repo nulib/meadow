@@ -4,32 +4,26 @@ import { mockWork } from "../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
-import {
-  codeListLibraryUnitMock,
-  codeListPreservationLevelMock,
-  codeListStatusMock,
-  codeListVisibilityMock,
-} from "../controlledVocabulary.gql.mock";
 import userEvent from "@testing-library/user-event";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work Administrative tab component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabsAdministrative work={mockWork} />, {
-      mocks: [
-        getCollectionsMock,
-        getCollectionsMock,
-        codeListLibraryUnitMock,
-        codeListPreservationLevelMock,
-        codeListStatusMock,
-        codeListVisibilityMock,
-      ],
-    });
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <WorkTabsAdministrative work={mockWork} />
+      </CodeListProvider>,
+      {
+        mocks: [getCollectionsMock, getCollectionsMock, ...allCodeListMocks],
+      }
+    );
   }
 
   it("renders without crashing", async () => {
     const { getByTestId } = setupTests();
     await waitFor(() => {
-      expect(getByTestId("work-administrative-form")).toBeInTheDocument();
+      expect(screen.getByTestId("work-administrative-form"));
     });
   });
 

@@ -27,7 +27,6 @@ import {
   UNCONTROLLED_METADATA,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
-import { CodeListProvider } from "@js/context/code-list-context";
 
 const WorkTabsAbout = ({ work }) => {
   // Initialize React Hook Form
@@ -239,12 +238,10 @@ const WorkTabsAbout = ({ work }) => {
           {updateWorkLoading ? (
             <UISkeleton rows={10} />
           ) : (
-            <CodeListProvider>
-              <WorkTabsAboutControlledMetadata
-                descriptiveMetadata={descriptiveMetadata}
-                isEditing={isEditing}
-              />
-            </CodeListProvider>
+            <WorkTabsAboutControlledMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
           )}
         </UIAccordion>
         <UIAccordion

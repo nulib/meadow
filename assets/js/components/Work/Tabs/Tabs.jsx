@@ -4,6 +4,7 @@ import WorkTabStructure from "./Structure/Structure";
 import WorkTabsAdministrative from "./Administrative";
 import WorkTabsPreservation from "./Preservation";
 import { IIIFProvider } from "../../IIIF/IIIFProvider";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -16,7 +17,7 @@ const WorkTabs = ({ work }) => {
   }
 
   return (
-    <>
+    <CodeListProvider>
       <IIIFProvider>
         <div className="tabs is-centered is-boxed" data-testid="tabs">
           <ul>
@@ -91,7 +92,7 @@ const WorkTabs = ({ work }) => {
           </div>
         </div>
       </IIIFProvider>
-    </>
+    </CodeListProvider>
   );
 };
 

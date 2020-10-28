@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
 import UITagNotYetSupported from "../../../UI/TagNotYetSupported";
 import UIInput from "../../../UI/Form/Input";
 import UIFormTextarea from "../../../UI/Form/Textarea";
@@ -9,20 +8,14 @@ import UIFormSelect from "../../../UI/Form/Select";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
-import { CODE_LIST_QUERY } from "../../controlledVocabulary.gql.js";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
   isEditing,
   published,
 }) => {
-  const {
-    loading: rightsStatementsLoading,
-    error: rightsStatementsError,
-    data: rightsStatementsData,
-  } = useQuery(CODE_LIST_QUERY, {
-    variables: { scheme: "RIGHTS_STATEMENT" },
-  });
+  const codeLists = useCodeLists();
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
@@ -89,7 +82,9 @@ const WorkTabsAboutCoreMetadata = ({
               showHelper={true}
               data-testid="rights-statement"
               options={
-                rightsStatementsData ? rightsStatementsData.codeList : []
+                codeLists.rightsStatementData
+                  ? codeLists.rightsStatementData.codeList
+                  : []
               }
               defaultValue={
                 descriptiveMetadata.rightsStatement

@@ -4,34 +4,10 @@ import { fireEvent, waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
-import {
-  codeListAuthorityMock,
-  codeListLicenseMock,
-  codeListLibraryUnitMock,
-  codeListMarcRelatorMock,
-  codeListPreservationLevelMock,
-  codeListRightsStatementMock,
-  codeListStatusMock,
-  codeListSubjectRoleMock,
-  codeListVisibilityMock,
-  codeListRelatedUrlMock,
-} from "../controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "../controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 
-const mocks = [
-  codeListAuthorityMock,
-  codeListLicenseMock,
-  codeListLibraryUnitMock,
-  codeListMarcRelatorMock,
-  codeListPreservationLevelMock,
-  codeListRightsStatementMock,
-  codeListStatusMock,
-  codeListSubjectRoleMock,
-  codeListVisibilityMock,
-  getCollectionsMock,
-  iiifServerUrlMock,
-  codeListRelatedUrlMock,
-];
+const mocks = [...allCodeListMocks, getCollectionsMock, iiifServerUrlMock];
 
 describe("Tabs component", () => {
   function setupTests() {
@@ -46,11 +22,11 @@ describe("Tabs component", () => {
     const { getByTestId } = setupTests();
 
     await waitFor(() => {
-      expect(getByTestId("tabs")).toBeInTheDocument();
-      expect(getByTestId("tab-about")).toBeInTheDocument();
-      expect(getByTestId("tab-administrative")).toBeInTheDocument();
-      expect(getByTestId("tab-structure")).toBeInTheDocument();
-      expect(getByTestId("tab-preservation")).toBeInTheDocument();
+      expect(getByTestId("tabs"));
+      expect(getByTestId("tab-about"));
+      expect(getByTestId("tab-administrative"));
+      expect(getByTestId("tab-structure"));
+      expect(getByTestId("tab-preservation"));
     });
   });
 

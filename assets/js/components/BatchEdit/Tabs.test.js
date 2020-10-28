@@ -2,18 +2,7 @@ import React from "react";
 import BatchEditTabs from "./Tabs";
 import { waitFor } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import {
-  codeListAuthorityMock,
-  codeListLicenseMock,
-  codeListMarcRelatorMock,
-  codeListRelatedUrlMock,
-  codeListRightsStatementMock,
-  codeListLibraryUnitMock,
-  codeListPreservationLevelMock,
-  codeListStatusMock,
-  codeListVisibilityMock,
-  codeListSubjectRoleMock,
-} from "../Work/controlledVocabulary.gql.mock.js";
+import { allCodeListMocks } from "../Work/controlledVocabulary.gql.mock.js";
 import { getCollectionsMock } from "../Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
 
@@ -26,19 +15,7 @@ describe("BatchEditTabs component", () => {
         <BatchEditTabs items={items} />
       </BatchProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListLicenseMock,
-          codeListMarcRelatorMock,
-          codeListRelatedUrlMock,
-          codeListRightsStatementMock,
-          codeListLibraryUnitMock,
-          codeListPreservationLevelMock,
-          codeListStatusMock,
-          codeListVisibilityMock,
-          codeListSubjectRoleMock,
-          getCollectionsMock,
-        ],
+        mocks: [...allCodeListMocks, getCollectionsMock],
       }
     );
   }
