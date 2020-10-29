@@ -108,10 +108,6 @@ export const GET_INGEST_SHEET_ROW_VALIDATION_ERRORS = gql`
 export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
   query IngestSheetValidationProgress($sheetId: ID!) {
     ingestSheetValidationProgress(id: $sheetId) {
-      states {
-        state
-        count
-      }
       percentComplete
     }
   }
