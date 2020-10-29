@@ -12,6 +12,8 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
+  require Logger
+
   @doc """
   Creates a sheet.
 
@@ -165,6 +167,8 @@ defmodule Meadow.Ingest.Sheets do
 
   """
   def update_ingest_sheet_status(%Sheet{} = ingest_sheet, status) do
+    Logger.info("Updating ingest sheet: #{ingest_sheet.id}, status to #{status}")
+
     ingest_sheet
     |> Sheet.status_changeset(%{status: status})
     |> Repo.update()
