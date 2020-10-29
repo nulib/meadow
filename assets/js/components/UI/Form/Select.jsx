@@ -2,6 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const selectOptionCss = css`
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
+`;
+
 const UIFormSelect = ({
   isReactHookForm,
   name,
@@ -32,11 +40,16 @@ const UIFormSelect = ({
           defaultValue={defaultValue}
           {...passedInProps}
         >
-          {showHelper && <option value="">-- Select --</option>}
+          {showHelper && (
+            <option value="" css={selectOptionCss}>
+              -- Select --
+            </option>
+          )}
           {options.map((option) => (
             <option
               key={option.id || option.value}
               value={option.id || option.value}
+              css={selectOptionCss}
             >
               {option.label}
             </option>

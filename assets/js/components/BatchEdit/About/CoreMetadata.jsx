@@ -10,6 +10,13 @@ import UIFormSelect from "../../UI/Form/Select";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const selectOptionCss = css`
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
+`;
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const codeLists = useCodeLists();
@@ -53,12 +60,15 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
         <UIFormField label="Collection">
           <div className="select">
             <select name="collection" ref={register()} data-testid="collection">
-              <option value="">-- Select --</option>
+              <option value="" css={selectOptionCss}>
+                -- Select --
+              </option>
               {collectionData &&
                 collectionData.collections.map((collection) => (
                   <option
                     key={collection.id}
                     value={JSON.stringify(collection)}
+                    css={selectOptionCss}
                   >
                     {collection.title}
                   </option>
