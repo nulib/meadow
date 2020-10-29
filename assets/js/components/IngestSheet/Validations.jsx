@@ -17,6 +17,7 @@ function IngestSheetValidations({
 }) {
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
   const isValidating = status === "UPLOADED";
+  console.log("percentComplete", percentComplete);
 
   useEffect(() => {
     // Kick off the subscription

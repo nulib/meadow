@@ -12,10 +12,10 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
 
   const {
-    data: progressData,
-    loading: progressLoading,
-    error: progressError,
-    subscribeToMore: progressSubscribeToMore,
+    data: validationProgressData,
+    loading: validationProgressLoading,
+    error: validationProgressError,
+    subscribeToMore: validationProgressSubscribeToMore,
   } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
     fetchPolicy: "network-only",
@@ -25,13 +25,13 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (progressError) return <Error error={progressError} />;
+  if (validationProgressError) return <Error error={validationProgressError} />;
 
   const isCompleted = status === "COMPLETED";
 
   return (
     <div className="box">
-      {progressLoading ? (
+      {validationProgressLoading ? (
         <UISkeleton rows={15} />
       ) : (
         <>
@@ -53,9 +53,12 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
               sheetId={id}
               status={status}
               percentComplete={
-                progressData.ingestSheetValidationProgress.percentComplete
+                validationProgressData.ingestSheetValidationProgress
+                  .percentComplete
               }
-              subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
+              subscribeToIngestSheetValidationProgress={
+                validationProgressSubscribeToMore
+              }
             />
           )}
         </>

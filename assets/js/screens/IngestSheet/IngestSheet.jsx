@@ -1,7 +1,5 @@
 import React from "react";
 import Error from "../../components/UI/Error";
-import UILoadingPage from "../../components/UI/LoadingPage";
-import UILoading from "../../components/UI/Loading";
 import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
@@ -51,6 +49,8 @@ const ScreensIngestSheet = ({ match }) => {
     variables: { sheetId },
     fetchPolicy: "network-only",
   });
+
+  console.log("ScreensIngestSheet() sheetData", sheetData);
 
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
@@ -145,9 +145,11 @@ const ScreensIngestSheet = ({ match }) => {
                   variables: { sheetId },
                   updateQuery: (prev, { subscriptionData }) => {
                     if (!subscriptionData.data) return prev;
-                    const updatedSheet =
-                      subscriptionData.data.ingestSheetUpdate;
-                    return { ingestSheet: { ...updatedSheet } };
+                    return {
+                      ingestSheet: {
+                        ...subscriptionData.data.ingestSheetUpdate,
+                      },
+                    };
                   },
                 })
               }

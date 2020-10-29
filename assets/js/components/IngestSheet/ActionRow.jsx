@@ -46,6 +46,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
       },
     }
   );
+
   const [
     approveIngestSheet,
     { loading: approveLoading, error: approveError },
