@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const IngestSheetErrorsState = ({ validations }) => {
-  const rowHasErrors = object =>
+const IngestSheetErrorsState = ({ rows }) => {
+  const rowHasErrors = (object) =>
     object && object.errors && object.errors.length > 0;
   return (
     <>
@@ -17,14 +17,14 @@ const IngestSheetErrorsState = ({ validations }) => {
           </tr>
         </thead>
         <tbody>
-          {validations.map(object => (
+          {rows.map((object) => (
             <tr key={object.row}>
               <td>{object && object.row}</td>
               <td>
                 <span className="tag is-danger">{object && object.state}</span>
               </td>
               <td>
-                {object && object.fields.map(field => field.value).join("; ")}
+                {object && object.fields.map((field) => field.value).join("; ")}
               </td>
               <td>
                 {rowHasErrors(object)
@@ -42,7 +42,7 @@ const IngestSheetErrorsState = ({ validations }) => {
 };
 
 IngestSheetErrorsState.propTypes = {
-  validations: PropTypes.arrayOf(PropTypes.object)
+  rows: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default IngestSheetErrorsState;

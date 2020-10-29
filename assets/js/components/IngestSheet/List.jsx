@@ -50,7 +50,8 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     <div>
       {project.ingestSheets.length === 0 && (
         <p className="notification" data-testid="no-ingest-sheets-notification">
-          No ingest sheets are found.
+          <FontAwesomeIcon icon="info-circle" />{" "}
+          <span className="ml-1">No ingest sheets</span>
         </p>
       )}
 

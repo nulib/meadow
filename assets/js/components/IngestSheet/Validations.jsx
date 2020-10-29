@@ -47,13 +47,7 @@ function IngestSheetValidations({
           label="Please wait for validation"
         />
       ) : (
-        <>
-          <IngestSheetReport status={status} sheetId={sheetId} />
-          <p className="notification">
-            Currently setting a LIMIT = 100 on the <code>ingestSheetRows</code>{" "}
-            query for Ingest stress testing
-          </p>
-        </>
+        <IngestSheetReport status={status} sheetId={sheetId} />
       )}
     </section>
   );

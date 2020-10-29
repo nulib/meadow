@@ -4,37 +4,42 @@ import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
-import {
-  GET_INGEST_SHEET_ROW_VALIDATION_ERRORS,
-  GET_INGEST_SHEET_ROW_VALIDATIONS,
-} from "./ingestSheet.gql";
+import { GET_INGEST_SHEET_ROWS } from "./ingestSheet.gql";
 import UISkeleton from "@js/components/UI/Skeleton";
 
 function IngestSheetReport({ sheetId, status }) {
-  const sheetHasErrors = () => {
-    return ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
+  const hasErrors = ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
+
+  const ingestSheetQueryVars = {
+    sheetId,
+    limit: 100,
+    state: hasErrors ? "FAIL" : "PASS",
   };
 
-  const { loading, error, data } = useQuery(
-    sheetHasErrors()
-      ? GET_INGEST_SHEET_ROW_VALIDATION_ERRORS
-      : GET_INGEST_SHEET_ROW_VALIDATIONS,
-    {
-      variables: { sheetId, limit: 100 },
-      fetchPolicy: "network-only",
-    }
-  );
+  const { loading, error, data } = useQuery(GET_INGEST_SHEET_ROWS, {
+    variables: ingestSheetQueryVars,
+    fetchPolicy: "network-only",
+  });
+
+  console.log("data", data);
 
   if (loading) return <UISkeleton rows={15} />;
   if (error) return <Error error={error} />;
 
-  // Render Errors table
-  if (sheetHasErrors()) {
-    return <IngestSheetErrorsState validations={data.ingestSheetRows} />;
-  }
+  const { ingestSheetRows } = data;
 
-  // By default render valid Work groupings
-  return <IngestSheetUnapprovedState validations={data.ingestSheetRows} />;
+  return (
+    <>
+      {hasErrors ? (
+        <IngestSheetErrorsState rows={ingestSheetRows} />
+      ) : (
+        <IngestSheetUnapprovedState rows={ingestSheetRows} />
+      )}
+      <p className="notification is-italic">
+        * Note: Work/Fileset preview is limited to 100 rows/filesets
+      </p>
+    </>
+  );
 }
 
 IngestSheetReport.propTypes = {
