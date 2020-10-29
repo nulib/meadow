@@ -12,26 +12,28 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
 
   const {
-    data: validationProgressData,
-    loading: validationProgressLoading,
-    error: validationProgressError,
+    data,
+    loading,
+    error,
     subscribeToMore: validationProgressSubscribeToMore,
   } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
     fetchPolicy: "network-only",
   });
 
+  console.log("\ndata", data);
+
   useEffect(() => {
     subscribeToIngestSheetUpdates();
   }, []);
 
-  if (validationProgressError) return <Error error={validationProgressError} />;
+  if (error) return <Error error={error} />;
 
   const isCompleted = status === "COMPLETED";
 
   return (
     <div className="box">
-      {validationProgressLoading ? (
+      {loading ? (
         <UISkeleton rows={15} />
       ) : (
         <>
@@ -53,8 +55,7 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
               sheetId={id}
               status={status}
               percentComplete={
-                validationProgressData.ingestSheetValidationProgress
-                  .percentComplete
+                data.ingestSheetValidationProgress.percentComplete
               }
               subscribeToIngestSheetValidationProgress={
                 validationProgressSubscribeToMore

@@ -4,7 +4,7 @@ import UIProgressBar from "../UI/UIProgressBar";
 import debounce from "lodash.debounce";
 import IngestSheetReport from "./Report";
 import {
-  SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
+  INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION,
   START_VALIDATION,
 } from "./ingestSheet.gql";
 import { useMutation } from "@apollo/client";
@@ -17,23 +17,22 @@ function IngestSheetValidations({
 }) {
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
   const isValidating = status === "UPLOADED";
-  console.log("percentComplete", percentComplete);
+  console.log("\nIngestSheetValidations() percentComplete", percentComplete);
 
   useEffect(() => {
-    // Kick off the subscription
     subscribeToIngestSheetValidationProgress({
-      document: SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS,
+      document: INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION,
       variables: { sheetId },
       updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 }),
     });
-
     startValidation({ variables: { id: sheetId } });
   }, []);
 
+  // This function handles fresh data from the subscription, which
+  // updates the "ingestSheetValidationProgress" query used in the parent component,
+  // which in turn feeds data back into this component
   const handleProgressUpdate = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
-
-    // Feed in latest subscription updates to the component
     return {
       ingestSheetValidationProgress:
         subscriptionData.data.ingestSheetValidationProgress.percentComplete,

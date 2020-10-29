@@ -134,7 +134,7 @@ export const GET_PRESIGNED_URL = gql`
 `;
 
 export const INGEST_PROGRESS_SUBSCRIPTION = gql`
-  subscription IngestProgress($sheetId: ID!) {
+  subscription OnIngestProgress($sheetId: ID!) {
     ingestProgress(sheetId: $sheetId) {
       totalFileSets
       completedFileSets
@@ -176,7 +176,7 @@ export const INGEST_SHEET_QUERY = gql`
 `;
 
 export const INGEST_SHEET_SUBSCRIPTION = gql`
-  subscription SubscribeToIngestSheet($sheetId: ID!) {
+  subscription OnIngestSheetUpdate($sheetId: ID!) {
     ingestSheetUpdate(sheetId: $sheetId) {
       ...IngestSheetParts
     }
@@ -229,8 +229,8 @@ export const START_VALIDATION = gql`
   }
 `;
 
-export const SUBSCRIBE_TO_INGEST_SHEET_VALIDATION_PROGRESS = gql`
-  subscription IngestSheetValidationProgress($sheetId: ID!) {
+export const INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION = gql`
+  subscription OnIngestSheetValidationProgress($sheetId: ID!) {
     ingestSheetValidationProgress(sheetId: $sheetId) {
       states {
         state
