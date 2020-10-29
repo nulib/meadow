@@ -59,10 +59,10 @@ array-union@^2.1.0:
   resolved "https://registry.yarnpkg.com/array-union/-/array-union-2.1.0.tgz#b798420adbeb1de828d84acd8a2e23d3efe85e8d"
   integrity sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==
 
-aws-sdk@^2.443.0, aws-sdk@^2.780.0:
-  version "2.780.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.780.0.tgz#ac88e5222cb4a09385791fbb5a58114ad5abc9c1"
-  integrity sha512-pz/3dJdrkqgJn2YPwu6/VaGBSvYm33wjb6Ic7zSuFPOduqo42Se70BQASNmUg1E8EBqSwsrYEW04f5XGOJ0mMA==
+aws-sdk@^2.443.0, aws-sdk@^2.781.0:
+  version "2.781.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.781.0.tgz#e9df63e9b69c22ac939ab675c8771592ae89105a"
+  integrity sha512-y+Xd+DJJyNgZdPLZytJA8LRR79spD/zXOt0G9Uk68UC9tRDEB8aQysuxWKYEybYCexRqJtTZLCrR3ikYwU099g==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
