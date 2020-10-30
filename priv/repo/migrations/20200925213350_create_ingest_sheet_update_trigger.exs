@@ -9,8 +9,13 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetUpdateTrigger do
       current_sheet_id ingest_sheets.id%TYPE;
       pending integer;
     BEGIN
-      SELECT ingest_sheet_rows.sheet_id INTO current_sheet_id
-      FROM ingest_sheet_rows WHERE ingest_sheet_rows.id = NEW.row_id;
+      IF TG_OP = 'DELETE' THEN
+        SELECT ingest_sheet_rows.sheet_id INTO current_sheet_id
+        FROM ingest_sheet_rows WHERE ingest_sheet_rows.id = OLD.row_id;
+      ELSE
+        SELECT ingest_sheet_rows.sheet_id INTO current_sheet_id
+        FROM ingest_sheet_rows WHERE ingest_sheet_rows.id = NEW.row_id;
+      END IF;
 
       SELECT COUNT(*) INTO pending
       FROM ingest_progress
@@ -23,7 +28,12 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetUpdateTrigger do
         SET status = 'completed', updated_at = NOW() AT TIME ZONE 'utc'
         WHERE ingest_sheets.id = current_sheet_id;
       END IF;
-      RETURN NEW;
+
+      IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+      ELSE
+        RETURN NEW;
+      END IF;
     END;
     $$ LANGUAGE plpgsql
     """

@@ -13,7 +13,7 @@ defmodule Meadow.ReleaseTasks do
   ]
 
   alias Ecto.Adapters.SQL
-  alias Meadow.{IntervalTask, Pipeline}
+  alias Meadow.{BackgroundTask, Pipeline}
   alias Meadow.Utils.Logging
 
   def migrate do
@@ -46,7 +46,7 @@ defmodule Meadow.ReleaseTasks do
   end
 
   def reset! do
-    Enum.each(@modules, &IntervalTask.pause!(&1))
+    Enum.each(@modules, &BackgroundTask.pause!(&1))
 
     for repo <- repos() do
       SQL.query!(
@@ -62,7 +62,7 @@ defmodule Meadow.ReleaseTasks do
     migrate()
     seed()
   after
-    Enum.each(@modules, &IntervalTask.resume!(&1))
+    Enum.each(@modules, &BackgroundTask.resume!(&1))
   end
 
   defp create_storage_for(repo) do

@@ -2,9 +2,9 @@ defmodule Meadow.Ingest.Progress do
   @moduledoc """
   Translate action state notifications into ingest sheet progress notifications
   """
+  alias Meadow.BackgroundTask
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
-  alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
 
@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Progress do
   import Meadow.Utils.Atoms
   import Meadow.Utils.Logging
 
-  use IntervalTask, default_interval: 500, function: :send_progress_notifications
+  use BackgroundTask, default_interval: 500, function: :send_progress_notifications
   require Logger
 
   defstruct sheet_id: nil,

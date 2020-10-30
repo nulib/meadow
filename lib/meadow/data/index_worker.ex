@@ -1,13 +1,13 @@
 defmodule Meadow.Data.IndexWorker do
   @moduledoc """
-  IntervalTask that reindexes
+  BackgroundTask that reindexes
   """
+  alias Meadow.BackgroundTask
   alias Meadow.Data.Indexer
-  alias Meadow.IntervalTask
-  use IntervalTask, default_interval: 120_000, function: :synchronize
+  use BackgroundTask, default_interval: 120_000, function: :synchronize
 
-  @impl IntervalTask
-  def initial_state(_args), do: %{override: true}
+  @impl BackgroundTask
+  def before_init(_args), do: {:ok, %{override: true}}
 
   def synchronize(state) do
     Indexer.synchronize_index()

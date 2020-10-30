@@ -1,15 +1,15 @@
 defmodule Meadow.Ingest.WorkRedriver do
   @moduledoc """
-  IntervalTask to create works from pending ingest sheet rows
+  BackgroundTask to create works from pending ingest sheet rows
   """
   import Ecto.Query, warn: false
   import Meadow.Utils.Logging
 
+  alias Meadow.BackgroundTask
   alias Meadow.Ingest.Progress
-  alias Meadow.IntervalTask
   alias Meadow.Repo
 
-  use IntervalTask, default_interval: 60_000, function: :redrive_works
+  use BackgroundTask, default_interval: 60_000, function: :redrive_works
 
   require Logger
 

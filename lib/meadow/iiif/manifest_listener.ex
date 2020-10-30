@@ -2,36 +2,21 @@ defmodule Meadow.IIIF.ManifestListener do
   @moduledoc """
   Listens to INSERTS/UPDATES on Postgrex.Notifications topic "works_changed" and writes IIIF Manifests to S3
   """
-  use GenServer
+
+  alias Meadow.{BackgroundTask, IIIF}
+  use BackgroundTask, periodic: false
   require Logger
 
-  alias Meadow.IIIF
+  @topic :works_changed
 
-  @topic "works_changed"
-
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]}
-    }
+  @impl BackgroundTask
+  def before_init(_) do
+    Meadow.Repo.listen(to_string(@topic))
+    :ok
   end
 
-  def start_link(opts \\ []),
-    do: GenServer.start_link(__MODULE__, opts)
-
-  @impl true
-  def init(opts) do
-    case Meadow.Repo.listen(@topic) do
-      {:ok, _pid, _ref} ->
-        {:ok, opts}
-
-      error ->
-        {:stop, error}
-    end
-  end
-
-  @impl true
-  def handle_info({:notification, _pid, _ref, @topic, payload}, _state) do
+  @impl BackgroundTask
+  def handle_notification(@topic, payload, state) do
     case Jason.decode(payload, keys: :atoms) do
       {:ok, data} ->
         id = data.record.id
@@ -39,12 +24,10 @@ defmodule Meadow.IIIF.ManifestListener do
 
         id |> IIIF.write_manifest()
 
-        {:noreply, :event_handled}
-
-      error ->
-        {:stop, error, []}
+      _ ->
+        Logger.warn("Unknown payload: #{payload}")
     end
-  end
 
-  def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
+    {:noreply, state}
+  end
 end

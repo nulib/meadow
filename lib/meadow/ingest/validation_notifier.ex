@@ -1,13 +1,13 @@
 defmodule Meadow.Ingest.ValidationNotifier do
   @moduledoc """
-  IntervalTask to send periodic notifications about ingest sheet validation status
+  BackgroundTask to send periodic notifications about ingest sheet validation status
   """
 
+  alias Meadow.BackgroundTask
   alias Meadow.Ingest.{Notifications, Sheets}
-  alias Meadow.IntervalTask
   import Meadow.Utils.Logging
 
-  use IntervalTask, function: :send_validation_notifications, default_interval: 1_000
+  use BackgroundTask, function: :send_validation_notifications, default_interval: 1_000
 
   def send_validation_notifications(state) do
     with_log_level(:info, fn ->

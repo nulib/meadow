@@ -1,26 +1,26 @@
 defmodule Meadow.Ingest.WorkCreator do
   @moduledoc """
-  IntervalTask to create works from pending ingest sheet rows
+  BackgroundTask to create works from pending ingest sheet rows
   """
   import Ecto.Query, warn: false
   import Meadow.Utils.Logging
 
+  alias Meadow.BackgroundTask
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Ingest.Schemas.Row
-  alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
 
-  use IntervalTask, default_interval: 500, function: :create_works
+  use BackgroundTask, default_interval: 500, function: :create_works
 
   require Logger
 
-  @impl IntervalTask
-  def initial_state(args) do
-    %{batch_size: Keyword.get(args, :batch_size, 20)}
+  @impl BackgroundTask
+  def before_init(args) do
+    {:ok, %{batch_size: Keyword.get(args, :batch_size, 20)}}
   end
 
   @doc """
