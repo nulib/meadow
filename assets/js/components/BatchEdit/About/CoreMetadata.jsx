@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
-import UIFormTextarea from "../../UI/Form/Textarea";
 import UIFormField from "../../UI/Form/Field";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import UIFormSelect from "../../UI/Form/Select";

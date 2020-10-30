@@ -84,3 +84,10 @@ table {
 .tag:not(body).is-success.is-light {
   color: $success;
 }
+
+//Select option font-family override for cross-browser consistency
+.select {
+  option {
+    font-family: BlinkMacSystemFont, -apple-system, Arial, sans-serif;
+  }
+}
