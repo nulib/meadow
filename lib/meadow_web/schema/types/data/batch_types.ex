@@ -68,6 +68,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   @desc "Input fields available for batch replace operations on works administrative metadata"
   input_object :batch_replace_administrative_metadata_input do
+    field :library_unit, :coded_term_input
     field :preservation_level, :coded_term_input
     field :status, :coded_term_input
     field :project_cycle, :string
