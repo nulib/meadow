@@ -19,6 +19,7 @@ const Work = ({ work }) => {
           <OpenSeadragonViewer
             manifestUrl={work.manifestUrl}
             options={osdOptions}
+            key={work.manifestUrl}
           />
         </div>
       </section>
