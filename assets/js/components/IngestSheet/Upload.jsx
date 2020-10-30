@@ -27,6 +27,14 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
         history.push(
           `/project/${project.id}/ingest-sheet/${createIngestSheet.id}`
         );
+        toastWrapper(
+          "is-success",
+          `Ingest Sheet ${data.ingest_sheet_title} created successfully`
+        );
+      },
+      onError() {
+        setValues({ file: "" });
+        setFileNameString("No file uploaded");
       },
       refetchQueries(mutationResult) {
         return [
@@ -69,10 +77,6 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
             .join("/")}`,
         },
       });
-      toastWrapper(
-        "is-success",
-        `Ingest Sheet ${data.ingest_sheet_title} created successfully`
-      );
     } else {
       toastWrapper(
         "is-danger",
@@ -103,7 +107,6 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
   const { file } = values;
 
   if (loading) return <Loading />;
-  if (error) return <Error error={error} />;
 
   return (
     <FormProvider {...methods}>
