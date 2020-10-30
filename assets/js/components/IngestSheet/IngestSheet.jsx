@@ -3,35 +3,49 @@ import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import UISkeleton from "../UI/Skeleton";
 import IngestSheetValidations from "./Validations";
-import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.gql";
 import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
+import {
+  INGEST_SHEET_VALIDATION_PROGRESS,
+  INGEST_SHEET_SUBSCRIPTION,
+} from "@js/components/IngestSheet/ingestSheet.gql";
 
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
 
   const {
-    data: progressData,
-    loading: progressLoading,
-    error: progressError,
-    subscribeToMore: progressSubscribeToMore,
-  } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
+    data,
+    loading,
+    error,
+    subscribeToMore: validationProgressSubscribeToMore,
+  } = useQuery(INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
     fetchPolicy: "network-only",
   });
 
   useEffect(() => {
-    subscribeToIngestSheetUpdates();
+    subscribeToIngestSheetUpdates({
+      document: INGEST_SHEET_SUBSCRIPTION,
+      variables: { sheetId: id },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        return {
+          ingestSheet: {
+            ...subscriptionData.data.ingestSheetUpdate,
+          },
+        };
+      },
+    });
   }, []);
 
-  if (progressError) return <Error error={progressError} />;
+  if (error) return <Error error={error} />;
 
   const isCompleted = status === "COMPLETED";
 
   return (
     <div className="box">
-      {progressLoading ? (
+      {loading ? (
         <UISkeleton rows={15} />
       ) : (
         <>
@@ -53,9 +67,11 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
               sheetId={id}
               status={status}
               percentComplete={
-                progressData.ingestSheetValidationProgress.percentComplete
+                data.ingestSheetValidationProgress.percentComplete
               }
-              subscribeToIngestSheetValidationProgress={progressSubscribeToMore}
+              subscribeToIngestSheetValidationProgress={
+                validationProgressSubscribeToMore
+              }
             />
           )}
         </>

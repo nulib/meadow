@@ -1,7 +1,5 @@
 import React from "react";
 import Error from "../../components/UI/Error";
-import UILoadingPage from "../../components/UI/LoadingPage";
-import UILoading from "../../components/UI/Loading";
 import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
@@ -43,10 +41,10 @@ const ScreensIngestSheet = ({ match }) => {
   });
 
   const {
-    subscribeToMore,
     data: sheetData,
     loading: sheetLoading,
     error: sheetError,
+    subscribeToMore: sheetSubscribeToMore,
   } = useQuery(INGEST_SHEET_QUERY, {
     variables: { sheetId },
     fetchPolicy: "network-only",
@@ -139,18 +137,7 @@ const ScreensIngestSheet = ({ match }) => {
             <IngestSheet
               ingestSheetData={sheetData.ingestSheet}
               projectId={id}
-              subscribeToIngestSheetUpdates={() =>
-                subscribeToMore({
-                  document: INGEST_SHEET_SUBSCRIPTION,
-                  variables: { sheetId },
-                  updateQuery: (prev, { subscriptionData }) => {
-                    if (!subscriptionData.data) return prev;
-                    const updatedSheet =
-                      subscriptionData.data.ingestSheetUpdate;
-                    return { ingestSheet: { ...updatedSheet } };
-                  },
-                })
-              }
+              subscribeToIngestSheetUpdates={sheetSubscribeToMore}
             />
           )}
         </div>

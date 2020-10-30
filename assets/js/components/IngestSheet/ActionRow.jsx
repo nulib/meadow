@@ -3,7 +3,7 @@ import UIModalDelete from "../UI/Modal/Delete";
 import {
   DELETE_INGEST_SHEET,
   APPROVE_INGEST_SHEET,
-  GET_INGEST_SHEETS,
+  INGEST_SHEETS,
 } from "./ingestSheet.gql";
 import { useMutation, useApolloClient } from "@apollo/client";
 import PropTypes from "prop-types";
@@ -22,7 +22,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
       update(cache, { data: { deleteIngestSheet } }) {
         try {
           const { project } = client.readQuery({
-            query: GET_INGEST_SHEETS,
+            query: INGEST_SHEETS,
             variables: { projectId },
           });
           const index = project.ingestSheets.findIndex(
@@ -30,7 +30,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
           );
           project.ingestSheets.splice(index, 1);
           client.writeQuery({
-            query: GET_INGEST_SHEETS,
+            query: INGEST_SHEETS,
             data: { project },
           });
         } catch (error) {
@@ -46,6 +46,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
       },
     }
   );
+
   const [
     approveIngestSheet,
     { loading: approveLoading, error: approveError },

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-const IngestSheetUnapprovedState = ({ validations }) => {
+const IngestSheetUnapprovedState = ({ rows }) => {
   const [groupings, setGroupings] = useState();
 
   useEffect(() => {
-    orderRows(validations);
-  }, [validations]);
+    orderRows(rows);
+  }, [rows]);
 
-  function orderRows(validations = []) {
+  function orderRows(rows = []) {
     const workMap = new Map();
 
-    validations.forEach(row => {
+    rows.forEach((row) => {
       const workObj = row.fields.find(
-        field => field.header === "work_accession_number"
+        (field) => field.header === "work_accession_number"
       );
       const workAccessionNumber = workObj.value;
       let filesetObj = {};
@@ -23,9 +23,9 @@ const IngestSheetUnapprovedState = ({ validations }) => {
       }
 
       const otherFields = row.fields.filter(
-        field => field.header !== "work_accession_number"
+        (field) => field.header !== "work_accession_number"
       );
-      otherFields.forEach(field => {
+      otherFields.forEach((field) => {
         filesetObj[field.header] = field.value;
       });
 
@@ -41,7 +41,7 @@ const IngestSheetUnapprovedState = ({ validations }) => {
       // so React can display the results
       const groupingsArray = [...groupings];
 
-      return groupingsArray.map(grouping => {
+      return groupingsArray.map((grouping) => {
         const work = grouping[0];
         const filesets = grouping[1];
 
@@ -79,7 +79,7 @@ const IngestSheetUnapprovedState = ({ validations }) => {
 };
 
 IngestSheetUnapprovedState.propTypes = {
-  validations: PropTypes.arrayOf(PropTypes.object)
+  rows: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default IngestSheetUnapprovedState;
