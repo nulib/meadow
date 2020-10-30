@@ -71,7 +71,7 @@ const ScreensBatchEdit = () => {
                 ) : (
                   <div>
                     <p
-                      className="notification is-warning mt-5"
+                      className="notification is-warning is-light mt-5"
                       data-testid="batch-edit-preview-notification"
                     >
                       <span className="icon">

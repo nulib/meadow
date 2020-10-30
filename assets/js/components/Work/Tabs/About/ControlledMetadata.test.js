@@ -4,11 +4,7 @@ import { mockWork } from "../../work.gql.mock";
 import WorkTabsAboutControlledMetadata from "./ControlledMetadata";
 import { waitFor } from "@testing-library/react";
 import { CodeListProvider } from "@js/context/code-list-context";
-import {
-  codeListAuthorityMock,
-  codeListMarcRelatorMock,
-  codeListSubjectRoleMock,
-} from "@js/components/Work/controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("Work About tab Controlled Metadata component", () => {
   function setupTests() {
@@ -19,11 +15,7 @@ describe("Work About tab Controlled Metadata component", () => {
         />
       </CodeListProvider>,
       {
-        mocks: [
-          codeListAuthorityMock,
-          codeListMarcRelatorMock,
-          codeListSubjectRoleMock,
-        ],
+        mocks: allCodeListMocks,
       }
     );
   }

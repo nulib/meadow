@@ -43,7 +43,7 @@ const BatchEditConfirmation = ({
     },
     onError(error) {
       console.log("onError() error", error);
-      toastWrapper("is-danger", error);
+      toastWrapper("is-danger", error.toString());
       handleClose();
     },
   });

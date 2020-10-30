@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BatchEditAbout from "./About/About";
 import BatchEditAdministrative from "./Administrative/Administrative";
-import PropTypes from "prop-types";
 import { CodeListProvider } from "@js/context/code-list-context";
 
 export default function BatchEditTabs() {
