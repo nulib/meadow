@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
-import { GET_INGEST_SHEET_ROWS } from "./ingestSheet.gql";
+import { INGEST_SHEET_ROWS } from "./ingestSheet.gql";
 import UISkeleton from "@js/components/UI/Skeleton";
 
 function IngestSheetReport({ sheetId, status }) {
@@ -16,12 +16,10 @@ function IngestSheetReport({ sheetId, status }) {
     state: hasErrors ? "FAIL" : "PASS",
   };
 
-  const { loading, error, data } = useQuery(GET_INGEST_SHEET_ROWS, {
+  const { loading, error, data } = useQuery(INGEST_SHEET_ROWS, {
     variables: ingestSheetQueryVars,
     fetchPolicy: "network-only",
   });
-
-  console.log("data", data);
 
   if (loading) return <UISkeleton rows={15} />;
   if (error) return <Error error={error} />;

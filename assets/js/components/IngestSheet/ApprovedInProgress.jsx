@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import UIProgressBar from "../UI/UIProgressBar";
 import PropTypes from "prop-types";
 import { useSubscription } from "@apollo/client";
@@ -20,14 +20,13 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     );
   if (error) {
     console.log(error);
-    return <p>Error: {error.message}</p>;
+    return <p>Error in Ingest Progress Subscription: {error.message}</p>;
   }
 
-  const { ingestProgress } = data;
   return (
     <UIProgressBar
-      percentComplete={Number(ingestProgress.percentComplete)}
-      totalValue={ingestProgress.totalFileSets}
+      percentComplete={Number(data.ingestProgress.percentComplete)}
+      totalValue={data.ingestProgress.totalFileSets}
       isIngest={true}
     />
   );

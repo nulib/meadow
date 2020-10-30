@@ -17,7 +17,6 @@ function IngestSheetValidations({
 }) {
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
   const isValidating = status === "UPLOADED";
-  console.log("\nIngestSheetValidations() percentComplete", percentComplete);
 
   useEffect(() => {
     subscribeToIngestSheetValidationProgress({

@@ -41,16 +41,14 @@ const ScreensIngestSheet = ({ match }) => {
   });
 
   const {
-    subscribeToMore,
     data: sheetData,
     loading: sheetLoading,
     error: sheetError,
+    subscribeToMore: sheetSubscribeToMore,
   } = useQuery(INGEST_SHEET_QUERY, {
     variables: { sheetId },
     fetchPolicy: "network-only",
   });
-
-  console.log("ScreensIngestSheet() sheetData", sheetData);
 
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
@@ -139,20 +137,7 @@ const ScreensIngestSheet = ({ match }) => {
             <IngestSheet
               ingestSheetData={sheetData.ingestSheet}
               projectId={id}
-              subscribeToIngestSheetUpdates={() =>
-                subscribeToMore({
-                  document: INGEST_SHEET_SUBSCRIPTION,
-                  variables: { sheetId },
-                  updateQuery: (prev, { subscriptionData }) => {
-                    if (!subscriptionData.data) return prev;
-                    return {
-                      ingestSheet: {
-                        ...subscriptionData.data.ingestSheetUpdate,
-                      },
-                    };
-                  },
-                })
-              }
+              subscribeToIngestSheetUpdates={sheetSubscribeToMore}
             />
           )}
         </div>

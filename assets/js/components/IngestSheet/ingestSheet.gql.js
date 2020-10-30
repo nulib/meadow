@@ -5,6 +5,8 @@ IngestSheet.fragments = {
   parts: gql`
     fragment IngestSheetParts on IngestSheet {
       fileErrors
+      filename
+      id
       ingestSheetRows {
         errors {
           field
@@ -17,14 +19,12 @@ IngestSheet.fragments = {
         row
         state
       }
-      id
-      title
-      filename
       state {
         name
         state
       }
       status
+      title
     }
   `,
 };
@@ -70,61 +70,6 @@ export const DELETE_INGEST_SHEET = gql`
   }
 `;
 
-export const GET_INGEST_SHEET_ROWS = gql`
-  query IngestSheetRowValidationErrors(
-    $limit: Int
-    $sheetId: ID!
-    $state: [State]
-  ) {
-    ingestSheetRows(limit: $limit, sheetId: $sheetId, state: $state) {
-      row
-      fields {
-        header
-        value
-      }
-      errors {
-        field
-        message
-      }
-      state
-    }
-  }
-`;
-
-export const GET_INGEST_SHEET_STATE = gql`
-  query IngestSheetState($sheetId: ID!) {
-    ingestSheet(id: $sheetId) {
-      id
-      state {
-        title
-        state
-      }
-    }
-  }
-`;
-
-export const GET_INGEST_SHEET_VALIDATION_PROGRESS = gql`
-  query IngestSheetValidationProgress($sheetId: ID!) {
-    ingestSheetValidationProgress(id: $sheetId) {
-      percentComplete
-    }
-  }
-`;
-
-export const GET_INGEST_SHEETS = gql`
-  query GetIngestSheets($projectId: ID!) {
-    project(id: $projectId) {
-      id
-      ingestSheets {
-        id
-        title
-        status
-        updatedAt
-      }
-    }
-  }
-`;
-
 export const GET_PRESIGNED_URL = gql`
   query {
     presignedUrl {
@@ -163,14 +108,35 @@ export const INGEST_SHEET_QUERY = gql`
   query IngestSheetQuery($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
       fileErrors
-      id
-      title
       filename
+      id
       state {
         name
         state
       }
       status
+      title
+    }
+  }
+`;
+
+export const INGEST_SHEET_ROWS = gql`
+  query IngestSheetRowValidationErrors(
+    $limit: Int
+    $sheetId: ID!
+    $state: [State]
+  ) {
+    ingestSheetRows(limit: $limit, sheetId: $sheetId, state: $state) {
+      row
+      fields {
+        header
+        value
+      }
+      errors {
+        field
+        message
+      }
+      state
     }
   }
 `;
@@ -178,10 +144,48 @@ export const INGEST_SHEET_QUERY = gql`
 export const INGEST_SHEET_SUBSCRIPTION = gql`
   subscription OnIngestSheetUpdate($sheetId: ID!) {
     ingestSheetUpdate(sheetId: $sheetId) {
-      ...IngestSheetParts
+      fileErrors
+      filename
+      id
+      state {
+        name
+        state
+      }
+      status
+      title
     }
   }
-  ${IngestSheet.fragments.parts}
+`;
+
+//TODO: Keeping this as a reference, and might switch back to it
+
+// export const INGEST_SHEET_SUBSCRIPTION = gql`
+//   subscription OnIngestSheetUpdate($sheetId: ID!) {
+//     ingestSheetUpdate(sheetId: $sheetId) {
+//       ...IngestSheetParts
+//     }
+//   }
+//   ${IngestSheet.fragments.parts}
+// `;
+
+export const INGEST_SHEET_VALIDATION_PROGRESS = gql`
+  query IngestSheetValidationProgress($sheetId: ID!) {
+    ingestSheetValidationProgress(id: $sheetId) {
+      percentComplete
+    }
+  }
+`;
+
+export const INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION = gql`
+  subscription OnIngestSheetValidationProgress($sheetId: ID!) {
+    ingestSheetValidationProgress(sheetId: $sheetId) {
+      states {
+        state
+        count
+      }
+      percentComplete
+    }
+  }
 `;
 
 export const INGEST_SHEET_WORKS = gql`
@@ -221,22 +225,24 @@ export const INGEST_SHEET_WORKS = gql`
   }
 `;
 
-export const START_VALIDATION = gql`
-  mutation ValidateIngestSheet($id: ID!) {
-    validateIngestSheet(sheetId: $id) {
-      message
+export const INGEST_SHEETS = gql`
+  query GetIngestSheets($projectId: ID!) {
+    project(id: $projectId) {
+      id
+      ingestSheets {
+        id
+        title
+        status
+        updatedAt
+      }
     }
   }
 `;
 
-export const INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION = gql`
-  subscription OnIngestSheetValidationProgress($sheetId: ID!) {
-    ingestSheetValidationProgress(sheetId: $sheetId) {
-      states {
-        state
-        count
-      }
-      percentComplete
+export const START_VALIDATION = gql`
+  mutation ValidateIngestSheet($id: ID!) {
+    validateIngestSheet(sheetId: $id) {
+      message
     }
   }
 `;

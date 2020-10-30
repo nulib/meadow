@@ -3,10 +3,13 @@ import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
 import UISkeleton from "../UI/Skeleton";
 import IngestSheetValidations from "./Validations";
-import { GET_INGEST_SHEET_VALIDATION_PROGRESS } from "./ingestSheet.gql";
 import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
+import {
+  INGEST_SHEET_VALIDATION_PROGRESS,
+  INGEST_SHEET_SUBSCRIPTION,
+} from "@js/components/IngestSheet/ingestSheet.gql";
 
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
@@ -16,15 +19,24 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     loading,
     error,
     subscribeToMore: validationProgressSubscribeToMore,
-  } = useQuery(GET_INGEST_SHEET_VALIDATION_PROGRESS, {
+  } = useQuery(INGEST_SHEET_VALIDATION_PROGRESS, {
     variables: { sheetId: id },
     fetchPolicy: "network-only",
   });
 
-  console.log("\ndata", data);
-
   useEffect(() => {
-    subscribeToIngestSheetUpdates();
+    subscribeToIngestSheetUpdates({
+      document: INGEST_SHEET_SUBSCRIPTION,
+      variables: { sheetId: id },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        return {
+          ingestSheet: {
+            ...subscriptionData.data.ingestSheetUpdate,
+          },
+        };
+      },
+    });
   }, []);
 
   if (error) return <Error error={error} />;
