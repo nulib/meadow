@@ -53,7 +53,7 @@ defmodule Meadow.MixProject do
       {:cachex, "~> 3.2"},
       {:calendar, "~> 1.0.0"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_ranked, "~> 0.5.0"},
