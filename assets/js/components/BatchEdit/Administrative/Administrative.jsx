@@ -46,7 +46,7 @@ const BatchEditAdministrative = () => {
     let multiValues = {};
 
     // Update single value items
-    ["preservationLevel", "status"].forEach((item) => {
+    ["preservationLevel", "status", "libraryUnit"].forEach((item) => {
       if (currentFormValues[item]) {
         replaceItems[item] = JSON.parse(currentFormValues[item]);
       }

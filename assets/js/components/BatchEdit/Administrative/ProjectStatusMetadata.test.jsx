@@ -34,6 +34,7 @@ describe("BatchEditAdministrativeProjectStatusMetadata component", () => {
       "status",
       "visibility",
       "projectCycle",
+      "libraryUnit",
     ];
     for (let item of itemTestIds) {
       expect(screen.getByTestId(item)).toBeInTheDocument();

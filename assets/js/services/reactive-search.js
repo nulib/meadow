@@ -95,6 +95,12 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
+    componentId: "LibraryUnit",
+    dataField: "administrativeMetadata.libraryUnit.label.keyword",
+    title: "Library Unit",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "License",
     dataField: "descriptiveMetadata.license.label.keyword",
     title: "License",
