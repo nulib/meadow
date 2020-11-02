@@ -8,7 +8,9 @@ describe("UIControlledVocabList", () => {
   });
 
   it("renders display value only if id and label passed in", () => {
-    const item1 = render(<UICodedTermItem item={{ label: "Ima label" }} />);
+    const item1 = render(
+      <UICodedTermItem item={{ label: "Ima label", id: "" }} />
+    );
     expect(item1.queryByText("Ima label")).toBeNull();
 
     const item2 = render(

@@ -82,7 +82,29 @@ const BatchEditAdministrativeProjectStatusMetadata = ({ ...restProps }) => {
           </div>
         </UIFormField>
       </div>
-      <div className="column is-one-third" data-testid="projectCycle">
+      <div className="column is-full" data-testid="libraryUnit">
+        <UIFormField label="Library Unit">
+          <div className="select">
+            <select name="libraryUnit" ref={register()}>
+              <option value="">-- Select --</option>
+              {codeLists.libraryUnitData &&
+                codeLists.libraryUnitData.codeList.map((item) => (
+                  <option
+                    key={item.id}
+                    value={JSON.stringify({
+                      id: item.id,
+                      scheme: "LIBRARY_UNIT",
+                      label: item.label,
+                    })}
+                  >
+                    {item.label}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </UIFormField>
+      </div>
+      <div className="column is-half" data-testid="projectCycle">
         <UIFormField label="Project Cycle">
           <UIFormInput
             data-testid="project-cycle"
