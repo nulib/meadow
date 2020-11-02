@@ -154,6 +154,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_descriptive_metadata do
     field :ark, :string
     field :citation, list_of(:string)
+    field :date_created, list_of(:edtf_date_entry)
     field :license, :coded_term
     field :rights_statement, :coded_term
     field :related_url, list_of(:related_url_entry)
@@ -215,6 +216,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works descriptive metadata"
   input_object :work_descriptive_metadata_input do
+    field :date_created, list_of(:edtf_date_input)
     field :license, :coded_term_input
     field :rights_statement, :coded_term_input
     field :related_url, list_of(:related_url_entry_input)

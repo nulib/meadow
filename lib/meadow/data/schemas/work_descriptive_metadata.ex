@@ -55,6 +55,10 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     :technique
   ]
 
+  @edtf_fields [
+    :date_created
+  ]
+
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
     @fields
@@ -73,6 +77,11 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       embeds_many(f, ControlledMetadataEntry, on_replace: :delete)
     end)
 
+    @edtf_fields
+    |> Enum.each(fn f ->
+      field f, {:array, Types.EDTFDate}, default: []
+    end)
+
     embeds_many(:related_url, RelatedURLEntry, on_replace: :delete)
 
     timestamps()
@@ -87,7 +96,8 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     Enum.reduce(@controlled_fields, changeset, fn field, acc -> cast_embed(acc, field) end)
   end
 
-  defp permitted, do: @coded_fields ++ scalar_fields()
+  def permitted, do: @coded_fields ++ scalar_fields() ++ @edtf_fields
+
   defp scalar_fields, do: @fields |> Enum.map(fn {name, _} -> name end)
   def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
 
