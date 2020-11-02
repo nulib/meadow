@@ -6,9 +6,23 @@ defmodule Meadow.Repo do
   def init(_, opts), do: {:ok, opts}
 
   def listen(event_name) do
-    with {:ok, pid} <- Postgrex.Notifications.start_link(__MODULE__.config()),
-         {:ok, ref} <- Postgrex.Notifications.listen(pid, event_name) do
-      {:ok, pid, ref}
+    notification_listener_pid()
+    |> Postgrex.Notifications.listen(event_name)
+  end
+
+  defp notification_listener_pid do
+    case Process.whereis(Meadow.Postgrex.Notifications) do
+      nil -> start_notification_listener()
+      pid -> pid
+    end
+  end
+
+  defp start_notification_listener do
+    with {:ok, pid} <-
+           __MODULE__.config()
+           |> Keyword.put_new(:name, Meadow.Postgrex.Notifications)
+           |> Postgrex.Notifications.start_link() do
+      pid
     end
   end
 end
