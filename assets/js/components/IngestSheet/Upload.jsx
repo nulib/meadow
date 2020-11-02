@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import Error from "../UI/Error";
-import Loading from "../UI/Loading";
+import UISkeleton from "@js/components/UI/Skeleton";
 import { useHistory } from "react-router-dom";
 import { GET_PROJECT } from "../Project/project.gql.js";
 import { useMutation } from "@apollo/client";
@@ -19,6 +19,8 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
   const methods = useForm();
   const [values, setValues] = useState({ file: "" });
   const [fileNameString, setFileNameString] = useState("No file uploaded");
+
+  const watchTitle = methods.watch("ingest_sheet_title");
 
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
@@ -106,13 +108,13 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
 
   const { file } = values;
 
-  if (loading) return <Loading />;
+  if (loading) return <UISkeleton rows={5} />;
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <Error error={error} />
-        <UIFormField label="Ingest Sheet Title">
+        <UIFormField label="Title">
           <UIFormInput
             isReactHookForm
             required
@@ -121,6 +123,10 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
             placeholder="Ingest Sheet Title"
           />
         </UIFormField>
+
+        <p className="mb-2">
+          <strong>Select file</strong>
+        </p>
 
         <div className="field">
           <div id="file-js-example" className="file has-name">
@@ -144,7 +150,7 @@ const IngestSheetUpload = ({ project, presignedUrl }) => {
         </div>
 
         <div className="buttons is-right">
-          <Button type="submit" isPrimary>
+          <Button type="submit" isPrimary disabled={!file || !watchTitle}>
             <span className="icon">
               <FontAwesomeIcon icon="file-upload" />
             </span>

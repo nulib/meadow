@@ -15,37 +15,31 @@ import { Button } from "@nulib/admin-react-components";
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const client = useApolloClient();
-  const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
-    DELETE_INGEST_SHEET,
-    {
-      update(cache, { data: { deleteIngestSheet } }) {
-        try {
-          const { project } = client.readQuery({
-            query: INGEST_SHEETS,
-            variables: { projectId },
-          });
-          const index = project.ingestSheets.findIndex(
-            (ingestSheet) => ingestSheet.id === deleteIngestSheet.id
-          );
-          project.ingestSheets.splice(index, 1);
-          client.writeQuery({
-            query: INGEST_SHEETS,
-            data: { project },
-          });
-        } catch (error) {
-          console.log("Error reading from cache", error);
-        }
-      },
-      onCompleted({ deleteIngestSheet }) {
-        toastWrapper(
-          "is-success",
-          `Ingest sheet ${title} deleted successfully`
-        );
-        history.push(`/project/${projectId}`);
-      },
-    }
-  );
+  const [deleteIngestSheet] = useMutation(DELETE_INGEST_SHEET, {
+    update(cache, { data: { deleteIngestSheet } }) {
+      cache.modify({
+        id: cache.identify(deleteIngestSheet.project),
+        fields: {
+          ingestSheets(existingIngestSheetRefs, { readField }) {
+            return existingIngestSheetRefs.filter(
+              (ingestSheetRef) =>
+                deleteIngestSheet.id !== readField("id", ingestSheetRef)
+            );
+          },
+        },
+      });
+    },
+    onCompleted({ deleteIngestSheet }) {
+      toastWrapper("is-success", `Ingest sheet ${title} deleted successfully`);
+      history.push(`/project/${projectId}`);
+    },
+    onError({ error }) {
+      toastWrapper(
+        "is-danger",
+        `There was an error deleting the Ingest Sheet: ${JSON.stringify(error)}`
+      );
+    },
+  });
 
   const [
     approveIngestSheet,

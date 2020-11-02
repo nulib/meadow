@@ -4,10 +4,7 @@ import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import {
-  INGEST_SHEET_SUBSCRIPTION,
-  INGEST_SHEET_QUERY,
-} from "../../components/IngestSheet/ingestSheet.gql.js";
+import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";
 import {
   getClassFromIngestSheetStatus,
@@ -47,7 +44,7 @@ const ScreensIngestSheet = ({ match }) => {
     subscribeToMore: sheetSubscribeToMore,
   } = useQuery(INGEST_SHEET_QUERY, {
     variables: { sheetId },
-    fetchPolicy: "network-only",
+    //fetchPolicy: "network-only",
   });
 
   if (crumbsError || sheetError)

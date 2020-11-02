@@ -17,7 +17,6 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     subscribeToIngestSheetStatusChanges();
   }, []);
 
-  const client = useApolloClient();
   const [
     deleteIngestSheet,
     { data: deleteIngestSheetData, error: deleteIngestSheetError },

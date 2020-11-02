@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import IngestSheetForm from "../../components/IngestSheet/Form";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UISkeleton from "@js/components/UI/Skeleton";
 import { GET_PROJECT } from "../../components/Project/project.gql.js";
 import { useQuery } from "@apollo/client";
 import Layout from "../Layout";
@@ -15,10 +15,7 @@ const ScreensIngestSheetForm = ({ match }) => {
     variables: { projectId: id },
   });
 
-  if (loading) return <Loading />;
   if (error) return <Error error={error} />;
-
-  const { project } = data;
 
   return (
     <Layout>
@@ -26,17 +23,26 @@ const ScreensIngestSheetForm = ({ match }) => {
         <div className="container">
           <div className="columns">
             <div className="column is-8 is-offset-2">
-              <UIBreadcrumbs
-                items={[
-                  { label: "Projects", route: "/project/list" },
-                  { label: project.title, route: `/project/${project.id}` },
-                  { label: "Upload Ingest Sheet" },
-                ]}
-              />
-              <div className="box">
-                <h1 className="title">Upload a new Ingest Sheet</h1>
-                {id && <IngestSheetForm project={project} />}
-              </div>
+              {loading ? (
+                <UISkeleton />
+              ) : (
+                <>
+                  <UIBreadcrumbs
+                    items={[
+                      { label: "Projects", route: "/project/list" },
+                      {
+                        label: data.project.title,
+                        route: `/project/${data.project.id}`,
+                      },
+                      { label: "Upload Ingest Sheet" },
+                    ]}
+                  />
+                  <div className="box">
+                    <h1 className="title">Upload a new Ingest Sheet</h1>
+                    {id && <IngestSheetForm project={data.project} />}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

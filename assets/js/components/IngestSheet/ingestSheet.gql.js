@@ -64,8 +64,11 @@ export const DELETE_INGEST_SHEET = gql`
   mutation DeleteIngestSheet($sheetId: ID!) {
     deleteIngestSheet(sheetId: $sheetId) {
       id
-      title
+      project {
+        id
+      }
       status
+      title
     }
   }
 `;

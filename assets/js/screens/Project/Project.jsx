@@ -19,6 +19,7 @@ import { Button } from "@nulib/admin-react-components";
 const ScreensProject = () => {
   const history = useHistory();
   const { id } = useParams();
+
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id },
   });
