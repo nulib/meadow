@@ -45,7 +45,6 @@ const BatchEditAbout = () => {
   const methods = useForm({
     defaultValues: {},
   });
-  const { dirtyFields, touched } = methods.formState;
 
   const onCloseModal = () => {
     setIsConfirmModalOpen(false);

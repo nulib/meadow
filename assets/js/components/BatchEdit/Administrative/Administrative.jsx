@@ -29,10 +29,7 @@ const BatchEditAdministrative = () => {
     : 0;
 
   // Initialize React hook form
-  const methods = useForm({
-    defaultValues: {},
-  });
-  const { dirtyFields, touched } = methods.formState;
+  const methods = useForm();
 
   const onCloseModal = () => {
     setIsConfirmModalOpen(false);
