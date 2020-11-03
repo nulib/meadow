@@ -18,6 +18,7 @@ defmodule Meadow.Application.Children do
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
       {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
+      Meadow.Ingest.SheetNotifier,
       {Meadow.Ingest.ValidationNotifier, interval: Config.validation_ping_interval()},
       Meadow.Ingest.WorkCreator,
       Meadow.Ingest.WorkRedriver,

@@ -30,7 +30,6 @@ defmodule Meadow.Ingest.Sheets do
     %Sheet{}
     |> Sheet.changeset(attrs)
     |> Repo.insert()
-    |> Notifications.ingest_sheet()
   end
 
   @doc """
@@ -66,7 +65,6 @@ defmodule Meadow.Ingest.Sheets do
     with {:ok, ingest_sheet} <- update_ingest_sheet_status(ingest_sheet, "deleted") do
       ingest_sheet
       |> Repo.delete()
-      |> Notifications.ingest_sheet()
     end
   end
 
@@ -167,12 +165,9 @@ defmodule Meadow.Ingest.Sheets do
 
   """
   def update_ingest_sheet_status(%Sheet{} = ingest_sheet, status) do
-    Logger.info("Updating ingest sheet: #{ingest_sheet.id}, status to #{status}")
-
     ingest_sheet
     |> Sheet.status_changeset(%{status: status})
     |> Repo.update()
-    |> Notifications.ingest_sheet()
   end
 
   def update_ingest_sheet_status({:ok, %Sheet{} = ingest_sheet}, status) do
