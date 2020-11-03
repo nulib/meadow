@@ -58,12 +58,11 @@ jobs:
             MIX_ENV: test
       - run:
           name: Install JS Dependencies
-          command: yarn install
-          working_directory: ~/meadow/assets
-      - run:
-          name: Install Pyramid Dependencies
-          command: yarn install
-          working_directory: ~/meadow/priv/tiff
+          command: |
+            for pkg in $(find . -name package.json ! -path './**/node_modules/*' ! -path './deps/*')
+            do
+              yarn install --cwd $(dirname $pkg)
+            done
       - save_cache:
           key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
           paths:
@@ -76,6 +75,7 @@ jobs:
           key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}-{{ .Branch }}
           paths:
             - ~/meadow/assets/node_modules
+            - ~/meadow/priv/edtf/node_modules
             - ~/meadow/priv/tiff/node_modules
       - run:
           name: Elixir Static Analysis

@@ -7,7 +7,7 @@ defmodule Meadow.Data.Types.EDTF.DateTest do
 
   @edtf_db_type %{
     edtf: "1975-07-01",
-    humanized: "Tue, 01 Jul 1975"
+    humanized: "July 1, 1975"
   }
 
   describe "Meadow.Data.Types.EDTFDate" do
@@ -16,7 +16,7 @@ defmodule Meadow.Data.Types.EDTF.DateTest do
       assert EDTFDate.cast(1234) == {:error, [message: "Invalid edtf type"]}
 
       assert EDTFDate.cast("1975-07-01") ==
-               {:ok, %{edtf: "1975-07-01", humanized: "Tue, 01 Jul 1975"}}
+               {:ok, %{edtf: "1975-07-01", humanized: "July 1, 1975"}}
     end
 
     test "dump function" do
