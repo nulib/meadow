@@ -2,6 +2,10 @@ fragment WorkDescriptiveMetadataFields on Work {
   descriptiveMetadata {
     ark
     title
+    dateCreated {
+      edtfDate
+      humanizedDate
+    }
     description
     contributor {
       term {

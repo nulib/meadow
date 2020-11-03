@@ -68,6 +68,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :scheme, :code_list_scheme
   end
 
+  @desc "EDTF Date"
+  object :edtf_date_entry do
+    field :edtf_date, :string
+    field :humanized_date, :string
+  end
+
   @desc "RelatedURLEntry"
   object :related_url_entry do
     field :url, :string
@@ -84,6 +90,11 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   input_object :coded_term_input do
     field :id, :id
     field :scheme, :code_list_scheme
+  end
+
+  @desc "EDTF date input"
+  input_object :edtf_date_input do
+    field :edtf_date, :string
   end
 
   @desc "Related URL input"
