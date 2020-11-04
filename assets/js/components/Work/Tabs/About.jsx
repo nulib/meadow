@@ -18,6 +18,7 @@ import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
   convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
+  prepEDTFDatesForPost,
   prepFieldArrayItemsForPost,
   prepRelatedUrl,
   CONTROLLED_METADATA,
@@ -107,6 +108,7 @@ const WorkTabsAbout = ({ work }) => {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
+        dateCreated: prepEDTFDatesForPost(currentFormValues.dateCreated),
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {

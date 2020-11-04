@@ -1,3 +1,5 @@
+import edtf from "edtf";
+
 export const METADATA_FIELDS = {
   ABSTRACT: { name: "abstract", label: "Abstract" },
   ALTERNATE_TITLE: {
@@ -342,6 +344,20 @@ export function prepControlledTermInput(
  */
 export function prepFieldArrayItemsForPost(items = []) {
   return items.map(({ metadataItem }) => metadataItem);
+}
+
+/**
+ * Convert form field array items from an array of objects to array of strings
+ * @param {Array} items Array of object entries possible in form
+ * @returns {Array} Array of strings
+ */
+export function prepEDTFDatesForPost(items = []) {
+  console.log(items);
+
+  return items.map((item) => {
+    console.log(item);
+    return { edtfDate: edtf(item.metadataItem) };
+  });
 }
 
 /**

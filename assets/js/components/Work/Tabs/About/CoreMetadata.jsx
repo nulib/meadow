@@ -1,14 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../../UI/TagNotYetSupported";
 import UIInput from "../../../UI/Form/Input";
-import UIFormTextarea from "../../../UI/Form/Textarea";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormSelect from "../../../UI/Form/Select";
 import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
+import moment from "moment";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -16,6 +15,7 @@ const WorkTabsAboutCoreMetadata = ({
   published,
 }) => {
   const codeLists = useCodeLists();
+  const defaultDate = moment(new Date()).format("YYYY-MM-DD");
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
@@ -53,23 +53,25 @@ const WorkTabsAboutCoreMetadata = ({
         )}
       </div>
 
-      <div className="column is-half">
+      <div className="column is-full">
         {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
-          )}
-        </UIFormField>
+        {isEditing ? (
+          <UIFormFieldArray
+            name="dateCreated"
+            data-testid="dateCreated"
+            label="Date Created"
+            defaultValue={defaultDate}
+          />
+        ) : (
+          <UIFormField label="Date Created" notLive>
+            <ul>
+              {descriptiveMetadata.dateCreated.length > 0 &&
+                descriptiveMetadata.dateCreated.map((datefield, i) => (
+                  <li key={i}>{datefield.humanizedDate}</li>
+                ))}
+            </ul>
+          </UIFormField>
+        )}
       </div>
       <div className="column is-half">
         {/* Rights Statement */}

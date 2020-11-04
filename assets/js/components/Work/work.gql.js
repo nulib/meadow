@@ -72,6 +72,9 @@ export const GET_WORK = gql`
             label
           }
         }
+        dateCreated {
+          humanizedDate
+        }
         description
         folderName
         folderNumber
