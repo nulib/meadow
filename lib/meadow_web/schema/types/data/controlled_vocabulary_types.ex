@@ -70,8 +70,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "EDTF Date"
   object :edtf_date_entry do
-    field :edtf_date, :string
-    field :humanized_date, :string
+    field :edtf, :string
+    field :humanized, :string
   end
 
   @desc "RelatedURLEntry"
@@ -94,7 +94,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "EDTF date input"
   input_object :edtf_date_input do
-    field :edtf_date, :string
+    field :edtf, :string
   end
 
   @desc "Related URL input"

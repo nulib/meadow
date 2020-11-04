@@ -5,29 +5,29 @@ defmodule Meadow.Data.Types.EDTF.DateTest do
 
   alias Meadow.Data.Types.EDTFDate
 
-  @edtf_date_db_type %{
-    edtf_date: "1975-07-01",
-    humanized_date: "Tue, 01 Jul 1975"
+  @edtf_db_type %{
+    edtf: "1975-07-01",
+    humanized: "Tue, 01 Jul 1975"
   }
 
   describe "Meadow.Data.Types.EDTFDate" do
     test "cast function" do
-      assert {:ok, @edtf_date_db_type} == EDTFDate.cast(@edtf_date_db_type)
-      assert EDTFDate.cast(1234) == {:error, [message: "Invalid edtf_date type"]}
+      assert {:ok, @edtf_db_type} == EDTFDate.cast(@edtf_db_type)
+      assert EDTFDate.cast(1234) == {:error, [message: "Invalid edtf type"]}
 
       assert EDTFDate.cast("1975-07-01") ==
-               {:ok, %{edtf_date: "1975-07-01", humanized_date: "Tue, 01 Jul 1975"}}
+               {:ok, %{edtf: "1975-07-01", humanized: "Tue, 01 Jul 1975"}}
     end
 
     test "dump function" do
-      assert EDTFDate.dump(@edtf_date_db_type) == {:ok, @edtf_date_db_type}
+      assert EDTFDate.dump(@edtf_db_type) == {:ok, @edtf_db_type}
       assert EDTFDate.dump(134_524) == :error
     end
 
     test "load function" do
-      assert EDTFDate.load(@edtf_date_db_type) == {:ok, @edtf_date_db_type}
+      assert EDTFDate.load(@edtf_db_type) == {:ok, @edtf_db_type}
 
-      assert EDTFDate.load(1234) == {:error, [message: "Invalid edtf_date type"]}
+      assert EDTFDate.load(1234) == {:error, [message: "Invalid edtf type"]}
     end
   end
 end
