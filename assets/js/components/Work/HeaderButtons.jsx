@@ -28,7 +28,7 @@ export default function WorkHeaderButtons({
         <span className="icon">
           <FontAwesomeIcon icon="link" />
         </span>
-        <span>Create Sharable Link</span>
+        <span>Create sharable link</span>
       </Button>
       <Button isText data-testid="delete-button" onClick={onOpenModal}>
         Delete

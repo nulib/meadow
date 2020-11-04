@@ -43,7 +43,7 @@ export default function BatchEditRemove({
           <span className="icon">
             <FontAwesomeIcon icon="minus-square" />
           </span>
-          <span>Remove entries in {label}</span>
+          <span>View and remove {label}</span>
         </Button>
       </UIFormField>
 

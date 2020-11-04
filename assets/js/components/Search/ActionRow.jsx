@@ -22,7 +22,7 @@ export default function SearchActionRow({
           <span className="icon">
             <FontAwesomeIcon icon="edit" />
           </span>
-          <span>Edit All {numberOfResults} Items</span>
+          <span>Edit all {numberOfResults} Items</span>
         </Button>
       </p>
       <p className="control">
@@ -35,7 +35,7 @@ export default function SearchActionRow({
           <span className="icon">
             <FontAwesomeIcon icon="eye" />
           </span>
-          <span>View and Edit {selectedItems.length} Items</span>
+          <span>View and edit {selectedItems.length} Items</span>
         </Button>
       </p>
       {selectedItems.length > 0 && (
@@ -48,7 +48,7 @@ export default function SearchActionRow({
             <span className="icon">
               <FontAwesomeIcon icon="minus-square" />
             </span>
-            <span>Deselect All</span>
+            <span>Deselect all</span>
           </Button>
         </p>
       )}

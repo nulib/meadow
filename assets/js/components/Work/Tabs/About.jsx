@@ -207,7 +207,6 @@ const WorkTabsAbout = ({ work }) => {
             className="box is-relative content mt-4"
             data-testid="uneditable-metadata"
           >
-            <h3 className="mb-4">Uneditable Metadata </h3>
             <div className="columns">
               <div className="column">
                 <UIFormField label="ARK">
