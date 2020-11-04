@@ -5,7 +5,6 @@ import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormField from "../../UI/Form/Field";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
-import UIFormSelect from "../../UI/Form/Select";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
@@ -82,18 +81,24 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
       <div className="column is-half">
         <UIFormField label="Rights Statement">
-          <UIFormSelect
-            isReactHookForm
-            name="rightsStatement"
-            label="Rights Statement"
-            options={
-              codeLists.rightsStatementData
-                ? codeLists.rightsStatementData.codeList
-                : []
-            }
-            data-testid="rights-statement"
-            showHelper
-          />
+          <div className="select" data-testid="rights-statement">
+            <select name="rightsStatement" ref={register()}>
+              <option value="">-- Select --</option>
+              {codeLists.rightsStatementData &&
+                codeLists.rightsStatementData.codeList.map((item) => (
+                  <option
+                    key={item.id}
+                    value={JSON.stringify({
+                      id: item.id,
+                      scheme: "RIGHTS_STATEMENT",
+                      label: item.label,
+                    })}
+                  >
+                    {item.label}
+                  </option>
+                ))}
+            </select>
+          </div>
         </UIFormField>
       </div>
       <div className="column is-full">
