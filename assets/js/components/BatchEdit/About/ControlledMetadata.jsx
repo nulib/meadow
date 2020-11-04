@@ -39,10 +39,10 @@ const BatchEditAboutControlledMetadata = ({ ...restProps }) => {
 
   return (
     <div data-testid="controlled-metadata" {...restProps}>
-      <ul>
+      <ul className="columns is-multiline">
         {!codeLists.isLoading &&
           CONTROLLED_METADATA.map(({ label, name, scheme }) => (
-            <li key={name} className="mb-5" data-testid={name}>
+            <li key={name} className="column is-half mb-5" data-testid={name}>
               <UIFormField label={label}>
                 <UIFormControlledTermArray
                   authorities={codeLists.authorityData.codeList}

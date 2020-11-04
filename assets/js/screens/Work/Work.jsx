@@ -178,24 +178,37 @@ const ScreensWork = () => {
                     />
                   )}
 
-                  <dl>
-                    <dt>Accession Number</dt>
-                    <dd>{data.work.accessionNumber}</dd>
-                    <dt>Project</dt>
-                    <dd>
-                      <Link to={`/project/${data.work.project.id}`}>
-                        {data.work.project.title}
-                      </Link>
-                    </dd>
-                    <dt>Ingest Sheet</dt>
-                    <dd>
-                      <Link
-                        to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
-                      >
-                        {data.work.ingestSheet.title}
-                      </Link>
-                    </dd>
-                  </dl>
+                  <hr />
+                  <div className="columns">
+                    <div className="column">
+                      <p>
+                        <strong>Accession Number</strong>
+                      </p>
+                      <p>{data.work.accessionNumber}</p>
+                    </div>
+                    <div className="column">
+                      <p>
+                        <strong>Project</strong>
+                      </p>
+                      <p>
+                        <Link to={`/project/${data.work.project.id}`}>
+                          {data.work.project.title}
+                        </Link>
+                      </p>
+                    </div>
+                    <div className="column">
+                      <p>
+                        <strong>Ingest Sheet</strong>
+                      </p>
+                      <p>
+                        <Link
+                          to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
+                        >
+                          {data.work.ingestSheet.title}
+                        </Link>
+                      </p>
+                    </div>
+                  </div>
 
                   {!data.work.collection && (
                     <p className="notification has-text-centered">

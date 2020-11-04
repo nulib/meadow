@@ -68,7 +68,9 @@ export default function BatchEditAboutModalRemove({
         <div className="box">
           <header>
             <h3 className="title">{currentRemoveField.label}</h3>
-            <h4 className="subtitle">Batch remove the following entries</h4>
+            <h4 className="subtitle">
+              Select values to remove from all batch Works
+            </h4>
           </header>
           <div className="my-4">
             {candidateList.map((item) => (
@@ -90,8 +92,8 @@ export default function BatchEditAboutModalRemove({
           </div>
           <footer>
             <div className="buttons is-right">
-              <Button isText onClick={closeModal}>
-                Close
+              <Button isLight onClick={closeModal}>
+                Save &amp; close
               </Button>
             </div>
           </footer>

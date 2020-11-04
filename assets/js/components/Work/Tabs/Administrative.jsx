@@ -272,7 +272,8 @@ const WorkTabsAdministrative = ({ work }) => {
             </div>
           </div>
           <div className="column">
-            <div className="box is-relative">
+            <div className="box is-relative content">
+              <h3>Project Info</h3>
               <UIFormField label="Project Cycle">
                 {isEditing ? (
                   <UIFormInput

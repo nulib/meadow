@@ -13,14 +13,16 @@ const UIAccordion = ({ title, testid, defaultOpen = true, children }) => {
   `;
   return (
     <div className="box is-relative mt-4" data-testid={testid}>
-      <h2 className="title is-size-5 mb-4">
-        {title}{" "}
-        <a onClick={() => setIsContentOpen(!isContentOpen)}>
-          <FontAwesomeIcon
-            icon={isContentOpen ? "chevron-down" : "chevron-right"}
-          />
-        </a>
-      </h2>
+      <div className="content">
+        <h3 className="mb-4">
+          {title}{" "}
+          <a onClick={() => setIsContentOpen(!isContentOpen)}>
+            <FontAwesomeIcon
+              icon={isContentOpen ? "chevron-down" : "chevron-right"}
+            />
+          </a>
+        </h3>
+      </div>
       <div css={wrapperCss}>{children}</div>
     </div>
   );

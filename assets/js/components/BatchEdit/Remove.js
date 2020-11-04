@@ -4,6 +4,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { splitFacetKey } from "../../services/metadata";
 import { useBatchDispatch } from "../../context/batch-edit-context";
+import { Button } from "@nulib/admin-react-components";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const listItem = css`
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid white;
+  padding: 10px 0;
+  justify-content: space-between;
+`;
 
 export default function BatchEditRemove({
   handleRemoveClick,
@@ -24,29 +35,28 @@ export default function BatchEditRemove({
   return (
     <div data-testid="batch-edit-remove">
       <UIFormField>
-        <button
+        <Button
           data-testid="button-remove"
-          type="button"
-          className="button is-text is-small"
+          isLight
           onClick={() => handleRemoveClick({ label, name })}
         >
           <span className="icon">
             <FontAwesomeIcon icon="minus-square" />
           </span>
           <span>Remove entries in {label}</span>
-        </button>
+        </Button>
       </UIFormField>
 
       {removeItems.length > 0 && (
         <div className="content has-background-danger-light">
-          <ul className="py-4">
+          <ul className="ml-4">
             {removeItems.map((item) => {
               const { label, role, term } = splitFacetKey(item);
               return (
-                <li key={item}>
+                <li key={item} css={listItem}>
                   {`${label} - ${term}`}
                   <span
-                    className="is-pulled-right icon mr-2"
+                    className="is-pulled-right icon mr-2 is-clickable"
                     onClick={(e) => removeFromDelete(e, item)}
                     data-testid="remove-delete-entries"
                   >
