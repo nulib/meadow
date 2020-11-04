@@ -54,6 +54,7 @@
     "@babel/plugin-transform-async-to-generator": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.1",
+    "@creativebulma/bulma-tooltip": "^1.2.0",
     "@nulib/prettier-config": "^1.2.0",
     "@testing-library/dom": "^7.26.3",
     "@testing-library/jest-dom": "^5.11.5",

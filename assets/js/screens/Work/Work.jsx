@@ -209,15 +209,6 @@ const ScreensWork = () => {
                       </p>
                     </div>
                   </div>
-
-                  {!data.work.collection && (
-                    <p className="notification has-text-centered">
-                      <FontAwesomeIcon icon="exclamation-triangle" /> A work
-                      must belong to a Collection in order to be published.
-                      Click on the Administrative tab below, to add this work to
-                      a Collection.
-                    </p>
-                  )}
                 </div>
               </>
             )}
