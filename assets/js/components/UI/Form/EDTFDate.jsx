@@ -18,7 +18,7 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
   console.log(fields, errors);
 
   return (
-    <div data-testid="dateCreated-wrapper">
+    <div data-testid="dateCreated-wrapper" passedInProps>
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
@@ -38,12 +38,12 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
                 {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
                 {!item.new && (
                   <div data-testid="dateCreated-existing-value">
-                    <p>{item.humanizedDate}</p>
+                    <p>{item.humanized}</p>
                     <input
                       type="hidden"
-                      name={`${itemName}.edtfDate`}
+                      name={`${itemName}.edtf`}
                       ref={register()}
-                      defaultValue={item.edtfDate}
+                      defaultValue={item.edtf}
                     />
                   </div>
                 )}
@@ -55,11 +55,11 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
                       <label className="label">Date</label>
                       <input
                         type="text"
-                        name={`${itemName}.edtfDate`}
+                        name={`${itemName}.edtf`}
                         className={`input ${
                           errors[name] &&
                           errors[name][index] &&
-                          errors[name][index].edtfDate
+                          errors[name][index].edtf
                             ? "is-danger"
                             : ""
                         }`}
@@ -69,16 +69,16 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
                             isEDTFValid(value) || "Please enter a valid date",
                         })}
                         defaultValue=""
-                        data-testid={`dateCreated-edtfDate-input`}
+                        data-testid={`dateCreated-edtf-input`}
                       />
                       {errors[name] &&
                         errors[name][index] &&
-                        errors[name][index].edtfDate && (
+                        errors[name][index].edtf && (
                           <p
                             data-testid={`dateCreated-input-errors-${index}`}
                             className="help is-danger"
                           >
-                            {errors[name][index].edtfDate.message}
+                            {errors[name][index].edtf.message}
                           </p>
                         )}
                     </div>
@@ -106,7 +106,7 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
         type="button"
         className="button is-text is-small"
         onClick={() => {
-          append({ new: true, edtfDate: "" });
+          append({ new: true, edtf: "" });
         }}
         data-testid="button-add-field-array-row"
       >

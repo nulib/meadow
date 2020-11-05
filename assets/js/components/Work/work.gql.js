@@ -73,8 +73,8 @@ export const GET_WORK = gql`
           }
         }
         dateCreated {
-          edtfDate
-          humanizedDate
+          edtf
+          humanized
         }
         description
         folderName
@@ -271,8 +271,8 @@ export const UPDATE_WORK = gql`
         title
         description
         dateCreated {
-          edtfDate
-          humanizedDate
+          edtf
+          humanized
         }
         contributor {
           term {

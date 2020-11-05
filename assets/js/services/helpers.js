@@ -25,10 +25,8 @@ export function formatSimpleISODate(date) {
 
 export function isEDTFValid(edtfString) {
   try {
-    const isValid = edtf.parse(edtfString.toUpperCase());
-    if (typeof isValid === "object" && isValid.type) {
-      return true;
-    }
+    edtf(edtfString).edtf;
+    return true;
   } catch (e) {
     return false;
   }

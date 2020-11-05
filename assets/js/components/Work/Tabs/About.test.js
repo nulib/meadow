@@ -43,12 +43,12 @@ describe("Work About tab component", () => {
 
     await waitFor(() => {
       expect(queryByTestId("description")).toBeFalsy();
-      expect(queryByTestId("date-created")).toBeFalsy();
+      expect(queryByTestId("alternate-title")).toBeFalsy();
     });
 
     fireEvent.click(queryByTestId("edit-button"));
     expect(queryByTestId("description")).toBeInTheDocument();
-    expect(queryByTestId("date-created")).toBeInTheDocument();
+    expect(queryByTestId("alternate-title")).toBeInTheDocument();
   });
 
   it("displays readonly box when in edit mode", async () => {

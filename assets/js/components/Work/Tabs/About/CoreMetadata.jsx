@@ -20,7 +20,8 @@ const WorkTabsAboutCoreMetadata = ({
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
-      <div className="column is-two-thirds">
+      <div className="column is-full">
+        {/* Title */}
         <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
@@ -37,24 +38,8 @@ const WorkTabsAboutCoreMetadata = ({
         </UIFormField>
       </div>
 
-      <div className="column is-half">
-        {/* Description */}
-        {isEditing ? (
-          <UIFormFieldArray
-            name="description"
-            data-testid="description"
-            label="Description"
-            isTextarea={true}
-          />
-        ) : (
-          <UIFormFieldArrayDisplay
-            items={descriptiveMetadata.description}
-            label="Description"
-          />
-        )}
-      </div>
-
-      <div className="column is-half">
+      <div className="column is-full">
+        {/* Alternate Title */}
         {isEditing ? (
           <UIFormFieldArray
             name="alternateTitle"
@@ -70,20 +55,22 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
 
       <div className="column is-full">
-        <UIFormField label="Date Created" notLive>
+        <UIFormField label="Date Created">
           {/* Date Created */}
           {isEditing ? (
             <UIFormEDTFDate
               options={descriptiveMetadata.dateCreated}
               label="Date Created"
               name="dateCreated"
+              data-testid="date-created"
             />
           ) : (
             <ul>
-              {descriptiveMetadata.dateCreated.length > 0 &&
+              {descriptiveMetadata.dateCreated &&
+                descriptiveMetadata.dateCreated.length > 0 &&
                 descriptiveMetadata.dateCreated.map((datefield, i) => (
                   <li key={i}>
-                    {datefield ? datefield.humanizedDate : "No Date specified"}
+                    {datefield ? datefield.humanized : "No Date specified"}
                   </li>
                 ))}
             </ul>
@@ -116,23 +103,21 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
-
-      <div className="column is-half">
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
-          )}
-        </UIFormField>
+      <div className="column is-full">
+        {/* Description */}
+        {isEditing ? (
+          <UIFormFieldArray
+            name="description"
+            data-testid="description"
+            label="Description"
+            isTextarea={true}
+          />
+        ) : (
+          <UIFormFieldArrayDisplay
+            items={descriptiveMetadata.description}
+            label="Description"
+          />
+        )}
       </div>
     </div>
   );
