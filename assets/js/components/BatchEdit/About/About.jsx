@@ -133,14 +133,14 @@ const BatchEditAbout = () => {
         >
           <>
             <Button type="submit" isPrimary data-testid="save-button">
-              Save Data for {numberOfResults} Items
+              Save data for {numberOfResults} items
             </Button>
             <Button
               isText
               data-testid="cancel-button"
               onClick={handleFormReset}
             >
-              Clear Form
+              Clear form
             </Button>
           </>
         </UITabsStickyHeader>

@@ -26,7 +26,7 @@ describe("BatchEditRemove component", () => {
     const { getByTestId } = setupTests();
     const el = getByTestId("button-remove");
     expect(el).toBeInTheDocument();
-    expect(el).toHaveTextContent(/^Remove entries in Item title$/);
+    expect(el).toHaveTextContent(/^View and remove Item title$/);
 
     fireEvent.click(el);
     expect(mockHandleRemoveClick).toHaveBeenCalled();

@@ -1090,6 +1090,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@creativebulma/bulma-tooltip@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@creativebulma/bulma-tooltip/-/bulma-tooltip-1.2.0.tgz#84dcdd59d94c09c2975fadbec1d3d765ae29c471"
+  integrity sha512-ooImbeXEBxf77cttbzA7X5rC5aAWm9UsXIGViFOnsqB+6M944GkB28S5R4UWRqjFd2iW4zGEkEifAU+q43pt2w==
+
 "@emotion/cache@^10.0.27", "@emotion/cache@^10.0.9":
   version "10.0.29"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-10.0.29.tgz#87e7e64f412c060102d589fe7c6dc042e6f9d1e0"

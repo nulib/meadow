@@ -102,6 +102,22 @@
           }
         },
         {
+          "edtf_strings": {
+            "match": "^edtf",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "text",
+              "analyzer": "full_analyzer",
+              "search_analyzer": "stopword_analyzer",
+              "search_quote_analyzer": "full_analyzer",
+              "fields": {
+                "keyword": { "type": "keyword" }
+              },
+              "copy_to": ["full_text"]
+            }
+          }
+        },
+        {
           "strings": {
             "match_mapping_type": "string",
             "mapping": {

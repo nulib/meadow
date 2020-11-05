@@ -27,7 +27,7 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       data-testid="core-metadata"
       {...restProps}
     >
-      <div className="column is-full">
+      <div className="column is-two-thirds">
         {/* Title */}
         <UIFormField label="Title">
           <UIInput
@@ -39,7 +39,17 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
         </UIFormField>
       </div>
 
-      <div className="column is-full">
+      <div className="column is-half">
+        {/* Description */}
+        <UIFormBatchFieldArray
+          name="description"
+          label="Description"
+          data-testid="description"
+          isTextarea={true}
+        />
+      </div>
+
+      <div className="column is-half">
         {/* Alternate Title */}
         <UIFormBatchFieldArray
           name="alternateTitle"
@@ -47,38 +57,7 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
           label="Alternate Title"
         />
       </div>
-      <div className="column is-full">
-        <UIFormField label="Collection">
-          <div className="select">
-            <select name="collection" ref={register()} data-testid="collection">
-              <option value="">-- Select --</option>
-              {collectionData &&
-                collectionData.collections.map((collection) => (
-                  <option
-                    key={collection.id}
-                    value={JSON.stringify(collection)}
-                  >
-                    {collection.title}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </UIFormField>
-      </div>
-      <div className="column is-half">
-        {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          <UIInput
-            isReactHookForm
-            name="dateCreated"
-            label="Date Created"
-            type="date"
-            data-testid="date-created"
-          />
-          <UITagNotYetSupported label="Display not yet supported" />
-          <UITagNotYetSupported label="Update not yet supported" />
-        </UIFormField>
-      </div>
+
       <div className="column is-half">
         <UIFormField label="Rights Statement">
           <div className="select" data-testid="rights-statement">
@@ -101,14 +80,39 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
           </div>
         </UIFormField>
       </div>
-      <div className="column is-full">
-        {/* Description */}
-        <UIFormBatchFieldArray
-          name="description"
-          label="Description"
-          data-testid="description"
-          isTextarea={true}
-        />
+
+      <div className="column is-half">
+        {/* Date Created */}
+        <UIFormField label="Date Created" notLive>
+          <UIInput
+            isReactHookForm
+            name="dateCreated"
+            label="Date Created"
+            type="date"
+            data-testid="date-created"
+          />
+          <UITagNotYetSupported label="Display not yet supported" />
+          <UITagNotYetSupported label="Update not yet supported" />
+        </UIFormField>
+      </div>
+
+      <div className="column is-half">
+        <UIFormField label="Collection">
+          <div className="select">
+            <select name="collection" ref={register()} data-testid="collection">
+              <option value="">-- Select --</option>
+              {collectionData &&
+                collectionData.collections.map((collection) => (
+                  <option
+                    key={collection.id}
+                    value={JSON.stringify(collection)}
+                  >
+                    {collection.title}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </UIFormField>
       </div>
     </div>
   );

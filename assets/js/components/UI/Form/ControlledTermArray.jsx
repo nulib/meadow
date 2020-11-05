@@ -6,6 +6,7 @@ import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
 import { useFormContext } from "react-hook-form";
+import { Button } from "@nulib/admin-react-components";
 
 const UIFormControlledTermArray = ({
   authorities = [],
@@ -109,9 +110,8 @@ const UIFormControlledTermArray = ({
         })}
       </ul>
 
-      <button
-        type="button"
-        className="button is-text is-small"
+      <Button
+        isLight
         onClick={() => {
           append({ termId: "", label: "", roleId: "" });
         }}
@@ -121,7 +121,7 @@ const UIFormControlledTermArray = ({
           <FontAwesomeIcon icon="plus" />
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
-      </button>
+      </Button>
     </>
   );
 };

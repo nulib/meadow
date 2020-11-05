@@ -10,38 +10,38 @@ defmodule Meadow.Data.Types.EDTFDate do
 
   def type, do: :map
 
-  def cast(edtf_date), do: humanize(edtf_date)
+  def cast(edtf), do: humanize(edtf)
 
-  def load(edtf_date), do: humanize(edtf_date)
+  def load(edtf), do: humanize(edtf)
 
   def dump(nil), do: nil
 
-  def dump(%{edtf_date: edtf_date, humanized_date: humanized_date}),
-    do: {:ok, %{edtf_date: edtf_date, humanized_date: humanized_date}}
+  def dump(%{edtf: edtf, humanized: humanized}),
+    do: {:ok, %{edtf: edtf, humanized: humanized}}
 
   def dump(_), do: :error
 
   defp humanize(nil), do: {:ok, nil}
 
-  defp humanize(%{edtf_date: ""}),
-    do: {:error, message: "edtf_date cannot be blank"}
+  defp humanize(%{edtf: ""}),
+    do: {:error, message: "edtf cannot be blank"}
 
-  defp humanize(%{edtf_date: edtf_date, humanized_date: humanized_date}),
-    do: {:ok, %{edtf_date: edtf_date, humanized_date: humanized_date}}
+  defp humanize(%{edtf: edtf, humanized: humanized}),
+    do: {:ok, %{edtf: edtf, humanized: humanized}}
 
-  defp humanize(%{"edtf_date" => edtf_date, "humanized_date" => humanized_date}),
-    do: {:ok, %{edtf_date: edtf_date, humanized_date: humanized_date}}
+  defp humanize(%{"edtf" => edtf, "humanized" => humanized}),
+    do: {:ok, %{edtf: edtf, humanized: humanized}}
 
-  defp humanize(%{edtf_date: edtf_date}), do: humanize(edtf_date)
+  defp humanize(%{edtf: edtf}), do: humanize(edtf)
 
-  defp humanize(edtf_date) when is_binary(edtf_date) do
-    case Works.parse_edtf_date(edtf_date) do
-      {:ok, %{edtf_date: edtf_date, humanized_date: humanized_date}} ->
-        {:ok, %{edtf_date: edtf_date, humanized_date: humanized_date}}
+  defp humanize(edtf) when is_binary(edtf) do
+    case Works.parse_edtf(edtf) do
+      {:ok, %{edtf: edtf, humanized: humanized}} ->
+        {:ok, %{edtf: edtf, humanized: humanized}}
     end
   end
 
   defp humanize(%{}), do: {:ok, nil}
 
-  defp humanize(_), do: {:error, message: "Invalid edtf_date type"}
+  defp humanize(_), do: {:error, message: "Invalid edtf type"}
 end

@@ -124,8 +124,7 @@ const UIFormRelatedURL = ({
       </ul>
 
       <Button
-        type="button"
-        className="button is-text is-small"
+        isLight
         onClick={() => {
           append({ new: true, url: "", label: "" });
         }}
