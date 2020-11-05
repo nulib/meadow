@@ -17,13 +17,11 @@ const UIFormFieldArray = ({
   ...passedInProps
 }) => {
   const { control } = useFormContext();
-  console.log(useFormContext());
 
   const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
-  console.log(name, fields);
 
   function handleAddClick() {
     append({ metadataItem: defaultValue });

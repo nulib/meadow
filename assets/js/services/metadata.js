@@ -347,20 +347,6 @@ export function prepFieldArrayItemsForPost(items = []) {
 }
 
 /**
- * Convert form field array items from an array of objects to array of strings
- * @param {Array} items Array of object entries possible in form
- * @returns {Array} Array of strings
- */
-export function prepEDTFDatesForPost(items = []) {
-  console.log(items);
-
-  return items.map((item) => {
-    console.log(item);
-    return { edtfDate: edtf(item.metadataItem) };
-  });
-}
-
-/**
  * Prepares fieldArray form data for an upcoming GraphQL post
  * @param {Object} controlledTerm
  * @param {Array} keyItems

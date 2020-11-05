@@ -73,6 +73,7 @@ export const GET_WORK = gql`
           }
         }
         dateCreated {
+          edtfDate
           humanizedDate
         }
         description
@@ -269,6 +270,10 @@ export const UPDATE_WORK = gql`
       descriptiveMetadata {
         title
         description
+        dateCreated {
+          edtfDate
+          humanizedDate
+        }
         contributor {
           term {
             id

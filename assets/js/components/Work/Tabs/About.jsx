@@ -18,7 +18,6 @@ import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
   convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
-  prepEDTFDatesForPost,
   prepFieldArrayItemsForPost,
   prepRelatedUrl,
   CONTROLLED_METADATA,
@@ -73,6 +72,7 @@ const WorkTabsAbout = ({ work }) => {
       description: descriptiveMetadata.description.map((value) => ({
         metadataItem: value,
       })),
+      dateCreated: descriptiveMetadata.dateCreated,
       relatedUrl: descriptiveMetadata.relatedUrl,
       ...resetValues,
       ...controlledTermResetValues,
@@ -108,7 +108,7 @@ const WorkTabsAbout = ({ work }) => {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
-        dateCreated: prepEDTFDatesForPost(currentFormValues.dateCreated),
+        dateCreated: currentFormValues.dateCreated || [],
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {
@@ -126,6 +126,8 @@ const WorkTabsAbout = ({ work }) => {
         termsOfUse: data.termsOfUse,
       },
     };
+
+    console.log(workUpdateInput);
 
     // Convert form field array items from an array of objects to array of strings
     for (let group of [

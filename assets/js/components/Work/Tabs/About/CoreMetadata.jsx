@@ -7,6 +7,7 @@ import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
+import UIFormEDTFDate from "../../../UI/Form/EDTFDate";
 import moment from "moment";
 
 const WorkTabsAboutCoreMetadata = ({
@@ -54,24 +55,25 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
 
       <div className="column is-full">
-        {/* Date Created */}
-        {isEditing ? (
-          <UIFormFieldArray
-            name="dateCreated"
-            data-testid="dateCreated"
-            label="Date Created"
-            defaultValue={defaultDate}
-          />
-        ) : (
-          <UIFormField label="Date Created" notLive>
+        <UIFormField label="Date Created" notLive>
+          {/* Date Created */}
+          {isEditing ? (
+            <UIFormEDTFDate
+              options={descriptiveMetadata.dateCreated}
+              label="Date Created"
+              name="dateCreated"
+            />
+          ) : (
             <ul>
               {descriptiveMetadata.dateCreated.length > 0 &&
                 descriptiveMetadata.dateCreated.map((datefield, i) => (
-                  <li key={i}>{datefield.humanizedDate}</li>
+                  <li key={i}>
+                    {datefield ? datefield.humanizedDate : "No Date specified"}
+                  </li>
                 ))}
             </ul>
-          </UIFormField>
-        )}
+          )}
+        </UIFormField>
       </div>
       <div className="column is-half">
         {/* Rights Statement */}

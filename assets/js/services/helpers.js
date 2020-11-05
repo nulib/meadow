@@ -1,6 +1,7 @@
 import moment from "moment";
 import { toast } from "bulma-toast";
 import { URL_PATTERN_MATCH } from "./global-vars";
+import edtf from "edtf";
 
 /**
  * Escape double quotes (which may interfere with Search queries)
@@ -20,6 +21,17 @@ export function formatSimpleISODate(date) {
   if (!date) return "";
   let newDate = moment(date).format().substring(0, 16);
   return newDate;
+}
+
+export function isEDTFValid(edtfString) {
+  try {
+    const isValid = edtf.parse(edtfString.toUpperCase());
+    if (typeof isValid === "object" && isValid.type) {
+      return true;
+    }
+  } catch (e) {
+    return false;
+  }
 }
 
 export function isUrlValid(url) {
