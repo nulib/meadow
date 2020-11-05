@@ -176,18 +176,6 @@ export const INGEST_SHEET_VALIDATION_PROGRESS = gql`
   }
 `;
 
-export const INGEST_SHEET_VALIDATION_PROGRESS_SUBSCRIPTION = gql`
-  subscription OnIngestSheetValidationProgress($sheetId: ID!) {
-    ingestSheetValidationProgress(sheetId: $sheetId) {
-      states {
-        state
-        count
-      }
-      percentComplete
-    }
-  }
-`;
-
 export const INGEST_SHEET_WORKS = gql`
   query IngestSheetWorks($id: ID!, $limit: Int) {
     ingestSheetWorks(id: $id, limit: $limit) {

@@ -7,7 +7,6 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
-  alias Meadow.Ingest.Notifications
   alias Meadow.Ingest.Schemas.{Project, Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList

@@ -7,7 +7,6 @@ defmodule Meadow.ReleaseTasks do
   @modules [
     Meadow.Data.IndexWorker,
     Meadow.Ingest.Progress,
-    Meadow.Ingest.ValidationNotifier,
     Meadow.Ingest.WorkCreator,
     Meadow.Ingest.WorkRedriver
   ]
