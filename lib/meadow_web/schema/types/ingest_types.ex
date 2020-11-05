@@ -152,15 +152,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
       end)
     end
 
-    @desc "Subscribe to validation updates for an ingest sheet"
-    field :ingest_sheet_validation_progress, :validation_progress do
-      arg(:sheet_id, non_null(:id))
-
-      config(fn args, _info ->
-        {:ok, topic: "validation_progress:" <> args.sheet_id}
-      end)
-    end
-
     @desc "Subscribe to action state updates for a specific work or file set"
     field :action_update, :action_state do
       arg(:object_id, non_null(:id))

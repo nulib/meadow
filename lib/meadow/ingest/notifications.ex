@@ -3,12 +3,18 @@ defmodule Meadow.Ingest.Notifications do
   functions for notifications to absinthe subscriptions
   """
   alias Meadow.Ingest.Schemas.Sheet
-  alias Meadow.Ingest.Sheets
+  require Logger
 
   def ingest_sheet({:ok, sheet}),
     do: {:ok, ingest_sheet(sheet)}
 
   def ingest_sheet(%Sheet{} = sheet) do
+    Logger.info(
+      "Sending notifications for ingest sheet: #{sheet.id}, in project: #{sheet.project_id} with status: #{
+        sheet.status
+      }"
+    )
+
     Absinthe.Subscription.publish(
       MeadowWeb.Endpoint,
       sheet,
@@ -25,16 +31,4 @@ defmodule Meadow.Ingest.Notifications do
   end
 
   def ingest_sheet(other), do: other
-
-  def ingest_sheet_validation(%Sheet{} = sheet) do
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      Sheets.get_sheet_validation_progress(sheet.id),
-      ingest_sheet_validation_progress: Enum.join(["validation_progress", sheet.id], ":")
-    )
-
-    sheet
-  end
-
-  def ingest_sheet_validation(other), do: other
 end
