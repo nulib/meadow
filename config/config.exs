@@ -55,6 +55,11 @@ with val <- System.get_env("PYRAMID_PROCESSOR") do
   unless is_nil(val), do: config(:meadow, pyramid_processor: val)
 end
 
+# Configures the ETDF parser
+with val <- System.get_env("EDTF") do
+  unless is_nil(val), do: config(:meadow, edtf: val)
+end
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $levelpad$message\n",

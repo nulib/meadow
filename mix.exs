@@ -51,6 +51,7 @@ defmodule Meadow.MixProject do
       {:authoritex, "~> 0.4.1"},
       {:briefly, "~> 0.3.0", only: :test},
       {:cachex, "~> 3.2"},
+      {:calendar, "~> 1.0.0"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},

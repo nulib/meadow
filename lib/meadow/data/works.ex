@@ -492,12 +492,4 @@ defmodule Meadow.Data.Works do
         ]
       ]
   end
-
-  @doc """
-  Callout to EDTF.js port
-  """
-  def parse_edtf(edtf) do
-    # obviously this is temporary
-    {:ok, %{edtf: edtf, humanized: "Tue, 01 Jul 1975"}}
-  end
 end

@@ -4,7 +4,6 @@ defmodule Meadow.Data.Types.EDTFDate do
   """
 
   use Ecto.Type
-  alias Meadow.Data.Works
 
   def embed_as(:json), do: :dump
 
@@ -35,9 +34,9 @@ defmodule Meadow.Data.Types.EDTFDate do
   defp humanize(%{edtf: edtf}), do: humanize(edtf)
 
   defp humanize(edtf) when is_binary(edtf) do
-    case Works.parse_edtf(edtf) do
-      {:ok, %{edtf: edtf, humanized: humanized}} ->
-        {:ok, %{edtf: edtf, humanized: humanized}}
+    case EDTF.humanize(edtf) do
+      {:error, error} -> {:error, message: error}
+      result -> {:ok, %{edtf: edtf, humanized: result}}
     end
   end
 

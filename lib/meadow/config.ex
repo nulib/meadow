@@ -43,6 +43,14 @@ defmodule Meadow.Config do
     )
   end
 
+  def edtf do
+    Application.get_env(
+      :meadow,
+      :edtf,
+      priv_path("edtf/cli.js")
+    )
+  end
+
   @doc "Retrieve the IIIF server endpoint"
   def iiif_server_url do
     Application.get_env(:meadow, :iiif_server_url)

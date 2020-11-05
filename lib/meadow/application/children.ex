@@ -15,6 +15,7 @@ defmodule Meadow.Application.Children do
 
   defp specs(:dev) do
     [
+      EDTF,
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
       {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
@@ -26,11 +27,15 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:test) do
-    [mock_ark_server(3944)]
+    [
+      EDTF,
+      mock_ark_server(3944)
+    ]
   end
 
   defp specs(:prod) do
     [
+      EDTF,
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
       {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
