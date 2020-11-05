@@ -12,12 +12,11 @@ const WorkListItem = ({
   id,
   representativeImage,
   title,
-  workType,
-  visibility,
+  workType = { id: "", label: "", scheme: "" },
+  visibility = { id: "", label: "", scheme: "" },
   published,
   accessionNumber,
   fileSets,
-  manifestUrl,
   updatedAt,
 }) => {
   return (
@@ -42,8 +41,10 @@ const WorkListItem = ({
               }}
             ></Link>
           </h3>
-          <span className="tag mr-1">{workType.label.toUpperCase()}</span>
-          {visibility && (
+          {workType.label && (
+            <span className="tag mr-1">{workType.label.toUpperCase()}</span>
+          )}
+          {visibility.id && (
             <span
               data-testid="tag-visibility"
               className={`tag mr-1 ${setVisibilityClass(visibility.id)}`}

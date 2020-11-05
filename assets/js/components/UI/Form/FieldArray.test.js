@@ -48,7 +48,7 @@ describe("InputMultiple component", () => {
     fireEvent.click(addButton);
     const fieldArrayItems = screen.getAllByTestId("input-field-array");
     expect(fieldArrayItems).toHaveLength(2);
-    expect(screen.getByDisplayValue(defaultValue));
+    expect(screen.getAllByPlaceholderText(defaultValue)).toHaveLength(2);
   });
 
   it("deletes the proper field array row successfully", () => {

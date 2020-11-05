@@ -164,8 +164,8 @@ const BatchEditConfirmation = ({
           )}
 
           {hasDataToPost ? (
-            <div className="notification is-white has-text-centered">
-              <p className="has-text-danger mb-3">
+            <div className="notification is-danger is-light has-text-centered content">
+              <p>
                 <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This batch
                 edit will affect {numberOfResults} works. To execute this
                 change, type "I understand"
@@ -176,6 +176,7 @@ const BatchEditConfirmation = ({
                   onChange={handleConfirmationChange}
                   name="confirmationText"
                   label="Confirmation Text"
+                  placeholder="I understand"
                   required
                   data-testid="input-confirmation-text"
                 />
