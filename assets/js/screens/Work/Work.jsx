@@ -134,87 +134,95 @@ const ScreensWork = () => {
 
   return (
     <Layout>
-      <section className="section" data-testid="work-hero">
-        <div className="container">
-          <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
+      <ErrorBoundary FallbackComponent={ErrorFallbackHeader}>
+        <section className="section" data-testid="work-hero">
+          <div className="container">
+            <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
 
-          {isMulti() && (
-            <WorkMultiEditBar
-              currentIndex={multiCurrentIndex}
-              handleMultiNavClick={handleMultiNavClick}
-              totalItems={multiTotalItems}
-            />
-          )}
+            {isMulti() && (
+              <WorkMultiEditBar
+                currentIndex={multiCurrentIndex}
+                handleMultiNavClick={handleMultiNavClick}
+                totalItems={multiTotalItems}
+              />
+            )}
 
-          <div className="box">
-            {loading ? (
-              <UISkeleton rows={5} />
-            ) : (
-              <>
-                <div className="columns">
-                  <div className="column">
-                    <h1 className="title">
-                      {data.work.descriptiveMetadata.title || "Untitled"}{" "}
-                    </h1>
-                    <WorkTagsList work={data.work} />
-                  </div>
-                  <div className="column">
-                    <WorkHeaderButtons
-                      handleCreateSharableBtnClick={
-                        handleCreateSharableBtnClick
-                      }
-                      handlePublishClick={handlePublishClick}
-                      onOpenModal={onOpenModal}
-                      published={data.work.published}
-                      hasCollection={data.work.collection ? true : false}
-                    />
-                  </div>
-                </div>
-
-                <div className="content">
-                  {createSharedLinkData && (
-                    <WorkSharedLinkNotification
-                      linkData={createSharedLinkData.createSharedLink}
-                    />
-                  )}
-
-                  <hr />
+            <div className="box">
+              {loading ? (
+                <UISkeleton rows={5} />
+              ) : (
+                <>
                   <div className="columns">
                     <div className="column">
-                      <p>
-                        <strong>Accession Number</strong>
-                      </p>
-                      <p>{data.work.accessionNumber}</p>
+                      <h1 className="title">
+                        {data.work.descriptiveMetadata.title || "Untitled"}{" "}
+                      </h1>
+                      <WorkTagsList work={data.work} />
                     </div>
                     <div className="column">
-                      <p>
-                        <strong>Project</strong>
-                      </p>
-                      <p>
-                        <Link to={`/project/${data.work.project.id}`}>
-                          {data.work.project.title}
-                        </Link>
-                      </p>
-                    </div>
-                    <div className="column">
-                      <p>
-                        <strong>Ingest Sheet</strong>
-                      </p>
-                      <p>
-                        <Link
-                          to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
-                        >
-                          {data.work.ingestSheet.title}
-                        </Link>
-                      </p>
+                      <WorkHeaderButtons
+                        handleCreateSharableBtnClick={
+                          handleCreateSharableBtnClick
+                        }
+                        handlePublishClick={handlePublishClick}
+                        onOpenModal={onOpenModal}
+                        published={data.work.published}
+                        hasCollection={data.work.collection ? true : false}
+                      />
                     </div>
                   </div>
-                </div>
-              </>
-            )}
+
+                  <div className="content">
+                    {createSharedLinkData && (
+                      <WorkSharedLinkNotification
+                        linkData={createSharedLinkData.createSharedLink}
+                      />
+                    )}
+
+                    <hr />
+                    <div className="columns">
+                      <div className="column">
+                        <p>
+                          <strong>Accession Number</strong>
+                        </p>
+                        <p>{data.work.accessionNumber}</p>
+                      </div>
+                      <div className="column">
+                        <p>
+                          <strong>Project</strong>
+                        </p>
+                        {data.work.project &&
+                          data.work.project.id &&
+                          data.work.project.title && (
+                            <p>
+                              <Link to={`/project/${data.work.project.id}`}>
+                                {data.work.project.title}
+                              </Link>
+                            </p>
+                          )}
+                      </div>
+                      <div className="column">
+                        <p>
+                          <strong>Ingest Sheet</strong>
+                        </p>
+                        <p>
+                          {data.work.project && data.work.ingestSheet && (
+                            <Link
+                              to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
+                            >
+                              {data.work.ingestSheet.title}
+                            </Link>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ErrorBoundary>
 
       {loading ? (
         <UISkeleton rows={20} />
@@ -244,6 +252,17 @@ function ErrorFallback({ error }) {
   return (
     <div role="alert" className="notification is-danger">
       <p>There was an error displaying the Work</p>
+      <p>
+        <strong>Error</strong>: {error.message}
+      </p>
+    </div>
+  );
+}
+
+function ErrorFallbackHeader({ error }) {
+  return (
+    <div role="alert" className="notification is-danger">
+      <p>There was an error displaying the header of the Work</p>
       <p>
         <strong>Error</strong>: {error.message}
       </p>
