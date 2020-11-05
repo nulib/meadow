@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../../UI/TagNotYetSupported";
 import UIInput from "../../../UI/Form/Input";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormSelect from "../../../UI/Form/Select";
@@ -8,6 +7,8 @@ import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
+import UIFormEDTFDate from "../../../UI/Form/EDTFDate";
+import moment from "moment";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -15,10 +16,12 @@ const WorkTabsAboutCoreMetadata = ({
   published,
 }) => {
   const codeLists = useCodeLists();
+  const defaultDate = moment(new Date()).format("YYYY-MM-DD");
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
-      <div className="column is-two-thirds">
+      <div className="column is-full">
+        {/* Title */}
         <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
@@ -35,24 +38,8 @@ const WorkTabsAboutCoreMetadata = ({
         </UIFormField>
       </div>
 
-      <div className="column is-half">
-        {/* Description */}
-        {isEditing ? (
-          <UIFormFieldArray
-            name="description"
-            data-testid="description"
-            label="Description"
-            isTextarea={true}
-          />
-        ) : (
-          <UIFormFieldArrayDisplay
-            items={descriptiveMetadata.description}
-            label="Description"
-          />
-        )}
-      </div>
-
-      <div className="column is-half">
+      <div className="column is-full">
+        {/* Alternate Title */}
         {isEditing ? (
           <UIFormFieldArray
             name="alternateTitle"
@@ -65,6 +52,30 @@ const WorkTabsAboutCoreMetadata = ({
             label="Alternate Title"
           />
         )}
+      </div>
+
+      <div className="column is-full">
+        <UIFormField label="Date Created">
+          {/* Date Created */}
+          {isEditing ? (
+            <UIFormEDTFDate
+              options={descriptiveMetadata.dateCreated}
+              label="Date Created"
+              name="dateCreated"
+              data-testid="date-created"
+            />
+          ) : (
+            <ul>
+              {descriptiveMetadata.dateCreated &&
+                descriptiveMetadata.dateCreated.length > 0 &&
+                descriptiveMetadata.dateCreated.map((datefield, i) => (
+                  <li key={i}>
+                    {datefield ? datefield.humanized : "No Date specified"}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </UIFormField>
       </div>
       <div className="column is-half">
         {/* Rights Statement */}
@@ -92,23 +103,21 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
-
-      <div className="column is-half">
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
-          )}
-        </UIFormField>
+      <div className="column is-full">
+        {/* Description */}
+        {isEditing ? (
+          <UIFormFieldArray
+            name="description"
+            data-testid="description"
+            label="Description"
+            isTextarea={true}
+          />
+        ) : (
+          <UIFormFieldArrayDisplay
+            items={descriptiveMetadata.description}
+            label="Description"
+          />
+        )}
       </div>
     </div>
   );

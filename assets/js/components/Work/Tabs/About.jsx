@@ -62,6 +62,7 @@ function prepFormData(work) {
     description: descriptiveMetadata.description.map((value) => ({
       metadataItem: value,
     })),
+    dateCreated: descriptiveMetadata.dateCreated,
     relatedUrl: descriptiveMetadata.relatedUrl,
     ...resetValues,
     ...controlledTermResetValues,
@@ -82,8 +83,43 @@ const WorkTabsAbout = ({ work }) => {
   useEffect(() => {
     // Tell React Hook Form to update field array form values
     // with existing values, or when a Work updates
-    const updatedData = prepFormData(work);
-    methods.reset(updatedData);
+    let resetValues = {};
+    let controlledTermResetValues = {};
+
+    // Prepare back-end data for a shape the form (and React Hook Form) want
+    // These are all field array form items: type [String], and we need
+    // to turn them into: type [Object] ie. [{ metadataItem: "value here" }]
+    for (let group of [
+      IDENTIFIER_METADATA,
+      PHYSICAL_METADATA,
+      RIGHTS_METADATA,
+      UNCONTROLLED_METADATA,
+    ]) {
+      for (let obj of group) {
+        resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) =>
+          convertFieldArrayValToHookFormVal(value)
+        );
+      }
+    }
+
+    // Prepare Controlled Term back-end data for a shape the form wants
+    // We can just pass back-end values straight through for controlled terms
+    for (let obj of CONTROLLED_METADATA) {
+      controlledTermResetValues[obj.name] = [...descriptiveMetadata[obj.name]];
+    }
+
+    methods.reset({
+      alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
+        metadataItem: value,
+      })),
+      description: descriptiveMetadata.description.map((value) => ({
+        metadataItem: value,
+      })),
+      dateCreated: descriptiveMetadata.dateCreated,
+      relatedUrl: descriptiveMetadata.relatedUrl,
+      ...resetValues,
+      ...controlledTermResetValues,
+    });
   }, [work]);
 
   const [
@@ -114,6 +150,7 @@ const WorkTabsAbout = ({ work }) => {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
+        dateCreated: currentFormValues.dateCreated || [],
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {

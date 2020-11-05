@@ -72,6 +72,10 @@ export const GET_WORK = gql`
             label
           }
         }
+        dateCreated {
+          edtf
+          humanized
+        }
         description
         folderName
         folderNumber
@@ -266,6 +270,10 @@ export const UPDATE_WORK = gql`
       descriptiveMetadata {
         title
         description
+        dateCreated {
+          edtf
+          humanized
+        }
         contributor {
           term {
             id
