@@ -13,6 +13,7 @@ import {
   ELASTICSEARCH_AGGREGATION_FIELDS,
 } from "../../services/elasticsearch";
 import { useBatchDispatch } from "../../context/batch-edit-context";
+import { ErrorBoundary } from "react-error-boundary";
 
 const ScreensSearch = () => {
   let history = useHistory();
@@ -113,18 +114,31 @@ const ScreensSearch = () => {
               />
             </div>
 
-            <SearchResults
-              handleOnDataChange={handleOnDataChange}
-              handleQueryChange={handleQueryChange}
-              handleSelectItem={handleSelectItem}
-              isListView={isListView}
-              selectedItems={selectedItems}
-            />
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <SearchResults
+                handleOnDataChange={handleOnDataChange}
+                handleQueryChange={handleQueryChange}
+                handleSelectItem={handleSelectItem}
+                isListView={isListView}
+                selectedItems={selectedItems}
+              />
+            </ErrorBoundary>
           </div>
         </div>
       </section>
     </Layout>
   );
 };
+
+function ErrorFallback({ error }) {
+  return (
+    <div role="alert" className="notification is-danger">
+      <p>There was an error displaying Search</p>
+      <p>
+        <strong>Error</strong>: {error.message}
+      </p>
+    </div>
+  );
+}
 
 export default ScreensSearch;
