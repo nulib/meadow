@@ -19,8 +19,7 @@ const WorkTabsAboutCoreMetadata = ({
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
-      <div className="column is-full">
-        {/* Title */}
+      <div className="column is-two-thirds">
         <UIFormField label="Title" required={published}>
           {isEditing ? (
             <UIInput
@@ -37,8 +36,24 @@ const WorkTabsAboutCoreMetadata = ({
         </UIFormField>
       </div>
 
-      <div className="column is-full">
-        {/* Alternate Title */}
+      <div className="column is-half">
+        {/* Description */}
+        {isEditing ? (
+          <UIFormFieldArray
+            name="description"
+            data-testid="description"
+            label="Description"
+            isTextarea={true}
+          />
+        ) : (
+          <UIFormFieldArrayDisplay
+            items={descriptiveMetadata.description}
+            label="Description"
+          />
+        )}
+      </div>
+
+      <div className="column is-half">
         {isEditing ? (
           <UIFormFieldArray
             name="alternateTitle"
@@ -51,25 +66,6 @@ const WorkTabsAboutCoreMetadata = ({
             label="Alternate Title"
           />
         )}
-      </div>
-
-      <div className="column is-half">
-        {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
-          )}
-        </UIFormField>
       </div>
       <div className="column is-half">
         {/* Rights Statement */}
@@ -97,21 +93,23 @@ const WorkTabsAboutCoreMetadata = ({
           )}
         </UIFormField>
       </div>
-      <div className="column is-full">
-        {/* Description */}
-        {isEditing ? (
-          <UIFormFieldArray
-            name="description"
-            data-testid="description"
-            label="Description"
-            isTextarea={true}
-          />
-        ) : (
-          <UIFormFieldArrayDisplay
-            items={descriptiveMetadata.description}
-            label="Description"
-          />
-        )}
+
+      <div className="column is-half">
+        <UIFormField label="Date Created" notLive>
+          {isEditing ? (
+            <UIInput
+              name="dateCreated"
+              label="Date Created"
+              data-testid="date-created"
+              defaultValue={descriptiveMetadata.dateCreated}
+            />
+          ) : (
+            <>
+              <UITagNotYetSupported label="Display not yet supported" />
+              <UITagNotYetSupported label="Update not yet supported" />
+            </>
+          )}
+        </UIFormField>
       </div>
     </div>
   );

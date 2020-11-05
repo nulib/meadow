@@ -14,10 +14,15 @@ export default function WorkHeaderButtons({
     <div className="buttons is-right" data-testid="work-header-buttons">
       <Button
         isPrimary
-        className={`${published ? "is-outlined" : ""}`}
+        className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
         data-testid="publish-button"
         onClick={handlePublishClick}
         disabled={!hasCollection}
+        data-tooltip={
+          !hasCollection
+            ? "A work must belong to a Collection in order to be published.  Add to a Collection in the Administrative tab below."
+            : undefined
+        }
       >
         {!published ? "Publish" : "Unpublish"}
       </Button>
@@ -28,7 +33,7 @@ export default function WorkHeaderButtons({
         <span className="icon">
           <FontAwesomeIcon icon="link" />
         </span>
-        <span>Create Sharable Link</span>
+        <span>Create sharable link</span>
       </Button>
       <Button isText data-testid="delete-button" onClick={onOpenModal}>
         Delete

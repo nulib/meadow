@@ -25,10 +25,10 @@ const WorkTabsAboutControlledMetadata = ({
 
   return (
     <div data-testid="controlled-metadata">
-      <ul>
+      <ul className="columns is-multiline">
         {!codeLists.isLoading &&
           CONTROLLED_METADATA.map(({ label, name, scheme }) => (
-            <li key={name} className="mb-5">
+            <li key={name} className="mb-5 column is-half">
               <UIFormField label={label}>
                 {isEditing ? (
                   <UIFormControlledTermArray

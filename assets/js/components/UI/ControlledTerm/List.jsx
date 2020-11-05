@@ -10,13 +10,14 @@ const UIControlledTermList = ({ items = [], title }) => {
 
   return (
     <div className="content mb-4">
-      <ul data-testid="controlled-term-list">
+      <ul data-testid="controlled-term-list" className="ml-0">
         {items.map((item) => (
           <li
             key={`${item.term.id}-${item.role ? item.role.id : ""}`}
             data-testid="controlled-term-list-row"
+            className="is-flex is-flex-direction-column is-align-items-flex-start mb-4"
           >
-            <div className="buttons">
+            <>
               {componentId ? (
                 <UIFacetLink facetComponentId={componentId} item={item} />
               ) : (
@@ -35,7 +36,7 @@ const UIControlledTermList = ({ items = [], title }) => {
                   <span>{item.term.id}</span>
                 </a>
               )}
-            </div>
+            </>
           </li>
         ))}
       </ul>

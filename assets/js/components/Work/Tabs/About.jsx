@@ -204,20 +204,25 @@ const WorkTabsAbout = ({ work }) => {
 
         {isEditing ? (
           <div
-            className="box is-relative mt-4"
+            className="box is-relative content mt-4"
             data-testid="uneditable-metadata"
           >
-            <h2 className="title is-size-5 mb-4">Uneditable Metadata </h2>
-            <div>
-              <UIFormField label="ARK">
-                <p>{work.ark}</p>
-              </UIFormField>
-              <UIFormField label="ID">
-                <p>{work.id}</p>
-              </UIFormField>
-              <UIFormField label="Accession Number">
-                <p>{work.accessionNumber}</p>
-              </UIFormField>
+            <div className="columns">
+              <div className="column">
+                <UIFormField label="ARK">
+                  <p>{work.ark}</p>
+                </UIFormField>
+              </div>
+              <div className="column">
+                <UIFormField label="ID">
+                  <p>{work.id}</p>
+                </UIFormField>
+              </div>
+              <div className="column">
+                <UIFormField label="Accession Number">
+                  <p>{work.accessionNumber}</p>
+                </UIFormField>
+              </div>
             </div>
           </div>
         ) : null}

@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
 function FieldArrayAddButton({ btnLabel, handleAddClick }) {
   return (
-    <button
-      type="button"
-      className="button is-text is-small"
+    <Button
+      isLight
       onClick={handleAddClick}
       data-testid="button-add-field-array-row"
     >
@@ -14,7 +14,7 @@ function FieldArrayAddButton({ btnLabel, handleAddClick }) {
         <FontAwesomeIcon icon="plus" />
       </span>
       <span>{btnLabel}</span>
-    </button>
+    </Button>
   );
 }
 

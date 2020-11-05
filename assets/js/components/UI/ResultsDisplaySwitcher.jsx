@@ -11,12 +11,12 @@ const UIResultsDisplaySwitcher = ({ isListView, onGridClick, onListClick }) => {
             isListView ? "is-light" : "is-text"
           }`}
           onClick={onListClick}
-          title="List View"
+          title="List view"
         >
           <span className={`icon`}>
             <FontAwesomeIcon icon="th-list" />
           </span>
-          <span>List View</span>
+          <span>List view</span>
         </button>
       </div>
       <div className="column pt-0">
@@ -25,12 +25,12 @@ const UIResultsDisplaySwitcher = ({ isListView, onGridClick, onListClick }) => {
             isListView ? "is-text" : "is-light"
           }`}
           onClick={onGridClick}
-          title="Grid View"
+          title="Grid view"
         >
           <span className={`icon`}>
             <FontAwesomeIcon icon="th-large" />
           </span>
-          <span>Grid View</span>
+          <span>Grid view</span>
         </button>
       </div>
     </div>
