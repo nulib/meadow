@@ -3,8 +3,8 @@ fragment WorkDescriptiveMetadataFields on Work {
     ark
     title
     dateCreated {
-      edtfDate
-      humanizedDate
+      edtf
+      humanized
     }
     description
     contributor {
