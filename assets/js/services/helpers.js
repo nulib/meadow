@@ -71,7 +71,7 @@ export function toastWrapper(
   });
 }
 
-export function setVisibilityClass(visibility) {
+export function setVisibilityClass(visibility = "") {
   if (visibility.toUpperCase() === "RESTRICTED") {
     return "is-danger";
   }

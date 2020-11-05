@@ -12,8 +12,8 @@ const WorkCardItem = ({
   id,
   representativeImage,
   title,
-  workType,
-  visibility,
+  workType = { id: "", label: "", scheme: "" },
+  visibility = { id: "", label: "", scheme: "" },
   published,
   collectionName,
 }) => {
@@ -35,8 +35,8 @@ const WorkCardItem = ({
         {collectionName && <p className="heading">{collectionName}</p>}
 
         <p className="has-text-uppercase">
-          {workType && <span className="tag">{workType.label}</span>}{" "}
-          {visibility && (
+          {workType.label && <span className="tag">{workType.label}</span>}{" "}
+          {visibility.id && (
             <span
               data-testid="tag-visibility"
               className={`tag ${setVisibilityClass(visibility.id)}`}
