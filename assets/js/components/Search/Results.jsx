@@ -18,9 +18,8 @@ const SearchResults = ({
   selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
-
   return (
-    <>
+    <React.Fragment>
       <div data-testid="search-results-component">
         <IIIFProvider>
           <ReactiveList
@@ -84,7 +83,7 @@ const SearchResults = ({
           />
         </IIIFProvider>
       </div>
-    </>
+    </React.Fragment>
   );
 };
 

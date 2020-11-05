@@ -17,9 +17,9 @@ import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
+import { ErrorBoundary } from "react-error-boundary";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -216,7 +216,13 @@ const ScreensWork = () => {
         </div>
       </section>
 
-      {loading ? <UISkeleton rows={20} /> : <Work work={data.work} />}
+      {loading ? (
+        <UISkeleton rows={20} />
+      ) : (
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Work work={data.work} />
+        </ErrorBoundary>
+      )}
 
       {data && (
         <UIModalDelete
@@ -233,5 +239,16 @@ const ScreensWork = () => {
     </Layout>
   );
 };
+
+function ErrorFallback({ error }) {
+  return (
+    <div role="alert" className="notification is-danger">
+      <p>There was an error displaying the Work</p>
+      <p>
+        <strong>Error</strong>: {error.message}
+      </p>
+    </div>
+  );
+}
 
 export default ScreensWork;

@@ -6,7 +6,7 @@ import {
   formatDate,
   getImageUrl,
 } from "@js/services/helpers";
-import UIWorkImage from "../UI/WorkImage";
+import UIWorkImage from "@js/components/UI/WorkImage";
 
 const WorkCardItem = ({
   id,
