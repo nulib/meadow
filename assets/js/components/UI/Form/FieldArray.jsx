@@ -23,7 +23,7 @@ const UIFormFieldArray = ({
   });
 
   function handleAddClick() {
-    append({ metadataItem: defaultValue });
+    append({ metadataItem: "" });
   }
 
   function handleRemoveClick(index) {

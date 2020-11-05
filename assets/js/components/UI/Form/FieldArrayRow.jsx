@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -42,18 +43,18 @@ function FieldArrayRow({
               errors[name] && errors[name][index] ? "is-danger" : ""
             }`}
             defaultValue={item.metadataItem}
+            placeholder={`New ${label || name}`}
             ref={register({ required: true })}
             data-testid="input-field-array"
           />
         )}
-        <button
-          type="button"
-          className="button ml-1"
+        <Button
+          isText
           onClick={() => handleRemoveClick(index)}
           data-testid="button-delete-field-array-row"
         >
           <FontAwesomeIcon icon="trash" />
-        </button>
+        </Button>
       </div>
       {errors[name] && errors[name][index] && (
         <p data-testid="input-errors" className="help is-danger">
