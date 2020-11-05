@@ -7,7 +7,6 @@ defmodule EDTF do
 
   require Logger
 
-  @command Meadow.Config.edtf()
   @timeout 1000
 
   @doc """
@@ -64,7 +63,7 @@ defmodule EDTF do
 
   def init(_args) do
     Logger.info("Starting EDTF Parser")
-    {:ok, Port.open({:spawn, @command}, [:binary, :exit_status])}
+    {:ok, Port.open({:spawn, Meadow.Config.edtf()}, [:binary, :exit_status])}
   end
 
   def handle_call({command, data}, _from, port) do
