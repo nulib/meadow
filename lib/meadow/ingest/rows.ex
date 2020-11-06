@@ -34,9 +34,6 @@ defmodule Meadow.Ingest.Rows do
     |> Repo.update()
   end
 
-  @doc """
-  Changes the validation state of a Row
-  """
   def change_ingest_sheet_row_validation_state(%Row{} = ingest_sheet_row, state) do
     ingest_sheet_row
     |> Row.state_changeset(%{state: state})

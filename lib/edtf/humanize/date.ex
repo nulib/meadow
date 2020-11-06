@@ -4,6 +4,7 @@ defmodule EDTF.Humanize.Date do
   """
 
   @bce_suffix " BCE"
+  @months ~w(January February March April May June July August September October November December)
   @seasons %{
     21 => "Spring",
     22 => "Summer",
@@ -50,8 +51,8 @@ defmodule EDTF.Humanize.Date do
 
   def humanize(%{type: "Date", values: values}) do
     case values do
-      [year | [month | [day]]] -> "#{month_to_string(month)} #{day}, #{set_era(year)}"
-      [year | [month]] -> "#{month_to_string(month)} #{set_era(year)}"
+      [year | [month | [day]]] -> "#{Enum.at(@months, month)} #{day}, #{set_era(year)}"
+      [year | [month]] -> "#{Enum.at(@months, month)} #{set_era(year)}"
       [year] -> "#{set_era(year)}"
     end
   end
@@ -73,13 +74,6 @@ defmodule EDTF.Humanize.Date do
     do: "#{Inflex.ordinalize(-value)} Century#{@bce_suffix}"
 
   def humanize(%{type: "Century", values: [value]}), do: "#{Inflex.ordinalize(value)} Century"
-
-  defp month_to_string(month) do
-    with {:ok, result} <-
-           {0, month + 1, 1} |> Date.from_erl!() |> Calendar.Strftime.strftime("%B") do
-      result
-    end
-  end
 
   defp set_era(year) do
     if year < 0, do: "#{-year}#{@bce_suffix}", else: to_string(year)
