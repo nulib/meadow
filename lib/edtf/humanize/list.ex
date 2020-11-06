@@ -31,22 +31,17 @@ defmodule EDTF.Humanize.List do
     end
   end
 
-  # The following two commented functions are unreachable due to a parsing bug in EDTF.js
-  # Examples:
-  #   EDTF.humanize("{..1984}") should return "all years before 1984"
-  #   EDTF.humanize("{1984..}") should return "all years after 1984"
+  def humanize(%{type: "Continuation", subtype: "List", position: :earlier, value: value}) do
+    with {human, time_unit} <- humanize_with_unit(value) do
+      "all #{Inflex.pluralize(time_unit)} before #{human}"
+    end
+  end
 
-  # def humanize(%{type: "Continuation", subtype: "List", position: :earlier, value: value}) do
-  #   with {human, time_unit} <- humanize_with_unit(value) do
-  #     "all #{Inflex.pluralize(time_unit)} before #{human}"
-  #   end
-  # end
-
-  # def humanize(%{type: "Continuation", subtype: "List", position: :later, value: value}) do
-  #   with {human, time_unit} <- humanize_with_unit(value) do
-  #     "all #{Inflex.pluralize(time_unit)} after #{human}"
-  #   end
-  # end
+  def humanize(%{type: "Continuation", subtype: "List", position: :later, value: value}) do
+    with {human, time_unit} <- humanize_with_unit(value) do
+      "all #{Inflex.pluralize(time_unit)} after #{human}"
+    end
+  end
 
   defp continuation(type, position, value),
     do: %{type: "Continuation", subtype: type, position: position, value: value}

@@ -129,6 +129,9 @@ defmodule EDTFTest do
 
       assert EDTF.humanize("{2019-06, 2020-06, 2021-06..2021-07}") ==
                "June 2019, June 2020, and June 2021 to July 2021"
+
+      assert EDTF.humanize("{..1984}") == "all years before 1984 and 1984"
+      assert EDTF.humanize("{1984..}") == "1984 and all years after 1984"
     end
 
     test "season" do
