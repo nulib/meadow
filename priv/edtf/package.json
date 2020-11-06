@@ -6,6 +6,6 @@
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "edtf": "^3.0.1"
+    "edtf": "^3.1.0"
   }
 }

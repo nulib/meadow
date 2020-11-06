@@ -17,12 +17,13 @@ drange@^1.0.2:
   resolved "https://registry.yarnpkg.com/drange/-/drange-1.1.1.tgz#b2aecec2aab82fcef11dbbd7b9e32b83f8f6c0b8"
   integrity sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA==
 
-edtf@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/edtf/-/edtf-3.0.1.tgz#0f3f066340bc29075e34a14763a9f6ca6169ed68"
-  integrity sha512-YxSe9caZIvAO8xYYqTEHofi4az6AJdpVZZE7+E6P8EVWRF9y2bVtsDQtANlxD4v7FlFKPDtsCDZe40v/WnNA1g==
+edtf@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/edtf/-/edtf-3.1.0.tgz#63ff89a0e8b29345b72a233ea7455ec4af10d58b"
+  integrity sha512-m9pPUyBb/REAYraG/+l+D7HRHpCwK+8jaZyBrO0BP0elRSRxt0O+4ttbpY5SyctkLL/hF/AMEaco36m74ZxQIw==
   dependencies:
-    nearley "^2.19.4"
+    nearley "^2.19.7"
+  optionalDependencies:
     randexp "^0.5.3"
 
 moo@^0.5.0:
@@ -30,7 +31,7 @@ moo@^0.5.0:
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.5.1.tgz#7aae7f384b9b09f620b6abf6f74ebbcd1b65dbc4"
   integrity sha512-I1mnb5xn4fO80BH9BLcF0yLypy2UKl+Cb01Fu0hJRkJjlCRtxZMWkTdAtDd5ZqCOxtCkhmRwyI57vWT+1iZ67w==
 
-nearley@^2.19.4:
+nearley@^2.19.7:
   version "2.19.7"
   resolved "https://registry.yarnpkg.com/nearley/-/nearley-2.19.7.tgz#eafbe3e2d8ccfe70adaa5c026ab1f9709c116218"
   integrity sha512-Y+KNwhBPcSJKeyQCFjn8B/MIe+DDlhaaDgjVldhy5xtFewIbiQgcbZV8k2gCVwkI1ZsKCnjIYZbR+0Fim5QYgg==
