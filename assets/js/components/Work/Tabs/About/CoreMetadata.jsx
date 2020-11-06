@@ -59,21 +59,22 @@ const WorkTabsAboutCoreMetadata = ({
           {/* Date Created */}
           {isEditing ? (
             <UIFormEDTFDate
-              options={descriptiveMetadata.dateCreated}
               label="Date Created"
               name="dateCreated"
               data-testid="date-created"
             />
           ) : (
-            <ul>
-              {descriptiveMetadata.dateCreated &&
-                descriptiveMetadata.dateCreated.length > 0 &&
-                descriptiveMetadata.dateCreated.map((datefield, i) => (
-                  <li key={i}>
-                    {datefield ? datefield.humanized : "No Date specified"}
-                  </li>
-                ))}
-            </ul>
+            <div className="field content">
+              <ul className="field-array-item-list">
+                {descriptiveMetadata.dateCreated &&
+                  descriptiveMetadata.dateCreated.length > 0 &&
+                  descriptiveMetadata.dateCreated.map((datefield, i) => (
+                    <li key={i}>
+                      {datefield ? datefield.humanized : "No Date specified"}
+                    </li>
+                  ))}
+              </ul>
+            </div>
           )}
         </UIFormField>
       </div>

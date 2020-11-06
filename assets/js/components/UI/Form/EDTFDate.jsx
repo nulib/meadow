@@ -118,7 +118,6 @@ const UIFormEDTFDate = ({ label, name, required, ...passedInProps }) => {
 };
 
 UIFormEDTFDate.propTypes = {
-  options: PropTypes.array,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 };

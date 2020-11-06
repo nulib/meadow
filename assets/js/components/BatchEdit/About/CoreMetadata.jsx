@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
-import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UIInput from "../../UI/Form/Input";
 import UIFormField from "../../UI/Form/Field";
+import UIFormBatchEDTFDate from "../../UI/Form/BatchEDTFDate";
+
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
@@ -81,19 +82,8 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
         </UIFormField>
       </div>
 
-      <div className="column is-half">
-        {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          <UIInput
-            isReactHookForm
-            name="dateCreated"
-            label="Date Created"
-            type="date"
-            data-testid="date-created"
-          />
-          <UITagNotYetSupported label="Display not yet supported" />
-          <UITagNotYetSupported label="Update not yet supported" />
-        </UIFormField>
+      <div className="column is-half" data-testid="date-created">
+        <UIFormBatchEDTFDate label="Date Created" name="dateCreated" />
       </div>
 
       <div className="column is-half">

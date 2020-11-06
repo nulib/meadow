@@ -142,6 +142,7 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   BOX_NUMBER,
   CAPTION,
   CATALOG_KEY,
+  DATE_CREATED,
   DESCRIPTION,
   FOLDER_NAME,
   FOLDER_NUMBER,
@@ -241,13 +242,13 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
   );
 
   for (const key of formMultiOnly) {
+    let rootName = key.split("--")[0];
     // Handle "replace all" condition
     if (key.includes("removeCheckbox") && currentFormValues[key]) {
-      returnObj.replace[key.split("--")[0]] = [];
+      returnObj.replace[rootName] = [];
     }
     // Handle "replace" or "add"
     else {
-      let rootName = key.split("--")[0];
       // Verify a value exists
       if (
         key.includes("replaceCheckbox") &&
@@ -399,9 +400,13 @@ export function prepRelatedUrl(items = []) {
 /**
  * Helper function which removes label from a given object
  * @param {Object} item
+ * @param {String} key
  * @returns {Object}
  */
-export function deleteKeyFromObject(item) {
+export function deleteKeyFromObject(item, key) {
+  if (key === "dateCreated") {
+    return { edtf: item };
+  }
   if (typeof item !== "object" || Array.isArray(item)) {
     return item;
   }
@@ -440,7 +445,7 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
         ].map((item) => {
-          return deleteKeyFromObject(item);
+          return deleteKeyFromObject(item, key);
         });
       });
     batchAdds.administrativeMetadata &&
@@ -448,7 +453,7 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.administrativeMetadata[
           key
         ] = batchAdds.administrativeMetadata[key].map((item) => {
-          return deleteKeyFromObject(item);
+          return deleteKeyFromObject(item, key);
         });
       });
   }
@@ -457,13 +462,17 @@ export function removeLabelsFromBatchEditPostData(
     batchReplaces.descriptiveMetadata &&
       Object.keys(batchReplaces.descriptiveMetadata).forEach((key) => {
         let item = batchReplaces.descriptiveMetadata[key];
-        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(item);
+        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(
+          item,
+          key
+        );
       });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
         returnObj.replace.administrativeMetadata[key] = deleteKeyFromObject(
-          item
+          item,
+          key
         );
       });
 
@@ -479,7 +488,7 @@ export function removeLabelsFromBatchEditPostData(
   if (hasDeletes) {
     Object.keys(batchDeletes).forEach((key) => {
       returnObj.delete[key] = batchDeletes[key].map((item) => {
-        return deleteKeyFromObject(item);
+        return deleteKeyFromObject(item, key);
       });
     });
   }

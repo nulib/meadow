@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useFieldArray } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import UIFormFieldArrayRow from "@js/components/UI/Form/FieldArrayRow";
 import UIFormFieldArrayAddButton from "@js/components/UI/Form/FieldArrayAddButton";
+import { isEDTFValid } from "../../../services/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
-const UIFormBatchFieldArray = ({
+const UIFormBatchEDTFDate = ({
   name,
   label,
   type = "text",
   required,
-  defaultValue = `New ${label}`,
-  isTextarea,
   ...passedInProps
 }) => {
   const { control, errors, register } = useFormContext();
@@ -23,7 +23,7 @@ const UIFormBatchFieldArray = ({
   const [isRemove, setIsRemove] = useState();
 
   function handleAddClick() {
-    append({ metadataItem: defaultValue });
+    append({ metadataItem: "" });
   }
 
   function handleRemoveClick(index) {
@@ -39,15 +39,47 @@ const UIFormBatchFieldArray = ({
           <ul className="mb-4">
             {fields.map((item, index) => {
               return (
-                <UIFormFieldArrayRow
-                  key={item.id}
-                  handleRemoveClick={handleRemoveClick}
-                  item={item}
-                  index={index}
-                  label={label}
-                  name={name}
-                  isTextarea={isTextarea}
-                />
+                <>
+                  <li className="field" key={item}>
+                    <div className="is-flex">
+                      <input
+                        type="text"
+                        name={`${[name]}[${index}].metadataItem`}
+                        className={`input ${
+                          errors[name] &&
+                          errors[name][index] &&
+                          errors[name][index].metadataItem
+                            ? "is-danger"
+                            : ""
+                        }`}
+                        ref={register({
+                          required: "Date Created is required",
+                          validate: (value) =>
+                            isEDTFValid(value) || "Please enter a valid date",
+                        })}
+                        defaultValue=""
+                        data-testid={`dateCreated-edtf-input`}
+                      />
+                      <Button
+                        isText
+                        onClick={() => handleRemoveClick(index)}
+                        data-testid="button-delete-field-array-row"
+                      >
+                        <FontAwesomeIcon icon="trash" />
+                      </Button>
+                    </div>
+                    {errors[name] &&
+                      errors[name][index] &&
+                      errors[name][index].metadataItem && (
+                        <p
+                          data-testid={`dateCreated-input-errors-${index}`}
+                          className="help is-danger"
+                        >
+                          {errors[name][index].metadataItem.message}
+                        </p>
+                      )}
+                  </li>
+                </>
               );
             })}
           </ul>
@@ -93,7 +125,7 @@ const UIFormBatchFieldArray = ({
   );
 };
 
-UIFormBatchFieldArray.propTypes = {
+UIFormBatchEDTFDate.propTypes = {
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -102,4 +134,4 @@ UIFormBatchFieldArray.propTypes = {
   isTextarea: PropTypes.bool,
 };
 
-export default UIFormBatchFieldArray;
+export default UIFormBatchEDTFDate;
