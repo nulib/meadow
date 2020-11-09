@@ -94,7 +94,9 @@ const BatchEditConfirmation = ({
     batchDeletes && !Object.values(batchDeletes).every((item) => !item.length);
 
   const hasReplaces =
-    batchReplaces && Object.keys(batchReplaces[batchEditType]).length > 0;
+    batchReplaces &&
+    (Object.keys(batchReplaces[batchEditType]).length > 0 ||
+      batchReplaces.published);
 
   const hasCollection =
     batchCollection && Object.keys(batchCollection).length > 0;
@@ -157,6 +159,11 @@ const BatchEditConfirmation = ({
                     batchVisibility.id && {
                       visibility: batchVisibility,
                     }),
+                  ...(batchReplaces.published && {
+                    published: batchReplaces.published.publish
+                      ? "Publish works"
+                      : "Unpublish works",
+                  }),
                 }}
                 type="replace"
               />

@@ -7,13 +7,20 @@ export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
   handlePublishClick,
   hasCollection,
-  onOpenModal,
   published,
 }) {
   return (
     <div className="buttons is-right" data-testid="work-header-buttons">
       <Button
-        isPrimary
+        onClick={handleCreateSharableBtnClick}
+        data-testid="button-sharable-link"
+      >
+        <span className="icon">
+          <FontAwesomeIcon icon="link" />
+        </span>
+        <span>Create sharable link</span>
+      </Button>
+      <Button
         className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
         data-testid="publish-button"
         onClick={handlePublishClick}
@@ -26,18 +33,6 @@ export default function WorkHeaderButtons({
       >
         {!published ? "Publish" : "Unpublish"}
       </Button>
-      <Button
-        onClick={handleCreateSharableBtnClick}
-        data-testid="button-sharable-link"
-      >
-        <span className="icon">
-          <FontAwesomeIcon icon="link" />
-        </span>
-        <span>Create sharable link</span>
-      </Button>
-      <Button isText data-testid="delete-button" onClick={onOpenModal}>
-        Delete
-      </Button>
     </div>
   );
 }
@@ -46,6 +41,5 @@ WorkHeaderButtons.propTypes = {
   handleCreateSharableBtnClick: PropTypes.func,
   handlePublishClick: PropTypes.func,
   hasCollection: PropTypes.bool,
-  onOpenModal: PropTypes.func,
   published: PropTypes.bool,
 };

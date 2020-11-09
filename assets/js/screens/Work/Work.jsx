@@ -20,6 +20,8 @@ import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotifica
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
+import { Button } from "@nulib/admin-react-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -165,7 +167,6 @@ const ScreensWork = () => {
                           handleCreateSharableBtnClick
                         }
                         handlePublishClick={handlePublishClick}
-                        onOpenModal={onOpenModal}
                         published={data.work.published}
                         hasCollection={data.work.collection ? true : false}
                       />
@@ -229,6 +230,14 @@ const ScreensWork = () => {
       ) : (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Work work={data.work} />
+          <div className="container buttons">
+            <Button data-testid="delete-button" onClick={onOpenModal}>
+              <span className="icon">
+                <FontAwesomeIcon icon="trash" />
+              </span>
+              <span>Delete this work</span>
+            </Button>
+          </div>
         </ErrorBoundary>
       )}
 

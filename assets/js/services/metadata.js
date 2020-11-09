@@ -51,6 +51,7 @@ export const METADATA_FIELDS = {
     label: "Project Task Number",
   },
   PROVENANCE: { name: "provenance", label: "Provenance" },
+  PUBLISHED: { name: "published", label: "Published" },
   PUBLISHER: { name: "publisher", label: "Publisher" },
   RELATED_MATERIAL: { name: "relatedMaterial", label: "Related Material" },
   RELATED_URL: { name: "relatedUrl", label: "Related URL" },
@@ -105,6 +106,7 @@ const {
   PROJECT_PROPOSER,
   PROJECT_TASK_NUMBER,
   PROVENANCE,
+  PUBLISHED,
   PUBLISHER,
   RELATED_MATERIAL,
   RELATED_URL,
@@ -464,6 +466,14 @@ export function removeLabelsFromBatchEditPostData(
           item
         );
       });
+
+    // Handle published or unpublished values
+    // The "published" object can only have one of its properties set
+    // to TRUE... "publish" or "unpublish".  Not both.
+    const { published } = batchReplaces;
+    if (published && (published.publish || published.unpublish)) {
+      returnObj.replace.published = published.publish;
+    }
   }
 
   if (hasDeletes) {

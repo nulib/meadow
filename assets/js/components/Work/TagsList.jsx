@@ -8,11 +8,19 @@ export default function WorkTagsList({ work }) {
   }
   return (
     <p>
-      <span className={`tag mr-1 ${work.published ? "is-info" : "is-warning"}`}>
+      <span
+        className={`tag mr-1 is-light ${
+          work.published ? "is-info" : "is-warning"
+        }`}
+      >
         {work.published ? "Published" : "Not Published"}
       </span>
       {work.visibility && (
-        <span className={`tag mr-1 ${setVisibilityClass(work.visibility.id)}`}>
+        <span
+          className={`tag mr-1 is-light ${setVisibilityClass(
+            work.visibility.id
+          )}`}
+        >
           {work.visibility.label}
         </span>
       )}
