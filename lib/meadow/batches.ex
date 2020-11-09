@@ -103,12 +103,16 @@ defmodule Meadow.Batches do
     end
   end
 
+  defp merge_uncontrolled_fields(work_ids, new_values, _mode) when map_size(new_values) == 0,
+    do: work_ids
+
   defp merge_uncontrolled_fields(work_ids, new_values, mode) do
     mergeable_descriptive_metadata =
       new_values
       |> Map.get(:descriptive_metadata, %{})
       |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
       |> Enum.into(%{})
+      |> humanize_date_created()
 
     mergeable_administrative_metadata =
       new_values
@@ -129,6 +133,25 @@ defmodule Meadow.Batches do
 
     work_ids
   end
+
+  defp humanize_date_created(%{date_created: date_created} = descriptive_metadata) do
+    new_dates =
+      Enum.map(date_created, fn d ->
+        edtf = Map.get(d, :edtf)
+
+        case EDTF.humanize(edtf) do
+          {:error, error} ->
+            raise error
+
+          result ->
+            %{edtf: edtf, humanized: result}
+        end
+      end)
+
+    Map.replace!(descriptive_metadata, :date_created, new_dates)
+  end
+
+  defp humanize_date_created(descriptive_metadata), do: descriptive_metadata
 
   defp update_top_level_field(work_ids, _field, :not_present), do: work_ids
 

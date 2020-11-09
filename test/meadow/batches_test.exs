@@ -89,7 +89,8 @@ defmodule Meadow.BatchesTest do
 
       add = %{
         descriptive_metadata: %{
-          box_name: ["His Airness"]
+          box_name: ["His Airness"],
+          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968"}]
         }
       }
 
@@ -110,6 +111,12 @@ defmodule Meadow.BatchesTest do
         assert work.descriptive_metadata.alternate_title |> length() == 2
         assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
         assert work.descriptive_metadata.box_number == []
+
+        assert work.descriptive_metadata.date_created == [
+                 %{edtf: "1009", humanized: "1009"},
+                 %{edtf: "100X", humanized: "1000s"},
+                 %{edtf: "~1968", humanized: "circa 1968?"}
+               ]
       end)
     end
 
