@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
-import UIFormSelect from "./Select";
 import { isEDTFValid } from "../../../services/helpers";
 import { Button } from "@nulib/admin-react-components";
 import { useFormContext } from "react-hook-form";
