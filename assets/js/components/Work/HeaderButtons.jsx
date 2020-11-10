@@ -9,6 +9,8 @@ export default function WorkHeaderButtons({
   hasCollection,
   published,
 }) {
+  const isPublishBtnDisabled = !hasCollection && !published;
+
   return (
     <div className="buttons is-right" data-testid="work-header-buttons">
       <Button
@@ -24,9 +26,9 @@ export default function WorkHeaderButtons({
         className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
         data-testid="publish-button"
         onClick={handlePublishClick}
-        disabled={!hasCollection}
+        disabled={isPublishBtnDisabled}
         data-tooltip={
-          !hasCollection
+          isPublishBtnDisabled
             ? "A work must belong to a Collection in order to be published.  Add to a Collection in the Administrative tab below."
             : undefined
         }

@@ -37,7 +37,15 @@ describe("WorkHeaderButtons component", () => {
   it("renders an Unpublish button", () => {
     let newProps = { ...props, published: true };
     const { getByText } = render(<WorkHeaderButtons {...newProps} />);
-    expect(getByText(/unpublish/i));
+    const unpublishBtn = getByText(/unpublish/i);
+    expect(unpublishBtn);
+    expect(unpublishBtn).not.toBeDisabled();
+  });
+
+  it("renders an enabled Unpublish button even if a Work does not have a Collection", () => {
+    let newProps = { ...props, hasCollection: false, published: true };
+    const { getByText } = render(<WorkHeaderButtons {...newProps} />);
+    expect(getByText(/unpublish/i)).not.toBeDisabled();
   });
 
   it("renders sharable link button which fires a callback function", () => {
