@@ -39,47 +39,45 @@ const UIFormBatchEDTFDate = ({
           <ul className="mb-4">
             {fields.map((item, index) => {
               return (
-                <>
-                  <li className="field" key={item}>
-                    <div className="is-flex">
-                      <input
-                        type="text"
-                        name={`${[name]}[${index}].metadataItem`}
-                        className={`input ${
-                          errors[name] &&
-                          errors[name][index] &&
-                          errors[name][index].metadataItem
-                            ? "is-danger"
-                            : ""
-                        }`}
-                        ref={register({
-                          required: "Date Created is required",
-                          validate: (value) =>
-                            isEDTFValid(value) || "Please enter a valid date",
-                        })}
-                        defaultValue=""
-                        data-testid={`dateCreated-edtf-input`}
-                      />
-                      <Button
-                        isText
-                        onClick={() => handleRemoveClick(index)}
-                        data-testid="button-delete-field-array-row"
+                <li className="field" key={index}>
+                  <div className="is-flex">
+                    <input
+                      type="text"
+                      name={`${[name]}[${index}].metadataItem`}
+                      className={`input ${
+                        errors[name] &&
+                        errors[name][index] &&
+                        errors[name][index].metadataItem
+                          ? "is-danger"
+                          : ""
+                      }`}
+                      defaultValue={item.metadataItem}
+                      ref={register({
+                        required: "Date Created is required",
+                        validate: (value) =>
+                          isEDTFValid(value) || "Please enter a valid date",
+                      })}
+                      data-testid={`dateCreated-edtf-input`}
+                    />
+                    <Button
+                      isText
+                      onClick={() => handleRemoveClick(index)}
+                      data-testid="button-delete-field-array-row"
+                    >
+                      <FontAwesomeIcon icon="trash" />
+                    </Button>
+                  </div>
+                  {errors[name] &&
+                    errors[name][index] &&
+                    errors[name][index].metadataItem && (
+                      <p
+                        data-testid={`dateCreated-input-errors-${index}`}
+                        className="help is-danger"
                       >
-                        <FontAwesomeIcon icon="trash" />
-                      </Button>
-                    </div>
-                    {errors[name] &&
-                      errors[name][index] &&
-                      errors[name][index].metadataItem && (
-                        <p
-                          data-testid={`dateCreated-input-errors-${index}`}
-                          className="help is-danger"
-                        >
-                          {errors[name][index].metadataItem.message}
-                        </p>
-                      )}
-                  </li>
-                </>
+                        {errors[name][index].metadataItem.message}
+                      </p>
+                    )}
+                </li>
               );
             })}
           </ul>
