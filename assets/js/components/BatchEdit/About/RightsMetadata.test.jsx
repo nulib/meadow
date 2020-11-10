@@ -30,6 +30,6 @@ describe("BatchEditAboutRightsMetadata component", () => {
     for (let item of RIGHTS_METADATA) {
       expect(screen.getByTestId(item.name));
     }
-    expect(screen.getByTestId("license"));
+    expect(screen.getByTestId("license-select"));
   });
 });

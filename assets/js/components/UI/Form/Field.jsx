@@ -8,9 +8,10 @@ const UIFormField = ({
   mocked,
   notLive,
   required,
+  ...restProps
 }) => {
   return (
-    <div className="field">
+    <div className="field" {...restProps}>
       <label className="label">
         {label} {required && <span>*</span>}{" "}
         {mocked && <span className="tag">Mocked</span>}{" "}
@@ -28,6 +29,7 @@ UIFormField.propTypes = {
   mocked: PropTypes.bool,
   notLive: PropTypes.bool,
   required: PropTypes.bool,
+  restProps: PropTypes.object,
 };
 
 export default UIFormField;

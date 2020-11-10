@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import BatchEditAdministrativeProjectMetadata from "./ProjectMetadata";
-import BatchEditAdministrativeProjectStatusMetadata from "./ProjectStatusMetadata";
+import BatchEditAdministrativeGeneral from "./General";
 import UIAccordion from "../../UI/Accordion";
 import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../../context/batch-edit-context";
 import { getBatchMultiValueDataFromForm } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
+import BatchEditCollection from "@js/components/BatchEdit/Administrative/Collection";
 
 const BatchEditAdministrative = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -20,6 +21,7 @@ const BatchEditAdministrative = () => {
   });
   const [batchVisibility, setBatchVisibility] = useState({});
   const batchDispatch = useBatchDispatch();
+  const [batchCollection, setBatchCollection] = useState({});
 
   // Grab batch search data from Context
   const batchState = useBatchState();
@@ -66,6 +68,10 @@ const BatchEditAdministrative = () => {
       administrativeMetadata: { ...replaceItems, ...multiValues.replace },
     });
 
+    Object.keys(currentFormValues["collection"]).length > 0
+      ? setBatchCollection(JSON.parse(currentFormValues["collection"]))
+      : setBatchCollection({});
+
     Object.keys(currentFormValues["visibility"]).length > 0
       ? setBatchVisibility(JSON.parse(currentFormValues["visibility"]))
       : setBatchVisibility({});
@@ -103,16 +109,33 @@ const BatchEditAdministrative = () => {
           </>
         </UITabsStickyHeader>
 
-        <UIAccordion testid="project-metadata-wrapper" title="Project Metadata">
-          <BatchEditAdministrativeProjectMetadata />
-        </UIAccordion>
+        <div className="columns">
+          <div className="column">
+            <div
+              className="box content mt-4"
+              data-testid="batch-collection-wrapper"
+            >
+              <h3>Collections</h3>
+              <BatchEditCollection />
+            </div>
 
-        <UIAccordion
-          testid="project-status-metadata-wrapper"
-          title="Project Status Metadata"
-        >
-          <BatchEditAdministrativeProjectStatusMetadata />
-        </UIAccordion>
+            <UIAccordion
+              testid="project-status-metadata-wrapper"
+              title="General"
+            >
+              <BatchEditAdministrativeGeneral />
+            </UIAccordion>
+          </div>
+
+          <div className="column">
+            <UIAccordion
+              testid="project-metadata-wrapper"
+              title="Project Metadata"
+            >
+              <BatchEditAdministrativeProjectMetadata />
+            </UIAccordion>
+          </div>
+        </div>
       </form>
 
       {isConfirmModalOpen ? (
@@ -121,6 +144,7 @@ const BatchEditAdministrative = () => {
           batchAdds={batchAdds}
           batchReplaces={batchReplaces}
           batchVisibility={batchVisibility}
+          batchCollection={batchCollection}
           filteredQuery={JSON.stringify(batchState.filteredQuery)}
           handleClose={onCloseModal}
           handleFormReset={handleFormReset}

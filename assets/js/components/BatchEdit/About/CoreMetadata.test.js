@@ -36,7 +36,6 @@ describe("BatchEditAboutCoreMetadata component", () => {
       "rights-statement",
       "date-created",
       "alternate-title",
-      "collection",
     ];
     for (let item of itemTestIds) {
       expect(screen.getByTestId(item)).toBeInTheDocument();
