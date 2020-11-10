@@ -38,3 +38,10 @@ xit("renders breadcrumbs", async () => {
   const crumbsEl = await findByTestId("work-breadcrumbs");
   expect(crumbsEl).toBeInTheDocument();
 });
+
+xit("renders a delete button which fires a callback function", () => {
+  const { getByTestId } = render(<WorkHeaderButtons {...props} />);
+  const el = getByTestId("delete-button");
+  fireEvent.click(el);
+  expect(mockOnOpenModal).toHaveBeenCalled();
+});

@@ -4,13 +4,11 @@ import { fireEvent, render } from "@testing-library/react";
 
 const mockHandleCreateSharableBtnClick = jest.fn();
 const mockHandlePublishClick = jest.fn();
-const mockOnOpenModal = jest.fn();
 
 const props = {
   handleCreateSharableBtnClick: mockHandleCreateSharableBtnClick,
   handlePublishClick: mockHandlePublishClick,
   hasCollection: true,
-  onOpenModal: mockOnOpenModal,
   published: false,
 };
 
@@ -24,7 +22,7 @@ describe("WorkHeaderButtons component", () => {
     const { getByTestId } = render(<WorkHeaderButtons {...props} />);
     const el = getByTestId("publish-button");
 
-    expect(el).toHaveClass("is-primary");
+    expect(el).not.toBeDisabled();
 
     fireEvent.click(el);
     expect(mockHandlePublishClick).toHaveBeenCalled();
@@ -39,7 +37,15 @@ describe("WorkHeaderButtons component", () => {
   it("renders an Unpublish button", () => {
     let newProps = { ...props, published: true };
     const { getByText } = render(<WorkHeaderButtons {...newProps} />);
-    expect(getByText(/unpublish/i));
+    const unpublishBtn = getByText(/unpublish/i);
+    expect(unpublishBtn);
+    expect(unpublishBtn).not.toBeDisabled();
+  });
+
+  it("renders an enabled Unpublish button even if a Work does not have a Collection", () => {
+    let newProps = { ...props, hasCollection: false, published: true };
+    const { getByText } = render(<WorkHeaderButtons {...newProps} />);
+    expect(getByText(/unpublish/i)).not.toBeDisabled();
   });
 
   it("renders sharable link button which fires a callback function", () => {
@@ -47,12 +53,5 @@ describe("WorkHeaderButtons component", () => {
     const el = getByTestId("button-sharable-link");
     fireEvent.click(el);
     expect(mockHandleCreateSharableBtnClick).toHaveBeenCalled();
-  });
-
-  it("renders a delete button which fires a callback function", () => {
-    const { getByTestId } = render(<WorkHeaderButtons {...props} />);
-    const el = getByTestId("delete-button");
-    fireEvent.click(el);
-    expect(mockOnOpenModal).toHaveBeenCalled();
   });
 });
