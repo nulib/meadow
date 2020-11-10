@@ -3,7 +3,6 @@ import { waitFor } from "@testing-library/react";
 import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { allCodeListMocks } from "../../Work/controlledVocabulary.gql.mock";
-import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
 
@@ -18,7 +17,7 @@ describe("BatchEditAbout component", () => {
         </CodeListProvider>
       </BatchProvider>,
       {
-        mocks: [...allCodeListMocks, getCollectionsMock],
+        mocks: [...allCodeListMocks],
       }
     );
   }

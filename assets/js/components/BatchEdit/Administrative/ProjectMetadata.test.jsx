@@ -28,6 +28,7 @@ describe("BatchEditAdministrativeProjectMetadata component", () => {
       "projectName",
       "projectProposer",
       "projectTaskNumber",
+      "projectCycle",
     ];
     for (let item of itemTestIds) {
       expect(screen.getByTestId(item)).toBeInTheDocument();

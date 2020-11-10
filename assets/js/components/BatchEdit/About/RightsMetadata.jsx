@@ -22,7 +22,7 @@ const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
       ))}
       <div className="column is-three-quarters">
         {/* License */}
-        <UIFormField label="License" data-testid="license">
+        <UIFormField label="License">
           <UIFormSelect
             isReactHookForm
             name="license"
@@ -30,7 +30,7 @@ const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
             options={
               codeLists.licenseData ? codeLists.licenseData.codeList : []
             }
-            data-testid="license"
+            data-testid="license-select"
             showHelper
           />
         </UIFormField>

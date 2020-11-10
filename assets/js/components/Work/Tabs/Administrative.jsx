@@ -9,7 +9,6 @@ import { useForm, FormProvider } from "react-hook-form";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
-import UICodedTermItem from "../../UI/CodedTerm/Item";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
 import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
@@ -19,12 +18,17 @@ import {
   prepFieldArrayItemsForPost,
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
-import { useCodeLists } from "@js/context/code-list-context";
+import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 
 const WorkTabsAdministrative = ({ work }) => {
-  const { id, administrativeMetadata, collection, published } = work;
+  const {
+    id,
+    administrativeMetadata,
+    collection,
+    published,
+    visibility,
+  } = work;
   const [isEditing, setIsEditing] = useIsEditing();
-  const codeLists = useCodeLists();
   const {
     data: collectionsData,
     loading: collectionsLoading,
@@ -49,11 +53,10 @@ const WorkTabsAdministrative = ({ work }) => {
     projectCycle,
   } = administrativeMetadata;
 
-  const methods = useForm({
-    defaultValues: {},
-  });
+  const methods = useForm();
 
   useEffect(() => {
+    // Update a Work after the form has been submitted
     let resetValues = {};
     for (let group of [PROJECT_METADATA]) {
       for (let obj of group) {
@@ -160,8 +163,8 @@ const WorkTabsAdministrative = ({ work }) => {
 
         <div className="columns">
           <div className="column">
-            <div className="box is-relative">
-              {/* <UIPlaceholder isActive={updateWorkLoading} rows={10} /> */}
+            <div className="box content">
+              <h3>Collection</h3>
               <UIFormField label="Collection">
                 {isEditing ? (
                   <UIFormSelect
@@ -182,98 +185,24 @@ const WorkTabsAdministrative = ({ work }) => {
                   </p>
                 )}
               </UIFormField>
+            </div>
 
-              <UIFormField label="Library Unit" required={published}>
-                {isEditing ? (
-                  <UIFormSelect
-                    isReactHookForm
-                    name="libraryUnit"
-                    showHelper={true}
-                    label="Library Unit"
-                    options={
-                      codeLists.libraryUnitData
-                        ? codeLists.libraryUnitData.codeList
-                        : []
-                    }
-                    defaultValue={libraryUnit ? libraryUnit.id : ""}
-                    required={work.published}
-                  />
-                ) : (
-                  <p>{libraryUnit ? libraryUnit.label : "None selected"}</p>
-                )}
-              </UIFormField>
-
-              <UIFormField label="Preservation Level" required={published}>
-                {isEditing ? (
-                  <UIFormSelect
-                    isReactHookForm
-                    name="preservationLevel"
-                    showHelper={true}
-                    label="Preservation Level"
-                    options={
-                      codeLists.preservationLevelData
-                        ? codeLists.preservationLevelData.codeList
-                        : []
-                    }
-                    defaultValue={preservationLevel ? preservationLevel.id : ""}
-                    required={work.published}
-                  />
-                ) : (
-                  <p>
-                    {preservationLevel
-                      ? preservationLevel.label
-                      : "None selected"}
-                  </p>
-                )}
-              </UIFormField>
-
-              <UIFormField label="Status" required={published}>
-                {isEditing ? (
-                  <UIFormSelect
-                    data-testid="status"
-                    isReactHookForm
-                    name="status"
-                    label="Status"
-                    showHelper={true}
-                    options={
-                      codeLists.statusData ? codeLists.statusData.codeList : []
-                    }
-                    defaultValue={status ? status.id : ""}
-                    required={work.published}
-                  />
-                ) : (
-                  <p>{status ? status.label : "None selected"}</p>
-                )}
-              </UIFormField>
-
-              <UIFormField label="Themes" mocked notLive>
-                <p>Nothing yet</p>
-              </UIFormField>
-
-              <UIFormField label="Visibility">
-                {isEditing ? (
-                  <UIFormSelect
-                    data-testid="visibility"
-                    isReactHookForm
-                    name="visibility"
-                    label="Visibility"
-                    showHelper={true}
-                    options={
-                      codeLists.visibilityData
-                        ? codeLists.visibilityData.codeList
-                        : []
-                    }
-                    defaultValue={work.visibility ? work.visibility.id : ""}
-                  />
-                ) : (
-                  <UICodedTermItem item={work.visibility} />
-                )}
-              </UIFormField>
+            <div className="box is-relative content">
+              <h3>General</h3>
+              <WorkTabsAdministrativeGeneral
+                administrativeMetadata={administrativeMetadata}
+                isEditing={isEditing}
+                published={published}
+                visibility={visibility}
+              />
             </div>
           </div>
           <div className="column">
-            <div className="box is-relative content">
-              <h3>Project Info</h3>
+            <div className="box is-relative">
+              <div className="content">
+                <h3>Project Info</h3>
+              </div>
+
               <UIFormField label="Project Cycle">
                 {isEditing ? (
                   <UIFormInput
