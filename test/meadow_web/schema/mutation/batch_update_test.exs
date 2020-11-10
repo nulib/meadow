@@ -62,7 +62,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
     assert {:ok, query_data} = result
 
     response = get_in(query_data, [:data, "batchUpdate", "message"])
-    assert response == "Batch started"
+    assert response =~ "has been submitted"
   end
 
   test "adds only should be a valid mutation" do
@@ -87,7 +87,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
     assert {:ok, query_data} = result
 
     response = get_in(query_data, [:data, "batchUpdate", "message"])
-    assert response == "Batch started"
+    assert response =~ "has been submitted"
   end
 
   test "no updates should not be a valid mutation" do
@@ -122,7 +122,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
               }
             }
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{username: "abc123", role: "Viewer"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -144,7 +144,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
               }
             }
           },
-          context: %{current_user: %{role: "Editor"}}
+          context: %{current_user: %{username: "abc123", role: "Editor"}}
         )
 
       assert result.data["batchUpdate"]
