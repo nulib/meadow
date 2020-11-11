@@ -106,7 +106,6 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :project_desc, list_of(:string)
     field :project_proposer, list_of(:string)
     field :project_manager, list_of(:string)
-    field :project_manager, list_of(:string)
     field :project_task_number, list_of(:string)
   end
 end
