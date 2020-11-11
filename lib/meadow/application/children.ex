@@ -14,26 +14,18 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:dev) do
-    [
-      EDTF,
-      {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-      Meadow.IIIF.ManifestListener,
-      {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
-      Meadow.Ingest.SheetNotifier,
-      Meadow.Ingest.WorkCreator,
-      Meadow.Ingest.WorkRedriver,
-      mock_ark_server(3943)
-    ]
+    [mock_ark_server(3943) | workers(System.get_env("NO_WORKERS", nil))]
   end
 
   defp specs(:test) do
-    [
-      EDTF,
-      mock_ark_server(3944)
-    ]
+    [EDTF, mock_ark_server(3944)]
   end
 
   defp specs(:prod) do
+    workers(System.get_env("NO_WORKERS", nil))
+  end
+
+  defp workers(nil) do
     [
       EDTF,
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
@@ -43,6 +35,11 @@ defmodule Meadow.Application.Children do
       Meadow.Ingest.WorkCreator,
       Meadow.Ingest.WorkRedriver
     ]
+  end
+
+  defp workers(_) do
+    Logger.warn("Skipping background workers because NO_WORKERS is set")
+    []
   end
 
   defp mock_ark_server(port) do

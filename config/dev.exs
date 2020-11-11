@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :meadow, Meadow.Repo,
@@ -102,29 +102,31 @@ config :meadow,
 config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
 
-config :ex_aws,
-  access_key_id: "fake",
-  secret_access_key: "fake"
+unless System.get_env("REAL_AWS_CONFIG", "false") == "true" do
+  config :ex_aws,
+    access_key_id: "fake",
+    secret_access_key: "fake"
 
-config :ex_aws, :s3,
-  access_key_id: "minio",
-  secret_access_key: "minio123",
-  host: "devbox.library.northwestern.edu",
-  port: 9001,
-  scheme: "https://",
-  region: "us-east-1"
+  config :ex_aws, :s3,
+    access_key_id: "minio",
+    secret_access_key: "minio123",
+    host: "devbox.library.northwestern.edu",
+    port: 9001,
+    scheme: "https://",
+    region: "us-east-1"
 
-config :ex_aws, :sqs,
-  host: "localhost",
-  port: 4101,
-  scheme: "http://",
-  region: "us-east-1"
+  config :ex_aws, :sqs,
+    host: "localhost",
+    port: 4101,
+    scheme: "http://",
+    region: "us-east-1"
 
-config :ex_aws, :sns,
-  host: "localhost",
-  port: 4101,
-  scheme: "http://",
-  region: "us-east-1"
+  config :ex_aws, :sns,
+    host: "localhost",
+    port: 4101,
+    scheme: "http://",
+    region: "us-east-1"
+end
 
 config :exldap, :settings,
   server: System.get_env("LDAP_SERVER", "localhost"),

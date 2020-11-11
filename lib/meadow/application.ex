@@ -8,6 +8,8 @@ defmodule Meadow.Application do
   alias Meadow.Config
   alias Meadow.Pipeline
 
+  require Logger
+
   def start(_type, _args) do
     # List all child processes to be supervised
     # Start the Ecto repository
@@ -27,10 +29,16 @@ defmodule Meadow.Application do
     children = base_children ++ Children.specs()
 
     unless Config.environment?(:test) do
-      Task.async(fn ->
-        :timer.sleep(Config.pipeline_delay())
-        Pipeline.start()
-      end)
+      case System.get_env("NO_PIPELINE", nil) do
+        nil ->
+          Task.async(fn ->
+            :timer.sleep(Config.pipeline_delay())
+            Pipeline.start()
+          end)
+
+        _ ->
+          Logger.warn("Skipping pipeline startup because NO_PIPELINE is set")
+      end
     end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
