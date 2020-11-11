@@ -1,7 +1,12 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import WorkSharedLinkNotification from "./SharedLinkNotification";
 import moment from "moment";
+import { renderWithApollo } from "@js/services/testing-helpers";
+import {
+  digitalCollectionsUrlMock,
+  mockDCUrl,
+} from "@js/components/UI/ui.gql.mock";
 
 const createSharedLink = {
   expires: "2020-09-02T20:04:40.166275Z",
@@ -10,36 +15,38 @@ const createSharedLink = {
 };
 
 describe("WorkSharedLinkNotification component", () => {
-  it("renders the component", () => {
-    const { getByTestId } = render(
-      <WorkSharedLinkNotification linkData={createSharedLink} />
+  beforeEach(() => {
+    renderWithApollo(
+      <WorkSharedLinkNotification linkData={createSharedLink} />,
+      {
+        mocks: [digitalCollectionsUrlMock],
+      }
     );
-    expect(getByTestId("notification-shared-link")).toBeInTheDocument();
   });
 
-  it("renders the success message", () => {
-    const { getByTestId, getByText, debug } = render(
-      <WorkSharedLinkNotification linkData={createSharedLink} />
-    );
+  it("renders the component", async () => {
+    expect(await screen.findByTestId("notification-shared-link"));
+  });
 
+  it("renders the success message", async () => {
     expect(
-      getByText("Your shared link has been created successfully")
-    ).toBeInTheDocument();
+      await screen.findByText(
+        "Your shared link has been created successfully and will expire:"
+      )
+    );
   });
 
-  it("renders the link url and expiration dates", () => {
-    const { getByTestId } = render(
-      <WorkSharedLinkNotification linkData={createSharedLink} />
-    );
-
-    expect(getByTestId("link-url")).toHaveTextContent(
-      createSharedLink.sharedLinkId
+  it("renders the link url and expiration dates", async () => {
+    expect(await screen.findByTestId("link-url")).toHaveTextContent(
+      `${mockDCUrl}shared/${createSharedLink.sharedLinkId}`
     );
 
     const formattedDate = moment(createSharedLink.expires).format(
       "MMM DD, YYYY h:mm A"
     );
 
-    expect(getByTestId("link-date")).toHaveTextContent(formattedDate);
+    expect(await screen.findByTestId("link-date")).toHaveTextContent(
+      formattedDate
+    );
   });
 });
