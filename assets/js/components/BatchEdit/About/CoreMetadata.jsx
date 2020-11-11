@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormBatchEDTFDate from "../../UI/Form/BatchEDTFDate";
-import UIInput from "../../UI/Form/Input";
-import UIFormField from "../../UI/Form/Field";
-import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
+import UIInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormBatchFieldArray from "@js/components/UI/Form/BatchEDTFDate";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
 

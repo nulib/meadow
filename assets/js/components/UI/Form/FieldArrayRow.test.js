@@ -57,7 +57,7 @@ describe("UIFormFieldArrayRow component", () => {
     await waitFor(() => {
       setError(`${name}[0].metadataItem`, {
         type: "required",
-        message: "required",
+        message: "Creator field is required",
       });
     });
 

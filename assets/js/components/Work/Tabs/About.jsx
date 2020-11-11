@@ -19,6 +19,7 @@ import {
   convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
   prepFieldArrayItemsForPost,
+  prepEDTFforPost,
   prepRelatedUrl,
   CONTROLLED_METADATA,
   IDENTIFIER_METADATA,
@@ -62,7 +63,9 @@ function prepFormData(work) {
     description: descriptiveMetadata.description.map((value) => ({
       metadataItem: value,
     })),
-    dateCreated: descriptiveMetadata.dateCreated || [],
+    dateCreated: descriptiveMetadata.dateCreated.map((value) => ({
+      metadataItem: value.edtf,
+    })),
     relatedUrl: descriptiveMetadata.relatedUrl,
     ...resetValues,
     ...controlledTermResetValues,
@@ -116,7 +119,7 @@ const WorkTabsAbout = ({ work }) => {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
-        dateCreated: currentFormValues.dateCreated || [],
+        dateCreated: prepEDTFforPost(currentFormValues.dateCreated),
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {

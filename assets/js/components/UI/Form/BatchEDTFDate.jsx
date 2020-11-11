@@ -12,7 +12,7 @@ const UIFormBatchEDTFDate = ({
   label,
   type = "text",
   required,
-  ...passedInProps
+  ...restProps
 }) => {
   const { control, errors, register } = useFormContext();
   const { fields, append, remove } = useFieldArray({
@@ -31,7 +31,7 @@ const UIFormBatchEDTFDate = ({
   }
 
   return (
-    <fieldset {...passedInProps}>
+    <fieldset {...restProps}>
       <legend data-testid="legend">{label}</legend>
 
       {!isRemove && (

@@ -52,6 +52,7 @@ export const mockWork = {
         },
       },
     ],
+    dateCreated: [{ edtf: "2010" }, { edtf: "2020" }],
     description: ["Work description here"],
     folderName: [],
     folderNumber: [],

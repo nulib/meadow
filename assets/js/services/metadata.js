@@ -402,25 +402,21 @@ export function prepRelatedUrl(items = []) {
  * @param {Object} item
  * @returns {Object}
  */
-export function deleteKeyFromObject(item, key) {
-  if (key === "dateCreated") {
-    // Handle replace all & delete
-    if (Array.isArray(item)) {
-      return item.length > 0
-        ? item.map((edtfDate) => {
-            return { edtf: edtfDate };
-          })
-        : [];
-    }
-    // Handle add
-    return { edtf: item };
-  }
+export function deleteKeyFromObject(item) {
   if (typeof item !== "object" || Array.isArray(item)) {
     return item;
   }
   let itemObj = { ...item };
   delete itemObj.label;
   return itemObj;
+}
+
+export function prepEDTFforPost(items) {
+  return items
+    ? items.map((item) => {
+        return { edtf: item.metadataItem };
+      })
+    : [];
 }
 
 /**
@@ -453,7 +449,7 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
         ].map((item) => {
-          return deleteKeyFromObject(item, key);
+          return deleteKeyFromObject(item);
         });
       });
     batchAdds.administrativeMetadata &&
@@ -461,7 +457,7 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.administrativeMetadata[
           key
         ] = batchAdds.administrativeMetadata[key].map((item) => {
-          return deleteKeyFromObject(item, key);
+          return deleteKeyFromObject(item);
         });
       });
   }
@@ -470,17 +466,13 @@ export function removeLabelsFromBatchEditPostData(
     batchReplaces.descriptiveMetadata &&
       Object.keys(batchReplaces.descriptiveMetadata).forEach((key) => {
         let item = batchReplaces.descriptiveMetadata[key];
-        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(
-          item,
-          key
-        );
+        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(item);
       });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
         returnObj.replace.administrativeMetadata[key] = deleteKeyFromObject(
-          item,
-          key
+          item
         );
       });
 
@@ -496,7 +488,7 @@ export function removeLabelsFromBatchEditPostData(
   if (hasDeletes) {
     Object.keys(batchDeletes).forEach((key) => {
       returnObj.delete[key] = batchDeletes[key].map((item) => {
-        return deleteKeyFromObject(item, key);
+        return deleteKeyFromObject(item);
       });
     });
   }

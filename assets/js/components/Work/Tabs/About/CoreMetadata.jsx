@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../../UI/TagNotYetSupported";
 import UIInput from "../../../UI/Form/Input";
 import UIFormField from "../../../UI/Form/Field";
 import UIFormSelect from "../../../UI/Form/Select";
@@ -8,7 +7,7 @@ import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
-import UIFormEDTFDate from "../../../UI/Form/EDTFDate";
+import { isEDTFValid } from "../../../../services/helpers";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -16,6 +15,9 @@ const WorkTabsAboutCoreMetadata = ({
   published,
 }) => {
   const codeLists = useCodeLists();
+  const EDTFValidateFn = (value) => {
+    return isEDTFValid(value) || <span>Please enter raw EDTF date. </span>;
+  };
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
@@ -69,10 +71,11 @@ const WorkTabsAboutCoreMetadata = ({
       </div>
       <div className="column is-half">
         {isEditing ? (
-          <UIFormEDTFDate
+          <UIFormFieldArray
             label="Date Created"
             name="dateCreated"
             data-testid="date-created"
+            validateFn={EDTFValidateFn}
           />
         ) : (
           <UIFormField label="Date Created">
@@ -90,7 +93,7 @@ const WorkTabsAboutCoreMetadata = ({
           </UIFormField>
         )}
       </div>
-      <div className="column is-full">
+      <div className="column is-half">
         {/* Rights Statement */}
         <UIFormField label="Rights Statement">
           {isEditing ? (
