@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../UI/TagNotYetSupported";
+import UIFormBatchEDTFDate from "../../UI/Form/BatchEDTFDate";
 import UIInput from "../../UI/Form/Input";
 import UIFormField from "../../UI/Form/Field";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
@@ -49,7 +49,12 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
         />
       </div>
 
-      <div className="column is-half">
+      <div className="column is-half" data-testid="date-created">
+        {/* Date Created */}
+        <UIFormBatchEDTFDate label="Date Created" name="dateCreated" />
+      </div>
+
+      <div className="column is-full">
         <UIFormField label="Rights Statement">
           <div className="select" data-testid="rights-statement">
             <select name="rightsStatement" ref={register()}>
@@ -69,21 +74,6 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
                 ))}
             </select>
           </div>
-        </UIFormField>
-      </div>
-
-      <div className="column is-half">
-        {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          <UIInput
-            isReactHookForm
-            name="dateCreated"
-            label="Date Created"
-            type="date"
-            data-testid="date-created"
-          />
-          <UITagNotYetSupported label="Display not yet supported" />
-          <UITagNotYetSupported label="Update not yet supported" />
         </UIFormField>
       </div>
     </div>

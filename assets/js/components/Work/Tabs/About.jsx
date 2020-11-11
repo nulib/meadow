@@ -62,6 +62,7 @@ function prepFormData(work) {
     description: descriptiveMetadata.description.map((value) => ({
       metadataItem: value,
     })),
+    dateCreated: descriptiveMetadata.dateCreated || [],
     relatedUrl: descriptiveMetadata.relatedUrl,
     ...resetValues,
     ...controlledTermResetValues,
@@ -108,12 +109,14 @@ const WorkTabsAbout = ({ work }) => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
     let currentFormValues = methods.getValues();
+
     const { title = "" } = currentFormValues;
     let workUpdateInput = {
       descriptiveMetadata: {
         alternateTitle: prepFieldArrayItemsForPost(
           currentFormValues.alternateTitle
         ),
+        dateCreated: currentFormValues.dateCreated || [],
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
           ? {

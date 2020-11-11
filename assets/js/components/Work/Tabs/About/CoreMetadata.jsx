@@ -8,6 +8,7 @@ import UIFormFieldArray from "../../../UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "../../../UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
+import UIFormEDTFDate from "../../../UI/Form/EDTFDate";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -67,6 +68,29 @@ const WorkTabsAboutCoreMetadata = ({
         )}
       </div>
       <div className="column is-half">
+        {isEditing ? (
+          <UIFormEDTFDate
+            label="Date Created"
+            name="dateCreated"
+            data-testid="date-created"
+          />
+        ) : (
+          <UIFormField label="Date Created">
+            <div className="field content">
+              <ul className="field-array-item-list">
+                {descriptiveMetadata.dateCreated &&
+                  descriptiveMetadata.dateCreated.length > 0 &&
+                  descriptiveMetadata.dateCreated.map((datefield, i) => (
+                    <li key={i}>
+                      {datefield ? datefield.humanized : "No Date specified"}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </UIFormField>
+        )}
+      </div>
+      <div className="column is-full">
         {/* Rights Statement */}
         <UIFormField label="Rights Statement">
           {isEditing ? (
@@ -89,24 +113,6 @@ const WorkTabsAboutCoreMetadata = ({
             />
           ) : (
             <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
-          )}
-        </UIFormField>
-      </div>
-
-      <div className="column is-half">
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
           )}
         </UIFormField>
       </div>
