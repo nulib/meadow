@@ -102,6 +102,7 @@ UIFormBatchFieldArray.propTypes = {
   required: PropTypes.bool,
   type: PropTypes.string,
   isTextarea: PropTypes.bool,
+  validateFn: PropTypes.func,
 };
 
 export default UIFormBatchFieldArray;

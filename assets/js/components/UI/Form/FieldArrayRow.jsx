@@ -78,6 +78,7 @@ FieldArrayRow.propTypes = {
   label: PropTypes.string,
   name: PropTypes.string,
   isTextarea: PropTypes.bool,
+  validateFn: PropTypes.func,
 };
 
 export default FieldArrayRow;
