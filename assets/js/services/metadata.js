@@ -142,6 +142,7 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   BOX_NUMBER,
   CAPTION,
   CATALOG_KEY,
+  DATE_CREATED,
   DESCRIPTION,
   FOLDER_NAME,
   FOLDER_NUMBER,
@@ -241,13 +242,13 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
   );
 
   for (const key of formMultiOnly) {
+    let rootName = key.split("--")[0];
     // Handle "replace all" condition
     if (key.includes("removeCheckbox") && currentFormValues[key]) {
-      returnObj.replace[key.split("--")[0]] = [];
+      returnObj.replace[rootName] = [];
     }
     // Handle "replace" or "add"
     else {
-      let rootName = key.split("--")[0];
       // Verify a value exists
       if (
         key.includes("replaceCheckbox") &&
@@ -410,6 +411,12 @@ export function deleteKeyFromObject(item) {
   return itemObj;
 }
 
+export function prepEDTFforPost(items = []) {
+  return items.map((item) => {
+    return { edtf: item.metadataItem || item };
+  });
+}
+
 /**
  * Remove helper labels from Batch Edit form post data
  * @param {Object} batchAdds
@@ -440,6 +447,9 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
         ].map((item) => {
+          if (key === "dateCreated") {
+            return { edtf: item };
+          }
           return deleteKeyFromObject(item);
         });
       });
@@ -457,7 +467,13 @@ export function removeLabelsFromBatchEditPostData(
     batchReplaces.descriptiveMetadata &&
       Object.keys(batchReplaces.descriptiveMetadata).forEach((key) => {
         let item = batchReplaces.descriptiveMetadata[key];
-        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(item);
+        if (key === "dateCreated") {
+          returnObj.replace.descriptiveMetadata[key] = prepEDTFforPost(item);
+        } else {
+          returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(
+            item
+          );
+        }
       });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {

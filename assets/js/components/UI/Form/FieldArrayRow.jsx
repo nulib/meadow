@@ -17,15 +17,17 @@ function FieldArrayRow({
   label,
   name,
   isTextarea,
+  validateFn,
 }) {
   const { errors, register } = useFormContext();
+  const itemName = `${[name]}[${index}]`;
 
   return (
     <li className="field" data-testid="field-array-row">
       <div className="is-flex">
         {isTextarea ? (
           <textarea
-            name={`${[name]}[${index}].metadataItem`}
+            name={`${itemName}.metadataItem`}
             css={textareaWidth}
             rows={2}
             cols={3}
@@ -38,13 +40,16 @@ function FieldArrayRow({
           />
         ) : (
           <input
-            name={`${[name]}[${index}].metadataItem`}
+            name={`${itemName}.metadataItem`}
             className={`input ${
               errors[name] && errors[name][index] ? "is-danger" : ""
             }`}
             defaultValue={item.metadataItem}
             placeholder={`New ${label || name}`}
-            ref={register({ required: true })}
+            ref={register({
+              required: true,
+              validate: validateFn || false,
+            })}
             data-testid="input-field-array"
           />
         )}
@@ -58,7 +63,8 @@ function FieldArrayRow({
       </div>
       {errors[name] && errors[name][index] && (
         <p data-testid="input-errors" className="help is-danger">
-          {label || name} field is required
+          {errors[name][index].metadataItem.message ||
+            `${label || name} field is required`}
         </p>
       )}
     </li>
@@ -72,6 +78,7 @@ FieldArrayRow.propTypes = {
   label: PropTypes.string,
   name: PropTypes.string,
   isTextarea: PropTypes.bool,
+  validateFn: PropTypes.func,
 };
 
 export default FieldArrayRow;

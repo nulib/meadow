@@ -40,7 +40,6 @@ describe("WorkTabsAboutCoreMetadata component", () => {
         "title",
         "description",
         "rights-statement",
-        "date-created",
         "alternate-title",
       ];
       for (let item of itemTestIds) {

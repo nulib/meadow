@@ -1,17 +1,28 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../UI/TagNotYetSupported";
-import UIInput from "../../UI/Form/Input";
-import UIFormField from "../../UI/Form/Field";
-import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
+import UIInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
+import { isEDTFValid } from "@js/services/helpers";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const codeLists = useCodeLists();
   const context = useFormContext();
   const register = context.register;
-
+  const EDTFValidateFn = (value) => {
+    return (
+      isEDTFValid(value) || (
+        <span>
+          Please enter a{" "}
+          <a href="https://www.loc.gov/standards/datetime/" target="_blank">
+            valid EDTF date
+          </a>
+        </span>
+      )
+    );
+  };
   return (
     <div
       className="columns is-multiline"
@@ -50,6 +61,16 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       </div>
 
       <div className="column is-half">
+        {/* Date Created */}
+        <UIFormBatchFieldArray
+          name="dateCreated"
+          label="Date Created"
+          data-testid="date-created"
+          validateFn={EDTFValidateFn}
+        />
+      </div>
+
+      <div className="column is-full">
         <UIFormField label="Rights Statement">
           <div className="select" data-testid="rights-statement">
             <select name="rightsStatement" ref={register()}>
@@ -69,21 +90,6 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
                 ))}
             </select>
           </div>
-        </UIFormField>
-      </div>
-
-      <div className="column is-half">
-        {/* Date Created */}
-        <UIFormField label="Date Created" notLive>
-          <UIInput
-            isReactHookForm
-            name="dateCreated"
-            label="Date Created"
-            type="date"
-            data-testid="date-created"
-          />
-          <UITagNotYetSupported label="Display not yet supported" />
-          <UITagNotYetSupported label="Update not yet supported" />
         </UIFormField>
       </div>
     </div>

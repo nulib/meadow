@@ -1,13 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UITagNotYetSupported from "../../../UI/TagNotYetSupported";
-import UIInput from "../../../UI/Form/Input";
-import UIFormField from "../../../UI/Form/Field";
-import UIFormSelect from "../../../UI/Form/Select";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import UICodedTermItem from "../../../UI/CodedTerm/Item";
+import UIInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
+import { isEDTFValid } from "@js/services/helpers";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -15,6 +15,18 @@ const WorkTabsAboutCoreMetadata = ({
   published,
 }) => {
   const codeLists = useCodeLists();
+  const EDTFValidateFn = (value) => {
+    return (
+      isEDTFValid(value) || (
+        <span>
+          Please enter a{" "}
+          <a href="https://www.loc.gov/standards/datetime/" target="_blank">
+            valid EDTF date
+          </a>
+        </span>
+      )
+    );
+  };
 
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
@@ -67,6 +79,30 @@ const WorkTabsAboutCoreMetadata = ({
         )}
       </div>
       <div className="column is-half">
+        {isEditing ? (
+          <UIFormFieldArray
+            label="Date Created"
+            name="dateCreated"
+            data-testid="date-created"
+            validateFn={EDTFValidateFn}
+          />
+        ) : (
+          <UIFormField label="Date Created">
+            <div className="field content">
+              <ul className="field-array-item-list">
+                {descriptiveMetadata.dateCreated &&
+                  descriptiveMetadata.dateCreated.length > 0 &&
+                  descriptiveMetadata.dateCreated.map((datefield, i) => (
+                    <li key={i}>
+                      {datefield ? datefield.humanized : "No Date specified"}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </UIFormField>
+        )}
+      </div>
+      <div className="column is-half">
         {/* Rights Statement */}
         <UIFormField label="Rights Statement">
           {isEditing ? (
@@ -89,24 +125,6 @@ const WorkTabsAboutCoreMetadata = ({
             />
           ) : (
             <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
-          )}
-        </UIFormField>
-      </div>
-
-      <div className="column is-half">
-        <UIFormField label="Date Created" notLive>
-          {isEditing ? (
-            <UIInput
-              name="dateCreated"
-              label="Date Created"
-              data-testid="date-created"
-              defaultValue={descriptiveMetadata.dateCreated}
-            />
-          ) : (
-            <>
-              <UITagNotYetSupported label="Display not yet supported" />
-              <UITagNotYetSupported label="Update not yet supported" />
-            </>
           )}
         </UIFormField>
       </div>
