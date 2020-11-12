@@ -413,7 +413,7 @@ export function deleteKeyFromObject(item) {
 
 export function prepEDTFforPost(items = []) {
   return items.map((item) => {
-    return { edtf: item };
+    return { edtf: item.metadataItem || item };
   });
 }
 

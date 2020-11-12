@@ -15,14 +15,9 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
     return (
       isEDTFValid(value) || (
         <span>
-          Please enter raw EDTF date.
-          <br />
-          <a
-            href="https://www.loc.gov/standards/datetime/"
-            target="_blank"
-            className="px-0 button is-text is-small"
-          >
-            Click to View Spec
+          Please enter a{" "}
+          <a href="https://www.loc.gov/standards/datetime/" target="_blank">
+            valid EDTF date
           </a>
         </span>
       )
