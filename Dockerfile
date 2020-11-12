@@ -7,7 +7,9 @@ ENV MIX_ENV=prod
 COPY ./mix.exs /app/mix.exs
 COPY ./mix.lock /app/mix.lock
 WORKDIR /app
-RUN mix do deps.get --only prod, deps.compile 
+RUN mix deps.get --only prod \
+    && curl -#fSlo deps/certifi/priv/cacerts.pem https://mkcert.org/generate/all/except/addtrust \
+    && mix deps.compile 
 COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
