@@ -12,6 +12,7 @@ const UIFormBatchFieldArray = ({
   required,
   defaultValue = `New ${label}`,
   isTextarea,
+  validateFn,
   ...passedInProps
 }) => {
   const { control, errors, register } = useFormContext();
@@ -47,6 +48,7 @@ const UIFormBatchFieldArray = ({
                   label={label}
                   name={name}
                   isTextarea={isTextarea}
+                  validateFn={validateFn}
                 />
               );
             })}

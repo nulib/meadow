@@ -414,7 +414,7 @@ export function deleteKeyFromObject(item) {
 export function prepEDTFforPost(items) {
   return items
     ? items.map((item) => {
-        return { edtf: item.metadataItem };
+        return { edtf: item };
       })
     : [];
 }
@@ -449,6 +449,9 @@ export function removeLabelsFromBatchEditPostData(
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
         ].map((item) => {
+          if (key === "dateCreated") {
+            return { edtf: item };
+          }
           return deleteKeyFromObject(item);
         });
       });
@@ -466,7 +469,13 @@ export function removeLabelsFromBatchEditPostData(
     batchReplaces.descriptiveMetadata &&
       Object.keys(batchReplaces.descriptiveMetadata).forEach((key) => {
         let item = batchReplaces.descriptiveMetadata[key];
-        returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(item);
+        if (key === "dateCreated") {
+          returnObj.replace.descriptiveMetadata[key] = prepEDTFforPost(item);
+        } else {
+          returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(
+            item
+          );
+        }
       });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {

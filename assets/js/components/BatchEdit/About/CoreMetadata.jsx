@@ -1,17 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormBatchEDTFDate from "../../UI/Form/BatchEDTFDate";
 import UIInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
-import UIFormBatchFieldArray from "@js/components/UI/Form/BatchEDTFDate";
+import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
+import { isEDTFValid } from "../../../services/helpers";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const codeLists = useCodeLists();
   const context = useFormContext();
   const register = context.register;
-
+  const EDTFValidateFn = (value) => {
+    return isEDTFValid(value) || <span>Please enter raw EDTF date. </span>;
+  };
   return (
     <div
       className="columns is-multiline"
@@ -49,9 +51,14 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
         />
       </div>
 
-      <div className="column is-half" data-testid="date-created">
+      <div className="column is-half">
         {/* Date Created */}
-        <UIFormBatchEDTFDate label="Date Created" name="dateCreated" />
+        <UIFormBatchFieldArray
+          name="dateCreated"
+          label="Date Created"
+          data-testid="date-created"
+          validateFn={EDTFValidateFn}
+        />
       </div>
 
       <div className="column is-full">
