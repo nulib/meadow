@@ -1,13 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIInput from "../../../UI/Form/Input";
-import UIFormField from "../../../UI/Form/Field";
-import UIFormSelect from "../../../UI/Form/Select";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import UICodedTermItem from "../../../UI/CodedTerm/Item";
+import UIInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
-import { isEDTFValid } from "../../../../services/helpers";
+import { isEDTFValid } from "@js/services/helpers";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -16,7 +16,21 @@ const WorkTabsAboutCoreMetadata = ({
 }) => {
   const codeLists = useCodeLists();
   const EDTFValidateFn = (value) => {
-    return isEDTFValid(value) || <span>Please enter raw EDTF date. </span>;
+    return (
+      isEDTFValid(value) || (
+        <span>
+          Please enter raw EDTF date.
+          <br />
+          <a
+            href="https://www.loc.gov/standards/datetime/"
+            target="_blank"
+            className="px-0 button is-text is-small"
+          >
+            Click to View Spec
+          </a>
+        </span>
+      )
+    );
   };
 
   return (

@@ -5,14 +5,28 @@ import UIFormField from "@js/components/UI/Form/Field";
 import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
-import { isEDTFValid } from "../../../services/helpers";
+import { isEDTFValid } from "@js/services/helpers";
 
 const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
   const codeLists = useCodeLists();
   const context = useFormContext();
   const register = context.register;
   const EDTFValidateFn = (value) => {
-    return isEDTFValid(value) || <span>Please enter raw EDTF date. </span>;
+    return (
+      isEDTFValid(value) || (
+        <span>
+          Please enter raw EDTF date.
+          <br />
+          <a
+            href="https://www.loc.gov/standards/datetime/"
+            target="_blank"
+            className="px-0 button is-text is-small"
+          >
+            Click to View Spec
+          </a>
+        </span>
+      )
+    );
   };
   return (
     <div

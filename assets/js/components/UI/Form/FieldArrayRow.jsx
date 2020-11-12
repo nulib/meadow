@@ -78,7 +78,6 @@ FieldArrayRow.propTypes = {
   label: PropTypes.string,
   name: PropTypes.string,
   isTextarea: PropTypes.bool,
-  isEdtf: PropTypes.bool,
 };
 
 export default FieldArrayRow;

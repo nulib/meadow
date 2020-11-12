@@ -411,12 +411,10 @@ export function deleteKeyFromObject(item) {
   return itemObj;
 }
 
-export function prepEDTFforPost(items) {
-  return items
-    ? items.map((item) => {
-        return { edtf: item };
-      })
-    : [];
+export function prepEDTFforPost(items = []) {
+  return items.map((item) => {
+    return { edtf: item };
+  });
 }
 
 /**
