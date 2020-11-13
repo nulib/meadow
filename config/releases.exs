@@ -104,3 +104,6 @@ config :ueberauth, Ueberauth,
          include_attributes: true
        ]}
   ]
+
+config :hackney,
+  max_connections: System.get_env("HACKNEY_MAX_CONNECTIONS", "1000") |> String.to_integer()
