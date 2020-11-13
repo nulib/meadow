@@ -11,6 +11,7 @@ updates:
     open-pull-requests-limit: 10
     target-branch: dependencies
     ignore:
+      - dependency-name: "react-hook-form"
       - dependency-name: "webpack-cli"
   - package-ecosystem: npm
     directory: "/priv/tiff"

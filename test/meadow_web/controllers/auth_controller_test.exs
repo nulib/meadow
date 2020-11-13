@@ -3,6 +3,8 @@ defmodule MeadowWeb.AuthControllerTest do
 
   alias MeadowWeb.Plugs.SetCurrentUser
 
+  import Assertions
+
   test "GET /auth/nusso redirects to SSO url with a callback url", %{conn: conn} do
     assert get(conn, "/auth/nusso")
            |> redirected_to(302)
@@ -38,7 +40,9 @@ defmodule MeadowWeb.AuthControllerTest do
       get(conn, "/auth/logout")
       :timer.sleep(100)
 
-      assert Cachex.get!(Meadow.Cache.Users, user.username) == nil
+      assert_async(timeout: 5_000, sleep_time: 50) do
+        assert Cachex.get!(Meadow.Cache.Users, user.username) == nil
+      end
     end
   end
 end
