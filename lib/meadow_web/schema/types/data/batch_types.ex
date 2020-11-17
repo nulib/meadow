@@ -18,6 +18,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
       @desc "`replace` replaces existing values (single and multi valued fields)"
       arg(:replace, :batch_replace_input, default_value: nil)
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Batches.update/3)
     end
   end

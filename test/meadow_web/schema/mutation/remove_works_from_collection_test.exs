@@ -34,4 +34,25 @@ defmodule MeadowWeb.Schema.Mutation.RemoveWorksFromCollectionTest do
     collection = Collections.get_collection!(collection.id) |> Repo.preload(:works)
     assert collection.works |> Enum.empty?()
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to remove works from collections" do
+      collection_fixture = collection_fixture()
+
+      works = [
+        work_fixture(%{collection_id: collection_fixture.id})
+      ]
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "workIds" => Enum.map(works, & &1.id),
+            "collectionId" => collection_fixture.id
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+  end
 end

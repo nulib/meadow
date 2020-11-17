@@ -16,4 +16,26 @@ defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
     collection_title = get_in(query_data, [:data, "createCollection", "title"])
     assert collection_title == "The collection title"
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to create collections" do
+      {:ok, result} =
+        query_gql(
+          variables: %{"title" => "The collection title"},
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "managers and above are authorized to create collections" do
+      {:ok, result} =
+        query_gql(
+          variables: %{"title" => "The collection title"},
+          context: %{current_user: %{role: "Manager"}}
+        )
+
+      assert result.data["createCollection"]
+    end
+  end
 end

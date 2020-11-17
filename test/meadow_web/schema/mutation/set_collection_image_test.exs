@@ -46,4 +46,38 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
 
     assert url == expected_work.representative_image
   end
+
+  describe "authorization" do
+    test "viewers and editors are not authorized to set representative images" do
+      collection = collection_fixture()
+      work = work_with_file_sets_fixture(1, %{collection_id: collection.id})
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "collection_id" => collection.id,
+            "work_id" => work.id
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "managers and above are authorized to set representative images" do
+      collection = collection_fixture()
+      work = work_with_file_sets_fixture(1, %{collection_id: collection.id})
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "collection_id" => collection.id,
+            "work_id" => work.id
+          },
+          context: %{current_user: %{role: "Manager"}}
+        )
+
+      assert result.data["setCollectionImage"]
+    end
+  end
 end

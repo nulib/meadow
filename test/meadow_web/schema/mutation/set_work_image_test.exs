@@ -29,4 +29,38 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
     url = get_in(query_data, [:data, "setWorkImage", "representativeImage"])
     assert url == file_set_image
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to set work images" do
+      work = work_with_file_sets_fixture(3)
+      expected_file_set = work.file_sets |> Enum.at(1)
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "work_id" => work.id,
+            "file_set_id" => expected_file_set.id
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to set work images" do
+      work = work_with_file_sets_fixture(3)
+      expected_file_set = work.file_sets |> Enum.at(1)
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "work_id" => work.id,
+            "file_set_id" => expected_file_set.id
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["setWorkImage"]
+    end
+  end
 end

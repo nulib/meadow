@@ -19,4 +19,19 @@ defmodule MeadowWeb.Schema.Mutation.AddWorkToCollectionTest do
     collection_id = get_in(query_data, [:data, "addWorkToCollection", "collection", "id"])
     assert collection_id == collection.id
   end
+
+  describe "authorization" do
+    test "viewers are not authoried to add works to collections" do
+      collection = collection_fixture()
+      work = work_fixture()
+
+      result =
+        query_gql(
+          variables: %{"workId" => work.id, "collectionId" => collection.id},
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result
+    end
+  end
 end

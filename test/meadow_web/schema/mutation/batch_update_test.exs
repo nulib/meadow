@@ -104,4 +104,50 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
     response = get_in(query_data, [:data, "batchUpdate", "message"])
     assert response == "No updates specified"
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to update via batch" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+            "add" => %{
+              "descriptive_metadata" => %{
+                "contributor" => [
+                  %{
+                    "role" => %{"scheme" => "MARC_RELATOR", "id" => "pbl"},
+                    "term" => "http://id.loc.gov/authorities/names/n50053919"
+                  }
+                ]
+              }
+            }
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to update via batch" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+            "add" => %{
+              "descriptive_metadata" => %{
+                "contributor" => [
+                  %{
+                    "role" => %{"scheme" => "MARC_RELATOR", "id" => "pbl"},
+                    "term" => "http://id.loc.gov/authorities/names/n50053919"
+                  }
+                ]
+              }
+            }
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["batchUpdate"]
+    end
+  end
 end
