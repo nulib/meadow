@@ -8,7 +8,7 @@
   "dependencies": {
     "aws-sdk": "^2.794.0",
     "sharp": "^0.26.3",
-    "sqs-consumer": "^5.4.0",
+    "sqs-consumer": "^5.5.0",
     "tempy": "^1.0.0",
     "uri-js": "^4.4.0"
   }

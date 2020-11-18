@@ -64,7 +64,7 @@ array-union@^2.1.0:
   resolved "https://registry.yarnpkg.com/array-union/-/array-union-2.1.0.tgz#b798420adbeb1de828d84acd8a2e23d3efe85e8d"
   integrity sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==
 
-aws-sdk@^2.443.0, aws-sdk@^2.794.0:
+aws-sdk@^2.794.0:
   version "2.794.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.794.0.tgz#7eb1f2fa277a91731253c2e9fee57b6096230d15"
   integrity sha512-Qqz8v0WfeGveaZTPo9+52nNUep/CTuo18OcdCwF4WrnNBv7bAxExUOwN9XkqhoxLjBDk/LuMmHGhOXRljFQgRw==
@@ -765,12 +765,11 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-sqs-consumer@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-5.4.0.tgz#bac47e50e2f7f86aade5b83baab16dd59ef6d45b"
-  integrity sha512-Wcv7tEMvAqDNEEglCYlOZKufKxRsFPp2J5znYbAvcgB66u64QyXrF5TBb2g4kVn2QKAt5UBoT/GB/gsPLoY3eA==
+sqs-consumer@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-5.5.0.tgz#9d019e25f4c3217c684e14595d0b08e4957e9fdb"
+  integrity sha512-vzKzOZlZtZarOWbg/nbEoMyNu64XnQ4QB3e74nMBNaIuM/RhelUGNGrvrB83IW6a7/DxKDulM46h2TeQP3/1nA==
   dependencies:
-    aws-sdk "^2.443.0"
     debug "^4.1.1"
 
 string-width@^1.0.1:
