@@ -3,8 +3,6 @@ defmodule MeadowWeb.AuthControllerTest do
 
   alias MeadowWeb.Plugs.SetCurrentUser
 
-  import Assertions
-
   test "GET /auth/nusso redirects to SSO url with a callback url", %{conn: conn} do
     assert get(conn, "/auth/nusso")
            |> redirected_to(302)
@@ -27,22 +25,25 @@ defmodule MeadowWeb.AuthControllerTest do
   describe "/auth/logout" do
     setup do
       user = user_fixture("TestAdmins")
-      {:ok, %{user: user}}
-    end
 
-    test "GET /auth/logout removes user from cache", %{user: user} do
       conn =
         build_conn()
         |> auth_user(user)
         |> SetCurrentUser.call(nil)
 
-      Cachex.put!(Meadow.Cache.Users, user.username, user)
-      get(conn, "/auth/logout")
-      :timer.sleep(100)
+      {:ok, %{conn: conn, user: user}}
+    end
 
-      assert_async(timeout: 5_000, sleep_time: 50) do
-        assert Cachex.get!(Meadow.Cache.Users, user.username) == nil
-      end
+    test "GET /auth/logout", %{conn: conn, user: user} do
+      assert conn
+             |> Plug.Conn.fetch_session()
+             |> Plug.Conn.get_session(:current_user)
+             |> Map.get(:username) == user.username
+
+      assert get(conn, "/auth/logout")
+             |> Plug.Conn.fetch_session()
+             |> Plug.Conn.get_session(:current_user)
+             |> is_nil()
     end
   end
 end
