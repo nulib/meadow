@@ -216,3 +216,35 @@ resource "aws_ssm_parameter" "meadow_node_name" {
   value     = "${var.stack_name}@${aws_route53_record.app_hostname.fqdn}"
   overwrite = true
 }
+
+resource "aws_security_group" "meadow_working_access" {
+  name        = "allow_meadow_access_to_efs"
+  description = "Allow Meadow access to EFS file system"
+  vpc_id      = data.aws_vpc.this_vpc.id
+
+  ingress {
+    description       = "NFS from Meadow"
+    from_port         = 2049
+    to_port           = 2049
+    protocol          = "tcp"
+    security_groups   = [aws_security_group.meadow.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_efs_file_system" "meadow_working" {
+  tags = var.tags
+}
+
+resource "aws_efs_mount_target" "meadow_working_mount" {
+  for_each          = data.aws_subnet_ids.private_subnets.ids
+  file_system_id    = aws_efs_file_system.meadow_working.id
+  subnet_id         = each.key
+  security_groups   = [aws_security_group.meadow_working_access.id]
+}

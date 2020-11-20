@@ -101,41 +101,37 @@ defmodule Meadow.Config do
     end
   end
 
-  @doc "Gather AWS S3 configuration as environment for spawned process"
-  def s3_environment do
-    with config <- Application.get_env(:ex_aws, :s3) do
-      result =
-        case config[:access_key_id] do
-          nil -> []
-          val -> [{'AWS_ACCESS_KEY_ID', to_charlist(val)}]
-        end
+  @doc "Gather configuration variables as environment for spawned process"
+  def tiff_port_environment do
+    with config <- Application.get_env(:ex_aws, :s3),
+         working_dir <- Application.get_env(:meadow, :pyramid_tiff_working_dir) do
+      []
+      |> build_environment(config[:access_key_id], "AWS_ACCESS_KEY_ID")
+      |> build_environment(config[:secret_access_key], "AWS_SECRET_ACCESS_KEY")
+      |> build_environment(config[:region], "AWS_REGION")
+      |> build_environment(extract_endpoint(config), "AWS_S3_ENDPOINT")
+      |> build_environment(working_dir, "TMPDIR")
+    end
+  end
 
-      result =
-        case config[:secret_access_key] do
-          nil -> result
-          val -> [{'AWS_SECRET_ACCESS_KEY', to_charlist(val)} | result]
-        end
+  defp extract_endpoint(config) do
+    case config[:host] do
+      nil ->
+        nil
 
-      result =
-        case config[:region] do
-          nil -> result
-          val -> [{'AWS_REGION', to_charlist(val)} | result]
-        end
+      val ->
+        Keyword.get(config, :scheme, "https://")
+        |> URI.parse()
+        |> Map.put(:host, val)
+        |> Map.put(:port, config[:port])
+        |> URI.to_string()
+    end
+  end
 
-      case config[:host] do
-        nil ->
-          result
-
-        val ->
-          endpoint =
-            Keyword.get(config, :scheme, "https://")
-            |> URI.parse()
-            |> Map.put(:host, val)
-            |> Map.put(:port, config[:port])
-            |> URI.to_string()
-
-          [{'AWS_S3_ENDPOINT', to_charlist(endpoint)} | result]
-      end
+  defp build_environment(accumulator, value, variable_name) do
+    case value do
+      nil -> accumulator
+      val -> [{to_charlist(variable_name), to_char_list(val)} | accumulator]
     end
   end
 

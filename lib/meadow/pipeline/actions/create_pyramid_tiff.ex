@@ -102,7 +102,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
 
         port =
           Port.open({:spawn, command}, [
-            {:env, Config.s3_environment()},
+            {:env, Config.tiff_port_environment()},
             {:line, 512},
             :binary,
             :exit_status
