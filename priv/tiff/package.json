@@ -6,7 +6,7 @@
   "author": "mbklein",
   "license": "Apache2",
   "dependencies": {
-    "aws-sdk": "^2.795.0",
+    "aws-sdk": "^2.796.0",
     "sharp": "^0.26.3",
     "sqs-consumer": "^5.5.0",
     "tempy": "^1.0.0",
