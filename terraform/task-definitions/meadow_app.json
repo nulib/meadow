@@ -4,6 +4,12 @@
     "image": "nulib/meadow:${docker_tag}",
     "cpu": 2000,
     "memoryReservation": 4000,
+    "mountPoints": [
+      {
+        "sourceVolume": "meadow-working",
+        "containerPath": "/working"
+      }
+    ],
     "essential": true,
     "environment": [
       {
@@ -99,6 +105,10 @@
         "value": "${pyramid_bucket}"
       },
       {
+        "name": "PYRAMID_TIFF_WORKING_DIR",
+        "value": "/working"
+      },
+      {
         "name": "RELEASE_COOKIE",
         "value": "${secret_key_base}"
       },
@@ -122,15 +132,18 @@
     "portMappings": [
       {
         "containerPort": 4000,
-        "hostPort": 4000
+        "hostPort": 4000,
+        "protocol": "tcp"
       },
       {
         "containerPort": 4369,
-        "hostPort": 4369
+        "hostPort": 4369,
+        "protocol": "tcp"
       },
       {
         "containerPort": 24601,
-        "hostPort": 24601
+        "hostPort": 24601,
+        "protocol": "tcp"
       }
     ],
     "logConfiguration": {
@@ -140,6 +153,7 @@
         "awslogs-region": "${region}",
         "awslogs-stream-prefix": "app"
       }
-    }
+    },
+    "volumesFrom": []
   }
 ]

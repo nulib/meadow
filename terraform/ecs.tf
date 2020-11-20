@@ -98,6 +98,13 @@ resource "aws_ecs_task_definition" "meadow_app" {
   cpu                      = 2048
   memory                   = 4096
   tags                     = var.tags
+
+  volume {
+    name = "meadow-working"
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.meadow_working.id
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "meadow_logs" {
@@ -149,7 +156,7 @@ resource "aws_ecs_service" "meadow" {
   cluster                             = aws_ecs_cluster.meadow.id
   task_definition                     = aws_ecs_task_definition.meadow_app.arn
   desired_count                       = 1
-  health_check_grace_period_seconds   = 360
+  health_check_grace_period_seconds   = 600
   launch_type                         = "FARGATE"
   depends_on                          = [aws_alb.meadow_load_balancer]
 

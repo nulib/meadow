@@ -70,18 +70,16 @@ config :meadow,
     target_url: get_required_var.("EZID_TARGET_BASE_URL")
   },
   environment: :prod,
-  pipeline_delay: System.get_env("PIPELINE_DELAY", "120000")
-
-config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
-config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
-config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
-config :meadow, pyramid_bucket: get_required_var.("PYRAMID_BUCKET")
-config :meadow, iiif_server_url: get_required_var.("IIIF_SERVER_URL")
-config :meadow, iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL")
-config :meadow, digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
-
-config :meadow,
+  digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL"),
+  iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL"),
+  iiif_server_url: get_required_var.("IIIF_SERVER_URL"),
+  ingest_bucket: get_required_var.("INGEST_BUCKET"),
+  pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
+  preservation_bucket: get_required_var.("PRESERVATION_BUCKET"),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
+  pyramid_bucket: get_required_var.("PYRAMID_BUCKET"),
+  pyramid_tiff_working_dir: System.get_env("PYRAMID_TIFF_WORKING_DIR"),
+  upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
 config :honeybadger,

@@ -41,7 +41,7 @@ defmodule Meadow.ConfigTest do
     refute Config.environment?(:dev)
   end
 
-  test "s3_environment/0" do
+  test "tiff_port_environment/0" do
     get_val = fn env, key ->
       env
       |> Enum.find_value(fn
@@ -50,7 +50,7 @@ defmodule Meadow.ConfigTest do
       end)
     end
 
-    with env <- Config.s3_environment() do
+    with env <- Config.tiff_port_environment() do
       assert env |> get_val.('AWS_REGION') == 'us-east-1'
       assert env |> get_val.('AWS_SECRET_ACCESS_KEY') == 'minio123'
       assert env |> get_val.('AWS_ACCESS_KEY_ID') == 'minio'
