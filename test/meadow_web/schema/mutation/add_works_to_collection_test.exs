@@ -33,4 +33,39 @@ defmodule MeadowWeb.Schema.Mutation.AddWorksToCollectionTest do
     collection = Collections.get_collection!(collection.id) |> Repo.preload(:works)
     assert collection.works |> length() == 3
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to add works to collections" do
+      collection = collection_fixture() |> Repo.preload(:works)
+
+      works = [work_fixture()]
+      work_ids = works |> Enum.map(& &1.id)
+
+      {:ok, result} =
+        query_gql(
+          variables: %{"workIds" => work_ids, "collectionId" => collection.id},
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+
+      collection = Collections.get_collection!(collection.id) |> Repo.preload(:works)
+      assert collection.works |> length() == 0
+    end
+
+    test "editors and above are authorized to add works to collections" do
+      collection = collection_fixture() |> Repo.preload(:works)
+
+      works = [work_fixture()]
+      work_ids = works |> Enum.map(& &1.id)
+
+      {:ok, result} =
+        query_gql(
+          variables: %{"workIds" => work_ids, "collectionId" => collection.id},
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["addWorksToCollection"]
+    end
+  end
 end

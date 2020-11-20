@@ -84,14 +84,16 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :create_project, :project do
       arg(:title, non_null(:string))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.create_project/3)
     end
 
-    @desc "Create a new Ingest Project"
+    @desc "Update an Ingest Project"
     field :update_project, :project do
       arg(:id, non_null(:id))
       arg(:title, :string)
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.update_project/3)
     end
 
@@ -101,6 +103,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
       middleware(Middleware.Authenticate)
+
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.create_ingest_sheet/3)
     end
 
@@ -108,6 +112,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :delete_project, :project do
       arg(:project_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.delete_project/3)
     end
 
@@ -115,6 +120,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :delete_ingest_sheet, :ingest_sheet do
       arg(:sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.delete_ingest_sheet/3)
     end
 
@@ -122,6 +128,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :approve_ingest_sheet, :status_message do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.approve_ingest_sheet/3)
     end
 
@@ -129,6 +136,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :validate_ingest_sheet, :status_message do
       arg(:sheet_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.validate_ingest_sheet/3)
     end
   end

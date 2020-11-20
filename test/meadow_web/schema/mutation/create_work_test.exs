@@ -54,4 +54,40 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
       assert is_nil(style_period |> get_in(["role"]))
     end
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to create shared links" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{},
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to create shared links" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{},
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["createWork"]
+    end
+  end
 end

@@ -47,6 +47,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:published, :boolean)
       arg(:file_sets, list_of(:file_set_input))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.create_work/3)
     end
 
@@ -55,6 +56,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:id, non_null(:id))
       arg(:work, non_null(:work_update_input))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_work/3)
     end
 
@@ -63,6 +65,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:work_id, non_null(:id))
       arg(:file_set_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.set_work_image/3)
     end
 
@@ -70,6 +73,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :delete_work, :work do
       arg(:work_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_work/3)
     end
 
@@ -78,6 +82,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:work_id, non_null(:id))
       arg(:collection_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.add_work_to_collection/3)
     end
   end

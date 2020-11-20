@@ -27,6 +27,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       arg(:work_id, non_null(:id))
       arg(:metadata, non_null(:file_set_metadata_input))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.create_file_set/3)
     end
 
@@ -34,6 +35,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :delete_file_set, :file_set do
       arg(:file_set_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_file_set/3)
     end
   end

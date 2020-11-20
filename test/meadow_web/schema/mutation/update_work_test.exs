@@ -30,4 +30,40 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
     work = Works.get_work!(work.id) |> Repo.preload(:collection)
     assert work.collection.id == collection.id
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to update works" do
+      work = work_fixture()
+      collection = collection_fixture()
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "id" => work.id,
+            "collection_id" => collection.id,
+            "descriptive_metadata" => %{"title" => "Something"}
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to update works" do
+      work = work_fixture()
+      collection = collection_fixture()
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "id" => work.id,
+            "collection_id" => collection.id,
+            "descriptive_metadata" => %{"title" => "Something"}
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["updateWork"]
+    end
+  end
 end

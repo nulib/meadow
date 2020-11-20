@@ -191,7 +191,8 @@ defmodule Meadow.TestHelpers do
       current_user: %{
         username: "user1",
         email: "email@example.com",
-        display_name: "User Name"
+        display_name: "User Name",
+        role: "Administrator"
       }
     })
   end

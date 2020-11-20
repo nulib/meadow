@@ -34,6 +34,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:published, :boolean)
       arg(:visibility, :coded_term_input)
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
       resolve(&Resolvers.Data.Collections.create_collection/3)
     end
 
@@ -49,6 +50,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:published, :boolean)
       arg(:visibility, :coded_term_input)
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
       resolve(&Resolvers.Data.Collections.update_collection/3)
     end
 
@@ -57,6 +59,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:collection_id, non_null(:id))
       arg(:work_ids, list_of(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.Collections.add_works/3)
     end
 
@@ -65,6 +68,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:collection_id, non_null(:id))
       arg(:work_ids, list_of(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.Collections.remove_works/3)
     end
 
@@ -73,6 +77,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
       arg(:collection_id, non_null(:id))
       arg(:work_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
       resolve(&Resolvers.Data.Collections.set_collection_image/3)
     end
 
@@ -80,6 +85,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     field :delete_collection, :collection do
       arg(:collection_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
       resolve(&Resolvers.Data.Collections.delete_collection/3)
     end
   end

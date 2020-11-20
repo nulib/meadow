@@ -12,6 +12,7 @@ defmodule MeadowWeb.Schema.Data.SharedLinkTypes do
     field :create_shared_link, :shared_link do
       arg(:work_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
       resolve(&Data.SharedLinks.generate/3)
     end
   end

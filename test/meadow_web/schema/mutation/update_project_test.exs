@@ -23,4 +23,36 @@ defmodule MeadowWeb.Schema.Mutation.UpdateProjectTest do
       assert title == "The New Title"
     end
   end
+
+  describe "authorization" do
+    test "viewers are not authorized to update projects" do
+      project = project_fixture()
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "id" => project.id,
+            "title" => "The New Title"
+          },
+          context: %{current_user: %{role: "Viewer"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to update projects" do
+      project = project_fixture()
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "id" => project.id,
+            "title" => "The New Title"
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["updateProject"]
+    end
+  end
 end
