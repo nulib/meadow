@@ -159,6 +159,7 @@ resource "aws_ecs_service" "meadow" {
   health_check_grace_period_seconds   = 600
   launch_type                         = "FARGATE"
   depends_on                          = [aws_alb.meadow_load_balancer]
+  platform_version                    = "1.4.0"
 
   dynamic "load_balancer" {
     for_each = local.container_ports
