@@ -1,7 +1,7 @@
 ---
 version: 2.1
 orbs:
-  aws-cli: circleci/aws-cli@0.1
+  aws-cli: circleci/aws-cli@1.3.1
   docker: circleci/docker@0.5.19
 jobs:
   test:
@@ -132,8 +132,7 @@ jobs:
           image: nulib/meadow
           tag: ${DEPLOY_TAG}
   deploy:
-    docker:
-      - image: circleci/python:3.7.1
+    executor: aws-cli/default
     steps:
       - run:
           name: Set DEPLOY_TAG from branch name
@@ -147,7 +146,6 @@ jobs:
           command: |
             echo "export AWS_ACCESS_KEY_ID=\$${DEPLOY_TAG}_AWS_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=\$${DEPLOY_TAG}_AWS_SECRET_ACCESS_KEY" >> $BASH_ENV
-      - aws-cli/install
       - aws-cli/setup
       - run:
           name: Update ECS service
@@ -160,7 +158,7 @@ jobs:
           command: |
             networkconfig=$(aws ecs describe-services --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} | jq -cM '.services[0].networkConfiguration')
             overrides="{\"containerOverrides\":[{\"name\":\"${ECS_CONTAINER}\",\"command\":[\"eval\",\"Meadow.ReleaseTasks.migrate()\"]}]}"
-            aws ecs run-task --cluster ${ECS_CLUSTER} --task-definition ${ECS_TASK} --overrides ${overrides} --launch-type FARGATE --network-configuration ${networkconfig}
+            aws ecs run-task --platform-version 1.4.0 --cluster ${ECS_CLUSTER} --task-definition ${ECS_TASK} --overrides ${overrides} --launch-type FARGATE --network-configuration ${networkconfig}
             aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment
 workflows:
   ci:
