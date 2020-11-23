@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   use Action
   use Meadow.Pipeline.Actions.Common
 
-  @timeout 30_000
+  @timeout 300_000
 
   defp process(%{file_set_id: file_set_id}, _, _) do
     Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
@@ -62,6 +62,9 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
       {^port, {:data, {:eol, "[fatal] " <> message}}} ->
         Logger.error(message)
         {:error, message}
+
+      {^port, {:data, {:eol, "[ping]"}}} ->
+        handle_output(port)
 
       {^port, {:data, {:eol, message}}} ->
         handle_message(message)
