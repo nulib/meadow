@@ -51,7 +51,8 @@ const makeInputFile = location => {
       }).createReadStream();
 
     s3Stream.on("error", err => reject(err));
-    
+    s3Stream.on("data", chunk => portlog("ping"))
+
     s3Stream
       .pipe(writable)
       .on("close", () => resolve(fileName))
