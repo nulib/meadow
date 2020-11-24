@@ -378,4 +378,41 @@ defmodule Meadow.Data.WorksTest do
       end
     end
   end
+
+  describe "reorder file sets" do
+    setup do
+      work = work_with_file_sets_fixture(5)
+      {:ok, %{work: work, ids: work.file_sets |> Enum.map(& &1.id)}}
+    end
+
+    test "update_file_set_order/1 success", %{work: work, ids: ids} do
+      with work_id <- work.id do
+        assert {:ok,
+                %{
+                  index_1: %{id: id_1, position: 1},
+                  index_2: %{id: id_2, position: 2},
+                  index_3: %{id: id_3, position: 3},
+                  index_4: %{id: id_4, position: 4},
+                  index_5: %{id: id_5, position: 5},
+                  work: %Work{id: ^work_id}
+                }} = Works.update_file_set_order(work_id, Enum.reverse(ids))
+
+        assert [id_5, id_4, id_3, id_2, id_1] == ids
+      end
+    end
+
+    test "update_file_set_order/1 errors on missing id", %{work: work, ids: [missing_id | ids]} do
+      assert {:error, error_text} = Works.update_file_set_order(work.id, ids)
+      assert String.contains?(error_text, missing_id)
+      assert String.match?(error_text, ~r/missing \[.+\]/)
+    end
+
+    test "update_file_set_order/1 errors on extra id", %{work: work, ids: ids} do
+      with extra_id <- Ecto.UUID.generate() do
+        assert {:error, error_text} = Works.update_file_set_order(work.id, [extra_id | ids])
+        assert String.contains?(error_text, extra_id)
+        assert String.match?(error_text, ~r/^Extra/)
+      end
+    end
+  end
 end

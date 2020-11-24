@@ -85,6 +85,15 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.add_work_to_collection/3)
     end
+
+    @desc "Change the order of a work's file sets"
+    field :update_file_set_order, :work do
+      arg(:work_id, non_null(:id))
+      arg(:file_set_ids, list_of(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_set_order/3)
+    end
   end
 
   @desc "A work object"
@@ -106,7 +115,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :inserted_at, non_null(:datetime)
     field :updated_at, non_null(:datetime)
     field :collection, :collection, resolve: dataloader(Data)
-    field :file_sets, list_of(:file_set), resolve: dataloader(Data)
+    field :file_sets, list_of(:file_set), resolve: dataloader(OrderedFileSets)
     field :representative_image, :string
 
     field :project, :project, resolve: dataloader(Data)

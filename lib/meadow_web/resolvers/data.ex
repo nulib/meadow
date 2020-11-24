@@ -135,4 +135,24 @@ defmodule MeadowWeb.Resolvers.Data do
         {:ok, file_set}
     end
   end
+
+  def update_file_set_order(_, %{work_id: work_id, file_set_ids: file_set_ids}, _) do
+    case Works.update_file_set_order(work_id, file_set_ids) do
+      {:error, message} when is_binary(message) ->
+        {
+          :error,
+          message: "Could not update file set order", details: %{error: message}
+        }
+
+      {:error, changeset} ->
+        {
+          :error,
+          message: "Could not update file set order",
+          details: ChangesetErrors.error_details(changeset)
+        }
+
+      {:ok, %{work: work}} ->
+        {:ok, work}
+    end
+  end
 end
