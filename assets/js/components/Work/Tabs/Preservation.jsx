@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITagNotYetSupported from "../../UI/TagNotYetSupported";
 import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const WorkTabsPreservation = ({ work }) => {
   return (
@@ -17,7 +18,9 @@ const WorkTabsPreservation = ({ work }) => {
               <th>Checksum</th>
               <th>s3 Key</th>
               <th>Verified</th>
-              <th className="has-text-right">Actions</th>
+              <DisplayAuthorized action="delete">
+                <th className="has-text-right">Actions</th>{" "}
+              </DisplayAuthorized>
             </tr>
           </thead>
           <tbody>
@@ -39,13 +42,15 @@ const WorkTabsPreservation = ({ work }) => {
                     <td>
                       <UITagNotYetSupported label="Display not yet supported" />
                     </td>
-                    <td>
-                      <div className="buttons-end">
-                        <button className="button">
-                          <FontAwesomeIcon icon="trash" />
-                        </button>
-                      </div>
-                    </td>
+                    <DisplayAuthorized action="delete">
+                      <td>
+                        <div className="buttons-end">
+                          <button className="button">
+                            <FontAwesomeIcon icon="trash" />
+                          </button>
+                        </div>
+                      </td>
+                    </DisplayAuthorized>
                   </tr>
                 );
               })}

@@ -16,6 +16,7 @@ import UIModalDelete from "../../components/UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import Layout from "../Layout";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -121,28 +122,31 @@ const ScreensCollection = () => {
                     )}
                   </div>
                   <div className="column is-one-third buttons has-text-right">
-                    <button
-                      className="button is-primary"
-                      onClick={handlePublishClick}
-                      data-testid="publish-button"
-                    >
-                      {!data.collection.published ? "Publish" : "Unpublish"}
-                    </button>
-                    <Link
-                      to={`/collection/form/${id}`}
-                      className="button is-primary"
-                      data-testid="edit-button"
-                    >
-                      Edit
-                    </Link>
-
-                    <button
-                      className="button"
-                      onClick={onOpenModal}
-                      data-testid="delete-button"
-                    >
-                      Delete
-                    </button>
+                    <DisplayAuthorized action="edit">
+                      <button
+                        className="button is-primary"
+                        onClick={handlePublishClick}
+                        data-testid="publish-button"
+                      >
+                        {!data.collection.published ? "Publish" : "Unpublish"}
+                      </button>
+                      <Link
+                        to={`/collection/form/${id}`}
+                        className="button is-primary"
+                        data-testid="edit-button"
+                      >
+                        Edit
+                      </Link>
+                    </DisplayAuthorized>
+                    <DisplayAuthorized action="delete">
+                      <button
+                        className="button"
+                        onClick={onOpenModal}
+                        data-testid="delete-button"
+                      >
+                        Delete
+                      </button>
+                    </DisplayAuthorized>
                   </div>
                 </div>
 

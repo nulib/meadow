@@ -12,6 +12,7 @@ import UISkeleton from "../UI/Skeleton";
 import UIFormField from "../../components/UI/Form/Field";
 import UIFormInput from "../../components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ProjectList = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -103,7 +104,9 @@ const ProjectList = () => {
             <th>s3 Bucket Folder</th>
             <th className="text-right has-text-right"># Ingest Sheets</th>
             <th className="has-text-right">Last Updated</th>
-            <th className="has-text-right">Actions</th>
+            <DisplayAuthorized action="edit">
+              <th className="has-text-right">Actions</th>
+            </DisplayAuthorized>
           </tr>
         </thead>
         <tbody>
@@ -120,24 +123,26 @@ const ProjectList = () => {
                   <td>{folder}</td>
                   <td className="has-text-right">{ingestSheets.length}</td>
                   <td className="has-text-right">{formatDate(updatedAt)}</td>
-                  <td>
-                    <div className="buttons-end">
-                      <p className="control">
-                        <Button className="button">
-                          <FontAwesomeIcon icon="edit" />
-                        </Button>
-                      </p>
-                      <p className="control">
-                        <Button
-                          className="button"
-                          data-testid="delete-button-row"
-                          onClick={(e) => onOpenModal(e, project)}
-                        >
-                          <FontAwesomeIcon icon="trash" />
-                        </Button>
-                      </p>
-                    </div>
-                  </td>
+                  <DisplayAuthorized action="edit">
+                    <td>
+                      <div className="buttons-end">
+                        <p className="control">
+                          <Button className="button">
+                            <FontAwesomeIcon icon="edit" />
+                          </Button>
+                        </p>
+                        <p className="control">
+                          <Button
+                            className="button"
+                            data-testid="delete-button-row"
+                            onClick={(e) => onOpenModal(e, project)}
+                          >
+                            <FontAwesomeIcon icon="trash" />
+                          </Button>
+                        </p>
+                      </div>
+                    </td>
+                  </DisplayAuthorized>
                 </tr>
               );
             })}

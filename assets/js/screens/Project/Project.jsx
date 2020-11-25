@@ -15,6 +15,7 @@ import {
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensProject = () => {
   const history = useHistory();
@@ -105,27 +106,29 @@ const ScreensProject = () => {
                       </dl>
                     </div>
                     <div className="column is-two-fifths">
-                      <div className="buttons is-right">
-                        <Link
-                          to={{
-                            pathname: `/project/${id}/ingest-sheet/upload`,
-                            state: { projectId: id },
-                          }}
-                          className="button is-primary"
-                          data-testid="button-new-ingest-sheet"
-                        >
-                          <span className="icon">
-                            <FontAwesomeIcon icon="file-csv" />
-                          </span>{" "}
-                          <span>Add an Ingest Sheet</span>
-                        </Link>
-                        <Button
-                          onClick={handleFacetClick}
-                          data-testid="button-view-all-works"
-                        >
-                          View Project Works
-                        </Button>
-                      </div>
+                      <DisplayAuthorized action="edit">
+                        <div className="buttons is-right">
+                          <Link
+                            to={{
+                              pathname: `/project/${id}/ingest-sheet/upload`,
+                              state: { projectId: id },
+                            }}
+                            className="button is-primary"
+                            data-testid="button-new-ingest-sheet"
+                          >
+                            <span className="icon">
+                              <FontAwesomeIcon icon="file-csv" />
+                            </span>{" "}
+                            <span>Add an Ingest Sheet</span>
+                          </Link>
+                          <Button
+                            onClick={handleFacetClick}
+                            data-testid="button-view-all-works"
+                          >
+                            View Project Works
+                          </Button>
+                        </div>
+                      </DisplayAuthorized>
                     </div>
                   </div>
                 )}

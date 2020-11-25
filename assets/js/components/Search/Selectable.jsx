@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const SearchSelectable = ({
   children,
@@ -29,22 +30,24 @@ const SearchSelectable = ({
 
   return (
     <div className="is-relative">
-      <div className="field" css={field}>
-        <input
-          data-testid="checkbox-search-select"
-          checked={isSelected}
-          className="is-checkradio"
-          id={`search-select-${id}`}
-          type="checkbox"
-          name={`search-select-${id}`}
-          onChange={handleChecked}
-        />
-        <label
-          className="pl-0"
-          css={label}
-          htmlFor={`search-select-${id}`}
-        ></label>
-      </div>
+      <DisplayAuthorized action="edit">
+        <div className="field" css={field}>
+          <input
+            data-testid="checkbox-search-select"
+            checked={isSelected}
+            className="is-checkradio"
+            id={`search-select-${id}`}
+            type="checkbox"
+            name={`search-select-${id}`}
+            onChange={handleChecked}
+          />
+          <label
+            className="pl-0"
+            css={label}
+            htmlFor={`search-select-${id}`}
+          ></label>
+        </div>
+      </DisplayAuthorized>
       {children}
     </div>
   );

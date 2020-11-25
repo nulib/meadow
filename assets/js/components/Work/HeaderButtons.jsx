@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
@@ -22,19 +23,21 @@ export default function WorkHeaderButtons({
         </span>
         <span>Create sharable link</span>
       </Button>
-      <Button
-        className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
-        data-testid="publish-button"
-        onClick={handlePublishClick}
-        disabled={isPublishBtnDisabled}
-        data-tooltip={
-          isPublishBtnDisabled
-            ? "A work must belong to a Collection in order to be published.  Add to a Collection in the Administrative tab below."
-            : undefined
-        }
-      >
-        {!published ? "Publish" : "Unpublish"}
-      </Button>
+      <DisplayAuthorized action="edit">
+        <Button
+          className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
+          data-testid="publish-button"
+          onClick={handlePublishClick}
+          disabled={isPublishBtnDisabled}
+          data-tooltip={
+            isPublishBtnDisabled
+              ? "A work must belong to a Collection in order to be published.  Add to a Collection in the Administrative tab below."
+              : undefined
+          }
+        >
+          {!published ? "Publish" : "Unpublish"}
+        </Button>
+      </DisplayAuthorized>
     </div>
   );
 }

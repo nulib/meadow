@@ -14,6 +14,7 @@ import {
 } from "../../services/elasticsearch";
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensSearch = () => {
   let history = useHistory();
@@ -99,13 +100,16 @@ const ScreensSearch = () => {
 
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
-              <SearchActionRow
-                handleDeselectAll={handleDeselectAll}
-                handleEditAllItems={handleEditAllItems}
-                handleViewAndEdit={handleViewAndEdit}
-                numberOfResults={resultStats.numberOfResults}
-                selectedItems={selectedItems}
-              />
+
+              <DisplayAuthorized action="delete">
+                <SearchActionRow
+                  handleDeselectAll={handleDeselectAll}
+                  handleEditAllItems={handleEditAllItems}
+                  handleViewAndEdit={handleViewAndEdit}
+                  numberOfResults={resultStats.numberOfResults}
+                  selectedItems={selectedItems}
+                />
+              </DisplayAuthorized>
               <hr />
               <UIResultsDisplaySwitcher
                 isListView={isListView}
