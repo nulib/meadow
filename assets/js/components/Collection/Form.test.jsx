@@ -6,13 +6,21 @@ import {
 } from "../../services/testing-helpers";
 import { screen } from "@testing-library/react";
 import { collectionMock } from "./collection.gql.mock";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 describe("Collection Form component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(CollectionForm);
-    return renderWithRouterApollo(<Wrapped />, {
-      route: "/collection/form",
-    });
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <Wrapped />
+      </AuthProvider>,
+      {
+        route: "/collection/form",
+        mocks: [getCurrentUserMock],
+      }
+    );
   });
 
   it("displays the collection form", async () => {
@@ -42,9 +50,15 @@ it("renders existing collection values in the form when editing a form", async (
   const Wrapped = withReactHookForm(CollectionForm, {
     collection: collectionMock,
   });
-  renderWithRouterApollo(<Wrapped />, {
-    route: "/collection/form",
-  });
+  renderWithRouterApollo(
+    <AuthProvider>
+      <Wrapped />
+    </AuthProvider>,
+    {
+      route: "/collection/form",
+      mocks: [getCurrentUserMock],
+    }
+  );
 
   expect(await screen.findByTestId("input-collection-title")).toHaveValue(
     "Great collection"

@@ -7,16 +7,20 @@ import {
   ingestSheetUpdatesMock,
 } from "../../components/Project/project.gql.mock";
 import { screen } from "@testing-library/react";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 jest.mock("../../services/elasticsearch");
 
 const MOCK_PROJECT_TITLE = "Mock project title";
-const mocks = [getProjectMock, ingestSheetUpdatesMock];
+const mocks = [getProjectMock, ingestSheetUpdatesMock, getCurrentUserMock];
 
 describe("BatchEditAboutCoreMetadata component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <Route path="/project/:id" component={ScreensProject} />,
+      <AuthProvider>
+        <Route path="/project/:id" component={ScreensProject} />
+      </AuthProvider>,
       {
         mocks,
         route: "/project/01DNFK4B8XASXNKBSAKQ6YVNF3",
