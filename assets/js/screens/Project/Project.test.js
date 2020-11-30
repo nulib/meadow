@@ -6,12 +6,13 @@ import {
   getProjectMock,
   ingestSheetUpdatesMock,
 } from "../../components/Project/project.gql.mock";
+import { getPresignedUrlMock } from "@js/components/IngestSheet/ingestSheet.gql.mock";
 import { screen } from "@testing-library/react";
 
 jest.mock("../../services/elasticsearch");
 
 const MOCK_PROJECT_TITLE = "Mock project title";
-const mocks = [getProjectMock, ingestSheetUpdatesMock];
+const mocks = [getPresignedUrlMock, getProjectMock, ingestSheetUpdatesMock];
 
 describe("BatchEditAboutCoreMetadata component", () => {
   beforeEach(() => {
