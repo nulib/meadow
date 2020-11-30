@@ -60,7 +60,7 @@ export default function BatchEditRemove({
                     onClick={(e) => removeFromDelete(e, item)}
                     data-testid="remove-delete-entries"
                   >
-                    {<FontAwesomeIcon icon="trash" />}
+                    {<FontAwesomeIcon icon="times" />}
                   </span>
                 </li>
               );
