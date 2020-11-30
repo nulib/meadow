@@ -4,18 +4,28 @@ import { mockWork } from "../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
+import { getCurrentUserMock } from "../../Auth/auth.gql.mock";
+
 import userEvent from "@testing-library/user-event";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
+import { AuthProvider } from "@js/components/Auth/Auth";
 
 describe("Work Administrative tab component", () => {
   function setupTests() {
     return renderWithRouterApollo(
-      <CodeListProvider>
-        <WorkTabsAdministrative work={mockWork} />
-      </CodeListProvider>,
+      <AuthProvider>
+        <CodeListProvider>
+          <WorkTabsAdministrative work={mockWork} />
+        </CodeListProvider>
+      </AuthProvider>,
       {
-        mocks: [getCollectionsMock, getCollectionsMock, ...allCodeListMocks],
+        mocks: [
+          getCollectionsMock,
+          getCollectionsMock,
+          ...allCodeListMocks,
+          getCurrentUserMock,
+        ],
       }
     );
   }

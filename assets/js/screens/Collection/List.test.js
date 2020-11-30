@@ -4,13 +4,17 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor } from "@testing-library/react";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
-const mocks = [getCollectionsMock];
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+const mocks = [getCollectionsMock, getCurrentUserMock];
 
 jest.mock("../../services/elasticsearch");
 
 function setupTests() {
   return renderWithRouterApollo(
-    <Route path="/collection/list/" component={ScreensCollectionList} />,
+    <AuthProvider>
+      <Route path="/collection/list/" component={ScreensCollectionList} />
+    </AuthProvider>,
     {
       mocks,
       route: "/collection/list/",

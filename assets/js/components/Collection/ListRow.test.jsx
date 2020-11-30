@@ -1,13 +1,26 @@
 import React from "react";
 import CollectionListRow from "./ListRow";
-import { renderWithRouter } from "../../services/testing-helpers";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { collectionMock } from "./collection.gql.mock";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { waitFor } from "@testing-library/dom";
 
 describe("CollectionListRow component", () => {
-  it("renders the root element", () => {
-    const { getByTestId } = renderWithRouter(
-      <CollectionListRow collection={collectionMock} />
+  function setUpTests() {
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <CollectionListRow collection={collectionMock} />
+      </AuthProvider>,
+      {
+        mocks: [getCurrentUserMock],
+      }
     );
-    expect(getByTestId("collection-list-row")).toBeInTheDocument();
+  }
+  it("renders the root element", async () => {
+    const { getByTestId } = setUpTests();
+    await waitFor(() => {
+      expect(getByTestId("collection-list-row")).toBeInTheDocument();
+    });
   });
 });

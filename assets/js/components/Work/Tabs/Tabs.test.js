@@ -6,12 +6,23 @@ import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import { allCodeListMocks } from "../controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
-
-const mocks = [...allCodeListMocks, getCollectionsMock, iiifServerUrlMock];
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+const mocks = [
+  ...allCodeListMocks,
+  getCollectionsMock,
+  iiifServerUrlMock,
+  getCurrentUserMock,
+];
 
 describe("Tabs component", () => {
   function setupTests() {
-    return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <WorkTabs work={mockWork} />
+      </AuthProvider>,
+      { mocks }
+    );
   }
 
   it("renders without crashing", () => {

@@ -12,6 +12,8 @@ import {
   getCollectionMock,
   MOCK_COLLECTION_ID,
 } from "../../components/Collection/collection.gql.mock";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 jest.mock("../../services/elasticsearch");
 
@@ -19,9 +21,11 @@ jest.mock("../../services/elasticsearch");
  * Helper function to render the component for testing
  * @param {Array} mocks All the mocks needed to run each spec
  */
-function setupTests(mocks) {
+function setupTests(mocks = [getCurrentUserMock, getCollectionMock]) {
   return renderWithRouterApollo(
-    <Route path="/collection/:id" component={ScreensCollection} />,
+    <AuthProvider>
+      <Route path="/collection/:id" component={ScreensCollection} />
+    </AuthProvider>,
     {
       mocks,
       route: `/collection/${MOCK_COLLECTION_ID}`,
@@ -30,7 +34,7 @@ function setupTests(mocks) {
 }
 
 it("renders without crashing", async () => {
-  const { container, queryByTestId } = setupTests([getCollectionMock]);
+  const { container, queryByTestId } = setupTests();
   await waitFor(() => {
     expect(queryByTestId("loading")).not.toBeInTheDocument();
     expect(container).toBeTruthy();
@@ -38,19 +42,19 @@ it("renders without crashing", async () => {
 });
 
 it("renders hero section", async () => {
-  const { findByTestId } = setupTests([getCollectionMock]);
+  const { findByTestId } = setupTests();
   const el = await findByTestId("collection-screen-hero");
   expect(el).toBeInTheDocument();
 });
 
 it("renders breadcrumbs", async () => {
-  const { findByTestId } = setupTests([getCollectionMock]);
+  const { findByTestId } = setupTests();
   const breadcrumbs = await findByTestId("breadcrumbs");
   expect(breadcrumbs).toBeInTheDocument();
 });
 
 it("opens up Delete dialog", async () => {
-  const { findByTestId } = setupTests([getCollectionMock]);
+  const { findByTestId } = setupTests();
   const deleteButtonEl = await findByTestId("delete-button");
   fireEvent.click(deleteButtonEl);
   const deleteModalEl = await findByTestId("delete-modal");
@@ -58,13 +62,13 @@ it("opens up Delete dialog", async () => {
 });
 
 it("renders Edit button", async () => {
-  const { findByTestId } = setupTests([getCollectionMock]);
+  const { findByTestId } = setupTests();
   const button = await findByTestId("edit-button");
   expect(button).toBeInTheDocument();
 });
 
 it("renders Publish button", async () => {
-  const { findByTestId } = setupTests([getCollectionMock]);
+  const { findByTestId } = setupTests();
   const button = await findByTestId("publish-button");
   expect(button).toBeInTheDocument();
 });

@@ -172,11 +172,14 @@ const WorkTabsAdministrative = ({ work }) => {
                     name="collection"
                     label="Collection"
                     showHelper={true}
-                    options={collectionsData.collections.map((collection) => ({
-                      id: collection.id,
-                      value: collection.id,
-                      label: collection.title,
-                    }))}
+                    options={
+                      collectionsData &&
+                      collectionsData.collections.map((collection) => ({
+                        id: collection.id,
+                        value: collection.id,
+                        label: collection.title,
+                      }))
+                    }
                     defaultValue={collection ? collection.id : ""}
                   />
                 ) : (
