@@ -3,6 +3,7 @@ defmodule Meadow.Data.Works do
   The Works context.
   """
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Meadow.Ark
   alias Meadow.Config
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work}
@@ -119,9 +120,8 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
-    |> preload([:ingest_sheet, :project])
-    |> preload(:file_sets)
     |> Repo.get!(id)
+    |> Repo.preload([:ingest_sheet, :project, file_sets: from(FileSet, order_by: :rank)])
     |> add_representative_image()
   end
 
@@ -491,5 +491,53 @@ defmodule Meadow.Data.Works do
           {:updated_at, ^DateTime.utc_now()}
         ]
       ]
+  end
+
+  @doc """
+  Update the order of the file sets attached to a work
+  """
+  def update_file_set_order(work_id, ordered_file_set_ids) do
+    ensure_file_set_list_unique(ordered_file_set_ids)
+    |> ensure_file_set_list_complete(work_id, ordered_file_set_ids)
+    |> reorder_file_sets(ordered_file_set_ids)
+  end
+
+  defp ensure_file_set_list_unique(file_set_ids) do
+    if Enum.uniq(file_set_ids) == file_set_ids,
+      do: :ok,
+      else: {:error, "FileSet IDs must be a unique list"}
+  end
+
+  defp ensure_file_set_list_complete({:error, msg}, _, _), do: {:error, msg}
+
+  defp ensure_file_set_list_complete(:ok, work_id, file_set_ids) do
+    work = from(w in Work, where: w.id == ^work_id, preload: :file_sets) |> Repo.one()
+    work_file_set_ids = Enum.map(work.file_sets, &Map.get(&1, :id))
+    missing_file_set_ids = work_file_set_ids -- file_set_ids
+    extra_file_set_ids = file_set_ids -- work_file_set_ids
+
+    cond do
+      length(missing_file_set_ids) > 0 ->
+        {:error, "Ordered file set list is missing #{inspect(missing_file_set_ids)}"}
+
+      length(extra_file_set_ids) > 0 ->
+        {:error, "Extra file set IDs provided: #{inspect(extra_file_set_ids)}"}
+
+      true ->
+        {:ok, work}
+    end
+  end
+
+  defp reorder_file_sets({:error, msg}, _), do: {:error, msg}
+
+  defp reorder_file_sets({:ok, work}, ordered_ids) do
+    work.file_sets
+    |> Enum.sort_by(&Enum.find_index(ordered_ids, fn id -> &1.id == id end))
+    |> Enum.with_index(1)
+    |> Enum.reduce(Multi.new(), fn {file_set, index}, multi ->
+      Multi.update(multi, :"index_#{index}", FileSet.changeset(file_set, %{position: index}))
+    end)
+    |> Multi.update(:work, work |> Work.update_timestamp())
+    |> Repo.transaction()
   end
 end

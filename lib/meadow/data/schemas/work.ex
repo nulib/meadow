@@ -73,6 +73,10 @@ defmodule Meadow.Data.Schemas.Work do
     |> unique_constraint(:accession_number)
   end
 
+  def update_timestamp(work, timestamp \\ NaiveDateTime.utc_now()) do
+    cast(work, %{updated_at: timestamp}, [:updated_at])
+  end
+
   def update_changeset(work, attrs) do
     allowed_params = [
       :collection_id,
