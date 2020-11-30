@@ -58,7 +58,7 @@ function FieldArrayRow({
           onClick={() => handleRemoveClick(index)}
           data-testid="button-delete-field-array-row"
         >
-          <FontAwesomeIcon icon="trash" />
+          <FontAwesomeIcon icon="times" />
         </Button>
       </div>
       {errors[name] && errors[name][index] && (
