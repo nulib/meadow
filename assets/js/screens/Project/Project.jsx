@@ -3,7 +3,6 @@ import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import Layout from "../Layout";
 import IngestSheetList from "../../components/IngestSheet/List";
-import { Link } from "react-router-dom";
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
 import { useQuery } from "@apollo/client";
@@ -34,18 +33,24 @@ const ScreensProject = () => {
     let updatedIngestSheets;
     switch (ingestSheet.status) {
       case "UPLOADED":
-        updatedIngestSheets = [ingestSheet, ...prev.project.ingestSheets];
+        updatedIngestSheets = [
+          ingestSheet,
+          ...(prev.project && prev.project.ingestSheets),
+        ];
         break;
       case "DELETED":
-        updatedIngestSheets = prev.project.ingestSheets.filter(
-          (i) => i.id !== ingestSheet.id
-        );
+        updatedIngestSheets =
+          prev.project &&
+          prev.project.ingestSheets.filter((i) => i.id !== ingestSheet.id);
         break;
       default:
-        updatedIngestSheets = prev.project.ingestSheets.filter(
-          (i) => i.id !== ingestSheet.id
-        );
-        updatedIngestSheets = [ingestSheet, ...updatedIngestSheets];
+        updatedIngestSheets =
+          prev.project &&
+          prev.project.ingestSheets.filter((i) => i.id !== ingestSheet.id);
+        updatedIngestSheets = [
+          ingestSheet,
+          ...(updatedIngestSheets ? updatedIngestSheets : ""),
+        ];
     }
 
     return {
@@ -109,7 +114,7 @@ const ScreensProject = () => {
                     </div>
                     <div className="column is-two-fifths">
                       <DisplayAuthorized action="edit">
-                         <div className="buttons is-right">
+                        <div className="buttons is-right">
                           <Button
                             data-testid="button-new-ingest-sheet"
                             isPrimary
