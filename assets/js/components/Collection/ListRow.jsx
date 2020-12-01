@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const {
@@ -56,19 +57,23 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
         </div>
         <div className="media-right">
           <div className="buttons-end">
-            <p className="control">
-              <Link className="button" to={`/collection/form/${id}`}>
-                <FontAwesomeIcon icon="edit" />
-              </Link>
-            </p>
-            <p className="control">
-              <button
-                className="button"
-                onClick={() => onOpenModal({ id, title })}
-              >
-                <FontAwesomeIcon icon="trash" />
-              </button>
-            </p>
+            <DisplayAuthorized action="edit">
+              <p className="control">
+                <Link className="button" to={`/collection/form/${id}`}>
+                  <FontAwesomeIcon icon="edit" />
+                </Link>
+              </p>
+            </DisplayAuthorized>
+            <DisplayAuthorized action="delete">
+              <p className="control">
+                <button
+                  className="button"
+                  onClick={() => onOpenModal({ id, title })}
+                >
+                  <FontAwesomeIcon icon="trash" />
+                </button>
+              </p>
+            </DisplayAuthorized>
           </div>
         </div>
       </article>

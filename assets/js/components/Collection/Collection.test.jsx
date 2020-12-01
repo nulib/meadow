@@ -2,19 +2,33 @@ import React from "react";
 import Collection from "./Collection";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { collectionMock } from "./collection.gql.mock";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { waitFor } from "@testing-library/dom";
+import { screen } from "@testing-library/react";
 
-function setUpTests() {
-  return renderWithRouterApollo(<Collection collection={collectionMock} />, {});
-}
+describe("Collection Test", () => {
+  beforeEach(() => {
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <Collection collection={collectionMock} />
+      </AuthProvider>,
+      {
+        mocks: [getCurrentUserMock],
+      }
+    );
+  });
 
-it("renders Collection component", async () => {
-  const { getByTestId } = setUpTests();
-  const collectionSection = getByTestId("collection");
-  expect(collectionSection).toBeInTheDocument();
-});
+  it("renders Collection component", async () => {
+    await waitFor(() => {
+      expect(screen.getByTestId("collection"));
+    });
+  });
 
-it("renders collection properties", async () => {
-  const { getByText } = setUpTests();
-  expect(getByText("admin@nu.com")).toBeInTheDocument();
-  expect(getByText("Collection description lorem ipsum")).toBeInTheDocument();
+  it("renders collection properties", async () => {
+    await waitFor(() => {
+      expect(screen.getByText("admin@nu.com"));
+      expect(screen.getByText("Collection description lorem ipsum"));
+    });
+  });
 });

@@ -2,75 +2,69 @@ import React from "react";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { mockWork } from "../work.gql.mock";
 import WorkTabsAbout from "./About";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 describe("Work About tab component", () => {
-  function setupTests() {
+  beforeEach(() => {
     return renderWithRouterApollo(
-      <CodeListProvider>
-        <WorkTabsAbout work={mockWork} />
-      </CodeListProvider>,
+      <AuthProvider>
+        <CodeListProvider>
+          <WorkTabsAbout work={mockWork} />
+        </CodeListProvider>
+      </AuthProvider>,
       {
-        mocks: allCodeListMocks,
+        mocks: [getCurrentUserMock, ...allCodeListMocks],
       }
     );
-  }
+  });
 
   it("renders without crashing", async () => {
-    const { getByTestId } = setupTests();
     await waitFor(() => {
-      expect(getByTestId("work-about-form")).toBeInTheDocument();
+      expect(screen.getByTestId("work-about-form"));
     });
   });
 
   it("switches between edit and non edit mode", async () => {
-    const { getByTestId, debug } = setupTests();
-
     await waitFor(() => {
-      expect(getByTestId("edit-button")).toBeInTheDocument();
+      expect(screen.getByTestId("edit-button"));
       //debug();
     });
 
-    fireEvent.click(getByTestId("edit-button"));
-    expect(getByTestId("save-button")).toBeInTheDocument();
-    expect(getByTestId("cancel-button")).toBeInTheDocument();
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    expect(screen.getByTestId("save-button"));
+    expect(screen.getByTestId("cancel-button"));
   });
 
   it("displays form elements only when in edit mode", async () => {
-    const { queryByTestId } = setupTests();
-
     await waitFor(() => {
-      expect(queryByTestId("description")).toBeFalsy();
-      expect(queryByTestId("alternate-title")).toBeFalsy();
+      expect(screen.queryByTestId("description")).toBeFalsy();
+      expect(screen.queryByTestId("alternate-title")).toBeFalsy();
     });
 
-    fireEvent.click(queryByTestId("edit-button"));
-    expect(queryByTestId("description")).toBeInTheDocument();
-    expect(queryByTestId("alternate-title")).toBeInTheDocument();
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    expect(screen.queryByTestId("description"));
+    expect(screen.queryByTestId("alternate-title"));
   });
 
   it("displays readonly box when in edit mode", async () => {
-    const { queryByTestId } = setupTests();
-
     await waitFor(() => {
-      expect(queryByTestId("uneditable-metadata")).toBeFalsy();
+      expect(screen.queryByTestId("uneditable-metadata")).toBeFalsy();
     });
 
-    fireEvent.click(queryByTestId("edit-button"));
-    expect(queryByTestId("uneditable-metadata")).toBeInTheDocument();
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    expect(screen.queryByTestId("uneditable-metadata"));
   });
 
-  it("dislays correct work item metadata values", async () => {
-    const { getByText, getByTestId, getByDisplayValue } = setupTests();
-
+  it("displays correct work item metadata values", async () => {
     await waitFor(() => {
-      expect(getByText(/Work description here/i)).toBeInTheDocument();
+      expect(screen.getByText(/Work description here/i));
     });
 
-    // And ensure the values transfer to the form elements when in edit mode
-    fireEvent.click(getByTestId("edit-button"));
-    expect(getByDisplayValue(/Work description here/i)).toBeInTheDocument();
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    expect(screen.getByDisplayValue(/Work description here/i));
   });
 });

@@ -5,13 +5,17 @@ import { Route } from "react-router-dom";
 import { getProjectsMock } from "./project.gql.mock";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 describe("BatchEditAboutDescriptiveMetadata component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <Route path="/project/list" component={ProjectList} />,
+      <AuthProvider>
+        <Route path="/project/list" component={ProjectList} />
+      </AuthProvider>,
       {
-        mocks: [getProjectsMock],
+        mocks: [getProjectsMock, getCurrentUserMock],
         route: "/project/list",
       }
     );

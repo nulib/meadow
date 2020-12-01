@@ -1,77 +1,72 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { waitFor, screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 jest.mock("../../services/elasticsearch");
 
 describe("BatchEdit component", () => {
-  function setupComponent() {
+  beforeEach(() => {
     return renderWithRouterApollo(
-      <BatchProvider
-        initialState={{
-          filteredQuery: { foo: "bar" },
-          resultStats: {
-            numberOfResults: 17,
-            numberOfPages: 2,
-            time: 23,
-            hidden: 0,
-            promoted: 0,
-            currentPage: 0,
-            displayedResults: 10,
-          },
-        }}
-      >
-        <ScreensBatchEdit />
-      </BatchProvider>,
+      <AuthProvider>
+        <BatchProvider
+          initialState={{
+            filteredQuery: { foo: "bar" },
+            resultStats: {
+              numberOfResults: 17,
+              numberOfPages: 2,
+              time: 23,
+              hidden: 0,
+              promoted: 0,
+              currentPage: 0,
+              displayedResults: 10,
+            },
+          }}
+        >
+          <ScreensBatchEdit />
+        </BatchProvider>
+      </AuthProvider>,
       {
-        mocks: [...allCodeListMocks, getCollectionsMock],
+        mocks: [...allCodeListMocks, getCollectionsMock, getCurrentUserMock],
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
         // reference in the future.
         state: { resultStats: { numberOfResults: 5 } },
       }
     );
-  }
+  });
 
   it("renders without crashing", async () => {
-    const { getByTestId } = setupComponent();
     await waitFor(() => {
-      expect(getByTestId("batch-edit-screen")).toBeInTheDocument();
+      expect(screen.getByTestId("batch-edit-screen"));
     });
   });
 
   it("renders breadcrumbs", async () => {
-    const { getByTestId } = setupComponent();
-
     await waitFor(() => {
-      expect(getByTestId("breadcrumbs")).toBeInTheDocument();
+      expect(screen.getByTestId("breadcrumbs"));
     });
   });
 
   it("renders screen title and number of records editing", async () => {
-    const { getByTestId } = setupComponent();
-
     await waitFor(() => {
-      expect(getByTestId("batch-edit-title")).toBeInTheDocument();
+      expect(screen.getByTestId("batch-edit-title"));
     });
   });
 
   it("renders the item preview window", async () => {
-    const { getByTestId } = setupComponent();
-
     await waitFor(() => {
-      expect(getByTestId("preview-wrapper")).toBeInTheDocument();
+      expect(screen.getByTestId("preview-wrapper"));
     });
   });
 
   it("renders Tabs section", async () => {
-    const { getByTestId } = setupComponent();
-
     await waitFor(() => {
-      expect(getByTestId("tabs-wrapper")).toBeInTheDocument();
+      expect(screen.getByTestId("tabs-wrapper"));
     });
   });
 });

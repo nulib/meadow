@@ -2,33 +2,40 @@ import React from "react";
 import ScreensProjectList from "./List";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { getProjectsMock } from "../../components/Project/project.gql.mock";
-const mocks = [getProjectsMock];
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { waitFor, screen } from "@testing-library/dom";
+
+const mocks = [getProjectsMock, getCurrentUserMock];
 
 jest.mock("../../services/elasticsearch");
-
-it("renders a create new project button", async () => {
-  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
-    mocks,
+describe("Project List component", () => {
+  beforeEach(() => {
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <ScreensProjectList />
+      </AuthProvider>,
+      {
+        mocks,
+      }
+    );
   });
-  const buttonElement = await findByTestId("button-new-project");
-  expect(buttonElement).toBeInTheDocument();
+});
+it("renders a create new project button", async () => {
+  await waitFor(() => {
+    expect(screen.findByTestId("button-new-project"));
+  });
 });
 
 it("renders header page section and main page content section", async () => {
-  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
-    mocks,
+  await waitFor(() => {
+    expect(screen.findByTestId("screen-header"));
+    expect(screen.findByTestId("screen-content"));
   });
-  const screenHeaderElement = await findByTestId("screen-header");
-  const screenContentElement = await findByTestId("screen-content");
-
-  expect(screenHeaderElement).toBeInTheDocument();
-  expect(screenContentElement).toBeInTheDocument();
 });
 
 it("renders the project list component", async () => {
-  const { findByTestId } = renderWithRouterApollo(<ScreensProjectList />, {
-    mocks,
+  await waitFor(() => {
+    expect(screen.findByTestId("project-list"));
   });
-  const listElement = await findByTestId("project-list");
-  expect(listElement).toBeInTheDocument();
 });

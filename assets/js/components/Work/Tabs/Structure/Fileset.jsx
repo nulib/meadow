@@ -5,6 +5,7 @@ import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormField from "@js/components/UI/Form/Field";
 import WorkTabsDownloadLinks from "@js/components/Work/Tabs/DownloadLinks";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 function WorkTabsStructureFileset({
   fileSet,
@@ -62,21 +63,22 @@ function WorkTabsStructureFileset({
         <div className="column is-3 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <div className="field">
-                <input
-                  id={`checkbox-work-switch-${fileSet.id}`}
-                  type="checkbox"
-                  name={`checkbox-work-switch-${fileSet.id}`}
-                  className="switch"
-                  checked={workImageFilesetId === fileSet.id}
-                  onChange={(e) => handleWorkImageChange(id)}
-                  data-testid="work-image-selector"
-                />
-                <label htmlFor={`checkbox-work-switch-${fileSet.id}`}>
-                  Work image
-                </label>
-              </div>
-
+              <DisplayAuthorized action="edit">
+                <div className="field">
+                  <input
+                    id={`checkbox-work-switch-${fileSet.id}`}
+                    type="checkbox"
+                    name={`checkbox-work-switch-${fileSet.id}`}
+                    className="switch"
+                    checked={workImageFilesetId === fileSet.id}
+                    onChange={(e) => handleWorkImageChange(id)}
+                    data-testid="work-image-selector"
+                  />
+                  <label htmlFor={`checkbox-work-switch-${fileSet.id}`}>
+                    Work image
+                  </label>
+                </div>
+              </DisplayAuthorized>
               <WorkTabsDownloadLinks
                 handleDownloadClick={handleDownloadClick}
                 fileSetId={fileSet.id}

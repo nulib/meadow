@@ -17,6 +17,7 @@ import UIFormSelect from "../UI/Form/Select.jsx";
 import UITagNotYetSupported from "../UI/TagNotYetSupported";
 import { Button } from "@nulib/admin-react-components";
 import { COLLECTION_TYPES } from "../../services/global-vars";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
@@ -169,14 +170,16 @@ const CollectionForm = ({ collection }) => {
           <p className="help">multiple, separated, by, commas</p>
         </UIFormField>
 
-        <div className="buttons is-left">
-          <Button type="submit" isPrimary data-testid="button-save">
-            Save
-          </Button>
-          <Button isText data-testid="button-cancel" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
+        <DisplayAuthorized action="edit">
+          <div className="buttons is-left">
+            <Button type="submit" isPrimary data-testid="button-save">
+              Save
+            </Button>
+            <Button isText data-testid="button-cancel" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </div>
+        </DisplayAuthorized>
       </form>
     </FormProvider>
   );

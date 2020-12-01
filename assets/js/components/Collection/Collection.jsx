@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
 import CollectionImageModal from "./CollectionImageModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const Collection = ({ collection }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,21 +32,23 @@ const Collection = ({ collection }) => {
               }
             />
           </figure>
-          {works.length > 0 && (
-            <p className="has-text-centered pt-4">
-              <button
-                data-testid="button-open-image-modal"
-                type="button"
-                className="button is-fullwidth"
-                onClick={() => setIsModalOpen(true)}
-              >
-                <span className="icon">
-                  <FontAwesomeIcon icon="edit" />
-                </span>
-                <span>Update Image</span>
-              </button>
-            </p>
-          )}
+          <DisplayAuthorized action="edit">
+            {works.length > 0 && (
+              <p className="has-text-centered pt-4">
+                <button
+                  data-testid="button-open-image-modal"
+                  type="button"
+                  className="button is-fullwidth"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="edit" />
+                  </span>
+                  <span>Update Image</span>
+                </button>
+              </p>
+            )}
+          </DisplayAuthorized>
         </div>
         <div className="column content">
           <dl>

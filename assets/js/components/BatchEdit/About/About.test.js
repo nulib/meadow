@@ -1,80 +1,76 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { waitFor, screen } from "@testing-library/react";
 import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { allCodeListMocks } from "../../Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAbout component", () => {
-  function setupTest() {
+  beforeEach(() => {
     return renderWithRouterApollo(
-      <BatchProvider value={null}>
-        <CodeListProvider>
-          <BatchEditAbout items={items} />
-        </CodeListProvider>
-      </BatchProvider>,
+      <AuthProvider>
+        <BatchProvider value={null}>
+          <CodeListProvider>
+            <BatchEditAbout items={items} />
+          </CodeListProvider>
+        </BatchProvider>
+      </AuthProvider>,
       {
-        mocks: [...allCodeListMocks],
+        mocks: [...allCodeListMocks, getCurrentUserMock],
       }
     );
-  }
+  });
 
   it("renders Batch Edit About form", async () => {
-    const { getByTestId, debug } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("batch-edit-about-form")).toBeInTheDocument();
+      expect(screen.getByTestId("batch-edit-about-form"));
     });
   });
 
   it("renders the sticky header", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("batch-edit-about-sticky-header")).toBeInTheDocument();
+      expect(screen.getByTestId("batch-edit-about-sticky-header"));
     });
   });
 
   it("renders core metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("core-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("core-metadata"));
     });
   });
 
   it("renders controlled metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("controlled-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("controlled-metadata"));
     });
   });
 
   it("renders Identifiers metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("identifiers-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("identifiers-metadata"));
     });
   });
 
   it("renders physical metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("physical-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("physical-metadata"));
     });
   });
 
   it("renders rights metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("rights-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("rights-metadata"));
     });
   });
 
   it("renders uncontrolled metadata component", async () => {
-    const { getByTestId } = setupTest();
     await waitFor(() => {
-      expect(getByTestId("uncontrolled-metadata")).toBeInTheDocument();
+      expect(screen.getByTestId("uncontrolled-metadata"));
     });
   });
 });

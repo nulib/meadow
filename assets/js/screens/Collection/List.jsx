@@ -16,6 +16,7 @@ import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UIFormInput from "../../components/UI/Form/Input";
 import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -92,9 +93,11 @@ const ScreensCollectionList = () => {
                   Each <span className="is-italic">Work</span> must live in a
                   Collection.
                 </h2>
-                <Link to="/collection/form" className="button is-primary">
-                  Add new collection
-                </Link>
+                <DisplayAuthorized action="edit">
+                  <Link to="/collection/form" className="button is-primary">
+                    Add new collection
+                  </Link>
+                </DisplayAuthorized>
               </div>
             </div>
             <div className="column is-6">

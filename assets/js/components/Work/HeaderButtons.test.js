@@ -1,6 +1,10 @@
 import React from "react";
 import WorkHeaderButtons from "./HeaderButtons";
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "@testing-library/react";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { AuthProvider } from "@js/components/Auth/Auth";
+import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { async } from "openseadragon-react-viewer";
 
 const mockHandleCreateSharableBtnClick = jest.fn();
 const mockHandlePublishClick = jest.fn();
@@ -13,45 +17,70 @@ const props = {
 };
 
 describe("WorkHeaderButtons component", () => {
-  it("renders the component", () => {
-    const { getByTestId } = render(<WorkHeaderButtons />);
-    expect(getByTestId("work-header-buttons"));
+  function setUpTests(props) {
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <WorkHeaderButtons {...props} />
+      </AuthProvider>,
+      {
+        mocks: [getCurrentUserMock],
+      }
+    );
+  }
+  it("renders the component", async () => {
+    const { getByTestId } = setUpTests();
+    await waitFor(() => {
+      expect(getByTestId("work-header-buttons"));
+    });
   });
 
-  it("renders an active Publish button", () => {
-    const { getByTestId } = render(<WorkHeaderButtons {...props} />);
-    const el = getByTestId("publish-button");
+  it("renders an active Publish button", async () => {
+    const { getByTestId } = setUpTests(props);
 
-    expect(el).not.toBeDisabled();
+    await waitFor(() => {
+      const el = getByTestId("publish-button");
+      expect(el).not.toBeDisabled();
+      fireEvent.click(el);
+    });
 
-    fireEvent.click(el);
     expect(mockHandlePublishClick).toHaveBeenCalled();
   });
 
-  it("renders an inactive Publish button", () => {
+  it("renders an inactive Publish button", async () => {
     let newProps = { ...props, hasCollection: false };
-    const { getByTestId } = render(<WorkHeaderButtons {...newProps} />);
-    expect(getByTestId("publish-button")).toBeDisabled();
+    const { getByTestId } = setUpTests(newProps);
+    await waitFor(() => {
+      expect(getByTestId("publish-button")).toBeDisabled();
+    });
   });
 
-  it("renders an Unpublish button", () => {
+  it("renders an Unpublish button", async () => {
     let newProps = { ...props, published: true };
-    const { getByText } = render(<WorkHeaderButtons {...newProps} />);
-    const unpublishBtn = getByText(/unpublish/i);
-    expect(unpublishBtn);
-    expect(unpublishBtn).not.toBeDisabled();
+    const { getByText } = setUpTests(newProps);
+
+    await waitFor(() => {
+      const unpublishBtn = getByText(/unpublish/i);
+      expect(unpublishBtn);
+      expect(unpublishBtn).not.toBeDisabled();
+    });
   });
 
-  it("renders an enabled Unpublish button even if a Work does not have a Collection", () => {
+  it("renders an enabled Unpublish button even if a Work does not have a Collection", async () => {
     let newProps = { ...props, hasCollection: false, published: true };
-    const { getByText } = render(<WorkHeaderButtons {...newProps} />);
-    expect(getByText(/unpublish/i)).not.toBeDisabled();
+    const { getByText } = setUpTests(newProps);
+
+    await waitFor(() => {
+      expect(getByText(/unpublish/i)).not.toBeDisabled();
+    });
   });
 
-  it("renders sharable link button which fires a callback function", () => {
-    const { getByTestId } = render(<WorkHeaderButtons {...props} />);
-    const el = getByTestId("button-sharable-link");
-    fireEvent.click(el);
-    expect(mockHandleCreateSharableBtnClick).toHaveBeenCalled();
+  it("renders sharable link button which fires a callback function", async () => {
+    const { getByTestId } = setUpTests(props);
+
+    await waitFor(() => {
+      const el = getByTestId("button-sharable-link");
+      fireEvent.click(el);
+      expect(mockHandleCreateSharableBtnClick).toHaveBeenCalled();
+    });
   });
 });

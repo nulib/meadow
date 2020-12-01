@@ -6,6 +6,7 @@ import ProjectForm from "../../components/Project/Form";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UILevelItem from "../../components/UI/LevelItem";
 import { Button } from "@nulib/admin-react-components";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -26,15 +27,17 @@ const ScreensProjectList = () => {
                   <span className="is-italic">Ingest Sheets</span>.{" "}
                 </p>
               </div>
-              <div className="column is-4 has-text-right">
-                <Button
-                  isPrimary
-                  data-testid="button-new-project"
-                  onClick={() => setShowForm(!showForm)}
-                >
-                  Add Project
-                </Button>
-              </div>
+              <DisplayAuthorized action="edit">
+                <div className="column is-4 has-text-right">
+                  <Button
+                    isPrimary
+                    data-testid="button-new-project"
+                    onClick={() => setShowForm(!showForm)}
+                  >
+                    Add Project
+                  </Button>
+                </div>
+              </DisplayAuthorized>
             </div>
             <div className="level">
               <UILevelItem heading="Total Projects" content="XXX" />

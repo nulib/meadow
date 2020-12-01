@@ -22,6 +22,7 @@ import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -231,12 +232,14 @@ const ScreensWork = () => {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Work work={data.work} />
           <div className="container buttons">
-            <Button data-testid="delete-button" onClick={onOpenModal}>
-              <span className="icon">
-                <FontAwesomeIcon icon="trash" />
-              </span>
-              <span>Delete this work</span>
-            </Button>
+            <DisplayAuthorized action="delete">
+              <Button data-testid="delete-button" onClick={onOpenModal}>
+                <span className="icon">
+                  <FontAwesomeIcon icon="trash" />
+                </span>
+                <span>Delete this work</span>
+              </Button>
+            </DisplayAuthorized>
           </div>
         </ErrorBoundary>
       )}

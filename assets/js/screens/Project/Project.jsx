@@ -3,7 +3,6 @@ import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import Layout from "../Layout";
 import IngestSheetList from "../../components/IngestSheet/List";
-import { Link } from "react-router-dom";
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
 import { useQuery } from "@apollo/client";
@@ -15,6 +14,7 @@ import {
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 
 const ScreensProject = () => {
@@ -33,18 +33,24 @@ const ScreensProject = () => {
     let updatedIngestSheets;
     switch (ingestSheet.status) {
       case "UPLOADED":
-        updatedIngestSheets = [ingestSheet, ...prev.project.ingestSheets];
+        updatedIngestSheets = [
+          ingestSheet,
+          ...(prev.project && prev.project.ingestSheets),
+        ];
         break;
       case "DELETED":
-        updatedIngestSheets = prev.project.ingestSheets.filter(
-          (i) => i.id !== ingestSheet.id
-        );
+        updatedIngestSheets =
+          prev.project &&
+          prev.project.ingestSheets.filter((i) => i.id !== ingestSheet.id);
         break;
       default:
-        updatedIngestSheets = prev.project.ingestSheets.filter(
-          (i) => i.id !== ingestSheet.id
-        );
-        updatedIngestSheets = [ingestSheet, ...updatedIngestSheets];
+        updatedIngestSheets =
+          prev.project &&
+          prev.project.ingestSheets.filter((i) => i.id !== ingestSheet.id);
+        updatedIngestSheets = [
+          ingestSheet,
+          ...(updatedIngestSheets ? updatedIngestSheets : ""),
+        ];
     }
 
     return {
@@ -107,25 +113,27 @@ const ScreensProject = () => {
                       </dl>
                     </div>
                     <div className="column is-two-fifths">
-                      <div className="buttons is-right">
-                        <Button
-                          data-testid="button-new-ingest-sheet"
-                          isPrimary
-                          onClick={() => setIsModalHidden(!isModalHidden)}
-                        >
-                          <span className="icon">
-                            <FontAwesomeIcon icon="file-csv" />
-                          </span>{" "}
-                          <span>Add an Ingest Sheet</span>
-                        </Button>
+                      <DisplayAuthorized action="edit">
+                        <div className="buttons is-right">
+                          <Button
+                            data-testid="button-new-ingest-sheet"
+                            isPrimary
+                            onClick={() => setIsModalHidden(!isModalHidden)}
+                          >
+                            <span className="icon">
+                              <FontAwesomeIcon icon="file-csv" />
+                            </span>{" "}
+                            <span>Add an Ingest Sheet</span>
+                          </Button>
 
-                        <Button
-                          onClick={handleFacetClick}
-                          data-testid="button-view-all-works"
-                        >
-                          View Project Works
-                        </Button>
-                      </div>
+                          <Button
+                            onClick={handleFacetClick}
+                            data-testid="button-view-all-works"
+                          >
+                            View Project Works
+                          </Button>
+                        </div>
+                      </DisplayAuthorized>
                     </div>
                   </div>
                 )}
