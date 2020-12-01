@@ -24,6 +24,7 @@ defmodule MeadowWeb.Schema do
 
   query do
     import_fields(:account_queries)
+    import_fields(:batch_queries)
     import_fields(:collection_queries)
     import_fields(:controlled_term_queries)
     import_fields(:field_queries)
@@ -44,6 +45,7 @@ defmodule MeadowWeb.Schema do
   end
 
   subscription do
+    import_fields(:batch_subscriptions)
     import_fields(:ingest_subscriptions)
   end
 

@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Query.GetCollectionByIdTest do
     assert collection_title == collection_fixture.title
   end
 
-  test "Should return nil for a non-existant collection" do
+  test "Should return nil for a non-existent collection" do
     result = query_gql(variables: %{"collectionId" => 100})
     assert {:ok, %{data: %{"collection" => nil}}} = result
   end

@@ -79,6 +79,27 @@ defmodule Meadow.Batches do
   end
 
   @doc """
+  Returns a list of batches matching the given `criteria`.
+
+  Example Criteria:
+
+  [{:limit, 15}, {:order, :asc}]}]
+  """
+
+  def list_batches(criteria) do
+    query = from(Batch)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from b in query, limit: ^limit
+
+      {:order, order}, query ->
+        from b in query, order_by: [{^order, :id}]
+    end)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a batch.
 
   Raises `Ecto.NoResultsError` if the Batch does not exist.
