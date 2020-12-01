@@ -15,10 +15,12 @@ import {
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 
 const ScreensProject = () => {
   const history = useHistory();
   const { id } = useParams();
+  const [isModalHidden, setIsModalHidden] = React.useState(true);
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id },
   });
@@ -106,19 +108,17 @@ const ScreensProject = () => {
                     </div>
                     <div className="column is-two-fifths">
                       <div className="buttons is-right">
-                        <Link
-                          to={{
-                            pathname: `/project/${id}/ingest-sheet/upload`,
-                            state: { projectId: id },
-                          }}
-                          className="button is-primary"
+                        <Button
                           data-testid="button-new-ingest-sheet"
+                          isPrimary
+                          onClick={() => setIsModalHidden(!isModalHidden)}
                         >
                           <span className="icon">
                             <FontAwesomeIcon icon="file-csv" />
                           </span>{" "}
                           <span>Add an Ingest Sheet</span>
-                        </Link>
+                        </Button>
+
                         <Button
                           onClick={handleFacetClick}
                           data-testid="button-view-all-works"
@@ -150,6 +150,11 @@ const ScreensProject = () => {
           </div>
         </section>
       </div>
+      <ProjectIngestSheetModal
+        closeModal={() => setIsModalHidden(true)}
+        isHidden={isModalHidden}
+        projectId={id}
+      />
     </Layout>
   );
 };

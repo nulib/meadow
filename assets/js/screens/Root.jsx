@@ -8,7 +8,6 @@ import ScreensProject from "./Project/Project";
 import Home from "./Home/Home";
 import NotFound from "./404";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
-import ScreensIngestSheetForm from "./IngestSheet/Form";
 import ScreensWork from "./Work/Work";
 import ScreensSearch from "./Search/Search";
 import ScreensCollectionList from "./Collection/List";
@@ -54,11 +53,6 @@ export default class Root extends React.Component {
                   exact
                   path="/project/create"
                   component={ScreensProjectForm}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/:id/ingest-sheet/upload"
-                  component={ScreensIngestSheetForm}
                 />
                 <PrivateRoute
                   exact
