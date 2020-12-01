@@ -28,22 +28,19 @@ const ScreensProject = () => {
     if (!subscriptionData.data) return prev;
 
     const ingestSheet = subscriptionData.data.ingestSheetUpdatesForProject;
-    const {
-      project: {},
-    } = prev;
 
     let updatedIngestSheets;
     switch (ingestSheet.status) {
       case "UPLOADED":
-        updatedIngestSheets = [ingestSheet, ...project.ingestSheets];
+        updatedIngestSheets = [ingestSheet, ...prev.project.ingestSheets];
         break;
       case "DELETED":
-        updatedIngestSheets = project.ingestSheets.filter(
+        updatedIngestSheets = prev.project.ingestSheets.filter(
           (i) => i.id !== ingestSheet.id
         );
         break;
       default:
-        updatedIngestSheets = project.ingestSheets.filter(
+        updatedIngestSheets = prev.project.ingestSheets.filter(
           (i) => i.id !== ingestSheet.id
         );
         updatedIngestSheets = [ingestSheet, ...updatedIngestSheets];
@@ -51,7 +48,7 @@ const ScreensProject = () => {
 
     return {
       project: {
-        ...project,
+        ...prev.project,
         ingestSheets: updatedIngestSheets,
       },
     };
