@@ -22,7 +22,6 @@ import {
   prepFacetKey,
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
-import BatchEditPublish from "@js/components/BatchEdit/Publish";
 
 const BatchEditAbout = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -30,11 +29,6 @@ const BatchEditAbout = () => {
   const [batchDeletes, setBatchDeletes] = useState({});
   const [batchReplaces, setBatchReplaces] = useState({
     descriptiveMetadata: {},
-  });
-
-  const [batchPublish, setBatchPublish] = useState({
-    publish: false,
-    unpublish: false,
   });
 
   const batchDispatch = useBatchDispatch();
@@ -111,9 +105,6 @@ const BatchEditAbout = () => {
     setBatchDeletes(deleteReadyItems);
     setBatchReplaces({
       descriptiveMetadata: { ...replaceItems, ...multiValues.replace },
-      ...((batchPublish.publish || batchPublish.unpublish) && {
-        published: { ...batchPublish },
-      }),
     });
 
     setIsConfirmModalOpen(true);
@@ -148,13 +139,6 @@ const BatchEditAbout = () => {
             </Button>
           </>
         </UITabsStickyHeader>
-
-        <UIAccordion testid="publish-wrapper" title="Publish">
-          <BatchEditPublish
-            batchPublish={batchPublish}
-            setBatchPublish={setBatchPublish}
-          />
-        </UIAccordion>
 
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
           <BatchEditAboutCoreMetadata />

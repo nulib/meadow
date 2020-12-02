@@ -17,7 +17,7 @@ function BatchEditPublish({ batchPublish, setBatchPublish }) {
           }
           checked={publish}
         />
-        <label htmlFor={`publish`}>Publish works</label>
+        <label htmlFor={`publish`}>Published</label>
       </div>
 
       <div className="field mt-3">
@@ -31,7 +31,7 @@ function BatchEditPublish({ batchPublish, setBatchPublish }) {
           }
           checked={unpublish}
         />
-        <label htmlFor={`unpublish`}>Unpublish works</label>
+        <label htmlFor={`unpublish`}>Unpublished</label>
       </div>
     </div>
   );
