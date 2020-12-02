@@ -24,6 +24,10 @@ const ScreensSearch = () => {
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
 
+  const handleCsvExport = () => {
+    console.log("handle Csv Export");
+  };
+
   const handleEditAllItems = async () => {
     // Grab all aggregated Controlled Term items from Elasticsearch directly,
     // to populate the "Remove" items in Batch Edit
@@ -103,6 +107,7 @@ const ScreensSearch = () => {
 
               <DisplayAuthorized action="delete">
                 <SearchActionRow
+                  handleCsvExport={handleCsvExport}
                   handleDeselectAll={handleDeselectAll}
                   handleEditAllItems={handleEditAllItems}
                   handleViewAndEdit={handleViewAndEdit}
