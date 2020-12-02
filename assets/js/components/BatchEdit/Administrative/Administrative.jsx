@@ -12,6 +12,7 @@ import {
 import { getBatchMultiValueDataFromForm } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 import BatchEditCollection from "@js/components/BatchEdit/Administrative/Collection";
+import BatchEditPublish from "@js/components/BatchEdit/Publish";
 
 const BatchEditAdministrative = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -22,6 +23,10 @@ const BatchEditAdministrative = () => {
   const [batchVisibility, setBatchVisibility] = useState({});
   const batchDispatch = useBatchDispatch();
   const [batchCollection, setBatchCollection] = useState({});
+  const [batchPublish, setBatchPublish] = useState({
+    publish: false,
+    unpublish: false,
+  });
 
   // Grab batch search data from Context
   const batchState = useBatchState();
@@ -66,6 +71,9 @@ const BatchEditAdministrative = () => {
 
     setBatchReplaces({
       administrativeMetadata: { ...replaceItems, ...multiValues.replace },
+      ...((batchPublish.publish || batchPublish.unpublish) && {
+        published: { ...batchPublish },
+      }),
     });
 
     Object.keys(currentFormValues["collection"]).length > 0
@@ -108,7 +116,6 @@ const BatchEditAdministrative = () => {
             </Button>
           </>
         </UITabsStickyHeader>
-
         <div className="columns">
           <div className="column">
             <div
@@ -118,7 +125,16 @@ const BatchEditAdministrative = () => {
               <h3>Collections</h3>
               <BatchEditCollection />
             </div>
-
+            <UIAccordion
+              className="column"
+              testid="publish-wrapper"
+              title="Publish"
+            >
+              <BatchEditPublish
+                batchPublish={batchPublish}
+                setBatchPublish={setBatchPublish}
+              />
+            </UIAccordion>
             <UIAccordion
               testid="project-status-metadata-wrapper"
               title="General"
