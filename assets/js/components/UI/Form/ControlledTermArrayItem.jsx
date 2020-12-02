@@ -96,6 +96,23 @@ function DropDownComboBox({
 }) {
   const { register } = useFormContext();
 
+  const stateReducer = (state, actionAndChanges) => {
+    const { type, changes } = actionAndChanges;
+    switch (type) {
+      case useCombobox.stateChangeTypes.InputBlur:
+        return {
+          ...changes,
+          // if user types a random value, clear input on out of focus.
+          ...((typeof changes.inputValue === "string" ||
+            !changes.selectedItem) && {
+            inputValue: "",
+          }),
+        };
+      default:
+        return changes;
+    }
+  };
+
   const {
     getLabelProps,
     getMenuProps,
@@ -107,6 +124,7 @@ function DropDownComboBox({
     selectedItem,
   } = useCombobox({
     initialInputValue,
+    stateReducer,
     items: authoritiesSearch,
     itemToString: (item) => (item ? item.label : ""),
     onInputValueChange: ({ inputValue }) => {
