@@ -13,7 +13,7 @@ defmodule Meadow.Data.Schemas.CollectionTest do
     test "created collection has a UUID identifier" do
       {:ok, collection} = %Collection{} |> Collection.changeset(@valid_attrs) |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(collection.id)
+      assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(collection.id)
     end
 
     test "changeset is invalid if collection title is used already" do

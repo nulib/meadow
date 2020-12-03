@@ -25,11 +25,11 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   end
 
   test "initiate subscription", %{ref: ref} do
-    assert_reply ref, :ok, %{subscriptionId: subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
   end
 
   test "receive data", %{ref: ref, ingest_sheet: sheet, work_rows: [first_row | _]} do
-    assert_reply ref, :ok, %{subscriptionId: subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
 
     Progress.update_entry(first_row, "CreateWork", "ok")
     Progress.update_entry(first_row, GenerateFileSetDigests, "ok")
@@ -50,7 +50,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     work_rows: work_rows,
     file_set_rows: file_set_rows
   } do
-    assert_reply ref, :ok, %{subscriptionId: subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
 
     work_rows
     |> Enum.each(fn row ->

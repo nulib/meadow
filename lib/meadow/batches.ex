@@ -48,9 +48,6 @@ defmodule Meadow.Batches do
     |> Repo.update()
   end
 
-  @doc """
-  Updates a Batch by batch id.
-  """
   def update_batch(batch_id, attrs) do
     batch = Repo.get!(Batch, batch_id)
     update_batch(batch, attrs)

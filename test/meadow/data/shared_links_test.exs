@@ -33,7 +33,7 @@ defmodule Meadow.Data.SharedLinksTest do
 
   test "revoke/1" do
     work = work_fixture()
-    assert {:ok, link1} = SharedLinks.generate(work.id)
+    assert {:ok, _link1} = SharedLinks.generate(work.id)
     assert {:ok, link2} = SharedLinks.generate(work.id)
     assert SharedLinks.count() == 2
     assert SharedLinks.revoke(link2.shared_link_id) == :ok
@@ -42,8 +42,8 @@ defmodule Meadow.Data.SharedLinksTest do
 
   test "delete_expired/0" do
     work = work_fixture()
-    assert {:ok, link1} = SharedLinks.generate(work.id)
-    assert {:ok, link2} = SharedLinks.generate(work.id, -1000)
+    assert {:ok, _link1} = SharedLinks.generate(work.id)
+    assert {:ok, _link2} = SharedLinks.generate(work.id, -1000)
     assert SharedLinks.count() == 2
     assert SharedLinks.delete_expired() == {:ok, 1}
     assert SharedLinks.count() == 1

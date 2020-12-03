@@ -12,7 +12,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthenticateTest do
       |> Authenticate.call({})
 
     assert %{errors: []} = resolution
-    assert %{current_user: %{id: id}} = resolution.context
+    assert %{current_user: %{id: ^id}} = resolution.context
   end
 
   test "Authenticate middleware errors when there is not a current user in the context" do

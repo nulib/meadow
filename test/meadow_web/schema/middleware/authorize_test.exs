@@ -12,7 +12,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
       |> Authorize.call("Administrator")
 
     assert %{errors: []} = resolution
-    assert %{current_user: %{id: id}} = resolution.context
+    assert %{current_user: %{id: ^id}} = resolution.context
   end
 
   test "Authorize middleware takes the argument :any to authorize all users" do
@@ -24,7 +24,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
       |> Authorize.call(:any)
 
     assert %{errors: []} = resolution
-    assert %{current_user: %{id: id}} = resolution.context
+    assert %{current_user: %{id: ^id}} = resolution.context
   end
 
   test "Authorize middleware errors when the current user's role in the context does not match" do

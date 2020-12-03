@@ -15,7 +15,7 @@ defmodule Meadow.Data.Schemas.WorkTest do
         |> Work.changeset(@valid_attrs)
         |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(work.id)
+      assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(work.id)
     end
   end
 end

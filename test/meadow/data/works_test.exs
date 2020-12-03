@@ -25,7 +25,7 @@ defmodule Meadow.Data.WorksTest do
     end
 
     test "create_work/1 with valid data creates a work" do
-      assert {:ok, %Work{} = work} = Works.create_work(@valid_attrs)
+      assert {:ok, %Work{} = _work} = Works.create_work(@valid_attrs)
     end
 
     test "create_work/1 with invalid data does not create a work" do
@@ -68,7 +68,7 @@ defmodule Meadow.Data.WorksTest do
 
     test "delete_work/1 deletes a work" do
       work = work_fixture()
-      assert {:ok, %Work{} = work} = Works.delete_work(work)
+      assert {:ok, %Work{} = _work} = Works.delete_work(work)
       assert Enum.empty?(Works.list_works())
     end
 
@@ -90,7 +90,7 @@ defmodule Meadow.Data.WorksTest do
         collection_fixture()
         |> Map.get(:id)
 
-      assert {:ok, %Work{collection_id: collection_id} = work} =
+      assert {:ok, %Work{collection_id: ^collection_id}} =
                Works.add_to_collection(work, collection_id)
     end
 
