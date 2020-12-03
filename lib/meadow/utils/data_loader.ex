@@ -9,9 +9,10 @@ defmodule Meadow.Utils.DataLoader do
   alias Meadow.Data.Schemas.{
     FileSet,
     FileSetMetadata,
-    Work,
-    WorkDescriptiveMetadata
+    Work
   }
+
+  alias Meadow.Utils.MetadataGenerator
 
   use Meadow.Constants
 
@@ -23,11 +24,7 @@ defmodule Meadow.Utils.DataLoader do
   defp insert_work do
     Repo.insert!(%Work{
       accession_number: Faker.String.base64(),
-      descriptive_metadata: %WorkDescriptiveMetadata{
-        description: [Faker.Lorem.sentence()],
-        keywords: Faker.Lorem.words(1..5),
-        title: Faker.Lorem.sentence()
-      },
+      descriptive_metadata: MetadataGenerator.random_descriptive_metadata(),
       file_sets: insert_file_sets()
     })
   end

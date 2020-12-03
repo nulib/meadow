@@ -156,7 +156,11 @@ defmodule Meadow.Utils.MetadataGenerator do
   end
 
   def generate_descriptive_metadata_for(work) do
-    md = %{
+    work |> Works.update_work(%{descriptive_metadata: random_descriptive_metadata()})
+  end
+
+  def random_descriptive_metadata do
+    %{
       title: Faker.Lorem.sentence(),
       contributor: random_number_of(:contributor),
       creator: random_number_of(:creator),
@@ -167,8 +171,6 @@ defmodule Meadow.Utils.MetadataGenerator do
       subject: random_number_of(:subject),
       technique: random_number_of(:technique)
     }
-
-    work |> Works.update_work(%{descriptive_metadata: md})
   end
 
   defp random_number_of(field) do

@@ -48,6 +48,8 @@ defmodule MeadowWeb.Router do
   scope "/api" do
     pipe_through :api
 
+    post "/export/:file", MeadowWeb.ExportController, :export
+
     forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
