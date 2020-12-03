@@ -35,15 +35,6 @@ defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
       :project_cycle,
       :status
     ])
-
-    # The following are marked as required on the metadata
-    # spreadsheet, but commented out so that works can be
-    # created without them from ingest sheets.
-    #
-    # |> validate_required([:project_cycle, :status])
-    # |> validate_length(:project_name, min: 1)
-    # |> validate_length(:project_proposer, min: 1)
-    # |> validate_length(:project_manager, min: 1)
   end
 
   def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]

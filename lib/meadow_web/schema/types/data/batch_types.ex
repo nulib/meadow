@@ -10,6 +10,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
   object :batch_mutations do
     @desc "Start a batch update operation"
     field :batch_update, :message do
+      arg(:nickname, :string)
       arg(:query, non_null(:string))
       @desc "`delete` deletes specific existing controlled values"
       arg(:delete, :batch_delete_input, default_value: %{})

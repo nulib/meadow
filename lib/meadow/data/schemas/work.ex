@@ -5,6 +5,7 @@ defmodule Meadow.Data.Schemas.Work do
 
   use Ecto.Schema
   alias Meadow.Data.Schemas.ActionState
+  alias Meadow.Data.Schemas.Batch
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
@@ -48,6 +49,13 @@ defmodule Meadow.Data.Schemas.Work do
     has_one(:project, through: [:ingest_sheet, :project])
 
     field(:representative_image, :string, virtual: true, default: nil)
+
+    many_to_many(
+      :batches,
+      Batch,
+      join_through: "works_batches",
+      on_replace: :delete
+    )
   end
 
   def changeset(work, attrs) do
@@ -95,6 +103,10 @@ defmodule Meadow.Data.Schemas.Work do
     |> assoc_constraint(:collection)
   end
 
+  def required_index_preloads do
+    [:collection, :file_sets, :ingest_sheet, :project, :batches]
+  end
+
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
     alias Elasticsearch.Document.Meadow.Data.Schemas.WorkAdministrativeMetadata,
       as: AdministrativeMetadataDocument
@@ -110,6 +122,7 @@ defmodule Meadow.Data.Schemas.Work do
         accessionNumber: work.accession_number,
         collection: format(work.collection),
         createDate: work.inserted_at,
+        batches: work.batches |> Enum.map(fn batch -> batch.id end),
         fileSets:
           work.file_sets
           |> Enum.map(fn file_set ->

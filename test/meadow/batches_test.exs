@@ -84,8 +84,68 @@ defmodule Meadow.BatchesTest do
       {:ok, %{works: works}}
     end
 
-    test "batch_update/4 handles uncontrolled fields" do
+    test "process_batch/1 runs and completes a batch update" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
+
+      replace = %{
+        descriptive_metadata: %{
+          title: "All these values",
+          alternate_title: ["New Alternate 1", "New Alternate 2"],
+          box_number: []
+        }
+      }
+
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace)
+      }
+
+      {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
+      assert Batches.list_batches() |> length() == 1
+      batch = Batches.get_batch!(batch.id)
+      assert batch.status == "complete"
+      assert batch.active == false
+      assert batch.works_updated == 3
+    end
+
+    test "process_batch/1 does not start a batch if another batch is running" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
+
+      replace = %{
+        descriptive_metadata: %{
+          title: "All these values"
+        }
+      }
+
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace)
+      }
+
+      Batches.create_batch(Map.merge(attrs, %{status: "in_progress", active: true}))
+
+      {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
+      assert Batches.list_batches() |> length() == 2
+      batch = Batches.get_batch!(batch.id)
+      assert batch.status == "queued"
+      assert batch.active == false
+      assert is_nil(batch.works_updated)
+    end
+
+    test "process_batch/1 handles uncontrolled fields" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
 
       add = %{
         descriptive_metadata: %{
@@ -102,7 +162,16 @@ defmodule Meadow.BatchesTest do
         }
       }
 
-      assert {:ok, _result} = Batches.batch_update(query, nil, add, replace)
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        add: Jason.encode!(add),
+        replace: Jason.encode!(replace)
+      }
+
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
 
       assert Works.get_works_by_title("All these values") |> length() == 3
 
@@ -120,8 +189,10 @@ defmodule Meadow.BatchesTest do
       end)
     end
 
-    test "batch_update/4 handles controlled fields" do
+    test "process_batch/1 handles controlled fields" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
 
       delete = %{
         contributor: [
@@ -143,7 +214,16 @@ defmodule Meadow.BatchesTest do
         }
       }
 
-      assert {:ok, _result} = Batches.batch_update(query, delete, add, nil)
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        add: Jason.encode!(add),
+        delete: Jason.encode!(delete)
+      }
+
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
 
       assert List.first(Works.get_works_by_title("Work 1")).descriptive_metadata.genre
              |> length() == 1
@@ -155,20 +235,32 @@ defmodule Meadow.BatchesTest do
              |> length() == 1
     end
 
-    test "batch_update/4 updates collection" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+    test "process_batch/1 updates collection" do
       new_collection = collection_fixture(%{title: "New Collection"})
 
-      assert Works.list_works(collection_id: new_collection.id) |> length == 0
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      replace = %{collection_id: new_collection.id}
+      type = "update"
+      user = "user123"
 
-      assert {:ok, _result} =
-               Batches.batch_update(query, nil, nil, %{collection_id: new_collection.id})
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace)
+      }
+
+      assert Works.list_works(collection_id: new_collection.id) |> length == 0
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
 
       assert Works.list_works(collection_id: new_collection.id) |> length == 3
     end
 
-    test "batch_update/4 handles administrative metadata" do
+    test "process_batch/1 handles administrative metadata" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
 
       add = %{
         administrative_metadata: %{
@@ -183,9 +275,18 @@ defmodule Meadow.BatchesTest do
         }
       }
 
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace),
+        add: Jason.encode!(add)
+      }
+
       assert Works.list_works() |> length() == 3
 
-      assert {:ok, _result} = Batches.batch_update(query, nil, add, replace)
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
 
       Works.list_works()
       |> Enum.each(fn work ->
@@ -201,21 +302,60 @@ defmodule Meadow.BatchesTest do
       end)
     end
 
-    test "batch_update/4 handles core metadata" do
+    test "process_batch/1 handles core metadata" do
       query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
 
       replace = %{
         visibility: %{id: "OPEN", scheme: "VISIBILITY"}
       }
 
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace)
+      }
+
       assert Works.list_works() |> length() == 3
 
-      assert {:ok, _result} = Batches.batch_update(query, nil, nil, replace)
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
 
       Works.list_works()
       |> Enum.each(fn work ->
         assert work.visibility.id == "OPEN"
       end)
+    end
+
+    test "purge_stalled/1 errors timed out batches stalled in_progress" do
+      replace =
+        Jason.encode!(%{
+          administrative_metadata: %{},
+          descriptive_metadata: %{title: ";sdakjf;alsdkjf;aksjdf"}
+        })
+
+      attrs = %{
+        query: ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+        replace: replace,
+        user: "user123",
+        type: "update",
+        status: "in_progress",
+        active: true,
+        started: DateTime.add(DateTime.utc_now(), -800, :second)
+      }
+
+      {:ok, batch} = Batches.create_batch(attrs)
+
+      assert {:ok, 1} = Batches.purge_stalled(60)
+
+      batch = Batches.get_batch!(batch.id)
+
+      assert batch.status == "error"
+      assert batch.works_updated == 0
+      assert batch.error == "Batch timed out"
+      assert batch.active == false
     end
   end
 end

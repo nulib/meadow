@@ -28,6 +28,7 @@ defmodule Meadow.Application.Children do
   defp workers(nil) do
     [
       EDTF,
+      Meadow.BatchDriver,
       {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       Meadow.IIIF.ManifestListener,
       {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},

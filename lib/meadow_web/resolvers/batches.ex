@@ -3,20 +3,33 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
   Absinthe resolver for Batch update related functionality
   """
   alias Meadow.Batches
+  alias MeadowWeb.Schema.ChangesetErrors
 
-  def update(_, params, _) do
+  def update(_, params, %{context: %{current_user: user}}) do
     with query <- Map.get(params, :query),
          delete <- Map.get(params, :delete),
          add <- Map.get(params, :add),
-         replace <- Map.get(params, :replace) do
+         replace <- Map.get(params, :replace),
+         nickname <- Map.get(params, :nickname) do
       if empty_param(add) and empty_param(delete) and empty_param(replace) do
         {:ok, %{message: "No updates specified"}}
       else
-        Meadow.Async.run_once("batch_update", fn ->
-          Batches.batch_update(query, delete, add, replace)
-        end)
+        case Batches.create_batch(%{
+               nickname: nickname,
+               user: user.username,
+               query: query,
+               delete: Jason.encode!(delete),
+               add: Jason.encode!(add),
+               replace: Jason.encode!(replace),
+               type: "update"
+             }) do
+          {:ok, batch} ->
+            {:ok, %{message: "Batch: " <> batch.id <> " has been submitted"}}
 
-        {:ok, %{message: "Batch started"}}
+          {:error, changeset} ->
+            {:error,
+             message: "Could not create batch", details: ChangesetErrors.error_details(changeset)}
+        end
       end
     end
   end

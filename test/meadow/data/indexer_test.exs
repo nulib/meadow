@@ -4,6 +4,7 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, Indexer, Works}
+  alias Meadow.Data.Schemas
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Repo
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
@@ -186,7 +187,7 @@ defmodule Meadow.Data.IndexerTest do
          %{
            collection: collection,
            work:
-             List.first(works) |> Repo.preload([:collection, :file_sets, :ingest_sheet, :project]),
+             List.first(works) |> Repo.preload(Schemas.Work.required_index_preloads),
            file_set: List.first(file_sets) |> Repo.preload(:work)
          }}
       end
