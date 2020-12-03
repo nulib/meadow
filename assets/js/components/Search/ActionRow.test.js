@@ -3,14 +3,13 @@ import { render, screen } from "@testing-library/react";
 import SearchActionRow from "./ActionRow";
 import userEvent from "@testing-library/user-event";
 
-const mockHandleEditAllItems = jest.fn();
-const mockHandleDeselectAll = jest.fn();
-const mockHandleViewAndEdit = jest.fn();
-
 let props = {
-  handleEditAllItems: mockHandleEditAllItems,
-  handleDeselectAll: mockHandleDeselectAll,
-  handleViewAndEdit: mockHandleViewAndEdit,
+  handleCsvExport: jest.fn(),
+  handleDeselectAll: jest.fn(),
+  handleEditAllItems: jest.fn(),
+  handleViewAndEdit: jest.fn(),
+  numberOfResults: 33,
+  selectedItems: [],
 };
 
 describe("SearchActionRow component", () => {
@@ -19,32 +18,29 @@ describe("SearchActionRow component", () => {
     expect(screen.getByTestId("search-action-row"));
   });
 
-  it("renders 'edit all' enabled by default, and 'view and edit' disabled by default  when search items are selected", () => {
+  it("renders 'select all' button enabled by default, and 'edit X items' button disabled by default ", () => {
     render(<SearchActionRow {...props} selectedItems={[]} />);
 
-    const editAllButton = screen.getByTestId("edit-all-button");
+    const selectAllButton = screen.getByTestId("select-all-button");
 
-    expect(editAllButton).not.toBeDisabled();
+    expect(selectAllButton).not.toBeDisabled();
     expect(screen.getByTestId("view-and-edit-button")).toBeDisabled();
-
-    userEvent.click(editAllButton);
-    expect(mockHandleEditAllItems).toHaveBeenCalled();
   });
 
-  it("renders 'view and edit' disabled, 'view and edit' enabled, and 'deselect all' button enabled when search items are selected", () => {
+  it("renders a disabled 'select all' button, and enabled 'view and edit' and 'deselect all' buttons when search items are selected", () => {
     render(<SearchActionRow {...props} selectedItems={["abc", "dfg"]} />);
 
     const viewAndEditButton = screen.getByTestId("view-and-edit-button");
     const deselectAll = screen.getByTestId("deselect-all-button");
 
-    expect(screen.getByTestId("edit-all-button")).toBeDisabled();
+    expect(screen.getByTestId("select-all-button")).toBeDisabled();
     expect(viewAndEditButton).not.toBeDisabled();
     expect(deselectAll).not.toBeDisabled();
 
     userEvent.click(viewAndEditButton);
-    expect(mockHandleViewAndEdit).toHaveBeenCalled();
+    expect(props.handleViewAndEdit).toHaveBeenCalled();
 
     userEvent.click(deselectAll);
-    expect(mockHandleDeselectAll).toHaveBeenCalled();
+    expect(props.handleDeselectAll).toHaveBeenCalled();
   });
 });
