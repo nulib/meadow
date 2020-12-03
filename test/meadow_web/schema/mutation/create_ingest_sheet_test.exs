@@ -34,7 +34,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
             "filename" => "Test.csv",
             "projectId" => project.id
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

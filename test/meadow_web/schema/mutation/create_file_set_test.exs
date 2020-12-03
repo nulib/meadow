@@ -49,7 +49,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
               "location" => "s3://#{@bucket}/#{@key}"
             }
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

@@ -32,7 +32,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
 
     resolution =
       %Absinthe.Resolution{}
-      |> Map.put(:context, %{current_user: %{id: id, role: "Viewer"}})
+      |> Map.put(:context, %{current_user: %{id: id, role: "User"}})
       |> Authorize.call("Administrator")
 
     assert %{errors: [%{message: "Forbidden", status: 403}]} = resolution
