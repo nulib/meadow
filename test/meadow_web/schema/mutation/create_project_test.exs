@@ -26,7 +26,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
       {:ok, result} =
         query_gql(
           variables: %{"title" => "The project title"},
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

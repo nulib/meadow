@@ -43,7 +43,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
             "collection_id" => collection.id,
             "descriptive_metadata" => %{"title" => "Something"}
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

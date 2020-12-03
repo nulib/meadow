@@ -21,9 +21,9 @@ defmodule MeadowWeb.Schema.Middleware.Authorize do
 
   defp authorized_role?(%{}, :any), do: true
   defp authorized_role?(%{role: "Administrator"}, _role), do: true
-  defp authorized_role?(%{role: "Manager"}, "Viewer"), do: true
   defp authorized_role?(%{role: "Manager"}, "Editor"), do: true
-  defp authorized_role?(%{role: "Editor"}, "Viewer"), do: true
+  defp authorized_role?(%{role: "Manager"}, "User"), do: true
+  defp authorized_role?(%{role: "Editor"}, "User"), do: true
   defp authorized_role?(%{role: role}, role), do: true
   defp authorized_role?(_, _), do: false
 end

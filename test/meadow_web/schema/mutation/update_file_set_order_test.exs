@@ -72,7 +72,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateFileSetOrderTest do
       result =
         query_gql(
           variables: %{"workId" => work.id, "fileSetIds" => Enum.reverse(file_set_ids)},
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result

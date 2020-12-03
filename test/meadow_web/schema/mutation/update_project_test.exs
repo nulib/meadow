@@ -34,7 +34,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateProjectTest do
             "id" => project.id,
             "title" => "The New Title"
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

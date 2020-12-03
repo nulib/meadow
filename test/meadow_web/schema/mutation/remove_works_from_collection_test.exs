@@ -49,7 +49,7 @@ defmodule MeadowWeb.Schema.Mutation.RemoveWorksFromCollectionTest do
             "workIds" => Enum.map(works, & &1.id),
             "collectionId" => collection_fixture.id
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

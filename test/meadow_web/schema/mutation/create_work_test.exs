@@ -67,7 +67,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
             "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
             "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

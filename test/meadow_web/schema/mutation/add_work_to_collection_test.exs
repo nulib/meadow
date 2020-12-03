@@ -28,7 +28,7 @@ defmodule MeadowWeb.Schema.Mutation.AddWorkToCollectionTest do
       result =
         query_gql(
           variables: %{"workId" => work.id, "collectionId" => collection.id},
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result

@@ -41,7 +41,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
             "work_id" => work.id,
             "file_set_id" => expected_file_set.id
           },
-          context: %{current_user: %{role: "Viewer"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

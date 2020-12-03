@@ -122,7 +122,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
               }
             }
           },
-          context: %{current_user: %{username: "abc123", role: "Viewer"}}
+          context: %{current_user: %{username: "abc123", role: "User"}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
