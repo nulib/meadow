@@ -12,15 +12,14 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     }
   );
 
-  if (loading)
-    return (
-      <progress className="progress is-primary" max="100">
-        30%
-      </progress>
-    );
+  if (loading) return null;
   if (error) {
-    console.log(error);
-    return <p>Error in Ingest Progress Subscription: {error.message}</p>;
+    console.error(error);
+    return (
+      <p className="notification is-danger is-light">
+        Error in Ingest Progress Subscription: {error.message}
+      </p>
+    );
   }
 
   return (

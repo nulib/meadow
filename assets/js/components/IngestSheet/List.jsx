@@ -84,6 +84,16 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     </span>
                   </td>
                   <td className="has-text-right">
+                    {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
+                      <Link
+                        to={`/project/${project.id}/ingest-sheet/${id}`}
+                        className="button"
+                      >
+                        {<FontAwesomeIcon icon="eye" />}{" "}
+                        <span className="sr-only">View</span>
+                      </Link>
+                    )}
+
                     {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
                       status
                     ) > -1 && (

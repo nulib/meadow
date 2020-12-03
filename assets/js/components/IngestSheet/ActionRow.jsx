@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import UIModalDelete from "../UI/Modal/Delete";
-import {
-  DELETE_INGEST_SHEET,
-  APPROVE_INGEST_SHEET,
-  INGEST_SHEETS,
-} from "./ingestSheet.gql";
+import { DELETE_INGEST_SHEET, INGEST_SHEETS } from "./ingestSheet.gql";
 import { useMutation, useApolloClient } from "@apollo/client";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
@@ -14,8 +10,10 @@ import { Button } from "@nulib/admin-react-components";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const client = useApolloClient();
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
     DELETE_INGEST_SHEET,
     {
@@ -47,15 +45,6 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
     }
   );
 
-  const [
-    approveIngestSheet,
-    { loading: approveLoading, error: approveError },
-  ] = useMutation(APPROVE_INGEST_SHEET);
-
-  const handleApproveClick = () => {
-    approveIngestSheet({ variables: { id: sheetId } });
-  };
-
   const handleDeleteClick = () => {
     deleteIngestSheet({ variables: { sheetId: sheetId } });
   };
@@ -71,12 +60,6 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   return (
     <>
       <div className="buttons is-right">
-        {status === "VALID" && (
-          <Button isPrimary onClick={handleApproveClick}>
-            Approve ingest sheet
-          </Button>
-        )}
-
         {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
           -1 && (
           <Button onClick={onOpenModal}>
@@ -87,9 +70,6 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
           </Button>
         )}
       </div>
-
-      {approveLoading && <p>Approval loading...</p>}
-      {approveError && <p>Error : (please try again)</p>}
 
       <UIModalDelete
         isOpen={deleteModalOpen}

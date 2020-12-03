@@ -160,24 +160,6 @@ it("renders without crashing", () => {
   const { debug } = render(<IngestSheetAlert />);
 });
 
-it("displays info alert with approved message when the Ingest Sheet status is APPROVED", () => {
-  const { debug, getByTestId, getByText } = render(
-    <IngestSheetAlert ingestSheet={approved} />
-  );
-
-  const alertElement = getByTestId("ui-alert");
-
-  expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("is-success");
-  expect(getByText("Approved", { exact: false })).toBeInTheDocument();
-  expect(
-    getByText(
-      "The Ingest Sheet has been approved and the ingest is in progress.",
-      { exact: false }
-    )
-  ).toBeInTheDocument();
-});
-
 const completed = {
   fileErrors: [],
   filename: "s3://dev-uploads/ingest_sheets/01DP6H30V4XV3Z5W4H782N2BXM.csv",
@@ -216,7 +198,9 @@ it("displays success alert with completed message when the Ingest Sheet status i
   expect(alertElement).toHaveClass("is-success");
   expect(getByText("Ingestion Complete", { exact: false })).toBeInTheDocument();
   expect(
-    getByText("All files have been processed.", { exact: false })
+    getByText("Ingestion complete, and all Works have been created.", {
+      exact: false,
+    })
   ).toBeInTheDocument();
 });
 
@@ -247,7 +231,7 @@ it("renders without crashing", () => {
   const { debug } = render(<IngestSheetAlert />);
 });
 
-it("displays success alert with completed message when the Ingest Sheet status is COMPLETED", () => {
+it("displays success alert with completed message when the Ingest Sheet status is DELETED", () => {
   const { debug, getByTestId, getByText } = render(
     <IngestSheetAlert ingestSheet={deleted} />
   );
