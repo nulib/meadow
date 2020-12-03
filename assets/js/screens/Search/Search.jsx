@@ -15,6 +15,7 @@ import {
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import { useLocation } from "react-router-dom";
 
 async function getParsedAggregations(query) {
   try {
@@ -33,6 +34,7 @@ async function getParsedAggregations(query) {
 
 const ScreensSearch = () => {
   let history = useHistory();
+  const location = useLocation();
   const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteredQuery, setFilteredQuery] = useState();
@@ -179,6 +181,7 @@ const ScreensSearch = () => {
                 handleQueryChange={handleQueryChange}
                 handleSelectItem={handleSelectItem}
                 isListView={isListView}
+                defaultQuery={location.state && location.state.prevQuery}
                 selectedItems={selectedItems}
               />
             </ErrorBoundary>

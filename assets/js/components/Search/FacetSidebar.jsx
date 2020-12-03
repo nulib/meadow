@@ -16,6 +16,7 @@ const filterList = (filterId) => {
 
 export default function SearchFacetSidebar() {
   const location = useLocation();
+  const defaultQuery = location.state && location.state.prevQuery;
 
   function getDefaultValue(sensor) {
     const externalFacet = location.state && location.state.externalFacet;
@@ -33,6 +34,7 @@ export default function SearchFacetSidebar() {
     // User clicked an external facet link and its now active in the loop
     return [externalFacet.value];
   }
+  console.log(defaultQuery);
 
   return (
     <div data-testid="search-facet-sidebar-wrapper" className="is-size-7">
@@ -43,7 +45,20 @@ export default function SearchFacetSidebar() {
           react={{
             and: filterList(sensor.componentId),
           }}
-          defaultQuery={() => allImagesQuery}
+          // defaultQuery={() => defaultQuery || allImagesQuery}
+          // // customQuery={() => defaultQuery}
+          // onValueChange={function (value) {
+          //   console.log("current value: ", value);
+
+          //   // set the state
+          //   // use the value with other js code
+          // }}
+          // onQueryChange={function (value) {
+          //   console.log("Query value: ", value);
+          // }}
+          // onChange={function (value) {
+          //   console.log("On change value: ", value);
+          // }}
           defaultValue={getDefaultValue(sensor)}
           URLParams={true}
         />

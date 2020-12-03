@@ -16,6 +16,7 @@ const SearchResults = ({
   handleSelectItem,
   isListView,
   selectedItems,
+  defaultQuery,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
   return (
@@ -25,7 +26,7 @@ const SearchResults = ({
           <ReactiveList
             componentId="SearchResult"
             dataField="accession_number"
-            defaultQuery={() => allImagesQuery}
+            defaultQuery={() => defaultQuery || allImagesQuery}
             innerClass={{
               list: `${isListView ? "" : "columns is-multiline"}`,
               resultStats: "column is-size-6 has-text-grey",
