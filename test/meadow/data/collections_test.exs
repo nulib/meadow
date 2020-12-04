@@ -18,7 +18,7 @@ defmodule Meadow.Data.CollectionsTest do
     end
 
     test "create_collection/1 with valid data creates a collection" do
-      assert {:ok, %Collection{} = collection} = Collections.create_collection(@valid_attrs)
+      assert {:ok, %Collection{} = _collection} = Collections.create_collection(@valid_attrs)
     end
 
     test "update_collection/2 updates a collection" do
@@ -37,7 +37,7 @@ defmodule Meadow.Data.CollectionsTest do
 
     test "delete_collection/1 deletes a collection" do
       collection = collection_fixture()
-      assert {:ok, %Collection{} = collection} = Collections.delete_collection(collection)
+      assert {:ok, %Collection{} = _collection} = Collections.delete_collection(collection)
       assert Enum.empty?(Collections.list_collections())
     end
 

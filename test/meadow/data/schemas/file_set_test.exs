@@ -20,7 +20,7 @@ defmodule Meadow.Data.Schemas.FileSetTest do
         |> FileSet.changeset(@valid_attrs)
         |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(file_set.id)
+      assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(file_set.id)
     end
   end
 end

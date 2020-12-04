@@ -23,7 +23,7 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "create_file_set/1 with valid data creates a file_set" do
-      assert {:ok, %FileSet{} = file_set} = FileSets.create_file_set(@valid_attrs)
+      assert {:ok, %FileSet{} = _file_set} = FileSets.create_file_set(@valid_attrs)
     end
 
     test "create_file_set/1 with invalid data does not create a file_set" do
@@ -32,7 +32,7 @@ defmodule Meadow.Data.FileSetsTest do
 
     test "delete_file_set/1 deletes a file_set" do
       file_set = file_set_fixture()
-      assert {:ok, %FileSet{} = file_set} = FileSets.delete_file_set(file_set)
+      assert {:ok, %FileSet{} = _file_set} = FileSets.delete_file_set(file_set)
       assert Enum.empty?(FileSets.list_file_sets())
     end
 

@@ -23,7 +23,7 @@ defmodule Meadow.Data.Schemas.IndexTimeTest do
         |> IndexTime.changeset(@valid_attrs)
         |> Repo.insert()
 
-      assert {:ok, <<data::binary-size(16)>>} = Ecto.UUID.dump(index_time.id)
+      assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(index_time.id)
     end
   end
 end

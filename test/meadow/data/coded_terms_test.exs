@@ -57,12 +57,12 @@ defmodule Meadow.Data.CodedTermsTest do
 
   describe "get_coded_term/2" do
     test "cache miss" do
-      assert {{:ok, :db}, term} = CodedTerms.get_coded_term("cpl", "marc_relator")
+      assert {{:ok, :db}, _term} = CodedTerms.get_coded_term("cpl", "marc_relator")
     end
 
     test "cache hit" do
-      assert {{:ok, :db}, term} = CodedTerms.get_coded_term("ive", "marc_relator")
-      assert {{:ok, :memory}, term} = CodedTerms.get_coded_term("ive", "marc_relator")
+      assert {{:ok, :db}, _term} = CodedTerms.get_coded_term("ive", "marc_relator")
+      assert {{:ok, :memory}, _term} = CodedTerms.get_coded_term("ive", "marc_relator")
     end
 
     test "db miss (invalid coded term)" do

@@ -20,13 +20,13 @@ defmodule Meadow.Data.ControlledTermsTest do
     end
 
     test "memory cache hit" do
-      assert {{:ok, :miss}, term} = ControlledTerms.fetch("mock1:result1")
+      assert {{:ok, :miss}, _term} = ControlledTerms.fetch("mock1:result1")
       assert {{:ok, :memory}, term} = ControlledTerms.fetch("mock1:result1")
       assert term == %{id: "mock1:result1", label: "First Result"}
     end
 
     test "db cache hit" do
-      assert {{:ok, :miss}, term} = ControlledTerms.fetch("mock1:result1")
+      assert {{:ok, :miss}, _term} = ControlledTerms.fetch("mock1:result1")
       Cachex.clear!(Meadow.Cache.ControlledTerms)
       assert {{:ok, :db}, term} = ControlledTerms.fetch("mock1:result1")
       assert term == %{id: "mock1:result1", label: "First Result"}
@@ -44,13 +44,13 @@ defmodule Meadow.Data.ControlledTermsTest do
     end
 
     test "memory cache hit" do
-      assert term = ControlledTerms.fetch!("mock1:result1")
+      assert _term = ControlledTerms.fetch!("mock1:result1")
       assert term = ControlledTerms.fetch!("mock1:result1")
       assert term == %{id: "mock1:result1", label: "First Result"}
     end
 
     test "db cache hit" do
-      assert term = ControlledTerms.fetch!("mock1:result1")
+      assert _term = ControlledTerms.fetch!("mock1:result1")
       Cachex.clear!(Meadow.Cache.ControlledTerms)
       assert term = ControlledTerms.fetch!("mock1:result1")
       assert term == %{id: "mock1:result1", label: "First Result"}

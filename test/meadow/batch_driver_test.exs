@@ -3,6 +3,7 @@ defmodule Meadow.BatchDriverTest do
   use Meadow.DataCase
   use Meadow.IndexCase
 
+  import Assertions
   import ExUnit.CaptureLog
 
   alias Meadow.{BatchDriver, Batches}
@@ -46,13 +47,13 @@ defmodule Meadow.BatchDriverTest do
 
         {:ok, batch} = Batches.create_batch(attrs)
 
-        :timer.sleep(150)
-
-        assert Batches.list_batches() |> length() == 1
-        batch = Batches.get_batch!(batch.id)
-        assert batch.status == "complete"
-        assert batch.active == false
-        assert batch.works_updated == 3
+        assert_async(timeout: 3000, sleep_time: 150) do
+          assert Batches.list_batches() |> length() == 1
+          batch = Batches.get_batch!(batch.id)
+          assert batch.status == "complete"
+          assert batch.active == false
+          assert batch.works_updated == 3
+        end
       end)
 
     Works.list_works()

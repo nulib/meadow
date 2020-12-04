@@ -13,7 +13,7 @@ defmodule MeadowWeb.Schema.Mutation.DeleteCollectionTest do
         context: gql_context()
       )
 
-    assert {:ok, query_data} = result
+    assert {:ok, _query_data} = result
   end
 
   describe "authorization" do

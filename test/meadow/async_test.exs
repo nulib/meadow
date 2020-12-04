@@ -37,7 +37,7 @@ defmodule Meadow.AsyncTest do
                  :dev
                )
 
-      assert_receive({"test:123", {:running, pid}}, 1000)
+      assert_receive({"test:123", {:running, ^pid}}, 1000)
     end
   end
 end

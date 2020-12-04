@@ -131,7 +131,7 @@ defmodule Meadow.Config do
   defp build_environment(accumulator, value, variable_name) do
     case value do
       nil -> accumulator
-      val -> [{to_charlist(variable_name), to_char_list(val)} | accumulator]
+      val -> [{to_charlist(variable_name), to_charlist(val)} | accumulator]
     end
   end
 

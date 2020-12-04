@@ -13,7 +13,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
         context: gql_context()
       )
 
-    assert {:ok, query_data} = result
+    assert {:ok, _query_data} = result
 
     project = Projects.get_project_by_title("The project title")
     assert project.title == "The project title"
