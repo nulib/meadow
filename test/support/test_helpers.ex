@@ -26,6 +26,14 @@ defmodule Meadow.TestHelpers do
     :unknown => ~w[unknownUser]
   }
 
+  defmacro exs_fixture(file) do
+    quote do
+      Code.eval_file(unquote(file))
+      |> Tuple.to_list()
+      |> List.first()
+    end
+  end
+
   def prewarm_controlled_term_cache, do: MetadataGenerator.prewarm_cache()
 
   def test_users(category \\ :access), do: @test_users |> Map.get(category)

@@ -9,7 +9,27 @@ defmodule Meadow.Utils.Stream do
 
   require Logger
 
+  def exists?("s3://" <> _ = url) do
+    with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
+      case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
+        {:ok, %{status_code: status}} when status in 200..299 -> true
+        _ -> false
+      end
+    end
+  end
+
+  def exists?("file://" <> filename), do: File.exists?(filename)
+
+  def exists?(url) do
+    case HTTPoison.head(url, %{}, follow_redirect: true) do
+      {:ok, %{status_code: status}} when status in 200..299 -> true
+      _ -> false
+    end
+  end
+
   def stream_from("s3://" <> _ = url), do: url |> presigned_url_for() |> stream_from()
+
+  def stream_from("file://" <> filename), do: File.stream!(filename)
 
   def stream_from(url) do
     Elixir.Stream.resource(

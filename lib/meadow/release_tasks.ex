@@ -5,6 +5,7 @@ defmodule Meadow.ReleaseTasks do
   @app :meadow
   @elastic_search_index @app
   @modules [
+    Meadow.BatchDriver,
     Meadow.Data.IndexWorker,
     Meadow.Ingest.Progress,
     Meadow.Ingest.WorkCreator,

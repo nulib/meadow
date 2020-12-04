@@ -1,6 +1,6 @@
 defmodule MeadowWeb.ExportController do
   use MeadowWeb, :controller
-  alias Meadow.Data.CSVExport
+  alias Meadow.Data.CSV.Export
   import Plug.Conn
 
   plug :authorize_user
@@ -19,7 +19,7 @@ defmodule MeadowWeb.ExportController do
       )
       |> send_chunked(:ok)
 
-    for chunk <- CSVExport.stream_csv(query) do
+    for chunk <- Export.stream_csv(query) do
       chunk(conn, chunk)
     end
 

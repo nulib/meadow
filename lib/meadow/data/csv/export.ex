@@ -1,4 +1,4 @@
-defmodule Meadow.Data.CSVExport do
+defmodule Meadow.Data.CSV.Export do
   @moduledoc """
   Generates a CSV representation of works matching an Elasticsearch query
   """
@@ -62,10 +62,17 @@ defmodule Meadow.Data.CSVExport do
     end
   end
 
-  defp fields do
+  def fields do
     @top_level_fields ++
       fields_for(WorkAdministrativeMetadata, "administrativeMetadata") ++
       fields_for(WorkDescriptiveMetadata, "descriptiveMetadata")
+  end
+
+  def normalize_field(field_path) do
+    case field_path |> List.last() do
+      "id" -> field_path |> Enum.map(&Inflex.underscore/1) |> Enum.join("_")
+      field_name -> Inflex.underscore(field_name)
+    end
   end
 
   defp fields_for(module, prefix) do
@@ -77,13 +84,7 @@ defmodule Meadow.Data.CSVExport do
     with fields <- fields() do
       [
         [query | List.duplicate(nil, length(fields) - 1)],
-        fields
-        |> Enum.map(fn field_path ->
-          case field_path |> List.last() do
-            "id" -> field_path |> Enum.map(&Inflex.underscore/1) |> Enum.join("_")
-            field_name -> Inflex.underscore(field_name)
-          end
-        end)
+        fields |> Enum.map(&normalize_field/1)
       ]
       |> CSV.dump_to_stream()
     end
@@ -132,9 +133,6 @@ defmodule Meadow.Data.CSVExport do
   defp to_field(%{}), do: nil
 
   defp to_field(value), do: to_string(value)
-
-  defp normalize_coded_term(%{"id" => id, "scheme" => "subject_role"}),
-    do: String.downcase(id) |> String.slice(0..2)
 
   defp normalize_coded_term(%{"id" => id}), do: id
 

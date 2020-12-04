@@ -1,0 +1,21 @@
+defmodule MeadowWeb.Resolvers.Data.CSV.MetadataUpdateJobs do
+  @moduledoc """
+  Absinthe resolver for Batch update related functionality
+  """
+  alias Meadow.Data.CSV.MetadataUpdateJobs
+
+  def list_jobs(_, _args, _) do
+    {:ok, MetadataUpdateJobs.list_jobs()}
+  end
+
+  def get_job(_, %{id: id}, _) do
+    {:ok, MetadataUpdateJobs.get_job(id)}
+  end
+
+  def update(_, %{source: source}, _) do
+    case MetadataUpdateJobs.create_job(source) do
+      {:ok, job} -> {:ok, job}
+      {:error, errors} -> {:error, message: "Could not create job", details: errors}
+    end
+  end
+end

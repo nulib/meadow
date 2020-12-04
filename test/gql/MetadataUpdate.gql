@@ -1,0 +1,7 @@
+#import "./MetadataUpdateJobFields.frag.gql"
+
+mutation($source: String!) {
+  csvMetadataUpdate(source: $source) {
+    ...MetadataUpdateJobFields
+  }
+}

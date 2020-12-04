@@ -56,6 +56,7 @@ defmodule MeadowWeb.Schema.AccountTypes do
     field :email, :string
     field :display_name, :string
     field :role, :user_role
+    field :token, :string
   end
 
   object :status do

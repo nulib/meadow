@@ -260,6 +260,13 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
+  def update_work!(%Work{} = work, attrs) do
+    work
+    |> Work.update_changeset(attrs)
+    |> Repo.update!()
+    |> add_representative_image()
+  end
+
   @doc """
   Adds a work to a collection
 
