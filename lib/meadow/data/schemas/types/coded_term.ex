@@ -22,6 +22,8 @@ defmodule Meadow.Data.Types.CodedTerm do
   def dump(%{id: id, scheme: scheme}), do: {:ok, %{id: id, scheme: scheme}}
   def dump(_), do: :error
 
+  def from_string(value), do: %{id: value}
+
   defp retrieve_term(nil), do: {:ok, nil}
 
   defp retrieve_term(%{id: "", scheme: _scheme}), do: {:error, message: "cannot have a blank id"}

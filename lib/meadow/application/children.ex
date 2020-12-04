@@ -9,6 +9,7 @@ defmodule Meadow.Application.Children do
 
   @basic_processes %{
     "batch_driver" => Meadow.BatchDriver,
+    "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
     "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
     "manifest_listener" => Meadow.IIIF.ManifestListener,
     "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]

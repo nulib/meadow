@@ -1,0 +1,7 @@
+#import "./MetadataUpdateJobFields.frag.gql"
+
+query GetMetadataUpdateJobById($id: ID!) {
+  csvMetadataUpdateJob(id: $id) {
+    ...MetadataUpdateJobFields
+  }
+}

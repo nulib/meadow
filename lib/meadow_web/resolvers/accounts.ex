@@ -4,8 +4,8 @@ defmodule MeadowWeb.Resolvers.Accounts do
   """
   alias Meadow.Accounts
 
-  def me(_, _, %{context: %{current_user: user}}) do
-    {:ok, user}
+  def me(_, _, %{context: %{auth_token: token, current_user: user}}) do
+    {:ok, Map.put(user, :token, token)}
   end
 
   def me(_, _, _) do

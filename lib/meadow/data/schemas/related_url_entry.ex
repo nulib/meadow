@@ -18,4 +18,11 @@ defmodule Meadow.Data.Schemas.RelatedURLEntry do
     |> cast(params, [:url, :label])
     |> validate_required([:url, :label])
   end
+
+  def from_string(""), do: nil
+
+  def from_string(value) do
+    [role_id | [url | []]] = value |> String.split(~r/:/, parts: 2)
+    %{label: %{id: role_id, scheme: "related_url"}, url: url}
+  end
 end

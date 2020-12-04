@@ -66,7 +66,7 @@ defmodule Meadow.MixProject do
       {:exldap, "~> 0.6.3"},
       {:faker, "~> 0.12"},
       {:gettext, "~> 0.11"},
-      {:hackney, "~> 1.15"},
+      {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},

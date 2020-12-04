@@ -20,6 +20,8 @@ defmodule Meadow.Data.Types.EDTFDate do
 
   def dump(_), do: :error
 
+  def from_string(value), do: %{edtf: value}
+
   defp humanize(nil), do: {:ok, nil}
 
   defp humanize(%{edtf: ""}),
