@@ -61,8 +61,8 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
 
     assert {:ok, query_data} = result
 
-    response = get_in(query_data, [:data, "batchUpdate", "message"])
-    assert response =~ "has been submitted"
+    response = get_in(query_data, [:data, "batchUpdate", "status"])
+    assert response =~ "QUEUED"
   end
 
   test "adds only should be a valid mutation" do
@@ -86,8 +86,8 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
 
     assert {:ok, query_data} = result
 
-    response = get_in(query_data, [:data, "batchUpdate", "message"])
-    assert response =~ "has been submitted"
+    response = get_in(query_data, [:data, "batchUpdate", "status"])
+    assert response =~ "QUEUED"
   end
 
   test "no updates should not be a valid mutation" do
@@ -101,12 +101,12 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
 
     assert {:ok, query_data} = result
 
-    response = get_in(query_data, [:data, "batchUpdate", "message"])
-    assert response == "No updates specified"
+    error = List.first(get_in(query_data, [:errors]))
+    assert error.message == "No updates specified"
   end
 
   describe "authorization" do
-    test "viewers are not authorized to update via batch" do
+    test "users are not authorized to update via batch" do
       {:ok, result} =
         query_gql(
           variables: %{

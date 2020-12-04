@@ -6,7 +6,7 @@ defmodule Meadow.TestHelpers do
   alias Ecto.Adapters.SQL.Sandbox
 
   alias Meadow.Accounts.{Ldap, User}
-  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
   alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
@@ -117,6 +117,28 @@ defmodule Meadow.TestHelpers do
       |> Repo.insert()
 
     collection
+  end
+
+  @spec batch_fixture(nil | maybe_improper_list | map) :: any
+  def batch_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        nickname: attrs[:title] || "batch-#{System.unique_integer([:positive])}",
+        query: ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+        replace:
+          Jason.encode!(%{
+            visibility: %{id: "OPEN", scheme: "VISIBILITY"}
+          }),
+        user: "user123",
+        type: "update"
+      })
+
+    {:ok, batch} =
+      %Batch{}
+      |> Batch.changeset(attrs)
+      |> Repo.insert()
+
+    batch
   end
 
   def work_fixture(attrs \\ %{}) do

@@ -7,9 +7,26 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
   alias MeadowWeb.Resolvers.Data.Batches
   alias MeadowWeb.Schema.Middleware
 
+  object :batch_queries do
+    @desc "Get all batches"
+    field :batches, list_of(:batch) do
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Batches.batches/3)
+    end
+
+    @desc "Get a batch by id"
+    field :batch, :batch do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Batches.batch/3)
+    end
+  end
+
   object :batch_mutations do
     @desc "Start a batch update operation"
-    field :batch_update, :message do
+    field :batch_update, :batch do
       arg(:nickname, :string)
       arg(:query, non_null(:string))
       @desc "`delete` deletes specific existing controlled values"
@@ -24,8 +41,42 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     end
   end
 
-  object :message do
-    field :message, :string
+  object :batch_subscriptions do
+    @desc "Subscribe to status updates for all batches"
+    field :batches_status_updates, :batch do
+      config(fn _args, _info ->
+        {:ok, topic: "batches"}
+      end)
+    end
+
+    @desc "Subscribe to status updates for a batch"
+    field :batch_status_update, :batch do
+      arg(:id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: "batch:" <> args.id}
+      end)
+    end
+  end
+
+  #
+  # Object Types
+  #
+
+  @desc "Fields for a `batch` object "
+  object :batch do
+    field :id, :id
+    field :nickname, :string
+    field :status, :batch_status
+    field :user, :string
+    field :started, :datetime
+    field :type, :batch_type
+    field :works_updated, :integer
+    field :query, :string
+    field :add, :string
+    field :delete, :string
+    field :replace, :string
+    field :error, :string
   end
 
   @desc "Input fields for batch add operations"
@@ -109,5 +160,19 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :project_proposer, list_of(:string)
     field :project_manager, list_of(:string)
     field :project_task_number, list_of(:string)
+  end
+
+  @desc "Batch status values"
+  enum :batch_status do
+    value(:queued, as: "queued", description: "queued")
+    value(:in_progress, as: "in_progress", description: "In Progress")
+    value(:error, as: "error", description: "Error")
+    value(:complete, as: "complete", description: "Completed Successfully")
+  end
+
+  @desc "Batch type values"
+  enum :batch_type do
+    value(:update, as: "update", description: "Batch Update")
+    value(:delete, as: "delete", description: "Batch Delete")
   end
 end

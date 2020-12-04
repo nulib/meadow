@@ -5,6 +5,14 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
   alias Meadow.Batches
   alias MeadowWeb.Schema.ChangesetErrors
 
+  def batches(_, _args, _) do
+    {:ok, Batches.list_batches()}
+  end
+
+  def batch(_, %{id: id}, _) do
+    {:ok, Batches.get_batch!(id)}
+  end
+
   def update(_, params, %{context: %{current_user: user}}) do
     with query <- Map.get(params, :query),
          delete <- Map.get(params, :delete),
@@ -12,7 +20,7 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
          replace <- Map.get(params, :replace),
          nickname <- Map.get(params, :nickname) do
       if empty_param(add) and empty_param(delete) and empty_param(replace) do
-        {:ok, %{message: "No updates specified"}}
+        {:error, %{message: "No updates specified"}}
       else
         case Batches.create_batch(%{
                nickname: nickname,
@@ -24,7 +32,7 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
                type: "update"
              }) do
           {:ok, batch} ->
-            {:ok, %{message: "Batch: " <> batch.id <> " has been submitted"}}
+            {:ok, batch}
 
           {:error, changeset} ->
             {:error,

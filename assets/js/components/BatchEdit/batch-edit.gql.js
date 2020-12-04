@@ -8,7 +8,17 @@ export const BATCH_UPDATE = gql`
     $replace: BatchReplaceInput
   ) {
     batchUpdate(add: $add, delete: $delete, query: $query, replace: $replace) {
-      message
+      id
+      nickname
+      status
+      user
+      started
+      type
+      query
+      add
+      replace
+      delete
+      error
     }
   }
 `;

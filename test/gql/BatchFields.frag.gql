@@ -1,0 +1,12 @@
+fragment BatchFields on Batch {
+  id
+  nickname
+  status
+  started
+  error
+  query
+  add
+  replace
+  delete
+  works_updated
+}

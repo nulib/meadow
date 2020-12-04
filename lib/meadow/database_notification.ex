@@ -20,11 +20,11 @@ defmodule Meadow.DatabaseNotification do
   end
   ```
 
-  Add to the list of children in `lib/meadow/application/children.ex`:
+  Add to the list of workers in `lib/meadow/application/children.ex`:
   ```
-  def specs(:dev) do
+  defp workers(nil) do
     [
-      MyDatabaseNotification
+      MyDatabaseWorker
     ]
   end
   ```
