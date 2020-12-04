@@ -103,7 +103,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
       middleware(Middleware.Authenticate)
-
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.create_ingest_sheet/3)
     end
@@ -122,14 +121,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.delete_ingest_sheet/3)
-    end
-
-    @desc "Approve an Ingest Sheet"
-    field :approve_ingest_sheet, :status_message do
-      arg(:id, non_null(:id))
-      middleware(Middleware.Authenticate)
-      middleware(Middleware.Authorize, "Editor")
-      resolve(&Resolvers.Ingest.approve_ingest_sheet/3)
     end
 
     @desc "Kick off Validation of an Ingest Sheet"

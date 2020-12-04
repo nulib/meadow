@@ -64,13 +64,29 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, Sheets.get_ingest_sheet!(id)}
   end
 
-  def approve_ingest_sheet(_, %{id: id}, _) do
-    id
-    |> Sheets.get_ingest_sheet!()
-    |> approve_ingest_sheet()
+  def ingest_sheet_validation_progress(_, %{id: id}, _) do
+    {:ok, Sheets.get_sheet_validation_progress([id]) |> Map.get(id)}
   end
 
-  def approve_ingest_sheet(%{status: "valid"} = ingest_sheet) do
+  def ingest_sheet_validations(_, _, _) do
+    {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
+  end
+
+  def validate_ingest_sheet(_, args, _) do
+    {response, pid} =
+      Meadow.Async.run_once("validate:#{args[:sheet_id]}", fn ->
+        args[:sheet_id] |> Validator.result()
+
+        with sheet <- args[:sheet_id] |> Sheets.get_ingest_sheet!() do
+          approve_ingest_sheet(sheet)
+        end
+      end)
+
+    pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
+    {:ok, %{message: to_string(response) <> " : " <> pid_string}}
+  end
+
+  defp approve_ingest_sheet(%{status: "valid"} = ingest_sheet) do
     case Sheets.update_ingest_sheet_status(ingest_sheet, "approved") do
       {:error, changeset} ->
         {
@@ -90,29 +106,11 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
-  def approve_ingest_sheet(%{status: _}) do
+  defp approve_ingest_sheet(%{status: _}) do
     {
       :error,
       message: "Only valid ingest sheets can be approved"
     }
-  end
-
-  def ingest_sheet_validation_progress(_, %{id: id}, _) do
-    {:ok, Sheets.get_sheet_validation_progress([id]) |> Map.get(id)}
-  end
-
-  def ingest_sheet_validations(_, _, _) do
-    {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
-  end
-
-  def validate_ingest_sheet(_, args, _) do
-    {response, pid} =
-      Meadow.Async.run_once("validate:#{args[:sheet_id]}", fn ->
-        args[:sheet_id] |> Validator.result()
-      end)
-
-    pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
-    {:ok, %{message: to_string(response) <> " : " <> pid_string}}
   end
 
   def create_ingest_sheet(_, args, _) do

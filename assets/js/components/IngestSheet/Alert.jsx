@@ -13,8 +13,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "is-success",
         title: "",
-        body:
-          "The Ingest Sheet has been approved and the ingest is in progress.",
+        body: "The Ingest Sheet is valid and Works are being created.",
         icon: "check",
       };
       break;
@@ -22,7 +21,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "is-success",
         title: "Ingestion Complete",
-        body: "Ingestion complete, and all files have been processed.",
+        body: "Ingestion complete, and all Works have been created.",
         icon: "check-circle",
       };
       break;
@@ -57,7 +56,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       break;
     case "UPLOADED":
       alertObj = {
-        type: "",
+        type: "is-warning",
         title: "File uploaded",
         body: "File uploaded and ingest sheet validation is in progress.",
         icon: "info-circle",

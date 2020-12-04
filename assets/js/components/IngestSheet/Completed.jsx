@@ -11,6 +11,7 @@ import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
@@ -53,7 +54,9 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
 
-      <h2 className="title is-size-5 is-size-8">Works Preview</h2>
+      <h2 className="title is-size-5 is-size-8">
+        Preview of ingest sheet works...
+      </h2>
 
       <div data-testid="preview-wrapper">
         {errorsLoading || worksLoading ? (
@@ -62,9 +65,12 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
           <div>
             <UIPreviewItems items={works} />
 
-            <div className="has-text-centered mt-6 mb-3">
-              <Button isPrimary onClick={handleClick}>
-                View All Ingest Sheet Works
+            <div className="mb-4 mt-2">
+              <Button onClick={handleClick} className="is-fullwidth">
+                <span className="icon">
+                  <FontAwesomeIcon icon="eye" />
+                </span>
+                <span>View all ingest sheet works</span>
               </Button>
             </div>
           </div>

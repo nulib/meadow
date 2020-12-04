@@ -4,10 +4,7 @@ import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import {
-  INGEST_SHEET_SUBSCRIPTION,
-  INGEST_SHEET_QUERY,
-} from "../../components/IngestSheet/ingestSheet.gql.js";
+import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";
 import {
   getClassFromIngestSheetStatus,
@@ -95,7 +92,7 @@ const ScreensIngestSheet = ({ match }) => {
                     <h1 className="title">
                       {sheetData.ingestSheet.title}{" "}
                       <span
-                        className={`tag ${getClassFromIngestSheetStatus(
+                        className={`tag is-light ${getClassFromIngestSheetStatus(
                           sheetData.ingestSheet.status
                         )}`}
                       >
@@ -106,7 +103,6 @@ const ScreensIngestSheet = ({ match }) => {
                         }
                       </span>
                     </h1>
-                    <h2 className="subtitle">Ingest Sheet</h2>
                   </div>
                   <div className="column is-half">
                     <IngestSheetActionRow
@@ -118,13 +114,28 @@ const ScreensIngestSheet = ({ match }) => {
                   </div>
                 </div>
 
-                {[
-                  "APPROVED",
-                  "FILE_FAIL",
-                  "ROW_FAIL",
-                  "UPLOADED",
-                  "VALID",
-                ].indexOf(sheetData.ingestSheet.status) > -1 && (
+                {sheetData.ingestSheet.status === "COMPLETED" && (
+                  <table className="table is-fullwidth">
+                    <thead>
+                      <tr>
+                        <th># works created</th>
+                        <th># file sets processed</th>
+                        <th>Date last modified</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>XXXX</td>
+                        <td>XXXXXX</td>
+                        <td>Date goes here</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                )}
+
+                {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED"].indexOf(
+                  sheetData.ingestSheet.status
+                ) > -1 && (
                   <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
                 )}
               </>

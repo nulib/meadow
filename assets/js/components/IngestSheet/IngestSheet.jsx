@@ -3,9 +3,7 @@ import IngestSheetValidations from "./Validations";
 import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetCompleted from "./Completed";
-import {
-  INGEST_SHEET_SUBSCRIPTION,
-} from "@js/components/IngestSheet/ingestSheet.gql";
+import { INGEST_SHEET_SUBSCRIPTION } from "@js/components/IngestSheet/ingestSheet.gql";
 
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const { id, status, title } = ingestSheetData;
@@ -25,25 +23,23 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     });
   }, []);
 
-
   const isCompleted = status === "COMPLETED";
 
   return (
     <div className="box">
-        <>
-          {["APPROVED"].indexOf(status) > -1 && (
-            <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
-          )}
+      <>
+        {["APPROVED"].indexOf(status) > -1 && (
+          <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+        )}
 
-          {isCompleted && (
-            <IngestSheetCompleted sheetId={ingestSheetData.id} title={title} />
-          )}
+        {isCompleted && (
+          <IngestSheetCompleted sheetId={ingestSheetData.id} title={title} />
+        )}
 
-          {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
-            -1 && (
-            <IngestSheetValidations sheetId={id} status={status} />
-          )}
-        </>
+        {["ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
+          <IngestSheetValidations sheetId={id} status={status} />
+        )}
+      </>
     </div>
   );
 };

@@ -29,14 +29,6 @@ IngestSheet.fragments = {
   `,
 };
 
-export const APPROVE_INGEST_SHEET = gql`
-  mutation ApproveIngestSheet($id: ID!) {
-    approveIngestSheet(id: $id) {
-      message
-    }
-  }
-`;
-
 export const CREATE_INGEST_SHEET = gql`
   mutation CreateIngestSheet(
     $title: String!
