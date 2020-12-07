@@ -48,6 +48,7 @@ function FilesetsDragAndDrop({
         <div className="column">
           <Button
             className="is-fullwidth"
+            isPrimary
             onClick={() => handleSaveReorder(state.fileSets.map((fs) => fs.id))}
             data-testid="button-reorder-save"
           >

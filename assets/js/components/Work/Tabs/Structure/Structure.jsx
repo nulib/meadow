@@ -184,7 +184,7 @@ const WorkTabsStructure = ({ work }) => {
 
             <div className="column buttons has-text-right">
               <button className="button">Download Tiffs</button>
-              <button className="button is-primary">Download JPGs</button>
+              <button className="button">Download JPGs</button>
             </div>
           </div>
         </div>
