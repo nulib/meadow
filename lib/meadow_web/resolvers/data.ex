@@ -40,17 +40,6 @@ defmodule MeadowWeb.Resolvers.Data do
   defp set_error_key({:value_id, value}, operation), do: %{operation => value}
   defp set_error_key(property, _), do: property
 
-  def create_file_set(_, args, _) do
-    case FileSets.create_file_set(args) do
-      {:error, changeset} ->
-        {:error,
-         message: "Could not create file set", details: ChangesetErrors.error_details(changeset)}
-
-      {:ok, file_set} ->
-        {:ok, file_set}
-    end
-  end
-
   def update_work(_, %{id: id, work: work_params}, _) do
     work = Works.get_work!(id)
 
@@ -121,6 +110,17 @@ defmodule MeadowWeb.Resolvers.Data do
     {:ok, FileSets.get_file_set_by_accession_number!(accession_number)}
   end
 
+  def create_file_set(_, args, _) do
+    case FileSets.create_file_set(args) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not create file set", details: ChangesetErrors.error_details(changeset)}
+
+      {:ok, file_set} ->
+        {:ok, file_set}
+    end
+  end
+
   def delete_file_set(_, args, _) do
     file_set = FileSets.get_file_set!(args[:file_set_id])
 
@@ -130,6 +130,19 @@ defmodule MeadowWeb.Resolvers.Data do
           :error,
           message: "Could not delete file_set", details: ChangesetErrors.error_details(changeset)
         }
+
+      {:ok, file_set} ->
+        {:ok, file_set}
+    end
+  end
+
+  def update_file_set(_, %{id: id, metadata: metadata_params}, _) do
+    file_set = FileSets.get_file_set!(id)
+
+    case FileSets.update_file_set(file_set, %{metadata: metadata_params}) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not update FileSet", details: ChangesetErrors.error_details(changeset)}
 
       {:ok, file_set} ->
         {:ok, file_set}

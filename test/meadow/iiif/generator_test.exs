@@ -31,6 +31,7 @@ defmodule Meadow.IIIF.GeneratorTest do
                   {
                     \"motivation\": \"sc:painting\",
                     \"resource\": {
+                      \"description\": \"bar\",
                       \"label\": \"This is the label\",
                       \"service\": {
                         \"profile\": \"http://iiif.io/api/image/2/level2.json\",

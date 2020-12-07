@@ -19,6 +19,7 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Work do
                     resource: %ImageResource{
                       id: IIIF.image_id(file_set.id),
                       label: file_set.metadata.label,
+                      description: file_set.metadata.description,
                       service: %Service{
                         id: IIIF.image_service_id(file_set.id)
                       }

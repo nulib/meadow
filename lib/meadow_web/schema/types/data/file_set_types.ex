@@ -31,6 +31,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       resolve(&Resolvers.Data.create_file_set/3)
     end
 
+    @desc "Update a FileSet's metadata"
+    field :update_file_set, :file_set do
+      arg(:id, non_null(:id))
+      arg(:metadata, non_null(:file_set_metadata_update))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_set/3)
+    end
+
     @desc "Delete a FileSet"
     field :delete_file_set, :file_set do
       arg(:file_set_id, non_null(:id))
@@ -62,11 +71,6 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :accession_number, non_null(:string)
     field :role, non_null(:file_set_role)
     field :metadata, :file_set_metadata_input
-  end
-
-  @desc "Input fields for a `file_set` update object "
-  input_object :file_set_update_update do
-    field :metadata, :file_set_metadata_update
   end
 
   #
