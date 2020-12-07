@@ -6,6 +6,7 @@ defmodule IIIF.Presentation.ImageResource do
 
   defstruct id: nil,
             label: nil,
+            description: nil,
             type: @rdf_type,
             format: nil,
             height: nil,
