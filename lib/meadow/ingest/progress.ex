@@ -42,17 +42,18 @@ defmodule Meadow.Ingest.Progress do
     |> Repo.one()
   end
 
-  def get_pending_work_entries(sheet_id, limit) do
+  def get_and_lock_pending_work_entries(sheet_id, limit) do
     from(q in pending_work_entry_query(limit),
       join: r in Row,
       on: q.row_id == r.id,
-      where: r.sheet_id == ^sheet_id
+      where: r.sheet_id == ^sheet_id,
+      lock: "FOR UPDATE SKIP LOCKED"
     )
     |> Repo.all()
   end
 
-  def get_pending_work_entries(limit) do
-    pending_work_entry_query(limit)
+  def get_and_lock_pending_work_entries(limit) do
+    from(q in pending_work_entry_query(limit), lock: "FOR UPDATE SKIP LOCKED")
     |> Repo.all()
   end
 

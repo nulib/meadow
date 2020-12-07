@@ -28,20 +28,32 @@ defmodule Meadow.Ingest.WorkCreator do
   """
   def create_works(state) do
     with_log_level(:info, fn ->
-      case Progress.get_pending_work_entries(state.batch_size)
-           |> Progress.update_entries("CreateWork", "processing")
-           |> Repo.preload(row: :sheet) do
-        [] ->
-          :noop
-
-        work_rows ->
-          Logger.enable(self())
-          Logger.info("Creating #{length(work_rows)} works")
-          create_works_from_rows(work_rows)
-      end
+      state
+      |> get_and_update_pending_work_rows()
+      |> handle_result()
     end)
 
     {:noreply, state}
+  end
+
+  defp get_and_update_pending_work_rows(state) do
+    Repo.transaction(fn ->
+      Progress.get_and_lock_pending_work_entries(state.batch_size)
+      |> Progress.update_entries("CreateWork", "processing")
+    end)
+  end
+
+  defp handle_result({:ok, []}), do: []
+
+  defp handle_result({:ok, progress_rows}) do
+    Logger.enable(self())
+    Logger.info("Creating #{length(progress_rows)} works")
+    create_works_from_rows(progress_rows |> Repo.preload(row: :sheet))
+  end
+
+  defp handle_result({:error, message}) do
+    Logger.error("Problem processing work entries: #{inspect(message)}")
+    []
   end
 
   @doc """
