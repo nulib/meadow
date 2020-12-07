@@ -3,7 +3,7 @@ export const COLLECTION_TYPES = [
   { label: "NUL Theme", id: "NUL Theme", value: "NUL Theme" },
 ];
 
-export const SORT_OPTIONS = [
+export const REACTIVESEARCH_SORT_OPTIONS = [
   {
     sortBy: "desc",
     dataField: "_score",

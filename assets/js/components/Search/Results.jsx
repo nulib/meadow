@@ -9,7 +9,7 @@ import SearchSelectable from "@js/components/Search/Selectable";
 import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
 import { prepWorkItemForDisplay } from "@js/services/helpers";
 import { allImagesQuery } from "@js/services/elasticsearch";
-import { SORT_OPTIONS } from "@js/services/global-vars";
+import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
 const SearchResults = ({
   handleOnDataChange,
   handleQueryChange,
@@ -38,7 +38,7 @@ const SearchResults = ({
             onQueryChange={function (prevQuery, nextQuery) {
               handleQueryChange(nextQuery);
             }}
-            sortOptions={SORT_OPTIONS}
+            sortOptions={REACTIVESEARCH_SORT_OPTIONS}
             react={{
               and: [...facetSensors, SEARCH_SENSOR],
             }}
