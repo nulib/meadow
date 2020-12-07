@@ -66,8 +66,6 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const handleSaveReorder = (orderedFileSets = []) => {
-    console.log("handleSaveReorder called", orderedFileSets);
-
     updateFileSetOrder({
       variables: { workId: work.id, fileSetIds: orderedFileSets },
     });
