@@ -8,6 +8,14 @@ export const UPDATE_FILE_SETS = gql`
   }
 `;
 
+export const UPDATE_FILE_SET_ORDER = gql`
+  mutation UpdateFileSetOrder($workId: ID!, $fileSetIds: [ID]) {
+    updateFileSetOrder(workId: $workId, fileSetIds: $fileSetIds) @client {
+      id
+    }
+  }
+`;
+
 export const CREATE_SHARED_LINK = gql`
   mutation CreateSharedLink($workId: ID!) {
     createSharedLink(workId: $workId) {

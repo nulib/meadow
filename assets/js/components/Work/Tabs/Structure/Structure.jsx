@@ -4,8 +4,10 @@ import useIsEditing from "@js/hooks/useIsEditing";
 import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import {
+  GET_WORK,
   SET_WORK_IMAGE,
   UPDATE_FILE_SETS,
+  UPDATE_FILE_SET_ORDER,
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
@@ -24,7 +26,6 @@ const WorkTabsStructure = ({ work }) => {
   if (!work) {
     return null;
   }
-
   const [isEditing, setIsEditing] = useIsEditing();
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
     parseWorkRepresentativeImage(work)
@@ -44,6 +45,17 @@ const WorkTabsStructure = ({ work }) => {
       console.log("onCompleted() updateFileSets", updateFileSets);
     },
   });
+  const [updateFileSetOrder] = useMutation(UPDATE_FILE_SET_ORDER, {
+    onCompleted() {
+      setIsReordering(false);
+      toastWrapper("is-success", "Work form updated successfully");
+    },
+    onError(error) {
+      console.log("error in the updateWork GraphQL mutation :>> ", error);
+    },
+    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+    awaitRefetchQueries: true,
+  });
 
   const handleCancelReorder = () => {
     setIsReordering(false);
@@ -56,14 +68,9 @@ const WorkTabsStructure = ({ work }) => {
   const handleSaveReorder = (orderedFileSets = []) => {
     console.log("handleSaveReorder called", orderedFileSets);
 
-    // TODO: Submit to GraphQL re-order mutation
-
-    toastWrapper(
-      "is-success",
-      "File sets order has been saved (not wired up yet)"
-    );
-
-    setIsReordering(false);
+    updateFileSetOrder({
+      variables: { workId: work.id, fileSetIds: orderedFileSets },
+    });
   };
 
   const handleWorkImageChange = (id) => {
