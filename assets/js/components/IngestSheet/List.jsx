@@ -68,46 +68,49 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
               </tr>
             </thead>
             <tbody>
-              {project.ingestSheets.map(({ id, title, status, updatedAt }) => (
-                <tr key={id}>
-                  <td>
-                    <Link to={`/project/${project.id}/ingest-sheet/${id}`}>
-                      {title}
-                    </Link>
-                  </td>
-                  <td className="has-text-right">{formatDate(updatedAt)}</td>
-                  <td>
-                    <span
-                      className={`tag ${getClassFromIngestSheetStatus(status)}`}
-                    >
-                      {TEMP_USER_FRIENDLY_STATUS[status]}
-                    </span>
-                  </td>
-                  <td className="has-text-right">
-                    {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
-                      <Link
-                        to={`/project/${project.id}/ingest-sheet/${id}`}
-                        className="button"
-                      >
-                        {<FontAwesomeIcon icon="eye" />}{" "}
-                        <span className="sr-only">View</span>
+              {project.ingestSheets.map(
+                ({ id, title, status, updatedAt }, index) => (
+                  <tr key={id + index}>
+                    <td>
+                      <Link to={`/project/${project.id}/ingest-sheet/${id}`}>
+                        {title}
                       </Link>
-                    )}
-
-                    {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
-                      status
-                    ) > -1 && (
-                      <button
-                        className="button"
-                        onClick={(e) => onOpenModal(e, { id, title })}
+                    </td>
+                    <td className="has-text-right">{formatDate(updatedAt)}</td>
+                    <td>
+                      <span
+                        className={`tag ${getClassFromIngestSheetStatus(
+                          status
+                        )}`}
                       >
-                        {<FontAwesomeIcon icon="trash" />}{" "}
-                        <span className="sr-only">Delete</span>
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                        {TEMP_USER_FRIENDLY_STATUS[status]}
+                      </span>
+                    </td>
+                    <td className="has-text-right">
+                      {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
+                        <Link
+                          to={`/project/${project.id}/ingest-sheet/${id}`}
+                          className="button"
+                        >
+                          {<FontAwesomeIcon icon="eye" />}{" "}
+                          <span className="sr-only">View</span>
+                        </Link>
+                      )}
+                      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
+                        status
+                      ) > -1 && (
+                        <button
+                          className="button"
+                          onClick={(e) => onOpenModal(e, { id, title })}
+                        >
+                          {<FontAwesomeIcon icon="trash" />}{" "}
+                          <span className="sr-only">Delete</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
           <UIModalDelete
