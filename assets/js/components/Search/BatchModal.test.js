@@ -5,31 +5,37 @@ import userEvent from "@testing-library/user-event";
 
 let props = {
   handleCloseClick: jest.fn(),
-  handleCsvExport: jest.fn(),
-  handleEditAllItems: jest.fn(),
   isOpen: false,
-  numberOfResults: 35,
+  children: (
+    <div>
+      <p>Im child content</p>
+    </div>
+  ),
 };
 
 describe("SearchBatchModal component", () => {
-  it("renders hidden state", () => {
+  it("renders modal hidden state", () => {
     render(<SearchBatchModal {...props} />);
     expect(screen.getByTestId("select-all-modal")).not.toHaveClass("is-active");
   });
 
-  it("renders visible state", () => {
+  it("renders modal visible state", () => {
     props = { ...props, isOpen: true };
     render(<SearchBatchModal {...props} />);
     expect(screen.getByTestId("select-all-modal")).toHaveClass("is-active");
   });
 
-  it("calls the appropriate callback functions on button clicks", () => {
+  it("calls the close modal callback function", () => {
     props = { ...props, isOpen: true };
     render(<SearchBatchModal {...props} />);
-    userEvent.click(screen.getByTestId("button-batch-edit"));
-    userEvent.click(screen.getByTestId("button-csv-export"));
+    userEvent.click(screen.getByTestId("header-close-button"));
+    userEvent.click(screen.getByText("Cancel"));
+    expect(props.handleCloseClick).toHaveBeenCalledTimes(2);
+  });
 
-    expect(props.handleCsvExport).toHaveBeenCalled();
-    expect(props.handleEditAllItems).toHaveBeenCalled();
+  it("renders child content", () => {
+    props = { ...props, isOpen: true };
+    render(<SearchBatchModal {...props} />);
+    expect(screen.getByText("Im child content"));
   });
 });
