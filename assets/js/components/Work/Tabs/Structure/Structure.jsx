@@ -48,7 +48,7 @@ const WorkTabsStructure = ({ work }) => {
   const [updateFileSetOrder] = useMutation(UPDATE_FILE_SET_ORDER, {
     onCompleted() {
       setIsReordering(false);
-      toastWrapper("is-success", "Work form updated successfully");
+      toastWrapper("is-success", "Filesets have been successfully reordered.");
     },
     onError(error) {
       console.log("error in the updateWork GraphQL mutation :>> ", error);
