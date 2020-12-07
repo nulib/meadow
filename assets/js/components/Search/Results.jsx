@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { IIIFProvider } from "../../components/IIIF/IIIFProvider";
+import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { ReactiveList } from "@appbaseio/reactivesearch";
-import WorkListItem from "../../components/Work/ListItem";
-import WorkCardItem from "../../components/Work/CardItem";
-import UISkeleton from "../../components/UI/Skeleton";
-import SearchSelectable from "../../components/Search/Selectable";
-import { FACET_SENSORS, SEARCH_SENSOR } from "../../services/reactive-search";
-import { prepWorkItemForDisplay } from "../../services/helpers";
-import { allImagesQuery } from "../../services/elasticsearch";
-
+import WorkListItem from "@js/components/Work/ListItem";
+import WorkCardItem from "@js/components/Work/CardItem";
+import UISkeleton from "@js/components/UI/Skeleton";
+import SearchSelectable from "@js/components/Search/Selectable";
+import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
+import { prepWorkItemForDisplay } from "@js/services/helpers";
+import { allImagesQuery } from "@js/services/elasticsearch";
+import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
 const SearchResults = ({
   handleOnDataChange,
   handleQueryChange,
@@ -38,6 +38,7 @@ const SearchResults = ({
             onQueryChange={function (prevQuery, nextQuery) {
               handleQueryChange(nextQuery);
             }}
+            sortOptions={REACTIVESEARCH_SORT_OPTIONS}
             react={{
               and: [...facetSensors, SEARCH_SENSOR],
             }}

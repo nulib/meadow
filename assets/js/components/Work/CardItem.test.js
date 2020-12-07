@@ -27,6 +27,11 @@ describe("Shows Work content", () => {
     expect(findByText("Collection 1232432 Name")).toBeTruthy();
   });
 
+  it("Displays Accession Number", () => {
+    const { findByText } = setupTests();
+    expect(findByText("Donohue_001")).toBeTruthy();
+  });
+
   it("Displays Published Flag", () => {
     const { queryByTestId } = setupTests();
     expect(queryByTestId("result-item-published")).not.toBeInTheDocument();

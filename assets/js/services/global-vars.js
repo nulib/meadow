@@ -3,6 +3,24 @@ export const COLLECTION_TYPES = [
   { label: "NUL Theme", id: "NUL Theme", value: "NUL Theme" },
 ];
 
+export const REACTIVESEARCH_SORT_OPTIONS = [
+  {
+    sortBy: "desc",
+    dataField: "_score",
+    label: "Sort By Relevancy",
+  },
+  {
+    sortBy: "asc",
+    dataField: "modifiedDate",
+    label: "Sort By Modified Date",
+  },
+  {
+    sortBy: "asc",
+    dataField: "descriptiveMetadata.title.keyword",
+    label: "Sort By Title",
+  },
+];
+
 export const IIIF_SIZES = {
   IIIF_SQUARE: "/square/500,500/0/default.jpg",
   IIIF_FULL: "/full/full/0/default.jpg",

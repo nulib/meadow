@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import {
-  setVisibilityClass,
-  formatDate,
-  getImageUrl,
-} from "@js/services/helpers";
+import { setVisibilityClass, getImageUrl } from "@js/services/helpers";
 import UIWorkImage from "@js/components/UI/WorkImage";
 
 const WorkCardItem = ({
@@ -15,6 +11,7 @@ const WorkCardItem = ({
   workType = { id: "", label: "", scheme: "" },
   visibility = { id: "", label: "", scheme: "" },
   published,
+  accessionNumber,
   collectionName,
 }) => {
   return (
@@ -31,6 +28,7 @@ const WorkCardItem = ({
       </div>
       <div className="card-content content">
         <p data-testid={`work-title-${id}`}>{title}</p>
+        <p data-testid="accession-number">{accessionNumber}</p>
 
         {collectionName && <p className="heading">{collectionName}</p>}
 
