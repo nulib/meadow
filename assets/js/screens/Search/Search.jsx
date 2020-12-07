@@ -16,6 +16,21 @@ import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
+async function getParsedAggregations(query) {
+  try {
+    // Grab all aggregated Controlled Term items from Elasticsearch directly,
+    // to populate the "Remove" items in Batch Edit
+    let response = await elasticsearchDirectSearch({
+      aggs: { ...ELASTICSEARCH_AGGREGATION_FIELDS },
+      query: { ...query },
+    });
+    return parseESAggregationResults(response.aggregations);
+  } catch (e) {
+    console.error("Error getting parsed aggregations", e);
+  }
+  return {};
+}
+
 const ScreensSearch = () => {
   let history = useHistory();
   const [isListView, setIsListView] = useState(false);
@@ -24,19 +39,16 @@ const ScreensSearch = () => {
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
 
-  const handleCsvExport = () => {
-    console.log("handle Csv Export");
+  const handleCsvExportAllItems = () => {
+    console.log("handle Csv Export All Items");
+  };
+
+  const handleCsvExportItems = () => {
+    console.log("handle Csv Export Items");
   };
 
   const handleEditAllItems = async () => {
-    // Grab all aggregated Controlled Term items from Elasticsearch directly,
-    // to populate the "Remove" items in Batch Edit
-    let response = await elasticsearchDirectSearch({
-      aggs: { ...ELASTICSEARCH_AGGREGATION_FIELDS },
-      query: { ...filteredQuery },
-    });
-
-    let parsedAggregations = parseESAggregationResults(response.aggregations);
+    const parsedAggregations = await getParsedAggregations(filteredQuery);
 
     // Update the global Batch Edit Context
     dispatch({
@@ -44,6 +56,38 @@ const ScreensSearch = () => {
       filteredQuery: { query: filteredQuery },
       parsedAggregations,
       resultStats,
+    });
+
+    history.push("/batch-edit");
+  };
+
+  const handleEditItems = async () => {
+    // Build an ElasticSearch query that includes all selected items
+    const myQuery = {
+      bool: {
+        must: [
+          {
+            match: {
+              "model.name": "Image",
+            },
+          },
+          {
+            query_string: {
+              query: ` id:(${selectedItems.join(" OR ")})`,
+            },
+          },
+        ],
+      },
+    };
+
+    const parsedAggregations = await getParsedAggregations(myQuery);
+
+    // Update the global Batch Edit Context
+    dispatch({
+      type: "updateSearchResults",
+      filteredQuery: { query: myQuery },
+      parsedAggregations,
+      resultStats: { numberOfResults: selectedItems.length },
     });
 
     history.push("/batch-edit");
@@ -58,6 +102,10 @@ const ScreensSearch = () => {
   };
 
   const handleOnDataChange = (resultStats) => {
+    // Remove manually selected items when interacting with ReactiveSearch
+    // to avoid 'hidden' selected items confusion
+    setSelectedItems([]);
+
     setResultStats({ ...resultStats });
   };
 
@@ -107,9 +155,11 @@ const ScreensSearch = () => {
 
               <DisplayAuthorized action="delete">
                 <SearchActionRow
-                  handleCsvExport={handleCsvExport}
+                  handleCsvExportAllItems={handleCsvExportAllItems}
+                  handleCsvExportItems={handleCsvExportItems}
                   handleDeselectAll={handleDeselectAll}
                   handleEditAllItems={handleEditAllItems}
+                  handleEditItems={handleEditItems}
                   handleViewAndEdit={handleViewAndEdit}
                   numberOfResults={resultStats.numberOfResults}
                   selectedItems={selectedItems}

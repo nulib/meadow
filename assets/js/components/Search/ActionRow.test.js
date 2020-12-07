@@ -4,9 +4,11 @@ import SearchActionRow from "./ActionRow";
 import userEvent from "@testing-library/user-event";
 
 let props = {
-  handleCsvExport: jest.fn(),
+  handleCsvExportAllItems: jest.fn(),
+  handleCsvExportItems: jest.fn(),
   handleDeselectAll: jest.fn(),
   handleEditAllItems: jest.fn(),
+  handleEditItems: jest.fn(),
   handleViewAndEdit: jest.fn(),
   numberOfResults: 33,
   selectedItems: [],
@@ -18,29 +20,49 @@ describe("SearchActionRow component", () => {
     expect(screen.getByTestId("search-action-row"));
   });
 
-  it("renders 'select all' button enabled by default, and 'edit X items' button disabled by default ", () => {
-    render(<SearchActionRow {...props} selectedItems={[]} />);
+  describe("with no selected items", () => {
+    beforeEach(() => {
+      render(<SearchActionRow {...props} selectedItems={[]} />);
+    });
 
-    const selectAllButton = screen.getByTestId("select-all-button");
+    it("renders the select all and edit buttons", () => {
+      expect(screen.getByTestId("button-select-all")).not.toBeDisabled();
+      expect(screen.getByTestId("button-edit-items")).toBeDisabled();
+    });
 
-    expect(selectAllButton).not.toBeDisabled();
-    expect(screen.getByTestId("view-and-edit-button")).toBeDisabled();
+    it("renders 'batch edit' and 'csv export' buttons when select all button is clicked", () => {
+      userEvent.click(screen.getByTestId("button-select-all"));
+      userEvent.click(screen.getByTestId("button-batch-all-edit"));
+      expect(props.handleEditAllItems).toHaveBeenCalled();
+      userEvent.click(screen.getByTestId("button-csv-all-export"));
+      expect(props.handleCsvExportAllItems).toHaveBeenCalled();
+    });
   });
 
-  it("renders a disabled 'select all' button, and enabled 'view and edit' and 'deselect all' buttons when search items are selected", () => {
-    render(<SearchActionRow {...props} selectedItems={["abc", "dfg"]} />);
+  describe("with selected items", () => {
+    beforeEach(() => {
+      render(<SearchActionRow {...props} selectedItems={["abc", "def"]} />);
+    });
 
-    const viewAndEditButton = screen.getByTestId("view-and-edit-button");
-    const deselectAll = screen.getByTestId("deselect-all-button");
+    it("renders the disabled select all and enabled edit and deselect all buttons", () => {
+      expect(screen.getByTestId("button-select-all")).toBeDisabled();
+      expect(screen.getByTestId("button-edit-items")).not.toBeDisabled();
+      expect(screen.getByTestId("button-deselect-all")).not.toBeDisabled();
+    });
 
-    expect(screen.getByTestId("select-all-button")).toBeDisabled();
-    expect(viewAndEditButton).not.toBeDisabled();
-    expect(deselectAll).not.toBeDisabled();
+    it("calls the deselect all callback function when button clicked", () => {
+      userEvent.click(screen.getByTestId("button-deselect-all"));
+      expect(props.handleDeselectAll).toHaveBeenCalled();
+    });
 
-    userEvent.click(viewAndEditButton);
-    expect(props.handleViewAndEdit).toHaveBeenCalled();
-
-    userEvent.click(deselectAll);
-    expect(props.handleDeselectAll).toHaveBeenCalled();
+    it("renders 'batch edit' and 'csv export' buttons when select all button is clicked", () => {
+      userEvent.click(screen.getByTestId("button-edit-items"));
+      userEvent.click(screen.getByTestId("button-batch-items-edit"));
+      expect(props.handleEditItems).toHaveBeenCalled();
+      userEvent.click(screen.getByTestId("button-view-and-edit"));
+      expect(props.handleViewAndEdit).toHaveBeenCalled();
+      userEvent.click(screen.getByTestId("button-csv-items-export"));
+      expect(props.handleCsvExportItems).toHaveBeenCalled();
+    });
   });
 });
