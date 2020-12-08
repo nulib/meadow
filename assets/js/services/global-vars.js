@@ -19,6 +19,11 @@ export const REACTIVESEARCH_SORT_OPTIONS = [
     dataField: "descriptiveMetadata.title.keyword",
     label: "Sort By Title",
   },
+  {
+    sortBy: "asc",
+    dataField: "accessionNumber.keyword",
+    label: "Sort By Accession Number",
+  },
 ];
 
 export const IIIF_SIZES = {
