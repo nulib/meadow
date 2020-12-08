@@ -33,7 +33,7 @@ defmodule Meadow.Data.ControlledTermsTest do
     end
 
     test "invalid term" do
-      assert {:error, 404} == ControlledTerms.fetch("mock0:result0")
+      assert {:error, :unknown_authority} == ControlledTerms.fetch("mock0:result0")
     end
   end
 

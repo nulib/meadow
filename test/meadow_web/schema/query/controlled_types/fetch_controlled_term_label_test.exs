@@ -20,7 +20,7 @@ defmodule MeadowWeb.Schema.Query.FetchControlledTermLabelTest do
       result = query_gql(variables: %{"id" => "mock0:result0"}, context: gql_context())
 
       assert {:ok, %{errors: [error]}} = result
-      assert error.message == "404"
+      assert error.message == "unknown_authority"
     end
   end
 end

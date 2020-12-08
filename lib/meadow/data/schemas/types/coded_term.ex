@@ -32,7 +32,7 @@ defmodule Meadow.Data.Types.CodedTerm do
   defp retrieve_term(%{id: id, scheme: scheme}) do
     case CodedTerms.get_coded_term(id, scheme) do
       nil ->
-        {:error, message: "#{id} is invalid coded term for scheme #{String.upcase(scheme)}"}
+        {:error, message: "#{id} is an invalid coded term for scheme #{String.upcase(scheme)}"}
 
       {{:ok, _}, %{id: id, scheme: scheme, label: label}} ->
         {:ok, %{id: id, scheme: scheme, label: label}}
