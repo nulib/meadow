@@ -21,6 +21,7 @@ const displayTable = css`
 export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
   const codeLists = useCodeLists();
   const marcRelators = codeLists.marcData.codeList || [];
+  const relatedUrls = codeLists.relatedUrlData.codeList || [];
 
   function getRoleLabel(roleId) {
     let foundItem = marcRelators.find((item) => item.id === roleId);
@@ -30,6 +31,11 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
       );
     }
     return foundItem.label || "No role label found";
+  }
+
+  function getUrlLabel(urlId) {
+    let foundItem = relatedUrls.find((item) => item.id === urlId);
+    return foundItem.label || "No URL label found";
   }
 
   function getIcon() {
@@ -87,6 +93,13 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
               rowKey = `${item.term}-${item.label}`;
               value = `${item.label} | ${item.term} | ${
                 item.role && getRoleLabel(item.role.id)
+              }`;
+            }
+
+            if (typeof item === "object" && item.url) {
+              rowKey = item.url;
+              value = `${item.url} | ${
+                item.label && getUrlLabel(item.label.id)
               }`;
             }
 

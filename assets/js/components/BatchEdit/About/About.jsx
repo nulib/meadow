@@ -14,13 +14,14 @@ import BatchEditAboutModalRemove from "../ModalRemove";
 import {
   useBatchDispatch,
   useBatchState,
-} from "../../../context/batch-edit-context";
+} from "@js/context/batch-edit-context";
 import {
   CONTROLLED_METADATA,
   getBatchMultiValueDataFromForm,
   prepControlledTermInput,
   prepFacetKey,
-} from "../../../services/metadata";
+  prepRelatedUrl,
+} from "@js/services/metadata";
 import { Button } from "@nulib/admin-react-components";
 
 const BatchEditAbout = () => {
@@ -76,6 +77,10 @@ const BatchEditAbout = () => {
       replaceItems.rightsStatement = JSON.parse(
         currentFormValues.rightsStatement
       );
+    }
+
+    if (currentFormValues.relatedUrl) {
+      replaceItems.relatedUrl = prepRelatedUrl(currentFormValues.relatedUrl);
     }
 
     // Update controlled term values to match shape the GraphQL mutation expects
