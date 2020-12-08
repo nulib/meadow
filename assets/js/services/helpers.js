@@ -14,7 +14,7 @@ export function escapeDoubleQuotes(str) {
 
 export function formatDate(date) {
   if (!date) return "";
-  return moment.utc(date).format("lll");
+  return moment.utc(date).local().format("lll");
 }
 
 export function formatSimpleISODate(date) {

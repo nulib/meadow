@@ -34,7 +34,7 @@ describe("Shows Work content", () => {
   it("Displays Updated Date", () => {
     const { getByTestId } = setupTests();
     expect(getByTestId("result-item-updated-date").innerHTML).toBe(
-      "Dec 2, 2019 10:22 PM"
+      "Dec 2, 2019 4:22 PM"
     );
   });
   it("Displays Published Flag", () => {
