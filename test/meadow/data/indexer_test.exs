@@ -3,7 +3,7 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.DataCase
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Data.{Collections, Indexer, Works}
+  alias Meadow.Data.{Collections, FileSets, Indexer, Works}
   alias Meadow.Data.Schemas
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Repo
@@ -180,14 +180,44 @@ defmodule Meadow.Data.IndexerTest do
     end
   end
 
+  describe "parent update triggers" do
+    @tag unboxed: true
+    test "file_set metadata changes cascade to work" do
+      Sandbox.unboxed_run(Repo, fn ->
+        %{file_sets: [file_set | _]} = indexable_data()
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(file_set.id) |> get_in(["label"]) ==
+                 nil
+
+        {:ok, file_set} =
+          file_set
+          |> FileSets.update_file_set(%{
+            metadata: %{label: "New Label", description: "New Description"}
+          })
+
+        work_updated_timestamp = Works.get_work!(file_set.work_id).updated_at
+
+        Indexer.synchronize_index()
+        assert indexed_doc(file_set.id) |> get_in(["label"]) == "New Label"
+
+        assert indexed_doc(file_set.id) |> get_in(["description"]) ==
+                 "New Description"
+
+        assert indexed_doc(file_set.work_id) |> get_in(["modifiedDate"]) >
+                 work_updated_timestamp
+      end)
+    end
+  end
+
   describe "encoding" do
     setup do
       with %{collection: collection, works: works, file_sets: file_sets} <- indexable_data() do
         {:ok,
          %{
            collection: collection,
-           work:
-             List.first(works) |> Repo.preload(Schemas.Work.required_index_preloads),
+           work: List.first(works) |> Repo.preload(Schemas.Work.required_index_preloads()),
            file_set: List.first(file_sets) |> Repo.preload(:work)
          }}
       end
