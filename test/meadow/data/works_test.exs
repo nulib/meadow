@@ -1,7 +1,9 @@
 defmodule Meadow.Data.WorksTest do
   use Meadow.AuthorityCase
   use Meadow.DataCase
+  use Meadow.S3Case
 
+  alias Meadow.Config
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
@@ -413,6 +415,45 @@ defmodule Meadow.Data.WorksTest do
         assert String.contains?(error_text, extra_id)
         assert String.match?(error_text, ~r/^Extra/)
       end
+    end
+  end
+
+  describe "verify_file_sets/1" do
+    @bucket Config.preservation_bucket()
+    @key "verification_test/path/to/file.tif"
+    @content "test/fixtures/coffee.tif"
+    @fixture %{
+      bucket: @bucket,
+      key: @key,
+      content: File.read!(@content)
+    }
+    setup do
+      work = work_with_file_sets_fixture(3)
+      location = "s3://#{Config.preservation_bucket()}/#{@key}"
+
+      Enum.each(work.file_sets, fn file_set ->
+        FileSets.update_file_set(file_set, %{
+          metadata: %{location: location}
+        })
+      end)
+
+      {:ok, %{work: work, file_set_ids: work.file_sets |> Enum.map(& &1.id)}}
+    end
+
+    @tag s3: [@fixture]
+    test "verify_file_sets/1 verifies file sets are present in preservation location", %{
+      work: work,
+      file_set_ids: file_set_ids
+    } do
+      assert Enum.map(file_set_ids, fn id -> %{file_set_id: id, verified: true} end) ==
+               Works.verify_file_sets(work.id)
+    end
+
+    test "verify_file_sets/1 verifies file sets are not present in preservation location" do
+      work = work_with_file_sets_fixture(3)
+
+      assert Enum.map(work.file_sets, fn fs -> %{file_set_id: fs.id, verified: false} end) ==
+               Works.verify_file_sets(work.id)
     end
   end
 end

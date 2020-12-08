@@ -540,4 +540,24 @@ defmodule Meadow.Data.Works do
     |> Multi.update(:work, work |> Work.update_timestamp())
     |> Repo.transaction()
   end
+
+  def verify_file_sets(work_id) do
+    work_id
+    |> with_file_sets()
+    |> Map.get(:file_sets)
+    |> Enum.map(fn file_set ->
+      %{file_set_id: file_set.id, verified: verify_file_set(file_set)}
+    end)
+  end
+
+  defp verify_file_set(file_set) do
+    case ExAws.S3.head_object(
+           Config.preservation_bucket(),
+           URI.parse(file_set.metadata.location).path
+         )
+         |> ExAws.request() do
+      {:ok, _} -> true
+      {:error, _} -> false
+    end
+  end
 end

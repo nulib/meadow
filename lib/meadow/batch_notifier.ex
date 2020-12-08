@@ -4,8 +4,8 @@ defmodule Meadow.BatchNotifier do
   """
   use Meadow.DatabaseNotification, tables: [:batches]
 
-  alias Meadow.Notifications
   alias Meadow.Batches
+  alias Meadow.Notifications
 
   @impl true
   def handle_notification(:batches, :delete, _key, state), do: {:noreply, state}
