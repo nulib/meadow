@@ -13,7 +13,7 @@ defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
       :representative_work
     )
 
-    create_parent_trigger(:works, :file_sets, [:metadata])
+    create_parent_trigger(:works, :file_sets, [:metadata, :rank])
   end
 
   def down do

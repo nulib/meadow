@@ -11,11 +11,24 @@ defmodule Meadow.IIIF.GeneratorTest do
       file_set =
         file_set_fixture(%{
           work_id: work.id,
+          role: "am",
           metadata: %{
             location: "foo",
             description: "bar",
             original_filename: "something",
             label: "This is the label"
+          }
+        })
+
+      _file_set2 =
+        file_set_fixture(%{
+          work_id: work.id,
+          role: "pm",
+          metadata: %{
+            location: "foo",
+            description: "preservation master",
+            original_filename: "something",
+            label: "This should not be in the manifest"
           }
         })
 

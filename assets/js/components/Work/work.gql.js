@@ -8,9 +8,9 @@ export const UPDATE_FILE_SETS = gql`
   }
 `;
 
-export const UPDATE_FILE_SET_ORDER = gql`
-  mutation UpdateFileSetOrder($workId: ID!, $fileSetIds: [ID]) {
-    updateFileSetOrder(workId: $workId, fileSetIds: $fileSetIds) {
+export const UPDATE_ACCESS_MASTER_ORDER = gql`
+  mutation UpdateAccessMasterOrder($workId: ID!, $fileSetIds: [ID]) {
+    updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
       id
     }
   }

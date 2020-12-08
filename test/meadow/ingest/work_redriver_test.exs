@@ -3,6 +3,7 @@ defmodule Meadow.Ingest.WorkRedriverTest do
   alias Meadow.Ingest.{Progress, Rows, WorkRedriver}
   alias Meadow.Ingest.Schemas.Progress, as: ProgressSchema
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
 
   import ExUnit.CaptureLog
 
@@ -14,7 +15,9 @@ defmodule Meadow.Ingest.WorkRedriverTest do
     with rows <- Rows.list_ingest_sheet_rows(sheet: sheet) do
       rows
       |> Enum.with_index()
-      |> Enum.map(fn {row, index} -> {row.id, rem(index, 4) == 0} end)
+      |> Enum.map(fn {row, index} ->
+        {row.id, MapList.get(row.fields, :header, :value, :role), rem(index, 4) == 0}
+      end)
       |> Progress.initialize_entries()
 
       {:ok, %{worker: worker, ingest_sheet: sheet, rows: rows}}

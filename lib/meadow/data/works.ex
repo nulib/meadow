@@ -115,13 +115,41 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
+  def get_access_masters(work_id) do
+    Repo.all(
+      from f in FileSet,
+        where: f.role == "am",
+        where: f.work_id == ^work_id,
+        order_by: :rank,
+        limit: 1
+    )
+  end
+
   @doc """
 
   """
   def with_file_sets(id) do
     Work
     |> Repo.get!(id)
-    |> Repo.preload([:ingest_sheet, :project, file_sets: from(FileSet, order_by: :rank)])
+    |> Repo.preload([
+      :ingest_sheet,
+      :project,
+      file_sets: from(FileSet, order_by: [asc: :role, asc: :rank])
+    ])
+    |> add_representative_image()
+  end
+
+  @doc """
+
+  """
+  def with_file_sets(id, role) do
+    Work
+    |> Repo.get!(id)
+    |> Repo.preload([
+      :ingest_sheet,
+      :project,
+      file_sets: from(f in FileSet, where: f.role == ^role, order_by: [asc: :role, asc: :rank])
+    ])
     |> add_representative_image()
   end
 
@@ -425,13 +453,8 @@ defmodule Meadow.Data.Works do
       {:ok, %Work{}}
   """
   def set_default_representative_image(%Work{} = work) do
-    work =
-      if Ecto.assoc_loaded?(work.file_sets),
-        do: work,
-        else: work |> Repo.preload(file_sets: from(FileSet, order_by: :rank, limit: 1))
-
     work
-    |> set_representative_image(work.file_sets |> List.first())
+    |> set_representative_image(get_access_masters(work.id) |> List.first())
   end
 
   @doc """
@@ -496,9 +519,9 @@ defmodule Meadow.Data.Works do
   @doc """
   Update the order of the file sets attached to a work
   """
-  def update_file_set_order(work_id, ordered_file_set_ids) do
+  def update_file_set_order(work_id, role, ordered_file_set_ids) do
     ensure_file_set_list_unique(ordered_file_set_ids)
-    |> ensure_file_set_list_complete(work_id, ordered_file_set_ids)
+    |> ensure_file_set_list_complete(work_id, role, ordered_file_set_ids)
     |> reorder_file_sets(ordered_file_set_ids)
   end
 
@@ -508,10 +531,18 @@ defmodule Meadow.Data.Works do
       else: {:error, "FileSet IDs must be a unique list"}
   end
 
-  defp ensure_file_set_list_complete({:error, msg}, _, _), do: {:error, msg}
+  defp ensure_file_set_list_complete({:error, msg}, _, _, _), do: {:error, msg}
 
-  defp ensure_file_set_list_complete(:ok, work_id, file_set_ids) do
-    work = from(w in Work, where: w.id == ^work_id, preload: :file_sets) |> Repo.one()
+  defp ensure_file_set_list_complete(:ok, work_id, role, file_set_ids) do
+    work =
+      from(w in Work,
+        join: f in assoc(w, :file_sets),
+        where: w.id == ^work_id,
+        where: f.role == ^role,
+        preload: [file_sets: f]
+      )
+      |> Repo.one()
+
     work_file_set_ids = Enum.map(work.file_sets, &Map.get(&1, :id))
     missing_file_set_ids = work_file_set_ids -- file_set_ids
     extra_file_set_ids = file_set_ids -- work_file_set_ids

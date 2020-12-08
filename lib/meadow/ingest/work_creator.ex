@@ -62,9 +62,10 @@ defmodule Meadow.Ingest.WorkCreator do
   defp send_work_to_pipeline(ingest_sheet, work, file_set_rows) do
     work.file_sets
     |> Enum.zip(file_set_rows)
-    |> Enum.each(fn {%FileSet{id: file_set_id}, %Row{row: row_num}} ->
+    |> Enum.each(fn {%FileSet{id: file_set_id, role: role}, %Row{row: row_num}} ->
       Pipeline.kickoff(file_set_id, %{
         context: "Sheet",
+        role: role,
         ingest_sheet: ingest_sheet.id,
         ingest_sheet_row: row_num
       })

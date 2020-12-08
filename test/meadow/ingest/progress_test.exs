@@ -6,6 +6,7 @@ defmodule Meadow.Ingest.ProgressTest do
   alias Meadow.Ingest.Schemas.Progress, as: ProgressSchema
   alias Meadow.Pipeline.Actions
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
 
   @bad_sheet_id "deadface-c0de-feed-cafe-addedbadbeef"
 
@@ -20,6 +21,24 @@ defmodule Meadow.Ingest.ProgressTest do
         assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
       end
     end
+
+    test "initialize_entry/1 for Preservation Masters does not initialize CreatePyramidTiff",
+         %{
+           ingest_sheet: sheet
+         } do
+      Enum.each(Rows.list_ingest_sheet_rows(sheet: sheet), fn row ->
+        Progress.initialize_entry(row, true)
+
+        case MapList.get(row.fields, :header, :value, :role) do
+          "am" ->
+            assert Progress.get_entry(row, Actions.CreatePyramidTiff) |> Map.get(:status) ==
+                     "pending"
+
+          "pm" ->
+            assert is_nil(Progress.get_entry(row, Actions.CreatePyramidTiff))
+        end
+      end)
+    end
   end
 
   describe "Meadow.Ingest.Progress" do
@@ -27,7 +46,9 @@ defmodule Meadow.Ingest.ProgressTest do
       with rows <- Rows.list_ingest_sheet_rows(sheet: sheet) do
         rows
         |> Enum.with_index()
-        |> Enum.map(fn {row, index} -> {row.id, rem(index, 4) == 0} end)
+        |> Enum.map(fn {row, index} ->
+          {row.id, MapList.get(row.fields, :header, :value, :role), rem(index, 4) == 0}
+        end)
         |> Progress.initialize_entries()
 
         {:ok, %{ingest_sheet: sheet, rows: rows}}
@@ -83,7 +104,7 @@ defmodule Meadow.Ingest.ProgressTest do
     end
 
     test "action_count/1", %{ingest_sheet: sheet} do
-      assert Progress.action_count(sheet) == 37
+      assert Progress.action_count(sheet) == 36
       assert Progress.action_count(@bad_sheet_id) == 0
     end
 
@@ -109,7 +130,7 @@ defmodule Meadow.Ingest.ProgressTest do
         assert progress.sheet_id == sheet.id
         assert progress.total_file_sets == 7
         assert progress.completed_file_sets == 0
-        assert progress.total_actions == 37
+        assert progress.total_actions == 36
         assert progress.completed_actions == 0
         assert progress.percent_complete == 0.0
       end
@@ -121,7 +142,6 @@ defmodule Meadow.Ingest.ProgressTest do
       with progress <- Progress.pipeline_progress(sheet) do
         assert progress.completed_file_sets == 4
         assert progress.completed_actions == 20
-        assert_in_delta(progress.percent_complete, 54.0, 0.10)
       end
 
       Progress.get_entries(sheet)
@@ -129,7 +149,7 @@ defmodule Meadow.Ingest.ProgressTest do
 
       with progress <- Progress.pipeline_progress(sheet) do
         assert progress.completed_file_sets == 7
-        assert progress.completed_actions == 37
+        assert progress.completed_actions == 36
         assert progress.percent_complete == 100.0
       end
 
