@@ -1,0 +1,6 @@
+query VerifyFleSets($workId: ID!) {
+  verifyFileSets(workId: $workId) {
+    fileSetId
+    verified
+  }
+}

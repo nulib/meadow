@@ -34,6 +34,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authenticate)
       resolve(&MeadowWeb.Resolvers.Data.work/3)
     end
+
+    @desc "Get verification status for a work's fileSets"
+    field :verify_file_sets, list_of(:file_set_verification_status) do
+      arg(:work_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&MeadowWeb.Resolvers.Data.verify_file_sets/3)
+    end
   end
 
   object :work_mutations do
@@ -204,6 +211,12 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work_sheet do
     field :id, :id
     field :title, :string
+  end
+
+  @desc "Whether or not a file set's presence in preservation location is verified"
+  object :file_set_verification_status do
+    field :file_set_id, :id
+    field :verified, :boolean
   end
 
   #

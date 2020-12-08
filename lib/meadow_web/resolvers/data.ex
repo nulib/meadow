@@ -168,4 +168,8 @@ defmodule MeadowWeb.Resolvers.Data do
         {:ok, work}
     end
   end
+
+  def verify_file_sets(_, %{work_id: work_id}, _) do
+    {:ok, Works.verify_file_sets(work_id)}
+  end
 end

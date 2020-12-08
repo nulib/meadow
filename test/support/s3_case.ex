@@ -10,8 +10,8 @@ defmodule Meadow.S3Case do
         use Meadow.S3Case
 
         @bucket "test-ingest"
-        @key: "file_checker_test/path/to/file.tif"
-        @content: "test/fixtures/file.tif"
+        @key "file_checker_test/path/to/file.tif"
+        @content "test/fixtures/file.tif"
         @fixture %{
           bucket: @bucket,
           key: @key,
