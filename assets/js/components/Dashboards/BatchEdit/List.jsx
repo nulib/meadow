@@ -4,6 +4,7 @@ import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import UIDate from "@js/components/UI/Date";
 
 const colHeaders = [
   "Nickname",
@@ -34,7 +35,7 @@ function Status({ status }) {
   return <span className={`tag ${statusClass} is-light`}>{status}</span>;
 }
 
-export default function BatchEditTable() {
+export default function DashboardsBatchEditTable() {
   const { loading, error, data } = useQuery(GET_BATCHES, { pollInterval: 500 });
 
   if (loading) return null;
@@ -47,6 +48,7 @@ export default function BatchEditTable() {
     >
       <thead>
         <tr>
+          <th className="is-hidden"></th>
           {colHeaders.map((col) => (
             <th key={col}>{col}</th>
           ))}
@@ -72,9 +74,12 @@ export default function BatchEditTable() {
 
           return (
             <tr key={id} data-testid="batches-row">
+              <td className="is-hidden">{id}</td>
               <td>{nickname}</td>
               <td>{type}</td>
-              <td>{moment(started).format("MMM DD, YYYY h:mm A")}</td>
+              <td>
+                <UIDate dateString={started} />
+              </td>
               <td>{user}</td>
               <td className="has-text-right">{worksUpdated}</td>
               <td>
@@ -83,7 +88,7 @@ export default function BatchEditTable() {
               <td className="has-text-right">
                 <Link
                   className="button"
-                  to={`/dashboards/${id}`}
+                  to={`/dashboards/batch-edit/${id}`}
                   data-testid="view-button"
                 >
                   <FontAwesomeIcon icon="eye" />

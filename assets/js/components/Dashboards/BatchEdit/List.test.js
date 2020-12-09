@@ -1,12 +1,12 @@
 import React from "react";
 import { screen, within } from "@testing-library/react";
-import DashboardsBatchEditTable from "./BatchEditTable";
+import DashboardsBatchEditList from "./List";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { getBatchesMock } from "@js/components/Dashboards/dashboards.gql.mock";
 
-describe("DashboardsBatchEditTable component", () => {
+describe("DashboardsBatchEditList component", () => {
   beforeEach(() => {
-    renderWithRouterApollo(<DashboardsBatchEditTable />, {
+    renderWithRouterApollo(<DashboardsBatchEditList />, {
       mocks: [getBatchesMock],
     });
   });
@@ -35,7 +35,7 @@ describe("DashboardsBatchEditTable component", () => {
   });
 
   it("renders correct batch job row details", async () => {
-    const td = await screen.findByText("Dec 08, 2020 11:24 AM");
+    const td = await screen.findByText("7b9fa4c5-fa97-46e8-8fd7-db0001dc76c3");
     const row = td.closest("tr");
     const utils = within(row);
     expect(utils.getByText(/My Batch Job/i));
@@ -45,7 +45,7 @@ describe("DashboardsBatchEditTable component", () => {
   });
 
   it("renders a view button", async () => {
-    const td = await screen.findByText("Dec 08, 2020 11:24 AM");
+    const td = await screen.findByText("7b9fa4c5-fa97-46e8-8fd7-db0001dc76c3");
     const row = td.closest("tr");
     const utils = within(row);
     expect(utils.getByTestId("view-button"));

@@ -1,4 +1,7 @@
-import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
+import {
+  GET_BATCH,
+  GET_BATCHES,
+} from "@js/components/Dashboards/dashboards.gql";
 
 export const mockGetBatchesResults = [
   {
@@ -67,6 +70,20 @@ export const mockGetBatchesResults = [
     worksUpdated: 2,
   },
 ];
+
+export const getBatchMock = {
+  request: {
+    query: GET_BATCH,
+    variables: {
+      id: "ABC123",
+    },
+  },
+  result: {
+    data: {
+      batch: mockGetBatchesResults[1],
+    },
+  },
+};
 
 export const getBatchesMock = {
   request: {

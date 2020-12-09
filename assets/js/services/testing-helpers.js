@@ -5,12 +5,6 @@ import { createMemoryHistory } from "history";
 import { MockedProvider } from "@apollo/client/testing";
 import { resolvers } from "../client-local";
 import { useForm, FormProvider } from "react-hook-form";
-import { LOCAL_STORAGE_CODELIST_KEY } from "../services/global-vars";
-import {
-  authorityMock,
-  marcRelatorMock,
-  subjectMock,
-} from "../components/Work/controlledVocabulary.gql.mock";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 
 /**
