@@ -16,7 +16,7 @@ defmodule Meadow.Data.Types.ControlledTermTest do
       assert {:ok, @controlled_term} == ControlledTerm.cast(@controlled_term.id)
       assert ControlledTerm.cast(1234) == {:error, [message: "Invalid controlled term type"]}
 
-      assert {:error, [message: 404]} ==
+      assert {:error, [message: :unknown_authority]} ==
                ControlledTerm.cast("totallywrong")
     end
 
