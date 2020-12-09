@@ -10,13 +10,13 @@ const Breadcrumbs = ({ items = [], ...props }) => (
     {...props}
   >
     <ul>
-      {items.map(({ label, route = "/", isActive }) =>
+      {items.map(({ label, route = "/", isActive }, i) =>
         isActive ? (
-          <li key={label} className="is-active">
+          <li key={i} className="is-active">
             <a aria-current="page">{label}</a>
           </li>
         ) : (
-          <li key={label}>
+          <li key={i}>
             <Link to={route}>{label}</Link>
           </li>
         )

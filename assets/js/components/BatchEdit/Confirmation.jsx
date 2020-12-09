@@ -39,7 +39,7 @@ const BatchEditConfirmation = ({
       toastWrapper("is-success", "Batch edit job successfully submitted.");
       handleFormReset();
       handleClose();
-      history.push("/search");
+      history.push("/dashboards/batch-edit");
     },
     onError(error) {
       console.log("onError() error", error);
