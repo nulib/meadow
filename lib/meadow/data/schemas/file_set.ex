@@ -46,6 +46,14 @@ defmodule Meadow.Data.Schemas.FileSet do
     |> set_rank(scope: [:work_id, :role])
   end
 
+  def update_changeset(file_set, params) do
+    file_set
+    |> cast(params, [:work_id, :rank, :position])
+    |> prepare_embed(:metadata)
+    |> cast_embed(:metadata)
+    |> set_rank(scope: [:work_id, :role])
+  end
+
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
     def id(file_set), do: file_set.id
     def routing(_), do: false

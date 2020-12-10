@@ -104,7 +104,7 @@ defmodule Meadow.Data.FileSets do
   """
   def update_file_set(%FileSet{} = file_set, attrs) do
     file_set
-    |> FileSet.changeset(attrs)
+    |> FileSet.update_changeset(attrs)
     |> Repo.update()
   end
 
