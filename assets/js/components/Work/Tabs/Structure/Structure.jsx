@@ -7,7 +7,7 @@ import {
   GET_WORK,
   SET_WORK_IMAGE,
   UPDATE_FILE_SETS,
-  UPDATE_FILE_SET_ORDER,
+  UPDATE_ACCESS_MASTER_ORDER,
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
@@ -45,10 +45,10 @@ const WorkTabsStructure = ({ work }) => {
       console.log("onCompleted() updateFileSets", updateFileSets);
     },
   });
-  const [updateFileSetOrder] = useMutation(UPDATE_FILE_SET_ORDER, {
+  const [updateAccessMasterOrder] = useMutation(UPDATE_ACCESS_MASTER_ORDER, {
     onCompleted() {
       setIsReordering(false);
-      toastWrapper("is-success", "Filesets have been successfully reordered.");
+      toastWrapper("is-success", "Access masters have been successfully reordered.");
     },
     onError(error) {
       console.log("error in the updateWork GraphQL mutation :>> ", error);
@@ -66,7 +66,7 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const handleSaveReorder = (orderedFileSets = []) => {
-    updateFileSetOrder({
+    updateAccessMasterOrder({
       variables: { workId: work.id, fileSetIds: orderedFileSets },
     });
   };
@@ -76,6 +76,10 @@ const WorkTabsStructure = ({ work }) => {
 
     setWorkImageFilesetId(id === workImageFilesetId ? null : id);
     setWorkImage({ variables: { fileSetId: id, workId: work.id } });
+  };
+
+  const filterAccessMasters = (fileSets) => {
+    return fileSets.filter(fs => fs.role == "AM");
   };
 
   const onSubmit = (data) => {
@@ -138,13 +142,13 @@ const WorkTabsStructure = ({ work }) => {
         <div className="mt-4">
           {isReordering ? (
             <WorkTabsStructureFilesetsDragAndDrop
-              fileSets={work.fileSets}
+              fileSets={filterAccessMasters(work.fileSets)}
               handleCancelReorder={handleCancelReorder}
               handleSaveReorder={handleSaveReorder}
             />
           ) : (
             <WorkTabsStructureFilesetList
-              fileSets={work.fileSets}
+              fileSets={filterAccessMasters(work.fileSets)}
               handleDownloadClick={handleDownloadClick}
               handleWorkImageChange={handleWorkImageChange}
               isEditing={isEditing}

@@ -11,7 +11,7 @@ defmodule Meadow.IIIF.Generator do
 
   def create_manifest(%Work{id: id}) do
     id
-    |> Works.with_file_sets()
+    |> Works.with_file_sets("am")
     |> encode!()
   end
 

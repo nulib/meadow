@@ -26,7 +26,7 @@ defmodule Meadow.DataTest do
       assert Data.get_work_by_file_set_id(file_set_id).id == work.id
     end
 
-    test "ranked_file_sets_for_work/1" do
+    test "ranked_file_sets_for_work/2 fetches the ranked file sets for a work and role" do
       work = work_fixture()
 
       %FileSet{}
@@ -48,7 +48,26 @@ defmodule Meadow.DataTest do
       })
       |> Repo.insert!()
 
-      [file_set_1, file_set_2] = Data.ranked_file_sets_for_work(work.id)
+      %FileSet{}
+      |> FileSet.changeset(%{
+        position: 0,
+        work_id: work.id,
+        accession_number: "no",
+        role: "pm",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      %FileSet{}
+      |> FileSet.changeset(%{
+        position: 0,
+        accession_number: "nono",
+        role: "am",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      [file_set_1, file_set_2] = Data.ranked_file_sets_for_work(work.id, "am")
       assert file_set_1.rank < file_set_2.rank
     end
 

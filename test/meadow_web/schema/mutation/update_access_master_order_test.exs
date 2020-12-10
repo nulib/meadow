@@ -1,16 +1,16 @@
-defmodule MeadowWeb.Schema.Mutation.UpdateFileSetOrderTest do
+defmodule MeadowWeb.Schema.Mutation.UpdateAccessMasterOrderTest do
   use MeadowWeb.ConnCase, acync: true
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "test/gql/UpdateFileSetOrder.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/UpdateAccessMasterOrder.gql")
 
   describe "mutation" do
     setup do
-      work = work_with_file_sets_fixture(5)
+      work = work_with_file_sets_fixture(5, %{}, %{role: "am"})
       {:ok, %{work: work, ids: work.file_sets |> Enum.map(& &1.id)}}
     end
 
-    test "changes the file set order", %{work: work, ids: ids} do
+    test "changes the access master order", %{work: work, ids: ids} do
       new_order = Enum.shuffle(ids)
 
       result =
@@ -22,7 +22,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateFileSetOrderTest do
       assert {:ok, query_data} = result
 
       with %{"id" => returned_work_id, "fileSets" => returned_file_sets} <-
-             get_in(query_data, [:data, "updateFileSetOrder"]) do
+             get_in(query_data, [:data, "updateAccessMasterOrder"]) do
         assert returned_work_id == work.id
         assert returned_file_sets |> Enum.map(&Map.get(&1, "id")) == new_order
       end

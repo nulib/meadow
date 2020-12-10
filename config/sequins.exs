@@ -33,8 +33,15 @@ config :sequins, CopyFileToPreservation,
 
 config :sequins, CreatePyramidTiff,
   queue_config: [processor_concurrency: 1, visibility_timeout: 300],
-  notify_on: [CopyFileToPreservation: [status: :ok], CreatePyramidTiff: [status: :retry]]
+  notify_on: [
+    CopyFileToPreservation: [status: :ok, role: "am"],
+    CreatePyramidTiff: [status: :retry]
+  ]
 
 config :sequins, FileSetComplete,
   queue_config: [processor_concurrency: 1],
-  notify_on: [CreatePyramidTiff: [status: :ok], FileSetComplete: [status: :retry]]
+  notify_on: [
+    CreatePyramidTiff: [status: :ok],
+    FileSetComplete: [status: :retry],
+    CopyFileToPreservation: [status: :ok, role: "pm"]
+  ]

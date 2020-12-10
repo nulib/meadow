@@ -149,8 +149,12 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def update_file_set_order(_, %{work_id: work_id, file_set_ids: file_set_ids}, _) do
-    case Works.update_file_set_order(work_id, file_set_ids) do
+  def update_access_master_order(
+        _,
+        %{work_id: work_id, file_set_ids: file_set_ids},
+        _
+      ) do
+    case Works.update_file_set_order(work_id, "am", file_set_ids) do
       {:error, message} when is_binary(message) ->
         {
           :error,

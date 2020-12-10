@@ -7,6 +7,7 @@ defmodule Meadow.Ingest.Progress do
   alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
 
   import Ecto.Query
   import Meadow.Utils.Atoms
@@ -77,10 +78,12 @@ defmodule Meadow.Ingest.Progress do
   Initialize progress entries for a given ingest sheet row, including
   an additional entry if the row creates a new work
   """
-  def initialize_entry(%Row{} = row, include_work), do: initialize_entry(row.id, include_work)
+  def initialize_entry(%Row{} = row, include_work) do
+    initialize_entry(row.id, MapList.get(row.fields, :header, :value, :role), include_work)
+  end
 
-  def initialize_entry(row_id, include_work) do
-    row_actions(include_work)
+  def initialize_entry(row_id, row_role, include_work) do
+    row_actions(row_role, include_work)
     |> Enum.each(fn action -> update_entry(row_id, action, "pending") end)
   end
 
@@ -99,8 +102,8 @@ defmodule Meadow.Ingest.Progress do
 
   defp initialize_chunk(chunk, timestamp) do
     new_entries =
-      Enum.flat_map(chunk, fn {row_id, include_work} ->
-        row_actions(include_work)
+      Enum.flat_map(chunk, fn {row_id, row_role, include_work} ->
+        row_actions(row_role, include_work)
         |> Enum.map(fn action ->
           %{
             row_id: row_id,
@@ -189,7 +192,17 @@ defmodule Meadow.Ingest.Progress do
     |> Repo.aggregate(:count)
   end
 
-  defp row_actions(include_work) do
+  defp row_actions("pm", include_work) do
+    actions = List.delete(Pipeline.actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
+
+    if include_work do
+      ["CreateWork" | actions]
+    else
+      actions
+    end
+  end
+
+  defp row_actions(_, include_work) do
     if include_work do
       ["CreateWork" | Pipeline.actions()]
     else

@@ -8,7 +8,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   @work_count 2
   @file_set_count 7
   @action_count length(Pipeline.actions())
-  @pct_factor 100 / (@file_set_count * @action_count + @work_count)
+  @pct_factor 100 / (@file_set_count * @action_count - 1 + @work_count)
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
 
@@ -39,7 +39,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
       result: %{data: %{"ingestProgress" => %{"percentComplete" => pct}}}
     }
 
-    assert_in_delta(pct, @pct_factor * 2, 0.10)
+    assert_in_delta(pct, @pct_factor * 2, 0.1)
     sheet = Sheets.get_ingest_sheet!(sheet.id)
     refute(sheet.status == "completed")
   end

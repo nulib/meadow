@@ -43,7 +43,7 @@ defmodule Meadow.Data.Schemas.FileSet do
     |> unsafe_validate_unique([:accession_number], Meadow.Repo)
     |> unique_constraint(:accession_number)
     |> validate_inclusion(:role, @file_set_roles)
-    |> set_rank(scope: :work_id)
+    |> set_rank(scope: [:work_id, :role])
   end
 
   defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
