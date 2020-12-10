@@ -4,9 +4,7 @@ import {
   CREATE_SHARED_LINK,
   GET_WORK,
   UPDATE_WORK,
-  DELETE_WORK,
 } from "../../components/Work/work.gql.js";
-import UIModalDelete from "../../components/UI/Modal/Delete";
 import { useHistory, useParams } from "react-router-dom";
 import Layout from "../Layout";
 import UISkeleton from "../../components/UI/Skeleton";
@@ -20,9 +18,6 @@ import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotifica
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
-import { Button } from "@nulib/admin-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -45,18 +40,6 @@ const ScreensWork = () => {
         message:
           "There was an error retrieving the work, or the work id does not exist.",
       });
-    },
-  });
-
-  const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
-    onCompleted({ deleteWork: { project, sheet, descriptiveMetadata } }) {
-      toastWrapper(
-        "is-success",
-        `Work ${
-          descriptiveMetadata ? descriptiveMetadata.title : ""
-        } deleted successfully`
-      );
-      history.push(`/project/${project.id}/ingest-sheet/${sheet.id}`);
     },
   });
 
@@ -85,10 +68,6 @@ const ScreensWork = () => {
     });
   };
 
-  const handleDeleteClick = () => {
-    deleteWork({ variables: { workId: id } });
-  };
-
   const handleMultiNavClick = (nextWorkIndex) => {
     history.push(
       `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`
@@ -104,14 +83,6 @@ const ScreensWork = () => {
       multiTotalItems &&
       batchState.editAndViewWorks.length > 0
     );
-  };
-
-  const onOpenModal = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const onCloseModal = () => {
-    setDeleteModalOpen(false);
   };
 
   const breadCrumbs = [
@@ -231,30 +202,7 @@ const ScreensWork = () => {
       ) : (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Work work={data.work} />
-          <div className="container buttons">
-            <DisplayAuthorized action="delete">
-              <Button data-testid="delete-button" onClick={onOpenModal}>
-                <span className="icon">
-                  <FontAwesomeIcon icon="trash" />
-                </span>
-                <span>Delete this work</span>
-              </Button>
-            </DisplayAuthorized>
-          </div>
         </ErrorBoundary>
-      )}
-
-      {data && (
-        <UIModalDelete
-          isOpen={deleteModalOpen}
-          handleClose={onCloseModal}
-          handleConfirm={handleDeleteClick}
-          thingToDeleteLabel={`Work ${
-            data.work.descriptiveMetadata
-              ? data.work.descriptiveMetadata.title || data.work.accessionNumber
-              : data.work.accessionNumber
-          }`}
-        />
       )}
     </Layout>
   );
