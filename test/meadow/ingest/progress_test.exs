@@ -60,18 +60,18 @@ defmodule Meadow.Ingest.ProgressTest do
       assert Progress.get_entry(row.id, "CreateWork") |> Map.get(:status) == "pending"
     end
 
-    test "get_pending_work_entries/2", %{ingest_sheet: %{id: sheet_id}, rows: [row | _]} do
-      assert Progress.get_pending_work_entries(sheet_id, :all) |> length() == 2
-      assert Progress.get_pending_work_entries(sheet_id, 1) |> length() == 1
+    test "get_and_lock_pending_work_entries/2", %{ingest_sheet: %{id: sheet_id}, rows: [row | _]} do
+      assert Progress.get_and_lock_pending_work_entries(sheet_id, :all) |> length() == 2
+      assert Progress.get_and_lock_pending_work_entries(sheet_id, 1) |> length() == 1
       Progress.update_entry(row, "CreateWork", "in_process")
-      assert Progress.get_pending_work_entries(sheet_id, :all) |> length() == 1
+      assert Progress.get_and_lock_pending_work_entries(sheet_id, :all) |> length() == 1
     end
 
-    test "get_pending_work_entries/1", %{rows: [row | _]} do
-      assert Progress.get_pending_work_entries(:all) |> length() == 2
-      assert Progress.get_pending_work_entries(1) |> length() == 1
+    test "get_and_lock_pending_work_entries/1", %{rows: [row | _]} do
+      assert Progress.get_and_lock_pending_work_entries(:all) |> length() == 2
+      assert Progress.get_and_lock_pending_work_entries(1) |> length() == 1
       Progress.update_entry(row, "CreateWork", "in_process")
-      assert Progress.get_pending_work_entries(:all) |> length() == 1
+      assert Progress.get_and_lock_pending_work_entries(:all) |> length() == 1
     end
 
     test "get_timed_out_work_entries", %{rows: [row | _]} do

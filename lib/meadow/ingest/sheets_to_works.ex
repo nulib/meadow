@@ -12,7 +12,8 @@ defmodule Meadow.Ingest.SheetsToWorks do
   def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet, :sync) do
     create_works_from_ingest_sheet(ingest_sheet)
 
-    Progress.get_pending_work_entries(ingest_sheet.id, :all)
+    Progress.get_and_lock_pending_work_entries(ingest_sheet.id, :all)
+    |> Progress.update_entries("CreateWork", "processing")
     |> Repo.preload(row: :sheet)
     |> WorkCreator.create_works_from_rows()
 
