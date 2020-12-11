@@ -48,15 +48,15 @@ defmodule Meadow.Data.FileSetsTest do
     test "update_file_set/2 with invalid attributes returns an error" do
       file_set = file_set_fixture()
 
-      assert {:error, %Ecto.Changeset{}} =
-               FileSets.update_file_set(file_set, %{rank: "Unsupported"})
+      assert {:error, %Ecto.Changeset{}} = FileSets.update_file_set(file_set, %{work_id: 123})
     end
 
-    test "updating role or accession_number with update_file_set/2 is not allowed" do
+    test "updating rank, role or accession_number with update_file_set/2 is not allowed" do
       file_set = file_set_fixture(%{role: "am"})
 
       assert {:ok, %FileSet{} = updated_file_set} =
                FileSets.update_file_set(file_set, %{
+                 rank: 123,
                  metadata: %{label: "New label"},
                  accession_number: "Unsupported",
                  role: "pm"
@@ -65,6 +65,7 @@ defmodule Meadow.Data.FileSetsTest do
       assert updated_file_set.metadata.label == "New label"
       assert updated_file_set.role == "am"
       assert updated_file_set.accession_number == file_set.accession_number
+      assert updated_file_set.rank == file_set.rank
     end
 
     test "get_file_set!/1 returns a file set by id" do
