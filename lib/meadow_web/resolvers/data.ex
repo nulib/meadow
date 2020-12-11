@@ -4,7 +4,7 @@ defmodule MeadowWeb.Resolvers.Data do
 
   """
   alias Meadow.Data.{FileSets, Works}
-  alias MeadowWeb.Schema.ChangesetErrors
+  alias Meadow.Utils.ChangesetErrors
 
   def works(_, args, _) do
     {:ok, Works.list_works(args)}
@@ -21,14 +21,13 @@ defmodule MeadowWeb.Resolvers.Data do
   def create_work(_, args, _) do
     case Works.create_work(args) do
       {:error, changeset} ->
-        {:error,
-         message: "Could not create work", details: ChangesetErrors.error_details(changeset)}
+        {:error, message: "Could not create work", details: humanize_work_changeset(changeset)}
 
       {:error, operation, changeset} ->
         {:error,
          message: "Could not create work",
          details:
-           Enum.map(ChangesetErrors.error_details(changeset), fn error ->
+           Enum.map(humanize_work_changeset(changeset), fn error ->
              set_error_key(error, operation)
            end)}
 
@@ -45,8 +44,7 @@ defmodule MeadowWeb.Resolvers.Data do
 
     case Works.update_work(work, work_params) do
       {:error, changeset} ->
-        {:error,
-         message: "Could not update work", details: ChangesetErrors.error_details(changeset)}
+        {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
       {:ok, work} ->
         {:ok, work}
@@ -59,8 +57,7 @@ defmodule MeadowWeb.Resolvers.Data do
 
     case Works.set_representative_image(work, file_set) do
       {:error, changeset} ->
-        {:error,
-         message: "Could not update work", details: ChangesetErrors.error_details(changeset)}
+        {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
       {:ok, work} ->
         {:ok, work}
@@ -74,7 +71,7 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not delete work", details: ChangesetErrors.error_details(changeset)
+          message: "Could not delete work", details: humanize_work_changeset(changeset)
         }
 
       {:ok, work} ->
@@ -89,13 +86,18 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not add work to collection",
-          details: ChangesetErrors.error_details(changeset)
+          message: "Could not add work to collection", details: humanize_work_changeset(changeset)
         }
 
       {:ok, work} ->
         {:ok, work}
     end
+  end
+
+  defp humanize_work_changeset(changeset) do
+    ChangesetErrors.humanize_errors(changeset,
+      flatten: [:administrative_metadata, :descriptive_metadata]
+    )
   end
 
   def file_sets(_, _args, _) do
@@ -114,7 +116,7 @@ defmodule MeadowWeb.Resolvers.Data do
     case FileSets.create_file_set(args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not create file set", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not create file set", details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, file_set} ->
         {:ok, file_set}
@@ -128,7 +130,8 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not delete file_set", details: ChangesetErrors.error_details(changeset)
+          message: "Could not delete file_set",
+          details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, file_set} ->
@@ -142,7 +145,7 @@ defmodule MeadowWeb.Resolvers.Data do
     case FileSets.update_file_set(file_set, %{metadata: metadata_params}) do
       {:error, changeset} ->
         {:error,
-         message: "Could not update FileSet", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not update FileSet", details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, file_set} ->
         {:ok, file_set}
@@ -165,7 +168,7 @@ defmodule MeadowWeb.Resolvers.Data do
         {
           :error,
           message: "Could not update file set order",
-          details: ChangesetErrors.error_details(changeset)
+          details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, %{work: work}} ->

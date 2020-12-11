@@ -31,7 +31,7 @@ defmodule MeadowWeb.Schema.Query.FetchCodedTermLabelTest do
       assert get_in(query_data, ["fetchCodedTermLabel"]) |> is_nil()
 
       assert get_in(List.first(errors), [:message]) ==
-               "http://wrongsstatements.org/vocab/InC/1.0/ is an invalid coded term for scheme RIGHTS_STATEMENT"
+               "is an invalid coded term for scheme RIGHTS_STATEMENT"
     end
   end
 end

@@ -23,7 +23,7 @@ defmodule Meadow.Data.Types.EDTFDate do
   defp humanize(nil), do: {:ok, nil}
 
   defp humanize(%{edtf: ""}),
-    do: {:error, message: "edtf cannot be blank"}
+    do: {:error, message: "cannot be blank"}
 
   defp humanize(%{edtf: edtf, humanized: humanized}),
     do: {:ok, %{edtf: edtf, humanized: humanized}}
