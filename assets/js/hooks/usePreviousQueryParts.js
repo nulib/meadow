@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { extractQueryParts } from "@js/services/elasticsearch";
+import { extractQueryParts } from "@js/services/reactive-search";
 
 export default function userPreviousQueryParts() {
   const location = useLocation();

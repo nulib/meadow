@@ -7,9 +7,7 @@ import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 
 const UISearchBar = () => {
   const queryParts = userPreviousQueryParts();
-  console.log("queryParts", queryParts);
 
-  //https://github.com/appbaseio/reactivesearch/issues/834#issuecomment-479961770
   return (
     <div data-testid="reactive-search-wrapper">
       <DataSearch
