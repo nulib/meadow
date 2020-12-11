@@ -135,11 +135,7 @@ const BatchEditAbout = () => {
             <Button type="submit" isPrimary data-testid="save-button">
               Save data for {numberOfResults} items
             </Button>
-            <Button
-              isText
-              data-testid="cancel-button"
-              onClick={handleFormReset}
-            >
+            <Button isText data-testid="clear-button" onClick={handleFormReset}>
               Clear form
             </Button>
           </>

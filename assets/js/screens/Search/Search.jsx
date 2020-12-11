@@ -4,7 +4,7 @@ import { SelectedFilters } from "@appbaseio/reactivesearch";
 import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
 import SearchFacetSidebar from "../../components/Search/FacetSidebar";
-import { useHistory } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import SearchActionRow from "../../components/Search/ActionRow";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
 import {
@@ -61,8 +61,8 @@ const ScreensSearch = () => {
     history.push("/batch-edit");
   };
 
+  // Handle user selected search result items by constructing an Elasticsearch query
   const handleEditItems = async () => {
-    // Build an ElasticSearch query that includes all selected items
     const myQuery = {
       bool: {
         must: [

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 function UIWorkImage({ imageUrl = "", size = 128 }) {
   const src = imageUrl
     ? `${imageUrl}/square/${size},${size}/0/default.jpg`
-    : `https://bulma.io/images/placeholders/${size}x${size}.png`;
+    : `/images/480x480.png`;
 
   return <img data-testid="image-source" src={src} />;
 }

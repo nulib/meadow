@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { ReactiveList } from "@appbaseio/reactivesearch";
@@ -6,10 +6,16 @@ import WorkListItem from "@js/components/Work/ListItem";
 import WorkCardItem from "@js/components/Work/CardItem";
 import UISkeleton from "@js/components/UI/Skeleton";
 import SearchSelectable from "@js/components/Search/Selectable";
-import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
+import {
+  FACET_SENSORS,
+  RESULT_SENSOR,
+  SEARCH_SENSOR,
+} from "@js/services/reactive-search";
 import { prepWorkItemForDisplay } from "@js/services/helpers";
 import { allImagesQuery } from "@js/services/elasticsearch";
 import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
+import { useLocation } from "react-router-dom";
+
 const SearchResults = ({
   handleOnDataChange,
   handleQueryChange,
@@ -17,20 +23,22 @@ const SearchResults = ({
   isListView,
   selectedItems,
 }) => {
+  const location = useLocation();
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+
+  //console.log("SearchResults defaultQuery", defaultQuery);
   return (
     <React.Fragment>
       <div data-testid="search-results-component">
         <IIIFProvider>
           <ReactiveList
-            componentId="SearchResult"
+            componentId={RESULT_SENSOR}
             dataField="accession_number"
             defaultQuery={() => allImagesQuery}
             innerClass={{
               list: `${isListView ? "" : "columns is-multiline"}`,
               resultStats: "column is-size-6 has-text-grey",
             }}
-            URLParams={true}
             loader={<UISkeleton rows={10} />}
             onData={(obj) => {
               handleOnDataChange({ ...obj.resultStats });
@@ -38,7 +46,6 @@ const SearchResults = ({
             onQueryChange={function (prevQuery, nextQuery) {
               handleQueryChange(nextQuery);
             }}
-            sortOptions={REACTIVESEARCH_SORT_OPTIONS}
             react={{
               and: [...facetSensors, SEARCH_SENSOR],
             }}
@@ -81,6 +88,8 @@ const SearchResults = ({
               );
             }}
             showResultStats={true}
+            sortOptions={REACTIVESEARCH_SORT_OPTIONS}
+            URLParams={true}
           />
         </IIIFProvider>
       </div>

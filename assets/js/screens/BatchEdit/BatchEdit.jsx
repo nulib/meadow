@@ -60,9 +60,26 @@ const ScreensBatchEdit = () => {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="batch-edit-title">
-              Batch Edit
-            </h1>
+            <div className="is-flex is-justify-content-space-between">
+              <h1 className="title" data-testid="batch-edit-title">
+                Batch Edit
+              </h1>
+              {isActiveSearch && (
+                <Link
+                  data-testid="button-back-to-search"
+                  className="button"
+                  to={{
+                    pathname: "/search",
+                    state: { prevQuery: batchState.filteredQuery },
+                  }}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="chevron-left" />
+                  </span>
+                  <span>Back to saved search</span>
+                </Link>
+              )}
+            </div>
 
             {isActiveSearch && (
               <div data-testid="preview-wrapper">
