@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Layout from "../Layout";
-import { SelectedFilters, StateProvider } from "@appbaseio/reactivesearch";
+import { SelectedFilters } from "@appbaseio/reactivesearch";
 import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
 import SearchFacetSidebar from "../../components/Search/FacetSidebar";
@@ -15,7 +15,6 @@ import {
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
-import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
 
 async function getParsedAggregations(query) {
   try {
@@ -34,14 +33,11 @@ async function getParsedAggregations(query) {
 
 const ScreensSearch = () => {
   let history = useHistory();
-  const location = useLocation();
   const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteredQuery, setFilteredQuery] = useState();
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
-
-  //const manualQuery = location.state.prevQuery;
 
   const handleCsvExportAllItems = () => {
     console.log("handle Csv Export All Items");
@@ -138,15 +134,6 @@ const ScreensSearch = () => {
 
   return (
     <Layout>
-      {/* <StateProvider
-        componentIds={[
-          SEARCH_SENSOR,
-          ...FACET_SENSORS.map((x) => x.componentId),
-        ]}
-        render={({ searchState }) => (
-          <div>Search State: ${JSON.stringify(searchState)}</div>
-        )}
-      /> */}
       <section className="section">
         <div className="columns">
           <div className="column is-one-quarter">

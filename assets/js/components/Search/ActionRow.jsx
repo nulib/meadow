@@ -88,7 +88,8 @@ export default function SearchActionRow({
         isOpen={isModalAllItemsOpen}
       >
         <Button
-          className="is-fullwidth mb-4"
+          isLight
+          className="is-fullwidth mb-4 is-large"
           data-testid="button-batch-all-edit"
           onClick={handleEditAllItemsClick}
         >
@@ -98,7 +99,8 @@ export default function SearchActionRow({
           <span>Batch edit {numberOfResults} works</span>
         </Button>
         <Button
-          className="is-fullwidth"
+          isLight
+          className="is-fullwidth is-large"
           data-testid="button-csv-all-export"
           onClick={handleCsvExportAllItemsClick}
         >
@@ -115,7 +117,8 @@ export default function SearchActionRow({
         isOpen={isModalItemsOpen}
       >
         <Button
-          className="is-fullwidth mb-4"
+          isLight
+          className="is-fullwidth mb-4 is-large"
           data-testid="button-batch-items-edit"
           onClick={handleEditItemsClick}
         >
@@ -125,7 +128,8 @@ export default function SearchActionRow({
           <span>Batch edit {numSelectedItems} works</span>
         </Button>
         <Button
-          className="is-fullwidth mb-4"
+          isLight
+          className="is-fullwidth mb-4 is-large"
           data-testid="button-view-and-edit"
           onClick={handleViewAndEditClick}
         >
@@ -135,7 +139,8 @@ export default function SearchActionRow({
           <span>View and edit {numSelectedItems} individual works</span>
         </Button>
         <Button
-          className="is-fullwidth"
+          isLight
+          className="is-fullwidth is-large"
           data-testid="button-csv-items-export"
           onClick={handleCsvExportItemsClick}
         >
