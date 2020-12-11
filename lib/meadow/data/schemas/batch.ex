@@ -6,7 +6,7 @@ defmodule Meadow.Data.Schemas.Batch do
   import Ecto.Changeset
 
   alias Meadow.Data.Schemas.Work
-  alias MeadowWeb.Schema.ChangesetErrors
+  alias Meadow.Utils.ChangesetErrors
 
   @statuses ~w(queued in_progress complete error)
   @types ~w(update delete)
@@ -70,12 +70,25 @@ defmodule Meadow.Data.Schemas.Batch do
         changeset
 
       changes ->
-        work_changeset = Work.changeset(%Work{accession_number: "FAKE"}, Jason.decode!(changes))
+        work_changeset =
+          Work.changeset(%Work{accession_number: "FAKE"}, Jason.decode!(changes, keys: :atoms))
 
         if work_changeset.valid? do
           changeset
         else
-          add_error(changeset, field, inspect(ChangesetErrors.error_details(work_changeset)))
+          error_response =
+            work_changeset
+            |> ChangesetErrors.error_details()
+            |> ChangesetErrors.humanize_errors(
+              flatten: [:administrative_metadata, :descriptive_metadata]
+            )
+            |> Jason.encode!()
+
+          add_error(
+            changeset,
+            field,
+            error_response
+          )
         end
     end
   end

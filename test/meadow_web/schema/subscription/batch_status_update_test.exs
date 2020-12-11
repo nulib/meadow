@@ -15,11 +15,11 @@ defmodule MeadowWeb.Schema.Subscription.BatchStatusUpdateTest do
   end
 
   test "initiate subscription", %{ref: ref} do
-    assert_reply ref, :ok, %{subscriptionId: subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
   end
 
   test "receive batch status update data", %{ref: ref, batch: batch} do
-    assert_reply ref, :ok, %{subscriptionId: subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
     Batches.update_batch!(batch, %{status: "in_progress"})
     Notifications.batch(Batches.get_batch!(batch.id))
 

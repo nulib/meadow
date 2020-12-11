@@ -10,7 +10,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
-  alias MeadowWeb.Schema.ChangesetErrors
+  alias Meadow.Utils.ChangesetErrors
 
   def projects(_, args, _) do
     {:ok, Projects.list_projects(args)}
@@ -24,7 +24,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     case Projects.create_project(args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not create project", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not create project", details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, project} ->
         Config.ingest_bucket()
@@ -38,7 +38,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     case Projects.create_project(args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not update project", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not update project", details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, project} ->
         {:ok, project}
@@ -52,7 +52,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not delete project", details: ChangesetErrors.error_details(changeset)
+          message: "Could not delete project", details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, project} ->
@@ -91,7 +91,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not approve sheet", details: ChangesetErrors.error_details(changeset)
+          message: "Could not approve sheet", details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, ingest_sheet} ->
@@ -118,7 +118,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
       {:error, changeset} ->
         {:error,
          message: "Could not create ingest sheet",
-         details: ChangesetErrors.error_details(changeset)}
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, ingest_sheet} ->
         {:ok, ingest_sheet}
@@ -140,7 +140,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
         {
           :error,
           message: "Could not delete ingest sheet",
-          details: ChangesetErrors.error_details(changeset)
+          details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, ingest_sheet} ->

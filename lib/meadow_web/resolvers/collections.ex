@@ -4,7 +4,7 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
 
   """
   alias Meadow.Data.{Collections, Works}
-  alias MeadowWeb.Schema.ChangesetErrors
+  alias Meadow.Utils.ChangesetErrors
 
   def collections(_, _, _) do
     {:ok, Collections.list_collections()}
@@ -22,7 +22,8 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     case Collections.create_collection(args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not create collection", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not create collection",
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, collection} ->
         {:ok, collection}
@@ -35,7 +36,8 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     case Collections.update_collection(collection, args) do
       {:error, changeset} ->
         {:error,
-         message: "Could not update collection", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not update collection",
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, collection} ->
         {:ok, collection}
@@ -73,7 +75,8 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     case Collections.set_representative_image(collection, work) do
       {:error, changeset} ->
         {:error,
-         message: "Could not update collection", details: ChangesetErrors.error_details(changeset)}
+         message: "Could not update collection",
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, collection} ->
         {:ok, collection}
@@ -88,7 +91,7 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
         {
           :error,
           message: "Could not delete collection",
-          details: ChangesetErrors.error_details(changeset)
+          details: ChangesetErrors.humanize_errors(changeset)
         }
 
       {:ok, collection} ->

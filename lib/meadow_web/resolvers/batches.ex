@@ -3,7 +3,6 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
   Absinthe resolver for Batch update related functionality
   """
   alias Meadow.Batches
-  alias MeadowWeb.Schema.ChangesetErrors
 
   def batches(_, _args, _) do
     {:ok, Batches.list_batches()}
@@ -35,10 +34,24 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
             {:ok, batch}
 
           {:error, changeset} ->
-            {:error,
-             message: "Could not create batch", details: ChangesetErrors.error_details(changeset)}
+            {:error, message: "Could not create batch", details: parse_batch_errors(changeset)}
         end
       end
+    end
+  end
+
+  defp parse_batch_errors(changeset) do
+    %{
+      add: parse_batch_errors(changeset, :add),
+      replace: parse_batch_errors(changeset, :replace)
+    }
+  end
+
+  defp parse_batch_errors(changeset, key) do
+    with {error, []} <- changeset.errors |> Keyword.get(key, {"{}", []}) do
+      Jason.decode!(error)
+      |> Enum.map(fn {field, error} -> {Inflex.camelize(field, :lower), error} end)
+      |> Enum.into(%{})
     end
   end
 
