@@ -152,6 +152,17 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def update_file_sets(_, file_set_updates, _) do
+    case FileSets.update_file_sets(file_set_updates.file_sets) do
+      {:error, index, changeset} ->
+        {:error,
+         message: "Update failed: #{index}", details: ChangesetErrors.humanize_errors(changeset)}
+
+      {:ok, file_sets} ->
+        {:ok, file_sets}
+    end
+  end
+
   def update_access_master_order(
         _,
         %{work_id: work_id, file_set_ids: file_set_ids},

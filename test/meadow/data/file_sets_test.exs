@@ -3,6 +3,7 @@ defmodule Meadow.Data.FileSetsTest do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Utils.ChangesetErrors
 
   describe "queries" do
     @valid_attrs %{
@@ -66,6 +67,36 @@ defmodule Meadow.Data.FileSetsTest do
       assert updated_file_set.role == "am"
       assert updated_file_set.accession_number == file_set.accession_number
       assert updated_file_set.rank == file_set.rank
+    end
+
+    test "update_file_sets/1 updates multiple file_sets" do
+      file_set1 = file_set_fixture()
+      file_set2 = file_set_fixture()
+
+      updates1 = %{id: file_set1.id, metadata: %{description: "New description"}}
+      updates2 = %{id: file_set2.id, metadata: %{label: "New label"}}
+
+      assert {:ok, [file_set1, file_set2]} = FileSets.update_file_sets([updates1, updates2])
+
+      assert file_set1.metadata.description == "New description"
+      assert file_set2.metadata.label == "New label"
+    end
+
+    test "update_file_sets/1 with bad data returns an error" do
+      file_set1 = file_set_fixture()
+      file_set2 = file_set_fixture()
+
+      updates1 = %{id: file_set1.id, metadata: %{description: 900}}
+      updates2 = %{id: file_set2.id, metadata: %{label: "New label"}}
+
+      assert {:error, :index_1, %Ecto.Changeset{} = changeset} =
+               FileSets.update_file_sets([updates1, updates2])
+
+      refute changeset.valid?
+
+      assert ChangesetErrors.error_details(changeset) == %{
+               metadata: %{description: [%{error: "is invalid", value: "900"}]}
+             }
     end
 
     test "get_file_set!/1 returns a file set by id" do

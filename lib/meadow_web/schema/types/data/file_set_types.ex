@@ -40,6 +40,14 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       resolve(&Resolvers.Data.update_file_set/3)
     end
 
+    @desc "Update metadata for a list of fileSets"
+    field :update_file_sets, list_of(:file_set) do
+      arg(:file_sets, non_null(list_of(:file_set_update)))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_sets/3)
+    end
+
     @desc "Delete a FileSet"
     field :delete_file_set, :file_set do
       arg(:file_set_id, non_null(:id))
@@ -58,6 +66,12 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :location, :string
     field :original_filename, :string
     field :description, :string
+  end
+
+  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  input_object :file_set_update do
+    field :id, non_null(:id)
+    field :metadata, :file_set_metadata_update
   end
 
   @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
