@@ -35,7 +35,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   def changeset(file_set, params) do
     file_set
-    |> cast(params, [:accession_number, :work_id, :role, :rank, :position])
+    |> cast(params, [:accession_number, :work_id, :role, :position])
     |> prepare_embed(:metadata)
     |> cast_embed(:metadata)
     |> validate_required([:accession_number, :role, :metadata])
@@ -43,6 +43,14 @@ defmodule Meadow.Data.Schemas.FileSet do
     |> unsafe_validate_unique([:accession_number], Meadow.Repo)
     |> unique_constraint(:accession_number)
     |> validate_inclusion(:role, @file_set_roles)
+    |> set_rank(scope: [:work_id, :role])
+  end
+
+  def update_changeset(file_set, params) do
+    file_set
+    |> cast(params, [:work_id, :position])
+    |> prepare_embed(:metadata)
+    |> cast_embed(:metadata)
     |> set_rank(scope: [:work_id, :role])
   end
 
