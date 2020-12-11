@@ -36,7 +36,7 @@ it("should return representative image URL", () => {
 describe("Convert String to Date function", () => {
   it("should format date", () => {
     const expected = "Feb 26, 2020 2:57 PM";
-    const actual = formatDate("2020-02-26T20:57:09.263182Z");
+    const actual = formatDate("2020-02-26T14:57:09.263182Z");
     expect(expected).toEqual(actual);
   });
   it("should NOT format date", () => {
