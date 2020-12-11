@@ -165,4 +165,5 @@ export const FACET_SENSORS = [
   },
 ];
 
+export const RESULT_SENSOR = "SearchResult";
 export const SEARCH_SENSOR = "SearchSensor";

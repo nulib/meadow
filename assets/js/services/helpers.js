@@ -98,8 +98,8 @@ export function prepWorkItemForDisplay(res) {
   return {
     id: res._id,
     collectionName: res.collection ? res.collection.title : "",
-    title: res.descriptiveMetadata.title,
-    updatedAt: res.modified_date || res.updatedAt,
+    title: res.descriptiveMetadata ? res.descriptiveMetadata.title : "No title",
+    updatedAt: res.modifiedDate || res.updatedAt,
     representativeImage:
       res.representativeFileSet ||
       (res.representativeImage ? res.representativeImage : ""),

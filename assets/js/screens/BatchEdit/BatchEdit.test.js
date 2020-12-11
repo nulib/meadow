@@ -69,4 +69,8 @@ describe("BatchEdit component", () => {
       expect(screen.getByTestId("tabs-wrapper"));
     });
   });
+
+  it("renders a Back to saved search button", async () => {
+    expect(await screen.findByTestId("button-back-to-search"));
+  });
 });

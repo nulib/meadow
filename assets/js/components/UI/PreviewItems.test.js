@@ -43,8 +43,6 @@ describe("Batch-edit preview items component", () => {
     );
 
     // Renders default image
-    expect(imageEls[2].getAttribute("src")).toContain(
-      `https://bulma.io/images/placeholders/128x128.png`
-    );
+    expect(imageEls[2].getAttribute("src")).toContain(`/images/480x480.png`);
   });
 });

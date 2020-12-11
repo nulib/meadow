@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import Layout from "../Layout";
-import { SelectedFilters } from "@appbaseio/reactivesearch";
+import { SelectedFilters, StateProvider } from "@appbaseio/reactivesearch";
 import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
 import SearchFacetSidebar from "../../components/Search/FacetSidebar";
-import { useHistory } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import SearchActionRow from "../../components/Search/ActionRow";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
 import {
@@ -15,7 +15,7 @@ import {
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
-import { useLocation } from "react-router-dom";
+import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
 
 async function getParsedAggregations(query) {
   try {
@@ -41,6 +41,8 @@ const ScreensSearch = () => {
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
 
+  //const manualQuery = location.state.prevQuery;
+
   const handleCsvExportAllItems = () => {
     console.log("handle Csv Export All Items");
   };
@@ -63,8 +65,8 @@ const ScreensSearch = () => {
     history.push("/batch-edit");
   };
 
+  // Handle user selected search result items by constructing an Elasticsearch query
   const handleEditItems = async () => {
-    // Build an ElasticSearch query that includes all selected items
     const myQuery = {
       bool: {
         must: [
@@ -136,6 +138,15 @@ const ScreensSearch = () => {
 
   return (
     <Layout>
+      {/* <StateProvider
+        componentIds={[
+          SEARCH_SENSOR,
+          ...FACET_SENSORS.map((x) => x.componentId),
+        ]}
+        render={({ searchState }) => (
+          <div>Search State: ${JSON.stringify(searchState)}</div>
+        )}
+      /> */}
       <section className="section">
         <div className="columns">
           <div className="column is-one-quarter">
@@ -181,7 +192,6 @@ const ScreensSearch = () => {
                 handleQueryChange={handleQueryChange}
                 handleSelectItem={handleSelectItem}
                 isListView={isListView}
-                defaultQuery={location.state && location.state.prevQuery}
                 selectedItems={selectedItems}
               />
             </ErrorBoundary>

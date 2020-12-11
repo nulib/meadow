@@ -9,9 +9,7 @@ describe("UIWorkImage component", () => {
     render(<UIWorkImage imageUrl="" />);
     const imageEl = screen.getByTestId("image-source");
     expect(imageEl);
-    expect(imageEl.getAttribute("src")).toContain(
-      `https://bulma.io/images/placeholders/128x128.png`
-    );
+    expect(imageEl.getAttribute("src")).toContain(`/images/480x480.png`);
   });
 
   it("renders correct Image source", () => {

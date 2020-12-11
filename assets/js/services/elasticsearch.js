@@ -109,3 +109,143 @@ export async function elasticsearchDirectSearch(body) {
     return Promise.resolve(null);
   }
 }
+
+const mySearchQuery = {
+  query: {
+    bool: {
+      must: [
+        {
+          bool: {
+            must: [
+              {
+                query_string: {
+                  query: "yo",
+                  fields: [
+                    "all_titles^5",
+                    "descriptiveMetadata.description^2",
+                    "full_text",
+                    "accessionNumber",
+                  ],
+                  default_operator: "or",
+                },
+              },
+              {
+                bool: {
+                  must: [
+                    {
+                      match: {
+                        "model.name": "Image",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+};
+
+const myTermQuery = {
+  query: {
+    bool: {
+      must: [
+        {
+          bool: {
+            must: [
+              {
+                bool: {
+                  should: [
+                    {
+                      terms: {
+                        "descriptiveMetadata.contributor.displayFacet": [
+                          "Dewey, Melvil, 1851-1931 (Marbler)",
+                          "Dewey, Melvil, 1851-1931 (Voice actor)",
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                bool: {
+                  should: [
+                    {
+                      terms: {
+                        "descriptiveMetadata.creator.displayFacet": [
+                          "Kahlo, Frida",
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                bool: {
+                  must: [
+                    {
+                      match: {
+                        "model.name": "Image",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+};
+
+/**
+ * Grab the search string and any facet values from an ElasticSearch query object
+ * @param {Object} query An ElasticSearch query object
+ * @returns { Object } Map object with keys "search" and "terms"
+ */
+export function extractQueryParts(query = {}) {
+  const searchTermKey = "query_string";
+  const facetTermsKey = "terms";
+
+  let returnObj = {
+    search: "",
+    terms: {},
+  };
+
+  function findQueryParts(child) {
+    if (typeof child !== "object" && child !== null) {
+      return;
+    }
+
+    // Array value, loop through child objects
+    if (Array.isArray(child)) {
+      for (let arrayObj of child) {
+        findQueryParts(arrayObj);
+      }
+    }
+
+    // Grab search string
+    if (child.hasOwnProperty(searchTermKey)) {
+      returnObj.search = child[searchTermKey].query;
+      return;
+    }
+
+    // Grab facet terms
+    if (child.hasOwnProperty(facetTermsKey)) {
+      returnObj.terms = { ...returnObj.terms, ...child[facetTermsKey] };
+      return;
+    }
+
+    for (let property in child) {
+      findQueryParts(child[property]);
+    }
+  }
+
+  // Kick off recursive function
+  findQueryParts(query);
+
+  return returnObj;
+}

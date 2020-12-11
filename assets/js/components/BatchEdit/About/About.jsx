@@ -23,7 +23,6 @@ import {
   prepRelatedUrl,
 } from "@js/services/metadata";
 import { Button } from "@nulib/admin-react-components";
-import { useHistory } from "react-router-dom";
 
 const BatchEditAbout = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -32,7 +31,6 @@ const BatchEditAbout = () => {
   const [batchReplaces, setBatchReplaces] = useState({
     descriptiveMetadata: {},
   });
-  const history = useHistory();
 
   const batchDispatch = useBatchDispatch();
 
@@ -50,10 +48,6 @@ const BatchEditAbout = () => {
 
   const onCloseModal = () => {
     setIsConfirmModalOpen(false);
-  };
-
-  const handleFormCancel = () => {
-    history.push("/search", { prevQuery: batchState.filteredQuery });
   };
 
   // Handle About tab form submit (Core and Descriptive metadata)
@@ -143,13 +137,6 @@ const BatchEditAbout = () => {
             </Button>
             <Button isText data-testid="clear-button" onClick={handleFormReset}>
               Clear form
-            </Button>
-            <Button
-              isText
-              data-testid="cancel-button"
-              onClick={handleFormCancel}
-            >
-              Cancel
             </Button>
           </>
         </UITabsStickyHeader>
