@@ -90,7 +90,7 @@ const WorkTabsPreservation = ({ work }) => {
       </div>
       <div className="container buttons">
         <DisplayAuthorized action="delete">
-          <Button data-testid="delete-button" onClick={onOpenModal}>
+          <Button data-testid="delete-button" isDanger onClick={onOpenModal}>
             <span className="icon">
               <FontAwesomeIcon icon="trash" />
             </span>
@@ -104,7 +104,7 @@ const WorkTabsPreservation = ({ work }) => {
           isOpen={deleteModalOpen}
           handleClose={onCloseModal}
           handleConfirm={handleDeleteClick}
-          thingToDeleteLabel={`Work ${
+          thingToDeleteLabel={`Work: ${
             work.descriptiveMetadata
               ? work.descriptiveMetadata.title || work.accessionNumber
               : work.accessionNumber
