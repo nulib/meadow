@@ -33,6 +33,7 @@ describe("Shows Work content", () => {
   });
   it("Displays Updated Date", () => {
     const { getByTestId } = setupTests();
+    // mockWork contains updateAt: "2019-12-02T22:22:16"
     expect(getByTestId("result-item-updated-date").innerHTML).toBe(
       "Dec 2, 2019 10:22 PM"
     );
