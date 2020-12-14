@@ -1,0 +1,7 @@
+#import "./FileSetFields.frag.gql"
+
+mutation($fileSets: [FileSetUpdate!]) {
+  updateFileSets(fileSets: $fileSets) {
+    ...FileSetFields
+  }
+}

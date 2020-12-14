@@ -4,6 +4,8 @@ defmodule Meadow.Data.FileSets do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
+
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
 
@@ -35,6 +37,11 @@ defmodule Meadow.Data.FileSets do
 
   """
   def get_file_set!(id), do: Repo.get!(FileSet, id)
+
+  @doc """
+
+  """
+  def get_file_set(id), do: Repo.get(FileSet, id)
 
   @doc """
   Gets a file_set by accession_number
@@ -106,6 +113,43 @@ defmodule Meadow.Data.FileSets do
     file_set
     |> FileSet.update_changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  Processes metadata updates for an array of file sets.
+
+  ## Examples
+
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: "new label", description: "new description"}})
+      {:ok, [%Meadow.Data.Schemas.FileSet{}]}
+
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: 009, description: "new description"}})
+      {:error, :file_set_1, %Ecto.Changeset{}}
+  """
+  def update_file_sets(file_set_updates) do
+    case multi_update(file_set_updates) do
+      {:ok, file_sets} ->
+        {:ok, Enum.map(file_sets, fn {_index, fs} -> fs end)}
+
+      {:error, index, changeset, _} ->
+        {:error, index, changeset}
+    end
+  end
+
+  defp multi_update(file_set_updates) do
+    file_set_updates
+    |> Enum.with_index(1)
+    |> Enum.reduce(Multi.new(), fn {changes, index}, multi ->
+      Multi.update(
+        multi,
+        :"index_#{index}",
+        FileSet.update_changeset(get_file_set!(changes.id), %{
+          metadata: changes.metadata,
+          updated_at: NaiveDateTime.utc_now()
+        })
+      )
+    end)
+    |> Repo.transaction()
   end
 
   @doc """
