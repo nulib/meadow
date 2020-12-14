@@ -50,7 +50,7 @@ const WorkTabsPreservation = ({ work }) => {
               <th>s3 Key</th>
               <th>Verified</th>
               <DisplayAuthorized action="delete">
-                <th className="has-text-right">Actions</th>{" "}
+                <th className="has-text-right">Actions</th>
               </DisplayAuthorized>
             </tr>
           </thead>
