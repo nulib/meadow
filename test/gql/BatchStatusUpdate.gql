@@ -1,7 +1,0 @@
-#import "./BatchFields.frag.gql"
-
-subscription BatchStatusUpdate($id: ID!) {
-  batchStatusUpdate(id: $id) {
-    ...BatchFields
-  }
-}
