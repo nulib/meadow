@@ -14,14 +14,14 @@ const UISearchBar = () => {
         componentId={SEARCH_SENSOR}
         autosuggest={false}
         dataField={ELASTICSEARCH_FIELDS_TO_SEARCH}
-        debounce={100}
+        debounce={500}
         defaultValue={queryParts ? queryParts.search : null}
         fieldWeights={[5, 2]}
         filterLabel="Search"
         fuzziness={0}
         icon={<FontAwesomeIcon icon="search" />}
         innerClass={{ input: "input is-medium" }}
-        queryFormat="or"
+        queryFormat="and"
         queryString={true} // supports complex search, wildcards, etc.
         placeholder="Search all works"
         react={{ and: [RESULT_SENSOR] }}
