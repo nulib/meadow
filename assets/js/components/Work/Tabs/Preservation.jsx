@@ -1,11 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UITagNotYetSupported from "../../UI/TagNotYetSupported";
-import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
+import UITagNotYetSupported from "@js/components/UI/TagNotYetSupported";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import { useMutation } from "@apollo/client";
+import { DELETE_WORK } from "@js/components/Work/work.gql";
+import UIModalDelete from "@js/components/UI/Modal/Delete";
+import { useHistory } from "react-router-dom";
+import { Button } from "@nulib/admin-react-components";
+import { toastWrapper } from "@js/services/helpers";
 
 const WorkTabsPreservation = ({ work }) => {
+  const history = useHistory();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
+    onCompleted({ deleteWork: { project, ingestSheet, descriptiveMetadata } }) {
+      toastWrapper(
+        "is-success",
+        `Work ${
+          descriptiveMetadata ? descriptiveMetadata.title || "" : ""
+        } deleted successfully`
+      );
+      history.push(`/project/${project.id}/ingest-sheet/${ingestSheet.id}`);
+    },
+  });
+
+  const handleDeleteClick = () => {
+    deleteWork({ variables: { workId: work.id } });
+  };
+  const onOpenModal = () => {
+    setDeleteModalOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setDeleteModalOpen(false);
+  };
+
   return (
     <>
       <UITabsStickyHeader title="Preservation and Access Masters" />
@@ -57,6 +88,29 @@ const WorkTabsPreservation = ({ work }) => {
           </tbody>
         </table>
       </div>
+      <div className="container buttons">
+        <DisplayAuthorized action="delete">
+          <Button data-testid="delete-button" isDanger onClick={onOpenModal}>
+            <span className="icon">
+              <FontAwesomeIcon icon="trash" />
+            </span>
+            <span>Delete this work</span>
+          </Button>
+        </DisplayAuthorized>
+      </div>
+
+      {work && (
+        <UIModalDelete
+          isOpen={deleteModalOpen}
+          handleClose={onCloseModal}
+          handleConfirm={handleDeleteClick}
+          thingToDeleteLabel={`Work: ${
+            work.descriptiveMetadata
+              ? work.descriptiveMetadata.title || work.accessionNumber
+              : work.accessionNumber
+          }`}
+        />
+      )}
     </>
   );
 };
