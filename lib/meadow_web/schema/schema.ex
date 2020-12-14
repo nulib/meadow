@@ -45,7 +45,6 @@ defmodule MeadowWeb.Schema do
   end
 
   subscription do
-    import_fields(:batch_subscriptions)
     import_fields(:ingest_subscriptions)
   end
 

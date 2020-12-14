@@ -41,24 +41,6 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     end
   end
 
-  object :batch_subscriptions do
-    @desc "Subscribe to status updates for all batches"
-    field :batches_status_updates, :batch do
-      config(fn _args, _info ->
-        {:ok, topic: "batches"}
-      end)
-    end
-
-    @desc "Subscribe to status updates for a batch"
-    field :batch_status_update, :batch do
-      arg(:id, non_null(:id))
-
-      config(fn args, _info ->
-        {:ok, topic: "batch:" <> args.id}
-      end)
-    end
-  end
-
   #
   # Object Types
   #
