@@ -1,0 +1,7 @@
+mutation($nulAuthorityRecordId: ID!) {
+  deleteNULAuthorityRecord(nulAuthorityRecordId: $nulAuthorityRecordId) {
+    id
+    label
+    hint
+  }
+}

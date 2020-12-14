@@ -1,0 +1,7 @@
+mutation($id: ID!, $label: String!, $hint: String!) {
+  updateNULAuthorityRecord(id: $id, label: $label, hint: $hint) {
+    id
+    label
+    hint
+  }
+}

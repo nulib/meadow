@@ -87,7 +87,8 @@ config :authoritex,
     Authoritex.Getty,
     Authoritex.LOC.Languages,
     Authoritex.LOC.Names,
-    Authoritex.LOC.SubjectHeadings
+    Authoritex.LOC.SubjectHeadings,
+    NUL.Authority
   ]
 
 config :honeybadger,
