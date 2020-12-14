@@ -25,8 +25,8 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
   end
 
   @query """
-  query {
-    presignedUrl {
+  query($uploadType: S3UploadType!) {
+    presignedUrl(uploadType: $uploadType) {
       url
     }
   }
@@ -35,7 +35,13 @@ defmodule MeadowWeb.Schema.Query.SheetTest do
   test "gets a presigned url for an ingest sheet" do
     conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(conn, "/api/graphql", query: @query)
+    response =
+      get(conn, "/api/graphql",
+        query: @query,
+        variables: %{
+          "uploadType" => "INGEST_SHEET"
+        }
+      )
 
     assert %{
              "data" => %{

@@ -138,3 +138,7 @@ export function toastWrapper(
     position: "top-center",
   });
 }
+
+export function s3Location(presignedUrl) {
+  return `s3://${presignedUrl.split("?")[0].split("/").slice(-3).join("/")}`;
+}

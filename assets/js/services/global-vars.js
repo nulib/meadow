@@ -3,6 +3,15 @@ export const COLLECTION_TYPES = [
   { label: "NUL Theme", id: "NUL Theme", value: "NUL Theme" },
 ];
 
+export const FILE_SET_ROLES = [
+  { label: "Access Master (AM)", id: "AM", value: "Access Master (AM)" },
+  {
+    label: "Preservation Master (PM)",
+    id: "PM",
+    value: "Preservation Master (PM)",
+  },
+];
+
 export const REACTIVESEARCH_SORT_OPTIONS = [
   {
     sortBy: "desc",

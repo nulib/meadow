@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Data do
   Absinthe GraphQL query resolver for Data Context
 
   """
+  alias Meadow.Pipeline
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Utils.ChangesetErrors
 
@@ -112,8 +113,8 @@ defmodule MeadowWeb.Resolvers.Data do
     {:ok, FileSets.get_file_set_by_accession_number!(accession_number)}
   end
 
-  def create_file_set(_, args, _) do
-    case FileSets.create_file_set(args) do
+  def ingest_file_set(_, args, _) do
+    case Pipeline.ingest_file_set(args) do
       {:error, changeset} ->
         {:error,
          message: "Could not create file set", details: ChangesetErrors.humanize_errors(changeset)}

@@ -4,8 +4,19 @@ defmodule Meadow.Pipeline do
   """
   use Sequins.Pipeline
 
-  alias Meadow.Data.ActionStates
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
+
+  def ingest_file_set(attrs \\ %{}) do
+    case FileSets.create_file_set(attrs) do
+      {:ok, file_set} ->
+        kickoff(file_set, %{role: file_set.role})
+        {:ok, file_set}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
 
   def kickoff(_, context \\ %{})
 

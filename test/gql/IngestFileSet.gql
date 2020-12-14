@@ -4,7 +4,7 @@ mutation(
   $metadata: FileSetMetadataInput!
   $work_id: ID!
 ) {
-  createFileSet(
+  ingestFileSet(
     accessionNumber: $accession_number
     role: $role
     metadata: $metadata

@@ -10,16 +10,20 @@ import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
+import FileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
 
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
+
+  const [isModalHidden, setIsModalHidden] = React.useState(true);
 
   const {
     data: verifyFileSetsData,
@@ -90,7 +94,22 @@ const WorkTabsPreservation = ({ work }) => {
 
   return (
     <div data-testid="preservation-tab">
-      <UITabsStickyHeader title="Preservation and Access Masters" />
+      <UITabsStickyHeader title="Preservation and Access Masters">
+        <DisplayAuthorized action="edit">
+          <div className="buttons is-right">
+            <Button
+              data-testid="button-new-file-set"
+              isPrimary
+              onClick={() => setIsModalHidden(!isModalHidden)}
+            >
+              <span className="icon">
+                <FontAwesomeIcon icon="file-image" />
+              </span>
+              <span>Add a fileset</span>
+            </Button>
+          </div>
+        </DisplayAuthorized>
+      </UITabsStickyHeader>
       <div className="box mt-4">
         <table
           className="table is-fullwidth is-striped is-hoverable is-fixed"
@@ -159,6 +178,11 @@ const WorkTabsPreservation = ({ work }) => {
               })}
           </tbody>
         </table>
+        <FileSetModal
+          closeModal={() => setIsModalHidden(true)}
+          isHidden={isModalHidden}
+          workId={work.id}
+        />
       </div>
       <div className="container buttons">
         <DisplayAuthorized action="delete">

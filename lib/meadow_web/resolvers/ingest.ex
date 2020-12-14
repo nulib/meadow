@@ -6,11 +6,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
   alias Meadow.Config
   alias Meadow.Data.ActionStates
   alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Ingest.Bucket
   alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
-  alias Meadow.Utils.ChangesetErrors
+  alias Meadow.Utils.{AWS, ChangesetErrors}
 
   def projects(_, args, _) do
     {:ok, Projects.list_projects(args)}
@@ -28,7 +27,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
 
       {:ok, project} ->
         Config.ingest_bucket()
-        |> Bucket.create_project_folder(project.folder)
+        |> AWS.create_s3_folder(project.folder)
 
         {:ok, project}
     end
@@ -152,11 +151,6 @@ defmodule MeadowWeb.Resolvers.Ingest do
     args[:sheet_id]
     |> Sheets.get_ingest_sheet!()
     |> delete_ingest_sheet()
-  end
-
-  def get_presigned_url(_, _, _) do
-    url = Bucket.presigned_s3_url(Config.upload_bucket())
-    {:ok, %{url: url}}
   end
 
   def ingest_sheet_rows(_, args, _) do
