@@ -391,3 +391,12 @@ export const DELETE_WORK = gql`
     }
   }
 `;
+
+export const VERIFY_FILE_SETS = gql`
+query VerifyFileSets($workId:ID!) {
+  verifyFileSets(workId:$workId){
+    fileSetId
+    verified
+  }
+}
+`

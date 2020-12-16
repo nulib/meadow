@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UITagNotYetSupported from "@js/components/UI/TagNotYetSupported";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
-import { useMutation } from "@apollo/client";
-import { DELETE_WORK } from "@js/components/Work/work.gql";
+import { useMutation, useQuery } from "@apollo/client";
+import { DELETE_WORK, VERIFY_FILE_SETS } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 import { toastWrapper } from "@js/services/helpers";
+import UISkeleton from "@js/components/UI/Skeleton";
 
 const WorkTabsPreservation = ({ work }) => {
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const {
+    data: verifyFileSetsData,
+    error: verifyFileSetsError,
+    loading: verifyFileSetsLoading,
+  } = useQuery(VERIFY_FILE_SETS, { variables: { workId: work.id } });
+
   const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
     onCompleted({ deleteWork: { project, ingestSheet, descriptiveMetadata } }) {
       toastWrapper(
@@ -25,6 +32,34 @@ const WorkTabsPreservation = ({ work }) => {
       history.push(`/project/${project.id}/ingest-sheet/${ingestSheet.id}`);
     },
   });
+
+  if (verifyFileSetsError)
+    return (
+      <p className="notification is-danger">
+        Error loading VerifyFileSets query
+      </p>
+    );
+  if (verifyFileSetsLoading) return <UISkeleton />;
+
+  const { verifyFileSets } = verifyFileSetsData;
+
+  const Verified = ({ id }) => {
+    if (!verifyFileSets || !id) return null;
+    const fileset = verifyFileSets.find((obj) => obj.fileSetId === id);
+
+    return (
+      <div data-testid="verified">
+        {fileset && fileset.verified ? (
+          <React.Fragment>
+            <span className="sr-only">Verified</span>
+            <FontAwesomeIcon icon="check" className="has-text-success" />
+          </React.Fragment>
+        ) : (
+          <FontAwesomeIcon icon="times" className="has-text-danger" />
+        )}
+      </div>
+    );
+  };
 
   const handleDeleteClick = () => {
     deleteWork({ variables: { workId: work.id } });
@@ -38,17 +73,21 @@ const WorkTabsPreservation = ({ work }) => {
   };
 
   return (
-    <>
+    <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Preservation and Access Masters" />
       <div className="box mt-4">
-        <table className="table is-fullwidth is-striped is-hoverable is-fixed">
+        <table
+          className="table is-fullwidth is-striped is-hoverable is-fixed"
+          data-testid="preservation-table"
+        >
           <thead>
             <tr>
+              <th className="is-hidden">ID</th>
               <th>Role</th>
               <th>Filename</th>
               <th>Checksum</th>
               <th>s3 Key</th>
-              <th>Verified</th>
+              <th className="has-text-centered">Verified</th>
               <DisplayAuthorized action="delete">
                 <th className="has-text-right">Actions</th>
               </DisplayAuthorized>
@@ -59,7 +98,8 @@ const WorkTabsPreservation = ({ work }) => {
               work.fileSets.map((fileset) => {
                 const metadata = fileset.metadata;
                 return (
-                  <tr key={fileset.id}>
+                  <tr key={fileset.id} data-testid="preservation-row">
+                    <td className="is-hidden">{fileset.id}</td>
                     <td>{fileset.role}</td>
                     <td className="break-word">
                       {metadata ? metadata.originalFilename : " "}
@@ -70,13 +110,16 @@ const WorkTabsPreservation = ({ work }) => {
                     <td className="break-word">
                       {metadata ? metadata.location : ""}
                     </td>
-                    <td>
-                      <UITagNotYetSupported label="Display not yet supported" />
+                    <td className="has-text-centered">
+                      <Verified id={fileset.id} />
                     </td>
                     <DisplayAuthorized action="delete">
                       <td>
                         <div className="buttons-end">
-                          <button className="button">
+                          <button
+                            data-testid="button-fileset-delete"
+                            className="button"
+                          >
                             <FontAwesomeIcon icon="trash" />
                           </button>
                         </div>
@@ -90,7 +133,11 @@ const WorkTabsPreservation = ({ work }) => {
       </div>
       <div className="container buttons">
         <DisplayAuthorized action="delete">
-          <Button data-testid="delete-button" isDanger onClick={onOpenModal}>
+          <Button
+            data-testid="button-work-delete"
+            isDanger
+            onClick={onOpenModal}
+          >
             <span className="icon">
               <FontAwesomeIcon icon="trash" />
             </span>
@@ -111,7 +158,7 @@ const WorkTabsPreservation = ({ work }) => {
           }`}
         />
       )}
-    </>
+    </div>
   );
 };
 

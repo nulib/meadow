@@ -1,4 +1,5 @@
 import { GET_CURRENT_USER_QUERY } from "./auth.gql";
+
 export const mockUser = {
   username: "nutest",
   email: "rdctech@northwestern.edu",
