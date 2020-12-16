@@ -18,7 +18,7 @@ const UISearchBar = () => {
         defaultValue={queryParts ? queryParts.search : null}
         fieldWeights={[5, 2]}
         filterLabel="Search"
-        fuzziness={0}
+        fuzziness="AUTO"
         icon={<FontAwesomeIcon icon="search" />}
         innerClass={{ input: "input is-medium" }}
         queryFormat="and"
