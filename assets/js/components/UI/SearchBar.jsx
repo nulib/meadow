@@ -21,7 +21,7 @@ const UISearchBar = () => {
         fuzziness="AUTO"
         icon={<FontAwesomeIcon icon="search" />}
         innerClass={{ input: "input is-medium" }}
-        queryFormat="and"
+        queryFormat="or"
         queryString={true} // supports complex search, wildcards, etc.
         placeholder="Search all works"
         react={{ and: [RESULT_SENSOR] }}
