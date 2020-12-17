@@ -15,6 +15,7 @@ import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkTabsStructureFilesetList from "./FilesetList";
+import WorkTabsStructureDownloadAll from "@js/components/Work/Tabs/Structure/DownloadAll";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -31,8 +32,12 @@ const WorkTabsStructure = ({ work }) => {
     parseWorkRepresentativeImage(work)
   );
   const [isReordering, setIsReordering] = useState();
+  const [error, setError] = React.useState();
 
   const methods = useForm();
+
+  // React Hook Form object which tracks dirty fields as user interacts with forms
+  const dirtyFields = methods.formState.dirtyFields;
 
   // GraphQL mutations
   const [setWorkImage] = useMutation(SET_WORK_IMAGE, {
@@ -42,16 +47,28 @@ const WorkTabsStructure = ({ work }) => {
   });
   const [updateFileSets] = useMutation(UPDATE_FILE_SETS, {
     onCompleted({ updateFileSets }) {
-      console.log("onCompleted() updateFileSets", updateFileSets);
+      console.log("updateFileSets", updateFileSets);
+      toastWrapper("is-success", "Filesets have been updated");
+      setIsEditing(false);
+    },
+    onError(error) {
+      console.error("error in the updateFileSets GraphQL mutation :>> ", error);
+      setError({
+        message: "There was an error updating file sets.",
+        responseError: error,
+      });
     },
   });
   const [updateAccessMasterOrder] = useMutation(UPDATE_ACCESS_MASTER_ORDER, {
     onCompleted() {
       setIsReordering(false);
-      toastWrapper("is-success", "Access masters have been successfully reordered.");
+      toastWrapper(
+        "is-success",
+        "Access masters have been successfully reordered."
+      );
     },
     onError(error) {
-      console.log("error in the updateWork GraphQL mutation :>> ", error);
+      console.error("error in the updateWork GraphQL mutation :>> ", error);
     },
     refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
     awaitRefetchQueries: true,
@@ -79,26 +96,26 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const filterAccessMasters = (fileSets) => {
-    return fileSets.filter(fs => fs.role == "AM");
+    return fileSets.filter((fs) => fs.role == "AM");
   };
 
   const onSubmit = (data) => {
-    // TODO : add logic to update filesets for given work.
-    console.log(data);
+    const ids = Object.keys(data);
+    const dirtyFieldIds = Object.keys(dirtyFields);
+    const filteredIds = ids.filter((id) => dirtyFieldIds.includes(id));
+    let formPostData = [];
 
-    // Send POST data to mutation
-    // Looks like?
-    /**
-     * [{
-     *  id,
-     *  metadata: {
-     *    label: "",
-     *    description: ""
-     * }
-     * }]
-     *
-     */
-    updateFileSets({ variables: { items: ["ABC123"] } });
+    for (let id of filteredIds) {
+      formPostData.push({
+        id,
+        metadata: {
+          label: data[id].label,
+          description: data[id].description,
+        },
+      });
+    }
+
+    updateFileSets({ variables: { fileSets: formPostData } });
   };
 
   return (
@@ -140,6 +157,13 @@ const WorkTabsStructure = ({ work }) => {
         </UITabsStickyHeader>
 
         <div className="mt-4">
+          {error && (
+            <p className="notification is-danger">
+              {`${error.message}`}
+              <br />
+              <br /> {`${error.responseError.toString()}`}
+            </p>
+          )}
           {isReordering ? (
             <WorkTabsStructureFilesetsDragAndDrop
               fileSets={filterAccessMasters(work.fileSets)}
@@ -157,41 +181,7 @@ const WorkTabsStructure = ({ work }) => {
           )}
         </div>
 
-        <div className="box">
-          <h3 className="subtitle">Download all files as zip</h3>
-          <div className="columns">
-            <div className="column">
-              <div className="field">
-                <input
-                  type="radio"
-                  className="is-checkradio"
-                  name="downloadsize"
-                  id="downloadsize1"
-                />
-                <label htmlFor="downloadsize1"> Full size</label>
-                <input
-                  type="radio"
-                  className="is-checkradio"
-                  name="downloadsize"
-                  id="downloadsize2"
-                />
-                <label htmlFor="downloadsize2"> 3000x3000</label>
-                <input
-                  type="radio"
-                  className="is-checkradio"
-                  name="downloadsize"
-                  id="downloadsize3"
-                />
-                <label htmlFor="downloadsize3"> 1000x1000</label>
-              </div>
-            </div>
-
-            <div className="column buttons has-text-right">
-              <button className="button">Download Tiffs</button>
-              <button className="button">Download JPGs</button>
-            </div>
-          </div>
-        </div>
+        <WorkTabsStructureDownloadAll />
       </form>
     </FormProvider>
   );

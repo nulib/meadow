@@ -1,20 +1,6 @@
 import gql from "graphql-tag";
 
-export const UPDATE_FILE_SETS = gql`
-  mutation UpdateFileSets($id: ID!) {
-    updateFileSets(id: $id) @client {
-      id
-    }
-  }
-`;
 
-export const UPDATE_ACCESS_MASTER_ORDER = gql`
-  mutation UpdateAccessMasterOrder($workId: ID!, $fileSetIds: [ID]) {
-    updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
-      id
-    }
-  }
-`;
 
 export const CREATE_SHARED_LINK = gql`
   mutation CreateSharedLink($workId: ID!) {
@@ -387,6 +373,26 @@ export const DELETE_WORK = gql`
       project {
         id
         title
+      }
+    }
+  }
+`;
+
+export const UPDATE_ACCESS_MASTER_ORDER = gql`
+  mutation UpdateAccessMasterOrder($workId: ID!, $fileSetIds: [ID]) {
+    updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_FILE_SETS = gql`
+  mutation UpdateFileSets($fileSets: [FileSetUpdate]!) {
+    updateFileSets(fileSets: $fileSets) {
+      id
+      metadata {
+        description
+        label
       }
     }
   }

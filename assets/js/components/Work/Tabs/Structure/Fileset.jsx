@@ -35,7 +35,7 @@ function WorkTabsStructureFileset({
                 isReactHookForm
                 required
                 label="Label"
-                name={`label-${fileSet.id}`}
+                name={`${fileSet.id}.label`}
                 data-testid="input-label"
                 placeholder="Label"
                 defaultValue={fileSet.metadata.label}
@@ -49,7 +49,7 @@ function WorkTabsStructureFileset({
             {isEditing ? (
               <UIFormTextarea
                 isReactHookForm
-                name={`metadataDescription-${fileSet.id}`}
+                name={`${fileSet.id}.description`}
                 data-testid="textarea-metadata-description"
                 defaultValue={fileSet.metadata.description}
                 label="Description"
