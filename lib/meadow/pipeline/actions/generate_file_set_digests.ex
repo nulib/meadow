@@ -23,11 +23,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     try do
       Logger.info("Generating digests for #{file_set.id}")
 
-      hashes =
-        file_set.metadata.location
-        |> Utils.Stream.stream_from()
-        |> Enum.reduce(init_hashes(), &update_hashes(&2, &1))
-        |> finalize_hashes()
+      hashes = generate_hashes(file_set.metadata.location)
 
       {:ok, _} =
         file_set
@@ -44,6 +40,13 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
         ActionStates.set_state!(file_set, __MODULE__, "error", Exception.message(e))
         {:error, Exception.message(e)}
     end
+  end
+
+  def generate_hashes(url) do
+    url
+    |> Utils.Stream.stream_from()
+    |> Enum.reduce(init_hashes(), &update_hashes(&2, &1))
+    |> finalize_hashes()
   end
 
   defp init_hashes do
