@@ -1,5 +1,6 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 import {
   faAngleDown,
   faBell,
@@ -33,6 +34,8 @@ import {
   faProjectDiagram,
   faSearch,
   faSort,
+  faSortAlphaDown,
+  faSortAlphaDownAlt,
   faSync,
   faThumbsUp,
   faTimes,
@@ -46,6 +49,7 @@ import {
 export default function setupFontAwesome() {
   return library.add(
     fab,
+    fas,
     faAngleDown,
     faBell,
     faCheck,
@@ -77,6 +81,8 @@ export default function setupFontAwesome() {
     faProjectDiagram,
     faSearch,
     faSort,
+    faSortAlphaDown,
+    faSortAlphaDownAlt,
     faSync,
     faThumbsUp,
     faTimes,

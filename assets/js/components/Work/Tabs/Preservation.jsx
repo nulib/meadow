@@ -8,12 +8,18 @@ import { DELETE_WORK, VERIFY_FILE_SETS } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
-import { toastWrapper } from "@js/services/helpers";
+import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 
 const WorkTabsPreservation = ({ work }) => {
+  if (!work) return null;
+
   const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderedFileSets, setOrderedFileSets] = useState({
+    order: "asc",
+    fileSets: sortFileSets({ fileSets: work.fileSets }),
+  });
 
   const {
     data: verifyFileSetsData,
@@ -64,6 +70,16 @@ const WorkTabsPreservation = ({ work }) => {
   const handleDeleteClick = () => {
     deleteWork({ variables: { workId: work.id } });
   };
+
+  const handleOrderClick = () => {
+    const order = orderedFileSets.order === "asc" ? "desc" : "asc";
+    const fileSets = sortFileSets({
+      order,
+      fileSets: orderedFileSets.fileSets,
+    });
+    setOrderedFileSets({ order, fileSets });
+  };
+
   const onOpenModal = () => {
     setDeleteModalOpen(true);
   };
@@ -84,7 +100,20 @@ const WorkTabsPreservation = ({ work }) => {
             <tr>
               <th className="is-hidden">ID</th>
               <th>Role</th>
-              <th>Filename</th>
+              <th className="is-flex">
+                <FontAwesomeIcon
+                  icon={[
+                    "fas",
+                    orderedFileSets.order === "asc"
+                      ? "sort-alpha-down"
+                      : "sort-alpha-down-alt",
+                  ]}
+                  className="icon"
+                />
+                <a className="ml-2" onClick={handleOrderClick}>
+                  Filename
+                </a>
+              </th>
               <th>Checksum</th>
               <th>s3 Key</th>
               <th className="has-text-centered">Verified</th>
@@ -94,8 +123,8 @@ const WorkTabsPreservation = ({ work }) => {
             </tr>
           </thead>
           <tbody>
-            {work.fileSets &&
-              work.fileSets.map((fileset) => {
+            {orderedFileSets.fileSets.length > 0 &&
+              orderedFileSets.fileSets.map((fileset) => {
                 const metadata = fileset.metadata;
                 return (
                   <tr key={fileset.id} data-testid="preservation-row">
