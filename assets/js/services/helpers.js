@@ -68,32 +68,6 @@ export const TEMP_USER_FRIENDLY_STATUS = {
   COMPLETED: "Ingest Complete",
 };
 
-export function toastWrapper(
-  type = "is-info",
-  message = "Whoops, You forgot to include a message!"
-) {
-  return toast({
-    message,
-    type,
-    dismissible: true,
-    duration: 5000,
-    position: "top-center",
-  });
-}
-
-export function setVisibilityClass(visibility = "") {
-  if (visibility.toUpperCase() === "RESTRICTED") {
-    return "is-danger";
-  }
-  if (visibility.toUpperCase() === "AUTHENTICATED") {
-    return "is-primary";
-  }
-  if (visibility.toUpperCase() === "OPEN") {
-    return "is-success";
-  }
-  return "";
-}
-
 export function prepWorkItemForDisplay(res) {
   return {
     id: res._id,
@@ -110,4 +84,57 @@ export function prepWorkItemForDisplay(res) {
     accessionNumber: res.accessionNumber,
     workType: res.workType,
   };
+}
+
+export function setVisibilityClass(visibility = "") {
+  if (visibility.toUpperCase() === "RESTRICTED") {
+    return "is-danger";
+  }
+  if (visibility.toUpperCase() === "AUTHENTICATED") {
+    return "is-primary";
+  }
+  if (visibility.toUpperCase() === "OPEN") {
+    return "is-success";
+  }
+  return "";
+}
+
+/**
+ * Helper function which orders an array of fileset objects by metadata.originalFilename
+ * @param {Object} obj Object map of params
+ * @param {String} obj.order Order preference: "asc" or "desc"
+ * @param {Array} obj.fileSets file sets to order
+ * @returns {Array}
+ */
+export function sortFileSets({ order = "asc", fileSets = [] }) {
+  const orderedFileSets = [...fileSets].sort((a, b) => {
+    const aName = a.metadata.originalFilename;
+    const bName = b.metadata.originalFilename;
+
+    if (aName === bName) return 0;
+
+    switch (order) {
+      case "asc":
+        return aName < bName ? -1 : 1;
+      case "desc":
+        return aName < bName ? 1 : -1;
+      default:
+        break;
+    }
+  });
+
+  return orderedFileSets;
+}
+
+export function toastWrapper(
+  type = "is-info",
+  message = "Whoops, You forgot to include a message!"
+) {
+  return toast({
+    message,
+    type,
+    dismissible: true,
+    duration: 5000,
+    position: "top-center",
+  });
 }
