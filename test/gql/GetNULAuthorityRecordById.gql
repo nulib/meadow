@@ -1,0 +1,7 @@
+query GetNULAuthorityRecord($id: ID!) {
+  nulAuthorityRecord(id: $id) {
+    id
+    label
+    hint
+  }
+}

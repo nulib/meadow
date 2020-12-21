@@ -51,7 +51,7 @@ config :meadow,
     url: "http://localhost:3944/"
   }
 
-config :authoritex, authorities: [Authoritex.Mock]
+config :authoritex, authorities: [Authoritex.Mock, NUL.Authority]
 
 config :ueberauth, Ueberauth,
   providers: [

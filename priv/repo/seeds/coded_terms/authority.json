@@ -62,5 +62,9 @@
   {
     "id": "lcsh",
     "label": "Library of Congress Subject Headings"
+  },
+  {
+    "id": "nul-authority",
+    "label": "Northwestern University Libraries local authority"
   }
 ]
