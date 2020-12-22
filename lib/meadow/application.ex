@@ -5,8 +5,6 @@ defmodule Meadow.Application do
 
   use Application
   alias Meadow.Application.Children
-  alias Meadow.Config
-  alias Meadow.Pipeline
 
   require Logger
 
@@ -17,33 +15,19 @@ defmodule Meadow.Application do
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
     base_children = [
+      EDTF,
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.ElasticsearchCluster,
       Meadow.Repo,
       Meadow.Telemetry,
-      MeadowWeb.Endpoint,
-      {Absinthe.Subscription, MeadowWeb.Endpoint},
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
     children = base_children ++ Children.specs()
 
-    unless Config.environment?(:test) do
-      case System.get_env("NO_PIPELINE", nil) do
-        nil ->
-          Task.async(fn ->
-            :timer.sleep(Config.pipeline_delay())
-            Pipeline.start()
-          end)
-
-        _ ->
-          Logger.warn("Skipping pipeline startup because NO_PIPELINE is set")
-      end
-    end
-
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Meadow.Supervisor]
+    opts = [max_restarts: 4096, strategy: :one_for_one, name: Meadow.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

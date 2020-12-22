@@ -151,6 +151,12 @@ defmodule Meadow.Config do
   def validation_ping_interval,
     do: configured_integer_value(:validation_ping_interval, :timer.seconds(15))
 
+  def workers do
+    System.get_env("MEADOW_PROCESSES", "ALL")
+    |> String.split(~r/\s*,\s*/)
+    |> Enum.map(&Inflex.underscore/1)
+  end
+
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)

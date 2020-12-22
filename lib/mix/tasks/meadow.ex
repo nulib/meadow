@@ -93,3 +93,27 @@ defmodule Mix.Tasks.Meadow.Seed do
     end)
   end
 end
+
+defmodule Mix.Tasks.Meadow.Processes do
+  @moduledoc """
+  Display a list of available processes
+  """
+
+  alias Meadow.Application.Children
+
+  def run(_) do
+    [
+      {"Web processes", Children.processes("web")},
+      {"Basic processes", Children.processes("basic")},
+      {"Pipeline processes", Children.processes("pipeline")},
+      {"Aliases", Children.processes("aliases")}
+    ]
+    |> Enum.map(fn {label, workers} ->
+      ["#{label}:", workers |> Enum.map(fn {name, _} -> "  #{name}" end), ""]
+    end)
+    |> List.flatten()
+    |> Enum.join("\n")
+    |> String.trim()
+    |> IO.puts()
+  end
+end
