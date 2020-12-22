@@ -63,8 +63,8 @@ export const DELETE_INGEST_SHEET = gql`
 `;
 
 export const GET_PRESIGNED_URL = gql`
-  query {
-    presignedUrl {
+  query($uploadType: S3UploadType!) {
+    presignedUrl(uploadType: $uploadType) {
       url
     }
   }

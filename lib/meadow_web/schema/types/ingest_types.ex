@@ -39,12 +39,6 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet_validation_progress/3)
     end
 
-    @desc "Get a presigned url to upload an ingest sheet"
-    field :presigned_url, :url do
-      middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.get_presigned_url/3)
-    end
-
     @desc "Get rows for an Ingest Sheet"
     field :ingest_sheet_rows, list_of(:ingest_sheet_row) do
       arg(:sheet_id, non_null(:id))

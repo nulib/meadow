@@ -8,7 +8,7 @@ import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js
 import { CREATE_INGEST_SHEET } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_PROJECT } from "@js/components/Project/project.gql.js";
 import { useQuery, useMutation } from "@apollo/client";
-import { toastWrapper } from "@js/services/helpers";
+import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
 
 /** @jsx jsx */
@@ -25,6 +25,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
   const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
     GET_PRESIGNED_URL,
     {
+      variables: { uploadType: "INGEST_SHEET" },
       fetchPolicy: "no-cache",
     }
   );
@@ -70,11 +71,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
         variables: {
           title: currentFile.name,
           projectId,
-          filename: `s3://${urlData.presignedUrl.url
-            .split("?")[0]
-            .split("/")
-            .slice(-3)
-            .join("/")}`,
+          filename: s3Location(urlData.presignedUrl.url),
         },
       });
     } else {
@@ -135,8 +132,8 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
                 className="has-text-grey mr-3"
               />
               {isDragActive
-                ? "Drop the files here ..."
-                : "Drag 'n' drop a file here, or click to select files"}
+                ? "Drop the file here ..."
+                : "Drag 'n' drop a file here, or click to select file"}
             </p>
           </div>
           {currentFile && (

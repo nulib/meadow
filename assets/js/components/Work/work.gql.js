@@ -1,6 +1,34 @@
 import gql from "graphql-tag";
 
-
+export const INGEST_FILE_SET = gql`
+  mutation IngestFileSet(
+    $accession_number: String!
+    $role: FileSetRole!
+    $metadata: FileSetMetadataInput!
+    $workId: ID!
+  ) {
+    ingestFileSet(
+      accessionNumber: $accession_number
+      role: $role
+      metadata: $metadata
+      workId: $workId
+    ) {
+      id
+      accession_number
+      role
+      work {
+        id
+      }
+      metadata {
+        location
+        label
+        description
+        original_filename
+        sha256
+      }
+    }
+  }
+`;
 
 export const CREATE_SHARED_LINK = gql`
   mutation CreateSharedLink($workId: ID!) {
@@ -399,10 +427,10 @@ export const UPDATE_FILE_SETS = gql`
 `;
 
 export const VERIFY_FILE_SETS = gql`
-query VerifyFileSets($workId:ID!) {
-  verifyFileSets(workId:$workId){
-    fileSetId
-    verified
+  query VerifyFileSets($workId: ID!) {
+    verifyFileSets(workId: $workId) {
+      fileSetId
+      verified
+    }
   }
-}
-`
+`;

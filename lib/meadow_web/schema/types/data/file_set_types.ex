@@ -20,15 +20,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   end
 
   object :file_set_mutations do
-    @desc "Create a new FileSet for a work"
-    field :create_file_set, :file_set do
+    @desc "Ingests a new FileSet for a work"
+    field :ingest_file_set, :file_set do
       arg(:accession_number, non_null(:string))
       arg(:role, non_null(:file_set_role))
       arg(:work_id, non_null(:id))
       arg(:metadata, non_null(:file_set_metadata_input))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
-      resolve(&Resolvers.Data.create_file_set/3)
+      resolve(&Resolvers.Data.ingest_file_set/3)
     end
 
     @desc "Update a FileSet's metadata"
@@ -63,6 +63,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_metadata_input do
+    field :label, :string
     field :location, :string
     field :original_filename, :string
     field :description, :string

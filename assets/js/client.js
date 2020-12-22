@@ -39,7 +39,15 @@ const link = new ApolloLink.split(
 // Create the Apollo Client instance.
 const client = new ApolloClient({
   link: link,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      FileSet: {
+        fields: {
+          metadata: { merge: false },
+        },
+      },
+    },
+  }),
   typeDefs,
   resolvers,
 });

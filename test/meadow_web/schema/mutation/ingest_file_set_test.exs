@@ -1,9 +1,9 @@
-defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
+defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
   use MeadowWeb.ConnCase, async: true
   use Meadow.S3Case
   use Wormwood.GQLCase
 
-  load_gql(MeadowWeb.Schema, "test/gql/CreateFileSet.gql")
+  load_gql(MeadowWeb.Schema, "test/gql/IngestFileSet.gql")
 
   @bucket "test-ingest"
   @key "create_file_set_test/file.tif"
@@ -11,7 +11,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
 
   @tag s3: [@fixture]
-  test "createFileSet mutation creates a FileSet", _context do
+  test "ingestFileSet mutation creates a FileSet", _context do
     work = work_fixture()
 
     {:ok, result} =
@@ -29,12 +29,12 @@ defmodule MeadowWeb.Schema.Mutation.CreateFileSetTest do
         context: gql_context()
       )
 
-    assert result.data["createFileSet"]
+    assert result.data["ingestFileSet"]
   end
 
   describe "authorization" do
     @tag s3: [@fixture]
-    test "viewers are not authorized to create file sets" do
+    test "viewers are not authorized to ingest file sets" do
       work = work_fixture()
 
       {:ok, result} =
