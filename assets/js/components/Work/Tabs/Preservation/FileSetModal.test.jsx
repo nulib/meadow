@@ -37,14 +37,4 @@ describe("Add fileset to work modal", () => {
   it("renders fileset form", async () => {
     expect(await screen.findByTestId("fileset-form"));
   });
-
-  it("displays input error when the required fields label and description have no value", async () => {
-    await waitFor(() => {
-      const el = screen.getByTestId("fileset-accession-number-input");
-      expect(el);
-      userEvent.type(el, "abc124");
-      userEvent.click(screen.getByTestId("submit-button"));
-    });
-    expect(screen.getAllByTestId("input-errors")).toHaveLength(2);
-  });
 });

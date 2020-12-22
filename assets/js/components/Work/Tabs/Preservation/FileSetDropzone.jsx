@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDropzone } from "react-dropzone";
+import { formatBytes } from "@js/services/helpers";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
@@ -10,7 +11,11 @@ const dropZone = css`
   border: 3px dashed #ccc;
 `;
 
-function WorkTabsPreservationFileSetDropzone({ currentFile, handleSetFile }) {
+function WorkTabsPreservationFileSetDropzone({
+  currentFile,
+  handleSetFile,
+  uploadProgress,
+}) {
   // Handle file drop
   const onDrop = React.useCallback((acceptedFiles) => {
     handleSetFile(acceptedFiles[0]);
@@ -23,56 +28,68 @@ function WorkTabsPreservationFileSetDropzone({ currentFile, handleSetFile }) {
     isDragReject,
   } = useDropzone({
     onDrop,
-    accept: "image/tiff, image/jpeg",
-    maxFiles: 1,
+    accept: "image/tiff, image/jpeg, image/jpg",
+    multiple: false,
   });
 
+  const handleDelete = () => {
+    handleSetFile(null);
+  };
+
   return (
-    <div>
-      <div
-        {...getRootProps()}
-        className="p-6 is-clickable has-text-centered"
-        css={dropZone}
-      >
-        <input {...getInputProps()} />
-        <p>
-          <FontAwesomeIcon
-            icon="file-image"
-            size="2x"
-            className="has-text-grey mr-3"
-          />
-          {!isDragActive &&
-            "Drag 'n' drop a file here, or click to select file"}
-          {isDragActive &&
-            !isDragReject &&
-            "Drag 'n' drop a file here, or click to select file"}
-          {isDragReject && "File type not accepted, sorry!"}
-        </p>
-      </div>
-      {currentFile && (
-        <React.Fragment>
-          <p className="mt-5 pb-0 mb-0 subtitle">Current file</p>
-          <table className="table is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Path</th>
-                <th>Size</th>
-                <th>Type</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{currentFile.name}</td>
-                <td>{currentFile.path}</td>
-                <td>{currentFile.size}</td>
-                <td>{currentFile.type}</td>
-              </tr>
-            </tbody>
-          </table>
-        </React.Fragment>
+    <section className="modal-card-body">
+      {!uploadProgress && (
+        <div
+          {...getRootProps()}
+          className="p-6 is-clickable has-text-centered"
+          css={dropZone}
+        >
+          <input {...getInputProps()} />
+          <p>
+            <FontAwesomeIcon
+              icon="file-image"
+              size="2x"
+              className="has-text-grey mr-3"
+            />
+            {!isDragActive &&
+              "Drag 'n' drop a file here, or click to select file"}
+            {isDragActive &&
+              !isDragReject &&
+              "Drag 'n' drop a file here, or click to select file"}
+            {isDragReject && "File type not accepted, sorry!"}
+          </p>
+        </div>
       )}
-    </div>
+
+      {currentFile && uploadProgress === 100 && (
+        <div className="notification is-light is-success">
+          <button onClick={handleDelete} className="delete"></button>
+          <p>
+            <strong>{currentFile.name}</strong>
+            <br />
+            <small>{formatBytes(currentFile.size)}</small>
+            <br />
+            File uploaded successfully
+          </p>
+        </div>
+      )}
+
+      {currentFile && uploadProgress < 100 && (
+        <div className="notification is-light">
+          <p>
+            <strong>{currentFile.name}</strong>
+            <br />
+            <small>Uploading {formatBytes(currentFile.size)}</small>
+          </p>
+          <progress
+            className="progress is-primary is-small"
+            value={uploadProgress}
+            max="100"
+          ></progress>
+          <p>({Math.round(Number(uploadProgress))}%)</p>
+        </div>
+      )}
+    </section>
   );
 }
 
