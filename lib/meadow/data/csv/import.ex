@@ -31,7 +31,7 @@ defmodule Meadow.Data.CSV.Import do
     }
   """
   def read_csv(source) do
-    with csv_stream <- CSV.parse_stream(source, skip_headers: false),
+    with csv_stream <- Enum.into(source, "") |> CSV.parse_string(skip_headers: false),
          [[query | _] | [headers | []]] <- Enum.take(csv_stream, 2) do
       %__MODULE__{
         query: query,

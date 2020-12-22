@@ -27,7 +27,11 @@ defmodule Meadow.Utils.Stream do
     end
   end
 
-  def stream_from("s3://" <> _ = url), do: url |> presigned_url_for() |> stream_from()
+  def stream_from("s3://" <> _ = url) do
+    with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
+      ExAws.S3.download_file(bucket, key, :memory) |> ExAws.stream!()
+    end
+  end
 
   def stream_from("file://" <> filename), do: File.stream!(filename)
 
