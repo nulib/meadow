@@ -9,7 +9,7 @@ defmodule Meadow.Data.CSV.Import do
   require Logger
 
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
-  @coded_fields ~w(library_unit preservation_level status visibility work_type)a
+  @coded_fields ~w(library_unit license preservation_level rights_statement status visibility work_type)a
   @false_values [false, "false", "FALSE", 0, "0"]
   @true_values [true, "true", "TRUE", 1, "1", -1, "-1"]
 
