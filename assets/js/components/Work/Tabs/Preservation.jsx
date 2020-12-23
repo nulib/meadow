@@ -10,7 +10,7 @@ import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
-import FileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
+import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -42,6 +42,13 @@ const WorkTabsPreservation = ({ work }) => {
       history.push(`/project/${project.id}/ingest-sheet/${ingestSheet.id}`);
     },
   });
+
+  React.useEffect(() => {
+    setOrderedFileSets({
+      ...orderedFileSets,
+      fileSets: sortFileSets({ fileSets: work.fileSets }),
+    });
+  }, [work.fileSets]);
 
   if (verifyFileSetsError)
     return (
@@ -178,7 +185,7 @@ const WorkTabsPreservation = ({ work }) => {
               })}
           </tbody>
         </table>
-        <FileSetModal
+        <WorkTabsPreservationFileSetModal
           closeModal={() => setIsModalHidden(true)}
           isHidden={isModalHidden}
           workId={work.id}

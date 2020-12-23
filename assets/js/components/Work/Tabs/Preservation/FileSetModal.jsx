@@ -6,17 +6,16 @@ import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import { useQuery, useMutation } from "@apollo/client";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useForm, FormProvider } from "react-hook-form";
-import UIFormInput from "@js/components/UI/Form/Input.jsx";
-import UIFormField from "@js/components/UI/Form/Field.jsx";
-import UIFormSelect from "@js/components/UI/Form/Select.jsx";
-import { FILE_SET_ROLES } from "@js/services/global-vars";
-import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
+import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
 import Error from "@js/components/UI/Error";
 
-function FileSetModal({ closeModal, isHidden, workId }) {
+function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
   const [currentFile, setCurrentFile] = useState();
-  const [fileUploadError, setFileUploadError] = useState();
+  const [uploadProgress, setUploadProgress] = useState();
+  const [s3UploadLocation, setS3UploadLocation] = useState();
+  const [uploadError, setUploadError] = useState();
+  const [stateXhr, setStateXhr] = useState(null);
 
   const defaultValues = {
     accessionNumber: "",
@@ -25,12 +24,10 @@ function FileSetModal({ closeModal, isHidden, workId }) {
     role: "PM",
   };
 
-  // React Hook form initialize
   const methods = useForm({
     defaultValues: defaultValues,
     shouldUnregister: false,
   });
-  const { isSubmitting } = methods.formState;
 
   const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
     GET_PRESIGNED_URL,
@@ -48,179 +45,150 @@ function FileSetModal({ closeModal, isHidden, workId }) {
           "is-success",
           `FileSet record id: ${ingestFileSet.id} created successfully and ${ingestFileSet.metadata.original_filename} was submitted to the ingest pipeline.`
         );
-        handleFormReset();
+        resetForm();
+        closeModal();
       },
       onError(error) {
-        console.error("GQLerror", error);
+        // bug with this error not clearing/resetting
+        // https://github.com/apollographql/apollo-feature-requests/issues/170
       },
-      refetchQueries(mutationResult) {
-        return [
-          {
-            query: GET_WORK,
-            variables: { id: workId },
-          },
-        ];
-      },
+      refetchQueries: [
+        {
+          query: GET_WORK,
+          variables: { id: workId },
+        },
+      ],
+      awaitRefetchQueries: true,
     }
   );
 
-  const handleFormReset = () => {
+  const handleSubmit = (data) => {
+    ingestFileSet({
+      variables: {
+        accession_number: data.accessionNumber,
+        workId,
+        role: data.role,
+        metadata: {
+          description: data.description,
+          label: data.label,
+          original_filename: currentFile.name,
+          location: s3UploadLocation,
+        },
+      },
+    });
+  };
+
+  const handleCancel = () => {
+    stateXhr.abort();
+    resetForm();
+    closeModal();
+  };
+
+  const resetForm = () => {
     methods.reset();
     setCurrentFile(null);
-    closeModal();
-    clearErrors();
+    setS3UploadLocation(null);
+    setUploadProgress(0);
+    setUploadError(null);
   };
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
-  };
-
-  const clearErrors = () => {
-    setFileUploadError("");
-  };
-
-  const uploadFile = async () => {
-    const response = await fetch(`${urlData.presignedUrl.url}`, {
-      method: "PUT",
-      headers: { "Content-Type": "multipart/form-data" },
-      body: currentFile,
-    });
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
+    if (file != null) {
+      uploadFile(file);
+    } else {
+      setUploadProgress(0);
     }
-
-    return response.url;
   };
 
-  const onSubmit = async (data) => {
-    // Explicitly returning (resolving/rejecting) a promise is needed for the spinner, and error displays to work
-    return new Promise((resolve, reject) => {
-      clearErrors();
+  const uploadFile = (file) => {
+    let request = new XMLHttpRequest();
 
-      uploadFile()
-        .then((url) => {
-          ingestFileSet({
-            variables: {
-              accession_number: data.accessionNumber,
-              workId,
-              role: data.role,
-              metadata: {
-                description: data.description,
-                label: data.label,
-                original_filename: currentFile.name,
-                location: s3Location(url),
-              },
-            },
-          });
-          return resolve();
-        })
-        .catch((error) => {
-          console.error("Error uploading file to S3", error);
-          setFileUploadError("Error uploading file to S3");
-          return reject("File upload error");
-        });
+    request.upload.addEventListener("progress", function (e) {
+      let percent_completed = (e.loaded / e.total) * 100;
+      setUploadProgress(percent_completed);
     });
+
+    request.addEventListener("error", function (e) {
+      setUploadError("Error uploading file to S3");
+      setCurrentFile(null);
+    });
+
+    request.addEventListener("load", function (e) {
+      if (request.status === 200) {
+        setS3UploadLocation(s3Location(urlData.presignedUrl.url));
+      } else {
+        setUploadError(
+          `Error uploading file to S3. Response status: ${request.status}`
+        );
+        setCurrentFile(null);
+      }
+    });
+
+    request.addEventListener("abort", function (e) {
+      console.log("Received abort event. Cancelling upload");
+    });
+
+    request.open("put", urlData.presignedUrl.url);
+    request.setRequestHeader("Content-Type", "multipart/form-data");
+    request.send(file);
+    setStateXhr(request);
   };
 
   if (urlLoading) return <p>Presigned URL Loading</p>;
 
   return (
     <div className={`modal ${isHidden ? "" : "is-active"}`}>
-      {/* if there is a problem getting a presigned url don't show the form at all */}
+      <div className="modal-background"></div>
+
       {urlError ? (
-        <div className="notification is-danger">
-          Error retrieving presigned url
+        <div className="modal-card">
+          <section className="modal-card-body">
+            <div className="notification is-danger">
+              Error retrieving presigned url
+            </div>
+          </section>
         </div>
       ) : (
         <FormProvider {...methods}>
           <form
-            onSubmit={methods.handleSubmit(onSubmit)}
+            onSubmit={methods.handleSubmit(handleSubmit)}
             data-testid="fileset-form"
           >
-            <div className="modal-background"></div>
             <div className="modal-card">
               <header className="modal-card-head">
                 <p className="modal-card-title">Add FileSet to Work</p>
                 <button
+                  type="button"
                   className="delete"
                   aria-label="close"
-                  onClick={() => {
-                    handleFormReset();
-                  }}
+                  onClick={handleCancel}
                 ></button>
               </header>
               <section className="modal-card-body">
-                {fileUploadError && (
-                  <div className="notification is-danger">
-                    Error uploading file: {fileUploadError}
-                  </div>
+                {uploadError && (
+                  <div className="notification is-danger">{uploadError}</div>
                 )}
-                {isSubmitting ? (
-                  <UISkeleton rows={10} />
-                ) : (
-                  <div>
-                    {error && <Error error={error} />}
-                    <WorkTabsPreservationFileSetDropzone
-                      currentFile={currentFile}
-                      handleSetFile={handleSetFile}
-                    />
-                    <hr />
+                {error && <Error error={error} />}
+                <WorkTabsPreservationFileSetDropzone
+                  currentFile={currentFile}
+                  handleSetFile={handleSetFile}
+                  uploadProgress={uploadProgress}
+                />
 
-                    <UIFormField label="Accession number">
-                      <UIFormInput
-                        isReactHookForm
-                        required
-                        label="FileSet label"
-                        data-testid="fileset-accession-number-input"
-                        name="accessionNumber"
-                        placeholder="accession number"
-                      />
-                    </UIFormField>
-
-                    <UIFormField label="Label">
-                      <UIFormInput
-                        isReactHookForm
-                        required
-                        label="FileSet label"
-                        data-testid="fileset-label-input"
-                        name="label"
-                        placeholder="Fileset label"
-                      />
-                    </UIFormField>
-
-                    <UIFormField label="Description">
-                      <UIFormInput
-                        isReactHookForm
-                        required
-                        label="FileSet description"
-                        data-testid="fileset-description-input"
-                        name="description"
-                        placeholder="Description of the Fileset"
-                      />
-                    </UIFormField>
-
-                    <UIFormField label="Role">
-                      <UIFormSelect
-                        isReactHookForm
-                        name="role"
-                        label="Fileset Role"
-                        options={FILE_SET_ROLES}
-                        data-testid="fileset-role-input"
-                      />
-                    </UIFormField>
-                  </div>
-                )}
+                <WorkTabsPreservationFileSetForm
+                  s3UploadLocation={s3UploadLocation}
+                />
               </section>
 
               <footer className="modal-card-foot is-justify-content-flex-end">
-                {isSubmitting || (
+                {s3UploadLocation && (
                   <>
                     <Button
                       isText
                       type="button"
                       onClick={() => {
-                        handleFormReset();
+                        handleCancel();
                       }}
                       data-testid="cancel-button"
                     >
@@ -240,10 +208,10 @@ function FileSetModal({ closeModal, isHidden, workId }) {
   );
 }
 
-FileSetModal.propTypes = {
+WorkTabsPreservationFileSetModal.propTypes = {
   closeModal: PropTypes.func,
   isHidden: PropTypes.bool,
   workId: PropTypes.string,
 };
 
-export default FileSetModal;
+export default WorkTabsPreservationFileSetModal;
