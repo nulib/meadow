@@ -31,5 +31,6 @@ defmodule MeadowWeb.Schema.HelperTypes do
   enum :s3_upload_type do
     value(:ingest_sheet, as: "ingest_sheet", description: "Ingest Sheet (.csv)")
     value(:file_set, as: "file_set", description: "File Set")
+    value(:csv_metadata, as: "csv_metadata", description: "Metadata Update Sheet (.csv)")
   end
 end

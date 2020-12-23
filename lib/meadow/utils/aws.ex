@@ -11,6 +11,10 @@ defmodule Meadow.Utils.AWS do
     generate_upload_url(bucket, "file_sets/#{Ecto.UUID.generate()}")
   end
 
+  def presigned_url(bucket, %{upload_type: "csv_metadata"}) do
+    generate_upload_url(bucket, "csv_metadata/#{Ecto.UUID.generate()}.csv")
+  end
+
   def create_s3_folder(bucket, name) do
     bucket
     |> check_bucket()
