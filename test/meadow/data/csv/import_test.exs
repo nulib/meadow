@@ -1,7 +1,6 @@
 defmodule Meadow.Data.CSV.ImportTest do
   use Meadow.DataCase
   alias Meadow.Data.CSV.Import
-  import ExUnit.CaptureLog
 
   @sample_record exs_fixture("test/fixtures/csv/import_fixture_31.exs")
 
@@ -29,17 +28,28 @@ defmodule Meadow.Data.CSV.ImportTest do
   end
 
   test "decode boolean values" do
-    log =
-      capture_log(fn ->
-        booleans =
-          File.stream!("test/fixtures/csv/boolean_values.csv")
-          |> Import.read_csv()
-          |> Import.stream()
-          |> Enum.map(& &1.published)
+    booleans =
+      File.stream!("test/fixtures/csv/boolean_values.csv")
+      |> Import.read_csv()
+      |> Import.stream()
+      |> Enum.map(& &1.published)
 
-        assert booleans == [true, true, true, true, false, false, false, false]
-      end)
-
-    assert log =~ ~r/\bwarn\b.+Unknown boolean: "unknown"/
+    assert booleans == [
+             true,
+             true,
+             true,
+             true,
+             true,
+             true,
+             true,
+             true,
+             false,
+             false,
+             false,
+             false,
+             false,
+             false,
+             "unknown"
+           ]
   end
 end

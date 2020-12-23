@@ -12,8 +12,8 @@ defmodule Meadow.Data.CSV.Import do
 
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
   @coded_fields ~w(library_unit license preservation_level rights_statement status visibility work_type)a
-  @false_values [false, "false", "FALSE", 0, "0"]
-  @true_values [true, "true", "TRUE", 1, "1", -1, "-1"]
+  @false_values ["false", "f", "no", "n", "0"]
+  @true_values ["true", "t", "yes", "y", "1", "-1"]
 
   defstruct query: nil, headers: nil, stream: nil
 
@@ -131,16 +131,12 @@ defmodule Meadow.Data.CSV.Import do
   end
 
   defp decode_field(:boolean, value) do
-    cond do
-      Enum.member?(@true_values, value) ->
-        true
-
-      Enum.member?(@false_values, value) ->
-        false
-
-      true ->
-        Logger.warn("Unknown boolean: #{inspect(value)}")
-        false
+    with value <- value |> to_string() |> String.downcase() do
+      cond do
+        Enum.member?(@true_values, value) -> true
+        Enum.member?(@false_values, value) -> false
+        true -> value
+      end
     end
   end
 
