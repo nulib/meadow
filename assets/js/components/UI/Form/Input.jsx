@@ -3,8 +3,9 @@ import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 
 const UIFormInput = ({
+  id = "",
   isReactHookForm,
-  label,
+  label = "",
   name,
   required,
   type = "text",
@@ -22,6 +23,7 @@ const UIFormInput = ({
   return (
     <>
       <input
+        id={id || name}
         name={name}
         type={type}
         ref={register && register({ required })}
@@ -38,6 +40,7 @@ const UIFormInput = ({
 };
 
 UIFormInput.propTypes = {
+  id: PropTypes.string,
   isReactHookForm: PropTypes.bool,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,

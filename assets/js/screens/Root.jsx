@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AuthProvider } from "../components/Auth/Auth";
 import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
 import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
+import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
@@ -49,6 +50,11 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/batch-edit/:id"
                   component={ScreensDashboardsBatchEditDetails}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/nul-local-authorities"
+                  component={ScreensDashboardsLocalAuthoritiesList}
                 />
                 <PrivateRoute
                   exact

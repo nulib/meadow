@@ -1,7 +1,6 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
-import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import UIDate from "@js/components/UI/Date";

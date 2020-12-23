@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../Auth/Auth";
 import client from "../../../client";
 import UISearchBar from "../SearchBar";
@@ -16,7 +16,6 @@ const UILayoutNavBar = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeHoverNav, setActiveHoverNav] = useState("adam");
   const location = useLocation();
-  const history = useHistory();
 
   const isActive = (matcher) => {
     return location.pathname.includes(matcher);
@@ -129,6 +128,11 @@ const UILayoutNavBar = () => {
                   >
                     <UILayoutNavDropdownItem>
                       <Link to="/dashboards/batch-edit">Batch Edit</Link>
+                    </UILayoutNavDropdownItem>
+                    <UILayoutNavDropdownItem>
+                      <Link to="/dashboards/nul-local-authorities">
+                        NUL Local Authorities
+                      </Link>
                     </UILayoutNavDropdownItem>
                   </UILayoutNavDropdownBody>
                 </UILayoutNavDropdown>

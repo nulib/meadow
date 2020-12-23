@@ -1,6 +1,9 @@
 import {
+  DELETE_NUL_AUTHORITY_RECORD,
   GET_BATCH,
   GET_BATCHES,
+  GET_NUL_AUTHORITY_RECORDS,
+  UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
 
 export const mockGetBatchesResults = [
@@ -71,6 +74,33 @@ export const mockGetBatchesResults = [
   },
 ];
 
+export const mockNulAuthorityRecords = [
+  {
+    hint: "Ima hint 1",
+    id: "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc",
+    label: "NUL Auth Record 1",
+  },
+  {
+    hint: "Ima hint 2",
+    id: "info:nul/a7a2c899-305d-42e5-b825-9cc13b327793",
+    label: "NUL Auth Record 2",
+  },
+];
+
+export const deleteNulAuthorityRecordMock = {
+  request: {
+    query: DELETE_NUL_AUTHORITY_RECORD,
+  },
+  response: {
+    data: {
+      deleteNulAuthorityRecord: {
+        id: "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc",
+        label: "NUL Auth Record 1",
+      },
+    },
+  },
+};
+
 export const getBatchMock = {
   request: {
     query: GET_BATCH,
@@ -92,6 +122,28 @@ export const getBatchesMock = {
   result: {
     data: {
       batches: mockGetBatchesResults,
+    },
+  },
+};
+
+export const getNulAuthorityRecordsMock = {
+  request: {
+    query: GET_NUL_AUTHORITY_RECORDS,
+  },
+  result: {
+    data: {
+      nulAuthorityRecords: mockNulAuthorityRecords,
+    },
+  },
+};
+
+export const updateNulAuthorityRecordMock = {
+  request: {
+    query: UPDATE_NUL_AUTHORITY_RECORD,
+  },
+  result: {
+    data: {
+      updateNulAuthorityRecord: mockNulAuthorityRecords[0],
     },
   },
 };
