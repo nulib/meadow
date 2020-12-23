@@ -5,8 +5,9 @@ defmodule Meadow.Data.PipelineTest do
   use Meadow.DataCase
   use ExUnit.Case
 
-  alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Data.ActionStates
   alias Meadow.Data.Schemas.{ActionState, FileSet}
+  alias Meadow.Pipeline
 
   describe "ingesting file set" do
     @valid_attrs %{
@@ -20,12 +21,12 @@ defmodule Meadow.Data.PipelineTest do
     }
 
     test "ingest_file_set/1 creates a file_set" do
-      assert {:ok, %FileSet{} = _file_set} = FileSets.ingest_file_set(@valid_attrs)
+      assert {:ok, %FileSet{} = _file_set} = Pipeline.ingest_file_set(@valid_attrs)
     end
 
     test "ingest_file_set/1 kicks off the ingest pipeline for a file set" do
-      {:ok, file_set} = FileSets.ingest_file_set(@valid_attrs)
-      assert [%ActionState{} | states] = ActionStates.get_states(file_set.id)
+      {:ok, file_set} = Pipeline.ingest_file_set(@valid_attrs)
+      assert [%ActionState{} | _states] = ActionStates.get_states(file_set.id)
     end
   end
 end
