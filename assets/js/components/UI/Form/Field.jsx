@@ -5,6 +5,7 @@ const UIFormField = ({
   label,
   children,
   childClass = "",
+  forId,
   mocked,
   notLive,
   required,
@@ -12,7 +13,7 @@ const UIFormField = ({
 }) => {
   return (
     <div className="field" {...restProps}>
-      <label className="label">
+      <label className="label" htmlFor={forId || ""}>
         {label} {required && <span>*</span>}{" "}
         {mocked && <span className="tag">Mocked</span>}{" "}
         {notLive && <span className="tag">Not Live</span>}
@@ -26,6 +27,7 @@ UIFormField.propTypes = {
   label: PropTypes.string,
   children: PropTypes.node,
   childClass: PropTypes.string,
+  forId: PropTypes.string,
   mocked: PropTypes.bool,
   notLive: PropTypes.bool,
   required: PropTypes.bool,
