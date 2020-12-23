@@ -7,6 +7,8 @@ defmodule Meadow.Data.CSV.Export do
   alias Meadow.Utils.ElasticsearchResultStream
   alias NimbleCSV.RFC4180, as: CSV
 
+  import Meadow.Data.CSV.Utils
+
   @exportable_types ["Image"]
   @top_level_fields [
     ["id"],
@@ -109,7 +111,7 @@ defmodule Meadow.Data.CSV.Export do
   defp to_field(value) when is_list(value) do
     value
     |> Enum.map(&to_field/1)
-    |> Enum.join(" | ")
+    |> combine_multivalued_field()
   end
 
   defp to_field(%{"edtf" => value}), do: value

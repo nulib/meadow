@@ -6,6 +6,8 @@ defmodule Meadow.Data.CSV.Import do
   alias Meadow.Data.CSV.Export
   alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias NimbleCSV.RFC4180, as: CSV
+
+  import Meadow.Data.CSV.Utils
   require Logger
 
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
@@ -118,13 +120,13 @@ defmodule Meadow.Data.CSV.Import do
 
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: type}}, value) do
     value
-    |> String.split(~r/\s*\|\s*/)
+    |> split_multivalued_field()
     |> Enum.map(&decode_field({:embedded, type}, String.trim(&1)))
   end
 
   defp decode_field({:array, type}, value) do
     value
-    |> String.split(~r/\s*\|\s*/)
+    |> split_multivalued_field()
     |> Enum.map(&decode_field(type, &1))
   end
 

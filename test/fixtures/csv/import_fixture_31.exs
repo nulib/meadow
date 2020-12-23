@@ -46,8 +46,8 @@
       %{term: %{id: "http://vocab.getty.edu/ulan/500102192"}},
       %{term: %{id: "http://vocab.getty.edu/ulan/500029268"}}
     ],
-    license: %{id: "http://www.europeana.eu/portal/rights/rr-r.html"},
-    description: ["Description"],
+    license: %{id: "http://www.europeana.eu/portal/rights/rr-r.html", scheme: "license"},
+    description: ["Three", "Descriptions", "With a | pipe in the third"],
     keywords: ["orb", "bly", "western"],
     related_material: ["Related Material"],
     title: "Eaque optio est praesentium tenetur impedit autem minima.",
@@ -64,7 +64,10 @@
     ],
     box_name: ["Box 1"],
     notes: ["Notes"],
-    rights_statement: %{id: "http://rightsstatements.org/vocab/InC/1.0/"},
+    rights_statement: %{
+      id: "http://rightsstatements.org/vocab/InC/1.0/",
+      scheme: "rights_statement"
+    },
     physical_description_size: ["12cm"],
     related_url: [
       %{
