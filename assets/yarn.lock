@@ -7306,10 +7306,10 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
-rc-progress@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/rc-progress/-/rc-progress-3.1.1.tgz#f7ba5eb33cc438862513ab5a71739feaf6b3ef4f"
-  integrity sha512-1ns3pW7ll9bHfdXtlVLF+vngdvlxiCDtiqwXnZFEdurst11JTiPxVdeqnCNbhWx5hP4kCKkAPqG1N0FVfTSUGA==
+rc-progress@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/rc-progress/-/rc-progress-3.1.2.tgz#38abc5f0b5fbda117bacc7283f5d1ce9fec0d3fa"
+  integrity sha512-MbT/59fWMVIXv2ac5nlah7xncu8twrIGADCnjsDiI2Qua8aDSzxoDfPAQSz2+wxA2LEsfFW+5Blqg3hcLQDSQw==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "^2.2.6"
