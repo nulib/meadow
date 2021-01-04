@@ -71,7 +71,7 @@ function WorkTabsStructureFileset({
                     name={`checkbox-work-switch-${fileSet.id}`}
                     className="switch"
                     checked={workImageFilesetId === fileSet.id}
-                    onChange={(e) => handleWorkImageChange(id)}
+                    onChange={(e) => handleWorkImageChange(fileSet.id)}
                     data-testid="work-image-selector"
                   />
                   <label htmlFor={`checkbox-work-switch-${fileSet.id}`}>
