@@ -1,49 +1,38 @@
 import React, { useState } from "react";
 import UIModalDelete from "../UI/Modal/Delete";
-import { DELETE_INGEST_SHEET, INGEST_SHEETS } from "./ingestSheet.gql";
-import { useMutation, useApolloClient } from "@apollo/client";
+import { DELETE_INGEST_SHEET } from "./ingestSheet.gql";
+import { useMutation } from "@apollo/client";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { toastWrapper } from "../../services/helpers";
 import { Button } from "@nulib/admin-react-components";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
-  const client = useApolloClient();
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
-    DELETE_INGEST_SHEET,
-    {
-      update(cache, { data: { deleteIngestSheet } }) {
-        try {
-          const { project } = client.readQuery({
-            query: INGEST_SHEETS,
-            variables: { projectId },
-          });
-          const index = project.ingestSheets.findIndex(
-            (ingestSheet) => ingestSheet.id === deleteIngestSheet.id
-          );
-          project.ingestSheets.splice(index, 1);
-          client.writeQuery({
-            query: INGEST_SHEETS,
-            data: { project },
-          });
-        } catch (error) {
-          console.log("Error reading from cache", error);
-        }
-      },
-      onCompleted({ deleteIngestSheet }) {
-        toastWrapper(
-          "is-success",
-          `Ingest sheet ${title} deleted successfully`
-        );
-        history.push(`/project/${projectId}`);
-      },
-    }
-  );
+  const [deleteIngestSheet] = useMutation(DELETE_INGEST_SHEET, {
+    update(cache, { data: { deleteIngestSheet } }) {
+      try {
+        cache.modify({
+          id: cache.identify({ __typename: "Project", id: projectId }),
+          fields: {
+            ingestSheets(existingIngestSheetRefs, { readField }) {
+              return existingIngestSheetRefs.filter(
+                (ingestSheetRef) =>
+                  deleteIngestSheet.id !== readField("id", ingestSheetRef)
+              );
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error reading from cache", error);
+      }
+    },
+    onCompleted() {
+      history.push(`/project/${projectId}`);
+    },
+  });
 
   const handleDeleteClick = () => {
     deleteIngestSheet({ variables: { sheetId: sheetId } });

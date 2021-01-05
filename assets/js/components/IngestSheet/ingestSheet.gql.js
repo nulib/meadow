@@ -37,7 +37,7 @@ export const CREATE_INGEST_SHEET = gql`
   ) {
     createIngestSheet(
       title: $title
-      project_id: $projectId
+      projectId: $projectId
       filename: $filename
     ) {
       id

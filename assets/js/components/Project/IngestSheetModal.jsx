@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { CREATE_INGEST_SHEET } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_PROJECT } from "@js/components/Project/project.gql.js";
@@ -21,6 +20,7 @@ const dropZone = css`
 function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
   const history = useHistory();
   const [currentFile, setCurrentFile] = React.useState();
+  const [displayError, setDisplayError] = React.useState();
 
   const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
     GET_PRESIGNED_URL,
@@ -29,6 +29,9 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
       fetchPolicy: "no-cache",
     }
   );
+  if (urlError) {
+    setDisplayError(urlError.toString());
+  }
 
   const [createIngestSheet, { data, loading, error }] = useMutation(
     CREATE_INGEST_SHEET,
@@ -43,9 +46,17 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           `/project/${projectId}/ingest-sheet/${createIngestSheet.id}`
         );
       },
-      onError({ createIngestSheet }) {
-        console.error("Error creating Ingest sheet", createIngestSheet);
-        toastWrapper("is-danger", `Error uploading Ingest Sheet`);
+      onError({ graphQLErrors, networkError }) {
+        let errorStrings = [];
+        if (graphQLErrors.length > 0) {
+          errorStrings = graphQLErrors.map(
+            ({ message, details }) =>
+              `${message}: ${details && details.title ? details.title : ""}`
+          );
+        }
+        toastWrapper("is-danger", errorStrings.join(" \n "));
+        setCurrentFile(null);
+        closeModal();
       },
       refetchQueries(mutationResult) {
         return [
@@ -64,40 +75,70 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  const handleCancelClick = () => {
+    setCurrentFile(null);
+    closeModal();
+  };
+
   const handleUploadClick = async () => {
     if (currentFile) {
-      await uploadToS3();
-      await createIngestSheet({
-        variables: {
-          title: currentFile.name,
-          projectId,
-          filename: s3Location(urlData.presignedUrl.url),
-        },
-      });
+      uploadToS3()
+        .then(
+          // Resolve callback
+          () => {
+            createIngestSheet({
+              variables: {
+                title: currentFile.name,
+                projectId,
+                filename: s3Location(urlData.presignedUrl.url),
+              },
+            });
+          },
+          // Error callback
+          (uploadToS3Error) => {
+            toastWrapper(
+              "is-danger",
+              `Error uploading file to S3: ${uploadToS3Error}`
+            );
+          }
+        )
+        .catch((e) => {
+          console.error(
+            "Shouldn't get here, some there was an error uploading to S3 and/or creating an Ingest Sheet",
+            e
+          );
+        });
     } else {
       toastWrapper("is-danger", `Choose a file to ingest`);
     }
   };
 
-  const uploadToS3 = () => {
-    return new Promise((resolve, _reject) => {
+  function uploadToS3() {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const headers = { "Content-Type": currentFile.type };
-        axios
-          .put(urlData.presignedUrl.url, event.target.result, {
-            headers: headers,
+        fetch(urlData.presignedUrl.url, {
+          method: "PUT",
+          headers: { "Content-Type": currentFile.type },
+          body: event.target.result,
+        })
+          .then((data) => {
+            if (data.ok) {
+              resolve();
+            } else {
+              reject(`${data.status}: ${data.statusText}`);
+            }
           })
-          .then((_) => resolve())
           .catch((error) => {
-            console.error(error);
-            toastWrapper("is-danger", `Error uploading file to S3: ${error}`);
-            resolve();
+            console.error(
+              "Should never reach here, but an error fetching the presignedUrl",
+              error
+            );
           });
       };
       reader.readAsText(currentFile);
     });
-  };
+  }
 
   if (urlLoading) {
     return <p>...Loading</p>;
@@ -119,6 +160,10 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           ></button>
         </header>
         <section className="modal-card-body">
+          {displayError && (
+            <p className="notification is-danger">{displayError}</p>
+          )}
+
           <div
             {...getRootProps()}
             className="p-6 is-clickable has-text-centered"
@@ -161,7 +206,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           )}
         </section>
         <footer className="modal-card-foot is-justify-content-flex-end">
-          <Button isText onClick={closeModal}>
+          <Button isText onClick={handleCancelClick}>
             Cancel
           </Button>
           <Button isPrimary onClick={handleUploadClick} disabled={!currentFile}>
