@@ -109,7 +109,7 @@ const ScreensIngestSheet = ({ match }) => {
                       sheetId={sheetId}
                       projectId={id}
                       status={sheetData.ingestSheet.status}
-                      name={sheetData.ingestSheet.title}
+                      title={sheetData.ingestSheet.title}
                     />
                   </div>
                 </div>
