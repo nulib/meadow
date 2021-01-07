@@ -38,12 +38,18 @@ defmodule MeadowWeb.Schema.Data.CSVMetadataUpdateTypes do
   # Object Types
   #
 
-  @desc "Fields for a `metadata_update_job` object "
+  @desc "Fields for a `metadata_update_job` object"
   object :csv_metadata_update_job do
     field :id, :id
     field :source, :string
     field :rows, :integer
-    field :errors, :string
+    field :errors, list_of(:row_errors)
     field :status, :string
+  end
+
+  @desc "Row-based errors for a `metadata_update_job`"
+  object :row_errors do
+    field :row, :integer
+    field :errors, list_of(:errors)
   end
 end

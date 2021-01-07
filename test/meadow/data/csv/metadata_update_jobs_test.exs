@@ -15,7 +15,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     test "create_job/1", %{create_result: result} do
       assert {:ok, job} = result
       assert job.status == "pending"
-      assert job.rows == 43
+      assert job.rows |> is_nil()
     end
 
     test "list_jobs/0", %{create_result: {:ok, job}} do
@@ -26,14 +26,12 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
       assert MetadataUpdateJobs.get_job(job.id) == job
     end
 
-    test "validate_source/1", %{source_url: source_url} do
-      assert MetadataUpdateJobs.validate_source(source_url) == {:ok, 43}
-    end
-
     test "apply_job/1", %{create_result: {:ok, job}, works: works} do
       assert {:ok, job} = MetadataUpdateJobs.apply_job(job)
       assert job.status == "complete"
-      assert MetadataUpdateJobs.apply_job(job) == {:error, "Update Job already been applied."}
+
+      assert MetadataUpdateJobs.apply_job(job) ==
+               {:error, "Update Job cannot be applied: status is complete."}
 
       with work <- Enum.at(works, 31) |> Map.get(:id) |> Works.get_work() do
         assert work.published
@@ -59,6 +57,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         Repo.update_all(MetadataUpdateJob, set: [updated_at: timestamp])
         assert MetadataUpdateJobs.reset_stalled(360) == {:ok, 0}
 
+        Repo.update_all(MetadataUpdateJob, set: [updated_at: timestamp, status: "validating"])
+        assert MetadataUpdateJobs.reset_stalled(360) == {:ok, 1}
+
         Repo.update_all(MetadataUpdateJob, set: [updated_at: timestamp, status: "processing"])
         assert MetadataUpdateJobs.reset_stalled(360) == {:ok, 1}
       end
@@ -68,8 +69,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   describe "bad headers" do
     @describetag source: "test/fixtures/csv/work_fixture_update_bad_headers.csv"
 
-    test "create_job/1", %{create_result: result} do
-      assert {:error, errors} = result
+    test "apply_job/1", %{create_result: result} do
+      assert {:ok, job} = result
+      assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
 
       assert errors == [
                %{errors: %{published: ["is missing"], publishedd: ["is unknown"]}, row: 1}
@@ -80,8 +82,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   describe "invalid data" do
     @describetag source: "test/fixtures/csv/work_fixture_update_invalid.csv"
 
-    test "create_job/1", %{create_result: result} do
-      assert {:error, errors} = result
+    test "apply_job/1", %{create_result: result} do
+      assert {:ok, job} = result
+      assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
 
       assert errors == [
                %{

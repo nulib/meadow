@@ -77,6 +77,11 @@ defmodule MeadowWeb.Schema do
     field :message, non_null(:string)
   end
 
+  object :errors do
+    field :field, non_null(:string)
+    field :messages, list_of(:string)
+  end
+
   def context(ctx) do
     loader =
       Dataloader.new()

@@ -2,6 +2,12 @@ fragment MetadataUpdateJobFields on CsvMetadataUpdateJob {
   id
   source
   rows
-  errors
+  errors {
+    row
+    errors {
+      field
+      messages
+    }
+  }
   status
 }

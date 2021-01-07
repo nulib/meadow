@@ -37,16 +37,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     iex> create_job("file:///path/to/metadata.csv")
   """
   def create_job(source_location) do
-    case source_location |> validate_source() do
-      {:ok, rows} ->
-        {:ok,
-         %MetadataUpdateJob{}
-         |> MetadataUpdateJob.changeset(%{source: source_location, status: "pending", rows: rows})
-         |> Repo.insert!()}
-
-      error ->
-        error
-    end
+    MetadataUpdateJob.changeset(%MetadataUpdateJob{}, %{
+      source: source_location,
+      status: "pending"
+    })
+    |> Repo.insert()
   end
 
   @doc """
@@ -58,14 +53,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     |> Repo.update!()
   end
 
-  @doc """
-  Populate the `errors` and `rows` fields of the job record
-  """
-  def validate_source(source) do
+  defp validate_source(source) do
     validate_source(Meadow.Utils.Stream.exists?(source), source)
   end
 
-  def validate_source(true, source) do
+  defp validate_source(true, source) do
     import_stream = Meadow.Utils.Stream.stream_from(source) |> Import.read_csv()
 
     {changesets, errors} = do_validate(import_stream, validate_headers(import_stream.headers))
@@ -75,17 +67,33 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       else: {:error, errors}
   end
 
-  def validate_source(false, source) do
+  defp validate_source(false, source) do
     {:error, [%{source => "does not exist or cannot be read"}]}
   end
 
   @doc """
   Run an update job
   """
-  def apply_job(%MetadataUpdateJob{status: "complete"}),
-    do: {:error, "Update Job already been applied."}
+  def apply_job(%MetadataUpdateJob{status: "pending"} = job) do
+    update_job_status(job, "validating")
 
-  def apply_job(%MetadataUpdateJob{source: source, status: "pending"} = job) do
+    case validate_source(job.source) do
+      {:ok, rows} ->
+        MetadataUpdateJob.changeset(job, %{status: "valid", rows: rows})
+        |> Repo.update!()
+        |> apply_job()
+
+      {:error, errors} ->
+        {:error, "validation",
+         MetadataUpdateJob.changeset(job, %{
+           status: "invalid",
+           errors: errors
+         })
+         |> Repo.update!()}
+    end
+  end
+
+  def apply_job(%MetadataUpdateJob{source: source, status: "valid"} = job) do
     update_job_status(job, "processing")
 
     multi =
@@ -102,9 +110,16 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
 
       {:error, id, changeset, _} ->
         update_job_status(job, "error")
-        {:error, id, ChangesetErrors.humanize_errors(changeset)}
+
+        {:error, id,
+         ChangesetErrors.humanize_errors(changeset,
+           flatten: [:administrative_metadata, :descriptive_metadata]
+         )}
     end
   end
+
+  def apply_job(%MetadataUpdateJob{status: status}),
+    do: {:error, "Update Job cannot be applied: status is #{status}."}
 
   defp apply_batch_of_works(rows, multi) do
     with work_ids <- rows |> Enum.map(&Map.get(&1, :id)) do
@@ -120,7 +135,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
 
   def next_job do
     from(job in MetadataUpdateJob,
-      where: job.status == "pending",
+      where: job.status in ["pending", "valid"],
       order_by: [asc: :updated_at],
       limit: 1
     )
@@ -128,23 +143,27 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   @doc """
-  Finds stalled update jobs and resets them to valid
+  Finds stalled jobs and resets them to their last known state
   """
   def reset_stalled(seconds) do
     with timeout <- DateTime.utc_now() |> DateTime.add(-seconds, :second) do
-      {count, _} =
-        from(job in MetadataUpdateJob,
-          where: job.status == "processing" and job.updated_at <= ^timeout
-        )
-        |> Repo.update_all(
-          set: [
-            status: "pending",
-            updated_at: DateTime.utc_now()
-          ]
-        )
+      {pending_count, _} = reset_stalled("validating", "pending", timeout)
+      {valid_count, _} = reset_stalled("processing", "valid", timeout)
 
-      {:ok, count}
+      {:ok, pending_count + valid_count}
     end
+  end
+
+  defp reset_stalled(stuck_status, reset_status, timeout) do
+    from(job in MetadataUpdateJob,
+      where: job.status == ^stuck_status and job.updated_at <= ^timeout
+    )
+    |> Repo.update_all(
+      set: [
+        status: reset_status,
+        updated_at: DateTime.utc_now()
+      ]
+    )
   end
 
   defp do_validate(import_stream, header_errors) when map_size(header_errors) == 0 do

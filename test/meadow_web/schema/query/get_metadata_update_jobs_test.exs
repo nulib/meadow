@@ -10,8 +10,8 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobsTest do
 
     [
       "test/fixtures/csv/work_fixture_update.csv",
-      "test/fixtures/csv/work_fixture_update.csv",
-      "test/fixtures/csv/work_fixture_update.csv"
+      "test/fixtures/csv/work_fixture_update_bad_headers.csv",
+      "test/fixtures/csv/work_fixture_update_invalid.csv"
     ]
     |> Enum.each(fn file ->
       "file://#{Path.expand(file)}"
