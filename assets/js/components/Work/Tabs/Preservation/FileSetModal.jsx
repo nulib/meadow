@@ -79,7 +79,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
   };
 
   const handleCancel = () => {
-    stateXhr.abort();
+    if (stateXhr != null) stateXhr.abort();
     resetForm();
     closeModal();
   };
