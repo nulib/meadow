@@ -36,6 +36,14 @@ function Status({ status }) {
 
 export default function DashboardsBatchEditTable() {
   const { loading, error, data } = useQuery(GET_BATCHES, { pollInterval: 500 });
+  const batches =
+    data &&
+    data.batches
+      .slice() // slice to unfreeze array
+      .sort((a, b) => {
+        return new Date(a.started).getTime() - new Date(b.started).getTime();
+      })
+      .reverse();
 
   if (loading) return null;
   if (error) return `Error: ${error}`;
@@ -55,7 +63,7 @@ export default function DashboardsBatchEditTable() {
         </tr>
       </thead>
       <tbody data-testid="batch-dashboard-table-body">
-        {data.batches.map((record) => {
+        {batches.map((record) => {
           const {
             add,
             delete: deleteValue,
