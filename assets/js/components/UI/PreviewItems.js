@@ -41,12 +41,10 @@ export default function UIPreviewItems({ items = [] }) {
         {items.map(({ id, representativeImage }) => (
           <li key={id} className="mr-4 mb-4 is-inline-block" css={previewItem}>
             <Link to={`/work/${id}`} target="_blank" className="hvr-shrink">
-              <figure>
-                <UIWorkImage
-                  imageUrl={getImageUrl(representativeImage)}
-                  size={128}
-                />
-              </figure>
+              <UIWorkImage
+                imageUrl={getImageUrl(representativeImage)}
+                size={128}
+              />
             </Link>
           </li>
         ))}

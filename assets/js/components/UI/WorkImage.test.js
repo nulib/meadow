@@ -9,7 +9,7 @@ describe("UIWorkImage component", () => {
     render(<UIWorkImage imageUrl="" />);
     const imageEl = screen.getByTestId("image-source");
     expect(imageEl);
-    expect(imageEl.getAttribute("src")).toContain(`/images/480x480.png`);
+    expect(imageEl.getAttribute("src")).toContain(`/images/placeholder.png`);
   });
 
   it("renders correct Image source", () => {
@@ -18,5 +18,7 @@ describe("UIWorkImage component", () => {
     expect(imageEl.getAttribute("src")).toContain(
       `www.northwestern.edu/square/500,500/0/default.jpg`
     );
+    const figureEl = screen.getByTestId("work-image");
+    expect(figureEl).toHaveClass(`is-500x500`);
   });
 });

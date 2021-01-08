@@ -22,7 +22,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
                 src={
                   representativeWork
                     ? `${representativeWork.representativeImage}/square/500,500/0/default.jpg`
-                    : "/images/480x480.png"
+                    : "/images/placeholder.png"
                 }
               />
             </Link>
