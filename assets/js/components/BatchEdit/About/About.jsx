@@ -73,6 +73,10 @@ const BatchEditAbout = () => {
       }
     });
 
+    if (currentFormValues.license) {
+      replaceItems.license = JSON.parse(currentFormValues.license);
+    }
+
     if (currentFormValues.rightsStatement) {
       replaceItems.rightsStatement = JSON.parse(
         currentFormValues.rightsStatement

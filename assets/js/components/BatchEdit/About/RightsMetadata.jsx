@@ -1,9 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
-import UIFormSelect from "../../UI/Form/Select";
-import { RIGHTS_METADATA } from "../../../services/metadata";
-import UIFormField from "../../UI/Form/Field";
+import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import {
+  RIGHTS_METADATA,
+  getCodedTermSelectOptions,
+} from "@js/services/metadata";
+import UIFormField from "@js/components/UI/Form/Field";
 import { useCodeLists } from "@js/context/code-list-context";
 
 const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
@@ -28,7 +31,12 @@ const BatchEditAboutRightsMetadata = ({ ...restProps }) => {
             name="license"
             label="License"
             options={
-              codeLists.licenseData ? codeLists.licenseData.codeList : []
+              codeLists.licenseData
+                ? getCodedTermSelectOptions(
+                    codeLists.licenseData.codeList,
+                    "LICENSE"
+                  )
+                : []
             }
             data-testid="license-select"
             showHelper

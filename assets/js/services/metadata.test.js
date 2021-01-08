@@ -65,6 +65,35 @@ describe("prepControlledTermInput()", () => {
   });
 });
 
+describe("getCodedTermSelectOptions()", () => {
+  const codeListsData = [
+    { label: "Ima value", id: "1" },
+    { label: "Ima second value", id: "2" },
+  ];
+
+  const codedTerm = "LICENSE";
+
+  it("returns an array of values when options exist", () => {
+    let expectedValue = [
+      {
+        label: "Ima value",
+        id: '{"id":"1","scheme":"LICENSE","label":"Ima value"}',
+      },
+      {
+        label: "Ima second value",
+        id: '{"id":"2","scheme":"LICENSE","label":"Ima second value"}',
+      },
+    ];
+    expect(
+      metadata.getCodedTermSelectOptions(codeListsData, codedTerm)
+    ).toEqual(expectedValue);
+  });
+
+  it("return an empty array if no values exist", () => {
+    expect(metadata.getCodedTermSelectOptions()).toEqual([]);
+  });
+});
+
 describe("prepFieldArrayItemsForPost()", () => {
   var metadataItems = [
     { metadataItem: "Ima value" },

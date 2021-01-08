@@ -1,12 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import { RIGHTS_METADATA } from "../../../../services/metadata";
-import UIFormField from "../../../UI/Form/Field";
-import UIFormInput from "../../../UI/Form/Input";
-import UIFormSelect from "../../../UI/Form/Select";
-import UICodedTermItem from "../../../UI/CodedTerm/Item";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import {
+  RIGHTS_METADATA,
+  getCodedTermSelectOptions,
+} from "@js/services/metadata";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormInput from "@js/components/UI/Form/Input";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
@@ -33,10 +36,16 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
           {isEditing ? (
             <UIFormSelect
               name="license"
+              isReactHookForm
               showHelper={true}
               label="License"
               options={
-                codeLists.licenseData ? codeLists.licenseData.codeList : []
+                codeLists.licenseData
+                  ? getCodedTermSelectOptions(
+                      codeLists.licenseData.codeList,
+                      "LICENSE"
+                    )
+                  : []
               }
               defaultValue={
                 descriptiveMetadata.license
