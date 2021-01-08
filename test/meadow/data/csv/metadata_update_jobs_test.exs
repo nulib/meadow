@@ -62,6 +62,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
 
     test "next_job/0", %{create_result: {:ok, job}} do
       assert MetadataUpdateJobs.next_job() == job
+      job |> MetadataUpdateJobs.update_job(%{active: true})
+      assert MetadataUpdateJobs.next_job() |> is_nil()
     end
 
     test "reset_stalled/1" do

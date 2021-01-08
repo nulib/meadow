@@ -9,8 +9,11 @@ defmodule Meadow.Repo.Migrations.CreateCSVMetadataMetadataUpdateJobs do
       add(:errors, {:array, :map}, default: [])
       add(:status, :string)
       add(:user, :string)
-      timestamps()
       add(:started_at, :utc_datetime)
+      add(:active, :boolean)
+      timestamps()
     end
+
+    create(unique_index(:csv_metadata_update_jobs, [:active], where: "active=true"))
   end
 end
