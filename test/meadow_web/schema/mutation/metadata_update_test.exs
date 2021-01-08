@@ -11,7 +11,7 @@ defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
     test "should be a valid mutation", %{source_url: source_url} do
       result =
         query_gql(
-          variables: %{"source" => source_url},
+          variables: %{"filename" => Path.basename(source_url), "source" => source_url},
           context: gql_context()
         )
 

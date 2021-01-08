@@ -1,5 +1,6 @@
 fragment MetadataUpdateJobFields on CsvMetadataUpdateJob {
   id
+  filename
   source
   rows
   errors {

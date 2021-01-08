@@ -27,6 +27,7 @@ defmodule MeadowWeb.Schema.Data.CSVMetadataUpdateTypes do
   object :csv_metadata_update_mutations do
     @desc "Start a CSV metadata update operation"
     field :csv_metadata_update, :csv_metadata_update_job do
+      arg(:filename, non_null(:string))
       arg(:source, non_null(:string))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
@@ -41,6 +42,7 @@ defmodule MeadowWeb.Schema.Data.CSVMetadataUpdateTypes do
   @desc "Fields for a `metadata_update_job` object"
   object :csv_metadata_update_job do
     field :id, :id
+    field :filename, :string
     field :source, :string
     field :rows, :integer
     field :errors, list_of(:row_errors)

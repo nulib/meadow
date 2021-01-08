@@ -6,8 +6,17 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   alias Meadow.Repo
 
   setup %{source_url: source_url} do
-    {:ok,
-     %{create_result: MetadataUpdateJobs.create_job(%{source: source_url, user: "validUser"})}}
+    with filename <- Path.basename(source_url) do
+      {:ok,
+       %{
+         create_result:
+           MetadataUpdateJobs.create_job(%{
+             filename: filename,
+             source: source_url,
+             user: "validUser"
+           })
+       }}
+    end
   end
 
   describe "valid data" do

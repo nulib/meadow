@@ -17,6 +17,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
       |> Enum.map(fn file ->
         with {:ok, job} <-
                MetadataUpdateJobs.create_job(%{
+                 filename: Path.basename(file),
                  source: "file://#{Path.expand(file)}",
                  user: "user1"
                }) do
