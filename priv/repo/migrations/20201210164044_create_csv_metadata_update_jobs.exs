@@ -7,7 +7,9 @@ defmodule Meadow.Repo.Migrations.CreateCSVMetadataMetadataUpdateJobs do
       add(:rows, :integer)
       add(:errors, {:array, :map}, default: [])
       add(:status, :string)
+      add(:user, :string)
       timestamps()
+      add(:started_at, :utc_datetime)
     end
   end
 end

@@ -14,12 +14,14 @@ defmodule Meadow.Data.Schemas.CSV.MetadataUpdateJob do
     field(:rows, :integer)
     field(:errors, {:array, :map}, default: [])
     field(:status, :string)
+    field(:started_at, :utc_datetime_usec)
+    field(:user, :string)
     timestamps()
   end
 
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:source, :rows, :errors, :status])
+    |> cast(attrs, [:source, :rows, :errors, :status, :user, :started_at])
     |> validate_required([:source, :status])
   end
 end

@@ -6,7 +6,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   alias Meadow.Repo
 
   setup %{source_url: source_url} do
-    {:ok, %{create_result: MetadataUpdateJobs.create_job(source_url)}}
+    {:ok,
+     %{create_result: MetadataUpdateJobs.create_job(%{source: source_url, user: "validUser"})}}
   end
 
   describe "valid data" do
@@ -27,8 +28,10 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     end
 
     test "apply_job/1", %{create_result: {:ok, job}, works: works} do
+      refute job.started_at
       assert {:ok, job} = MetadataUpdateJobs.apply_job(job)
       assert job.status == "complete"
+      assert job.started_at
 
       assert MetadataUpdateJobs.apply_job(job) ==
                {:error, "Update Job cannot be applied: status is complete."}

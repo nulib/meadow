@@ -33,23 +33,22 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
 
   Examples:
 
-    iex> create_job("s3://upload-bucket/path/to/metadata.csv")
-    iex> create_job("file:///path/to/metadata.csv")
+    iex> create_job(%{source: "s3://upload-bucket/path/to/metadata.csv", user: "abc123"})
+    iex> create_job(%{source: "file:///path/to/metadata.csv"})
   """
-  def create_job(source_location) do
-    MetadataUpdateJob.changeset(%MetadataUpdateJob{}, %{
-      source: source_location,
-      status: "pending"
-    })
-    |> Repo.insert()
+  def create_job(attrs) do
+    with attrs <- Map.put(attrs, :status, "pending") do
+      MetadataUpdateJob.changeset(%MetadataUpdateJob{}, attrs)
+      |> Repo.insert()
+    end
   end
 
   @doc """
   Update the status of an update job
   """
-  def update_job_status(job, status) do
+  def update_job(job, attrs) do
     job
-    |> MetadataUpdateJob.changeset(%{status: status})
+    |> MetadataUpdateJob.changeset(attrs)
     |> Repo.update!()
   end
 
@@ -68,14 +67,14 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   defp validate_source(false, source) do
-    {:error, [%{source => "does not exist or cannot be read"}]}
+    {:error, [%{row: 0, errors: %{source => "does not exist or cannot be read"}}]}
   end
 
   @doc """
   Run an update job
   """
   def apply_job(%MetadataUpdateJob{status: "pending"} = job) do
-    update_job_status(job, "validating")
+    update_job(job, %{status: "validating"})
 
     case validate_source(job.source) do
       {:ok, rows} ->
@@ -94,7 +93,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   def apply_job(%MetadataUpdateJob{source: source, status: "valid"} = job) do
-    update_job_status(job, "processing")
+    job = update_job(job, %{status: "processing", started_at: DateTime.utc_now()})
 
     multi =
       Meadow.Utils.Stream.stream_from(source)
@@ -109,7 +108,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
         {:ok, result |> Map.get(job.id)}
 
       {:error, id, changeset, _} ->
-        update_job_status(job, "error")
+        update_job(job, %{status: "error"})
 
         {:error, id,
          ChangesetErrors.humanize_errors(changeset,

@@ -10,7 +10,7 @@ defmodule Meadow.CSVMetadataUpdateDriverTest do
   import ExUnit.CaptureLog
 
   setup %{source_url: source_url} do
-    with {:ok, job} <- source_url |> MetadataUpdateJobs.create_job() do
+    with {:ok, job} <- MetadataUpdateJobs.create_job(%{source: source_url}) do
       {:ok, %{job: job}}
     end
   end

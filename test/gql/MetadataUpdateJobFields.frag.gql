@@ -10,4 +10,8 @@ fragment MetadataUpdateJobFields on CsvMetadataUpdateJob {
     }
   }
   status
+  user
+  insertedAt
+  updatedAt
+  startedAt
 }

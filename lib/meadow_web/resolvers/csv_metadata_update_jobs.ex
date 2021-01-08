@@ -12,8 +12,8 @@ defmodule MeadowWeb.Resolvers.Data.CSV.MetadataUpdateJobs do
     {:ok, MetadataUpdateJobs.get_job(id) |> serialize_job_errors()}
   end
 
-  def update(_, %{source: source}, _) do
-    case MetadataUpdateJobs.create_job(source) do
+  def update(_, %{source: source}, %{context: %{current_user: user}}) do
+    case MetadataUpdateJobs.create_job(%{source: source, user: user.username}) do
       {:ok, job} -> {:ok, job}
       {:error, errors} -> {:error, message: "Could not create job", details: errors}
     end

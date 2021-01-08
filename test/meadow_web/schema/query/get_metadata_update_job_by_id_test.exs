@@ -15,7 +15,11 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
         "test/fixtures/csv/work_fixture_update_invalid.csv"
       ]
       |> Enum.map(fn file ->
-        with {:ok, job} <- "file://#{Path.expand(file)}" |> MetadataUpdateJobs.create_job() do
+        with {:ok, job} <-
+               MetadataUpdateJobs.create_job(%{
+                 source: "file://#{Path.expand(file)}",
+                 user: "user1"
+               }) do
           {Path.basename(file), job}
         end
       end)

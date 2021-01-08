@@ -45,6 +45,10 @@ defmodule MeadowWeb.Schema.Data.CSVMetadataUpdateTypes do
     field :rows, :integer
     field :errors, list_of(:row_errors)
     field :status, :string
+    field :inserted_at, :datetime
+    field :started_at, :datetime
+    field :updated_at, :datetime
+    field :user, :string
   end
 
   @desc "Row-based errors for a `metadata_update_job`"

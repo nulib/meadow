@@ -17,6 +17,7 @@ defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
 
       assert {:ok, query_data} = result
       assert get_in(query_data, [:data, "csvMetadataUpdate", "status"]) == "pending"
+      assert get_in(query_data, [:data, "csvMetadataUpdate", "user"]) == "user1"
     end
   end
 end
