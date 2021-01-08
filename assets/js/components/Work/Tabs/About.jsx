@@ -26,6 +26,7 @@ import {
   PHYSICAL_METADATA,
   RIGHTS_METADATA,
   UNCONTROLLED_METADATA,
+  deleteKeyFromObject,
 } from "../../../services/metadata";
 import UIError from "../../UI/Error";
 
@@ -67,6 +68,7 @@ function prepFormData(work) {
       metadataItem: value.edtf,
     })),
     relatedUrl: descriptiveMetadata.relatedUrl,
+    license: descriptiveMetadata.license,
     ...resetValues,
     ...controlledTermResetValues,
   };
@@ -122,10 +124,7 @@ const WorkTabsAbout = ({ work }) => {
         dateCreated: prepEDTFforPost(currentFormValues.dateCreated),
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
-          ? {
-              id: data.license,
-              scheme: "LICENSE",
-            }
+          ? deleteKeyFromObject(JSON.parse(data.license))
           : {},
         rightsStatement: data.rightsStatement
           ? {

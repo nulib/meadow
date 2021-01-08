@@ -348,6 +348,25 @@ export function prepFieldArrayItemsForPost(items = []) {
 }
 
 /**
+ * Convert coded term select options to include scheme
+ * @param {Array} codeListsData Array of object entries
+ * @param {String} codedTerm String representing codedTermScheme
+ * @returns {Array} Array of modified object entries
+ */
+export function getCodedTermSelectOptions(codeListsData = [], codedTerm = "") {
+  return codeListsData.map((option) => {
+    return {
+      ...option,
+      id: JSON.stringify({
+        id: option.id,
+        scheme: codedTerm,
+        label: option.label,
+      }),
+    };
+  });
+}
+
+/**
  * Prepares fieldArray form data for an upcoming GraphQL post
  * @param {Object} controlledTerm
  * @param {Array} keyItems
