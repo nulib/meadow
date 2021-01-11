@@ -28,5 +28,16 @@ defmodule Meadow.Data.Schemas.CollectionTest do
       assert {:error, changeset} = Repo.insert(collection2)
       assert {"has already been taken", _} = changeset.errors[:title]
     end
+
+    test "you can supply an id when you create a collection" do
+      uuid = Ecto.UUID.bingenerate()
+
+      {:ok, collection} =
+        %Collection{}
+        |> Collection.changeset(Map.merge(@valid_attrs, %{id: uuid}))
+        |> Repo.insert()
+
+      assert {:ok, collection.id} == Ecto.UUID.load(uuid)
+    end
   end
 end
