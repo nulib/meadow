@@ -4,9 +4,13 @@ import PropTypes from "prop-types";
 function UIWorkImage({ imageUrl = "", size = 128 }) {
   const src = imageUrl
     ? `${imageUrl}/square/${size},${size}/0/default.jpg`
-    : `/images/480x480.png`;
+    : `/images/placeholder.png`;
 
-  return <img data-testid="image-source" src={src} />;
+  return (
+    <figure data-testid="work-image" className={`image is-${size}x${size}`}>
+      <img src={src} data-testid="image-source" />
+    </figure>
+  );
 }
 
 UIWorkImage.propTypes = {

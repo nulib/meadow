@@ -43,6 +43,8 @@ describe("Batch-edit preview items component", () => {
     );
 
     // Renders default image
-    expect(imageEls[2].getAttribute("src")).toContain(`/images/480x480.png`);
+    expect(imageEls[2].getAttribute("src")).toContain(
+      `/images/placeholder.png`
+    );
   });
 });
