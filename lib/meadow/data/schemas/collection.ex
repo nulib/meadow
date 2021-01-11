@@ -35,6 +35,7 @@ defmodule Meadow.Data.Schemas.Collection do
   def changeset(collection, params \\ %{}) do
     collection
     |> cast(params, [
+      :id,
       :admin_email,
       :description,
       :featured,
