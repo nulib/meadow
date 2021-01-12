@@ -66,6 +66,20 @@ defmodule NUL.AuthorityRecordsTest do
     end
   end
 
+  test "create_authority_record!/1 labels are unique" do
+    AuthorityRecords.create_authority_record!(%{
+      label: "test label",
+      hint: "test hint"
+    })
+
+    assert_raise Ecto.InvalidChangesetError, fn ->
+      AuthorityRecords.create_authority_record!(%{
+        label: "test label",
+        hint: "test hint"
+      })
+    end
+  end
+
   test "update_authority_record/2", %{authority_record: authority_record} do
     assert {:ok, %NUL.Schemas.AuthorityRecord{label: "new label"}} =
              AuthorityRecords.update_authority_record(authority_record, %{label: "new label"})

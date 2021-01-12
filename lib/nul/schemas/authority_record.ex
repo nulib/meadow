@@ -18,12 +18,14 @@ defmodule NUL.Schemas.AuthorityRecord do
     record
     |> cast(params, [:label, :hint])
     |> validate_required([:label])
+    |> unique_constraint(:label)
     |> put_change(:id, generate_nul_id())
   end
 
   def update_changeset(record, params) do
     record
     |> cast(params, [:label, :hint])
+    |> unique_constraint(:label)
   end
 
   defp generate_nul_id do
