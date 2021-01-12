@@ -90,6 +90,21 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         assert MetadataUpdateJobs.reset_stalled(360) == {:ok, 1}
       end
     end
+
+    test "update_job/2", %{create_result: {:ok, job}} do
+      [
+        {"pending", false},
+        {"valid", false},
+        {"validating", true},
+        {"processing", true},
+        {"invalid", false}
+      ]
+      |> Enum.each(fn {status, active} ->
+        with result <- MetadataUpdateJobs.update_job(job, %{status: status}) do
+          assert result.active == active
+        end
+      end)
+    end
   end
 
   describe "bad headers" do

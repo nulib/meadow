@@ -22,8 +22,19 @@ defmodule Meadow.Data.Schemas.CSV.MetadataUpdateJob do
   end
 
   def changeset(job, attrs) do
-    job
-    |> cast(attrs, [:filename, :source, :rows, :errors, :active, :status, :user, :started_at])
-    |> validate_required([:source, :status])
+    with attrs <- set_active(attrs) do
+      job
+      |> cast(attrs, [:filename, :source, :rows, :errors, :active, :status, :user, :started_at])
+      |> validate_required([:source, :status])
+    end
+  end
+
+  defp set_active(attrs) do
+    case Map.get(attrs, :status, nil) do
+      nil -> attrs
+      "processing" -> Map.put(attrs, :active, true)
+      "validating" -> Map.put(attrs, :active, true)
+      _ -> Map.put(attrs, :active, false)
+    end
   end
 end

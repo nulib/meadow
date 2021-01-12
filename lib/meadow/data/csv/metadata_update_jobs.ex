@@ -38,7 +38,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   """
   def create_job(attrs) do
     if Meadow.Utils.Stream.exists?(attrs.source) do
-      with attrs <- Map.merge(attrs, %{active: false, status: "pending"}) do
+      with attrs <- Map.merge(attrs, %{status: "pending"}) do
         MetadataUpdateJob.changeset(%MetadataUpdateJob{}, attrs)
         |> Repo.insert()
       end
@@ -78,13 +78,13 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   Run an update job
   """
   def apply_job(%MetadataUpdateJob{status: "pending"} = job) do
-    update_job(job, %{active: true, status: "validating"})
+    update_job(job, %{status: "validating"})
 
     {:ok, job} =
       with_locked_job(job, fn ->
         case validate_source(job.source) do
-          {:ok, rows} -> update_job(job, %{active: false, status: "valid", rows: rows})
-          {:error, errors} -> update_job(job, %{active: false, status: "invalid", errors: errors})
+          {:ok, rows} -> update_job(job, %{status: "valid", rows: rows})
+          {:error, errors} -> update_job(job, %{status: "invalid", errors: errors})
         end
       end)
 
@@ -96,7 +96,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   def apply_job(%MetadataUpdateJob{source: source, status: "valid"} = job) do
-    job = update_job(job, %{active: true, status: "processing", started_at: DateTime.utc_now()})
+    job = update_job(job, %{status: "processing", started_at: DateTime.utc_now()})
 
     multi =
       Meadow.Utils.Stream.stream_from(source)
@@ -111,7 +111,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
         {:ok, result |> Map.get(job.id)}
 
       {:error, id, changeset, _} ->
-        update_job(job, %{active: false, status: "error"})
+        update_job(job, %{status: "error"})
 
         {:error, id,
          ChangesetErrors.humanize_errors(changeset,
