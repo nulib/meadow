@@ -15,7 +15,7 @@ defmodule Meadow.ReleaseTasks do
 
   def migrate do
     Logger.info("Starting Meadow")
-    System.put_env("NO_WORKERS", "true")
+    System.put_env("MEADOW_PROCESSES", "none")
     Application.ensure_all_started(@app)
     pause!()
 
