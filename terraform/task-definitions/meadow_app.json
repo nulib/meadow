@@ -1,9 +1,9 @@
 [
   {
-    "name": "meadow-app",
+    "name": "meadow-${name}",
     "image": "nulib/meadow:${docker_tag}",
-    "cpu": 2000,
-    "memoryReservation": 4000,
+    "cpu": ${cpu_reservation},
+    "memoryReservation": ${memory_reservation},
     "mountPoints": [
       {
         "sourceVolume": "meadow-working",
@@ -12,6 +12,10 @@
     ],
     "essential": true,
     "environment": [
+      {
+        "name": "MEADOW_PROCESSES",
+        "value": "${processes}"
+      },
       {
         "name": "SECRET_KEY_BASE",
         "value": "${secret_key_base}"

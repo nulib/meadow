@@ -80,7 +80,10 @@ data "aws_s3_bucket" "pyramid_bucket" {
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:ListAllMyBuckets"]
+    actions   = [
+      "s3:CreateBucket", 
+      "s3:ListAllMyBuckets"
+    ]
     resources = ["arn:aws:s3:::*"]
   }
 
@@ -90,6 +93,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
     actions = [
       "s3:ListBucket",
       "s3:GetBucketLocation",
+      "s3:GetBucketPolicy",
+      "s3:PutBucketPolicy"
     ]
 
     resources = [
