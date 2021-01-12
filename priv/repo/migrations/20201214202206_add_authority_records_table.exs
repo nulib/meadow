@@ -10,6 +10,7 @@ defmodule Meadow.Repo.Migrations.AddAuthorityRecordsTable do
       timestamps()
     end
 
+    create(unique_index(:authority_records, [:label]))
     create(index(:authority_records, ["lower(label)"]))
     create(index(:authority_records, [:inserted_at, :id]))
   end
