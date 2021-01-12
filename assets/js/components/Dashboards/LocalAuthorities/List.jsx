@@ -122,7 +122,7 @@ export default function DashboardsLocalAuthoritiesList() {
               <tr key={id} data-testid="nul-authorities-row">
                 <td>{label}</td>
                 <td>{hint}</td>
-                <td className="is-size-7">{id}</td>
+                <td>{id}</td>
 
                 <td className="has-text-right buttons is-right">
                   <Button
