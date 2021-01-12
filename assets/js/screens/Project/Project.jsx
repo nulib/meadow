@@ -16,6 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensProject = () => {
   const history = useHistory();
@@ -142,27 +144,31 @@ const ScreensProject = () => {
                 {loading ? (
                   <UISkeleton rows={15} />
                 ) : (
-                  <IngestSheetList
-                    project={data.project}
-                    subscribeToIngestSheetStatusChanges={() =>
-                      subscribeToMore({
-                        document: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-                        variables: { projectId: id },
-                        updateQuery: handleIngestSheetStatusChange,
-                      })
-                    }
-                  />
+                  <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                    <IngestSheetList
+                      project={data.project}
+                      subscribeToIngestSheetStatusChanges={() =>
+                        subscribeToMore({
+                          document: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
+                          variables: { projectId: id },
+                          updateQuery: handleIngestSheetStatusChange,
+                        })
+                      }
+                    />
+                  </ErrorBoundary>
                 )}
               </div>
             </>
           </div>
         </section>
       </div>
-      <ProjectIngestSheetModal
-        closeModal={() => setIsModalHidden(true)}
-        isHidden={isModalHidden}
-        projectId={id}
-      />
+      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+        <ProjectIngestSheetModal
+          closeModal={() => setIsModalHidden(true)}
+          isHidden={isModalHidden}
+          projectId={id}
+        />
+      </ErrorBoundary>
     </Layout>
   );
 };

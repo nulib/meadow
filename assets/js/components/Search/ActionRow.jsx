@@ -89,7 +89,7 @@ export default function SearchActionRow({
       >
         <Button
           isLight
-          className="is-fullwidth mb-4 is-large"
+          className="is-fullwidth mb-4"
           data-testid="button-batch-all-edit"
           onClick={handleEditAllItemsClick}
         >
@@ -100,7 +100,7 @@ export default function SearchActionRow({
         </Button>
         <Button
           isLight
-          className="is-fullwidth is-large"
+          className="is-fullwidth"
           data-testid="button-csv-all-export"
           onClick={handleCsvExportAllItemsClick}
         >
@@ -118,7 +118,7 @@ export default function SearchActionRow({
       >
         <Button
           isLight
-          className="is-fullwidth mb-4 is-large"
+          className="is-fullwidth mb-4"
           data-testid="button-batch-items-edit"
           onClick={handleEditItemsClick}
         >
@@ -129,7 +129,7 @@ export default function SearchActionRow({
         </Button>
         <Button
           isLight
-          className="is-fullwidth mb-4 is-large"
+          className="is-fullwidth mb-4"
           data-testid="button-view-and-edit"
           onClick={handleViewAndEditClick}
         >
@@ -140,7 +140,7 @@ export default function SearchActionRow({
         </Button>
         <Button
           isLight
-          className="is-fullwidth is-large"
+          className="is-fullwidth"
           data-testid="button-csv-items-export"
           onClick={handleCsvExportItemsClick}
         >

@@ -65,8 +65,8 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
           <div>
             <UIPreviewItems items={works} />
 
-            <div className="mb-4 mt-2">
-              <Button onClick={handleClick} className="is-fullwidth">
+            <div className="my-4 has-text-centered">
+              <Button onClick={handleClick}>
                 <span className="icon">
                   <FontAwesomeIcon icon="eye" />
                 </span>

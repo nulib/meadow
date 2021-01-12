@@ -2,6 +2,8 @@ import React from "react";
 import Layout from "@js/screens/Layout";
 import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsBatchEditList from "@js/components/Dashboards/BatchEdit/List";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 function ScreensDashboardsBatchEditList(props) {
   return (
@@ -25,7 +27,9 @@ function ScreensDashboardsBatchEditList(props) {
             <h1 className="title" data-testid="batch-edit-dashboard-title">
               Batch Edit Dashboard
             </h1>
-            <DashboardsBatchEditList />
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <DashboardsBatchEditList />
+            </ErrorBoundary>
           </div>
         </div>
       </section>

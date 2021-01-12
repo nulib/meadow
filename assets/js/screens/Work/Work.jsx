@@ -18,6 +18,7 @@ import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotifica
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -108,7 +109,7 @@ const ScreensWork = () => {
 
   return (
     <Layout>
-      <ErrorBoundary FallbackComponent={ErrorFallbackHeader}>
+      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
         <section className="section" data-testid="work-hero">
           <div className="container">
             <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
@@ -200,34 +201,12 @@ const ScreensWork = () => {
       {loading ? (
         <UISkeleton rows={20} />
       ) : (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
           <Work work={data.work} />
         </ErrorBoundary>
       )}
     </Layout>
   );
 };
-
-function ErrorFallback({ error }) {
-  return (
-    <div role="alert" className="notification is-danger">
-      <p>There was an error displaying the Work</p>
-      <p>
-        <strong>Error</strong>: {error.message}
-      </p>
-    </div>
-  );
-}
-
-function ErrorFallbackHeader({ error }) {
-  return (
-    <div role="alert" className="notification is-danger">
-      <p>There was an error displaying the header of the Work</p>
-      <p>
-        <strong>Error</strong>: {error.message}
-      </p>
-    </div>
-  );
-}
 
 export default ScreensWork;

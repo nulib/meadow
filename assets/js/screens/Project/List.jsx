@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import Layout from "../Layout";
 import ProjectList from "../../components/Project/List";
 import ProjectForm from "../../components/Project/Form";
-// import { PrimaryButton } from "nulib-admin-ui-components";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import UILevelItem from "../../components/UI/LevelItem";
 import { Button } from "@nulib/admin-react-components";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -48,13 +49,17 @@ const ScreensProjectList = () => {
 
           <div className="box">
             <div data-testid="screen-content">
-              <ProjectList />
+              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <ProjectList />
+              </ErrorBoundary>
             </div>
           </div>
         </div>
       </section>
 
-      <ProjectForm showForm={showForm} setShowForm={setShowForm} />
+      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+        <ProjectForm showForm={showForm} setShowForm={setShowForm} />
+      </ErrorBoundary>
     </Layout>
   );
 };

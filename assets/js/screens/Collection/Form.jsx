@@ -4,10 +4,11 @@ import CollectionForm from "../../components/Collection/Form";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
 import UILoadingPage from "../../components/UI/LoadingPage";
-import UISkeleton from "../../components/UI/Skeleton";
 import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
 import { useQuery } from "@apollo/client";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensCollectionForm = () => {
   const { id } = useParams();
@@ -60,7 +61,9 @@ const ScreensCollectionForm = () => {
                 <h1 className="title" data-testid="collection-form-title">
                   {collection ? "Edit" : "Add New"} Collection
                 </h1>
-                <CollectionForm collection={collection} />
+                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <CollectionForm collection={collection} />
+                </ErrorBoundary>
               </div>
             </div>
           </div>
