@@ -5,6 +5,25 @@ defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
 
   load_gql(MeadowWeb.Schema, "test/gql/MetadataUpdate.gql")
 
+  describe "missing file" do
+    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+
+    test "should return an error" do
+      result =
+        query_gql(
+          variables: %{"filename" => "missing.csv", "source" => "s3://test-uploads/missing.csv"},
+          context: gql_context()
+        )
+
+      assert {:ok, query_data} = result
+
+      with [error] <- get_in(query_data, [:data, :errors]) do
+        assert error.message == "Could not create job"
+        assert error.details == "s3://test-uploads/missing.csv does not exist"
+      end
+    end
+  end
+
   describe "valid update" do
     @describetag source: "test/fixtures/csv/work_fixture_update.csv"
 

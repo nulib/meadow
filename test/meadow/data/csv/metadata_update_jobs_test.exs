@@ -19,6 +19,18 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     end
   end
 
+  describe "missing file" do
+    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+
+    test "create_job/1" do
+      assert MetadataUpdateJobs.create_job(%{
+               filename: "missing.csv",
+               source: "s3://test-uploads/missing.csv",
+               user: "validUser"
+             }) == {:error, "s3://test-uploads/missing.csv does not exist"}
+    end
+  end
+
   describe "valid data" do
     @describetag source: "test/fixtures/csv/work_fixture_update.csv"
 

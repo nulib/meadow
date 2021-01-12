@@ -37,9 +37,13 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     iex> create_job(%{source: "file:///path/to/metadata.csv"})
   """
   def create_job(attrs) do
-    with attrs <- Map.merge(attrs, %{active: false, status: "pending"}) do
-      MetadataUpdateJob.changeset(%MetadataUpdateJob{}, attrs)
-      |> Repo.insert()
+    if Meadow.Utils.Stream.exists?(attrs.source) do
+      with attrs <- Map.merge(attrs, %{active: false, status: "pending"}) do
+        MetadataUpdateJob.changeset(%MetadataUpdateJob{}, attrs)
+        |> Repo.insert()
+      end
+    else
+      {:error, "#{attrs.source} does not exist"}
     end
   end
 
@@ -79,17 +83,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     {:ok, job} =
       with_locked_job(job, fn ->
         case validate_source(job.source) do
-          {:ok, rows} ->
-            MetadataUpdateJob.changeset(job, %{active: false, status: "valid", rows: rows})
-            |> Repo.update!()
-
-          {:error, errors} ->
-            MetadataUpdateJob.changeset(job, %{
-              active: false,
-              status: "invalid",
-              errors: errors
-            })
-            |> Repo.update!()
+          {:ok, rows} -> update_job(job, %{active: false, status: "valid", rows: rows})
+          {:error, errors} -> update_job(job, %{active: false, status: "invalid", errors: errors})
         end
       end)
 
@@ -116,7 +111,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
         {:ok, result |> Map.get(job.id)}
 
       {:error, id, changeset, _} ->
-        update_job(job, %{status: "error"})
+        update_job(job, %{active: false, status: "error"})
 
         {:error, id,
          ChangesetErrors.humanize_errors(changeset,
