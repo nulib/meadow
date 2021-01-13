@@ -7,6 +7,8 @@ defmodule Meadow.Data.Schemas.CSV.MetadataUpdateJob do
   import Ecto.Changeset
   import Ecto.Query, warn: false
 
+  @active_states ~w(processing validating)
+
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "csv_metadata_update_jobs" do
@@ -30,11 +32,12 @@ defmodule Meadow.Data.Schemas.CSV.MetadataUpdateJob do
   end
 
   defp set_active(attrs) do
-    case Map.get(attrs, :status, nil) do
-      nil -> attrs
-      "processing" -> Map.put(attrs, :active, true)
-      "validating" -> Map.put(attrs, :active, true)
-      _ -> Map.put(attrs, :active, false)
+    with status <- Map.get(attrs, :status, nil) do
+      cond do
+        is_nil(status) -> attrs
+        Enum.member?(@active_states, status) -> Map.put(attrs, :active, true)
+        true -> Map.put(attrs, :active, false)
+      end
     end
   end
 end

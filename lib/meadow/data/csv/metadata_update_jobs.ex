@@ -12,6 +12,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   import Ecto.Query, warn: false
 
   @chunk_size 500
+  @runnable_states ~w(pending valid)
 
   @doc """
   Retrieve a list of update jobs
@@ -159,8 +160,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       do: nil,
       else:
         from(job in MetadataUpdateJob,
-          where: job.status in ["pending", "valid"],
-          order_by: [asc: :updated_at],
+          where: job.status in @runnable_states,
+          order_by: [asc: :inserted_at],
           limit: 1
         )
         |> Repo.one()
