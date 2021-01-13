@@ -3,6 +3,8 @@ import Layout from "@js/screens/Layout";
 import { useParams } from "react-router-dom";
 import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsBatchEditDetails from "@js/components/Dashboards/BatchEdit/Details";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 export default function ScreensDashboardsBatchEditDetails() {
   const params = useParams();
@@ -33,7 +35,9 @@ export default function ScreensDashboardsBatchEditDetails() {
             <h1 className="title" data-testid="page-title">
               Batch Edit Details
             </h1>
-            <DashboardsBatchEditDetails id={params.id} />
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <DashboardsBatchEditDetails id={params.id} />
+            </ErrorBoundary>
           </div>
         </div>
       </section>

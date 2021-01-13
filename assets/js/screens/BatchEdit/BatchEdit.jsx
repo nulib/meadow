@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useBatchState } from "@js/context/batch-edit-context";
 import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 import UISkeleton from "@js/components/UI/Skeleton";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -96,7 +98,9 @@ const ScreensBatchEdit = () => {
                       </span>
                       You are batch editing the following {resultsCount} items.
                     </p>
-                    <UIPreviewItems items={previewItems} />
+                    <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                      <UIPreviewItems items={previewItems} />
+                    </ErrorBoundary>
                   </div>
                 )}
               </div>
@@ -122,7 +126,9 @@ const ScreensBatchEdit = () => {
       {isActiveSearch && (
         <section className="section">
           <div className="container" data-testid="tabs-wrapper">
-            <BatchEditTabs />
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <BatchEditTabs />
+            </ErrorBoundary>
           </div>
         </section>
       )}

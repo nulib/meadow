@@ -4,7 +4,7 @@ import { SelectedFilters } from "@appbaseio/reactivesearch";
 import SearchBar from "../../components/UI/SearchBar";
 import SearchResults from "../../components/Search/Results";
 import SearchFacetSidebar from "../../components/Search/FacetSidebar";
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import SearchActionRow from "../../components/Search/ActionRow";
 import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
 import {
@@ -15,6 +15,7 @@ import {
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 async function getParsedAggregations(query) {
   try {
@@ -173,7 +174,7 @@ const ScreensSearch = () => {
               />
             </div>
 
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <SearchResults
                 handleOnDataChange={handleOnDataChange}
                 handleQueryChange={handleQueryChange}
@@ -188,16 +189,5 @@ const ScreensSearch = () => {
     </Layout>
   );
 };
-
-function ErrorFallback({ error }) {
-  return (
-    <div role="alert" className="notification is-danger">
-      <p>There was an error displaying Search</p>
-      <p>
-        <strong>Error</strong>: {error.message}
-      </p>
-    </div>
-  );
-}
 
 export default ScreensSearch;

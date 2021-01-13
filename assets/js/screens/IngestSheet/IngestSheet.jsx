@@ -13,6 +13,8 @@ import {
 import IngestSheetAlert from "../../components/IngestSheet/Alert";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: ID!) {
@@ -105,12 +107,14 @@ const ScreensIngestSheet = ({ match }) => {
                     </h1>
                   </div>
                   <div className="column is-half">
-                    <IngestSheetActionRow
-                      sheetId={sheetId}
-                      projectId={id}
-                      status={sheetData.ingestSheet.status}
-                      title={sheetData.ingestSheet.title}
-                    />
+                    <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                      <IngestSheetActionRow
+                        sheetId={sheetId}
+                        projectId={id}
+                        status={sheetData.ingestSheet.status}
+                        title={sheetData.ingestSheet.title}
+                      />
+                    </ErrorBoundary>
                   </div>
                 </div>
 
@@ -145,11 +149,13 @@ const ScreensIngestSheet = ({ match }) => {
           {sheetLoading ? (
             <UISkeleton rows={20} />
           ) : (
-            <IngestSheet
-              ingestSheetData={sheetData.ingestSheet}
-              projectId={id}
-              subscribeToIngestSheetUpdates={sheetSubscribeToMore}
-            />
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <IngestSheet
+                ingestSheetData={sheetData.ingestSheet}
+                projectId={id}
+                subscribeToIngestSheetUpdates={sheetSubscribeToMore}
+              />
+            </ErrorBoundary>
           )}
         </div>
       </section>

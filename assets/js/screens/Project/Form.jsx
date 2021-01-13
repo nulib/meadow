@@ -1,20 +1,10 @@
 import React from "react";
 import Layout from "../Layout";
 import ProjectForm from "../../components/Project/Form";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensProjectForm = ({}) => {
-  const createCrumbs = () => {
-    return [
-      {
-        title: "Projects",
-        link: "/project/list"
-      },
-      {
-        title: `Create`,
-        link: `/project/create`
-      }
-    ];
-  };
   return (
     <Layout>
       <section className="hero is-light">
@@ -24,7 +14,9 @@ const ScreensProjectForm = ({}) => {
           </div>
         </div>
       </section>
-      <ProjectForm />
+      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+        <ProjectForm />
+      </ErrorBoundary>
     </Layout>
   );
 };

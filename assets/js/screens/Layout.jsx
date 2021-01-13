@@ -2,14 +2,20 @@ import React from "react";
 import PropTypes from "prop-types";
 import UILayoutFooter from "../components/UI/Layout/Footer";
 import UILayoutNavBar from "../components/UI/Layout/NavBar";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const Layout = ({ children }) => {
   return (
     <div id="root">
-      <UILayoutNavBar />
+      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+        <UILayoutNavBar />
+      </ErrorBoundary>
       <div>
         <main>{children}</main>
-        <UILayoutFooter />
+        <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+          <UILayoutFooter />
+        </ErrorBoundary>
       </div>
     </div>
   );

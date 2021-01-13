@@ -17,6 +17,8 @@ import { toastWrapper } from "../../services/helpers";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import Layout from "../Layout";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -149,8 +151,9 @@ const ScreensCollection = () => {
                     </DisplayAuthorized>
                   </div>
                 </div>
-
-                <Collection collection={data.collection} />
+                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <Collection collection={data.collection} />
+                </ErrorBoundary>
               </>
             )}
           </div>

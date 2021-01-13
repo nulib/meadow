@@ -23,14 +23,14 @@ const WorkListItem = ({
     <>
       <article className="media" data-testid="ui-worklist-item">
         <figure className="media-left">
-          <p className="image is-128x128">
+          <div className="image is-128x128">
             <Link to={`/work/${id}`} className="hvr-shrink">
               <UIWorkImage
                 imageUrl={getImageUrl(representativeImage)}
                 size={500}
               />
             </Link>
-          </p>
+          </div>
         </figure>
         <div className="media-content">
           <h3 className="title is-size-5">

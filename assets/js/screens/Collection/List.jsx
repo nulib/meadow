@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import CollectionListRow from "../../components/Collection/ListRow";
 import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTIONS,
@@ -7,7 +6,7 @@ import {
 } from "../../components/Collection/collection.gql.js";
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { toastWrapper } from "../../services/helpers";
 import Layout from "../Layout";
@@ -17,6 +16,9 @@ import UIFormInput from "../../components/UI/Form/Input";
 import UIFormField from "../../components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import CollectionsList from "@js/components/Collection/List";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -130,26 +132,19 @@ const ScreensCollectionList = () => {
                   </span>
                 </UIFormField>
 
-                <ul>
-                  {filteredCollections.length > 0 &&
-                    filteredCollections.map((collection) => (
-                      <CollectionListRow
-                        key={collection.id}
-                        collection={collection}
-                        onOpenModal={onOpenModal}
-                      />
-                    ))}
-                </ul>
-                {data.collections.length === 0 && (
-                  <div className="content">
-                    <p className="notification">No collections returned</p>
-                  </div>
-                )}
+                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <CollectionsList
+                    collections={data.collections}
+                    filteredCollections={filteredCollections}
+                    onOpenModal={onOpenModal}
+                  />
+                </ErrorBoundary>
               </>
             )}
           </div>
         </div>
       </section>
+
       <UIModalDelete
         isOpen={modalOpen}
         handleClose={onCloseModal}
