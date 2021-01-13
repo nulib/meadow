@@ -34,7 +34,9 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   def update_project(_, args, _) do
-    case Projects.create_project(args) do
+    project = Projects.get_project!(args[:id])
+
+    case Projects.update_project(project, args) do
       {:error, changeset} ->
         {:error,
          message: "Could not update project", details: ChangesetErrors.humanize_errors(changeset)}

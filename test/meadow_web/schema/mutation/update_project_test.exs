@@ -19,8 +19,8 @@ defmodule MeadowWeb.Schema.Mutation.UpdateProjectTest do
 
       assert {:ok, query_data} = result
 
-      title = get_in(query_data, [:data, "updateProject", "title"])
-      assert title == "The New Title"
+      assert project.id == get_in(query_data, [:data, "updateProject", "id"])
+      assert "The New Title" == get_in(query_data, [:data, "updateProject", "title"])
     end
   end
 
