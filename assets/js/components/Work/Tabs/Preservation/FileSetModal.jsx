@@ -10,6 +10,12 @@ import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preser
 import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
 import Error from "@js/components/UI/Error";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const modalCss = css`
+  z-index: 100;
+`;
+
 function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
   const [currentFile, setCurrentFile] = useState();
   const [uploadProgress, setUploadProgress] = useState();
@@ -138,7 +144,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
   if (urlLoading) return <p>Presigned URL Loading</p>;
 
   return (
-    <div className={`modal ${isHidden ? "" : "is-active"}`}>
+    <div className={`modal ${isHidden ? "" : "is-active"}`} css={modalCss}>
       <div className="modal-background"></div>
 
       {urlError ? (

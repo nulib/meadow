@@ -10,6 +10,12 @@ import UILayoutNavDropdownHeader from "./NavDropdownHeader";
 import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+const navBarStyle = css`
+  z-index: 200 !important;
+`;
+
 const UILayoutNavBar = () => {
   const currentUser = useContext(AuthContext);
   const [showSearch, setShowSearch] = useState();
@@ -42,6 +48,7 @@ const UILayoutNavBar = () => {
         className="navbar is-fixed-top"
         aria-label="main navigation"
         id="main-navigation"
+        css={navBarStyle}
       >
         <div className="navbar-brand">
           <Link className="navbar-item" to="/">
