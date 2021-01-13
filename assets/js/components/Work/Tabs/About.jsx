@@ -222,7 +222,7 @@ const WorkTabsAbout = ({ work }) => {
             <div className="columns">
               <div className="column">
                 <UIFormField label="ARK">
-                  <p>{work.ark}</p>
+                  <p>{work.descriptiveMetadata.ark}</p>
                 </UIFormField>
               </div>
               <div className="column">
