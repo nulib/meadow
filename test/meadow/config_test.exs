@@ -23,8 +23,12 @@ defmodule Meadow.ConfigTest do
     assert Config.pyramid_bucket() == "test-pyramids"
   end
 
-  test "pyramid_processor/0" do
-    assert Path.basename(Config.pyramid_processor()) == "cli.js"
+  test "lambda_config/1" do
+    assert {:local, {script, handler}} = Config.lambda_config(:edtf)
+    assert script =~ ~r(priv/nodejs/edtf/index.js$)
+    assert handler == "handler"
+
+    assert Config.lambda_config(:missing) == {:error, :unknown}
   end
 
   test "buckets/0" do
@@ -41,7 +45,7 @@ defmodule Meadow.ConfigTest do
     refute Config.environment?(:dev)
   end
 
-  test "tiff_port_environment/0" do
+  test "aws_environment/0" do
     get_val = fn env, key ->
       env
       |> Enum.find_value(fn
@@ -50,7 +54,7 @@ defmodule Meadow.ConfigTest do
       end)
     end
 
-    with env <- Config.tiff_port_environment() do
+    with env <- Config.aws_environment() do
       assert env |> get_val.('AWS_REGION') == 'us-east-1'
       assert env |> get_val.('AWS_SECRET_ACCESS_KEY') == 'minio123'
       assert env |> get_val.('AWS_ACCESS_KEY_ID') == 'minio'

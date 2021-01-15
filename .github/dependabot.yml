@@ -14,7 +14,7 @@ updates:
       - dependency-name: "react-hook-form"
       - dependency-name: "webpack-cli"
   - package-ecosystem: npm
-    directory: "/priv/tiff"
+    directory: "/priv/nodejs/*"
     schedule:
       interval: daily
       time: "11:00"

@@ -11,7 +11,7 @@ Jenkinsfile
 priv/cert
 priv/seed_data
 priv/static
-priv/tiff/node_modules
+priv/nodejs/*/node_modules
 README.md
 terraform
 test
