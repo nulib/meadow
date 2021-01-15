@@ -1,7 +1,6 @@
 defmodule MeadowWeb.Schema.Query.GetBatchByIdTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
-  alias Meadow.Batches
 
   load_gql(MeadowWeb.Schema, "test/gql/GetBatchById.gql")
 

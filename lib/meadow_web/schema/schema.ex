@@ -21,6 +21,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.FieldTypes)
   import_types(__MODULE__.Data.SharedLinkTypes)
   import_types(__MODULE__.HelperTypes)
+  import_types(__MODULE__.Data.CSVMetadataUpdateTypes)
   import_types(__MODULE__.NULAuthorityTypes)
 
   query do
@@ -32,6 +33,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:file_set_queries)
     import_fields(:helper_queries)
     import_fields(:ingest_queries)
+    import_fields(:csv_metadata_update_queries)
     import_fields(:nul_authority_queries)
     import_fields(:work_queries)
   end
@@ -42,6 +44,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:collection_mutations)
     import_fields(:file_set_mutations)
     import_fields(:ingest_mutations)
+    import_fields(:csv_metadata_update_mutations)
     import_fields(:nul_authority_mutations)
     import_fields(:shared_link_mutations)
     import_fields(:work_mutations)
@@ -72,6 +75,11 @@ defmodule MeadowWeb.Schema do
   object :error do
     field :field, non_null(:string)
     field :message, non_null(:string)
+  end
+
+  object :errors do
+    field :field, non_null(:string)
+    field :messages, list_of(:string)
   end
 
   def context(ctx) do

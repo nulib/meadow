@@ -15,10 +15,12 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
       |> fetch_session
       |> get_session(:current_user)
 
+    token = conn |> Map.get(:req_cookies, %{}) |> Map.get("_meadow_key", "")
+
     case refresh_user(user) do
       user = %User{} ->
         conn
-        |> Absinthe.Plug.put_options(context: %{current_user: user})
+        |> Absinthe.Plug.put_options(context: %{auth_token: token, current_user: user})
         |> Plug.Conn.assign(:current_user, user)
 
       nil ->
