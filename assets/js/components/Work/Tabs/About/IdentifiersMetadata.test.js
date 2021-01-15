@@ -34,6 +34,6 @@ describe("Work About Tab Identifiers metadata component", () => {
     for (let item of IDENTIFIER_METADATA) {
       expect(await screen.findByTestId(item.name));
     }
-    expect(screen.findByTestId("relatedUrl"));
+    expect(await screen.findByTestId("relatedUrl"));
   });
 });

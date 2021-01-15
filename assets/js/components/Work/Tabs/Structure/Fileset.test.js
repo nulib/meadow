@@ -64,7 +64,7 @@ describe("Fileset component", () => {
     });
 
     it("renders the component", async () => {
-      expect(screen.findByTestId("fileset-item"));
+      expect(await screen.findByTestId("fileset-item"));
     });
 
     it("renders label and description form elements", () => {

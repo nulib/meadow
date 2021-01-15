@@ -5,7 +5,7 @@ import UIWorkImage from "./WorkImage";
 import { getImageUrl } from "@js/services/helpers";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 
 const inlineList = css`
   white-space: nowrap;

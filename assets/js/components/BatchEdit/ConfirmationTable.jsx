@@ -5,7 +5,7 @@ import { getMetadataLabel } from "@js/services/metadata";
 import { useCodeLists } from "@js/context/code-list-context";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const displayTable = css`
   tbody td {
     word-break: break-word;

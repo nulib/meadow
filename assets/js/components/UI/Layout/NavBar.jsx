@@ -11,7 +11,7 @@ import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const navBarStyle = css`
   z-index: 200 !important;
 `;

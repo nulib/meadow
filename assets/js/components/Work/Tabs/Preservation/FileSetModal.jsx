@@ -11,7 +11,7 @@ import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservati
 import Error from "@js/components/UI/Error";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const modalCss = css`
   z-index: 100;
 `;

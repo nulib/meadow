@@ -7,7 +7,7 @@ import { useBatchDispatch } from "../../context/batch-edit-context";
 import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const listItem = css`
   display: flex;
   align-items: center;
