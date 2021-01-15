@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 
 const SearchSelectable = ({

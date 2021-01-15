@@ -8,7 +8,7 @@ import { splitFacetKey } from "../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 
 const modalContent = css`
   width: 75%;

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 
 const wrapperBar = css`
   display: flex;

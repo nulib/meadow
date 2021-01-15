@@ -5,7 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { formatBytes } from "@js/services/helpers";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const dropZone = css`
   background: #efefef;
   border: 3px dashed #ccc;

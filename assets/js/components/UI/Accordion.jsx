@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 
 const UIAccordion = ({ title, testid, defaultOpen = true, children }) => {
   const [isContentOpen, setIsContentOpen] = useState(defaultOpen);

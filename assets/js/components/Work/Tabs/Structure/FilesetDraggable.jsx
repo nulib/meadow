@@ -5,7 +5,7 @@ import UIFormField from "@js/components/UI/Form/Field";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 
 const content = css`
   display: flex;

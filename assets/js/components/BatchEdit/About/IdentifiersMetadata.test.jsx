@@ -23,15 +23,13 @@ describe("BatchEditAboutIdentifiersMetadata component", () => {
   });
 
   it("renders the component", async () => {
-    expect(
-      await screen.findByTestId("identifiers-metadata")
-    ).toBeInTheDocument();
+    expect(await screen.findByTestId("identifiers-metadata"));
   });
 
   it("renders expected identifiers metadata fields", async () => {
     for (let item of IDENTIFIER_METADATA) {
       expect(await screen.findByTestId(item.name));
     }
-    expect(screen.findByTestId("relatedUrl"));
+    expect(await screen.findByTestId("relatedUrl"));
   });
 });

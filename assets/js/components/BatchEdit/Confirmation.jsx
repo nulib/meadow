@@ -11,7 +11,7 @@ import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const verifyInputWrapper = css`
   width: 100%;
   max-width: 400px;

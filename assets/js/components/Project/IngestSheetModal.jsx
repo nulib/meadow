@@ -11,7 +11,7 @@ import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/core";
+import { css, jsx } from "@emotion/react";
 const dropZone = css`
   background: #efefef;
   border: 3px dashed #ccc;

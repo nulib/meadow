@@ -20,11 +20,11 @@ describe("ProjectForm component", () => {
   });
 
   it("displays input error when project title text input has no value", async () => {
-    const el = screen.getByTestId("project-title-input");
+    const el = await screen.findByTestId("project-title-input");
     expect(el);
 
     userEvent.type(el, "");
     userEvent.click(screen.getByTestId("submit-button"));
-    expect(screen.findByTestId("input-errors"));
+    expect(await screen.findByTestId("input-errors"));
   });
 });
