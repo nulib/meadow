@@ -126,6 +126,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     test "apply_job/1", %{create_result: result} do
       assert {:ok, job} = result
       assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
+      refute MetadataUpdateJobs.get_job(job.id) |> Map.get(:active)
 
       assert errors == [
                %{

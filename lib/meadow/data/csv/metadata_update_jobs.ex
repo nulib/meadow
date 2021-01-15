@@ -79,7 +79,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   Run an update job
   """
   def apply_job(%MetadataUpdateJob{status: "pending"} = job) do
-    update_job(job, %{status: "validating"})
+    job = update_job(job, %{status: "validating"})
 
     {:ok, job} =
       with_locked_job(job, fn ->
