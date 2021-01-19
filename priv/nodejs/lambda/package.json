@@ -1,0 +1,11 @@
+{
+  "name": "lambda",
+  "version": "0.1.0",
+  "description": "Run nodejs lambda code from Elixir",
+  "main": "index.js",
+  "author": "mbklein",
+  "license": "Apache2",
+  "dependencies": {
+    "require-hook": "^0.1.2"
+  }
+}

@@ -13,13 +13,13 @@ COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
 RUN yarn install
-COPY ./priv/edtf/package.json /app/priv/edtf/package.json
-COPY ./priv/edtf/yarn.lock /app/priv/edtf/yarn.lock
-WORKDIR /app/priv/edtf
+COPY ./priv/nodejs/edtf/package.json /app/priv/nodejs/edtf/package.json
+COPY ./priv/nodejs/edtf/yarn.lock /app/priv/nodejs/edtf/yarn.lock
+WORKDIR /app/priv/nodejs/edtf
 RUN yarn install
-COPY ./priv/tiff/package.json /app/priv/tiff/package.json
-COPY ./priv/tiff/yarn.lock /app/priv/tiff/yarn.lock
-WORKDIR /app/priv/tiff
+COPY ./priv/nodejs/tiff/package.json /app/priv/nodejs/tiff/package.json
+COPY ./priv/nodejs/tiff/yarn.lock /app/priv/nodejs/tiff/yarn.lock
+WORKDIR /app/priv/nodejs/tiff
 RUN yarn install
 
 # Create elixir release
@@ -29,8 +29,8 @@ COPY . /app
 COPY --from=deps /app/_build /app/_build
 COPY --from=deps /app/deps /app/deps
 COPY --from=deps /app/assets/node_modules /app/assets/node_modules
-COPY --from=deps /app/priv/edtf/node_modules /app/priv/edtf/node_modules
-COPY --from=deps /app/priv/tiff/node_modules /app/priv/tiff/node_modules
+COPY --from=deps /app/priv/nodejs/edtf/node_modules /app/priv/nodejs/edtf/node_modules
+COPY --from=deps /app/priv/nodejs/tiff/node_modules /app/priv/nodejs/tiff/node_modules
 WORKDIR /app
 RUN mix release --overwrite
 

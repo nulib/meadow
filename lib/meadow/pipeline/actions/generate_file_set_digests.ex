@@ -6,15 +6,17 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   * Kicked off manually
 
   """
+  alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils
+  alias Meadow.Utils.Lambda
   alias Sequins.Pipeline.Action
+
   use Action
   use Meadow.Pipeline.Actions.Common
+
   require Logger
 
   @actiondoc "Generate Digests for FileSet"
-  @hashes [:sha256]
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     file_set = FileSets.get_file_set!(file_set_id)
@@ -24,6 +26,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
       Logger.info("Generating digests for #{file_set.id}")
 
       hashes = generate_hashes(file_set.metadata.location)
+      Logger.info("Hash for #{file_set.id}: #{hashes.sha256}")
 
       {:ok, _} =
         file_set
@@ -43,31 +46,11 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   end
 
   def generate_hashes(url) do
-    url
-    |> Utils.Stream.stream_from()
-    |> Enum.reduce(init_hashes(), &update_hashes(&2, &1))
-    |> finalize_hashes()
-  end
+    %{host: bucket, path: "/" <> key} = URI.parse(url)
 
-  defp init_hashes do
-    Enum.map(@hashes, fn type -> :crypto.hash_init(type) end)
-  end
-
-  defp update_hashes(states, chunk) do
-    states
-    |> Enum.map(fn state -> :crypto.hash_update(state, chunk) end)
-  end
-
-  defp finalize_hashes(states) do
-    @hashes
-    |> Enum.zip(
-      states
-      |> Enum.map(fn state ->
-        :crypto.hash_final(state)
-        |> Base.encode16()
-        |> String.downcase()
-      end)
-    )
-    |> Enum.into(%{})
+    case Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key}) do
+      {:ok, result} -> %{sha256: result}
+      {:error, error} -> raise error
+    end
   end
 end

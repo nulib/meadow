@@ -3,7 +3,10 @@ defmodule EDTF do
   EDTF Parsing GenServer
   """
 
-  use GenServer
+  alias Meadow.Config
+  alias Meadow.Utils.Lambda
+
+  import Meadow.Utils.Atoms
 
   require Logger
 
@@ -19,7 +22,12 @@ defmodule EDTF do
     iex> parse("bad date!")
     {:error, "Invalid EDTF input: bad date!"}
   """
-  def parse(value), do: GenServer.call(__MODULE__, {:parse, value})
+  def parse(value) do
+    case Lambda.invoke(Config.lambda_config(:edtf), %{function: :parse, value: value}, @timeout) do
+      {:ok, result} -> {:ok, atomize(result)}
+      other -> other
+    end
+  end
 
   @doc """
   Validate an EDTF date string
@@ -31,7 +39,8 @@ defmodule EDTF do
     iex> validate("bad date!")
     {:error, "Invalid EDTF input: bad date!"}
   """
-  def validate(value), do: GenServer.call(__MODULE__, {:validate, value})
+  def validate(value),
+    do: Lambda.invoke(Config.lambda_config(:edtf), %{function: :validate, value: value}, @timeout)
 
   @doc """
   Humanize an EDTF date string
@@ -47,58 +56,6 @@ defmodule EDTF do
     case value |> parse() |> EDTF.Humanize.humanize() do
       :original -> value
       other -> other
-    end
-  end
-
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]}
-    }
-  end
-
-  def start_link(args \\ []) do
-    GenServer.start_link(__MODULE__, args, name: __MODULE__)
-  end
-
-  def init(_args) do
-    Logger.info("Starting EDTF Parser")
-    {:ok, Port.open({:spawn, Meadow.Config.edtf()}, [:binary, :exit_status])}
-  end
-
-  def handle_call({command, data}, _from, port) do
-    send(port, {self(), {:command, Jason.encode!(%{cmd: command, value: data})}})
-    receive_response(port)
-  end
-
-  defp receive_response(port) do
-    receive do
-      # :parse responses
-      {^port, {:data, "[ok] " <> response}} ->
-        {:reply, {:ok, Jason.decode!(response, keys: :atoms)}, port}
-
-      {^port, {:data, "[error] " <> message}} ->
-        {:reply, {:error, String.trim(message)}, port}
-
-      # :validate responses
-      {^port, {:data, "[true] " <> response}} ->
-        {:reply, {:ok, String.trim(response)}, port}
-
-      {^port, {:data, "[false] " <> message}} ->
-        {:reply, {:error, String.trim(message)}, port}
-
-      # handle process termination
-      # coveralls-ignore-start
-      {^port, {:exit_status, status}} ->
-        Logger.error("exit_status: #{status}")
-        {:stop, "port exited with status: #{status}"}
-        # coveralls-ignore-stop
-    after
-      # coveralls-ignore-start
-      @timeout ->
-        Logger.error("No response after #{@timeout}ms")
-        {:reply, {:error, "EDTF Parse Timeout"}, port}
-        # coveralls-ignore-stop
     end
   end
 end

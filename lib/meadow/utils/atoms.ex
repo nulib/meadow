@@ -33,7 +33,10 @@ defmodule Meadow.Utils.Atoms do
   @doc """
   Atomize values that can be atomized.
 
-  * Maps: keys are deeply nested; values are left alone
+  * Maps:
+    * keys are deeply atomized
+    * nested maps inside lists and tuples are atomized
+    * everything else is left alone
   * Strings: converted to atoms
   * Lists: members are atomized
   * Tuples: elements are atomized
@@ -50,23 +53,26 @@ defmodule Meadow.Utils.Atoms do
     iex> atomize("string")
     :string
 
-    iex> atomize([:list, "of", {:various, "values"}, 5])
-    [:list, :of, {:various, :values}, 5]
+    iex> atomize([:list, "of", {:various, "values", %{"map" => 4}}, 5, %{"map" => 6}])
+    [:list, :of, {:various, :values, %{map: 4}}, 5, %{map: 6}]
   """
-  def atomize(value) when is_map(value) do
+  def atomize(value, top \\ true)
+
+  def atomize(value, top) when is_map(value) do
     Enum.map(value, fn
-      {k, v} when is_map(v) -> {atomize(k), atomize(v)}
+      {k, v} when is_map(v) -> {atomize(k), atomize(v, top)}
+      {k, v} when is_list(v) or is_tuple(v) -> {atomize(k), atomize(v, false)}
       {k, v} -> {atomize(k), v}
     end)
     |> Enum.into(%{})
   end
 
-  def atomize(value) when is_atom(value), do: value
-  def atomize(value) when is_binary(value), do: String.to_atom(value)
-  def atomize(value) when is_list(value), do: Enum.map(value, &atomize/1)
+  def atomize(value, _top) when is_atom(value), do: value
+  def atomize(value, true) when is_binary(value), do: String.to_atom(value)
+  def atomize(value, top) when is_list(value), do: Enum.map(value, &atomize(&1, top))
 
-  def atomize(value) when is_tuple(value),
-    do: Tuple.to_list(value) |> atomize() |> List.to_tuple()
+  def atomize(value, top) when is_tuple(value),
+    do: Tuple.to_list(value) |> atomize(top) |> List.to_tuple()
 
-  def atomize(value), do: value
+  def atomize(value, _top), do: value
 end

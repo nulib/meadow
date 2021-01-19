@@ -32,6 +32,9 @@ jobs:
           name: Install LDAP utils
           command: sudo apt-get install -y ldap-utils
       - checkout
+      - run:
+          name: Generate checksums for dependency lock files
+          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock > .yarn-checksums
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
@@ -44,9 +47,8 @@ jobs:
             - build-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}-{{ .Branch }}
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
+            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-
             - npm-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
           name: Install hex & rebar
@@ -72,11 +74,10 @@ jobs:
           paths:
             - ~/meadow/_build
       - save_cache:
-          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "priv/tiff/yarn.lock" }}-{{ checksum "assets/yarn.lock" }}-{{ .Branch }}
+          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
           paths:
             - ~/meadow/assets/node_modules
-            - ~/meadow/priv/edtf/node_modules
-            - ~/meadow/priv/tiff/node_modules
+            - ~/meadow/priv/nodejs/*/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo

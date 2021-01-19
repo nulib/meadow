@@ -39,16 +39,17 @@ defmodule Meadow.Config do
     Application.get_env(
       :meadow,
       :pyramid_processor,
-      priv_path("tiff/cli.js")
+      priv_path("nodejs/tiff/cli.js")
     )
   end
 
-  def edtf do
-    Application.get_env(
-      :meadow,
-      :edtf,
-      priv_path("edtf/cli.js")
-    )
+  @doc "Retrieve configured lambda scripts"
+  def lambda_config(config_key) do
+    case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do
+      nil -> {:error, :unknown}
+      {:lambda, lambda} -> {:lambda, lambda}
+      {:local, {script, handler}} -> {:local, {priv_path(script), handler}}
+    end
   end
 
   @doc "Retrieve the IIIF server endpoint"
@@ -102,7 +103,7 @@ defmodule Meadow.Config do
   end
 
   @doc "Gather configuration variables as environment for spawned process"
-  def tiff_port_environment do
+  def aws_environment do
     with config <- Application.get_env(:ex_aws, :s3),
          working_dir <- Application.get_env(:meadow, :pyramid_tiff_working_dir) do
       []
