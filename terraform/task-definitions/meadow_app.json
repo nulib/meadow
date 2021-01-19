@@ -101,6 +101,10 @@
         "value": "${host_name}"
       },
       {
+        "name": "POOL_SIZE",
+        "value": "${db_pool_size}"
+      },
+      {
         "name": "PRESERVATION_BUCKET",
         "value": "${preservation_bucket}"
       },

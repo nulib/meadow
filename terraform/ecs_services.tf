@@ -65,6 +65,10 @@ resource "aws_ecs_service" "meadow_all" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
     subnets          = data.aws_subnet_ids.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
@@ -107,6 +111,10 @@ resource "aws_ecs_service" "meadow_web" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
     subnets          = data.aws_subnet_ids.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
@@ -120,6 +128,7 @@ module "meadow_task_workers" {
   source              = "./modules/meadow_task"
   container_config    = local.container_config
   cpu                 = 1024
+  db_pool_size        = 10
   file_system_id      = aws_efs_file_system.meadow_working.id
   meadow_processes    = "basic,pipeline.ingest_file_set,pipeline.copy_file_to_preservation,pipeline.file_set_complete"
   memory              = 2048
@@ -137,6 +146,10 @@ resource "aws_ecs_service" "meadow_workers" {
   launch_type                         = "FARGATE"
   platform_version                    = "1.4.0"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
     subnets          = data.aws_subnet_ids.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
@@ -150,6 +163,7 @@ module "meadow_task_digests" {
   source              = "./modules/meadow_task"
   container_config    = local.container_config
   cpu                 = 2048
+  db_pool_size        = 2
   file_system_id      = aws_efs_file_system.meadow_working.id
   meadow_processes    = "pipeline.generate_file_set_digests"
   memory              = 4096
@@ -167,6 +181,10 @@ resource "aws_ecs_service" "meadow_digests" {
   launch_type                         = "FARGATE"
   platform_version                    = "1.4.0"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
     subnets          = data.aws_subnet_ids.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
@@ -180,8 +198,9 @@ module "meadow_task_tiffs" {
   source              = "./modules/meadow_task"
   container_config    = local.container_config
   cpu                 = 2048
+  db_pool_size        = 2
   file_system_id      = aws_efs_file_system.meadow_working.id
-  meadow_processes    = "pipeline.generate_file_set_tiffs"
+  meadow_processes    = "pipeline.create_pyramid_tiff"
   memory              = 4096
   name                = "tiffs"
   role_arn            = aws_iam_role.meadow_role.arn
@@ -196,6 +215,10 @@ resource "aws_ecs_service" "meadow_tiffs" {
   desired_count                       = 0
   launch_type                         = "FARGATE"
   platform_version                    = "1.4.0"
+
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
 
   network_configuration {
     subnets          = data.aws_subnet_ids.private_subnets.ids

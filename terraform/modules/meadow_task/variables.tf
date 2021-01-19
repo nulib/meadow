@@ -6,6 +6,11 @@ variable "cpu" {
   type    = number
 }
 
+variable "db_pool_size" {
+  type    = number
+  default = 10
+}
+
 variable "file_system_id" {
   type    = string
 }
