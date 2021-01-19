@@ -17,7 +17,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      assert(length(trail) == 5)
+      assert(length(trail) == 6)
       assert_all_have_value(trail, "outcome", "WAITING")
     end
   end
@@ -28,7 +28,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      assert(length(trail) == 5)
+      assert(length(trail) == 6)
 
       assert(
         Enum.all?(trail, fn %{"action" => action, "outcome" => outcome} ->

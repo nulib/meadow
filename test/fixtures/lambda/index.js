@@ -18,6 +18,8 @@ const testHandler = async (event, _context, _callback) => {
     case "die": throw "Dying because the caller told me to";
     case "quit": exit(event.status);
     case "long": return { type: "long", result: longData};
+    case "null": return null;
+    case "undef": return undefined;
     case "sleep": 
       sleep(event.duration);
       return null;

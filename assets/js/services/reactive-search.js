@@ -187,7 +187,113 @@ export const FACET_SENSORS = [
     dataField: "visibility.label.keyword",
     title: "Visibility",
   },
+  {
+    ...defaultListItemValues,
+    componentId: "ImageHeight",
+    dataField: "fileSets.exif.imageHeight",
+    title: "Image Height",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ImageWidth",
+    dataField: "fileSets.exif.imageWidth",
+    title: "Image Width",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "Compression",
+    dataField: "fileSets.exif.compression.keyword",
+    title: "Compression",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ExtraSamples",
+    dataField: "fileSets.exif.extraSamples.keyword",
+    title: "Extra Samples",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FillOrder",
+    dataField: "fileSets.exif.fillOrder.keyword",
+    title: "Fill Order",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "GrayResponseUnit",
+    dataField: "fileSets.exif.grayResponseUnit.keyword",
+    title: "Gray Response Unit",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "Make",
+    dataField: "fileSets.exif.make.keyword",
+    title: "Make",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "Model",
+    dataField: "fileSets.exif.model.keyword",
+    title: "Model",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "PlanarConfiguration",
+    dataField: "fileSets.exif.planarConfiguration.keyword",
+    title: "Planar Configuration",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "PhotometricInterpretation",
+    dataField: "fileSets.exif.photometricInterpretation.keyword",
+    title: "Photometric Interpretation",
+  },
 ];
+
+// TODO: RangeSlider fields [imageHeight, imageWidth, xResolution, yResolution]:
+
+// const defaultRangeItemValues = {
+//   showSearch: false,
+//   URLParams: true,
+// };
+
+// export const FACET_RANGE_SENSORS = [
+//   {
+//     ...defaultRangeItemValues,
+//     componentId: "ImageHeight",
+//     dataField: "fileSets.exif.model.imageHeight",
+//     title: "Image Height",
+//     range: { start: 0, end: 3000 },
+//     rangeLabels: { start: "0px", end: "3000px" },
+//     defaultValue: { start: 0, end: 3000 },
+//   },
+//   {
+//     ...defaultRangeItemValues,
+//     componentId: "ImageWidth",
+//     dataField: "fileSets.exif.model.imageWidth",
+//     title: "Image Width",
+//     range: { start: 0, end: 3000 },
+//     rangeLabels: { start: "0px", end: "3000px" },
+//     defaultValue: { start: 0, end: 3000 },
+//   },
+//   {
+//     ...defaultRangeItemValues,
+//     componentId: "XResolution",
+//     dataField: "fileSets.exif.model.xResolution",
+//     title: "XResolution",
+//     range: { start: 0, end: 1000 },
+//     rangeLabels: { start: "0px", end: "1000px" },
+//     defaultValue: { start: 0, end: 1000 },
+//   },
+//   {
+//     ...defaultRangeItemValues,
+//     componentId: "YResolution",
+//     dataField: "fileSets.exif.model.yResolution",
+//     title: "YResolution",
+//     range: { start: 0, end: 1000 },
+//     rangeLabels: { start: "0px", end: "1000px" },
+//     defaultValue: { start: 0, end: 1000 },
+//   },
+// ];
 
 export const RESULT_SENSOR = "SearchResult";
 export const SEARCH_SENSOR = "SearchSensor";

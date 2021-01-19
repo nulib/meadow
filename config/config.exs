@@ -54,6 +54,7 @@ config :meadow, Meadow.ElasticsearchCluster,
 config :meadow, :lambda,
   digester: {:local, {"nodejs/digester/index.js", "handler"}},
   edtf: {:local, {"nodejs/edtf/index.js", "handler"}},
+  exif: {:local, {"nodejs/exif/index.js", "handler"}},
   tiff: {:local, {"nodejs/pyramid-tiff/index.js", "handler"}}
 
 # Configures the pyramid TIFF processor

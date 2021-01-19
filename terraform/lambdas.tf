@@ -120,15 +120,23 @@ module "pyramid_tiff_function" {
   tags          = var.tags
 }
 
-#module "exif_function" {
-#  depends_on    = [ aws_iam_role_policy_attachment.lambda_bucket_access ]
-#  source        = "./modules/meadow_lambda"
-#  name          = "exif"
-#  description   = "Function to extract EXIF metadata from an S3 object"
-#  role          = aws_iam_role.lambda_role.arn
-#  stack_name    = var.stack_name
-#  memory_size   = 4096
-#  timeout       = 60
-#
-#  tags          = var.tags
-#}
+module "exif_function" {
+ depends_on    = [ aws_iam_role_policy_attachment.lambda_bucket_access ]
+ source        = "./modules/meadow_lambda"
+ name          = "exif"
+ description   = "Function to extract EXIF metadata from an S3 object"
+ role          = aws_iam_role.lambda_role.arn
+ stack_name    = var.stack_name
+ memory_size   = 4096
+ timeout       = 600
+
+ environment = {
+    TMPDIR   = "/mnt/working"
+  }
+
+  access_point_arn   = aws_efs_access_point.meadow_working_access_point.arn
+  subnet_ids         = data.aws_subnet_ids.private_subnets.ids
+  security_group_ids = [aws_security_group.meadow_efs_client.id]
+
+ tags          = var.tags
+}
