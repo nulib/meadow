@@ -4,20 +4,22 @@ defmodule Meadow.Utils.LambdaTest do
   import ExUnit.CaptureLog
   require Logger
 
-  describe "invoke/2" do
-    setup do
-      old_level = Logger.level()
-      Logger.configure(level: :debug)
+  @port_regex ~r/(?<port>#Port<\d+.\d+>)/
 
-      on_exit(fn ->
-        Logger.configure(level: old_level)
-      end)
+  setup do
+    old_level = Logger.level()
+    Logger.configure(level: :debug)
 
-      with script <- Path.expand("./test/fixtures/lambda/index") do
-        {:ok, %{config: {:local, {script, "testHandler"}}}}
-      end
+    on_exit(fn ->
+      Logger.configure(level: old_level)
+    end)
+
+    with script <- Path.expand("./test/fixtures/lambda/index") do
+      {:ok, %{config: {:local, {script, "testHandler"}}}}
     end
+  end
 
+  describe "invoke/2" do
     test "spawns on first run", %{config: config} do
       log =
         capture_log(fn ->
@@ -29,8 +31,8 @@ defmodule Meadow.Utils.LambdaTest do
                     }}
         end)
 
-      assert_received msg = "Spawning " <> _
-      assert msg =~ ~r/Spawning .+ in a new port/
+      assert_received msg = "Spawned " <> _
+      assert msg =~ ~r/Spawned .+ in new port #Port<\d+.\d+>/
 
       assert log |> String.contains?("[info]  This is a log message with level `log`")
       assert log |> String.contains?("[warn]  This is a log message with level `warn`")
@@ -45,14 +47,12 @@ defmodule Meadow.Utils.LambdaTest do
 
     test "reuses on subsequent run", %{config: config} do
       Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawning " <> _
-      assert msg =~ ~r/Spawning .+ in a new port/
-
-      :c.flush()
+      assert_received msg = "Spawned " <> _
+      assert %{"port" => port} = Regex.named_captures(@port_regex, msg)
 
       Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
       assert_received msg = "Using port " <> _
-      assert msg =~ ~r/Using port #Port<\d+.\d+>/
+      assert Regex.named_captures(@port_regex, msg) == %{"port" => port}
     end
 
     test "fatal error", %{config: config} do
@@ -81,8 +81,28 @@ defmodule Meadow.Utils.LambdaTest do
              end) =~ ~r/No response after 50ms/
 
       Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawning " <> _
-      assert msg =~ ~r/Spawning .+ in a new port/
+      assert_received msg = "Spawned " <> _
+      assert %{"port" => _} = Regex.named_captures(@port_regex, msg)
+    end
+  end
+
+  describe "close/1" do
+    test "does nothing if port is not active", %{config: config} do
+      assert Lambda.close(config) == :noop
+    end
+
+    test "closes an active port", %{config: config} do
+      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+      assert_received msg = "Spawned " <> _
+      assert %{"port" => old_port} = Regex.named_captures(@port_regex, msg)
+
+      assert Lambda.close(config) == :ok
+      assert_received "Closing port " <> ^old_port
+
+      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+      assert_received msg = "Spawned " <> _
+      assert %{"port" => new_port} = Regex.named_captures(@port_regex, msg)
+      assert new_port != old_port
     end
   end
 end

@@ -58,6 +58,25 @@ defmodule Meadow.Utils.Lambda do
     end
   end
 
+  @doc """
+  Make sure a particular Lambda function config isn't running in a port. Useful mainly
+  for interactive debugging and iteration.
+  """
+  @spec close(config :: lambda_config()) :: :ok | :noop
+  def close({:local, {script, handler}}) do
+    case find_port(script, handler) do
+      nil ->
+        :noop
+
+      port ->
+        send(self(), "Closing port #{inspect(port)}")
+        Port.close(port)
+        :ok
+    end
+  end
+
+  def close(_), do: :noop
+
   defp invoke_lambda(lambda, payload, _timeout) do
     # coveralls-ignore-start
     Logger.metadata(lambda: lambda)
@@ -129,36 +148,45 @@ defmodule Meadow.Utils.Lambda do
     end
   end
 
-  defp find_or_create_port(script, handler) do
-    command = [Config.priv_path("nodejs/lambda/index.js"), script, handler] |> Enum.join(" ")
+  defp command_for(script, handler),
+    do: [Config.priv_path("nodejs/lambda/index.js"), script, handler] |> Enum.join(" ")
 
-    my_port? = fn p ->
-      command ==
-        Port.info(p)
-        |> Keyword.get(:name)
-        |> to_string()
+  defp find_port(script, handler) do
+    with command <- command_for(script, handler) do
+      my_port? = fn p ->
+        command ==
+          Port.info(p)
+          |> Keyword.get(:name)
+          |> to_string()
+      end
+
+      Enum.find(Port.list(), my_port?)
     end
+  end
 
-    case Enum.find(Port.list(), my_port?) do
-      nil ->
-        send(self(), "Spawning `#{command}` in a new port")
-        Process.flag(:trap_exit, true)
+  defp find_or_create_port(script, handler) do
+    with command <- command_for(script, handler) do
+      case find_port(script, handler) do
+        nil ->
+          Process.flag(:trap_exit, true)
 
-        port =
-          Port.open({:spawn, command}, [
-            {:env, Config.aws_environment()},
-            {:line, @buffer_size},
-            :binary,
-            :exit_status,
-            :stderr_to_stdout
-          ])
+          port =
+            Port.open({:spawn, command}, [
+              {:env, Config.aws_environment()},
+              {:line, @buffer_size},
+              :binary,
+              :exit_status,
+              :stderr_to_stdout
+            ])
 
-        Port.monitor(port)
-        port
+          Port.monitor(port)
+          send(self(), "Spawned `#{command}` in new port #{inspect(port)}")
+          port
 
-      port ->
-        send(self(), "Using port #{inspect(port)} for `#{command}`")
-        port
+        port ->
+          send(self(), "Using port #{inspect(port)} for `#{command}`")
+          port
+      end
     end
   end
 end
