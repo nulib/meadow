@@ -7,15 +7,18 @@ import { useMutation, useApolloClient } from "@apollo/client";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDate, toastWrapper } from "../../services/helpers";
+import { formatDate, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "../UI/Skeleton";
-import UIFormField from "../../components/UI/Form/Field";
-import UIFormInput from "../../components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormInput from "@js/components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import ProjectForm from "@js/components/Project/Form";
 
 const ProjectList = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [activeProject, setActiveProject] = useState();
   const [activeModal, setActiveModal] = useState();
   const [projectList, setProjectList] = useState();
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
@@ -49,9 +52,15 @@ const ProjectList = () => {
     setModalOpen(true);
   };
 
+  const onEditProject = (project) => {
+    setActiveProject(project);
+    setShowForm(!showForm);
+  };
+
   const onCloseModal = () => {
     setActiveModal(null);
     setModalOpen(false);
+    setActiveProject(null);
   };
 
   const handleDeleteClick = () => {
@@ -127,7 +136,10 @@ const ProjectList = () => {
                     <td>
                       <div className="buttons-end">
                         <p className="control">
-                          <Button className="button">
+                          <Button
+                            className="button"
+                            onClick={(e) => onEditProject(project)}
+                          >
                             <FontAwesomeIcon icon="edit" />
                           </Button>
                         </p>
@@ -148,6 +160,12 @@ const ProjectList = () => {
             })}
         </tbody>
       </table>
+      <ProjectForm
+        showForm={showForm}
+        setShowForm={setShowForm}
+        project={activeProject}
+        formType="edit"
+      />
       <UIModalDelete
         isOpen={modalOpen}
         handleClose={onCloseModal}

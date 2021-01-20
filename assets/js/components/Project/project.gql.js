@@ -10,6 +10,16 @@ export const CREATE_PROJECT = gql`
   }
 `;
 
+export const UPDATE_PROJECT = gql`
+  mutation UpdateProject($projectId: ID!, $projectTitle: String!) {
+    updateProject(id: $projectId, title: $projectTitle) {
+      id
+      title
+      folder
+    }
+  }
+`;
+
 export const DELETE_PROJECT = gql`
   mutation DeleteProject($projectId: ID!) {
     deleteProject(projectId: $projectId) {
