@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UIFormInput from "@js/components/UI/Form/Input";
+import UIFormField from "../UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
 import { BATCH_UPDATE } from "@js/components/BatchEdit/batch-edit.gql";
 import { useMutation } from "@apollo/client";
@@ -33,6 +34,7 @@ const BatchEditConfirmation = ({
 }) => {
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
+  const [batchNickname, setBatchNickname] = useState();
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
     onCompleted({ batchUpdate }) {
@@ -55,6 +57,10 @@ const BatchEditConfirmation = ({
       : setConfirmationError({
           confirmationText: "Confirmation text is required.",
         });
+  };
+
+  const handleBatchNickname = (e) => {
+    setBatchNickname(e.target.value);
   };
 
   const handleBatchEditConfirm = () => {
@@ -84,6 +90,7 @@ const BatchEditConfirmation = ({
         add: cleanedPostValues.add,
         delete: cleanedPostValues.delete,
         replace: cleanedPostValues.replace,
+        nickname: batchNickname,
       },
     });
   };
@@ -171,24 +178,37 @@ const BatchEditConfirmation = ({
           )}
 
           {hasDataToPost ? (
-            <div className="notification is-danger is-light has-text-centered content">
-              <p>
-                <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This batch
-                edit will affect {numberOfResults} works. To execute this
-                change, type "I understand"
-              </p>
-
-              <div css={verifyInputWrapper}>
-                <UIFormInput
-                  onChange={handleConfirmationChange}
-                  name="confirmationText"
-                  label="Confirmation Text"
-                  placeholder="I understand"
-                  required
-                  data-testid="input-confirmation-text"
-                />
+            <React.Fragment>
+              <div className="column is-two-thirds">
+                <UIFormField label="Enter a name for this Batch Edit (optional)">
+                  <UIFormInput
+                    onChange={handleBatchNickname}
+                    name="batchNickname"
+                    label="Batch Nickname"
+                    placeholder="Batch Nickname"
+                    data-testid="input-batch-nickname"
+                  />
+                </UIFormField>
               </div>
-            </div>
+              <div className="notification is-danger is-light has-text-centered content">
+                <p>
+                  <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
+                  batch edit will affect {numberOfResults} works. To execute
+                  this change, type "I understand"
+                </p>
+
+                <div css={verifyInputWrapper}>
+                  <UIFormInput
+                    onChange={handleConfirmationChange}
+                    name="confirmationText"
+                    label="Confirmation Text"
+                    placeholder="I understand"
+                    required
+                    data-testid="input-confirmation-text"
+                  />
+                </div>
+              </div>
+            </React.Fragment>
           ) : (
             <p className="notification is-white">
               No data currently selected to batch update.
