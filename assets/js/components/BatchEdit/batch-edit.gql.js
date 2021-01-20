@@ -6,8 +6,15 @@ export const BATCH_UPDATE = gql`
     $delete: BatchDeleteInput
     $query: String!
     $replace: BatchReplaceInput
+    $nickname: String
   ) {
-    batchUpdate(add: $add, delete: $delete, query: $query, replace: $replace) {
+    batchUpdate(
+      add: $add
+      delete: $delete
+      query: $query
+      replace: $replace
+      nickname: $nickname
+    ) {
       id
       nickname
       status

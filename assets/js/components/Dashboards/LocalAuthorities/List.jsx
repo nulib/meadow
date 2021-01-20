@@ -124,7 +124,7 @@ export default function DashboardsLocalAuthoritiesList() {
                 <td>{hint}</td>
                 <td>{id}</td>
 
-                <td className="has-text-right buttons is-right">
+                <td className="has-text-right buttons is-right mb-0">
                   <Button
                     data-testid="edit-button"
                     title="Edit NUL Local Authority"
