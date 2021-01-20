@@ -1,22 +1,31 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { CREATE_NUL_AUTHORITY_RECORD } from "@js/components/Dashboards/dashboards.gql";
 import { useMutation } from "@apollo/client";
 import { Button } from "@nulib/admin-react-components";
 import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalAuthorities/ModalAdd";
 import { toastWrapper } from "@js/services/helpers";
 
-function DashboardsLocalAuthoritiesTitleBar(props) {
+function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();
   const [createNulAuthorityRecord, { data, error, loading }] = useMutation(
     CREATE_NUL_AUTHORITY_RECORD,
     {
       onCompleted({ createNulAuthorityRecord }) {
-        console.log("createNulAuthorityRecord", createNulAuthorityRecord);
         toastWrapper(
           "is-success",
           `NUL Authority Record ${createNulAuthorityRecord.label} created.`
         );
+      },
+      // KEEP THIS: as we can listen for a more customized message in the future when the feature is built out
+      onError({ graphQLErrors, networkError }) {
+        let errorStrings = [];
+        if (graphQLErrors.length > 0) {
+          errorStrings = graphQLErrors.map(
+            ({ message, details }) =>
+              `${message}: ${details && details.title ? details.title : ""}`
+          );
+        }
+        toastWrapper("is-danger", errorStrings.join(" \n "));
       },
     }
   );
@@ -57,7 +66,5 @@ function DashboardsLocalAuthoritiesTitleBar(props) {
     </React.Fragment>
   );
 }
-
-DashboardsLocalAuthoritiesTitleBar.propTypes = {};
 
 export default DashboardsLocalAuthoritiesTitleBar;
