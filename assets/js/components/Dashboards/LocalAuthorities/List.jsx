@@ -1,5 +1,5 @@
 import React from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client";
 import {
   DELETE_NUL_AUTHORITY_RECORD,
   GET_NUL_AUTHORITY_RECORDS,
@@ -14,6 +14,7 @@ import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/Local
 const colHeaders = ["Label", "Hint"];
 
 export default function DashboardsLocalAuthoritiesList() {
+  const client = useApolloClient();
   const [currentAuthority, setCurrentAuthority] = React.useState();
   const [modalsState, setModalsState] = React.useState({
     delete: {
@@ -33,11 +34,28 @@ export default function DashboardsLocalAuthoritiesList() {
     deleteNulAuthorityRecord,
     { error: deleteAuthorityError, loading: deleteAuthorityLoading },
   ] = useMutation(DELETE_NUL_AUTHORITY_RECORD, {
-    onCompleted({ deleteNulAuthorityRecord }) {
-      toastWrapper(
-        "is-success",
-        `${deleteNulAuthorityRecord.label} deleted successfully`
-      );
+    update(cache, { data: { deleteNulAuthorityRecord } }) {
+      try {
+        const { nulAuthorityRecords } = client.readQuery({
+          query: GET_NUL_AUTHORITY_RECORDS,
+        });
+        const newData = {
+          nulAuthorityRecords: nulAuthorityRecords.filter(
+            (record) => record.id !== deleteNulAuthorityRecord.id
+          ),
+        };
+        client.writeQuery({
+          query: GET_NUL_AUTHORITY_RECORDS,
+          data: newData,
+        });
+        toastWrapper(
+          "is-success",
+          `${deleteNulAuthorityRecord.label} deleted successfully`
+        );
+      } catch (e) {
+        console.error(e);
+        toastWrapper("is-danger", `Error deleting NUL local authority: ${e}`);
+      }
     },
   });
 
@@ -46,7 +64,6 @@ export default function DashboardsLocalAuthoritiesList() {
     { error: updateError, loading: updateLoading },
   ] = useMutation(UPDATE_NUL_AUTHORITY_RECORD, {
     onCompleted({ updateNulAuthorityRecord }) {
-      console.log("updateNulAuthorityRecord", updateNulAuthorityRecord);
       toastWrapper(
         "is-success",
         `NUL Authority: ${updateNulAuthorityRecord.label} updated`
@@ -90,7 +107,6 @@ export default function DashboardsLocalAuthoritiesList() {
   };
 
   const handleUpdate = (formData) => {
-    console.log("handle update", formData, currentAuthority);
     updateNulAuthorityRecord({
       variables: {
         ...formData,
