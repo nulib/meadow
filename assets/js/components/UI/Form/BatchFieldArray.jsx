@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useFieldArray } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import UIFormFieldArrayRow from "@js/components/UI/Form/FieldArrayRow";
 import UIFormFieldArrayAddButton from "@js/components/UI/Form/FieldArrayAddButton";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UIFormField from "@js/components/UI/Form/Field";
 
 const UIFormBatchFieldArray = ({
   name,
@@ -15,16 +17,19 @@ const UIFormBatchFieldArray = ({
   validateFn,
   ...passedInProps
 }) => {
-  const { control, errors, register } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
-  const [isReplace, setIsReplace] = useState();
-  const [isRemove, setIsRemove] = useState();
+  const [isDelete, setIsDelete] = React.useState();
 
   function handleAddClick() {
     append({ metadataItem: "" });
+  }
+
+  function handleChangeEditType(e) {
+    setIsDelete(e.target.value === "delete");
   }
 
   function handleRemoveClick(index) {
@@ -32,65 +37,49 @@ const UIFormBatchFieldArray = ({
   }
 
   return (
-    <fieldset {...passedInProps}>
+    <fieldset data-testid="batch-field-array" {...passedInProps}>
       <legend data-testid="legend">{label}</legend>
 
-      {!isRemove && (
-        <>
-          <ul className="mb-4">
-            {fields.map((item, index) => {
-              return (
-                <UIFormFieldArrayRow
-                  key={item.id}
-                  handleRemoveClick={handleRemoveClick}
-                  item={item}
-                  index={index}
-                  label={label}
-                  name={name}
-                  isTextarea={isTextarea}
-                  validateFn={validateFn}
-                />
-              );
-            })}
-          </ul>
-
-          <UIFormFieldArrayAddButton
-            btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
-            handleAddClick={handleAddClick}
-          />
-
-          <div className="field mt-3">
-            <input
-              className="is-checkradio"
-              id={`${name}--replaceCheckbox`}
-              type="checkbox"
-              name={`${name}--replaceCheckbox`}
-              onChange={() => setIsReplace(!isReplace)}
-              ref={register()}
+      <ul
+        className={`mb-4 ${isDelete ? "is-hidden" : ""}`}
+        data-testid="fields-list"
+      >
+        {fields.map((item, index) => {
+          return (
+            <UIFormFieldArrayRow
+              key={item.id}
+              handleRemoveClick={handleRemoveClick}
+              item={item}
+              index={index}
+              label={label}
+              name={name}
+              isTextarea={isTextarea}
+              validateFn={validateFn}
             />
-            <label
-              className="has-text-grey"
-              htmlFor={`${name}--replaceCheckbox`}
-            >
-              Replace values
-            </label>
-          </div>
-        </>
+          );
+        })}
+      </ul>
+
+      {!isDelete && (
+        <UIFormFieldArrayAddButton
+          btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
+          handleAddClick={handleAddClick}
+        />
       )}
 
-      <div className="field">
-        <input
-          className="is-checkradio"
-          id={`${name}--removeCheckbox`}
-          type="checkbox"
-          name={`${name}--removeCheckbox`}
-          onChange={() => setIsRemove(!isRemove)}
-          ref={register()}
-        />
-        <label className="has-text-grey" htmlFor={`${name}--removeCheckbox`}>
-          Remove all values
-        </label>
-      </div>
+      <UIFormField>
+        <UIFormSelect
+          isReactHookForm
+          name={`${name}--editType`}
+          data-testid="select-edit-type"
+          onChange={handleChangeEditType}
+          options={[
+            { id: "append", label: "Append values" },
+            { id: "replace", label: "Replace existing values" },
+            { id: "delete", label: "Delete all values" },
+          ]}
+        ></UIFormSelect>
+      </UIFormField>
     </fieldset>
   );
 };

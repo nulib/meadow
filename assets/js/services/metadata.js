@@ -243,21 +243,16 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
 
   for (const key of formMultiOnly) {
     let rootName = key.split("--")[0];
-    // Handle "replace all" condition
-    if (key.includes("removeCheckbox") && currentFormValues[key]) {
+    let editType = key.split("--")[1] ? currentFormValues[key] : "";
+    // Replace all = delete. Handle "replace all" condition
+    if (editType === "delete") {
       returnObj.replace[rootName] = [];
     }
-    // Handle "replace" or "add"
-    else {
-      // Verify a value exists
-      if (
-        key.includes("replaceCheckbox") &&
-        formMultiOnly.indexOf(rootName) > -1
-      ) {
-        returnObj[currentFormValues[key] ? "replace" : "add"][rootName] = [
-          ...currentFormValues[rootName],
-        ];
-      }
+    if (editType === "append" && formMultiOnly.indexOf(rootName) > -1) {
+      returnObj.add[rootName] = [...currentFormValues[rootName]];
+    }
+    if (editType === "replace" && formMultiOnly.indexOf(rootName) > -1) {
+      returnObj.replace[rootName] = [...currentFormValues[rootName]];
     }
   }
 
@@ -279,7 +274,6 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
       ];
     }
   }
-
   return returnObj;
 }
 

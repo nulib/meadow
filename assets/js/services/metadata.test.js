@@ -1,5 +1,68 @@
 import * as metadata from "./metadata";
 
+describe("getBatchMultiValueDataFromForm()", () => {
+  // Append
+  const appendFormValues = {
+    title: "",
+    "alternateTitle--editType": "append",
+    "description--editType": "append",
+    "dateCreated--editType": "append",
+    rightsStatement: "",
+    "abstract--editType": "append",
+    "caption--editType": "append",
+    "keywords--editType": "append",
+    "notes--editType": "append",
+    "tableOfContents--editType": "append",
+    "boxName--editType": "append",
+    "boxNumber--editType": "append",
+    "folderName--editType": "append",
+    "folderNumber--editType": "append",
+    alternateTitle: [
+      {
+        metadataItem: "Alt title 1",
+      },
+      {
+        metadataItem: "Alt title 2",
+      },
+    ],
+  };
+  const replaceFormValues = {
+    ...appendFormValues,
+    "alternateTitle--editType": "replace",
+  };
+  const deleteFormValues = {
+    ...appendFormValues,
+    "alternateTitle--editType": "delete",
+  };
+  const appendExpected = {
+    add: {
+      alternateTitle: ["Alt title 1", "Alt title 2"],
+    },
+    replace: {},
+  };
+  const replaceExpected = {
+    add: {},
+    replace: {
+      alternateTitle: ["Alt title 1", "Alt title 2"],
+    },
+  };
+  const deleteExpected = {
+    add: {},
+    replace: {
+      alternateTitle: [],
+    },
+  };
+  expect(metadata.getBatchMultiValueDataFromForm(appendFormValues)).toEqual(
+    appendExpected
+  );
+  expect(metadata.getBatchMultiValueDataFromForm(replaceFormValues)).toEqual(
+    replaceExpected
+  );
+  expect(metadata.getBatchMultiValueDataFromForm(deleteFormValues)).toEqual(
+    deleteExpected
+  );
+});
+
 describe("prepControlledTermInput()", () => {
   const controlledTerm = {
     hasRole: true,

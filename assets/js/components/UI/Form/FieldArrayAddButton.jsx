@@ -9,6 +9,7 @@ function FieldArrayAddButton({ btnLabel, handleAddClick }) {
       isLight
       onClick={handleAddClick}
       data-testid="button-add-field-array-row"
+      className="mb-2"
     >
       <span className="icon">
         <FontAwesomeIcon icon="plus" />
