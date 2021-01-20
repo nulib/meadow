@@ -22,18 +22,13 @@ function DashboardsLocalAuthoritiesTitleBar() {
         if (graphQLErrors.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
-              `${message}: ${details && details.title ? details.title : ""}`
+              `${message}: ${details && details.label ? details.label : ""}`
           );
         }
         toastWrapper("is-danger", errorStrings.join(" \n "));
       },
     }
   );
-
-  if (error) {
-    console.error("error", error);
-    return <p className="notification is-danger">{error.toString()}</p>;
-  }
 
   const handleAddLocalAuthority = (formData) => {
     createNulAuthorityRecord({
