@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UIFormInput from "@js/components/UI/Form/Input";
-import UIFormField from "../UI/Form/Field";
+import UIFormField from "@js/components/UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
 import { BATCH_UPDATE } from "@js/components/BatchEdit/batch-edit.gql";
 import { useMutation } from "@apollo/client";
@@ -59,7 +59,7 @@ const BatchEditConfirmation = ({
         });
   };
 
-  const handleBatchNickname = (e) => {
+  const handleNicknameChange = (e) => {
     setBatchNickname(e.target.value);
   };
 
@@ -180,9 +180,9 @@ const BatchEditConfirmation = ({
           {hasDataToPost ? (
             <React.Fragment>
               <div className="column is-two-thirds">
-                <UIFormField label="Enter a name for this Batch Edit (optional)">
+                <UIFormField label="Batch nickname">
                   <UIFormInput
-                    onChange={handleBatchNickname}
+                    onChange={handleNicknameChange}
                     name="batchNickname"
                     label="Batch Nickname"
                     placeholder="Batch Nickname"
