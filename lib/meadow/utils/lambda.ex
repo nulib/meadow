@@ -69,7 +69,7 @@ defmodule Meadow.Utils.Lambda do
         :noop
 
       port ->
-        send(self(), "Closing port #{inspect(port)}")
+        Logger.debug("Closing port #{inspect(port)}")
         Port.close(port)
         :ok
     end
@@ -180,11 +180,11 @@ defmodule Meadow.Utils.Lambda do
             ])
 
           Port.monitor(port)
-          send(self(), "Spawned `#{command}` in new port #{inspect(port)}")
+          Logger.debug("Spawned `#{command}` in new port #{inspect(port)}")
           port
 
         port ->
-          send(self(), "Using port #{inspect(port)} for `#{command}`")
+          Logger.debug("Using port #{inspect(port)} for `#{command}`")
           port
       end
     end

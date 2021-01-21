@@ -31,9 +31,7 @@ defmodule Meadow.Utils.LambdaTest do
                     }}
         end)
 
-      assert_received msg = "Spawned " <> _
-      assert msg =~ ~r/Spawned .+ in new port #Port<\d+.\d+>/
-
+      assert log |> String.match?(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/)
       assert log |> String.contains?("[info]  This is a log message with level `log`")
       assert log |> String.contains?("[warn]  This is a log message with level `warn`")
       assert log |> String.contains?("[error] This is a log message with level `error`")
@@ -46,12 +44,20 @@ defmodule Meadow.Utils.LambdaTest do
     end
 
     test "reuses on subsequent run", %{config: config} do
-      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawned " <> _
+      log =
+        capture_log(fn ->
+          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+        end)
+
+      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
       assert %{"port" => port} = Regex.named_captures(@port_regex, msg)
 
-      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Using port " <> _
+      log =
+        capture_log(fn ->
+          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+        end)
+
+      assert [[msg]] = Regex.scan(~r/\[debug\] Using port #Port<\d+.\d+>/, log)
       assert Regex.named_captures(@port_regex, msg) == %{"port" => port}
     end
 
@@ -80,8 +86,12 @@ defmodule Meadow.Utils.LambdaTest do
                         {:error, "Timeout"}
              end) =~ ~r/No response after 50ms/
 
-      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawned " <> _
+      log =
+        capture_log(fn ->
+          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+        end)
+
+      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
       assert %{"port" => _} = Regex.named_captures(@port_regex, msg)
     end
   end
@@ -92,15 +102,28 @@ defmodule Meadow.Utils.LambdaTest do
     end
 
     test "closes an active port", %{config: config} do
-      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawned " <> _
+      log =
+        capture_log(fn ->
+          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+        end)
+
+      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
       assert %{"port" => old_port} = Regex.named_captures(@port_regex, msg)
 
-      assert Lambda.close(config) == :ok
-      assert_received "Closing port " <> ^old_port
+      log =
+        capture_log(fn ->
+          assert Lambda.close(config) == :ok
+        end)
 
-      Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-      assert_received msg = "Spawned " <> _
+      assert [[msg]] = Regex.scan(~r/\[debug\] Closing port #Port<\d+.\d+>/, log)
+      assert Regex.named_captures(@port_regex, msg) == %{"port" => old_port}
+
+      log =
+        capture_log(fn ->
+          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
+        end)
+
+      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
       assert %{"port" => new_port} = Regex.named_captures(@port_regex, msg)
       assert new_port != old_port
     end
