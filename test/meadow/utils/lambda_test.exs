@@ -36,6 +36,8 @@ defmodule Meadow.Utils.LambdaTest do
       assert log |> String.contains?("[warn]  This is a log message with level `warn`")
       assert log |> String.contains?("[error] This is a log message with level `error`")
       assert log |> String.contains?("[info]  This is a log message with level `info`")
+      assert log |> String.contains?("[debug] This is a log message with level `debug`")
+      refute log |> String.contains?("[debug] ping")
 
       assert log
              |> String.contains?(

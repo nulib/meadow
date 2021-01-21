@@ -16,14 +16,14 @@ resource "null_resource" "this_zip" {
   }
 
   provisioner "local-exec" {
-    command = "docker run -v ${local.source_path}:/src -v ${local.dest_path}:/dest nulib/lambda-build ${var.name}"
+    command = "docker run -v ${local.source_path}:/src -v ${local.dest_path}:/dest nulib/lambda-build ${var.name} ${data.archive_file.source.output_sha}"
   }
 }
 
 resource "aws_lambda_function" "this_lambda_function" {
   depends_on    = [ null_resource.this_zip ]
   function_name = "${var.stack_name}-${var.name}"
-  filename      = "${local.dest_path}/${var.name}.zip"
+  filename      = "${local.dest_path}/${var.name}-deploy-${data.archive_file.source.output_sha}.zip"
   description   = var.description
   handler       = var.handler
   memory_size   = var.memory_size

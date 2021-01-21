@@ -120,6 +120,8 @@ defmodule Meadow.Utils.Lambda do
     {:error, message}
   end
 
+  defp handle_buffer("[debug] ping"), do: :continue
+
   defp handle_buffer(message) do
     handle_message(message)
     :continue

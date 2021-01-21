@@ -22,13 +22,21 @@ const testHandler = async (event, _context, _callback) => {
       sleep(event.duration);
       return null;
     default:
+      console.debug("ping");
       console.log("This is a log message with level `log`");
+      console.debug("ping");
       console.warn("This is a log message with level `warn`");
+      console.debug("ping");
       console.error("This is a log message with level `error`");
+      console.debug("ping");
       console.debug("This is a log message with level `debug`");
+      console.debug("ping");
       console.info("This is a log message with level `info`");
+      console.debug("ping");
       console.trace("This is a trace message.")
+      console.debug("ping");
       process.stdout.write("This is an unknown message type\n");
+      console.debug("ping");
       return { type: "complex", result: event }
   }
 }

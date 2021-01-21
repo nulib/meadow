@@ -3,7 +3,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
 
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.Pairtree
+  alias Meadow.Utils.{Lambda, Pairtree}
   alias Sequins.Pipeline.Action
   use Action
   use Meadow.Pipeline.Actions.Common
@@ -16,10 +16,8 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     source = file_set.metadata.location
     target = pyramid_uri_for(file_set.id)
 
-    port = find_or_create_port()
-
-    case create_pyramid_tiff(source, target, port) do
-      {:ok, _} ->
+    case create_pyramid_tiff(source, target) do
+      {:ok, _dest} ->
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
 
@@ -31,53 +29,13 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     err in RuntimeError -> {:error, err}
   end
 
-  defp create_pyramid_tiff("s3://" <> _ = source, target, port) do
-    input = Poison.encode!(%{source: source, target: target})
-
-    send(port, {self(), {:command, input}})
-    handle_output(port)
+  defp create_pyramid_tiff("s3://" <> _ = source, target) do
+    Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target}, @timeout)
   end
 
-  defp create_pyramid_tiff(source, _target, _port) do
-    Logger.error("Invalid s3://location: #{source}")
-    {:error, "Invalid s3://location: #{source}"}
-  end
-
-  defp handle_message(message) do
-    case ~r"^\[(?<level>.+?)\] (?<message>.+)$" |> Regex.named_captures(message) do
-      %{"level" => level, "message" => message} ->
-        Logger.log(String.to_atom(level), message)
-
-      _ ->
-        Logger.warn("Unknown message received: #{message}")
-    end
-  end
-
-  defp handle_output(port) do
-    receive do
-      {^port, {:data, {:eol, "[ok]"}}} ->
-        Logger.info("complete")
-        {:ok, "complete"}
-
-      {^port, {:data, {:eol, "[fatal] " <> message}}} ->
-        Logger.error(message)
-        {:error, message}
-
-      {^port, {:data, {:eol, "[ping]"}}} ->
-        handle_output(port)
-
-      {^port, {:data, {:eol, message}}} ->
-        handle_message(message)
-        handle_output(port)
-
-      {^port, {:exit_status, status}} ->
-        Logger.error("exit_status: #{status}")
-        {:error, "exit_status: #{status}"}
-    after
-      @timeout ->
-        Logger.error("No response after #{@timeout}ms")
-        {:error, "Timeout"}
-    end
+  defp create_pyramid_tiff(source, _target) do
+    Logger.error("Invalid location: #{source}")
+    {:error, "Invalid location: #{source}"}
   end
 
   defp pyramid_uri_for(file_set_id) do
@@ -86,37 +44,5 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
-  end
-
-  defp find_or_create_port do
-    command = Config.pyramid_processor()
-
-    pyramid_port? = fn p ->
-      command ==
-        Port.info(p)
-        |> Keyword.get(:name)
-        |> to_string()
-    end
-
-    case Enum.find(Port.list(), pyramid_port?) do
-      nil ->
-        Logger.info("Spawning #{command} in a new port")
-        Process.flag(:trap_exit, true)
-
-        port =
-          Port.open({:spawn, command}, [
-            {:env, Config.aws_environment()},
-            {:line, 512},
-            :binary,
-            :exit_status
-          ])
-
-        Port.monitor(port)
-        port
-
-      port ->
-        Logger.debug("Using port #{inspect(port)} for #{command}")
-        port
-    end
   end
 end

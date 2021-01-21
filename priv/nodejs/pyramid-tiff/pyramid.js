@@ -3,12 +3,11 @@ const sharp = require("sharp");
 const URI = require("uri-js");
 const fs = require("fs");
 const tempy = require("tempy");
-const portlog = require("./portlog");
 
 const createPyramidTiff = async (source, dest) => {
   const inputFile = await makeInputFile(source);
   try {
-    portlog("info", `Creating pyramidal TIFF from ${inputFile}`);
+    console.info(`Creating pyramidal TIFF from ${inputFile}`);
     const pyramidTiff = await sharp(inputFile, { limitInputPixels: false })
       .resize({
         width: 15000,
@@ -26,8 +25,9 @@ const createPyramidTiff = async (source, dest) => {
       })
       .toBuffer();
     await sendToDestination(pyramidTiff, dest);
+    return dest;
   } finally {
-    portlog("info", `Deleting ${inputFile}`);
+    console.info(`Deleting ${inputFile}`);
     fs.unlink(inputFile, err => {
       if (err) {
         throw err;
@@ -40,7 +40,7 @@ const makeInputFile = location => {
   return new Promise((resolve, reject) => {
     let uri = URI.parse(location);
     let fileName = tempy.file();
-    portlog("info", `Retrieving ${location} to ${fileName}`);
+    console.info(`Retrieving ${location} to ${fileName}`);
     let writable = fs
       .createWriteStream(fileName)
       .on("error", err => reject(err));
@@ -51,7 +51,7 @@ const makeInputFile = location => {
       }).createReadStream();
 
     s3Stream.on("error", err => reject(err));
-    s3Stream.on("data", chunk => portlog("ping"))
+    s3Stream.on("data", _chunk => console.debug("ping"));
 
     s3Stream
       .pipe(writable)
@@ -61,7 +61,7 @@ const makeInputFile = location => {
 };
 
 const sendToDestination = (data, location) => {
-  portlog("info", `Writing to ${location}`);
+  console.info(`Writing to ${location}`);
   let uri = URI.parse(location);
   return new Promise((resolve, reject) => {
     sharp(data).metadata().then(({width, height}) => {

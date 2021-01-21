@@ -34,15 +34,6 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :pyramid_bucket)
   end
 
-  @doc "Retrieve the configured pyramid processor"
-  def pyramid_processor do
-    Application.get_env(
-      :meadow,
-      :pyramid_processor,
-      priv_path("nodejs/tiff/cli.js")
-    )
-  end
-
   @doc "Retrieve configured lambda scripts"
   def lambda_config(config_key) do
     case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do
