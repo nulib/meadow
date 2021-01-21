@@ -10,12 +10,15 @@ import { Button } from "@nulib/admin-react-components";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
+import UISearchBarRow from "@js/components/UI/SearchBarRow";
+import UIFormInput from "@js/components/UI/Form/Input";
 
 const colHeaders = ["Label", "Hint"];
 
 export default function DashboardsLocalAuthoritiesList() {
   const client = useApolloClient();
   const [currentAuthority, setCurrentAuthority] = React.useState();
+  const [filteredAuthorities, setFilteredAuthorities] = React.useState([]);
   const [modalsState, setModalsState] = React.useState({
     delete: {
       isOpen: false,
@@ -72,6 +75,17 @@ export default function DashboardsLocalAuthoritiesList() {
     },
   });
 
+  React.useEffect(() => {
+    if (!data) {
+      return;
+    }
+    setFilteredAuthorities(
+      data.nulAuthorityRecords && data.nulAuthorityRecords.length > 0
+        ? data.nulAuthorityRecords
+        : []
+    );
+  }, [data]);
+
   if (loading || deleteAuthorityLoading || updateLoading) return null;
   if (error)
     return <p className="notification is-danger">{error.toString()}</p>;
@@ -98,6 +112,17 @@ export default function DashboardsLocalAuthoritiesList() {
     });
   };
 
+  const handleFilterChange = (e) => {
+    const filterValue = e.target.value.toUpperCase();
+    if (!filterValue) {
+      return setFilteredAuthorities(data.nulAuthorityRecords);
+    }
+    const filteredList = filteredAuthorities.filter((item) => {
+      return item.label.toUpperCase().indexOf(filterValue) > -1;
+    });
+    setFilteredAuthorities(filteredList);
+  };
+
   const handleUpdateButtonClick = (record) => {
     setCurrentAuthority({ ...record });
     setModalsState({
@@ -117,6 +142,15 @@ export default function DashboardsLocalAuthoritiesList() {
 
   return (
     <React.Fragment>
+      <UISearchBarRow>
+        <UIFormInput
+          placeholder="Search"
+          name="localAuthoritiesSearch"
+          label="Filter NUL local authorities"
+          onChange={handleFilterChange}
+          data-testid="input-local-authorities-filter"
+        />
+      </UISearchBarRow>
       <table
         className="table is-striped is-fullwidth"
         data-testid="local-authorities-dashboard-table"
@@ -131,7 +165,7 @@ export default function DashboardsLocalAuthoritiesList() {
           </tr>
         </thead>
         <tbody data-testid="local-authorities-table-body">
-          {data.nulAuthorityRecords.map((record) => {
+          {filteredAuthorities.map((record) => {
             const { id, hint = "", label = "" } = record;
 
             return (

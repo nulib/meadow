@@ -2,18 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
-import Loading from "../UI/Loading";
 import { useMutation, useApolloClient } from "@apollo/client";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "../UI/Skeleton";
-import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
+import UISearchBarRow from "@js/components/UI/SearchBarRow";
 
 const ProjectList = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -90,7 +89,7 @@ const ProjectList = () => {
 
   return (
     <>
-      <UIFormField childClass="has-icons-left">
+      <UISearchBarRow>
         <UIFormInput
           placeholder="Search projects"
           name="projectsSearch"
@@ -98,10 +97,8 @@ const ProjectList = () => {
           onChange={handleFilterChange}
           data-testid="input-project-filter"
         />
-        <span className="icon is-small is-left">
-          <FontAwesomeIcon icon="search" />
-        </span>
-      </UIFormField>
+      </UISearchBarRow>
+
       <table
         data-testid="project-list"
         className="table is-striped is-hoverable is-fullwidth"
