@@ -15,7 +15,7 @@ module "rds" {
   engine_version            = "11.2"
   final_snapshot_identifier = "meadow-final"
   identifier                = "${var.stack_name}-db"
-  instance_class            = "db.t3.micro"
+  instance_class            = "db.t3.medium"
   maintenance_window        = "Sun:01:00-Sun:02:00"
   password                  = random_string.db_password.result
   port                      = "5432"
@@ -244,7 +244,7 @@ resource "aws_security_group" "meadow_working_access" {
 }
 
 resource "aws_efs_file_system" "meadow_working" {
-  tags = var.tags
+  tags = merge(var.tags, {Name = "${var.stack_name}-working"})
 }
 
 resource "aws_efs_mount_target" "meadow_working_mount" {

@@ -5,6 +5,8 @@
 # file to your .gitignore.
 import Config
 
+alias Meadow.Pipeline.Actions
+
 get_required_var = fn var ->
   System.get_env(var) || raise "environment variable #{var} is missing."
 end
@@ -105,3 +107,10 @@ config :ueberauth, Ueberauth,
 
 config :hackney,
   max_connections: System.get_env("HACKNEY_MAX_CONNECTIONS", "1000") |> String.to_integer()
+
+# Configure Lambda-based actions
+
+config :meadow, :lambda, digester: {:lambda, "meadow-digester"}
+
+config :sequins, Actions.GenerateFileSetDigests,
+  queue_config: [processor_concurrency: 50, visibility_timeout: 300]

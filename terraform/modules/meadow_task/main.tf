@@ -26,6 +26,7 @@ locals {
     var.container_config,
     {
       cpu_reservation       = var.cpu * 0.9765625,
+      db_pool_size          = var.db_pool_size,
       memory_reservation    = var.memory * 0.9765625,
       name                  = var.name,
       processes             = var.meadow_processes

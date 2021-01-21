@@ -24,6 +24,16 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 
 data "aws_iam_policy_document" "meadow_role_permissions" {
   statement {
+    sid    = "lambda"
+    effect = "Allow"
+    actions = [
+      "lambda:GetFunction",
+      "lambda:InvokeFunction"
+    ]
+    resources = ["*"]
+  }
+  
+  statement {
     sid    = "sns"
     effect = "Allow"
     actions = [
@@ -83,17 +93,19 @@ resource "aws_iam_role_policy_attachment" "bucket_role_access" {
   role       = aws_iam_role.meadow_role.name
   policy_arn = aws_iam_policy.this_bucket_policy.arn
 }
+
 resource "aws_cloudwatch_log_group" "meadow_logs" {
   name = "/ecs/${var.stack_name}"
   tags = var.tags
 }
 resource "aws_alb_target_group" "meadow_targets" {
-  count       = length(local.container_ports)
-  port        = element(local.container_ports, count.index)
-  target_type = "ip"
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.this_vpc.id
-  tags        = var.tags
+  count                   = length(local.container_ports)
+  port                    = element(local.container_ports, count.index)
+  deregistration_delay    = 30
+  target_type             = "ip"
+  protocol                = "TCP"
+  vpc_id                  = data.aws_vpc.this_vpc.id
+  tags                    = var.tags
 
   stickiness {
     enabled = false
