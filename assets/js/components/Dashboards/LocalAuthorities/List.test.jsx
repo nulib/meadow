@@ -7,6 +7,7 @@ import {
   getNulAuthorityRecordsMock,
   updateNulAuthorityRecordMock,
 } from "@js/components/Dashboards/dashboards.gql.mock";
+import userEvent from "@testing-library/user-event";
 
 describe("DashboardsLocalAuthoritiesList component", () => {
   beforeEach(() => {
@@ -21,6 +22,23 @@ describe("DashboardsLocalAuthoritiesList component", () => {
 
   it("renders", async () => {
     expect(await screen.findByTestId("local-authorities-dashboard-table"));
+  });
+
+  describe("Search filter", () => {
+    it("renders a search input", async () => {
+      expect(await screen.findByTestId("search-bar-row"));
+    });
+
+    it("filters NUL authorities list", async () => {
+      const el = await screen.findByPlaceholderText("Search");
+      expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(
+        2
+      );
+      userEvent.type(el, "2");
+      expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(
+        1
+      );
+    });
   });
 
   it("renders the correct number of nul authority rows", async () => {
