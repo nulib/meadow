@@ -13,14 +13,11 @@ COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
 RUN yarn install
-COPY ./priv/nodejs/edtf/package.json /app/priv/nodejs/edtf/package.json
-COPY ./priv/nodejs/edtf/yarn.lock /app/priv/nodejs/edtf/yarn.lock
-WORKDIR /app/priv/nodejs/edtf
-RUN yarn install
-COPY ./priv/nodejs/tiff/package.json /app/priv/nodejs/tiff/package.json
-COPY ./priv/nodejs/tiff/yarn.lock /app/priv/nodejs/tiff/yarn.lock
-WORKDIR /app/priv/nodejs/tiff
-RUN yarn install
+COPY ./priv/nodejs /app/priv/nodejs
+WORKDIR /app/priv/nodejs
+RUN for flag in $(find . -name .docker-yarn); do \
+      yarn install --cwd $(dirname ${flag}); \
+    done
 
 # Create elixir release
 FROM nulib/elixir-phoenix-base:1.11.1 AS release
@@ -29,8 +26,7 @@ COPY . /app
 COPY --from=deps /app/_build /app/_build
 COPY --from=deps /app/deps /app/deps
 COPY --from=deps /app/assets/node_modules /app/assets/node_modules
-COPY --from=deps /app/priv/nodejs/edtf/node_modules /app/priv/nodejs/edtf/node_modules
-COPY --from=deps /app/priv/nodejs/tiff/node_modules /app/priv/nodejs/tiff/node_modules
+COPY --from=deps /app/priv/nodejs /app/priv/nodejs
 WORKDIR /app
 RUN mix release --overwrite
 
