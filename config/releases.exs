@@ -89,7 +89,7 @@ config :honeybadger,
   environment_name: :prod,
   exclude_envs: [:dev, :test]
 
-config :logger, level: :info,
+config :logger, level: :info
 
 config :sequins,
   prefix: "meadow",
