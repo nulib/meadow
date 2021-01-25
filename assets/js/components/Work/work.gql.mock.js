@@ -1,4 +1,8 @@
-import { GET_WORK, VERIFY_FILE_SETS } from "../../components/Work/work.gql.js";
+import {
+  GET_WORK,
+  VERIFY_FILE_SETS,
+  CREATE_WORK,
+} from "../../components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "../../client-local";
 
 export const mockWork = {
@@ -368,32 +372,54 @@ export const getWorkMock = {
   },
 };
 
+export const createWorkMock = {
+  request: {
+    query: CREATE_WORK,
+    variables: {
+      accessionNumber: "Donohue_001",
+      title: "New mock work title",
+    },
+  },
+  result: {
+    data: {
+      work: {
+        accessionNumber: "Donohue_001",
+        descriptiveMetadata: {
+          title: "New mock work title",
+        },
+        id: "ABC123",
+      },
+    },
+  },
+};
+
 export const verifyFileSetsMock = {
   request: {
     query: VERIFY_FILE_SETS,
     variables: {
-      workId: "ABC123"
-    }
-  }, result: {
+      workId: "ABC123",
+    },
+  },
+  result: {
     data: {
       verifyFileSets: [
         {
-          "fileSetId": mockWork.fileSets[0].id,
-          "verified": true
+          fileSetId: mockWork.fileSets[0].id,
+          verified: true,
         },
         {
-          "fileSetId": mockWork.fileSets[1].id,
-          "verified": false
+          fileSetId: mockWork.fileSets[1].id,
+          verified: false,
         },
         {
-          "fileSetId": mockWork.fileSets[2].id,
-          "verified": true
+          fileSetId: mockWork.fileSets[2].id,
+          verified: true,
         },
         {
-          "fileSetId": mockWork.fileSets[3].id,
-          "verified": true
-        }
-      ]
-    }
-  }
-}
+          fileSetId: mockWork.fileSets[3].id,
+          verified: true,
+        },
+      ],
+    },
+  },
+};
