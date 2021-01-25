@@ -1,5 +1,6 @@
 defmodule Meadow.ConfigTest do
   use ExUnit.Case
+  alias Elixir.Config.Reader, as: ConfigReader
   alias Meadow.Config
   import Assertions
 
@@ -98,7 +99,7 @@ defmodule Meadow.ConfigTest do
 
     test "validate release config" do
       System.put_env("__COMPILE_CHECK__", "TRUE")
-      assert Elixir.Config.Reader.read!("config/releases.exs") |> is_list()
+      assert ConfigReader.read!("config/releases.exs") |> is_list()
     after
       System.delete_env("__COMPILE_CHECK__")
     end

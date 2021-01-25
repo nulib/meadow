@@ -125,4 +125,19 @@ defmodule Meadow.Data.ControlledTermsTest do
       assert {{:ok, :db}, _} = ControlledTerms.fetch("mock2:result3")
     end
   end
+
+  describe "extract_unique_terms/1" do
+    setup do
+      {data, _} = Code.eval_file("test/fixtures/csv/work_fixtures.exs")
+      {:ok, %{data: data}}
+    end
+
+    test "extracts all terms as a flat list", %{data: data} do
+      with result <- ControlledTerms.extract_unique_terms(data) do
+        assert Enum.all?(result, &is_binary/1)
+        assert result == Enum.uniq(result)
+        assert length(result) == 51
+      end
+    end
+  end
 end

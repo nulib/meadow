@@ -3,11 +3,13 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   Create and manage metadata update jobs
   """
 
-  alias Ecto.Multi
+  alias Ecto.{Changeset, Multi}
+  alias Meadow.Data.ControlledTerms
   alias Meadow.Data.CSV.Import
   alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
   alias Meadow.Repo
   alias Meadow.Utils.ChangesetErrors
+  alias Meadow.Utils.Stream, as: StreamUtil
 
   import Ecto.Query, warn: false
 
@@ -38,7 +40,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     iex> create_job(%{source: "file:///path/to/metadata.csv"})
   """
   def create_job(attrs) do
-    if Meadow.Utils.Stream.exists?(attrs.source) do
+    if StreamUtil.exists?(attrs.source) do
       with attrs <- Map.merge(attrs, %{status: "pending"}) do
         MetadataUpdateJob.changeset(%MetadataUpdateJob{}, attrs)
         |> Repo.insert()
@@ -58,13 +60,19 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   defp validate_source(source) do
-    validate_source(Meadow.Utils.Stream.exists?(source), source)
+    validate_source(StreamUtil.exists?(source), source)
   end
 
   defp validate_source(true, source) do
-    import_stream = Meadow.Utils.Stream.stream_from(source) |> Import.read_csv()
+    import_stream =
+      StreamUtil.stream_from(source)
+      |> Import.read_csv()
 
-    {changesets, errors} = do_validate(import_stream, validate_headers(import_stream.headers))
+    {changesets, errors} =
+      import_stream
+      |> validate_headers()
+      |> validate_terms()
+      |> validate_rows()
 
     if Enum.empty?(errors),
       do: {:ok, length(changesets)},
@@ -100,7 +108,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     job = update_job(job, %{status: "processing", started_at: DateTime.utc_now()})
 
     multi =
-      Meadow.Utils.Stream.stream_from(source)
+      StreamUtil.stream_from(source)
       |> Import.read_csv()
       |> Import.stream()
       |> Enum.chunk_every(@chunk_size)
@@ -204,11 +212,61 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     result
   end
 
-  defp do_validate(import_stream, header_errors) when map_size(header_errors) == 0 do
+  defp errors_with_row(errors, row) do
+    if Enum.empty?(errors), do: [], else: [%{row: row, errors: errors}]
+  end
+
+  defp validate_headers(%{headers: headers} = import_stream) do
+    with expected <- Import.fields() do
+      missing =
+        (expected -- headers)
+        |> Enum.map(fn missing_field ->
+          {missing_field, ["is missing"]}
+        end)
+
+      extra =
+        (headers -- expected)
+        |> Enum.map(fn missing_field ->
+          {missing_field, ["is unknown"]}
+        end)
+
+      errors = (missing ++ extra) |> Enum.into(%{})
+      {import_stream, errors |> errors_with_row(1)}
+    end
+  end
+
+  defp validate_terms({import_stream, errors}) when errors == [] do
+    errors =
+      import_stream
+      |> ControlledTerms.extract_unique_terms()
+      |> Enum.map(&{&1, ControlledTerms.fetch(&1)})
+      |> Enum.filter(fn
+        {_, {:error, _}} -> true
+        _ -> false
+      end)
+      |> Enum.map(fn
+        {term, {:error, 404}} -> {term, "is an unknown term"}
+        {term, {:error, :unknown_authority}} -> {term, "is from an unknown authority"}
+        {term, {:error, reason}} -> {term, "failed validation because: #{reason}"}
+      end)
+      |> Enum.into(%{})
+
+    {import_stream, errors |> errors_with_row(0)}
+  end
+
+  defp validate_terms(other), do: other
+
+  defp validate_rows({import_stream, errors}) when errors == [] do
     changesets =
       import_stream
       |> Import.stream()
-      |> Stream.map(fn row -> Work.changeset(%Work{}, row) end)
+      |> Stream.map(fn row ->
+        with changeset <- Work.changeset(%Work{}, row) do
+          if is_nil(row.id),
+            do: Changeset.add_error(changeset, :id, "is required"),
+            else: changeset
+        end
+      end)
       |> Enum.with_index(3)
 
     errors =
@@ -228,25 +286,5 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     {changesets, errors}
   end
 
-  defp do_validate(_, header_errors) do
-    {[], [%{row: 1, errors: header_errors}]}
-  end
-
-  defp validate_headers(headers) do
-    with expected <- Import.fields() do
-      missing =
-        (expected -- headers)
-        |> Enum.map(fn missing_field ->
-          {missing_field, ["is missing"]}
-        end)
-
-      extra =
-        (headers -- expected)
-        |> Enum.map(fn missing_field ->
-          {missing_field, ["is unknown"]}
-        end)
-
-      (missing ++ extra) |> Enum.into(%{})
-    end
-  end
+  defp validate_rows(other), do: other
 end

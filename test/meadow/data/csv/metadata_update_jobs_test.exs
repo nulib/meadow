@@ -140,6 +140,12 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                    "date_created" => ~s([%{edtf: "bad_date"}, %{edtf: "201?"}] is invalid)
                  },
                  row: 14
+               },
+               %{
+                 errors: %{
+                   "id" => "is required"
+                 },
+                 row: 28
                }
              ]
     end

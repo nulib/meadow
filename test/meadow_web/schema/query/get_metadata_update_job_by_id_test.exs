@@ -73,6 +73,15 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                      "messages" => ["[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"]
                    }
                  ]
+               },
+               %{
+                 "row" => 28,
+                 "errors" => [
+                   %{
+                     "field" => "id",
+                     "messages" => ["is required"]
+                   }
+                 ]
                }
              ]
     end
