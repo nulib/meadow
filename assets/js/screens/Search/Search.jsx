@@ -16,6 +16,8 @@ import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import useCsvFileSave from "@js/hooks/useCsvFileSave";
+import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 
 async function getParsedAggregations(query) {
   try {
@@ -39,13 +41,16 @@ const ScreensSearch = () => {
   const [filteredQuery, setFilteredQuery] = useState();
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
+  const { downloadCsvFile } = useCsvFileSave();
 
   const handleCsvExportAllItems = () => {
-    console.log("handle Csv Export All Items");
+    downloadCsvFile("search_results_all_items", filteredQuery);
   };
 
   const handleCsvExportItems = () => {
     console.log("handle Csv Export Items");
+    const myQuery = buildSelectedItemsQuery(selectedItems);
+    downloadCsvFile("search_results_selected_items", myQuery);
   };
 
   const handleEditAllItems = async () => {
@@ -64,23 +69,7 @@ const ScreensSearch = () => {
 
   // Handle user selected search result items by constructing an Elasticsearch query
   const handleEditItems = async () => {
-    const myQuery = {
-      bool: {
-        must: [
-          {
-            match: {
-              "model.name": "Image",
-            },
-          },
-          {
-            query_string: {
-              query: ` id:(${selectedItems.join(" OR ")})`,
-            },
-          },
-        ],
-      },
-    };
-
+    const myQuery = buildSelectedItemsQuery(selectedItems);
     const parsedAggregations = await getParsedAggregations(myQuery);
 
     // Update the global Batch Edit Context

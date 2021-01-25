@@ -46,6 +46,8 @@ You can pass any public collection ID or valid Elasticsearch query to the downlo
 
 Start the Phoenix with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
+Note: after a `devstack down`, you may have to run `mix meadow.pipeline.setup` before starting the server.
+
 ## Stopping the application
 
 You can stop the Phoneix server with `Ctrl + C` twice

@@ -25,6 +25,30 @@ export const REACTIVE_SEARCH_THEME = {
   },
 };
 
+/**
+ * Build an ElasticSearch query of individual items
+ * @param {Array} selectedItems Manually selected results from ReactiveSearch search results
+ * @returns {Object} An ElasticSearch query
+ */
+export function buildSelectedItemsQuery(selectedItems = []) {
+  return {
+    bool: {
+      must: [
+        {
+          match: {
+            "model.name": "Image",
+          },
+        },
+        {
+          query_string: {
+            query: ` id:(${selectedItems.join(" OR ")})`,
+          },
+        },
+      ],
+    },
+  };
+}
+
 // Documention: https://docs.appbase.io/docs/reactivesearch/v3/theming/classnameinjection/
 const facetClasses = {
   checkbox: "facet-checkbox",
