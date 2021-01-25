@@ -82,7 +82,7 @@ defmodule Meadow.Utils.Lambda do
     Logger.metadata(lambda: lambda)
 
     case ExAws.Lambda.invoke(lambda, payload, %{}) |> ExAws.request() do
-      {:ok, %{"errorType" => _, "trace" => _} = error} -> {:error, error}
+      {:ok, %{"errorType" => _, "errorMessage" => error_message}} -> {:error, error_message}
       other -> other
     end
 
