@@ -95,5 +95,12 @@ defmodule Meadow.ConfigTest do
       assert Config.iiif_server_url() == "http://no-slash-test/iiif/2/"
       assert Config.iiif_manifest_url() == "http://no-slash-test/minio/test-pyramids/public/"
     end
+
+    test "validate release config" do
+      System.put_env("__COMPILE_CHECK__", "TRUE")
+      assert Elixir.Config.Reader.read!("config/releases.exs") |> is_list()
+    after
+      System.delete_env("__COMPILE_CHECK__")
+    end
   end
 end
