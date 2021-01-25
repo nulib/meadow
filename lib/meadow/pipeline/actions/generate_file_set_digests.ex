@@ -49,7 +49,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
     case Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key}) do
-      {:ok, result} -> %{sha256: result}
+      {:ok, result} -> %{sha256: result["sha256"], sha1: result["sha1"]}
       {:error, error} -> raise error
     end
   end

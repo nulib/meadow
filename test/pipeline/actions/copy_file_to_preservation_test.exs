@@ -7,6 +7,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   import ExUnit.CaptureLog
 
   @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
+  @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
   @ingest_bucket Meadow.Config.ingest_bucket()
   @preservation_bucket Meadow.Config.preservation_bucket()
   @key "copy_file_to_preservation_test/test.tif"
@@ -22,7 +23,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         role: "am",
         metadata: %{
           digests: %{
-            "sha256" => @sha256
+            "sha256" => @sha256,
+            "sha1" => @sha1
           },
           location: "s3://#{@ingest_bucket}/#{@key}",
           original_filename: "test.tif"
@@ -53,6 +55,13 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       assert capture_log(fn ->
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
+
+      {:ok, %{headers: headers}} =
+        ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request()
+
+      assert headers |> List.keyfind("x-amz-meta-sha1", 0) |> elem(1) == @sha1
+      assert headers |> List.keyfind("x-amz-meta-sha256", 0) |> elem(1) == @sha256
+      assert headers |> List.keyfind("x-amz-meta-original_filename", 0) |> elem(1) == "test.tif"
 
       on_exit(fn ->
         delete_object(@preservation_bucket, preservation_key)
