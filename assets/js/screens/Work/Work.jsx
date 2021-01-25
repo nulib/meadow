@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
+import WorkPublicLinkNotification from "../../components/Work/PublicLinkNotification";
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
@@ -24,8 +25,8 @@ const ScreensWork = () => {
   const params = useParams();
   const { id } = params;
   const history = useHistory();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const batchState = useBatchState();
+  const [isWorkOpen, setIsWorkOpen] = useState(false);
 
   const multiCurrentIndex = params.counter
     ? parseInt(params.counter.split(",")[0])
@@ -62,11 +63,20 @@ const ScreensWork = () => {
   }
 
   const handleCreateSharableBtnClick = () => {
-    createSharedLink({
-      variables: {
-        workId: id,
-      },
-    });
+    const isPublished = data.work.published;
+    const isPublic = data.work.visibility
+      ? data.work.visibility.id === "OPEN"
+      : false;
+
+    if (isPublished && isPublic) {
+      setIsWorkOpen(true);
+    } else {
+      createSharedLink({
+        variables: {
+          workId: id,
+        },
+      });
+    }
   };
 
   const handleMultiNavClick = (nextWorkIndex) => {
@@ -151,6 +161,9 @@ const ScreensWork = () => {
                       <WorkSharedLinkNotification
                         linkData={createSharedLinkData.createSharedLink}
                       />
+                    )}
+                    {isWorkOpen && (
+                      <WorkPublicLinkNotification workId={data.work.id} />
                     )}
 
                     <hr />

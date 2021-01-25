@@ -21,7 +21,7 @@ export default function WorkHeaderButtons({
         <span className="icon">
           <FontAwesomeIcon icon="link" />
         </span>
-        <span>Create sharable link</span>
+        <span>Get sharable link</span>
       </Button>
       <DisplayAuthorized action="edit">
         <Button
