@@ -29,7 +29,7 @@ describe("WorkPublicLinkNotification component", () => {
 
   it("renders the link url", async () => {
     expect(await screen.findByTestId("link-url")).toHaveTextContent(
-      `${mockDCUrl}work/ABC123`
+      `${mockDCUrl}items/ABC123`
     );
   });
 });
