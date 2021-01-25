@@ -19,6 +19,8 @@ import Layout from "../Layout";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { Button } from "@nulib/admin-react-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -27,6 +29,15 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
+
+  const handleClick = () => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: "Collection",
+        value: data.collection.title,
+      },
+    });
+  };
 
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
@@ -125,13 +136,6 @@ const ScreensCollection = () => {
                   </div>
                   <div className="column is-one-third buttons has-text-right">
                     <DisplayAuthorized action="edit">
-                      <button
-                        className="button is-primary"
-                        onClick={handlePublishClick}
-                        data-testid="publish-button"
-                      >
-                        {!data.collection.published ? "Publish" : "Unpublish"}
-                      </button>
                       <Link
                         to={`/collection/form/${id}`}
                         className="button is-primary"
@@ -139,6 +143,13 @@ const ScreensCollection = () => {
                       >
                         Edit
                       </Link>
+                      <button
+                        className="button"
+                        onClick={handlePublishClick}
+                        data-testid="publish-button"
+                      >
+                        {!data.collection.published ? "Publish" : "Unpublish"}
+                      </button>
                     </DisplayAuthorized>
                     <DisplayAuthorized action="delete">
                       <button
@@ -158,11 +169,14 @@ const ScreensCollection = () => {
             )}
           </div>
 
-          {loading ? (
-            <UISkeleton rows={10} />
-          ) : (
-            <CollectionSearch collection={data.collection} />
-          )}
+          <div className="my-4 has-text-centered">
+            <Button onClick={handleClick} data-testid="view-works-button">
+              <span className="icon">
+                <FontAwesomeIcon icon="eye" />
+              </span>
+              <span>View all collection works</span>
+            </Button>
+          </div>
         </div>
       </section>
 

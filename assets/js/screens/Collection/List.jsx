@@ -3,22 +3,23 @@ import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTIONS,
   DELETE_COLLECTION,
-} from "../../components/Collection/collection.gql.js";
-import Error from "../../components/UI/Error";
-import UISkeleton from "../../components/UI/Skeleton";
+} from "@js/components/Collection/collection.gql.js";
+import Error from "@js/components/UI/Error";
+import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
 import { useMutation } from "@apollo/client";
-import { toastWrapper } from "../../services/helpers";
+import { toastWrapper } from "@js/services/helpers";
 import Layout from "../Layout";
-import UIModalDelete from "../../components/UI/Modal/Delete";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import UIFormInput from "../../components/UI/Form/Input";
-import UIFormField from "../../components/UI/Form/Field";
+import UIModalDelete from "@js/components/UI/Modal/Delete";
+import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
+import UIFormInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import UISearchBarRow from "@js/components/UI/SearchBarRow";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -66,7 +67,7 @@ const ScreensCollectionList = () => {
   };
 
   const handleFilterChange = (e) => {
-    const searchValue = inputEl.current.value.toLowerCase();
+    const searchValue = e.target.value.toLowerCase();
 
     if (searchValue) {
       setFilteredCollections(
@@ -121,12 +122,16 @@ const ScreensCollectionList = () => {
             ) : (
               <>
                 <h3 className="title is-size-5">All Collections</h3>
-                <UIFormField childClass="has-icons-left">
+                <UISearchBarRow>
                   <UIFormInput
                     placeholder="Search collections"
                     name="collectionSearch"
                     label="Filter collections"
+                    onChange={handleFilterChange}
+                    data-testid="input-collections-filter"
                   />
+                </UISearchBarRow>
+                <UIFormField childClass="has-icons-left">
                   <span className="icon is-small is-left">
                     <FontAwesomeIcon icon="search" />
                   </span>
