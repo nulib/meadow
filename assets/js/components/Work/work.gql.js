@@ -40,6 +40,22 @@ export const CREATE_SHARED_LINK = gql`
   }
 `;
 
+export const CREATE_WORK = gql`
+  mutation createWork($accessionNumber: String!, $title: String) {
+    createWork(
+      accessionNumber: $accessionNumber
+      administrativeMetadata: {}
+      descriptiveMetadata: { title: $title }
+    ) {
+      accessionNumber
+      descriptiveMetadata {
+        title
+      }
+      id
+    }
+  }
+`;
+
 export const GET_WORK = gql`
   query WorkQuery($id: ID!) {
     work(id: $id) {
