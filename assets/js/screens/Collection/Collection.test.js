@@ -73,6 +73,12 @@ it("renders Publish button", async () => {
   expect(button).toBeInTheDocument();
 });
 
+it("renders View Works button", async () => {
+  const { findByTestId } = setupTests();
+  const button = await findByTestId("view-works-button");
+  expect(button).toBeInTheDocument();
+});
+
 // TODO: I spent 2 hours trying to troubleshoot this.  For some reason, the updated
 // GetCollection query is not coming through in the test, and it never sees itself
 // as published, even though the onCompleted callback is hit.  No clue...
