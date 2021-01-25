@@ -114,7 +114,7 @@ config :hackney,
 
 config :meadow, :lambda,
   digester: {:lambda, "meadow-digester"},
-  "pyramid-tiff": {:lambda, "meadow-pyramid-tiff"}
+  tiff: {:lambda, "meadow-pyramid-tiff"}
 
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [processor_concurrency: 50, visibility_timeout: 300]
