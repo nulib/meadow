@@ -8,7 +8,10 @@ import Config
 alias Meadow.Pipeline.Actions
 
 get_required_var = fn var ->
-  System.get_env(var) || raise "environment variable #{var} is missing."
+  case System.get_env("__COMPILE_CHECK__") do
+    nil -> System.get_env(var) || raise "environment variable #{var} is missing."
+    _ -> "COMPILE_CHECK"
+  end
 end
 
 config :elastix,
