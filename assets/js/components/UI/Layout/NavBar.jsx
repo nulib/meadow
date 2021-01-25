@@ -137,6 +137,11 @@ const UILayoutNavBar = () => {
                       <Link to="/dashboards/batch-edit">Batch Edit</Link>
                     </UILayoutNavDropdownItem>
                     <UILayoutNavDropdownItem>
+                      <Link to="/dashboards/csv-metadata-update">
+                        CSV Metadata Update
+                      </Link>
+                    </UILayoutNavDropdownItem>
+                    <UILayoutNavDropdownItem>
                       <Link to="/dashboards/nul-local-authorities">
                         NUL Local Authorities
                       </Link>

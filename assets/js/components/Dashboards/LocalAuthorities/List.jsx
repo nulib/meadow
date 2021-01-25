@@ -178,12 +178,14 @@ export default function DashboardsLocalAuthoritiesList() {
                   <Button
                     data-testid="edit-button"
                     title="Edit NUL Local Authority"
+                    className="is-small"
                     onClick={() => handleUpdateButtonClick(record)}
                   >
                     <FontAwesomeIcon icon="pen" />
                   </Button>
                   <Button
                     data-testid="delete-button"
+                    className="is-small"
                     onClick={() => handleDeleteClick(record)}
                   >
                     <FontAwesomeIcon icon="trash" />

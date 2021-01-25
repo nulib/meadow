@@ -1,5 +1,28 @@
 import gql from "graphql-tag";
 
+export const CSV_METADATA_UPDATE_JOB = gql`
+  mutation CsvMetadataUpdate($filename: String!, $source: String!) {
+    csvMetadataUpdate(filename: $filename, source: $source) {
+      id
+      errors {
+        errors {
+          field
+          messages
+        }
+        row
+      }
+      filename
+      insertedAt
+      rows
+      source
+      startedAt
+      status
+      updatedAt
+      user
+    }
+  }
+`;
+
 export const CREATE_NUL_AUTHORITY_RECORD = gql`
   mutation createNulAuthorityRecord($hint: String, $label: String!) {
     createNulAuthorityRecord(hint: $hint, label: $label) {
@@ -53,6 +76,52 @@ export const GET_BATCHES = gql`
       type
       user
       worksUpdated
+    }
+  }
+`;
+
+export const GET_CSV_METADATA_UPDATE_JOB = gql`
+  query CsvMetadataUpdateJob($id: ID!) {
+    csvMetadataUpdateJob(id: $id) {
+      id
+      errors {
+        errors {
+          field
+          messages
+        }
+        row
+      }
+      filename
+      insertedAt
+      rows
+      source
+      startedAt
+      status
+      updatedAt
+      user
+    }
+  }
+`;
+
+export const GET_CSV_METADATA_UPDATE_JOBS = gql`
+  query CsvMetadataUpdateJobs {
+    csvMetadataUpdateJobs {
+      id
+      errors {
+        errors {
+          field
+          messages
+        }
+        row
+      }
+      filename
+      insertedAt
+      rows
+      source
+      startedAt
+      status
+      updatedAt
+      user
     }
   }
 `;

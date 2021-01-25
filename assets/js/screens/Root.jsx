@@ -4,6 +4,8 @@ import { AuthProvider } from "../components/Auth/Auth";
 import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
 import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
 import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
+import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
+import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
@@ -55,6 +57,16 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/nul-local-authorities"
                   component={ScreensDashboardsLocalAuthoritiesList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/csv-metadata-update"
+                  component={ScreensDashboardsCsvList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/csv-metadata-update/:id"
+                  component={ScreensDashboardsCsvDetails}
                 />
                 <PrivateRoute
                   exact

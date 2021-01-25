@@ -94,7 +94,7 @@ export default function DashboardsBatchEditTable() {
               </td>
               <td className="has-text-right">
                 <Link
-                  className="button"
+                  className="button is-small"
                   to={`/dashboards/batch-edit/${id}`}
                   data-testid="view-button"
                 >
