@@ -89,6 +89,8 @@ config :honeybadger,
   environment_name: :prod,
   exclude_envs: [:dev, :test]
 
+config :logger, level: :info,
+
 config :sequins,
   prefix: "meadow",
   supervisor_opts: [max_restarts: 2048]
@@ -110,7 +112,12 @@ config :hackney,
 
 # Configure Lambda-based actions
 
-config :meadow, :lambda, digester: {:lambda, "meadow-digester"}
+config :meadow, :lambda,
+  digester: {:lambda, "meadow-digester"},
+  "pyramid-tiff": {:lambda, "meadow-pyramid-tiff"}
 
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [processor_concurrency: 50, visibility_timeout: 300]
+
+config :sequins, Actions.CreatePyramidTiff,
+  queue_config: [processor_concurrency: 50, visibility_timeout: 600]

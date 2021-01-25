@@ -138,6 +138,21 @@ resource "aws_security_group" "meadow" {
   tags = var.tags
 }
 
+resource "aws_security_group" "meadow_efs_client" {
+  name        = "${var.stack_name}-efs-client"
+  description = "Access to Meadow EFS Working Filesystem"
+  vpc_id      = data.aws_vpc.this_vpc.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = var.tags
+}
+
 resource "aws_security_group" "meadow_db" {
   name        = "${var.stack_name}-db"
   description = "The Meadow RDS Instance"
@@ -232,7 +247,7 @@ resource "aws_security_group" "meadow_working_access" {
     from_port         = 2049
     to_port           = 2049
     protocol          = "tcp"
-    security_groups   = [aws_security_group.meadow.id]
+    security_groups   = [aws_security_group.meadow.id, aws_security_group.meadow_efs_client.id]
   }
 
   egress {

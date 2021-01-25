@@ -53,7 +53,8 @@ config :meadow, Meadow.ElasticsearchCluster,
 # Configures lambda scripts
 config :meadow, :lambda,
   digester: {:local, {"nodejs/digester/index.js", "handler"}},
-  edtf: {:local, {"nodejs/edtf/index.js", "handler"}}
+  edtf: {:local, {"nodejs/edtf/index.js", "handler"}},
+  tiff: {:local, {"nodejs/pyramid-tiff/index.js", "handler"}}
 
 # Configures the pyramid TIFF processor
 with val <- System.get_env("PYRAMID_PROCESSOR") do
