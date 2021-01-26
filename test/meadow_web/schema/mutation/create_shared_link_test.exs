@@ -17,21 +17,11 @@ defmodule MeadowWeb.Resolvers.Data.SharedLinkTest do
   end
 
   describe "authorization" do
-    test "viewers and editors are not authorized to create shared links" do
+    test "users and above are authorized to create shared links" do
       {:ok, result} =
         query_gql(
           variables: %{"workId" => "1234"},
-          context: %{current_user: %{role: "Editor"}}
-        )
-
-      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
-    end
-
-    test "managers and above are authorized to create shared links" do
-      {:ok, result} =
-        query_gql(
-          variables: %{"workId" => "1234"},
-          context: %{current_user: %{role: "Manager"}}
+          context: %{current_user: %{role: "User"}}
         )
 
       assert result.data["createSharedLink"]
