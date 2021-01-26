@@ -30,7 +30,7 @@
     "downshift": "^6.1.0",
     "edtf": "^3.1.0",
     "elasticsearch": "^16.7.2",
-    "faker": "^5.1.0",
+    "faker": "^5.2.0",
     "graphql": "^15.3.0",
     "graphql-tag": "^2.11.0",
     "js-cookie": "^2.2.1",
