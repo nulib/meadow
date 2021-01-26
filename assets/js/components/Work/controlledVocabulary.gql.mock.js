@@ -240,8 +240,8 @@ export const codeListStatusMock = {
           __typename: "CodedTerm",
         },
         {
-          id: "STARTED",
-          label: "Started",
+          id: "NOT STARTED",
+          label: "Not Started",
           __typename: "CodedTerm",
         },
       ],

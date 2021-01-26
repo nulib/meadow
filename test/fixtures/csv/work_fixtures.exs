@@ -3917,7 +3917,7 @@
       project_name: ["The Coming Thing"],
       project_proposer: ["Socrates Poole", "Lord Bowler"],
       project_task_number: ["1899.827"],
-      status: %{id: "STARTED", label: "Started", scheme: "status"}
+      status: %{id: "NOT STARTED", label: "Started", scheme: "status"}
     },
     descriptive_metadata: %{
       genre: [
