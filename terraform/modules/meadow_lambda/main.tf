@@ -1,6 +1,6 @@
 locals {
-  dest_path   = abspath("${path.module}/_build")
-  source_path = abspath("${path.module}/../../../priv/nodejs")
+  dest_path   = "${path.module}/_build"
+  source_path = "${path.module}/../../../priv/nodejs"
 }
 
 data "archive_file" "source" {
@@ -10,20 +10,19 @@ data "archive_file" "source" {
   output_path   = "${local.dest_path}/${var.name}.src.zip"
 }
 
-resource "null_resource" "this_zip" {
-  triggers = {
-    source_code = data.archive_file.source.output_sha
-  }
-
-  provisioner "local-exec" {
-    command = "docker run -v ${local.source_path}:/src -v ${local.dest_path}:/dest nulib/lambda-build ${var.name} ${data.archive_file.source.output_sha}"
+data "external" "this_zip" {
+  program = ["${path.module}/build_lambda.sh"]
+  query = {
+    name = var.name
+    source_sha = data.archive_file.source.output_sha
+    source_path = local.source_path
+    dest_path = local.dest_path
   }
 }
 
 resource "aws_lambda_function" "this_lambda_function" {
-  depends_on    = [ null_resource.this_zip ]
   function_name = "${var.stack_name}-${var.name}"
-  filename      = "${local.dest_path}/${var.name}-deploy-${data.archive_file.source.output_sha}.zip"
+  filename      = data.external.this_zip.result.zip
   description   = var.description
   handler       = var.handler
   memory_size   = var.memory_size
