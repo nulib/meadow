@@ -50,6 +50,7 @@ npm-debug.log
 *.tfvars
 
 /terraform/.terraform/
+/terraform/**/_build/
 
 # Accounts for a package on the front-end to enable autocomplete for Jest in VSCode
 node_modules
