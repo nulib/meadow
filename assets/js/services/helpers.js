@@ -53,7 +53,7 @@ export function isEDTFValid(edtfString) {
 }
 
 export function getImageUrl(representativeImage) {
-  if (typeof representativeImage === "object") {
+  if (representativeImage && typeof representativeImage === "object") {
     return representativeImage.url || "";
   }
   return representativeImage || "";
