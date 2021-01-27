@@ -2,7 +2,7 @@ import React from "react";
 import DashboardsCsvErrors from "./Errors";
 import { render, screen, within } from "@testing-library/react";
 
-const errors = [
+export const errors = [
   {
     __typename: "RowErrors",
     errors: [

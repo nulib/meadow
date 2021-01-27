@@ -55,7 +55,7 @@ function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
           </div>
         </div>
       </section>
-      {errors.length > 0 && <DashboardsCsvErrors errors={errors} />}
+      {errors && errors.length > 0 && <DashboardsCsvErrors errors={errors} />}
     </>
   );
 }
