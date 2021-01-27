@@ -217,4 +217,20 @@ defmodule Meadow.Data.ControlledTerms do
         other
     end
   end
+
+  def extract_unique_terms(data) do
+    data
+    |> extract_all_terms()
+    |> Enum.to_list()
+    |> List.flatten()
+    |> Enum.uniq()
+  end
+
+  defp extract_all_terms(data), do: data |> extract_terms()
+
+  defp extract_terms(%Stream{} = stream), do: Stream.flat_map(stream, &extract_all_terms/1)
+  defp extract_terms(%{term: %{id: uri}}), do: [uri]
+  defp extract_terms(data) when is_list(data), do: Enum.flat_map(data, &extract_all_terms/1)
+  defp extract_terms(data) when is_map(data), do: Map.values(data) |> extract_all_terms()
+  defp extract_terms(_), do: []
 end

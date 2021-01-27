@@ -43,16 +43,6 @@ defmodule Meadow.Utils.Stream do
     )
   end
 
-  def presigned_url_for(s3_url) do
-    %{host: bucket, path: "/" <> key} = URI.parse(s3_url)
-
-    with {:ok, result} <-
-           ExAws.Config.new(:s3)
-           |> ExAws.S3.presigned_url(:get, bucket, key) do
-      result
-    end
-  end
-
   defp async_stream_start(url), do: HTTPoison.get!(url, %{}, stream_to: self(), async: :once)
 
   defp async_stream_next(%HTTPoison.AsyncResponse{id: id} = resp) do
@@ -81,4 +71,19 @@ defmodule Meadow.Utils.Stream do
   end
 
   defp async_stream_after(%HTTPoison.AsyncResponse{id: id}), do: :hackney.stop_async(id)
+
+  def by_line(enum) do
+    Elixir.Stream.transform(
+      enum,
+      "",
+      &line_stream_reduce/2
+    )
+  end
+
+  defp line_stream_reduce(chunk, buffer) do
+    case (buffer <> chunk) |> String.split(~r/(?<=\n)/) |> Enum.reverse() do
+      [remainder | []] -> {[remainder], ""}
+      [remainder | lines] -> {Enum.reverse(lines), remainder}
+    end
+  end
 end

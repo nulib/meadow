@@ -29,4 +29,25 @@ defmodule Meadow.Utils.StreamTest do
              |> Enum.sum() == @content_length
     end
   end
+
+  describe "by_line/1" do
+    assert [
+             "this\nis lines\none through three\r\nand ",
+             "this is\nlines four and five\n",
+             "\r\n\n\r\n",
+             "and this is line six\r\n"
+           ]
+           |> Stream.by_line()
+           |> Enum.to_list() == [
+             "this\n",
+             "is lines\n",
+             "one through three\r\n",
+             "and this is\n",
+             "lines four and five\n",
+             "\r\n",
+             "\n",
+             "\r\n",
+             "and this is line six\r\n"
+           ]
+  end
 end

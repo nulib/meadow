@@ -5,6 +5,7 @@ defmodule Meadow.Data.CSV.Import do
 
   alias Meadow.Data.CSV.Export
   alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Utils.Stream, as: StreamUtil
   alias NimbleCSV.RFC4180, as: CSV
 
   import Meadow.Data.CSV.Utils
@@ -33,7 +34,8 @@ defmodule Meadow.Data.CSV.Import do
     }
   """
   def read_csv(source) do
-    with csv_stream <- Enum.into(source, "") |> CSV.parse_string(skip_headers: false),
+    with csv_stream <-
+           source |> StreamUtil.by_line() |> CSV.parse_stream(skip_headers: false),
          [[query | _] | [headers | []]] <- Enum.take(csv_stream, 2) do
       %__MODULE__{
         query: query,
