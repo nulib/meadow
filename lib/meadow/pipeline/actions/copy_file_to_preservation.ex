@@ -43,19 +43,12 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     dest_bucket = Config.preservation_bucket()
 
     dest_key =
-      Path.join([
-        "/",
-        Pairtree.preservation_path(
-          file_set.id,
-          Map.get(file_set.metadata.digests, "sha256")
-        )
-      ])
+      Path.join(["/", Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))])
 
     original_filename = file_set.metadata.original_filename
     dest_location = %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
 
     s3_metadata = [
-      original_filename: original_filename,
       sha1: file_set.metadata.digests["sha1"],
       sha256: file_set.metadata.digests["sha256"]
     ]

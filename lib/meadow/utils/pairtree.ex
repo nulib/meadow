@@ -8,17 +8,17 @@ defmodule Meadow.Utils.Pairtree do
 
   ## Examples
 
-    iex> Pairtree.preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90")
-    "a1/3d/45/b1/412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
+    iex> Pairtree.preservation_path("412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90")
+    "41/2c/a1/47/412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
 
-    iex> Pairtree.preservation_path("a13d45b1-69a6-447f-9d42-90b989a2949c", "412ca147684a67883226c64")
+    iex> Pairtree.preservation_path("412ca147684a67883226c64")
     ** (ArgumentError) Invalid sha256 hash
   """
-  def preservation_path(id, sha256) when byte_size(sha256) == 64 do
-    generate!(id, 4) <> "/" <> sha256
+  def preservation_path(sha256) when byte_size(sha256) == 64 do
+    generate!(sha256, 4) <> "/" <> sha256
   end
 
-  def preservation_path(_, _) do
+  def preservation_path(_) do
     raise ArgumentError, message: "Invalid sha256 hash"
   end
 
