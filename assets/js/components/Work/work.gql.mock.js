@@ -18,8 +18,8 @@ export const mockWork = {
     projectProposer: ["New Project Proposer", "Another Project Proposer"],
     projectTaskNumber: ["New Project Task Number", "Another Project Task"],
     status: {
-      id: "STARTED",
-      label: "Started",
+      id: "NOT STARTED",
+      label: "Not Started",
       scheme: "STATUS",
     },
     visibility: mockVisibility,

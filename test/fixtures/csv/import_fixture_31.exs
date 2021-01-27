@@ -8,7 +8,7 @@
     project_name: ["The Coming Thing"],
     project_proposer: ["Socrates Poole", "Lord Bowler"],
     project_task_number: ["1899.827"],
-    status: %{id: "STARTED", scheme: "status"}
+    status: %{id: "NOT STARTED", scheme: "status"}
   },
   collection_id: nil,
   descriptive_metadata: %{

@@ -8,7 +8,7 @@
     "label": "In Progress"
   },
   {
-    "id": "STARTED",
-    "label": "Started"
+    "id": "NOT STARTED",
+    "label": "Not Started"
   }
 ]

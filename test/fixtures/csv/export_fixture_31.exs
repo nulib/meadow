@@ -45,7 +45,7 @@
   scope_and_contents: "Scope | Contents",
   series: "The Adventures of Brisco County, Jr.",
   source: "Source",
-  status: "STARTED",
+  status: "NOT STARTED",
   style_period:
     "http://vocab.getty.edu/aat/300378903 | http://vocab.getty.edu/aat/300312140 | http://vocab.getty.edu/aat/300375743",
   subject:
