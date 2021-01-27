@@ -5,6 +5,7 @@ alias Meadow.Pipeline.Actions.{
   CreatePyramidTiff,
   FileSetComplete,
   GenerateFileSetDigests,
+  ExtractExifMetadata,
   IngestFileSet
 }
 
@@ -16,6 +17,7 @@ config :sequins, Meadow.Pipeline,
   actions: [
     IngestFileSet,
     GenerateFileSetDigests,
+    ExtractExifMetadata,
     CopyFileToPreservation,
     CreatePyramidTiff,
     FileSetComplete
@@ -31,10 +33,14 @@ config :sequins, CopyFileToPreservation,
   queue_config: [max_number_of_messages: 3, visibility_timeout: 300],
   notify_on: [GenerateFileSetDigests: [status: :ok], CopyFileToPreservation: [status: :retry]]
 
+config :sequins, ExtractExifMetadata,
+  queue_config: [processor_concurrency: 1, visibility_timeout: 300],
+  notify_on: [CopyFileToPreservation: [status: :ok], ExtractExifMetadata: [status: :retry]]
+
 config :sequins, CreatePyramidTiff,
   queue_config: [processor_concurrency: 1, visibility_timeout: 300],
   notify_on: [
-    CopyFileToPreservation: [status: :ok, role: "am"],
+    ExtractExifMetadata: [status: :ok, role: "am"],
     CreatePyramidTiff: [status: :retry]
   ]
 
@@ -43,5 +49,5 @@ config :sequins, FileSetComplete,
   notify_on: [
     CreatePyramidTiff: [status: :ok],
     FileSetComplete: [status: :retry],
-    CopyFileToPreservation: [status: :ok, role: "pm"]
+    ExtractExifMetadata: [status: :ok, role: "pm"]
   ]

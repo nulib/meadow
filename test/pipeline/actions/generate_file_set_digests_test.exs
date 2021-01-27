@@ -9,8 +9,8 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
-  @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
-  @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
+  @sha256 "509ecd36cbb1ba4dc57430de5418ad64cf106aa209ca839ef753fa853c972753"
+  @sha1 "0f4e109d2a4c8f954e940ceb356b40bd393120d0"
 
   setup do
     file_set =

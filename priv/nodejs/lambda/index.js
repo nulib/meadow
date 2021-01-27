@@ -9,7 +9,7 @@ requireHook.setEvent((result, e) => {
     if (process.env["AWS_S3_ENDPOINT"]) {
       result.config.s3 = {
         endpoint: process.env["AWS_S3_ENDPOINT"],
-        s3ForcePathStyle: true
+        s3ForcePathStyle: true,
       };
     }
   }
@@ -19,15 +19,16 @@ requireHook.setEvent((result, e) => {
 // Take over the global `console` object to handle communication with
 // the parent process
 const writeln = (message) => process.stdout.write(message.trim() + "\n");
-const portlog = (level, ...args) => writeln([`[${level}]`, ...args].filter(e => e != null).join(" "));
+const portlog = (level, ...args) =>
+  writeln([`[${level}]`, ...args].filter((e) => e != null).join(" "));
 
-['log', 'debug', 'info', 'warn', 'error'].forEach((level) => {
-  let outLevel = level == 'log' ? 'info' : level;
-  global.console[level] = (...args) => portlog(outLevel, ...args)  
-})
+["log", "debug", "info", "warn", "error"].forEach((level) => {
+  let outLevel = level == "log" ? "info" : level;
+  global.console[level] = (...args) => portlog(outLevel, ...args);
+});
 
 // Load the lambda script
-const script = process.argv[2].replace(/\.js$/, '');
+const script = process.argv[2].replace(/\.js$/, "");
 const lambda = process.argv[3];
 
 const handler = require(script)[lambda];

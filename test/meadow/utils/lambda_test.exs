@@ -82,6 +82,19 @@ defmodule Meadow.Utils.LambdaTest do
       assert result == File.read!("test/fixtures/lambda/lipsum.txt")
     end
 
+    test "null response", %{config: config} do
+      assert {:ok, nil} == Lambda.invoke(config, %{test: "null"})
+    end
+
+    test "undefined response", %{config: config} do
+      log =
+        capture_log(fn ->
+          assert {:ok, nil} == Lambda.invoke(config, %{test: "undef"})
+        end)
+
+      assert log |> String.contains?("[warn]  Received undefined")
+    end
+
     test "timeout", %{config: config} do
       assert capture_log(fn ->
                assert Lambda.invoke(config, %{test: "sleep", duration: 250}, 50) ==

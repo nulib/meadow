@@ -13,13 +13,14 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     field :description
     field :label
     field :digests, :map
+    field :exif, :map
 
     timestamps()
   end
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [:location, :digests, :original_filename, :description, :label])
+    |> cast(params, [:location, :digests, :exif, :original_filename, :description, :label])
     |> validate_required([:location, :original_filename])
   end
 end

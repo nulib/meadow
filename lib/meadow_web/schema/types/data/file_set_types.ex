@@ -113,9 +113,17 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :description, :string
 
     field :sha256, :string do
-      resolve(fn file_set, _, _ ->
-        case file_set.digests do
-          _digests -> {:ok, file_set.digests["sha256"]}
+      resolve(fn metadata, _, _ ->
+        case metadata.digests do
+          _digests -> {:ok, metadata.digests["sha256"]}
+        end
+      end)
+    end
+
+    field :exif, :string do
+      resolve(fn metadata, _, _ ->
+        case metadata.exif do
+          _exif -> Jason.encode(metadata.exif)
         end
       end)
     end

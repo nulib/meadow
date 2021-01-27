@@ -37,7 +37,7 @@ defmodule Meadow.Utils.Lambda do
   @type lambda_config :: local_lambda_config() | remote_lambda_config()
 
   @buffer_size 512
-  @timeout 30_000
+  @timeout 120_000
 
   @doc """
   Invoke a Lambda function and return the JSON-decoded result.
@@ -112,6 +112,11 @@ defmodule Meadow.Utils.Lambda do
     end
   end
 
+  defp handle_buffer("[return] undefined") do
+    Logger.warn("Received undefined response from lambda")
+    {:ok, nil}
+  end
+
   defp handle_buffer("[return] " <> value) do
     {:ok, Jason.decode!(value)}
   end
@@ -137,7 +142,6 @@ defmodule Meadow.Utils.Lambda do
         end
 
       {^port, {:data, {:noeol, data}}} ->
-        Logger.debug("Buffering")
         handle_output(port, timeout, buffer <> data)
 
       {^port, {:exit_status, status}} ->
