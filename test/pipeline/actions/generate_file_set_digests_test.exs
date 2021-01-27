@@ -10,6 +10,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
   @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
+  @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
 
   setup do
     file_set =
@@ -31,7 +32,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
-    assert(file_set.metadata.digests == %{"sha256" => @sha256})
+    assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
 
     assert capture_log(fn ->
              GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
