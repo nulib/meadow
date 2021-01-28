@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
-import { useQuery } from "@apollo/client";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -20,9 +18,6 @@ function DashboardsCsvImportModal({
   isOpen,
   setCurrentFile,
 }) {
-  //const [currentFile, setCurrentFile] = React.useState();
-  const [displayError, setDisplayError] = React.useState();
-
   // Handle file drop
   const onDrop = React.useCallback((acceptedFiles) => {
     setCurrentFile(acceptedFiles[0]);
@@ -39,11 +34,16 @@ function DashboardsCsvImportModal({
   };
 
   return (
-    <div className={`modal ${isOpen ? "is-active" : ""}`}>
+    <div
+      className={`modal ${isOpen ? "is-active" : ""}`}
+      data-testid="import-csv-modal"
+    >
       <div className="modal-background"></div>
       <div className="modal-card">
         <header className="modal-card-head">
-          <p className="modal-card-title">Import CSV file</p>
+          <p className="modal-card-title" data-testid="modal-title">
+            Import CSV file
+          </p>
           <button
             className="delete"
             aria-label="close"
@@ -51,16 +51,12 @@ function DashboardsCsvImportModal({
           ></button>
         </header>
         <section className="modal-card-body">
-          {displayError && (
-            <p className="notification is-danger">{displayError}</p>
-          )}
-
           <div
             {...getRootProps()}
             className="p-6 is-clickable has-text-centered"
             css={dropZone}
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps()} data-testid="dropzone-input" />
             <p>
               <FontAwesomeIcon
                 icon="file-csv"
@@ -97,10 +93,19 @@ function DashboardsCsvImportModal({
           )}
         </section>
         <footer className="modal-card-foot is-justify-content-flex-end">
-          <Button isText onClick={handleCancelClick}>
+          <Button
+            isText
+            onClick={handleCancelClick}
+            data-testid="cancel-button"
+          >
             Cancel
           </Button>
-          <Button isPrimary onClick={handleImportClick} disabled={!currentFile}>
+          <Button
+            isPrimary
+            onClick={handleImportClick}
+            disabled={!currentFile}
+            data-testid="submit-button"
+          >
             Import
           </Button>
         </footer>

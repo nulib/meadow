@@ -73,14 +73,10 @@ function DashboardsCsvImport() {
   }
 
   if (urlError) {
-    setDisplayError(urlError.toString());
-  }
-  if (urlError) {
     return <p>Error loading presigned url</p>;
   }
 
   const handleImportCsv = () => {
-    console.log("handleImportCsv()");
     if (currentFile) {
       uploadToS3()
         .then(
@@ -116,7 +112,7 @@ function DashboardsCsvImport() {
   };
 
   return (
-    <>
+    <div data-testid="csv-job-import-wrapper">
       <Button
         isPrimary
         onClick={() => setIsModalOpen(true)}
@@ -131,7 +127,7 @@ function DashboardsCsvImport() {
         handleClose={() => setIsModalOpen(false)}
         setCurrentFile={setCurrentFile}
       />
-    </>
+    </div>
   );
 }
 

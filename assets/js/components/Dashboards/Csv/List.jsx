@@ -32,15 +32,6 @@ const displayFields = [
   },
 ];
 
-function Status({ status = "" }) {
-  let displayStatus = status.toUpperCase();
-  let className = "is-success";
-  if (displayStatus === "INVALID") {
-    className = "is-danger";
-  }
-  return <div className={`tag is-light ${className}`}>{displayStatus}</div>;
-}
-
 function DashboardsCsvList(props) {
   const [filteredCsv, setFilteredCsv] = React.useState([]);
 
@@ -72,7 +63,7 @@ function DashboardsCsvList(props) {
   };
 
   return (
-    <React.Fragment>
+    <div data-testid="csv-list">
       <UISearchBarRow>
         <UIFormInput
           placeholder="Search"
@@ -119,6 +110,7 @@ function DashboardsCsvList(props) {
                   <Link
                     to={`/dashboards/csv-metadata-update/${id}`}
                     className="button is-small"
+                    data-testid="view-button"
                   >
                     <FontAwesomeIcon icon="eye" />
                   </Link>
@@ -128,7 +120,7 @@ function DashboardsCsvList(props) {
           })}
         </tbody>
       </table>
-    </React.Fragment>
+    </div>
   );
 }
 

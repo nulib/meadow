@@ -2,9 +2,12 @@ import {
   DELETE_NUL_AUTHORITY_RECORD,
   GET_BATCH,
   GET_BATCHES,
+  GET_CSV_METADATA_UPDATE_JOB,
+  GET_CSV_METADATA_UPDATE_JOBS,
   GET_NUL_AUTHORITY_RECORDS,
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
+import { errors as csvMetadataUpdateJobErrors } from "@js/components/Dashboards/Csv/Errors";
 
 export const mockGetBatchesResults = [
   {
@@ -74,6 +77,36 @@ export const mockGetBatchesResults = [
   },
 ];
 
+export const mockCsvMetadataUpdateJobs = [
+  {
+    id: "7c171c70-1f1a-4db8-8dcb-07c2c0003e10",
+    errors: csvMetadataUpdateJobErrors,
+    filename: "csv-contributor-faceted-mandela.csv",
+    insertedAt: "2021-01-25T17:21:34.582697Z",
+    rows: 8,
+    source:
+      "s3://dev-uploads/csv_metadata/2c5d7d42-dee1-4274-95ce-363b942bd21f.csv",
+    startedAt: "2021-01-25T17:21:37.000000Z",
+    status: "complete",
+    updatedAt: "2021-01-25T17:21:37.199112Z",
+    user: "aja0137",
+  },
+  {
+    __typename: "CsvMetadataUpdateJob",
+    id: "12b3b345-8391-45a9-8f15-03efb721cf4c",
+    errors: [],
+    filename: "search_results_selected_items.csv",
+    insertedAt: "2021-01-25T16:58:25.076293Z",
+    rows: 8,
+    source:
+      "s3://dev-uploads/csv_metadata/4fcb761f-fd5f-4d71-9fea-c98fe2978147.csv",
+    startedAt: "2021-01-25T16:58:26.000000Z",
+    status: "complete",
+    updatedAt: "2021-01-25T16:58:25.898129Z",
+    user: "aja0137",
+  },
+];
+
 export const mockNulAuthorityRecords = [
   {
     hint: "Ima hint 1",
@@ -122,6 +155,31 @@ export const getBatchesMock = {
   result: {
     data: {
       batches: mockGetBatchesResults,
+    },
+  },
+};
+
+export const getCsvMetadataUpdateJobMock = {
+  request: {
+    query: GET_CSV_METADATA_UPDATE_JOB,
+    variables: {
+      id: "7c171c70-1f1a-4db8-8dcb-07c2c0003e10",
+    },
+  },
+  result: {
+    data: {
+      csvMetadataUpdateJob: mockCsvMetadataUpdateJobs[0],
+    },
+  },
+};
+
+export const getCsvMetadataUpdateJobsMock = {
+  request: {
+    query: GET_CSV_METADATA_UPDATE_JOBS,
+  },
+  result: {
+    data: {
+      csvMetadataUpdateJobs: mockCsvMetadataUpdateJobs,
     },
   },
 };

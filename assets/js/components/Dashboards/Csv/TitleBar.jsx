@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import DashboardsCsvImport from "./Import";
 
 function DashboardsCsvTitleBar(props) {
@@ -7,9 +6,9 @@ function DashboardsCsvTitleBar(props) {
     <React.Fragment>
       <div
         className="is-flex is-justify-content-space-between"
-        data-testid="nul-authorities-title-bar"
+        data-testid="csv-job-title-bar"
       >
-        <h1 className="title" data-testid="local-authorities-dashboard-title">
+        <h1 className="title" data-testid="csv-dashboard-title">
           CSV Dashboard
         </h1>
         <div>
