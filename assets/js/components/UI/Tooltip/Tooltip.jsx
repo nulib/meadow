@@ -5,15 +5,16 @@ import { css, jsx } from "@emotion/react";
 const tooltipBody = css`
   display: none;
   position: absolute;
-  top: 100%;
-  left: 0;
 `;
 const tooltipWrapper = css`
   position: relative;
   &:hover {
-    margin-bottom: 2em;
+    background: whitesmoke;
     .tooltip-body {
       display: block;
+      background: whitesmoke;
+      z-index: 99999;
+      padding-left: 1rem;
     }
   }
 `;
