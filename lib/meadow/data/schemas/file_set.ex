@@ -64,6 +64,7 @@ defmodule Meadow.Data.Schemas.FileSet do
         createDate: file_set.inserted_at,
         description: file_set.metadata.description,
         label: file_set.metadata.label,
+        mime_type: file_set.metadata.mime_type,
         model: %{application: "Meadow", name: "FileSet"},
         modifiedDate: file_set.updated_at,
         visibility: format(file_set.work.visibility),

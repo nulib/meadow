@@ -109,6 +109,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   object :file_set_metadata do
     field :location, :string
     field :label, :string
+    field :mime_type, :string
     field :original_filename, :string
     field :description, :string
 
