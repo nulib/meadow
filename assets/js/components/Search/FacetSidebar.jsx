@@ -1,8 +1,9 @@
 import React from "react";
 import { MultiList } from "@appbaseio/reactivesearch";
-import { FACET_SENSORS, SEARCH_SENSOR } from "../../services/reactive-search";
+import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
 import { useLocation } from "react-router-dom";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
+import { allImagesQuery } from "@js/services/elasticsearch";
 
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
 
@@ -66,6 +67,7 @@ export default function SearchFacetSidebar() {
           key={sensor.componentId}
           {...sensor}
           defaultValue={getDefaultValue(sensor)}
+          defaultQuery={() => allImagesQuery}
           react={{
             and: filterList(sensor.componentId),
           }}
