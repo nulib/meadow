@@ -33,11 +33,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
     {:ok,
      file_set_id: file_set.id,
-     preservation_key:
-       Pairtree.preservation_path(
-         file_set.id,
-         Map.get(file_set.metadata.digests, "sha256")
-       )}
+     preservation_key: Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))}
   end
 
   @tag s3: [@fixture]
@@ -61,7 +57,6 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       assert headers |> List.keyfind("x-amz-meta-sha1", 0) |> elem(1) == @sha1
       assert headers |> List.keyfind("x-amz-meta-sha256", 0) |> elem(1) == @sha256
-      assert headers |> List.keyfind("x-amz-meta-original_filename", 0) |> elem(1) == "test.tif"
 
       on_exit(fn ->
         delete_object(@preservation_bucket, preservation_key)
