@@ -451,6 +451,13 @@ defmodule Meadow.Data.Works do
     |> update_work(%{representative_file_set_id: nil})
   end
 
+  def set_representative_image!(work, file_set) do
+    case set_representative_image(work, file_set) do
+      {:ok, work} -> work
+      {:error, err} -> raise err
+    end
+  end
+
   @doc """
   Sets the default representative_file_set_id for a work
 

@@ -25,8 +25,8 @@
   },
   %{id: "http://vocab.getty.edu/aat/300410254", label: "sarga (technique)"},
   %{id: "http://vocab.getty.edu/aat/300053376", label: "soak-stain technique"},
-  %{id: "https://sws.geonames.org/4921868", label: "Indiana"},
-  %{id: "https://sws.geonames.org/3530597", label: "Mexico City"},
+  %{id: "https://sws.geonames.org/4921868/", label: "Indiana"},
+  %{id: "https://sws.geonames.org/3530597/", label: "Mexico City"},
   %{
     id: "http://id.loc.gov/authorities/subjects/sh85076671",
     label: "Library catalogs and users"
@@ -47,7 +47,7 @@
   %{id: "http://id.loc.gov/vocabulary/languages/div", label: "Divehi"},
   %{id: "http://vocab.getty.edu/aat/300378910", label: "Quaint Style"},
   %{id: "http://vocab.getty.edu/aat/300400619", label: "Levallois technique"},
-  %{id: "https://sws.geonames.org/3582677", label: "Belize City"},
+  %{id: "https://sws.geonames.org/3582677/", label: "Belize City"},
   %{id: "http://vocab.getty.edu/tgn/7549617", label: "Coco Channel"},
   %{id: "http://vocab.getty.edu/tgn/1114106", label: "Coco Channel"},
   %{
@@ -88,11 +88,11 @@
     label: "Library pages"
   },
   %{id: "http://vocab.getty.edu/ulan/500102192", label: "Claudel, Camille"},
-  %{id: "https://sws.geonames.org/292932", label: "Ajman"},
-  %{id: "https://sws.geonames.org/3703443", label: "Panama City"},
-  %{id: "https://sws.geonames.org/2347283", label: "Benin City"},
+  %{id: "https://sws.geonames.org/292932/", label: "Ajman"},
+  %{id: "https://sws.geonames.org/3703443/", label: "Panama City"},
+  %{id: "https://sws.geonames.org/2347283/", label: "Benin City"},
   %{id: "http://vocab.getty.edu/aat/300312140", label: "White Style"},
   %{id: "http://vocab.getty.edu/aat/300139140", label: "genre pictures"},
-  %{id: "https://sws.geonames.org/3598132", label: "Guatemala City"},
+  %{id: "https://sws.geonames.org/3598132/", label: "Guatemala City"},
   %{id: "http://id.loc.gov/vocabulary/languages/kor", label: "Korean"}
 ]

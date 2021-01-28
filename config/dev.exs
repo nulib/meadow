@@ -87,6 +87,8 @@ config :meadow,
   pipeline_delay: :timer.seconds(5),
   preservation_bucket: "dev-preservation",
   pyramid_bucket: "dev-pyramids",
+  migration_binary_bucket: "dev-migration-binaries",
+  migration_manifest_bucket: "dev-migration-manifests",
   iiif_server_url:
     System.get_env("IIIF_SERVER_URL", "https://devbox.library.northwestern.edu:8183/iiif/2/"),
   iiif_manifest_url:

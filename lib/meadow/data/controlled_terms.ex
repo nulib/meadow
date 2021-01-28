@@ -209,7 +209,7 @@ defmodule Meadow.Data.ControlledTerms do
       {:ok, %{id: id, label: label}} ->
         %ControlledTermCache{id: id}
         |> ControlledTermCache.changeset(%{label: label})
-        |> Repo.insert_or_update()
+        |> Repo.insert(on_conflict: :nothing)
 
         {:ok, %{id: id, label: label}}
 

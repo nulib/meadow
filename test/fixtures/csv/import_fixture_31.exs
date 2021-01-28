@@ -92,9 +92,9 @@
     date_created: [%{edtf: "~1899"}],
     legacy_identifier: ["827", "BCDE.2"],
     location: [
-      %{term: %{id: "https://sws.geonames.org/2347283"}},
-      %{term: %{id: "https://sws.geonames.org/3530597"}},
-      %{term: %{id: "https://sws.geonames.org/3582677"}}
+      %{term: %{id: "https://sws.geonames.org/2347283/"}},
+      %{term: %{id: "https://sws.geonames.org/3530597/"}},
+      %{term: %{id: "https://sws.geonames.org/3582677/"}}
     ],
     terms_of_use: "Terms of Use",
     scope_and_contents: ["Scope", "Contents"],

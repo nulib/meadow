@@ -18,8 +18,17 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   @actiondoc "Copy File to Preservation"
 
-  defp process(data, _attributes, _) do
-    file_set = FileSets.get_file_set!(data.file_set_id)
+  defp already_complete?(file_set, _) do
+    dest_bucket = Config.preservation_bucket()
+
+    dest_key =
+      Path.join(["/", Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))])
+
+    dest_location = %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+    Meadow.Utils.Stream.exists?(dest_location)
+  end
+
+  defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     case copy_file_to_preservation(file_set) do

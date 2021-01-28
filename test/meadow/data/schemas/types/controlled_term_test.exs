@@ -31,4 +31,18 @@ defmodule Meadow.Data.Types.ControlledTermTest do
       assert ControlledTerm.load(1234) == :error
     end
   end
+
+  describe "geonames special case" do
+    setup do
+      {:ok,
+       %{expected: {:ok, %{id: "https://sws.geonames.org/5347269/", label: "Faculty Glade"}}}}
+    end
+
+    test "URIs are correctly transformed", %{expected: expected} do
+      assert ControlledTerm.cast("https://sws.geonames.org/5347269/") == expected
+      assert ControlledTerm.cast("http://sws.geonames.org/5347269/") == expected
+      assert ControlledTerm.cast("https://sws.geonames.org/5347269/") == expected
+      assert ControlledTerm.cast("http://sws.geonames.org/5347269") == expected
+    end
+  end
 end

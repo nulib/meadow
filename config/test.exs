@@ -38,6 +38,8 @@ config :meadow,
   upload_bucket: "test-uploads",
   preservation_bucket: "test-preservation",
   pyramid_bucket: "test-pyramids",
+  migration_binary_bucket: "test-migration-binaries",
+  migration_manifest_bucket: "test-migration-manifests",
   iiif_server_url: "http://localhost:8184/iiif/2/",
   iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"

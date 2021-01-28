@@ -36,8 +36,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
      preservation_key: Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))}
   end
 
-  @tag s3: [@fixture]
   describe "success" do
+    @describetag s3: [@fixture]
     test "process/2", %{file_set_id: file_set_id, preservation_key: preservation_key} do
       assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
@@ -64,8 +64,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     end
   end
 
-  @tag s3: [@fixture]
   describe "failure due to bad sha256" do
+    @describetag s3: [@fixture]
     test "process/2", %{file_set_id: file_set_id} do
       file_set = FileSets.get_file_set!(file_set_id)
       FileSets.update_file_set(file_set, %{metadata: %{digests: %{}}})
@@ -79,6 +79,45 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       file_set = FileSets.get_file_set!(file_set_id)
 
       assert(file_set.metadata.location =~ "s3://#{@ingest_bucket}/#{@key}")
+    end
+  end
+
+  describe "overwrite flag" do
+    @describetag s3: [@fixture]
+
+    setup tags do
+      ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
+      |> ExAws.request!()
+
+      on_exit(fn ->
+        delete_object(@preservation_bucket, tags.preservation_key)
+      end)
+    end
+
+    test "overwrite", %{file_set_id: file_set_id, preservation_key: preservation_key} do
+      log =
+        capture_log(fn ->
+          assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+          assert(object_exists?(@preservation_bucket, preservation_key))
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+
+    test "retain", %{file_set_id: file_set_id, preservation_key: preservation_key} do
+      log =
+        capture_log(fn ->
+          assert(
+            CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
+              :ok
+          )
+
+          assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+          assert(object_exists?(@preservation_bucket, preservation_key))
+        end)
+
+      assert log =~ ~r/already complete without overwriting/
     end
   end
 end
