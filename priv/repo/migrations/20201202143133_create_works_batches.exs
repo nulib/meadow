@@ -3,8 +3,8 @@ defmodule Meadow.Repo.Migrations.CreateWorksBatches do
 
     def change do
       create table(:works_batches, primary_key: false) do
-        add(:work_id, references(:works, on_delete: :delete_all, type: :binary_id,), primary_key: true)
-        add(:batch_id, references(:batches, on_delete: :delete_all, type: :binary_id,), primary_key: true)
+        add(:work_id, references(:works, on_delete: :delete_all, type: :binary_id), primary_key: true)
+        add(:batch_id, references(:batches, on_delete: :delete_all, type: :binary_id), primary_key: true)
         timestamps()
       end
 
