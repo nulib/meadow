@@ -238,6 +238,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   defp validate_terms({import_stream, errors}) when errors == [] do
     errors =
       import_stream
+      |> Import.stream()
       |> ControlledTerms.extract_unique_terms()
       |> Enum.map(&{&1, ControlledTerms.fetch(&1)})
       |> Enum.filter(fn
