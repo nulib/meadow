@@ -15,7 +15,7 @@ import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
@@ -96,11 +96,11 @@ const ScreensCollectionList = () => {
                   Each <span className="is-italic">Work</span> must live in a
                   Collection.
                 </h2>
-                <DisplayAuthorized action="edit">
+                <AuthDisplayAuthorized action="edit">
                   <Link to="/collection/form" className="button is-primary">
                     Add new collection
                   </Link>
-                </DisplayAuthorized>
+                </AuthDisplayAuthorized>
               </div>
             </div>
             <div className="column is-6">

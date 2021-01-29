@@ -16,7 +16,7 @@ import UIModalDelete from "../../components/UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import Layout from "../Layout";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { Button } from "@nulib/admin-react-components";
@@ -135,7 +135,7 @@ const ScreensCollection = () => {
                     )}
                   </div>
                   <div className="column is-one-third buttons has-text-right">
-                    <DisplayAuthorized action="edit">
+                    <AuthDisplayAuthorized action="edit">
                       <Link
                         to={`/collection/form/${id}`}
                         className="button is-primary"
@@ -150,8 +150,8 @@ const ScreensCollection = () => {
                       >
                         {!data.collection.published ? "Publish" : "Unpublish"}
                       </button>
-                    </DisplayAuthorized>
-                    <DisplayAuthorized action="delete">
+                    </AuthDisplayAuthorized>
+                    <AuthDisplayAuthorized action="delete">
                       <button
                         className="button"
                         onClick={onOpenModal}
@@ -159,7 +159,7 @@ const ScreensCollection = () => {
                       >
                         Delete
                       </button>
-                    </DisplayAuthorized>
+                    </AuthDisplayAuthorized>
                   </div>
                 </div>
                 <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>

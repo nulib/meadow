@@ -9,17 +9,19 @@ const roleBasedActions = {
   USER: [],
 };
 
-export const DisplayAuthorized = ({ action, children }) => {
+function AuthDisplayAuthorized({ action = "edit", children }) {
   const authState = useAuthState();
   const allowedUserActions = roleBasedActions[authState.role];
 
   if (allowedUserActions.indexOf(action) > -1) {
-    return children;
+    return <>{children}</>;
   }
   return null;
-};
+}
 
-DisplayAuthorized.propTypes = {
-  action: PropTypes.string,
+AuthDisplayAuthorized.propTypes = {
+  action: PropTypes.oneOf(["delete", "edit", "save"]),
   children: PropTypes.node,
 };
+
+export default AuthDisplayAuthorized;

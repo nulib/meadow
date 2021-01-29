@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
 import CollectionImageModal from "./CollectionImageModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 const Collection = ({ collection }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +32,7 @@ const Collection = ({ collection }) => {
               }
             />
           </figure>
-          <DisplayAuthorized action="edit">
+          <AuthDisplayAuthorized action="edit">
             {works.length > 0 && (
               <p className="has-text-centered pt-4">
                 <button
@@ -48,7 +48,7 @@ const Collection = ({ collection }) => {
                 </button>
               </p>
             )}
-          </DisplayAuthorized>
+          </AuthDisplayAuthorized>
         </div>
         <div className="column content">
           <dl>

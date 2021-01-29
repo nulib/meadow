@@ -5,7 +5,7 @@ import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormField from "@js/components/UI/Form/Field";
 import WorkTabsDownloadLinks from "@js/components/Work/Tabs/DownloadLinks";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 function WorkTabsStructureFileset({
   fileSet,
@@ -63,7 +63,7 @@ function WorkTabsStructureFileset({
         <div className="column is-3 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <DisplayAuthorized action="edit">
+              <AuthDisplayAuthorized action="edit">
                 <div className="field">
                   <input
                     id={`checkbox-work-switch-${fileSet.id}`}
@@ -78,7 +78,7 @@ function WorkTabsStructureFileset({
                     Work image
                   </label>
                 </div>
-              </DisplayAuthorized>
+              </AuthDisplayAuthorized>
               <WorkTabsDownloadLinks
                 handleDownloadClick={handleDownloadClick}
                 fileSetId={fileSet.id}

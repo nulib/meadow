@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
@@ -23,7 +23,7 @@ export default function WorkHeaderButtons({
         </span>
         <span>Get sharable link</span>
       </Button>
-      <DisplayAuthorized action="edit">
+      <AuthDisplayAuthorized action="edit">
         <Button
           className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
           data-testid="publish-button"
@@ -37,7 +37,7 @@ export default function WorkHeaderButtons({
         >
           {!published ? "Publish" : "Unpublish"}
         </Button>
-      </DisplayAuthorized>
+      </AuthDisplayAuthorized>
     </div>
   );
 }
