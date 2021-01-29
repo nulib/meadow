@@ -5,7 +5,7 @@ import UIFormInput from "../UI/Form/Input";
 import UIFormField from "../UI/Form/Field";
 import WorkCardItem from "../Work/CardItem";
 import { prepWorkItemForDisplay } from "../../services/helpers";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 const CollectionSearch = ({ collection }) => {
   const [filteredWorks, setFilteredWorks] = useState(collection.works);
@@ -55,11 +55,11 @@ const CollectionSearch = ({ collection }) => {
             </div>
           </div>
           <div className="level-right">
-            <DisplayAuthorized action="edit">
+            <AuthDisplayAuthorized action="edit">
               <div className="level-item">
                 <button className="button">Batch Edit Records</button>
               </div>
-            </DisplayAuthorized>
+            </AuthDisplayAuthorized>
             <div className="level-item">
               <button className="button">Export CSV</button>
             </div>

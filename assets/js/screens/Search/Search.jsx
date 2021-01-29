@@ -14,7 +14,7 @@ import {
 } from "../../services/elasticsearch";
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import useCsvFileSave from "@js/hooks/useCsvFileSave";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
@@ -143,7 +143,7 @@ const ScreensSearch = () => {
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
 
-              <DisplayAuthorized action="delete">
+              <AuthDisplayAuthorized action="delete">
                 <SearchActionRow
                   handleCsvExportAllItems={handleCsvExportAllItems}
                   handleCsvExportItems={handleCsvExportItems}
@@ -154,7 +154,7 @@ const ScreensSearch = () => {
                   numberOfResults={resultStats.numberOfResults}
                   selectedItems={selectedItems}
                 />
-              </DisplayAuthorized>
+              </AuthDisplayAuthorized>
               <hr />
               <UIResultsDisplaySwitcher
                 isListView={isListView}

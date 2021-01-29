@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 const UITabsStickyHeader = ({ title, children, ...restProps }) => {
   const [headerHeight, setHeaderHeight] = useState();
@@ -31,9 +31,9 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
           <h2 className="title is-size-4 has-text-grey">{title}</h2>
         </div>
         <div className="column is-half ">
-          <DisplayAuthorized action="edit">
+          <AuthDisplayAuthorized action="edit">
             <div className="buttons is-right">{children}</div>
-          </DisplayAuthorized>
+          </AuthDisplayAuthorized>
         </div>
       </div>
     </header>

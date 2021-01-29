@@ -1,14 +1,17 @@
 import React from "react";
 import Layout from "../Layout";
-import UIGenericHero from "../../components/UI/GenericHero";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
+import UIGenericHero from "@js/components/UI/GenericHero";
 import Charts from "@js/components/Home/Charts";
-import { Button } from "@nulib/admin-react-components";
 import WorkForm from "@js/components/Work/WorkForm";
+import HomeIngestBox from "@js/components/Home/IngestBox";
+import HomeSearchAndSubscribeBox from "@js/components/Home/SearchAndDescribeBox";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
+
+  function handleAddWork() {
+    setShowWorkForm(!showWorkForm);
+  }
 
   return (
     <Layout>
@@ -17,30 +20,10 @@ const ScreensHome = () => {
         <div className="container">
           <div className="columns">
             <div className="column">
-              <div className="box has-text-centered content">
-                <FontAwesomeIcon icon="file-import" size="4x" />
-                <h2 className="title">Ingest Objects</h2>
-                <div className="buttons is-centered">
-                  <Link className="button" to="/project/list">
-                    View Projects
-                  </Link>
-                  <Button
-                    data-testid="add-work-button"
-                    onClick={() => setShowWorkForm(!showWorkForm)}
-                  >
-                    Add Work
-                  </Button>
-                </div>
-              </div>
+              <HomeIngestBox handleAddWork={handleAddWork} />
             </div>
             <div className="column">
-              <div className="box has-text-centered content">
-                <FontAwesomeIcon icon="search" size="4x" />
-                <h2 className="title">Search &amp; Describe Objects</h2>
-                <Link className="button" to="/search">
-                  Search All Works
-                </Link>
-              </div>
+              <HomeSearchAndSubscribeBox />
             </div>
           </div>
         </div>

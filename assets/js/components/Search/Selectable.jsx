@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 const SearchSelectable = ({
   children,
@@ -30,7 +30,7 @@ const SearchSelectable = ({
 
   return (
     <div className="is-relative">
-      <DisplayAuthorized action="edit">
+      <AuthDisplayAuthorized action="edit">
         <div className="field" css={field}>
           <input
             data-testid="checkbox-search-select"
@@ -47,7 +47,7 @@ const SearchSelectable = ({
             htmlFor={`search-select-${id}`}
           ></label>
         </div>
-      </DisplayAuthorized>
+      </AuthDisplayAuthorized>
       {children}
     </div>
   );

@@ -10,7 +10,7 @@ import { formatDate, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "../UI/Skeleton";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
 
@@ -110,9 +110,9 @@ const ProjectList = () => {
             <th>s3 Bucket Folder</th>
             <th className="text-right has-text-right"># Ingest Sheets</th>
             <th className="has-text-right">Last Updated</th>
-            <DisplayAuthorized action="edit">
+            <AuthDisplayAuthorized action="edit">
               <th className="has-text-right">Actions</th>
-            </DisplayAuthorized>
+            </AuthDisplayAuthorized>
           </tr>
         </thead>
         <tbody>
@@ -129,7 +129,7 @@ const ProjectList = () => {
                   <td>{folder}</td>
                   <td className="has-text-right">{ingestSheets.length}</td>
                   <td className="has-text-right">{formatDate(updatedAt)}</td>
-                  <DisplayAuthorized action="edit">
+                  <AuthDisplayAuthorized action="edit">
                     <td>
                       <div className="buttons-end">
                         <p className="control">
@@ -151,7 +151,7 @@ const ProjectList = () => {
                         </p>
                       </div>
                     </td>
-                  </DisplayAuthorized>
+                  </AuthDisplayAuthorized>
                 </tr>
               );
             })}

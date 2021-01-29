@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useMutation, useQuery } from "@apollo/client";
 import { DELETE_WORK, VERIFY_FILE_SETS } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
@@ -102,7 +102,7 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Preservation and Access Masters">
-        <DisplayAuthorized action="edit">
+        <AuthDisplayAuthorized action="edit">
           <div className="buttons is-right">
             <Button
               data-testid="button-new-file-set"
@@ -115,7 +115,7 @@ const WorkTabsPreservation = ({ work }) => {
               <span>Add a fileset</span>
             </Button>
           </div>
-        </DisplayAuthorized>
+        </AuthDisplayAuthorized>
       </UITabsStickyHeader>
       <div className="box mt-4">
         <table
@@ -143,9 +143,9 @@ const WorkTabsPreservation = ({ work }) => {
               <th>Checksum</th>
               <th>s3 Key</th>
               <th className="has-text-centered">Verified</th>
-              <DisplayAuthorized action="delete">
+              <AuthDisplayAuthorized action="delete">
                 <th className="has-text-right">Actions</th>
-              </DisplayAuthorized>
+              </AuthDisplayAuthorized>
             </tr>
           </thead>
           <tbody>
@@ -168,7 +168,7 @@ const WorkTabsPreservation = ({ work }) => {
                     <td className="has-text-centered">
                       <Verified id={fileset.id} />
                     </td>
-                    <DisplayAuthorized action="delete">
+                    <AuthDisplayAuthorized action="delete">
                       <td>
                         <div className="buttons-end">
                           <button
@@ -179,7 +179,7 @@ const WorkTabsPreservation = ({ work }) => {
                           </button>
                         </div>
                       </td>
-                    </DisplayAuthorized>
+                    </AuthDisplayAuthorized>
                   </tr>
                 );
               })}
@@ -192,7 +192,7 @@ const WorkTabsPreservation = ({ work }) => {
         />
       </div>
       <div className="container buttons">
-        <DisplayAuthorized action="delete">
+        <AuthDisplayAuthorized action="delete">
           <Button
             data-testid="button-work-delete"
             isDanger
@@ -203,7 +203,7 @@ const WorkTabsPreservation = ({ work }) => {
             </span>
             <span>Delete this work</span>
           </Button>
-        </DisplayAuthorized>
+        </AuthDisplayAuthorized>
       </div>
 
       {work && (

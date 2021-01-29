@@ -14,7 +14,7 @@ import {
 import { formatDate } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
-import { DisplayAuthorized } from "@js/components/Auth/DisplayAuthorized";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
@@ -115,7 +115,7 @@ const ScreensProject = () => {
                       </dl>
                     </div>
                     <div className="column is-two-fifths">
-                      <DisplayAuthorized action="edit">
+                      <AuthDisplayAuthorized action="edit">
                         <div className="buttons is-right">
                           <Button
                             data-testid="button-new-ingest-sheet"
@@ -135,7 +135,7 @@ const ScreensProject = () => {
                             View Project Works
                           </Button>
                         </div>
-                      </DisplayAuthorized>
+                      </AuthDisplayAuthorized>
                     </div>
                   </div>
                 )}
