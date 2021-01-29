@@ -120,6 +120,28 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     end
   end
 
+  describe "controlled terms preflight failure" do
+    @describetag source: "test/fixtures/csv/work_fixture_update_invalid_terms.csv"
+
+    test "apply_job/1", %{create_result: result} do
+      assert {:ok, job} = result
+      assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
+      refute MetadataUpdateJobs.get_job(job.id) |> Map.get(:active)
+
+      assert errors == [
+               %{
+                 errors: %{
+                   "http://id.loc.gov/authorities/names/blahblah" =>
+                     "is from an unknown authority",
+                   "http://id.lock.gov/authorities/names/n79091588" =>
+                     "is from an unknown authority"
+                 },
+                 row: 0
+               }
+             ]
+    end
+  end
+
   describe "invalid data" do
     @describetag source: "test/fixtures/csv/work_fixture_update_invalid.csv"
 
