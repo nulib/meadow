@@ -117,6 +117,7 @@ config :hackney,
 
 config :meadow, :lambda,
   digester: {:lambda, "meadow-digester"},
+  mime_type: {:lambda, "meadow-mime-type"},
   tiff: {:lambda, "meadow-pyramid-tiff"},
   exif: {:lambda, "meadow-exif"}
 
@@ -124,6 +125,9 @@ config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [processor_concurrency: 50, visibility_timeout: 300]
 
 config :sequins, Actions.ExtractExifMetadata,
+  queue_config: [processor_concurrency: 50, visibility_timeout: 300]
+
+config :sequins, Actions.ExtractMimeType,
   queue_config: [processor_concurrency: 50, visibility_timeout: 300]
 
 config :sequins, Actions.CreatePyramidTiff,
