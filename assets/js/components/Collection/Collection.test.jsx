@@ -6,15 +6,19 @@ import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 import { waitFor } from "@testing-library/dom";
 import { screen } from "@testing-library/react";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 describe("Collection Test", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <Collection collection={collectionMock} />
-      </AuthProvider>,
+      <CodeListProvider>
+        <AuthProvider>
+          <Collection collection={collectionMock} />
+        </AuthProvider>
+      </CodeListProvider>,
       {
-        mocks: [getCurrentUserMock],
+        mocks: [getCurrentUserMock, ...allCodeListMocks],
       }
     );
   });

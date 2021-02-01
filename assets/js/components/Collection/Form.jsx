@@ -7,25 +7,21 @@ import {
   GET_COLLECTIONS,
 } from "./collection.gql.js";
 import Error from "../UI/Error";
-import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import { useForm, FormProvider } from "react-hook-form";
 import UIFormField from "../UI/Form/Field.jsx";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
-import UITagNotYetSupported from "../UI/TagNotYetSupported";
 import { Button } from "@nulib/admin-react-components";
 import { COLLECTION_TYPES } from "../../services/global-vars";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { useCodeLists } from "@js/context/code-list-context";
+import UISkeleton from "@js/components/UI/Skeleton";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
-  const [pageLoading, setPageLoading] = useState(true);
-  // TODO: Fix this, put it somewhere better or refactor its implementation
-  useEffect(() => {
-    setPageLoading(false);
-  }, []);
+  const codeLists = useCodeLists();
   const methods = useForm();
   const [createCollection, { loading, error, data }] = useMutation(
     CREATE_COLLECTION,
@@ -60,21 +56,28 @@ const CollectionForm = ({ collection }) => {
   });
 
   if (error || updateError) return <Error error={error} />;
-  if (loading || updateLoading) return <Loading />;
-  if (pageLoading) return <Loading />;
+  if (loading || updateLoading) return <UISkeleton />;
 
   const handleCancel = () => {
     history.push("/collection/list");
   };
 
   const onSubmit = (data) => {
+    let currentFormValues = methods.getValues();
+    let collectionUpdate = {
+      ...currentFormValues,
+      visibility: currentFormValues.visibility
+        ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
+        : {},
+    };
+
     if (!collection) {
       createCollection({
-        variables: { ...data },
+        variables: { ...collectionUpdate },
       });
     } else {
       updateCollection({
-        variables: { ...data, collectionId: collection.id },
+        variables: { ...collectionUpdate, collectionId: collection.id },
       });
     }
   };
@@ -85,36 +88,27 @@ const CollectionForm = ({ collection }) => {
         onSubmit={methods.handleSubmit(onSubmit)}
         data-testid="collection-form"
       >
-        <div className="field">
-          <div className="control">
-            <input
-              type="checkbox"
-              id="featured"
-              ref={methods.register}
-              className="is-checkradio"
-              name="featured"
-              data-testid="checkbox-featured"
-              defaultChecked={collection ? collection.featured : false}
-            />{" "}
-            <label htmlFor="featured" className="checkbox">
-              Featured?
-            </label>
-          </div>
+        <div className="is-flex is-justify-content-space-between mb-5">
+          <h1 className="title" data-testid="collection-form-title">
+            {collection ? "Edit" : "Add New"} Collection
+          </h1>
         </div>
 
-        <UIFormField label="Collection Title" required>
-          <UIFormInput
-            isReactHookForm
-            placeholder="Add collection Title"
-            required
-            name="collectionTitle"
-            label="Collection Title"
-            defaultValue={collection ? collection.title : ""}
-            data-testid="input-collection-title"
-          />
-        </UIFormField>
+        <div className="columns">
+          <div className="column is-two-thirds">
+            <UIFormField label="Collection Title" required>
+              <UIFormInput
+                isReactHookForm
+                placeholder="Add collection Title"
+                required
+                name="collectionTitle"
+                label="Collection Title"
+                defaultValue={collection ? collection.title : ""}
+                data-testid="input-collection-title"
+              />
+            </UIFormField>
 
-        <UIFormField label="Collection Type">
+            {/* <UIFormField label="Collection Type">
           <UIFormSelect
             isReactHookForm
             name="collectionType"
@@ -125,53 +119,108 @@ const CollectionForm = ({ collection }) => {
           />
           <UITagNotYetSupported label="Display not yet supported" />
           <UITagNotYetSupported label="Update not yet supported" />{" "}
-        </UIFormField>
+        </UIFormField> */}
 
-        <UIFormField label="Description">
-          <UIFormTextarea
-            isReactHookForm
-            name="description"
-            label="Description"
-            defaultValue={collection ? collection.description : ""}
-            rows="6"
-            data-testid="textarea-description"
-          />
-        </UIFormField>
+            <UIFormField label="Description">
+              <UIFormTextarea
+                isReactHookForm
+                name="description"
+                label="Description"
+                defaultValue={collection ? collection.description : ""}
+                rows="3"
+                data-testid="textarea-description"
+              />
+            </UIFormField>
 
-        <UIFormField label="Finding Aid URL">
-          <UIFormInput
-            isReactHookForm
-            name="findingAidUrl"
-            defaultValue={collection ? collection.findingAidUrl : ""}
-            label="Finding Aid Url"
-            data-testid="input-finding-aid-url"
-          />
-        </UIFormField>
+            <UIFormField label="Finding Aid URL">
+              <UIFormInput
+                isReactHookForm
+                name="findingAidUrl"
+                defaultValue={collection ? collection.findingAidUrl : ""}
+                label="Finding Aid Url"
+                data-testid="input-finding-aid-url"
+              />
+            </UIFormField>
 
-        <UIFormField label="Admin Email">
-          <UIFormInput
-            isReactHookForm
-            name="adminEmail"
-            defaultValue={collection ? collection.adminEmail : ""}
-            type="email"
-            label="Admin Email"
-            data-testid="input-admin-email"
-          />
-        </UIFormField>
+            <UIFormField label="Admin Email">
+              <UIFormInput
+                isReactHookForm
+                name="adminEmail"
+                defaultValue={collection ? collection.adminEmail : ""}
+                type="email"
+                label="Admin Email"
+                data-testid="input-admin-email"
+              />
+            </UIFormField>
 
-        <UIFormField label="Keywords">
-          <UIFormInput
-            isReactHookForm
-            name="keywords"
-            defaultValue={collection ? collection.keywords : ""}
-            label="Keywords"
-            data-testid="input-keywords"
-          />
-          <p className="help">multiple, separated, by, commas</p>
-        </UIFormField>
+            <UIFormField label="Keywords">
+              <UIFormInput
+                isReactHookForm
+                name="keywords"
+                defaultValue={collection ? collection.keywords : ""}
+                label="Keywords"
+                data-testid="input-keywords"
+              />
+              <p className="help">multiple, separated, by, commas</p>
+            </UIFormField>
+          </div>
+
+          <div className="column is-one-third">
+            {/* Render when the CodeList options are ready, otherwise React Hook Form is wonky with picking up the default value */}
+            {codeLists.visibilityData && (
+              <UIFormField label="Visibility">
+                <UIFormSelect
+                  data-testid="visibility"
+                  isReactHookForm
+                  name="visibility"
+                  label="Visibility"
+                  showHelper={true}
+                  options={
+                    codeLists.visibilityData
+                      ? codeLists.visibilityData.codeList
+                      : []
+                  }
+                  defaultValue={
+                    collection && collection.visibility
+                      ? collection.visibility.id
+                      : ""
+                  }
+                />
+              </UIFormField>
+            )}
+
+            <div className="field" className="my-5">
+              <div className="control">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  ref={methods.register}
+                  className="switch"
+                  name="featured"
+                  data-testid="checkbox-featured"
+                  defaultChecked={collection ? collection.featured : false}
+                />{" "}
+                <label htmlFor="featured">Featured?</label>
+              </div>
+            </div>
+
+            <div className="field">
+              <input
+                id="published"
+                type="checkbox"
+                ref={methods.register}
+                name="published"
+                className="switch"
+                data-testid="checkbox-published"
+                defaultChecked={collection ? collection.published : false}
+              />
+              <label htmlFor="published">Published</label>
+            </div>
+          </div>
+        </div>
 
         <AuthDisplayAuthorized action="edit">
-          <div className="buttons is-left">
+          <div className="buttons mt-5">
             <Button type="submit" isPrimary data-testid="button-save">
               Save
             </Button>

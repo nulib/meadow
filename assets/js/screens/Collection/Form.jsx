@@ -3,12 +3,13 @@ import { useParams } from "react-router-dom";
 import CollectionForm from "../../components/Collection/Form";
 import Layout from "../Layout";
 import Error from "../../components/UI/Error";
-import UILoadingPage from "../../components/UI/LoadingPage";
 import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
 import { useQuery } from "@apollo/client";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { CodeListProvider } from "@js/context/code-list-context";
+import UISkeleton from "@js/components/UI/Skeleton";
 
 const ScreensCollectionForm = () => {
   const { id } = useParams();
@@ -26,7 +27,7 @@ const ScreensCollectionForm = () => {
       variables: { id },
     });
 
-    if (loading) return <UILoadingPage />;
+    if (loading) return <UISkeleton />;
     if (error) return <Error error={error} />;
 
     crumbs.push(
@@ -54,18 +55,11 @@ const ScreensCollectionForm = () => {
     <Layout>
       <section className="section">
         <div className="container">
-          <div className="columns is-centered">
-            <div className="column is-two-thirds-desktop">
-              <UIBreadcrumbs items={crumbs} />
-              <div className="box">
-                <h1 className="title" data-testid="collection-form-title">
-                  {collection ? "Edit" : "Add New"} Collection
-                </h1>
-                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-                  <CollectionForm collection={collection} />
-                </ErrorBoundary>
-              </div>
-            </div>
+          <UIBreadcrumbs items={crumbs} />
+          <div className="box">
+            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <CollectionForm collection={collection} />
+            </ErrorBoundary>
           </div>
         </div>
       </section>

@@ -27,6 +27,8 @@ export const CREATE_COLLECTION = gql`
     $featured: Boolean
     $findingAidUrl: String
     $keywords: [String]
+    $published: Boolean
+    $visibility: CodedTermInput
   ) {
     createCollection(
       adminEmail: $adminEmail
@@ -34,7 +36,9 @@ export const CREATE_COLLECTION = gql`
       featured: $featured
       findingAidUrl: $findingAidUrl
       keywords: $keywords
+      published: $published
       title: $collectionTitle
+      visibility: $visibility
     ) {
       id
       adminEmail
@@ -42,7 +46,12 @@ export const CREATE_COLLECTION = gql`
       featured
       findingAidUrl
       keywords
+      published
       title
+      visibility {
+        id
+        label
+      }
     }
   }
 `;
@@ -91,6 +100,10 @@ export const GET_COLLECTION = gql`
       }
       id
       keywords
+      visibility {
+        id
+        label
+      }
       works {
         id
         representativeImage
@@ -125,6 +138,10 @@ export const GET_COLLECTIONS = gql`
         id
         representativeImage
       }
+      visibility {
+        id
+        label
+      }
       works {
         id
         representativeImage
@@ -146,6 +163,7 @@ export const UPDATE_COLLECTION = gql`
     $findingAidUrl: String
     $keywords: [String]
     $published: Boolean
+    $visibility: CodedTermInput
   ) {
     updateCollection(
       adminEmail: $adminEmail
@@ -156,6 +174,7 @@ export const UPDATE_COLLECTION = gql`
       keywords: $keywords
       published: $published
       title: $collectionTitle
+      visibility: $visibility
     ) {
       adminEmail
       description
@@ -165,6 +184,10 @@ export const UPDATE_COLLECTION = gql`
       keywords
       published
       title
+      visibility {
+        id
+        label
+      }
     }
   }
 `;

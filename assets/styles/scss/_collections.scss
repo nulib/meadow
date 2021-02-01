@@ -1,0 +1,6 @@
+.collection-representative-image {
+  border: 1px solid transparent;
+  &:hover {
+    border: 1px solid $nu-purple-30;
+  }
+}
