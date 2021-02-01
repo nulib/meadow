@@ -14,6 +14,8 @@ import {
 } from "../../components/Collection/collection.gql.mock";
 import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 jest.mock("../../services/elasticsearch");
 
@@ -21,11 +23,15 @@ jest.mock("../../services/elasticsearch");
  * Helper function to render the component for testing
  * @param {Array} mocks All the mocks needed to run each spec
  */
-function setupTests(mocks = [getCurrentUserMock, getCollectionMock]) {
+function setupTests(
+  mocks = [getCurrentUserMock, getCollectionMock, ...allCodeListMocks]
+) {
   return renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/:id" component={ScreensCollection} />
-    </AuthProvider>,
+    <CodeListProvider>
+      <AuthProvider>
+        <Route path="/collection/:id" component={ScreensCollection} />
+      </AuthProvider>
+    </CodeListProvider>,
     {
       mocks,
       route: `/collection/${MOCK_COLLECTION_ID}`,
@@ -64,12 +70,6 @@ it("opens up Delete dialog", async () => {
 it("renders Edit button", async () => {
   const { findByTestId } = setupTests();
   const button = await findByTestId("edit-button");
-  expect(button).toBeInTheDocument();
-});
-
-it("renders Publish button", async () => {
-  const { findByTestId } = setupTests();
-  const button = await findByTestId("publish-button");
   expect(button).toBeInTheDocument();
 });
 

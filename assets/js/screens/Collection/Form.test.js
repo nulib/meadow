@@ -6,15 +6,20 @@ import { waitFor } from "@testing-library/react";
 import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
 import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-const mocks = [getCollectionMock, getCurrentUserMock];
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+
+const mocks = [getCollectionMock, getCurrentUserMock, ...allCodeListMocks];
 
 jest.mock("../../services/elasticsearch");
 
 function setupTests() {
   return renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/form/:id" component={ScreensCollectionForm} />
-    </AuthProvider>,
+    <CodeListProvider>
+      <AuthProvider>
+        <Route path="/collection/form/:id" component={ScreensCollectionForm} />
+      </AuthProvider>
+    </CodeListProvider>,
     {
       mocks,
       route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
@@ -40,20 +45,19 @@ it("renders add collection title", async () => {
 });
 
 it("renders breadcrumbs", async () => {
-  const { getByTestId } = setupTests();
-
-  await waitFor(() => {
-    expect(getByTestId("breadcrumbs")).toBeInTheDocument();
-  });
+  const { findByTestId } = setupTests();
+  expect(await findByTestId("breadcrumbs"));
 });
 
 it("renders no initial form values when creating a collection", async () => {
   const { getByTestId } = renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/form/" component={ScreensCollectionForm} />
-    </AuthProvider>,
+    <CodeListProvider>
+      <AuthProvider>
+        <Route path="/collection/form/" component={ScreensCollectionForm} />
+      </AuthProvider>
+    </CodeListProvider>,
     {
-      mocks: [getCurrentUserMock],
+      mocks: [getCurrentUserMock, ...allCodeListMocks],
       route: "/collection/form/",
     }
   );

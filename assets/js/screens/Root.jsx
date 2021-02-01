@@ -28,6 +28,7 @@ import {
 } from "../services/elasticsearch";
 import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
 import { BatchProvider } from "../context/batch-edit-context";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 export default class Root extends React.Component {
   render() {
@@ -39,85 +40,91 @@ export default class Root extends React.Component {
       >
         <AuthProvider>
           <BatchProvider>
-            <BrowserRouter>
-              <ScrollToTop />
-              <Switch>
-                <Route exact path="/login" component={Login} />
-                <PrivateRoute
-                  exact
-                  path="/dashboards/batch-edit"
-                  component={ScreensDashboardsBatchEditList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/dashboards/batch-edit/:id"
-                  component={ScreensDashboardsBatchEditDetails}
-                />
-                <PrivateRoute
-                  exact
-                  path="/dashboards/nul-local-authorities"
-                  component={ScreensDashboardsLocalAuthoritiesList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/dashboards/csv-metadata-update"
-                  component={ScreensDashboardsCsvList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/dashboards/csv-metadata-update/:id"
-                  component={ScreensDashboardsCsvDetails}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/list"
-                  component={ScreensProjectList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/create"
-                  component={ScreensProjectForm}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/:id/ingest-sheet/:sheetId"
-                  component={ScreensIngestSheet}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/:id"
-                  component={ScreensProject}
-                />
-                <PrivateRoute
-                  exact
-                  path="/work/:id/:multi?/:counter?"
-                  component={ScreensWork}
-                />
-                <PrivateRoute
-                  exact
-                  path="/collection/list"
-                  component={ScreensCollectionList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/collection/form/:id?"
-                  component={ScreensCollectionForm}
-                />
-                <PrivateRoute
-                  exact
-                  path="/collection/:id"
-                  component={ScreensCollection}
-                />
-                <PrivateRoute exact path="/search" component={ScreensSearch} />
-                <PrivateRoute
-                  exact
-                  path="/batch-edit"
-                  component={ScreensBatchEdit}
-                />
-                <PrivateRoute exact path="/" component={Home} />
-                <PrivateRoute component={NotFound} />
-              </Switch>
-            </BrowserRouter>
+            <CodeListProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <Switch>
+                  <Route exact path="/login" component={Login} />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/batch-edit"
+                    component={ScreensDashboardsBatchEditList}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/batch-edit/:id"
+                    component={ScreensDashboardsBatchEditDetails}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/nul-local-authorities"
+                    component={ScreensDashboardsLocalAuthoritiesList}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/csv-metadata-update"
+                    component={ScreensDashboardsCsvList}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/csv-metadata-update/:id"
+                    component={ScreensDashboardsCsvDetails}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/project/list"
+                    component={ScreensProjectList}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/project/create"
+                    component={ScreensProjectForm}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/project/:id/ingest-sheet/:sheetId"
+                    component={ScreensIngestSheet}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/project/:id"
+                    component={ScreensProject}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/work/:id/:multi?/:counter?"
+                    component={ScreensWork}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/collection/list"
+                    component={ScreensCollectionList}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/collection/form/:id?"
+                    component={ScreensCollectionForm}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/collection/:id"
+                    component={ScreensCollection}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/search"
+                    component={ScreensSearch}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/batch-edit"
+                    component={ScreensBatchEdit}
+                  />
+                  <PrivateRoute exact path="/" component={Home} />
+                  <PrivateRoute component={NotFound} />
+                </Switch>
+              </BrowserRouter>
+            </CodeListProvider>
           </BatchProvider>
         </AuthProvider>
       </ReactiveBase>

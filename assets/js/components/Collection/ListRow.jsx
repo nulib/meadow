@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import CollectionTags from "@js/components/Collection/Tags";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const {
@@ -13,7 +14,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
     representativeWork,
   } = collection;
   return (
-    <li data-testid="collection-list-row" className="mb-4">
+    <li data-testid="collection-list-row" className="mb-6">
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
@@ -30,14 +31,12 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
         </figure>
         <div className="media-content">
           <div className="content">
-            <p>
-              <strong className="is-size-5">
-                <Link to={`/collection/${id}`}>{title}</Link>
-              </strong>{" "}
-              <br />
-              {description}
-            </p>
-            <table className="table is-fullwidth">
+            <h4>
+              <Link to={`/collection/${id}`}>{title}</Link>
+            </h4>
+            <CollectionTags collection={collection} />
+            {/* <p>{description}</p> */}
+            <table className="table is-fullwidth is-narrow">
               <thead>
                 <tr>
                   <th>Keywords</th>

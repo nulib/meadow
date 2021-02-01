@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Collection from "../../components/Collection/Collection";
-import CollectionSearch from "../../components/Collection/Search";
 import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
@@ -21,6 +20,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import CollectionTags from "@js/components/Collection/Tags";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -30,7 +30,7 @@ const ScreensCollection = () => {
     variables: { id },
   });
 
-  const handleClick = () => {
+  const handleViewAllWorksClick = () => {
     history.push("/search", {
       externalFacet: {
         facetComponentId: "Collection",
@@ -117,24 +117,11 @@ const ScreensCollection = () => {
               <UISkeleton rows={10} />
             ) : (
               <>
-                <div className="columns">
-                  <div className="column is-two-thirds">
+                <header className="is-flex is-justify-content-space-between mb-3">
+                  <div>
                     <h1 className="title">{data.collection.title || ""}</h1>
-                    <span
-                      data-testid="published-tag"
-                      className={`tag mr-1 ${
-                        data.collection.published ? "is-info" : "is-warning"
-                      }`}
-                    >
-                      {data.collection.published
-                        ? "Published"
-                        : "Not Published"}
-                    </span>
-                    {data.collection.featured && (
-                      <span className={`tag is-info`}>Featured</span>
-                    )}
                   </div>
-                  <div className="column is-one-third buttons has-text-right">
+                  <div className="buttons">
                     <AuthDisplayAuthorized action="edit">
                       <Link
                         to={`/collection/form/${id}`}
@@ -143,39 +130,37 @@ const ScreensCollection = () => {
                       >
                         Edit
                       </Link>
-                      <button
-                        className="button"
-                        onClick={handlePublishClick}
-                        data-testid="publish-button"
-                      >
-                        {!data.collection.published ? "Publish" : "Unpublish"}
-                      </button>
                     </AuthDisplayAuthorized>
-                    <AuthDisplayAuthorized action="delete">
-                      <button
-                        className="button"
-                        onClick={onOpenModal}
-                        data-testid="delete-button"
-                      >
-                        Delete
-                      </button>
-                    </AuthDisplayAuthorized>
+                    <Button
+                      onClick={handleViewAllWorksClick}
+                      data-testid="view-works-button"
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="images" />
+                      </span>
+                      <span>View works</span>
+                    </Button>
                   </div>
-                </div>
+                </header>
+
                 <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <CollectionTags collection={data.collection} />
                   <Collection collection={data.collection} />
                 </ErrorBoundary>
               </>
             )}
           </div>
 
-          <div className="my-4 has-text-centered">
-            <Button onClick={handleClick} data-testid="view-works-button">
-              <span className="icon">
-                <FontAwesomeIcon icon="eye" />
-              </span>
-              <span>View all collection works</span>
-            </Button>
+          <div className="my-4">
+            <AuthDisplayAuthorized action="delete">
+              <Button
+                isDanger
+                onClick={onOpenModal}
+                data-testid="delete-button"
+              >
+                Delete
+              </Button>
+            </AuthDisplayAuthorized>
           </div>
         </div>
       </section>

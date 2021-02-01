@@ -8,7 +8,7 @@ import { UPDATE_WORK, GET_WORK } from "../work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
 import UIFormSelect from "../../UI/Form/Select";
 import UIFormField from "../../UI/Form/Field";
-import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import UIFormFieldArray from "../../UI/Form/FieldArray";
 import UIFormInput from "../../UI/Form/Input.jsx";
 import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
@@ -19,6 +19,7 @@ import {
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
+import { Link } from "react-router-dom";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
@@ -184,7 +185,13 @@ const WorkTabsAdministrative = ({ work }) => {
                   />
                 ) : (
                   <p>
-                    {collection ? collection.title : "Not part of a collection"}
+                    {collection ? (
+                      <Link to={`/collection/${collection.id}`}>
+                        {collection.title}
+                      </Link>
+                    ) : (
+                      "Not part of a collection"
+                    )}
                   </p>
                 )}
               </UIFormField>

@@ -12,6 +12,7 @@ export const collectionMock = {
   keywords: ["yo", "foo", "bar", "work", "hey"],
   title: "Great collection",
   published: false,
+  //visibility: published,
   works: [
     {
       id: "1id-23343432",

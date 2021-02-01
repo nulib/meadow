@@ -3,6 +3,7 @@ import { useMutation } from "@apollo/client";
 import { SET_COLLECTION_IMAGE } from "./collection.gql";
 import { toastWrapper } from "../../services/helpers";
 import UIFormInput from "../UI/Form/Input";
+import classNames from "classnames";
 
 const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
   const [selectedWork, setSelectedWork] = useState();
@@ -84,24 +85,33 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
             placeholder="Filter works by title"
             data-testid="input-collection-filter"
             name="collectionTitle"
-            label="Filter works by title"
+            label="Filter Collection works by title"
           />
           <div className="section columns is-multiline">
             {filteredWorkImages &&
               filteredWorkImages.map((work) => (
-                <div
+                <a
                   key={work.id}
-                  className="column is-3 has-text-centered"
-                  style={selectedWork == work.id ? styles.highlightImage : {}}
+                  className={classNames(
+                    "column",
+                    "is-3",
+                    "has-text-centered",
+                    "mb-2",
+                    "collection-representative-image",
+                    {
+                      "has-background-light": selectedWork == work.id,
+                    }
+                  )}
                   onClick={() => {
                     setWork(work.id);
                   }}
+                  href="#"
                 >
                   <figure className="image is-128x128 is-inline-block">
                     <img
                       src={
                         work && work.representativeImage != null
-                          ? `${work.representativeImage}/square/500,500/0/default.jpg`
+                          ? `${work.representativeImage}/square/200,200/0/default.jpg`
                           : "/images/placeholder.png"
                       }
                     />
@@ -111,7 +121,7 @@ const CollectionImageModal = ({ collection, isModalOpen, handleClose }) => {
                       ? work.descriptiveMetadata.title
                       : work.accessionNumber}
                   </p>
-                </div>
+                </a>
               ))}
           </div>
         </section>
