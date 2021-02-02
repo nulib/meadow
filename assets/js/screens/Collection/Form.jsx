@@ -58,7 +58,9 @@ const ScreensCollectionForm = () => {
           <UIBreadcrumbs items={crumbs} />
           <div className="box">
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-              <CollectionForm collection={collection} />
+              <CodeListProvider>
+                <CollectionForm collection={collection} />
+              </CodeListProvider>
             </ErrorBoundary>
           </div>
         </div>
