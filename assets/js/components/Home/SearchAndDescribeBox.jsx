@@ -5,13 +5,13 @@ import { Link } from "react-router-dom";
 
 function HomeSearchAndDescribeBox(props) {
   return (
-    <div className="box has-text-centered content">
+    <>
       <FontAwesomeIcon icon="search" size="4x" />
-      <h2 className="title">Search &amp; Describe Objects</h2>
-      <Link className="button" to="/search">
+      <h2 className="subtitle is-4 pt-3">Search &amp; Describe Objects</h2>
+      <Link className="button is-fullwidth" to="/search">
         Search All Works
       </Link>
-    </div>
+    </>
   );
 }
 
