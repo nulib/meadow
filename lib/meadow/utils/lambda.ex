@@ -77,6 +77,15 @@ defmodule Meadow.Utils.Lambda do
 
   def close(_), do: :noop
 
+  @doc """
+  Make sure a particular local Lambda function is pre-loaded and running in a port. Useful
+  for local-only functions running in GenServers.
+  """
+  @spec init(config :: lambda_config()) :: port() | :noop
+  def init({:local, {script, handler}}), do: find_or_create_port(script, handler)
+
+  def init(_), do: :noop
+
   defp invoke_lambda(lambda, payload, timeout) do
     # coveralls-ignore-start
     Logger.metadata(lambda: lambda)
@@ -95,7 +104,7 @@ defmodule Meadow.Utils.Lambda do
       Logger.metadata(lambda: "#{script_dir}/#{script_file}:#{handler}")
     end
 
-    with port <- find_or_create_port(script, handler),
+    with {_, port} <- find_or_create_port(script, handler),
          data <- Jason.encode!(payload) <> "\n" do
       send(port, {self(), {:command, data}})
       handle_output(port, timeout)
@@ -172,28 +181,32 @@ defmodule Meadow.Utils.Lambda do
   end
 
   defp find_or_create_port(script, handler) do
-    with command <- command_for(script, handler) do
-      case find_port(script, handler) do
-        nil ->
-          Process.flag(:trap_exit, true)
+    case find_port(script, handler) do
+      nil -> spawn_port(script, handler)
+      port -> {:existing, port}
+    end
+  end
 
-          port =
-            Port.open({:spawn, command}, [
-              {:env, Config.aws_environment()},
-              {:line, @buffer_size},
-              :binary,
-              :exit_status,
-              :stderr_to_stdout
-            ])
+  defp spawn_port(script, handler) do
+    if File.exists?(script) or File.exists?(script <> ".js") do
+      with command <- command_for(script, handler) do
+        Process.flag(:trap_exit, true)
 
-          Port.monitor(port)
-          Logger.debug("Spawned `#{command}` in new port #{inspect(port)}")
-          port
+        port =
+          Port.open({:spawn, command}, [
+            {:env, Config.aws_environment()},
+            {:line, @buffer_size},
+            :binary,
+            :exit_status,
+            :stderr_to_stdout
+          ])
 
-        port ->
-          Logger.debug("Using port #{inspect(port)} for `#{command}`")
-          port
+        Port.monitor(port)
+        {:new, port}
       end
+    else
+      Logger.error("Failed to spawn #{script}: No such file")
+      {:error, nil}
     end
   end
 end
