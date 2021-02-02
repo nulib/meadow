@@ -32,6 +32,23 @@ defmodule Meadow.Ingest.Progress do
   end
 
   @doc """
+  Errors out all remaining pending entries for a row
+  """
+  def abort_remaining_pending_entries(%{ingest_sheet: ingest_sheet_id, ingest_sheet_row: row_id}) do
+    from(p in Progress,
+      as: :entry,
+      join: r in Row,
+      as: :row,
+      on: r.id == p.row_id,
+      where: r.row == ^row_id and p.status == "pending" and r.sheet_id == ^ingest_sheet_id
+    )
+    |> Repo.update_all(set: [status: "error"])
+  end
+
+  # UI upload or case w/out ingest sheet
+  def abort_remaining_pending_entries(_), do: :noop
+
+  @doc """
   Retrieve a progress entry by ingest sheet row ID and action name
   """
   def get_entry(%Row{} = row, action), do: get_entry(row.id, action)

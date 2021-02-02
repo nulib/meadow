@@ -162,5 +162,19 @@ defmodule Meadow.Ingest.ProgressTest do
         assert progress.percent_complete == 0.0
       end
     end
+
+    test "abort_remaining_pending_entries/1", %{ingest_sheet: sheet, rows: [row | _]} do
+      assert Progress.completed_count(sheet) == 0
+      Progress.update_entry(row, "CreateWork", "ok")
+      Progress.update_entry(row, Actions.IngestFileSet, "ok")
+      Progress.update_entry(row, Actions.ExtractMimeType, "error")
+
+      Progress.abort_remaining_pending_entries(%{ingest_sheet: sheet.id, ingest_sheet_row: 1})
+
+      assert Progress.get_entry(row.id, Actions.FileSetComplete) |> Map.get(:status) == "error"
+
+      assert Progress.get_entry(row.id, Actions.GenerateFileSetDigests) |> Map.get(:status) ==
+               "error"
+    end
   end
 end

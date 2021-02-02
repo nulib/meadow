@@ -107,4 +107,20 @@ defmodule Meadow.Data.ActionStatesTest do
       assert entry.__struct__ == ActionState
     end
   end
+
+  test "abort_remaining_waiting_actions/1", %{file_set: file_set} do
+    ActionStates.set_state!(file_set, Test.Action.One, "ok")
+    ActionStates.set_state!(file_set, Test.Action.Two, "error")
+    ActionStates.abort_remaining_waiting_actions(file_set.id)
+
+    with states <- ActionStates.get_states(file_set.id) do
+      states
+      |> Enum.map(fn entry -> {entry.action, entry.outcome} end)
+      |> assert_lists_equal([
+        {"Test.Action.One", "ok"},
+        {"Test.Action.Two", "error"},
+        {"TestActionThree", "error"}
+      ])
+    end
+  end
 end
