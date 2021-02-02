@@ -15,11 +15,9 @@ jest.mock("../../services/elasticsearch");
 
 function setupTests() {
   return renderWithRouterApollo(
-    <CodeListProvider>
-      <AuthProvider>
-        <Route path="/collection/form/:id" component={ScreensCollectionForm} />
-      </AuthProvider>
-    </CodeListProvider>,
+    <AuthProvider>
+      <Route path="/collection/form/:id" component={ScreensCollectionForm} />
+    </AuthProvider>,
     {
       mocks,
       route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
@@ -51,11 +49,9 @@ it("renders breadcrumbs", async () => {
 
 it("renders no initial form values when creating a collection", async () => {
   const { getByTestId } = renderWithRouterApollo(
-    <CodeListProvider>
-      <AuthProvider>
-        <Route path="/collection/form/" component={ScreensCollectionForm} />
-      </AuthProvider>
-    </CodeListProvider>,
+    <AuthProvider>
+      <Route path="/collection/form/" component={ScreensCollectionForm} />
+    </AuthProvider>,
     {
       mocks: [getCurrentUserMock, ...allCodeListMocks],
       route: "/collection/form/",
