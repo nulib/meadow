@@ -1,49 +1,51 @@
 import React from "react";
 
 /** @jsx jsx */
-import { css, jsx } from "@emotion/react";
-const tooltipBody = css`
+import { jsx } from "@emotion/react";
+import styled from "@emotion/styled";
+
+const TooltipBody = styled.div`
   display: none;
   position: absolute;
 `;
-const tooltipWrapper = css`
+
+const TooltipWrapper = styled.div`
   position: relative;
   &:hover {
-    background: whitesmoke;
+    background: ${(props) => props.highlightColor};
     .tooltip-body {
       display: block;
-      background: whitesmoke;
+      background: ${(props) => props.highlightColor};
       z-index: 99999;
       padding-left: 1rem;
     }
   }
 `;
 
-const UITooltip = (props = {}) => {
-  if (!Array.isArray(props.children)) {
+const UITooltip = ({ highlightColor = "whitesmoke", children }) => {
+  if (!Array.isArray(children)) {
     return null;
   }
 
-  const tooltipHeader = props.children.find(
+  const tooltipHeader = children.find(
     (header) => header.props.className === "tooltip-header"
   );
-  const tooltipContent = props.children.find(
+  const tooltipContent = children.find(
     (body) => body.props.className === "tooltip-content"
   );
 
   return (
-    <div css={tooltipWrapper} data-testid="tooltip-wrapper">
+    <TooltipWrapper
+      highlightColor={highlightColor}
+      data-testid="tooltip-wrapper"
+    >
       {tooltipHeader}
       {tooltipContent && (
-        <div
-          css={tooltipBody}
-          className="tooltip-body"
-          data-testid="tooltip-body"
-        >
+        <TooltipBody className="tooltip-body" data-testid="tooltip-body">
           {tooltipContent}
-        </div>
+        </TooltipBody>
       )}
-    </div>
+    </TooltipWrapper>
   );
 };
 
