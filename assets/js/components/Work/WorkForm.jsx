@@ -18,7 +18,6 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
     CREATE_WORK,
     {
       onCompleted({ createWork }) {
-        console.log(createWork);
         toastWrapper(
           "is-success",
           `Work ${

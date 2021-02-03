@@ -47,7 +47,7 @@ const ScreensHome = () => {
             </div>
 
             <div className="column is-one-third">
-              <HomeIngestBox />
+              <HomeIngestBox handleAddWork={handleAddWork} />
               <HomeStatsRow stats={mockStats} />
             </div>
           </div>
