@@ -7,20 +7,26 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 function HomeIngestBox({ handleAddWork }) {
   return (
-    <div className="box has-text-centered content">
-      <FontAwesomeIcon icon="file-import" size="4x" />
-      <h2 className="title">Ingest Objects</h2>
-      <div className="buttons is-centered">
-        <Link className="button" to="/project/list">
-          View Projects
+    <AuthDisplayAuthorized action="edit">
+      <div className="buttons">
+        <Link className="button is-large is-fullwidth" to="/project/list">
+          <span className="icon">
+            <FontAwesomeIcon icon="project-diagram" />
+          </span>
+          <span>View Projects</span>
         </Link>
-        <AuthDisplayAuthorized action="edit">
-          <Button data-testid="add-work-button" onClick={handleAddWork}>
-            Add Work
-          </Button>
-        </AuthDisplayAuthorized>
+        <Button
+          data-testid="add-work-button"
+          onClick={handleAddWork}
+          className="is-large is-fullwidth"
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="plus" />
+          </span>
+          <span>Add Work</span>
+        </Button>
       </div>
-    </div>
+    </AuthDisplayAuthorized>
   );
 }
 
