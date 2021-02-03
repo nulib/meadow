@@ -33,6 +33,20 @@ defmodule Meadow.Accounts do
     Ldap.list_group_members(id)
   end
 
+  def assume_role(user_role, current_user) do
+    case(
+      Cachex.get_and_update(Meadow.Cache.Users, current_user.username, fn entry ->
+        Map.put(entry, :role, user_role)
+      end)
+    ) do
+      {:commit, %{role: role}} ->
+        {:ok, role}
+
+      _ ->
+        {:error, "Could not change role to #{user_role}"}
+    end
+  end
+
   def add_group_to_role(role_id, group_id) do
     Ldap.add_member(role_id, group_id)
   end
