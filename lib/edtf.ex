@@ -3,6 +3,8 @@ defmodule EDTF do
   EDTF Parsing GenServer
   """
 
+  use GenServer
+
   alias Meadow.Config
   alias Meadow.Utils.Lambda
 
@@ -23,7 +25,7 @@ defmodule EDTF do
     {:error, "Invalid EDTF input: bad date!"}
   """
   def parse(value) do
-    case Lambda.invoke(Config.lambda_config(:edtf), %{function: :parse, value: value}, @timeout) do
+    case GenServer.call(__MODULE__, {:parse, value}) do
       {:ok, result} -> {:ok, atomize(result)}
       other -> other
     end
@@ -40,7 +42,7 @@ defmodule EDTF do
     {:error, "Invalid EDTF input: bad date!"}
   """
   def validate(value),
-    do: Lambda.invoke(Config.lambda_config(:edtf), %{function: :validate, value: value}, @timeout)
+    do: GenServer.call(__MODULE__, {:validate, value})
 
   @doc """
   Humanize an EDTF date string
@@ -57,5 +59,30 @@ defmodule EDTF do
       :original -> value
       other -> other
     end
+  end
+
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
+  def start_link(args \\ []) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+  end
+
+  def init(_args) do
+    Logger.info("Starting EDTF Parser")
+
+    with {_, port} <- Lambda.init(Config.lambda_config(:edtf)) do
+      {:ok, port}
+    end
+  end
+
+  def handle_call({command, data}, _from, port) do
+    {:reply,
+     Lambda.invoke(Config.lambda_config(:edtf), %{function: command, value: data}, @timeout),
+     port}
   end
 end

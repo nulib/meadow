@@ -4,8 +4,6 @@ defmodule Meadow.Utils.LambdaTest do
   import ExUnit.CaptureLog
   require Logger
 
-  @port_regex ~r/(?<port>#Port<\d+.\d+>)/
-
   setup do
     old_level = Logger.level()
     Logger.configure(level: :debug)
@@ -20,7 +18,7 @@ defmodule Meadow.Utils.LambdaTest do
   end
 
   describe "invoke/2" do
-    test "spawns on first run", %{config: config} do
+    test "receives the correct result and logs", %{config: config} do
       log =
         capture_log(fn ->
           assert Lambda.invoke(config, %{boolean: true, number: 123, type: "map"}) ==
@@ -31,7 +29,6 @@ defmodule Meadow.Utils.LambdaTest do
                     }}
         end)
 
-      assert log |> String.match?(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/)
       assert log |> String.contains?("[info]  This is a log message with level `log`")
       assert log |> String.contains?("[warn]  This is a log message with level `warn`")
       assert log |> String.contains?("[error] This is a log message with level `error`")
@@ -43,24 +40,6 @@ defmodule Meadow.Utils.LambdaTest do
              |> String.contains?(
                "[warn]  Unknown message received: This is an unknown message type"
              )
-    end
-
-    test "reuses on subsequent run", %{config: config} do
-      log =
-        capture_log(fn ->
-          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-        end)
-
-      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
-      assert %{"port" => port} = Regex.named_captures(@port_regex, msg)
-
-      log =
-        capture_log(fn ->
-          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-        end)
-
-      assert [[msg]] = Regex.scan(~r/\[debug\] Using port #Port<\d+.\d+>/, log)
-      assert Regex.named_captures(@port_regex, msg) == %{"port" => port}
     end
 
     test "fatal error", %{config: config} do
@@ -101,13 +80,31 @@ defmodule Meadow.Utils.LambdaTest do
                         {:error, "Timeout"}
              end) =~ ~r/No response after 50ms/
 
-      log =
-        capture_log(fn ->
-          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-        end)
+      assert Lambda.close(config) == :noop
+      assert {:new, _port} = Lambda.init(config)
+    end
+  end
 
-      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
-      assert %{"port" => _} = Regex.named_captures(@port_regex, msg)
+  describe "init/1" do
+    test "does nothing for remote functions" do
+      assert Lambda.init({:lambda, "remote-function"}) == :noop
+    end
+
+    test "initializes a port", %{config: config} do
+      assert {:new, port} = Lambda.init(config)
+      assert port |> is_port()
+    end
+
+    test "uses an existing port", %{config: config} do
+      assert {:new, port} = Lambda.init(config)
+      assert {:existing, ^port} = Lambda.init(config)
+    end
+
+    test "bad script" do
+      assert capture_log(fn ->
+               assert {:error, nil} =
+                        Lambda.init({:local, {"path/to/nonexistent/script.js", "handler"}})
+             end) =~ ~r"Failed to spawn path/to/nonexistent/script.js: No such file"
     end
   end
 
@@ -117,29 +114,9 @@ defmodule Meadow.Utils.LambdaTest do
     end
 
     test "closes an active port", %{config: config} do
-      log =
-        capture_log(fn ->
-          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-        end)
-
-      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
-      assert %{"port" => old_port} = Regex.named_captures(@port_regex, msg)
-
-      log =
-        capture_log(fn ->
-          assert Lambda.close(config) == :ok
-        end)
-
-      assert [[msg]] = Regex.scan(~r/\[debug\] Closing port #Port<\d+.\d+>/, log)
-      assert Regex.named_captures(@port_regex, msg) == %{"port" => old_port}
-
-      log =
-        capture_log(fn ->
-          Lambda.invoke(config, %{boolean: true, number: 123, type: "map"})
-        end)
-
-      assert [[msg]] = Regex.scan(~r/\[debug\] Spawned .+ in new port #Port<\d+.\d+>/, log)
-      assert %{"port" => new_port} = Regex.named_captures(@port_regex, msg)
+      assert {:new, old_port} = Lambda.init(config)
+      assert Lambda.close(config) == :ok
+      assert {:new, new_port} = Lambda.init(config)
       assert new_port != old_port
     end
   end
