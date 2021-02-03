@@ -118,7 +118,7 @@ const UILayoutNavBar = () => {
                     isActive("collection") ? "is-active" : ""
                   }`}
                 >
-                  Themes &amp; Collections
+                  Collections
                 </Link>
               </div>
 

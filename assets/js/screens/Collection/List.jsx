@@ -84,35 +84,23 @@ const ScreensCollectionList = () => {
     <Layout>
       <section className="section" data-testid="collection-list-wrapper">
         <div className="container">
-          <UIBreadcrumbs
-            items={[{ label: "Themes & Collections", isActive: true }]}
-          />
+          <UIBreadcrumbs items={[{ label: "Collections", isActive: true }]} />
 
-          <div className="columns">
-            <div className="column is-6">
-              <div className="box">
+          <div className="box">
+            <div className="columns">
+              <div className="column is-8">
                 <h1 className="title">Collections</h1>
                 <h2 className="subtitle">
                   Each <span className="is-italic">Work</span> must live in a
                   Collection.
                 </h2>
+              </div>
+              <div className="column is-4 has-text-right">
                 <AuthDisplayAuthorized action="edit">
                   <Link to="/collection/form" className="button is-primary">
                     Add new collection
                   </Link>
                 </AuthDisplayAuthorized>
-              </div>
-            </div>
-            <div className="column is-6">
-              <div className="box">
-                <h2 className="title is-size-4">Themes</h2>
-                <p className="subtitle">
-                  Customized groupings of{" "}
-                  <span className="is-italic">Works</span>
-                </p>
-                <Link to="/" className="button">
-                  View themes
-                </Link>
               </div>
             </div>
           </div>
