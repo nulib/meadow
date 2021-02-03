@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 function LevelItem({ heading, title }) {
   return (
-    <div className="level-item has-text-centered">
+    <div className="has-text-centered py-3">
       <div>
         <p className="heading">{heading}</p>
         <p className="title">{title}</p>
@@ -14,7 +14,10 @@ function LevelItem({ heading, title }) {
 
 function HomeStatsRow({ stats }) {
   return (
-    <div data-testid="stats-row" className="level box">
+    <div
+      data-testid="stats-row"
+      className="box notification is-info is-light has-text-centered"
+    >
       {stats.map((stat) => (
         <LevelItem
           key={stat.heading}

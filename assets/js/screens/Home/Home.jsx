@@ -12,15 +12,15 @@ import UISkeleton from "@js/components/UI/Skeleton";
 const mockStats = [
   {
     heading: "Collections",
-    title: 12933,
+    title: 53,
   },
   {
     heading: "Works",
-    title: 986324532,
+    title: "6,910",
   },
   {
     heading: "Works Published",
-    title: 238844,
+    title: "2,044",
   },
 ];
 
@@ -35,41 +35,25 @@ const ScreensHome = () => {
     <Layout>
       <section className="section">
         <div className="container">
-          <HomeStatsRow stats={mockStats} />
+          <HomeSearchAndSubscribeBox />
         </div>
       </section>
+
       <section className="section">
         <div className="container">
           <div className="columns">
-            <div className="column">
+            <div className="column is-two-thirds">
               <MockAreaChart />
             </div>
 
-            <div className="column">
-              <div className="tile is-ancestor">
-                <div className="tile is-parent">
-                  <div className="tile box is-child has-text-centered">
-                    <HomeIngestBox handleAddWork={handleAddWork} />
-                  </div>
-                </div>
-                <div className="tile is-parent">
-                  <div className="tile box is-child has-text-centered">
-                    <HomeSearchAndSubscribeBox />
-                  </div>
-                </div>
-              </div>
-              {/* <div className="columns">
-                <div className="column">
-                  <HomeIngestBox handleAddWork={handleAddWork} />
-                </div>
-                <div className="column">
-                  <HomeSearchAndSubscribeBox />
-                </div>
-              </div> */}
+            <div className="column is-one-third">
+              <HomeIngestBox />
+              <HomeStatsRow stats={mockStats} />
             </div>
           </div>
         </div>
       </section>
+
       <section className="section">
         <div className="container">
           <div className="columns">

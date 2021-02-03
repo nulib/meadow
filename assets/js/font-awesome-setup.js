@@ -81,6 +81,7 @@ export default function setupFontAwesome() {
     faLockOpen,
     faMinusSquare,
     faPlus,
+    faProjectDiagram,
     faMinus,
     faProjectDiagram,
     faSearch,
