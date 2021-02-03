@@ -9,6 +9,7 @@ import UILayoutNavDropdown from "@js/components/UI/Layout/NavDropdown";
 import UILayoutNavDropdownHeader from "./NavDropdownHeader";
 import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -103,14 +104,16 @@ const UILayoutNavBar = () => {
           {currentUser && (
             <>
               <div className="navbar-start">
-                <Link
-                  className={`navbar-item ${
-                    isActive("project") ? "is-active" : ""
-                  }`}
-                  to="/project/list"
-                >
-                  Projects
-                </Link>
+                <AuthDisplayAuthorized>
+                  <Link
+                    className={`navbar-item ${
+                      isActive("project") ? "is-active" : ""
+                    }`}
+                    to="/project/list"
+                  >
+                    Projects
+                  </Link>
+                </AuthDisplayAuthorized>
 
                 <Link
                   to="/collection/list"
@@ -123,46 +126,33 @@ const UILayoutNavBar = () => {
               </div>
 
               <div className="navbar-end">
-                <UILayoutNavDropdown
-                  onMouseEnter={() => setActiveHoverNav("Dashboards")}
-                  onMouseLeave={() => setActiveHoverNav("")}
-                >
-                  <UILayoutNavDropdownHeader label="Dashboards">
-                    Dashboards
-                  </UILayoutNavDropdownHeader>
-                  <UILayoutNavDropdownBody
-                    isExpanded={activeHoverNav === "Dashboards"}
+                <AuthDisplayAuthorized>
+                  <UILayoutNavDropdown
+                    onMouseEnter={() => setActiveHoverNav("Dashboards")}
+                    onMouseLeave={() => setActiveHoverNav("")}
                   >
-                    <UILayoutNavDropdownItem>
-                      <Link to="/dashboards/batch-edit">Batch Edit</Link>
-                    </UILayoutNavDropdownItem>
-                    <UILayoutNavDropdownItem>
-                      <Link to="/dashboards/csv-metadata-update">
-                        CSV Metadata Update
-                      </Link>
-                    </UILayoutNavDropdownItem>
-                    <UILayoutNavDropdownItem>
-                      <Link to="/dashboards/nul-local-authorities">
-                        NUL Local Authorities
-                      </Link>
-                    </UILayoutNavDropdownItem>
-                  </UILayoutNavDropdownBody>
-                </UILayoutNavDropdown>
-
-                <UILayoutNavDropdown
-                  onMouseEnter={() => setActiveHoverNav("Alerts")}
-                  onMouseLeave={() => setActiveHoverNav("")}
-                >
-                  <UILayoutNavDropdownHeader label="Alerts">
-                    <FontAwesomeIcon icon="bell" />
-                  </UILayoutNavDropdownHeader>
-                  <UILayoutNavDropdownBody
-                    isExpanded={activeHoverNav === "Alerts"}
-                  >
-                    <UILayoutNavDropdownItem>alert 1</UILayoutNavDropdownItem>
-                    <UILayoutNavDropdownItem>alert 2</UILayoutNavDropdownItem>
-                  </UILayoutNavDropdownBody>
-                </UILayoutNavDropdown>
+                    <UILayoutNavDropdownHeader label="Dashboards">
+                      Dashboards
+                    </UILayoutNavDropdownHeader>
+                    <UILayoutNavDropdownBody
+                      isExpanded={activeHoverNav === "Dashboards"}
+                    >
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/batch-edit">Batch Edit</Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/csv-metadata-update">
+                          CSV Metadata Update
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/nul-local-authorities">
+                          NUL Local Authorities
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                    </UILayoutNavDropdownBody>
+                  </UILayoutNavDropdown>
+                </AuthDisplayAuthorized>
 
                 <UILayoutNavDropdown
                   onMouseEnter={() => setActiveHoverNav("User")}
