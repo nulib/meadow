@@ -15,7 +15,7 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
             <UIFormInput
               isReactHookForm
               required
-              label="FileSet label"
+              label="Accession number"
               data-testid="fileset-accession-number-input"
               name="accessionNumber"
               placeholder="accession number"
@@ -26,7 +26,7 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
             <UIFormInput
               isReactHookForm
               required
-              label="FileSet label"
+              label="Label"
               data-testid="fileset-label-input"
               name="label"
               placeholder="Fileset label"
@@ -37,7 +37,7 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
             <UIFormInput
               isReactHookForm
               required
-              label="FileSet description"
+              label="Description"
               data-testid="fileset-description-input"
               name="description"
               placeholder="Description of the Fileset"
