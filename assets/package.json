@@ -45,7 +45,7 @@
     "react-apollo": "^3.1.5",
     "react-beautiful-dnd": "^13.0.0",
     "react-csv": "^2.0.3",
-    "react-dropzone": "^11.2.4",
+    "react-dropzone": "^11.3.0",
     "react-error-boundary": "^3.1.0",
     "react-hook-form": "6.9.2",
     "react-json-pretty": "^2.2.0",
