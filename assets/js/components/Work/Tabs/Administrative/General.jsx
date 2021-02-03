@@ -72,11 +72,6 @@ function WorkAdministrativeTabsGeneral({
           <p>{status ? status.label : "None selected"}</p>
         )}
       </UIFormField>
-
-      <UIFormField label="Themes" mocked notLive>
-        <p>Nothing yet</p>
-      </UIFormField>
-
       <UIFormField label="Visibility">
         {isEditing ? (
           <UIFormSelect
