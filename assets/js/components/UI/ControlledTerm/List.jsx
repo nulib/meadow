@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FACET_SENSORS } from "../../../services/reactive-search";
 import UIFacetLink from "../FacetLink";
+import UITooltip from "@js/components/UI/Tooltip/Tooltip";
 
 const UIControlledTermList = ({ items = [], title }) => {
   const { componentId } =
@@ -15,28 +16,32 @@ const UIControlledTermList = ({ items = [], title }) => {
           <li
             key={`${item.term.id}-${item.role ? item.role.id : ""}`}
             data-testid="controlled-term-list-row"
-            className="is-flex is-flex-direction-column is-align-items-flex-start mb-4"
+            className="is-flex is-flex-direction-column is-align-items-flex-start"
           >
-            <>
-              {componentId ? (
-                <UIFacetLink facetComponentId={componentId} item={item} />
-              ) : (
-                item.term.label
-              )}
-              {item.term.id && (
-                <a
-                  href={item.term.id}
-                  target="_blank"
-                  className="ml-1 button is-text is-small"
-                  data-testid="external-link"
-                >
-                  <span className="icon" title={item.term.id}>
-                    <FontAwesomeIcon icon="external-link-alt" />
-                  </span>
-                  <span>{item.term.id}</span>
-                </a>
-              )}
-            </>
+            <UITooltip>
+              <div className="tooltip-header">
+                {componentId ? (
+                  <UIFacetLink facetComponentId={componentId} item={item} />
+                ) : (
+                  item.term.label
+                )}
+              </div>
+              <div className="tooltip-content">
+                {item.term.id && (
+                  <a
+                    href={item.term.id}
+                    target="_blank"
+                    className="ml-1 button is-text is-small"
+                    data-testid="external-link"
+                  >
+                    <span className="icon" title={item.term.id}>
+                      <FontAwesomeIcon icon="external-link-alt" />
+                    </span>
+                    <span>{item.term.id}</span>
+                  </a>
+                )}
+              </div>
+            </UITooltip>
           </li>
         ))}
       </ul>
