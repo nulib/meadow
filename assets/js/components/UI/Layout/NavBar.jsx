@@ -149,6 +149,8 @@ const UILayoutNavBar = () => {
                   </UILayoutNavDropdownBody>
                 </UILayoutNavDropdown>
 
+                {/* 
+                // TODO - need to wire this up to notifications once backend support is added 
                 <UILayoutNavDropdown
                   onMouseEnter={() => setActiveHoverNav("Alerts")}
                   onMouseLeave={() => setActiveHoverNav("")}
@@ -162,7 +164,7 @@ const UILayoutNavBar = () => {
                     <UILayoutNavDropdownItem>alert 1</UILayoutNavDropdownItem>
                     <UILayoutNavDropdownItem>alert 2</UILayoutNavDropdownItem>
                   </UILayoutNavDropdownBody>
-                </UILayoutNavDropdown>
+                </UILayoutNavDropdown> */}
 
                 <UILayoutNavDropdown
                   onMouseEnter={() => setActiveHoverNav("User")}
