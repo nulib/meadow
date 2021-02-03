@@ -15,7 +15,7 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
             <UIFormInput
               isReactHookForm
               required
-              label="FileSet label"
+              label="Accession number"
               data-testid="fileset-accession-number-input"
               name="accessionNumber"
               placeholder="accession number"
