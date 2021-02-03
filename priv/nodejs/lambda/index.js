@@ -37,7 +37,7 @@ const handler = require(script)[lambda];
 process.stdin.resume();
 process.stdin.on("data", (data) => {
   const payload = JSON.parse(data);
-  handler(payload)
+  handler(payload, {})
     .then((result) => writeln("[return] " + JSON.stringify(result)))
     .catch((err) => writeln("[fatal] " + err));
 });
