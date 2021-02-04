@@ -76,6 +76,10 @@ defmodule Meadow.Data.ActionStates do
 
   def set_state(object, action, outcome, notes \\ nil)
 
+  def set_state(object, action, outcome, notes) when not is_nil(notes) and not is_binary(notes) do
+    set_state(object, action, outcome, coerce_to_string(notes))
+  end
+
   def set_state({object_type, object_id}, action, outcome, notes) do
     make_changeset(object_type, object_id, action, outcome, notes)
     |> Repo.insert(
@@ -90,6 +94,11 @@ defmodule Meadow.Data.ActionStates do
   end
 
   def set_state!(object, action, outcome, notes \\ nil)
+
+  def set_state!(object, action, outcome, notes)
+      when not is_nil(notes) and not is_binary(notes) do
+    set_state!(object, action, outcome, coerce_to_string(notes))
+  end
 
   def set_state!({object_type, object_id}, action, outcome, notes) do
     make_changeset(object_type, object_id, action, outcome, notes)
@@ -127,5 +136,11 @@ defmodule Meadow.Data.ActionStates do
       outcome: outcome,
       notes: notes
     })
+  end
+
+  def coerce_to_string(value) do
+    to_string(value)
+  rescue
+    _ -> inspect(value)
   end
 end
