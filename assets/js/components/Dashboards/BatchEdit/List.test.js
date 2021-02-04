@@ -42,6 +42,7 @@ describe("DashboardsBatchEditList component", () => {
     expect(utils.getByText(/aja0137/i));
     expect(utils.getByText("43"));
     expect(utils.getByText(/complete/i));
+    expect(utils.findByTestId("button-to-search"));
   });
 
   it("renders a view button", async () => {

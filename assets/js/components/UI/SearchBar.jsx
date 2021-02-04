@@ -4,9 +4,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ELASTICSEARCH_FIELDS_TO_SEARCH } from "../../services/elasticsearch";
 import { RESULT_SENSOR, SEARCH_SENSOR } from "../../services/reactive-search";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
+import useSearchTerm from "@js/hooks/useSearchTerm";
 
 const UISearchBar = () => {
   const queryParts = userPreviousQueryParts();
+  const searchTerm = useSearchTerm();
+
+  const prepDefaultValue = () => {
+    if (queryParts) {
+      return queryParts.search;
+    }
+    if (searchTerm) {
+      return searchTerm;
+    }
+    return "";
+  };
 
   return (
     <div data-testid="reactive-search-wrapper">
@@ -15,7 +27,7 @@ const UISearchBar = () => {
         autosuggest={false}
         dataField={ELASTICSEARCH_FIELDS_TO_SEARCH}
         debounce={500}
-        defaultValue={queryParts ? queryParts.search : null}
+        defaultValue={prepDefaultValue()}
         fieldWeights={[5, 2]}
         filterLabel="Search"
         fuzziness="AUTO"

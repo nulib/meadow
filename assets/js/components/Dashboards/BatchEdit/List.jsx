@@ -65,13 +65,9 @@ export default function DashboardsBatchEditTable() {
       <tbody data-testid="batch-dashboard-table-body">
         {batches.map((record) => {
           const {
-            add,
-            delete: deleteValue,
-            error,
             id,
             nickname,
             query,
-            replace,
             started,
             status,
             type,
@@ -88,17 +84,28 @@ export default function DashboardsBatchEditTable() {
                 <UIDate dateString={started} />
               </td>
               <td>{user}</td>
-              <td className="has-text-right">{worksUpdated}</td>
+              <td>{worksUpdated}</td>
               <td>
                 <Status status={status} />
               </td>
               <td className="has-text-right">
                 <Link
-                  className="button is-small"
+                  className="button is-small mr-1"
                   to={`/dashboards/batch-edit/${id}`}
                   data-testid="view-button"
                 >
                   <FontAwesomeIcon icon="eye" />
+                </Link>
+                <Link
+                  data-testid="button-to-search"
+                  className="button is-small"
+                  title="View updated works"
+                  to={{
+                    pathname: "/search",
+                    state: { passedInSearchTerm: id },
+                  }}
+                >
+                  <FontAwesomeIcon icon="share" />
                 </Link>
               </td>
             </tr>
