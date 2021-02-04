@@ -54,6 +54,28 @@ defmodule Meadow.Data.ActionStatesTest do
     end
   end
 
+  test "set_state! with error (string)", %{file_set: file_set} do
+    with action_state <- ActionStates.set_state!(file_set, Test.Action.Two, "error", "reason") do
+      assert action_state.outcome == "error"
+      assert action_state.notes == "reason"
+    end
+  end
+
+  test "set_state! with error (atom)", %{file_set: file_set} do
+    with action_state <- ActionStates.set_state!(file_set, Test.Action.Two, "error", :reason) do
+      assert action_state.outcome == "error"
+      assert action_state.notes == "reason"
+    end
+  end
+
+  test "set_state! with error (complex)", %{file_set: file_set} do
+    with action_state <-
+           ActionStates.set_state!(file_set, Test.Action.Two, "error", {:reason, "tuple", 27}) do
+      assert action_state.outcome == "error"
+      assert action_state.notes == ~s({:reason, "tuple", 27})
+    end
+  end
+
   test "latest_entry/1", %{file_set: file_set} do
     with entry <- ActionStates.get_latest_state(file_set.id) do
       assert entry.outcome == "waiting"
