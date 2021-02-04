@@ -60,42 +60,44 @@ export const getProjectMock = {
   },
 };
 
+export const mockProjects = [
+  {
+    id: MOCK_PROJECT_ID,
+    title: MOCK_PROJECT_TITLE,
+    ingestSheets: [
+      {
+        id: "01DTYTYNJ161YWWVSMHMWZM4V2J7S1",
+      },
+      {
+        id: "02DTYTYNJ161YWWVSMHMWZM4V2J7S12",
+      },
+    ],
+    folder: "asdf-folder-name-123",
+    updatedAt: "2020-02-29T02:02:02",
+  },
+  {
+    id: MOCK_PROJECT_ID_2,
+    title: MOCK_PROJECT_TITLE_2,
+    ingestSheets: [
+      {
+        id: "01DTYTYNJ161YWWVSMHMWZM4V2J7S1",
+      },
+      {
+        id: "02DTYTYNJ161YWWVSMHMWZM4V2J7S12",
+      },
+    ],
+    folder: "asdf-folder-name-123",
+    updatedAt: "2020-08-29T02:02:02",
+  },
+];
+
 export const getProjectsMock = {
   request: {
     query: GET_PROJECTS,
   },
   result: {
     data: {
-      projects: [
-        {
-          id: MOCK_PROJECT_ID,
-          title: MOCK_PROJECT_TITLE,
-          ingestSheets: [
-            {
-              id: "01DTYTYNJ161YWWVSMHMWZM4V2J7S1",
-            },
-            {
-              id: "02DTYTYNJ161YWWVSMHMWZM4V2J7S12",
-            },
-          ],
-          folder: "asdf-folder-name-123",
-          updatedAt: "2020-02-29T02:02:02",
-        },
-        {
-          id: MOCK_PROJECT_ID_2,
-          title: MOCK_PROJECT_TITLE_2,
-          ingestSheets: [
-            {
-              id: "01DTYTYNJ161YWWVSMHMWZM4V2J7S1",
-            },
-            {
-              id: "02DTYTYNJ161YWWVSMHMWZM4V2J7S12",
-            },
-          ],
-          folder: "asdf-folder-name-123",
-          updatedAt: "2020-08-29T02:02:02",
-        },
-      ],
+      projects: mockProjects,
     },
   },
 };
