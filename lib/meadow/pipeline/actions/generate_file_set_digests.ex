@@ -25,15 +25,21 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     try do
       Logger.info("Generating digests for #{file_set.id}")
 
-      hashes = generate_hashes(file_set.metadata.location)
-      Logger.info("Hash for #{file_set.id}: #{hashes.sha256}")
+      case generate_hashes(file_set.metadata.location) do
+        {:ok,
+         %{"sha256" => <<sha256::binary-size(64)>>, "sha1" => <<_sha1::binary-size(40)>>} = hashes} ->
+          Logger.info("Hash for #{file_set.id}: #{sha256}")
+          {:ok, _} = FileSets.update_file_set(file_set, %{metadata: %{digests: hashes}})
+          ActionStates.set_state!(file_set, __MODULE__, "ok")
+          :ok
 
-      {:ok, _} =
-        file_set
-        |> FileSets.update_file_set(%{metadata: %{digests: hashes}})
+        {:ok, unexpected_result} ->
+          ActionStates.set_state!(file_set, __MODULE__, "error", unexpected_result)
+          {:error, unexpected_result}
 
-      ActionStates.set_state!(file_set, __MODULE__, "ok")
-      :ok
+        {:error, error} ->
+          raise error
+      end
     rescue
       Meadow.Utils.Stream.Timeout ->
         ActionStates.set_state!(file_set, __MODULE__, "pending")
@@ -48,9 +54,6 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   def generate_hashes(url) do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
-    case Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key}) do
-      {:ok, result} -> %{sha256: result["sha256"], sha1: result["sha1"]}
-      {:error, error} -> raise error
-    end
+    Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key})
   end
 end
