@@ -85,6 +85,11 @@ resource "aws_iam_role_policy_attachment" "lambda_bucket_access" {
   policy_arn = aws_iam_policy.this_bucket_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "cloudwatch_log_access" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"  
+}
+
 module "digester_function" {
   depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
   source      = "./modules/meadow_lambda"
