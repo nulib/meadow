@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useQuery, useMutation } from "@apollo/client";
-import useIsEditing from "../../../hooks/useIsEditing";
-import { toastWrapper } from "../../../services/helpers";
-import { GET_COLLECTIONS } from "../../Collection/collection.gql.js";
-import { UPDATE_WORK, GET_WORK } from "../work.gql.js";
+import useIsEditing from "@js/hooks/useIsEditing";
+import { toastWrapper, sortItemsArray } from "@js/services/helpers";
+import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql.js";
+import { UPDATE_WORK, GET_WORK } from "@js/components/Work/work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
-import UIFormSelect from "../../UI/Form/Select";
-import UIFormField from "../../UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UIFormField from "@js/components/UI/Form/Field";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import UIFormFieldArray from "../../UI/Form/FieldArray";
-import UIFormInput from "../../UI/Form/Input.jsx";
-import UIFormFieldArrayDisplay from "../../UI/Form/FieldArrayDisplay";
-import UISkeleton from "../../UI/Skeleton";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormInput from "@js/components/UI/Form/Input.jsx";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import UISkeleton from "@js/components/UI/Skeleton";
 import {
   PROJECT_METADATA,
   prepFieldArrayItemsForPost,
@@ -175,11 +175,13 @@ const WorkTabsAdministrative = ({ work }) => {
                     showHelper={true}
                     options={
                       collectionsData &&
-                      collectionsData.collections.map((collection) => ({
-                        id: collection.id,
-                        value: collection.id,
-                        label: collection.title,
-                      }))
+                      sortItemsArray(collectionsData.collections, "title").map(
+                        (collection) => ({
+                          id: collection.id,
+                          value: collection.id,
+                          label: collection.title,
+                        })
+                      )
                     }
                     defaultValue={collection ? collection.id : ""}
                   />

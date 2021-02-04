@@ -1,11 +1,11 @@
 import {
-  buildImageURL,
   escapeDoubleQuotes,
   formatDate,
   getClassFromIngestSheetStatus,
   isUrlValid,
   getImageUrl,
   sortFileSets,
+  sortItemsArray,
 } from "./helpers";
 
 it("should escape double quotes", () => {
@@ -80,6 +80,34 @@ describe("IngestSheet status CSS-Class function", () => {
   it("should return empty", () => {
     const actual = getClassFromIngestSheetStatus();
     expect(actual).toBe("");
+  });
+});
+
+describe("Sort any array of objects", () => {
+  const itemsArray = [
+    {
+      id: 1,
+      title: "XYZ",
+    },
+    {
+      id: 2,
+      title: "ABC",
+    },
+    {
+      id: 3,
+      title: "PQR",
+    },
+  ];
+  it("should order Array in ascending order", () => {
+    const sorted = sortItemsArray(itemsArray, "title");
+    expect(sorted[0].title).toEqual("ABC");
+    expect(sorted[2].title).toEqual("XYZ");
+  });
+
+  it("should order Array in descending order", () => {
+    const sorted = sortItemsArray(itemsArray, "title", "desc");
+    expect(sorted[0].title).toEqual("XYZ");
+    expect(sorted[2].title).toEqual("ABC");
   });
 });
 
