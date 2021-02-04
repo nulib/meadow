@@ -1,16 +1,29 @@
 import React, { useState } from "react";
 import Layout from "../Layout";
-import ProjectList from "../../components/Project/List";
-import ProjectForm from "../../components/Project/Form";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import UILevelItem from "../../components/UI/LevelItem";
+import ProjectList from "@js/components/Project/List";
+import { GET_PROJECTS } from "@js/components/Project/project.gql.js";
+import ProjectForm from "@js/components/Project/Form";
+import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
+import UILevelItem from "@js/components/UI/LevelItem";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { useQuery } from "@apollo/client";
+import UISkeleton from "@js/components/UI/Skeleton";
+import Error from "@js/components/UI/Error";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
+  const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
+  const projects = (projectsData && projectsData.projects) || [];
+
+  const getIngestSheetsCount = (projects) => {
+    return projects.reduce(
+      (accumulator, current) => accumulator + current.ingestSheets.length,
+      0
+    );
+  };
 
   return (
     <Layout>
@@ -41,18 +54,34 @@ const ScreensProjectList = () => {
               </AuthDisplayAuthorized>
             </div>
             <div className="level">
-              <UILevelItem heading="Total Projects" content="XXX" />
-              <UILevelItem heading="Total Sheets Ingested" content="12" />
-              <UILevelItem heading="Total Works Processed" content="5,384" />
+              <UILevelItem
+                heading="Total Projects"
+                content={`${projects.length}`}
+              />
+              <UILevelItem
+                heading="Total Sheets Ingested"
+                content={`${getIngestSheetsCount(projects)}`}
+              />
+              {/* TODO - need to wire up total works processed count */}
+              {/* <UILevelItem heading="Total Works Processed" content="5,384" /> */}
             </div>
           </div>
 
           <div className="box">
-            <div data-testid="screen-content">
-              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-                <ProjectList />
-              </ErrorBoundary>
-            </div>
+            {loading && <UISkeleton rows={20} />}
+            {error && <Error error={error} />}
+
+            {!loading && !error && (
+              <div data-testid="screen-content">
+                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <ProjectList
+                    projects={projects}
+                    loading={loading}
+                    error={error}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
           </div>
         </div>
       </section>

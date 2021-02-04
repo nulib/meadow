@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@apollo/client";
-import Error from "../UI/Error";
 import { useMutation, useApolloClient } from "@apollo/client";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, toastWrapper } from "@js/services/helpers";
-import UISkeleton from "../UI/Skeleton";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
 
-const ProjectList = () => {
+const ProjectList = ({ projects }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [activeProject, setActiveProject] = useState();
   const [activeModal, setActiveModal] = useState();
   const [projectList, setProjectList] = useState();
-  const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
   const client = useApolloClient();
   const [deleteProject, { data }] = useMutation(DELETE_PROJECT, {
     update(cache, { data: { deleteProject } }) {
@@ -38,13 +34,10 @@ const ProjectList = () => {
   });
 
   useEffect(() => {
-    projectsData && projectsData.projects && projectsData.projects.length > 0
-      ? setProjectList(projectsData.projects)
+    projects && projects.length > 0
+      ? setProjectList(projects)
       : setProjectList([]);
-  }, [projectsData]);
-
-  if (loading) return <UISkeleton rows={20} />;
-  if (error) return <Error error={error} />;
+  }, [projects]);
 
   const onOpenModal = (e, project) => {
     setActiveModal(project);
@@ -79,7 +72,7 @@ const ProjectList = () => {
     const filterValue = e.target.value.toUpperCase();
 
     if (!filterValue) {
-      return setProjectList(projectsData.projects);
+      return setProjectList(projects);
     }
     const filteredList = projectList.filter((project) => {
       return project.title.toUpperCase().indexOf(filterValue) > -1;
