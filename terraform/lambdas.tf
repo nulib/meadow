@@ -98,7 +98,7 @@ module "digester_function" {
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
   memory_size = 1024
-  timeout     = 60
+  timeout     = 600
 
   tags = var.tags
 }
@@ -153,8 +153,8 @@ module "mime_type_function" {
   description = "Function to extract the mime-type from an S3 object"
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
-  memory_size = 4096
-  timeout     = 600
+  memory_size = 512
+  timeout     = 120
 
   tags = var.tags
 }

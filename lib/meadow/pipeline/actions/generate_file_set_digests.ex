@@ -17,6 +17,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   require Logger
 
   @actiondoc "Generate Digests for FileSet"
+  @timeout 600_000
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     file_set = FileSets.get_file_set!(file_set_id)
@@ -54,6 +55,6 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   def generate_hashes(url) do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
-    Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key})
+    Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key}, @timeout)
   end
 end

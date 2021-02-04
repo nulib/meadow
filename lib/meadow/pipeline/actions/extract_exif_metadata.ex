@@ -17,6 +17,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   require Logger
 
   @actiondoc "Extract EXIF metadata from FileSet"
+  @timeout 600_000
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
@@ -43,7 +44,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   end
 
   defp extract_exif_metadata("s3://" <> _ = source) do
-    Lambda.invoke(Config.lambda_config(:exif), %{source: source})
+    Lambda.invoke(Config.lambda_config(:exif), %{source: source}, @timeout)
   end
 
   defp extract_exif_metadata(source) do

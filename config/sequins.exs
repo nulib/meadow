@@ -25,7 +25,7 @@ config :sequins, Meadow.Pipeline,
     FileSetComplete
   ]
 
-config :sequins, IngestFileSet, queue_config: [processor_concurrency: 1]
+config :sequins, IngestFileSet, queue_config: [processor_concurrency: 10]
 
 config :sequins, ExtractMimeType,
   queue_config: [processor_concurrency: 1, visibility_timeout: 300],
@@ -36,7 +36,7 @@ config :sequins, GenerateFileSetDigests,
   notify_on: [ExtractMimeType: [status: :ok], GenerateFileSetDigests: [status: :retry]]
 
 config :sequins, CopyFileToPreservation,
-  queue_config: [max_number_of_messages: 3, visibility_timeout: 300],
+  queue_config: [visibility_timeout: 300],
   notify_on: [GenerateFileSetDigests: [status: :ok], CopyFileToPreservation: [status: :retry]]
 
 config :sequins, ExtractExifMetadata,
@@ -51,7 +51,7 @@ config :sequins, CreatePyramidTiff,
   ]
 
 config :sequins, FileSetComplete,
-  queue_config: [processor_concurrency: 1],
+  queue_config: [processor_concurrency: 10],
   notify_on: [
     CreatePyramidTiff: [status: :ok],
     FileSetComplete: [status: :retry],

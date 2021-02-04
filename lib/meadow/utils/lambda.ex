@@ -50,7 +50,8 @@ defmodule Meadow.Utils.Lambda do
     - payload: A map that will be sent to the Lambda handler as the `event`
     - timeout: The number of milliseconds to wait for a response (default: 30,000)
   """
-  @spec invoke(config :: lambda_config(), payload :: map(), timeout :: number()) :: any()
+  @spec invoke(config :: lambda_config(), payload :: map(), timeout :: number()) ::
+          {:ok | :error, any()}
   def invoke(config, payload, timeout \\ @timeout) do
     case config do
       {:local, {script, handler}} -> invoke_local(script, handler, payload, timeout)
