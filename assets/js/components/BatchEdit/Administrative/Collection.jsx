@@ -1,9 +1,9 @@
 import React from "react";
-import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
 import { useQuery } from "@apollo/client";
+import { sortItemsArray } from "@js/services/helpers";
 
 function BatchEditCollection() {
   const context = useFormContext();
@@ -28,11 +28,13 @@ function BatchEditCollection() {
         <select name="collection" ref={register()} data-testid="collection">
           <option value="">-- Select --</option>
           {collectionData &&
-            collectionData.collections.map(({ id, title }) => (
-              <option key={id} value={JSON.stringify({ id, title })}>
-                {title}
-              </option>
-            ))}
+            sortItemsArray(collectionData.collections, "title").map(
+              ({ id, title }) => (
+                <option key={id} value={JSON.stringify({ id, title })}>
+                  {title}
+                </option>
+              )
+            )}
         </select>
       </div>
     </UIFormField>

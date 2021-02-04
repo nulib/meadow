@@ -52,6 +52,21 @@ export function isEDTFValid(edtfString) {
   }
 }
 
+export function sortItemsArray(itemsArray = [], sortBy, order = "asc") {
+  switch (order) {
+    case "asc":
+      return itemsArray
+        .slice()
+        .sort((a, b) => (a[sortBy] > b[sortBy] ? 1 : -1));
+    case "desc":
+      return itemsArray
+        .slice()
+        .sort((a, b) => (a[sortBy] > b[sortBy] ? -1 : 1));
+    default:
+      return itemsArray;
+  }
+}
+
 export function getImageUrl(representativeImage) {
   if (representativeImage && typeof representativeImage === "object") {
     return representativeImage.url || "";

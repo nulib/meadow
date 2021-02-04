@@ -9,6 +9,7 @@ import { Button } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+import { sortItemsArray } from "@js/services/helpers";
 
 const modalContent = css`
   width: 75%;
@@ -27,8 +28,7 @@ function setupCandidateList(items) {
       ),
     };
   });
-  newList.sort((a, b) => (a.title > b.title ? 1 : -1));
-  return newList;
+  return sortItemsArray(newList, "title");
 }
 
 export default function BatchEditAboutModalRemove({
