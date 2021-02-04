@@ -104,6 +104,13 @@ defmodule Meadow.Data.ActionStates do
     |> set_state!(action, outcome, notes)
   end
 
+  def abort_remaining_waiting_actions(object_id) do
+    from(a in ActionState,
+      where: a.object_id == ^object_id and a.outcome == "waiting"
+    )
+    |> Repo.update_all(set: [outcome: "error", notes: "Previous action failed"])
+  end
+
   defp states(object_id) do
     from(a in ActionState,
       where: a.object_id == ^object_id,
