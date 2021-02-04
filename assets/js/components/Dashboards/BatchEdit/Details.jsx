@@ -5,6 +5,8 @@ import { GET_BATCH } from "@js/components/Dashboards/dashboards.gql";
 import JSONPretty from "react-json-pretty";
 import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {
@@ -69,7 +71,21 @@ function DashboardsBatchEditDetails({ id }) {
           </dl>
         </div>
       </div>
-
+      {worksUpdated && (
+        <Link
+          data-testid="button-to-search"
+          className="button"
+          to={{
+            pathname: "/search",
+            state: { passedInSearchTerm: id },
+          }}
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="eye" />
+          </span>
+          <span>View batch edit works</span>
+        </Link>
+      )}
       <hr />
       <dl className="spaced">
         <dt>Added</dt>

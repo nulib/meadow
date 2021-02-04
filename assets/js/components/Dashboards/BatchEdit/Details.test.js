@@ -3,6 +3,7 @@ import { screen, render } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import DashboardsBatchEditDetails from "./Details";
 import { getBatchMock } from "@js/components/Dashboards/dashboards.gql.mock";
+import { isReference } from "@apollo/client";
 
 describe("DashboardsBatchEditDetails", () => {
   beforeEach(() => {
@@ -21,5 +22,9 @@ describe("DashboardsBatchEditDetails", () => {
     for (let x of values) {
       expect(screen.getByText(x));
     }
+  });
+
+  it("displays View Works button", async () => {
+    expect(await screen.findByTestId("button-to-search"));
   });
 });
