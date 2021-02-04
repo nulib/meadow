@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useAuthState } from "@js/components/Auth/Auth";
 
 const roleBasedActions = {
-  ADMINISTRATOR: ["delete", "edit", "save"],
+  ADMINISTRATOR: ["delete", "edit", "save", "administer"],
   EDITOR: ["edit", "save"],
   MANAGER: ["edit", "save", "delete"],
   USER: [],
@@ -20,7 +20,7 @@ function AuthDisplayAuthorized({ action = "edit", children }) {
 }
 
 AuthDisplayAuthorized.propTypes = {
-  action: PropTypes.oneOf(["delete", "edit", "save"]),
+  action: PropTypes.oneOf(["delete", "edit", "save", "administer"]),
   children: PropTypes.node,
 };
 

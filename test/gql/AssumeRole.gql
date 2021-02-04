@@ -1,0 +1,5 @@
+mutation($userRole: UserRole!) {
+  assumeRole(userRole: $userRole) {
+    message
+  }
+}

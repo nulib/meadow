@@ -6,10 +6,11 @@ import { AuthContext } from "../../Auth/Auth";
 import client from "../../../client";
 import UISearchBar from "../SearchBar";
 import UILayoutNavDropdown from "@js/components/UI/Layout/NavDropdown";
-import UILayoutNavDropdownHeader from "./NavDropdownHeader";
+import UILayoutNavDropdownHeader from "@js/components/UI/Layout/NavDropdownHeader";
 import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import RoleNavDropdown from "@js/components/Role/NavDropdown";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -163,14 +164,13 @@ const UILayoutNavBar = () => {
                   </UILayoutNavDropdownHeader>
                   <UILayoutNavDropdownBody>
                     <UILayoutNavDropdownItem>
-                      {currentUser.displayName}
+                      {currentUser.displayName} ({currentUser.role})
                     </UILayoutNavDropdownItem>
+                    <AuthDisplayAuthorized action="administer">
+                      <RoleNavDropdown />
+                    </AuthDisplayAuthorized>
                     <UILayoutNavDropdownItem>
-                      <a
-                        role="menuitem"
-                        className="navbar-item"
-                        onClick={handleLogoutClick}
-                      >
+                      <a role="menuitem" onClick={handleLogoutClick}>
                         Logout
                       </a>
                     </UILayoutNavDropdownItem>

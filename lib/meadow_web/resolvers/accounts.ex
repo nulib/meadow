@@ -24,6 +24,16 @@ defmodule MeadowWeb.Resolvers.Accounts do
     {:ok, Accounts.group_members(id)}
   end
 
+  def assume_role(_, %{user_role: user_role}, %{context: %{current_user: user}}) do
+    case Accounts.assume_role(user_role, user) do
+      {:ok, role} ->
+        {:ok, %{message: "Role changed to: #{role}"}}
+
+      {:error, error} ->
+        {:error, %{message: error}}
+    end
+  end
+
   def add_group_to_role(_, %{group_id: group_id, role_id: role_id}, _) do
     {:ok,
      case Accounts.add_group_to_role(role_id, group_id) do

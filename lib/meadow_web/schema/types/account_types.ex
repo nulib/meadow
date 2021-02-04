@@ -42,6 +42,14 @@ defmodule MeadowWeb.Schema.AccountTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Accounts.add_group_to_role/3)
     end
+
+    @desc "Assume role"
+    field :assume_role, :status_message do
+      arg(:user_role, non_null(:user_role))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Administrator")
+      resolve(&Resolvers.Accounts.assume_role/3)
+    end
   end
 
   @desc "An LDAP Entry"
