@@ -5,6 +5,7 @@ import WorkTabsAdministrative from "./Administrative";
 import WorkTabsPreservation from "./Preservation";
 import { IIIFProvider } from "../../IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -50,17 +51,19 @@ const WorkTabs = ({ work }) => {
                 Structure
               </a>
             </li>
-            <li
-              className={`${activeTab === "tab-preservation" && "is-active"}`}
-            >
-              <a
-                id="tab-preservation"
-                data-testid="tab-preservation"
-                onClick={handleTabClick}
+            <AuthDisplayAuthorized>
+              <li
+                className={`${activeTab === "tab-preservation" && "is-active"}`}
               >
-                Preservation
-              </a>
-            </li>
+                <a
+                  id="tab-preservation"
+                  data-testid="tab-preservation"
+                  onClick={handleTabClick}
+                >
+                  Preservation
+                </a>
+              </li>
+            </AuthDisplayAuthorized>
           </ul>
         </div>
         <div className="tabs-container">
@@ -84,12 +87,16 @@ const WorkTabs = ({ work }) => {
           >
             <WorkTabStructure work={work} />
           </div>
-          <div
-            data-testid="tab-preservation-content"
-            className={`${activeTab !== "tab-preservation" ? "is-hidden" : ""}`}
-          >
-            <WorkTabsPreservation work={work} />
-          </div>
+          <AuthDisplayAuthorized>
+            <div
+              data-testid="tab-preservation-content"
+              className={`${
+                activeTab !== "tab-preservation" ? "is-hidden" : ""
+              }`}
+            >
+              <WorkTabsPreservation work={work} />
+            </div>
+          </AuthDisplayAuthorized>
         </div>
       </IIIFProvider>
     </CodeListProvider>
