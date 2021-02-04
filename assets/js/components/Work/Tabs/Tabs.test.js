@@ -7,7 +7,10 @@ import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import { allCodeListMocks } from "../controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
 import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import {
+  getCurrentUserMock,
+  getViewerMock,
+} from "@js/components/Auth/auth.gql.mock";
 const mocks = [
   ...allCodeListMocks,
   getCollectionsMock,
@@ -22,6 +25,22 @@ describe("Tabs component", () => {
         <WorkTabs work={mockWork} />
       </AuthProvider>,
       { mocks }
+    );
+  }
+
+  function setUpViewerTests() {
+    return renderWithRouterApollo(
+      <AuthProvider>
+        <WorkTabs work={mockWork} />
+      </AuthProvider>,
+      {
+        mocks: [
+          ...allCodeListMocks,
+          getCollectionsMock,
+          iiifServerUrlMock,
+          getViewerMock,
+        ],
+      }
     );
   }
 
@@ -74,5 +93,11 @@ describe("Tabs component", () => {
         "is-hidden"
       );
     });
+  });
+
+  it("hides preservation tab when user is of viewer role", async () => {
+    const { queryByTestId } = setUpViewerTests();
+    expect(queryByTestId("tab-preservation")).not.toBeInTheDocument();
+    expect(queryByTestId("tab-preservation-content")).not.toBeInTheDocument();
   });
 });
