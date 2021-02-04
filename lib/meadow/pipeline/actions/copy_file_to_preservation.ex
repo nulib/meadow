@@ -42,31 +42,35 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
     dest_bucket = Config.preservation_bucket()
 
-    dest_key =
-      Path.join(["/", Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))])
+    try do
+      dest_key =
+        Path.join(["/", Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))])
 
-    original_filename = file_set.metadata.original_filename
-    dest_location = %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+      original_filename = file_set.metadata.original_filename
+      dest_location = %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
 
-    s3_metadata = [
-      sha1: file_set.metadata.digests["sha1"],
-      sha256: file_set.metadata.digests["sha256"]
-    ]
+      s3_metadata = [
+        sha1: file_set.metadata.digests["sha1"],
+        sha256: file_set.metadata.digests["sha256"]
+      ]
 
-    Logger.info("Copying #{original_filename} from #{src_location} to #{dest_location}")
+      Logger.info("Copying #{original_filename} from #{src_location} to #{dest_location}")
 
-    case ExAws.S3.put_object_copy(
-           dest_bucket,
-           dest_key,
-           src_bucket,
-           src_key,
-           metadata_directive: :REPLACE,
-           meta: s3_metadata
-         )
-         |> ExAws.request() do
-      {:ok, _} -> {:ok, dest_location}
-      {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
-      {:error, other} -> {:error, inspect(other)}
+      case ExAws.S3.put_object_copy(
+             dest_bucket,
+             dest_key,
+             src_bucket,
+             src_key,
+             metadata_directive: :REPLACE,
+             meta: s3_metadata
+           )
+           |> ExAws.request() do
+        {:ok, _} -> {:ok, dest_location}
+        {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
+        {:error, other} -> {:error, inspect(other)}
+      end
+    rescue
+      ArgumentError -> {:error, "Error creating preservation path"}
     end
   end
 
