@@ -122,13 +122,33 @@ config :meadow, :lambda,
   exif: {:lambda, "meadow-exif"}
 
 config :sequins, Actions.GenerateFileSetDigests,
-  queue_config: [processor_concurrency: 50, visibility_timeout: 300]
+  queue_config: [
+    producer_concurrency: 10,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 600
+  ]
 
 config :sequins, Actions.ExtractExifMetadata,
-  queue_config: [processor_concurrency: 50, visibility_timeout: 300]
+  queue_config: [
+    producer_concurrency: 10,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 600
+  ]
 
 config :sequins, Actions.ExtractMimeType,
-  queue_config: [processor_concurrency: 50, visibility_timeout: 300]
+  queue_config: [
+    producer_concurrency: 10,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 120
+  ]
 
 config :sequins, Actions.CreatePyramidTiff,
-  queue_config: [processor_concurrency: 50, visibility_timeout: 600]
+  queue_config: [
+    producer_concurrency: 10,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 600
+  ]

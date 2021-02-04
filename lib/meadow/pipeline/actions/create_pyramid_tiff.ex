@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   use Action
   use Meadow.Pipeline.Actions.Common
 
-  @timeout 300_000
+  @timeout 600_000
 
   defp process(%{file_set_id: file_set_id}, _, _) do
     Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
