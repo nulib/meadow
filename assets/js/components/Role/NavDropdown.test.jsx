@@ -9,6 +9,12 @@ describe("RoleNavDropdown component", () => {
   });
 
   it("renders the dropdown", () => {
-    expect(screen.getAllByRole("menuitem")).toHaveLength(6);
+    expect(screen.getAllByRole("menu")).toHaveLength(1);
+    expect(screen.getByText("Manager", { exact: true })).toBeInTheDocument();
+    expect(screen.getByText("Editor", { exact: true })).toBeInTheDocument();
+    expect(screen.getByText("User", { exact: true })).toBeInTheDocument();
+    expect(
+      screen.getByText("Assume Role", { exact: true })
+    ).toBeInTheDocument();
   });
 });

@@ -1,18 +1,35 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import { useMutation } from "@apollo/client";
-import { AuthContext } from "@js/components/Auth/Auth";
-import UILayoutNavDropdown from "@js/components/UI/Layout/NavDropdown";
-import UILayoutNavDropdownHeader from "@js/components/UI/Layout//NavDropdownHeader";
-import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
-import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import { ASSUME_ROLE } from "@js/components/Role/role.gql.js";
 import { GET_CURRENT_USER_QUERY } from "@js/components/Auth/auth.gql";
 import { toastWrapper } from "@js/services/helpers";
 
-const RoleNavDropdown = () => {
-  const currentUser = useContext(AuthContext);
-  const [activeHoverNav, setActiveHoverNav] = useState("adam");
+/** @jsx jsx */
+import { css, jsx } from "@emotion/react";
 
+const nestedDropdown = css`
+  &:hover > .dropdown-menu {
+    display: block;
+  }
+  .dropdown-menu {
+    top: -15px;
+    margin-left: 80%;
+  }
+  .dropdown-trigger {
+    button::after {
+      content: "⦠";
+    }
+    button {
+      padding: 0px 0px;
+      border: 0px;
+      font-size: 14px;
+      font-weight: 400;
+      height: 2em;
+    }
+  }
+`;
+
+const RoleNavDropdown = () => {
   const [assumeRole] = useMutation(ASSUME_ROLE, {
     onCompleted({ assumeRole }) {
       toastWrapper(
@@ -37,43 +54,44 @@ const RoleNavDropdown = () => {
   };
 
   return (
-    <UILayoutNavDropdown
-      onMouseEnter={() => setActiveHoverNav("Roles")}
-      onMouseLeave={() => setActiveHoverNav("")}
-    >
-      <UILayoutNavDropdownHeader label="roles">
-        Change Role
-      </UILayoutNavDropdownHeader>
-      <UILayoutNavDropdownBody isExpanded={activeHoverNav === "roles"}>
-        <UILayoutNavDropdownItem>
+    <div css={nestedDropdown} className="nested navbar-item dropdown">
+      <div className="dropdown-trigger">
+        <button
+          className="button"
+          aria-haspopup="true"
+          aria-controls="dropdown-menu"
+        >
+          <span>Assume Role</span>
+          <span className="icon is-small">
+            <i className="fas fa-angle-down" aria-hidden="true"></i>
+          </span>
+        </button>
+      </div>
+      <div className="dropdown-menu" id="dropdown-menu" role="menu">
+        <div className="dropdown-content">
           <a
-            role="menuitem"
-            className="navbar-item"
-            onClick={() => handleRoleChange("MANAGER")}
-          >
-            Manager
-          </a>
-        </UILayoutNavDropdownItem>
-        <UILayoutNavDropdownItem>
-          <a
-            role="menuitem"
-            className="navbar-item"
+            className="dropdown-item"
             onClick={() => handleRoleChange("EDITOR")}
           >
             Editor
           </a>
-        </UILayoutNavDropdownItem>
-        <UILayoutNavDropdownItem>
           <a
-            role="menuitem"
-            className="navbar-item"
+            href="#"
+            className="dropdown-item"
+            onClick={() => handleRoleChange("MANAGER")}
+          >
+            Manager
+          </a>
+          <a
+            href="#"
+            className="dropdown-item"
             onClick={() => handleRoleChange("USER")}
           >
             User
           </a>
-        </UILayoutNavDropdownItem>
-      </UILayoutNavDropdownBody>
-    </UILayoutNavDropdown>
+        </div>
+      </div>
+    </div>
   );
 };
 

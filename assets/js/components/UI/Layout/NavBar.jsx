@@ -166,21 +166,16 @@ const UILayoutNavBar = () => {
                     <UILayoutNavDropdownItem>
                       {currentUser.displayName} ({currentUser.role})
                     </UILayoutNavDropdownItem>
+                    <AuthDisplayAuthorized action="administer">
+                      <RoleNavDropdown />
+                    </AuthDisplayAuthorized>
                     <UILayoutNavDropdownItem>
-                      <a
-                        role="menuitem"
-                        className="navbar-item"
-                        onClick={handleLogoutClick}
-                      >
+                      <a role="menuitem" onClick={handleLogoutClick}>
                         Logout
                       </a>
                     </UILayoutNavDropdownItem>
                   </UILayoutNavDropdownBody>
                 </UILayoutNavDropdown>
-
-                <AuthDisplayAuthorized action="administer">
-                  <RoleNavDropdown />
-                </AuthDisplayAuthorized>
 
                 <div className="navbar-item">
                   {/* Desktop search button */}
