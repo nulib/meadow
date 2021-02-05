@@ -7,44 +7,53 @@ defmodule Meadow.Application.Children do
   alias Meadow.Utils.ArkClient
   require Logger
 
-  @basic_processes %{
-    "batch_driver" => Meadow.BatchDriver,
-    "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
-    "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-    "manifest_listener" => Meadow.IIIF.ManifestListener,
-    "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
-  }
+  defp basic_processes do
+    %{
+      "batch_driver" => Meadow.BatchDriver,
+      "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
+      "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
+      "manifest_listener" => Meadow.IIIF.ManifestListener,
+      "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
+    }
+  end
 
-  @pipeline_processes Meadow.Pipeline.children()
-                      |> Enum.map(fn {action, _} = spec ->
-                        key =
-                          "pipeline." <>
-                            (action |> Module.split() |> List.last() |> Inflex.underscore())
+  defp pipeline_processes do
+    Meadow.Pipeline.children()
+    |> Enum.map(fn {action, _} = spec ->
+      key =
+        "pipeline." <>
+          (action |> Module.split() |> List.last() |> Inflex.underscore())
 
-                        {key, spec}
-                      end)
-                      |> Enum.into(%{})
+      {key, spec}
+    end)
+    |> Enum.into(%{})
+  end
 
-  @web_processes %{
-    "web.server" => [
-      MeadowWeb.Endpoint,
-      {Absinthe.Subscription, MeadowWeb.Endpoint}
-    ],
-    "web.notifiers" => [
-      {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
-      Meadow.Ingest.SheetNotifier
-    ]
-  }
+  defp web_processes do
+    %{
+      "web.server" => [
+        MeadowWeb.Endpoint,
+        {Absinthe.Subscription, MeadowWeb.Endpoint}
+      ],
+      "web.notifiers" => [
+        {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
+        Meadow.Ingest.SheetNotifier
+      ]
+    }
+  end
 
-  @all_processes @basic_processes |> Map.merge(@pipeline_processes) |> Map.merge(@web_processes)
+  defp all_processes,
+    do: basic_processes() |> Map.merge(pipeline_processes()) |> Map.merge(web_processes())
 
-  @process_aliases %{
-    "all" => @all_processes |> Enum.map(fn {key, _} -> key end),
-    "none" => [],
-    "basic" => @basic_processes |> Enum.map(fn {key, _} -> key end),
-    "pipeline" => @pipeline_processes |> Enum.map(fn {key, _} -> key end),
-    "web" => @web_processes |> Enum.map(fn {key, _} -> key end)
-  }
+  defp process_aliases do
+    %{
+      "all" => all_processes() |> Enum.map(fn {key, _} -> key end),
+      "none" => [],
+      "basic" => basic_processes() |> Enum.map(fn {key, _} -> key end),
+      "pipeline" => pipeline_processes() |> Enum.map(fn {key, _} -> key end),
+      "web" => web_processes() |> Enum.map(fn {key, _} -> key end)
+    }
+  end
 
   @doc """
   Produce a list of child specs to start under the main supervisor based
@@ -69,24 +78,24 @@ defmodule Meadow.Application.Children do
     workers(Config.workers())
   end
 
-  def processes("aliases"), do: @process_aliases
-  def processes("all"), do: @all_processes
-  def processes("basic"), do: @basic_processes
-  def processes("pipeline"), do: @pipeline_processes
-  def processes("web"), do: @web_processes
+  def processes("aliases"), do: process_aliases()
+  def processes("all"), do: all_processes()
+  def processes("basic"), do: basic_processes()
+  def processes("pipeline"), do: pipeline_processes()
+  def processes("web"), do: web_processes()
   def processes(_), do: []
 
   defp expand_workers(workers) do
     workers
-    |> Enum.map(fn worker -> Map.get(@process_aliases, worker, worker) end)
+    |> Enum.map(fn worker -> Map.get(process_aliases(), worker, worker) end)
     |> List.flatten()
     |> Enum.uniq()
   end
 
-  defp workers(workers) do
+  def workers(workers) do
     workers
     |> expand_workers()
-    |> Enum.map(fn worker -> Map.get(@all_processes, worker) end)
+    |> Enum.map(fn worker -> Map.get(all_processes(), worker) end)
     |> Enum.reject(&is_nil/1)
     |> List.flatten()
   end

@@ -28,23 +28,23 @@ config :sequins, Meadow.Pipeline,
 config :sequins, IngestFileSet, queue_config: [processor_concurrency: 10]
 
 config :sequins, ExtractMimeType,
-  queue_config: [producer_concurrency: 10, processor_concurrency: 100, visibility_timeout: 120],
+  queue_config: [processor_concurrency: 1, visibility_timeout: 300],
   notify_on: [IngestFileSet: [status: :ok], ExtractMimeType: [status: :retry]]
 
 config :sequins, GenerateFileSetDigests,
-  queue_config: [producer_concurrency: 10, processor_concurrency: 100, visibility_timeout: 600],
+  queue_config: [processor_concurrency: 1, visibility_timeout: 300],
   notify_on: [ExtractMimeType: [status: :ok], GenerateFileSetDigests: [status: :retry]]
 
 config :sequins, CopyFileToPreservation,
-  queue_config: [producer_concurrency: 10, processor_concurrency: 100],
+  queue_config: [visibility_timeout: 300],
   notify_on: [GenerateFileSetDigests: [status: :ok], CopyFileToPreservation: [status: :retry]]
 
 config :sequins, ExtractExifMetadata,
-  queue_config: [producer_concurrency: 10, processor_concurrency: 100, visibility_timeout: 600],
+  queue_config: [processor_concurrency: 1, visibility_timeout: 300],
   notify_on: [CopyFileToPreservation: [status: :ok], ExtractExifMetadata: [status: :retry]]
 
 config :sequins, CreatePyramidTiff,
-  queue_config: [producer_concurrency: 10, processor_concurrency: 100, visibility_timeout: 600],
+  queue_config: [processor_concurrency: 1, visibility_timeout: 300],
   notify_on: [
     ExtractExifMetadata: [status: :ok, role: "am"],
     CreatePyramidTiff: [status: :retry]
