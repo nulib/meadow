@@ -5,8 +5,6 @@
 # file to your .gitignore.
 import Config
 
-alias Meadow.Pipeline.Actions
-
 get_required_var = fn var ->
   case System.get_env("__COMPILE_CHECK__") do
     nil -> System.get_env(var) || raise "environment variable #{var} is missing."
@@ -120,35 +118,3 @@ config :meadow, :lambda,
   mime_type: {:lambda, "meadow-mime-type"},
   tiff: {:lambda, "meadow-pyramid-tiff"},
   exif: {:lambda, "meadow-exif"}
-
-config :sequins, Actions.GenerateFileSetDigests,
-  queue_config: [
-    producer_concurrency: 10,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 600
-  ]
-
-config :sequins, Actions.ExtractExifMetadata,
-  queue_config: [
-    producer_concurrency: 10,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 600
-  ]
-
-config :sequins, Actions.ExtractMimeType,
-  queue_config: [
-    producer_concurrency: 10,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 120
-  ]
-
-config :sequins, Actions.CreatePyramidTiff,
-  queue_config: [
-    producer_concurrency: 10,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 600
-  ]

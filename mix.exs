@@ -128,7 +128,7 @@ defmodule Meadow.MixProject do
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],
-        steps: [&build_assets/1, :assemble, :tar]
+        steps: [&build_assets/1, :assemble]
       ]
     ]
   end
