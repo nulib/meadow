@@ -124,6 +124,8 @@ config :meadow, :lambda,
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [
     producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
     visibility_timeout: 600
@@ -132,6 +134,8 @@ config :sequins, Actions.GenerateFileSetDigests,
 config :sequins, Actions.ExtractExifMetadata,
   queue_config: [
     producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
     visibility_timeout: 600
@@ -140,6 +144,8 @@ config :sequins, Actions.ExtractExifMetadata,
 config :sequins, Actions.ExtractMimeType,
   queue_config: [
     producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
     visibility_timeout: 120
@@ -148,6 +154,8 @@ config :sequins, Actions.ExtractMimeType,
 config :sequins, Actions.CreatePyramidTiff,
   queue_config: [
     producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
     visibility_timeout: 600
