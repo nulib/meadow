@@ -5,8 +5,8 @@ function LevelItem({ heading, title }) {
   return (
     <div className="has-text-centered py-3">
       <div>
-        <p className="heading">{heading}</p>
-        <p className="title">{title}</p>
+        <p className="heading is-size-6">{heading}</p>
+        <p className="title is-size-2">{title}</p>
       </div>
     </div>
   );

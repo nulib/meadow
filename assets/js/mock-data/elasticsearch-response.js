@@ -808,3 +808,13 @@ export const elasticSearchResponse = {
   timed_out: false,
   took: 4,
 };
+
+export const elasticSearchCountResponse = {
+  count: 33,
+  _shards: {
+    total: 11,
+    successful: 11,
+    skipped: 0,
+    failed: 0,
+  },
+};

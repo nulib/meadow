@@ -5,27 +5,30 @@ import WorkForm from "@js/components/Work/WorkForm";
 import HomeIngestBox from "@js/components/Home/IngestBox";
 import HomeSearchAndSubscribeBox from "@js/components/Home/SearchAndDescribeBox";
 import HomeStatsRow from "@js/components/Home/StatsRow";
-import MockAreaChart from "@js/components/Home/MockAreaChart";
-import MockBarChart from "@js/components/Home/MockBarChart";
-import UISkeleton from "@js/components/UI/Skeleton";
-
-const mockStats = [
-  {
-    heading: "Collections",
-    title: 53,
-  },
-  {
-    heading: "Works",
-    title: "6,910",
-  },
-  {
-    heading: "Works Published",
-    title: "2,044",
-  },
-];
+import useRepositoryStats from "@js/hooks/useRepositoryStats";
+import ChartsRepositoryGrowth from "@js/components/Charts/RepositoryGrowth";
+import ChartsVisibility from "@js/components/Charts/Visibility";
+import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
+  const { stats = {} } = useRepositoryStats();
+  console.log("stats", stats);
+
+  const statsConfig = [
+    {
+      heading: "Collections",
+      title: stats.collections,
+    },
+    {
+      heading: "Works",
+      title: stats.works,
+    },
+    {
+      heading: "Works Published",
+      title: stats.worksPublished,
+    },
+  ];
 
   function handleAddWork() {
     setShowWorkForm(!showWorkForm);
@@ -43,12 +46,14 @@ const ScreensHome = () => {
         <div className="container">
           <div className="columns">
             <div className="column is-two-thirds">
-              <MockAreaChart />
+              <ChartsRepositoryGrowth
+                worksCreatedByWeek={stats.worksCreatedByWeek}
+              />
             </div>
 
             <div className="column is-one-third">
               <HomeIngestBox handleAddWork={handleAddWork} />
-              <HomeStatsRow stats={mockStats} />
+              <HomeStatsRow stats={statsConfig} />
             </div>
           </div>
         </div>
@@ -60,14 +65,15 @@ const ScreensHome = () => {
             <div className="column">
               <div className="box">
                 <h3 className="subtitle is-3">Recently Updated Collections</h3>
-                <CollectionRecentlyUpdated />
-                <UISkeleton />
+                <CollectionRecentlyUpdated
+                  recentlyUpdatedCollections={stats.collectionsRecentlyUpdated}
+                />
               </div>
             </div>
             <div className="column">
               <div className="box">
                 <h3 className="subtitle is-3">Visibility</h3>
-                <MockBarChart />
+                <ChartsVisibility data={stats.visibility} />
               </div>
             </div>
           </div>
@@ -78,14 +84,7 @@ const ScreensHome = () => {
           <div className="columns">
             <div className="column">
               <div className="box">
-                <h3 className="subtitle is-3">Google Analytics</h3>
-                <UISkeleton />
-              </div>
-            </div>
-            <div className="column">
-              <div className="box">
-                <h3 className="subtitle is-3">What else?</h3>
-                <UISkeleton />
+                <ChartsGoogleAnalytics />
               </div>
             </div>
           </div>

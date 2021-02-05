@@ -78,18 +78,21 @@ export const allImagesQuery = {
 };
 
 /**
- * Create a text-only, label values object for an Elasticsearch aggregations result object
- * @param {object} aggregations Value returned from the Elasticsearch direct query
- * @returns {object}
+ * Make a direct "count" request to Elasticsearch
+ * @param {object} body
+ * @returns {object} Pass through Elasticsearch response
  */
-export function parseESAggregationResults(aggregations) {
-  let returnObj = {};
-
-  for (const property in aggregations) {
-    returnObj[property] = [...aggregations[property].buckets];
+export async function elasticsearchDirectCount(body) {
+  try {
+    let response = await client.count({
+      index: ELASTICSEARCH_INDEX_NAME,
+      body: body,
+    });
+    return response;
+  } catch (err) {
+    console.log("elasticsearchDirectCount error", err);
+    return Promise.resolve(null);
   }
-
-  return returnObj;
 }
 
 /**
@@ -108,4 +111,19 @@ export async function elasticsearchDirectSearch(body) {
     console.log("elasticsearchDirectSearch error", err);
     return Promise.resolve(null);
   }
+}
+
+/**
+ * Create a text-only, label values object for an Elasticsearch aggregations result object
+ * @param {object} aggregations Value returned from the Elasticsearch direct query
+ * @returns {object}
+ */
+export function parseESAggregationResults(aggregations) {
+  let returnObj = {};
+
+  for (const property in aggregations) {
+    returnObj[property] = [...aggregations[property].buckets];
+  }
+
+  return returnObj;
 }
