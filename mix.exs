@@ -82,7 +82,7 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
-      {:sequins, "~> 0.7.0"},
+      {:sequins, "~> 0.7.1"},
       {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.4"},
