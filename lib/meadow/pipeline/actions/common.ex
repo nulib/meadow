@@ -8,6 +8,8 @@ defmodule Meadow.Pipeline.Actions.Common do
       alias Meadow.Ingest.{Progress, Rows}
 
       def process(data, attrs) do
+        Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
+
         with complete <- ActionStates.ok?(data.file_set_id, __MODULE__) do
           result = process(data, attrs, complete)
           unless complete, do: update_progress(data, attrs, result)
