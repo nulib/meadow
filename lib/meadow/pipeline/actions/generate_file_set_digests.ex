@@ -24,8 +24,6 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     try do
-      Logger.info("Generating digests for #{file_set.id}")
-
       case generate_hashes(file_set.metadata.location) do
         {:ok,
          %{"sha256" => <<sha256::binary-size(64)>>, "sha1" => <<_sha1::binary-size(40)>>} = hashes} ->

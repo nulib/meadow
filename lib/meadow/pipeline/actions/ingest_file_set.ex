@@ -9,8 +9,6 @@ defmodule Meadow.Pipeline.Actions.IngestFileSet do
   @actiondoc "Start Ingesting a FileSet"
 
   defp process(%{file_set_id: file_set_id}, _, _) do
-    Logger.info("Beginning ingest pipeline for FileSet #{file_set_id}")
-
     {result, _} =
       {FileSet, file_set_id}
       |> ActionStates.set_state(__MODULE__, "ok")

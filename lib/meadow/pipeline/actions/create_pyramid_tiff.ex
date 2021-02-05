@@ -11,7 +11,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   @timeout 600_000
 
   defp process(%{file_set_id: file_set_id}, _, _) do
-    Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
     file_set = FileSets.get_file_set!(file_set_id)
     source = file_set.metadata.location
     target = pyramid_uri_for(file_set.id)

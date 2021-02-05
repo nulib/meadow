@@ -19,7 +19,6 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   @actiondoc "Extract mime type from FileSet"
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
-    Logger.info("Beginning #{__MODULE__} for FileSet #{file_set_id}")
     file_set = FileSets.get_file_set!(file_set_id)
     ActionStates.set_state!(file_set, __MODULE__, "started")
     source = file_set.metadata.location
