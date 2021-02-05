@@ -18,7 +18,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   @actiondoc "Copy File to Preservation"
 
-  defp process(data, attributes, _) do
+  defp process(data, _attributes, _) do
     file_set = FileSets.get_file_set!(data.file_set_id)
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
@@ -32,7 +32,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
       {:error, err} ->
         ActionStates.set_state!(file_set, __MODULE__, "error", err)
-        {:error, data, attributes |> Map.put(:error, err)}
+        {:error, err}
     end
   end
 
