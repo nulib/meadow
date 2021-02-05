@@ -63,4 +63,22 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       end)
     end
   end
+
+  @tag s3: [@fixture]
+  describe "failure due to bad sha256" do
+    test "process/2", %{file_set_id: file_set_id} do
+      file_set = FileSets.get_file_set!(file_set_id)
+      FileSets.update_file_set(file_set, %{metadata: %{digests: %{}}})
+
+      assert(
+        CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) ==
+          {:error, "Error creating preservation path"}
+      )
+
+      assert(ActionStates.error?(file_set_id, CopyFileToPreservation))
+      file_set = FileSets.get_file_set!(file_set_id)
+
+      assert(file_set.metadata.location =~ "s3://#{@ingest_bucket}/#{@key}")
+    end
+  end
 end
