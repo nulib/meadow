@@ -40,6 +40,24 @@ defmodule MeadowWeb.Resolvers.Data.Batches do
     end
   end
 
+  def delete(_, params, %{context: %{current_user: user}}) do
+    with query <- Map.get(params, :query),
+         nickname <- Map.get(params, :nickname) do
+      case Batches.create_batch(%{
+             nickname: nickname,
+             user: user.username,
+             query: query,
+             type: "delete"
+           }) do
+        {:ok, batch} ->
+          {:ok, batch}
+
+        {:error, changeset} ->
+          {:error, message: "Could not create batch", details: parse_batch_errors(changeset)}
+      end
+    end
+  end
+
   defp parse_batch_errors(changeset) do
     %{
       add: parse_batch_errors(changeset, :add),

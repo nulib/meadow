@@ -39,6 +39,15 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Batches.update/3)
     end
+
+    @desc "Start a batch delete operation"
+    field :batch_delete, :batch do
+      arg(:nickname, :string)
+      arg(:query, non_null(:string))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
+      resolve(&Batches.delete/3)
+    end
   end
 
   #
