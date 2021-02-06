@@ -1,11 +1,11 @@
 const AWS = require("aws-sdk");
 const sharp = require("sharp");
 const URI = require("uri-js");
-const fs = require("fs");
-const tempy = require("tempy");
+const cacheWorkingCopy = require('./working-copy');
+const fs = require('fs');
 
 const createPyramidTiff = async (source, dest) => {
-  const inputFile = await makeInputFile(source);
+  const inputFile = await cacheWorkingCopy(source);
   try {
     console.info(`Creating pyramidal TIFF from ${inputFile}`);
     const pyramidTiff = await sharp(inputFile, { limitInputPixels: false })
@@ -27,37 +27,8 @@ const createPyramidTiff = async (source, dest) => {
     await sendToDestination(pyramidTiff, dest);
     return dest;
   } finally {
-    console.info(`Deleting ${inputFile}`);
-    fs.unlink(inputFile, err => {
-      if (err) {
-        throw err;
-      }
-    });
+    fs.unlinkSync(inputFile);
   }
-};
-
-const makeInputFile = location => {
-  return new Promise((resolve, reject) => {
-    let uri = URI.parse(location);
-    let fileName = tempy.file();
-    console.info(`Retrieving ${location} to ${fileName}`);
-    let writable = fs
-      .createWriteStream(fileName)
-      .on("error", err => reject(err));
-    let s3Stream = new AWS.S3()
-      .getObject({
-        Bucket: uri.host,
-        Key: getS3Key(uri)
-      }).createReadStream();
-
-    s3Stream.on("error", err => reject(err));
-    s3Stream.on("data", _chunk => console.debug("ping"));
-
-    s3Stream
-      .pipe(writable)
-      .on("close", () => resolve(fileName))
-      .on("error", err => reject(err));
-  });
 };
 
 const sendToDestination = (data, location) => {

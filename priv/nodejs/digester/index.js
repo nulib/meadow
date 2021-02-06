@@ -1,8 +1,9 @@
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
 
+AWS.config.update({httpOptions: {timeout: 600000}});
+
 const handler = async (event, context, _callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
   return await generateDigest(event.bucket, event.key);
 };
 
@@ -12,19 +13,21 @@ const generateDigest = (bucket, key) => {
     let sha256 = crypto.createHash("sha256");
     let sha1 = crypto.createHash("sha1");
 
-    let s3Stream = new AWS.S3()
+    new AWS.S3()
       .getObject({ Bucket: bucket, Key: key })
-      .createReadStream();
-
-    s3Stream
-      .on("data", (chunk) => {
+      .on("httpData", (chunk) => {
         sha256.update(chunk);
-        sha1.update(chunk);
+        sha1.update(chunk);        
       })
-      .on("end", () =>
-        resolve({ sha256: sha256.digest("hex"), sha1: sha1.digest("hex") })
-      )
-      .on("error", (err) => reject(err));
+      .on("httpDownloadProgress", ({loaded, total}) => {
+        console.debug(`Processed ${loaded}/${total}`)
+      })
+      .on("httpDone", () => {
+        resolve({ sha256: sha256.digest("hex"), sha1: sha1.digest("hex") });
+      })
+      .on("httpError", (err) => reject(err))
+      .on("error", (err) => reject(err))
+      .send();
   });
 };
 

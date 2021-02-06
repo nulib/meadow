@@ -1,12 +1,9 @@
-const AWS = require("aws-sdk");
 const exifr = require("exifr");
-const URI = require("uri-js");
-const fs = require("fs");
-const tempy = require("tempy");
+const cacheWorkingCopy = require('./working-copy');
+const fs = require('fs');
 
 const extractExif = async (source, options) => {
-  const inputFile = await makeInputFile(source);
-
+  const inputFile = await cacheWorkingCopy(source);
   try {
     console.log(`Extracting EXIF metadata from ${inputFile}`);
 
@@ -64,42 +61,8 @@ const extractExif = async (source, options) => {
 
     return exif;
   } finally {
-    console.info(`Deleting ${inputFile}`);
-    fs.unlink(inputFile, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
+    fs.unlinkSync(inputFile);
   }
-};
-
-const makeInputFile = (location) => {
-  return new Promise((resolve, reject) => {
-    let uri = URI.parse(location);
-    let fileName = tempy.file();
-    console.info(`Retrieving ${location} to ${fileName}`);
-    let writable = fs
-      .createWriteStream(fileName)
-      .on("error", (err) => reject(err));
-    let s3Stream = new AWS.S3()
-      .getObject({
-        Bucket: uri.host,
-        Key: getS3Key(uri),
-      })
-      .createReadStream();
-
-    s3Stream.on("error", (err) => reject(err));
-    s3Stream.on("data", (_chunk) => console.debug("ping"));
-
-    s3Stream
-      .pipe(writable)
-      .on("close", () => resolve(fileName))
-      .on("error", (err) => reject(err));
-  });
-};
-
-const getS3Key = (uri) => {
-  return uri.path.replace(/^\/+/, "");
 };
 
 module.exports = { extractExif };
