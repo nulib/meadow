@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionTags from "@js/components/Collection/Tags";
+import CollectionImage from "@js/components/Collection/Image";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const {
@@ -18,15 +19,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
-            <Link to={`/collection/${id}`} className="hvr-shrink">
-              <img
-                src={
-                  representativeWork
-                    ? `${representativeWork.representativeImage}/square/500,500/0/default.jpg`
-                    : "/images/placeholder.png"
-                }
-              />
-            </Link>
+            <CollectionImage collection={collection} />
           </p>
         </figure>
         <div className="media-content">
