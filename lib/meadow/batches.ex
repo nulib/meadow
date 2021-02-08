@@ -116,6 +116,18 @@ defmodule Meadow.Batches do
   end
 
   def process_batch(%Batch{type: "update"} = batch) do
+    perform_batch(batch)
+  end
+
+  def process_batch(%Batch{type: "delete"} = batch) do
+    perform_batch(batch)
+  end
+
+  def process_batch(%Batch{type: mode}) do
+    {:error, "mode: #{mode} not implemented"}
+  end
+
+  defp perform_batch(batch) do
     case set_active(batch) do
       {:ok, batch} ->
         log_batch_info(batch)
@@ -144,11 +156,7 @@ defmodule Meadow.Batches do
     end
   end
 
-  def process_batch(%Batch{type: mode}) do
-    {:error, "mode: #{mode} not implemented"}
-  end
-
-  defp do_update(batch) do
+  defp do_update(%Batch{type: "update"} = batch) do
     Meadow.Repo.transaction(
       fn ->
         process_updates(
@@ -156,6 +164,20 @@ defmodule Meadow.Batches do
           decode_value(batch.delete),
           decode_value(batch.add),
           decode_value(batch.replace),
+          batch.id
+        )
+
+        Indexer.synchronize_index()
+      end,
+      timeout: :infinity
+    )
+  end
+
+  defp do_update(%Batch{type: "delete"} = batch) do
+    Meadow.Repo.transaction(
+      fn ->
+        process_deletes(
+          batch.query,
           batch.id
         )
 
@@ -462,6 +484,47 @@ defmodule Meadow.Batches do
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
     |> process_updates(delete, add, replace, batch_id)
+  end
+
+  # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
+
+  defp process_deletes({:ok, %{"hits" => %{"hits" => [], "total" => total}}}, batch_id) do
+    update_batch(batch_id, %{works_updated: total})
+    {:ok, :noop}
+  end
+
+  defp process_deletes({:ok, %{"_scroll_id" => scroll_id, "hits" => hits}}, batch_id) do
+    current_hits = Map.get(hits, "hits")
+
+    current_hits
+    |> Enum.map(&Map.get(&1, "_id"))
+    |> delete_works()
+
+    Meadow.ElasticsearchCluster
+    |> Elasticsearch.post(
+      "/_search/scroll",
+      Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
+    )
+    |> process_deletes(batch_id)
+  end
+
+  defp process_deletes(query, batch_id) do
+    query =
+      Jason.decode!(query)
+      |> Map.put("_source", "")
+      |> Jason.encode!()
+
+    Logger.info("Starting Elasticsearch scroll for batch delete")
+    Logger.info("query #{inspect(query)}")
+
+    Meadow.ElasticsearchCluster
+    |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
+    |> process_deletes(batch_id)
+  end
+
+  defp delete_works(work_ids) do
+    from(w in Work, where: w.id in ^work_ids)
+    |> Repo.delete_all()
   end
 
   defp load_works(work_ids) do
