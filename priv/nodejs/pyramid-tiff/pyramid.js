@@ -4,6 +4,8 @@ const URI = require("uri-js");
 const fs = require("fs");
 const tempy = require("tempy");
 
+AWS.config.update({httpOptions: {timeout: 600000}});
+
 const createPyramidTiff = async (source, dest) => {
   const inputFile = await makeInputFile(source);
   try {
