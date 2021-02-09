@@ -2,8 +2,9 @@ const AWS = require("aws-sdk");
 const FileType = require("file-type");
 const { makeTokenizer } = require("@tokenizer/s3");
 
-const handler = async (event, context, _callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+AWS.config.update({httpOptions: {timeout: 600000}});
+
+const handler = async (event, _context, _callback) => {
   return await extractMimeType(event.bucket, event.key);
 };
 

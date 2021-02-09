@@ -128,7 +128,7 @@ config :sequins, Actions.GenerateFileSetDigests,
     wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
-    visibility_timeout: 600
+    visibility_timeout: 360
   ]
 
 config :sequins, Actions.ExtractExifMetadata,
@@ -138,7 +138,7 @@ config :sequins, Actions.ExtractExifMetadata,
     wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
-    visibility_timeout: 600
+    visibility_timeout: 360
   ]
 
 config :sequins, Actions.ExtractMimeType,
@@ -158,5 +158,5 @@ config :sequins, Actions.CreatePyramidTiff,
     wait_time_seconds: 1,
     max_number_of_messages: 10,
     processor_concurrency: 100,
-    visibility_timeout: 600
+    visibility_timeout: 360
   ]

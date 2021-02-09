@@ -1,7 +1,6 @@
 const exif = require("./exif");
 
-const handler = async (event, context, _callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+const handler = async (event, _context, _callback) => {
   return await exif.extractExif(event.source, event.options);
 };
 

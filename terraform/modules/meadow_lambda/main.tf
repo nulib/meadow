@@ -26,7 +26,7 @@ resource "aws_lambda_function" "this_lambda_function" {
   description   = var.description
   handler       = var.handler
   memory_size   = var.memory_size
-  runtime       = "nodejs12.x"
+  runtime       = "nodejs14.x"
   timeout       = var.timeout
   role          = var.role
   tags          = var.tags
@@ -35,22 +35,6 @@ resource "aws_lambda_function" "this_lambda_function" {
     for_each = length(var.environment) > 0 ? [1] : []
     content {
       variables = var.environment
-    }
-  }
-
-  dynamic "file_system_config" {
-    for_each = var.access_point_arn != "" ? [1] : []
-    content {
-      arn                 = var.access_point_arn
-      local_mount_path    = "/mnt/working"
-    }
-  }
-
-  dynamic "vpc_config" {
-    for_each = length(var.subnet_ids) > 0 ? [1] : []
-    content {
-      subnet_ids = var.subnet_ids
-      security_group_ids = var.security_group_ids
     }
   }
 }

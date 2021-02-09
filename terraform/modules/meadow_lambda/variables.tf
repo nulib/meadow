@@ -1,8 +1,3 @@
-variable "access_point_arn" {
-  type    = string
-  default = ""
-}
-
 variable "name" {
   type    = string
 }
@@ -42,14 +37,4 @@ variable "stack_name" {
 variable "tags" {
   type    = map
   default = {}
-}
-
-variable "subnet_ids" {
-  type    = list
-  default = []
-}
-
-variable "security_group_ids" {
-  type    = list
-  default = []
 }
