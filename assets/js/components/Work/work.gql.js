@@ -197,9 +197,10 @@ export const GET_WORK = gql`
         accessionNumber
         metadata {
           description
-          originalFilename
+          exif
           label
           location
+          originalFilename
           sha256
         }
       }
