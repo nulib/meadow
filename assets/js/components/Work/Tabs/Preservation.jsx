@@ -11,6 +11,7 @@ import { Button } from "@nulib/admin-react-components";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
+import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -24,6 +25,11 @@ const WorkTabsPreservation = ({ work }) => {
   });
 
   const [isModalHidden, setIsModalHidden] = React.useState(true);
+
+  const [technicalMetadata, setTechnicalMetadata] = React.useState({
+    fileSet: {},
+    isVisible: false,
+  });
 
   const {
     data: verifyFileSetsData,
@@ -89,6 +95,10 @@ const WorkTabsPreservation = ({ work }) => {
       fileSets: orderedFileSets.fileSets,
     });
     setOrderedFileSets({ order, fileSets });
+  };
+
+  const handleTechnicalMetaClick = (fileSet = {}) => {
+    setTechnicalMetadata({ fileSet: { ...fileSet }, isVisible: true });
   };
 
   const onOpenModal = () => {
@@ -170,13 +180,20 @@ const WorkTabsPreservation = ({ work }) => {
                     </td>
                     <AuthDisplayAuthorized action="delete">
                       <td>
-                        <div className="buttons-end">
-                          <button
+                        <div className="buttons is-right">
+                          <Button
+                            data-testid="button-show-technical-metadata"
+                            onClick={() => handleTechnicalMetaClick(fileset)}
+                            title="View technical metadata"
+                          >
+                            <FontAwesomeIcon icon="cogs" />
+                          </Button>
+                          <Button
                             data-testid="button-fileset-delete"
-                            className="button"
+                            title="Delete file set"
                           >
                             <FontAwesomeIcon icon="trash" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </AuthDisplayAuthorized>
@@ -218,6 +235,14 @@ const WorkTabsPreservation = ({ work }) => {
           }`}
         />
       )}
+
+      <WorkTabsPreservationTechnical
+        fileSet={technicalMetadata.fileSet}
+        handleClose={() =>
+          setTechnicalMetadata({ fileSet: {}, isVisible: false })
+        }
+        isVisible={technicalMetadata.isVisible}
+      />
     </div>
   );
 };

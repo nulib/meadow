@@ -145,9 +145,11 @@ export const mockWork = {
       role: "AM",
       metadata: {
         description: "Letter, page 2, If these papers, verso, blank",
-        originalFilename: "coffee.jpg",
+        exif:
+          '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        originalFilename: "coffee.jpg",
         sha256: "foobar",
       },
     },
@@ -157,6 +159,9 @@ export const mockWork = {
       role: "AM",
       metadata: {
         description: "Letter, page 1, Dear Sir, recto",
+        exif:
+          '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
+        location: "s3://bucket/foo/bar",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
