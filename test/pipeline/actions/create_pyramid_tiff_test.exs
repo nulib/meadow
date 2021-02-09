@@ -76,5 +76,24 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
         delete_object(@pyramid_bucket, dest)
       end)
     end
+
+    test "process/2 will skip the action if it has been previously set to error", %{
+      invalid_file_set_id: file_set_id,
+      invalid_pairtree: dest
+    } do
+      assert({:error, _} = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+
+      assert(ActionStates.error?(file_set_id, CreatePyramidTiff) == true)
+
+      assert(:ok = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+
+      assert capture_log(fn ->
+               CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} – already complete"
+
+      on_exit(fn ->
+        delete_object(@pyramid_bucket, dest)
+      end)
+    end
   end
 end
