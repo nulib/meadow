@@ -1,8 +1,9 @@
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
 
-const handler = async (event, context, _callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+AWS.config.update({httpOptions: {timeout: 600000}});
+
+const handler = async (event, _context, _callback) => {
   return await generateDigest(event.bucket, event.key);
 };
 

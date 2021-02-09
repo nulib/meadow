@@ -57,6 +57,11 @@ variable "pyramid_bucket" {
   default = ""
 }
 
+variable "migration_binary_bucket" {
+  type    = string
+  default = ""
+}
+
 variable "vpc_id" {
   type = string
 }

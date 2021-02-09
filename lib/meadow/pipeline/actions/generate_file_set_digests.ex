@@ -17,7 +17,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   require Logger
 
   @actiondoc "Generate Digests for FileSet"
-  @timeout 600_000
+  @timeout 240_000
 
   defp process(%{file_set_id: file_set_id}, _attributes, _) do
     file_set = FileSets.get_file_set!(file_set_id)
