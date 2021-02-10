@@ -7,6 +7,7 @@ import WorkCardItem from "@js/components/Work/CardItem";
 import UISkeleton from "@js/components/UI/Skeleton";
 import SearchSelectable from "@js/components/Search/Selectable";
 import {
+  FACET_RANGE_SENSORS,
   FACET_SENSORS,
   RESULT_SENSOR,
   SEARCH_SENSOR,
@@ -14,7 +15,6 @@ import {
 import { prepWorkItemForDisplay } from "@js/services/helpers";
 import { allImagesQuery } from "@js/services/elasticsearch";
 import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
-import { useLocation } from "react-router-dom";
 
 const SearchResults = ({
   handleOnDataChange,
@@ -23,10 +23,11 @@ const SearchResults = ({
   isListView,
   selectedItems,
 }) => {
-  const location = useLocation();
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+  const facetRangeSensors = FACET_RANGE_SENSORS.map(
+    (sensor) => sensor.componentId
+  );
 
-  //console.log("SearchResults defaultQuery", defaultQuery);
   return (
     <React.Fragment>
       <div data-testid="search-results-component">
@@ -47,7 +48,7 @@ const SearchResults = ({
               handleQueryChange(nextQuery);
             }}
             react={{
-              and: [...facetSensors, SEARCH_SENSOR],
+              and: [...facetSensors, ...facetRangeSensors, SEARCH_SENSOR],
             }}
             renderItem={(res) => {
               if (isListView) {

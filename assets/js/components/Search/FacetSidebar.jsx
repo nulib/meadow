@@ -1,22 +1,44 @@
 import React from "react";
-import { MultiList } from "@appbaseio/reactivesearch";
-import { FACET_SENSORS, SEARCH_SENSOR } from "@js/services/reactive-search";
+import {
+  DynamicRangeSlider,
+  MultiList,
+  RangeSlider,
+  SingleRange,
+} from "@appbaseio/reactivesearch";
+import {
+  FACET_SENSORS,
+  FACET_RANGE_SENSOR,
+  FACET_RANGE_SENSORS,
+  SEARCH_SENSOR,
+} from "@js/services/reactive-search";
 import { useLocation } from "react-router-dom";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 import { allImagesQuery } from "@js/services/elasticsearch";
 
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+const facetRangeSensors = FACET_RANGE_SENSORS.map(
+  (sensor) => sensor.componentId
+);
 
 const filterList = (filterId) => {
   let filtersMinusCurrent = facetSensors.filter(
     (filterItem) => filterItem !== filterId
   );
+  return [...filtersMinusCurrent, ...facetRangeSensors, SEARCH_SENSOR];
+};
 
-  return [...filtersMinusCurrent, SEARCH_SENSOR];
+const filterRangeList = (filterId) => {
+  let filtersMinusCurrent = facetRangeSensors.filter(
+    (filterItem) => filterItem !== filterId
+  );
+  console.log("filtersMinusCurrent", filtersMinusCurrent);
+  return [...filtersMinusCurrent, ...facetSensors, SEARCH_SENSOR];
 };
 
 export default function SearchFacetSidebar() {
   const location = useLocation();
+
+  // A facet was passed in that we need to activate
   const externalFacet = location.state && location.state.externalFacet;
   const queryParts = userPreviousQueryParts();
   const prevFacets =
@@ -73,6 +95,18 @@ export default function SearchFacetSidebar() {
           }}
           showFilter={true}
           URLParams={true}
+        />
+      ))}
+      <hr />
+      <h3 className="title is-size-5">Numerical Technical Metadata</h3>
+      {FACET_RANGE_SENSORS.map((sensor) => (
+        <RangeSlider
+          key={sensor.componentId}
+          {...sensor}
+          react={{
+            and: filterRangeList(sensor.componentId),
+          }}
+          tooltipTrigger="hover"
         />
       ))}
     </div>

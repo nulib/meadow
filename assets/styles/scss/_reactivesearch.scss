@@ -9,3 +9,12 @@
   border-color: $nu-purple !important;
   background-color: $nu-purple !important;
 }
+
+.range-slider {
+  .rheostat-progress {
+    background-color: $nu-purple-60 !important;
+  }
+  .slider-tooltip {
+    background-color: $rich-black-80 !important;
+  }
+}

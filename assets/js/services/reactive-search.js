@@ -1,8 +1,16 @@
 import React from "react";
 
+export const FACET_RANGE_SENSOR = "FacetRangeSensor";
+export const RESULT_SENSOR = "SearchResult";
+export const SEARCH_SENSOR = "SearchSensor";
+export const REACTIVE_SEARCH_THEME = {
+  typography: {
+    fontFamily: "Akkurat Pro Regular",
+  },
+};
+
 /**
  * Helper function to parse out text presented to the user in Facet labels
- *
  * This assumes that the label text is the last item in the pipe ("|") delimited indexed field "facet"
  *
  * @param {String} label Default facet label
@@ -18,12 +26,6 @@ function renderAggregationFacetLabel(label, count) {
     </span>
   );
 }
-
-export const REACTIVE_SEARCH_THEME = {
-  typography: {
-    fontFamily: "Akkurat Pro Regular",
-  },
-};
 
 /**
  * Build an ElasticSearch query of individual items
@@ -62,11 +64,9 @@ const defaultListItemValues = {
   URLParams: true,
 };
 
-// Map of Facet "sensor id" values which ReactiveSearch needs to pull in
-// multiple ReactiveSearch "List Components" into search bar and results list
-//
-// Make each object match the shape of this API:
-// https://docs.appbase.io/docs/reactivesearch/v3/list/multilist/
+/**
+ * General Metadata Facets
+ */
 export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
@@ -249,54 +249,59 @@ export const FACET_SENSORS = [
   },
 ];
 
-// TODO: RangeSlider fields [imageHeight, imageWidth, xResolution, yResolution]:
+/**
+ * Range Sliders - Facets for Numerical technical metadata
+ * ES indexed "fileSets[].exif" fields:
+ * { imageHeight, imageWidth, xResolution, yResolution }:
+ */
+const rangeClasses = {
+  label: "range-label",
+  slider: "range-slider",
+};
 
-// const defaultRangeItemValues = {
-//   showSearch: false,
-//   URLParams: true,
-// };
+const defaultRangeItemValues = {
+  includeNullValues: true,
+  innerClass: rangeClasses,
+};
 
-// export const FACET_RANGE_SENSORS = [
-//   {
-//     ...defaultRangeItemValues,
-//     componentId: "ImageHeight",
-//     dataField: "fileSets.exif.model.imageHeight",
-//     title: "Image Height",
-//     range: { start: 0, end: 3000 },
-//     rangeLabels: { start: "0px", end: "3000px" },
-//     defaultValue: { start: 0, end: 3000 },
-//   },
-//   {
-//     ...defaultRangeItemValues,
-//     componentId: "ImageWidth",
-//     dataField: "fileSets.exif.model.imageWidth",
-//     title: "Image Width",
-//     range: { start: 0, end: 3000 },
-//     rangeLabels: { start: "0px", end: "3000px" },
-//     defaultValue: { start: 0, end: 3000 },
-//   },
-//   {
-//     ...defaultRangeItemValues,
-//     componentId: "XResolution",
-//     dataField: "fileSets.exif.model.xResolution",
-//     title: "XResolution",
-//     range: { start: 0, end: 1000 },
-//     rangeLabels: { start: "0px", end: "1000px" },
-//     defaultValue: { start: 0, end: 1000 },
-//   },
-//   {
-//     ...defaultRangeItemValues,
-//     componentId: "YResolution",
-//     dataField: "fileSets.exif.model.yResolution",
-//     title: "YResolution",
-//     range: { start: 0, end: 1000 },
-//     rangeLabels: { start: "0px", end: "1000px" },
-//     defaultValue: { start: 0, end: 1000 },
-//   },
-// ];
-
-export const RESULT_SENSOR = "SearchResult";
-export const SEARCH_SENSOR = "SearchSensor";
+export const FACET_RANGE_SENSORS = [
+  {
+    ...defaultRangeItemValues,
+    componentId: "RangeImageHeight",
+    dataField: "fileSets.exif.imageHeight",
+    defaultValue: { start: 0, end: 3000 },
+    range: { start: 0, end: 3000 },
+    rangeLabels: { start: "0px", end: "3000px" },
+    title: "Image Height",
+  },
+  {
+    ...defaultRangeItemValues,
+    componentId: "RangeImageWidth",
+    dataField: "fileSets.exif.imageWidth",
+    defaultValue: { start: 0, end: 3000 },
+    range: { start: 0, end: 3000 },
+    rangeLabels: { start: "0px", end: "3000px" },
+    title: "Image Width",
+  },
+  {
+    ...defaultRangeItemValues,
+    componentId: "RangeXResolution",
+    dataField: "fileSets.exif.xResolution",
+    title: "XResolution",
+    range: { start: 0, end: 1000 },
+    rangeLabels: { start: "0px", end: "1000px" },
+    defaultValue: { start: 0, end: 1000 },
+  },
+  {
+    ...defaultRangeItemValues,
+    componentId: "RangeYResolution",
+    dataField: "fileSets.exif.yResolution",
+    title: "YResolution",
+    range: { start: 0, end: 1000 },
+    rangeLabels: { start: "0px", end: "1000px" },
+    defaultValue: { start: 0, end: 1000 },
+  },
+];
 
 /**
  * Grab the search string and any facet values from an ElasticSearch query object
