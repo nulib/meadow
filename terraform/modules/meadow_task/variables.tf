@@ -11,6 +11,16 @@ variable "db_pool_size" {
   default = 10
 }
 
+variable "db_queue_target" {
+  type    = number
+  default = 50
+}
+
+variable "db_queue_interval" {
+  type    = number
+  default = 1000
+}
+
 variable "file_system_id" {
   type    = string
 }
