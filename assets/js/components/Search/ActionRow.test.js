@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import SearchActionRow from "./ActionRow";
 import userEvent from "@testing-library/user-event";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 
 let props = {
   handleCsvExportAllItems: jest.fn(),
@@ -12,17 +13,28 @@ let props = {
   handleViewAndEdit: jest.fn(),
   numberOfResults: 33,
   selectedItems: [],
+  filteredQuery: {
+    bool: {
+      must: [
+        {
+          bool: {
+            must: [{ bool: { must: [{ match: { "model.name": "Image" } }] } }],
+          },
+        },
+      ],
+    },
+  },
 };
 
 describe("SearchActionRow component", () => {
   it("renders the search action row", () => {
-    render(<SearchActionRow {...props} />);
+    renderWithRouterApollo(<SearchActionRow {...props} />);
     expect(screen.getByTestId("search-action-row"));
   });
 
   describe("with no selected items", () => {
     beforeEach(() => {
-      render(<SearchActionRow {...props} selectedItems={[]} />);
+      renderWithRouterApollo(<SearchActionRow {...props} selectedItems={[]} />);
     });
 
     it("renders the select all and edit buttons", () => {
@@ -30,18 +42,21 @@ describe("SearchActionRow component", () => {
       expect(screen.getByTestId("button-edit-items")).toBeDisabled();
     });
 
-    it("renders 'batch edit' and 'csv export' buttons when select all button is clicked", () => {
+    it("renders 'batch edit', 'csv export' and 'batch delete' buttons when select all button is clicked", () => {
       userEvent.click(screen.getByTestId("button-select-all"));
       userEvent.click(screen.getByTestId("button-batch-all-edit"));
       expect(props.handleEditAllItems).toHaveBeenCalled();
       userEvent.click(screen.getByTestId("button-csv-all-export"));
       expect(props.handleCsvExportAllItems).toHaveBeenCalled();
+      expect(screen.getByTestId("button-batch-all-delete"));
     });
   });
 
   describe("with selected items", () => {
     beforeEach(() => {
-      render(<SearchActionRow {...props} selectedItems={["abc", "def"]} />);
+      renderWithRouterApollo(
+        <SearchActionRow {...props} selectedItems={["abc", "def"]} />
+      );
     });
 
     it("renders the disabled select all and enabled edit and deselect all buttons", () => {
@@ -55,7 +70,7 @@ describe("SearchActionRow component", () => {
       expect(props.handleDeselectAll).toHaveBeenCalled();
     });
 
-    it("renders 'batch edit' and 'csv export' buttons when select all button is clicked", () => {
+    it("renders 'batch edit', 'csv export' and 'batch_delete' buttons when select all button is clicked", () => {
       userEvent.click(screen.getByTestId("button-edit-items"));
       userEvent.click(screen.getByTestId("button-batch-items-edit"));
       expect(props.handleEditItems).toHaveBeenCalled();
@@ -63,6 +78,7 @@ describe("SearchActionRow component", () => {
       expect(props.handleViewAndEdit).toHaveBeenCalled();
       userEvent.click(screen.getByTestId("button-csv-items-export"));
       expect(props.handleCsvExportItems).toHaveBeenCalled();
+      expect(screen.getByTestId("button-delete-items"));
     });
   });
 });

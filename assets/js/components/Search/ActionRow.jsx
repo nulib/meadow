@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import SearchBatchModal from "@js/components/Search/BatchModal";
+import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 
 export default function SearchActionRow({
   handleCsvExportAllItems,
@@ -13,10 +14,29 @@ export default function SearchActionRow({
   handleViewAndEdit,
   numberOfResults,
   selectedItems = [],
+  filteredQuery,
 }) {
   const [isModalAllItemsOpen, setIsModalAllItemsOpen] = React.useState(false);
   const [isModalItemsOpen, setIsModalItemsOpen] = React.useState(false);
+  const [
+    isModalBatchDeleteConfirmationOpen,
+    setIsModalBatchDeleteConfirmationOpen,
+  ] = React.useState(false);
   const numSelectedItems = selectedItems.length;
+
+  function handleDeleteAllItemsClick() {
+    console.log("Batch delete all click");
+    setIsModalAllItemsOpen(false);
+    setIsModalBatchDeleteConfirmationOpen(true);
+  }
+
+  function handleDeleteItemsClick() {
+    console.log("Delete items click");
+    console.log("selectedItems", JSON.stringify(selectedItems));
+
+    setIsModalItemsOpen(false);
+    setIsModalBatchDeleteConfirmationOpen(true);
+  }
 
   function handleCsvExportAllItemsClick() {
     setIsModalAllItemsOpen(false);
@@ -100,7 +120,7 @@ export default function SearchActionRow({
         </Button>
         <Button
           isLight
-          className="is-fullwidth"
+          className="is-fullwidth mb-4"
           data-testid="button-csv-all-export"
           onClick={handleCsvExportAllItemsClick}
         >
@@ -108,6 +128,17 @@ export default function SearchActionRow({
             <FontAwesomeIcon icon="file-csv" />
           </span>
           <span>Export metadata from {numberOfResults} works </span>
+        </Button>
+        <Button
+          isLight
+          className="is-fullwidth"
+          data-testid="button-batch-all-delete"
+          onClick={handleDeleteAllItemsClick}
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="trash" />
+          </span>
+          <span>Delete {numberOfResults} works </span>
         </Button>
       </SearchBatchModal>
 
@@ -140,7 +171,7 @@ export default function SearchActionRow({
         </Button>
         <Button
           isLight
-          className="is-fullwidth"
+          className="is-fullwidth mb-4"
           data-testid="button-csv-items-export"
           onClick={handleCsvExportItemsClick}
         >
@@ -149,7 +180,25 @@ export default function SearchActionRow({
           </span>
           <span>Export metadata from {numSelectedItems} works </span>
         </Button>
+        <Button
+          isLight
+          className="is-fullwidth"
+          data-testid="button-delete-items"
+          onClick={handleDeleteItemsClick}
+        >
+          <span className="icon">
+            <FontAwesomeIcon icon="trash" />
+          </span>
+          <span>Delete {numSelectedItems} works </span>
+        </Button>
       </SearchBatchModal>
+      <BatchDeleteConfirmationModal
+        numberOfResults={numberOfResults}
+        filteredQuery={filteredQuery}
+        handleCloseClick={() => setIsModalBatchDeleteConfirmationOpen(false)}
+        isOpen={isModalBatchDeleteConfirmationOpen}
+        selectedItems={selectedItems}
+      />
     </React.Fragment>
   );
 }
@@ -163,4 +212,5 @@ SearchActionRow.propTypes = {
   handleViewAndEdit: PropTypes.func.isRequired,
   numberOfResults: PropTypes.number,
   selectedItems: PropTypes.array,
+  filteredQuery: PropTypes.object,
 };

@@ -29,3 +29,21 @@ export const BATCH_UPDATE = gql`
     }
   }
 `;
+
+export const BATCH_DELETE = gql`
+  mutation BatchDelete($query: String!, $nickname: String) {
+    batchDelete(query: $query, nickname: $nickname) {
+      id
+      nickname
+      status
+      user
+      started
+      type
+      query
+      add
+      replace
+      delete
+      error
+    }
+  }
+`;
