@@ -34,7 +34,9 @@ config :exldap, :settings,
 config :meadow, Meadow.Repo,
   # ssl: true,
   url: get_required_var.("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE", "10"))
+  pool_size: String.to_integer(System.get_env("DB_POOL_SIZE", "10")),
+  queue_target: String.to_integer(System.get_env("DB_QUEUE_TARGET", "50")),
+  queue_interval: String.to_integer(System.get_env("DB_QUEUE_INTERVAL", "1000"))
 
 host = System.get_env("MEADOW_HOSTNAME", "example.com")
 port = String.to_integer(System.get_env("PORT", "4000"))

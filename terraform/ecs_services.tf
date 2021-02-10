@@ -36,6 +36,8 @@ module "meadow_task_all" {
   source              = "./modules/meadow_task"
   container_config    = local.container_config
   cpu                 = 2048
+  db_pool_size        = 100
+  db_queue_target     = 1000
   file_system_id      = aws_efs_file_system.meadow_working.id
   meadow_processes    = "all"
   memory              = 4096
@@ -128,9 +130,10 @@ module "meadow_task_workers" {
   source              = "./modules/meadow_task"
   container_config    = local.container_config
   cpu                 = 1024
-  db_pool_size        = 10
+  db_pool_size        = 50
+  db_queue_target     = 1000
   file_system_id      = aws_efs_file_system.meadow_working.id
-  meadow_processes    = "basic,pipeline.ingest_file_set,pipeline.copy_file_to_preservation,pipeline.file_set_complete"
+  meadow_processes    = "basic,pipeline"
   memory              = 2048
   name                = "workers"
   role_arn            = aws_iam_role.meadow_role.arn
@@ -158,74 +161,3 @@ resource "aws_ecs_service" "meadow_workers" {
 
   tags = var.tags
 }
-
-module "meadow_task_digests" {
-  source              = "./modules/meadow_task"
-  container_config    = local.container_config
-  cpu                 = 2048
-  db_pool_size        = 2
-  file_system_id      = aws_efs_file_system.meadow_working.id
-  meadow_processes    = "pipeline.generate_file_set_digests"
-  memory              = 4096
-  name                = "digests"
-  role_arn            = aws_iam_role.meadow_role.arn
-  stack_name          = var.stack_name
-  tags                = var.tags
-}
-
-resource "aws_ecs_service" "meadow_digests" {
-  name                                = "meadow-digests"
-  cluster                             = aws_ecs_cluster.meadow.id
-  task_definition                     = module.meadow_task_digests.task_definition.arn
-  desired_count                       = 0
-  launch_type                         = "FARGATE"
-  platform_version                    = "1.4.0"
-
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
-
-  network_configuration {
-    subnets          = data.aws_subnet_ids.private_subnets.ids
-    security_groups  = [aws_security_group.meadow.id]
-    assign_public_ip = false
-  }
-
-  tags = var.tags
-}
-
-module "meadow_task_tiffs" {
-  source              = "./modules/meadow_task"
-  container_config    = local.container_config
-  cpu                 = 2048
-  db_pool_size        = 2
-  file_system_id      = aws_efs_file_system.meadow_working.id
-  meadow_processes    = "pipeline.create_pyramid_tiff"
-  memory              = 4096
-  name                = "tiffs"
-  role_arn            = aws_iam_role.meadow_role.arn
-  stack_name          = var.stack_name
-  tags                = var.tags
-}
-
-resource "aws_ecs_service" "meadow_tiffs" {
-  name                                = "meadow-tiffs"
-  cluster                             = aws_ecs_cluster.meadow.id
-  task_definition                     = module.meadow_task_tiffs.task_definition.arn
-  desired_count                       = 0
-  launch_type                         = "FARGATE"
-  platform_version                    = "1.4.0"
-
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
-
-  network_configuration {
-    subnets          = data.aws_subnet_ids.private_subnets.ids
-    security_groups  = [aws_security_group.meadow.id]
-    assign_public_ip = false
-  }
-
-  tags = var.tags
-}
-
