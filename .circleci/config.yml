@@ -84,6 +84,9 @@ jobs:
           environment:
             MIX_ENV: test
       - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
           name: Elixir Tests
           command: mix coveralls.circle
       - run:

@@ -1,5 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/AssumeRole.gql")
@@ -7,6 +7,7 @@ defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
   describe "assumeRole mutation" do
     setup do
       user = user_fixture("TestAdmins")
+      on_exit(fn -> Cachex.clear!(Meadow.Cache.Users) end)
       {:ok, %{user: user}}
     end
 
