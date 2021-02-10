@@ -539,7 +539,7 @@ defmodule Meadow.Batches do
   end
 
   defp log_batch_info(batch) do
-    Logger.info("Processing batch update for batch: #{batch.id}")
+    Logger.info("Processing batch #{batch.type} for batch_id: #{batch.id}")
     Logger.info("query: #{batch.query}")
     Logger.info("delete: #{inspect(batch.delete)}")
     Logger.info("add: #{inspect(batch.add)}")

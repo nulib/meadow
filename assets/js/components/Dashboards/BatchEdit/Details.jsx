@@ -66,12 +66,12 @@ function DashboardsBatchEditDetails({ id }) {
             <dd>{type}</dd>
             <dt>User</dt>
             <dd>{user}</dd>
-            <dt>Works Updated</dt>
+            <dt>Works {type == "UPDATE" ? "Updated" : "Deleted"}</dt>
             <dd>{worksUpdated}</dd>
           </dl>
         </div>
       </div>
-      {worksUpdated && (
+      {worksUpdated && type == "UPDATE" && (
         <Link
           data-testid="button-to-search"
           className="button"
@@ -88,14 +88,19 @@ function DashboardsBatchEditDetails({ id }) {
       )}
       <hr />
       <dl className="spaced">
-        <dt>Added</dt>
-        <dd>{<JSONPretty data={add} />}</dd>
-        <dt>Delete</dt>
-        <dd>{<JSONPretty data={jobDelete} />}</dd>
+        {type == "UPDATE" && (
+          <React.Fragment>
+            <dt>Added</dt>
+            <dd>{<JSONPretty data={add} />}</dd>
+            <dt>Delete</dt>
+            <dd>{<JSONPretty data={jobDelete} />}</dd>
+            <dt>Replaced</dt>
+            <dd>{<JSONPretty data={replace} />}</dd>
+          </React.Fragment>
+        )}
         <dt>Error</dt>
         <dd>{<JSONPretty data={jobError} />}</dd>
-        <dt>Replaced</dt>
-        <dd>{<JSONPretty data={replace} />}</dd>
+
         <dt>ElasticSearch query</dt>
         <dd>{<JSONPretty data={query} />}</dd>
       </dl>

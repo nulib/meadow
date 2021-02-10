@@ -153,6 +153,7 @@ const ScreensSearch = () => {
                   handleViewAndEdit={handleViewAndEdit}
                   numberOfResults={resultStats.numberOfResults}
                   selectedItems={selectedItems}
+                  filteredQuery={filteredQuery}
                 />
               </AuthDisplayAuthorized>
               <hr />
