@@ -13,7 +13,6 @@ import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
   const { stats = {} } = useRepositoryStats();
-  console.log("stats", stats);
 
   const statsConfig = [
     {
