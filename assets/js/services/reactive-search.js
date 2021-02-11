@@ -187,18 +187,9 @@ export const FACET_SENSORS = [
     dataField: "visibility.label.keyword",
     title: "Visibility",
   },
-  {
-    ...defaultListItemValues,
-    componentId: "ImageHeight",
-    dataField: "fileSets.exif.imageHeight",
-    title: "Image Height",
-  },
-  {
-    ...defaultListItemValues,
-    componentId: "ImageWidth",
-    dataField: "fileSets.exif.imageWidth",
-    title: "Image Width",
-  },
+];
+
+export const FACET_TECHNICAL_METADATA_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "Compression",

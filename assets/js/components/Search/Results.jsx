@@ -9,6 +9,7 @@ import SearchSelectable from "@js/components/Search/Selectable";
 import {
   FACET_RANGE_SENSORS,
   FACET_SENSORS,
+  FACET_TECHNICAL_METADATA_SENSORS,
   RESULT_SENSOR,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
@@ -25,6 +26,9 @@ const SearchResults = ({
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
   const facetRangeSensors = FACET_RANGE_SENSORS.map(
+    (sensor) => sensor.componentId
+  );
+  const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
     (sensor) => sensor.componentId
   );
 
@@ -48,7 +52,12 @@ const SearchResults = ({
               handleQueryChange(nextQuery);
             }}
             react={{
-              and: [...facetSensors, ...facetRangeSensors, SEARCH_SENSOR],
+              and: [
+                ...facetSensors,
+                ...facetTechnicalMetadataSensors,
+                ...facetRangeSensors,
+                SEARCH_SENSOR,
+              ],
             }}
             renderItem={(res) => {
               if (isListView) {

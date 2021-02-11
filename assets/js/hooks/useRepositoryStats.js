@@ -194,7 +194,6 @@ export default function useRepositoryStats() {
 
     async function fn() {
       const resultArray = await Promise.all(promises);
-      console.log("resultArray", resultArray);
 
       setStats({
         collections: resultArray[0].count,

@@ -1,38 +1,63 @@
 import React from "react";
-import {
-  DynamicRangeSlider,
-  MultiList,
-  RangeSlider,
-  SingleRange,
-} from "@appbaseio/reactivesearch";
+import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
 import {
   FACET_SENSORS,
-  FACET_RANGE_SENSOR,
   FACET_RANGE_SENSORS,
+  FACET_TECHNICAL_METADATA_SENSORS,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
 import { useLocation } from "react-router-dom";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 import { allImagesQuery } from "@js/services/elasticsearch";
 
+/**
+ * Organize the facetable metadata into groups
+ */
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
 const facetRangeSensors = FACET_RANGE_SENSORS.map(
   (sensor) => sensor.componentId
 );
+const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
+  (sensor) => sensor.componentId
+);
 
+// Return all connected facets for regular metadata
 const filterList = (filterId) => {
   let filtersMinusCurrent = facetSensors.filter(
     (filterItem) => filterItem !== filterId
   );
-  return [...filtersMinusCurrent, ...facetRangeSensors, SEARCH_SENSOR];
+  return [
+    ...filtersMinusCurrent,
+    ...facetTechnicalMetadataSensors,
+    ...facetRangeSensors,
+    SEARCH_SENSOR,
+  ];
 };
 
+// Return all connected facets for technical metadata
+const filterTechnicalMetadataList = (filterId) => {
+  let filtersMinusCurrent = facetTechnicalMetadataSensors.filter(
+    (filterItem) => filterItem !== filterId
+  );
+  return [
+    ...filtersMinusCurrent,
+    ...facetSensors,
+    ...facetRangeSensors,
+    SEARCH_SENSOR,
+  ];
+};
+
+// Return all connected facets for numerical range metadata
 const filterRangeList = (filterId) => {
   let filtersMinusCurrent = facetRangeSensors.filter(
     (filterItem) => filterItem !== filterId
   );
-  console.log("filtersMinusCurrent", filtersMinusCurrent);
-  return [...filtersMinusCurrent, ...facetSensors, SEARCH_SENSOR];
+  return [
+    ...filtersMinusCurrent,
+    ...facetSensors,
+    ...facetTechnicalMetadataSensors,
+    SEARCH_SENSOR,
+  ];
 };
 
 export default function SearchFacetSidebar() {
@@ -97,8 +122,23 @@ export default function SearchFacetSidebar() {
           URLParams={true}
         />
       ))}
+
       <hr />
       <h3 className="title is-size-5">Numerical Technical Metadata</h3>
+      {FACET_TECHNICAL_METADATA_SENSORS.map((sensor) => (
+        <MultiList
+          key={sensor.componentId}
+          {...sensor}
+          defaultValue={getDefaultValue(sensor)}
+          defaultQuery={() => allImagesQuery}
+          react={{
+            and: filterTechnicalMetadataList(sensor.componentId),
+          }}
+          showFilter={true}
+          URLParams={true}
+        />
+      ))}
+
       {FACET_RANGE_SENSORS.map((sensor) => (
         <RangeSlider
           key={sensor.componentId}
