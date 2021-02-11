@@ -2,7 +2,7 @@ import React from "react";
 import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
 import {
   FACET_SENSORS,
-  FACET_RANGE_SENSORS,
+  //FACET_RANGE_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
@@ -14,9 +14,9 @@ import { allImagesQuery } from "@js/services/elasticsearch";
  * Organize the facetable metadata into groups
  */
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
-const facetRangeSensors = FACET_RANGE_SENSORS.map(
-  (sensor) => sensor.componentId
-);
+// const facetRangeSensors = FACET_RANGE_SENSORS.map(
+//   (sensor) => sensor.componentId
+// );
 const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
   (sensor) => sensor.componentId
 );
@@ -29,7 +29,7 @@ const filterList = (filterId) => {
   return [
     ...filtersMinusCurrent,
     ...facetTechnicalMetadataSensors,
-    ...facetRangeSensors,
+    //...facetRangeSensors,
     SEARCH_SENSOR,
   ];
 };
@@ -42,11 +42,12 @@ const filterTechnicalMetadataList = (filterId) => {
   return [
     ...filtersMinusCurrent,
     ...facetSensors,
-    ...facetRangeSensors,
+    //...facetRangeSensors,
     SEARCH_SENSOR,
   ];
 };
 
+/*
 // Return all connected facets for numerical range metadata
 const filterRangeList = (filterId) => {
   let filtersMinusCurrent = facetRangeSensors.filter(
@@ -59,6 +60,7 @@ const filterRangeList = (filterId) => {
     SEARCH_SENSOR,
   ];
 };
+*/
 
 export default function SearchFacetSidebar() {
   const location = useLocation();
@@ -139,7 +141,7 @@ export default function SearchFacetSidebar() {
         />
       ))}
 
-      {FACET_RANGE_SENSORS.map((sensor) => (
+      {/* {FACET_RANGE_SENSORS.map((sensor) => (
         <RangeSlider
           key={sensor.componentId}
           {...sensor}
@@ -148,7 +150,7 @@ export default function SearchFacetSidebar() {
           }}
           tooltipTrigger="hover"
         />
-      ))}
+      ))} */}
     </div>
   );
 }
