@@ -147,6 +147,11 @@ const UILayoutNavBar = () => {
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/analytics">
+                          Digital Collections Analytics
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
                         <Link to="/dashboards/nul-local-authorities">
                           NUL Local Authorities
                         </Link>

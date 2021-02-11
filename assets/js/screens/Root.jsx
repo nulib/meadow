@@ -6,6 +6,7 @@ import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/
 import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
 import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
 import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
+import ScreensDashboardsAnalytics from "@js/screens/Dashboards/Analytics/Analytics";
 import ScreensProjectList from "./Project/List";
 import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
@@ -28,7 +29,6 @@ import {
 } from "../services/elasticsearch";
 import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
 import { BatchProvider } from "../context/batch-edit-context";
-import { CodeListProvider } from "@js/context/code-list-context";
 
 export default class Root extends React.Component {
   render() {
@@ -68,6 +68,11 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/csv-metadata-update/:id"
                   component={ScreensDashboardsCsvDetails}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/analytics"
+                  component={ScreensDashboardsAnalytics}
                 />
                 <PrivateRoute
                   exact
