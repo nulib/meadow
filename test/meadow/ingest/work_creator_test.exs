@@ -2,10 +2,12 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   use Meadow.IngestCase, async: false
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.Works
-  alias Meadow.Ingest.{SheetsToWorks, WorkCreator}
+  alias Meadow.Ingest.{Progress, SheetsToWorks, WorkCreator}
+  alias Meadow.{Pipeline, Repo}
 
   import Assertions
   import ExUnit.CaptureLog
+  import Meadow.TestHelpers
 
   @args [works_per_tick: 20, interval: 500]
 
@@ -21,6 +23,22 @@ defmodule Meadow.Ingest.WorkCreatorTest do
 
       assert_async(timeout: 1500, sleep_time: 150) do
         assert Works.list_works() |> length() == 2
+      end
+    end
+
+    test "failure", %{ingest_sheet: sheet} do
+      with %{ingest_sheet_rows: [row | _]} <- Repo.preload(sheet, :ingest_sheet_rows) do
+        file_set_fixture(accession_number: row.file_set_accession_number)
+        SheetsToWorks.create_works_from_ingest_sheet(sheet)
+
+        assert_async(timeout: 1500, sleep_time: 150) do
+          assert Works.list_works() |> length() == 1
+
+          assert ["CreateWork" | Pipeline.actions()]
+                 |> Enum.all?(fn action ->
+                   Progress.get_entry(row, action) |> Map.get(:status) == "error"
+                 end)
+        end
       end
     end
   end

@@ -128,6 +128,16 @@ defmodule Meadow.Ingest.WorkCreator do
         work
 
       {:error, changeset} ->
+        Progress.update_entry(List.first(file_set_rows), "CreateWork", "error")
+
+        file_set_rows
+        |> Enum.each(fn %{row: row_num} ->
+          Progress.abort_remaining_pending_entries(%{
+            ingest_sheet: ingest_sheet.id,
+            ingest_sheet_row: row_num
+          })
+        end)
+
         create_changeset_errors(changeset, file_set_rows)
     end
   end
