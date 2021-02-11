@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.Lambda
+  alias Meadow.Utils.{Lambda, StructMap}
   alias Sequins.Pipeline.Action
 
   use Action
@@ -19,8 +19,17 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   @actiondoc "Generate Digests for FileSet"
   @timeout 240_000
 
-  defp process(%{file_set_id: file_set_id}, _attributes, _) do
-    file_set = FileSets.get_file_set!(file_set_id)
+  defp already_complete?(file_set, _) do
+    case file_set
+         |> StructMap.deep_struct_to_map()
+         |> get_in([:metadata, :digests]) do
+      %{"sha1" => _, "sha256" => _} -> true
+      %{sha1: _, sha256: _} -> true
+      _ -> false
+    end
+  end
+
+  defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     try do

@@ -64,16 +64,16 @@ defmodule Meadow.Utils.MetadataGenerator do
       %{id: "http://id.loc.gov/vocabulary/languages/kor", label: "Korean"}
     ],
     location: [
-      %{id: "https://sws.geonames.org/3598132", label: "Guatemala City"},
-      %{id: "https://sws.geonames.org/3530597", label: "Mexico City"},
-      %{id: "https://sws.geonames.org/3703443", label: "Panama City"},
-      %{id: "https://sws.geonames.org/3582677", label: "Belize City"},
-      %{id: "https://sws.geonames.org/2347283", label: "Benin City"},
-      %{id: "https://sws.geonames.org/292932", label: "Ajman"},
+      %{id: "https://sws.geonames.org/3598132/", label: "Guatemala City"},
+      %{id: "https://sws.geonames.org/3530597/", label: "Mexico City"},
+      %{id: "https://sws.geonames.org/3703443/", label: "Panama City"},
+      %{id: "https://sws.geonames.org/3582677/", label: "Belize City"},
+      %{id: "https://sws.geonames.org/2347283/", label: "Benin City"},
+      %{id: "https://sws.geonames.org/292932/", label: "Ajman"},
       %{id: "http://vocab.getty.edu/tgn/7549617", label: "Coco Channel"},
       %{id: "http://vocab.getty.edu/tgn/1114106", label: "Coco Channel"},
       %{
-        id: "https://sws.geonames.org/4921868",
+        id: "https://sws.geonames.org/4921868/",
         label: "Indiana"
       },
       %{

@@ -38,4 +38,43 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
              GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
            end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} – already complete"
   end
+
+  describe "overwrite flag" do
+    @describetag s3: [@fixture]
+
+    setup %{file_set_id: file_set_id} do
+      FileSets.get_file_set!(file_set_id)
+      |> FileSets.update_file_set(%{metadata: %{digests: %{sha1: @sha1, sha256: @sha256}}})
+
+      :ok
+    end
+
+    test "overwrite", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
+          file_set = FileSets.get_file_set!(file_set_id)
+          assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+
+    test "retain", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(
+            GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
+              :ok
+          )
+
+          assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
+          file_set = FileSets.get_file_set!(file_set_id)
+          assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+        end)
+
+      assert log =~ ~r/already complete without overwriting/
+    end
+  end
 end

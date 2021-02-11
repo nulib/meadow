@@ -132,4 +132,39 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata) == false)
     end
   end
+
+  describe "overwrite flag" do
+    @describetag s3: [@exif_fixture]
+
+    setup %{exif_file_set_id: file_set_id} do
+      ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
+      ActionStates.get_states(file_set_id) |> Enum.each(&Repo.delete!/1)
+
+      :ok
+    end
+
+    test "overwrite", %{exif_file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+
+    test "retain", %{exif_file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(
+            ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
+              :ok
+          )
+
+          assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
+        end)
+
+      assert log =~ ~r/already complete without overwriting/
+    end
+  end
 end

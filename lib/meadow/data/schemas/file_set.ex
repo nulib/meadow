@@ -34,17 +34,40 @@ defmodule Meadow.Data.Schemas.FileSet do
       on_delete: :delete_all
   end
 
-  def changeset(file_set, params) do
-    file_set
-    |> cast(params, [:accession_number, :work_id, :role, :position])
-    |> prepare_embed(:metadata)
-    |> cast_embed(:metadata)
-    |> validate_required([:accession_number, :role, :metadata])
-    |> assoc_constraint(:work)
-    |> unsafe_validate_unique([:accession_number], Meadow.Repo)
-    |> unique_constraint(:accession_number)
-    |> validate_inclusion(:role, @file_set_roles)
-    |> set_rank(scope: [:work_id, :role])
+  defp changeset_params do
+    {[:accession_number, :role], [:work_id, :position]}
+  end
+
+  def changeset(file_set \\ %__MODULE__{}, params) do
+    with {required_params, optional_params} <- changeset_params() do
+      file_set
+      |> cast(params, required_params ++ optional_params)
+      |> prepare_embed(:metadata)
+      |> cast_embed(:metadata)
+      |> validate_required([:metadata | required_params])
+      |> assoc_constraint(:work)
+      |> unsafe_validate_unique([:accession_number], Meadow.Repo)
+      |> unique_constraint(:accession_number)
+      |> validate_inclusion(:role, @file_set_roles)
+      |> set_rank(scope: [:work_id, :role])
+    end
+  end
+
+  def migration_changeset(file_set, params) do
+    with {required_params, optional_params} <- changeset_params() do
+      required_params = [:id | required_params]
+
+      file_set
+      |> cast(params, required_params ++ optional_params)
+      |> prepare_embed(:metadata)
+      |> cast_embed(:metadata)
+      |> validate_required([:metadata | required_params])
+      |> assoc_constraint(:work)
+      |> unsafe_validate_unique([:accession_number], Meadow.Repo)
+      |> unique_constraint(:accession_number)
+      |> validate_inclusion(:role, @file_set_roles)
+      |> set_rank(scope: [:work_id, :role])
+    end
   end
 
   def update_changeset(file_set, params) do

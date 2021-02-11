@@ -59,27 +59,47 @@ defmodule Meadow.Data.Schemas.Work do
     )
   end
 
+  defp changeset_params do
+    {[:accession_number],
+     [
+       :collection_id,
+       :representative_file_set_id,
+       :ingest_sheet_id,
+       :visibility,
+       :work_type
+     ]}
+  end
+
   def changeset(work, attrs) do
-    required_params = [:accession_number]
+    with {required_params, optional_params} <- changeset_params() do
+      work
+      |> cast(attrs, required_params ++ optional_params)
+      |> prepare_embed(:administrative_metadata)
+      |> prepare_embed(:descriptive_metadata)
+      |> cast_embed(:administrative_metadata)
+      |> cast_embed(:descriptive_metadata)
+      |> cast_assoc(:file_sets)
+      |> assoc_constraint(:collection)
+      |> validate_required(required_params)
+      |> unique_constraint(:accession_number)
+    end
+  end
 
-    optional_params = [
-      :collection_id,
-      :representative_file_set_id,
-      :ingest_sheet_id,
-      :visibility,
-      :work_type
-    ]
+  def migration_changeset(work \\ %__MODULE__{}, attrs) do
+    with {required_params, optional_params} <- changeset_params() do
+      required_params = [:id | required_params]
 
-    work
-    |> cast(attrs, required_params ++ optional_params)
-    |> prepare_embed(:administrative_metadata)
-    |> prepare_embed(:descriptive_metadata)
-    |> cast_embed(:administrative_metadata)
-    |> cast_embed(:descriptive_metadata)
-    |> cast_assoc(:file_sets)
-    |> assoc_constraint(:collection)
-    |> validate_required(required_params)
-    |> unique_constraint(:accession_number)
+      work
+      |> cast(attrs, required_params ++ optional_params)
+      |> prepare_embed(:administrative_metadata)
+      |> prepare_embed(:descriptive_metadata)
+      |> cast_embed(:administrative_metadata)
+      |> cast_embed(:descriptive_metadata)
+      |> cast_assoc(:file_sets, with: &FileSet.migration_changeset/2)
+      |> assoc_constraint(:collection)
+      |> validate_required(required_params)
+      |> unique_constraint(:accession_number)
+    end
   end
 
   def update_timestamp(work, timestamp \\ NaiveDateTime.utc_now()) do

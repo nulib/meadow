@@ -68,7 +68,7 @@
       title: "Voluptatibus nobis nihil minima earum aliquam!",
       terms_of_use: nil,
       ark: "ark:/99999/fk415261536",
-      location: [%{role: nil, term: %{id: "https://sws.geonames.org/2347283"}}],
+      location: [%{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}}],
       description: [],
       citation: [],
       rights_holder: [],
@@ -190,7 +190,7 @@
       ark: "ark:/99999/fk415261536",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}
       ],
       description: [],
       citation: [],
@@ -293,8 +293,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415261537",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}}
       ],
       description: [],
       citation: [],
@@ -382,9 +382,9 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415261536",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}
       ],
       description: [],
       citation: [],
@@ -587,9 +587,9 @@
       ark: "ark:/99999/fk415261537",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}
       ],
       description: [],
       citation: [],
@@ -704,9 +704,9 @@
       ark: "ark:/99999/fk415261537",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}}
       ],
       description: [],
@@ -826,7 +826,7 @@
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
         },
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}}
       ],
       description: [],
       citation: [],
@@ -924,13 +924,13 @@
       ark: "ark:/99999/fk415261536",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
         %{
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
         },
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}
       ],
       description: [],
       citation: [],
@@ -1040,7 +1040,7 @@
       ark: "ark:/99999/fk415261537",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
         %{
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
@@ -1147,14 +1147,14 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264062",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
         %{
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
         },
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}}
       ],
       description: [],
@@ -1264,8 +1264,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264062",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}
       ],
       description: [],
       citation: [],
@@ -1370,7 +1370,7 @@
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
         %{
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
@@ -1482,8 +1482,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}}
       ],
       description: [],
       citation: [],
@@ -1594,7 +1594,7 @@
       title: "Esse quia reiciendis nihil error ab iste?",
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
-      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}],
+      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}],
       description: [],
       citation: [],
       rights_holder: [],
@@ -1703,9 +1703,9 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}
       ],
       description: [],
       citation: [],
@@ -1813,9 +1813,9 @@
       ark: "ark:/99999/fk415264063",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}
       ],
       description: [],
       citation: [],
@@ -1917,7 +1917,7 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}}
       ],
       description: [],
@@ -2028,7 +2028,7 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
         %{
           role: nil,
@@ -2132,7 +2132,7 @@
       title: "Mollitia nobis aut saepe!",
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
-      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}],
+      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}],
       description: [],
       citation: [],
       rights_holder: [],
@@ -2227,9 +2227,9 @@
       ark: "ark:/99999/fk415264063",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}}
       ],
       description: [],
@@ -2322,7 +2322,7 @@
       title: "Iste aliquam est provident explicabo voluptatem sed perferendis.",
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
-      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}],
+      location: [%{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}],
       description: [],
       citation: [],
       rights_holder: [],
@@ -2420,10 +2420,10 @@
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
         },
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}}
       ],
       description: [],
       citation: [],
@@ -2524,7 +2524,7 @@
       ark: "ark:/99999/fk415264063",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}}
       ],
       description: [],
       citation: [],
@@ -2615,7 +2615,7 @@
       title: "Voluptatem repellat odit qui sed alias eveniet recusandae.",
       terms_of_use: nil,
       ark: "ark:/99999/fk415264064",
-      location: [%{role: nil, term: %{id: "https://sws.geonames.org/4921868"}}],
+      location: [%{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}}],
       description: [],
       citation: [],
       rights_holder: [],
@@ -2827,9 +2827,9 @@
       ark: "ark:/99999/fk415264065",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}}
       ],
       description: [],
       citation: [],
@@ -2922,7 +2922,7 @@
       ark: "ark:/99999/fk415264064",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}
       ],
       description: [],
       citation: [],
@@ -3027,7 +3027,7 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264065",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}}
       ],
       description: [],
@@ -3136,9 +3136,9 @@
       ark: "ark:/99999/fk415264065",
       location: [
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
       description: [],
       citation: [],
@@ -3237,7 +3237,7 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264065",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
         %{
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
@@ -3351,11 +3351,11 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264065",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}}
       ],
       description: [],
       citation: [],
@@ -3442,8 +3442,8 @@
       ark: "ark:/99999/fk415264063",
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}}
       ],
       description: [],
       citation: [],
@@ -3552,8 +3552,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264063",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}}
       ],
       description: [],
       citation: [],
@@ -3659,9 +3659,9 @@
       location: [
         %{role: nil, term: %{id: "http://id.worldcat.org/fast/1204604"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
       description: [],
       citation: [],
@@ -3759,8 +3759,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264064",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}}
       ],
       description: [],
       citation: [],
@@ -3865,8 +3865,8 @@
           role: nil,
           term: %{id: "http://id.loc.gov/authorities/names/n79022925"}
         },
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3598132"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3598132/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}}
       ],
       description: [],
@@ -3992,9 +3992,9 @@
       terms_of_use: "Terms of Use",
       ark: "ark:/99999/fk415264064",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
       description: ["Three", "Descriptions", "With a | pipe in the third"],
       citation: ["Citation"],
@@ -4109,10 +4109,10 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264065",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/2347283"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3703443"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/292932"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/2347283/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3703443/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/292932/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
       description: [],
       citation: [],
@@ -4427,10 +4427,10 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264460",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/1114106"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/tgn/7549617"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/3582677"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
       description: [],
       citation: [],
@@ -4520,8 +4520,8 @@
       terms_of_use: nil,
       ark: "ark:/99999/fk415264460",
       location: [
-        %{role: nil, term: %{id: "https://sws.geonames.org/3530597"}},
-        %{role: nil, term: %{id: "https://sws.geonames.org/4921868"}}
+        %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
+        %{role: nil, term: %{id: "https://sws.geonames.org/4921868/"}}
       ],
       description: [],
       citation: [],

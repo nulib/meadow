@@ -1,12 +1,18 @@
 defmodule Meadow.Data.DonutWorksTest do
   use Meadow.DataCase
 
+  alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.DonutWorks
   alias Meadow.Data.Schemas.DonutWork
+  alias Meadow.Repo
+
+  import Assertions
 
   describe "queries" do
     @valid_attrs %{
-      work_id: Ecto.UUID.bingenerate()
+      work_id: Ecto.UUID.bingenerate(),
+      manifest: "s3://migration-source/path/to/manifest.json",
+      last_modified: DateTime.utc_now()
     }
 
     @invalid_attrs %{work_id: "blah"}
@@ -40,6 +46,44 @@ defmodule Meadow.Data.DonutWorksTest do
 
       assert {:error, %Ecto.Changeset{}} =
                DonutWorks.update_donut_work(donut_work, %{work_id: 123})
+    end
+  end
+
+  describe "with_next_donut_work/1" do
+    setup do
+      Sandbox.mode(Repo, :auto)
+
+      donut_works =
+        1..3
+        |> Enum.map(fn _ ->
+          with id <- Ecto.UUID.generate() do
+            DonutWorks.create_donut_work!(%{
+              work_id: id,
+              manifest: "s3://migration-source/#{id}.json",
+              last_modified: DateTime.utc_now()
+            })
+          end
+        end)
+
+      on_exit(fn -> DonutWork |> Repo.delete_all() end)
+      {:ok, %{donut_works: donut_works}}
+    end
+
+    test "locks and skips", %{donut_works: donut_works} do
+      results =
+        1..4
+        |> Enum.map(fn _ ->
+          Task.async(fn ->
+            DonutWorks.with_next_donut_work(fn dw ->
+              (:random.uniform() * 1000) |> trunc() |> :timer.sleep()
+              dw
+            end)
+          end)
+        end)
+        |> Task.await_many()
+        |> Enum.map(fn {:ok, value} -> value end)
+
+      assert_lists_equal(results, [nil | donut_works])
     end
   end
 end

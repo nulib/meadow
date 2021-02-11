@@ -3,6 +3,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
   use Meadow.S3Case
   alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.CreatePyramidTiff
+  alias Meadow.Repo
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
 
@@ -94,6 +95,45 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
       end)
+    end
+  end
+
+  describe "overwrite flag" do
+    @describetag s3: [@fixture]
+
+    setup %{file_set_id: file_set_id, pairtree: dest} do
+      CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
+      ActionStates.get_states(file_set_id) |> Enum.each(&Repo.delete!/1)
+
+      on_exit(fn ->
+        delete_object(@pyramid_bucket, dest)
+      end)
+
+      :ok
+    end
+
+    test "overwrite", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+
+    test "retain", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(
+            CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
+              :ok
+          )
+
+          assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
+        end)
+
+      assert log =~ ~r/already complete without overwriting/
     end
   end
 end

@@ -33,7 +33,14 @@ defmodule Meadow.ConfigTest do
   end
 
   test "buckets/0" do
-    ["test-ingest", "test-preservation", "test-uploads", "test-pyramids"]
+    [
+      "test-ingest",
+      "test-preservation",
+      "test-uploads",
+      "test-pyramids",
+      "test-migration-binaries",
+      "test-migration-manifests"
+    ]
     |> assert_lists_equal(Config.buckets())
   end
 
