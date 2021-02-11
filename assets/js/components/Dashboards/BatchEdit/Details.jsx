@@ -77,7 +77,7 @@ function DashboardsBatchEditDetails({ id }) {
           className="button"
           to={{
             pathname: "/search",
-            state: { passedInSearchTerm: id },
+            state: { passedInSearchTerm: `batches:${id}` },
           }}
         >
           <span className="icon">

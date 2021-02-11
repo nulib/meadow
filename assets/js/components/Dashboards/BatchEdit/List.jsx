@@ -96,17 +96,19 @@ export default function DashboardsBatchEditTable() {
                 >
                   <FontAwesomeIcon icon="eye" />
                 </Link>
-                <Link
-                  data-testid="button-to-search"
-                  className="button is-small"
-                  title="View updated works"
-                  to={{
-                    pathname: "/search",
-                    state: { passedInSearchTerm: id },
-                  }}
-                >
-                  <FontAwesomeIcon icon="share" />
-                </Link>
+                {type == "UPDATE" && (
+                  <Link
+                    data-testid="button-to-search"
+                    className="button is-small"
+                    title="View updated works"
+                    to={{
+                      pathname: "/search",
+                      state: { passedInSearchTerm: id },
+                    }}
+                  >
+                    <FontAwesomeIcon icon="share" />
+                  </Link>
+                )}
               </td>
             </tr>
           );
