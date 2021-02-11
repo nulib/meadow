@@ -25,9 +25,9 @@ const SearchResults = ({
   selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
-  const facetRangeSensors = FACET_RANGE_SENSORS.map(
-    (sensor) => sensor.componentId
-  );
+  // const facetRangeSensors = FACET_RANGE_SENSORS.map(
+  //   (sensor) => sensor.componentId
+  // );
   const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
     (sensor) => sensor.componentId
   );
@@ -55,7 +55,7 @@ const SearchResults = ({
               and: [
                 ...facetSensors,
                 ...facetTechnicalMetadataSensors,
-                ...facetRangeSensors,
+                //...facetRangeSensors,
                 SEARCH_SENSOR,
               ],
             }}
