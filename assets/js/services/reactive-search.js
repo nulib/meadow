@@ -41,7 +41,7 @@ export function buildSelectedItemsQuery(selectedItems = []) {
         },
         {
           query_string: {
-            query: ` id:(${selectedItems.join(" OR ")})`,
+            query: ` id.keyword:(${selectedItems.join(" OR ")})`,
           },
         },
       ],
