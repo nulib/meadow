@@ -103,7 +103,7 @@ export default function DashboardsBatchEditTable() {
                     title="View updated works"
                     to={{
                       pathname: "/search",
-                      state: { passedInSearchTerm: id },
+                      state: { passedInSearchTerm: `batches:\"${id}\"` },
                     }}
                   >
                     <FontAwesomeIcon icon="share" />
