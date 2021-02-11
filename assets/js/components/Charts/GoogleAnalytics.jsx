@@ -9,7 +9,7 @@ function ChartsGoogleAnalytics(props) {
         <h3 className="subtitle is-3">
           Digital Collections traffic last 30 days
         </h3>
-        <Link to="/" className="button">
+        <Link to="/dashboards/analytics" className="button">
           View GA Dashboard
         </Link>
       </div>
