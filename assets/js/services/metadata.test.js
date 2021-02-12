@@ -179,11 +179,11 @@ describe("prepRelatedUrl()", () => {
   var relatedUrlFormValues = [
     {
       url: "http://google.com",
-      label: "HATHI_TRUST_DIGITAL_LIBRARY",
+      labelId: "HATHI_TRUST_DIGITAL_LIBRARY",
     },
     {
       url: "http://northwestern.edu",
-      label: "RESEARCH_GUIDE",
+      labelId: "RESEARCH_GUIDE",
     },
   ];
 
@@ -206,15 +206,5 @@ describe("prepRelatedUrl()", () => {
       },
     ];
     expect(results).toEqual(expectedResults);
-  });
-
-  it("returns an empty array when bad data is passed in", () => {
-    let results = metadata.prepRelatedUrl([
-      {
-        foo: "http://google.com",
-        bar: "HATHI_TRUST_DIGITAL_LIBRARY",
-      },
-    ]);
-    expect(results).toEqual([]);
   });
 });

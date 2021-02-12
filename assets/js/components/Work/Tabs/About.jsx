@@ -27,7 +27,7 @@ import {
   RIGHTS_METADATA,
   UNCONTROLLED_METADATA,
   deleteKeyFromObject,
-} from "../../../services/metadata";
+} from "@js/services/metadata";
 import UIError from "../../UI/Error";
 
 function prepFormData(work) {
@@ -114,6 +114,7 @@ const WorkTabsAbout = ({ work }) => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
     let currentFormValues = methods.getValues();
+    console.log("currentFormValues", currentFormValues);
 
     const { title = "" } = currentFormValues;
     let workUpdateInput = {
@@ -126,6 +127,7 @@ const WorkTabsAbout = ({ work }) => {
         license: data.license
           ? deleteKeyFromObject(JSON.parse(data.license))
           : {},
+        relatedUrl: prepRelatedUrl(currentFormValues.relatedUrl),
         rightsStatement: data.rightsStatement
           ? {
               id: data.rightsStatement,
@@ -159,10 +161,7 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
-    // Update Related Url, which is a unique controlled term
-    workUpdateInput.descriptiveMetadata.relatedUrl = prepRelatedUrl(
-      currentFormValues.relatedUrl
-    );
+    console.log("workUpdateInput", workUpdateInput);
 
     updateWork({
       variables: {

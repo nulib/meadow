@@ -33,8 +33,8 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
     return foundItem.label || "No role label found";
   }
 
-  function getUrlLabel(urlId) {
-    let foundItem = relatedUrls.find((item) => item.id === urlId);
+  function getUrlLabel(url) {
+    let foundItem = relatedUrls.find((item) => item.id === url);
     return foundItem.label || "No URL label found";
   }
 
@@ -96,6 +96,7 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
               }`;
             }
 
+            // Related URL.  TODO: Could find a better way to cue on this than "url"
             if (typeof item === "object" && item.url) {
               rowKey = item.url;
               value = `${item.url} | ${

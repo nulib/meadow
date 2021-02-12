@@ -7,6 +7,9 @@ import { isUrlValid } from "../../../services/helpers";
 import { Button } from "@nulib/admin-react-components";
 import { useFormContext } from "react-hook-form";
 
+// Final shape of the Related URL input to API is
+// relatedUrl: { label: { id: "ABC123", scheme: "RELATED_URL" }, url: "http://yo.com"}
+
 const UIFormRelatedURL = ({
   codeLists = [],
   label,
@@ -39,8 +42,13 @@ const UIFormRelatedURL = ({
                   data-testid="legend"
                 >{`${label} #${index + 1}`}</legend>
 
-                {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
-                {!item.new && (
+                {/* 
+                Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here 
+                item.label - comes from the API as a previously existing value
+                item.labelId is a new entry in the form  
+                */}
+
+                {(item.label || item.labelId) && (
                   <div data-testid="related-url-existing-value">
                     <p>
                       {item.url}
@@ -50,17 +58,19 @@ const UIFormRelatedURL = ({
                       type="hidden"
                       name={`${itemName}.url`}
                       ref={register()}
+                      value={item.url}
                     />
                     <input
                       type="hidden"
-                      name={`${itemName}.label`}
+                      name={`${itemName}.labelId`}
                       ref={register()}
+                      value={item.label ? item.label.id : null}
                     />
                   </div>
                 )}
 
                 {/* New form entries */}
-                {item.new && (
+                {!item.labelId && !item.label && (
                   <div data-testid="related-url-form-item">
                     <div className="field">
                       <label className="label">URL</label>
@@ -68,7 +78,9 @@ const UIFormRelatedURL = ({
                         type="text"
                         name={`${itemName}.url`}
                         className={`input ${
-                          errors[name] && errors[name][index].url
+                          errors[name] &&
+                          errors[name][index] &&
+                          errors[name][index].url
                             ? "is-danger"
                             : ""
                         }`}
@@ -80,25 +92,32 @@ const UIFormRelatedURL = ({
                         defaultValue=""
                         data-testid={`related-url-url-input`}
                       />
-                      {errors[name] && errors[name][index].url && (
-                        <p
-                          data-testid={`relatedURL-input-errors-${index}`}
-                          className="help is-danger"
-                        >
-                          {errors[name][index].url.message}
-                        </p>
-                      )}
+                      {errors[name] &&
+                        errors[name][index] &&
+                        errors[name][index].url && (
+                          <p
+                            data-testid={`relatedURL-input-errors-${index}`}
+                            className="help is-danger"
+                          >
+                            {errors[name][index].url.message}
+                          </p>
+                        )}
                     </div>
                     <div className="field">
+                      <label className="label">Label</label>
                       <UIFormSelect
                         isReactHookForm
-                        name={`${itemName}.label`}
+                        name={`${itemName}.labelId`}
                         label="Label"
                         showHelper={true}
                         data-testid={`related-url-select`}
                         options={codeLists}
                         hasErrors={
-                          !!(errors[name] && errors[name][index].label)
+                          !!(
+                            errors[name] &&
+                            errors[name][index] &&
+                            errors[name][index].labelId
+                          )
                         }
                         required
                       />
@@ -126,7 +145,7 @@ const UIFormRelatedURL = ({
       <Button
         isLight
         onClick={() => {
-          append({ new: true, url: "", label: "" });
+          append({ url: "", labelId: "" });
         }}
         data-testid="button-add-field-array-row"
       >
