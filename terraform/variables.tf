@@ -62,6 +62,11 @@ variable "migration_binary_bucket" {
   default = ""
 }
 
+variable "migration_manifest_bucket" {
+  type    = string
+  default = ""
+}
+
 variable "vpc_id" {
   type = string
 }

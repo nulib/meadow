@@ -81,6 +81,10 @@ data "aws_s3_bucket" "migration_binary_bucket" {
   bucket = var.migration_binary_bucket
 }
 
+data "aws_s3_bucket" "migration_manifest_bucket" {
+  bucket = var.migration_manifest_bucket
+}
+
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
     effect    = "Allow"
@@ -106,7 +110,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation.arn,
       data.aws_s3_bucket.pyramid_bucket.arn,
-      data.aws_s3_bucket.migration_binary_bucket.arn
+      data.aws_s3_bucket.migration_binary_bucket.arn,
+      data.aws_s3_bucket.migration_manifest_bucket.arn
     ]
   }
 
@@ -124,7 +129,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation.arn}/*",
       "${data.aws_s3_bucket.pyramid_bucket.arn}/*",
-      "${data.aws_s3_bucket.migration_binary_bucket.arn}/*"
+      "${data.aws_s3_bucket.migration_binary_bucket.arn}/*",
+      "${data.aws_s3_bucket.migration_manifest_bucket.arn}/*"
     ]
   }
 }
