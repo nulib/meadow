@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "lambda_bucket_access" {
 
 resource "aws_iam_role_policy_attachment" "cloudwatch_log_access" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"  
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 module "digester_function" {
@@ -37,7 +37,12 @@ module "digester_function" {
   memory_size = 1024
   timeout     = 240
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowDigester"
+    },
+  )
 }
 
 module "pyramid_tiff_function" {
@@ -54,7 +59,12 @@ module "pyramid_tiff_function" {
     VIPS_DISC_THRESHOLD = "4g"
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowPyramids"
+    },
+  )
 }
 
 module "exif_function" {
@@ -67,7 +77,12 @@ module "exif_function" {
   memory_size = 6144
   timeout     = 240
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowExif"
+    },
+  )
 }
 
 module "mime_type_function" {
@@ -80,5 +95,10 @@ module "mime_type_function" {
   memory_size = 512
   timeout     = 120
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowMimeType"
+    },
+  )
 }
