@@ -389,25 +389,18 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
  * @returns {Array} of properly shaped values for Related Url
  */
 export function prepRelatedUrl(items = []) {
-  let returnArray = [];
-
-  returnArray = items.map((item) => {
-    return {
+  try {
+    return items.map((item) => ({
       url: item.url,
       label: {
         scheme: "RELATED_URL",
-        id: item.label,
+        id: item.labelId,
       },
-    };
-  });
-
-  // Check for empty values caused by any kind of error
-  const badData = returnArray.find((item) => !item.url || !item.label.id);
-  if (badData) {
-    console.log("Error preparing Related Url value for form post");
+    }));
+  } catch (e) {
+    console.error("Error preparing Related Url value for form post");
+    return [];
   }
-
-  return badData ? [] : returnArray;
 }
 
 /**

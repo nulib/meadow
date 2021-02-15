@@ -52,15 +52,12 @@ const BatchEditAbout = () => {
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
-    console.log("data", data);
-
     // "data" here returns everything (which was set above in the useEffect()),
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
 
     let currentFormValues = methods.getValues();
-    console.log("currentFormValues", currentFormValues);
     let addItems = {};
     let deleteReadyItems = {};
     let replaceItems = {};
