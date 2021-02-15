@@ -95,7 +95,10 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
     |> Stream.flat_map(fn %{"_source" => doc} ->
       ((doc |> Map.get("subject") |> extract_uris("subject")) ++
          (doc |> Map.get("creator") |> extract_uris("nul_creator")) ++
-         (doc |> Map.get("contributor") |> extract_uris("nul_contributor")))
+         (doc
+          |> Map.get("contributor")
+          |> extract_uris("nul_contributor")
+          |> Enum.map(&Regex.replace(~r/ \(Contributor\)$/, &1, ""))))
       |> List.flatten()
     end)
     |> Stream.uniq()
