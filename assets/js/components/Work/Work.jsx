@@ -12,15 +12,48 @@ const osdOptions = {
 };
 
 const Work = ({ work }) => {
+  const [manifestObj, setManifestObj] = React.useState();
+  const [randomUrlKey, setRandomUrlKey] = React.useState(Date.now());
+  const [manifestChangeItems, setManifestChangeItems] = React.useState({
+    label: "",
+    canvasCount: "",
+  });
+
+  React.useEffect(() => {
+    async function getData() {
+      const response = await fetch(`${work.manifestUrl}?${Date.now()}`);
+      const data = await response.json();
+
+      // Check if watch items in manifest are different.
+      // If so, trigger a re-render of OSD viewer
+      if (
+        data.label !== manifestChangeItems.label ||
+        data.sequences[0].canvases.length !== manifestChangeItems.canvasCount
+      ) {
+        setManifestChangeItems({
+          label: data.label,
+          canvasCount: data.sequences[0].canvases.length,
+        });
+        setRandomUrlKey(Date.now());
+      }
+      setManifestObj(data);
+    }
+
+    getData();
+  }, [work.fileSets, work.descriptiveMetadata.title]);
+
   return (
     <>
       <section>
         <div data-testid="viewer">
-          <OpenSeadragonViewer
-            manifestUrl={work.manifestUrl}
-            options={osdOptions}
-            key={work.manifestUrl}
-          />
+          {manifestObj && (
+            <OpenSeadragonViewer
+              //manifestUrl={`${work.manifestUrl}?timestamp=${Date.now()}`}
+              manifest={manifestObj}
+              options={osdOptions}
+              key={`${work.id}_${randomUrlKey}`}
+            />
+          )}
         </div>
       </section>
       <section className="section">
