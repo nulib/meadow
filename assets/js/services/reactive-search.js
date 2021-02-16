@@ -2,7 +2,7 @@ import React from "react";
 
 export const FACET_RANGE_SENSOR = "FacetRangeSensor";
 export const RESULT_SENSOR = "SearchResult";
-export const SEARCH_SENSOR = "SearchSensor";
+export const SEARCH_SENSOR = "q";
 export const REACTIVE_SEARCH_THEME = {
   typography: {
     fontFamily: "Akkurat Pro Regular",

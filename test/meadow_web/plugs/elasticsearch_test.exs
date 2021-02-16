@@ -31,7 +31,7 @@ defmodule ElasticsearchTest do
       %{works: [work | _]} = indexable_data()
 
       mquery =
-        "{\"preference\":\"SearchSensor\"}\n
+        "{\"preference\":\"q\"}\n
 {\"query\":{\"bool\":{\"must\":[{\"bool\":{\"must\":{\"bool\":{\"should\":[{\"multi_match\":{\"query\":\"p\",\"fields\":[\"title\"],\"type\":\"best_fields\",\"operator\":\"or\",\"fuzziness\":0}},{\"multi_match\":{\"query\":\"#{
           work.descriptive_metadata.title
         }\",\"fields\":[\"title\"],\"type\":\"phrase_prefix\",\"operator\":\"or\"}}],\"minimum_should_match\":\"1\"}}}}]}},\"size\":10}"
