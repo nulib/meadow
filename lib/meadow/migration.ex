@@ -37,13 +37,16 @@ defmodule Meadow.Migration do
   """
   def cache_authorities do
     {:ok, terms} =
-      Repo.transaction(fn ->
-        from(dw in DonutWork, where: dw.status == "pending")
-        |> Repo.stream()
-        |> Stream.map(fn %{manifest: source} -> source end)
-        |> Stream.map(&Meadow.Migration.read_manifest/1)
-        |> ControlledTerms.extract_unique_terms()
-      end)
+      Repo.transaction(
+        fn ->
+          from(dw in DonutWork, where: dw.status == "pending")
+          |> Repo.stream()
+          |> Stream.map(fn %{manifest: source} -> source end)
+          |> Stream.map(&Meadow.Migration.read_manifest/1)
+          |> ControlledTerms.extract_unique_terms()
+        end,
+        timeout: :infinity
+      )
 
     Logger.info("Pre-caching #{length(terms)} unique terms")
 
