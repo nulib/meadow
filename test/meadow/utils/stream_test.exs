@@ -47,7 +47,15 @@ defmodule Meadow.Utils.StreamTest do
              "\r\n",
              "\n",
              "\r\n",
-             "and this is line six\r\n"
+             "and this is line six\r\n",
+             ""
+           ]
+
+    assert ["one\ntwo\nthree", "four\nfive"] |> Stream.by_line() |> Enum.to_list() == [
+             "one\n",
+             "two\n",
+             "threefour\n",
+             "five"
            ]
   end
 end
