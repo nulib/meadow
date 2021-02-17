@@ -8,8 +8,6 @@ import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 const mocks = [getCollectionsMock, getCurrentUserMock];
 
-jest.mock("../../services/elasticsearch");
-
 function setupTests() {
   return renderWithRouterApollo(
     <AuthProvider>

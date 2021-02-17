@@ -8,8 +8,6 @@ import { BatchProvider } from "../../context/batch-edit-context";
 import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
-jest.mock("../../services/elasticsearch");
-
 describe("BatchEdit component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(

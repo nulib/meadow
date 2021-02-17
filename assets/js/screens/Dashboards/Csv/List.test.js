@@ -4,8 +4,6 @@ import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import ScreensDashboardsCsvList from "./List";
 import { getCsvMetadataUpdateJobsMock } from "@js/components/Dashboards/dashboards.gql.mock";
 
-jest.mock("@js/services/elasticsearch");
-
 describe("ScreensDashboardsCsvList component", () => {
   beforeEach(() => {
     renderWithRouterApollo(<ScreensDashboardsCsvList />, {

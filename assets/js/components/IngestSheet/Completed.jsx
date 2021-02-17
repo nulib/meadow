@@ -11,10 +11,12 @@ import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import IngestSheetDetails from "@js/components/IngestSheet/Details";
+import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
+  const [totalWorks, setTotalWorks] = React.useState();
   const {
     loading: worksLoading,
     error: worksError,
@@ -28,6 +30,37 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
     error: errorsError,
     data: errorsData,
   } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
+
+  React.useEffect(() => {
+    const fn = async () => {
+      const response = await elasticsearchDirectSearch({
+        query: {
+          bool: {
+            must: [
+              {
+                match: {
+                  "model.name.keyword": "Image",
+                },
+              },
+              {
+                match: {
+                  "model.application": "Meadow",
+                },
+              },
+              {
+                match: {
+                  "sheet.id": sheetId,
+                },
+              },
+            ],
+          },
+        },
+        size: 0,
+      });
+      setTotalWorks(response.hits.total);
+    };
+    fn();
+  }, [sheetId]);
 
   if (worksLoading || errorsLoading) return <UISkeleton rows={10} />;
   if (worksError) return <Error error={worksError} />;
@@ -49,34 +82,36 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   } catch (e) {}
 
   return (
-    <>
+    <div>
+      {ingestSheetErrors.length === 0 && (
+        <IngestSheetDetails totalWorks={totalWorks} />
+      )}
+
       {ingestSheetErrors.length > 0 && (
         <IngestSheetCompletedErrors errors={ingestSheetErrors} />
       )}
 
-      <h2 className="title is-size-5 is-size-8">
-        Preview of ingest sheet works...
-      </h2>
-
-      <div data-testid="preview-wrapper">
-        {errorsLoading || worksLoading ? (
-          <UISkeleton rows={5} />
-        ) : (
-          <div>
-            <UIPreviewItems items={works} />
-
-            <div className="my-4 has-text-centered">
-              <Button onClick={handleClick}>
-                <span className="icon">
-                  <FontAwesomeIcon icon="eye" />
-                </span>
-                <span>View all ingest sheet works</span>
-              </Button>
-            </div>
+      {ingestSheetErrors.length === 0 && (
+        <>
+          <hr />
+          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <p>Preview of ingest sheet works...</p>
+            <Button onClick={handleClick}>
+              <span>View ingest sheet works</span>
+            </Button>
           </div>
-        )}
-      </div>
-    </>
+          <div data-testid="preview-wrapper">
+            {errorsLoading || worksLoading ? (
+              <UISkeleton rows={5} />
+            ) : (
+              <div>
+                <UIPreviewItems items={works} />
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -89,53 +89,26 @@ const ScreensIngestSheet = ({ match }) => {
               <UISkeleton rows={5} />
             ) : (
               <>
-                <div className="columns">
-                  <div className="column is-half">
-                    <h1 className="title">
-                      {sheetData.ingestSheet.title}{" "}
-                      <span
-                        className={`tag is-light ${getClassFromIngestSheetStatus(
-                          sheetData.ingestSheet.status
-                        )}`}
-                      >
-                        {
-                          TEMP_USER_FRIENDLY_STATUS[
-                            sheetData.ingestSheet.status
-                          ]
-                        }
-                      </span>
-                    </h1>
+                <div className="is-flex is-justify-content-space-between mb-3">
+                  <div>
+                    <h1 className="title">{sheetData.ingestSheet.title} </h1>
+                    <span
+                      className={`tag is-light ${getClassFromIngestSheetStatus(
+                        sheetData.ingestSheet.status
+                      )}`}
+                    >
+                      {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
+                    </span>
                   </div>
-                  <div className="column is-half">
-                    <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-                      <IngestSheetActionRow
-                        sheetId={sheetId}
-                        projectId={id}
-                        status={sheetData.ingestSheet.status}
-                        title={sheetData.ingestSheet.title}
-                      />
-                    </ErrorBoundary>
-                  </div>
+                  <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                    <IngestSheetActionRow
+                      sheetId={sheetId}
+                      projectId={id}
+                      status={sheetData.ingestSheet.status}
+                      title={sheetData.ingestSheet.title}
+                    />
+                  </ErrorBoundary>
                 </div>
-
-                {sheetData.ingestSheet.status === "COMPLETED" && (
-                  <table className="table is-fullwidth">
-                    <thead>
-                      <tr>
-                        <th># works created</th>
-                        <th># file sets processed</th>
-                        <th>Date last modified</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>XXXX</td>
-                        <td>XXXXXX</td>
-                        <td>Date goes here</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                )}
 
                 {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED"].indexOf(
                   sheetData.ingestSheet.status
@@ -144,19 +117,19 @@ const ScreensIngestSheet = ({ match }) => {
                 )}
               </>
             )}
-          </div>
 
-          {sheetLoading ? (
-            <UISkeleton rows={20} />
-          ) : (
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-              <IngestSheet
-                ingestSheetData={sheetData.ingestSheet}
-                projectId={id}
-                subscribeToIngestSheetUpdates={sheetSubscribeToMore}
-              />
-            </ErrorBoundary>
-          )}
+            {sheetLoading ? (
+              <UISkeleton rows={20} />
+            ) : (
+              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <IngestSheet
+                  ingestSheetData={sheetData.ingestSheet}
+                  projectId={id}
+                  subscribeToIngestSheetUpdates={sheetSubscribeToMore}
+                />
+              </ErrorBoundary>
+            )}
+          </div>
         </div>
       </section>
     </Layout>
