@@ -290,7 +290,7 @@ defmodule Meadow.Migration do
   end
 
   defp update_label(%{metadata: %{original_filename: original_filename}} = file_set) do
-    case file_set |> Map.get(:label) do
+    case file_set |> get_in([:metadata, :label]) do
       nil -> put_in(file_set, [:metadata, :label], original_filename)
       "" -> put_in(file_set, [:metadata, :label], original_filename)
       _ -> file_set

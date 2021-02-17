@@ -45,6 +45,10 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
           ActionStates.set_state!(file_set, __MODULE__, "error", unexpected_result)
           {:error, unexpected_result}
 
+        {:error, {:http_error, status, message}} ->
+          Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+          :retry
+
         {:error, error} ->
           raise error
       end

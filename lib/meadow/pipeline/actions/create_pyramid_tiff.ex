@@ -25,6 +25,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
 
+      {:error, {:http_error, status, message}} ->
+        Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+        :retry
+
       {:error, error} ->
         ActionStates.set_state!(file_set, __MODULE__, "error", error)
         {:error, error}

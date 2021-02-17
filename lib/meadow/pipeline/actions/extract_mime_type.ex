@@ -17,6 +17,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   require Logger
 
   @actiondoc "Extract mime type from FileSet"
+  @error_message "error in mime-type extraction"
 
   defp already_complete?(file_set, _) do
     file_set
@@ -40,9 +41,14 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
         FileSets.update_file_set(file_set, %{metadata: %{mime_type: mime_type}})
         :ok
 
-      {:error, error} ->
-        ActionStates.set_state!(file_set, __MODULE__, "error", error)
-        {:error, error}
+      {:error, {:http_error, status, message}} ->
+        Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+        :retry
+
+      {:error, _error} ->
+        Logger.error(@error_message)
+        ActionStates.set_state!(file_set, __MODULE__, "error", @error_message)
+        {:error, @error_message}
     end
   end
 
@@ -57,9 +63,8 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
       {:ok, %{"ext" => _, "mime" => mime_type}} ->
         {:ok, mime_type}
 
-      {:error, _error} ->
-        Logger.error("error in mime-type extraction")
-        {:error, "error in mime-type extraction"}
+      {:error, error} ->
+        {:error, error}
     end
   end
 
