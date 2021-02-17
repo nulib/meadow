@@ -61,6 +61,7 @@
     "@babel/preset-react": "^7.12.13",
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
+    "@elastic/elasticsearch-mock": "^0.3.0",
     "@nulib/prettier-config": "^1.2.0",
     "@testing-library/dom": "^7.29.4",
     "@testing-library/jest-dom": "^5.11.9",

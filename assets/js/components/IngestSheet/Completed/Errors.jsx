@@ -14,7 +14,7 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
       <p className="notification is-danger">
         There were errors creating works from filesets
       </p>
-      <div className="box" style={styles.tableWrapper}>
+      <div style={styles.tableWrapper} className="table-container">
         <table className="table is-fullwidth is-striped">
           <caption>Errors creating works</caption>
           <thead>
@@ -28,13 +28,13 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {errors.map((row) => {
+            {errors.map((row, i) => {
               var errorMsg =
                 row.outcome == "SKIPPED"
                   ? "Skipped due to error(s) on other row(s)"
                   : row.errors;
               return (
-                <tr key={row.rowNumber}>
+                <tr key={i}>
                   <td>{row.rowNumber}</td>
                   <td>{row.workAccessionNumber}</td>
                   <td>{row.accessionNumber}</td>

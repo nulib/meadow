@@ -7,7 +7,7 @@ function UIWorkImage({ imageUrl = "", size = 128 }) {
     : `/images/placeholder.png`;
 
   return (
-    <figure data-testid="work-image" className={`image is-${size}x${size}`}>
+    <figure data-testid="work-image" className={`image is-square`}>
       <img src={src} data-testid="image-source" />
     </figure>
   );

@@ -11,8 +11,6 @@ import { screen } from "@testing-library/react";
 import { AuthProvider } from "@js/components/Auth/Auth";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 
-jest.mock("../../services/elasticsearch");
-
 const MOCK_PROJECT_TITLE = "Mock project title";
 
 const mocks = [

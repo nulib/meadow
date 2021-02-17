@@ -1,10 +1,8 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import ScreensDashboardsBatchEditList from "./Details";
 import { Route } from "react-router-dom";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
-
-jest.mock("@js/services/elasticsearch");
 
 describe("ScreensDashboardsBatchEditList component", () => {
   it("renders the component", () => {

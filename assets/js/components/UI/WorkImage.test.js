@@ -19,6 +19,6 @@ describe("UIWorkImage component", () => {
       `www.northwestern.edu/square/500,500/0/default.jpg`
     );
     const figureEl = screen.getByTestId("work-image");
-    expect(figureEl).toHaveClass(`is-500x500`);
+    expect(figureEl).toHaveClass(`is-square`);
   });
 });

@@ -1,10 +1,8 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import ScreensDashboardsBatchEditList from "./List";
 import { getBatchesMock } from "@js/components/Dashboards/dashboards.gql.mock";
-
-jest.mock("../../../services/elasticsearch");
 
 describe("ScreensDashboardsBatchEditList component", () => {
   beforeEach(() => {

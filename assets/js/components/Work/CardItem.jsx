@@ -18,7 +18,7 @@ const WorkCardItem = ({
     <div className="card " data-testid="ui-workcard">
       <div className="card-image">
         <figure className="image is-3by3">
-          <Link to={`/work/${id}`} className="hvr-shrink">
+          <Link to={`/work/${id}`}>
             <UIWorkImage
               imageUrl={getImageUrl(representativeImage)}
               size={500}

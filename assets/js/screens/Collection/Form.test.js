@@ -11,8 +11,6 @@ import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.m
 
 const mocks = [getCollectionMock, getCurrentUserMock, ...allCodeListMocks];
 
-jest.mock("../../services/elasticsearch");
-
 function setupTests() {
   return renderWithRouterApollo(
     <AuthProvider>

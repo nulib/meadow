@@ -26,21 +26,21 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   const isCompleted = status === "COMPLETED";
 
   return (
-    <div className="box">
-      <>
-        {["APPROVED"].indexOf(status) > -1 && (
-          <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
-        )}
+    <>
+      {["APPROVED"].indexOf(status) > -1 && (
+        <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+      )}
 
-        {isCompleted && (
+      {isCompleted && (
+        <>
           <IngestSheetCompleted sheetId={ingestSheetData.id} title={title} />
-        )}
+        </>
+      )}
 
-        {["ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
-          <IngestSheetValidations sheetId={id} status={status} />
-        )}
-      </>
-    </div>
+      {["ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
+        <IngestSheetValidations sheetId={id} status={status} />
+      )}
+    </>
   );
 };
 
