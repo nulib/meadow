@@ -16,7 +16,7 @@ const modalCss = css`
   z-index: 100;
 `;
 
-function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
+function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
   const [currentFile, setCurrentFile] = useState();
   const [uploadProgress, setUploadProgress] = useState();
   const [s3UploadLocation, setS3UploadLocation] = useState();
@@ -144,7 +144,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
   if (urlLoading) return <p>Presigned URL Loading</p>;
 
   return (
-    <div className={`modal ${isHidden ? "" : "is-active"}`} css={modalCss}>
+    <div className={`modal ${isVisible ? "is-active" : ""}`} css={modalCss}>
       <div className="modal-background"></div>
 
       {urlError ? (
@@ -216,7 +216,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isHidden, workId }) {
 
 WorkTabsPreservationFileSetModal.propTypes = {
   closeModal: PropTypes.func,
-  isHidden: PropTypes.bool,
+  isVisible: PropTypes.bool,
   workId: PropTypes.string,
 };
 

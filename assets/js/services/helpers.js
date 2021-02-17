@@ -149,7 +149,7 @@ export function toastWrapper(
     message,
     type,
     dismissible: true,
-    duration: 5000,
+    duration: 8000,
     position: "top-center",
   });
 }
