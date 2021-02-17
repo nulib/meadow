@@ -19,6 +19,12 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> validate_required([:term])
   end
 
+  def changeset_with_role(metadata, params) do
+    metadata
+    |> cast(params, [:role, :term])
+    |> validate_required([:term, :role])
+  end
+
   def from_string(value) do
     case value do
       "GEOGRAPHICAL:" <> uri ->

@@ -93,7 +93,17 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       |> cast(params, permitted())
       |> cast_embed(:related_url)
 
-    Enum.reduce(@controlled_fields, changeset, fn field, acc -> cast_embed(acc, field) end)
+    @controlled_fields
+    |> Enum.reduce(changeset, fn
+      :subject, acc ->
+        cast_embed(acc, :subject, with: &ControlledMetadataEntry.changeset_with_role/2)
+
+      :contributor, acc ->
+        cast_embed(acc, :contributor, with: &ControlledMetadataEntry.changeset_with_role/2)
+
+      field, acc ->
+        cast_embed(acc, field)
+    end)
   end
 
   def permitted, do: @coded_fields ++ scalar_fields() ++ @edtf_fields

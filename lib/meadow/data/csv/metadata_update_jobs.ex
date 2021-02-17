@@ -92,8 +92,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     {:ok, job} =
       with_locked_job(job, fn ->
         case validate_source(job.source) do
-          {:ok, rows} -> update_job(job, %{status: "valid", rows: rows})
-          {:error, errors} -> update_job(job, %{status: "invalid", errors: errors})
+          {:ok, rows} ->
+            update_job(job, %{status: "valid", rows: rows})
+
+          {:error, errors} ->
+            update_job(job, %{status: "invalid", errors: errors})
         end
       end)
 
