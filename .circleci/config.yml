@@ -102,6 +102,11 @@ jobs:
           name: Test Webpack Build
           command: yarn deploy
           working_directory: ~/meadow/assets
+      - run:
+          name: Test db rollback
+          command: mix ecto.rollback --all
+          environment:
+            MIX_ENV: test
       - store_artifacts:
           path: /tmp/test-results
           destination: tests
