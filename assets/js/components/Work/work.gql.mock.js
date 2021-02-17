@@ -1,7 +1,8 @@
 import {
+  CREATE_WORK,
+  DELETE_FILESET,
   GET_WORK,
   VERIFY_FILE_SETS,
-  CREATE_WORK,
 } from "../../components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "../../client-local";
 
@@ -392,6 +393,22 @@ export const createWorkMock = {
         descriptiveMetadata: {
           title: "New mock work title",
         },
+        id: "ABC123",
+      },
+    },
+  },
+};
+
+export const deleteFilesetMock = {
+  request: {
+    query: DELETE_FILESET,
+    variables: {
+      fileSetId: "ABC123",
+    },
+  },
+  result: {
+    data: {
+      deleteFileSet: {
         id: "ABC123",
       },
     },

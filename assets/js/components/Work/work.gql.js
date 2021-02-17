@@ -1,31 +1,9 @@
 import gql from "graphql-tag";
 
-export const INGEST_FILE_SET = gql`
-  mutation IngestFileSet(
-    $accession_number: String!
-    $role: FileSetRole!
-    $metadata: FileSetMetadataInput!
-    $workId: ID!
-  ) {
-    ingestFileSet(
-      accessionNumber: $accession_number
-      role: $role
-      metadata: $metadata
-      workId: $workId
-    ) {
+export const ADD_WORK_TO_COLLECTION = gql`
+  mutation addWorkToCollection($workId: ID!, $collectionId: ID!) {
+    addWorkToCollection(workId: $workId, collectionId: $collectionId) {
       id
-      accession_number
-      role
-      work {
-        id
-      }
-      metadata {
-        location
-        label
-        description
-        original_filename
-        sha256
-      }
     }
   }
 `;
@@ -52,6 +30,33 @@ export const CREATE_WORK = gql`
         title
       }
       id
+    }
+  }
+`;
+
+export const DELETE_FILESET = gql`
+  mutation DeleteFileSet($fileSetId: ID!) {
+    deleteFileSet(fileSetId: $fileSetId) {
+      id
+    }
+  }
+`;
+
+export const DELETE_WORK = gql`
+  mutation deleteWork($workId: ID!) {
+    deleteWork(workId: $workId) {
+      id
+      descriptiveMetadata {
+        title
+      }
+      ingestSheet {
+        id
+        title
+      }
+      project {
+        id
+        title
+      }
     }
   }
 `;
@@ -396,28 +401,31 @@ export const UPDATE_WORK = gql`
   }
 `;
 
-export const ADD_WORK_TO_COLLECTION = gql`
-  mutation addWorkToCollection($workId: ID!, $collectionId: ID!) {
-    addWorkToCollection(workId: $workId, collectionId: $collectionId) {
+export const INGEST_FILE_SET = gql`
+  mutation IngestFileSet(
+    $accession_number: String!
+    $role: FileSetRole!
+    $metadata: FileSetMetadataInput!
+    $workId: ID!
+  ) {
+    ingestFileSet(
+      accessionNumber: $accession_number
+      role: $role
+      metadata: $metadata
+      workId: $workId
+    ) {
       id
-    }
-  }
-`;
-
-export const DELETE_WORK = gql`
-  mutation deleteWork($workId: ID!) {
-    deleteWork(workId: $workId) {
-      id
-      descriptiveMetadata {
-        title
-      }
-      ingestSheet {
+      accession_number
+      role
+      work {
         id
-        title
       }
-      project {
-        id
-        title
+      metadata {
+        location
+        label
+        description
+        original_filename
+        sha256
       }
     }
   }

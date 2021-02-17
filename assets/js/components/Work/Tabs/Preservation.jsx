@@ -4,7 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useMutation, useQuery } from "@apollo/client";
-import { DELETE_WORK, VERIFY_FILE_SETS } from "@js/components/Work/work.gql";
+import {
+  DELETE_FILESET,
+  DELETE_WORK,
+  GET_WORK,
+  VERIFY_FILE_SETS,
+} from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
@@ -17,17 +22,26 @@ const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
 
   const history = useHistory();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
+  const [isDeleteWorkModalVisible, setIsDeleteWorkModalVisible] = useState(
+    false
+  );
+  const [
+    isAddFilesetModalVisible,
+    setIsAddFilesetModalVisible,
+  ] = React.useState(false);
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
 
-  const [isModalHidden, setIsModalHidden] = React.useState(true);
-
+  // These 2 state variables keep track of whether a modal is open,
+  // and also additional data which the dependent modals rely upon
   const [technicalMetadata, setTechnicalMetadata] = React.useState({
     fileSet: {},
+    isVisible: false,
+  });
+  const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
+    fileset: {},
     isVisible: false,
   });
 
@@ -37,6 +51,49 @@ const WorkTabsPreservation = ({ work }) => {
     loading: verifyFileSetsLoading,
   } = useQuery(VERIFY_FILE_SETS, { variables: { workId: work.id } });
 
+  /**
+   * Delete a Fileset
+   */
+  const [deleteFileSet, { data: deleteFileSetData }] = useMutation(
+    DELETE_FILESET,
+    {
+      onError({ graphQLErrors, networkError }) {
+        let errorStrings = [];
+        if (graphQLErrors.length > 0) {
+          errorStrings = graphQLErrors.map(
+            ({ message, details }) =>
+              `${message}: ${details && details.title ? details.title : ""}`
+          );
+          toastWrapper("is-danger", errorStrings.join(" \n "));
+        }
+        toastWrapper(
+          "is-danger",
+          "There was an unknown error deleting the Fileset"
+        );
+      },
+      update(cache, { data: { deleteFileSet } }) {
+        try {
+          cache.modify({
+            id: cache.identify(work),
+            fields: {
+              fileSets(existingfileSetsRefs, { readField }) {
+                return existingfileSetsRefs.filter(
+                  (fileSetRef) =>
+                    deleteFileSet.id !== readField("id", fileSetRef)
+                );
+              },
+            },
+          });
+        } catch (error) {
+          console.error("Error reading from cache after fileset delete", error);
+        }
+      },
+    }
+  );
+
+  /**
+   * Delete a Work
+   * */
   const [deleteWork, { data: deleteWorkData }] = useMutation(DELETE_WORK, {
     onCompleted({ deleteWork: { project, ingestSheet, descriptiveMetadata } }) {
       toastWrapper(
@@ -49,6 +106,9 @@ const WorkTabsPreservation = ({ work }) => {
     },
   });
 
+  /**
+   * Reorder filesets
+   */
   React.useEffect(() => {
     setOrderedFileSets({
       ...orderedFileSets,
@@ -66,6 +126,9 @@ const WorkTabsPreservation = ({ work }) => {
 
   const { verifyFileSets } = verifyFileSetsData;
 
+  /**
+   * Helper component showing verified state
+   */
   const Verified = ({ id }) => {
     if (!verifyFileSets || !id) return null;
     const fileset = verifyFileSets.find((obj) => obj.fileSetId === id);
@@ -84,7 +147,18 @@ const WorkTabsPreservation = ({ work }) => {
     );
   };
 
-  const handleDeleteClick = () => {
+  const handleConfirmDeleteFileset = () => {
+    deleteFileSet({
+      variables: { fileSetId: deleteFilesetModal.fileset.id },
+    });
+    setDeleteFilesetModal({ fileset: {}, isVisible: false });
+  };
+
+  const handleDeleteFilesetClick = (fileset) => {
+    setDeleteFilesetModal({ fileset, isVisible: true });
+  };
+
+  const handleDeleteWorkClick = () => {
     deleteWork({ variables: { workId: work.id } });
   };
 
@@ -101,12 +175,12 @@ const WorkTabsPreservation = ({ work }) => {
     setTechnicalMetadata({ fileSet: { ...fileSet }, isVisible: true });
   };
 
-  const onOpenModal = () => {
-    setDeleteModalOpen(true);
+  const onOpenDeleteWorkModal = () => {
+    setIsDeleteWorkModalVisible(true);
   };
 
-  const onCloseModal = () => {
-    setDeleteModalOpen(false);
+  const onCloseDeleteWorkModal = () => {
+    setIsDeleteWorkModalVisible(false);
   };
 
   return (
@@ -117,7 +191,9 @@ const WorkTabsPreservation = ({ work }) => {
             <Button
               data-testid="button-new-file-set"
               isPrimary
-              onClick={() => setIsModalHidden(!isModalHidden)}
+              onClick={() =>
+                setIsAddFilesetModalVisible(!isAddFilesetModalVisible)
+              }
             >
               <span className="icon">
                 <FontAwesomeIcon icon="file-image" />
@@ -190,6 +266,7 @@ const WorkTabsPreservation = ({ work }) => {
                           </Button>
                           <Button
                             data-testid="button-fileset-delete"
+                            onClick={() => handleDeleteFilesetClick(fileset)}
                             title="Delete file set"
                           >
                             <FontAwesomeIcon icon="trash" />
@@ -203,8 +280,8 @@ const WorkTabsPreservation = ({ work }) => {
           </tbody>
         </table>
         <WorkTabsPreservationFileSetModal
-          closeModal={() => setIsModalHidden(true)}
-          isHidden={isModalHidden}
+          closeModal={() => setIsAddFilesetModalVisible(false)}
+          isVisible={isAddFilesetModalVisible}
           workId={work.id}
         />
       </div>
@@ -213,7 +290,7 @@ const WorkTabsPreservation = ({ work }) => {
           <Button
             data-testid="button-work-delete"
             isDanger
-            onClick={onOpenModal}
+            onClick={onOpenDeleteWorkModal}
           >
             <span className="icon">
               <FontAwesomeIcon icon="trash" />
@@ -224,16 +301,30 @@ const WorkTabsPreservation = ({ work }) => {
       </div>
 
       {work && (
-        <UIModalDelete
-          isOpen={deleteModalOpen}
-          handleClose={onCloseModal}
-          handleConfirm={handleDeleteClick}
-          thingToDeleteLabel={`Work: ${
-            work.descriptiveMetadata
-              ? work.descriptiveMetadata.title || work.accessionNumber
-              : work.accessionNumber
-          }`}
-        />
+        <>
+          <UIModalDelete
+            isOpen={isDeleteWorkModalVisible}
+            handleClose={onCloseDeleteWorkModal}
+            handleConfirm={handleDeleteWorkClick}
+            thingToDeleteLabel={`Work: ${
+              work.descriptiveMetadata
+                ? work.descriptiveMetadata.title || work.accessionNumber
+                : work.accessionNumber
+            }`}
+          />
+          <UIModalDelete
+            isOpen={deleteFilesetModal.isVisible}
+            handleClose={() =>
+              setDeleteFilesetModal({ fileset: null, isVisible: false })
+            }
+            handleConfirm={handleConfirmDeleteFileset}
+            thingToDeleteLabel={`Fileset: ${
+              deleteFilesetModal.fileset.metadata
+                ? deleteFilesetModal.fileset.metadata.label
+                : ""
+            }`}
+          />
+        </>
       )}
 
       <WorkTabsPreservationTechnical
