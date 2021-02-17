@@ -71,7 +71,12 @@ defmodule Meadow.Data.CSV.Import do
     ]
   """
   def stream(%__MODULE__{headers: headers, stream: stream}) do
-    stream |> Stream.map(&(row_to_map(&1, headers) |> decode_row()))
+    stream
+    |> Stream.map(fn
+      [""] -> nil
+      row -> row_to_map(row, headers) |> decode_row()
+    end)
+    |> Stream.filter(&(not is_nil(&1)))
   end
 
   def fields do

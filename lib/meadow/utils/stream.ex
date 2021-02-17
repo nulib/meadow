@@ -73,12 +73,15 @@ defmodule Meadow.Utils.Stream do
   defp async_stream_after(%HTTPoison.AsyncResponse{id: id}), do: :hackney.stop_async(id)
 
   def by_line(enum) do
-    Elixir.Stream.transform(
-      enum,
+    enum
+    |> Stream.concat([:halt])
+    |> Elixir.Stream.transform(
       "",
       &line_stream_reduce/2
     )
   end
+
+  defp line_stream_reduce(:halt, buffer), do: {[buffer], ""}
 
   defp line_stream_reduce(chunk, buffer) do
     case (buffer <> chunk) |> String.split(~r/(?<=\n)/) |> Enum.reverse() do
