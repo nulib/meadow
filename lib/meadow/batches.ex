@@ -146,7 +146,8 @@ defmodule Meadow.Batches do
           end
         rescue
           e ->
-            Logger.info("Rescued error for batch #{batch.id}: #{Exception.message(e)}")
+            Logger.error("Rescued error for batch #{batch.id}: #{Exception.message(e)}")
+            Logger.error(Exception.format(:error, e, __STACKTRACE__))
             {:error, set_error!(batch, Exception.message(e))}
         end
 
