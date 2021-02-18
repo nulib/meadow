@@ -103,10 +103,10 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   @desc "Input fields available for batch replace operations on works descriptive metadata"
   input_object :batch_replace_descriptive_metadata_input do
-    field :title, :string
-    field :terms_of_use, :string
-    field :rights_statement, :coded_term_input
     field :license, :coded_term_input
+    field :rights_statement, :coded_term_input
+    field :terms_of_use, :string
+    field :title, :string
     import_fields(:batch_editable_multi_valued_descriptive_metadata_input)
   end
 
@@ -130,7 +130,9 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :description, list_of(:string)
     field :folder_name, list_of(:string)
     field :folder_number, list_of(:string)
+    field :identifier, list_of(:string)
     field :keywords, list_of(:string)
+    field :legacy_identifier, list_of(:string)
     field :notes, list_of(:string)
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
