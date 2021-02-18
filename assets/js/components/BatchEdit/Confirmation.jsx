@@ -178,8 +178,8 @@ const BatchEditConfirmation = ({
           )}
 
           {hasDataToPost ? (
-            <React.Fragment>
-              <div className="column is-two-thirds">
+            <div className="box is-shadowless">
+              <div className="mb-4">
                 <UIFormField label="Batch nickname">
                   <UIFormInput
                     onChange={handleNicknameChange}
@@ -188,6 +188,9 @@ const BatchEditConfirmation = ({
                     placeholder="Batch Nickname"
                     data-testid="input-batch-nickname"
                   />
+                  <p className="help">
+                    Nicknames help identify Batch Edit jobs in the dashboard
+                  </p>
                 </UIFormField>
               </div>
               <div className="notification is-danger is-light has-text-centered content">
@@ -208,7 +211,7 @@ const BatchEditConfirmation = ({
                   />
                 </div>
               </div>
-            </React.Fragment>
+            </div>
           ) : (
             <p className="notification is-white">
               No data currently selected to batch update.
