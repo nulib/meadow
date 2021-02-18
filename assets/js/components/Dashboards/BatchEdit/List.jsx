@@ -34,7 +34,7 @@ function Status({ status }) {
   return <span className={`tag ${statusClass} is-light`}>{status}</span>;
 }
 
-export default function DashboardsBatchEditTable() {
+export default function DashboardsBatchEditList() {
   const { loading, error, data } = useQuery(GET_BATCHES, { pollInterval: 500 });
   const batches =
     data &&
@@ -90,23 +90,24 @@ export default function DashboardsBatchEditTable() {
               </td>
               <td className="has-text-right">
                 <Link
-                  className="button is-small mr-1"
+                  className="button is-light mr-1"
                   to={`/dashboards/batch-edit/${id}`}
                   data-testid="view-button"
+                  title="View Batch Edit details"
                 >
                   <FontAwesomeIcon icon="eye" />
                 </Link>
                 {type == "UPDATE" && (
                   <Link
                     data-testid="button-to-search"
-                    className="button is-small"
+                    className="button is-light"
                     title="View updated works"
                     to={{
                       pathname: "/search",
                       state: { passedInSearchTerm: `batches:\"${id}\"` },
                     }}
                   >
-                    <FontAwesomeIcon icon="share" />
+                    <FontAwesomeIcon icon="images" />
                   </Link>
                 )}
               </td>

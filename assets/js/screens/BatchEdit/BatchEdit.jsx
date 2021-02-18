@@ -62,7 +62,7 @@ const ScreensBatchEdit = () => {
             ]}
           />
           <div className="box">
-            <div className="is-flex is-justify-content-space-between">
+            <div className="is-flex is-justify-content-space-between mb-4">
               <h1 className="title" data-testid="batch-edit-title">
                 Batch Edit
               </h1>
@@ -78,7 +78,7 @@ const ScreensBatchEdit = () => {
                   <span className="icon">
                     <FontAwesomeIcon icon="chevron-left" />
                   </span>
-                  <span>Back to saved search</span>
+                  <span>Back to search</span>
                 </Link>
               )}
             </div>
@@ -90,7 +90,7 @@ const ScreensBatchEdit = () => {
                 ) : (
                   <div>
                     <p
-                      className="notification is-warning is-light mt-5"
+                      className="notification is-warning is-light mt-5 has-text-centered"
                       data-testid="batch-edit-preview-notification"
                     >
                       <span className="icon">
@@ -107,7 +107,7 @@ const ScreensBatchEdit = () => {
             )}
 
             {!isActiveSearch && (
-              <div className="notification content">
+              <div className="notification content has-text-centered">
                 <p>
                   <FontAwesomeIcon icon="exclamation-triangle" /> No search
                   results saved in the browsers memory
