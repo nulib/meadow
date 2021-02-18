@@ -171,7 +171,7 @@ defmodule Mix.Tasks.Migration.ImportCollections do
           id: doc |> Map.get(:visibility_ssi) |> String.upcase(),
           scheme: "VISIBILITY"
         },
-        published: true,
+        published: false,
         keywords:
           case Map.get(doc, :keyword_tesim) do
             nil -> []
