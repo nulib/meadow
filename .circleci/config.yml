@@ -183,6 +183,7 @@ workflows:
               only:
                 - /^build-.+/
                 - /^deploy\/.+/
+                - master
       - deploy:
           requires:
             - publish
@@ -190,3 +191,4 @@ workflows:
             branches:
               only:
                 - /^deploy\/.+/
+                - master
