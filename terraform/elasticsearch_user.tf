@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "meadow_elasticsearch_access" {
       "es:ESHttpPut",
       "es:ESHttpDelete"
     ]
-    resources = ["arn:aws:es:::*"]
+    resources = ["arn:aws:es:*:${data.aws_caller_identity.current.id}:domain/*"]
   }
 }
 
