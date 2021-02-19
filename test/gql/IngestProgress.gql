@@ -1,0 +1,7 @@
+subscription IngestProgress($sheetId: ID!) {
+  ingestProgress(sheetId: $sheetId) {
+    totalFileSets
+    completedFileSets
+    percentComplete
+  }
+}

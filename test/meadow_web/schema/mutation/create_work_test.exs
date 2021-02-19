@@ -1,53 +1,93 @@
 defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
+  use Meadow.AuthorityCase
   use MeadowWeb.ConnCase, async: true
+  use Wormwood.GQLCase
 
-  import Mox
+  load_gql(MeadowWeb.Schema, "test/gql/CreateWork.gql")
 
-  @query """
-    mutation (
-      $accession_number: String!
-      $work_type: WorkType!
-      $visibility: Visibility!
-      $metadata: WorkMetadataInput!
-      ) {
-      createWork(
-        accessionNumber: $accession_number
-        workType: $work_type
-        visibility: $visibility
-        metadata: $metadata
+  describe "CreateWork mutation" do
+    test "should be a valid mutation" do
+      result =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{
+              "title" => "Something",
+              "contributor" => [
+                %{
+                  "term" => "mock1:result1",
+                  "role" => %{"id" => "aut", "scheme" => "MARC_RELATOR"}
+                }
+              ],
+              "stylePeriod" => [
+                %{
+                  "term" => "mock1:result1"
+                }
+              ]
+            },
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
+          },
+          context: gql_context()
         )
-      {
-        id
-      }
-    }
-  """
 
-  test "createWork mutation creates a work", _context do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
+      assert {:ok, query_data} = result
 
-    input = %{
-      "accession_number" => "99999",
-      "visibility" => "OPEN",
-      "work_type" => "IMAGE",
-      "metadata" => %{"title" => "Something"}
-    }
+      assert "Something" ==
+               get_in(query_data, [:data, "createWork", "descriptiveMetadata", "title"])
 
-    conn = build_conn() |> auth_user(user_fixture())
+      contributor =
+        query_data
+        |> get_in([:data, "createWork", "descriptiveMetadata", "contributor"])
+        |> List.first()
 
-    conn =
-      post conn, "/api/graphql",
-        query: @query,
-        variables: input
+      assert contributor |> get_in(["term", "label"]) == "First Result"
+      assert contributor |> get_in(["role", "label"]) == "Author"
 
-    assert %{
-             "data" => %{
-               "createWork" => %{
-                 "id" => _
-               }
-             }
-           } = json_response(conn, 200)
+      style_period =
+        query_data
+        |> get_in([:data, "createWork", "descriptiveMetadata", "stylePeriod"])
+        |> List.first()
+
+      assert is_nil(style_period |> get_in(["role"]))
+    end
+  end
+
+  describe "authorization" do
+    test "viewers are not authorized to create shared links" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{},
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
+          },
+          context: %{current_user: %{role: "User"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to create shared links" do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "accessionNumber" => "12345.abc",
+            "published" => false,
+            "descriptiveMetadata" => %{},
+            "administrativeMetadata" => %{},
+            "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
+            "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["createWork"]
+    end
   end
 end

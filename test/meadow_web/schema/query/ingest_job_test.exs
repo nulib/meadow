@@ -1,12 +1,10 @@
-defmodule MeadowWeb.Schema.Query.IngestSheetTest do
+defmodule MeadowWeb.Schema.Query.SheetTest do
   use MeadowWeb.ConnCase, async: true
 
-  import Mox
-
   @query """
-  query($id: String!) {
+  query($id: ID!) {
     ingest_sheet(id: $id) {
-      name
+      title
     }
   }
   """
@@ -21,28 +19,29 @@ defmodule MeadowWeb.Schema.Query.IngestSheetTest do
 
     assert %{
              "data" => %{
-               "ingest_sheet" => %{"name" => ingest_sheet.name}
+               "ingest_sheet" => %{"title" => ingest_sheet.title}
              }
            } == json_response(conn, 200)
   end
 
   @query """
-  query {
-    presignedUrl {
+  query($uploadType: S3UploadType!) {
+    presignedUrl(uploadType: $uploadType) {
       url
     }
   }
   """
 
   test "gets a presigned url for an ingest sheet" do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
-
     conn = build_conn() |> auth_user(user_fixture())
 
-    response = get(conn, "/api/graphql", query: @query)
+    response =
+      get(conn, "/api/graphql",
+        query: @query,
+        variables: %{
+          "uploadType" => "INGEST_SHEET"
+        }
+      )
 
     assert %{
              "data" => %{

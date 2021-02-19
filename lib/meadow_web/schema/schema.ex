@@ -7,33 +7,51 @@ defmodule MeadowWeb.Schema do
   import_types(Absinthe.Type.Custom)
   import_types(MeadowWeb.Schema.Types.Json)
 
-  alias Meadow.Data
-  alias Meadow.Ingest
+  alias Meadow.{Data, Ingest, Repo}
+  alias Meadow.Data.Schemas.FileSet
+  import Ecto.Query
 
   import_types(__MODULE__.AccountTypes)
-  import_types(__MODULE__.IngestTypes)
   import_types(__MODULE__.Data.WorkTypes)
+  import_types(__MODULE__.Data.BatchTypes)
+  import_types(__MODULE__.IngestTypes)
+  import_types(__MODULE__.Data.CollectionTypes)
+  import_types(__MODULE__.Data.ControlledTermTypes)
   import_types(__MODULE__.Data.FileSetTypes)
-  import_types(__MODULE__.MockTypes)
+  import_types(__MODULE__.Data.FieldTypes)
+  import_types(__MODULE__.Data.SharedLinkTypes)
+  import_types(__MODULE__.HelperTypes)
+  import_types(__MODULE__.Data.CSVMetadataUpdateTypes)
+  import_types(__MODULE__.NULAuthorityTypes)
 
   query do
     import_fields(:account_queries)
-    import_fields(:ingest_queries)
-    import_fields(:work_queries)
+    import_fields(:batch_queries)
+    import_fields(:collection_queries)
+    import_fields(:controlled_term_queries)
+    import_fields(:field_queries)
     import_fields(:file_set_queries)
-    import_fields(:mock_queries)
+    import_fields(:helper_queries)
+    import_fields(:ingest_queries)
+    import_fields(:csv_metadata_update_queries)
+    import_fields(:nul_authority_queries)
+    import_fields(:work_queries)
   end
 
   mutation do
-    import_fields(:ingest_mutations)
-    import_fields(:work_mutations)
+    import_fields(:account_mutations)
+    import_fields(:batch_mutations)
+    import_fields(:collection_mutations)
     import_fields(:file_set_mutations)
-    import_fields(:mock_mutations)
+    import_fields(:ingest_mutations)
+    import_fields(:csv_metadata_update_mutations)
+    import_fields(:nul_authority_mutations)
+    import_fields(:shared_link_mutations)
+    import_fields(:work_mutations)
   end
 
   subscription do
     import_fields(:ingest_subscriptions)
-    import_fields(:mock_subscriptions)
   end
 
   enum :sort_order do
@@ -41,7 +59,7 @@ defmodule MeadowWeb.Schema do
     value(:desc)
   end
 
-  object :presigned_url do
+  object :url do
     field :url, non_null(:string)
   end
 
@@ -59,16 +77,31 @@ defmodule MeadowWeb.Schema do
     field :message, non_null(:string)
   end
 
+  object :errors do
+    field :field, non_null(:string)
+    field :messages, list_of(:string)
+  end
+
   def context(ctx) do
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Ingest, Ingest.datasource())
       |> Dataloader.add_source(Data, Data.datasource())
+      |> Dataloader.add_source(OrderedFileSets, ordered_file_set_source())
 
     Map.put(ctx, :loader, loader)
   end
 
   def plugins do
     [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+  end
+
+  defp ordered_file_set_source do
+    Dataloader.Ecto.new(Repo,
+      query: fn
+        FileSet, _ -> from(f in FileSet, order_by: f.rank)
+        queryable, _ -> queryable
+      end
+    )
   end
 end

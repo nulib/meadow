@@ -1,6 +1,4 @@
 import React from "react";
-import ExclamationIcon from "../../../../css/fonts/zondicons/exclamation-solid.svg";
-import Modal from "react-responsive-modal";
 import PropTypes from "prop-types";
 
 const UIModalDelete = ({
@@ -10,25 +8,34 @@ const UIModalDelete = ({
   thingToDeleteLabel
 }) => {
   return (
-    <Modal center open={isOpen} onClose={handleClose}>
-      <div className="flex">
-        <ExclamationIcon className="icon w-16 h-16 text-danger-dark pr-4" />
-        <div className="mr-8">
-          <h4 className="uppercase text-sm font-bold leading-loose">
-            Delete {thingToDeleteLabel}
-          </h4>
-          <p className="text-gray-600">This action cannot be undone</p>
-          <div className="button-group mt-8 flex justify-end">
-            <button className="btn btn-clear" onClick={handleClose}>
+    <div
+      className={`modal ${isOpen ? "is-active" : ""}`}
+      data-testid="delete-modal"
+    >
+      <div className="modal-background"></div>
+      <div className="modal-content">
+        <div className="box">
+          <div className="field">
+            <label className="label">Delete {thingToDeleteLabel} ?</label>
+            <p className="text-gray-600">This action cannot be undone.</p>
+          </div>
+          <div className="buttons is-right">
+            <button className="button is-text" onClick={handleClose}>
               Cancel
             </button>
-            <button className="btn btn-danger" onClick={handleConfirm}>
+            <button className="button is-danger" onClick={handleConfirm}>
               Delete
             </button>
           </div>
         </div>
       </div>
-    </Modal>
+      <button
+        className="modal-close is-large"
+        type="button"
+        aria-label="close"
+        onClick={handleClose}
+      ></button>
+    </div>
   );
 };
 

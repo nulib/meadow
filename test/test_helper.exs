@@ -1,5 +1,5 @@
-ExUnit.start(capture_log: true)
+ExUnit.start(capture_log: true, exclude: [manual: true])
 Faker.start()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
-
-Mox.defmock(Meadow.ExAwsHttpMock, for: ExAws.Request.HttpClient)
+Authoritex.Mock.init()
+ExUnit.after_suite(fn _ -> Meadow.S3Case.show_cleanup_warnings() end)

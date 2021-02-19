@@ -1,0 +1,13 @@
+fragment CollectionFields on Collection {
+  id
+  title
+  description
+  keywords
+  findingAidUrl
+  adminEmail
+  featured
+  representativeWork {
+    id
+    representativeImage
+  }
+}

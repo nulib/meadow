@@ -4,26 +4,30 @@ defmodule Meadow.Application do
   @moduledoc false
 
   use Application
+  alias Meadow.Application.Children
+
+  require Logger
 
   def start(_type, _args) do
-    import Supervisor.Spec
-
     # List all child processes to be supervised
     # Start the Ecto repository
     # Start the endpoint when the application starts
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
-    children = [
+    base_children = [
+      EDTF,
+      {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
+      Meadow.ElasticsearchCluster,
       Meadow.Repo,
-      MeadowWeb.Endpoint,
-      {Meadow.Ingest.Pipeline, start: Meadow.Config.start_pipeline?()},
-      supervisor(Absinthe.Subscription, [MeadowWeb.Endpoint]),
+      Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
+    children = base_children ++ Children.specs()
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Meadow.Supervisor]
+    opts = [max_restarts: 4096, strategy: :one_for_one, name: Meadow.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

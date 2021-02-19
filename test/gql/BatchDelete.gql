@@ -1,0 +1,7 @@
+#import "./BatchFields.frag.gql"
+
+mutation($query: String!, $nickname: String) {
+  batchDelete(query: $query, nickname: $nickname) {
+    ...BatchFields
+  }
+}

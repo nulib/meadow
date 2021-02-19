@@ -14,12 +14,12 @@ defmodule MeadowWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
+  import Meadow.TestHelpers
 
   using do
     quote do
       # Import conveniences for testing with channels
-      use Phoenix.ChannelTest
+      import Phoenix.ChannelTest
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
@@ -27,12 +27,7 @@ defmodule MeadowWeb.ChannelCase do
   end
 
   setup tags do
-    :ok = Sandbox.checkout(Meadow.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Meadow.Repo, {:shared, self()})
-    end
-
+    :ok = sandbox_mode(tags)
     :ok
   end
 end

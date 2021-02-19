@@ -1,0 +1,11 @@
+{
+  "name": "edtf",
+  "version": "0.1.0",
+  "description": "Date parsing and validation using EDTF.js",
+  "main": "cli.js",
+  "author": "bmquinn",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "edtf": "^3.1.0"
+  }
+}

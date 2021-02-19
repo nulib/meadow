@@ -1,62 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { useQuery } from "@apollo/react-hooks";
-import Error from "../UI/Error";
-import Loading from "../UI/Loading";
-import { toast } from "react-toastify";
-import { GET_INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.query";
-import { useApolloClient, useMutation } from "@apollo/react-hooks";
+import { useApolloClient, useMutation } from "@apollo/client";
+import { INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
-import TrashIcon from "../../../css/fonts/zondicons/trash.svg";
+import { toastWrapper } from "../../services/helpers";
+import { getClassFromIngestSheetStatus } from "../../services/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
 
-const IngestSheetList = ({ projectId }) => {
+const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState();
-  const { loading, error, data } = useQuery(GET_INGEST_SHEETS, {
-    variables: { projectId }
-  });
+
+  useEffect(() => {
+    subscribeToIngestSheetStatusChanges();
+  }, []);
+
   const client = useApolloClient();
   const [
     deleteIngestSheet,
-    { data: deleteIngestSheetData, error: deleteIngestSheetError }
+    { data: deleteIngestSheetData, error: deleteIngestSheetError },
   ] = useMutation(DELETE_INGEST_SHEET, {
-    update(
-      cache,
-      {
-        data: { deleteIngestSheet }
-      }
-    ) {
-      try {
-        const { project } = client.readQuery({
-          query: GET_INGEST_SHEETS,
-          variables: { projectId }
-        });
-
-        const index = project.ingestSheets.findIndex(
-          ingestSheet => ingestSheet.id === deleteIngestSheet.id
-        );
-
-        project.ingestSheets.splice(index, 1);
-
-        client.writeQuery({
-          query: GET_INGEST_SHEETS,
-          data: { project }
-        });
-      } catch (error) {
-        console.log("Error reading from cache", error);
-      }
-    }
+    onCompleted({ deleteIngestSheet }) {
+      toastWrapper("is-success", "Ingest sheet deleted successfully");
+    },
   });
 
-  if (loading) return <Loading />;
-  if (error) return <Error error={error} />;
   if (deleteIngestSheetError) {
-    toast(`Error: ${deleteIngestSheetError.message}`);
+    toastWrapper("is-danger", `Error: ${deleteIngestSheetError.message}`);
   }
 
   const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { ingestSheetId: activeModal } });
+    deleteIngestSheet({ variables: { sheetId: activeModal.id } });
     onCloseModal();
   };
 
@@ -66,45 +42,71 @@ const IngestSheetList = ({ projectId }) => {
   };
 
   const onCloseModal = () => {
-    setActiveModal(null);
+    setActiveModal();
     setModalOpen(false);
   };
 
   return (
     <div>
-      {data.project.ingestSheets.length === 0 && (
-        <p data-testid="no-ingest-sheets-notification">
-          No ingest sheets are found.
+      {project.ingestSheets.length === 0 && (
+        <p className="notification" data-testid="no-ingest-sheets-notification">
+          <FontAwesomeIcon icon="info-circle" />{" "}
+          <span className="ml-1">No ingest sheets</span>
         </p>
       )}
 
-      {data.project.ingestSheets.length > 0 && (
+      {project.ingestSheets.length > 0 && (
         <>
-          <table>
+          <table className="table is-striped is-hoverable is-fullwidth">
             <caption>All Project Ingest Sheets</caption>
             <thead>
               <tr>
                 <th>Ingest sheet title</th>
-                <th>Last updated</th>
+                <th className="has-text-right">Last updated</th>
                 <th>Status</th>
-                <th></th>
+                <th className="has-text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {data.project.ingestSheets.map(
-                ({ id, name, filename, status, updatedAt }) => (
-                  <tr key={id}>
+              {project.ingestSheets.map(
+                ({ id, title, status, updatedAt }, index) => (
+                  <tr key={id + index}>
                     <td>
-                      <Link to={`/project/${projectId}/ingest-sheet/${id}`}>
-                        {name}
+                      <Link to={`/project/${project.id}/ingest-sheet/${id}`}>
+                        {title}
                       </Link>
                     </td>
-                    <td>{updatedAt}</td>
-                    <td>{status}</td>
-                    <td className="text-right">
-                      <button onClick={e => onOpenModal(e, id)}>
-                        <TrashIcon className="icon cursor-pointer" />
-                      </button>
+                    <td className="has-text-right">{formatDate(updatedAt)}</td>
+                    <td>
+                      <span
+                        className={`tag ${getClassFromIngestSheetStatus(
+                          status
+                        )}`}
+                      >
+                        {TEMP_USER_FRIENDLY_STATUS[status]}
+                      </span>
+                    </td>
+                    <td className="has-text-right">
+                      {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
+                        <Link
+                          to={`/project/${project.id}/ingest-sheet/${id}`}
+                          className="button"
+                        >
+                          {<FontAwesomeIcon icon="eye" />}{" "}
+                          <span className="sr-only">View</span>
+                        </Link>
+                      )}
+                      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
+                        status
+                      ) > -1 && (
+                        <button
+                          className="button"
+                          onClick={(e) => onOpenModal(e, { id, title })}
+                        >
+                          {<FontAwesomeIcon icon="trash" />}{" "}
+                          <span className="sr-only">Delete</span>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 )
@@ -115,7 +117,9 @@ const IngestSheetList = ({ projectId }) => {
             isOpen={modalOpen}
             handleClose={onCloseModal}
             handleConfirm={handleDeleteClick}
-            thingToDeleteLabel={`Ingest Sheet`}
+            thingToDeleteLabel={`Ingest Sheet ${
+              activeModal ? activeModal.title : ""
+            }`}
           />
         </>
       )}
@@ -124,7 +128,8 @@ const IngestSheetList = ({ projectId }) => {
 };
 
 IngestSheetList.propTypes = {
-  projectId: PropTypes.string.isRequired
+  project: PropTypes.object.isRequired,
+  subscribeToIngestSheetStatusChanges: PropTypes.func.isRequired,
 };
 
 export default IngestSheetList;

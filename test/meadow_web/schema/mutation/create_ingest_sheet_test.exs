@@ -1,51 +1,83 @@
-defmodule MeadowWeb.Schema.Mutation.CreateIngestSheet do
+defmodule MeadowWeb.Schema.Mutation.CreateSheet do
   use MeadowWeb.ConnCase, async: true
+  use Meadow.S3Case
+  use Wormwood.GQLCase
 
-  import Mox
+  load_gql(MeadowWeb.Schema, "test/gql/CreateIngestSheet.gql")
 
-  @query """
-    mutation ($name: String!, $filename: String!, $projectId: ID!) {
-      createIngestSheet(name: $name, filename: $filename, projectId: $projectId) {
-        name
-        filename
-        project {
-          id
-        }
-      }
-    }
-  """
+  @uploads_bucket Meadow.Config.upload_bucket()
+  @ingest_bucket Meadow.Config.ingest_bucket()
+  @sheet_key "/create_sheet_test/ingest_sheet.csv"
+  @sheet_fixture "test/fixtures/ingest_sheet.csv"
+  @image_fixture "test/fixtures/coffee.tif"
 
-  test "createIngestSheet mutation creates an ingest sheet for a project", _context do
-    project = project_fixture()
+  setup do
+    project = project_fixture(%{id: "47b69292-604f-4ce3-b25f-65869d9ff562d"})
 
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 404}}
+    upload_object(
+      @uploads_bucket,
+      @sheet_key,
+      File.read!(@sheet_fixture)
+    )
+
+    upload_object(
+      @ingest_bucket,
+      "#{project.folder}/coffee.tif",
+      File.read!(@image_fixture)
+    )
+
+    on_exit(fn ->
+      delete_object(@uploads_bucket, @sheet_key)
+      delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
     end)
 
-    input = %{
-      "name" => "This is the name",
-      "filename" => "filename.csv",
-      "projectId" => project.id
-    }
+    {:ok, %{project: project}}
+  end
 
-    conn = build_conn() |> auth_user(user_fixture())
+  test "should be a valid mutation", %{project: project} do
+    result =
+      query_gql(
+        variables: %{
+          "title" => "Test Ingest Sheet",
+          "filename" => @sheet_key,
+          "projectId" => project.id
+        },
+        context: gql_context()
+      )
 
-    conn =
-      post conn, "/api/graphql",
-        query: @query,
-        variables: input
+    assert {:ok, query_data} = result
 
-    assert %{
-             "data" => %{
-               "createIngestSheet" => %{
-                 "name" => "This is the name",
-                 "filename" => "filename.csv",
-                 "project" => %{
-                   "id" => project.id
-                 }
-               }
-             }
-           } == json_response(conn, 200)
+    title = get_in(query_data, [:data, "createIngestSheet", "title"])
+    assert title == "Test Ingest Sheet"
+  end
+
+  describe "authorization" do
+    test "viewers are not authorized to create ingest sheets", %{project: project} do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "title" => "Test Ingest Sheet",
+            "filename" => @sheet_key,
+            "projectId" => project.id
+          },
+          context: %{current_user: %{role: "User"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to create ingest sheets", %{project: project} do
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "title" => "Test Ingest Sheet",
+            "filename" => @sheet_key,
+            "projectId" => project.id
+          },
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["createIngestSheet"]
+    end
   end
 end

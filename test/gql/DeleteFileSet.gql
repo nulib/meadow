@@ -1,0 +1,7 @@
+#import "./FileSetFields.frag.gql"
+
+mutation($fileSetId: ID!) {
+  deleteFileSet(fileSetId: $fileSetId) {
+    ...FileSetFields
+  }
+}

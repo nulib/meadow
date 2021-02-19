@@ -1,0 +1,5 @@
+fragment ControlledValueFields on ControlledValue {
+  id
+  label
+  hint
+}

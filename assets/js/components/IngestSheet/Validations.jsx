@@ -1,97 +1,35 @@
-import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import UIProgressBar from "../UI/UIProgressBar";
-import debounce from "lodash.debounce";
+import React, { useEffect } from "react";
+import { START_VALIDATION } from "./ingestSheet.gql";
+import { useMutation } from "@apollo/client";
 import IngestSheetReport from "./Report";
-import {
-  SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
-  START_VALIDATION
-} from "./ingestSheet.query";
-import { withRouter } from "react-router-dom";
-import { useMutation } from "@apollo/react-hooks";
 
-function IngestSheetValidations({
-  ingestSheetId,
-  initialProgress,
-  subscribeToIngestSheetProgress,
-  status
-}) {
-  const [progress, setProgress] = useState({ states: [] });
+function IngestSheetValidations({ sheetId, status }) {
   const [startValidation, { validationData }] = useMutation(START_VALIDATION);
+  const isValidating = status === "UPLOADED";
 
   useEffect(() => {
-    setProgress(initialProgress);
-    subscribeToIngestSheetProgress({
-      document: SUBSCRIBE_TO_INGEST_SHEET_PROGRESS,
-      variables: { ingestSheetId },
-      updateQuery: debounce(handleProgressUpdate, 250, { maxWait: 250 })
-    });
-
-    startValidation({ variables: { id: ingestSheetId } });
+    startValidation({ variables: { id: sheetId } });
   }, []);
 
-  const handleProgressUpdate = (prev, { subscriptionData }) => {
-    if (!subscriptionData.data) return prev;
-
-    const progress = subscriptionData.data.ingestSheetProgressUpdate;
-    setProgress(progress);
-    return { ingestSheetProgress: progress };
-  };
-
-  const isFinished = () => {
-    return status !== "UPLOADED";
-  };
-
-  const showProgressBar = () => {
-    if (isFinished()) {
-      return null;
-    }
-    return (
-      <UIProgressBar
-        percentComplete={progress.percentComplete}
-        label="Please wait for validation"
-      />
-    );
-  };
-
-  const showReport = () => {
-    if (isFinished()) {
-      return (
-        <>
-          <IngestSheetReport
-            progress={progress}
-            status={status}
-            ingestSheetId={ingestSheetId}
-          />
-        </>
-      );
-    } else {
-      return <></>;
-    }
-  };
-
   return (
-    <>
-      <section>
-        {showProgressBar()}
-        {showReport()}
-      </section>
-    </>
+    <section>
+      {isValidating ? (
+        <React.Fragment>
+          <p className="has-text-centered mb-5">Validating ingest sheet...</p>
+          <progress className="progress is-small is-primary" max="100">
+            30%
+          </progress>
+        </React.Fragment>
+      ) : (
+        <IngestSheetReport status={status} sheetId={sheetId} />
+      )}
+    </section>
   );
 }
 
 IngestSheetValidations.propTypes = {
-  ingestSheetId: PropTypes.string.isRequired,
-  status: PropTypes.oneOf([
-    "APPROVED",
-    "COMPLETED",
-    "DELETED",
-    "FILE_FAIL",
-    "ROW_FAIL",
-    "UPLOADED",
-    "VALID"
-  ]),
-  initialProgress: PropTypes.object.isRequired
+  sheetId: PropTypes.string.isRequired,
+  status: PropTypes.string.isRequired,
 };
-
-export default withRouter(IngestSheetValidations);
+export default IngestSheetValidations;

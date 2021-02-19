@@ -1,0 +1,9 @@
+mutation($title: String!, $filename: String!, $projectId: ID!) {
+  createIngestSheet(title: $title, filename: $filename, projectId: $projectId) {
+    title
+    filename
+    project {
+      id
+    }
+  }
+}

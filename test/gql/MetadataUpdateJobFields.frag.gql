@@ -1,0 +1,18 @@
+fragment MetadataUpdateJobFields on CsvMetadataUpdateJob {
+  id
+  filename
+  source
+  rows
+  errors {
+    row
+    errors {
+      field
+      messages
+    }
+  }
+  status
+  user
+  insertedAt
+  updatedAt
+  startedAt
+}

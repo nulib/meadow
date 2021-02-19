@@ -5,20 +5,68 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 config :meadow,
-  ecto_repos: [Meadow.Repo]
+  ecto_repos: [Meadow.Repo],
+  environment: Mix.env()
 
 # Shared database config
-config :meadow, Meadow.Repo, migration_primary_key: [name: :id, type: :binary_id]
+config :meadow, Meadow.Repo,
+  migration_primary_key: [
+    name: :id,
+    type: :binary_id,
+    autogenerate: false,
+    read_after_writes: true,
+    default: {:fragment, "uuid_generate_v4()"}
+  ],
+  migration_timestamps: [type: :utc_datetime_usec]
 
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B",
   render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: Meadow.PubSub,
+  live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
+
+# Configures the ElasticsearchCluster
+config :meadow, Meadow.ElasticsearchCluster,
+  api: Elasticsearch.API.HTTP,
+  timeout: 15_000,
+  recv_timeout: 15_000,
+  json_library: Jason,
+  indexes: %{
+    meadow: %{
+      settings: "priv/elasticsearch/meadow.json",
+      store: Meadow.ElasticsearchStore,
+      sources: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ],
+      bulk_page_size: 500,
+      bulk_wait_interval: 2_000
+    }
+  }
+
+# Configures lambda scripts
+config :meadow, :lambda,
+  digester: {:local, {"nodejs/digester/index.js", "handler"}},
+  edtf: {:local, {"nodejs/edtf/index.js", "handler"}},
+  exif: {:local, {"nodejs/exif/index.js", "handler"}},
+  mime_type: {:local, {"nodejs/mime-type/index.js", "handler"}},
+  tiff: {:local, {"nodejs/pyramid-tiff/index.js", "handler"}}
+
+# Configures the pyramid TIFF processor
+with val <- System.get_env("PYRAMID_PROCESSOR") do
+  unless is_nil(val), do: config(:meadow, pyramid_processor: val)
+end
+
+# Configures the ETDF parser
+with val <- System.get_env("EDTF") do
+  unless is_nil(val), do: config(:meadow, edtf: val)
+end
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -28,21 +76,31 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :ueberauth, Ueberauth,
-  providers: [
-    openam:
-      {Ueberauth.Strategy.OpenAM,
-       [
-         base_url: "https://websso.it.northwestern.edu/amserver/",
-         sso_cookie: "openAMssoToken",
-         callback_path: "/auth/openam/callback"
-       ]}
+config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
+
+config :authoritex,
+  authorities: [
+    Authoritex.FAST.CorporateName,
+    Authoritex.FAST.EventName,
+    Authoritex.FAST.Form,
+    Authoritex.FAST.Geographic,
+    Authoritex.FAST.Personal,
+    Authoritex.FAST.Topical,
+    Authoritex.FAST.UniformTitle,
+    Authoritex.FAST,
+    Authoritex.GeoNames,
+    Authoritex.Getty.AAT,
+    Authoritex.Getty.TGN,
+    Authoritex.Getty.ULAN,
+    Authoritex.Getty,
+    Authoritex.LOC.Languages,
+    Authoritex.LOC.Names,
+    Authoritex.LOC.SubjectHeadings,
+    NUL.Authority
   ]
 
 config :honeybadger,
-  api_key:
-    System.get_env("HONEYBADGER_API_KEY") ||
-      "DO_NOT_REPORT",
+  api_key: System.get_env("HONEYBADGER_API_KEY", "DO_NOT_REPORT"),
   environment_name: Mix.env(),
   exclude_envs: [:dev, :test]
 
@@ -67,6 +125,13 @@ config :ex_aws,
   ],
   region: aws_region
 
+config :httpoison_retry, wait: 50
+
+import_config "sequins.exs"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+if File.exists?("config/#{Mix.env()}.local.exs"),
+  do: import_config("#{Mix.env()}.local.exs")

@@ -1,0 +1,7 @@
+#import "./CollectionFields.frag.gql"
+
+mutation($collectionId: ID!) {
+  deleteCollection(collectionId: $collectionId) {
+    ...CollectionFields
+  }
+}

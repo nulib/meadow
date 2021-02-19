@@ -1,84 +1,50 @@
 defmodule Meadow.Ingest.SheetsToWorks do
   @moduledoc """
-  Functions to group IngestSheetRows into Works and FileSets
+  Functions to group Rows into Works and FileSets
   and create the resulting database records
   """
   import Ecto.Query, warn: false
-  alias Meadow.Config
-  alias Meadow.Data.{AuditEntries, FileSets, Works}
-  alias Meadow.Ingest.{Actions, IngestSheets}
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetRow}
+  alias Meadow.Ingest.{Progress, Rows, Sheets, WorkCreator}
+  alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
+  alias Meadow.Utils.MapList
 
-  use Meadow.Constants
+  def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet, :sync) do
+    create_works_from_ingest_sheet(ingest_sheet)
 
-  def create_works_from_ingest_sheet(%IngestSheet{} = ingest_sheet) do
+    Progress.get_and_lock_pending_work_entries(ingest_sheet.id, :all)
+    |> Progress.update_entries("CreateWork", "processing")
+    |> Repo.preload(row: :sheet)
+    |> WorkCreator.create_works_from_rows()
+
+    Sheets.get_ingest_sheet!(ingest_sheet.id)
+  end
+
+  def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet) do
     ingest_sheet
-    |> group_by_works()
-    |> Enum.map(&ingest_work/1)
-    |> IngestSheets.link_works_to_ingest_sheet(ingest_sheet)
+    |> initialize_progress()
 
-    start_file_set_pipelines(ingest_sheet)
+    ingest_sheet
   end
 
-  def group_by_works(%IngestSheet{} = ingest_sheet) do
-    IngestSheets.list_ingest_sheet_rows(sheet: ingest_sheet)
-    |> Enum.group_by(fn row -> row |> IngestSheetRow.field_value(:work_accession_number) end)
+  def group_by_works(%Sheet{} = ingest_sheet) do
+    Rows.list_ingest_sheet_rows(sheet: ingest_sheet)
+    |> Enum.group_by(fn row -> row |> Row.field_value(:work_accession_number) end)
   end
 
-  defp start_file_set_pipelines(ingest_sheet) do
-    from(s in IngestSheetRow,
-      join: fs in FileSets.FileSet,
-      on: s.file_set_accession_number == fs.accession_number,
-      select: [s.row, fs.id],
-      where: s.ingest_sheet_id == ^ingest_sheet.id
-    )
-    |> Repo.all()
-    |> Enum.each(fn [row_num, file_set_id] ->
-      Actions.IngestFileSet.send_message(
-        %{file_set_id: file_set_id},
-        %{context: "IngestSheet", ingest_sheet: ingest_sheet.id, ingest_sheet_row: row_num}
-      )
-    end)
-  end
-
-  defp ingest_work({accession_number, file_set_rows}) do
-    ingest_bucket = Config.ingest_bucket()
-
-    result =
-      Repo.transaction(fn ->
-        %{
-          accession_number: accession_number,
-          visibility: @default_visibility,
-          work_type: "image",
-          metadata: %{},
-          file_sets:
-            file_set_rows
-            |> Enum.map(fn row ->
-              file_path = IngestSheetRow.field_value(row, :filename)
-              location = "s3://#{ingest_bucket}/#{file_path}"
-
-              %{
-                accession_number: row |> IngestSheetRow.field_value(:accession_number),
-                role: row |> IngestSheetRow.field_value(:role),
-                metadata: %{
-                  description: row |> IngestSheetRow.field_value(:description),
-                  location: location,
-                  original_filename: Path.basename(file_path)
-                }
-              }
-            end)
-        }
-        |> Works.create_work!()
+  def initialize_progress(ingest_sheet) do
+    with groups <- group_by_works(ingest_sheet) do
+      groups
+      |> Enum.flat_map(fn {_, rows} ->
+        rows
+        |> Enum.with_index()
+        |> Enum.map(fn {row, index} ->
+          {row.id, MapList.get(row.fields, :header, :value, :role), index == 0}
+        end)
       end)
+      |> Progress.initialize_entries()
 
-    case result do
-      {:ok, work} ->
-        AuditEntries.add_entry!(work.id, "create", "ok")
-        work
-
-      {:error, reason} ->
-        raise reason
+      groups
     end
   end
 end

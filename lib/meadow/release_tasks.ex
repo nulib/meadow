@@ -3,28 +3,41 @@ defmodule Meadow.ReleaseTasks do
   Release tasks for Meadow
   """
   @app :meadow
-  alias Ecto.Adapters.SQL
+  @elastic_search_index @app
+  @modules [
+    Meadow.BatchDriver,
+    Meadow.Data.IndexWorker,
+    Meadow.Ingest.Progress,
+    Meadow.Ingest.WorkCreator,
+    Meadow.Ingest.WorkRedriver
+  ]
+
+  require Logger
 
   def migrate do
+    Logger.info("Starting Meadow")
+    System.put_env("MEADOW_PROCESSES", "none")
+    Application.ensure_all_started(@app)
+    pause!()
+
     for repo <- repos() do
+      Logger.info("Migrating #{repo}")
       create_storage_for(repo)
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
+
+    Logger.info("Hot swapping Elasticsearch index #{@elastic_search_index}")
+    Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, @elastic_search_index)
+  after
+    resume!()
   end
 
-  def reset! do
-    for repo <- repos() do
-      SQL.query!(
-        repo,
-        "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'"
-      )
-      |> Map.get(:rows)
-      |> Enum.each(fn [_, table, _, _, _, _, _, _] ->
-        SQL.query!(repo, "DROP TABLE #{table} CASCADE")
-      end)
-    end
+  def pause! do
+    Enum.each(@modules, &Meadow.IntervalTask.pause!/1)
+  end
 
-    migrate()
+  def resume! do
+    Enum.each(@modules, &Meadow.IntervalTask.resume!/1)
   end
 
   defp create_storage_for(repo) do

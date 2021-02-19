@@ -1,0 +1,7 @@
+#import "./MetadataFields.frag.gql"
+
+query DescribeField($id: ID!) {
+  describeField(id: $id) {
+    ...MetadataFields
+  }
+}

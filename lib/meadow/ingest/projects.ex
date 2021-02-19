@@ -5,7 +5,8 @@ defmodule Meadow.Ingest.Projects do
 
   import Ecto.Query, warn: false
 
-  alias Meadow.{Ingest.Projects.Project, Repo}
+  alias Meadow.Ingest.Schemas.Project
+  alias Meadow.Repo
 
   @doc """
   Returns the list of projects in reverse chronological order.
@@ -29,7 +30,7 @@ defmodule Meadow.Ingest.Projects do
         from p in query, limit: ^limit
 
       {:order, order}, query ->
-        from p in query, order_by: [{^order, :id}]
+        from p in query, order_by: [{^order, :updated_at}, {^order, :title}]
     end)
     |> Repo.all()
   end
@@ -40,6 +41,16 @@ defmodule Meadow.Ingest.Projects do
   Raises `Ecto.NoResultsError` if the Project does not exist.
   """
   def get_project!(id), do: Repo.get!(Project, id)
+
+  @doc """
+  Gets a project by title.
+
+  Returns nil if the Project with that title does not exist.
+  """
+  def get_project_by_title(title) do
+    from(p in Project, where: p.title == ^title)
+    |> Repo.one()
+  end
 
   @doc """
   Creates a project.

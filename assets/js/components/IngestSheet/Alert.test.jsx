@@ -11,18 +11,18 @@ const fileFail = {
   state: [
     {
       name: "file",
-      state: "FAIL"
+      state: "FAIL",
     },
     {
       name: "rows",
-      state: "PENDING"
+      state: "PENDING",
     },
     {
       name: "overall",
-      state: "FAIL"
-    }
+      state: "FAIL",
+    },
   ],
-  status: "FILE_FAIL"
+  status: "FILE_FAIL",
 };
 
 it("renders without crashing", () => {
@@ -37,10 +37,12 @@ it("displays danger alert with file fail message when the Ingest Sheet status is
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("danger");
-  expect(getByText("File errors")).toBeInTheDocument();
+  expect(alertElement).toHaveClass("is-danger");
+  expect(getByText("File errors", { exact: false })).toBeInTheDocument();
   expect(
-    getByText("Invalid csv file: unexpected escape character...")
+    getByText("Invalid csv file: unexpected escape character...", {
+      exact: false,
+    })
   ).toBeInTheDocument();
 });
 
@@ -53,34 +55,36 @@ const rowFail = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "FAIL"
+      state: "FAIL",
     },
     {
       name: "overall",
-      state: "FAIL"
-    }
+      state: "FAIL",
+    },
   ],
-  status: "ROW_FAIL"
+  status: "ROW_FAIL",
 };
 
 it("renders without crashing", () => {
-  const { debug } = render(<IngestSheetAlert />);
+  render(<IngestSheetAlert />);
 });
 
 it("displays danger alert with row fail message when the Ingest Sheet status is ROW_FAIL", () => {
-  const { debug, getByTestId, getByText } = render(
+  const { getByTestId, getByText } = render(
     <IngestSheetAlert ingestSheet={rowFail} />
   );
 
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("danger");
-  expect(getByText("File has failing rows")).toBeInTheDocument();
+  expect(alertElement).toHaveClass("is-danger");
+  expect(
+    getByText("File has failing rows", { exact: false })
+  ).toBeInTheDocument();
 });
 
 const valid = {
@@ -92,18 +96,18 @@ const valid = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "VALID"
+  status: "VALID",
 };
 
 it("renders without crashing", () => {
@@ -118,10 +122,14 @@ it("displays success alert with valid file message when the Ingest Sheet status 
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("success");
-  expect(getByText("File is valid")).toBeInTheDocument();
+  expect(alertElement).toHaveClass("is-success");
   expect(
-    getByText("All checks have passed and the ingest sheet is valid.")
+    getByText("the ingest sheet is valid", { exact: false })
+  ).toBeInTheDocument();
+  expect(
+    getByText("All checks have passed and the ingest sheet is valid.", {
+      exact: false,
+    })
   ).toBeInTheDocument();
 });
 
@@ -134,39 +142,22 @@ const approved = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "APPROVED"
+  status: "APPROVED",
 };
 
 it("renders without crashing", () => {
   const { debug } = render(<IngestSheetAlert />);
-});
-
-it("displays info alert with approved message when the Ingest Sheet status is APPROVED", () => {
-  const { debug, getByTestId, getByText } = render(
-    <IngestSheetAlert ingestSheet={approved} />
-  );
-
-  const alertElement = getByTestId("ui-alert");
-
-  expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("info");
-  expect(getByText("Approved")).toBeInTheDocument();
-  expect(
-    getByText(
-      "The Ingest Sheet has been approved and the ingest is in progress."
-    )
-  ).toBeInTheDocument();
 });
 
 const completed = {
@@ -178,18 +169,18 @@ const completed = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "COMPLETED"
+  status: "COMPLETED",
 };
 
 it("renders without crashing", () => {
@@ -204,9 +195,13 @@ it("displays success alert with completed message when the Ingest Sheet status i
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("success");
-  expect(getByText("Ingestion Complete")).toBeInTheDocument();
-  expect(getByText("All files have been processed.")).toBeInTheDocument();
+  expect(alertElement).toHaveClass("is-success");
+  expect(getByText("Ingestion Complete", { exact: false })).toBeInTheDocument();
+  expect(
+    getByText("Ingestion complete, and all Works have been created.", {
+      exact: false,
+    })
+  ).toBeInTheDocument();
 });
 
 const deleted = {
@@ -218,25 +213,25 @@ const deleted = {
   state: [
     {
       name: "file",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "rows",
-      state: "PASS"
+      state: "PASS",
     },
     {
       name: "overall",
-      state: "PASS"
-    }
+      state: "PASS",
+    },
   ],
-  status: "DELETED"
+  status: "DELETED",
 };
 
 it("renders without crashing", () => {
   const { debug } = render(<IngestSheetAlert />);
 });
 
-it("displays success alert with completed message when the Ingest Sheet status is COMPLETED", () => {
+it("displays success alert with completed message when the Ingest Sheet status is DELETED", () => {
   const { debug, getByTestId, getByText } = render(
     <IngestSheetAlert ingestSheet={deleted} />
   );
@@ -244,7 +239,8 @@ it("displays success alert with completed message when the Ingest Sheet status i
   const alertElement = getByTestId("ui-alert");
 
   expect(alertElement).toBeInTheDocument();
-  expect(alertElement).toHaveClass("danger");
-  expect(getByText("Deleted")).toBeInTheDocument();
-  expect(getByText("Ingest sheet no longer exists.")).toBeInTheDocument();
+  expect(alertElement).toHaveClass("is-danger");
+  expect(
+    getByText("Ingest sheet no longer exists", { exact: false })
+  ).toBeInTheDocument();
 });

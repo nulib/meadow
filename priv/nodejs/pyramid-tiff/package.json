@@ -1,0 +1,16 @@
+{
+  "name": "node-pyramid",
+  "version": "0.1.0",
+  "description": "Create pyramid TIFFs in nodejs/sharp",
+  "main": "index.js",
+  "author": "mbklein",
+  "license": "Apache2",
+  "dependencies": {
+    "concat-stream": "^2.0.0",
+    "sharp": "^0.27.0",
+    "uri-js": "^4.4.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.824.0"
+  }
+}

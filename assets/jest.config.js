@@ -2,7 +2,9 @@ module.exports = {
   verbose: true,
   moduleNameMapper: {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
-      "<rootDir>/__mocks__/fileMock.js"
+      "<rootDir>/__mocks__/fileMock.js",
+    "^@js(.*)$": "<rootDir>/js$1",
   },
-  setupFilesAfterEnv: ["./jest.setup.js"]
+  setupFiles: [],
+  setupFilesAfterEnv: ["./jest.setup.js"],
 };

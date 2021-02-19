@@ -1,0 +1,7 @@
+mutation($workId: ID!) {
+  createSharedLink(workId: $workId) {
+    workId
+    expires
+    sharedLinkId
+  }
+}

@@ -1,39 +1,47 @@
 import React from "react";
 import UIInput from "./Input";
-import { render, fireEvent } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
+import { renderWithReactHookForm } from "../../../services/testing-helpers";
 
-const props = {
-  id: "my-input",
+const attrs = {
   label: "First name",
-  name: "my-input",
+  name: "tester",
   type: "text",
-  onChange: () => {}
+  "data-testid": "input-element",
+  required: true,
+  defaultValue: "Bob Smith",
 };
 
 it("renders without error", () => {
-  render(<UIInput {...props} />);
+  renderWithReactHookForm(<UIInput {...attrs} />);
 });
 
-it("renders a label for the input element", () => {
-  const { getByLabelText } = render(<UIInput {...props} />);
-  expect(getByLabelText(props.label)).toBeInTheDocument();
+it("renders passed through attributes to the input element", () => {
+  const { getByTestId } = renderWithReactHookForm(<UIInput {...attrs} />);
+  const input = getByTestId("input-element");
+
+  expect(input.name).toEqual(attrs.name);
+  expect(input.type).toEqual("text");
+  expect(input.value).toEqual("Bob Smith");
 });
 
-it("renders id and name attributes on the input element", () => {
-  const { getByLabelText } = render(<UIInput {...props} />);
-  const inputElement = getByLabelText(props.label);
-  expect(inputElement.id).toEqual(props.id);
-  expect(inputElement.name).toEqual(props.name);
-});
+it("renders error message when errors", async () => {
+  const {
+    getByTestId,
+    getByText,
+    reactHookFormMethods,
+  } = renderWithReactHookForm(<UIInput isReactHookForm {...attrs} />, {
+    toPassBack: ["setError"],
+  });
 
-it("fires the onChange function", () => {
-  const mockFn = jest.fn();
-  const newProps = { ...props, ...{ onChange: mockFn } };
+  await waitFor(() => {
+    reactHookFormMethods.setError(attrs.name, {
+      type: "manual",
+      message: "required",
+    });
+  });
 
-  const { getByLabelText } = render(<UIInput {...newProps} />);
-  const inputEl = getByLabelText(props.label);
-
-  fireEvent.change(inputEl, { target: { value: "foo" } });
-  expect(inputEl.value).toBe("foo");
-  expect(mockFn).toHaveBeenCalledTimes(1);
+  expect(getByTestId("input-element")).toHaveClass("is-danger");
+  expect(getByTestId("input-errors")).toBeInTheDocument();
+  expect(getByText("First name field is required"));
 });

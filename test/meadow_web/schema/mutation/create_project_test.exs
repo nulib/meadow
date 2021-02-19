@@ -1,39 +1,49 @@
 defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
   use MeadowWeb.ConnCase, async: true
+  use Wormwood.GQLCase
 
-  import Mox
+  alias Meadow.Ingest.Projects
 
-  @query """
-    mutation ($title: String!) {
-      createProject(title: $title) {
-        title
-      }
-    }
-  """
+  load_gql(MeadowWeb.Schema, "test/gql/CreateProject.gql")
 
-  test "createProject mutation creates a project", _context do
-    Meadow.ExAwsHttpMock
-    |> stub(:request, fn _method, _url, _body, _headers, _opts ->
-      {:ok, %{status_code: 200}}
-    end)
+  test "createProject mutation creates a project" do
+    result =
+      query_gql(
+        variables: %{"title" => "The project title"},
+        context: gql_context()
+      )
 
-    input = %{
-      "title" => "This is the title"
-    }
+    assert {:ok, _query_data} = result
 
-    conn = build_conn() |> auth_user(user_fixture())
+    project = Projects.get_project_by_title("The project title")
+    assert project.title == "The project title"
 
-    conn =
-      post conn, "/api/graphql",
-        query: @query,
-        variables: input
+    ExAws.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder) |> ExAws.request()
+  end
 
-    assert %{
-             "data" => %{
-               "createProject" => %{
-                 "title" => "This is the title"
-               }
-             }
-           } == json_response(conn, 200)
+  describe "authorization" do
+    test "viewers are not authorized to create projects" do
+      {:ok, result} =
+        query_gql(
+          variables: %{"title" => "The project title"},
+          context: %{current_user: %{role: "User"}}
+        )
+
+      assert %{errors: [%{message: "Forbidden", status: 403}]} = result
+    end
+
+    test "editors and above are authorized to create projects" do
+      {:ok, result} =
+        query_gql(
+          variables: %{"title" => "The project title"},
+          context: %{current_user: %{role: "Editor"}}
+        )
+
+      assert result.data["createProject"]
+
+      project = Projects.get_project_by_title("The project title")
+
+      ExAws.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder) |> ExAws.request()
+    end
   end
 end

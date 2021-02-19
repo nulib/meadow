@@ -1,25 +1,92 @@
 defmodule MeadowWeb.Plugs.SetCurrentUserTest do
-  use MeadowWeb.ConnCase
+  use MeadowWeb.ConnCase, async: true
+
+  alias Meadow.Accounts.User
   alias MeadowWeb.Plugs.SetCurrentUser
 
-  test "with a valid session, SetCurrentUser plug adds the current user to the Absinthe Context" do
-    user = user_fixture()
+  describe "without a valid session" do
+    test "SetCurrentUser plug adds no user to the Conn/Absinthe Context" do
+      conn =
+        build_conn()
+        |> Plug.Test.init_test_session(current_user: nil)
+        |> SetCurrentUser.call(nil)
 
-    conn =
-      build_conn()
-      |> auth_user(user)
-      |> SetCurrentUser.call(nil)
-
-    assert %{username: user.username, email: user.email, display_name: user.display_name} ==
-             conn.private.absinthe.context.current_user
+      assert %{} == conn.private.absinthe.context
+      assert nil == conn.assigns[:current_user]
+    end
   end
 
-  test "without a valid session, SetCurrentUser plug adds no user to the Absinthe Context" do
-    conn =
-      build_conn()
-      |> Plug.Test.init_test_session(current_user: nil)
-      |> SetCurrentUser.call(nil)
+  describe "with a valid session" do
+    setup do
+      user = user_fixture("TestAdmins")
+      {:ok, %{user: user}}
+    end
 
-    assert %{} == conn.private.absinthe.context
+    test "SetCurrentUser plug adds the current user to the Conn/Absinthe Context", %{user: user} do
+      conn =
+        build_conn()
+        |> auth_user(user)
+        |> SetCurrentUser.call(nil)
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.private.absinthe.context.current_user
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.assigns[:current_user]
+    end
+  end
+
+  describe "Meadow.Cache.Users cache" do
+    setup do
+      user = user_fixture("TestAdmins")
+      {:ok, %{user: user}}
+    end
+
+    test "With a cached user, SetCurrentUser plug adds the user to the Conn/Absinthe Context from the cache",
+         %{user: user} do
+      Cachex.put!(Meadow.Cache.Users, user.username, user)
+
+      conn =
+        build_conn()
+        |> Plug.Test.init_test_session(
+          current_user: %{
+            username: user.username,
+            display_name: nil,
+            email: nil,
+            role: nil
+          }
+        )
+        |> SetCurrentUser.call(nil)
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.private.absinthe.context.current_user
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: "Administrator"
+             } ==
+               conn.assigns[:current_user]
+    end
   end
 end

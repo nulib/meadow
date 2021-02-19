@@ -1,0 +1,13 @@
+query GetIngestErrors($sheetId: ID!) {
+  ingestSheetErrors(id: $sheetId) {
+    rowNumber
+    accessionNumber
+    workAccessionNumber
+    role
+    filename
+    description
+    action
+    outcome
+    errors
+  }
+}

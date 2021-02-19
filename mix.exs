@@ -1,17 +1,19 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
+  @app_version "0.1.0"
+
   def project do
     [
       app: :meadow,
-      version: "0.1.0",
+      version: @app_version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      test_coverage: coverage_options(),
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.circle": :test,
@@ -19,12 +21,7 @@ defmodule Meadow.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      releases: [
-        meadow: [
-          include_executables_for: [:unix],
-          applications: [meadow: :permanent, runtime_tools: :permanent]
-        ]
-      ]
+      releases: releases()
     ]
   end
 
@@ -34,20 +31,8 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [
-        :honeybadger,
-        :logger,
-        :runtime_tools,
-        :ueberauth_openam
-      ]
+      extra_applications: [:os_mon]
     ]
-  end
-
-  defp coverage_options do
-    case System.get_env("CI") do
-      "true" -> [tool: ExCoveralls]
-      _ -> []
-    end
   end
 
   # Specifies which paths to compile per environment.
@@ -59,44 +44,50 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.4.2"},
-      {:absinthe_plug, "~> 1.4.0"},
-      {:absinthe_phoenix, "~> 1.4.0"},
-      {:atomic_map, "~> 0.8"},
+      {:absinthe, "~> 1.5.0"},
+      {:absinthe_plug, "~> 1.5.0"},
+      {:absinthe_phoenix, "~> 2.0.0"},
+      {:assertions, "~> 0.18.0", only: :test},
+      {:authoritex, "~> 0.7.0"},
       {:briefly, "~> 0.3.0", only: :test},
-      {:broadway_sqs, "~> 0.3.0"},
-      {:bypass, "~> 1.0", only: :test},
+      {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
+      {:ecto_enum, "~> 1.4.0"},
+      {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0"},
-      {:ecto_ulid, "~> 0.2.0"},
-      {:ets, "~> 0.7.3"},
-      {:ex_aws, "~> 2.1"},
+      {:elastix, "~> 0.8.0"},
+      {:elasticsearch, "~> 1.0.0"},
+      {:ets, "~> 0.8.0"},
+      {:ex_aws, "~> 2.1 and < 2.1.7"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_aws_sns,
-       git: "https://github.com/mbklein/ex_aws_sns.git", branch: "add-filter-policy"},
-      {:ex_aws_sqs, "~> 3.0"},
+      {:ex_aws_lambda, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
-      {:faker, "~> 0.12", only: [:dev, :test]},
+      {:exldap, "~> 0.6.3"},
+      {:faker, "~> 0.12"},
       {:gettext, "~> 0.11"},
-      {:hackney, "~> 1.15"},
+      {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
-      {:inflex, "~> 2.0.0"},
+      {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
-      {:mox, "~> 0.5", only: :test},
-      {:nimble_csv, "~> 0.6.0"},
-      {:phoenix, "~> 1.4.10"},
+      {:mox, "~> 1.0", only: :test},
+      {:nimble_csv, "~> 1.1.0"},
+      {:phoenix, "~> 1.5.1"},
       {:phoenix_html, "~> 2.13"},
+      {:phoenix_live_dashboard, "~> 0.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_ecto, "~> 4.1"},
       {:plug_cowboy, "~> 2.0"},
-      {:poison, "~> 3.0"},
+      {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
+      {:sequins, "~> 0.7.1"},
+      {:sigaws, "~> 0.7.2"},
       {:sweet_xml, "~> 0.6"},
-      {:ueberauth, "~> 0.2"},
-      {:ueberauth_openam, "~> 0.2.0"}
+      {:telemetry_metrics, "~> 0.4"},
+      {:ueberauth_nusso, "~> 0.2.4"},
+      {:wormwood, "~> 0.1.0"}
     ]
   end
 
@@ -108,9 +99,43 @@ defmodule Meadow.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create --quiet", "ecto.migrate", "meadow.seed"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["meadow.pipeline.setup", "ecto.create --quiet", "ecto.migrate", "test"]
+      "meadow.setup": [
+        "assets.install",
+        "meadow.pipeline.setup",
+        "meadow.buckets.create",
+        "ecto.setup",
+        "meadow.elasticsearch.setup"
+      ],
+      test: [
+        "meadow.pipeline.setup",
+        "meadow.buckets.create",
+        "meadow.ldap.teardown test/fixtures/ldap_seed.ldif",
+        "meadow.ldap.setup test/fixtures/ldap_seed.ldif",
+        "ecto.setup",
+        "test"
+      ]
     ]
+  end
+
+  defp releases do
+    [
+      meadow: [
+        include_executables_for: [:unix],
+        applications: [
+          meadow: :permanent,
+          runtime_tools: :permanent
+        ],
+        extra_applications: [:os_mon],
+        steps: [&build_assets/1, :assemble]
+      ]
+    ]
+  end
+
+  def build_assets(release) do
+    System.cmd("yarn", ["deploy"], cd: "assets")
+    Mix.Tasks.Phx.Digest.run([])
+    release
   end
 end

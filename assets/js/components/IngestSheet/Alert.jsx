@@ -1,6 +1,6 @@
-import React from "react";
-import UIAlert from "../UI/Alert";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const IngestSheetAlert = ({ ingestSheet }) => {
   if (!ingestSheet) return null;
@@ -11,66 +11,84 @@ const IngestSheetAlert = ({ ingestSheet }) => {
   switch (status) {
     case "APPROVED":
       alertObj = {
-        type: "info",
-        title: "Approved",
-        body:
-          "The Ingest Sheet has been approved and the ingest is in progress."
+        type: "is-success",
+        title: "",
+        body: "The Ingest Sheet is valid and Works are being created.",
+        icon: "check",
       };
       break;
     case "COMPLETED":
       alertObj = {
-        type: "success",
+        type: "is-success",
         title: "Ingestion Complete",
-        body: "All files have been processed."
+        body: "Ingestion complete, and all Works have been created.",
+        icon: "check-circle",
       };
       break;
     case "DELETED":
       // Not sure if someone could actually end up here
       alertObj = {
-        type: "danger",
-        title: "Deleted",
-        body: "Ingest sheet no longer exists."
+        type: "is-danger",
+        title: "",
+        body: "Ingest sheet no longer exists.",
+        icon: "exclamation-triangle",
       };
       break;
     case "FILE_FAIL":
       alertObj = {
-        type: "danger",
+        type: "is-danger",
         title: "File errors",
-        body: fileErrors.length > 0 ? fileErrors.map(error => `${error}`) : ""
+        body: `File errors: ${
+          fileErrors.length > 0 ? fileErrors.join(", ") : ""
+        }`,
+        icon: "exclamation-triangle",
       };
       break;
     case "ROW_FAIL":
       // Peel off ingestSheet.ingestSheetRows and inspect the "errors" array for each row to
       // give additional user feedback.  Put that data in "body"s value below.
       alertObj = {
-        type: "danger",
+        type: "is-danger",
         title: "File has failing rows",
-        body: "See the error report below for details."
+        body: "File has failing rows. See the error report below for details.",
+        icon: "exclamation-triangle",
       };
       break;
     case "UPLOADED":
       alertObj = {
-        type: "info",
+        type: "is-warning",
         title: "File uploaded",
-        body: "Ingest sheet validation is in progress."
+        body: "File uploaded and ingest sheet validation is in progress.",
+        icon: "info-circle",
       };
       break;
     case "VALID":
       alertObj = {
-        type: "success",
-        title: "File is valid",
-        body: "All checks have passed and the ingest sheet is valid."
+        type: "is-success",
+        title: "",
+        body: "All checks have passed and the ingest sheet is valid.",
+        icon: "thumbs-up",
       };
       break;
     default:
       break;
   }
 
-  return <UIAlert {...alertObj} />;
+  return (
+    <article
+      className={`notification is-flex is-align-items-center ${
+        alertObj.type !== "is-info" ? "is-light" : ""
+      } ${alertObj.type}`}
+      data-testid="ui-alert"
+    >
+      <FontAwesomeIcon icon={alertObj.icon} />
+      <p className="pl-2">{alertObj.body}</p>
+    </article>
+  );
 };
 
 IngestSheetAlert.propTypes = {
-  ingestSheet: PropTypes.object
+  ingestSheet: PropTypes.object,
 };
 
 export default IngestSheetAlert;

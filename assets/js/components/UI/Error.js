@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import UIAlert from "./Alert";
 
 // Render runtime errors, including GraphQL errors and network errors.
 //
@@ -7,7 +8,7 @@ import PropTypes from "prop-types";
 // 'QueryResult' object that has 'graphQLErrors' and 'networkError' properties.
 
 const Error = ({ error }) => {
-  if (!error || !error.message) return null;
+  if (!error.message) return null;
 
   const isNetworkError =
     error.networkError &&
@@ -20,19 +21,16 @@ const Error = ({ error }) => {
 
   if (isNetworkError) {
     if (error.networkError.statusCode === 404) {
-      errorMessage = (
-        <h3>
-          <code>404: Not Found</code>
-        </h3>
+      return (
+        <UIAlert type="is-danger" title="Network Error" body="404: Not Found" />
       );
     } else {
-      errorMessage = (
-        <>
-          <h3>Network Error!</h3>
-          <code>
-            {error.networkError.statusCode}: {error.networkError.message}
-          </code>
-        </>
+      return (
+        <UIAlert
+          type="is-danger"
+          title="Network Error"
+          body={`${error.networkError.statusCode}: ${error.networkError.message}`}
+        />
       );
     }
   } else if (hasGraphQLErrors) {
@@ -44,7 +42,7 @@ const Error = ({ error }) => {
               <span className="message">{message}</span>
               {details && (
                 <ul>
-                  {Object.keys(details).map(key => (
+                  {Object.keys(details).map((key) => (
                     <li key={key}>
                       {key} {details[key]}
                     </li>
@@ -56,24 +54,22 @@ const Error = ({ error }) => {
         </ul>
       </>
     );
-  } else {
-    errorMessage = (
-      <>
-        <h3>Whoops!</h3>
-        <p>{error.message}</p>
-      </>
+    return (
+      <UIAlert type="is-danger" title="GraphQL Error" body={errorMessage} />
     );
+  } else {
+    return <UIAlert type="is-danger" title="Whoops!" body={error.message} />;
   }
-
-  return <div className="errors">{errorMessage}</div>;
 };
 
 Error.propTypes = {
-  error: PropTypes.object
+  error: PropTypes.shape({
+    message: PropTypes.string,
+  }),
 };
 
 Error.defaultProps = {
-  error: {}
+  error: {},
 };
 
 export default Error;

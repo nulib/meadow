@@ -1,55 +1,48 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import Error from "../UI/Error";
-import Loading from "../UI/Loading";
 import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
-import {
-  GET_INGEST_SHEET_ERRORS,
-  GET_INGEST_SHEET_VALIDATIONS
-} from "./ingestSheet.query";
+import { INGEST_SHEET_ROWS } from "./ingestSheet.gql";
+import UISkeleton from "@js/components/UI/Skeleton";
 
-function IngestSheetReport({ ingestSheetId, progress, status }) {
-  const sheetHasErrors = () => {
-    return ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
+function IngestSheetReport({ sheetId, status }) {
+  const hasErrors = ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
+
+  const ingestSheetQueryVars = {
+    sheetId,
+    limit: 100,
+    state: hasErrors ? "FAIL" : "PASS",
   };
 
-  const { loading, error, data } = useQuery(
-    sheetHasErrors() ? GET_INGEST_SHEET_ERRORS : GET_INGEST_SHEET_VALIDATIONS,
-    {
-      variables: { ingestSheetId },
-      fetchPolicy: "network-only"
-    }
-  );
+  const { loading, error, data } = useQuery(INGEST_SHEET_ROWS, {
+    variables: ingestSheetQueryVars,
+    fetchPolicy: "network-only",
+  });
 
-  if (loading) return <Loading />;
+  if (loading) return <UISkeleton rows={15} />;
   if (error) return <Error error={error} />;
 
-  const ingestSheetRows = data.ingestSheetRows;
+  const { ingestSheetRows } = data;
 
-  {
-    /* Don't show if sheet isn't complete */
-  }
-  if (progress.percentComplete === 0) {
-    return null;
-  }
-
-  if (sheetHasErrors()) {
-    return <IngestSheetErrorsState validations={ingestSheetRows} />;
-  } else {
-    return (
-      <>
-        <IngestSheetUnapprovedState validations={ingestSheetRows} />
-      </>
-    );
-  }
+  return (
+    <>
+      {hasErrors ? (
+        <IngestSheetErrorsState rows={ingestSheetRows} />
+      ) : (
+        <IngestSheetUnapprovedState rows={ingestSheetRows} />
+      )}
+      <p className="notification is-italic">
+        * Note: Work/Fileset preview is limited to 100 rows/filesets
+      </p>
+    </>
+  );
 }
 
 IngestSheetReport.propTypes = {
-  ingestSheetId: PropTypes.string.isRequired,
-  progress: PropTypes.object.isRequired,
-  status: PropTypes.string
+  sheetId: PropTypes.string.isRequired,
+  status: PropTypes.string,
 };
 
 export default IngestSheetReport;

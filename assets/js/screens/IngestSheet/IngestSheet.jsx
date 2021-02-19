@@ -1,23 +1,26 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
-import ScreenHeader from "../../components/UI/ScreenHeader";
-import ScreenContent from "../../components/UI/ScreenContent";
 import Error from "../../components/UI/Error";
-import Loading from "../../components/UI/Loading";
+import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
-import { Link } from "react-router-dom";
+import { useQuery } from "@apollo/client";
+import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
+import Layout from "../Layout";
 import {
-  INGEST_SHEET_SUBSCRIPTION,
-  INGEST_SHEET_QUERY
-} from "../../components/IngestSheet/ingestSheet.query";
+  getClassFromIngestSheetStatus,
+  TEMP_USER_FRIENDLY_STATUS,
+} from "../../services/helpers";
+import IngestSheetAlert from "../../components/IngestSheet/Alert";
+import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
+import { ErrorBoundary } from "react-error-boundary";
+import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 
 const GET_CRUMB_DATA = gql`
-  query GetCrumbData($ingestSheetId: String!) {
-    ingestSheet(id: $ingestSheetId) {
+  query GetCrumbData($sheetId: ID!) {
+    ingestSheet(id: $sheetId) {
       id
-      name
+      title
       project {
         id
         title
@@ -27,74 +30,110 @@ const GET_CRUMB_DATA = gql`
 `;
 
 const ScreensIngestSheet = ({ match }) => {
-  const { id, ingestSheetId } = match.params;
+  const { id, sheetId } = match.params;
   const {
     loading: crumbsLoading,
     error: crumbsError,
-    data: crumbsData
+    data: crumbsData,
   } = useQuery(GET_CRUMB_DATA, {
-    variables: { ingestSheetId }
+    variables: { sheetId },
   });
 
   const {
-    subscribeToMore,
     data: sheetData,
     loading: sheetLoading,
-    error: sheetError
+    error: sheetError,
+    subscribeToMore: sheetSubscribeToMore,
   } = useQuery(INGEST_SHEET_QUERY, {
-    variables: { ingestSheetId },
-    fetchPolicy: "network-only"
+    variables: { sheetId },
+    fetchPolicy: "network-only",
   });
 
-  if (crumbsLoading || sheetLoading) return <Loading />;
   if (crumbsError || sheetError)
     return <Error error={crumbsError ? crumbsError : sheetError} />;
-
-  const { ingestSheet } = crumbsData;
 
   const createCrumbs = () => {
     return [
       {
-        label: "Projects",
-        link: "/project/list"
+        label: `Projects`,
+        route: `/project/list`,
       },
       {
-        label: ingestSheet.project.title,
-        link: `/project/${id}`
+        label: `${crumbsData.ingestSheet.project.title}`,
+        route: `/project/${id}`,
       },
       {
-        label: ingestSheet.name,
-        link: `/project/${id}/ingest-sheet/${ingestSheetId}`
-      }
+        label: "Ingest Sheets",
+        route: `/project/${id}`,
+      },
+      {
+        label: crumbsData.ingestSheet.title,
+        route: `/project/${id}/ingest-sheet/${sheetId}`,
+        isActive: true,
+      },
     ];
   };
 
   return (
-    <>
-      <ScreenHeader
-        title="Ingest Sheet"
-        description="The following is system validation/parsing of the .csv Ingest sheet.  Currently it checks 1.) Is it a .csv file?  2.) Are the appropriate headers present?  3.) Do files exist in AWS S3?"
-        breadCrumbs={createCrumbs()}
-      />
-      <ScreenContent>
-        <IngestSheet
-          ingestSheetData={sheetData.ingestSheet}
-          projectId={id}
-          subscribeToIngestSheetUpdates={() =>
-            subscribeToMore({
-              document: INGEST_SHEET_SUBSCRIPTION,
-              variables: { ingestSheetId },
-              updateQuery: (prev, { subscriptionData }) => {
-                if (!subscriptionData.data) return prev;
-                const updatedSheet = subscriptionData.data.ingestSheetUpdate;
-                return { ingestSheet: { ...updatedSheet } };
-              }
-            })
-          }
-        />
-      </ScreenContent>
-    </>
+    <Layout>
+      <section className="section">
+        <div className="container">
+          {crumbsLoading ? (
+            <UISkeleton rows={2} />
+          ) : (
+            <UIBreadcrumbs items={createCrumbs()} />
+          )}
+
+          <div className="box">
+            {sheetLoading ? (
+              <UISkeleton rows={5} />
+            ) : (
+              <>
+                <div className="is-flex is-justify-content-space-between mb-3">
+                  <div>
+                    <h1 className="title">{sheetData.ingestSheet.title} </h1>
+                    <span
+                      className={`tag is-light ${getClassFromIngestSheetStatus(
+                        sheetData.ingestSheet.status
+                      )}`}
+                    >
+                      {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
+                    </span>
+                  </div>
+                  <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                    <IngestSheetActionRow
+                      sheetId={sheetId}
+                      projectId={id}
+                      status={sheetData.ingestSheet.status}
+                      title={sheetData.ingestSheet.title}
+                    />
+                  </ErrorBoundary>
+                </div>
+
+                {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED"].indexOf(
+                  sheetData.ingestSheet.status
+                ) > -1 && (
+                  <IngestSheetAlert ingestSheet={sheetData.ingestSheet} />
+                )}
+              </>
+            )}
+
+            {sheetLoading ? (
+              <UISkeleton rows={20} />
+            ) : (
+              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <IngestSheet
+                  ingestSheetData={sheetData.ingestSheet}
+                  projectId={id}
+                  subscribeToIngestSheetUpdates={sheetSubscribeToMore}
+                />
+              </ErrorBoundary>
+            )}
+          </div>
+        </div>
+      </section>
+    </Layout>
   );
 };
 
-export default withRouter(ScreensIngestSheet);
+export default ScreensIngestSheet;

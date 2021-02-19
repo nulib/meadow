@@ -1,0 +1,15 @@
+mutation(
+  $accession_number: String!
+  $role: FileSetRole!
+  $metadata: FileSetMetadataInput!
+  $work_id: ID!
+) {
+  ingestFileSet(
+    accessionNumber: $accession_number
+    role: $role
+    metadata: $metadata
+    workId: $work_id
+  ) {
+    id
+  }
+}

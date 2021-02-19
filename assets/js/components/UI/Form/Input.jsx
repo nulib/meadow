@@ -1,25 +1,50 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 
-const UIInput = ({
+const UIFormInput = ({
   id = "",
-  label = "An Input",
+  isReactHookForm,
+  label = "",
   name,
+  required,
   type = "text",
-  onChange
-}) => (
-  <div className="mb-4">
-    <label htmlFor={name}>{label}</label>
-    <input id={id} name={name} type={type} onChange={onChange} />
-  </div>
-);
+  ...passedInProps
+}) => {
+  let errors = {},
+    register;
 
-UIInput.propTypes = {
-  id: PropTypes.string,
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  type: PropTypes.string,
-  onChange: PropTypes.func.isRequired
+  if (isReactHookForm) {
+    const context = useFormContext();
+    errors = context.errors;
+    register = context.register;
+  }
+
+  return (
+    <>
+      <input
+        id={id || name}
+        name={name}
+        type={type}
+        ref={register && register({ required })}
+        className={`input ${errors[name] ? "is-danger" : ""}`}
+        {...passedInProps}
+      />
+      {errors[name] && (
+        <p data-testid="input-errors" className="help is-danger">
+          {label || name} field is required
+        </p>
+      )}
+    </>
+  );
 };
 
-export default UIInput;
+UIFormInput.propTypes = {
+  id: PropTypes.string,
+  isReactHookForm: PropTypes.bool,
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["date", "number", "text", "email", "hidden"]),
+};
+
+export default UIFormInput;

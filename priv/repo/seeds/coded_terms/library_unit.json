@@ -1,0 +1,34 @@
+[
+  {
+    "id": "FACULTY_COLLECTIONS",
+    "label": "Faculty Collections"
+  },
+  {
+    "id": "GOVERNMENT_AND_GEOGRAPHIC_INFORMATION_COLLECTION",
+    "label": "Government & Geographic Information Collection"
+  },
+  {
+    "id": "HERSKOVITS_LIBRARY",
+    "label": "Herskovits Library of African Studies"
+  },
+  {
+    "id": "MUSIC_LIBRARY",
+    "label": "Music Library"
+  },
+  {
+    "id": "SPECIAL_COLLECTIONS",
+    "label": "Charles Deering McCormick Library of Special Collections"
+  },
+  {
+    "id": "TRANSPORTATION_LIBRARY",
+    "label": "Transportation Library"
+  },
+  {
+    "id": "UNIVERSITY_ARCHIVES",
+    "label": "University Archives"
+  },
+  {
+    "id": "UNIVERSITY_MAIN_LIBRARY",
+    "label": "University (MAIN) Library"
+  }
+]

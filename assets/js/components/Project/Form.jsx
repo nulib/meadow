@@ -1,80 +1,120 @@
 import React, { useState } from "react";
-import { withRouter } from "react-router-dom";
-import { useMutation } from "@apollo/react-hooks";
-import { toast } from "react-toastify";
-import UIButton from "../UI/Button";
-import UIButtonGroup from "../UI/ButtonGroup";
-import { CREATE_PROJECT, GET_PROJECTS } from "./project.query.js";
+import { useMutation } from "@apollo/client";
+import { CREATE_PROJECT, GET_PROJECTS, UPDATE_PROJECT } from "./project.gql.js";
+import { useForm, FormProvider } from "react-hook-form";
 import Error from "../UI/Error";
 import Loading from "../UI/Loading";
+import { toastWrapper } from "../../services/helpers";
+import UIFormInput from "../UI/Form/Input.jsx";
+import UIFormField from "../UI/Form/Field.jsx";
+import { Button } from "@nulib/admin-react-components";
 
-const ProjectForm = ({ history }) => {
-  let inputTitle;
-  const [submitDisabled, setSubmitDisabled] = useState(true);
-  const [createProject, { loading, error, data }] = useMutation(
+const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
+  const [formError, setFormError] = useState();
+  const methods = useForm();
+  let [createProject, { loading, error: mutationError, data }] = useMutation(
     CREATE_PROJECT,
     {
       onCompleted({ createProject }) {
-        toast(`Project ${createProject.title} created successfully`);
-        history.push("/project/list");
+        toastWrapper(
+          "is-success",
+          `Project ${createProject.title} created successfully`
+        );
+        setShowForm(false);
+      },
+      onError(error) {
+        setFormError(error);
       },
       refetchQueries(mutationResult) {
         return [{ query: GET_PROJECTS }];
-      }
+      },
     }
   );
 
-  if (error) return <Error error={error} />;
+  let [updateProject] = useMutation(UPDATE_PROJECT, {
+    onCompleted({ updateProject }) {
+      toastWrapper(
+        "is-success",
+        `Project ${updateProject.title} updated successfully`
+      );
+      setShowForm(false);
+    },
+    onError(error) {
+      setFormError(error);
+    },
+  });
+
   if (loading) return <Loading />;
 
-  const handleCancel = () => {
-    history.push("/project/list");
-  };
-
-  const handleInputChange = () => {
-    setSubmitDisabled(inputTitle.value === "");
+  const onSubmit = (data) => {
+    if (project.id) {
+      updateProject({
+        variables: { projectId: project.id, projectTitle: data.title },
+      });
+    } else {
+      createProject({
+        variables: { projectTitle: data.title },
+      });
+    }
   };
 
   return (
-    <div className="md:w-1/2">
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-          createProject({
-            variables: { projectTitle: inputTitle.value }
-          });
-        }}
-      >
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="username"
+    <div>
+      <div className={`modal ${showForm ? "is-active" : ""}`}>
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods.handleSubmit(onSubmit)}
+            data-testid="project-form"
           >
-            Project Title
-          </label>
-          <input
-            id="project-title"
-            type="text"
-            placeholder="Project Title"
-            ref={node => {
-              inputTitle = node;
-            }}
-            className="text-input"
-            onChange={handleInputChange}
-          />
-        </div>
+            <div className="modal-background"></div>
+            <div className="modal-content">
+              <div className="box">
+                {formError && (
+                  <div className="notification">
+                    <Error error={formError} />
+                  </div>
+                )}
 
-        <UIButtonGroup>
-          <UIButton type="submit" disabled={submitDisabled}>
-            Submit
-          </UIButton>
-          <UIButton classes="btn-clear" onClick={handleCancel}>
-            Cancel
-          </UIButton>
-        </UIButtonGroup>
-      </form>
+                <UIFormField label="Project Title">
+                  <UIFormInput
+                    id={`${formType}${project.id}`}
+                    isReactHookForm
+                    required
+                    label="Project Title"
+                    data-testid="project-title-input"
+                    name="title"
+                    placeholder="Name your project..."
+                    defaultValue={project.title}
+                    key={project.id}
+                  />
+                </UIFormField>
+
+                <div className="buttons is-right">
+                  <Button
+                    isText
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    data-testid="cancel-button"
+                  >
+                    Cancel
+                  </Button>
+                  <Button isPrimary type="submit" data-testid="submit-button">
+                    {project && project.id ? "Update" : "Create"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <button
+              className="modal-close is-large"
+              type="button"
+              aria-label="close"
+              onClick={() => setShowForm(false)}
+            ></button>
+          </form>
+        </FormProvider>
+      </div>
     </div>
   );
 };
 
-export default withRouter(ProjectForm);
+export default ProjectForm;

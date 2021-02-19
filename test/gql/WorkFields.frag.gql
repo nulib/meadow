@@ -1,0 +1,34 @@
+fragment WorkFields on Work {
+  id
+  accessionNumber
+  collection {
+    id
+    title
+  }
+  fileSets {
+    ...FileSetFields
+  }
+  insertedAt
+  manifestUrl
+  project {
+    id
+    title
+  }
+  published
+  representativeImage
+  ingest_sheet {
+    id
+    title
+  }
+  updatedAt
+  visibility {
+    id
+    label
+  }
+  workType {
+    id
+    label
+  }
+  ...WorkAdministrativeMetadataFields
+  ...WorkDescriptiveMetadataFields
+}

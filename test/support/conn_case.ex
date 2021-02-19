@@ -14,15 +14,16 @@ defmodule MeadowWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
+  import Meadow.TestHelpers
 
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      alias Meadow.Accounts.Schemas.User
       alias MeadowWeb.Router.Helpers, as: Routes
       import Meadow.TestHelpers
-      alias Meadow.Accounts.Users.User
+      import Phoenix.ConnTest
+      import Plug.Conn
 
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
@@ -33,7 +34,8 @@ defmodule MeadowWeb.ConnCase do
           current_user: %{
             username: user.username,
             display_name: user.display_name,
-            email: user.email
+            email: user.email,
+            role: user.role
           }
         )
       end
@@ -41,12 +43,7 @@ defmodule MeadowWeb.ConnCase do
   end
 
   setup tags do
-    :ok = Sandbox.checkout(Meadow.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Meadow.Repo, {:shared, self()})
-    end
-
+    :ok = sandbox_mode(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

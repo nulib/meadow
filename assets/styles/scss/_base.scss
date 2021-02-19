@@ -1,0 +1,99 @@
+dt {
+  font-weight: bold;
+}
+
+dl.spaced {
+  dd {
+    padding-bottom: 1rem;
+  }
+}
+
+fieldset {
+  border: 1px dashed $rich-black-20;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  legend {
+    font-weight: bold;
+  }
+
+  &.add {
+    border-color: $success;
+  }
+
+  &.remove {
+    border-color: $danger;
+  }
+}
+
+footer {
+  .logo {
+    max-width: 250px;
+  }
+}
+
+// .input[type="text"],
+// .input[type="email"] {
+//   max-width: 350px;
+//   &.fullwidth {
+//     width: 100%;
+//   }
+// }
+
+table {
+  caption {
+    @extend .has-text-grey;
+    @extend .is-italic;
+    @extend .is-size-6;
+  }
+  &.is-fixed {
+    table-layout: fixed;
+  }
+}
+
+#root {
+  background-color: $white-ter;
+}
+
+.break-word {
+  overflow-wrap: break-word;
+}
+.buttons-end {
+  @extend .field;
+  @extend .has-addons;
+  justify-content: flex-end;
+}
+
+.small-title {
+  @include small-title;
+}
+
+.navbar {
+  border-bottom: 1px solid $rich-black-10;
+}
+
+// navbar-dropdown collapse options for mobile menu
+.navbar-dropdown,
+.has-dropdown input[type="checkbox"] {
+  display: none;
+}
+
+#dropdown1:checked ~ .navbar-dropdown,
+#dropdown2:checked ~ .navbar-dropdown {
+  display: block;
+}
+
+// TODO: Find a better way to override these overrides via Bulma variables
+.message.is-success .message-body {
+  color: $success;
+}
+.tag:not(body).is-success.is-light {
+  color: $success;
+}
+
+//Select option font-family override for cross-browser consistency
+.select {
+  option {
+    font-family: BlinkMacSystemFont, -apple-system, Arial, sans-serif;
+  }
+}

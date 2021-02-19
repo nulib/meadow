@@ -1,6 +1,7 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
   use Honeybadger.Plug
+  import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,10 +9,42 @@ defmodule MeadowWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug MeadowWeb.Plugs.RequireHttpsProxy
+  end
+
+  pipeline :secure_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug MeadowWeb.Plugs.RequireHttpsProxy
+    plug MeadowWeb.Plugs.SetCurrentUser
+    plug MeadowWeb.Plugs.RequireLogin
+  end
+
+  pipeline :elasticsearch do
+    plug :accepts, ["json"]
+
+    plug MeadowWeb.Plugs.RequireHttpsProxy
+    plug MeadowWeb.Plugs.SetCurrentUser
+    plug MeadowWeb.Plugs.RequireLogin
+  end
+
+  scope "/dashboard" do
+    pipe_through :secure_browser
+    live_dashboard "/", metrics: Meadow.Telemetry
+  end
+
+  scope "/elasticsearch" do
+    pipe_through :elasticsearch
+
+    forward "/", MeadowWeb.Plugs.Elasticsearch
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug MeadowWeb.Plugs.RequireHttpsProxy
     plug MeadowWeb.Plugs.SetCurrentUser
   end
 
@@ -19,10 +52,13 @@ defmodule MeadowWeb.Router do
   scope "/api" do
     pipe_through :api
 
+    post "/export/:file", MeadowWeb.ExportController, :export
+
     forward "/graphql", Absinthe.Plug, schema: MeadowWeb.Schema
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
+      interface: :playground,
       socket: MeadowWeb.UserSocket
 
     forward "/", Plug.Static,

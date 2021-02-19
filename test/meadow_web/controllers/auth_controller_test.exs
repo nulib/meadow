@@ -1,22 +1,49 @@
 defmodule MeadowWeb.AuthControllerTest do
-  use MeadowWeb.ConnCase
+  use MeadowWeb.ConnCase, async: true
 
-  test "GET /auth/openam redirects to SSO url with a callback url", %{conn: conn} do
-    conn = get(conn, "/auth/openam")
+  alias MeadowWeb.Plugs.SetCurrentUser
 
-    redirect_url =
-      "https://websso.it.northwestern.edu/amserver/UI/Login?goto=http://www.example.com/auth/openam/callback"
-
-    assert redirect_url == redirected_to(conn, 302)
+  test "GET /auth/nusso redirects to SSO url with a callback url", %{conn: conn} do
+    assert get(conn, "/auth/nusso")
+           |> redirected_to(302)
+           |> URI.parse()
+           |> Map.get(:fragment)
+           |> URI.decode_query()
+           |> Map.get("goto") == "https://www.example.com/auth/nusso/callback"
   end
 
-  test "GET /auth/openam/callback redirects to the referring page" do
+  test "GET /auth/nusso/callback redirects to the referring page" do
     conn =
       build_conn()
       |> Plug.Conn.put_req_header("referer", "/project/list")
 
-    conn = get(conn, "/auth/openam/callback")
+    conn = get(conn, "/auth/nusso/callback")
 
     assert "/project/list" == redirected_to(conn, 302)
+  end
+
+  describe "/auth/logout" do
+    setup do
+      user = user_fixture("TestAdmins")
+
+      conn =
+        build_conn()
+        |> auth_user(user)
+        |> SetCurrentUser.call(nil)
+
+      {:ok, %{conn: conn, user: user}}
+    end
+
+    test "GET /auth/logout", %{conn: conn, user: user} do
+      assert conn
+             |> Plug.Conn.fetch_session()
+             |> Plug.Conn.get_session(:current_user)
+             |> Map.get(:username) == user.username
+
+      assert get(conn, "/auth/logout")
+             |> Plug.Conn.fetch_session()
+             |> Plug.Conn.get_session(:current_user)
+             |> is_nil()
+    end
   end
 end

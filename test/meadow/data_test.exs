@@ -2,6 +2,7 @@ defmodule Meadow.DataTest do
   use Meadow.DataCase
 
   alias Meadow.Data
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
 
   describe "queries" do
@@ -23,6 +24,51 @@ defmodule Meadow.DataTest do
       work = work_fixture(@file_set_attrs) |> Repo.preload(:file_sets)
       file_set_id = List.first(work.file_sets).id
       assert Data.get_work_by_file_set_id(file_set_id).id == work.id
+    end
+
+    test "ranked_file_sets_for_work/2 fetches the ranked file sets for a work and role" do
+      work = work_fixture()
+
+      %FileSet{}
+      |> FileSet.changeset(%{
+        work_id: work.id,
+        accession_number: "2222",
+        role: "am",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      %FileSet{}
+      |> FileSet.changeset(%{
+        position: 0,
+        work_id: work.id,
+        accession_number: "1111",
+        role: "am",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      %FileSet{}
+      |> FileSet.changeset(%{
+        position: 0,
+        work_id: work.id,
+        accession_number: "no",
+        role: "pm",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      %FileSet{}
+      |> FileSet.changeset(%{
+        position: 0,
+        accession_number: "nono",
+        role: "am",
+        metadata: %{location: "test", original_filename: "test"}
+      })
+      |> Repo.insert!()
+
+      [file_set_1, file_set_2] = Data.ranked_file_sets_for_work(work.id, "am")
+      assert file_set_1.rank < file_set_2.rank
     end
 
     test "query/2 returns its queryable" do

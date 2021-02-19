@@ -1,0 +1,159 @@
+.loader-wrapper {
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // height: 100%;
+  // width: 100%;
+  background: #fff;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  border-radius: 6px;
+
+  // Targets a child element, and applies a circular loading spinner style
+  .loader {
+    height: 80px;
+    width: 80px;
+  }
+
+  &.is-active {
+    opacity: 1;
+    z-index: 1;
+  }
+}
+
+// Placeholder specific code
+$grey-nuance-lighter: #eeeeee;
+$grey-nuance-darker: #dddddd;
+$fade-grey: #e8e8e8;
+.placeload {
+  background: #fff;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px;
+  border-radius: 3px;
+  position: relative;
+  //transform: translateY(-50%);
+  .header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    .img {
+      width: 50px;
+      min-width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .header-content {
+      margin-left: 20px;
+      width: 100%;
+      .content-shape {
+        height: 12px;
+        margin-bottom: 12px;
+        &:nth-child(6n + 1) {
+          width: 100%;
+        }
+        &:nth-child(6n + 2) {
+          width: 95%;
+        }
+        &:nth-child(6n + 3) {
+          width: 90%;
+        }
+        &:nth-child(6n + 4) {
+          width: 85%;
+        }
+        &:nth-child(6n + 5) {
+          width: 80%;
+        }
+        &:nth-child(6n + 6) {
+          width: 75%;
+        }
+      }
+    }
+  }
+  .image-placeholder {
+    width: 100%;
+    margin-top: 20px;
+    height: 250px;
+  }
+  .placeholder-footer {
+    position: relative;
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .footer-block {
+      width: 100%;
+      height: 100%;
+      min-height: 20px;
+      .content-shape {
+        height: 8px;
+        margin-bottom: 8px;
+        &:first-child {
+          width: 32%;
+        }
+        &:nth-child(2) {
+          width: 24%;
+        }
+      }
+    }
+  }
+}
+@-webkit-keyframes placeload {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+@keyframes placeload {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+.loads {
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-name: placeload;
+  animation-name: placeload;
+  -webkit-animation-timing-function: linear;
+  animation-timing-function: linear;
+  background: $background;
+  background: $grey-nuance-lighter;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(8%, $grey-nuance-lighter),
+    color-stop(18%, $grey-nuance-darker),
+    color-stop(33%, $grey-nuance-lighter)
+  );
+  background: -webkit-linear-gradient(
+    left,
+    #eeeeee 8%,
+    #dddddd 18%,
+    #eeeeee 33%
+  );
+  background: linear-gradient(
+    to right,
+    $grey-nuance-lighter 8%,
+    $grey-nuance-darker 18%,
+    $grey-nuance-lighter 33%
+  );
+  -webkit-background-size: 800px 104px;
+  background-size: 1200px 104px;
+  position: relative;
+}

@@ -1,0 +1,7 @@
+#import "./BatchFields.frag.gql"
+
+query GetBatchById($id: ID!) {
+  batch(id: $id) {
+    ...BatchFields
+  }
+}

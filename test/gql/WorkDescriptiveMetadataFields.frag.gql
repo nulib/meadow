@@ -1,0 +1,89 @@
+fragment WorkDescriptiveMetadataFields on Work {
+  descriptiveMetadata {
+    ark
+    title
+    dateCreated {
+      edtf
+      humanized
+    }
+    description
+    contributor {
+      term {
+        id
+        label
+      }
+      role {
+        id
+        label
+        scheme
+      }
+    }
+    creator {
+      term {
+        id
+        label
+      }
+    }
+    genre {
+      term {
+        id
+        label
+      }
+    }
+    language {
+      term {
+        id
+        label
+      }
+    }
+    license {
+      id
+      label
+    }
+    location {
+      term {
+        id
+        label
+      }
+    }
+    rightsStatement {
+      id
+      label
+    }
+    relatedUrl {
+      url
+      label {
+        id
+        label
+      }
+    }
+    stylePeriod {
+      term {
+        id
+        label
+      }
+      role {
+        id
+        label
+        scheme
+      }
+    }
+    subject {
+      term {
+        id
+        label
+      }
+      role {
+        id
+        label
+        scheme
+      }
+    }
+    technique {
+      term {
+        id
+        label
+      }
+    }
+  }
+}

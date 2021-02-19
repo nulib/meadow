@@ -1,47 +1,41 @@
 import React, { useState } from "react";
-import ButtonGroup from "../UI/ButtonGroup";
-import UIButton from "../UI/Button";
-import CheckMarkIcon from "../../../css/fonts/zondicons/checkmark.svg";
 import UIModalDelete from "../UI/Modal/Delete";
-import {
-  DELETE_INGEST_SHEET,
-  MOCK_APPROVE_INGEST_SHEET
-} from "./ingestSheet.query";
-import { useMutation } from "@apollo/react-hooks";
-import { toast } from "react-toastify";
+import { DELETE_INGEST_SHEET } from "./ingestSheet.gql";
+import { useMutation } from "@apollo/client";
 import PropTypes from "prop-types";
-import ReactRouterPropTypes from "react-router-prop-types";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@nulib/admin-react-components";
 
-const IngestSheetActionRow = ({
-  projectId,
-  ingestSheetId,
-  status,
-  history
-}) => {
+const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
+  const history = useHistory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteIngestSheet, { data: deleteIngestSheetData }] = useMutation(
-    DELETE_INGEST_SHEET,
-    {
-      onCompleted({ deleteIngestSheet }) {
-        toast(`Ingest sheet deleted successfully`);
-        history.push(`/project/${projectId}`);
+
+  const [deleteIngestSheet] = useMutation(DELETE_INGEST_SHEET, {
+    update(cache, { data: { deleteIngestSheet } }) {
+      try {
+        cache.modify({
+          id: cache.identify({ __typename: "Project", id: projectId }),
+          fields: {
+            ingestSheets(existingIngestSheetRefs, { readField }) {
+              return existingIngestSheetRefs.filter(
+                (ingestSheetRef) =>
+                  deleteIngestSheet.id !== readField("id", ingestSheetRef)
+              );
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error reading from cache", error);
       }
-    }
-  );
-  const [
-    approveIngestSheet,
-    { loading: approveLoading, error: approveError }
-  ] = useMutation(MOCK_APPROVE_INGEST_SHEET);
-
-  const showApproveButton = status === "VALID";
-
-  const handleApproveClick = () => {
-    approveIngestSheet({ variables: { id: ingestSheetId } });
-  };
+    },
+    onCompleted() {
+      history.push(`/project/${projectId}`);
+    },
+  });
 
   const handleDeleteClick = () => {
-    deleteIngestSheet({ variables: { ingestSheetId: ingestSheetId } });
+    deleteIngestSheet({ variables: { sheetId: sheetId } });
   };
 
   const onOpenModal = () => {
@@ -53,40 +47,34 @@ const IngestSheetActionRow = ({
   };
 
   return (
-    <div className="my-12">
-      <ButtonGroup>
-        {showApproveButton && (
-          <UIButton onClick={handleApproveClick}>
-            <CheckMarkIcon className="icon" />
-            Approve ingest sheet
-          </UIButton>
+    <>
+      <div className="buttons is-right">
+        {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
+          -1 && (
+          <Button onClick={onOpenModal}>
+            <span className="icon">
+              <FontAwesomeIcon icon="trash" />
+            </span>{" "}
+            <span>Delete and start over</span>
+          </Button>
         )}
-        <UIButton
-          classes={showApproveButton ? `btn-clear` : ``}
-          onClick={onOpenModal}
-        >
-          Delete ingest sheet / job and start over
-        </UIButton>
-      </ButtonGroup>
-
-      {approveLoading && <p>Approval loading...</p>}
-      {approveError && <p>Error : (please try again)</p>}
+      </div>
 
       <UIModalDelete
         isOpen={deleteModalOpen}
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Ingest Sheet`}
+        thingToDeleteLabel={`Ingest Sheet ${title}`}
       />
-    </div>
+    </>
   );
 };
 
 IngestSheetActionRow.propTypes = {
   projectId: PropTypes.string,
-  ingestSheetId: PropTypes.string,
+  sheetId: PropTypes.string,
   status: PropTypes.string,
-  history: ReactRouterPropTypes.history
+  title: PropTypes.string,
 };
 
-export default withRouter(IngestSheetActionRow);
+export default IngestSheetActionRow;

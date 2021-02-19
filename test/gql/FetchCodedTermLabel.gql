@@ -1,0 +1,7 @@
+#import "./CodedTermFields.frag.gql"
+
+query FetchCodedTermLabel($id: ID!, $scheme: CodeListScheme!) {
+  fetchCodedTermLabel(id: $id, scheme: $scheme) {
+    ...CodedTermFields
+  }
+}

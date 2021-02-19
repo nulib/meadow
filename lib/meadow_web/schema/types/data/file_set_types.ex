@@ -20,20 +20,39 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   end
 
   object :file_set_mutations do
-    @desc "Create a new FileSet for a work"
-    field :create_file_set, :file_set do
+    @desc "Ingests a new FileSet for a work"
+    field :ingest_file_set, :file_set do
       arg(:accession_number, non_null(:string))
       arg(:role, non_null(:file_set_role))
       arg(:work_id, non_null(:id))
       arg(:metadata, non_null(:file_set_metadata_input))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Data.create_file_set/3)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.ingest_file_set/3)
+    end
+
+    @desc "Update a FileSet's metadata"
+    field :update_file_set, :file_set do
+      arg(:id, non_null(:id))
+      arg(:metadata, non_null(:file_set_metadata_update))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_set/3)
+    end
+
+    @desc "Update metadata for a list of fileSets"
+    field :update_file_sets, list_of(:file_set) do
+      arg(:file_sets, non_null(list_of(:file_set_update)))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_sets/3)
     end
 
     @desc "Delete a FileSet"
     field :delete_file_set, :file_set do
       arg(:file_set_id, non_null(:id))
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_file_set/3)
     end
   end
@@ -42,14 +61,27 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   # Input Object Types
   #
 
-  @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set. It is stored in a single json field."
+  @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_metadata_input do
+    field :label, :string
     field :location, :string
     field :original_filename, :string
     field :description, :string
   end
 
-  @desc "Input fields for a `file_set` object "
+  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  input_object :file_set_update do
+    field :id, non_null(:id)
+    field :metadata, :file_set_metadata_update
+  end
+
+  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  input_object :file_set_metadata_update do
+    field :label, :string
+    field :description, :string
+  end
+
+  @desc "Input fields for a `file_set` creation object "
   input_object :file_set_input do
     field :accession_number, non_null(:string)
     field :role, non_null(:file_set_role)
@@ -65,17 +97,37 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :id, non_null(:id)
     field :accession_number, non_null(:string)
     field :role, non_null(:file_set_role)
+    field :position, :string
+    field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
     field :metadata, :file_set_metadata
-    field :inserted_at, non_null(:naive_datetime)
-    field :updated_at, non_null(:naive_datetime)
+    field :inserted_at, non_null(:datetime)
+    field :updated_at, non_null(:datetime)
   end
 
   @desc "`file_set_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
   object :file_set_metadata do
     field :location, :string
+    field :label, :string
+    field :mime_type, :string
     field :original_filename, :string
     field :description, :string
+
+    field :sha256, :string do
+      resolve(fn metadata, _, _ ->
+        case metadata.digests do
+          _digests -> {:ok, metadata.digests["sha256"]}
+        end
+      end)
+    end
+
+    field :exif, :string do
+      resolve(fn metadata, _, _ ->
+        case metadata.exif do
+          _exif -> Jason.encode(metadata.exif)
+        end
+      end)
+    end
   end
 
   @desc "A `file_set_role` designates whether the file is an access or preservation master and will determine how the file is processed and stored."

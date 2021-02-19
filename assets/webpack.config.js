@@ -9,15 +9,22 @@ module.exports = (env, options) => ({
   optimization: {
     minimizer: [
       new TerserPlugin({ cache: true, parallel: true, sourceMap: false }),
-      new OptimizeCSSAssetsPlugin({})
-    ]
+      new OptimizeCSSAssetsPlugin({}),
+    ],
+    splitChunks: {
+      chunks: "all",
+    },
   },
   entry: {
-    app: "./js/app.jsx"
+    app: "./js/app.jsx",
   },
   output: {
-    filename: "app.js",
-    path: path.resolve(__dirname, "../priv/static/js")
+    //filename: "app.js",
+    // `filename` provides a template for naming your bundles (remember to use `[name]`)
+    filename: "[name].bundle.js",
+    // `chunkFilename` provides a template for naming code-split bundles (optional)
+    chunkFilename: "[name].bundle.js",
+    path: path.resolve(__dirname, "../priv/static/js"),
   },
   module: {
     rules: [
@@ -25,55 +32,60 @@ module.exports = (env, options) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
-        }
+          loader: "babel-loader",
+        },
       },
       {
         test: /\.mjs$/,
         include: /node_modules/,
-        type: "javascript/auto"
+        type: "javascript/auto",
       },
       {
-        test: /\.css$/,
+        test: /\.(sa|sc|c)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: { importLoaders: 1 }
-          },
-          "postcss-loader"
-        ]
+          { loader: "css-loader", options: {} },
+          { loader: "sass-loader", options: {} },
+        ],
       },
       {
         test: /\.(woff(2)?|ttf|eot|otf)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: "url-loader?limit=100000"
-          }
-        ]
+            loader: "url-loader?limit=100000",
+          },
+        ],
       },
       {
         test: /\.svg$/,
         use: [
           {
-            loader: "babel-loader"
+            loader: "babel-loader",
           },
           {
             loader: "react-svg-loader",
             options: {
-              jsx: true // true outputs JSX tags
-            }
-          }
-        ]
-      }
-    ]
+              jsx: true, // true outputs JSX tags
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-    new CopyWebpackPlugin([{ from: "static/", to: "../" }])
+    new CopyWebpackPlugin({
+      patterns: [{ from: "static/", to: "../" }],
+    }),
   ],
   devtool: "source-map",
   resolve: {
-    extensions: ["*", ".mjs", ".js", ".jsx", ".json"]
-  }
+    extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
+    // When testing npm components locally, tell Meadow to only
+    // use it's React, not the npm module's React
+    alias: {
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "@js": path.resolve(__dirname, "./js"),
+    },
+  },
 });

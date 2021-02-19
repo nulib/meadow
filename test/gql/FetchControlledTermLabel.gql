@@ -1,0 +1,5 @@
+query FetchControlledTermLabel($id: ID!) {
+  fetchControlledTermLabel(id: $id) {
+    label
+  }
+}

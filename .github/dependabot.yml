@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/assets"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
+    ignore:
+      - dependency-name: "react-hook-form"
+      - dependency-name: "webpack-cli"
+  - package-ecosystem: npm
+    directory: "/priv/nodejs/*"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
+  - package-ecosystem: mix
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies

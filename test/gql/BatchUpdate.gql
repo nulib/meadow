@@ -1,0 +1,19 @@
+#import "./BatchFields.frag.gql"
+
+mutation(
+  $query: String!
+  $delete: BatchDeleteInput
+  $add: BatchAddInput
+  $replace: BatchReplaceInput
+  $nickname: String
+) {
+  batchUpdate(
+    query: $query
+    delete: $delete
+    add: $add
+    replace: $replace
+    nickname: $nickname
+  ) {
+    ...BatchFields
+  }
+}

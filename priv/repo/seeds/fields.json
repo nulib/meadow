@@ -1,0 +1,452 @@
+[
+  {
+    "metadata_class": "descriptive",
+    "id": "abstract",
+    "label": "Abstract",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "accession_number",
+    "label": "Accession Number",
+    "required": true,
+    "repeating": false,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "alternate_title",
+    "label": "Alternate Title",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "ark",
+    "label": "ARK",
+    "required": false,
+    "repeating": false,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "box_name",
+    "label": "Box Name",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "box_number",
+    "label": "Box Number",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "caption",
+    "label": "Caption",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "catalog_key",
+    "label": "Catalog Key",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "citation",
+    "label": "Citation",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "contributor",
+    "label": "Contributor",
+    "required": false,
+    "repeating": true,
+    "role": "marc_relator",
+    "scheme": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "creator",
+    "label": "Creator",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "date_created",
+    "label": "Date Created",
+    "required": true,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "description",
+    "label": "Description",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "folder_name",
+    "label": "Folder Name",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "folder_number",
+    "label": "Folder Number",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "genre",
+    "label": "Genre",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "identifier",
+    "label": "Identifier",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "keyword",
+    "label": "Keyword",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "language",
+    "label": "Language",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "legacy_identifier",
+    "label": "Legacy Identifier",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "license",
+    "label": "License",
+    "required": true,
+    "repeating": false,
+    "scheme": "license",
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "based_near",
+    "label": "Location (Place of Publication)",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "notes",
+    "label": "Notes",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "physical_description_material",
+    "label": "Physical Description Material",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "physical_description_size",
+    "label": "Physical Description Size",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "preservation_level",
+    "label": "Preservation Level",
+    "required": true,
+    "repeating": false,
+    "scheme": "preservation_level",
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_name",
+    "label": "Project Name",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_desc",
+    "label": "Project Description",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_proposer",
+    "label": "Project Proposer / Requestor Name",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_manager",
+    "label": "Project Manager",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_task_number",
+    "label": "Project Task Number",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "project_cycle",
+    "label": "Project Cycle",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "provenance",
+    "label": "Provenance",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "published",
+    "label": "Published",
+    "required": true,
+    "repeating": false,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "publisher",
+    "label": "Publisher",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "related_url",
+    "label": "Related URL",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "related_materials",
+    "label": "Related Materials",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "rights_holder",
+    "label": "Rights Holder",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "rights_statement",
+    "label": "Rights Statement",
+    "required": true,
+    "repeating": false,
+    "scheme": "rights_statement",
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "scope_and_contents",
+    "label": "Scope and Contents",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "series",
+    "label": "Series",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "source",
+    "label": "Source",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "administrative",
+    "id": "status",
+    "label": "Status",
+    "required": true,
+    "repeating": false,
+    "scheme": "status",
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "style_period",
+    "label": "Style Period",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "subject",
+    "label": "Subject",
+    "required": false,
+    "repeating": true,
+    "role": "subject_role",
+    "scheme": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "table_of_contents",
+    "label": "Table of Contents",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "technique",
+    "label": "Technique",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
+    "id": "terms_of_use",
+    "label": "Terms of Use",
+    "required": true,
+    "repeating": false,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "core",
+    "id": "visibility",
+    "label": "Visibility",
+    "required": true,
+    "repeating": false,
+    "scheme": "visibility",
+    "role": null
+  },
+  {
+    "metadata_class": "core",
+    "id": "work_type",
+    "label": "Work Type",
+    "required": true,
+    "repeating": false,
+    "scheme": "work_type",
+    "role": null
+  }
+]

@@ -3,52 +3,58 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
-  alias Meadow.Accounts.Users.User
-  alias Meadow.Data.{FileSet, Work}
-  alias Meadow.Data.FileSets.FileSet
-  alias Meadow.Data.Works.Work
-  alias Meadow.Ingest.IngestSheets.{IngestSheet, IngestSheetValidator}
-  alias Meadow.Ingest.Projects.Project
+  alias Ecto.Adapters.SQL.Sandbox
+
+  alias Meadow.Accounts.{Ldap, User}
+  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
+  alias Meadow.Data.Works
+  alias Meadow.Ingest.Validator
+  alias Meadow.Ingest.Schemas.{Project, Sheet}
+  alias Meadow.Utils.MetadataGenerator
 
   alias Meadow.Repo
 
+  alias NimbleCSV.RFC4180, as: CSV
+
   use Meadow.Constants
 
-  def user_fixture(attrs \\ %{}) do
-    username = "name-#{System.unique_integer([:positive])}"
-    display_name = "Name #{System.unique_integer([:positive])}"
-    email = "example-#{System.unique_integer([:positive])}@example.com"
+  @test_users %{
+    "TestAdmins" => ~w[auy5400 auk0124 auh7250 aud6389],
+    "TestManagers" => ~w[aut2418 aum1701 auf2249 aua6615],
+    :access => ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615],
+    :noAccess => ~w[aup9261 aup6836 aui9865 auj5680 auq9679],
+    :unknown => ~w[unknownUser]
+  }
 
-    attrs =
-      Enum.into(attrs, %{
-        username: attrs[:username] || username,
-        display_name: attrs[:display_name] || display_name,
-        email: attrs[:email] || email
-      })
-
-    {:ok, user} =
-      %User{}
-      |> User.changeset(attrs)
-      |> Repo.insert()
-
-    user
+  defmacro exs_fixture(file) do
+    quote do
+      Code.eval_file(unquote(file))
+      |> Tuple.to_list()
+      |> List.first()
+    end
   end
+
+  def prewarm_controlled_term_cache, do: MetadataGenerator.prewarm_cache()
+
+  def test_users(category \\ :access), do: @test_users |> Map.get(category)
+  def random_user(category \\ :access), do: category |> test_users |> Enum.random()
+  def user_fixture(category \\ :access), do: category |> random_user() |> User.find()
 
   def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
-    name = "name-#{System.unique_integer([:positive])}"
+    title = "title-#{System.unique_integer([:positive])}"
     filename = "file-#{System.unique_integer([:positive])}.csv"
 
     attrs =
       Enum.into(attrs, %{
-        name: attrs[:name] || name,
+        title: attrs[:title] || title,
         filename: attrs[:filename] || filename,
         project_id: attrs[:project_id] || project.id
       })
 
     {:ok, ingest_sheet} =
-      %IngestSheet{}
-      |> IngestSheet.changeset(attrs)
+      %Sheet{}
+      |> Sheet.changeset(attrs)
       |> Repo.insert()
 
     ingest_sheet
@@ -59,7 +65,7 @@ defmodule Meadow.TestHelpers do
 
     sheet
     |> Repo.preload(:project)
-    |> IngestSheetValidator.load_rows(File.read!(file_fixture))
+    |> Validator.load_rows(File.read!(file_fixture) |> uniqify_ingest_sheet_rows())
 
     sheet
   end
@@ -84,35 +90,83 @@ defmodule Meadow.TestHelpers do
     project1 =
       %Project{
         title: "Project 1",
-        id: "01DJ8TY8X1DYDP91Q6WJ4BNG0G"
+        id: "c5ea7b82-6afe-40ba-8229-5a9d21f0764b"
       }
       |> Repo.insert!()
 
     project2 =
       %Project{
         title: "Project 2",
-        id: "01DJ8V5VMY13F5EX9KA1SJGGBN"
+        id: "50e195ed-47b9-4bdb-9796-835b8b4fa149"
       }
       |> Repo.insert!()
 
     project3 =
       %Project{
         title: "Project 3",
-        id: "01DJ8V6TTJC85GBZ80V6ZNH9EY"
+        id: "4f677f01-23d5-48f3-bbfd-3f209eae9581"
       }
       |> Repo.insert!()
 
     [project1, project2, project3]
   end
 
+  def collection_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        title: attrs[:title] || "collection-#{System.unique_integer([:positive])}",
+        description: attrs[:description] || "Description of collection",
+        keywords: attrs[:keywords] || ["keyword1", "keyword 2", "keyword 3"]
+      })
+
+    {:ok, collection} =
+      %Collection{}
+      |> Collection.changeset(attrs)
+      |> Repo.insert()
+
+    collection
+  end
+
+  @spec batch_fixture(nil | maybe_improper_list | map) :: any
+  def batch_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        nickname: attrs[:title] || "batch-#{System.unique_integer([:positive])}",
+        query: ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+        replace:
+          Jason.encode!(%{
+            visibility: %{id: "OPEN", scheme: "VISIBILITY"}
+          }),
+        user: "user123",
+        type: "update"
+      })
+
+    {:ok, batch} =
+      %Batch{}
+      |> Batch.changeset(attrs)
+      |> Repo.insert()
+
+    batch
+  end
+
   def work_fixture(attrs \\ %{}) do
     attrs =
       Enum.into(attrs, %{
         accession_number: attrs[:accession_number] || Faker.String.base64(),
-        visibility: attrs[:visibility] || Faker.Util.pick(@visibility),
-        work_type: attrs[:work_type] || Faker.Util.pick(@work_types),
-        metadata:
-          attrs[:metadata] ||
+        visibility: attrs[:visibility] || %{id: "OPEN", scheme: "visibility"},
+        work_type: attrs[:work_type] || %{id: "IMAGE", scheme: "work_type"},
+        administrative_metadata:
+          attrs[:administrative_metadata] ||
+            %{
+              project_name: [Faker.Lorem.sentence(3)],
+              project_desc: [Faker.Lorem.sentence()],
+              project_proposer: [Faker.Person.name()],
+              project_manager: [Faker.Person.name()],
+              project_task_number: [Faker.Code.issn()],
+              project_cycle: Faker.Lorem.word()
+            },
+        descriptive_metadata:
+          attrs[:descriptive_metadata] ||
             %{
               title: "Test title"
             },
@@ -127,19 +181,31 @@ defmodule Meadow.TestHelpers do
     work
   end
 
-  def file_set_fixture(attrs \\ %{}) do
+  def work_with_file_sets_fixture(count, work_attrs \\ %{}, file_set_attrs \\ %{}) do
     attrs =
-      Enum.into(attrs, %{
-        accession_number: attrs[:accession_number] || Faker.String.base64(),
-        role: attrs[:role] || Faker.Util.pick(@file_set_roles),
-        metadata:
-          attrs[:metadata] ||
-            %{
-              description: attrs[:description] || Faker.String.base64(),
-              location: "https://fake-s3-bucket/" <> Faker.String.base64(),
-              original_filename: Faker.File.file_name()
-            }
+      Enum.into(work_attrs, %{
+        file_sets: 1..count |> Enum.map(fn _ -> file_set_fixture_attrs(file_set_attrs) end)
       })
+
+    work_fixture(attrs) |> Works.set_default_representative_image!()
+  end
+
+  def file_set_fixture_attrs(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      accession_number: attrs[:accession_number] || Faker.String.base64(),
+      role: attrs[:role] || Faker.Util.pick(@file_set_roles),
+      metadata:
+        attrs[:metadata] ||
+          %{
+            description: attrs[:description] || Faker.String.base64(),
+            location: "https://fake-s3-bucket/" <> Faker.String.base64(),
+            original_filename: Faker.File.file_name()
+          }
+    })
+  end
+
+  def file_set_fixture(attrs \\ %{}) do
+    attrs = file_set_fixture_attrs(attrs)
 
     {:ok, file_set} =
       %FileSet{}
@@ -147,5 +213,71 @@ defmodule Meadow.TestHelpers do
       |> Repo.insert()
 
     file_set
+  end
+
+  def gql_context(extra \\ %{}) do
+    extra
+    |> Map.merge(%{
+      current_user: %{
+        username: "user1",
+        email: "email@example.com",
+        display_name: "User Name",
+        role: "Administrator"
+      }
+    })
+  end
+
+  def sandbox_mode(tags) do
+    result =
+      case Sandbox.checkout(Meadow.Repo) do
+        :ok -> :ok
+        {:already, :owner} -> :ok
+        other -> other
+      end
+
+    unless tags[:async] do
+      Sandbox.mode(Meadow.Repo, {:shared, self()})
+    end
+
+    result
+  end
+
+  def delete_entry(dn) do
+    with {:ok, conn} <- Exldap.connect() do
+      :eldap.delete(conn, to_charlist(dn))
+    end
+  end
+
+  def entry_names([]), do: []
+  def entry_names(%Ldap.Entry{} = entry), do: entry.name
+  def entry_names([entry | entries]), do: [entry_names(entry) | entry_names(entries)]
+  def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,DC=library,DC=northwestern,DC=edu"
+  def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,DC=library,DC=northwestern,DC=edu"
+
+  defp uniqify_ingest_sheet_rows(csv) do
+    with prefix <- test_id() do
+      [headers | rows] = CSV.parse_string(csv, skip_headers: false)
+
+      rows =
+        rows
+        |> Enum.map(fn [wan | [an | rest]] ->
+          ["#{prefix}_#{wan}", "#{prefix}_#{an}"] ++ rest
+        end)
+
+      [headers | rows]
+      |> CSV.dump_to_iodata()
+      |> IO.iodata_to_binary()
+    end
+  end
+
+  defp test_id do
+    min = String.to_integer("100000", 36)
+    max = String.to_integer("ZZZZZZ", 36)
+
+    max
+    |> Kernel.-(min)
+    |> :rand.uniform()
+    |> Kernel.+(min)
+    |> Integer.to_string(36)
   end
 end
