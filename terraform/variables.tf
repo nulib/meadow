@@ -105,6 +105,10 @@ variable "iiif_manifest_url" {
   type = string
 }
 
+variable "ec2_instance_users" {
+  type    = list(string)
+}
+
 variable "ezid_password" {
   type = string
 }

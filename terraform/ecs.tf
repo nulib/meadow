@@ -109,7 +109,7 @@ resource "aws_alb_target_group" "meadow_targets" {
 
   stickiness {
     enabled = false
-    type    = "lb_cookie"
+    type    = "source_ip"
   }
 }
 
