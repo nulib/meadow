@@ -9,6 +9,7 @@ defmodule MeadowWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug MeadowWeb.Plugs.RequireHttps
   end
 
   pipeline :secure_browser do
@@ -17,6 +18,7 @@ defmodule MeadowWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug MeadowWeb.Plugs.RequireHttps
     plug MeadowWeb.Plugs.SetCurrentUser
     plug MeadowWeb.Plugs.RequireLogin
   end
@@ -24,6 +26,7 @@ defmodule MeadowWeb.Router do
   pipeline :elasticsearch do
     plug :accepts, ["json"]
 
+    plug MeadowWeb.Plugs.RequireHttps
     plug MeadowWeb.Plugs.SetCurrentUser
     plug MeadowWeb.Plugs.RequireLogin
   end
@@ -41,6 +44,7 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug MeadowWeb.Plugs.RequireHttps
     plug MeadowWeb.Plugs.SetCurrentUser
   end
 
