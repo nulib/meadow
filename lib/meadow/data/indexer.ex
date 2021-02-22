@@ -25,13 +25,11 @@ defmodule Meadow.Data.Indexer do
   end
 
   def synchronize_schema(schema) do
-    Store.transaction(fn ->
-      schema
-      |> Store.stream()
-      |> Stream.map(&encode!(&1, schema))
-      |> upload()
-      |> Stream.run()
-    end)
+    schema
+    |> Store.stream()
+    |> Stream.map(&encode!(&1, schema))
+    |> upload()
+    |> Stream.run()
   end
 
   def encode!(id, :deleted) do
@@ -76,6 +74,7 @@ defmodule Meadow.Data.Indexer do
   defp set_index_time({index_ids, delete_ids}) do
     changesets =
       index_ids
+      |> Enum.uniq()
       |> Enum.map(fn id ->
         %{id: id, indexed_at: DateTime.utc_now()}
       end)
