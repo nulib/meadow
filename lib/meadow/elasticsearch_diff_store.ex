@@ -14,56 +14,59 @@ defmodule Meadow.ElasticsearchDiffStore do
   @tracked_schemas [Schemas.Collection, Schemas.Work, Schemas.FileSet]
 
   @impl true
-  def stream(:deleted) do
+  def stream(schema) do
+    Stream.resource(
+      fn -> schema end,
+      fn schema ->
+        case retrieve(schema) do
+          [] -> {:halt, schema}
+          records -> {records, schema}
+        end
+      end,
+      fn _ -> :noop end
+    )
+  end
+
+  defp retrieve(:deleted) do
     from(t in Schemas.IndexTime,
       select: t.id,
       except: ^all_ids(@tracked_schemas)
     )
-    |> Repo.stream()
+    |> Repo.all()
   end
 
-  @impl true
-  def stream(Schemas.Work = schema) do
-    schema
-    |> out_of_date()
-    |> Repo.stream()
-    |> Stream.chunk_every(@chunk_size)
-    |> Stream.flat_map(fn chunk ->
-      chunk
-      |> Repo.preload(Schemas.Work.required_index_preloads)
+  defp retrieve(Schemas.Work = schema) do
+    with preloads <- Schemas.Work.required_index_preloads() do
+      schema
+      |> out_of_date()
+      |> limit(@chunk_size)
+      |> preload(^preloads)
+      |> Repo.all()
       |> Works.add_representative_image()
-    end)
+    end
   end
 
-  @impl true
-  def stream(Schemas.Collection = schema) do
+  defp retrieve(Schemas.Collection = schema) do
     schema
     |> out_of_date()
-    |> Repo.stream()
-    |> Stream.chunk_every(@chunk_size)
-    |> Stream.flat_map(fn chunk ->
-      chunk
-      |> Repo.preload(:representative_work)
-      |> Collections.add_representative_image()
-    end)
+    |> limit(@chunk_size)
+    |> preload(:representative_work)
+    |> Repo.all()
+    |> Collections.add_representative_image()
   end
 
-  @impl true
-  def stream(Schemas.FileSet = schema) do
+  defp retrieve(Schemas.FileSet = schema) do
     schema
     |> out_of_date()
-    |> Repo.stream()
-    |> Stream.chunk_every(@chunk_size)
-    |> Stream.flat_map(fn chunk ->
-      Repo.preload(chunk, :work)
-    end)
+    |> limit(@chunk_size)
+    |> preload(:work)
+    |> Repo.all()
   end
 
-  @impl true
-  def stream(schema) do
+  defp retrieve(schema) do
     schema
     |> out_of_date()
-    |> Repo.stream()
+    |> Repo.all()
   end
 
   @impl true
