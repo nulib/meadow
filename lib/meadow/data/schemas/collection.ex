@@ -57,6 +57,7 @@ defmodule Meadow.Data.Schemas.Collection do
 
     def encode(collection) do
       %{
+        adminEmail: collection.admin_email,
         createDate: collection.inserted_at,
         description: collection.description,
         featured: collection.featured,
