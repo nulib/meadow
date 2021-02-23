@@ -93,11 +93,6 @@ config :meadow,
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
-config :honeybadger,
-  api_key: get_required_var.("HONEYBADGER_API_KEY"),
-  environment_name: :prod,
-  exclude_envs: [:dev, :test]
-
 config :logger, level: :info
 
 config :sequins,

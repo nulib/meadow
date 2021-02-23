@@ -103,7 +103,7 @@ config :authoritex,
 
 config :honeybadger,
   api_key: System.get_env("HONEYBADGER_API_KEY", "DO_NOT_REPORT"),
-  environment_name: Mix.env(),
+  environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
   exclude_envs: [:dev, :test]
 
 aws_env =

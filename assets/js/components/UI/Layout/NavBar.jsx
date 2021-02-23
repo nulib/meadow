@@ -12,6 +12,7 @@ import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import Honeybadger from "@honeybadger-io/js";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -33,6 +34,7 @@ const UILayoutNavBar = () => {
   const handleLogoutClick = (e) => {
     e.preventDefault();
     client.resetStore();
+    Honeybadger.resetContext();
     window.location.href = "/auth/logout";
   };
 

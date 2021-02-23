@@ -128,6 +128,7 @@ jobs:
       - docker/check
       - docker/build:
           cache_from: nulib/meadow-deps:${DEPLOY_TAG}
+          extra_build_args: --build-arg HONEYBADGER_API_KEY=${HONEYBADGER_API_KEY} --build-arg HONEYBADGER_ENVIRONMENT=${DEPLOY_TAG} --build-arg HONEYBADGER_REVISION=${CIRCLE_SHA1}
           image: nulib/meadow
           tag: ${DEPLOY_TAG}
       - run:
