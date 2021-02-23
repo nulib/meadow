@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -11,22 +11,11 @@ import {
 } from "recharts";
 import moment from "moment";
 
-function buildChartData(data = []) {
-  return data.map((obj) => {
-    return {
-      name: obj.key,
-      works: obj.doc_count,
-    };
-  });
-}
-
 function formatDate(tickItem) {
   return moment(tickItem).format("MMM Do YY");
 }
 
-export default function ChartsRepositoryGrowth({ worksCreatedByWeek }) {
-  const data = buildChartData(worksCreatedByWeek);
-
+export default function ChartsRepositoryGrowth({ worksCreatedByWeek = [] }) {
   return (
     <div className="box">
       <h3 className="subtitle is-3">Repository Growth</h3>
@@ -35,7 +24,7 @@ export default function ChartsRepositoryGrowth({ worksCreatedByWeek }) {
           <LineChart
             width={500}
             height={300}
-            data={data}
+            data={worksCreatedByWeek}
             margin={{
               top: 5,
               right: 30,
@@ -44,7 +33,7 @@ export default function ChartsRepositoryGrowth({ worksCreatedByWeek }) {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tickFormatter={formatDate} />
+            <XAxis dataKey="timestamp" tickFormatter={formatDate} />
             <YAxis />
             <Tooltip labelFormatter={formatDate} />
             <Legend />
