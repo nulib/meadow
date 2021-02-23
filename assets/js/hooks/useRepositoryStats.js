@@ -147,6 +147,23 @@ function getRecentCollections(buckets) {
   }
 }
 
+function getWorksCreatedByWeek(buckets) {
+  try {
+    let workCount = 0;
+    let worksByWeek = buckets.map((obj) => {
+      workCount = workCount + obj.doc_count;
+      return {
+        timestamp: obj.key,
+        works: workCount,
+      };
+    });
+    return worksByWeek;
+  } catch (error) {
+    console.error("Error prepping works created by week", error);
+    return [];
+  }
+}
+
 function getVisbilityData(data = []) {
   const visibilityLabels = {
     authenticated: "Institution",
@@ -205,8 +222,9 @@ export default function useRepositoryStats() {
         visibility: getVisbilityData(
           resultArray[4].aggregations.visibilities.buckets
         ),
-        worksCreatedByWeek:
-          resultArray[5].aggregations.works_created_by_week.buckets,
+        worksCreatedByWeek: getWorksCreatedByWeek(
+          resultArray[5].aggregations.works_created_by_week.buckets
+        ),
         collectionsRecentlyUpdated: getRecentCollections(
           resultArray[6].aggregations.works_recently_updated.buckets
         ),
