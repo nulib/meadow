@@ -10,7 +10,7 @@ defmodule Meadow.ElasticsearchDiffStore do
   alias Meadow.Repo
   import Ecto.Query
 
-  @chunk_size 100
+  @chunk_size 500
   @tracked_schemas [Schemas.Collection, Schemas.Work, Schemas.FileSet]
 
   @impl true
