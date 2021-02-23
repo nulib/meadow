@@ -1,10 +1,14 @@
 import React from "react";
 import WorkHeaderButtons from "./HeaderButtons";
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-import { async } from "openseadragon-react-viewer";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const mockHandleCreateSharableBtnClick = jest.fn();
 const mockHandlePublishClick = jest.fn();
@@ -18,14 +22,7 @@ const props = {
 
 describe("WorkHeaderButtons component", () => {
   function setUpTests(props) {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <WorkHeaderButtons {...props} />
-      </AuthProvider>,
-      {
-        mocks: [getCurrentUserMock],
-      }
-    );
+    return render(<WorkHeaderButtons {...props} />);
   }
   it("renders the component", async () => {
     const { getByTestId } = setUpTests();

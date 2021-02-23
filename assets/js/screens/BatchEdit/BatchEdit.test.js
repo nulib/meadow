@@ -5,32 +5,36 @@ import ScreensBatchEdit from "./BatchEdit";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("BatchEdit component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <BatchProvider
-          initialState={{
-            filteredQuery: { foo: "bar" },
-            resultStats: {
-              numberOfResults: 17,
-              numberOfPages: 2,
-              time: 23,
-              hidden: 0,
-              promoted: 0,
-              currentPage: 0,
-              displayedResults: 10,
-            },
-          }}
-        >
-          <ScreensBatchEdit />
-        </BatchProvider>
-      </AuthProvider>,
+      <BatchProvider
+        initialState={{
+          filteredQuery: { foo: "bar" },
+          resultStats: {
+            numberOfResults: 17,
+            numberOfPages: 2,
+            time: 23,
+            hidden: 0,
+            promoted: 0,
+            currentPage: 0,
+            displayedResults: 10,
+          },
+        }}
+      >
+        <ScreensBatchEdit />
+      </BatchProvider>,
       {
-        mocks: [...allCodeListMocks, getCollectionsMock, getCurrentUserMock],
+        mocks: [...allCodeListMocks, getCollectionsMock],
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
         // reference in the future.
         state: { resultStats: { numberOfResults: 5 } },

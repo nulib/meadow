@@ -4,15 +4,20 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor } from "@testing-library/react";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-const mocks = [getCollectionsMock, getCurrentUserMock];
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
+
+const mocks = [getCollectionsMock];
 
 function setupTests() {
   return renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/list/" component={ScreensCollectionList} />
-    </AuthProvider>,
+    <Route path="/collection/list/" component={ScreensCollectionList} />,
     {
       mocks,
       route: "/collection/list/",

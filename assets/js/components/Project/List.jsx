@@ -103,7 +103,7 @@ const ProjectList = ({ projects }) => {
             <th>s3 Bucket Folder</th>
             <th className="text-right has-text-right"># Ingest Sheets</th>
             <th className="has-text-right">Last Updated</th>
-            <AuthDisplayAuthorized action="edit">
+            <AuthDisplayAuthorized>
               <th className="has-text-right">Actions</th>
             </AuthDisplayAuthorized>
           </tr>
@@ -122,7 +122,7 @@ const ProjectList = ({ projects }) => {
                   <td>{folder}</td>
                   <td className="has-text-right">{ingestSheets.length}</td>
                   <td className="has-text-right">{formatDate(updatedAt)}</td>
-                  <AuthDisplayAuthorized action="edit">
+                  <AuthDisplayAuthorized>
                     <td>
                       <div className="buttons-end">
                         <p className="control">

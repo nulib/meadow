@@ -23,7 +23,7 @@ export default function WorkHeaderButtons({
         </span>
         <span>Get sharable link</span>
       </Button>
-      <AuthDisplayAuthorized action="edit">
+      <AuthDisplayAuthorized level="MANAGER">
         <Button
           className={`${published ? "is-outlined" : "has-tooltip-multiline"}`}
           data-testid="publish-button"

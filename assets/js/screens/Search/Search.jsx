@@ -143,7 +143,7 @@ const ScreensSearch = () => {
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
 
-              <AuthDisplayAuthorized action="delete">
+              <AuthDisplayAuthorized level="MANAGER">
                 <SearchActionRow
                   handleCsvExportAllItems={handleCsvExportAllItems}
                   handleCsvExportItems={handleCsvExportItems}

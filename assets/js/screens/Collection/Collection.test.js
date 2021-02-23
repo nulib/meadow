@@ -12,23 +12,25 @@ import {
   getCollectionMock,
   MOCK_COLLECTION_ID,
 } from "../../components/Collection/collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 /**
  * Helper function to render the component for testing
  * @param {Array} mocks All the mocks needed to run each spec
  */
-function setupTests(
-  mocks = [getCurrentUserMock, getCollectionMock, ...allCodeListMocks]
-) {
+function setupTests(mocks = [getCollectionMock, ...allCodeListMocks]) {
   return renderWithRouterApollo(
     <CodeListProvider>
-      <AuthProvider>
-        <Route path="/collection/:id" component={ScreensCollection} />
-      </AuthProvider>
+      <Route path="/collection/:id" component={ScreensCollection} />
     </CodeListProvider>,
     {
       mocks,

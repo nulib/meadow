@@ -32,7 +32,7 @@ const Collection = ({ collection }) => {
               }
             />
           </figure>
-          <AuthDisplayAuthorized action="edit">
+          <AuthDisplayAuthorized>
             {works.length > 0 && (
               <p className="has-text-centered pt-4">
                 <button

@@ -115,7 +115,7 @@ const ScreensProject = () => {
                       </dl>
                     </div>
                     <div className="column is-two-fifths">
-                      <AuthDisplayAuthorized action="edit">
+                      <AuthDisplayAuthorized>
                         <div className="buttons is-right">
                           <Button
                             data-testid="button-new-ingest-sheet"

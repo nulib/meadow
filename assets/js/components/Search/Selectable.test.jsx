@@ -1,28 +1,24 @@
 import React from "react";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Selectable from "./Selectable";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const fn = jest.fn();
 
 describe("SearchSelectable component", () => {
   beforeEach(() => {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <Selectable handleSelectItem={fn} />
-      </AuthProvider>,
-      {
-        mocks: [getCurrentUserMock],
-      }
-    );
+    return render(<Selectable handleSelectItem={fn} />);
   });
 
   it("renders a checkbox", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("checkbox-search-select"));
-    });
+    expect(await screen.findByTestId("checkbox-search-select"));
   });
 
   it("calls onChange function handler when selected/deselected", async () => {

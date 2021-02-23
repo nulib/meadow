@@ -20,6 +20,8 @@ import {
 import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import { Link } from "react-router-dom";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
