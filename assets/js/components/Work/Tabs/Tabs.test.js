@@ -6,10 +6,10 @@ import { mockWork } from "../work.gql.mock";
 import { iiifServerUrlMock } from "../../IIIF/iiif.gql.mock";
 import { allCodeListMocks } from "../controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
 import {
   getCurrentUserMock,
   getViewerMock,
+  mockUser,
 } from "@js/components/Auth/auth.gql.mock";
 const mocks = [
   ...allCodeListMocks,
@@ -17,31 +17,28 @@ const mocks = [
   iiifServerUrlMock,
   getCurrentUserMock,
 ];
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("Tabs component", () => {
   function setupTests() {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <WorkTabs work={mockWork} />
-      </AuthProvider>,
-      { mocks }
-    );
+    return renderWithRouterApollo(<WorkTabs work={mockWork} />, { mocks });
   }
 
   function setUpViewerTests() {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <WorkTabs work={mockWork} />
-      </AuthProvider>,
-      {
-        mocks: [
-          ...allCodeListMocks,
-          getCollectionsMock,
-          iiifServerUrlMock,
-          getViewerMock,
-        ],
-      }
-    );
+    return renderWithRouterApollo(<WorkTabs work={mockWork} />, {
+      mocks: [
+        ...allCodeListMocks,
+        getCollectionsMock,
+        iiifServerUrlMock,
+        getViewerMock,
+      ],
+    });
   }
 
   it("renders without crashing", () => {

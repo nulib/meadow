@@ -8,8 +8,14 @@ import {
 } from "../../components/Project/project.gql.mock";
 import { getPresignedUrlForIngestSheetMock } from "@js/components/IngestSheet/ingestSheet.gql.mock";
 import { screen } from "@testing-library/react";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const MOCK_PROJECT_TITLE = "Mock project title";
 
@@ -17,15 +23,12 @@ const mocks = [
   getPresignedUrlForIngestSheetMock,
   getProjectMock,
   ingestSheetUpdatesMock,
-  getCurrentUserMock,
 ];
 
 describe("BatchEditAboutCoreMetadata component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <Route path="/project/:id" component={ScreensProject} />
-      </AuthProvider>,
+      <Route path="/project/:id" component={ScreensProject} />,
       {
         mocks,
         route: "/project/01DNFK4B8XASXNKBSAKQ6YVNF3",

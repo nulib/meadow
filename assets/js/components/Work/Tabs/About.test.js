@@ -5,34 +5,33 @@ import WorkTabsAbout from "./About";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("Work About tab component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <CodeListProvider>
-          <WorkTabsAbout work={mockWork} />
-        </CodeListProvider>
-      </AuthProvider>,
+      <CodeListProvider>
+        <WorkTabsAbout work={mockWork} />
+      </CodeListProvider>,
       {
-        mocks: [getCurrentUserMock, ...allCodeListMocks],
+        mocks: [...allCodeListMocks],
       }
     );
   });
 
   it("renders without crashing", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("work-about-form"));
-    });
+    expect(await screen.findByTestId("work-about-form"));
   });
 
   it("switches between edit and non edit mode", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("edit-button"));
-      //debug();
-    });
+    expect(await screen.findByTestId("edit-button"));
 
     fireEvent.click(screen.queryByTestId("edit-button"));
     expect(screen.getByTestId("save-button"));

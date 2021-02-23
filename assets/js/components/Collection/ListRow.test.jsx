@@ -1,26 +1,24 @@
 import React from "react";
 import CollectionListRow from "./ListRow";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
+import { renderWithRouter } from "../../services/testing-helpers";
 import { collectionMock } from "./collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-import { waitFor } from "@testing-library/dom";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("CollectionListRow component", () => {
   function setUpTests() {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <CollectionListRow collection={collectionMock} />
-      </AuthProvider>,
-      {
-        mocks: [getCurrentUserMock],
-      }
-    );
+    return renderWithRouter(<CollectionListRow collection={collectionMock} />);
   }
   it("renders the root element", async () => {
-    const { getByTestId } = setUpTests();
-    await waitFor(() => {
-      expect(getByTestId("collection-list-row")).toBeInTheDocument();
-    });
+    const { findByTestId } = renderWithRouter(
+      <CollectionListRow collection={collectionMock} />
+    );
+    expect(await findByTestId("collection-list-row"));
   });
 });

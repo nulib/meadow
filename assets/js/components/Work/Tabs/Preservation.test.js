@@ -6,17 +6,20 @@ import {
   mockWork,
   verifyFileSetsMock,
 } from "@js/components/Work/work.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("WorkTabsPreservation component", () => {
   beforeEach(() => {
-    renderWithRouterApollo(
-      <AuthProvider>
-        <WorkTabsPreservation work={mockWork} />
-      </AuthProvider>,
-      { mocks: [getCurrentUserMock, verifyFileSetsMock] }
-    );
+    renderWithRouterApollo(<WorkTabsPreservation work={mockWork} />, {
+      mocks: [verifyFileSetsMock],
+    });
   });
 
   it("renders the component and tab title", async () => {

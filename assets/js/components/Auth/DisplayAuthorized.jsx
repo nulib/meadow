@@ -1,26 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useAuthState } from "@js/components/Auth/Auth";
-
-const roleBasedActions = {
-  ADMINISTRATOR: ["delete", "edit", "save", "administer"],
-  EDITOR: ["edit", "save"],
-  MANAGER: ["edit", "save", "delete"],
-  USER: [],
-};
-
-function AuthDisplayAuthorized({ action = "edit", children }) {
-  const authState = useAuthState();
-  const allowedUserActions = roleBasedActions[authState.role];
-
-  if (allowedUserActions.indexOf(action) > -1) {
-    return <>{children}</>;
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+function AuthDisplayAuthorized({ level, children }) {
+  const { isAuthorized } = useIsAuthorized();
+  if (!isAuthorized(level)) {
+    return null;
   }
-  return null;
+  return <>{children}</>;
 }
 
 AuthDisplayAuthorized.propTypes = {
-  action: PropTypes.oneOf(["delete", "edit", "save", "administer"]),
+  level: PropTypes.oneOf(["USER", "EDITOR", "MANAGER", "ADMINISTRATOR"]),
   children: PropTypes.node,
 };
 

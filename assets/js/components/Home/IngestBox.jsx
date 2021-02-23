@@ -7,7 +7,7 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 function HomeIngestBox({ handleAddWork }) {
   return (
-    <AuthDisplayAuthorized action="edit">
+    <AuthDisplayAuthorized>
       <div className="buttons">
         <Link className="button is-large is-fullwidth" to="/project/list">
           <span className="icon">

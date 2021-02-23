@@ -5,24 +5,24 @@ import { mockFileSets } from "@js/mock-data/filesets";
 import {
   renderWithReactHookForm,
   withReactBeautifulDND,
-  renderWithRouterApollo,
 } from "@js/services/testing-helpers";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("Fileset component", () => {
   describe("when not editing", () => {
     function setUpTests(workImageFilesetId) {
-      return renderWithRouterApollo(
-        <AuthProvider>
-          <WorkTabsStructureFileset
-            fileSet={mockFileSets[0]}
-            workImageFilesetId={workImageFilesetId}
-          />
-        </AuthProvider>,
-        {
-          mocks: [getCurrentUserMock],
-        }
+      return render(
+        <WorkTabsStructureFileset
+          fileSet={mockFileSets[0]}
+          workImageFilesetId={workImageFilesetId}
+        />
       );
     }
     it("renders the image preview, label and description", async () => {

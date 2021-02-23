@@ -5,15 +5,6 @@ import { GET_CURRENT_USER_QUERY } from "./auth.gql";
 
 export const AuthContext = React.createContext();
 
-export const useAuthState = () => {
-  const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuthState must be used within AuthProvider ");
-  }
-
-  return context;
-};
-
 export const AuthProvider = ({ children }) => {
   const { loading, error, data } = useQuery(GET_CURRENT_USER_QUERY);
 

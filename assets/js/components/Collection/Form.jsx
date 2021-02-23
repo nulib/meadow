@@ -14,7 +14,6 @@ import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
 import { Button } from "@nulib/admin-react-components";
-import { COLLECTION_TYPES } from "../../services/global-vars";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useCodeLists } from "@js/context/code-list-context";
 import UISkeleton from "@js/components/UI/Skeleton";
@@ -219,7 +218,7 @@ const CollectionForm = ({ collection }) => {
           </div>
         </div>
 
-        <AuthDisplayAuthorized action="edit">
+        <AuthDisplayAuthorized level="MANAGER">
           <div className="buttons mt-5">
             <Button type="submit" isPrimary data-testid="button-save">
               Save

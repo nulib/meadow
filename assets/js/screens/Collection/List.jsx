@@ -96,7 +96,7 @@ const ScreensCollectionList = () => {
                 </h2>
               </div>
               <div className="column is-4 has-text-right">
-                <AuthDisplayAuthorized action="edit">
+                <AuthDisplayAuthorized level="MANAGER">
                   <Link to="/collection/form" className="button is-primary">
                     Add new collection
                   </Link>

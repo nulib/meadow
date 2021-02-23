@@ -5,21 +5,25 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { allCodeListMocks } from "../Work/controlledVocabulary.gql.mock.js";
 import { getCollectionsMock } from "../Collection/collection.gql.mock";
 import { BatchProvider } from "../../context/batch-edit-context";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditTabs component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <BatchProvider value={null}>
-          <BatchEditTabs items={items} />
-        </BatchProvider>
-      </AuthProvider>,
+      <BatchProvider value={null}>
+        <BatchEditTabs items={items} />
+      </BatchProvider>,
       {
-        mocks: [...allCodeListMocks, getCollectionsMock, getCurrentUserMock],
+        mocks: [...allCodeListMocks, getCollectionsMock],
       }
     );
   });

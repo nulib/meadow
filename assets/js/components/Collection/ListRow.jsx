@@ -7,13 +7,7 @@ import CollectionTags from "@js/components/Collection/Tags";
 import CollectionImage from "@js/components/Collection/Image";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
-  const {
-    id,
-    title = "",
-    description = "",
-    keywords = [],
-    representativeWork,
-  } = collection;
+  const { id, title = "", keywords = [] } = collection;
   return (
     <li data-testid="collection-list-row" className="mb-6">
       <article className="media">
@@ -49,14 +43,14 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
         </div>
         <div className="media-right">
           <div className="buttons-end">
-            <AuthDisplayAuthorized action="edit">
+            <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
                 <Link className="button" to={`/collection/form/${id}`}>
                   <FontAwesomeIcon icon="edit" />
                 </Link>
               </p>
             </AuthDisplayAuthorized>
-            <AuthDisplayAuthorized action="delete">
+            <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
                 <button
                   className="button"

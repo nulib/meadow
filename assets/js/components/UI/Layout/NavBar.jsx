@@ -11,6 +11,7 @@ import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -105,7 +106,7 @@ const UILayoutNavBar = () => {
           {currentUser && (
             <>
               <div className="navbar-start">
-                <AuthDisplayAuthorized>
+                <AuthDisplayAuthorized level="EDITOR">
                   <Link
                     className={`navbar-item ${
                       isActive("project") ? "is-active" : ""
@@ -127,7 +128,7 @@ const UILayoutNavBar = () => {
               </div>
 
               <div className="navbar-end">
-                <AuthDisplayAuthorized>
+                <AuthDisplayAuthorized level="EDITOR">
                   <UILayoutNavDropdown
                     onMouseEnter={() => setActiveHoverNav("Dashboards")}
                     onMouseLeave={() => setActiveHoverNav("")}

@@ -6,29 +6,33 @@ import {
 } from "../../services/testing-helpers";
 import { screen } from "@testing-library/react";
 import { collectionMock } from "./collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("Collection Form component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(CollectionForm);
-    return renderWithRouterApollo(
+    renderWithRouterApollo(
       <CodeListProvider>
-        <AuthProvider>
-          <Wrapped />
-        </AuthProvider>
+        <Wrapped />
       </CodeListProvider>,
       {
         route: "/collection/form",
-        mocks: [getCurrentUserMock, ...allCodeListMocks],
+        mocks: [...allCodeListMocks],
       }
     );
   });
 
   it("displays the collection form", async () => {
-    expect(screen.findByTestId("collection-form"));
+    expect(await screen.findByTestId("collection-form"));
   });
 
   it("displays all form fields", async () => {
@@ -57,13 +61,11 @@ it("renders existing collection values in the form when editing a form", async (
   });
   renderWithRouterApollo(
     <CodeListProvider>
-      <AuthProvider>
-        <Wrapped />
-      </AuthProvider>
+      <Wrapped />
     </CodeListProvider>,
     {
       route: "/collection/form",
-      mocks: [getCurrentUserMock, ...allCodeListMocks],
+      mocks: [...allCodeListMocks],
     }
   );
 
