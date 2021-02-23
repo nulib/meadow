@@ -56,7 +56,9 @@ config :meadow, Meadow.ElasticsearchCluster,
       region: get_required_var.("AWS_REGION"),
       access_key: get_required_var.("ELASTICSEARCH_KEY"),
       secret: get_required_var.("ELASTICSEARCH_SECRET")
-    ]
+    ],
+    timeout: 20_000,
+    recv_timeout: 30_000
   ],
   json_library: Jason,
   indexes: %{
@@ -65,7 +67,7 @@ config :meadow, Meadow.ElasticsearchCluster,
       store: Meadow.ElasticsearchStore,
       sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
       bulk_page_size: 500,
-      bulk_wait_interval: 2_000
+      bulk_wait_interval: 1_000
     }
   }
 
