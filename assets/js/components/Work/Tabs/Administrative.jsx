@@ -19,7 +19,7 @@ import {
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
@@ -57,6 +57,7 @@ const WorkTabsAdministrative = ({ work }) => {
   } = administrativeMetadata;
 
   const methods = useForm();
+  const history = useHistory();
 
   useEffect(() => {
     // Update a Work after the form has been submitted
@@ -110,6 +111,15 @@ const WorkTabsAdministrative = ({ work }) => {
 
     updateWork({
       variables: { id, work: workUpdateInput },
+    });
+  };
+
+  const handleViewAllWorksClick = (collectionTitle) => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: "Collection",
+        value: collectionTitle,
+      },
     });
   };
 
@@ -190,9 +200,15 @@ const WorkTabsAdministrative = ({ work }) => {
                 ) : (
                   <p>
                     {collection ? (
-                      <Link to={`/collection/${collection.id}`}>
+                      <Button
+                        className="button is-text"
+                        onClick={() =>
+                          handleViewAllWorksClick(collection.title)
+                        }
+                        data-testid="view-collection-works-button"
+                      >
                         {collection.title}
-                      </Link>
+                      </Button>
                     ) : (
                       "Not part of a collection"
                     )}
