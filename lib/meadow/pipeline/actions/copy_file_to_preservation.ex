@@ -53,19 +53,17 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   end
 
   defp copy_file_to_preservation(file_set, attributes) do
-    try do
-      with dest_location <- preservation_location(file_set),
-           overwrite <- attributes |> Map.get(:overwrite, false) do
-        if overwrite or Meadow.Utils.Stream.exists?(dest_location) do
-          Logger.info("#{dest_location} already exists")
-          {:ok, dest_location}
-        else
-          copy_file_if_missing(file_set, dest_location)
-        end
+    with dest_location <- preservation_location(file_set),
+         overwrite <- attributes |> Map.get(:overwrite, false) do
+      if overwrite or Meadow.Utils.Stream.exists?(dest_location) do
+        Logger.info("#{dest_location} already exists")
+        {:ok, dest_location}
+      else
+        copy_file_if_missing(file_set, dest_location)
       end
-    rescue
-      ArgumentError -> {:error, "Error creating preservation path"}
     end
+  rescue
+    ArgumentError -> {:error, "Error creating preservation path"}
   end
 
   defp copy_file_if_missing(file_set, dest_location) do
@@ -76,11 +74,18 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
          s3_metadata <- file_set.metadata.digests |> Enum.into([]) do
       Logger.info("Copying #{original_filename} from #{src_location} to #{dest_location}")
 
+      content_type =
+        case file_set.metadata.mime_type do
+          nil -> "application/octet-stream"
+          mime_type -> mime_type
+        end
+
       case ExAws.S3.put_object_copy(
              dest_bucket,
              dest_key,
              src_bucket,
              src_key,
+             content_type: content_type,
              metadata_directive: :REPLACE,
              meta: s3_metadata
            )
