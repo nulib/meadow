@@ -97,10 +97,13 @@ resource "aws_instance" "this_ec2_instance" {
   user_data                     = data.template_file.ec2_user_data.rendered
 
   lifecycle {
-    ignore_changes = [ user_data, instance_type ]
+    ignore_changes = [ ami, user_data, instance_type ]
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    { Name = "${var.stack_name}-console" }
+  )
 }
 
 resource "aws_route53_record" "ec2_hostname" {
