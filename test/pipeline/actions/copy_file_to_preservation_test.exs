@@ -82,12 +82,44 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     end
   end
 
+  describe "skip conditions" do
+    @describetag s3: [@fixture]
+
+    setup tags do
+      ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
+      |> ExAws.request!()
+
+      on_exit(fn ->
+        delete_object(@preservation_bucket, tags.preservation_key)
+      end)
+    end
+
+    test "file exists but metadata wrong", %{
+      file_set_id: file_set_id,
+      preservation_key: preservation_key
+    } do
+      log =
+        capture_log(fn ->
+          assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+          assert(object_exists?(@preservation_bucket, preservation_key))
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+  end
+
   describe "overwrite flag" do
     @describetag s3: [@fixture]
 
     setup tags do
       ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
       |> ExAws.request!()
+
+      with file_set <- FileSets.get_file_set!(tags[:file_set_id]),
+           preservation_url <- "s3://#{@preservation_bucket}/#{tags.preservation_key}" do
+        FileSets.update_file_set(file_set, %{metadata: %{location: preservation_url}})
+      end
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.preservation_key)
