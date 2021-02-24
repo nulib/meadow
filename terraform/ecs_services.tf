@@ -48,23 +48,19 @@ module "meadow_task_all" {
 }
 
 resource "aws_ecs_service" "meadow_all" {
-  name                                = "meadow-all"
+  name                                = "meadow"
   cluster                             = aws_ecs_cluster.meadow.id
   task_definition                     = module.meadow_task_all.task_definition.arn
   desired_count                       = 1
   health_check_grace_period_seconds   = 600
   launch_type                         = "FARGATE"
-  depends_on                          = [aws_alb.meadow_load_balancer]
+  depends_on                          = [aws_lb.meadow_load_balancer]
   platform_version                    = "1.4.0"
 
-  dynamic "load_balancer" {
-    for_each = local.container_ports
-    iterator = port
-    content {
-      target_group_arn = aws_alb_target_group.meadow_targets[port.key].arn
-      container_name   = "meadow-all"
-      container_port   = port.value
-    }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.meadow_target.arn
+    container_name   = "meadow-all"
+    container_port   = 4000
   }
 
   lifecycle {
@@ -100,17 +96,13 @@ resource "aws_ecs_service" "meadow_web" {
   desired_count                       = 0
   health_check_grace_period_seconds   = 600
   launch_type                         = "FARGATE"
-  depends_on                          = [aws_alb.meadow_load_balancer]
+  depends_on                          = [aws_lb.meadow_load_balancer]
   platform_version                    = "1.4.0"
 
-  dynamic "load_balancer" {
-    for_each = local.container_ports
-    iterator = port
-    content {
-      target_group_arn = aws_alb_target_group.meadow_targets[port.key].arn
-      container_name   = "meadow-web"
-      container_port   = port.value
-    }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.meadow_target.arn
+    container_name   = "meadow-web"
+    container_port   = 4000
   }
 
   lifecycle {

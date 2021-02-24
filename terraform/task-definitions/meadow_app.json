@@ -133,10 +133,6 @@
         "value": "name"
       },
       {
-        "name": "RELEASE_NODE",
-        "value": "meadow@${host_name}"
-      },
-      {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
       },

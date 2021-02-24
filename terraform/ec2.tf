@@ -48,6 +48,11 @@ resource "aws_iam_role_policy_attachment" "bucket_ec2_cloudwatch_agent_access" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "meadow_ec2_target_group_access" {
+  role       = aws_iam_role.meadow_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingReadOnly"
+}
+
 resource "aws_iam_instance_profile" "meadow_instance_profile" {
   name = "${var.stack_name}-ec2"
   role = aws_iam_role.meadow_ec2_role.name
@@ -73,6 +78,7 @@ data "template_file" "ec2_user_data" {
     dev_local_exs         = file("ec2_files/dev.local.exs"),
     ec2_instance_users    = join(" ", var.ec2_instance_users),
     meadow_rc             = data.template_file.ec2_meadow_config.rendered
+    target_group_arn      = aws_lb_target_group.meadow_target.arn
   }
 }
 
