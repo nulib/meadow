@@ -104,6 +104,9 @@ config :authoritex,
 config :honeybadger,
   api_key: System.get_env("HONEYBADGER_API_KEY", "DO_NOT_REPORT"),
   environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
+  revision: System.get_env("HONEYBADGER_REVISION", nil),
+  repos: [Meadow.Repo],
+  breadcrumbs_enabled: true,
   exclude_envs: [:dev, :test]
 
 aws_env =

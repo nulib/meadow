@@ -19,6 +19,14 @@ defmodule Meadow.Pipeline.Actions.Common do
           unless complete, do: update_progress(data, attrs, result)
           result
         end
+      rescue
+        exception ->
+          HoneyBadger.notify(exception,
+            metadata: %{action: __MODULE__},
+            stacktrace: __STACKTRACE__
+          )
+
+          reraise(exception, __STACKTRACE__)
       end
 
       defp precheck(file_set, %{overwrite: "false"} = attrs) do

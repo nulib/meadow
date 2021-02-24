@@ -108,6 +108,14 @@ defmodule Meadow.IntervalTask do
             _ -> {response, new_state}
           end
         end
+      rescue
+        exception ->
+          HoneyBadger.notify(exception,
+            metadata: %{task: __MODULE__},
+            stacktrace: __STACKTRACE__
+          )
+
+          reraise(exception, __STACKTRACE__)
       end
 
       defp schedule(state) do
