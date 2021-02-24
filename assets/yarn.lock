@@ -1245,20 +1245,6 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.0.tgz#0eee6373e11418bfe0b5638f654df7a4ca6a3950"
   integrity sha512-wYn6r8zVZyQJ6rQaALBEln5B1pzxb9shV5Ef97kTvn6yVGrqyXVnDqnU24MXnFubR+rZjBY9NWuxX3FB2sTsjg==
 
-"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.0.3.tgz#5220bd174789932be136baefd75c08a96c5a4c35"
-  integrity sha512-DQuaEpXYO1AqC5S6U5nl72OzIaclkC8hORe03Qp3cJDE9WooGnVaTcYrCHGjEwPkwhOHAuCakyCI19/dKHXK6A==
-  dependencies:
-    stacktrace-parser "^0.1.10"
-
-"@honeybadger-io/react@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-1.0.1.tgz#8ef227baeed30daf7138d619a8b60555801bc06e"
-  integrity sha512-jTdoaPO+/XgTIY1X4eFSOAi7xNnye/BUOvlyMqIJBTOmX8gL+5OtzVsS2HzQSHq3rutARYWasiYQJLSOFGj5MA==
-  dependencies:
-    "@honeybadger-io/js" "^3.0.1"
-
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -8486,13 +8472,6 @@ stack-utils@^2.0.2:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-stacktrace-parser@^0.1.10:
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/stacktrace-parser/-/stacktrace-parser-0.1.10.tgz#29fb0cae4e0d0b85155879402857a1639eb6051a"
-  integrity sha512-KJP1OCML99+8fhOHxwwzyWrlUuVX5GQ0ZpJTd1DFXhdkrvg1szxfHhawXUZ3g9TkXORQd4/WG68jMlQZ2p8wlg==
-  dependencies:
-    type-fest "^0.7.1"
-
 static-extend@^0.1.1:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/static-extend/-/static-extend-0.1.2.tgz#60809c39cbff55337226fd5e0b520f341f1fb5c6"
@@ -9043,11 +9022,6 @@ type-fest@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.6.0.tgz#8d2a2370d3df886eb5c90ada1c5bf6188acf838b"
   integrity sha512-q+MB8nYR1KDLrgr4G5yemftpMC7/QLqVndBmEEdqzmNj5dcFOO4Oo8qlwZE3ULT3+Zim1F8Kq4cBnikNhlCMlg==
-
-type-fest@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.7.1.tgz#8dda65feaf03ed78f0a3f9678f1869147f7c5c48"
-  integrity sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==
 
 type-fest@^0.8.1:
   version "0.8.1"
