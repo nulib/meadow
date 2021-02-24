@@ -68,6 +68,35 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
   }
 }
 
+resource "aws_security_group" "meadow_load_balancer" {
+  name          = "${var.stack_name}-lb"
+  description   = "Meadow Load Balancer Security Group"
+  vpc_id        = var.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description   = "HTTP in"
+    from_port     = 80
+    to_port       = 80
+    protocol      = "tcp"
+    cidr_blocks   = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description   = "HTTPS in"
+    from_port     = 443
+    to_port       = 443
+    protocol      = "tcp"
+    cidr_blocks   = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_iam_role" "meadow_role" {
   name               = "${var.stack_name}-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
@@ -98,73 +127,56 @@ resource "aws_cloudwatch_log_group" "meadow_logs" {
   name = "/ecs/${var.stack_name}"
   tags = var.tags
 }
-resource "aws_alb_target_group" "meadow_targets" {
-  count                   = length(local.container_ports)
-  port                    = element(local.container_ports, count.index)
+resource "aws_lb_target_group" "meadow_target" {
+  port                    = 4000
   deregistration_delay    = 30
   target_type             = "ip"
-  protocol                = "TCP"
+  protocol                = "HTTP"
   vpc_id                  = data.aws_vpc.this_vpc.id
   tags                    = var.tags
 
   stickiness {
     enabled = false
-    type    = "source_ip"
+    type    = "lb_cookie"
   }
 }
 
-resource "aws_alb" "meadow_load_balancer" {
-  name               = "${var.stack_name}-alb"
+resource "aws_lb" "meadow_load_balancer" {
+  name               = "${var.stack_name}-lb"
   internal           = false
-  load_balancer_type = "network"
+  load_balancer_type = "application"
 
-  subnets = data.aws_subnet_ids.public_subnets.ids
+  subnets         = data.aws_subnet_ids.public_subnets.ids
+  security_groups = [aws_security_group.meadow_load_balancer.id]
   tags    = var.tags
 }
 
-resource "aws_lb_listener" "meadow_alb_listener_http" {
-  load_balancer_arn = aws_alb.meadow_load_balancer.arn
+resource "aws_lb_listener" "meadow_lb_listener_http" {
+  load_balancer_arn = aws_lb.meadow_load_balancer.arn
   port              = 80
-  protocol          = "TCP"
+  protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.meadow_targets.0.arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
-resource "aws_lb_listener" "meadow_alb_listener_https" {
-  load_balancer_arn = aws_alb.meadow_load_balancer.arn
+resource "aws_lb_listener" "meadow_lb_listener_https" {
+  load_balancer_arn = aws_lb.meadow_load_balancer.arn
   port              = 443
-  protocol          = "TLS"
+  protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = data.aws_acm_certificate.meadow_cert.arn
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.meadow_targets.0.arn
-  }
-}
-
-resource "aws_lb_listener" "meadow_alb_listener_epmd" {
-  load_balancer_arn = aws_alb.meadow_load_balancer.arn
-  port              = 4369
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.meadow_targets.1.arn
-  }
-}
-
-resource "aws_lb_listener" "meadow_alb_listener_remote_iex" {
-  load_balancer_arn = aws_alb.meadow_load_balancer.arn
-  port              = 24601
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.meadow_targets.2.arn
+    target_group_arn = aws_lb_target_group.meadow_target.arn
   }
 }
 

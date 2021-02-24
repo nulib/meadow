@@ -209,8 +209,8 @@ resource "aws_route53_record" "app_hostname" {
   type    = "A"
 
   alias {
-    name                   = aws_alb.meadow_load_balancer.dns_name
-    zone_id                = aws_alb.meadow_load_balancer.zone_id
+    name                   = aws_lb.meadow_load_balancer.dns_name
+    zone_id                = aws_lb.meadow_load_balancer.zone_id
     evaluate_target_health = true
   }
 }

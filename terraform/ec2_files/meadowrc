@@ -33,8 +33,6 @@ export RELEASE_NODE="meadow@${host_name}"
 export SECRET_KEY_BASE="${secret_key_base}"
 export UPLOAD_BUCKET="${upload_bucket}"
 
-alias iex-remote='iex --name "$(whoami)@${meadow_ec2_hostname}" --remsh "meadow@${meadow_hostname}" --cookie $${SECRET_KEY_BASE}'
-
 cd ~/meadow
 git fetch -pa origin
 git pull
