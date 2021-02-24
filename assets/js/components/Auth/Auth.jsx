@@ -13,10 +13,10 @@ export const AuthProvider = ({ children }) => {
   if (loading) return null;
 
   Honeybadger.setContext({
-    user_id: data.me.username,
-    user_email: data.me.email,
-    user_display_name: data.me.displayName,
-    user_role: data.me.role,
+    user_id: data.me ? data.me.username : "Not logged in",
+    user_email: data.me ? data.me.email : "Not logged in",
+    user_display_name: data.me ? data.me.displayName : "Not logged in",
+    user_role: data.me ? data.me.role : "Not logged in",
   });
 
   return (
