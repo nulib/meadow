@@ -44,21 +44,17 @@ function FilesetsDragAndDrop({
 
   return (
     <div data-testid="fileset-dnd-wrapper">
-      <div className="columns">
-        <div className="column">
+      <div className="has-text-centered">
+        <div className="buttons is-justify-content-center my-4">
           <Button
-            className="is-fullwidth"
             isPrimary
             onClick={() => handleSaveReorder(state.fileSets.map((fs) => fs.id))}
             data-testid="button-reorder-save"
           >
-            Save Order
+            Save Fileset Order
           </Button>
-        </div>
-        <div className="column">
           <Button
             isText
-            className="is-fullwidth"
             onClick={handleCancelClick}
             data-testid="button-reorder-cancel"
           >
