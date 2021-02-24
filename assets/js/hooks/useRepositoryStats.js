@@ -30,93 +30,6 @@ function query(matchItemsArray = []) {
   };
 }
 
-const collectionsQuery = elasticsearchDirectCount(
-  query([
-    {
-      match: {
-        "model.name.keyword": "Collection",
-      },
-    },
-  ])
-);
-const worksQuery = elasticsearchDirectCount(query([matchImage]));
-const worksPublishedQuery = elasticsearchDirectCount(
-  query([
-    matchImage,
-    {
-      match: {
-        published: true,
-      },
-    },
-  ])
-);
-// NOTE: This only returns projects which contain a work
-const projectsQuery = elasticsearchDirectSearch({
-  ...query([matchImage]),
-  size: 0,
-  aggs: {
-    projects: {
-      terms: {
-        field: "project.id",
-      },
-    },
-  },
-});
-const visibilityQuery = elasticsearchDirectSearch({
-  ...query([matchImage]),
-  size: 0,
-  aggs: {
-    visibilities: {
-      terms: {
-        field: "visibility.id",
-      },
-      aggs: {
-        published: {
-          terms: {
-            field: "published",
-          },
-        },
-      },
-    },
-  },
-});
-const worksCreatedByWeek = elasticsearchDirectSearch({
-  ...query([matchImage]),
-  size: 0,
-  aggs: {
-    works_created_by_week: {
-      date_histogram: {
-        field: "createDate",
-        interval: "week",
-      },
-    },
-  },
-});
-// This grabs max 10 Collections from works updated in past quarter
-const collectionsRecentlyUpdated = elasticsearchDirectSearch({
-  ...query([matchImage]),
-  size: 0,
-  aggs: {
-    works_recently_updated: {
-      date_histogram: {
-        field: "modifiedDate",
-        interval: "quarter",
-      },
-      aggs: {
-        collection_ids: {
-          // Ideally it'd be great to get Collection title here too, but can only
-          // aggregate one field per terms according to ES docs
-          // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
-          terms: {
-            field: "collection.id",
-            size: 10,
-          },
-        },
-      },
-    },
-  },
-});
-
 /**
  * Data prep functions
  */
@@ -196,6 +109,93 @@ export default function useRepositoryStats() {
     collections: 0,
     works: 0,
     worksPublished: 0,
+  });
+
+  const collectionsQuery = elasticsearchDirectCount(
+    query([
+      {
+        match: {
+          "model.name.keyword": "Collection",
+        },
+      },
+    ])
+  );
+  const worksQuery = elasticsearchDirectCount(query([matchImage]));
+  const worksPublishedQuery = elasticsearchDirectCount(
+    query([
+      matchImage,
+      {
+        match: {
+          published: true,
+        },
+      },
+    ])
+  );
+  // NOTE: This only returns projects which contain a work
+  const projectsQuery = elasticsearchDirectSearch({
+    ...query([matchImage]),
+    size: 0,
+    aggs: {
+      projects: {
+        terms: {
+          field: "project.id",
+        },
+      },
+    },
+  });
+  const visibilityQuery = elasticsearchDirectSearch({
+    ...query([matchImage]),
+    size: 0,
+    aggs: {
+      visibilities: {
+        terms: {
+          field: "visibility.id",
+        },
+        aggs: {
+          published: {
+            terms: {
+              field: "published",
+            },
+          },
+        },
+      },
+    },
+  });
+  const worksCreatedByWeek = elasticsearchDirectSearch({
+    ...query([matchImage]),
+    size: 0,
+    aggs: {
+      works_created_by_week: {
+        date_histogram: {
+          field: "createDate",
+          interval: "week",
+        },
+      },
+    },
+  });
+  // This grabs max 10 Collections from works updated in past quarter
+  const collectionsRecentlyUpdated = elasticsearchDirectSearch({
+    ...query([matchImage]),
+    size: 0,
+    aggs: {
+      works_recently_updated: {
+        date_histogram: {
+          field: "modifiedDate",
+          interval: "quarter",
+        },
+        aggs: {
+          collection_ids: {
+            // Ideally it'd be great to get Collection title here too, but can only
+            // aggregate one field per terms according to ES docs
+            // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
+            terms: {
+              field: "collection.id",
+              size: 10,
+            },
+          },
+        },
+      },
+    },
   });
 
   React.useEffect(() => {
