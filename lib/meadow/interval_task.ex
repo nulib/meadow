@@ -110,7 +110,7 @@ defmodule Meadow.IntervalTask do
         end
       rescue
         exception ->
-          HoneyBadger.notify(exception,
+          Honeybadger.notify(exception,
             metadata: %{task: __MODULE__},
             stacktrace: __STACKTRACE__
           )

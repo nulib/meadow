@@ -21,7 +21,7 @@ defmodule Meadow.Pipeline.Actions.Common do
         end
       rescue
         exception ->
-          HoneyBadger.notify(exception,
+          Honeybadger.notify(exception,
             metadata: %{action: __MODULE__},
             stacktrace: __STACKTRACE__
           )
