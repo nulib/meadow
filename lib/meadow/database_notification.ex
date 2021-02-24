@@ -106,7 +106,7 @@ defmodule Meadow.DatabaseNotification do
             {:noreply, state}
           rescue
             exception ->
-              HoneyBadger.notify(exception,
+              Honeybadger.notify(exception,
                 metadata: %{notifier: __MODULE__},
                 stacktrace: __STACKTRACE__
               )
