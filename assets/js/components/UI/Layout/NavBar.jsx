@@ -11,7 +11,6 @@ import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
 import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
-import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import Honeybadger from "@honeybadger-io/js";
 
 /** @jsx jsx */
@@ -174,7 +173,7 @@ const UILayoutNavBar = () => {
                     <UILayoutNavDropdownItem>
                       {currentUser.displayName} ({currentUser.role})
                     </UILayoutNavDropdownItem>
-                    <AuthDisplayAuthorized action="administer">
+                    <AuthDisplayAuthorized level="ADMINISTRATOR">
                       <RoleNavDropdown />
                     </AuthDisplayAuthorized>
                     <UILayoutNavDropdownItem>
