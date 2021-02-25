@@ -27,6 +27,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
             "sha1" => @sha1
           },
           location: "s3://#{@ingest_bucket}/#{@key}",
+          mime_type: "image/tiff",
           original_filename: "test.tif"
         }
       })
@@ -52,11 +53,12 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
 
-      {:ok, %{headers: headers}} =
-        ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request()
-
-      assert headers |> List.keyfind("x-amz-meta-sha1", 0) |> elem(1) == @sha1
-      assert headers |> List.keyfind("x-amz-meta-sha256", 0) |> elem(1) == @sha256
+      with {:ok, %{headers: headers}} <-
+             ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
+        assert headers |> Enum.member?({"Content-Type", "image/tiff"})
+        assert headers |> Enum.member?({"x-amz-meta-sha1", @sha1})
+        assert headers |> Enum.member?({"x-amz-meta-sha256", @sha256})
+      end
 
       on_exit(fn ->
         delete_object(@preservation_bucket, preservation_key)
