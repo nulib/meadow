@@ -3,6 +3,14 @@ import { screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import ScreensDashboardsCsvList from "./List";
 import { getCsvMetadataUpdateJobsMock } from "@js/components/Dashboards/dashboards.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("ScreensDashboardsCsvList component", () => {
   beforeEach(() => {

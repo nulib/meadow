@@ -1,7 +1,8 @@
 import React from "react";
 import DashboardsCsvImport from "./Import";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
-function DashboardsCsvTitleBar(props) {
+function DashboardsCsvTitleBar() {
   return (
     <React.Fragment>
       <div
@@ -12,7 +13,9 @@ function DashboardsCsvTitleBar(props) {
           CSV Dashboard
         </h1>
         <div>
-          <DashboardsCsvImport />
+          <AuthDisplayAuthorized level="MANAGER">
+            <DashboardsCsvImport />
+          </AuthDisplayAuthorized>
         </div>
       </div>
     </React.Fragment>

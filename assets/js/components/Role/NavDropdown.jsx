@@ -70,17 +70,17 @@ const RoleNavDropdown = () => {
       <div className="dropdown-menu" id="dropdown-menu" role="menu">
         <div className="dropdown-content">
           <a
-            className="dropdown-item"
-            onClick={() => handleRoleChange("EDITOR")}
-          >
-            Editor
-          </a>
-          <a
             href="#"
             className="dropdown-item"
             onClick={() => handleRoleChange("MANAGER")}
           >
             Manager
+          </a>
+          <a
+            className="dropdown-item"
+            onClick={() => handleRoleChange("EDITOR")}
+          >
+            Editor
           </a>
           <a
             href="#"
