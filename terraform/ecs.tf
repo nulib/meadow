@@ -4,7 +4,7 @@ resource "aws_ecs_cluster" "meadow" {
 }
 
 data "aws_acm_certificate" "meadow_cert" {
-  domain = "*.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
+  domain = "${var.certificate_name}.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
 }
 
 data "aws_caller_identity" "current" {}
