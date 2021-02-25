@@ -57,24 +57,24 @@ describe("Work Administrative tab component", () => {
     });
 
     fireEvent.click(queryByTestId("edit-button"));
-    expect(queryByTestId("visibility")).toBeInTheDocument();
-    expect(queryByTestId("project-cycle")).toBeInTheDocument();
+    expect(queryByTestId("visibility"));
+    expect(queryByTestId("project-cycle"));
   });
 
   it("dislays correct work item metadata values", async () => {
     const { getByText, getByTestId, getByDisplayValue } = setupTests();
 
     await waitFor(() => {
-      expect(getByText(/New Project Description/i)).toBeInTheDocument();
-      expect(getByText(/Another Project Description/i)).toBeInTheDocument();
-      expect(getByText(/Project Cycle Name/i)).toBeInTheDocument();
-      expect(getByText(/Started/i)).toBeInTheDocument();
+      expect(getByText(/New Project Description/i));
+      expect(getByText(/Another Project Description/i));
+      expect(getByText(/Project Cycle Name/i));
+      expect(getByText(/Started/i));
+      expect(getByText(/Collection 1232432 Name/i));
+      expect(getByTestId("view-collection-works-button"));
     });
 
     // And ensure the values transfer to the form elements when in edit mode
     fireEvent.click(getByTestId("edit-button"));
-    expect(
-      getByDisplayValue(/Another Project Description/i)
-    ).toBeInTheDocument();
+    expect(getByDisplayValue(/Another Project Description/i));
   });
 });
