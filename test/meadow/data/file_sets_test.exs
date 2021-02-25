@@ -8,7 +8,7 @@ defmodule Meadow.Data.FileSetsTest do
   describe "queries" do
     @valid_attrs %{
       accession_number: "12345",
-      role: "am",
+      role: %{id: "A", scheme: "FILE_SET_ROLE"},
       metadata: %{
         description: "yes",
         location: "https://example.com",
@@ -53,18 +53,18 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "updating rank, role or accession_number with update_file_set/2 is not allowed" do
-      file_set = file_set_fixture(%{role: "am"})
+      file_set = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
       assert {:ok, %FileSet{} = updated_file_set} =
                FileSets.update_file_set(file_set, %{
                  rank: 123,
                  metadata: %{label: "New label"},
                  accession_number: "Unsupported",
-                 role: "pm"
+                 role: %{id: "P", scheme: "FILE_SET_ROLE"}
                })
 
       assert updated_file_set.metadata.label == "New label"
-      assert updated_file_set.role == "am"
+      assert updated_file_set.role.id == "A"
       assert updated_file_set.accession_number == file_set.accession_number
       assert updated_file_set.rank == file_set.rank
     end

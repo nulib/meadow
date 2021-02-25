@@ -67,7 +67,7 @@ config :sequins, CreatePyramidTiff,
     visibility_timeout: 300
   ],
   notify_on: [
-    ExtractExifMetadata: [status: :ok, role: "am"],
+    ExtractExifMetadata: [status: :ok, role: "A"],
     CreatePyramidTiff: [status: :retry]
   ]
 
@@ -76,5 +76,5 @@ config :sequins, FileSetComplete,
   notify_on: [
     CreatePyramidTiff: [status: :ok],
     FileSetComplete: [status: :retry],
-    ExtractExifMetadata: [status: :ok, role: "pm"]
+    ExtractExifMetadata: [status: :ok, role: "P"]
   ]

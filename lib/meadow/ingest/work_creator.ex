@@ -77,7 +77,7 @@ defmodule Meadow.Ingest.WorkCreator do
     |> Enum.each(fn {%FileSet{id: file_set_id, role: role}, %Row{row: row_num}} ->
       Pipeline.kickoff(file_set_id, %{
         context: "Sheet",
-        role: role,
+        role: role.id,
         ingest_sheet: ingest_sheet.id,
         ingest_sheet_row: row_num
       })
@@ -102,7 +102,7 @@ defmodule Meadow.Ingest.WorkCreator do
 
           %{
             accession_number: row |> Row.field_value(:accession_number),
-            role: row |> Row.field_value(:role),
+            role: %{scheme: "file_set_role", id: row |> Row.field_value(:role)},
             metadata: %{
               description: row |> Row.field_value(:description),
               location: location,

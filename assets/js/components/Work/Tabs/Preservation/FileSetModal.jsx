@@ -27,7 +27,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
     accessionNumber: "",
     label: "",
     description: "",
-    role: "PM",
+    role: { id: "A", scheme: "FILE_SET_ROLE" },
   };
 
   const methods = useForm({
@@ -73,7 +73,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
       variables: {
         accession_number: data.accessionNumber,
         workId,
-        role: data.role,
+        role: { id: data.role, scheme: "FILE_SET_ROLE" },
         metadata: {
           description: data.description,
           label: data.label,

@@ -18,7 +18,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       file_set_fixture(%{
         id: "6caf2759-c476-46ae-9c40-ec58cf44c704",
         accession_number: "123",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "s3://#{@ingest_bucket}/#{@key}",
           original_filename: "coffee.tif"
@@ -29,7 +29,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       file_set_fixture(%{
         id: "5915fe2b-6b66-4373-b69a-e13f765dc2a4",
         accession_number: "1234",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "invalid",
           original_filename: "coffee.tif"

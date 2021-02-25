@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSets do
   def change do
     create table("file_sets") do
       add(:accession_number, :string)
-      add(:role, :string)
+      add(:role, :map)
       add(:metadata, :map, default: %{})
       add(:work_id, references(:works, null: false, on_delete: :delete_all))
       add(:rank, :integer)

@@ -1,7 +1,7 @@
 export const mockFileSets = [
   {
     id: "45226a50-87ca-443e-bc05-f47884e14505",
-    role: "AM",
+    role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2569254_FILE_0",
     metadata: {
       description: "inu-dil-9d35d0ba-a84b-4e0a-99e6-9c6b548a46db.tif",
@@ -16,7 +16,7 @@ export const mockFileSets = [
   {
     __typename: "FileSet",
     id: "109b9a5c-3c6f-4a98-b98b-12402b871dc7",
-    role: "AM",
+    role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2572813_FILE_0",
     metadata: {
       __typename: "FileSetMetadata",
@@ -32,7 +32,7 @@ export const mockFileSets = [
   {
     __typename: "FileSet",
     id: "d414d3d4-b72c-49cc-b7cc-faa9bc0f256e",
-    role: "AM",
+    role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2553177_FILE_0",
     metadata: {
       __typename: "FileSetMetadata",

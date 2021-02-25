@@ -1,8 +1,8 @@
 work_accession_number,accession_number,filename,description,role
-Donohue_001,6777,Donohue_001_01.tif,"Letter, page 1, Dear Sir, recto",am
-Donohue_001,Donohue_001_02,coffee.tif,"Letter, page 1, Dear Sir, verso, blank",pm
-Donohue_001,Donohue_001_03,coffee.tif,"Letter, page 2, If these papers, recto",am
-Donohue_001,Donohue_001_04,coffee.tif,"Letter, page 2, If these papers, verso, blank",am
-Donohue_002,Donohue_002_01,coffee.tif,"Photo, man with two children",am
-Donohue_002,Donohue_002_02,coffee.tif,Verso,am
-Donohue_002,Donohue_002_03,coffee.tif,"Photo, two children praying",am
+Donohue_001,6777,Donohue_001_01.tif,"Letter, page 1, Dear Sir, recto",A
+Donohue_001,Donohue_001_02,coffee.tif,"Letter, page 1, Dear Sir, verso, blank",P
+Donohue_001,Donohue_001_03,coffee.tif,"Letter, page 2, If these papers, recto",A
+Donohue_001,Donohue_001_04,coffee.tif,"Letter, page 2, If these papers, verso, blank",A
+Donohue_002,Donohue_002_01,coffee.tif,"Photo, man with two children",A
+Donohue_002,Donohue_002_02,coffee.tif,Verso,A
+Donohue_002,Donohue_002_03,coffee.tif,"Photo, two children praying",A

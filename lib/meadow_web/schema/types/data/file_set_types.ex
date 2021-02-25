@@ -23,7 +23,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     @desc "Ingests a new FileSet for a work"
     field :ingest_file_set, :file_set do
       arg(:accession_number, non_null(:string))
-      arg(:role, non_null(:file_set_role))
+      arg(:role, non_null(:coded_term_input))
       arg(:work_id, non_null(:id))
       arg(:metadata, non_null(:file_set_metadata_input))
       middleware(Middleware.Authenticate)
@@ -84,7 +84,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   @desc "Input fields for a `file_set` creation object "
   input_object :file_set_input do
     field :accession_number, non_null(:string)
-    field :role, non_null(:file_set_role)
+    field :role, non_null(:coded_term_input)
     field :metadata, :file_set_metadata_input
   end
 
@@ -96,7 +96,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   object :file_set do
     field :id, non_null(:id)
     field :accession_number, non_null(:string)
-    field :role, non_null(:file_set_role)
+    field :role, non_null(:coded_term)
     field :position, :string
     field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
@@ -128,11 +128,5 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
         end
       end)
     end
-  end
-
-  @desc "A `file_set_role` designates whether the file is an access or preservation master and will determine how the file is processed and stored."
-  enum :file_set_role do
-    value(:am, as: "am", description: "Access Master")
-    value(:pm, as: "pm", description: "Preservaton Master")
   end
 end

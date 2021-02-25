@@ -18,7 +18,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
       query_gql(
         variables: %{
           "accession_number" => "99999",
-          "role" => "AM",
+          "role" => %{"id" => "A", "scheme" => "FILE_SET_ROLE"},
           "work_id" => work.id,
           "metadata" => %{
             "description" => "Something",
@@ -41,7 +41,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
         query_gql(
           variables: %{
             "accession_number" => "99999",
-            "role" => "AM",
+            "role" => %{"id" => "A", "scheme" => "FILE_SET_ROLE"},
             "work_id" => work.id,
             "metadata" => %{
               "description" => "Something",

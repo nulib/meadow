@@ -32,19 +32,22 @@ defmodule Meadow.Data do
 
   ## Examples
 
-      iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J", "am")
+      iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J", "A")
       [%Meadow.Data.Schemas.FileSet{rank: -100}, %Meadow.Data.Schemas.FileSet{rank: 0}, %Meadow.Data.Schemas.FileSet{rank: 100}]
 
       iex> ranked_file_sets_for_work(Ecto.UUID.generate())
       []
 
   """
-  def ranked_file_sets_for_work(work_id, role) do
-    FileSet
-    |> where([fs], fs.work_id == ^work_id)
-    |> where([fs], fs.role == ^role)
-    |> order_by(:rank)
-    |> Repo.all()
+  def ranked_file_sets_for_work(work_id, role_id) do
+    map = %{"id" => role_id}
+
+    Repo.all(
+      from f in FileSet,
+        where: f.work_id == ^work_id,
+        where: fragment("role @> ?::jsonb", ^map),
+        order_by: :rank
+    )
   end
 
   # Dataloader

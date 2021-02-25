@@ -16,8 +16,6 @@ defmodule Meadow.TestHelpers do
 
   alias NimbleCSV.RFC4180, as: CSV
 
-  use Meadow.Constants
-
   @test_users %{
     "TestAdmins" => ~w[auy5400 auk0124 auh7250 aud6389],
     "TestManagers" => ~w[aut2418 aum1701 auf2249 aua6615],
@@ -193,7 +191,7 @@ defmodule Meadow.TestHelpers do
   def file_set_fixture_attrs(attrs \\ %{}) do
     Enum.into(attrs, %{
       accession_number: attrs[:accession_number] || Faker.String.base64(),
-      role: attrs[:role] || Faker.Util.pick(@file_set_roles),
+      role: attrs[:role] || %{id: Faker.Util.pick(["A", "P"]), scheme: "FILE_SET_ROLE"},
       metadata:
         attrs[:metadata] ||
           %{

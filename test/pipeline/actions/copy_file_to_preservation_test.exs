@@ -20,7 +20,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       file_set_fixture(%{
         id: @id,
         accession_number: "123",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           digests: %{
             "sha256" => @sha256,

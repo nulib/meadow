@@ -16,7 +16,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     file_set =
       file_set_fixture(%{
         accession_number: "123",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "s3://#{@bucket}/#{@key}",
           original_filename: "test.tif"
