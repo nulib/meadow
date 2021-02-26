@@ -58,7 +58,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       file_set_fixture(%{
         id: "cecb1180-054e-4764-8d2b-8a46c6b777b2",
         accession_number: "1234",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "s3://#{@bucket}/#{@exif_key}",
           original_filename: "test.tif"
@@ -69,7 +69,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       file_set_fixture(%{
         id: "bbcb54da-fb1d-48ed-8438-99a030431086",
         accession_number: "2314",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "s3://#{@bucket}/#{@no_exif_key}",
           original_filename: "test.tif"
@@ -80,7 +80,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       file_set_fixture(%{
         id: "979d3570-9dc9-4d3b-ac1b-ee5524ee0bd3",
         accession_number: "4321",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "invalid",
           original_filename: "test.tif"

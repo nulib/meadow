@@ -198,7 +198,10 @@ export const GET_WORK = gql`
       }
       fileSets {
         id
-        role
+        role {
+          id
+          label
+        }
         accessionNumber
         metadata {
           description
@@ -245,7 +248,10 @@ export const GET_WORKS = gql`
       }
       fileSets {
         id
-        role
+        role {
+          id
+          label
+        }
         accessionNumber
         metadata {
           description
@@ -416,7 +422,10 @@ export const INGEST_FILE_SET = gql`
     ) {
       id
       accession_number
-      role
+      role {
+        id
+        label
+      }
       work {
         id
       }

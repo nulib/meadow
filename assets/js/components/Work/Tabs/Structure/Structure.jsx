@@ -103,7 +103,7 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const filterAccessMasters = (fileSets) => {
-    return fileSets.filter((fs) => fs.role == "AM");
+    return fileSets.filter((fs) => fs.role.id == "A");
   };
 
   const onSubmit = (data) => {

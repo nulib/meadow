@@ -10,7 +10,7 @@ defmodule Meadow.Pipeline do
   def ingest_file_set(attrs \\ %{}) do
     case FileSets.create_file_set(attrs) do
       {:ok, file_set} ->
-        kickoff(file_set, %{role: file_set.role})
+        kickoff(file_set, %{role: file_set.role.id})
         {:ok, file_set}
 
       {:error, changeset} ->

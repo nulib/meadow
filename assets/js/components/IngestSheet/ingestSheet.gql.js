@@ -179,7 +179,10 @@ export const INGEST_SHEET_WORKS = gql`
       }
       fileSets {
         id
-        role
+        role {
+          id
+          label
+        }
         accessionNumber
         metadata {
           description

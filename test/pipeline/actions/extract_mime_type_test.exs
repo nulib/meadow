@@ -14,7 +14,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     file_set =
       file_set_fixture(%{
         accession_number: "123",
-        role: "pm",
+        role: %{id: "P", scheme: "FILE_SET_ROLE"},
         metadata: %{
           location: "s3://#{@bucket}/#{@key}",
           original_filename: "test.tif"

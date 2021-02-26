@@ -53,7 +53,7 @@ describe("WorkTabsPreservation component", () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
-    expect(utils.getByText(/AM/i));
+    expect(utils.getByText("Access"));
     expect(utils.getByText(/coffee.jpg/i));
     expect(utils.getByText("s3://bucket/foo/bar"));
   });

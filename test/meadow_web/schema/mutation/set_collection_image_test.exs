@@ -9,9 +9,15 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
     collection = collection_fixture()
 
     works = [
-      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{role: "am"}),
-      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{role: "am"}),
-      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{role: "am"})
+      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        role: %{id: "A", scheme: "FILE_SET_ROLE"}
+      }),
+      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        role: %{id: "A", scheme: "FILE_SET_ROLE"}
+      }),
+      work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        role: %{id: "A", scheme: "FILE_SET_ROLE"}
+      })
     ]
 
     expected_work = works |> Enum.at(1)

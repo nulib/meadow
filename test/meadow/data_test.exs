@@ -10,7 +10,7 @@ defmodule Meadow.DataTest do
       file_sets: [
         %{
           accession_number: "1234",
-          role: "am",
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
           metadata: %{
             description: "This is the description",
             location: "https://www.library.northwestern.edu",
@@ -33,7 +33,7 @@ defmodule Meadow.DataTest do
       |> FileSet.changeset(%{
         work_id: work.id,
         accession_number: "2222",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
@@ -43,7 +43,7 @@ defmodule Meadow.DataTest do
         position: 0,
         work_id: work.id,
         accession_number: "1111",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
@@ -53,7 +53,7 @@ defmodule Meadow.DataTest do
         position: 0,
         work_id: work.id,
         accession_number: "no",
-        role: "pm",
+        role: %{id: "P", scheme: "FILE_SET_ROLE"},
         metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
@@ -62,12 +62,13 @@ defmodule Meadow.DataTest do
       |> FileSet.changeset(%{
         position: 0,
         accession_number: "nono",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
 
-      [file_set_1, file_set_2] = Data.ranked_file_sets_for_work(work.id, "am")
+      [file_set_1, file_set_2] = Data.ranked_file_sets_for_work(work.id, "A")
+
       assert file_set_1.rank < file_set_2.rank
     end
 
