@@ -228,13 +228,17 @@ defmodule Meadow.Data.Works do
     Repo.transaction(
       fn ->
         case create_work(attrs) do
-          {:ok, work} -> on_complete.(work)
+          {:ok, work} -> work
           {:error, changeset} -> Repo.rollback(changeset)
         end
       end,
       timeout: :infinity
     )
+    |> after_ensure_create_work(on_complete)
   end
+
+  defp after_ensure_create_work({:ok, work}, on_complete), do: {:ok, on_complete.(work)}
+  defp after_ensure_create_work(result, _), do: result
 
   def create_work_all_fields(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
