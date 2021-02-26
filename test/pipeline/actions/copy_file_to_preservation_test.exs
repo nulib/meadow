@@ -102,7 +102,11 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     } do
       log =
         capture_log(fn ->
-          assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(
+            %{file_set_id: file_set_id}
+            |> CopyFileToPreservation.process(%{overwrite: "false"}) == :ok
+          )
+
           assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
           assert(object_exists?(@preservation_bucket, preservation_key))
         end)

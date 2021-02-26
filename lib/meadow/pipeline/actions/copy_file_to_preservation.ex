@@ -54,8 +54,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   defp copy_file_to_preservation(file_set, attributes) do
     with dest_location <- preservation_location(file_set),
-         overwrite <- attributes |> Map.get(:overwrite, false) do
-      if overwrite or Meadow.Utils.Stream.exists?(dest_location) do
+         retain <- Map.get(attributes, :overwrite) == "false" do
+      if retain or Meadow.Utils.Stream.exists?(dest_location) do
         Logger.info("#{dest_location} already exists")
         {:ok, dest_location}
       else
