@@ -48,7 +48,6 @@ const ScreensSearch = () => {
   };
 
   const handleCsvExportItems = () => {
-    console.log("handle Csv Export Items");
     const myQuery = buildSelectedItemsQuery(selectedItems);
     downloadCsvFile("search_results_selected_items", myQuery);
   };
@@ -143,19 +142,17 @@ const ScreensSearch = () => {
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
 
-              <AuthDisplayAuthorized level="MANAGER">
-                <SearchActionRow
-                  handleCsvExportAllItems={handleCsvExportAllItems}
-                  handleCsvExportItems={handleCsvExportItems}
-                  handleDeselectAll={handleDeselectAll}
-                  handleEditAllItems={handleEditAllItems}
-                  handleEditItems={handleEditItems}
-                  handleViewAndEdit={handleViewAndEdit}
-                  numberOfResults={resultStats.numberOfResults}
-                  selectedItems={selectedItems}
-                  filteredQuery={filteredQuery}
-                />
-              </AuthDisplayAuthorized>
+              <SearchActionRow
+                handleCsvExportAllItems={handleCsvExportAllItems}
+                handleCsvExportItems={handleCsvExportItems}
+                handleDeselectAll={handleDeselectAll}
+                handleEditAllItems={handleEditAllItems}
+                handleEditItems={handleEditItems}
+                handleViewAndEdit={handleViewAndEdit}
+                numberOfResults={resultStats.numberOfResults}
+                selectedItems={selectedItems}
+                filteredQuery={filteredQuery}
+              />
               <hr />
               <UIResultsDisplaySwitcher
                 isListView={isListView}

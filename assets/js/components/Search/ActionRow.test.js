@@ -3,6 +3,14 @@ import { render, screen } from "@testing-library/react";
 import SearchActionRow from "./ActionRow";
 import userEvent from "@testing-library/user-event";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 let props = {
   handleCsvExportAllItems: jest.fn(),
