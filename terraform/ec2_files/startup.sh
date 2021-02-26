@@ -3,7 +3,7 @@
 # Install required software
 amazon-linux-extras install epel -y
 yum update -y
-yum install -y amazon-cloudwatch-agent autoconf awslogs curl dirmngr fop gawk git gpg htop \
+yum install -y amazon-cloudwatch-agent autoconf curl dirmngr fop gawk git gpg htop \
                inotify-tools jq libxslt ncurses-devel openssl-devel tmux postgresql-9.2.24 \
                wxGTK3-devel wxBase3 
 yum groupinstall -y 'Development Tools' 'C Development Tools and Libraries'
@@ -12,17 +12,29 @@ yum groupinstall -y 'Development Tools' 'C Development Tools and Libraries'
 mkdir -p /var/log/meadow
 chown ec2-user:ec2-user /var/log/meadow
 
-cat >> /etc/awslogs/awslogs.conf <<'__EOF__'
-
-[/var/log/meadow/meadow.log]
-datetime_format = %Y-%m-%d %H:%M:%S.%f
-multi_line_start_pattern = {datetime_format}
-time_zone = LOCAL
-file = /var/log/meadow/meadow.log
-buffer_duration = 5000
-log_stream_name = {instance_id}
-initial_position = start_of_file
-log_group_name = /ec2/meadow
+mkdir /etc/amazon-cloudwatch-agent
+cat > /etc/amazon-cloudwatch-agent/config.json <<'__EOF__'
+{
+  "agent": {
+    "run_as_user": "cwagent"
+  },
+  "logs": {
+    "force_flush_interval": 5,
+    "logs_collected": {
+      "files": {
+        "collect_list": [{
+            "file_path": "/var/log/meadow/meadow.log",
+            "log_group_name": "/ec2/meadow",
+            "log_stream_name": "{instance_id}",
+            "multi_line_start_pattern": "{timestamp_format}",
+            "timestamp_format": "%Y-%m-%d %H:%M:%S.%f",
+            "timezone": "LOCAL"
+          }
+        ]
+      }
+    }
+  }
+}
 __EOF__
 
 cat >> /etc/logrotate.d/meadow <<'__EOF__'
@@ -40,8 +52,8 @@ cat >> /etc/logrotate.d/meadow <<'__EOF__'
 }
 __EOF__
 
-systemctl start awslogsd
-systemctl enable awslogsd.service
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/amazon-cloudwatch-agent/config.json
+systemctl enable amazon-cloudwatch-agent.service
 
 # Create and run the user initialization script
 cat > /tmp/user_setup.sh <<'__EOF__'
