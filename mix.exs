@@ -71,6 +71,7 @@ defmodule Meadow.MixProject do
       {:honeybadger, "~> 0.7"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
+      {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.1.0"},
       {:phoenix, "~> 1.5.1"},
