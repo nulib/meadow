@@ -24,11 +24,23 @@ defmodule Meadow.Data.Indexer do
   end
 
   def synchronize_schema(schema) do
-    schema
-    |> Store.stream()
-    |> Stream.map(&encode!(&1, schema))
-    |> upload()
-    |> Stream.run()
+    case schema |> synchronize_chunk() do
+      :ok -> synchronize_schema(schema)
+      :halt -> :ok
+    end
+  end
+
+  defp synchronize_chunk(schema) do
+    case schema |> Store.retrieve() do
+      [] ->
+        :halt
+
+      records ->
+        records
+        |> Stream.map(&encode!(&1, schema))
+        |> upload()
+        |> Stream.run()
+    end
   end
 
   def encode!(id, :deleted) do
