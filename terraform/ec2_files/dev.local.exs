@@ -78,9 +78,22 @@ config :exldap, :settings,
   password: System.get_env("LDAP_BIND_PASSWORD", "d0ck3rAdm1n!"),
   ssl: System.get_env("LDAP_SSL", "false") == "true"
 
+config :logger,
+  backends: [
+    :console,
+    {LoggerFileBackend, :cloudwatch}
+  ]
+
 config :logger, :console,
   format: "$metadata[$level] $levelpad$message\n",
   metadata: [:action]
+
+config :logger, :cloudwatch,
+  path: "/var/log/meadow/meadow.log",
+  format: "$date $time [$level] $metadata $levelpad$message\n",
+  metadata: [:action],
+  level: :info,
+  colors: [enabled: false]
 
 config :ueberauth, Ueberauth,
   providers: [

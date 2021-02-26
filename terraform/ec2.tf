@@ -87,8 +87,10 @@ data "template_file" "ec2_meadow_config" {
   vars = merge(
     local.container_config,
     {
-      meadow_ec2_hostname   = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
-      meadow_hostname       = aws_route53_record.app_hostname.fqdn
+      meadow_ec2_hostname       = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
+      meadow_hostname           = aws_route53_record.app_hostname.fqdn,
+      migration_binary_bucket   = var.migration_binary_bucket,
+      migration_manifest_bucket = var.migration_manifest_bucket
     }
   )
 }
@@ -103,6 +105,7 @@ resource "aws_instance" "this_ec2_instance" {
   user_data                     = data.template_file.ec2_user_data.rendered
 
   lifecycle {
+    create_before_destroy = true
     ignore_changes = [ ami, user_data, instance_type ]
   }
 
