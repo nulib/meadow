@@ -41,7 +41,7 @@ const ScreensProjectList = () => {
                   <span className="is-italic">Ingest Sheets</span>.{" "}
                 </p>
               </div>
-              <AuthDisplayAuthorized action="edit">
+              <AuthDisplayAuthorized>
                 <div className="column is-4 has-text-right">
                   <Button
                     isPrimary

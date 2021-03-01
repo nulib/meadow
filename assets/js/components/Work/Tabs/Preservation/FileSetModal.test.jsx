@@ -10,6 +10,8 @@ import { mockWork } from "@js/components/Work/work.gql.mock.js";
 import { screen, waitFor } from "@testing-library/react";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 import userEvent from "@testing-library/user-event";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 let isModalOpen = true;
 
@@ -26,10 +28,16 @@ describe("Add fileset to work modal", () => {
     });
     return renderWithRouterApollo(
       <AuthProvider>
-        <Wrapped />
+        <CodeListProvider>
+          <Wrapped />
+        </CodeListProvider>
       </AuthProvider>,
       {
-        mocks: [getPresignedUrlForFileSetMock, getCurrentUserMock],
+        mocks: [
+          getPresignedUrlForFileSetMock,
+          getCurrentUserMock,
+          ...allCodeListMocks,
+        ],
       }
     );
   });

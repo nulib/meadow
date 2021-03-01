@@ -16,6 +16,7 @@ import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkTabsStructureFilesetList from "./FilesetList";
 import WorkTabsStructureDownloadAll from "@js/components/Work/Tabs/Structure/DownloadAll";
+import classNames from "classnames";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -45,20 +46,26 @@ const WorkTabsStructure = ({ work }) => {
       toastWrapper("is-success", "Work image has been updated");
     },
   });
-  const [updateFileSets] = useMutation(UPDATE_FILE_SETS, {
-    onCompleted({ updateFileSets }) {
-      console.log("updateFileSets", updateFileSets);
-      toastWrapper("is-success", "Filesets have been updated");
-      setIsEditing(false);
-    },
-    onError(error) {
-      console.error("error in the updateFileSets GraphQL mutation :>> ", error);
-      setError({
-        message: "There was an error updating file sets.",
-        responseError: error,
-      });
-    },
-  });
+  const [updateFileSets, { loading: loadingUpdateFilesets }] = useMutation(
+    UPDATE_FILE_SETS,
+    {
+      onCompleted({ updateFileSets }) {
+        console.log("updateFileSets", updateFileSets);
+        toastWrapper("is-success", "Filesets have been updated");
+        setIsEditing(false);
+      },
+      onError(error) {
+        console.error(
+          "error in the updateFileSets GraphQL mutation :>> ",
+          error
+        );
+        setError({
+          message: "There was an error updating file sets.",
+          responseError: error,
+        });
+      },
+    }
+  );
   const [updateAccessMasterOrder] = useMutation(UPDATE_ACCESS_MASTER_ORDER, {
     onCompleted() {
       setIsReordering(false);
@@ -96,7 +103,7 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const filterAccessMasters = (fileSets) => {
-    return fileSets.filter((fs) => fs.role == "AM");
+    return fileSets.filter((fs) => fs.role.id == "A");
   };
 
   const onSubmit = (data) => {
@@ -136,7 +143,13 @@ const WorkTabsStructure = ({ work }) => {
           )}
           {isEditing && (
             <>
-              <Button isPrimary type="submit">
+              <Button
+                isPrimary
+                type="submit"
+                className={classNames({
+                  "is-loading": loadingUpdateFilesets,
+                })}
+              >
                 Save
               </Button>
               <Button isText onClick={() => setIsEditing(false)}>

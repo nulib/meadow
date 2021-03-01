@@ -56,7 +56,9 @@ config :meadow, Meadow.ElasticsearchCluster,
       region: get_required_var.("AWS_REGION"),
       access_key: get_required_var.("ELASTICSEARCH_KEY"),
       secret: get_required_var.("ELASTICSEARCH_SECRET")
-    ]
+    ],
+    timeout: 20_000,
+    recv_timeout: 30_000
   ],
   json_library: Jason,
   indexes: %{
@@ -64,8 +66,8 @@ config :meadow, Meadow.ElasticsearchCluster,
       settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
-      bulk_page_size: 500,
-      bulk_wait_interval: 2_000
+      bulk_page_size: 200,
+      bulk_wait_interval: 500
     }
   }
 
@@ -90,11 +92,6 @@ config :meadow,
   pyramid_tiff_working_dir: System.get_env("PYRAMID_TIFF_WORKING_DIR"),
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
-
-config :honeybadger,
-  api_key: get_required_var.("HONEYBADGER_API_KEY"),
-  environment_name: :prod,
-  exclude_envs: [:dev, :test]
 
 config :logger, level: :info
 

@@ -48,6 +48,11 @@ resource "aws_iam_role_policy_attachment" "bucket_ec2_cloudwatch_agent_access" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "meadow_ec2_target_group_access" {
+  role       = aws_iam_role.meadow_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingReadOnly"
+}
+
 resource "aws_iam_instance_profile" "meadow_instance_profile" {
   name = "${var.stack_name}-ec2"
   role = aws_iam_role.meadow_ec2_role.name
@@ -73,6 +78,7 @@ data "template_file" "ec2_user_data" {
     dev_local_exs         = file("ec2_files/dev.local.exs"),
     ec2_instance_users    = join(" ", var.ec2_instance_users),
     meadow_rc             = data.template_file.ec2_meadow_config.rendered
+    target_group_arn      = aws_lb_target_group.meadow_target.arn
   }
 }
 
@@ -81,8 +87,10 @@ data "template_file" "ec2_meadow_config" {
   vars = merge(
     local.container_config,
     {
-      meadow_ec2_hostname   = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
-      meadow_hostname       = aws_route53_record.app_hostname.fqdn
+      meadow_ec2_hostname       = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
+      meadow_hostname           = aws_route53_record.app_hostname.fqdn,
+      migration_binary_bucket   = var.migration_binary_bucket,
+      migration_manifest_bucket = var.migration_manifest_bucket
     }
   )
 }
@@ -97,10 +105,14 @@ resource "aws_instance" "this_ec2_instance" {
   user_data                     = data.template_file.ec2_user_data.rendered
 
   lifecycle {
-    ignore_changes = [ user_data, instance_type ]
+    create_before_destroy = true
+    ignore_changes = [ ami, user_data, instance_type ]
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    { Name = "${var.stack_name}-console" }
+  )
 }
 
 resource "aws_route53_record" "ec2_hostname" {

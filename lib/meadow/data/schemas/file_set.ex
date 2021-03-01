@@ -6,6 +6,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Data.Schemas.FileSetMetadata
   alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Types
   alias Meadow.Utils.Exif, as: ExifUtil
 
   import Ecto.Changeset
@@ -19,7 +20,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   @timestamps_opts [type: :utc_datetime_usec]
   schema "file_sets" do
     field :accession_number
-    field :role, :string
+    field :role, Types.CodedTerm
     field :rank, :integer
     field :position, :any, virtual: true
 
@@ -48,9 +49,13 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
-      |> validate_inclusion(:role, @file_set_roles)
       |> set_rank(scope: [:work_id, :role])
     end
+  end
+
+  def migration_changeset(file_set, %{role: "am"} = params) do
+    params = put_in(params.role, %{id: "A", scheme: "FILE_SET_ROLE"})
+    migration_changeset(file_set, params)
   end
 
   def migration_changeset(file_set, params) do
@@ -65,7 +70,6 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
-      |> validate_inclusion(:role, @file_set_roles)
       |> set_rank(scope: [:work_id, :role])
     end
   end
@@ -90,6 +94,7 @@ defmodule Meadow.Data.Schemas.FileSet do
         mime_type: file_set.metadata.mime_type,
         model: %{application: "Meadow", name: "FileSet"},
         modifiedDate: file_set.updated_at,
+        role: format(file_set.role),
         visibility: format(file_set.work.visibility),
         workId: file_set.work.id,
         exif: %{

@@ -4,7 +4,7 @@ defmodule Meadow.Ingest.Validator do
   """
 
   alias Meadow.Config
-  alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Data.{CodedTerms, FileSets, Works}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
@@ -205,11 +205,11 @@ defmodule Meadow.Ingest.Validator do
     do: {:error, field_name, "#{field_name} cannot be blank"}
 
   defp validate_value({"role", value}, _existing_files) do
-    case Enum.member?(@file_set_roles, value) do
-      true ->
+    case CodedTerms.get_coded_term(value, "file_set_role") do
+      {{:ok, _}, _term} ->
         :ok
 
-      false ->
+      nil ->
         {:error, "role", "role: #{value} is invalid"}
     end
   end

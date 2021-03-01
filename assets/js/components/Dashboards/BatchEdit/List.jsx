@@ -36,17 +36,12 @@ function Status({ status }) {
 
 export default function DashboardsBatchEditList() {
   const { loading, error, data } = useQuery(GET_BATCHES, { pollInterval: 500 });
-  const batches =
-    data &&
-    data.batches
-      .slice() // slice to unfreeze array
-      .sort((a, b) => {
-        return new Date(a.started).getTime() - new Date(b.started).getTime();
-      })
-      .reverse();
-
   if (loading) return null;
   if (error) return `Error: ${error}`;
+
+  const sortedBatches = [...data.batches].sort((a, b) =>
+    a.started < b.started ? 1 : -1
+  );
 
   return (
     <table
@@ -63,11 +58,10 @@ export default function DashboardsBatchEditList() {
         </tr>
       </thead>
       <tbody data-testid="batch-dashboard-table-body">
-        {batches.map((record) => {
+        {sortedBatches.map((record) => {
           const {
             id,
             nickname,
-            query,
             started,
             status,
             type,

@@ -4,28 +4,27 @@ import { mockWork } from "../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { getCollectionsMock } from "../../Collection/collection.gql.mock";
-import { getCurrentUserMock } from "../../Auth/auth.gql.mock";
-
+import { mockUser } from "../../Auth/auth.gql.mock";
 import userEvent from "@testing-library/user-event";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { AuthProvider } from "@js/components/Auth/Auth";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("Work Administrative tab component", () => {
   function setupTests() {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <CodeListProvider>
-          <WorkTabsAdministrative work={mockWork} />
-        </CodeListProvider>
-      </AuthProvider>,
+      <CodeListProvider>
+        <WorkTabsAdministrative work={mockWork} />
+      </CodeListProvider>,
       {
-        mocks: [
-          getCollectionsMock,
-          getCollectionsMock,
-          ...allCodeListMocks,
-          getCurrentUserMock,
-        ],
+        mocks: [getCollectionsMock, getCollectionsMock, ...allCodeListMocks],
       }
     );
   }
@@ -58,24 +57,24 @@ describe("Work Administrative tab component", () => {
     });
 
     fireEvent.click(queryByTestId("edit-button"));
-    expect(queryByTestId("visibility")).toBeInTheDocument();
-    expect(queryByTestId("project-cycle")).toBeInTheDocument();
+    expect(queryByTestId("visibility"));
+    expect(queryByTestId("project-cycle"));
   });
 
   it("dislays correct work item metadata values", async () => {
     const { getByText, getByTestId, getByDisplayValue } = setupTests();
 
     await waitFor(() => {
-      expect(getByText(/New Project Description/i)).toBeInTheDocument();
-      expect(getByText(/Another Project Description/i)).toBeInTheDocument();
-      expect(getByText(/Project Cycle Name/i)).toBeInTheDocument();
-      expect(getByText(/Started/i)).toBeInTheDocument();
+      expect(getByText(/New Project Description/i));
+      expect(getByText(/Another Project Description/i));
+      expect(getByText(/Project Cycle Name/i));
+      expect(getByText(/Started/i));
+      expect(getByText(/Collection 1232432 Name/i));
+      expect(getByTestId("view-collection-works-button"));
     });
 
     // And ensure the values transfer to the form elements when in edit mode
     fireEvent.click(getByTestId("edit-button"));
-    expect(
-      getByDisplayValue(/Another Project Description/i)
-    ).toBeInTheDocument();
+    expect(getByDisplayValue(/Another Project Description/i));
   });
 });

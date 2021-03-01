@@ -116,10 +116,12 @@ defmodule Meadow.Data.Works do
   end
 
   def get_access_masters(work_id) do
+    map = %{"id" => "A"}
+
     Repo.all(
       from f in FileSet,
-        where: f.role == "am",
         where: f.work_id == ^work_id,
+        where: fragment("role @> ?::jsonb", ^map),
         order_by: :rank,
         limit: 1
     )
@@ -143,12 +145,18 @@ defmodule Meadow.Data.Works do
 
   """
   def with_file_sets(id, role) do
+    map = %{"id" => role}
+
     Work
     |> Repo.get!(id)
     |> Repo.preload([
       :ingest_sheet,
       :project,
-      file_sets: from(f in FileSet, where: f.role == ^role, order_by: [asc: :role, asc: :rank])
+      file_sets:
+        from(f in FileSet,
+          where: fragment("role @> ?::jsonb", ^map),
+          order_by: [asc: :role, asc: :rank]
+        )
     ])
     |> add_representative_image()
   end
@@ -220,13 +228,17 @@ defmodule Meadow.Data.Works do
     Repo.transaction(
       fn ->
         case create_work(attrs) do
-          {:ok, work} -> on_complete.(work)
+          {:ok, work} -> work
           {:error, changeset} -> Repo.rollback(changeset)
         end
       end,
       timeout: :infinity
     )
+    |> after_ensure_create_work(on_complete)
   end
+
+  defp after_ensure_create_work({:ok, work}, on_complete), do: {:ok, on_complete.(work)}
+  defp after_ensure_create_work(result, _), do: result
 
   def create_work_all_fields(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
@@ -533,9 +545,9 @@ defmodule Meadow.Data.Works do
   @doc """
   Update the order of the file sets attached to a work
   """
-  def update_file_set_order(work_id, role, ordered_file_set_ids) do
+  def update_file_set_order(work_id, role_id, ordered_file_set_ids) do
     ensure_file_set_list_unique(ordered_file_set_ids)
-    |> ensure_file_set_list_complete(work_id, role, ordered_file_set_ids)
+    |> ensure_file_set_list_complete(work_id, role_id, ordered_file_set_ids)
     |> reorder_file_sets(ordered_file_set_ids)
   end
 
@@ -547,12 +559,14 @@ defmodule Meadow.Data.Works do
 
   defp ensure_file_set_list_complete({:error, msg}, _, _, _), do: {:error, msg}
 
-  defp ensure_file_set_list_complete(:ok, work_id, role, file_set_ids) do
+  defp ensure_file_set_list_complete(:ok, work_id, role_id, file_set_ids) do
+    map = %{"id" => role_id}
+
     work =
       from(w in Work,
         join: f in assoc(w, :file_sets),
         where: w.id == ^work_id,
-        where: f.role == ^role,
+        where: fragment("role @> ?::jsonb", ^map),
         preload: [file_sets: f]
       )
       |> Repo.one()

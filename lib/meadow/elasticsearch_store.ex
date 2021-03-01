@@ -15,7 +15,7 @@ defmodule Meadow.ElasticsearchStore do
     |> Stream.chunk_every(10)
     |> Stream.flat_map(fn chunk ->
       chunk
-      |> Repo.preload(Schemas.Work.required_index_preloads)
+      |> Repo.preload(Schemas.Work.required_index_preloads())
       |> Works.add_representative_image()
     end)
   end

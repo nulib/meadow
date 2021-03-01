@@ -6,17 +6,20 @@ import {
   mockWork,
   verifyFileSetsMock,
 } from "@js/components/Work/work.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("WorkTabsPreservation component", () => {
   beforeEach(() => {
-    renderWithRouterApollo(
-      <AuthProvider>
-        <WorkTabsPreservation work={mockWork} />
-      </AuthProvider>,
-      { mocks: [getCurrentUserMock, verifyFileSetsMock] }
-    );
+    renderWithRouterApollo(<WorkTabsPreservation work={mockWork} />, {
+      mocks: [verifyFileSetsMock],
+    });
   });
 
   it("renders the component and tab title", async () => {
@@ -50,7 +53,7 @@ describe("WorkTabsPreservation component", () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
-    expect(utils.getByText(/AM/i));
+    expect(utils.getByText("Access"));
     expect(utils.getByText(/coffee.jpg/i));
     expect(utils.getByText("s3://bucket/foo/bar"));
   });

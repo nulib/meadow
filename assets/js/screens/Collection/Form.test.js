@@ -4,18 +4,21 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { Route } from "react-router-dom";
 import { waitFor } from "@testing-library/react";
 import { getCollectionMock } from "../../components/Collection/collection.gql.mock";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-import { CodeListProvider } from "@js/context/code-list-context";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-const mocks = [getCollectionMock, getCurrentUserMock, ...allCodeListMocks];
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
+
+const mocks = [getCollectionMock, ...allCodeListMocks];
 
 function setupTests() {
   return renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/form/:id" component={ScreensCollectionForm} />
-    </AuthProvider>,
+    <Route path="/collection/form/:id" component={ScreensCollectionForm} />,
     {
       mocks,
       route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
@@ -47,11 +50,9 @@ it("renders breadcrumbs", async () => {
 
 it("renders no initial form values when creating a collection", async () => {
   const { getByTestId } = renderWithRouterApollo(
-    <AuthProvider>
-      <Route path="/collection/form/" component={ScreensCollectionForm} />
-    </AuthProvider>,
+    <Route path="/collection/form/" component={ScreensCollectionForm} />,
     {
-      mocks: [getCurrentUserMock, ...allCodeListMocks],
+      mocks: [...allCodeListMocks],
       route: "/collection/form/",
     }
   );

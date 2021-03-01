@@ -143,7 +143,7 @@ export const mockWork = {
     {
       accessionNumber: "Donohue_001_04",
       id: "01E08T3EXBJX3PWDG22NSRE0BS",
-      role: "AM",
+      role: { id: "A", label: "Access" },
       metadata: {
         description: "Letter, page 2, If these papers, verso, blank",
         exif:
@@ -157,7 +157,7 @@ export const mockWork = {
     {
       accessionNumber: "Donohue_001_01",
       id: "01E08T3EW3TQ9T0AXCR6X9QDJW",
-      role: "AM",
+      role: { id: "A", label: "Access" },
       metadata: {
         description: "Letter, page 1, Dear Sir, recto",
         exif:
@@ -172,7 +172,7 @@ export const mockWork = {
     {
       accessionNumber: "Donohue_001_03",
       id: "01E08T3EWRPXMWW0B1NHZ56AW6",
-      role: "AM",
+      role: { id: "A", label: "Access" },
       metadata: {
         description: "Letter, page 2, If these papers, recto",
         originalFilename: "coffee.jpg",
@@ -184,7 +184,7 @@ export const mockWork = {
     {
       accessionNumber: "Donohue_001_02",
       id: "01E08T3EWFJB35RY3RVR65AXMK",
-      role: "AM",
+      role: { id: "A", label: "Access" },
       metadata: {
         description: "Letter, page 1, Dear Sir, verso, blank",
         originalFilename: "coffee.jpg",
@@ -308,7 +308,7 @@ const mockWork2 = {
         sha256:
           "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
       },
-      role: "AM",
+      role: { id: "A", label: "Access" },
     },
     {
       accessionNumber: "Donohue_002_01b",
@@ -322,7 +322,7 @@ const mockWork2 = {
         sha256:
           "a2fe39ca86723eaecb9a6e2557c3daf4698e2e5d4b124c81ad557b5854376a5b",
       },
-      role: "AM",
+      role: { id: "A", label: "Access" },
     },
     {
       accessionNumber: "Donohue_002_02b",
@@ -336,7 +336,7 @@ const mockWork2 = {
         sha256:
           "7c69abf311b0da097edc8c54d30e27b41b8fcbca7b5e962c86b8604c5072cfb6",
       },
-      role: "AM",
+      role: { id: "A", label: "Access" },
     },
   ],
   ingestSheet: {

@@ -122,7 +122,7 @@ const ScreensCollection = () => {
                     <h1 className="title">{data.collection.title || ""}</h1>
                   </div>
                   <div className="buttons">
-                    <AuthDisplayAuthorized action="edit">
+                    <AuthDisplayAuthorized>
                       <Link
                         to={`/collection/form/${id}`}
                         className="button is-primary"
@@ -152,7 +152,7 @@ const ScreensCollection = () => {
           </div>
 
           <div className="my-4">
-            <AuthDisplayAuthorized action="delete">
+            <AuthDisplayAuthorized level="MANAGER">
               <Button
                 isDanger
                 onClick={onOpenModal}

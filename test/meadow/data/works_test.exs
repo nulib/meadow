@@ -113,7 +113,7 @@ defmodule Meadow.Data.WorksTest do
 
   describe "representative images" do
     setup do
-      work = work_with_file_sets_fixture(3, %{}, %{role: "am"})
+      work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       file_set = work.file_sets |> Enum.at(1)
 
       {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
@@ -198,7 +198,7 @@ defmodule Meadow.Data.WorksTest do
     end
 
     test "set_representative_image/2 with a preservation master does not set the representative image" do
-      work = work_with_file_sets_fixture(1, %{}, %{role: "pm"})
+      work = work_with_file_sets_fixture(1, %{}, %{role: %{id: "P", scheme: "FILE_SET_ROLE"}})
       file_set = work.file_sets |> Enum.at(1)
 
       {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
@@ -391,7 +391,7 @@ defmodule Meadow.Data.WorksTest do
 
   describe "reorder file sets" do
     setup do
-      work = work_with_file_sets_fixture(5, %{}, %{role: "am"})
+      work = work_with_file_sets_fixture(5, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       {:ok, %{work: work, ids: work.file_sets |> Enum.map(& &1.id)}}
     end
 
@@ -405,21 +405,21 @@ defmodule Meadow.Data.WorksTest do
                   index_4: %{id: id_4, position: 4},
                   index_5: %{id: id_5, position: 5},
                   work: %Work{id: ^work_id}
-                }} = Works.update_file_set_order(work_id, "am", Enum.reverse(ids))
+                }} = Works.update_file_set_order(work_id, "A", Enum.reverse(ids))
 
         assert [id_5, id_4, id_3, id_2, id_1] == ids
       end
     end
 
     test "update_file_set_order/1 errors on missing id", %{work: work, ids: [missing_id | ids]} do
-      assert {:error, error_text} = Works.update_file_set_order(work.id, "am", ids)
+      assert {:error, error_text} = Works.update_file_set_order(work.id, "A", ids)
       assert String.contains?(error_text, missing_id)
       assert String.match?(error_text, ~r/missing \[.+\]/)
     end
 
     test "update_file_set_order/1 errors on extra id", %{work: work, ids: ids} do
       with extra_id <- Ecto.UUID.generate() do
-        assert {:error, error_text} = Works.update_file_set_order(work.id, "am", [extra_id | ids])
+        assert {:error, error_text} = Works.update_file_set_order(work.id, "A", [extra_id | ids])
         assert String.contains?(error_text, extra_id)
         assert String.match?(error_text, ~r/^Extra/)
       end

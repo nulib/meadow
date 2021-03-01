@@ -289,8 +289,32 @@ export const codeListVisibilityMock = {
   },
 };
 
+export const codeListFileSetRoleMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "FILE_SET_ROLE" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "A",
+          label: "Access",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "P",
+          label: "Preservation",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+};
+
 export const allCodeListMocks = [
   codeListAuthorityMock,
+  codeListFileSetRoleMock,
   codeListLibraryUnitMock,
   codeListLicenseMock,
   codeListMarcRelatorMock,

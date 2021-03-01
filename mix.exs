@@ -44,7 +44,7 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.5.0"},
+      {:absinthe, "~> 1.6.3"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.18.0", only: :test},
@@ -71,6 +71,7 @@ defmodule Meadow.MixProject do
       {:honeybadger, "~> 0.7"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
+      {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.1.0"},
       {:phoenix, "~> 1.5.1"},

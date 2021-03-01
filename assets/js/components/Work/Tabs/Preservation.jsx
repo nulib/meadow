@@ -186,7 +186,7 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Preservation and Access Masters">
-        <AuthDisplayAuthorized action="edit">
+        <AuthDisplayAuthorized>
           <div className="buttons is-right">
             <Button
               data-testid="button-new-file-set"
@@ -241,7 +241,7 @@ const WorkTabsPreservation = ({ work }) => {
                 return (
                   <tr key={fileset.id} data-testid="preservation-row">
                     <td className="is-hidden">{fileset.id}</td>
-                    <td>{fileset.role}</td>
+                    <td>{fileset.role && fileset.role.label}</td>
                     <td className="break-word">
                       {metadata ? metadata.originalFilename : " "}
                     </td>

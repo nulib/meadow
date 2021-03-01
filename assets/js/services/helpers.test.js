@@ -115,7 +115,7 @@ describe("Sort file sets", () => {
   const originalFileSets = [
     {
       id: "2357ea03-9dd5-49f2-a88c-dfc9aa88be3c",
-      role: "AM",
+      role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_0",
       metadata: {
         __typename: "FileSetMetadata",
@@ -130,7 +130,7 @@ describe("Sort file sets", () => {
     },
     {
       id: "26357d25-b5e0-4e27-b683-c6844a13dc6b",
-      role: "AM",
+      role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_1",
       metadata: {
         __typename: "FileSetMetadata",
@@ -145,7 +145,7 @@ describe("Sort file sets", () => {
     },
     {
       id: "0607a735-9f99-4d38-b75a-6c10027f0937",
-      role: "AM",
+      role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_2",
       metadata: {
         __typename: "FileSetMetadata",

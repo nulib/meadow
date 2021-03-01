@@ -4,20 +4,21 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { getProjectsMock, mockProjects } from "./project.gql.mock";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 describe("BatchEditAboutDescriptiveMetadata component", () => {
   beforeEach(() => {
-    return renderWithRouterApollo(
-      <AuthProvider>
-        <ProjectList projects={mockProjects} />
-      </AuthProvider>,
-      {
-        mocks: [getProjectsMock, getCurrentUserMock],
-        route: "/project/list",
-      }
-    );
+    return renderWithRouterApollo(<ProjectList projects={mockProjects} />, {
+      mocks: [getProjectsMock],
+      route: "/project/list",
+    });
   });
 
   it("renders the ProjectsList component", () => {

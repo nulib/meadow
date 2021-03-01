@@ -33,8 +33,10 @@ config :meadow, MeadowWeb.Endpoint,
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
   api: Elasticsearch.API.HTTP,
-  timeout: 15_000,
-  recv_timeout: 15_000,
+  default_options: [
+    timeout: 20_000,
+    recv_timeout: 30_000
+  ],
   json_library: Jason,
   indexes: %{
     meadow: %{
@@ -45,8 +47,8 @@ config :meadow, Meadow.ElasticsearchCluster,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
       ],
-      bulk_page_size: 500,
-      bulk_wait_interval: 2_000
+      bulk_page_size: 200,
+      bulk_wait_interval: 500
     }
   }
 
@@ -101,7 +103,10 @@ config :authoritex,
 
 config :honeybadger,
   api_key: System.get_env("HONEYBADGER_API_KEY", "DO_NOT_REPORT"),
-  environment_name: Mix.env(),
+  environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
+  revision: System.get_env("HONEYBADGER_REVISION", nil),
+  repos: [Meadow.Repo],
+  breadcrumbs_enabled: true,
   exclude_envs: [:dev, :test]
 
 aws_env =

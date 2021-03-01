@@ -30,7 +30,7 @@ const SearchSelectable = ({
 
   return (
     <div className="is-relative">
-      <AuthDisplayAuthorized action="edit">
+      <AuthDisplayAuthorized>
         <div className="field" css={field}>
           <input
             data-testid="checkbox-search-select"

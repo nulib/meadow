@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 export default function SearchActionRow({
   handleCsvExportAllItems,
@@ -25,15 +26,11 @@ export default function SearchActionRow({
   const numSelectedItems = selectedItems.length;
 
   function handleDeleteAllItemsClick() {
-    console.log("Batch delete all click");
     setIsModalAllItemsOpen(false);
     setIsModalBatchDeleteConfirmationOpen(true);
   }
 
   function handleDeleteItemsClick() {
-    console.log("Delete items click");
-    console.log("selectedItems", JSON.stringify(selectedItems));
-
     setIsModalItemsOpen(false);
     setIsModalBatchDeleteConfirmationOpen(true);
   }
@@ -107,39 +104,46 @@ export default function SearchActionRow({
         handleCloseClick={() => setIsModalAllItemsOpen(false)}
         isOpen={isModalAllItemsOpen}
       >
-        <Button
-          isLight
-          className="is-fullwidth mb-4"
-          data-testid="button-batch-all-edit"
-          onClick={handleEditAllItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="edit" />
-          </span>
-          <span>Batch edit {numberOfResults} works</span>
-        </Button>
-        <Button
-          isLight
-          className="is-fullwidth mb-4"
-          data-testid="button-csv-all-export"
-          onClick={handleCsvExportAllItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="file-csv" />
-          </span>
-          <span>Export metadata from {numberOfResults} works </span>
-        </Button>
-        <Button
-          isLight
-          className="is-fullwidth"
-          data-testid="button-batch-all-delete"
-          onClick={handleDeleteAllItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="trash" />
-          </span>
-          <span>Delete {numberOfResults} works </span>
-        </Button>
+        <AuthDisplayAuthorized level="EDITOR">
+          <>
+            <Button
+              isLight
+              className="is-fullwidth mb-4"
+              data-testid="button-batch-all-edit"
+              onClick={handleEditAllItemsClick}
+            >
+              <span className="icon">
+                <FontAwesomeIcon icon="edit" />
+              </span>
+              <span>Batch edit {numberOfResults} works</span>
+            </Button>
+            <Button
+              isLight
+              className="is-fullwidth mb-4"
+              data-testid="button-csv-all-export"
+              onClick={handleCsvExportAllItemsClick}
+            >
+              <span className="icon">
+                <FontAwesomeIcon icon="file-csv" />
+              </span>
+              <span>Export metadata from {numberOfResults} works </span>
+            </Button>
+          </>
+        </AuthDisplayAuthorized>
+
+        <AuthDisplayAuthorized level="MANAGER">
+          <Button
+            isLight
+            className="is-fullwidth"
+            data-testid="button-batch-all-delete"
+            onClick={handleDeleteAllItemsClick}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="trash" />
+            </span>
+            <span>Delete {numberOfResults} works </span>
+          </Button>
+        </AuthDisplayAuthorized>
       </SearchBatchModal>
 
       {/* Batch edit selected items */}
@@ -147,50 +151,54 @@ export default function SearchActionRow({
         handleCloseClick={() => setIsModalItemsOpen(false)}
         isOpen={isModalItemsOpen}
       >
-        <Button
-          isLight
-          className="is-fullwidth mb-4"
-          data-testid="button-batch-items-edit"
-          onClick={handleEditItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="edit" />
-          </span>
-          <span>Batch edit {numSelectedItems} works</span>
-        </Button>
-        <Button
-          isLight
-          className="is-fullwidth mb-4"
-          data-testid="button-view-and-edit"
-          onClick={handleViewAndEditClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="eye" />
-          </span>
-          <span>View and edit {numSelectedItems} individual works</span>
-        </Button>
-        <Button
-          isLight
-          className="is-fullwidth mb-4"
-          data-testid="button-csv-items-export"
-          onClick={handleCsvExportItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="file-csv" />
-          </span>
-          <span>Export metadata from {numSelectedItems} works </span>
-        </Button>
-        <Button
-          isLight
-          className="is-fullwidth"
-          data-testid="button-delete-items"
-          onClick={handleDeleteItemsClick}
-        >
-          <span className="icon">
-            <FontAwesomeIcon icon="trash" />
-          </span>
-          <span>Delete {numSelectedItems} works </span>
-        </Button>
+        <AuthDisplayAuthorized level="EDITOR">
+          <Button
+            isLight
+            className="is-fullwidth mb-4"
+            data-testid="button-batch-items-edit"
+            onClick={handleEditItemsClick}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="edit" />
+            </span>
+            <span>Batch edit {numSelectedItems} works</span>
+          </Button>
+          <Button
+            isLight
+            className="is-fullwidth mb-4"
+            data-testid="button-view-and-edit"
+            onClick={handleViewAndEditClick}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="eye" />
+            </span>
+            <span>View and edit {numSelectedItems} individual works</span>
+          </Button>
+          <Button
+            isLight
+            className="is-fullwidth mb-4"
+            data-testid="button-csv-items-export"
+            onClick={handleCsvExportItemsClick}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="file-csv" />
+            </span>
+            <span>Export metadata from {numSelectedItems} works </span>
+          </Button>
+        </AuthDisplayAuthorized>
+        <AuthDisplayAuthorized level="MANAGER">
+          <Button
+            isLight
+            className="is-fullwidth"
+            data-testid="button-delete-items"
+            onClick={handleDeleteItemsClick}
+          >
+            <span className="icon">
+              <FontAwesomeIcon icon="trash" />
+            </span>
+            <span>Delete {numSelectedItems} works </span>
+          </Button>
+        </AuthDisplayAuthorized>
       </SearchBatchModal>
       <BatchDeleteConfirmationModal
         numberOfResults={numberOfResults}

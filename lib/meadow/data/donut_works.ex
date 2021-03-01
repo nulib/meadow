@@ -35,16 +35,19 @@ defmodule Meadow.Data.DonutWorks do
   end
 
   def with_next_donut_work(func) do
-    Repo.transaction(fn ->
-      from(dw in DonutWork,
-        where: dw.status == "pending",
-        order_by: [asc: :inserted_at],
-        limit: 1,
-        lock: "FOR UPDATE SKIP LOCKED"
-      )
-      |> Repo.one()
-      |> func.()
-    end)
+    Repo.transaction(
+      fn ->
+        from(dw in DonutWork,
+          where: dw.status == "pending",
+          order_by: [asc: :inserted_at],
+          limit: 1,
+          lock: "FOR UPDATE SKIP LOCKED"
+        )
+        |> Repo.one()
+        |> func.()
+      end,
+      timeout: 60_000
+    )
   end
 
   def update_donut_work(%DonutWork{} = donut_work, attrs) do

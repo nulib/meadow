@@ -63,7 +63,7 @@ function WorkTabsStructureFileset({
         <div className="column is-3 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <AuthDisplayAuthorized action="edit">
+              <AuthDisplayAuthorized>
                 <div className="field">
                   <input
                     id={`checkbox-work-switch-${fileSet.id}`}

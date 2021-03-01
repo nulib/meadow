@@ -31,7 +31,7 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
           <h2 className="title is-size-4 has-text-grey">{title}</h2>
         </div>
         <div className="column is-half ">
-          <AuthDisplayAuthorized action="edit">
+          <AuthDisplayAuthorized>
             <div className="buttons is-right">{children}</div>
           </AuthDisplayAuthorized>
         </div>

@@ -12,7 +12,7 @@ module "rds" {
   allocated_storage         = "5"
   backup_window             = "04:00-05:00"
   engine                    = "postgres"
-  engine_version            = "11.2"
+  engine_version            = "11.8"
   final_snapshot_identifier = "meadow-final"
   identifier                = "${var.stack_name}-db"
   instance_class            = "db.t3.medium"
@@ -209,8 +209,8 @@ resource "aws_route53_record" "app_hostname" {
   type    = "A"
 
   alias {
-    name                   = aws_alb.meadow_load_balancer.dns_name
-    zone_id                = aws_alb.meadow_load_balancer.zone_id
+    name                   = aws_lb.meadow_load_balancer.dns_name
+    zone_id                = aws_lb.meadow_load_balancer.zone_id
     evaluate_target_health = true
   }
 }

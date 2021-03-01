@@ -30,11 +30,11 @@ defmodule Meadow.Ingest.ProgressTest do
         Progress.initialize_entry(row, true)
 
         case MapList.get(row.fields, :header, :value, :role) do
-          "am" ->
+          "A" ->
             assert Progress.get_entry(row, Actions.CreatePyramidTiff) |> Map.get(:status) ==
                      "pending"
 
-          "pm" ->
+          "P" ->
             assert is_nil(Progress.get_entry(row, Actions.CreatePyramidTiff))
         end
       end)

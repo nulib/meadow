@@ -82,7 +82,7 @@ defmodule Meadow.Utils.Lambda do
   Make sure a particular local Lambda function is pre-loaded and running in a port. Useful
   for local-only functions running in GenServers.
   """
-  @spec init(config :: lambda_config()) :: port() | :noop
+  @spec init(config :: lambda_config()) :: {atom(), port()} | :noop
   def init({:local, {script, handler}}), do: find_or_create_port(script, handler)
 
   def init(_), do: :noop

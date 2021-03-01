@@ -20,13 +20,14 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       file_set_fixture(%{
         id: @id,
         accession_number: "123",
-        role: "am",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
         metadata: %{
           digests: %{
             "sha256" => @sha256,
             "sha1" => @sha1
           },
           location: "s3://#{@ingest_bucket}/#{@key}",
+          mime_type: "image/tiff",
           original_filename: "test.tif"
         }
       })
@@ -52,11 +53,12 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
 
-      {:ok, %{headers: headers}} =
-        ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request()
-
-      assert headers |> List.keyfind("x-amz-meta-sha1", 0) |> elem(1) == @sha1
-      assert headers |> List.keyfind("x-amz-meta-sha256", 0) |> elem(1) == @sha256
+      with {:ok, %{headers: headers}} <-
+             ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
+        assert headers |> Enum.member?({"Content-Type", "image/tiff"})
+        assert headers |> Enum.member?({"x-amz-meta-sha1", @sha1})
+        assert headers |> Enum.member?({"x-amz-meta-sha256", @sha256})
+      end
 
       on_exit(fn ->
         delete_object(@preservation_bucket, preservation_key)
@@ -82,12 +84,48 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     end
   end
 
+  describe "skip conditions" do
+    @describetag s3: [@fixture]
+
+    setup tags do
+      ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
+      |> ExAws.request!()
+
+      on_exit(fn ->
+        delete_object(@preservation_bucket, tags.preservation_key)
+      end)
+    end
+
+    test "file exists but metadata wrong", %{
+      file_set_id: file_set_id,
+      preservation_key: preservation_key
+    } do
+      log =
+        capture_log(fn ->
+          assert(
+            %{file_set_id: file_set_id}
+            |> CopyFileToPreservation.process(%{overwrite: "false"}) == :ok
+          )
+
+          assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+          assert(object_exists?(@preservation_bucket, preservation_key))
+        end)
+
+      refute log =~ ~r/already complete without overwriting/
+    end
+  end
+
   describe "overwrite flag" do
     @describetag s3: [@fixture]
 
     setup tags do
       ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
       |> ExAws.request!()
+
+      with file_set <- FileSets.get_file_set!(tags[:file_set_id]),
+           preservation_url <- "s3://#{@preservation_bucket}/#{tags.preservation_key}" do
+        FileSets.update_file_set(file_set, %{metadata: %{location: preservation_url}})
+      end
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.preservation_key)

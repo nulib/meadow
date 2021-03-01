@@ -111,7 +111,7 @@ defmodule Mix.Tasks.Meadow.DcDownload do
              "#{work_accession_number}_FILE_#{index}",
              filename,
              doc["label"],
-             Enum.random(["am", "am", "am", "am", "pm"])
+             Enum.random(["A", "A", "A", "A", "P"])
            ]}
 
         %{status_code: 403} ->

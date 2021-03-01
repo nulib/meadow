@@ -75,8 +75,9 @@ defmodule EDTF do
   def init(_args) do
     Logger.info("Starting EDTF Parser")
 
-    with {_, port} <- Lambda.init(Config.lambda_config(:edtf)) do
-      {:ok, port}
+    case Lambda.init(Config.lambda_config(:edtf)) do
+      {_, port} -> {:ok, port}
+      other -> other
     end
   end
 

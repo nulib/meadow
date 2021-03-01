@@ -241,7 +241,7 @@ defmodule Meadow.Migration do
 
     file_sets
     |> Enum.each(fn file_set ->
-      Pipeline.kickoff(file_set, %{overwrite: "false", role: file_set.role})
+      Pipeline.kickoff(file_set, %{overwrite: "false", role: file_set.role.id})
     end)
   end
 
@@ -251,6 +251,7 @@ defmodule Meadow.Migration do
     |> update_digests()
     |> update_original_filename()
     |> update_label()
+    |> update_role()
   end
 
   defp update_location(%{metadata: %{location: location}} = file_set) do
@@ -295,6 +296,10 @@ defmodule Meadow.Migration do
       "" -> put_in(file_set, [:metadata, :label], original_filename)
       _ -> file_set
     end
+  end
+
+  defp update_role(%{role: _role} = file_set) do
+    put_in(file_set.role, %{id: "A", scheme: "FILE_SET_ROLE"})
   end
 
   defp update_original_filename(%{metadata: %{original_filename: original_filename}} = file_set) do

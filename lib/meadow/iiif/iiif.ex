@@ -58,7 +58,8 @@ defmodule Meadow.IIIF do
     ExAws.S3.put_object(
       Meadow.Config.pyramid_bucket(),
       key,
-      manifest
+      manifest,
+      content_type: "application/json"
     )
     |> ExAws.request()
   end

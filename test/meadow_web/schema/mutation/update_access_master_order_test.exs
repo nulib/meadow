@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateAccessMasterOrderTest do
 
   describe "mutation" do
     setup do
-      work = work_with_file_sets_fixture(5, %{}, %{role: "am"})
+      work = work_with_file_sets_fixture(5, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       {:ok, %{work: work, ids: work.file_sets |> Enum.map(& &1.id)}}
     end
 

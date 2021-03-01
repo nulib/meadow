@@ -1,76 +1,64 @@
 import React from "react";
-import { waitFor, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import BatchEditAbout from "./About";
 import { renderWithRouterApollo } from "../../../services/testing-helpers";
 import { allCodeListMocks } from "../../Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
-import { AuthProvider } from "@js/components/Auth/Auth";
-import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAbout component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
-      <AuthProvider>
-        <BatchProvider value={null}>
-          <CodeListProvider>
-            <BatchEditAbout items={items} />
-          </CodeListProvider>
-        </BatchProvider>
-      </AuthProvider>,
+      <BatchProvider value={null}>
+        <CodeListProvider>
+          <BatchEditAbout items={items} />
+        </CodeListProvider>
+      </BatchProvider>,
       {
-        mocks: [...allCodeListMocks, getCurrentUserMock],
+        mocks: [...allCodeListMocks],
       }
     );
   });
 
   it("renders Batch Edit About form", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("batch-edit-about-form"));
-    });
+    expect(await screen.findByTestId("batch-edit-about-form"));
   });
 
   it("renders the sticky header", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("batch-edit-about-sticky-header"));
-    });
+    expect(await screen.findByTestId("batch-edit-about-sticky-header"));
   });
 
   it("renders core metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("core-metadata"));
-    });
+    expect(await screen.findByTestId("core-metadata"));
   });
 
   it("renders controlled metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("controlled-metadata"));
-    });
+    expect(await screen.findByTestId("controlled-metadata"));
   });
 
   it("renders Identifiers metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("identifiers-metadata"));
-    });
+    expect(await screen.findByTestId("identifiers-metadata"));
   });
 
   it("renders physical metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("physical-metadata"));
-    });
+    expect(await screen.findByTestId("physical-metadata"));
   });
 
   it("renders rights metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("rights-metadata"));
-    });
+    expect(await screen.findByTestId("rights-metadata"));
   });
 
   it("renders uncontrolled metadata component", async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId("uncontrolled-metadata"));
-    });
+    expect(await screen.findByTestId("uncontrolled-metadata"));
   });
 });

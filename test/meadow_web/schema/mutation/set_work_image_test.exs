@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
   load_gql(MeadowWeb.Schema, "test/gql/SetWorkImage.gql")
 
   test "should be a valid mutation" do
-    work = work_with_file_sets_fixture(3, %{}, %{role: "am"})
+    work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
     expected_file_set = work.file_sets |> Enum.at(1)
     file_set_image = Meadow.Config.iiif_server_url() <> expected_file_set.id
 
@@ -32,7 +32,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
 
   describe "authorization" do
     test "viewers are not authorized to set work images" do
-      work = work_with_file_sets_fixture(3, %{}, %{role: "am"})
+      work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       expected_file_set = work.file_sets |> Enum.at(1)
 
       {:ok, result} =
@@ -48,7 +48,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
     end
 
     test "editors and above are authorized to set work images" do
-      work = work_with_file_sets_fixture(3, %{}, %{role: "am"})
+      work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       expected_file_set = work.file_sets |> Enum.at(1)
 
       {:ok, result} =

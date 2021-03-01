@@ -117,10 +117,22 @@ function CodeListProvider({ children }) {
     throw new Error("Error getting visibility data");
   }
 
+  // GET FILE SET ROLES
+  const {
+    data: fileSetRoleData,
+    error: fileSetRoleError,
+    loading: fileSetRoleLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "FILE_SET_ROLE" } });
+
+  if (fileSetRoleError) {
+    throw new Error("Error getting file set role data");
+  }
+
   return (
     <CodeListContext.Provider
       value={{
         authorityData,
+        fileSetRoleData,
         libraryUnitData,
         licenseData,
         marcData,
@@ -131,7 +143,8 @@ function CodeListProvider({ children }) {
         subjectRoleData,
         visibilityData,
         isLoading: Boolean(
-          authorityLoading ||
+          fileSetRoleLoading ||
+            authorityLoading ||
             libraryUnitLoading ||
             licenseLoading ||
             marcLoading ||

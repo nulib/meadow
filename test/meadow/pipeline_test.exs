@@ -12,7 +12,7 @@ defmodule Meadow.Data.PipelineTest do
   describe "ingesting file set" do
     @valid_attrs %{
       accession_number: "12345",
-      role: "am",
+      role: %{id: "A", scheme: "FILE_SET_ROLE"},
       metadata: %{
         description: "yes",
         location: "https://example.com",

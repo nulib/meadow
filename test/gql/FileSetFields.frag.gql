@@ -1,7 +1,11 @@
 fragment FileSetFields on FileSet {
   id
   accessionNumber
-  role
+  role {
+    id
+    label
+    scheme
+  }
   rank
   position
   metadata {

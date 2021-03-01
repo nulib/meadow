@@ -210,7 +210,7 @@ defmodule Meadow.Ingest.Progress do
     |> Repo.aggregate(:count)
   end
 
-  defp row_actions("pm", include_work) do
+  defp row_actions("P", include_work) do
     actions = List.delete(Pipeline.actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
 
     if include_work do

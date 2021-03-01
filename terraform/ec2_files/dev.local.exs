@@ -21,7 +21,9 @@ config :meadow, Meadow.ElasticsearchCluster,
       region: get_required_var.("AWS_REGION"),
       access_key: get_required_var.("ELASTICSEARCH_KEY"),
       secret: get_required_var.("ELASTICSEARCH_SECRET")
-    ]
+    ],
+    timeout: 20_000,
+    recv_timeout: 30_000
   ],
   json_library: Jason,
   indexes: %{
@@ -29,8 +31,8 @@ config :meadow, Meadow.ElasticsearchCluster,
       settings: "priv/elasticsearch/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
-      bulk_page_size: 500,
-      bulk_wait_interval: 2_000
+      bulk_page_size: 200,
+      bulk_wait_interval: 500
     }
   }
 
@@ -76,9 +78,22 @@ config :exldap, :settings,
   password: System.get_env("LDAP_BIND_PASSWORD", "d0ck3rAdm1n!"),
   ssl: System.get_env("LDAP_SSL", "false") == "true"
 
+config :logger,
+  backends: [
+    :console,
+    {LoggerFileBackend, :cloudwatch}
+  ]
+
 config :logger, :console,
   format: "$metadata[$level] $levelpad$message\n",
   metadata: [:action]
+
+config :logger, :cloudwatch,
+  path: "/var/log/meadow/meadow.log",
+  format: "$date $time [$level] $metadata $levelpad$message\n",
+  metadata: [:action],
+  level: :info,
+  colors: [enabled: false]
 
 config :ueberauth, Ueberauth,
   providers: [

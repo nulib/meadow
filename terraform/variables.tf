@@ -12,6 +12,11 @@ variable "availability_zones" {
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
+variable "certificate_name" {
+  type    = string
+  default = "*"
+}
+
 variable "digital_collections_url" {
   type    = string
 }

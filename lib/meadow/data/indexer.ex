@@ -3,12 +3,11 @@ defmodule Meadow.Data.Indexer do
   Indexes individual structs into Elasticsearch, preloading if necessary.
   """
   alias Meadow.Data.IndexTimes
-  alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
   alias Meadow.ElasticsearchDiffStore, as: Store
-  alias Meadow.Repo
 
-  import Ecto.Query
+  require Logger
 
   @index :meadow
 
@@ -25,13 +24,23 @@ defmodule Meadow.Data.Indexer do
   end
 
   def synchronize_schema(schema) do
-    Store.transaction(fn ->
-      schema
-      |> Store.stream()
-      |> Stream.map(&encode!(&1, schema))
-      |> upload()
-      |> Stream.run()
-    end)
+    case schema |> synchronize_chunk() do
+      :ok -> synchronize_schema(schema)
+      :halt -> :ok
+    end
+  end
+
+  defp synchronize_chunk(schema) do
+    case schema |> Store.retrieve() do
+      [] ->
+        :halt
+
+      records ->
+        records
+        |> Stream.map(&encode!(&1, schema))
+        |> upload()
+        |> Stream.run()
+    end
   end
 
   def encode!(id, :deleted) do
@@ -62,8 +71,11 @@ defmodule Meadow.Data.Indexer do
   defp upload_batch(docs) do
     bulk_document = docs |> Enum.join("\n")
 
-    {:ok, results} = Elasticsearch.put(Cluster, "/#{@index}/_doc/_bulk", "#{bulk_document}\n")
+    Elasticsearch.put(Cluster, "/#{@index}/_doc/_bulk", "#{bulk_document}\n")
+    |> after_upload_batch(bulk_document)
+  end
 
+  defp after_upload_batch({:ok, results}, _) do
     results
     |> Map.get("items")
     |> Enum.reduce({[], []}, fn
@@ -73,22 +85,30 @@ defmodule Meadow.Data.Indexer do
     |> set_index_time()
   end
 
+  defp after_upload_batch({:error, error}, bulk_document) do
+    message =
+      [
+        "Uploading ",
+        bulk_document |> byte_size() |> to_string(),
+        "-byte bulk document to Elasticsearch failed because: ",
+        error |> inspect()
+      ]
+      |> IO.iodata_to_binary()
+
+    Logger.warn(message)
+
+    {0, 0}
+  end
+
   defp set_index_time({index_ids, delete_ids}) do
-    changesets =
-      index_ids
-      |> Enum.map(fn id ->
-        %{id: id, indexed_at: DateTime.utc_now()}
-      end)
-
-    Repo.insert_all(IndexTime, changesets,
-      on_conflict: {:replace, [:indexed_at]},
-      conflict_target: [:id]
-    )
-
-    from(t in IndexTime, where: t.id in ^delete_ids)
-    |> Repo.delete_all()
-
+    IndexTimes.change(index_ids, delete_ids) |> log_update_count()
     {index_ids, delete_ids}
+  end
+
+  defp log_update_count({add_ids, update_ids, delete_ids}) do
+    Logger.info(
+      "Index updates: +#{length(add_ids)} ~#{length(update_ids)} -#{length(delete_ids)}"
+    )
   end
 
   defp config do
