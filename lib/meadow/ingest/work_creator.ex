@@ -107,7 +107,7 @@ defmodule Meadow.Ingest.WorkCreator do
               description: row |> Row.field_value(:description),
               location: location,
               original_filename: Path.basename(file_path),
-              label: Path.basename(file_path)
+              label: row |> Row.field_value(:label)
             }
           }
         end),
