@@ -12,7 +12,7 @@ defmodule Meadow.BatchDriver do
 
   require Logger
 
-  @timeout 360
+  @timeout 600
 
   @doc """
   If no batches are currently running, find the next one and start it
