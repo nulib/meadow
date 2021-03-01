@@ -159,16 +159,13 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                },
                %{
                  errors: %{
-                   "date_created" => ~s([%{edtf: "bad_date"}, %{edtf: "201?"}] is invalid)
+                   "date_created" => "[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"
                  },
                  row: 14
                },
-               %{
-                 errors: %{
-                   "id" => "is required"
-                 },
-                 row: 28
-               }
+               %{errors: %{"id" => "0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"}, row: 18},
+               %{errors: %{"id" => "is required"}, row: 28},
+               %{errors: %{"accession_number" => "MISMATCHED_ACCESSION does not match"}, row: 37}
              ]
     end
   end

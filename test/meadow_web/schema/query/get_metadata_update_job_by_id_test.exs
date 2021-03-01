@@ -1,89 +1,97 @@
 defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   use MeadowWeb.ConnCase, async: true
+  use Meadow.CSVMetadataUpdateCase
   use Wormwood.GQLCase
   alias Meadow.Data.CSV.MetadataUpdateJobs
 
   load_gql(MeadowWeb.Schema, "test/gql/GetMetadataUpdateJobById.gql")
 
-  setup do
+  setup %{source_url: source_url} do
     prewarm_controlled_term_cache()
 
-    jobs =
-      [
-        "test/fixtures/csv/work_fixture_update.csv",
-        "test/fixtures/csv/work_fixture_update_bad_headers.csv",
-        "test/fixtures/csv/work_fixture_update_invalid.csv"
-      ]
-      |> Enum.map(fn file ->
-        with {:ok, job} <-
-               MetadataUpdateJobs.create_job(%{
-                 filename: Path.basename(file),
-                 source: "file://#{Path.expand(file)}",
-                 user: "user1"
-               }) do
-          {Path.basename(file), job}
-        end
-      end)
-      |> Enum.into(%{})
+    {:ok, job} =
+      MetadataUpdateJobs.create_job(%{
+        filename: Path.basename(source_url),
+        source: source_url,
+        user: "user1"
+      })
 
-    {:ok, %{jobs: jobs}}
+    {:ok, %{job: job}}
   end
 
-  test "should be a valid query", %{jobs: %{"work_fixture_update.csv" => job}} do
-    result =
-      query_gql(
-        variables: %{"id" => job.id},
-        context: gql_context()
-      )
+  describe "valid data" do
+    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
 
-    assert {:ok, query_data} = result
+    test "should be a valid query", %{job: job} do
+      result =
+        query_gql(
+          variables: %{"id" => job.id},
+          context: gql_context()
+        )
 
-    assert get_in(query_data, [:data, "csvMetadataUpdateJob", "status"]) == "pending"
+      assert {:ok, query_data} = result
+
+      assert get_in(query_data, [:data, "csvMetadataUpdateJob", "status"]) == "pending"
+    end
   end
 
-  test "should report errors", %{jobs: %{"work_fixture_update_invalid.csv" => job}} do
-    MetadataUpdateJobs.apply_job(job)
+  describe "invalid data" do
+    @describetag source: "test/fixtures/csv/work_fixture_update_invalid.csv"
 
-    result =
-      query_gql(
-        variables: %{"id" => job.id},
-        context: gql_context()
-      )
+    test "should report errors", %{job: job} do
+      MetadataUpdateJobs.apply_job(job)
 
-    assert {:ok, query_data} = result
+      result =
+        query_gql(
+          variables: %{"id" => job.id},
+          context: gql_context()
+        )
 
-    assert get_in(query_data, [:data, "csvMetadataUpdateJob", "status"]) == "invalid"
+      assert {:ok, query_data} = result
 
-    with errors <- get_in(query_data, [:data, "csvMetadataUpdateJob", "errors"]) do
-      assert errors == [
-               %{
-                 "row" => 12,
-                 "errors" => [
-                   %{
-                     "field" => "contributor#3",
-                     "messages" => ["nop is an invalid coded term for scheme MARC_RELATOR"]
-                   }
-                 ]
-               },
-               %{
-                 "row" => 14,
-                 "errors" => [
-                   %{
-                     "field" => "date_created",
-                     "messages" => ["[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"]
-                   }
-                 ]
-               },
-               %{
-                 "row" => 28,
-                 "errors" => [
-                   %{
-                     "field" => "id",
-                     "messages" => ["is required"]
-                   }
-                 ]
-               }
-             ]
+      assert get_in(query_data, [:data, "csvMetadataUpdateJob", "status"]) == "invalid"
+
+      with errors <- get_in(query_data, [:data, "csvMetadataUpdateJob", "errors"]) do
+        assert errors == [
+                 %{
+                   "errors" => [
+                     %{
+                       "field" => "contributor#3",
+                       "messages" => ["nop is an invalid coded term for scheme MARC_RELATOR"]
+                     }
+                   ],
+                   "row" => 12
+                 },
+                 %{
+                   "errors" => [
+                     %{
+                       "field" => "date_created",
+                       "messages" => ["[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"]
+                     }
+                   ],
+                   "row" => 14
+                 },
+                 %{
+                   "errors" => [
+                     %{
+                       "field" => "id",
+                       "messages" => ["0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"]
+                     }
+                   ],
+                   "row" => 18
+                 },
+                 %{"errors" => [%{"field" => "id", "messages" => ["is required"]}], "row" => 28},
+                 %{
+                   "errors" => [
+                     %{
+                       "field" => "accession_number",
+                       "messages" => ["MISMATCHED_ACCESSION does not match"]
+                     }
+                   ],
+                   "row" => 37
+                 }
+               ]
+      end
     end
   end
 end
