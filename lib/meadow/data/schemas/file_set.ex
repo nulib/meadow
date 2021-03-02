@@ -97,27 +97,7 @@ defmodule Meadow.Data.Schemas.FileSet do
         role: format(file_set.role),
         visibility: format(file_set.work.visibility),
         workId: file_set.work.id,
-        exif: %{
-          bitsPerSample: ExifUtil.bits_per_sample(file_set.metadata.exif["BitsPerSample"]),
-          compression: ExifUtil.compression(file_set.metadata.exif["Compression"]),
-          extraSamples: ExifUtil.extra_samples(file_set.metadata.exif["ExtraSamples"]),
-          fillOrder: ExifUtil.fill_order(file_set.metadata.exif["FillOrder"]),
-          grayResponseUnit:
-            ExifUtil.gray_response_unit(file_set.metadata.exif["GrayResponseUnit"]),
-          imageHeight: file_set.metadata.exif["ImageHeight"],
-          imageWidth: file_set.metadata.exif["ImageWidth"],
-          make: file_set.metadata.exif["Make"],
-          model: file_set.metadata.exif["Model"],
-          photometricInterpretation:
-            ExifUtil.photometric_interpretation(
-              file_set.metadata.exif["PhotometricInterpretation"]
-            ),
-          planarConfiguration:
-            ExifUtil.planar_configuration(file_set.metadata.exif["PlanarConfiguration"]),
-          resolutionUnit: ExifUtil.resolution_unit(file_set.metadata.exif["ResolutionUnit"]),
-          xResolution: file_set.metadata.exif["XResolution"],
-          yResolution: file_set.metadata.exif["YResolution"]
-        }
+        exif: ExifUtil.index(file_set.metadata.exif)
       }
     end
 
