@@ -101,6 +101,7 @@ const SearchResults = ({
               );
             }}
             showResultStats={true}
+            size={60}
             sortOptions={REACTIVESEARCH_SORT_OPTIONS}
             URLParams={true}
           />
