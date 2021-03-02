@@ -198,7 +198,6 @@ defmodule Meadow.Batches do
 
   defp set_complete!(batch) do
     update_batch!(batch, %{
-      started: DateTime.utc_now(),
       status: "complete",
       active: false
     })
@@ -206,7 +205,6 @@ defmodule Meadow.Batches do
 
   defp set_error!(batch, message) do
     update_batch!(batch, %{
-      started: DateTime.utc_now(),
       status: "error",
       active: false,
       error: message
