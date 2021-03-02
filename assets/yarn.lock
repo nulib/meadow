@@ -1265,10 +1265,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.0.tgz#0eee6373e11418bfe0b5638f654df7a4ca6a3950"
   integrity sha512-wYn6r8zVZyQJ6rQaALBEln5B1pzxb9shV5Ef97kTvn6yVGrqyXVnDqnU24MXnFubR+rZjBY9NWuxX3FB2sTsjg==
 
-"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.0.3.tgz#5220bd174789932be136baefd75c08a96c5a4c35"
-  integrity sha512-DQuaEpXYO1AqC5S6U5nl72OzIaclkC8hORe03Qp3cJDE9WooGnVaTcYrCHGjEwPkwhOHAuCakyCI19/dKHXK6A==
+"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.0.4.tgz#034c7877b93a2784643ffbcab9575d49b323d9d9"
+  integrity sha512-5gDv3fldbXEhaPyvYpyf5Rm3STatX28bHNpSIiECbvOOEo82mmr75LjIWRk+cJzC4qB1ExB5GOs5z2y6QSKF6g==
   dependencies:
     stacktrace-parser "^0.1.10"
 
