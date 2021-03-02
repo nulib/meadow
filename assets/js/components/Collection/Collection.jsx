@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
-import CollectionImageModal from "./CollectionImageModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { Button } from "@nulib/admin-react-components";
+import { Link, useHistory } from "react-router-dom";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/react";
+const imgCol = css`
+  border-right: 1px solid #efefef;
+  margin-right: 1rem;
+  padding-right: 1rem;
+`;
 
 const Collection = ({ collection }) => {
+  const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     adminEmail,
@@ -12,42 +22,50 @@ const Collection = ({ collection }) => {
     representativeWork,
     findingAidUrl,
     keywords = [],
-    works,
   } = collection;
 
-  const onCloseModal = () => {
-    setIsModalOpen(false);
+  const handleViewAllWorksClick = () => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: "Collection",
+        value: collection.title,
+      },
+    });
   };
 
   return (
     <div data-testid="collection">
       <div className="columns">
-        <div className="column is-one-quarter-desktop is-half-tablet">
+        <div
+          className="column is-one-quarter-desktop is-half-tablet"
+          css={imgCol}
+        >
           <figure className="image is-square">
-            <img
-              src={
-                representativeWork
-                  ? `${representativeWork.representativeImage}/square/500,500/0/default.jpg`
-                  : "/images/placeholder.png"
-              }
-            />
+            {representativeWork ? (
+              <Link to={`/work/${representativeWork.id}`} title="View work">
+                <img
+                  className="hvr-shrink"
+                  src={`${representativeWork.representativeImage}/square/500,500/0/default.jpg`}
+                />
+              </Link>
+            ) : (
+              <img src="/images/placeholder.png" />
+            )}
           </figure>
           <AuthDisplayAuthorized>
-            {works.length > 0 && (
-              <p className="has-text-centered pt-4">
-                <button
-                  data-testid="button-open-image-modal"
-                  type="button"
-                  className="button is-fullwidth"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  <span className="icon">
-                    <FontAwesomeIcon icon="edit" />
-                  </span>
-                  <span>Update Image</span>
-                </button>
-              </p>
-            )}
+            <p className="has-text-centered pt-2">
+              <Button
+                data-testid="button-open-image-modal"
+                isText
+                onClick={handleViewAllWorksClick}
+                className="is-fullwidth"
+              >
+                <span className="icon">
+                  <FontAwesomeIcon icon="edit" />
+                </span>
+                <span>Update Image</span>
+              </Button>
+            </p>
           </AuthDisplayAuthorized>
         </div>
         <div className="column content">
@@ -73,13 +91,21 @@ const Collection = ({ collection }) => {
             </dt>
             <dd>{keywords.join(", ")}</dd>
           </dl>
+          <AuthDisplayAuthorized>
+            <div className="pt-3">
+              <Button
+                onClick={handleViewAllWorksClick}
+                data-testid="view-works-button"
+              >
+                <span className="icon">
+                  <FontAwesomeIcon icon="images" />
+                </span>
+                <span>View collection works</span>
+              </Button>
+            </div>
+          </AuthDisplayAuthorized>
         </div>
       </div>
-      <CollectionImageModal
-        collection={collection}
-        isModalOpen={isModalOpen}
-        handleClose={onCloseModal}
-      />
     </div>
   );
 };

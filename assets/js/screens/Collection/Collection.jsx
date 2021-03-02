@@ -19,7 +19,6 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { Button } from "@nulib/admin-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CollectionTags from "@js/components/Collection/Tags";
 
 const ScreensCollection = () => {
@@ -29,15 +28,6 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
-
-  const handleViewAllWorksClick = () => {
-    history.push("/search", {
-      externalFacet: {
-        facetComponentId: "Collection",
-        value: data.collection.title,
-      },
-    });
-  };
 
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
@@ -131,15 +121,6 @@ const ScreensCollection = () => {
                         Edit
                       </Link>
                     </AuthDisplayAuthorized>
-                    <Button
-                      onClick={handleViewAllWorksClick}
-                      data-testid="view-works-button"
-                    >
-                      <span className="icon">
-                        <FontAwesomeIcon icon="images" />
-                      </span>
-                      <span>View works</span>
-                    </Button>
                   </div>
                 </header>
 

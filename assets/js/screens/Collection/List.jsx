@@ -13,8 +13,6 @@ import Layout from "../Layout";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIFormInput from "@js/components/UI/Form/Input";
-import UIFormField from "@js/components/UI/Form/Field";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
@@ -119,11 +117,6 @@ const ScreensCollectionList = () => {
                     data-testid="input-collections-filter"
                   />
                 </UISearchBarRow>
-                <UIFormField childClass="has-icons-left">
-                  <span className="icon is-small is-left">
-                    <FontAwesomeIcon icon="search" />
-                  </span>
-                </UIFormField>
 
                 <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                   <CollectionsList
