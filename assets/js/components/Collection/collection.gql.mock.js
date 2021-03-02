@@ -31,7 +31,10 @@ export const collectionMock = {
       },
     },
   ],
-  representativeWork: null,
+  representativeWork: {
+    id: "ABC123",
+  },
+  //representativeWork: null,
 };
 
 export const getCollectionMock = {
