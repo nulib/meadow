@@ -109,10 +109,10 @@
   dependencies:
     "@apollo/client" latest
 
-"@appbaseio/reactivecore@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.9.0.tgz#c16237e2c47484cc2569bf8edaac62bdc12dd27c"
-  integrity sha512-MRKFkf4OqPPqZNRFP/YD3UB62OxL9+QhgV5MAW5ji6dcnp4G4UTCIX7WmvfmReUEdafCqUMJN53H338UFqBK9A==
+"@appbaseio/reactivecore@9.10.0":
+  version "9.10.0"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.10.0.tgz#082b97d11f8e80b5398225e547878a0521e8b965"
+  integrity sha512-SHtx7hIwJ/gBaVMXViszbeHqezE6T6hsj5EYY2AiWJKJLYPGxG2FZMtHqffRygoTByf7TqIj+33WL9QZsCr1+A==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -120,12 +120,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@3.15.0":
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.15.0.tgz#4d808b215d123de2d9f5f44e97fd9db0b6d103c3"
-  integrity sha512-hZj0EVzE8uDPlwViVBnFN15Sd6g0Md6zYF1Ik1loOAgYSHVNlcA4tKIxFnhWX+SxwfrfVHp8O5Vta1idIkAvRA==
+"@appbaseio/reactivesearch@3.16.0":
+  version "3.16.0"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.16.0.tgz#a109a50b0c1f8685411f273414c004183f2418fa"
+  integrity sha512-6M32Hg0pcVXMYIv/l85Td47DC3tOkO5vZRpbTfggrpWvFapCuDaQQEiB08d6BiMIRYSLLhmUP3S4TUR9nn/mhQ==
   dependencies:
-    "@appbaseio/reactivecore" "9.9.0"
+    "@appbaseio/reactivecore" "9.10.0"
     "@emotion/core" "^10.0.28"
     "@emotion/styled" "^10.0.27"
     appbase-js "^4.1.0"
@@ -149,11 +149,6 @@
     "@babel/highlight" "^7.12.13"
 
 "@babel/compat-data@^7.13.0", "@babel/compat-data@^7.13.8":
-  version "7.13.8"
-  resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.13.8.tgz#5b783b9808f15cef71547f1b691f34f8ff6003a6"
-  integrity sha512-EaI33z19T4qN3xLXsGf48M2cDqa6ei9tPZlfLdb2HC+e/cFtREiRd8hdSqDbwdLB0/+gLwqJmCYASH0z2bUdog==
-
-"@babel/compat-data@^7.13.8":
   version "7.13.8"
   resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.13.8.tgz#5b783b9808f15cef71547f1b691f34f8ff6003a6"
   integrity sha512-EaI33z19T4qN3xLXsGf48M2cDqa6ei9tPZlfLdb2HC+e/cFtREiRd8hdSqDbwdLB0/+gLwqJmCYASH0z2bUdog==
