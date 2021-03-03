@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const Webpack = require("webpack");
 
 module.exports = (env, options) => ({
   optimization: {
@@ -76,6 +77,20 @@ module.exports = (env, options) => ({
     new MiniCssExtractPlugin({ filename: "../css/app.css" }),
     new CopyWebpackPlugin({
       patterns: [{ from: "static/", to: "../" }],
+    }),
+    new Webpack.DefinePlugin({
+      __HONEYBADGER_API_KEY__: JSON.stringify(
+        process.env.HONEYBADGER_API_KEY || "DO_NOT_REPORT"
+      ),
+      __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
+        process.env.HONEYBADGER_ENVIRONMENT || "dev"
+      ),
+      __HONEYBADGER_REVISION__: JSON.stringify(
+        process.env.HONEYBADGER_REVISION || "unknown"
+      ),
+      __MEADOW_VERSION__: JSON.stringify(
+        process.env.MEADOW_VERSION || "unknown"
+      ),
     }),
   ],
   devtool: "source-map",

@@ -105,3 +105,9 @@ config :logger, level: :info
 
 config :ex_unit,
   assert_receive_timeout: 500
+
+config :honeybadger,
+  environment_name: :test,
+  exclude_envs: [:dev, :test],
+  api_key: "abc123",
+  origin: "http://localhost:4444"
