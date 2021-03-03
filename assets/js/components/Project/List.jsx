@@ -10,6 +10,7 @@ import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
+import IconEdit from "@js/components/Icon/Edit";
 
 const ProjectList = ({ projects }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -130,7 +131,7 @@ const ProjectList = ({ projects }) => {
                             className="button"
                             onClick={(e) => onEditProject(project)}
                           >
-                            <FontAwesomeIcon icon="edit" />
+                            <IconEdit />
                           </Button>
                         </p>
                         <p className="control">

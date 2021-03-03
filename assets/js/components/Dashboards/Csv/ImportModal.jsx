@@ -2,7 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import IconCsv from "@js/components/Icon/Csv";
+import UIIconText from "@js/components/UI/IconText";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -57,15 +58,16 @@ function DashboardsCsvImportModal({
             css={dropZone}
           >
             <input {...getInputProps()} data-testid="dropzone-input" />
-            <p>
-              <FontAwesomeIcon
-                icon="file-csv"
-                size="2x"
-                className="has-text-grey mr-3"
+            <p className="has-text-centered">
+              <UIIconText
+                icon={<IconCsv className="has-text-grey" />}
+                text={
+                  isDragActive
+                    ? "Drop the file here ..."
+                    : "Drag 'n' drop a file here, or click to select file"
+                }
+                isCentered
               />
-              {isDragActive
-                ? "Drop the file here ..."
-                : "Drag 'n' drop a file here, or click to select file"}
             </p>
           </div>
           {currentFile && (

@@ -4,6 +4,8 @@ import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsBatchEditList from "@js/components/Dashboards/BatchEdit/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { GrMultiple } from "react-icons/gr";
+import IconText from "@js/components/UI/IconText";
 
 function ScreensDashboardsBatchEditList(props) {
   return (
@@ -25,7 +27,7 @@ function ScreensDashboardsBatchEditList(props) {
           />
           <div className="box">
             <h1 className="title" data-testid="batch-edit-dashboard-title">
-              Batch Edit Dashboard
+              <IconText icon={<GrMultiple />} text="Batch Edit Dashboard" />
             </h1>
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <DashboardsBatchEditList />

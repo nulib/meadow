@@ -5,6 +5,7 @@ import { Button } from "@nulib/admin-react-components";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import IconEdit from "@js/components/Icon/Edit";
 
 export default function SearchActionRow({
   handleCsvExportAllItems,
@@ -113,7 +114,7 @@ export default function SearchActionRow({
               onClick={handleEditAllItemsClick}
             >
               <span className="icon">
-                <FontAwesomeIcon icon="edit" />
+                <IconEdit />
               </span>
               <span>Batch edit {numberOfResults} works</span>
             </Button>
@@ -159,7 +160,7 @@ export default function SearchActionRow({
             onClick={handleEditItemsClick}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="edit" />
+              <IconEdit />
             </span>
             <span>Batch edit {numSelectedItems} works</span>
           </Button>
