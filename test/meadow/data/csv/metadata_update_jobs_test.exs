@@ -157,6 +157,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                  },
                  row: 12
                },
+               %{errors: %{"id" => "NOT_A_UUID is not a valid UUID"}, row: 13},
                %{
                  errors: %{
                    "date_created" => "[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"
