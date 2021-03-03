@@ -56,7 +56,7 @@ function WorkTabsAdministrativeCollection({
     { called, loading: loadingLoadCollection, data: dataLoadCollection },
   ] = useLazyQuery(GET_COLLECTION, {
     fetchPolicy: "network-only",
-    variables: { id: collection.id },
+    variables: { id: collection ? collection.id : "" },
     onCompleted({ collection: { representativeWork } }) {
       setIsCollectionImage(
         representativeWork && representativeWork.id === workId ? true : false
