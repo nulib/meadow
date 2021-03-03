@@ -16,7 +16,7 @@ function WorkAdministrativeTabsGeneral({
 
   return (
     <div>
-      <UIFormField label="Library Unit" required={published}>
+      <UIFormField label="Library Unit">
         {isEditing ? (
           <UIFormSelect
             isReactHookForm
@@ -29,14 +29,13 @@ function WorkAdministrativeTabsGeneral({
                 : []
             }
             defaultValue={libraryUnit ? libraryUnit.id : ""}
-            required={published}
           />
         ) : (
           <p>{libraryUnit ? libraryUnit.label : "None selected"}</p>
         )}
       </UIFormField>
 
-      <UIFormField label="Preservation Level" required={published}>
+      <UIFormField label="Preservation Level">
         {isEditing ? (
           <UIFormSelect
             isReactHookForm
@@ -49,14 +48,13 @@ function WorkAdministrativeTabsGeneral({
                 : []
             }
             defaultValue={preservationLevel ? preservationLevel.id : ""}
-            required={published}
           />
         ) : (
           <p>{preservationLevel ? preservationLevel.label : "None selected"}</p>
         )}
       </UIFormField>
 
-      <UIFormField label="Status" required={published}>
+      <UIFormField label="Status">
         {isEditing ? (
           <UIFormSelect
             data-testid="status"
@@ -66,7 +64,6 @@ function WorkAdministrativeTabsGeneral({
             showHelper={true}
             options={codeLists.statusData ? codeLists.statusData.codeList : []}
             defaultValue={status ? status.id : ""}
-            required={published}
           />
         ) : (
           <p>{status ? status.label : "None selected"}</p>
