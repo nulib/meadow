@@ -8,9 +8,9 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   alias Meadow.Data
+  alias Meadow.Utils.Exif
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
-  alias Meadow.Utils.Exif
 
   object :file_set_queries do
     @desc "Get a list of file sets"

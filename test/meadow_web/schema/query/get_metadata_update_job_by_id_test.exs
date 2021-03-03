@@ -64,6 +64,12 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                  },
                  %{
                    "errors" => [
+                     %{"field" => "id", "messages" => ["NOT_A_UUID is not a valid UUID"]}
+                   ],
+                   "row" => 13
+                 },
+                 %{
+                   "errors" => [
                      %{
                        "field" => "date_created",
                        "messages" => ["[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"]
