@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { TiWarning } from "react-icons/ti";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
@@ -195,9 +195,9 @@ const BatchEditConfirmation = ({
               </div>
               <div className="notification is-danger is-light has-text-centered content">
                 <p>
-                  <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This
-                  batch edit will affect {numberOfResults} works. To execute
-                  this change, type "I understand"
+                  <TiWarning /> NOTE: This batch edit will affect{" "}
+                  {numberOfResults} works. To execute this change, type "I
+                  understand"
                 </p>
 
                 <div css={verifyInputWrapper}>

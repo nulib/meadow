@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { Button } from "@nulib/admin-react-components";
 import { Link, useHistory } from "react-router-dom";
+import IconEdit from "@js/components/Icon/Edit";
+import IconImages from "@js/components/Icon/Images";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -61,7 +62,7 @@ const Collection = ({ collection }) => {
                 className="is-fullwidth"
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon="edit" />
+                  <IconEdit />
                 </span>
                 <span>Update Image</span>
               </Button>
@@ -98,7 +99,7 @@ const Collection = ({ collection }) => {
                 data-testid="view-works-button"
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon="images" />
+                  <IconImages />
                 </span>
                 <span>View collection works</span>
               </Button>

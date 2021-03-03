@@ -1,10 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionTags from "@js/components/Collection/Tags";
 import CollectionImage from "@js/components/Collection/Image";
+import IconEdit from "@js/components/Icon/Edit";
+import IconDelete from "@js/components/Icon/Delete";
+import IconTrashCan from "@js/components/Icon/TrashCan";
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const { id, title = "", keywords = [] } = collection;
@@ -46,7 +48,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
                 <Link className="button" to={`/collection/form/${id}`}>
-                  <FontAwesomeIcon icon="edit" />
+                  <IconEdit />
                 </Link>
               </p>
             </AuthDisplayAuthorized>
@@ -56,7 +58,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
                   className="button"
                   onClick={() => onOpenModal({ id, title })}
                 >
-                  <FontAwesomeIcon icon="trash" />
+                  <IconTrashCan />
                 </button>
               </p>
             </AuthDisplayAuthorized>

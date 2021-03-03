@@ -58,17 +58,8 @@ module.exports = (env, options) => ({
       },
       {
         test: /\.svg$/,
-        use: [
-          {
-            loader: "babel-loader",
-          },
-          {
-            loader: "react-svg-loader",
-            options: {
-              jsx: true, // true outputs JSX tags
-            },
-          },
-        ],
+        // Info: https://blog.logrocket.com/how-to-use-svgs-in-react/
+        use: ["@svgr/webpack"],
       },
     ],
   },

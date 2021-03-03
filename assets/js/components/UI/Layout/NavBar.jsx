@@ -12,6 +12,10 @@ import UILayoutNavDropdownItem from "@js/components/UI/Layout/NavDropdownItem";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
 import Honeybadger from "@honeybadger-io/js";
+import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
+import { SiGoogleanalytics } from "react-icons/si";
+import IconText from "@js/components/UI/IconText";
+import NLogo from "@js/components/northwesternN.svg";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -141,21 +145,36 @@ const UILayoutNavBar = () => {
                       isExpanded={activeHoverNav === "Dashboards"}
                     >
                       <UILayoutNavDropdownItem>
-                        <Link to="/dashboards/batch-edit">Batch Edit</Link>
+                        <Link to="/dashboards/batch-edit">
+                          <IconText
+                            icon={<GrMultiple />}
+                            text="Batch Edit Dashboard"
+                          />
+                        </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/csv-metadata-update">
-                          CSV Metadata Update
+                          <IconText
+                            icon={<GrDocumentCsv />}
+                            text="CSV Metadata Update"
+                          />
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/analytics">
-                          Digital Collections Analytics
+                          <IconText
+                            icon={<SiGoogleanalytics />}
+                            text="Digital Collections Analytics"
+                          />
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/nul-local-authorities">
-                          NUL Local Authorities
+                          <IconText
+                            icon={<NLogo width="1rem" height="1rem" />}
+                            text="Local
+                          Authorities"
+                          />
                         </Link>
                       </UILayoutNavDropdownItem>
                     </UILayoutNavDropdownBody>

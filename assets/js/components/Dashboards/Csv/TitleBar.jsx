@@ -1,6 +1,8 @@
 import React from "react";
 import DashboardsCsvImport from "./Import";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { GrDocumentCsv } from "react-icons/gr";
+import IconText from "@js/components/UI/IconText";
 
 function DashboardsCsvTitleBar() {
   return (
@@ -10,7 +12,7 @@ function DashboardsCsvTitleBar() {
         data-testid="csv-job-title-bar"
       >
         <h1 className="title" data-testid="csv-dashboard-title">
-          CSV Dashboard
+          <IconText icon={<GrDocumentCsv />} text="CSV Metadata Update" />
         </h1>
         <div>
           <AuthDisplayAuthorized level="MANAGER">

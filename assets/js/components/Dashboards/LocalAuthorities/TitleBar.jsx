@@ -4,6 +4,8 @@ import { useMutation } from "@apollo/client";
 import { Button } from "@nulib/admin-react-components";
 import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalAuthorities/ModalAdd";
 import { toastWrapper } from "@js/services/helpers";
+import UIIconText from "@js/components/UI/IconText";
+import NLogo from "@js/components/northwesternN.svg";
 
 function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();
@@ -43,14 +45,17 @@ function DashboardsLocalAuthoritiesTitleBar() {
         data-testid="nul-authorities-title-bar"
       >
         <h1 className="title" data-testid="local-authorities-dashboard-title">
-          NUL Local Authorities Dashboard
+          <UIIconText
+            icon={<NLogo width="1.5rem" height="1.5rem" />}
+            text="Local Authorities Dashboard"
+          />
         </h1>
         <Button
           isPrimary
           onClick={() => setIsAddModalOpen(true)}
           data-testid="add-button"
         >
-          Add NUL Local Authority
+          Add Local Authority
         </Button>
       </div>
       <DashboardsLocalAuthoritiesModalAdd
