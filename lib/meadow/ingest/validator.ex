@@ -170,10 +170,11 @@ defmodule Meadow.Ingest.Validator do
     with rows <- Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"]) do
       existing_files =
         Config.ingest_bucket()
-        |> ExAws.S3.list_objects()
+        |> ExAws.S3.list_objects(prefix: sheet.project.folder)
         |> ExAws.stream!()
         |> Enum.to_list()
         |> Enum.map(fn file -> Map.get(file, :key) end)
+        |> MapSet.new()
 
       duplicate_accession_numbers =
         rows
@@ -257,7 +258,7 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_value({"filename", value}, existing_files, _duplicate_accession_numbers) do
-    case Enum.member?(existing_files, value) do
+    case MapSet.member?(existing_files, value) do
       true -> :ok
       false -> {:error, "filename", "File not Found: #{value}"}
     end
