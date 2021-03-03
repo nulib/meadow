@@ -11,12 +11,9 @@ const styles = {
 const IngestSheetCompletedErrors = ({ errors = [] }) => {
   return (
     <>
-      <p className="notification is-danger">
-        There were errors creating works from filesets
-      </p>
+      <p className="notification is-danger">Errors occurred during ingest</p>
       <div style={styles.tableWrapper} className="table-container">
         <table className="table is-fullwidth is-striped">
-          <caption>Errors creating works</caption>
           <thead>
             <tr>
               <th>Row</th>
