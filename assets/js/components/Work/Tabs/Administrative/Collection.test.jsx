@@ -82,7 +82,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     expect(toggleEl2);
   });
 
-  it("renders toggle as checked when Work is the Collection image", async () => {
+  xit("renders toggle as checked when Work is the Collection image", async () => {
     const WrappedNotEditing = withReactHookForm(
       WorkTabsAdministrativeCollection,
       { ...props, isEditing: false }
@@ -94,7 +94,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     expect(toggleEl).toBeChecked();
   });
 
-  it("renders toggle as not checked when Work is not the Collection image", async () => {
+  xit("renders toggle as not checked when Work is not the Collection image", async () => {
     const WrappedNotEditing = withReactHookForm(
       WorkTabsAdministrativeCollection,
       { ...props, isEditing: false, workId: "FOOBAZ" }

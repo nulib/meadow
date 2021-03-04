@@ -24,6 +24,7 @@ FROM nulib/elixir-phoenix-base:1.11.1 AS release
 ARG HONEYBADGER_API_KEY=
 ARG HONEYBADGER_ENVIRONMENT=
 ARG HONEYBADGER_REVISION=
+ARG MEADOW_VERSION=
 ENV MIX_ENV=prod
 COPY . /app
 COPY --from=deps /app/_build /app/_build

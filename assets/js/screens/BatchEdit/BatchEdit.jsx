@@ -96,7 +96,7 @@ const ScreensBatchEdit = () => {
                       <span className="icon">
                         <FontAwesomeIcon icon="exclamation-triangle" />
                       </span>
-                      You are batch editing the following {resultsCount} items.
+                      You are batch editing the following {resultsCount} works.
                     </p>
                     <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                       <UIPreviewItems items={previewItems} />

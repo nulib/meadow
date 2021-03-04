@@ -70,6 +70,10 @@ defmodule Meadow.ConfigTest do
     end
   end
 
+  test "meadow_version/0" do
+    assert Config.meadow_version() == Mix.Project.config() |> Keyword.get(:version)
+  end
+
   describe "IIIF configs" do
     setup do
       prior_values = %{

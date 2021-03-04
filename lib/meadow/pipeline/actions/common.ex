@@ -9,6 +9,14 @@ defmodule Meadow.Pipeline.Actions.Common do
 
       def process(data, attrs) do
         Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
+
+        Honeybadger.add_breadcrumb(to_string(__MODULE__),
+          metadata: %{
+            data: data,
+            attrs: attrs
+          }
+        )
+
         file_set = FileSets.get_file_set!(data.file_set_id)
         precheck(file_set, attrs)
 
@@ -21,11 +29,7 @@ defmodule Meadow.Pipeline.Actions.Common do
         end
       rescue
         exception ->
-          Honeybadger.notify(exception,
-            metadata: %{action: __MODULE__},
-            stacktrace: __STACKTRACE__
-          )
-
+          Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
           reraise(exception, __STACKTRACE__)
       end
 

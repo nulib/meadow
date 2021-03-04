@@ -168,6 +168,12 @@ export const INGEST_SHEET_VALIDATION_PROGRESS = gql`
   }
 `;
 
+export const INGEST_SHEET_WORK_COUNT = gql`
+  query IngestSheetWorkCount($id: ID!) {
+    ingestSheetWorkCount(id: $id)
+  }
+`;
+
 export const INGEST_SHEET_WORKS = gql`
   query IngestSheetWorks($id: ID!, $limit: Int) {
     ingestSheetWorks(id: $id, limit: $limit) {

@@ -3,6 +3,8 @@ defmodule Meadow.Config do
   Convenience methods for retrieving Meadow configuration
   """
 
+  @meadow_version Mix.Project.config() |> Keyword.get(:version)
+
   @doc "Retrieve the environment specific URL for the Digital Collections website"
   def digital_collections_url do
     Application.get_env(:meadow, :digital_collections_url)
@@ -161,6 +163,8 @@ defmodule Meadow.Config do
     |> String.split(~r/\s*,\s*/)
     |> Enum.map(&Inflex.underscore/1)
   end
+
+  def meadow_version, do: @meadow_version
 
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
