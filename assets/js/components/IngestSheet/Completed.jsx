@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import {
   INGEST_SHEET_WORKS,
   INGEST_SHEET_COMPLETED_ERRORS,
+  INGEST_SHEET_WORK_COUNT,
 } from "./ingestSheet.gql";
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
@@ -12,11 +13,9 @@ import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
 import IngestSheetDetails from "@js/components/IngestSheet/Details";
-import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
-  const [totalWorks, setTotalWorks] = React.useState();
   const {
     loading: worksLoading,
     error: worksError,
@@ -30,41 +29,19 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
     error: errorsError,
     data: errorsData,
   } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
+  const {
+    loading: workCountLoading,
+    error: workCountError,
+    data: workCountData,
+  } = useQuery(INGEST_SHEET_WORK_COUNT, {
+    variables: { id: sheetId },
+  });
 
-  React.useEffect(() => {
-    const fn = async () => {
-      const response = await elasticsearchDirectSearch({
-        query: {
-          bool: {
-            must: [
-              {
-                match: {
-                  "model.name.keyword": "Image",
-                },
-              },
-              {
-                match: {
-                  "model.application": "Meadow",
-                },
-              },
-              {
-                match: {
-                  "sheet.id": sheetId,
-                },
-              },
-            ],
-          },
-        },
-        size: 0,
-      });
-      setTotalWorks(response.hits.total);
-    };
-    fn();
-  }, [sheetId]);
-
-  if (worksLoading || errorsLoading) return <UISkeleton rows={10} />;
+  if (worksLoading || errorsLoading || workCountLoading)
+    return <UISkeleton rows={10} />;
   if (worksError) return <Error error={worksError} />;
   if (errorsError) return <Error error={errorsError} />;
+  if (workCountError) return <Error error={workCountError} />;
 
   const works = worksData.ingestSheetWorks;
   const handleClick = () => {
@@ -84,7 +61,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   return (
     <div>
       {ingestSheetErrors.length === 0 && (
-        <IngestSheetDetails totalWorks={totalWorks} />
+        <IngestSheetDetails totalWorks={workCountData.ingestSheetWorkCount} />
       )}
 
       {ingestSheetErrors.length > 0 && (

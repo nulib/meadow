@@ -316,6 +316,16 @@ defmodule Meadow.Ingest.Sheets do
     |> Works.add_representative_image()
   end
 
+  def work_count(%Sheet{} = ingest_sheet), do: work_count(ingest_sheet.id)
+
+  def work_count(sheet_id) do
+    from(w in Work,
+      where: w.ingest_sheet_id == ^sheet_id,
+      select: count(w.ingest_sheet_id)
+    )
+    |> Repo.one()
+  end
+
   def file_set_count(%Sheet{} = ingest_sheet), do: file_set_count(ingest_sheet.id)
 
   def file_set_count(sheet_id) do

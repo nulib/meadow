@@ -138,5 +138,15 @@ defmodule Meadow.Ingest.SheetsTest do
       assert Sheets.list_ingest_sheet_works(ingest_sheet, 2) |> length() == 2
       assert Sheets.list_ingest_sheet_works(ingest_sheet, 50) |> length() == 30
     end
+
+    test "work_count/1" do
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+
+      1..30
+      |> Enum.each(fn _ -> work_fixture(%{ingest_sheet_id: ingest_sheet.id}) end)
+
+      assert Sheets.work_count(ingest_sheet) == 30
+    end
   end
 end

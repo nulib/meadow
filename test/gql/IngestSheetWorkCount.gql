@@ -1,0 +1,3 @@
+query IngestSheetWorkCount($sheetId: ID!) {
+  ingestSheetWorkCount(id: $sheetId)
+}

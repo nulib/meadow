@@ -64,6 +64,13 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet_works/3)
     end
 
+    @desc "Get total number of works for an Ingest Sheet"
+    field :ingest_sheet_work_count, :integer do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Ingest.ingest_sheet_work_count/3)
+    end
+
     @desc "Get errors for completed ingest sheet"
     field :ingest_sheet_errors, list_of(:ingest_sheet_error) do
       @desc "The ID of `Sheet` (can be anything)"
