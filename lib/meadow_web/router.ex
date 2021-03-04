@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
-  use Honeybadger.Plug
+  use Honeybadger.Plug, plug_data: MeadowWeb.ErrorMetadata
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
