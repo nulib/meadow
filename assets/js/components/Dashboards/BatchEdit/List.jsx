@@ -1,9 +1,10 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import UIDate from "@js/components/UI/Date";
+import IconView from "@js/components/Icon/View";
+import IconImages from "@js/components/Icon/Images";
 
 const colHeaders = [
   "Nickname",
@@ -89,7 +90,7 @@ export default function DashboardsBatchEditList() {
                   data-testid="view-button"
                   title="View Batch Edit details"
                 >
-                  <FontAwesomeIcon icon="eye" />
+                  <IconView />
                 </Link>
                 {type == "UPDATE" && (
                   <Link
@@ -101,7 +102,7 @@ export default function DashboardsBatchEditList() {
                       state: { passedInSearchTerm: `batches:\"${id}\"` },
                     }}
                   >
-                    <FontAwesomeIcon icon="images" />
+                    <IconImages />
                   </Link>
                 )}
               </td>

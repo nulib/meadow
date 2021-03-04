@@ -51,7 +51,7 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
       <div className="modal-background"></div>
       <div className="modal-card" style={{ width: "50%" }}>
         <header className="modal-card-head">
-          <p className="modal-card-title">Add New Work</p>
+          <p className="modal-card-title">Add new Work</p>
           <button
             className="modal-close is-large"
             type="button"
@@ -70,20 +70,20 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
                   <Error error={formError} />
                 </div>
               )}
-              <UIFormField label="Accession Number">
+              <UIFormField label="Work accession number">
                 <UIFormInput
                   isReactHookForm
                   required
-                  label="Accession Number"
+                  label="Work accession number"
                   name="accessionNumber"
-                  placeholder="Accession Number"
+                  placeholder="Work accession number"
                   data-testid="accession-number-input"
                 />
               </UIFormField>
-              <UIFormField label="Work Title">
+              <UIFormField label="Work title">
                 <UIFormInput
                   isReactHookForm
-                  label="Work Title"
+                  label="Work title"
                   data-testid="title-input"
                   name="title"
                   placeholder="Name your work..."

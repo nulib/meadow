@@ -167,44 +167,57 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_rows(sheet) do
-    existing_files =
-      Config.ingest_bucket()
-      |> ExAws.S3.list_objects()
-      |> ExAws.stream!()
-      |> Enum.to_list()
-      |> Enum.map(fn file -> Map.get(file, :key) end)
+    with rows <- Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"]) do
+      existing_files =
+        Config.ingest_bucket()
+        |> ExAws.S3.list_objects(prefix: sheet.project.folder)
+        |> ExAws.stream!()
+        |> Enum.to_list()
+        |> Enum.map(fn file -> Map.get(file, :key) end)
+        |> MapSet.new()
 
-    row_check = fn
-      row, result ->
-        case validate_row(row, existing_files) do
-          "pass" -> result
-          "fail" -> :error
-        end
-    end
+      duplicate_accession_numbers =
+        rows
+        |> Enum.group_by(& &1.file_set_accession_number)
+        |> Enum.filter(fn {_, rows} -> length(rows) > 1 end)
+        |> Enum.map(fn {accession_number, rows} ->
+          {accession_number, Enum.map(rows, & &1.row)}
+        end)
+        |> Enum.into(%{})
 
-    overall_row_result = {
-      Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
-      |> Enum.reduce(:ok, row_check),
-      sheet
-    }
+      row_check = fn
+        row, result ->
+          case validate_row(row, existing_files, duplicate_accession_numbers) do
+            "pass" -> result
+            "fail" -> :error
+          end
+      end
 
-    case overall_row_result do
-      {:ok, sheet} ->
-        Logger.info("Ingest sheet: #{sheet.id} is valid")
-        Sheets.update_ingest_sheet_status(sheet, "valid")
-        {:ok, sheet}
+      overall_row_result = {
+        rows
+        |> Enum.reduce(:ok, row_check),
+        sheet
+      }
 
-      {:error, sheet} ->
-        Logger.info("Ingest sheet: #{sheet.id} has failing rows")
-        Sheets.update_ingest_sheet_status(sheet, "row_fail")
-        {:error, sheet}
+      case overall_row_result do
+        {:ok, sheet} ->
+          Logger.info("Ingest sheet: #{sheet.id} is valid")
+          Sheets.update_ingest_sheet_status(sheet, "valid")
+          {:ok, sheet}
+
+        {:error, sheet} ->
+          Logger.info("Ingest sheet: #{sheet.id} has failing rows")
+          Sheets.update_ingest_sheet_status(sheet, "row_fail")
+          {:error, sheet}
+      end
     end
   end
 
-  defp validate_value({field_name, value}, _existing_files) when byte_size(value) == 0,
-    do: {:error, field_name, "#{field_name} cannot be blank"}
+  defp validate_value({field_name, value}, _existing_files, _duplicate_accession_numbers)
+       when byte_size(value) == 0,
+       do: {:error, field_name, "#{field_name} cannot be blank"}
 
-  defp validate_value({"role", value}, _existing_files) do
+  defp validate_value({"role", value}, _existing_files, _duplicate_accession_numbers) do
     case CodedTerms.get_coded_term(value, "file_set_role") do
       {{:ok, _}, _term} ->
         :ok
@@ -214,17 +227,26 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"accession_number", value}, _existing_files) do
-    case FileSets.accession_exists?(value) do
-      true ->
-        {:error, "accession_number", "accession_number #{value} already exists in system"}
+  defp validate_value({"accession_number", value}, _existing_files, duplicate_accession_numbers) do
+    case Map.get(duplicate_accession_numbers, value) do
+      nil ->
+        if FileSets.accession_exists?(value),
+          do: {:error, "accession_number", "accession_number #{value} already exists in system"},
+          else: :ok
 
-      false ->
-        :ok
+      duplicate_rows ->
+        with row_list <- duplicate_rows |> Enum.map(&to_string/1) |> Enum.join(", ") do
+          {:error, "accession_number",
+           "accession_number #{value} is duplicated on rows #{row_list}"}
+        end
     end
   end
 
-  defp validate_value({"work_accession_number", value}, _existing_files) do
+  defp validate_value(
+         {"work_accession_number", value},
+         _existing_files,
+         _duplicate_accession_numbers
+       ) do
     case Works.accession_exists?(value) do
       true ->
         {:error, "work_accession_number",
@@ -235,18 +257,19 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"filename", value}, existing_files) do
-    case Enum.member?(existing_files, value) do
+  defp validate_value({"filename", value}, existing_files, _duplicate_accession_numbers) do
+    case MapSet.member?(existing_files, value) do
       true -> :ok
       false -> {:error, "filename", "File not Found: #{value}"}
     end
   end
 
-  defp validate_value({_field_name, _value}, _existing_files), do: :ok
+  defp validate_value({_field_name, _value}, _existing_files, _duplicate_accession_numbers),
+    do: :ok
 
-  defp validate_row(%Row{state: "pending"} = row, existing_files) do
+  defp validate_row(%Row{state: "pending"} = row, existing_files, duplicate_accession_numbers) do
     reducer = fn %Row.Field{header: field_name, value: value}, acc ->
-      case validate_value({field_name, value}, existing_files) do
+      case validate_value({field_name, value}, existing_files, duplicate_accession_numbers) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: error} | acc]
       end

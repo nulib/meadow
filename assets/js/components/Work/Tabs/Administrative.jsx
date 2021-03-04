@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import useIsEditing from "@js/hooks/useIsEditing";
-import { toastWrapper, sortItemsArray } from "@js/services/helpers";
-import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql.js";
+import { toastWrapper } from "@js/services/helpers";
 import { UPDATE_WORK, GET_WORK } from "@js/components/Work/work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
-import UIFormSelect from "@js/components/UI/Form/Select";
 import UIFormField from "@js/components/UI/Form/Field";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
@@ -19,9 +17,8 @@ import {
 } from "../../../services/metadata";
 import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
+import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
 import { useHistory } from "react-router-dom";
-import { mockUser } from "@js/components/Auth/auth.gql.mock";
-import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
@@ -32,11 +29,6 @@ const WorkTabsAdministrative = ({ work }) => {
     visibility,
   } = work;
   const [isEditing, setIsEditing] = useIsEditing();
-  const {
-    data: collectionsData,
-    loading: collectionsLoading,
-    error: collectionsError,
-  } = useQuery(GET_COLLECTIONS);
 
   const [
     updateWork,
@@ -123,11 +115,11 @@ const WorkTabsAdministrative = ({ work }) => {
     });
   };
 
-  if (collectionsLoading || updateWorkLoading) {
+  if (updateWorkLoading) {
     <UISkeleton rows={10} />;
   }
 
-  if (collectionsError || updateWorkError) {
+  if (updateWorkError) {
     return (
       <p className="notification is-danger">
         There was an error loading GraphQL data on the Work Administrative tab
@@ -176,46 +168,12 @@ const WorkTabsAdministrative = ({ work }) => {
 
         <div className="columns">
           <div className="column">
-            <div className="box content">
-              <h3>Collection</h3>
-              <UIFormField label="Collection">
-                {isEditing ? (
-                  <UIFormSelect
-                    isReactHookForm
-                    name="collection"
-                    label="Collection"
-                    showHelper={true}
-                    options={
-                      collectionsData &&
-                      sortItemsArray(collectionsData.collections, "title").map(
-                        (collection) => ({
-                          id: collection.id,
-                          value: collection.id,
-                          label: collection.title,
-                        })
-                      )
-                    }
-                    defaultValue={collection ? collection.id : ""}
-                  />
-                ) : (
-                  <p>
-                    {collection ? (
-                      <Button
-                        className="button is-text"
-                        onClick={() =>
-                          handleViewAllWorksClick(collection.title)
-                        }
-                        data-testid="view-collection-works-button"
-                      >
-                        {collection.title}
-                      </Button>
-                    ) : (
-                      "Not part of a collection"
-                    )}
-                  </p>
-                )}
-              </UIFormField>
-            </div>
+            <WorkTabsAdministrativeCollection
+              collection={collection}
+              handleViewAllWorksClick={handleViewAllWorksClick}
+              isEditing={isEditing}
+              workId={id}
+            />
 
             <div className="box is-relative content">
               <h3>General</h3>

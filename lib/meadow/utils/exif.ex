@@ -3,6 +3,8 @@ defmodule Meadow.Utils.Exif do
   Functions for working with EXIF metadata
   """
 
+  alias Meadow.Utils.Atoms
+
   @compression_mapping %{
     1 => "Uncompressed",
     2 => "CCITT 1D",
@@ -74,62 +76,209 @@ defmodule Meadow.Utils.Exif do
     51_177 => "Depth Map"
   }
 
-  def bits_per_sample(bits_per_sample) when is_map(bits_per_sample) do
+  @subfile_type %{
+    0x0 => "Full-resolution image",
+    0x1 => "Reduced-resolution image",
+    0x2 => "Single page of multi-page image",
+    0x3 => "Single page of multi-page reduced-resolution image",
+    0x4 => "Transparency mask",
+    0x5 => "Transparency mask of reduced-resolution image",
+    0x6 => "Transparency mask of multi-page image",
+    0x7 => "Transparency mask of reduced-resolution multi-page image",
+    0x8 => "Depth map",
+    0x9 => "Depth map of reduced-resolution image",
+    0x10 => "Enhanced image data",
+    0x10001 => "Alternate reduced-resolution image",
+    0xFFFFFFFF => "invalid"
+  }
+
+  @indexable_fields ~w(BitsPerSample Compression ExtraSamples FillOrder GrayResponseUnit ImageHeight
+    ImageWidth Make Model PhotometricInterpretation PlanarConfiguration ResolutionUnit
+    XResolution YResolution)
+
+  @doc """
+  Transform EXIF metadata with human readable values
+
+  Examples:
+
+    iex> transform(nil)
+    nil
+
+    iex> %{
+    ...>    "BitsPerSample" => %{"0" => 8, "1" => 8, "2" => 8},
+    ...>    "Compression" => 7,
+    ...>    "ExtraSamples" => 2,
+    ...>    "FillOrder" => 1,
+    ...>    "GrayResponseUnit" => 3,
+    ...>    "ImageHeight" => 9026,
+    ...>    "ImageWidth" => 25183,
+    ...>    "Orientation" => "Horizontal (normal)",
+    ...>    "PhotometricInterpretation" => 6,
+    ...>    "PlanarConfiguration" => 1,
+    ...>    "ResolutionUnit" => 2,
+    ...>    "SamplesPerPixel" => 3,
+    ...>    "Software" => "Adobe Photoshop CC (Macintosh)",
+    ...>    "SubfileType" => 0,
+    ...>    "XResolution" => 600,
+    ...>    "YResolution" => 600
+    ...>  } |> transform()
+    %{
+      "bitsPerSample" => "8, 8, 8",
+      "compression" => "JPEG",
+      "extraSamples" => "Unassociated Alpha",
+      "fillOrder" => "Normal",
+      "grayResponseUnit" => "0.0001",
+      "imageHeight" => 9026,
+      "imageWidth" => 25183,
+      "orientation" => "Horizontal (normal)",
+      "photometricInterpretation" => "YCbCr",
+      "planarConfiguration" => "Chunky",
+      "resolutionUnit" => "inches",
+      "samplesPerPixel" => 3,
+      "software" => "Adobe Photoshop CC (Macintosh)",
+      "subfileType" => "Full-resolution image",
+      "xResolution" => 600,
+      "yResolution" => 600
+    }
+  """
+  def transform(nil), do: nil
+
+  def transform(metadata) do
+    metadata
+    |> Enum.map(fn {key, value} -> {Inflex.camelize(key, :lower), transform_value(key, value)} end)
+    |> Enum.into(%{})
+  end
+
+  @doc """
+  Produce indexable EXIF metadata
+
+  Examples:
+
+    iex> index(nil)
+    nil
+
+    iex> %{
+    ...>    "BitsPerSample" => %{"0" => 8, "1" => 8, "2" => 8},
+    ...>    "Compression" => 7,
+    ...>    "ExtraSamples" => 2,
+    ...>    "FillOrder" => 1,
+    ...>    "GrayResponseUnit" => 3,
+    ...>    "ImageHeight" => 9026,
+    ...>    "ImageWidth" => 25183,
+    ...>    "Orientation" => "Horizontal (normal)",
+    ...>    "PhotometricInterpretation" => 6,
+    ...>    "PlanarConfiguration" => 1,
+    ...>    "ResolutionUnit" => 2,
+    ...>    "SamplesPerPixel" => 3,
+    ...>    "Software" => "Adobe Photoshop CC (Macintosh)",
+    ...>    "SubfileType" => 0,
+    ...>    "XResolution" => 600,
+    ...>    "YResolution" => 600
+    ...>  } |> index()
+    %{
+       bitsPerSample: "8, 8, 8",
+       compression: "JPEG",
+       extraSamples: "Unassociated Alpha",
+       fillOrder: "Normal",
+       grayResponseUnit: "0.0001",
+       imageHeight: 9026,
+       imageWidth: 25183,
+       photometricInterpretation: "YCbCr",
+       planarConfiguration: "Chunky",
+       resolutionUnit: "inches",
+       xResolution: 600,
+       yResolution: 600
+    }
+
+    iex> %{
+    ...>    "BitsPerSample" => %{"0" => 8, "1" => 8, "2" => 8},
+    ...>    "Compression" => 7,
+    ...>    "Software" => "Adobe Photoshop CC (Macintosh)",
+    ...>    "XResolution" => 600,
+    ...>    "YResolution" => 600
+    ...>  } |> index([:bits_per_sample, "software", "XResolution", :yResolution])
+    %{
+       bitsPerSample: "8, 8, 8",
+       software: "Adobe Photoshop CC (Macintosh)",
+       xResolution: 600,
+       yResolution: 600
+    }
+  """
+  def index(metadata, fields \\ @indexable_fields)
+
+  def index(nil, _), do: nil
+
+  def index(metadata, fields) do
+    with fields <- fields |> Enum.map(&Inflex.camelize/1) do
+      metadata
+      |> Map.take(fields)
+      |> transform()
+      |> Atoms.atomize()
+    end
+  end
+
+  defp transform_value("BitsPerSample", bits_per_sample) when is_map(bits_per_sample) do
     Enum.map_join(bits_per_sample, ", ", fn {_key, value} -> value end)
   end
 
-  def bits_per_sample(_), do: nil
+  defp transform_value("BitsPerSample", _), do: nil
 
-  def compression(value) do
-    Map.get(@compression_mapping, value)
+  defp transform_value("Compression", value) do
+    Map.get(@compression_mapping, value, value)
   end
 
-  def extra_samples(value) do
+  defp transform_value("ExtraSamples", value) do
     case value do
       0 -> "Unspecified"
       1 -> "Associated Alpha"
       2 -> "Unassociated Alpha"
-      _ -> nil
+      other -> other
     end
   end
 
-  def fill_order(value) do
+  defp transform_value("FillOrder", value) do
     case value do
       1 -> "Normal"
       2 -> "Reversed"
-      _ -> nil
+      other -> other
     end
   end
 
-  def gray_response_unit(value) do
+  defp transform_value("GrayResponseUnit", value) do
     case value do
       1 -> "0.1"
       2 -> "0.001"
       3 -> "0.0001"
       4 -> "1e-05"
       5 -> "1e-06"
-      _ -> nil
+      other -> other
     end
   end
 
-  def photometric_interpretation(value) do
-    Map.get(@photometric_interpretation, value)
+  defp transform_value("PhotometricInterpretation", value) do
+    Map.get(@photometric_interpretation, value, value)
   end
 
-  def planar_configuration(value) do
+  defp transform_value("PlanarConfiguration", value) do
     case value do
       1 -> "Chunky"
       2 -> "Planar"
-      _ -> nil
+      other -> other
     end
   end
 
-  def resolution_unit(value) do
+  defp transform_value("ResolutionUnit", value) do
     case value do
       1 -> "None"
       2 -> "inches"
       3 -> "cm"
-      _ -> nil
+      other -> other
     end
   end
+
+  defp transform_value("SubfileType", value) do
+    Map.get(@subfile_type, value, value)
+  end
+
+  defp transform_value(_, value), do: value
 end

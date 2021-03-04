@@ -31,14 +31,13 @@ const WorkTabsAboutCoreMetadata = ({
   return (
     <div className="columns is-multiline" data-testid="core-metadata">
       <div className="column is-two-thirds">
-        <UIFormField label="Title" required={published}>
+        <UIFormField label="Title">
           {isEditing ? (
             <UIInput
               isReactHookForm
               name="title"
               label="Title"
               data-testid="title"
-              required={published}
               defaultValue={descriptiveMetadata.title}
             />
           ) : (

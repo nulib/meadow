@@ -100,8 +100,8 @@ defmodule Meadow.Ingest.ValidatorTest do
     assert(ingest_sheet.status == "row_fail")
   end
 
-  @tag sheet: "ingest_sheet_duplicate_accession.csv"
-  test "fails with duplicate accession_number", context do
+  @tag sheet: "ingest_sheet_accession_exists.csv"
+  test "fails when accession_number already exists", context do
     file_set_fixture(%{accession_number: "6777"})
     assert(Validator.result(context.sheet.id) == "fail")
     ingest_sheet = Validator.validate(context.sheet.id)
@@ -109,12 +109,34 @@ defmodule Meadow.Ingest.ValidatorTest do
     assert(ingest_sheet.status == "row_fail")
   end
 
-  @tag sheet: "ingest_sheet_duplicate_work_accession.csv"
-  test "fails with duplicate work_accession_number", context do
+  @tag sheet: "ingest_sheet_work_accession_exists.csv"
+  test "fails when work_accession_number already exists", context do
     work_fixture(%{accession_number: "6779"})
     assert(Validator.result(context.sheet.id) == "fail")
     ingest_sheet = Validator.validate(context.sheet.id)
 
     assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_duplicate_accession.csv"
+  test "fails with duplicate accession_number", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id) |> Repo.preload(:ingest_sheet_rows)
+
+    assert(ingest_sheet.status == "row_fail")
+
+    ingest_sheet
+    |> Map.get(:ingest_sheet_rows)
+    |> Enum.each(fn
+      %{file_set_accession_number: "Donohue_001_02", errors: [error]} ->
+        assert error.message == "accession_number Donohue_001_02 is duplicated on rows 2, 3"
+
+      %{file_set_accession_number: "Donohue_002_01", errors: [error]} ->
+        assert error.message ==
+                 "accession_number Donohue_002_01 is duplicated on rows 5, 6, 7"
+
+      row ->
+        assert row.errors == []
+    end)
   end
 end

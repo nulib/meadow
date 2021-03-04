@@ -8,6 +8,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   alias Meadow.Data
+  alias Meadow.Utils.Exif
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
@@ -116,7 +117,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :sha256, :string do
       resolve(fn metadata, _, _ ->
         case metadata.digests do
-          _digests -> {:ok, metadata.digests["sha256"]}
+          nil -> {:ok, nil}
+          digests -> {:ok, digests["sha256"]}
         end
       end)
     end
@@ -124,7 +126,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :exif, :string do
       resolve(fn metadata, _, _ ->
         case metadata.exif do
-          _exif -> Jason.encode(metadata.exif)
+          nil -> {:ok, nil}
+          exif -> exif |> Exif.transform() |> Jason.encode()
         end
       end)
     end

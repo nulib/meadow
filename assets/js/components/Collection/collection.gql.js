@@ -104,13 +104,6 @@ export const GET_COLLECTION = gql`
         id
         label
       }
-      works {
-        id
-        representativeImage
-        descriptiveMetadata {
-          title
-        }
-      }
     }
   }
 `;

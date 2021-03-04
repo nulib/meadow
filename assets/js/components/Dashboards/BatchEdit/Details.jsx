@@ -6,7 +6,7 @@ import JSONPretty from "react-json-pretty";
 import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import IconImages from "@js/components/Icon/Images";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {
@@ -81,7 +81,7 @@ function DashboardsBatchEditDetails({ id }) {
           }}
         >
           <span className="icon">
-            <FontAwesomeIcon icon="eye" />
+            <IconImages />
           </span>
           <span>View batch edit works</span>
         </Link>

@@ -264,13 +264,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     changesets =
       import_stream
       |> Import.stream()
-      |> Stream.map(fn row ->
-        with changeset <- Work.changeset(%Work{}, row) do
-          if is_nil(row.id),
-            do: Changeset.add_error(changeset, :id, "is required"),
-            else: changeset
-        end
-      end)
+      |> Stream.chunk_every(@chunk_size)
+      |> Stream.flat_map(&validate_chunk_of_rows/1)
       |> Enum.with_index(3)
 
     errors =
@@ -291,4 +286,50 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   defp validate_rows(other), do: other
+
+  defp validate_chunk_of_rows(rows) do
+    with existing_ids <- get_chunk_of_ids(rows) do
+      rows
+      |> Stream.map(fn row ->
+        with changeset <- Work.changeset(%Work{}, row) do
+          if is_nil(row.id),
+            do: Changeset.add_error(changeset, :id, "is required"),
+            else: changeset |> validate_id_and_accession(row, existing_ids)
+        end
+      end)
+    end
+  end
+
+  defp validate_id_and_accession(changeset, row, existing_ids) do
+    with %{id: id, accession_number: accession_number} <- row do
+      case Map.get(existing_ids, id) do
+        ^accession_number -> changeset
+        :invalid_uuid -> changeset |> Changeset.add_error(:id, "is not a valid UUID")
+        nil -> changeset |> Changeset.add_error(:id, "not found")
+        _ -> changeset |> Changeset.add_error(:accession_number, "does not match")
+      end
+    end
+  end
+
+  defp get_chunk_of_ids(rows) do
+    work_ids = Enum.map(rows, & &1.id)
+
+    uuids =
+      work_ids
+      |> Enum.filter(fn id ->
+        case Ecto.UUID.cast(id) do
+          {:ok, _} -> true
+          :error -> false
+        end
+      end)
+
+    invalid_results = (work_ids -- uuids) |> Enum.map(&{&1, :invalid_uuid})
+
+    valid_results =
+      from(w in Work, where: w.id in ^uuids, select: {w.id, w.accession_number})
+      |> Repo.all()
+
+    (valid_results ++ invalid_results)
+    |> Enum.into(%{})
+  end
 end

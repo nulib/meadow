@@ -57,7 +57,17 @@ defmodule Mix.Tasks.Meadow.DcDownload do
       with csv_path <- export_name <> ".csv" do
         Logger.info("Writing ingest sheet to #{csv_path}")
 
-        [["work_accession_number", "accession_number", "filename", "description", "role"] | rows]
+        [
+          [
+            "work_accession_number",
+            "accession_number",
+            "filename",
+            "description",
+            "role",
+            "label"
+          ]
+          | rows
+        ]
         |> CSV.dump_to_stream()
         |> Stream.into(File.stream!(csv_path, [:write, :utf8]))
         |> Stream.run()
@@ -111,7 +121,8 @@ defmodule Mix.Tasks.Meadow.DcDownload do
              "#{work_accession_number}_FILE_#{index}",
              filename,
              doc["label"],
-             Enum.random(["A", "A", "A", "A", "P"])
+             Enum.random(["A", "A", "A", "A", "P"]),
+             "#{filename} Label"
            ]}
 
         %{status_code: 403} ->

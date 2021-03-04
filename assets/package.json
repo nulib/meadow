@@ -51,6 +51,7 @@
     "react-dropzone": "^11.3.1",
     "react-error-boundary": "^3.1.0",
     "react-hook-form": "6.9.2",
+    "react-icons": "^4.2.0",
     "react-json-pretty": "^2.2.0",
     "recharts": "^2.0.8"
   },
@@ -65,6 +66,7 @@
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@elastic/elasticsearch-mock": "^0.3.0",
     "@nulib/prettier-config": "^1.2.0",
+    "@svgr/webpack": "^5.5.0",
     "@testing-library/dom": "^7.29.6",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
