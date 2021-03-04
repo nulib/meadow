@@ -20,6 +20,7 @@ import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { Button } from "@nulib/admin-react-components";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -117,6 +118,15 @@ const ScreensWork = () => {
     });
   };
 
+  const handleFacetLinkClick = (facet, value) => {
+    history.push("/search", {
+      externalFacet: {
+        facetComponentId: facet,
+        value: value,
+      },
+    });
+  };
+
   return (
     <Layout>
       <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
@@ -182,9 +192,18 @@ const ScreensWork = () => {
                           data.work.project.id &&
                           data.work.project.title && (
                             <p>
-                              <Link to={`/project/${data.work.project.id}`}>
+                              <Button
+                                isText
+                                onClick={() =>
+                                  handleFacetLinkClick(
+                                    "Project",
+                                    data.work.project.title
+                                  )
+                                }
+                                data-testid="view-project-works"
+                              >
                                 {data.work.project.title}
-                              </Link>
+                              </Button>
                             </p>
                           )}
                       </div>
@@ -194,11 +213,18 @@ const ScreensWork = () => {
                         </p>
                         <p>
                           {data.work.project && data.work.ingestSheet && (
-                            <Link
-                              to={`/project/${data.work.project.id}/ingest-sheet/${data.work.ingestSheet.id}`}
+                            <Button
+                              isText
+                              onClick={() =>
+                                handleFacetLinkClick(
+                                  "IngestSheet",
+                                  data.work.ingestSheet.title
+                                )
+                              }
+                              data-testid="view-ingest-sheet-works"
                             >
                               {data.work.ingestSheet.title}
-                            </Link>
+                            </Button>
                           )}
                         </p>
                       </div>
