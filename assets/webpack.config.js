@@ -70,18 +70,14 @@ module.exports = (env, options) => ({
       patterns: [{ from: "static/", to: "../" }],
     }),
     new Webpack.DefinePlugin({
-      __HONEYBADGER_API_KEY__: JSON.stringify(
-        process.env.HONEYBADGER_API_KEY || "DO_NOT_REPORT"
-      ),
+      __HONEYBADGER_API_KEY__: JSON.stringify(process.env.HONEYBADGER_API_KEY),
       __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
-        process.env.HONEYBADGER_ENVIRONMENT || "dev"
+        process.env.HONEYBADGER_ENVIRONMENT
       ),
       __HONEYBADGER_REVISION__: JSON.stringify(
-        process.env.HONEYBADGER_REVISION || "unknown"
+        process.env.HONEYBADGER_REVISION
       ),
-      __MEADOW_VERSION__: JSON.stringify(
-        process.env.MEADOW_VERSION || "unknown"
-      ),
+      __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
     }),
   ],
   devtool: "source-map",
