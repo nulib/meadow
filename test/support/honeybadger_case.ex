@@ -43,8 +43,8 @@ defmodule Honeybadger.API do
   """
   import Plug.Conn
 
-  alias Plug.Conn
   alias Plug.Adapters.Cowboy
+  alias Plug.Conn
 
   def start(pid) do
     Cowboy.http(__MODULE__, [test: pid], port: 4444)
