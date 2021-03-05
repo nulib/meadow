@@ -48,6 +48,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     |> cast_assoc(:works)
     |> validate_required([:title, :filename, :project_id])
     |> assoc_constraint(:project)
+    |> unique_constraint(:title)
   end
 
   def status_changeset(ingest_sheet, attrs) do
