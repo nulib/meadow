@@ -39,8 +39,6 @@ const BatchEditConfirmation = ({
   isConfirmModalOpen,
   numberOfResults,
 }) => {
-  console.log("batchAdds", batchAdds);
-  console.log("batchReplaces", batchReplaces);
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
   const [batchNickname, setBatchNickname] = useState();

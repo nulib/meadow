@@ -7,11 +7,11 @@ import { getImageUrl } from "@js/services/helpers";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
 const previewContainer = css`
-  max-height: 440px;
-  overflow-y: auto;
+  /* max-height: 440px;
+  overflow-y: auto; */
 `;
 
-const MAX_ITEMS_SHOWN = 25;
+const MAX_ITEMS_SHOWN = 10;
 
 export default function UIPreviewItems({ items = [] }) {
   return (

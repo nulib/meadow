@@ -8,7 +8,7 @@ import BatchEditPublish from "@js/components/BatchEdit/Publish";
 
 const BatchEditAdministrative = ({ batchPublish, setBatchPublish }) => {
   return (
-    <>
+    <div data-testid="batch-edit-administrative-tab-wrapper">
       <div className="columns">
         <div className="column">
           <div
@@ -42,7 +42,7 @@ const BatchEditAdministrative = ({ batchPublish, setBatchPublish }) => {
           </UIAccordion>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

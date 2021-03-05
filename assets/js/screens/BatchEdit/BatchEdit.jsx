@@ -92,7 +92,7 @@ const ScreensBatchEdit = () => {
                 ) : (
                   <div>
                     <p
-                      className="notification is-warning is-light mt-5 has-text-centered"
+                      className="notification is-warning mt-5 is-size-5"
                       data-testid="batch-edit-preview-notification"
                     >
                       <UIIconText

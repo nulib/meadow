@@ -131,7 +131,6 @@ export default function BatchEditTabs() {
 
     // Update non-controlled term multi-value items
     multiValues = getBatchMultiValueDataFromForm(currentFormValues);
-    console.log("multiValues", multiValues);
 
     // Now we need to split this up between Descriptive and Administrative
     let administrativeMultiValues = parseMultiValues(
@@ -139,8 +138,6 @@ export default function BatchEditTabs() {
       "administrative"
     );
     let descriptiveMultiValues = parseMultiValues(multiValues, "descriptive");
-    console.log("administrativeMultiValues", administrativeMultiValues);
-    console.log("descriptiveMultiValues", descriptiveMultiValues);
 
     setBatchAdds({
       administrativeMetadata: {

@@ -50,7 +50,6 @@ const WorkTabsStructure = ({ work }) => {
     UPDATE_FILE_SETS,
     {
       onCompleted({ updateFileSets }) {
-        console.log("updateFileSets", updateFileSets);
         toastWrapper("is-success", "Filesets have been updated");
         setIsEditing(false);
       },

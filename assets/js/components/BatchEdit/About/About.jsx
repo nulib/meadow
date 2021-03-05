@@ -10,7 +10,7 @@ import UIAccordion from "../../UI/Accordion";
 
 const BatchEditAbout = () => {
   return (
-    <>
+    <div data-testid="batch-edit-about-tab-wrapper">
       <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
         <BatchEditAboutCoreMetadata />
       </UIAccordion>
@@ -45,7 +45,7 @@ const BatchEditAbout = () => {
       >
         <BatchEditAboutIdentifiersMetadata />
       </UIAccordion>
-    </>
+    </div>
   );
 };
 

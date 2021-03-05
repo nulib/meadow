@@ -3,10 +3,10 @@ import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
   withReactHookForm,
-} from "../../../services/testing-helpers";
+} from "@js/services/testing-helpers";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
-import { CONTROLLED_METADATA } from "../../../services/metadata";
-import { BatchProvider } from "../../../context/batch-edit-context";
+import { CONTROLLED_METADATA } from "@js/services/metadata";
+import { BatchProvider } from "@js/context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
