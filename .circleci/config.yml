@@ -28,6 +28,19 @@ jobs:
           MINIO_SECRET_KEY: minio123
         command: server /data
     steps:
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Ensure version isn't already tagged
+                command: |
+                  MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')
+                  TAG_COUNT=$(git tag | grep -c v$MEADOW_VERSION)
+                  if [[ $TAG_COUNT -gt 0 ]]; then
+                    echo "Version ${MEADOW_VERSION} is already tagged"
+                    circleci-agent step halt
+                  fi
       - run:
           name: Install LDAP utils
           command: sudo apt-get install -y ldap-utils
@@ -152,8 +165,8 @@ jobs:
             - run:
                 name: "Tag release"
                 command: |
-                  git tag v${MEADOW_VERSION}
-                  git push --tags origin v${MEADOW_VERSION}
+                  git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
+                  git push origin v${MEADOW_VERSION}
           
   deploy:
     executor: aws-cli/default
