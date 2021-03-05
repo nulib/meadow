@@ -10,6 +10,8 @@ import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import UIIconText from "@js/components/UI/IconText";
+import IconAlert from "@js/components/Icon/Alert";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -93,10 +95,11 @@ const ScreensBatchEdit = () => {
                       className="notification is-warning is-light mt-5 has-text-centered"
                       data-testid="batch-edit-preview-notification"
                     >
-                      <span className="icon">
-                        <FontAwesomeIcon icon="exclamation-triangle" />
-                      </span>
-                      You are batch editing the following {resultsCount} works.
+                      <UIIconText
+                        isCentered
+                        icon={<IconAlert />}
+                        text={`You are batch editing the following ${resultsCount} works.`}
+                      />
                     </p>
                     <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                       <UIPreviewItems items={previewItems} />
@@ -109,8 +112,12 @@ const ScreensBatchEdit = () => {
             {!isActiveSearch && (
               <div className="notification content has-text-centered">
                 <p>
-                  <FontAwesomeIcon icon="exclamation-triangle" /> No search
-                  results saved in the browsers memory
+                  <UIIconText
+                    icon={<IconAlert />}
+                    text="No search
+                  results saved in the browsers memory"
+                    isCentered
+                  />
                 </p>
                 <p>
                   <Link to="/search" className="button">

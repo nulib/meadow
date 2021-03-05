@@ -4,14 +4,14 @@ import classNames from "classnames";
 
 function UIIconText({ icon, text, isCentered }) {
   return (
-    <div
+    <span
       className={classNames("is-flex", "is-align-items-center", {
         "is-justify-content-center": isCentered,
       })}
     >
       {icon}
       <span className="pl-3">{text}</span>
-    </div>
+    </span>
   );
 }
 

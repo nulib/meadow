@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getMetadataLabel } from "@js/services/metadata";
 import { useCodeLists } from "@js/context/code-list-context";
 
@@ -38,26 +37,10 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
     return foundItem.label || "No URL label found";
   }
 
-  function getIcon() {
-    let colorClass = "has-text-success";
-    let icon = "plus";
-
-    if (type === "remove") {
-      colorClass = "has-text-danger";
-      icon = "minus";
-    }
-    if (type === "replace") {
-      colorClass = "has-text-info";
-      icon = "copy";
-    }
-    return <FontAwesomeIcon icon={icon} className={colorClass} />;
-  }
-
   return (
     <table className={`table is-fullwidth`} css={displayTable}>
       <thead>
         <tr>
-          <th></th>
           <th>Metadata Field</th>
           <th>Value</th>
         </tr>
@@ -77,7 +60,6 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
           if (type === "replace" && items.length === 0) {
             return (
               <tr key={key}>
-                <td>{getIcon()}</td>
                 <td className="is-capitalized">{getMetadataLabel(key)}</td>
                 <td className="is-italic">* all values will be removed</td>
               </tr>
@@ -112,7 +94,6 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
 
             return (
               <tr key={rowKey}>
-                <td>{getIcon()}</td>
                 <td className="is-capitalized">{getMetadataLabel(key)}</td>
                 <td>{value}</td>
               </tr>

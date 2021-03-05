@@ -1,77 +1,208 @@
 export const METADATA_FIELDS = {
-  ABSTRACT: { name: "abstract", label: "Abstract" },
+  ABSTRACT: {
+    name: "abstract",
+    label: "Abstract",
+    metadataClass: "descriptive",
+  },
   ALTERNATE_TITLE: {
     name: "alternateTitle",
     label: "Alternate Title",
+    metadataClass: "descriptive",
   },
-  BOX_NAME: { name: "boxName", label: "Box Name" },
-  BOX_NUMBER: { name: "boxNumber", label: "Box Number" },
-  CAPTION: { name: "caption", label: "Caption" },
-  CATALOG_KEY: { name: "catalogKey", label: "Catalog Key" },
-  COLLECTION: { name: "collection", label: "Collection" },
+  BOX_NAME: {
+    name: "boxName",
+    label: "Box Name",
+    metadataClass: "descriptive",
+  },
+  BOX_NUMBER: {
+    name: "boxNumber",
+    label: "Box Number",
+    metadataClass: "descriptive",
+  },
+  CAPTION: { name: "caption", label: "Caption", metadataClass: "descriptive" },
+  CATALOG_KEY: {
+    name: "catalogKey",
+    label: "Catalog Key",
+    metadataClass: "descriptive",
+  },
+  COLLECTION: {
+    name: "collection",
+    label: "Collection",
+    metadataClass: "core",
+  },
   CONTRIBUTOR: {
     hasRole: true,
     label: "Contributor",
+    metadataClass: "descriptive",
     name: "contributor",
     scheme: "MARC_RELATOR",
   },
-  CREATOR: { name: "creator", label: "Creator" },
-  DATE_CREATED: { name: "dateCreated", label: "Date Created" },
-  DESCRIPTION: { name: "description", label: "Description" },
-  FOLDER_NAME: { name: "folderName", label: "Folder Name" },
-  FOLDER_NUMBER: { name: "folderNumber", label: "Folder Number" },
-  GENRE: { name: "genre", label: "Genre" },
-  IDENTIFIER: { name: "identifier", label: "Identifier" },
-  KEYWORDS: { name: "keywords", label: "Keywords" },
-  LANGUAGE: { name: "language", label: "Language" },
-  LEGACY_IDENTIFIER: { name: "legacyIdentifier", label: "Legacy Identifier" },
-  LIBRARY_UNIT: { name: "libraryUnit", label: "Library Unit" },
-  LICENSE: { name: "license", label: "License" },
-  LOCATION: { name: "location", label: "Location" },
-  NOTES: { name: "notes", label: "Notes" },
+  CREATOR: { name: "creator", label: "Creator", metadataClass: "descriptive" },
+  DATE_CREATED: {
+    name: "dateCreated",
+    label: "Date Created",
+    metadataClass: "descriptive",
+  },
+  DESCRIPTION: {
+    name: "description",
+    label: "Description",
+    metadataClass: "descriptive",
+  },
+  FOLDER_NAME: {
+    name: "folderName",
+    label: "Folder Name",
+    metadataClass: "descriptive",
+  },
+  FOLDER_NUMBER: {
+    name: "folderNumber",
+    label: "Folder Number",
+    metadataClass: "descriptive",
+  },
+  GENRE: { name: "genre", label: "Genre", metadataClass: "descriptive" },
+  IDENTIFIER: {
+    name: "identifier",
+    label: "Identifier",
+    metadataClass: "descriptive",
+  },
+  KEYWORDS: {
+    name: "keywords",
+    label: "Keywords",
+    metadataClass: "descriptive",
+  },
+  LANGUAGE: {
+    name: "language",
+    label: "Language",
+    metadataClass: "descriptive",
+  },
+  LEGACY_IDENTIFIER: {
+    name: "legacyIdentifier",
+    label: "Legacy Identifier",
+    metadataClass: "descriptive",
+  },
+  LIBRARY_UNIT: {
+    name: "libraryUnit",
+    label: "Library Unit",
+    metadataClass: "administrative",
+  },
+  LICENSE: { name: "license", label: "License", metadataClass: "" },
+  LOCATION: {
+    name: "location",
+    label: "Location",
+    metadataClass: "descriptive",
+  },
+  NOTES: { name: "notes", label: "Notes", metadataClass: "descriptive" },
   PHYSICAL_DESCRIPTION_MATERIAL: {
     name: "physicalDescriptionMaterial",
     label: "Physical Description Material",
+    metadataClass: "descriptive",
   },
   PHYSICAL_DESCRIPTION_SIZE: {
     name: "physicalDescriptionSize",
     label: "Physical Description Size",
+    metadataClass: "descriptive",
   },
   PRESERVATION_LEVEL: {
     name: "preservationLevel",
     label: "Preservation Level",
+    metadataClass: "administrative",
   },
-  PROJECT_CYCLE: { name: "projectCycle", label: "Project Cycle" },
-  PROJECT_DESC: { name: "projectDesc", label: "Project Description" },
-  PROJECT_MANAGER: { name: "projectManager", label: "Project Manager" },
-  PROJECT_NAME: { name: "projectName", label: "Project Name" },
-  PROJECT_PROPOSER: { name: "projectProposer", label: "Project Proposer" },
+  PROJECT_CYCLE: {
+    name: "projectCycle",
+    label: "Project Cycle",
+    metadataClass: "administrative",
+  },
+  PROJECT_DESC: {
+    name: "projectDesc",
+    label: "Project Description",
+    metadataClass: "administrative",
+  },
+  PROJECT_MANAGER: {
+    name: "projectManager",
+    label: "Project Manager",
+    metadataClass: "administrative",
+  },
+  PROJECT_NAME: {
+    name: "projectName",
+    label: "Project Name",
+    metadataClass: "administrative",
+  },
+  PROJECT_PROPOSER: {
+    name: "projectProposer",
+    label: "Project Proposer",
+    metadataClass: "administrative",
+  },
   PROJECT_TASK_NUMBER: {
     name: "projectTaskNumber",
     label: "Project Task Number",
+    metadataClass: "administrative",
   },
-  PROVENANCE: { name: "provenance", label: "Provenance" },
-  PUBLISHED: { name: "published", label: "Published" },
-  PUBLISHER: { name: "publisher", label: "Publisher" },
-  RELATED_MATERIAL: { name: "relatedMaterial", label: "Related Material" },
-  RELATED_URL: { name: "relatedUrl", label: "Related URL" },
-  RIGHTS_HOLDER: { name: "rightsHolder", label: "Rights Holder" },
-  RIGHTS_STATEMENT: { name: "rightsStatement", label: "Rights Statement" },
-  SCOPE_AND_CONTENT: { name: "scopeAndContents", label: "Scope and Content" },
-  SERIES: { name: "series", label: "Series" },
-  SOURCE: { name: "source", label: "Source" },
-  STATUS: { name: "status", label: "Status" },
-  STYLE_PERIOD: { name: "stylePeriod", label: "Style Period" },
+  PROVENANCE: {
+    name: "provenance",
+    label: "Provenance",
+    metadataClass: "descriptive",
+  },
+  PUBLISHED: { name: "published", label: "Published", metadataClass: "core" },
+  PUBLISHER: {
+    name: "publisher",
+    label: "Publisher",
+    metadataClass: "descriptive",
+  },
+  RELATED_MATERIAL: {
+    name: "relatedMaterial",
+    label: "Related Material",
+    metadataClass: "descriptive",
+  },
+  RELATED_URL: {
+    name: "relatedUrl",
+    label: "Related URL",
+    metadataClass: "descriptive",
+  },
+  RIGHTS_HOLDER: {
+    name: "rightsHolder",
+    label: "Rights Holder",
+    metadataClass: "descriptive",
+  },
+  RIGHTS_STATEMENT: {
+    name: "rightsStatement",
+    label: "Rights Statement",
+    metadataClass: "descriptive",
+  },
+  SCOPE_AND_CONTENT: {
+    name: "scopeAndContents",
+    label: "Scope and Content",
+    metadataClass: "descriptive",
+  },
+  SERIES: { name: "series", label: "Series", metadataClass: "descriptive" },
+  SOURCE: { name: "source", label: "Source", metadataClass: "descriptive" },
+  STATUS: { name: "status", label: "Status", metadataClass: "core" },
+  STYLE_PERIOD: {
+    name: "stylePeriod",
+    label: "Style Period",
+    metadataClass: "descriptive",
+  },
   SUBJECT_ROLE: {
     hasRole,
     label: "Subject",
+    metadataClass: "descriptive",
     name: "subject",
     scheme: "SUBJECT_ROLE",
   },
-  TABLE_OF_CONTENTS: { name: "tableOfContents", label: "Table of Contents" },
-  TECHNIQUE: { label: "Technique", name: "technique" },
-  TITLE: { name: "title", label: "Title" },
-  VISIBILITY: { name: "visibility", label: "Visibility" },
+  TABLE_OF_CONTENTS: {
+    name: "tableOfContents",
+    label: "Table of Contents",
+    metadataClass: "descriptive",
+  },
+  TECHNIQUE: {
+    label: "Technique",
+    name: "technique",
+    metadataClass: "descriptive",
+  },
+  TITLE: { name: "title", label: "Title", metadataClass: "descriptive" },
+  VISIBILITY: {
+    name: "visibility",
+    label: "Visibility",
+    metadataClass: "core",
+  },
 };
 
 const {
@@ -302,6 +433,44 @@ export function hasRole(name) {
     (obj) => obj.name === name
   );
   return controlledTermItem.hasRole;
+}
+
+/**
+ * Filter a mixture of "administrative" and "descriptive" Batch Edit form metadata multivalues
+ * @param {Object} multiValues Mixture of values
+ * @param {String} metadataClass "administrative" or "descriptive"
+ * @returns {Object} Filtered values according to metadataClass
+ */
+export function parseMultiValues(
+  multiValues = {},
+  metadataClass = "descriptive"
+) {
+  let { add = {}, replace = {} } = multiValues;
+  let returnObj = {
+    add: {},
+    replace: {},
+  };
+  const metadataItems = Object.keys(METADATA_FIELDS)
+    .map((key) => METADATA_FIELDS[key])
+    .filter((obj) => obj.metadataClass === metadataClass);
+
+  function grabTheValues(obj) {
+    let o = {};
+    if (Object.keys(obj).length > 0) {
+      for (const name in obj) {
+        const metaDataField = metadataItems.find((i) => i.name === name);
+        if (metaDataField) {
+          o[name] = [...obj[name]];
+        }
+      }
+    }
+    return o;
+  }
+
+  returnObj.add = grabTheValues(add);
+  returnObj.replace = grabTheValues(replace);
+
+  return returnObj;
 }
 
 /**
