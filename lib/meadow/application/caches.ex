@@ -20,6 +20,12 @@ defmodule Meadow.Application.Caches do
         stats: true
       ),
       cache_spec(
+        :preservation_check_job_cache,
+        Meadow.Cache.PreservationChecks,
+        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        stats: true
+      ),
+      cache_spec(
         :user_cache,
         Meadow.Cache.Users,
         expiration: Cachex.Spec.expiration(default: :timer.minutes(20)),

@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "1.2.0"
+  @app_version "1.3.0"
 
   def project do
     [
@@ -84,6 +84,7 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
+      {:quantum, "~> 3.0"},
       {:sequins, "~> 0.7.1"},
       {:sigaws, "~> 0.7.2"},
       {:sitemapper, "~> 0.4.0"},

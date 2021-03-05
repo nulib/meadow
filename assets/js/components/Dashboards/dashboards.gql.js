@@ -80,6 +80,20 @@ export const GET_BATCHES = gql`
   }
 `;
 
+export const GET_PRESERVATION_CHECKS = gql`
+  query preservationChecks {
+    preservationChecks {
+      id
+      filename
+      insertedAt
+      invalidRows
+      location
+      status
+      updatedAt
+    }
+  }
+`;
+
 export const GET_CSV_METADATA_UPDATE_JOB = gql`
   query CsvMetadataUpdateJob($id: ID!) {
     csvMetadataUpdateJob(id: $id) {

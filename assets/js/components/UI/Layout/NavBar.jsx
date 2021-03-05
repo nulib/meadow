@@ -15,6 +15,7 @@ import Honeybadger from "@honeybadger-io/js";
 import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
 import IconChart from "@js/components/Icon/Chart";
 import IconText from "@js/components/UI/IconText";
+import IconCheck from "@js/components/Icon/Check";
 import NLogo from "@js/components/northwesternN.svg";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 
@@ -174,6 +175,13 @@ const UILayoutNavBar = () => {
                         <Link to="/dashboards/nul-local-authorities">
                           <IconText icon={<NLogo width="14px" height="14px" />}>
                             Local Authorities
+                          </IconText>
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/preservation-checks">
+                          <IconText icon={<IconCheck />}>
+                            Preservation Checks
                           </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
