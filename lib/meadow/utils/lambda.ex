@@ -93,8 +93,26 @@ defmodule Meadow.Utils.Lambda do
 
     case ExAws.Lambda.invoke(lambda, payload, %{})
          |> ExAws.request(http_opts: [recv_timeout: timeout], retries: [max_attempts: 1]) do
-      {:ok, %{"errorType" => _, "errorMessage" => error_message}} -> {:error, error_message}
-      other -> other
+      {:ok, %{"errorType" => _, "errorMessage" => error_message, "trace" => trace}} ->
+        Meadow.Error.report(error_message, __MODULE__, [], %{
+          lambda: lambda,
+          payload: payload,
+          trace: trace |> Enum.join("\n")
+        })
+
+        {:error, error_message}
+
+      {:error, {:http_error, status, %{body: message}}} = result ->
+        Meadow.Error.report(message, __MODULE__, [], %{
+          http_status: status,
+          lambda: lambda,
+          payload: payload
+        })
+
+        result
+
+      other ->
+        other
     end
 
     # coveralls-ignore-stop

@@ -9,7 +9,7 @@ defmodule Meadow.ErrorTest do
     on_exit(&Honeybadger.API.stop/0)
   end
 
-  describe "report/3" do
+  describe "report/4" do
     test "sends error notifications" do
       restart_with_config(exclude_envs: [])
 
@@ -17,7 +17,8 @@ defmodule Meadow.ErrorTest do
         try do
           107 / denominator
         rescue
-          exception -> Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
+          exception ->
+            Meadow.Error.report(exception, __MODULE__, __STACKTRACE__, %{extra_data: "foo"})
         end
       end
 
@@ -25,6 +26,7 @@ defmodule Meadow.ErrorTest do
       assert_receive {:api_request, report}, 1000
 
       with request_context <- report |> get_in(["request", "context"]) do
+        assert request_context |> Map.get("extra_data") == "foo"
         assert request_context |> Map.get("meadow_version") == Config.meadow_version()
         assert request_context |> Map.get("notifier") == __MODULE__ |> to_string()
       end
