@@ -74,6 +74,12 @@ defmodule Meadow.Data.CollectionsTest do
       end
     end
 
+    test "get_work_count/2", %{collection: collection, works: _works} do
+      assert length(collection.works) == 2
+
+      assert {:ok, 2} = Collections.get_work_count(collection.id)
+    end
+
     test "remove_works/2", %{collection: collection, works: works} do
       assert length(collection.works) == 2
 

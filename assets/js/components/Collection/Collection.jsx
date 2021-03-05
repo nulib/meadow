@@ -23,6 +23,7 @@ const Collection = ({ collection }) => {
     representativeWork,
     findingAidUrl,
     keywords = [],
+    totalWorks,
   } = collection;
 
   const handleViewAllWorksClick = () => {
@@ -53,28 +54,30 @@ const Collection = ({ collection }) => {
               <img src="/images/placeholder.png" />
             )}
           </figure>
-          <AuthDisplayAuthorized>
-            <p className="has-text-centered pt-2">
-              <Button
-                data-testid="button-open-image-modal"
-                isText
-                onClick={handleViewAllWorksClick}
-                className="is-fullwidth"
-              >
-                <span className="icon">
-                  <IconEdit />
-                </span>
-                <span>Update Image</span>
-              </Button>
-            </p>
-          </AuthDisplayAuthorized>
+          {totalWorks > 0 && (
+            <AuthDisplayAuthorized>
+              <p className="has-text-centered pt-2">
+                <Button
+                  data-testid="button-open-image-modal"
+                  isText
+                  onClick={handleViewAllWorksClick}
+                  className="is-fullwidth"
+                >
+                  <span className="icon">
+                    <IconEdit />
+                  </span>
+                  <span>Update Image</span>
+                </Button>
+              </p>
+            </AuthDisplayAuthorized>
+          )}
         </div>
         <div className="column content">
           <dl>
             <dt>
               <strong>Description</strong>
             </dt>
-            <dd>{description}</dd>
+            <dd style={{ whiteSpace: "pre-line" }}>{description}</dd>
             <dt>
               <strong>Admin Email</strong>
             </dt>
@@ -91,20 +94,26 @@ const Collection = ({ collection }) => {
               <strong>Keywords</strong>
             </dt>
             <dd>{keywords.join(", ")}</dd>
+            <dt>
+              <strong>Total Works</strong>
+            </dt>
+            <dd>{totalWorks}</dd>
           </dl>
-          <AuthDisplayAuthorized>
-            <div className="pt-3">
-              <Button
-                onClick={handleViewAllWorksClick}
-                data-testid="view-works-button"
-              >
-                <span className="icon">
-                  <IconImages />
-                </span>
-                <span>View collection works</span>
-              </Button>
-            </div>
-          </AuthDisplayAuthorized>
+          {totalWorks > 0 && (
+            <AuthDisplayAuthorized>
+              <div className="pt-3">
+                <Button
+                  onClick={handleViewAllWorksClick}
+                  data-testid="view-works-button"
+                >
+                  <span className="icon">
+                    <IconImages />
+                  </span>
+                  <span>View collection works</span>
+                </Button>
+              </div>
+            </AuthDisplayAuthorized>
+          )}
         </div>
       </div>
     </div>

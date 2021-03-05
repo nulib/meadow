@@ -48,6 +48,14 @@ defmodule Meadow.Data.Collections do
     |> add_representative_image()
   end
 
+  def get_work_count(collection_id) do
+    count =
+      from(w in Work, where: w.collection_id == ^collection_id)
+      |> Repo.aggregate(:count)
+
+    {:ok, count}
+  end
+
   def add_works(%Collection{} = collection, work_ids) do
     from(w in Work, where: w.id in ^work_ids)
     |> Repo.update_all(set: [collection_id: collection.id, updated_at: DateTime.utc_now()])
