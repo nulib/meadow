@@ -1,3 +1,6 @@
+defmodule Meadow.TimeoutError, do: defexception([:message])
+defmodule Meadow.LambdaError, do: defexception([:message])
+
 defmodule Meadow.Error do
   @moduledoc """
   Convenience module for error reporting via Honeybadger
