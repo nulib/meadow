@@ -70,6 +70,11 @@ resource "aws_s3_bucket" "meadow_uploads" {
 resource "aws_s3_bucket" "meadow_preservation" {
   bucket = "${var.stack_name}-${var.environment}-preservation"
   acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+    
   tags   = var.tags
 }
 
