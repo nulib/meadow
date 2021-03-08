@@ -11,6 +11,14 @@ import {
   withReactHookForm,
 } from "@js/services/testing-helpers";
 import userEvent from "@testing-library/user-event";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
 
 const mocks = [getCollectionMock, getCollectionsMock];
 const mockHandleViewAllWorksFn = jest.fn();
@@ -82,6 +90,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     expect(toggleEl2);
   });
 
+  // TODO: Fix this
   xit("renders toggle as checked when Work is the Collection image", async () => {
     const WrappedNotEditing = withReactHookForm(
       WorkTabsAdministrativeCollection,

@@ -32,9 +32,6 @@ xdescribe("Work Administrative tab component", () => {
   });
 
   it("renders without crashing", async () => {
-    // const yo = await screen.findByTestId("work-administrative-form");
-    // console.log("yo", yo);
-
     await waitFor(() => {
       let yo = screen.getByTestId("work-administrative-form");
       expect(yo);

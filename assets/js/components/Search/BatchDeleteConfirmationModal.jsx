@@ -56,9 +56,6 @@ const BatchDeleteConfirmationModal = ({
   };
 
   const handleBatchDeleteConfirm = () => {
-    console.log("filteredQuery", filteredQuery);
-    console.log("nickname", batchNickname);
-    console.log("selectedItems", selectedItems);
     let query = "";
     if (selectedItems.length == 0) {
       query = JSON.stringify({ query: filteredQuery });

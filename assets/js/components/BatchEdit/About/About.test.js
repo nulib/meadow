@@ -1,7 +1,10 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import BatchEditAbout from "./About";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  withReactHookForm,
+  renderWithRouterApollo,
+} from "../../../services/testing-helpers";
 import { allCodeListMocks } from "../../Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "../../../context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
@@ -18,24 +21,25 @@ const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAbout component", () => {
   beforeEach(() => {
+    const Wrapped = withReactHookForm(BatchEditAbout, {
+      items,
+    });
+
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <CodeListProvider>
-          <BatchEditAbout items={items} />
+          <Wrapped />
         </CodeListProvider>
       </BatchProvider>,
+
       {
         mocks: [...allCodeListMocks],
       }
     );
   });
 
-  it("renders Batch Edit About form", async () => {
-    expect(await screen.findByTestId("batch-edit-about-form"));
-  });
-
-  it("renders the sticky header", async () => {
-    expect(await screen.findByTestId("batch-edit-about-sticky-header"));
+  it("renders Batch Edit About component", async () => {
+    expect(await screen.findByTestId("batch-edit-about-tab-wrapper"));
   });
 
   it("renders core metadata component", async () => {

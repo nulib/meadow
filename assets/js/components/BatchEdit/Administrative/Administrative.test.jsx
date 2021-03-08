@@ -1,7 +1,10 @@
 import React from "react";
-import { waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import BatchEditAdministrative from "./Administrative";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
+import {
+  withReactHookForm,
+  renderWithRouterApollo,
+} from "@js/services/testing-helpers";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { BatchProvider } from "@js/context/batch-edit-context";
 import { CodeListProvider } from "@js/context/code-list-context";
@@ -15,54 +18,43 @@ useIsAuthorized.mockReturnValue({
   isAuthorized: () => true,
 });
 
-const items = ["ABC123", "ZYC889"];
+//const items = ["ABC123", "ZYC889"];
 
 describe("BatchEditAdministrative component", () => {
-  function setupTest() {
+  beforeEach(() => {
+    const Wrapped = withReactHookForm(BatchEditAdministrative, {
+      batchPublish: {
+        publish: false,
+        unpublish: false,
+      },
+      setBatchPublish: jest.fn(),
+    });
+
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <CodeListProvider>
-          <BatchEditAdministrative items={items} />
+          <Wrapped />
         </CodeListProvider>
       </BatchProvider>,
       {
         mocks: [...allCodeListMocks, getCollectionsMock],
       }
     );
-  }
-
-  it("renders Batch Edit Administrative form", async () => {
-    const { getByTestId, debug } = setupTest();
-    await waitFor(() => {
-      expect(getByTestId("batch-edit-administrative-form")).toBeInTheDocument();
-    });
   });
 
-  it("renders the sticky header", async () => {
-    const { getByTestId } = setupTest();
-    await waitFor(() => {
-      expect(getByTestId("batch-edit-administrative-sticky-header"));
-    });
+  it("renders Batch Edit Administrative component", async () => {
+    expect(await screen.findByTestId("batch-edit-administrative-tab-wrapper"));
   });
 
   it("renders the Batch Collection component", async () => {
-    const { getByTestId } = setupTest();
-    await waitFor(() => {
-      expect(getByTestId("batch-collection-wrapper"));
-    });
+    expect(await screen.findByTestId("batch-collection-wrapper"));
   });
 
   it("renders project metadata component", async () => {
-    const { getByTestId } = setupTest();
-    await waitFor(() => {
-      expect(getByTestId("project-metadata"));
-    });
+    expect(await screen.findByTestId("project-metadata"));
   });
 
   it("renders general component", async () => {
-    const { getByTestId } = setupTest();
-    await waitFor(() => {
-      expect(getByTestId("project-status-metadata"));
-    });
+    expect(await screen.findByTestId("project-status-metadata"));
   });
 });

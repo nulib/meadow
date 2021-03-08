@@ -161,8 +161,6 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
-    console.log("workUpdateInput", workUpdateInput);
-
     updateWork({
       variables: {
         id: work.id,

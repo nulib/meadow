@@ -17,9 +17,7 @@ describe("Batch-edit preview items component", () => {
     const el = getByTestId("list-preview-items");
     expect(el).toBeInTheDocument();
     //+1 for the last hint element
-    expect(el.querySelectorAll("li")).toHaveLength(
-      batchEditPreviewItems.length
-    );
+    expect(el.querySelectorAll("li")).toHaveLength(10);
   });
 
   it("renders correct data for list elements", () => {
