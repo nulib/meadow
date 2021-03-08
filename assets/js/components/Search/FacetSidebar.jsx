@@ -117,9 +117,11 @@ export default function SearchFacetSidebar() {
           {...sensor}
           defaultValue={getDefaultValue(sensor)}
           defaultQuery={() => allImagesQuery}
+          missingLabel="None"
           react={{
             and: filterList(sensor.componentId),
           }}
+          showMissing={true}
           showFilter={true}
           URLParams={true}
         />
