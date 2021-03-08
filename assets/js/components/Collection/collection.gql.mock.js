@@ -13,6 +13,7 @@ export const collectionMock = {
   title: "Great collection",
   published: false,
   //visibility: published,
+  totalWorks: 2,
   works: [
     {
       id: "1id-23343432",

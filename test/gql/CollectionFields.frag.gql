@@ -6,6 +6,7 @@ fragment CollectionFields on Collection {
   findingAidUrl
   adminEmail
   featured
+  totalWorks
   representativeWork {
     id
     representativeImage
