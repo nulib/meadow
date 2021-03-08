@@ -9,7 +9,7 @@ const Webpack = require("webpack");
 module.exports = (env, options) => ({
   optimization: {
     minimizer: [
-      new TerserPlugin({ cache: true, parallel: true, sourceMap: false }),
+      new TerserPlugin({ cache: true, parallel: true, sourceMap: true }),
       new OptimizeCSSAssetsPlugin({}),
     ],
     splitChunks: {
@@ -79,8 +79,12 @@ module.exports = (env, options) => ({
       ),
       __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
     }),
+    new Webpack.SourceMapDevToolPlugin({
+      filename: "[name].js.map",
+      exclude: ["vendors~app.bundle.js"],
+    }),
   ],
-  devtool: "source-map",
+  devtool: false,
   resolve: {
     extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
     // When testing npm components locally, tell Meadow to only
