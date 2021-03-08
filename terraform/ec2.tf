@@ -106,7 +106,7 @@ resource "aws_instance" "this_ec2_instance" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [ ami, user_data, instance_type ]
+    ignore_changes = [ ami, user_data, instance_type, tags ]
   }
 
   tags = merge(
