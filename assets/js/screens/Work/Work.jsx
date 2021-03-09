@@ -20,7 +20,8 @@ import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import { Button } from "@nulib/admin-react-components";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import UILevelItem from "@js/components/UI/LevelItem";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -28,6 +29,7 @@ const ScreensWork = () => {
   const history = useHistory();
   const batchState = useBatchState();
   const [isWorkOpen, setIsWorkOpen] = useState(false);
+  const { handleFacetLinkClick } = useFacetLinkClick();
 
   const multiCurrentIndex = params.counter
     ? parseInt(params.counter.split(",")[0])
@@ -118,15 +120,6 @@ const ScreensWork = () => {
     });
   };
 
-  const handleFacetLinkClick = (facet, value) => {
-    history.push("/search", {
-      externalFacet: {
-        facetComponentId: facet,
-        value: value,
-      },
-    });
-  };
-
   return (
     <Layout>
       <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
@@ -152,6 +145,22 @@ const ScreensWork = () => {
                       <h1 className="title">
                         {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                       </h1>
+                      {data.work.collection && data.work.collection.title && (
+                        <p className="subtitle">
+                          <span className="heading">Collection</span>
+                          <a
+                            onClick={() =>
+                              handleFacetLinkClick(
+                                "Collection",
+                                data.work.collection.title
+                              )
+                            }
+                          >
+                            {data.work.collection.title}
+                          </a>
+                        </p>
+                      )}
+
                       <WorkTagsList work={data.work} />
                     </div>
                     <div className="column">
@@ -175,59 +184,22 @@ const ScreensWork = () => {
                     {isWorkOpen && (
                       <WorkPublicLinkNotification workId={data.work.id} />
                     )}
-
-                    <hr />
-                    <div className="columns">
-                      <div className="column">
-                        <p>
-                          <strong>Accession Number</strong>
-                        </p>
-                        <p>{data.work.accessionNumber}</p>
-                      </div>
-                      <div className="column">
-                        <p>
-                          <strong>Project</strong>
-                        </p>
-                        {data.work.project &&
-                          data.work.project.id &&
-                          data.work.project.title && (
-                            <p>
-                              <Button
-                                isText
-                                onClick={() =>
-                                  handleFacetLinkClick(
-                                    "Project",
-                                    data.work.project.title
-                                  )
-                                }
-                                data-testid="view-project-works"
-                              >
-                                {data.work.project.title}
-                              </Button>
-                            </p>
-                          )}
-                      </div>
-                      <div className="column">
-                        <p>
-                          <strong>Ingest Sheet</strong>
-                        </p>
-                        <p>
-                          {data.work.project && data.work.ingestSheet && (
-                            <Button
-                              isText
-                              onClick={() =>
-                                handleFacetLinkClick(
-                                  "IngestSheet",
-                                  data.work.ingestSheet.title
-                                )
-                              }
-                              data-testid="view-ingest-sheet-works"
-                            >
-                              {data.work.ingestSheet.title}
-                            </Button>
-                          )}
-                        </p>
-                      </div>
+                    <div className="level">
+                      <UILevelItem
+                        heading="Work id"
+                        content={data.work.id}
+                        contentClassname="is-size-5"
+                      />
+                      <UILevelItem
+                        heading="Ark"
+                        content={data.work.descriptiveMetadata.ark || ""}
+                        contentClassname="is-size-5"
+                      />
+                      <UILevelItem
+                        heading="Accession number"
+                        content={data.work.accessionNumber || ""}
+                        contentClassname="is-size-5"
+                      />
                     </div>
                   </div>
                 </>

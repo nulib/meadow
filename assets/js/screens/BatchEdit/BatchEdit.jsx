@@ -113,7 +113,7 @@ const ScreensBatchEdit = () => {
               <div className="notification content has-text-centered">
                 <p>
                   <UIIconText
-                    icon={<IconAlert />}
+                    icon={<IconAlert fill="red" />}
                     text="No search
                   results saved in the browsers memory"
                     isCentered

@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import { IconContext } from "react-icons";
 
 function UIIconText({ icon, text, isCentered }) {
   return (
@@ -17,7 +18,7 @@ function UIIconText({ icon, text, isCentered }) {
 
 UIIconText.propTypes = {
   icon: PropTypes.node,
-  text: PropTypes.string,
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   isCentered: PropTypes.bool,
 };
 

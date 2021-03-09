@@ -35,11 +35,7 @@ const ScreensHome = () => {
 
   return (
     <Layout>
-      <section className="section">
-        <div className="container">
-          <HomeSearchAndSubscribeBox />
-        </div>
-      </section>
+      <HomeSearchAndSubscribeBox />
 
       <section className="section">
         <div className="container">

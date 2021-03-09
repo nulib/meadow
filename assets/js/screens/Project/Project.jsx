@@ -18,6 +18,8 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import IconImages from "@js/components/Icon/Images";
+import IconAdd from "@js/components/Icon/Add";
 
 const ScreensProject = () => {
   const history = useHistory();
@@ -123,7 +125,7 @@ const ScreensProject = () => {
                             onClick={() => setIsModalHidden(!isModalHidden)}
                           >
                             <span className="icon">
-                              <FontAwesomeIcon icon="file-csv" />
+                              <IconAdd />
                             </span>{" "}
                             <span>Add an Ingest Sheet</span>
                           </Button>
@@ -132,7 +134,10 @@ const ScreensProject = () => {
                             onClick={handleFacetClick}
                             data-testid="button-view-all-works"
                           >
-                            View Project Works
+                            <span className="icon">
+                              <IconImages />
+                            </span>{" "}
+                            <span>View Project Works</span>
                           </Button>
                         </div>
                       </AuthDisplayAuthorized>

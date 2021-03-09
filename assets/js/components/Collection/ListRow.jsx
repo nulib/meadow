@@ -39,7 +39,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
           <div className="buttons-end">
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
-                <Link className="button" to={`/collection/form/${id}`}>
+                <Link className="button is-light" to={`/collection/form/${id}`}>
                   <IconEdit />
                 </Link>
               </p>
@@ -47,7 +47,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
                 <button
-                  className="button"
+                  className="button is-light"
                   onClick={() => onOpenModal({ id, title })}
                 >
                   <IconTrashCan />

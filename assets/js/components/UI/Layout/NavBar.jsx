@@ -13,7 +13,7 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
 import Honeybadger from "@honeybadger-io/js";
 import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
-import { SiGoogleanalytics } from "react-icons/si";
+import IconChart from "@js/components/Icon/Chart";
 import IconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
 
@@ -163,7 +163,7 @@ const UILayoutNavBar = () => {
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/analytics">
                           <IconText
-                            icon={<SiGoogleanalytics />}
+                            icon={<IconChart />}
                             text="Digital Collections Analytics"
                           />
                         </Link>

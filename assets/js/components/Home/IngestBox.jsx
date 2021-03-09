@@ -4,15 +4,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import { Link } from "react-router-dom";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import IconProjects from "@js/components/Icon/Projects";
+import IconAdd from "@js/components/Icon/Add";
 
 function HomeIngestBox({ handleAddWork }) {
   return (
     <AuthDisplayAuthorized>
       <div className="buttons">
         <Link className="button is-large is-fullwidth" to="/project/list">
-          <span className="icon">
-            <FontAwesomeIcon icon="project-diagram" />
-          </span>
+          <IconProjects className="icon" />
           <span>View Projects</span>
         </Link>
         <Button
@@ -20,9 +20,7 @@ function HomeIngestBox({ handleAddWork }) {
           onClick={handleAddWork}
           className="is-large is-fullwidth"
         >
-          <span className="icon">
-            <FontAwesomeIcon icon="plus" />
-          </span>
+          <IconAdd className="icon" />
           <span>Add Work</span>
         </Button>
       </div>

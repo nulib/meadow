@@ -18,6 +18,7 @@ import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
+import IconAdd from "@js/components/Icon/Add";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -96,7 +97,8 @@ const ScreensCollectionList = () => {
               <div className="column is-4 has-text-right">
                 <AuthDisplayAuthorized level="MANAGER">
                   <Link to="/collection/form" className="button is-primary">
-                    Add new collection
+                    <IconAdd />
+                    <span>Add new collection</span>
                   </Link>
                 </AuthDisplayAuthorized>
               </div>
@@ -107,8 +109,7 @@ const ScreensCollectionList = () => {
               <UISkeleton rows={10} />
             ) : (
               <>
-                <h3 className="title is-size-5">All Collections</h3>
-                <UISearchBarRow>
+                <UISearchBarRow isCentered>
                   <UIFormInput
                     placeholder="Search collections"
                     name="collectionSearch"
