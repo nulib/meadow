@@ -121,7 +121,9 @@ export default function SearchFacetSidebar() {
           react={{
             and: filterList(sensor.componentId),
           }}
-          showMissing={true}
+          showMissing={
+            ["Published"].indexOf(sensor.componentId) > -1 ? false : true
+          }
           showFilter={true}
           URLParams={true}
         />
