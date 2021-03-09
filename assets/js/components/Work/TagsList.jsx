@@ -1,32 +1,21 @@
 import React from "react";
-import { setVisibilityClass } from "../../services/helpers";
 import PropTypes from "prop-types";
+import { Tag } from "@nulib/admin-react-components";
+import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
 export default function WorkTagsList({ work }) {
   if (!work) {
     return null;
   }
   return (
-    <p>
-      <span
-        className={`tag mr-1 is-light ${
-          work.published ? "is-info" : "is-warning"
-        }`}
-      >
-        {work.published ? "Published" : "Not Published"}
-      </span>
-      {work.visibility && (
-        <span
-          className={`tag mr-1 is-light ${setVisibilityClass(
-            work.visibility.id
-          )}`}
-        >
-          {work.visibility.label}
-        </span>
+    <p className="tags">
+      {work.published ? (
+        <Tag isPrimary>Published</Tag>
+      ) : (
+        <Tag>Not Published</Tag>
       )}
-      {work.workType && (
-        <span className={`tag mr-1 is-info`}>{work.workType.label}</span>
-      )}
+      {work.visibility && <UIVisibilityTag visibility={work.visibility} />}
+      {work.workType && <Tag>{work.workType.label}</Tag>}
     </p>
   );
 }

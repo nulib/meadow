@@ -6,15 +6,14 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";
-import {
-  getClassFromIngestSheetStatus,
-  TEMP_USER_FRIENDLY_STATUS,
-} from "../../services/helpers";
+import { TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
 import IngestSheetAlert from "../../components/IngestSheet/Alert";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { Tag } from "@nulib/admin-react-components";
+import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: ID!) {
@@ -92,13 +91,9 @@ const ScreensIngestSheet = ({ match }) => {
                 <div className="is-flex is-justify-content-space-between mb-3">
                   <div>
                     <h1 className="title">{sheetData.ingestSheet.title} </h1>
-                    <span
-                      className={`tag is-light ${getClassFromIngestSheetStatus(
-                        sheetData.ingestSheet.status
-                      )}`}
-                    >
+                    <IngestSheetStatusTag status={sheetData.ingestSheet.status}>
                       {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
-                    </span>
+                    </IngestSheetStatusTag>
                   </div>
                   <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                     <IngestSheetActionRow

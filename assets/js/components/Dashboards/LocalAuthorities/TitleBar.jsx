@@ -6,6 +6,7 @@ import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalA
 import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
+import IconAdd from "@js/components/Icon/Add";
 
 function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();
@@ -55,7 +56,8 @@ function DashboardsLocalAuthoritiesTitleBar() {
           onClick={() => setIsAddModalOpen(true)}
           data-testid="add-button"
         >
-          Add Local Authority
+          <IconAdd className="icon" />
+          <span>Add Local Authority</span>
         </Button>
       </div>
       <DashboardsLocalAuthoritiesModalAdd

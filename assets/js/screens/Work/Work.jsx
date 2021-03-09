@@ -11,7 +11,6 @@ import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { toastWrapper } from "../../services/helpers";
-import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
@@ -140,8 +139,8 @@ const ScreensWork = () => {
                 <UISkeleton rows={5} />
               ) : (
                 <>
-                  <div className="columns">
-                    <div className="column">
+                  <div className="is-flex is-justify-content-space-between mb-5">
+                    <div>
                       <h1 className="title">
                         {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                       </h1>
@@ -160,10 +159,8 @@ const ScreensWork = () => {
                           </a>
                         </p>
                       )}
-
-                      <WorkTagsList work={data.work} />
                     </div>
-                    <div className="column">
+                    <div>
                       <WorkHeaderButtons
                         handleCreateSharableBtnClick={
                           handleCreateSharableBtnClick
@@ -174,6 +171,7 @@ const ScreensWork = () => {
                       />
                     </div>
                   </div>
+                  <WorkTagsList work={data.work} />
 
                   <div className="content">
                     {createSharedLinkData && (

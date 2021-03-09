@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { setVisibilityClass, getImageUrl } from "@js/services/helpers";
 import UIWorkImage from "@js/components/UI/WorkImage";
+import { Tag } from "@nulib/admin-react-components";
+import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
 const WorkCardItem = ({
   id,
@@ -15,7 +17,7 @@ const WorkCardItem = ({
   collectionName,
 }) => {
   return (
-    <div className="card " data-testid="ui-workcard">
+    <div className="card" data-testid="ui-workcard">
       <div className="card-image">
         <figure className="image is-3by3">
           <Link to={`/work/${id}`}>
@@ -27,30 +29,25 @@ const WorkCardItem = ({
         </figure>
       </div>
       <div className="card-content content">
+        <div className="tags">
+          {published ? (
+            <Tag isSuccess data-testid="result-item-published">
+              Published
+            </Tag>
+          ) : (
+            <Tag>Not Published</Tag>
+          )}
+          {visibility.id && (
+            <UIVisibilityTag
+              visibility={visibility}
+              data-testid="tag-visibility"
+            />
+          )}
+        </div>
         <p data-testid={`work-title-${id}`}>{title}</p>
         <p data-testid="accession-number">{accessionNumber}</p>
 
         {collectionName && <p className="heading">{collectionName}</p>}
-
-        <p className="has-text-uppercase">
-          {workType.label && <span className="tag">{workType.label}</span>}{" "}
-          {visibility.id && (
-            <span
-              data-testid="tag-visibility"
-              className={`tag ${setVisibilityClass(visibility.id)}`}
-            >
-              {visibility.label}
-            </span>
-          )}{" "}
-          {published && (
-            <span
-              data-testid="result-item-published"
-              className="tag is-success"
-            >
-              PUBLISHED
-            </span>
-          )}
-        </p>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import UIDate from "@js/components/UI/Date";
 import IconView from "@js/components/Icon/View";
 import IconImages from "@js/components/Icon/Images";
+import { Tag } from "@nulib/admin-react-components";
 
 const colHeaders = [
   "Nickname",
@@ -14,26 +15,6 @@ const colHeaders = [
   "Works Updated",
   "Status",
 ];
-
-function Status({ status }) {
-  let statusClass = "";
-
-  switch (status) {
-    case "COMPLETE":
-      statusClass = "is-success";
-      break;
-    case "ERROR":
-      statusClass = "is-danger";
-      break;
-    case "IN_PROGRESS":
-      statusClass = "is-warning";
-      break;
-    default:
-      break;
-  }
-
-  return <span className={`tag ${statusClass} is-light`}>{status}</span>;
-}
 
 export default function DashboardsBatchEditList() {
   const { loading, error, data } = useQuery(GET_BATCHES, { pollInterval: 500 });
@@ -81,7 +62,13 @@ export default function DashboardsBatchEditList() {
               <td>{user}</td>
               <td>{worksUpdated}</td>
               <td>
-                <Status status={status} />
+                <Tag
+                  isSuccess={status === "COMPLETE"}
+                  isDanger={status === "ERROR"}
+                  isWarning={status === "IN_PROGRESS"}
+                >
+                  {status}
+                </Tag>
               </td>
               <td className="has-text-right">
                 <Link
