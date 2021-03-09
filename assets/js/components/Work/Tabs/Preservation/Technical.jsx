@@ -36,7 +36,7 @@ function WorkTabsPreservationTechnical({
       <div className="modal-background"></div>
       <div className="modal-content content">
         <div className="box">
-          <h2 className="title">Technical Metadata</h2>
+          <h3>Technical Metadata</h3>
           {!exifData && (
             <p data-testid="no-data-notification">
               No technical metadata exists for this File Set

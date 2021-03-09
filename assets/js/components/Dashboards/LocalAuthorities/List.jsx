@@ -142,7 +142,7 @@ export default function DashboardsLocalAuthoritiesList() {
 
   return (
     <React.Fragment>
-      <UISearchBarRow>
+      <UISearchBarRow isCentered>
         <UIFormInput
           placeholder="Search"
           name="localAuthoritiesSearch"

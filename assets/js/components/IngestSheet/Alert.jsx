@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UIIconText from "@js/components/UI/IconText";
 
 const IngestSheetAlert = ({ ingestSheet }) => {
   if (!ingestSheet) return null;
@@ -76,13 +77,16 @@ const IngestSheetAlert = ({ ingestSheet }) => {
 
   return (
     <article
-      className={`notification is-flex is-align-items-center ${
+      className={`notification ${
         alertObj.type !== "is-info" ? "is-light" : ""
       } ${alertObj.type}`}
       data-testid="ui-alert"
     >
-      <FontAwesomeIcon icon={alertObj.icon} />
-      <p className="pl-2">{alertObj.body}</p>
+      <UIIconText
+        icon={<FontAwesomeIcon icon={alertObj.icon} />}
+        text={<p className="pl-2">{alertObj.body}</p>}
+        isCentered
+      />
     </article>
   );
 };

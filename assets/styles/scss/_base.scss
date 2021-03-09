@@ -1,3 +1,13 @@
+h1,
+.content h1 {
+  font-weight: 400;
+}
+h3,
+.content h3 {
+  font-family: $CamptonBold;
+  font-weight: 400;
+}
+
 dt {
   font-weight: bold;
 }
@@ -64,6 +74,10 @@ table {
   justify-content: flex-end;
 }
 
+.is-campton-bold {
+  font-family: $CamptonBold;
+}
+
 .small-title {
   @include small-title;
 }
@@ -96,4 +110,9 @@ table {
   option {
     font-family: BlinkMacSystemFont, -apple-system, Arial, sans-serif;
   }
+}
+
+.title,
+.content .title {
+  font-size: $size-1;
 }

@@ -5,6 +5,7 @@ import { ELASTICSEARCH_FIELDS_TO_SEARCH } from "../../services/elasticsearch";
 import { RESULT_SENSOR, SEARCH_SENSOR } from "../../services/reactive-search";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 import useSearchTerm from "@js/hooks/useSearchTerm";
+import IconSearch from "@js/components/Icon/Search";
 
 const UISearchBar = () => {
   const queryParts = userPreviousQueryParts();
@@ -31,8 +32,8 @@ const UISearchBar = () => {
         fieldWeights={[5, 2]}
         filterLabel="Search"
         fuzziness="AUTO"
-        icon={<FontAwesomeIcon icon="search" />}
-        innerClass={{ input: "input is-medium" }}
+        icon={<IconSearch />}
+        innerClass={{ input: "input is-large" }}
         queryFormat="or"
         queryString={true} // supports complex search, wildcards, etc.
         placeholder="Search all works"

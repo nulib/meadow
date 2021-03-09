@@ -13,6 +13,7 @@ import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
 import IngestSheetDetails from "@js/components/IngestSheet/Details";
+import IconImages from "@js/components/Icon/Images";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
@@ -71,9 +72,12 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
       {ingestSheetErrors.length === 0 && (
         <>
           <hr />
-          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <p>Preview of ingest sheet works...</p>
-            <Button onClick={handleClick}>
+          <div className="is-flex is-justify-content-center is-align-items-center mb-6 content">
+            <h3 className="mr-6 mb-0 pb-0">Preview of ingest sheet works...</h3>
+            <Button isPrimary onClick={handleClick}>
+              <span className="icon">
+                <IconImages />
+              </span>
               <span>View ingest sheet works</span>
             </Button>
           </div>
