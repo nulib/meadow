@@ -61,13 +61,12 @@ function DashboardsCsvImportModal({
             <p className="has-text-centered">
               <UIIconText
                 icon={<IconCsv className="has-text-grey" />}
-                text={
-                  isDragActive
-                    ? "Drop the file here ..."
-                    : "Drag 'n' drop a file here, or click to select file"
-                }
                 isCentered
-              />
+              >
+                {isDragActive
+                  ? "Drop the file here ..."
+                  : "Drag 'n' drop a file here, or click to select file"}
+              </UIIconText>
             </p>
           </div>
           {currentFile && (

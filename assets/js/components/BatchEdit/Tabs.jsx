@@ -206,12 +206,10 @@ export default function BatchEditTabs() {
         <FormProvider {...methods}>
           {hasFormErrors && (
             <p className="notification is-danger is-light">
-              <UIIconText
-                isCentered
-                icon={<IconAlert />}
-                text={`The following form fields have validation errors:
-              ${Object.keys(methods.errors).map((key) => " " + key)}`}
-              />
+              <UIIconText isCentered icon={<IconAlert />}>
+                The following form fields have validation errors:
+                {Object.keys(methods.errors).map((key) => " " + key)}
+              </UIIconText>
             </p>
           )}
           <form

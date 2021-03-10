@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { IconContext } from "react-icons";
 
-function UIIconText({ icon, text, isCentered }) {
+function UIIconText({ children, icon, isCentered }) {
   return (
     <span
       className={classNames("is-flex", "is-align-items-center", {
@@ -11,14 +10,15 @@ function UIIconText({ icon, text, isCentered }) {
       })}
     >
       {icon}
-      <span className="pl-3">{text}</span>
+      <span className="pl-3">{children}</span>
     </span>
   );
 }
 
 UIIconText.propTypes = {
+  children: PropTypes.node,
   icon: PropTypes.node,
-  text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+
   isCentered: PropTypes.bool,
 };
 
