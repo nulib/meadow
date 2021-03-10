@@ -65,6 +65,19 @@ defmodule Meadow.S3Case do
         end
       end
 
+      defp object_size(bucket, key) do
+        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
+          {:ok, %{headers: headers}} ->
+            headers
+            |> Enum.into(%{})
+            |> Map.get("Content-Length")
+            |> String.to_integer()
+
+          _ ->
+            0
+        end
+      end
+
       defp delete_bucket(bucket) do
         bucket
         |> empty_bucket()
