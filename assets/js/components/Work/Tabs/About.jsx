@@ -100,7 +100,7 @@ const WorkTabsAbout = ({ work }) => {
   ] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       setIsEditing(false);
-      toastWrapper("is-success", "Work form updated successfully");
+      toastWrapper("is-success", "Work metadata successfully updated");
     },
     onError(error) {
       console.log("error in the updateWork GraphQL mutation :>> ", error);

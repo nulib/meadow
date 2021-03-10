@@ -121,18 +121,17 @@ const ScreensWork = () => {
 
   return (
     <Layout>
+      {isMulti() && (
+        <WorkMultiEditBar
+          currentIndex={multiCurrentIndex}
+          handleMultiNavClick={handleMultiNavClick}
+          totalItems={multiTotalItems}
+        />
+      )}
       <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
         <section className="section" data-testid="work-hero">
           <div className="container">
             <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
-
-            {isMulti() && (
-              <WorkMultiEditBar
-                currentIndex={multiCurrentIndex}
-                handleMultiNavClick={handleMultiNavClick}
-                totalItems={multiTotalItems}
-              />
-            )}
 
             <div className="box">
               {loading ? (

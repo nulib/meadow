@@ -95,11 +95,10 @@ const ScreensBatchEdit = () => {
                       className="notification is-warning mt-5 is-size-5"
                       data-testid="batch-edit-preview-notification"
                     >
-                      <UIIconText
-                        isCentered
-                        icon={<IconAlert />}
-                        text={`You are batch editing the following ${resultsCount} works.`}
-                      />
+                      <UIIconText isCentered icon={<IconAlert />}>
+                        You are batch editing the following {resultsCount}
+                        works.
+                      </UIIconText>
                     </p>
                     <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                       <UIPreviewItems items={previewItems} />

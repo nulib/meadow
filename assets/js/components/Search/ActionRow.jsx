@@ -8,7 +8,6 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import IconEdit from "@js/components/Icon/Edit";
 import IconCsv from "@js/components/Icon/Csv";
 import IconTrashCan from "@js/components/Icon/TrashCan";
-import UIIconText from "@js/components/UI/IconText";
 
 export default function SearchActionRow({
   handleCsvExportAllItems,

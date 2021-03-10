@@ -147,7 +147,7 @@ const BatchEditConfirmation = ({
           {hasAdds && (
             <section className="box content">
               <h3>
-                <UIIconText text="Adding" icon={<IconAdd />} />
+                <UIIconText icon={<IconAdd />}>Adding</UIIconText>
               </h3>
               <BatchEditConfirmationTable
                 itemsObj={{
@@ -162,7 +162,7 @@ const BatchEditConfirmation = ({
           {hasDeletes && (
             <section className={`box content`}>
               <h3>
-                <UIIconText text="Removing" icon={<IconTrashCan />} />
+                <UIIconText icon={<IconTrashCan />}>Removing</UIIconText>
               </h3>
               <BatchEditConfirmationTable
                 itemsObj={batchDeletes}
@@ -174,7 +174,7 @@ const BatchEditConfirmation = ({
           {(hasReplaces || hasCollection || hasVisibility) && (
             <section className="box content">
               <h3>
-                <UIIconText text="Replacing" icon={<IconReplace />} />
+                <UIIconText icon={<IconReplace />}>Replacing</UIIconText>
               </h3>
               <BatchEditConfirmationTable
                 itemsObj={{

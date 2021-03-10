@@ -82,11 +82,9 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       } ${alertObj.type}`}
       data-testid="ui-alert"
     >
-      <UIIconText
-        icon={<FontAwesomeIcon icon={alertObj.icon} />}
-        text={<p className="pl-2">{alertObj.body}</p>}
-        isCentered
-      />
+      <UIIconText icon={<FontAwesomeIcon icon={alertObj.icon} />} isCentered>
+        <p className="pl-2">{alertObj.body}</p>
+      </UIIconText>
     </article>
   );
 };
