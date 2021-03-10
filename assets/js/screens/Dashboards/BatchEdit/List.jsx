@@ -27,7 +27,7 @@ function ScreensDashboardsBatchEditList(props) {
           />
           <div className="box">
             <h1 className="title" data-testid="batch-edit-dashboard-title">
-              <IconText icon={<GrMultiple />} text="Batch Edit Dashboard" />
+              <IconText icon={<GrMultiple />}>Batch Edit Dashboard</IconText>
             </h1>
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <DashboardsBatchEditList />

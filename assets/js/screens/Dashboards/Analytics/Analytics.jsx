@@ -29,10 +29,9 @@ export default function ScreensDashboardsAnalytics() {
           />
           <div className="box">
             <h1 className="title" data-testid="page-title">
-              <IconText
-                icon={<IconChart />}
-                text="Digital Collections Analytics"
-              />
+              <IconText icon={<IconChart />}>
+                Digital Collections Analytics
+              </IconText>
             </h1>
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <DashboardsAnalytics />

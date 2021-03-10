@@ -146,35 +146,30 @@ const UILayoutNavBar = () => {
                     >
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/batch-edit">
-                          <IconText
-                            icon={<GrMultiple />}
-                            text="Batch Edit Dashboard"
-                          />
+                          <IconText icon={<GrMultiple />}>
+                            Batch Edit Dashboard
+                          </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/csv-metadata-update">
-                          <IconText
-                            icon={<GrDocumentCsv />}
-                            text="CSV Metadata Update"
-                          />
+                          <IconText icon={<GrDocumentCsv />}>
+                            CSV Metadata Update
+                          </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/analytics">
-                          <IconText
-                            icon={<IconChart />}
-                            text="Digital Collections Analytics"
-                          />
+                          <IconText icon={<IconChart />}>
+                            Digital Collections Analytics
+                          </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/nul-local-authorities">
-                          <IconText
-                            icon={<NLogo width="1rem" height="1rem" />}
-                            text="Local
-                          Authorities"
-                          />
+                          <IconText icon={<NLogo width="1rem" height="1rem" />}>
+                            Local Authorities
+                          </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
                     </UILayoutNavDropdownBody>
