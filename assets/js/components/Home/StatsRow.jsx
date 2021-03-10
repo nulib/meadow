@@ -16,7 +16,7 @@ function HomeStatsRow({ stats }) {
   return (
     <div
       data-testid="stats-row"
-      className="box notification is-info is-light has-text-centered"
+      className="box notification is-primary is-light has-text-centered"
     >
       {stats.map((stat) => (
         <LevelItem

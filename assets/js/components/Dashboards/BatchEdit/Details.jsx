@@ -47,7 +47,7 @@ function DashboardsBatchEditDetails({ id }) {
 
   return (
     <section data-testid="batch-details">
-      <div className="columns">
+      <div className="columns content">
         <div className="column">
           <dl className="spaced">
             <dt>Nickname</dt>
