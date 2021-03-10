@@ -75,12 +75,8 @@ module "exif_function" {
   description = "Function to extract EXIF metadata from an S3 object"
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
-  memory_size = 8192
-  timeout     = 240
-
-  environment = {
-    NODE_OPTIONS = "--max-old-space-size=8192"
-  }
+  memory_size = 512
+  timeout     = 10
 
   tags = merge(
     var.tags,

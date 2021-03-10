@@ -17,7 +17,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   require Logger
 
   @actiondoc "Extract EXIF metadata from FileSet"
-  @timeout 240_000
+  @timeout 10_000
 
   defp already_complete?(file_set, _) do
     with existing_exif <-
