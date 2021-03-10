@@ -44,16 +44,18 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
                 </Link>
               </p>
             </AuthDisplayAuthorized>
-            <AuthDisplayAuthorized level="MANAGER">
-              <p className="control">
-                <button
-                  className="button is-light"
-                  onClick={() => onOpenModal({ id, title })}
-                >
-                  <IconTrashCan />
-                </button>
-              </p>
-            </AuthDisplayAuthorized>
+            {totalWorks === 0 && (
+              <AuthDisplayAuthorized level="MANAGER">
+                <p className="control">
+                  <button
+                    className="button is-light"
+                    onClick={() => onOpenModal({ id, title })}
+                  >
+                    <IconTrashCan />
+                  </button>
+                </p>
+              </AuthDisplayAuthorized>
+            )}
           </div>
         </div>
       </article>
