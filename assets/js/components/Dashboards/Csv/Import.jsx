@@ -24,7 +24,10 @@ function DashboardsCsvImport() {
     CSV_METADATA_UPDATE_JOB,
     {
       onCompleted({ csvMetadataUpdate }) {
-        toastWrapper("is-success", `CSV file imported successfully`);
+        toastWrapper(
+          "is-success",
+          `CSV file uploaded successfully, starting validation`
+        );
         setCurrentFile(null);
         setIsModalOpen(false);
       },
