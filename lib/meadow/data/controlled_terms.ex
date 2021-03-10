@@ -8,6 +8,8 @@ defmodule Meadow.Data.ControlledTerms do
   alias Meadow.Data.Schemas.ControlledTermCache
   alias Meadow.Repo
 
+  require Logger
+
   @type cache_status :: :db | :memory | :miss
   @type controlled_term :: %{id: binary(), label: binary()}
   @type fetch_result :: {{:ok, cache_status()}, controlled_term()}
@@ -207,15 +209,21 @@ defmodule Meadow.Data.ControlledTerms do
 
     case Authoritex.fetch(id) do
       {:ok, %{id: id, label: label}} ->
-        %ControlledTermCache{id: id}
-        |> ControlledTermCache.changeset(%{label: label})
-        |> Repo.insert(on_conflict: :nothing)
-
+        try_to_save(id, label)
         {:ok, %{id: id, label: label}}
 
       other ->
         other
     end
+  end
+
+  defp try_to_save(id, label) do
+    %ControlledTermCache{id: id}
+    |> ControlledTermCache.changeset(%{label: label})
+    |> Repo.insert(on_conflict: :nothing)
+  rescue
+    e in Postgrex.Error ->
+      Logger.warn("Unable to cache label for #{id}: #{e.postgres.message}")
   end
 
   def extract_unique_terms(data) do
