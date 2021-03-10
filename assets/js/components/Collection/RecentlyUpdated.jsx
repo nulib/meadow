@@ -5,6 +5,7 @@ import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql.js";
 import UISkeleton from "@js/components/UI/Skeleton";
 import CollectionImage from "@js/components/Collection/Image";
 import { Link } from "react-router-dom";
+import CollectionTags from "@js/components/Collection/Tags";
 
 function CollectionRecentlyUpdated({ recentlyUpdatedCollections = [] }) {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -23,15 +24,20 @@ function CollectionRecentlyUpdated({ recentlyUpdatedCollections = [] }) {
         <article key={c.id} className="media">
           <figure className="media-left">
             <div className="image is-128x128">
-              <CollectionImage collection={c} />
+              <CollectionImage collection={c} title="View collection" />
             </div>
           </figure>
           <div className="media-content">
             <div className="content">
-              <h4>{c.title}</h4>
-              <Link className="button" to={`/collection/${c.id}`}>
-                View Collection
-              </Link>
+              <h4>
+                <Link to={`/collection/${c.id}`} title="View collection">
+                  {c.title}
+                </Link>
+              </h4>
+              <CollectionTags collection={c} />
+              <div className="block">
+                <strong># Works:</strong> {c.totalWorks}
+              </div>
             </div>
           </div>
         </article>

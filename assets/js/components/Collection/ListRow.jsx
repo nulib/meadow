@@ -29,7 +29,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
             <CollectionTags collection={collection} />
 
             <div>
-              <strong>Works:</strong> {totalWorks}
+              <strong># Works:</strong> {totalWorks}
               <br />
               {description && truncate(description, 350)}
             </div>
