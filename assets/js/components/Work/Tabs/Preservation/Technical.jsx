@@ -14,7 +14,11 @@ const modalCloseButton = css`
 
 function TechDataDisplay({ value }) {
   if (typeof value === "object") {
-    return Object.keys(value).join(", ");
+    if (value === null) {
+      return "--";
+    } else {
+      return Object.keys(value).join(", ");
+    }
   }
   return value;
 }
