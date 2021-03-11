@@ -15,7 +15,6 @@ import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkTabsStructureFilesetList from "./FilesetList";
-import WorkTabsStructureDownloadAll from "@js/components/Work/Tabs/Structure/DownloadAll";
 import classNames from "classnames";
 import IconEdit from "@js/components/Icon/Edit";
 
@@ -194,8 +193,6 @@ const WorkTabsStructure = ({ work }) => {
             />
           )}
         </div>
-
-        <WorkTabsStructureDownloadAll />
       </form>
     </FormProvider>
   );
