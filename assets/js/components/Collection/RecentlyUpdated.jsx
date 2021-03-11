@@ -28,17 +28,13 @@ function CollectionRecentlyUpdated({ recentlyUpdatedCollections = [] }) {
             </div>
           </figure>
           <div className="media-content">
-            <div className="content">
-              <h4>
-                <Link to={`/collection/${c.id}`} title="View collection">
-                  {c.title}
-                </Link>
-              </h4>
-              <CollectionTags collection={c} />
-              <div className="block">
-                <strong># Works:</strong> {c.totalWorks}
-              </div>
-            </div>
+            <p className="block small-title">
+              <Link to={`/collection/${c.id}`} title="View collection">
+                {c.title}
+              </Link>
+            </p>
+            <CollectionTags collection={c} />
+            <div className="block"># Works: {c.totalWorks}</div>
           </div>
         </article>
       ))}

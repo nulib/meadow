@@ -74,14 +74,17 @@ const ScreensHome = () => {
             <div className="column">
               <div className="box">
                 <h3 className="subtitle is-3">Recently Updated Collections</h3>
+
                 <div className="block">
-                  <Link to="/collection/list" className="button">
-                    View all collections
-                  </Link>
+                  <CollectionRecentlyUpdated
+                    recentlyUpdatedCollections={
+                      stats.collectionsRecentlyUpdated
+                    }
+                  />
                 </div>
-                <CollectionRecentlyUpdated
-                  recentlyUpdatedCollections={stats.collectionsRecentlyUpdated}
-                />
+                <Link to="/collection/list" className="button">
+                  View all collections
+                </Link>
               </div>
             </div>
             <div className="column">

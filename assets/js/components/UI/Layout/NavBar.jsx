@@ -16,6 +16,7 @@ import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
 import IconChart from "@js/components/Icon/Chart";
 import IconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
+import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -59,25 +60,29 @@ const UILayoutNavBar = () => {
         css={navBarStyle}
       >
         <div className="navbar-brand">
-          <Link className="navbar-item" to="/">
+          <div className="navbar-item">
             <div className="level is-mobile">
               <div className="level-left">
                 <div className="level-item">
-                  <img
-                    src="/images/N-purple-120.png"
-                    alt="Northwestern Libraries logo"
-                  />
+                  <Link to="/">
+                    <img
+                      src="/images/N-purple-120.png"
+                      alt="Northwestern Libraries logo"
+                    />
+                  </Link>
                 </div>
 
                 <div className="level-item is-family-secondary is-size-4">
                   <div>
-                    Meadow{" "}
-                    <span className="has-text-grey is-size-6">v 1.x.x</span>
+                    <Link to="/">Meadow</Link>{" "}
+                    <span className="has-text-grey is-size-6">
+                      <UIMeadowVersion />
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
           <button
             role="button"
             aria-label="menu"
