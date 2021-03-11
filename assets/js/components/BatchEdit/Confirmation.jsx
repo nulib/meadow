@@ -12,6 +12,7 @@ import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 import IconReplace from "@js/components/Icon/Replace";
 import IconAdd from "@js/components/Icon/Add";
+import IconAlert from "@js/components/Icon/Alert";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 import UIIconText from "@js/components/UI/IconText";
 
@@ -223,10 +224,12 @@ const BatchEditConfirmation = ({
           )}
 
           <div className="notification is-danger is-light has-text-centered content">
-            <p>
-              <TiWarning /> NOTE: This batch edit will affect {numberOfResults}{" "}
-              works. To execute this change, type "I understand"
-            </p>
+            <div className="block">
+              <UIIconText icon={<IconAlert />} isCentered>
+                This batch edit will affect {numberOfResults} works. To execute
+                this change, type "I understand"
+              </UIIconText>
+            </div>
 
             <div css={verifyInputWrapper}>
               <UIFormInput

@@ -7,6 +7,7 @@ import { CSV_METADATA_UPDATE_JOB } from "@js/components/Dashboards/dashboards.gq
 import { useMutation } from "@apollo/client";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { Button } from "@nulib/admin-react-components";
+import IconUpload from "@js/components/Icon/Upload";
 
 function DashboardsCsvImport() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -121,7 +122,8 @@ function DashboardsCsvImport() {
         onClick={() => setIsModalOpen(true)}
         data-testid="import-csv-button"
       >
-        Import CSV file
+        <IconUpload className="icon" />
+        <span>Import CSV file</span>
       </Button>
       <DashboardsCsvImportModal
         currentFile={currentFile}
