@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-function UIMeadowVersion(props) {
+function UIMeadowVersion({ showHoneyVersion }) {
   if (!__MEADOW_VERSION__) {
     return "v.dev";
   }
@@ -14,16 +14,20 @@ function UIMeadowVersion(props) {
       >
         {__MEADOW_VERSION__}
       </a>{" "}
-      <a
-        href={`https://github.com/nulib/meadow/commit/${__HONEYBADGER_REVISION__}`}
-        target="_blank"
-      >
-        {__HONEYBADGER_REVISION__}
-      </a>
+      {showHoneyVersion && (
+        <a
+          href={`https://github.com/nulib/meadow/commit/${__HONEYBADGER_REVISION__}`}
+          target="_blank"
+        >
+          {__HONEYBADGER_REVISION__}
+        </a>
+      )}
     </>
   );
 }
 
-UIMeadowVersion.propTypes = {};
+UIMeadowVersion.propTypes = {
+  showHoneyVersion: PropTypes.bool,
+};
 
 export default UIMeadowVersion;

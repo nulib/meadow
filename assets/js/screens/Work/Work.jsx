@@ -144,7 +144,7 @@ const ScreensWork = () => {
                         {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                       </h1>
                       {data.work.collection && data.work.collection.title && (
-                        <p className="subtitle">
+                        <div>
                           <span className="heading">Collection</span>
                           <a
                             onClick={() =>
@@ -156,7 +156,7 @@ const ScreensWork = () => {
                           >
                             {data.work.collection.title}
                           </a>
-                        </p>
+                        </div>
                       )}
                     </div>
                     <div>
