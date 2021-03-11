@@ -35,14 +35,14 @@ const WorkListItem = ({
           </div>
         </figure>
         <div className="media-content">
-          <h3 className="title is-size-5">
+          <p className="small-title block">
             <Link
               to={`/work/${id}`}
               dangerouslySetInnerHTML={{
                 __html: title ? title : "Untitled",
               }}
             ></Link>
-          </h3>
+          </p>
           <div className="tags">
             {published ? (
               <Tag isSuccess data-testid="result-item-published">
