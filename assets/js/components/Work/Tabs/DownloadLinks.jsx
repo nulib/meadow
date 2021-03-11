@@ -10,12 +10,16 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick, fileSetId }) => {
   return (
     <div className="field has-addons is-pulled-right">
       <p className="control">
-        <button className="button" onClick={() => handleDownloadClick("TIFF")}>
+        <a
+          href={`${iiifServerUrl}${fileSetId}${IIIF_SIZES.IIIF_FULL_TIFF}`}
+          target="_blank"
+          className="button"
+        >
           <span className="icon">
             <FontAwesomeIcon icon="file-download" />
           </span>{" "}
           <span>TIFF</span>
-        </button>
+        </a>
       </p>
       <p className="control">
         <a
