@@ -141,18 +141,19 @@ const ScreensSearch = () => {
 
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
-
-              <SearchActionRow
-                handleCsvExportAllItems={handleCsvExportAllItems}
-                handleCsvExportItems={handleCsvExportItems}
-                handleDeselectAll={handleDeselectAll}
-                handleEditAllItems={handleEditAllItems}
-                handleEditItems={handleEditItems}
-                handleViewAndEdit={handleViewAndEdit}
-                numberOfResults={resultStats.numberOfResults}
-                selectedItems={selectedItems}
-                filteredQuery={filteredQuery}
-              />
+              <AuthDisplayAuthorized level="EDITOR">
+                <SearchActionRow
+                  handleCsvExportAllItems={handleCsvExportAllItems}
+                  handleCsvExportItems={handleCsvExportItems}
+                  handleDeselectAll={handleDeselectAll}
+                  handleEditAllItems={handleEditAllItems}
+                  handleEditItems={handleEditItems}
+                  handleViewAndEdit={handleViewAndEdit}
+                  numberOfResults={resultStats.numberOfResults}
+                  selectedItems={selectedItems}
+                  filteredQuery={filteredQuery}
+                />
+              </AuthDisplayAuthorized>
               <hr />
               <UIResultsDisplaySwitcher
                 isListView={isListView}
