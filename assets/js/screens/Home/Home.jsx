@@ -9,10 +9,12 @@ import useRepositoryStats from "@js/hooks/useRepositoryStats";
 import ChartsRepositoryGrowth from "@js/components/Charts/RepositoryGrowth";
 import ChartsVisibility from "@js/components/Charts/Visibility";
 import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
+import { Link } from "react-router-dom";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
   const { stats = {} } = useRepositoryStats();
+  console.log("stats", stats);
 
   const statsConfig = [
     {
@@ -59,7 +61,24 @@ const ScreensHome = () => {
           <div className="columns">
             <div className="column">
               <div className="box">
+                <ChartsGoogleAnalytics />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="columns">
+            <div className="column">
+              <div className="box">
                 <h3 className="subtitle is-3">Recently Updated Collections</h3>
+                <div className="block">
+                  <Link to="/collection/list" className="button">
+                    View all collections
+                  </Link>
+                </div>
                 <CollectionRecentlyUpdated
                   recentlyUpdatedCollections={stats.collectionsRecentlyUpdated}
                 />
@@ -67,24 +86,14 @@ const ScreensHome = () => {
             </div>
             <div className="column">
               <div className="box">
-                <h3 className="subtitle is-3">Visibility</h3>
+                <h3 className="subtitle is-3">Works Visibility</h3>
                 <ChartsVisibility data={stats.visibility} />
               </div>
             </div>
           </div>
         </div>
       </section>
-      <section className="section">
-        <div className="container">
-          <div className="columns">
-            <div className="column">
-              <div className="box">
-                <ChartsGoogleAnalytics />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
       <WorkForm showWorkForm={showWorkForm} setShowWorkForm={setShowWorkForm} />
     </Layout>
   );

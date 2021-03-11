@@ -48,6 +48,7 @@ function getRecentCollections(buckets) {
     const recentCollections = [];
     buckets.forEach((bucket) => {
       bucket.collection_ids.buckets.forEach((collectionBucket) => {
+        console.log("collectionBucket", collectionBucket);
         recentCollections.push({
           id: collectionBucket.key,
         });
@@ -173,7 +174,7 @@ export default function useRepositoryStats() {
       },
     },
   });
-  // This grabs max 10 Collections from works updated in past quarter
+  // This grabs max 3 Collections from works updated in past quarter
   const collectionsRecentlyUpdated = elasticsearchDirectSearch({
     ...query([matchImage]),
     size: 0,
@@ -190,7 +191,7 @@ export default function useRepositoryStats() {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
             terms: {
               field: "collection.id",
-              size: 10,
+              size: 3,
             },
           },
         },

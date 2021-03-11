@@ -2,12 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-function CollectionImage({ collection }) {
+function CollectionImage({ collection, ...restProps }) {
   if (!collection) return null;
   const { id, representativeWork } = collection;
 
   return (
-    <Link to={`/collection/${id}`} className="hvr-shrink">
+    <Link to={`/collection/${id}`} className="hvr-shrink" {...restProps}>
       <img
         src={
           representativeWork
