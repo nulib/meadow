@@ -48,7 +48,6 @@ function getRecentCollections(buckets) {
     const recentCollections = [];
     buckets.forEach((bucket) => {
       bucket.collection_ids.buckets.forEach((collectionBucket) => {
-        console.log("collectionBucket", collectionBucket);
         recentCollections.push({
           id: collectionBucket.key,
         });

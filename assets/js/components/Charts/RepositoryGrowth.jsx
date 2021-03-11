@@ -36,7 +36,7 @@ export default function ChartsRepositoryGrowth({ worksCreatedByWeek = [] }) {
             <XAxis dataKey="timestamp" tickFormatter={formatDate} />
             <YAxis />
             <Tooltip labelFormatter={formatDate} />
-            <Legend />
+            <Legend formatter={(value) => "Works"} />
             <Line
               type="monotone"
               dataKey="works"

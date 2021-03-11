@@ -24,7 +24,7 @@ const UILayoutFooter = () => {
             <div className="level-item">
               <div>
                 <span className="is-family-secondary">
-                  Meadow <UIMeadowVersion />
+                  Meadow <UIMeadowVersion showHoneyVersion />
                 </span>
               </div>
             </div>

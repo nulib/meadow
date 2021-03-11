@@ -14,7 +14,6 @@ import { Link } from "react-router-dom";
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
   const { stats = {} } = useRepositoryStats();
-  console.log("stats", stats);
 
   const statsConfig = [
     {
