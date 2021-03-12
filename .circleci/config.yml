@@ -129,6 +129,16 @@ jobs:
           name: Extract MEADOW_VERSION from mix.exs
           command: |
             echo "export MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $BASH_ENV
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: "Tag release"
+                command: |
+                  git config --global user.email "$(git log --pretty=format:"%ae" | head -1)"
+                  git config --global user.name "$(git log --pretty=format:"%an" | head -1)"
+                  git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
       - docker/check
       - docker/build:
           cache_from: nulib/meadow-deps:${DEPLOY_TAG}
@@ -150,9 +160,8 @@ jobs:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run:
-                name: "Tag release"
+                name: "Push release tag"
                 command: |
-                  git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
                   git push origin v${MEADOW_VERSION}
           
   deploy:
