@@ -131,7 +131,7 @@ export default function SearchFacetSidebar() {
       ))}
 
       <hr />
-      <h3 className="title is-size-5">Numerical Technical Metadata</h3>
+      <h3 className="title is-size-5">Technical Metadata</h3>
       {FACET_TECHNICAL_METADATA_SENSORS.map((sensor) => (
         <MultiList
           key={sensor.componentId}
