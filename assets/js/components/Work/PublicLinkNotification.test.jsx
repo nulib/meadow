@@ -22,7 +22,7 @@ describe("WorkPublicLinkNotification component", () => {
     expect(await screen.findByTestId("notification-public-link"));
     expect(
       await screen.findByText(
-        "Good News! This link is publicly available on Digital Collections. Here's the Link"
+        "This link is publicly available on Digital Collections."
       )
     );
   });

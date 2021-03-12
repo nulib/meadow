@@ -1,8 +1,8 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import { DIGITAL_COLLECTIONS_URL } from "@js/components/UI/ui.gql";
+import UISharedLink from "@js/components/UI/SharedLink";
 
 export default function WorkPublicLinkNotification({ workId }) {
   const { data, loading, error } = useQuery(DIGITAL_COLLECTIONS_URL);
@@ -22,23 +22,13 @@ export default function WorkPublicLinkNotification({ workId }) {
   const publicUrl = `${data.digitalCollectionsUrl.url}items/${workId}`;
 
   return (
-    <div
-      className="notification has-text-centered is-success is-light"
+    <UISharedLink
       data-testid="notification-public-link"
+      isSuccess
+      shareUrl={publicUrl}
     >
-      <p>
-        <FontAwesomeIcon icon="link" />
-        <span className="px-2">
-          Good News! This link is publicly available on Digital Collections.
-          Here's the Link
-        </span>
-      </p>
-      <p data-testid="link-url">
-        <a href={publicUrl} target="_blank">
-          {publicUrl}
-        </a>
-      </p>
-    </div>
+      This link is publicly available on Digital Collections.
+    </UISharedLink>
   );
 }
 

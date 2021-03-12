@@ -26,7 +26,7 @@ const WorkListItem = ({
       <article className="media" data-testid="ui-worklist-item">
         <figure className="media-left">
           <div className="image is-128x128">
-            <Link to={`/work/${id}`}>
+            <Link to={`/work/${id}`} title="View work">
               <UIWorkImage
                 imageUrl={getImageUrl(representativeImage)}
                 size={500}
@@ -36,12 +36,7 @@ const WorkListItem = ({
         </figure>
         <div className="media-content">
           <p className="small-title block">
-            <Link
-              to={`/work/${id}`}
-              dangerouslySetInnerHTML={{
-                __html: title ? title : "Untitled",
-              }}
-            ></Link>
+            <Link to={`/work/${id}`}>{title ? title : "Untitled"}</Link>
           </p>
           <div className="tags">
             {published ? (
@@ -60,28 +55,12 @@ const WorkListItem = ({
           </div>
 
           <div className="content ">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Accession Number</th>
-                  <th># Filesets</th>
-                  <th>Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    data-testid="result-item-accession-number"
-                    style={{ wordBreak: "break-all" }}
-                    dangerouslySetInnerHTML={{ __html: accessionNumber }}
-                  ></td>
-                  <td data-testid="result-item-filesets-length">{fileSets}</td>
-                  <td data-testid="result-item-updated-date">
-                    {formatDate(updatedAt)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <span
+              title="Accession number"
+              data-testid="result-item-accession-number"
+            >
+              {accessionNumber}
+            </span>
           </div>
         </div>
         <div className="media-right "></div>

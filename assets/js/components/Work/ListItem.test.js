@@ -27,17 +27,6 @@ describe("Shows Work content", () => {
       "Donohue_001"
     );
   });
-  it("Displays FileSets Length", () => {
-    const { getByTestId } = setupTests();
-    expect(getByTestId("result-item-filesets-length").innerHTML).toBe("4");
-  });
-  it("Displays Updated Date", () => {
-    const { getByTestId } = setupTests();
-    // mockWork contains updateAt: "2019-12-02T22:22:16"
-    expect(getByTestId("result-item-updated-date").innerHTML).toBe(
-      "Dec 2, 2019 10:22 PM"
-    );
-  });
   it("Displays Published Flag", () => {
     const { queryByTestId } = setupTests();
     expect(queryByTestId("result-item-published")).not.toBeInTheDocument();
