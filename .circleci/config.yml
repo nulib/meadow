@@ -28,6 +28,7 @@ jobs:
           MINIO_SECRET_KEY: minio123
         command: server /data
     steps:
+      - checkout
       - when:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
@@ -44,7 +45,6 @@ jobs:
       - run:
           name: Install LDAP utils
           command: sudo apt-get install -y ldap-utils
-      - checkout
       - run:
           name: Generate checksums for dependency lock files
           command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock > .yarn-checksums
