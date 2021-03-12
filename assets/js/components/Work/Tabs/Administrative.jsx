@@ -19,12 +19,16 @@ import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
 import { useHistory } from "react-router-dom";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import IconEdit from "@js/components/Icon/Edit";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
     id,
     administrativeMetadata,
     collection,
+    ingestSheet,
+    project,
     published,
     visibility,
   } = work;
@@ -50,6 +54,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   const methods = useForm();
   const history = useHistory();
+  const { handleFacetLinkClick } = useFacetLinkClick();
 
   useEffect(() => {
     // Update a Work after the form has been submitted
@@ -107,12 +112,7 @@ const WorkTabsAdministrative = ({ work }) => {
   };
 
   const handleViewAllWorksClick = (collectionTitle) => {
-    history.push("/search", {
-      externalFacet: {
-        facetComponentId: "Collection",
-        value: collectionTitle,
-      },
-    });
+    handleFacetLinkClick("Collection", collectionTitle);
   };
 
   if (updateWorkLoading) {
@@ -137,27 +137,22 @@ const WorkTabsAdministrative = ({ work }) => {
         <UITabsStickyHeader title="Administrative Metadata">
           {!isEditing && (
             <Button
-              type="button"
-              className="button is-primary"
+              isPrimary
               onClick={() => setIsEditing(true)}
               data-testid="edit-button"
             >
-              Edit
+              <IconEdit className="icon" />
+              <span>Edit</span>
             </Button>
           )}
           {isEditing && (
             <>
-              <Button
-                type="submit"
-                className="button is-primary"
-                data-testid="save-button"
-              >
+              <Button isPrimary type="submit" data-testid="save-button">
                 Save
               </Button>
               <Button
                 data-testid="cancel-button"
-                type="button"
-                className="button is-text"
+                isText
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
@@ -191,6 +186,38 @@ const WorkTabsAdministrative = ({ work }) => {
                 <h3>Project Info</h3>
               </div>
 
+              <UIFormField label="Project">
+                {project ? (
+                  <p>
+                    <Button
+                      isText
+                      onClick={() =>
+                        handleFacetLinkClick("Project", project.title || null)
+                      }
+                      data-testid="view-project-works"
+                    >
+                      {project.title || ""}
+                    </Button>
+                  </p>
+                ) : null}
+              </UIFormField>
+
+              <UIFormField label="Ingest Sheet">
+                <p>
+                  {project && ingestSheet && (
+                    <Button
+                      isText
+                      onClick={() =>
+                        handleFacetLinkClick("IngestSheet", ingestSheet.title)
+                      }
+                      data-testid="view-ingest-sheet-works"
+                    >
+                      {ingestSheet.title}
+                    </Button>
+                  )}
+                </p>
+              </UIFormField>
+
               <UIFormField label="Project Cycle">
                 {isEditing ? (
                   <UIFormInput
@@ -205,6 +232,7 @@ const WorkTabsAdministrative = ({ work }) => {
                   <p>{projectCycle}</p>
                 )}
               </UIFormField>
+
               {PROJECT_METADATA.map((item) => {
                 return (
                   <div key={item.name} data-testid={item.name}>

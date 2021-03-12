@@ -10,6 +10,9 @@ import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import UIIconText from "@js/components/UI/IconText";
+import IconAlert from "@js/components/Icon/Alert";
+import UISticky from "@js/components/UI/Sticky";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -45,7 +48,24 @@ const ScreensBatchEdit = () => {
 
   return (
     <Layout>
-      <section className="section" data-testid="batch-edit-screen">
+      {isActiveSearch && (
+        <UISticky>
+          <p
+            className="notification is-warning is-light is-size-5"
+            data-testid="batch-edit-preview-notification"
+          >
+            <UIIconText isCentered icon={<IconAlert />}>
+              You are batch editing the following {resultsCount} works.
+            </UIIconText>
+          </p>
+        </UISticky>
+      )}
+
+      <section
+        className="section"
+        data-testid="batch-edit-screen"
+        style={{ minHeight: "600px" }}
+      >
         <div className="container">
           <UIBreadcrumbs
             items={[
@@ -89,15 +109,6 @@ const ScreensBatchEdit = () => {
                   <UISkeleton rows={5} />
                 ) : (
                   <div>
-                    <p
-                      className="notification is-warning is-light mt-5 has-text-centered"
-                      data-testid="batch-edit-preview-notification"
-                    >
-                      <span className="icon">
-                        <FontAwesomeIcon icon="exclamation-triangle" />
-                      </span>
-                      You are batch editing the following {resultsCount} works.
-                    </p>
                     <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
                       <UIPreviewItems items={previewItems} />
                     </ErrorBoundary>
@@ -107,11 +118,12 @@ const ScreensBatchEdit = () => {
             )}
 
             {!isActiveSearch && (
-              <div className="notification content has-text-centered">
-                <p>
-                  <FontAwesomeIcon icon="exclamation-triangle" /> No search
-                  results saved in the browsers memory
-                </p>
+              <div className="has-text-centered">
+                <div className="notification block">
+                  <UIIconText icon={<IconAlert />} isCentered>
+                    No search results saved in the browsers memory
+                  </UIIconText>
+                </div>
                 <p>
                   <Link to="/search" className="button">
                     Search again

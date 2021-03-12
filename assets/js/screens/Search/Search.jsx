@@ -87,14 +87,14 @@ const ScreensSearch = () => {
   };
 
   const handleQueryChange = (query) => {
-    setFilteredQuery(query.query);
-  };
-
-  const handleOnDataChange = (resultStats) => {
     // Remove manually selected items when interacting with ReactiveSearch
     // to avoid 'hidden' selected items confusion
     setSelectedItems([]);
 
+    setFilteredQuery(query.query);
+  };
+
+  const handleOnDataChange = (resultStats) => {
     setResultStats({ ...resultStats });
   };
 
@@ -141,18 +141,19 @@ const ScreensSearch = () => {
 
             <div className="box pb-0">
               <h1 className="title">Search Results</h1>
-
-              <SearchActionRow
-                handleCsvExportAllItems={handleCsvExportAllItems}
-                handleCsvExportItems={handleCsvExportItems}
-                handleDeselectAll={handleDeselectAll}
-                handleEditAllItems={handleEditAllItems}
-                handleEditItems={handleEditItems}
-                handleViewAndEdit={handleViewAndEdit}
-                numberOfResults={resultStats.numberOfResults}
-                selectedItems={selectedItems}
-                filteredQuery={filteredQuery}
-              />
+              <AuthDisplayAuthorized level="EDITOR">
+                <SearchActionRow
+                  handleCsvExportAllItems={handleCsvExportAllItems}
+                  handleCsvExportItems={handleCsvExportItems}
+                  handleDeselectAll={handleDeselectAll}
+                  handleEditAllItems={handleEditAllItems}
+                  handleEditItems={handleEditItems}
+                  handleViewAndEdit={handleViewAndEdit}
+                  numberOfResults={resultStats.numberOfResults}
+                  selectedItems={selectedItems}
+                  filteredQuery={filteredQuery}
+                />
+              </AuthDisplayAuthorized>
               <hr />
               <UIResultsDisplaySwitcher
                 isListView={isListView}

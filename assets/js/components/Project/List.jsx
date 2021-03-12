@@ -83,7 +83,7 @@ const ProjectList = ({ projects }) => {
 
   return (
     <>
-      <UISearchBarRow>
+      <UISearchBarRow isCentered>
         <UIFormInput
           placeholder="Search projects"
           name="projectsSearch"
@@ -128,7 +128,7 @@ const ProjectList = ({ projects }) => {
                       <div className="buttons-end">
                         <p className="control">
                           <Button
-                            className="button"
+                            isLight
                             onClick={(e) => onEditProject(project)}
                           >
                             <IconEdit />
@@ -136,7 +136,7 @@ const ProjectList = ({ projects }) => {
                         </p>
                         <p className="control">
                           <Button
-                            className="button"
+                            isLight
                             data-testid="delete-button-row"
                             onClick={(e) => onOpenModal(e, project)}
                           >

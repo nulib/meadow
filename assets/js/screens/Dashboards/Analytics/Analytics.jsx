@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { SiGoogleanalytics } from "react-icons/si";
 import IconText from "@js/components/UI/IconText";
+import IconChart from "@js/components/Icon/Chart";
 
 export default function ScreensDashboardsAnalytics() {
   return (
@@ -28,10 +29,9 @@ export default function ScreensDashboardsAnalytics() {
           />
           <div className="box">
             <h1 className="title" data-testid="page-title">
-              <IconText
-                icon={<SiGoogleanalytics />}
-                text="Digital Collections Analytics"
-              />
+              <IconText icon={<IconChart />}>
+                Digital Collections Analytics
+              </IconText>
             </h1>
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <DashboardsAnalytics />

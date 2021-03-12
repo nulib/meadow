@@ -64,7 +64,7 @@ function DashboardsCsvList(props) {
 
   return (
     <div data-testid="csv-list">
-      <UISearchBarRow>
+      <UISearchBarRow isCentered>
         <UIFormInput
           placeholder="Search"
           name="csvSearch"

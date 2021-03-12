@@ -36,6 +36,10 @@ describe("BatchEditTabs component", () => {
     });
   });
 
+  it("renders the sticky header", async () => {
+    expect(await screen.findByTestId("batch-edit-sticky-header"));
+  });
+
   it("renders the about tab and content", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("tab-about"));

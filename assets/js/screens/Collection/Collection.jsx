@@ -20,6 +20,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { Button } from "@nulib/admin-react-components";
 import CollectionTags from "@js/components/Collection/Tags";
+import IconEdit from "@js/components/Icon/Edit";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -118,7 +119,10 @@ const ScreensCollection = () => {
                         className="button is-primary"
                         data-testid="edit-button"
                       >
-                        Edit
+                        <span className="icon">
+                          <IconEdit />
+                        </span>
+                        <span>Edit</span>
                       </Link>
                     </AuthDisplayAuthorized>
                   </div>

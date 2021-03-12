@@ -29,6 +29,8 @@ import {
   deleteKeyFromObject,
 } from "@js/services/metadata";
 import UIError from "../../UI/Error";
+import IconEdit from "@js/components/Icon/Edit";
+import { Button } from "@nulib/admin-react-components";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;
@@ -98,7 +100,7 @@ const WorkTabsAbout = ({ work }) => {
   ] = useMutation(UPDATE_WORK, {
     onCompleted({ updateWork }) {
       setIsEditing(false);
-      toastWrapper("is-success", "Work form updated successfully");
+      toastWrapper("is-success", "Work metadata successfully updated");
     },
     onError(error) {
       console.log("error in the updateWork GraphQL mutation :>> ", error);
@@ -161,8 +163,6 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
-    console.log("workUpdateInput", workUpdateInput);
-
     updateWork({
       variables: {
         id: work.id,
@@ -183,60 +183,30 @@ const WorkTabsAbout = ({ work }) => {
       >
         <UITabsStickyHeader title="Core and Descriptive Metadata">
           {!isEditing && (
-            <button
-              type="button"
-              className="button is-primary"
+            <Button
+              isPrimary
               data-testid="edit-button"
               onClick={() => setIsEditing(true)}
             >
-              Edit
-            </button>
+              <IconEdit className="icon" />
+              <span>Edit</span>
+            </Button>
           )}
           {isEditing && (
             <>
-              <button
-                type="submit"
-                className="button is-primary"
-                data-testid="save-button"
-              >
+              <Button isPrimary type="submit" data-testid="save-button">
                 Save
-              </button>
-              <button
-                type="button"
-                className="button is-text"
+              </Button>
+              <Button
+                isText
                 data-testid="cancel-button"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
-              </button>
+              </Button>
             </>
           )}
         </UITabsStickyHeader>
-
-        {isEditing ? (
-          <div
-            className="box is-relative content mt-4"
-            data-testid="uneditable-metadata"
-          >
-            <div className="columns">
-              <div className="column">
-                <UIFormField label="ARK">
-                  <p>{work.descriptiveMetadata.ark}</p>
-                </UIFormField>
-              </div>
-              <div className="column">
-                <UIFormField label="ID">
-                  <p>{work.id}</p>
-                </UIFormField>
-              </div>
-              <div className="column">
-                <UIFormField label="Accession Number">
-                  <p>{work.accessionNumber}</p>
-                </UIFormField>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
           {updateWorkLoading ? (

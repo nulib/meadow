@@ -7,11 +7,27 @@ import CollectionImage from "@js/components/Collection/Image";
 import IconEdit from "@js/components/Icon/Edit";
 import IconDelete from "@js/components/Icon/Delete";
 import IconTrashCan from "@js/components/Icon/TrashCan";
+import useTruncateText from "@js/hooks/useTruncateText";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/react";
+const row = css`
+  border-bottom: 1px solid #efefef;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  &:last-of-type {
+    border: none;
+    margin-bottom: inherit;
+    padding-bottom: inherit;
+  }
+`;
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
-  const { id, title = "", keywords = [] } = collection;
+  const { id, title = "", description, totalWorks } = collection;
+  const { truncate } = useTruncateText();
+
   return (
-    <li data-testid="collection-list-row" className="mb-6">
+    <li data-testid="collection-list-row" css={row}>
       <article className="media">
         <figure className="media-left">
           <p className="image is-128x128">
@@ -19,49 +35,38 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
           </p>
         </figure>
         <div className="media-content">
-          <div className="content">
-            <h4>
-              <Link to={`/collection/${id}`}>{title}</Link>
-            </h4>
-            <CollectionTags collection={collection} />
-            {/* <p>{description}</p> */}
-            <table className="table is-fullwidth is-narrow">
-              <thead>
-                <tr>
-                  <th>Keywords</th>
-                  <th>Works [not yet supported]</th>
-                  <th>Assets [not yet supported]</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{keywords.join(", ")}</td>
-                  <td>3810 works, 2010 public, 700 netid, 100 private</td>
-                  <td>100,000 preserved files</td>
-                </tr>
-              </tbody>
-            </table>
+          <p className="small-title block">
+            <Link to={`/collection/${id}`}>{title}</Link>
+          </p>
+          <CollectionTags collection={collection} />
+
+          <div>
+            <strong># Works:</strong> {totalWorks}
+            <br />
+            {description && truncate(description, 350)}
           </div>
         </div>
         <div className="media-right">
           <div className="buttons-end">
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
-                <Link className="button" to={`/collection/form/${id}`}>
+                <Link className="button is-light" to={`/collection/form/${id}`}>
                   <IconEdit />
                 </Link>
               </p>
             </AuthDisplayAuthorized>
-            <AuthDisplayAuthorized level="MANAGER">
-              <p className="control">
-                <button
-                  className="button"
-                  onClick={() => onOpenModal({ id, title })}
-                >
-                  <IconTrashCan />
-                </button>
-              </p>
-            </AuthDisplayAuthorized>
+            {totalWorks === 0 && (
+              <AuthDisplayAuthorized level="MANAGER">
+                <p className="control">
+                  <button
+                    className="button is-light"
+                    onClick={() => onOpenModal({ id, title })}
+                  >
+                    <IconTrashCan />
+                  </button>
+                </p>
+              </AuthDisplayAuthorized>
+            )}
           </div>
         </div>
       </article>

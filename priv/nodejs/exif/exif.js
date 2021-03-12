@@ -1,14 +1,32 @@
 const AWS = require("aws-sdk");
 const exifr = require("exifr");
 const URI = require("uri-js");
+const s3 = new AWS.S3();
 
 AWS.config.update({httpOptions: {timeout: 600000}});
 
+const chunkReader = (input, offset, length) => {
+  return new Promise((resolve, _reject) => {
+    let params = {...input};
+
+    if (typeof offset === 'number') {
+      let end = length ? offset + length - 1 : undefined;
+      params.Range = `bytes=${[offset, end].join('-')}`;
+    }
+
+    s3.getObject(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        resolve(undefined);
+      } else {
+        resolve(data.Body);
+      }
+    });
+  });
+}
+
 const extractExif = (source, options) => {
   return new Promise((resolve, reject) => {
-    const s3 = new AWS.S3();
-    const uri = URI.parse(source);
-
     console.log(`Retrieving ${source}`);
 
     const defaultOptions = {
@@ -58,24 +76,20 @@ const extractExif = (source, options) => {
       xmp: true,
       interop: true,
       chunkSize: 1024 * 1024,
+      externalReader: chunkReader
     };
     
-    s3.getObject({ Bucket: uri.host, Key: getS3Key(uri) }, (error, response) => {
-      if(error) {
-        reject(error)
-      } else {
-        console.log(`Extracting EXIF metadata from ${source}`);
-        options = Object.assign(options || defaultOptions, forcedOptions);
-        exifr.parse(response.Body, options)
-          .then(exif => resolve(exif))
-          .catch(err => reject(err));
-      }
-    })
+    const uri = URI.parse(source);
+    const s3Location = { 
+      Bucket: uri.host, 
+      Key: uri.path.replace(/^\/+/, "")
+    };
+
+    options = Object.assign(options || defaultOptions, forcedOptions);
+    exifr.parse(s3Location, options)
+      .then(exif => resolve(exif))
+      .catch(err => reject(err));
   });
 }
-
-const getS3Key = (uri) => {
-  return uri.path.replace(/^\/+/, "");
-};
 
 module.exports = { extractExif };

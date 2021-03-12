@@ -18,3 +18,14 @@
     background-color: $rich-black-80 !important;
   }
 }
+
+.rs-input {
+  height: 2.5em !important;
+  padding-left: 2.5rem !important;
+}
+.rs-input + div > div:first-child {
+  top: 17px !important;
+}
+.rs-input + div > div:last-child {
+  top: 22px !important;
+}

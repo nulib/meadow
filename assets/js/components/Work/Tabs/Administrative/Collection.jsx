@@ -11,6 +11,7 @@ import {
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
 function WorkTabsAdministrativeCollection({
   collection,
@@ -148,7 +149,7 @@ function WorkTabsAdministrativeCollection({
       </UIFormField>
 
       {!isEditing && Boolean(collection) && (
-        <>
+        <AuthDisplayAuthorized level="EDITOR">
           <div className="field mt-5">
             <input
               id={`featured-image-toggle`}
@@ -170,7 +171,7 @@ function WorkTabsAdministrativeCollection({
               </span>
             </p>
           )}
-        </>
+        </AuthDisplayAuthorized>
       )}
     </div>
   );

@@ -17,6 +17,9 @@ import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
 import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
+import IconAdd from "@js/components/Icon/Add";
+import IconView from "@js/components/Icon/View";
+import IconTrashCan from "@js/components/Icon/TrashCan";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -195,9 +198,7 @@ const WorkTabsPreservation = ({ work }) => {
                 setIsAddFilesetModalVisible(!isAddFilesetModalVisible)
               }
             >
-              <span className="icon">
-                <FontAwesomeIcon icon="file-image" />
-              </span>
+              <IconAdd className="icon" />
               <span>Add a fileset</span>
             </Button>
           </div>
@@ -256,20 +257,22 @@ const WorkTabsPreservation = ({ work }) => {
                     </td>
                     <AuthDisplayAuthorized action="delete">
                       <td>
-                        <div className="buttons is-right">
+                        <div className="buttons buttons-end">
                           <Button
+                            isLight
                             data-testid="button-show-technical-metadata"
                             onClick={() => handleTechnicalMetaClick(fileset)}
                             title="View technical metadata"
                           >
-                            <FontAwesomeIcon icon="cogs" />
+                            <IconView />
                           </Button>
                           <Button
+                            isLight
                             data-testid="button-fileset-delete"
                             onClick={() => handleDeleteFilesetClick(fileset)}
                             title="Delete file set"
                           >
-                            <FontAwesomeIcon icon="trash" />
+                            <IconTrashCan />
                           </Button>
                         </div>
                       </td>
@@ -292,10 +295,7 @@ const WorkTabsPreservation = ({ work }) => {
             isDanger
             onClick={onOpenDeleteWorkModal}
           >
-            <span className="icon">
-              <FontAwesomeIcon icon="trash" />
-            </span>
-            <span>Delete this work</span>
+            Delete this work
           </Button>
         </AuthDisplayAuthorized>
       </div>

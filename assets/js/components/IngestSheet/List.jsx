@@ -5,9 +5,11 @@ import { useApolloClient, useMutation } from "@apollo/client";
 import { INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
-import { getClassFromIngestSheetStatus } from "../../services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
+import IconView from "@js/components/Icon/View";
+import IconTrashCan from "@js/components/Icon/TrashCan";
+import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
 
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -78,32 +80,27 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     </td>
                     <td className="has-text-right">{formatDate(updatedAt)}</td>
                     <td>
-                      <span
-                        className={`tag ${getClassFromIngestSheetStatus(
-                          status
-                        )}`}
-                      >
+                      <IngestSheetStatusTag status={status}>
                         {TEMP_USER_FRIENDLY_STATUS[status]}
-                      </span>
+                      </IngestSheetStatusTag>
                     </td>
                     <td className="has-text-right">
                       {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
                         <Link
                           to={`/project/${project.id}/ingest-sheet/${id}`}
-                          className="button"
+                          className="button is-light"
                         >
-                          {<FontAwesomeIcon icon="eye" />}{" "}
-                          <span className="sr-only">View</span>
+                          {<IconView />} <span className="sr-only">View</span>
                         </Link>
                       )}
                       {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
                         status
                       ) > -1 && (
                         <button
-                          className="button"
+                          className="button is-light"
                           onClick={(e) => onOpenModal(e, { id, title })}
                         >
-                          {<FontAwesomeIcon icon="trash" />}{" "}
+                          {<IconTrashCan />}{" "}
                           <span className="sr-only">Delete</span>
                         </button>
                       )}

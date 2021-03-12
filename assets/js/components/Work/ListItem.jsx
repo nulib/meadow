@@ -7,6 +7,8 @@ import {
   getImageUrl,
 } from "@js/services/helpers";
 import UIWorkImage from "../UI/WorkImage";
+import { Tag } from "@nulib/admin-react-components";
+import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
 const WorkListItem = ({
   id,
@@ -33,33 +35,29 @@ const WorkListItem = ({
           </div>
         </figure>
         <div className="media-content">
-          <h3 className="title is-size-5">
+          <p className="small-title block">
             <Link
               to={`/work/${id}`}
               dangerouslySetInnerHTML={{
                 __html: title ? title : "Untitled",
               }}
             ></Link>
-          </h3>
-          {workType.label && (
-            <span className="tag mr-1">{workType.label.toUpperCase()}</span>
-          )}
-          {visibility.id && (
-            <span
-              data-testid="tag-visibility"
-              className={`tag mr-1 ${setVisibilityClass(visibility.id)}`}
-            >
-              {visibility.label.toUpperCase()}
-            </span>
-          )}
-          {published && (
-            <span
-              data-testid="result-item-published"
-              className="tag is-success mr-1"
-            >
-              PUBLISHED
-            </span>
-          )}
+          </p>
+          <div className="tags">
+            {published ? (
+              <Tag isSuccess data-testid="result-item-published">
+                Published
+              </Tag>
+            ) : (
+              <Tag>Unpublished</Tag>
+            )}
+            {visibility.id && (
+              <UIVisibilityTag
+                data-testid="tag-visibility"
+                visibility={visibility}
+              />
+            )}
+          </div>
 
           <div className="content ">
             <table className="table">

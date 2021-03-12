@@ -94,6 +94,7 @@ export const GET_COLLECTION = gql`
       published
       title
       description
+      totalWorks
       representativeWork {
         id
         representativeImage
@@ -127,6 +128,7 @@ export const GET_COLLECTIONS = gql`
       description
       id
       keywords
+      totalWorks
       representativeWork {
         id
         representativeImage

@@ -11,7 +11,6 @@ import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
 import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { toastWrapper } from "../../services/helpers";
-import { Link } from "react-router-dom";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
 import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
@@ -20,7 +19,8 @@ import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import { Button } from "@nulib/admin-react-components";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import UILevelItem from "@js/components/UI/LevelItem";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -28,6 +28,7 @@ const ScreensWork = () => {
   const history = useHistory();
   const batchState = useBatchState();
   const [isWorkOpen, setIsWorkOpen] = useState(false);
+  const { handleFacetLinkClick } = useFacetLinkClick();
 
   const multiCurrentIndex = params.counter
     ? parseInt(params.counter.split(",")[0])
@@ -118,43 +119,47 @@ const ScreensWork = () => {
     });
   };
 
-  const handleFacetLinkClick = (facet, value) => {
-    history.push("/search", {
-      externalFacet: {
-        facetComponentId: facet,
-        value: value,
-      },
-    });
-  };
-
   return (
     <Layout>
+      {isMulti() && (
+        <WorkMultiEditBar
+          currentIndex={multiCurrentIndex}
+          handleMultiNavClick={handleMultiNavClick}
+          totalItems={multiTotalItems}
+        />
+      )}
       <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
         <section className="section" data-testid="work-hero">
           <div className="container">
             <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
-
-            {isMulti() && (
-              <WorkMultiEditBar
-                currentIndex={multiCurrentIndex}
-                handleMultiNavClick={handleMultiNavClick}
-                totalItems={multiTotalItems}
-              />
-            )}
 
             <div className="box">
               {loading ? (
                 <UISkeleton rows={5} />
               ) : (
                 <>
-                  <div className="columns">
-                    <div className="column">
+                  <div className="is-flex is-justify-content-space-between mb-5">
+                    <div>
                       <h1 className="title">
                         {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                       </h1>
-                      <WorkTagsList work={data.work} />
+                      {data.work.collection && data.work.collection.title && (
+                        <div>
+                          <span className="heading">Collection</span>
+                          <a
+                            onClick={() =>
+                              handleFacetLinkClick(
+                                "Collection",
+                                data.work.collection.title
+                              )
+                            }
+                          >
+                            {data.work.collection.title}
+                          </a>
+                        </div>
+                      )}
                     </div>
-                    <div className="column">
+                    <div>
                       <WorkHeaderButtons
                         handleCreateSharableBtnClick={
                           handleCreateSharableBtnClick
@@ -165,6 +170,7 @@ const ScreensWork = () => {
                       />
                     </div>
                   </div>
+                  <WorkTagsList work={data.work} />
 
                   <div className="content">
                     {createSharedLinkData && (
@@ -175,59 +181,22 @@ const ScreensWork = () => {
                     {isWorkOpen && (
                       <WorkPublicLinkNotification workId={data.work.id} />
                     )}
-
-                    <hr />
-                    <div className="columns">
-                      <div className="column">
-                        <p>
-                          <strong>Accession Number</strong>
-                        </p>
-                        <p>{data.work.accessionNumber}</p>
-                      </div>
-                      <div className="column">
-                        <p>
-                          <strong>Project</strong>
-                        </p>
-                        {data.work.project &&
-                          data.work.project.id &&
-                          data.work.project.title && (
-                            <p>
-                              <Button
-                                isText
-                                onClick={() =>
-                                  handleFacetLinkClick(
-                                    "Project",
-                                    data.work.project.title
-                                  )
-                                }
-                                data-testid="view-project-works"
-                              >
-                                {data.work.project.title}
-                              </Button>
-                            </p>
-                          )}
-                      </div>
-                      <div className="column">
-                        <p>
-                          <strong>Ingest Sheet</strong>
-                        </p>
-                        <p>
-                          {data.work.project && data.work.ingestSheet && (
-                            <Button
-                              isText
-                              onClick={() =>
-                                handleFacetLinkClick(
-                                  "IngestSheet",
-                                  data.work.ingestSheet.title
-                                )
-                              }
-                              data-testid="view-ingest-sheet-works"
-                            >
-                              {data.work.ingestSheet.title}
-                            </Button>
-                          )}
-                        </p>
-                      </div>
+                    <div className="level">
+                      <UILevelItem
+                        heading="Work id"
+                        content={data.work.id}
+                        contentClassname="is-size-5"
+                      />
+                      <UILevelItem
+                        heading="Ark"
+                        content={data.work.descriptiveMetadata.ark || ""}
+                        contentClassname="is-size-5"
+                      />
+                      <UILevelItem
+                        heading="Accession number"
+                        content={data.work.accessionNumber || ""}
+                        contentClassname="is-size-5"
+                      />
                     </div>
                   </div>
                 </>

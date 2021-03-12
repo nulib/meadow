@@ -15,8 +15,8 @@ import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { Button } from "@nulib/admin-react-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkTabsStructureFilesetList from "./FilesetList";
-import WorkTabsStructureDownloadAll from "@js/components/Work/Tabs/Structure/DownloadAll";
 import classNames from "classnames";
+import IconEdit from "@js/components/Icon/Edit";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -50,7 +50,6 @@ const WorkTabsStructure = ({ work }) => {
     UPDATE_FILE_SETS,
     {
       onCompleted({ updateFileSets }) {
-        console.log("updateFileSets", updateFileSets);
         toastWrapper("is-success", "Filesets have been updated");
         setIsEditing(false);
       },
@@ -138,7 +137,8 @@ const WorkTabsStructure = ({ work }) => {
               onClick={() => setIsEditing(true)}
               disabled={isReordering}
             >
-              Edit
+              <IconEdit className="icon" />
+              <span>Edit</span>
             </Button>
           )}
           {isEditing && (
@@ -193,8 +193,6 @@ const WorkTabsStructure = ({ work }) => {
             />
           )}
         </div>
-
-        <WorkTabsStructureDownloadAll />
       </form>
     </FormProvider>
   );

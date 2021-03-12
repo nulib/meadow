@@ -3,10 +3,6 @@ defmodule Meadow.Utils.Stream do
   Functions to provide chunk streams from http:// and s3:// URLs
   """
 
-  defmodule Timeout do
-    defexception [:message]
-  end
-
   require Logger
 
   def exists?("s3://" <> _ = url) do
@@ -65,7 +61,7 @@ defmodule Meadow.Utils.Stream do
       5_000 ->
         with msg <- "No message received from #{inspect(resp)} in 5 seconds." do
           Logger.warn(msg)
-          raise __MODULE__.Timeout, message: msg
+          raise Meadow.TimeoutError, message: msg
         end
     end
   end

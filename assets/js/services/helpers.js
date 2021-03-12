@@ -27,22 +27,6 @@ export function isUrlValid(url) {
   return url.match(URL_PATTERN_MATCH) ? true : false;
 }
 
-export function getClassFromIngestSheetStatus(status) {
-  if (["ROW_FAIL", "FILE_FAIL"].indexOf(status) > -1) {
-    return "is-danger";
-  }
-  if (status === "UPLOADED") {
-    return "is-warning";
-  }
-  if (status === "COMPLETED") {
-    return "is-success";
-  }
-  if (["APPROVED", "VALID"].indexOf(status) > -1) {
-    return "is-success is-light";
-  }
-  return "";
-}
-
 export function isEDTFValid(edtfString) {
   try {
     edtf(edtfString).edtf;

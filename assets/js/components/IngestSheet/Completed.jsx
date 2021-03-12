@@ -12,7 +12,8 @@ import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
 import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
-import IngestSheetDetails from "@js/components/IngestSheet/Details";
+import IconImages from "@js/components/Icon/Images";
+import UILevelItem from "@js/components/UI/LevelItem";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
@@ -61,7 +62,13 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   return (
     <div>
       {ingestSheetErrors.length === 0 && (
-        <IngestSheetDetails totalWorks={workCountData.ingestSheetWorkCount} />
+        // <IngestSheetDetails totalWorks={workCountData.ingestSheetWorkCount} />
+        <div className="level">
+          <UILevelItem
+            heading="Total Works"
+            content={workCountData.ingestSheetWorkCount}
+          />
+        </div>
       )}
 
       {ingestSheetErrors.length > 0 && (
@@ -71,9 +78,12 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
       {ingestSheetErrors.length === 0 && (
         <>
           <hr />
-          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <p>Preview of ingest sheet works...</p>
-            <Button onClick={handleClick}>
+          <div className="is-flex is-justify-content-space-between mb-6 content">
+            <h3>Preview of ingest sheet works...</h3>
+            <Button isPrimary onClick={handleClick}>
+              <span className="icon">
+                <IconImages />
+              </span>
               <span>View ingest sheet works</span>
             </Button>
           </div>

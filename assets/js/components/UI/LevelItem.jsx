@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UILevelItem = ({ heading, content }) => (
+const UILevelItem = ({ heading, content, contentClassname = "title" }) => (
   <div className="level-item has-text-centered">
     <div>
       <p className="heading">{heading}</p>
-      <p className="title">{content}</p>
+      <p className={contentClassname}>{content}</p>
     </div>
   </div>
 );

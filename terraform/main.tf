@@ -12,7 +12,7 @@ module "rds" {
   allocated_storage         = "5"
   backup_window             = "04:00-05:00"
   engine                    = "postgres"
-  engine_version            = "11.8"
+  engine_version            = "11.10"
   final_snapshot_identifier = "meadow-final"
   identifier                = "${var.stack_name}-db"
   instance_class            = "db.t3.medium"
@@ -70,6 +70,11 @@ resource "aws_s3_bucket" "meadow_uploads" {
 resource "aws_s3_bucket" "meadow_preservation" {
   bucket = "${var.stack_name}-${var.environment}-preservation"
   acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+    
   tags   = var.tags
 }
 

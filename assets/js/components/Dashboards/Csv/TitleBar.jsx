@@ -12,7 +12,7 @@ function DashboardsCsvTitleBar() {
         data-testid="csv-job-title-bar"
       >
         <h1 className="title" data-testid="csv-dashboard-title">
-          <IconText icon={<GrDocumentCsv />} text="CSV Metadata Update" />
+          <IconText icon={<GrDocumentCsv />}>CSV Metadata Update</IconText>
         </h1>
         <div>
           <AuthDisplayAuthorized level="MANAGER">

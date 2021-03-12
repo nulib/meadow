@@ -16,6 +16,7 @@ const client = new Elasticsearch.Client({
 export const ELASTICSEARCH_FIELDS_TO_SEARCH = [
   "all_titles",
   "descriptiveMetadata.description",
+  "collection.title",
   "full_text",
   "accessionNumber",
 ];

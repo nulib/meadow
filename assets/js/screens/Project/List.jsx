@@ -12,6 +12,7 @@ import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { useQuery } from "@apollo/client";
 import UISkeleton from "@js/components/UI/Skeleton";
 import Error from "@js/components/UI/Error";
+import IconAdd from "@js/components/Icon/Add";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -36,10 +37,6 @@ const ScreensProjectList = () => {
             <div className="columns" data-testid="screen-header">
               <div className="column is-8">
                 <h1 className="title">Projects</h1>
-                <p>
-                  Projects are a way to organize{" "}
-                  <span className="is-italic">Ingest Sheets</span>.{" "}
-                </p>
               </div>
               <AuthDisplayAuthorized>
                 <div className="column is-4 has-text-right">
@@ -48,7 +45,10 @@ const ScreensProjectList = () => {
                     data-testid="button-new-project"
                     onClick={() => setShowForm(!showForm)}
                   >
-                    Add Project
+                    <span className="icon">
+                      <IconAdd />
+                    </span>
+                    <span>Add Project</span>
                   </Button>
                 </div>
               </AuthDisplayAuthorized>

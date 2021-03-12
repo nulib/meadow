@@ -1,4 +1,5 @@
 import React from "react";
+import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 
 const UILayoutFooter = () => {
   return (
@@ -22,10 +23,9 @@ const UILayoutFooter = () => {
             </div>
             <div className="level-item">
               <div>
-                <span className="is-family-secondary">Meadow v1.x.x</span> by{" "}
-                <a href="https://github.com/nulib" target="_blank">
-                  @nulib
-                </a>
+                <span className="is-family-secondary">
+                  Meadow <UIMeadowVersion showHoneyVersion />
+                </span>
               </div>
             </div>
           </nav>

@@ -2,11 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import classNames from "classnames";
 
 function UISearchBarRow({ isCentered, children }) {
   return (
     <div
-      className={`columns ${isCentered ? "is-centered" : ""}`}
+      className={classNames(["columns", "mb-6"], {
+        "is-centered": isCentered,
+      })}
       data-testid="search-bar-row"
     >
       <div className="column is-half-desktop">

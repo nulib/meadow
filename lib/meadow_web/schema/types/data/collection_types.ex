@@ -112,5 +112,10 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     end
 
     field :representative_work, :work
+
+    field :total_works, :integer,
+      resolve: fn query, _, _ ->
+        Meadow.Data.Collections.get_work_count(query.id)
+      end
   end
 end

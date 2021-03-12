@@ -14,7 +14,11 @@ const modalCloseButton = css`
 
 function TechDataDisplay({ value }) {
   if (typeof value === "object") {
-    return Object.keys(value).join(", ");
+    if (value === null) {
+      return "--";
+    } else {
+      return Object.keys(value).join(", ");
+    }
   }
   return value;
 }
@@ -36,7 +40,7 @@ function WorkTabsPreservationTechnical({
       <div className="modal-background"></div>
       <div className="modal-content content">
         <div className="box">
-          <h2 className="title">Technical Metadata</h2>
+          <h3>Technical Metadata</h3>
           {!exifData && (
             <p data-testid="no-data-notification">
               No technical metadata exists for this File Set

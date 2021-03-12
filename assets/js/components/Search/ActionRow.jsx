@@ -6,6 +6,8 @@ import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import IconEdit from "@js/components/Icon/Edit";
+import IconCsv from "@js/components/Icon/Csv";
+import IconTrashCan from "@js/components/Icon/TrashCan";
 
 export default function SearchActionRow({
   handleCsvExportAllItems,
@@ -109,7 +111,7 @@ export default function SearchActionRow({
           <>
             <Button
               isLight
-              className="is-fullwidth mb-4"
+              className="mb-4 is-fullwidth"
               data-testid="button-batch-all-edit"
               onClick={handleEditAllItemsClick}
             >
@@ -120,12 +122,12 @@ export default function SearchActionRow({
             </Button>
             <Button
               isLight
-              className="is-fullwidth mb-4"
+              className="mb-4 is-fullwidth"
               data-testid="button-csv-all-export"
               onClick={handleCsvExportAllItemsClick}
             >
               <span className="icon">
-                <FontAwesomeIcon icon="file-csv" />
+                <IconCsv />
               </span>
               <span>Export metadata from {numberOfResults} works </span>
             </Button>
@@ -140,7 +142,7 @@ export default function SearchActionRow({
             onClick={handleDeleteAllItemsClick}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="trash" />
+              <IconTrashCan />
             </span>
             <span>Delete {numberOfResults} works </span>
           </Button>
@@ -155,7 +157,7 @@ export default function SearchActionRow({
         <AuthDisplayAuthorized level="EDITOR">
           <Button
             isLight
-            className="is-fullwidth mb-4"
+            className="mb-4 is-fullwidth"
             data-testid="button-batch-items-edit"
             onClick={handleEditItemsClick}
           >
@@ -166,23 +168,23 @@ export default function SearchActionRow({
           </Button>
           <Button
             isLight
-            className="is-fullwidth mb-4"
+            className="mb-4 is-fullwidth"
             data-testid="button-view-and-edit"
             onClick={handleViewAndEditClick}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="eye" />
+              <IconEdit />
             </span>
             <span>View and edit {numSelectedItems} individual works</span>
           </Button>
           <Button
             isLight
-            className="is-fullwidth mb-4"
+            className="mb-4 is-fullwidth"
             data-testid="button-csv-items-export"
             onClick={handleCsvExportItemsClick}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="file-csv" />
+              <IconCsv />
             </span>
             <span>Export metadata from {numSelectedItems} works </span>
           </Button>
@@ -195,7 +197,7 @@ export default function SearchActionRow({
             onClick={handleDeleteItemsClick}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="trash" />
+              <IconTrashCan />
             </span>
             <span>Delete {numSelectedItems} works </span>
           </Button>

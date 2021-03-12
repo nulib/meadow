@@ -1,34 +1,29 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import { Tag } from "@nulib/admin-react-components";
 
 function CollectionTags({ collection }) {
   const { featured, published, visibility } = collection;
 
   return (
-    <div className="mb-4">
-      <span
+    <div className="mb-4 tags">
+      <Tag
         data-testid="published-tag"
-        className={classNames("tag", "mr-1", "is-light", {
-          "is-warning": !published,
-          "is-success": published,
-        })}
+        isWarning={!published}
+        isSuccess={published}
       >
         {published ? "Published" : "Not Published"}
-      </span>
+      </Tag>
       {visibility && (
-        <span
-          className={classNames("tag", "is-light", "mr-1", {
-            "is-danger": visibility.id === "RESTRICTED",
-            "is-info": visibility.id === "AUTHENTICATED",
-          })}
+        <Tag
+          isDanger={visibility.id === "RESTRICTED"}
+          isPrimary={visibility.id === "AUTHENTICATED"}
         >
           {visibility.label}
-        </span>
+        </Tag>
       )}
-      {featured && (
-        <span className={`tag is-info is-light mr-1`}>Featured</span>
-      )}
+      {featured && <Tag>Featured</Tag>}
     </div>
   );
 }

@@ -53,7 +53,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
           raise error
       end
     rescue
-      Meadow.Utils.Stream.Timeout ->
+      Meadow.TimeoutError ->
         ActionStates.set_state!(file_set, __MODULE__, "pending")
         :retry
 

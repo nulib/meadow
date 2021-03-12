@@ -10,6 +10,11 @@ import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTab
 import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
+import IconReplace from "@js/components/Icon/Replace";
+import IconAdd from "@js/components/Icon/Add";
+import IconAlert from "@js/components/Icon/Alert";
+import IconTrashCan from "@js/components/Icon/TrashCan";
+import UIIconText from "@js/components/UI/IconText";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -19,8 +24,11 @@ const verifyInputWrapper = css`
   display: inline-block;
 `;
 
+const modalWrapper = css`
+  margin-top: 60px;
+`;
+
 const BatchEditConfirmation = ({
-  batchEditType,
   batchAdds,
   batchDeletes,
   batchReplaces,
@@ -95,14 +103,18 @@ const BatchEditConfirmation = ({
     });
   };
 
-  const hasAdds = batchAdds && Object.keys(batchAdds[batchEditType]).length > 0;
+  const hasAdds =
+    batchAdds &&
+    (Object.keys(batchAdds.administrativeMetadata).length > 0 ||
+      Object.keys(batchAdds.descriptiveMetadata).length > 0);
 
   const hasDeletes =
     batchDeletes && !Object.values(batchDeletes).every((item) => !item.length);
 
   const hasReplaces =
     batchReplaces &&
-    (Object.keys(batchReplaces[batchEditType]).length > 0 ||
+    (Object.keys(batchReplaces.administrativeMetadata).length > 0 ||
+      Object.keys(batchReplaces.descriptiveMetadata).length > 0 ||
       batchReplaces.published);
 
   const hasCollection =
@@ -117,6 +129,7 @@ const BatchEditConfirmation = ({
   return (
     <div
       className={`modal ${isConfirmModalOpen ? "is-active" : ""}`}
+      css={modalWrapper}
       data-testid="modal-batch-edit-confirmation"
     >
       <div className="modal-background"></div>
@@ -131,20 +144,27 @@ const BatchEditConfirmation = ({
           ></button>
         </header>
 
-        <div className="modal-card-body">
+        <div className="modal-card-body has-background-light">
           {hasAdds && (
-            <section className="content">
-              <h3>Adding</h3>
+            <section className="box content">
+              <h3>
+                <UIIconText icon={<IconAdd />}>Adding</UIIconText>
+              </h3>
               <BatchEditConfirmationTable
-                itemsObj={batchAdds[batchEditType]}
+                itemsObj={{
+                  ...batchAdds.administrativeMetadata,
+                  ...batchAdds.descriptiveMetadata,
+                }}
                 type="add"
               />
             </section>
           )}
 
           {hasDeletes && (
-            <section className={`content ${hasAdds ? "py-6" : ""}`}>
-              <h3>Removing</h3>
+            <section className={`box content`}>
+              <h3>
+                <UIIconText icon={<IconTrashCan />}>Removing</UIIconText>
+              </h3>
               <BatchEditConfirmationTable
                 itemsObj={batchDeletes}
                 type="remove"
@@ -153,11 +173,14 @@ const BatchEditConfirmation = ({
           )}
 
           {(hasReplaces || hasCollection || hasVisibility) && (
-            <section className="content">
-              <h3>Replacing</h3>
+            <section className="box content">
+              <h3>
+                <UIIconText icon={<IconReplace />}>Replacing</UIIconText>
+              </h3>
               <BatchEditConfirmationTable
                 itemsObj={{
-                  ...batchReplaces[batchEditType],
+                  ...batchReplaces.administrativeMetadata,
+                  ...batchReplaces.descriptiveMetadata,
                   ...(batchCollection &&
                     batchCollection.title && {
                       collection: batchCollection.title,
@@ -178,7 +201,7 @@ const BatchEditConfirmation = ({
           )}
 
           {hasDataToPost ? (
-            <div className="box is-shadowless">
+            <div className="box">
               <div className="mb-4">
                 <UIFormField label="Batch nickname">
                   <UIFormInput
@@ -193,30 +216,32 @@ const BatchEditConfirmation = ({
                   </p>
                 </UIFormField>
               </div>
-              <div className="notification is-danger is-light has-text-centered content">
-                <p>
-                  <TiWarning /> NOTE: This batch edit will affect{" "}
-                  {numberOfResults} works. To execute this change, type "I
-                  understand"
-                </p>
-
-                <div css={verifyInputWrapper}>
-                  <UIFormInput
-                    onChange={handleConfirmationChange}
-                    name="confirmationText"
-                    label="Confirmation Text"
-                    placeholder="I understand"
-                    required
-                    data-testid="input-confirmation-text"
-                  />
-                </div>
-              </div>
             </div>
           ) : (
             <p className="notification is-white">
               No data currently selected to batch update.
             </p>
           )}
+
+          <div className="notification is-danger is-light has-text-centered content">
+            <div className="block">
+              <UIIconText icon={<IconAlert />} isCentered>
+                This batch edit will affect {numberOfResults} works. To execute
+                this change, type "I understand"
+              </UIIconText>
+            </div>
+
+            <div css={verifyInputWrapper}>
+              <UIFormInput
+                onChange={handleConfirmationChange}
+                name="confirmationText"
+                label="Confirmation Text"
+                placeholder="I understand"
+                required
+                data-testid="input-confirmation-text"
+              />
+            </div>
+          </div>
         </div>
 
         <footer className="modal-card-foot buttons is-right">
@@ -238,7 +263,6 @@ const BatchEditConfirmation = ({
 };
 
 BatchEditConfirmation.propTypes = {
-  batchEditType: PropTypes.string,
   batchAdds: PropTypes.object,
   batchDeletes: PropTypes.object,
   batchReplaces: PropTypes.object,

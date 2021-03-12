@@ -117,9 +117,14 @@ export default function SearchFacetSidebar() {
           {...sensor}
           defaultValue={getDefaultValue(sensor)}
           defaultQuery={() => allImagesQuery}
+          missingLabel="None"
+          placeholder="Filter"
           react={{
             and: filterList(sensor.componentId),
           }}
+          showMissing={
+            ["Published"].indexOf(sensor.componentId) > -1 ? false : true
+          }
           showFilter={true}
           URLParams={true}
         />
@@ -133,6 +138,7 @@ export default function SearchFacetSidebar() {
           {...sensor}
           defaultValue={getDefaultValue(sensor)}
           defaultQuery={() => allImagesQuery}
+          placeholder="Filter"
           react={{
             and: filterTechnicalMetadataList(sensor.componentId),
           }}

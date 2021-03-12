@@ -9,6 +9,7 @@ import useRepositoryStats from "@js/hooks/useRepositoryStats";
 import ChartsRepositoryGrowth from "@js/components/Charts/RepositoryGrowth";
 import ChartsVisibility from "@js/components/Charts/Visibility";
 import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
+import { Link } from "react-router-dom";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
@@ -35,11 +36,7 @@ const ScreensHome = () => {
 
   return (
     <Layout>
-      <section className="section">
-        <div className="container">
-          <HomeSearchAndSubscribeBox />
-        </div>
-      </section>
+      <HomeSearchAndSubscribeBox />
 
       <section className="section">
         <div className="container">
@@ -63,32 +60,42 @@ const ScreensHome = () => {
           <div className="columns">
             <div className="column">
               <div className="box">
-                <h3 className="subtitle is-3">Recently Updated Collections</h3>
-                <CollectionRecentlyUpdated
-                  recentlyUpdatedCollections={stats.collectionsRecentlyUpdated}
-                />
-              </div>
-            </div>
-            <div className="column">
-              <div className="box">
-                <h3 className="subtitle is-3">Visibility</h3>
-                <ChartsVisibility data={stats.visibility} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="section">
-        <div className="container">
-          <div className="columns">
-            <div className="column">
-              <div className="box">
                 <ChartsGoogleAnalytics />
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="columns">
+            <div className="column">
+              <div className="box">
+                <h3 className="subtitle is-3">Recently Updated Collections</h3>
+
+                <div className="block">
+                  <CollectionRecentlyUpdated
+                    recentlyUpdatedCollections={
+                      stats.collectionsRecentlyUpdated
+                    }
+                  />
+                </div>
+                <Link to="/collection/list" className="button">
+                  View all collections
+                </Link>
+              </div>
+            </div>
+            <div className="column">
+              <div className="box">
+                <h3 className="subtitle is-3">Works Visibility</h3>
+                <ChartsVisibility data={stats.visibility} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <WorkForm showWorkForm={showWorkForm} setShowWorkForm={setShowWorkForm} />
     </Layout>
   );
