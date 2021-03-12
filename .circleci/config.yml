@@ -34,10 +34,12 @@ jobs:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run:
+                working_directory: ~/meadow
                 name: Ensure version isn't already tagged
                 command: |
                   MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')
                   TAG_COUNT=$(git tag | grep -c v$MEADOW_VERSION)
+                  echo "Tag count for ${MEADOW_VERSION}: ${TAG_COUNT}"
                   if [[ $TAG_COUNT -gt 0 ]]; then
                     echo "Version ${MEADOW_VERSION} is already tagged"
                     circleci-agent step halt
