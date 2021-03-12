@@ -87,14 +87,14 @@ const ScreensSearch = () => {
   };
 
   const handleQueryChange = (query) => {
-    setFilteredQuery(query.query);
-  };
-
-  const handleOnDataChange = (resultStats) => {
     // Remove manually selected items when interacting with ReactiveSearch
     // to avoid 'hidden' selected items confusion
     setSelectedItems([]);
 
+    setFilteredQuery(query.query);
+  };
+
+  const handleOnDataChange = (resultStats) => {
     setResultStats({ ...resultStats });
   };
 
