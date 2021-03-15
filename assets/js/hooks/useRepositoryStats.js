@@ -216,18 +216,26 @@ export default function useRepositoryStats() {
         collections: resultArray[0].count,
         works: resultArray[1].count,
         worksPublished: resultArray[2].count,
-        projects: getProjectsCount(
-          resultArray[3].aggregations.projects.buckets
-        ),
-        visibility: getVisbilityData(
-          resultArray[4].aggregations.visibilities.buckets
-        ),
-        worksCreatedByWeek: getWorksCreatedByWeek(
-          resultArray[5].aggregations.works_created_by_week.buckets
-        ),
-        collectionsRecentlyUpdated: getRecentCollections(
-          resultArray[6].aggregations.works_recently_updated.buckets
-        ),
+        ...(resultArray[3] && {
+          projects: getProjectsCount(
+            resultArray[3].aggregations.projects.buckets
+          ),
+        }),
+        ...(resultArray[4] && {
+          visibility: getVisbilityData(
+            resultArray[4].aggregations.visibilities.buckets
+          ),
+        }),
+        ...(resultArray[5] && {
+          worksCreatedByWeek: getWorksCreatedByWeek(
+            resultArray[5].aggregations.works_created_by_week.buckets
+          ),
+        }),
+        ...(resultArray[6] && {
+          collectionsRecentlyUpdated: getRecentCollections(
+            resultArray[6].aggregations.works_recently_updated.buckets
+          ),
+        }),
       });
     }
     fn();
