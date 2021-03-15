@@ -70,28 +70,30 @@ export default function DashboardsBatchEditList() {
                   {status}
                 </Tag>
               </td>
-              <td className="has-text-right">
-                <Link
-                  className="button is-light mr-1"
-                  to={`/dashboards/batch-edit/${id}`}
-                  data-testid="view-button"
-                  title="View Batch Edit details"
-                >
-                  <IconView />
-                </Link>
-                {type == "UPDATE" && (
+              <td>
+                <div className="field is-grouped is-justify-content-flex-end">
                   <Link
-                    data-testid="button-to-search"
-                    className="button is-light"
-                    title="View updated works"
-                    to={{
-                      pathname: "/search",
-                      state: { passedInSearchTerm: `batches:\"${id}\"` },
-                    }}
+                    className="button is-light is-small"
+                    to={`/dashboards/batch-edit/${id}`}
+                    data-testid="view-button"
+                    title="View Batch Edit details"
                   >
-                    <IconImages />
+                    <IconView />
                   </Link>
-                )}
+                  {type == "UPDATE" && (
+                    <Link
+                      data-testid="button-to-search"
+                      className="button is-light is-small"
+                      title="View updated works"
+                      to={{
+                        pathname: "/search",
+                        state: { passedInSearchTerm: `batches:\"${id}\"` },
+                      }}
+                    >
+                      <IconImages />
+                    </Link>
+                  )}
+                </div>
               </td>
             </tr>
           );

@@ -46,7 +46,7 @@ function DashboardsLocalAuthoritiesTitleBar() {
         data-testid="nul-authorities-title-bar"
       >
         <h1 className="title" data-testid="local-authorities-dashboard-title">
-          <UIIconText icon={<NLogo width="1.5rem" height="1.5rem" />}>
+          <UIIconText icon={<NLogo width="24px" height="24px" />}>
             Local Authorities Dashboard
           </UIIconText>
         </h1>
