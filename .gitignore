@@ -52,6 +52,8 @@ npm-debug.log
 /terraform/.terraform/
 /terraform/**/_build/
 
+/tmp/
+
 # Accounts for a package on the front-end to enable autocomplete for Jest in VSCode
 node_modules
 /yarn.lock

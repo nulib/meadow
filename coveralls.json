@@ -9,6 +9,7 @@
     "lib/meadow/application.ex",
     "lib/meadow/data/works/batch_functions.ex",
     "lib/meadow/release_tasks.ex",
+    "lib/meadow/seed/",
     "lib/mix/",
     "priv/",
     "test/"
