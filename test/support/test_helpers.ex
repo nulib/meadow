@@ -10,7 +10,7 @@ defmodule Meadow.TestHelpers do
   alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
-  alias Meadow.Utils.MetadataGenerator
+  alias Meadow.TestSupport.MetadataGenerator
 
   alias Meadow.Repo
 
