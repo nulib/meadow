@@ -22,7 +22,7 @@ const config = {
 
 const honeybadger = Honeybadger
   .configure(config)
-  .setContext({ meadow_version: ifDefined(__MEADOW_VERSION__, "unknown") });
+  .setContext({ meadow_version: ifDefined(__MEADOW_VERSION__, "unknown"), tags: "frontend" });
 
 setupFontAwesome();
 
