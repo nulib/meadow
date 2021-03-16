@@ -2,6 +2,7 @@ locals {
   container_ports = list(4000, 4369, 24601)
   container_config = {
     agentless_sso_key    = var.agentless_sso_key
+    digital_collections_bucket = var.digital_collections_bucket
     digital_collections_url =  var.digital_collections_url
     database_url         = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
     docker_tag           = terraform.workspace

@@ -111,3 +111,9 @@ config :honeybadger,
   exclude_envs: [:dev, :test],
   api_key: "abc123",
   origin: "http://localhost:4444"
+
+config :meadow, :sitemaps,
+  gzip: true,
+  store: Sitemapper.S3Store,
+  sitemap_url: "http://localhost:3333/",
+  store_config: [bucket: "test-uploads"]

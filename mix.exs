@@ -85,6 +85,7 @@ defmodule Meadow.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:sequins, "~> 0.7.1"},
       {:sigaws, "~> 0.7.2"},
+      {:sitemapper, "~> 0.4.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.4"},
       {:ueberauth_nusso, "~> 0.2.4"},

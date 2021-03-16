@@ -17,6 +17,10 @@ variable "certificate_name" {
   default = "*"
 }
 
+variable "digital_collections_bucket" {
+  type    = string
+}
+
 variable "digital_collections_url" {
   type    = string
 }
