@@ -1,4 +1,4 @@
-defmodule Meadow.Utils.MetadataGenerator do
+defmodule Meadow.TestSupport.MetadataGenerator do
   @moduledoc """
   Generate random descriptive metadata for works
   """
