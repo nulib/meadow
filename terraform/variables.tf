@@ -1,3 +1,8 @@
+variable "additional_hostnames" {
+  type    = list(string)
+  default = []
+}
+
 variable "agentless_sso_key" {
   type    = string
 }
