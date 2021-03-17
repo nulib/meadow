@@ -58,4 +58,92 @@ defmodule Meadow.Utils.StreamTest do
              "five"
            ]
   end
+
+  describe "list_contents/1" do
+    test "file://" do
+      with path <- Path.expand("test/fixtures/migration"),
+           result <- Stream.list_contents("file://#{path}") do
+        assert result |> length() > 0
+
+        assert result
+               |> Enum.all?(fn "file://" <> file ->
+                 file |> File.regular?() and
+                   file |> String.contains?("test/fixtures/migration")
+               end)
+      end
+    end
+
+    @tag s3: [@fixture]
+    test "s3://" do
+      with result <- Stream.list_contents("s3://#{@bucket}/stream_test") do
+        assert result |> length() == 1
+        assert result |> Enum.all?(&Stream.exists?/1)
+      end
+    end
+  end
+
+  describe "copy/2" do
+    @describetag :tmp_dir
+
+    setup %{tmp_dir: tmp_dir} do
+      on_exit(fn -> File.rm_rf(tmp_dir) end)
+    end
+
+    test "file to file", %{tmp_dir: tmp_dir} do
+      with path <- Path.expand("test/fixtures/coffee.tif"),
+           tmp_dir <- Path.expand(tmp_dir) do
+        refute File.regular?("#{tmp_dir}/output.bin")
+        Stream.copy("file://#{path}", "file://#{tmp_dir}/output.bin")
+        assert File.regular?("#{tmp_dir}/output.bin")
+      end
+    end
+
+    @tag s3: [@fixture]
+    test "s3 to s3" do
+      on_exit(fn ->
+        delete_object("test-preservation", "path/to/new_key.bin")
+      end)
+
+      refute object_exists?("test-preservation", "path/to/new_key.bin")
+      Stream.copy("s3://#{@bucket}/#{@key}", "s3://test-preservation/path/to/new_key.bin")
+      assert object_exists?("test-preservation", "path/to/new_key.bin")
+    end
+
+    @tag s3: [@fixture]
+    test "s3 to file", %{tmp_dir: tmp_dir} do
+      with tmp_dir <- Path.expand(tmp_dir) do
+        refute File.regular?("#{tmp_dir}/output.bin")
+        Stream.copy("s3://#{@bucket}/#{@key}", "file://#{tmp_dir}/output.bin")
+        assert File.regular?("#{tmp_dir}/output.bin")
+      end
+    end
+
+    test "small file to s3" do
+      on_exit(fn ->
+        delete_object("test-preservation", "path/to/new_key.bin")
+      end)
+
+      with path <- Path.expand("test/fixtures/coffee.tif") do
+        refute object_exists?("test-preservation", "path/to/new_key.bin")
+        Stream.copy("file://#{path}", "s3://test-preservation/path/to/new_key.bin")
+        assert object_exists?("test-preservation", "path/to/new_key.bin")
+      end
+    end
+
+    test "big file to s3", %{tmp_dir: tmp_dir} do
+      on_exit(fn ->
+        delete_object("test-preservation", "path/to/new_key.bin")
+      end)
+
+      with tmp_dir <- Path.expand(tmp_dir),
+           path <- Path.join([tmp_dir, "big_file.bin"]),
+           file_size <- 6 * 1024 * 1024 do
+        File.write!(path, Faker.random_bytes(file_size))
+        refute object_exists?("test-preservation", "path/to/new_key.bin")
+        Stream.copy("file://#{path}", "s3://test-preservation/path/to/new_key.bin")
+        assert object_exists?("test-preservation", "path/to/new_key.bin")
+        assert object_size("test-preservation", "path/to/new_key.bin") == file_size
+      end
+    end
+  end
 end

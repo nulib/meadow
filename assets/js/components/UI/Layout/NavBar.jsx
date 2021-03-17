@@ -172,7 +172,7 @@ const UILayoutNavBar = () => {
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/nul-local-authorities">
-                          <IconText icon={<NLogo width="1rem" height="1rem" />}>
+                          <IconText icon={<NLogo width="14px" height="14px" />}>
                             Local Authorities
                           </IconText>
                         </Link>

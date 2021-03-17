@@ -9,7 +9,7 @@ function UIMeadowVersion({ showHoneyVersion }) {
   return (
     <>
       <a
-        href={`https://github.com/nulib/meadow/tree/${__MEADOW_VERSION__}`}
+        href={`https://github.com/nulib/meadow/tree/v${__MEADOW_VERSION__}`}
         target="_blank"
       >
         {__MEADOW_VERSION__}

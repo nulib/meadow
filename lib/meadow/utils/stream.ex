@@ -5,9 +5,11 @@ defmodule Meadow.Utils.Stream do
 
   require Logger
 
+  alias ExAws.S3
+
   def exists?("s3://" <> _ = url) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
-      case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
+      case S3.head_object(bucket, key) |> ExAws.request() do
         {:ok, %{status_code: status}} when status in 200..299 -> true
         _ -> false
       end
@@ -23,9 +25,56 @@ defmodule Meadow.Utils.Stream do
     end
   end
 
+  def copy("s3://" <> _ = source, "s3://" <> _ = dest) do
+    with {source_bucket, source_key} <- parse_s3_uri(source),
+         {dest_bucket, dest_key} <- parse_s3_uri(dest) do
+      S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
+        metadata_directive: :COPY
+      )
+      |> ExAws.request!()
+    end
+  end
+
+  def copy("file://" <> source, "file://" <> dest) do
+    File.cp(source, dest)
+  end
+
+  def copy("s3://" <> _ = source, "file://" <> dest) do
+    stream_from(source) |> Stream.into(File.stream!(dest)) |> Stream.run()
+  end
+
+  def copy("file://" <> source, "s3://" <> _ = dest) do
+    %{size: size} = File.stat!(source)
+
+    {dest_bucket, dest_key} = parse_s3_uri(dest)
+
+    if size > 5 * 1024 * 1024 do
+      S3.Upload.stream_file(source) |> S3.upload(dest_bucket, dest_key)
+    else
+      content = File.read!(source)
+      S3.put_object(dest_bucket, dest_key, content)
+    end
+    |> ExAws.request!()
+  end
+
+  def list_contents("s3://" <> _ = url) do
+    {bucket, prefix} = parse_s3_uri(url)
+
+    S3.list_objects_v2(bucket, prefix: prefix)
+    |> ExAws.stream!()
+    |> Stream.map(fn %{key: key} -> "s3://#{bucket}/#{key}" end)
+    |> Enum.to_list()
+  end
+
+  def list_contents("file://" <> path) do
+    Path.wildcard("#{path}/**/*")
+    |> Enum.reject(&File.dir?/1)
+    |> Enum.map(fn file -> "file://#{file}" end)
+  end
+
   def stream_from("s3://" <> _ = url) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
-      ExAws.S3.download_file(bucket, key, :memory) |> ExAws.stream!()
+      S3.download_file(bucket, key, :memory) |> ExAws.stream!()
     end
   end
 
@@ -37,6 +86,12 @@ defmodule Meadow.Utils.Stream do
       &async_stream_next/1,
       &async_stream_after/1
     )
+  end
+
+  defp parse_s3_uri(url) do
+    with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
+      {bucket, key}
+    end
   end
 
   defp async_stream_start(url), do: HTTPoison.get!(url, %{}, stream_to: self(), async: :once)

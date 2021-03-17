@@ -174,22 +174,26 @@ export default function DashboardsLocalAuthoritiesList() {
                 <td>{hint}</td>
                 <td>{id}</td>
 
-                <td className="has-text-right buttons is-right mb-0">
-                  <Button
-                    data-testid="edit-button"
-                    title="Edit NUL Local Authority"
-                    className="is-small"
-                    onClick={() => handleUpdateButtonClick(record)}
-                  >
-                    <FontAwesomeIcon icon="pen" />
-                  </Button>
-                  <Button
-                    data-testid="delete-button"
-                    className="is-small"
-                    onClick={() => handleDeleteClick(record)}
-                  >
-                    <FontAwesomeIcon icon="trash" />
-                  </Button>
+                <td className="has-text-right is-right mb-0">
+                  <div className="field is-grouped">
+                    <Button
+                      isLight
+                      data-testid="edit-button"
+                      title="Edit NUL Local Authority"
+                      className="is-small"
+                      onClick={() => handleUpdateButtonClick(record)}
+                    >
+                      <FontAwesomeIcon icon="pen" />
+                    </Button>
+                    <Button
+                      isLight
+                      data-testid="delete-button"
+                      className="is-small"
+                      onClick={() => handleDeleteClick(record)}
+                    >
+                      <FontAwesomeIcon icon="trash" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             );

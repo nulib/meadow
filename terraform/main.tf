@@ -45,6 +45,14 @@ resource "aws_s3_bucket" "meadow_ingest" {
   tags   = var.tags
 }
 
+locals {
+  cors_urls = flatten([
+    for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : [
+      "http://${hostname}",
+      "https://${hostname}"
+    ]
+  ])
+}
 resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
   acl    = "private"
@@ -53,15 +61,7 @@ resource "aws_s3_bucket" "meadow_uploads" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT"]
-    allowed_origins = ["http://${aws_route53_record.app_hostname.fqdn}"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
-  }
-
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["PUT"]
-    allowed_origins = ["https://${aws_route53_record.app_hostname.fqdn}"]
+    allowed_origins = local.cors_urls
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }

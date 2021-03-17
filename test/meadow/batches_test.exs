@@ -3,7 +3,7 @@ defmodule Meadow.BatchesTest do
   use Meadow.IndexCase
   alias Meadow.Batches
   alias Meadow.Data.{Indexer, Works}
-  alias Meadow.Utils.MetadataGenerator
+  alias Meadow.TestSupport.MetadataGenerator
 
   describe "Meadow.BatchesTest" do
     setup do

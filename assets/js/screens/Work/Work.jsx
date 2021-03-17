@@ -185,17 +185,17 @@ const ScreensWork = () => {
                       <UILevelItem
                         heading="Work id"
                         content={data.work.id}
-                        contentClassname="is-size-5"
+                        contentClassname="is-size-6"
                       />
                       <UILevelItem
                         heading="Ark"
                         content={data.work.descriptiveMetadata.ark || ""}
-                        contentClassname="is-size-5"
+                        contentClassname="is-size-6"
                       />
                       <UILevelItem
                         heading="Accession number"
                         content={data.work.accessionNumber || ""}
-                        contentClassname="is-size-5"
+                        contentClassname="is-size-6"
                       />
                     </div>
                   </div>

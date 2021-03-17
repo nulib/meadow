@@ -6,8 +6,10 @@ defmodule Meadow.Data.FileSets do
   import Ecto.Query, warn: false
   alias Ecto.Multi
 
+  alias Meadow.Config
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
+  alias Meadow.Utils.Pairtree
 
   @doc """
   Returns the list of FileSets.
@@ -166,5 +168,16 @@ defmodule Meadow.Data.FileSets do
     for {item, i} <- Enum.with_index(ordered_items) do
       %{item | position: i}
     end
+  end
+
+  @doc """
+  Get the pyramid path for a file set
+  """
+  def pyramid_uri_for(file_set_id) do
+    dest_bucket = Config.pyramid_bucket()
+
+    dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])
+
+    %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
 end

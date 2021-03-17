@@ -29,6 +29,7 @@ defmodule Meadow.ErrorTest do
         assert request_context |> Map.get("extra_data") == "foo"
         assert request_context |> Map.get("meadow_version") == Config.meadow_version()
         assert request_context |> Map.get("notifier") == __MODULE__ |> to_string()
+        assert request_context |> Map.get("tags") == "backend"
       end
     end
   end

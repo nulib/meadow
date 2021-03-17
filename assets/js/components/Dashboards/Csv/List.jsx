@@ -8,6 +8,7 @@ import { formatDate } from "@js/services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
+import IconView from "@js/components/Icon/View";
 
 const displayFields = [
   {
@@ -109,10 +110,10 @@ function DashboardsCsvList(props) {
                 <td className="has-text-right is-right">
                   <Link
                     to={`/dashboards/csv-metadata-update/${id}`}
-                    className="button is-small"
+                    className="button is-small is-light"
                     data-testid="view-button"
                   >
-                    <FontAwesomeIcon icon="eye" />
+                    <IconView />
                   </Link>
                 </td>
               </tr>
