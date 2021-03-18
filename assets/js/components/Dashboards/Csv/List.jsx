@@ -68,7 +68,7 @@ function DashboardsCsvList(props) {
     <div data-testid="csv-list">
       <UISearchBarRow isCentered>
         <UIFormInput
-          placeholder="Search"
+          placeholder="Filter"
           name="csvSearch"
           label="Filter CSV imports"
           onChange={handleFilterChange}

@@ -7,6 +7,7 @@ import {
   getNulAuthorityRecordsMock,
   updateNulAuthorityRecordMock,
 } from "@js/components/Dashboards/dashboards.gql.mock";
+import { authoritiesSearchMock } from "@js/components/Work/controlledVocabulary.gql.mock";
 import userEvent from "@testing-library/user-event";
 
 describe("DashboardsLocalAuthoritiesList component", () => {
@@ -22,23 +23,6 @@ describe("DashboardsLocalAuthoritiesList component", () => {
 
   it("renders", async () => {
     expect(await screen.findByTestId("local-authorities-dashboard-table"));
-  });
-
-  describe("Search filter", () => {
-    it("renders a search input", async () => {
-      expect(await screen.findByTestId("search-bar-row"));
-    });
-
-    it("filters NUL authorities list", async () => {
-      const el = await screen.findByPlaceholderText("Search");
-      expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(
-        2
-      );
-      userEvent.type(el, "2");
-      expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(
-        1
-      );
-    });
   });
 
   it("renders the correct number of nul authority rows", async () => {
@@ -64,5 +48,22 @@ describe("DashboardsLocalAuthoritiesList component", () => {
     const utils = within(row);
     expect(utils.getByTestId("edit-button"));
     expect(utils.getByTestId("delete-button"));
+  });
+});
+
+describe("DashboardsLocalAuthoritiesList component searching", () => {
+  it("calls the GraphQL query successfully and renders results", async () => {
+    // To mock this query, the passed in value must match the return value,
+    // otherwise Apollo complains its missing a mocked instance of the query
+    const dynamicMock = authoritiesSearchMock("f");
+
+    renderWithRouterApollo(<DashboardsLocalAuthoritiesList />, {
+      mocks: [getNulAuthorityRecordsMock, dynamicMock],
+    });
+
+    const el = await screen.findByPlaceholderText("Search");
+    expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(2);
+    userEvent.type(el, "f");
+    expect(await screen.findAllByText("Fast food restaurants"));
   });
 });
