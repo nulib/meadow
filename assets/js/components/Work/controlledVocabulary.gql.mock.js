@@ -1,6 +1,8 @@
-import { CODE_LIST_QUERY } from "./controlledVocabulary.gql";
-import { makeReference } from "@apollo/client";
-import { mockAuthoritiesSearch } from "@js/client-local";
+import {
+  AUTHORITIES_SEARCH,
+  CODE_LIST_QUERY,
+} from "./controlledVocabulary.gql";
+//import { mockAuthoritiesSearch } from "@js/client-local";
 
 export const marcRelatorMock = [
   {
@@ -64,6 +66,44 @@ export const subjectMock = [
     __typename: "CodedTerm",
   },
 ];
+
+export const authoritiesSearchMock = (searchTerm) => {
+  return {
+    request: {
+      query: AUTHORITIES_SEARCH,
+      variables: {
+        authority: "nul-authority",
+        query: searchTerm,
+      },
+    },
+    result: {
+      data: {
+        authoritiesSearch: [
+          {
+            hint: "Fast food restaurants",
+            id: "info:nul/d1581a5b-0609-4eee-adc3-47d088aa1229",
+            label: "Fast food restaurants",
+          },
+          {
+            hint: null,
+            id: "info:nul/610ee084-b629-4ee8-bca0-3af7a9d71cc0",
+            label: "Food",
+          },
+          {
+            hint: "Food containers",
+            id: "info:nul/1e21ce52-7362-4a28-97de-3e0416481357",
+            label: "Food containers",
+          },
+          {
+            hint: "Chinese food habits",
+            id: "info:nul/8c98d099-d6ed-4d01-baa6-31e6121e1b8e",
+            label: "Food habits--China",
+          },
+        ],
+      },
+    },
+  };
+};
 
 export const codeListAuthorityMock = {
   request: {

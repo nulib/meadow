@@ -1,10 +1,16 @@
 import React from "react";
-import { useApolloClient, useMutation, useQuery } from "@apollo/client";
+import {
+  useApolloClient,
+  useMutation,
+  useQuery,
+  useLazyQuery,
+} from "@apollo/client";
 import {
   DELETE_NUL_AUTHORITY_RECORD,
   GET_NUL_AUTHORITY_RECORDS,
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
+import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
@@ -27,11 +33,26 @@ export default function DashboardsLocalAuthoritiesList() {
       isOpen: false,
     },
   });
+  const [searchValue, setSearchValue] = React.useState("");
 
   // GraphQL
   const { loading, error, data } = useQuery(GET_NUL_AUTHORITY_RECORDS, {
     pollInterval: 1000,
   });
+
+  function filterValues() {
+    if (!data) return;
+    if (searchValue) {
+      authoritiesSearch({
+        variables: {
+          authority: "nul-authority",
+          query: searchValue,
+        },
+      });
+    } else {
+      setFilteredAuthorities(data.nulAuthorityRecords);
+    }
+  }
 
   const [
     deleteNulAuthorityRecord,
@@ -55,6 +76,7 @@ export default function DashboardsLocalAuthoritiesList() {
           "is-success",
           `${deleteNulAuthorityRecord.label} deleted successfully`
         );
+        filterValues();
       } catch (e) {
         console.error(e);
         toastWrapper("is-danger", `Error deleting NUL local authority: ${e}`);
@@ -72,19 +94,36 @@ export default function DashboardsLocalAuthoritiesList() {
         `NUL Authority: ${updateNulAuthorityRecord.label} updated`
       );
       setCurrentAuthority(null);
+      filterValues();
+    },
+  });
+
+  const [
+    authoritiesSearch,
+    {
+      error: errorAuthoritiesSearch,
+      loading: loadingAuthoritiesSearch,
+      data: dataAuthoritiesSearch,
+    },
+  ] = useLazyQuery(AUTHORITIES_SEARCH, {
+    fetchPolicy: "network-only",
+    onCompleted: (data) => {
+      setFilteredAuthorities(dataAuthoritiesSearch.authoritiesSearch);
+    },
+    onError({ graphQLErrors, networkError }) {
+      console.error("graphQLErrors", graphQLErrors);
+      console.error("networkError", networkError);
+      toastWrapper(
+        "is-danger",
+        `Error searching NUL local authorities through GraphQL LazyQuery`
+      );
     },
   });
 
   React.useEffect(() => {
-    if (!data) {
-      return;
-    }
-    setFilteredAuthorities(
-      data.nulAuthorityRecords && data.nulAuthorityRecords.length > 0
-        ? data.nulAuthorityRecords
-        : []
-    );
-  }, [data]);
+    if (!data) return;
+    filterValues();
+  }, [data, searchValue]);
 
   if (loading || deleteAuthorityLoading || updateLoading) return null;
   if (error)
@@ -112,17 +151,6 @@ export default function DashboardsLocalAuthoritiesList() {
     });
   };
 
-  const handleFilterChange = (e) => {
-    const filterValue = e.target.value.toUpperCase();
-    if (!filterValue) {
-      return setFilteredAuthorities(data.nulAuthorityRecords);
-    }
-    const filteredList = filteredAuthorities.filter((item) => {
-      return item.label.toUpperCase().indexOf(filterValue) > -1;
-    });
-    setFilteredAuthorities(filteredList);
-  };
-
   const handleUpdateButtonClick = (record) => {
     setCurrentAuthority({ ...record });
     setModalsState({
@@ -140,15 +168,19 @@ export default function DashboardsLocalAuthoritiesList() {
     });
   };
 
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
+  };
+
   return (
     <React.Fragment>
       <UISearchBarRow isCentered>
         <UIFormInput
           placeholder="Search"
-          name="localAuthoritiesSearch"
-          label="Filter NUL local authorities"
-          onChange={handleFilterChange}
-          data-testid="input-local-authorities-filter"
+          name="nulSearch"
+          label="NUL search"
+          onChange={handleSearchChange}
+          value={searchValue}
         />
       </UISearchBarRow>
       <table
@@ -166,7 +198,7 @@ export default function DashboardsLocalAuthoritiesList() {
         </thead>
         <tbody data-testid="local-authorities-table-body">
           {filteredAuthorities.map((record) => {
-            const { id, hint = "", label = "" } = record;
+            const { id = "", hint = "", label = "" } = record;
 
             return (
               <tr key={id} data-testid="nul-authorities-row">
