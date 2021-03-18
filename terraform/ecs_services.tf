@@ -1,5 +1,8 @@
 locals {
   container_ports = list(4000, 4369, 24601)
+
+  meadow_urls = [for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : "//${hostname}"]
+
   container_config = {
     agentless_sso_key    = var.agentless_sso_key
     digital_collections_bucket = var.digital_collections_bucket
@@ -20,6 +23,7 @@ locals {
     iiif_server_url      = var.iiif_server_url
     ingest_bucket        = aws_s3_bucket.meadow_ingest.bucket
     log_group            = aws_cloudwatch_log_group.meadow_logs.name
+    meadow_urls          = join(",", local.meadow_urls)
     preservation_bucket  = aws_s3_bucket.meadow_preservation.bucket
     pyramid_bucket       = var.pyramid_bucket
     region               = var.aws_region
