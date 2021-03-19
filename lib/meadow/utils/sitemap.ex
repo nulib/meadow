@@ -62,21 +62,23 @@ defmodule Meadow.Utils.Sitemap do
   end
 
   defp collection_urls do
-    for collection <- Collections.list_collections() do
+    for %{id: id, updated_at: updated_at} <- Collections.list_collections() do
       %Sitemapper.URL{
-        loc: expand_url("/collections/#{collection.id}"),
+        loc: expand_url("/collections/#{id}"),
+        lastmod: updated_at,
         priority: 0.5,
         changefreq: :daily
       }
     end
   end
 
-  defp work_urls(limit \\ 50_000) do
-    Works.work_query(visibility: "OPEN", work_type: "IMAGE", limit: limit)
+  defp work_urls do
+    Works.work_query(visibility: "OPEN", work_type: "IMAGE")
     |> Repo.stream()
-    |> Stream.map(fn work ->
+    |> Stream.map(fn %{id: id, updated_at: updated_at} ->
       %Sitemapper.URL{
-        loc: expand_url("/items/#{work.id}"),
+        loc: expand_url("/items/#{id}"),
+        lastmod: updated_at,
         priority: 0.5,
         changefreq: :daily
       }
