@@ -94,7 +94,7 @@ defmodule Meadow.Migration do
            donut_work -> import_work(donut_work)
          end) do
       {:ok, donut_work} ->
-        donut_work
+        donut_work |> send_to_pipeline()
 
       {:error, {donut_work, message}} ->
         donut_work |> DonutWorks.update_donut_work(%{status: "error", error: message})
@@ -194,7 +194,6 @@ defmodule Meadow.Migration do
         {:ok, work} ->
           work
           |> set_representative_file_set(representative_file_set_id)
-          |> send_to_pipeline()
 
           Logger.info("Marking work #{work_id} complete")
           donut_work |> DonutWorks.update_donut_work(%{status: "complete"})
@@ -234,7 +233,18 @@ defmodule Meadow.Migration do
     {donut_work, message}
   end
 
-  defp send_to_pipeline(%{file_sets: file_sets}) when file_sets == [], do: :noop
+  defp send_to_pipeline({:ok, %DonutWork{work_id: work_id} = donut_work}) do
+    case Works.get_work(work_id) |> Repo.preload(:file_sets) do
+      nil ->
+        {:ok, donut_work}
+
+      work ->
+        work |> send_to_pipeline()
+        {:ok, donut_work}
+    end
+  end
+
+  defp send_to_pipeline(%{file_sets: []}), do: :noop
 
   defp send_to_pipeline(%{file_sets: file_sets, id: work_id}) do
     Logger.info("Work #{work_id}: Sending #{length(file_sets)} file sets to the ingest pipeline")
@@ -244,6 +254,8 @@ defmodule Meadow.Migration do
       Pipeline.kickoff(file_set, %{overwrite: "false", role: file_set.role.id})
     end)
   end
+
+  defp send_to_pipeline(other), do: other
 
   defp update_file_set(file_set) do
     file_set
