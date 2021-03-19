@@ -3,13 +3,17 @@ defmodule Meadow.Seed.Queries do
   Module providing the composable query functions used by Meadow.Seed.Export
   """
 
-  alias Meadow.Data.Schemas.{ActionState, Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{ActionState, Collection, ControlledTermCache, FileSet, Work}
   alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
 
   import Ecto.Query
 
   def collections(_) do
     from(c in Collection, select: c)
+  end
+
+  def controlled_term_cache(_) do
+    from(ct in ControlledTermCache, select: ct)
   end
 
   def nul_authorities(_) do

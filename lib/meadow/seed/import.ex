@@ -6,7 +6,7 @@ defmodule Meadow.Seed.Import do
   alias Ecto.Adapters.SQL
   alias Meadow.Config
   alias Meadow.Data.{Collections, FileSets, Indexer, Works}
-  alias Meadow.Data.Schemas.{ActionState, Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{ActionState, Collection, ControlledTermCache, FileSet, Work}
   alias Meadow.IIIF
   alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
   alias Meadow.Repo
@@ -21,6 +21,7 @@ defmodule Meadow.Seed.Import do
 
   @import_tables [
     {:collections, Collection},
+    {:controlled_term_cache, ControlledTermCache},
     {:nul_authorities, NUL.Schemas.AuthorityRecord},
     {:ingest_sheet_projects, Project},
     {:ingest_sheets, Sheet},
@@ -127,37 +128,57 @@ defmodule Meadow.Seed.Import do
     end
   end
 
-  defp ensure_representative_images do
-    from(w in Work, where: is_nil(w.representative_file_set_id))
-    |> Repo.all()
-    |> Enum.each(&Works.set_default_representative_image!/1)
+  def ensure_representative_images do
+    Repo.transaction(
+      fn ->
+        [Work, Collection] |> Enum.each(&ensure_representative_images/1)
+      end,
+      timeout: :infinity
+    )
+  end
 
-    from(c in Collection, where: is_nil(c.representative_work_id), preload: [:works])
-    |> Repo.all()
-    |> Enum.each(fn %{works: works} = collection ->
-      case works do
+  defp ensure_representative_images(Work) do
+    from(w in Work, where: is_nil(w.representative_file_set_id))
+    |> Repo.stream()
+    |> Stream.each(&Works.set_default_representative_image!/1)
+    |> Stream.run()
+  end
+
+  defp ensure_representative_images(Collection) do
+    from(c in Collection, where: is_nil(c.representative_work_id))
+    |> Repo.stream()
+    |> Stream.each(fn collection ->
+      case Works.get_works_by_collection(collection.id) do
         [] -> collection
         [work | _] -> collection |> Collections.set_representative_image(work)
       end
     end)
+    |> Stream.run()
   end
 
-  defp fix_file_set_preservation_locations do
-    FileSet
-    |> Repo.all()
-    |> Enum.each(fn file_set ->
-      case file_set.metadata.location do
-        nil ->
-          :noop
-
-        location ->
-          new_location =
-            URI.parse(location) |> Map.put(:host, Config.preservation_bucket()) |> URI.to_string()
-
-          file_set |> FileSets.update_file_set(%{metadata: %{location: new_location}})
-      end
-    end)
+  def fix_file_set_preservation_locations do
+    Repo.transaction(
+      fn ->
+        FileSet
+        |> Repo.stream()
+        |> Stream.each(&update_file_set_preservation_location/1)
+        |> Stream.run()
+      end,
+      timeout: :infinity
+    )
   end
+
+  defp update_file_set_preservation_location(%FileSet{metadata: %{location: location}} = file_set)
+       when is_binary(location) do
+    new_location =
+      URI.parse(location)
+      |> Map.put(:host, Config.preservation_bucket())
+      |> URI.to_string()
+
+    file_set |> FileSets.update_file_set(%{metadata: %{location: new_location}})
+  end
+
+  defp update_file_set_preservation_location(_), do: :noop
 
   defp prepare_stream(data, headers, schema) do
     with rows <- data |> CSV.parse_stream(headers: true) do
