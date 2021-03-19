@@ -5,6 +5,8 @@ defmodule Meadow.Utils.Exif do
 
   alias Meadow.Utils.Atoms
 
+  require Logger
+
   @compression_mapping %{
     1 => "Uncompressed",
     2 => "CCITT 1D",
@@ -140,6 +142,9 @@ defmodule Meadow.Utils.Exif do
       "xResolution" => 600,
       "yResolution" => 600
     }
+
+    iex> %{"ExtraSamples" => %{"0" => 0, "1" => 2}} |> transform()
+    %{"extraSamples" => "Unspecified, Unassociated Alpha"}
   """
   def transform(nil), do: nil
 
@@ -203,6 +208,9 @@ defmodule Meadow.Utils.Exif do
        xResolution: 600,
        yResolution: 600
     }
+
+    iex> %{"ExtraSamples" => %{"0" => 0, "1" => 2}} |> index()
+    %{extraSamples: "Unspecified, Unassociated Alpha"}
   """
   def index(metadata, fields \\ @indexable_fields)
 
@@ -217,30 +225,41 @@ defmodule Meadow.Utils.Exif do
     end
   end
 
-  defp transform_value("BitsPerSample", bits_per_sample) when is_map(bits_per_sample) do
-    Enum.map_join(bits_per_sample, ", ", fn {_key, value} -> value end)
+  defp transform_value("BitsPerSample", value) when is_map(value) do
+    value
+    |> Map.values()
+    |> Enum.join(", ")
   end
 
   defp transform_value("BitsPerSample", _), do: nil
 
   defp transform_value("Compression", value) do
-    Map.get(@compression_mapping, value, value)
+    Map.get(@compression_mapping, value, passthrough(value))
   end
 
-  defp transform_value("ExtraSamples", value) do
+  defp transform_value("ExtraSamples", value) when is_map(value) do
+    value
+    |> Map.values()
+    |> Enum.map(&transform_value("ExtraSamples", &1))
+    |> Enum.join(", ")
+  end
+
+  defp transform_value("ExtraSamples", value) when is_integer(value) do
     case value do
       0 -> "Unspecified"
       1 -> "Associated Alpha"
       2 -> "Unassociated Alpha"
-      other -> other
+      other -> passthrough(other)
     end
   end
+
+  defp transform_value("ExtraSamples", value), do: passthrough(value)
 
   defp transform_value("FillOrder", value) do
     case value do
       1 -> "Normal"
       2 -> "Reversed"
-      other -> other
+      other -> passthrough(other)
     end
   end
 
@@ -251,19 +270,19 @@ defmodule Meadow.Utils.Exif do
       3 -> "0.0001"
       4 -> "1e-05"
       5 -> "1e-06"
-      other -> other
+      other -> passthrough(other)
     end
   end
 
   defp transform_value("PhotometricInterpretation", value) do
-    Map.get(@photometric_interpretation, value, value)
+    Map.get(@photometric_interpretation, value, passthrough(value))
   end
 
   defp transform_value("PlanarConfiguration", value) do
     case value do
       1 -> "Chunky"
       2 -> "Planar"
-      other -> other
+      other -> passthrough(other)
     end
   end
 
@@ -272,13 +291,30 @@ defmodule Meadow.Utils.Exif do
       1 -> "None"
       2 -> "inches"
       3 -> "cm"
-      other -> other
+      other -> passthrough(other)
     end
   end
 
   defp transform_value("SubfileType", value) do
-    Map.get(@subfile_type, value, value)
+    Map.get(@subfile_type, value, passthrough(value))
   end
 
-  defp transform_value(_, value), do: value
+  defp transform_value(_, value), do: passthrough(value)
+
+  defp passthrough(nil), do: nil
+  defp passthrough(value) when is_binary(value), do: value
+  defp passthrough(value) when is_integer(value), do: value
+  defp passthrough(value) when is_boolean(value), do: to_string(value)
+
+  defp passthrough(value) when is_list(value) do
+    value
+    |> Enum.map(&passthrough/1)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+  end
+
+  defp passthrough(value) do
+    Logger.warn("Cannot transform EXIF value #{inspect(value)} into indexable metadata")
+    nil
+  end
 end
