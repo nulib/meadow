@@ -101,7 +101,7 @@ defmodule Meadow.Ingest.WorkCreator do
           location = "s3://#{ingest_bucket}/#{file_path}"
 
           %{
-            accession_number: row |> Row.field_value(:accession_number),
+            accession_number: row |> Row.field_value(:file_accession_number),
             role: %{scheme: "file_set_role", id: row |> Row.field_value(:role)},
             metadata: %{
               description: row |> Row.field_value(:description),

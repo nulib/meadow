@@ -143,7 +143,7 @@ defmodule Meadow.Ingest.Validator do
         now = DateTime.utc_now()
         fields = transform_fields(sheet, headers, row)
 
-        file_set_accession_number = MapList.get(fields, :header, :value, :accession_number)
+        file_set_accession_number = MapList.get(fields, :header, :value, :file_accession_number)
 
         %{
           id: Ecto.UUID.generate(),
@@ -227,16 +227,22 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"accession_number", value}, _existing_files, duplicate_accession_numbers) do
+  defp validate_value(
+         {"file_accession_number", value},
+         _existing_files,
+         duplicate_accession_numbers
+       ) do
     case Map.get(duplicate_accession_numbers, value) do
       nil ->
         if FileSets.accession_exists?(value),
-          do: {:error, "accession_number", "accession_number #{value} already exists in system"},
+          do:
+            {:error, "file_accession_number",
+             "accession_number #{value} already exists in system"},
           else: :ok
 
       duplicate_rows ->
         with row_list <- duplicate_rows |> Enum.map(&to_string/1) |> Enum.join(", ") do
-          {:error, "accession_number",
+          {:error, "file_accession_number",
            "accession_number #{value} is duplicated on rows #{row_list}"}
         end
     end
