@@ -162,7 +162,7 @@ const WorkTabsAdministrative = ({ work }) => {
         </UITabsStickyHeader>
 
         <div className="columns">
-          <div className="column">
+          <div className="column is-half">
             <WorkTabsAdministrativeCollection
               collection={collection}
               handleViewAllWorksClick={handleViewAllWorksClick}
@@ -180,13 +180,13 @@ const WorkTabsAdministrative = ({ work }) => {
               />
             </div>
           </div>
-          <div className="column">
+          <div className="column is-half">
             <div className="box is-relative">
               <div className="content">
-                <h3>Project Info</h3>
+                <h3>Project / Job Information</h3>
               </div>
 
-              <UIFormField label="Project">
+              <UIFormField label="Project / Job Description">
                 {project ? (
                   <p>
                     <Button

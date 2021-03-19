@@ -37,6 +37,17 @@ defmodule Meadow.Data.Works do
   """
 
   def list_works(criteria) do
+    criteria
+    |> work_query()
+    |> preload([:ingest_sheet, :project])
+    |> Repo.all()
+    |> add_representative_image()
+  end
+
+  @doc """
+  Returns a composable query matching the given `criteria`.
+  """
+  def work_query(criteria) do
     query = from(Work)
 
     Enum.reduce(criteria, query, fn
@@ -54,10 +65,13 @@ defmodule Meadow.Data.Works do
 
       {:order, order}, query ->
         from p in query, order_by: [{^order, :id}]
+
+      {:visibility, visibility}, query ->
+        from w in query, where: fragment("visibility -> 'id' = ?", ^visibility)
+
+      {:work_type, work_type}, query ->
+        from w in query, where: fragment("work_type -> 'id' = ?", ^work_type)
     end)
-    |> preload([:ingest_sheet, :project])
-    |> Repo.all()
-    |> add_representative_image()
   end
 
   defp filter_with(filters, query) do

@@ -115,7 +115,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       |> Import.read_csv()
       |> Import.stream()
       |> Enum.chunk_every(@chunk_size)
-      |> Enum.reduce(Multi.new(), &apply_batch_of_works/2)
+      |> Enum.reduce(Multi.new(), &apply_batch_of_works(&1, &2, job))
       |> Multi.update(job.id, MetadataUpdateJob.changeset(job, %{status: "complete"}))
 
     case with_locked_job(job, multi) do
@@ -154,15 +154,29 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     )
   end
 
-  defp apply_batch_of_works(rows, multi) do
+  defp apply_batch_of_works(rows, multi, job) do
     with work_ids <- rows |> Enum.map(&Map.get(&1, :id)) do
       from(w in Work, where: w.id in ^work_ids, lock: "FOR UPDATE NOWAIT")
       |> Repo.all()
       |> Enum.reduce(multi, fn work, multi ->
         with row <- rows |> Enum.find(&(&1.id == work.id)) do
-          Multi.update(multi, row.id, Work.update_changeset(work, row))
+          multi
+          |> Multi.update("update_#{row.id}", Work.update_changeset(work, row))
+          |> Multi.insert_all("link_#{row.id}", "works_metadata_update_jobs", [
+            %{
+              metadata_update_job_id: dump_uuid(job.id),
+              work_id: dump_uuid(work.id)
+            }
+          ])
         end
       end)
+    end
+  end
+
+  defp dump_uuid(uuid) do
+    case Ecto.UUID.dump(uuid) do
+      {:ok, result} -> result
+      other -> other
     end
   end
 

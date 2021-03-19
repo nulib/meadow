@@ -14,7 +14,7 @@ defmodule Meadow.Seed.Export do
 
   require Logger
 
-  @common_exports ~w(collections nul_authorities)a
+  @common_exports ~w(collections controlled_term_cache nul_authorities)a
   @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
     ingest_sheet_works ingest_sheet_file_sets ingest_sheet_action_states)a
   @standalone_exports ~w(standalone_works standalone_file_sets standalone_action_states)a
@@ -149,7 +149,7 @@ defmodule Meadow.Seed.Export do
   defp dump_data(queryable) do
     query = "COPY (#{interpolate_params(queryable)}) TO STDOUT WITH (FORMAT CSV, HEADER)"
 
-    SQL.query!(Repo, query)
+    SQL.query!(Repo, query, [], timeout: :infinity)
     |> Map.get(:rows)
   end
 

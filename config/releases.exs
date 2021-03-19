@@ -44,6 +44,7 @@ port = String.to_integer(System.get_env("PORT", "4000"))
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
   http: [:inet6, port: port],
+  check_origin: System.get_env("ALLOWED_ORIGINS", "") |> String.split(~r/,\s*/),
   secret_key_base: get_required_var.("SECRET_KEY_BASE"),
   live_view: [signing_salt: get_required_var.("SECRET_KEY_BASE")]
 
@@ -90,6 +91,12 @@ config :meadow,
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   pyramid_bucket: get_required_var.("PYRAMID_BUCKET"),
   pyramid_tiff_working_dir: System.get_env("PYRAMID_TIFF_WORKING_DIR"),
+  sitemaps: [
+    gzip: true,
+    store: Sitemapper.S3Store,
+    store_config: [bucket: get_required_var.("SITEMAP_BUCKET")],
+    sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
+  ],
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 

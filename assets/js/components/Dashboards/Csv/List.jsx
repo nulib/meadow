@@ -7,8 +7,9 @@ import { GET_CSV_METADATA_UPDATE_JOBS } from "@js/components/Dashboards/dashboar
 import { formatDate } from "@js/services/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
 import IconView from "@js/components/Icon/View";
+import IconImages from "@js/components/Icon/Images";
+import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
 
 const displayFields = [
   {
@@ -67,7 +68,7 @@ function DashboardsCsvList(props) {
     <div data-testid="csv-list">
       <UISearchBarRow isCentered>
         <UIFormInput
-          placeholder="Search"
+          placeholder="Filter"
           name="csvSearch"
           label="Filter CSV imports"
           onChange={handleFilterChange}
@@ -107,13 +108,25 @@ function DashboardsCsvList(props) {
                 <td>{formatDate(startedAt)}</td>
                 <td>{formatDate(updatedAt)}</td>
 
-                <td className="has-text-right is-right">
+                <td className="has-text-right">
                   <Link
                     to={`/dashboards/csv-metadata-update/${id}`}
                     className="button is-small is-light"
                     data-testid="view-button"
+                    title="View Metadata Update Job details"
                   >
                     <IconView />
+                  </Link>
+                  <Link
+                    data-testid="button-to-search"
+                    className="button is-light"
+                    title="View updated works"
+                    to={{
+                      pathname: "/search",
+                      state: { passedInSearchTerm: `metadataUpdateJobs:\"${id}\"` },
+                    }}
+                  >
+                    <IconImages />
                   </Link>
                 </td>
               </tr>

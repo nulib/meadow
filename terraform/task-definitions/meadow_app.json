@@ -139,6 +139,14 @@
       {
         "name": "AGENTLESS_SSO_KEY",
         "value": "${agentless_sso_key}"
+      },
+      {
+        "name": "SITEMAP_BUCKET",
+        "value": "${digital_collections_bucket}"
+      },
+      {
+        "name": "ALLOWED_ORIGINS",
+        "value": "${meadow_urls}"
       }
     ],
     "portMappings": [

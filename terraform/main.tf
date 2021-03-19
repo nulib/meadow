@@ -90,6 +90,10 @@ data "aws_s3_bucket" "migration_manifest_bucket" {
   bucket = var.migration_manifest_bucket
 }
 
+data "aws_s3_bucket" "digital_collections_bucket" {
+  bucket = var.digital_collections_bucket
+}
+
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
     effect    = "Allow"
@@ -116,7 +120,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_preservation.arn,
       data.aws_s3_bucket.pyramid_bucket.arn,
       data.aws_s3_bucket.migration_binary_bucket.arn,
-      data.aws_s3_bucket.migration_manifest_bucket.arn
+      data.aws_s3_bucket.migration_manifest_bucket.arn,
+      data.aws_s3_bucket.digital_collections_bucket.arn
     ]
   }
 
@@ -125,6 +130,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
 
     actions = [
       "s3:PutObject",
+      "s3:PutObjectAcl",
       "s3:GetObject",
       "s3:DeleteObject",
     ]
@@ -135,7 +141,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_preservation.arn}/*",
       "${data.aws_s3_bucket.pyramid_bucket.arn}/*",
       "${data.aws_s3_bucket.migration_binary_bucket.arn}/*",
-      "${data.aws_s3_bucket.migration_manifest_bucket.arn}/*"
+      "${data.aws_s3_bucket.migration_manifest_bucket.arn}/*",
+      "${data.aws_s3_bucket.digital_collections_bucket.arn}/*"
     ]
   }
 }

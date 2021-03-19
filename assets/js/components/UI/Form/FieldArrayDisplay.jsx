@@ -8,7 +8,7 @@ const UIFormFieldArrayDisplay = ({
   notLive,
 }) => {
   return (
-    <div className="field content">
+    <div className="field content mb-3">
       <p data-testid="items-label">
         <strong>{label}</strong> {mocked && <span className="tag">Mocked</span>}{" "}
         {notLive && <span className="tag">Not Live</span>}

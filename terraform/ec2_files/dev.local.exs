@@ -55,6 +55,12 @@ config :meadow, pyramid_bucket: get_required_var.("PYRAMID_BUCKET")
 config :meadow, iiif_server_url: get_required_var.("IIIF_SERVER_URL")
 config :meadow, iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL")
 config :meadow, digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
+config :meadow, sitemaps: [
+  gzip: true,
+  store: Sitemapper.S3Store,
+  store_config: [bucket: get_required_var.("SITEMAP_BUCKET")],
+  sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
+]
 
 config :elastix,
   custom_headers:

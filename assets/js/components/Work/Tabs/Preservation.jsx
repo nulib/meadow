@@ -188,7 +188,7 @@ const WorkTabsPreservation = ({ work }) => {
 
   return (
     <div data-testid="preservation-tab">
-      <UITabsStickyHeader title="Preservation and Access Masters">
+      <UITabsStickyHeader title="Preservation and Access">
         <AuthDisplayAuthorized>
           <div className="buttons is-right">
             <Button

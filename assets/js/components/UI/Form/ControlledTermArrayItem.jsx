@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { AUTHORITY_SEARCH } from "../../Work/controlledVocabulary.gql";
+import { AUTHORITIES_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";
 import { useFormContext } from "react-hook-form";
@@ -16,7 +16,7 @@ const UIFormControlledTermArrayItem = ({
   const [currentAuthority, setCurrentAuthority] = useState(authorities[0].id);
   const [isLoading, setIsLoading] = useState(false);
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
-    AUTHORITY_SEARCH,
+    AUTHORITIES_SEARCH,
     {
       onCompleted: (data) => {
         setIsLoading(false);

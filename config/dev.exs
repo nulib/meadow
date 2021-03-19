@@ -163,3 +163,9 @@ config :ueberauth, Ueberauth,
          ssl_port: 3001
        ]}
   ]
+
+config :meadow, :sitemaps,
+  gzip: false,
+  store: Sitemapper.FileStore,
+  sitemap_url: "https://devbox.library.northwestern.edu:3333/",
+  store_config: [path: "priv/static"]

@@ -1,8 +1,8 @@
 defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.CSVMetadataUpdateCase
-  alias Meadow.Data.CSV.MetadataUpdateJobs
-  alias Meadow.Data.Schemas.CSV.MetadataUpdateJob
-  alias Meadow.Data.Works
+  use Meadow.IndexCase
+  alias Meadow.Data.{CSV.MetadataUpdateJobs, Indexer, Works}
+  alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
   alias Meadow.Repo
 
   setup %{source_url: source_url} do
@@ -57,7 +57,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
       assert MetadataUpdateJobs.apply_job(job) ==
                {:error, "Update Job cannot be applied: status is complete."}
 
-      with work <- Enum.at(works, 31) |> Map.get(:id) |> Works.get_work() do
+      with work <-
+             Enum.at(works, 31)
+             |> Map.get(:id)
+             |> Works.get_work()
+             |> Repo.preload(:metadata_update_jobs) do
         assert work.published
         assert work.visibility.id == "AUTHENTICATED"
 
@@ -69,6 +73,16 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                  "Socrates Poole",
                  "Lord Bowler"
                ]
+
+        assert Enum.member?(work.metadata_update_jobs |> Enum.map(& &1.id), job.id)
+
+        [_header, doc] =
+          work
+          |> Repo.preload(Work.required_index_preloads())
+          |> Indexer.encode!(:index)
+          |> decode_njson()
+
+        assert doc |> get_in(["metadataUpdateJobs"]) == [job.id]
       end
     end
 

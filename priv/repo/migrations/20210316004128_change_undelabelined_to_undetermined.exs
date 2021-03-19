@@ -1,9 +1,6 @@
 defmodule Meadow.Repo.Migrations.ChangeUndelabelinedToUndetermined do
   use Ecto.Migration
-  alias Meadow.Data.CodedTerms
-  alias Meadow.Data.Schemas.CodedTerm
   alias Meadow.Repo
-  import Ecto.Query
 
   @id "http://rightsstatements.org/vocab/UND/1.0/"
   @scheme "rights_statement"
