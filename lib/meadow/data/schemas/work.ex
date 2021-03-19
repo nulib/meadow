@@ -7,8 +7,8 @@ defmodule Meadow.Data.Schemas.Work do
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Data.Schemas.Batch
   alias Meadow.Data.Schemas.Collection
-  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.CSV.MetadataUpdateJob
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.WorkAdministrativeMetadata
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Data.Types
