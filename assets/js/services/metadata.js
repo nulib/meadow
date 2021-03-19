@@ -113,27 +113,27 @@ export const METADATA_FIELDS = {
   },
   PROJECT_DESC: {
     name: "projectDesc",
-    label: "Project Description",
+    label: "Project / Job Description",
     metadataClass: "administrative",
   },
   PROJECT_MANAGER: {
     name: "projectManager",
-    label: "Project Manager",
+    label: "Project / Job Manager",
     metadataClass: "administrative",
   },
   PROJECT_NAME: {
     name: "projectName",
-    label: "Project Name",
+    label: "Project / Job Name",
     metadataClass: "administrative",
   },
   PROJECT_PROPOSER: {
     name: "projectProposer",
-    label: "Project Proposer",
+    label: "Project / Job Proposer",
     metadataClass: "administrative",
   },
   PROJECT_TASK_NUMBER: {
     name: "projectTaskNumber",
-    label: "Project Task Number",
+    label: "Project / Job Task Number",
     metadataClass: "administrative",
   },
   PROVENANCE: {
