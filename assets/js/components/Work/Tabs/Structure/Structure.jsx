@@ -70,7 +70,7 @@ const WorkTabsStructure = ({ work }) => {
       setIsReordering(false);
       toastWrapper(
         "is-success",
-        "Access masters have been successfully reordered."
+        "Access copies have been successfully reordered."
       );
     },
     onError(error) {

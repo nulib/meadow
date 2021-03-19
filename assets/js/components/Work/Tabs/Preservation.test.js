@@ -24,7 +24,7 @@ describe("WorkTabsPreservation component", () => {
 
   it("renders the component and tab title", async () => {
     expect(await screen.findByTestId("preservation-tab"));
-    expect(screen.getByText("Preservation and Access Masters"));
+    expect(screen.getByText("Preservation and Access"));
   });
 
   it("renders preservation column headers", async () => {
