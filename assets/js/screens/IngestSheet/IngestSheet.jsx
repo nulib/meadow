@@ -93,6 +93,7 @@ const ScreensIngestSheet = ({ match }) => {
               <>
                 <ActionHeadline>
                   <PageTitle>{sheetData.ingestSheet.title}</PageTitle>
+
                   <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                     <IngestSheetActionRow
                       sheetId={sheetId}
