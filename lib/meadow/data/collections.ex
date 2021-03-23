@@ -31,7 +31,10 @@ defmodule Meadow.Data.Collections do
   end
 
   def delete_collection(%Collection{} = collection) do
-    Repo.delete(collection)
+    collection
+    |> Collection.changeset()
+    |> no_assoc_constraint(:works, message: "Works are still associated with this collection.")
+    |> Repo.delete()
   end
 
   def create_collection(attrs \\ %{}) do

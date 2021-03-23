@@ -16,6 +16,26 @@ defmodule MeadowWeb.Schema.Mutation.DeleteCollectionTest do
     assert {:ok, _query_data} = result
   end
 
+  test "should not allow non-empty collections to be deleted" do
+    collection = collection_fixture()
+    work_fixture(%{collection_id: collection.id})
+
+    {:ok, result} =
+      query_gql(
+        variables: %{"collectionId" => collection.id},
+        context: gql_context()
+      )
+
+    assert %{
+             errors: [
+               %{
+                 message: "Could not delete collection",
+                 details: %{"works" => "Works are still associated with this collection."}
+               }
+             ]
+           } = result
+  end
+
   describe "authorization" do
     test "viewers and editors are not authorized to delete collections" do
       collection_fixture = collection_fixture()
