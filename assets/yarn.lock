@@ -2772,10 +2772,10 @@ bulma-switch@^2.0.0:
   resolved "https://registry.yarnpkg.com/bulma-switch/-/bulma-switch-2.0.0.tgz#7a187cd1bb8073e9a542478d936b89315f1ffcd8"
   integrity sha512-myD38zeUfjmdduq+pXabhJEe3x2hQP48l/OI+Y0fO3HdDynZUY/VJygucvEAJKRjr4HxD5DnEm4yx+oDOBXpAA==
 
-bulma-toast@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/bulma-toast/-/bulma-toast-2.2.0.tgz#44f6fbec5ed49e663f22c5cd3b372eb17127ff9d"
-  integrity sha512-vByq7Vo13ATS2/pjNeiX8zPQ86EnaGBqKYRwxM0gGiycJwleqoqHXDE6DxKEmULJzw7MQzHsgs7uz8o1FaTiGg==
+bulma-toast@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/bulma-toast/-/bulma-toast-2.3.0.tgz#43062de85104ee66719b723c5d1691d9e46954d6"
+  integrity sha512-HfMITkQv4GnrrvwMnpxtNlfdQcmVdl09wGqboqMzLuRWSDDM9EBghfuAeh6jPCKJpFvAeadw7N12XRY1AAJgyw==
 
 bulma@^0.9.2:
   version "0.9.2"
