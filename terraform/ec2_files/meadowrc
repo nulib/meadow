@@ -35,6 +35,7 @@ export SITEMAP_BUCKET="${digital_collections_bucket}"
 export UPLOAD_BUCKET="${upload_bucket}"
 export MIGRATION_BINARY_BUCKET="${migration_binary_bucket}"
 export MIGRATION_MANIFEST_BUCKET="${migration_manifest_bucket}"
+export PRESERVATION_CHECK_BUCKET="${preservation_check_bucket}"
 
 cd ~/meadow
 git fetch -pa origin

@@ -3,16 +3,20 @@ defmodule Meadow.Utils.AWS do
   Utility functions for AWS requests and object management
   """
 
+  def presigned_url(bucket, %{upload_type: "preservation_check", filename: filename}) do
+    generate_presigned_url(bucket, "#{filename}", :get)
+  end
+
   def presigned_url(bucket, %{upload_type: "ingest_sheet"}) do
-    generate_upload_url(bucket, "ingest_sheets/#{Ecto.UUID.generate()}.csv")
+    generate_presigned_url(bucket, "ingest_sheets/#{Ecto.UUID.generate()}.csv")
   end
 
   def presigned_url(bucket, %{upload_type: "file_set"}) do
-    generate_upload_url(bucket, "file_sets/#{Ecto.UUID.generate()}")
+    generate_presigned_url(bucket, "file_sets/#{Ecto.UUID.generate()}")
   end
 
   def presigned_url(bucket, %{upload_type: "csv_metadata"}) do
-    generate_upload_url(bucket, "csv_metadata/#{Ecto.UUID.generate()}.csv")
+    generate_presigned_url(bucket, "csv_metadata/#{Ecto.UUID.generate()}.csv")
   end
 
   def create_s3_folder(bucket, name) do
@@ -76,7 +80,7 @@ defmodule Meadow.Utils.AWS do
     end
   end
 
-  defp generate_upload_url(bucket, path, method \\ :put) do
+  defp generate_presigned_url(bucket, path, method \\ :put) do
     bucket
     |> check_bucket()
 

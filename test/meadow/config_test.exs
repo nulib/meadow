@@ -24,6 +24,10 @@ defmodule Meadow.ConfigTest do
     assert Config.pyramid_bucket() == "test-pyramids"
   end
 
+  test "preservation_check_bucket/0" do
+    assert Config.preservation_check_bucket() == "test-preservation-checks"
+  end
+
   test "lambda_config/1" do
     assert {:local, {script, handler}} = Config.lambda_config(:edtf)
     assert script =~ ~r(priv/nodejs/edtf/index.js$)
@@ -39,7 +43,8 @@ defmodule Meadow.ConfigTest do
       "test-uploads",
       "test-pyramids",
       "test-migration-binaries",
-      "test-migration-manifests"
+      "test-migration-manifests",
+      "test-preservation-checks"
     ]
     |> assert_lists_equal(Config.buckets())
   end

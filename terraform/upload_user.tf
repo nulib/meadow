@@ -1,7 +1,7 @@
 data "aws_iam_policy_document" "upload_bucket_access" {
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "s3:ListAllMyBuckets"
     ]
     resources = ["arn:aws:s3:::*"]
@@ -30,20 +30,22 @@ data "aws_iam_policy_document" "upload_bucket_access" {
     resources = [
       aws_s3_bucket.meadow_ingest.arn,
       aws_s3_bucket.meadow_uploads.arn,
+      aws_s3_bucket.meadow_preservation_checks.arn,
       "${aws_s3_bucket.meadow_ingest.arn}/*",
-      "${aws_s3_bucket.meadow_uploads.arn}/*"
+      "${aws_s3_bucket.meadow_uploads.arn}/*",
+      "${aws_s3_bucket.meadow_preservation_checks.arn}/*"
     ]
-  }  
+  }
 }
 
 resource "aws_iam_policy" "upload_bucket_policy" {
-  name          = "${var.stack_name}-upload-policy"
-  description   = "Read-write access to Meadow ingest and upload buckets"
-  policy        = data.aws_iam_policy_document.upload_bucket_access.json
+  name        = "${var.stack_name}-upload-policy"
+  description = "Read-write access to Meadow ingest and upload buckets"
+  policy      = data.aws_iam_policy_document.upload_bucket_access.json
 }
 
 resource "aws_iam_group" "upload_group" {
-  name   = "${var.stack_name}-uploaders"
+  name = "${var.stack_name}-uploaders"
 }
 
 resource "aws_iam_group_policy_attachment" "upload_group_policy" {
@@ -52,12 +54,12 @@ resource "aws_iam_group_policy_attachment" "upload_group_policy" {
 }
 
 resource "aws_iam_user" "upload_user" {
-  name   = "${var.stack_name}-uploader"
-  tags   = var.tags
+  name = "${var.stack_name}-uploader"
+  tags = var.tags
 }
 
 resource "aws_iam_user_group_membership" "upload_user_group_membership" {
-  user = aws_iam_user.upload_user.name
+  user   = aws_iam_user.upload_user.name
   groups = [aws_iam_group.upload_group.name]
 }
 

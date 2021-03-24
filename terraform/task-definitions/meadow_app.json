@@ -117,6 +117,10 @@
         "value": "${preservation_bucket}"
       },
       {
+        "name": "PRESERVATION_CHECK_BUCKET",
+        "value": "${preservation_check_bucket}"
+      },
+      {
         "name": "PYRAMID_BUCKET",
         "value": "${pyramid_bucket}"
       },

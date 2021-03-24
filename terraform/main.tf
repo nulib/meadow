@@ -74,7 +74,13 @@ resource "aws_s3_bucket" "meadow_preservation" {
   versioning {
     enabled = true
   }
-    
+
+  tags = var.tags
+}
+
+resource "aws_s3_bucket" "meadow_preservation_checks" {
+  bucket = "${var.stack_name}-${var.environment}-preservation-checks"
+  acl    = "private"
   tags   = var.tags
 }
 
@@ -96,9 +102,9 @@ data "aws_s3_bucket" "digital_collections_bucket" {
 
 data "aws_iam_policy_document" "this_bucket_access" {
   statement {
-    effect    = "Allow"
-    actions   = [
-      "s3:CreateBucket", 
+    effect = "Allow"
+    actions = [
+      "s3:CreateBucket",
       "s3:ListAllMyBuckets"
     ]
     resources = ["arn:aws:s3:::*"]
@@ -118,6 +124,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_ingest.arn,
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation.arn,
+      aws_s3_bucket.meadow_preservation_checks.arn,
       data.aws_s3_bucket.pyramid_bucket.arn,
       data.aws_s3_bucket.migration_binary_bucket.arn,
       data.aws_s3_bucket.migration_manifest_bucket.arn,
@@ -139,6 +146,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_ingest.arn}/*",
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation.arn}/*",
+      "${aws_s3_bucket.meadow_preservation_checks.arn}/*",
       "${data.aws_s3_bucket.pyramid_bucket.arn}/*",
       "${data.aws_s3_bucket.migration_binary_bucket.arn}/*",
       "${data.aws_s3_bucket.migration_manifest_bucket.arn}/*",
@@ -267,11 +275,11 @@ resource "aws_security_group" "meadow_working_access" {
   vpc_id      = data.aws_vpc.this_vpc.id
 
   ingress {
-    description       = "NFS from Meadow"
-    from_port         = 2049
-    to_port           = 2049
-    protocol          = "tcp"
-    security_groups   = [aws_security_group.meadow.id, aws_security_group.meadow_efs_client.id]
+    description     = "NFS from Meadow"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.meadow.id, aws_security_group.meadow_efs_client.id]
   }
 
   egress {
@@ -283,12 +291,12 @@ resource "aws_security_group" "meadow_working_access" {
 }
 
 resource "aws_efs_file_system" "meadow_working" {
-  tags = merge(var.tags, {Name = "${var.stack_name}-working"})
+  tags = merge(var.tags, { Name = "${var.stack_name}-working" })
 }
 
 resource "aws_efs_mount_target" "meadow_working_mount" {
-  for_each          = data.aws_subnet_ids.private_subnets.ids
-  file_system_id    = aws_efs_file_system.meadow_working.id
-  subnet_id         = each.key
-  security_groups   = [aws_security_group.meadow_working_access.id]
+  for_each        = data.aws_subnet_ids.private_subnets.ids
+  file_system_id  = aws_efs_file_system.meadow_working.id
+  subnet_id       = each.key
+  security_groups = [aws_security_group.meadow_working_access.id]
 }

@@ -88,6 +88,7 @@ config :meadow,
   migration_manifest_bucket: System.get_env("MIGRATION_MANIFEST_BUCKET"),
   pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
   preservation_bucket: get_required_var.("PRESERVATION_BUCKET"),
+  preservation_check_bucket: get_required_var.("PRESERVATION_CHECK_BUCKET"),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   pyramid_bucket: get_required_var.("PYRAMID_BUCKET"),
   pyramid_tiff_working_dir: System.get_env("PYRAMID_TIFF_WORKING_DIR"),
@@ -101,6 +102,13 @@ config :meadow,
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
 config :logger, level: :info
+
+config :meadow, Meadow.Scheduler,
+  overlap: false,
+  jobs: [
+    # Runs daily at 2 am
+    {"0 2 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
+  ]
 
 config :sequins,
   prefix: "meadow",
