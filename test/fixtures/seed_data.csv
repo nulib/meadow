@@ -1,3 +1,3 @@
-work_accession_number,accession_number,filename,description,role,label
+work_accession_number,file_accession_number,filename,description,role,label
 Donohue_001,Donohue_001_01,seed_data/coffee.tif,"Letter, page 1, Dear Sir, recto",A,"The label"
 Donohue_001,Donohue_001_02,seed_data/coffee.tif,"Letter, page 1, Dear Sir, verso, blank",P,"The label"

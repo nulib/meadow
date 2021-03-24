@@ -59,7 +59,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
     assert(
       ingest_sheet.file_errors == [
-        "Required header missing: accession_number",
+        "Required header missing: file_accession_number",
         "Invalid header: not_the_accession_number"
       ]
     )
