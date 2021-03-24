@@ -76,7 +76,7 @@ export default function DashboardsPreservationChecksList() {
                 <UIDate dateString={insertedAt} />
               </td>
               <td>
-                <UIDate dateString={updatedAt} />
+                {status === "complete" && <UIDate dateString={updatedAt} />}
               </td>
               <td>
                 <Tag
