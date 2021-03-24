@@ -4,9 +4,9 @@ defmodule Meadow.Data.PreservationCheckWriter do
   """
 
   alias Meadow.Config
+  alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
-  alias Meadow.Utils.Pairtree
   alias NimbleCSV.RFC4180, as: CSV
 
   @headers [
@@ -22,8 +22,6 @@ defmodule Meadow.Data.PreservationCheckWriter do
     "pyramid_location",
     "pyramid_exists"
   ]
-
-  @preservation_bucket Config.preservation_bucket()
 
   def generate_report(filename) do
     cache_key = Ecto.UUID.generate()
@@ -116,7 +114,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
         Map.get(file_set.metadata.digests, "sha1"),
         file_set.metadata.location,
         Map.fetch!(result, :preservation),
-        pyramid_uri_for(file_set),
+        FileSets.pyramid_uri_for(file_set),
         Map.fetch!(result, :pyramid)
       ]
     end
@@ -124,7 +122,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
   defp check_files(file_set) do
     %{
-      :preservation => validate_preservation_file_present(file_set.metadata.location),
+      :preservation => validate_preservation_file(file_set.metadata.location),
       :pyramid => validate_pyramid_present(file_set)
     }
   end
@@ -144,42 +142,21 @@ defmodule Meadow.Data.PreservationCheckWriter do
   defp validate_pyramid_present(%{role: %{id: "P"}}), do: "N/A"
 
   defp validate_pyramid_present(file_set) do
-    validate_file_present(pyramid_uri_for(file_set))
+    Meadow.Utils.Stream.exists?(FileSets.pyramid_uri_for(file_set))
   end
 
-  defp validate_preservation_file_present(location) do
+  defp validate_preservation_file(location) do
     %{host: bucket, path: "/" <> _key} = URI.parse(location)
 
+    preservation_bucket = Config.preservation_bucket()
+
     case bucket do
-      @preservation_bucket ->
-        validate_file_present(location)
+      ^preservation_bucket ->
+        Meadow.Utils.Stream.exists?(location)
 
       _ ->
         false
     end
-  end
-
-  defp validate_file_present(location) do
-    with %{host: bucket, path: "/" <> key} <- URI.parse(location) do
-      case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
-        {:ok, %{status_code: 200, headers: _headers}} ->
-          true
-
-        _ ->
-          false
-      end
-    end
-  end
-
-  defp pyramid_uri_for(%{role: %{id: "P"}}), do: "N/A"
-
-  defp pyramid_uri_for(file_set) do
-    %URI{
-      scheme: "s3",
-      host: Config.pyramid_bucket(),
-      path: Path.join(["/", Pairtree.pyramid_path(file_set.id)])
-    }
-    |> URI.to_string()
   end
 
   defp location(key) do
