@@ -36,25 +36,45 @@ defmodule Meadow.Data.PreservationChecksTest do
     {:ok, %{}}
   end
 
-  test "start_job/0" do
+  test "start_job/0 starts a preservation check job" do
     assert PreservationChecks.list_jobs() |> length() == 0
 
     logged =
       capture_log(fn ->
         assert Logger.enabled?(self())
 
-        assert_async(timeout: 3000, sleep_time: 150) do
-          assert {:ok, _job} = PreservationChecks.start_job()
-          assert PreservationChecks.list_jobs() |> length() == 1
-          check = PreservationChecks.get_last_job()
-          assert check.status == "complete"
-        end
+        assert {:ok, _job} = PreservationChecks.start_job()
       end)
 
-    assert logged |> String.contains?("Determining whether to run preservation check")
+    assert PreservationChecks.list_jobs() |> length() == 1
+
     assert logged |> String.contains?("Starting preservation check")
     assert logged |> String.contains?("Preservation check complete")
 
+    jobs = PreservationChecks.list_jobs()
+
+    on_exit(fn ->
+      jobs
+      |> Enum.each(fn j -> delete_object(@preservation_check_bucket, j.filename) end)
+    end)
+  end
+
+  test "start_job/0 will not start a new job if one is already active" do
+    assert PreservationChecks.list_jobs() |> length() == 0
+
+    PreservationChecks.create_job(%{active: true})
+
+    assert PreservationChecks.list_jobs() |> length() == 1
+
+    logged =
+      capture_log(fn ->
+        assert Logger.enabled?(self())
+        PreservationChecks.start_job()
+      end)
+
+    assert logged |> String.contains?("Active preservation check already running")
+
+    assert PreservationChecks.list_jobs() |> length() == 1
     jobs = PreservationChecks.list_jobs()
 
     on_exit(fn ->

@@ -11,7 +11,7 @@ defmodule Meadow.Data.PreservationChecks do
   alias Meadow.Repo
 
   # number of seconds after which to consider an active preservation check timed out
-  @timeout 60 * 60 * 4
+  @timeout 60 * 60 * 7
 
   def list_jobs do
     Repo.all(PreservationCheck)
@@ -57,14 +57,12 @@ defmodule Meadow.Data.PreservationChecks do
     update_job(job, attrs)
   end
 
-  def start_job() do
+  def start_job do
     with {:ok, count} <- purge_stalled(@timeout) do
       if count > 0 do
         Logger.info("Timeout #{count} stalled #{Inflex.inflect("preservation checks", count)}")
       end
     end
-
-    Logger.info("Determining whether to run preservation check")
 
     attrs = %{
       status: "active",
@@ -86,8 +84,11 @@ defmodule Meadow.Data.PreservationChecks do
             update_job(job, %{status: "error"})
         end
 
+      {:error, %Ecto.Changeset{}} ->
+        Logger.error("Active preservation check already running")
+
       {:error, _} ->
-        Logger.error("Could not start preservation check")
+        Logger.error("Could not start preservation check.")
     end
   end
 
@@ -102,6 +103,7 @@ defmodule Meadow.Data.PreservationChecks do
 
         update_job(job, %{
           status: "complete",
+          active: false,
           location: s3_location,
           invalid_rows: invalid_rows
         })
