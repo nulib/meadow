@@ -90,6 +90,7 @@ defmodule Meadow.MixProject do
       {:sitemapper, "~> 0.4.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.4"},
+      {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 0.2.4"},
       {:wormwood, "~> 0.1.0"}
     ]

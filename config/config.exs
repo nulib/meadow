@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 config :meadow,
   ecto_repos: [Meadow.Repo],
   environment: Mix.env()

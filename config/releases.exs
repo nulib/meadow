@@ -105,9 +105,10 @@ config :logger, level: :info
 
 config :meadow, Meadow.Scheduler,
   overlap: false,
+  timezone: "America/Chicago",
   jobs: [
-    # Runs daily at 7AM UTC (2 AM)
-    {"0 7 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
+    # Runs daily at 2AM Central Time
+    {"0 2 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
   ]
 
 config :sequins,

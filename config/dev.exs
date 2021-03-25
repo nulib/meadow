@@ -133,6 +133,7 @@ end
 
 config :meadow, Meadow.Scheduler,
   overlap: false,
+  timezone: "America/Chicago",
   jobs: [
     # Runs every 10 minutes:
     {"*/10 * * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
