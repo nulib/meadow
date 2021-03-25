@@ -1,10 +1,9 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
-import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsLocalAuthoritiesList from "@js/components/Dashboards/LocalAuthorities/List";
 import DashboardsLocalAuthoritiesTitleBar from "@js/components/Dashboards/LocalAuthorities/TitleBar";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { Breadcrumbs, FallbackErrorComponent } from "@js/components/UI/UI";
 
 function ScreensDashboardsLocalAuthoritiesList() {
   return (
@@ -14,7 +13,7 @@ function ScreensDashboardsLocalAuthoritiesList() {
         data-testid="dashboard-local-authorities-screen"
       >
         <div className="container">
-          <UIBreadCrumbs
+          <Breadcrumbs
             items={[
               {
                 label: "Dashboards",
@@ -28,7 +27,7 @@ function ScreensDashboardsLocalAuthoritiesList() {
             ]}
           />
           <div className="box">
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
               <DashboardsLocalAuthoritiesTitleBar />
               <DashboardsLocalAuthoritiesList />
             </ErrorBoundary>

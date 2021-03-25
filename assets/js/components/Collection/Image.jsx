@@ -7,7 +7,7 @@ function CollectionImage({ collection, ...restProps }) {
   const { id, representativeWork } = collection;
 
   return (
-    <Link to={`/collection/${id}`} className="hvr-shrink" {...restProps}>
+    <Link to={`/collection/${id}`} {...restProps}>
       <img
         src={
           representativeWork

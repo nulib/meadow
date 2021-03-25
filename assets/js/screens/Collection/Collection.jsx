@@ -1,26 +1,30 @@
 import React, { useState } from "react";
-import Collection from "../../components/Collection/Collection";
+import Collection from "@js/components/Collection/Collection";
 import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
   GET_COLLECTIONS,
   DELETE_COLLECTION,
   UPDATE_COLLECTION,
-} from "../../components/Collection/collection.gql";
-import Error from "../../components//UI/Error";
-import UISkeleton from "../../components//UI/Skeleton";
+} from "@js/components/Collection/collection.gql";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/client";
-import UIModalDelete from "../../components/UI/Modal/Delete";
-import { toastWrapper } from "../../services/helpers";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
-import Layout from "../Layout";
+import { toastWrapper } from "@js/services/helpers";
+import Layout from "@js/screens/Layout";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { Button } from "@nulib/admin-react-components";
 import CollectionTags from "@js/components/Collection/Tags";
 import IconEdit from "@js/components/Icon/Edit";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  Error,
+  FallbackErrorComponent,
+  ModalDelete,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -98,20 +102,18 @@ const ScreensCollection = () => {
       <section className="section" data-testid="collection-screen-hero">
         <div className="container">
           {loading ? (
-            <UISkeleton rows={1} />
+            <Skeleton rows={1} />
           ) : (
-            <UIBreadcrumbs items={getCrumbs()} />
+            <Breadcrumbs items={getCrumbs()} />
           )}
 
           <div className="box">
             {loading ? (
-              <UISkeleton rows={10} />
+              <Skeleton rows={10} />
             ) : (
               <>
-                <header className="is-flex is-justify-content-space-between mb-3">
-                  <div>
-                    <h1 className="title">{data.collection.title || ""}</h1>
-                  </div>
+                <ActionHeadline>
+                  <PageTitle>{data.collection.title || ""}</PageTitle>
                   <div className="buttons">
                     <AuthDisplayAuthorized>
                       <Link
@@ -119,16 +121,14 @@ const ScreensCollection = () => {
                         className="button is-primary"
                         data-testid="edit-button"
                       >
-                        <span className="icon">
-                          <IconEdit />
-                        </span>
+                        <IconEdit className="icon" />
                         <span>Edit</span>
                       </Link>
                     </AuthDisplayAuthorized>
                   </div>
-                </header>
+                </ActionHeadline>
 
-                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                   <CollectionTags collection={data.collection} />
                   <Collection collection={data.collection} />
                 </ErrorBoundary>
@@ -151,7 +151,7 @@ const ScreensCollection = () => {
       </section>
 
       {data && (
-        <UIModalDelete
+        <ModalDelete
           isOpen={modalOpen}
           handleClose={onCloseModal}
           handleConfirm={handleDeleteClick}

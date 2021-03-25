@@ -5,10 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
-import UITabsStickyHeader from "../../UI/Tabs/StickyHeader";
 import UIAccordion from "../../UI/Accordion";
-import UIFormField from "../../UI/Form/Field";
-import UISkeleton from "../../UI/Skeleton";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
 import WorkTabsAboutControlledMetadata from "./About/ControlledMetadata";
 import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
@@ -31,6 +28,7 @@ import {
 import UIError from "../../UI/Error";
 import IconEdit from "@js/components/Icon/Edit";
 import { Button } from "@nulib/admin-react-components";
+import { Skeleton, TabsStickyHeader } from "@js/components/UI/UI";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;
@@ -181,7 +179,7 @@ const WorkTabsAbout = ({ work }) => {
         data-testid="work-about-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
-        <UITabsStickyHeader title="Core and Descriptive Metadata">
+        <TabsStickyHeader title="Core and Descriptive Metadata">
           {!isEditing && (
             <Button
               isPrimary
@@ -206,11 +204,11 @@ const WorkTabsAbout = ({ work }) => {
               </Button>
             </>
           )}
-        </UITabsStickyHeader>
+        </TabsStickyHeader>
 
         <UIAccordion testid="core-metadata-wrapper" title="Core Metadata">
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutCoreMetadata
               descriptiveMetadata={descriptiveMetadata}
@@ -225,7 +223,7 @@ const WorkTabsAbout = ({ work }) => {
           title="Creator and Subject Information"
         >
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutControlledMetadata
               descriptiveMetadata={descriptiveMetadata}
@@ -238,7 +236,7 @@ const WorkTabsAbout = ({ work }) => {
           title="Description Information"
         >
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutUncontrolledMetadata
               descriptiveMetadata={descriptiveMetadata}
@@ -252,7 +250,7 @@ const WorkTabsAbout = ({ work }) => {
           title="Physical Objects Information"
         >
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutPhysicalMetadata
               descriptiveMetadata={descriptiveMetadata}
@@ -265,7 +263,7 @@ const WorkTabsAbout = ({ work }) => {
           title="Rights Information"
         >
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutRightsMetadata
               descriptiveMetadata={descriptiveMetadata}
@@ -278,7 +276,7 @@ const WorkTabsAbout = ({ work }) => {
           title="Identifiers and Relationship Information"
         >
           {updateWorkLoading ? (
-            <UISkeleton rows={10} />
+            <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutIdentifiersMetadata
               descriptiveMetadata={descriptiveMetadata}

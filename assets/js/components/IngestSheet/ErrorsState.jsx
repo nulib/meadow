@@ -5,7 +5,7 @@ const IngestSheetErrorsState = ({ rows }) => {
   const rowHasErrors = (object) =>
     object && object.errors && object.errors.length > 0;
   return (
-    <>
+    <div className="table-container">
       <table className="table is-striped is-hoverable is-fullwidth">
         <caption>Ingest sheet validation row errors</caption>
         <thead>
@@ -37,7 +37,7 @@ const IngestSheetErrorsState = ({ rows }) => {
           ))}
         </tbody>
       </table>
-    </>
+    </div>
   );
 };
 

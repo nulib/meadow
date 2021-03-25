@@ -18,7 +18,7 @@ export default function UIPreviewItems({ items = [] }) {
     <div className="is-centered" css={previewContainer}>
       <ul className="columns is-multiline" data-testid="list-preview-items">
         {items.slice(0, MAX_ITEMS_SHOWN).map(({ id, representativeImage }) => (
-          <li key={id} className="column is-one-fifth hvr-shrink">
+          <li key={id} className="column is-one-fifth">
             <Link to={`/work/${id}`} target="_blank">
               <UIWorkImage
                 imageUrl={getImageUrl(representativeImage)}

@@ -12,7 +12,7 @@ const UILevelItem = ({ heading, content, contentClassname = "title" }) => (
 
 UILevelItem.propTypes = {
   heading: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
+  content: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default UILevelItem;

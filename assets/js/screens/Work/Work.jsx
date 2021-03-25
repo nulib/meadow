@@ -9,7 +9,6 @@ import { useHistory, useParams } from "react-router-dom";
 import Layout from "../Layout";
 import UISkeleton from "../../components/UI/Skeleton";
 import Work from "../../components/Work/Work";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import { toastWrapper } from "../../services/helpers";
 import WorkTagsList from "../../components/Work/TagsList";
 import WorkHeaderButtons from "../../components/Work/HeaderButtons";
@@ -18,9 +17,17 @@ import WorkPublicLinkNotification from "../../components/Work/PublicLinkNotifica
 import WorkMultiEditBar from "../../components/Work/MultiEditBar";
 import { useBatchState } from "../../context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
-import UILevelItem from "@js/components/UI/LevelItem";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  FallbackErrorComponent,
+  LevelItem,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
+import classNames from "classnames";
+import { isMobile } from "react-device-detect";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -128,48 +135,50 @@ const ScreensWork = () => {
           totalItems={multiTotalItems}
         />
       )}
-      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+      <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
         <section className="section" data-testid="work-hero">
           <div className="container">
-            <UIBreadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
+            <Breadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
 
             <div className="box">
               {loading ? (
-                <UISkeleton rows={5} />
+                <Skeleton rows={5} />
               ) : (
                 <>
-                  <div className="is-flex is-justify-content-space-between mb-5">
-                    <div>
-                      <h1 className="title">
-                        {data.work.descriptiveMetadata.title || "Untitled"}{" "}
-                      </h1>
-                      {data.work.collection && data.work.collection.title && (
-                        <div>
-                          <span className="heading">Collection</span>
-                          <a
-                            onClick={() =>
-                              handleFacetLinkClick(
-                                "Collection",
-                                data.work.collection.title
-                              )
-                            }
-                          >
-                            {data.work.collection.title}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <WorkHeaderButtons
-                        handleCreateSharableBtnClick={
-                          handleCreateSharableBtnClick
-                        }
-                        handlePublishClick={handlePublishClick}
-                        published={data.work.published}
-                        hasCollection={data.work.collection ? true : false}
-                      />
-                    </div>
+                  <PageTitle>
+                    {data.work.descriptiveMetadata.title || "Untitled"}{" "}
+                  </PageTitle>
+
+                  <div className="is-flex-desktop is-justify-content-space-between is-align-items-flex-start block">
+                    {data.work.collection && data.work.collection.title && (
+                      <div
+                        className={classNames({
+                          block: isMobile,
+                        })}
+                      >
+                        <span className="heading">Collection</span>
+                        <a
+                          onClick={() =>
+                            handleFacetLinkClick(
+                              "Collection",
+                              data.work.collection.title
+                            )
+                          }
+                        >
+                          {data.work.collection.title}
+                        </a>
+                      </div>
+                    )}
+                    <WorkHeaderButtons
+                      handleCreateSharableBtnClick={
+                        handleCreateSharableBtnClick
+                      }
+                      handlePublishClick={handlePublishClick}
+                      published={data.work.published}
+                      hasCollection={data.work.collection ? true : false}
+                    />
                   </div>
+
                   <WorkTagsList work={data.work} />
 
                   <div className="content">
@@ -181,18 +190,20 @@ const ScreensWork = () => {
                     {isWorkOpen && (
                       <WorkPublicLinkNotification workId={data.work.id} />
                     )}
+
+                    <hr />
                     <div className="level">
-                      <UILevelItem
+                      <LevelItem
                         heading="Work id"
                         content={data.work.id}
                         contentClassname="is-size-6"
                       />
-                      <UILevelItem
+                      <LevelItem
                         heading="Ark"
                         content={data.work.descriptiveMetadata.ark || ""}
                         contentClassname="is-size-6"
                       />
-                      <UILevelItem
+                      <LevelItem
                         heading="Accession number"
                         content={data.work.accessionNumber || ""}
                         contentClassname="is-size-6"
@@ -209,7 +220,7 @@ const ScreensWork = () => {
       {loading ? (
         <UISkeleton rows={20} />
       ) : (
-        <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+        <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
           <Work work={data.work} />
         </ErrorBoundary>
       )}

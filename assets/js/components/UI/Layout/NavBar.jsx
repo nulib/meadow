@@ -29,7 +29,7 @@ const UILayoutNavBar = () => {
   const currentUser = useContext(AuthContext);
   const [showSearch, setShowSearch] = useState();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [activeHoverNav, setActiveHoverNav] = useState("adam");
+  const [activeHoverNav, setActiveHoverNav] = useState();
   const location = useLocation();
 
   const isActive = (matcher) => {

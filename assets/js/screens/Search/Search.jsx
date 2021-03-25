@@ -1,23 +1,26 @@
 import React, { useState } from "react";
 import Layout from "../Layout";
 import { SelectedFilters } from "@appbaseio/reactivesearch";
-import SearchBar from "../../components/UI/SearchBar";
-import SearchResults from "../../components/Search/Results";
-import SearchFacetSidebar from "../../components/Search/FacetSidebar";
+import SearchBar from "@js/components/UI/SearchBar";
+import SearchResults from "@js/components/Search/Results";
+import SearchFacetSidebar from "@js/components/Search/FacetSidebar";
 import { useHistory } from "react-router-dom";
-import SearchActionRow from "../../components/Search/ActionRow";
-import UIResultsDisplaySwitcher from "../../components/UI/ResultsDisplaySwitcher";
+import SearchActionRow from "@js/components/Search/ActionRow";
 import {
   parseESAggregationResults,
   elasticsearchDirectSearch,
   ELASTICSEARCH_AGGREGATION_FIELDS,
-} from "../../services/elasticsearch";
-import { useBatchDispatch } from "../../context/batch-edit-context";
+} from "@js/services/elasticsearch";
+import { useBatchDispatch } from "@js/context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import useCsvFileSave from "@js/hooks/useCsvFileSave";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
+import {
+  FallbackErrorComponent,
+  PageTitle,
+  ResultsDisplaySwitcher,
+} from "@js/components/UI/UI";
 
 async function getParsedAggregations(query) {
   try {
@@ -140,7 +143,7 @@ const ScreensSearch = () => {
             </div>
 
             <div className="box pb-0">
-              <h1 className="title">Search Results</h1>
+              <PageTitle>Search Results</PageTitle>
               <AuthDisplayAuthorized level="EDITOR">
                 <SearchActionRow
                   handleCsvExportAllItems={handleCsvExportAllItems}
@@ -155,14 +158,14 @@ const ScreensSearch = () => {
                 />
               </AuthDisplayAuthorized>
               <hr />
-              <UIResultsDisplaySwitcher
+              <ResultsDisplaySwitcher
                 isListView={isListView}
                 onGridClick={() => setIsListView(false)}
                 onListClick={() => setIsListView(true)}
               />
             </div>
 
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
               <SearchResults
                 handleOnDataChange={handleOnDataChange}
                 handleQueryChange={handleQueryChange}
