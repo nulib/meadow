@@ -3,7 +3,6 @@ defmodule Meadow.Data.PreservationChecksTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
-  import Assertions
   import ExUnit.CaptureLog
 
   alias Meadow.Config
@@ -33,6 +32,8 @@ defmodule Meadow.Data.PreservationChecksTest do
       }
     })
 
+    on_exit(fn -> empty_bucket(@preservation_check_bucket) end)
+
     {:ok, %{}}
   end
 
@@ -50,13 +51,6 @@ defmodule Meadow.Data.PreservationChecksTest do
 
     assert logged |> String.contains?("Starting preservation check")
     assert logged |> String.contains?("Preservation check complete")
-
-    jobs = PreservationChecks.list_jobs()
-
-    on_exit(fn ->
-      jobs
-      |> Enum.each(fn j -> delete_object(@preservation_check_bucket, j.filename) end)
-    end)
   end
 
   test "start_job/0 will not start a new job if one is already active" do
@@ -75,11 +69,5 @@ defmodule Meadow.Data.PreservationChecksTest do
     assert logged |> String.contains?("Active preservation check already running")
 
     assert PreservationChecks.list_jobs() |> length() == 1
-    jobs = PreservationChecks.list_jobs()
-
-    on_exit(fn ->
-      jobs
-      |> Enum.each(fn j -> delete_object(@preservation_check_bucket, j.filename) end)
-    end)
   end
 end
