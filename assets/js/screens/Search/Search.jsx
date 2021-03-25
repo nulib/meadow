@@ -129,10 +129,8 @@ const ScreensSearch = () => {
       <section className="section">
         <div className="columns">
           <div className="column is-one-quarter">
-            <div className="box">
-              <h2 className="title is-size-4">Filter/Facet</h2>
-              <SearchFacetSidebar />
-            </div>
+            <h2 className="title is-size-4">Filter/Facet</h2>
+            <SearchFacetSidebar />
           </div>
           <div className="column is-three-quarters">
             <div className="box">

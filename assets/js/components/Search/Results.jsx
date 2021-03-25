@@ -9,6 +9,7 @@ import SearchSelectable from "@js/components/Search/Selectable";
 import {
   //TODO: Leave this in as we might want to display this info in another type of range component
   FACET_RANGE_SENSORS,
+  FACET_PROJECT_SENSORS,
   FACET_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   RESULT_SENSOR,
@@ -26,6 +27,9 @@ const SearchResults = ({
   selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+  const facetProjectSensors = FACET_PROJECT_SENSORS.map(
+    (sensor) => sensor.componentId
+  );
   //TODO: Leave this in as we might want to display this info in another type of range component
   // const facetRangeSensors = FACET_RANGE_SENSORS.map(
   //   (sensor) => sensor.componentId
@@ -56,6 +60,7 @@ const SearchResults = ({
             react={{
               and: [
                 ...facetSensors,
+                ...facetProjectSensors,
                 ...facetTechnicalMetadataSensors,
                 //TODO: Leave this in as we might want to display this info in another type of range component
                 //...facetRangeSensors,
