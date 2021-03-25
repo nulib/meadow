@@ -63,6 +63,11 @@ config :meadow, sitemaps: [
   sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
 ]
 
+config :meadow, Meadow.Scheduler,
+  overlap: false,
+  timezone: "America/Chicago",
+  jobs: []
+
 config :elastix,
   custom_headers:
     {Meadow.Utils.AWS, :add_aws_signature,
