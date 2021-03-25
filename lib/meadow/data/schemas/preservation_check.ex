@@ -22,7 +22,8 @@ defmodule Meadow.Data.Schemas.PreservationCheck do
 
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:filename, :location, :status, :invalid_rows])
+    |> cast(attrs, [:active, :filename, :location, :status, :invalid_rows])
     |> validate_inclusion(:status, @status)
+    |> unique_constraint(:active)
   end
 end
