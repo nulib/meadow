@@ -143,8 +143,16 @@ defmodule Meadow.Utils.Exif do
       "yResolution" => 600
     }
 
-    iex> %{"ExtraSamples" => %{"0" => 0, "1" => 2}} |> transform()
-    %{"extraSamples" => "Unspecified, Unassociated Alpha"}
+    iex> %{
+    ...>   "ExtraSamples" => %{"0" => 0, "1" => 2},
+    ...>   "XResolution" => 1.2932398880691411,
+    ...>   "YResolution" => 1.1068155680259393
+    ...> } |> transform()
+    %{
+      "extraSamples" => "Unspecified, Unassociated Alpha",
+      "xResolution" => 1.2932398880691411,
+      "yResolution" => 1.1068155680259393
+    }
   """
   def transform(nil), do: nil
 
@@ -209,8 +217,16 @@ defmodule Meadow.Utils.Exif do
        yResolution: 600
     }
 
-    iex> %{"ExtraSamples" => %{"0" => 0, "1" => 2}} |> index()
-    %{extraSamples: "Unspecified, Unassociated Alpha"}
+    iex> %{
+    ...>   "ExtraSamples" => %{"0" => 0, "1" => 2},
+    ...>   "XResolution" => 1.2932398880691411,
+    ...>   "YResolution" => 1.1068155680259393
+    ...> } |> index()
+    %{
+      extraSamples: "Unspecified, Unassociated Alpha",
+      xResolution: 1.2932398880691411,
+      yResolution: 1.1068155680259393
+    }
   """
   def index(metadata, fields \\ @indexable_fields)
 
@@ -304,6 +320,7 @@ defmodule Meadow.Utils.Exif do
   defp passthrough(nil), do: nil
   defp passthrough(value) when is_binary(value), do: value
   defp passthrough(value) when is_integer(value), do: value
+  defp passthrough(value) when is_float(value), do: value
   defp passthrough(value) when is_boolean(value), do: to_string(value)
 
   defp passthrough(value) when is_list(value) do
@@ -314,7 +331,13 @@ defmodule Meadow.Utils.Exif do
   end
 
   defp passthrough(value) do
-    Logger.warn("Cannot transform EXIF value #{inspect(value)} into indexable metadata")
-    nil
+    case String.Chars.impl_for(value) do
+      nil ->
+        Logger.warn("Cannot transform EXIF value #{inspect(value)} into indexable metadata")
+        nil
+
+      _ ->
+        to_string(value)
+    end
   end
 end

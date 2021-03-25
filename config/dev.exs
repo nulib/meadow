@@ -86,6 +86,7 @@ config :meadow,
   upload_bucket: "dev-uploads",
   pipeline_delay: :timer.seconds(5),
   preservation_bucket: "dev-preservation",
+  preservation_check_bucket: "dev-preservation-checks",
   pyramid_bucket: "dev-pyramids",
   migration_binary_bucket: "dev-migration-binaries",
   migration_manifest_bucket: "dev-migration-manifests",
@@ -129,6 +130,14 @@ unless System.get_env("REAL_AWS_CONFIG", "false") == "true" do
     scheme: "http://",
     region: "us-east-1"
 end
+
+config :meadow, Meadow.Scheduler,
+  overlap: false,
+  timezone: "America/Chicago",
+  jobs: [
+    # Runs every 10 minutes:
+    {"*/10 * * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
+  ]
 
 config :exldap, :settings,
   server: System.get_env("LDAP_SERVER", "localhost"),

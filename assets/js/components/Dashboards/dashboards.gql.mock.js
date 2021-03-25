@@ -6,6 +6,7 @@ import {
   GET_CSV_METADATA_UPDATE_JOBS,
   GET_NUL_AUTHORITY_RECORDS,
   UPDATE_NUL_AUTHORITY_RECORD,
+  GET_PRESERVATION_CHECKS,
 } from "@js/components/Dashboards/dashboards.gql";
 import { errors as csvMetadataUpdateJobErrors } from "@js/components/Dashboards/Csv/Errors";
 
@@ -74,6 +75,29 @@ export const mockGetBatchesResults = [
     type: "UPDATE",
     user: "aja0137",
     worksUpdated: 2,
+  },
+];
+
+export const mockPreservationChecks = [
+  {
+    id: "7c171c70-1f1a-4db8-8dcb-07c2c0003e10",
+    filename: "preservation_check.csv",
+    insertedAt: "2021-01-25T17:21:37.000000Z",
+    invalid_rows: 0,
+    location:
+      "s3://dev-preservation-checks/csv_metadata/2c5d7d42-dee1-4274-95ce-363b942bd21f.csv",
+    status: "complete",
+    updatedAt: "2021-01-25T17:22:37.199112Z",
+  },
+  {
+    id: "99971c70-1f1a-4db8-8dcb-07c2c0003e10",
+    filename: "preservation_check2.csv",
+    insertedAt: "2021-01-25T17:24:37.000000Z",
+    invalid_rows: 0,
+    location:
+      "s3://dev-preservation-checks/csv_metadata/999d7d42-dee1-4274-95ce-363b942bd21f.csv",
+    status: "complete",
+    updatedAt: "2021-01-25T17:29:37.199112Z",
   },
 ];
 
@@ -155,6 +179,17 @@ export const getBatchesMock = {
   result: {
     data: {
       batches: mockGetBatchesResults,
+    },
+  },
+};
+
+export const getPreservationChecksMocks = {
+  request: {
+    query: GET_PRESERVATION_CHECKS,
+  },
+  result: {
+    data: {
+      preservationChecks: mockPreservationChecks,
     },
   },
 };

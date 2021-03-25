@@ -4,7 +4,7 @@ variable "additional_hostnames" {
 }
 
 variable "agentless_sso_key" {
-  type    = string
+  type = string
 }
 
 variable "aws_region" {
@@ -13,7 +13,7 @@ variable "aws_region" {
 }
 
 variable "availability_zones" {
-  type    = list
+  type    = list(any)
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
@@ -23,15 +23,15 @@ variable "certificate_name" {
 }
 
 variable "digital_collections_bucket" {
-  type    = string
+  type = string
 }
 
 variable "digital_collections_url" {
-  type    = string
+  type = string
 }
 
 variable "geonames_username" {
-  type    = string
+  type = string
 }
 
 variable "honeybadger_api_key" {
@@ -57,7 +57,7 @@ variable "dns_zone" {
 }
 
 variable "tags" {
-  type    = map
+  type    = map(any)
   default = {}
 }
 
@@ -77,6 +77,11 @@ variable "migration_binary_bucket" {
 }
 
 variable "migration_manifest_bucket" {
+  type    = string
+  default = ""
+}
+
+variable "preservation_check_bucket" {
   type    = string
   default = ""
 }
@@ -120,7 +125,7 @@ variable "iiif_manifest_url" {
 }
 
 variable "ec2_instance_users" {
-  type    = list(string)
+  type = list(string)
 }
 
 variable "ezid_password" {

@@ -18,6 +18,7 @@ services:
       HONEYBADGER_API_KEY: n0th1ng
       INGEST_BUCKET: dev-ingest
       UPLOAD_BUCKET: dev-uploads
+      PRESERVATION_CHECK_BUCKET: dev-preservation-checks
       RELEASE_COOKIE: HprlqRq6CxhIysNuGFKvuIJ9LJ73TFzOIhYM3uW2
       RELEASE_NAME: meadow
       RELEASE_DISTRIBUTION: sname

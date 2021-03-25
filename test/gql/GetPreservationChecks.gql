@@ -1,0 +1,11 @@
+query GetPreservationChecks {
+  preservationChecks {
+    id
+    insertedAt
+    updatedAt
+    status
+    filename
+    location
+    invalidRows
+  }
+}

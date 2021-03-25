@@ -26,6 +26,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :preservation_bucket)
   end
 
+  @doc "Retrieve the configured preservation check bucket"
+  def preservation_check_bucket do
+    Application.get_env(:meadow, :preservation_check_bucket)
+  end
+
   @doc "Retrieve the configured upload bucket"
   def upload_bucket do
     Application.get_env(:meadow, :upload_bucket)
@@ -72,6 +77,7 @@ defmodule Meadow.Config do
     [
       ingest_bucket(),
       preservation_bucket(),
+      preservation_check_bucket(),
       upload_bucket(),
       pyramid_bucket(),
       migration_binary_bucket(),
