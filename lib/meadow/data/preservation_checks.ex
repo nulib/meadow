@@ -81,7 +81,7 @@ defmodule Meadow.Data.PreservationChecks do
           exception ->
             Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
             Logger.error("Error for preservation check: #{job.id}")
-            update_job(job, %{status: "error"})
+            update_job(job, %{status: "error", active: false})
         end
 
       {:error, %Ecto.Changeset{}} ->
@@ -110,7 +110,7 @@ defmodule Meadow.Data.PreservationChecks do
 
       _ ->
         Logger.error("Error for preservation check: #{job.id}")
-        update_job(job, %{status: "error"})
+        update_job(job, %{status: "error", active: false})
     end
   end
 
