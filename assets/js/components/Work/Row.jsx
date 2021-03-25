@@ -15,7 +15,7 @@ const WorkRow = ({ work }) => {
           </Link>
         </div>
         <div className="w-2/4 pl-4">
-          <dl>
+          <dl className="spaced">
             <dd>
               <Link to={`/work/${work.id}`}>{work.id}</Link>
             </dd>

@@ -1,6 +1,5 @@
 import React from "react";
 import Error from "../../components/UI/Error";
-import UISkeleton from "../../components/UI/Skeleton";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -8,12 +7,16 @@ import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql
 import Layout from "../Layout";
 import { TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
 import IngestSheetAlert from "../../components/IngestSheet/Alert";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import IngestSheetActionRow from "../../components/IngestSheet/ActionRow";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import { Tag } from "@nulib/admin-react-components";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  FallbackErrorComponent,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: ID!) {
@@ -78,24 +81,19 @@ const ScreensIngestSheet = ({ match }) => {
       <section className="section">
         <div className="container">
           {crumbsLoading ? (
-            <UISkeleton rows={2} />
+            <Skeleton rows={2} />
           ) : (
-            <UIBreadcrumbs items={createCrumbs()} />
+            <Breadcrumbs items={createCrumbs()} />
           )}
 
           <div className="box">
             {sheetLoading ? (
-              <UISkeleton rows={5} />
+              <Skeleton rows={5} />
             ) : (
               <>
-                <div className="is-flex is-justify-content-space-between mb-3">
-                  <div>
-                    <h1 className="title">{sheetData.ingestSheet.title} </h1>
-                    <IngestSheetStatusTag status={sheetData.ingestSheet.status}>
-                      {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
-                    </IngestSheetStatusTag>
-                  </div>
-                  <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <ActionHeadline>
+                  <PageTitle>{sheetData.ingestSheet.title}</PageTitle>
+                  <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                     <IngestSheetActionRow
                       sheetId={sheetId}
                       projectId={id}
@@ -103,6 +101,12 @@ const ScreensIngestSheet = ({ match }) => {
                       title={sheetData.ingestSheet.title}
                     />
                   </ErrorBoundary>
+                </ActionHeadline>
+
+                <div className="block">
+                  <IngestSheetStatusTag status={sheetData.ingestSheet.status}>
+                    {TEMP_USER_FRIENDLY_STATUS[sheetData.ingestSheet.status]}
+                  </IngestSheetStatusTag>
                 </div>
 
                 {["APPROVED", "FILE_FAIL", "ROW_FAIL", "UPLOADED"].indexOf(
@@ -114,9 +118,9 @@ const ScreensIngestSheet = ({ match }) => {
             )}
 
             {sheetLoading ? (
-              <UISkeleton rows={20} />
+              <Skeleton rows={20} />
             ) : (
-              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                 <IngestSheet
                   ingestSheetData={sheetData.ingestSheet}
                   projectId={id}

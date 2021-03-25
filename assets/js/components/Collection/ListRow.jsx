@@ -8,6 +8,8 @@ import IconEdit from "@js/components/Icon/Edit";
 import IconDelete from "@js/components/Icon/Delete";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 import useTruncateText from "@js/hooks/useTruncateText";
+import classNames from "classnames";
+import { isMobile, isTablet, isDesktop } from "react-device-detect";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -28,25 +30,34 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
 
   return (
     <li data-testid="collection-list-row" css={row}>
-      <article className="media">
-        <figure className="media-left">
-          <p className="image is-128x128">
-            <CollectionImage collection={collection} />
-          </p>
+      <article
+        className={classNames(["is-flex", "is-align-items-flex-start"], {
+          "is-flex-direction-column": isMobile && !isTablet,
+        })}
+      >
+        <figure
+          className={classNames(
+            ["image", "is-flex-grow-0", "is-flex-shrink-0", "mr-4", "block"],
+            {
+              "is-square": isMobile && !isTablet,
+              "is-fullwidth": isMobile,
+              "is-128x128": isTablet || isDesktop,
+            }
+          )}
+        >
+          <CollectionImage collection={collection} />
         </figure>
-        <div className="media-content">
+        <div className="is-flex-grow-1 is-flex-shrink-1">
           <p className="small-title block">
             <Link to={`/collection/${id}`}>{title}</Link>
           </p>
           <CollectionTags collection={collection} />
-
-          <div>
+          <p className="block">
             <strong># Works:</strong> {totalWorks}
-            <br />
-            {description && truncate(description, 350)}
-          </div>
+          </p>
+          <p className="block">{description && truncate(description, 350)}</p>
         </div>
-        <div className="media-right">
+        <div className="is-flex-grow-0 is-flex-shrink-0">
           <div className="buttons-end">
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">

@@ -13,7 +13,7 @@ export default function WorkHeaderButtons({
   const isPublishBtnDisabled = !hasCollection && !published;
 
   return (
-    <div className="buttons is-right" data-testid="work-header-buttons">
+    <div className="buttons" data-testid="work-header-buttons">
       <Button
         onClick={handleCreateSharableBtnClick}
         data-testid="button-sharable-link"

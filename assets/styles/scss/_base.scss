@@ -65,6 +65,14 @@ table {
   background-color: $white-ter;
 }
 
+.action-headline {
+  h1.title {
+    @include from($desktop) {
+      margin-bottom: 0;
+    }
+  }
+}
+
 .break-word {
   overflow-wrap: break-word;
 }
@@ -89,17 +97,6 @@ table {
 
 .navbar {
   border-bottom: 1px solid $rich-black-10;
-}
-
-// navbar-dropdown collapse options for mobile menu
-.navbar-dropdown,
-.has-dropdown input[type="checkbox"] {
-  display: none;
-}
-
-#dropdown1:checked ~ .navbar-dropdown,
-#dropdown2:checked ~ .navbar-dropdown {
-  display: block;
 }
 
 // TODO: Find a better way to override these overrides via Bulma variables

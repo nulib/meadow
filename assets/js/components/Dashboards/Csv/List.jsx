@@ -5,7 +5,6 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import { useQuery } from "@apollo/client";
 import { GET_CSV_METADATA_UPDATE_JOBS } from "@js/components/Dashboards/dashboards.gql";
 import { formatDate } from "@js/services/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import IconView from "@js/components/Icon/View";
 import IconImages from "@js/components/Icon/Images";
@@ -75,65 +74,71 @@ function DashboardsCsvList(props) {
           data-testid="input-csv-filter"
         />
       </UISearchBarRow>
-      <table
-        className="table is-striped is-fullwidth"
-        data-testid="local-csv-table"
-      >
-        <thead>
-          <tr>
-            {displayFields.map(({ label }) => (
-              <th key={label}>{label}</th>
-            ))}
-            <th></th>
-          </tr>
-        </thead>
-        <tbody data-testid="csv-table-body">
-          {filteredCsv.map((record) => {
-            const {
-              id,
-              filename = "",
-              startedAt = "",
-              status = "",
-              updatedAt = "",
-              user = "",
-            } = record;
+      <div className="table-container">
+        <table
+          className="table is-striped is-fullwidth"
+          data-testid="local-csv-table"
+        >
+          <thead>
+            <tr>
+              {displayFields.map(({ label }) => (
+                <th key={label}>{label}</th>
+              ))}
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-testid="csv-table-body">
+            {filteredCsv.map((record) => {
+              const {
+                id,
+                filename = "",
+                startedAt = "",
+                status = "",
+                updatedAt = "",
+                user = "",
+              } = record;
 
-            return (
-              <tr key={id} data-testid="csv-row">
-                <td>{filename}</td>
-                <td>
-                  <DashboardsCsvStatus status={status} />
-                </td>
-                <td>{user}</td>
-                <td>{formatDate(startedAt)}</td>
-                <td>{formatDate(updatedAt)}</td>
+              return (
+                <tr key={id} data-testid="csv-row">
+                  <td>{filename}</td>
+                  <td>
+                    <DashboardsCsvStatus status={status} />
+                  </td>
+                  <td>{user}</td>
+                  <td>{formatDate(startedAt)}</td>
+                  <td>{formatDate(updatedAt)}</td>
 
-                <td className="has-text-right">
-                  <Link
-                    to={`/dashboards/csv-metadata-update/${id}`}
-                    className="button is-small is-light"
-                    data-testid="view-button"
-                    title="View Metadata Update Job details"
-                  >
-                    <IconView />
-                  </Link>
-                  <Link
-                    data-testid="button-to-search"
-                    className="button is-light"
-                    title="View updated works"
-                    to={{
-                      pathname: "/search",
-                      state: { passedInSearchTerm: `metadataUpdateJobs:\"${id}\"` },
-                    }}
-                  >
-                    <IconImages />
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  <td>
+                    <div className="field is-grouped is-justify-content-flex-end">
+                      <Link
+                        to={`/dashboards/csv-metadata-update/${id}`}
+                        className="button is-small is-light"
+                        data-testid="view-button"
+                        title="View Metadata Update Job details"
+                      >
+                        <IconView />
+                      </Link>
+                      <Link
+                        data-testid="button-to-search"
+                        className="button is-small is-light"
+                        title="View updated works"
+                        to={{
+                          pathname: "/search",
+                          state: {
+                            passedInSearchTerm: `metadataUpdateJobs:\"${id}\"`,
+                          },
+                        }}
+                      >
+                        <IconImages />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

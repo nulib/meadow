@@ -5,20 +5,24 @@ import {
   DELETE_COLLECTION,
 } from "@js/components/Collection/collection.gql.js";
 import Error from "@js/components/UI/Error";
-import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { toastWrapper } from "@js/services/helpers";
 import Layout from "../Layout";
-import UIModalDelete from "@js/components/UI/Modal/Delete";
-import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIFormInput from "@js/components/UI/Form/Input";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import UISearchBarRow from "@js/components/UI/SearchBarRow";
 import IconAdd from "@js/components/Icon/Add";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  FallbackErrorComponent,
+  ModalDelete,
+  PageTitle,
+  SearchBarRow,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
@@ -83,33 +87,25 @@ const ScreensCollectionList = () => {
     <Layout>
       <section className="section" data-testid="collection-list-wrapper">
         <div className="container">
-          <UIBreadcrumbs items={[{ label: "Collections", isActive: true }]} />
+          <Breadcrumbs items={[{ label: "Collections", isActive: true }]} />
 
           <div className="box">
-            <div className="columns">
-              <div className="column is-8">
-                <h1 className="title">Collections</h1>
-                <h2 className="subtitle">
-                  Each <span className="is-italic">Work</span> must live in a
-                  Collection.
-                </h2>
-              </div>
-              <div className="column is-4 has-text-right">
-                <AuthDisplayAuthorized level="MANAGER">
-                  <Link to="/collection/form" className="button is-primary">
-                    <IconAdd />
-                    <span>Add new collection</span>
-                  </Link>
-                </AuthDisplayAuthorized>
-              </div>
-            </div>
+            <ActionHeadline>
+              <PageTitle>Collections</PageTitle>
+              <AuthDisplayAuthorized level="MANAGER">
+                <Link to="/collection/form" className="button is-primary">
+                  <IconAdd />
+                  <span>Add new collection</span>
+                </Link>
+              </AuthDisplayAuthorized>
+            </ActionHeadline>
           </div>
           <div className="box" data-testid="collection-list">
             {loading ? (
-              <UISkeleton rows={10} />
+              <Skeleton rows={10} />
             ) : (
               <>
-                <UISearchBarRow isCentered>
+                <SearchBarRow isCentered>
                   <UIFormInput
                     placeholder="Search collections"
                     name="collectionSearch"
@@ -117,9 +113,9 @@ const ScreensCollectionList = () => {
                     onChange={handleFilterChange}
                     data-testid="input-collections-filter"
                   />
-                </UISearchBarRow>
+                </SearchBarRow>
 
-                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                   <CollectionsList
                     collections={data.collections}
                     filteredCollections={filteredCollections}
@@ -132,7 +128,7 @@ const ScreensCollectionList = () => {
         </div>
       </section>
 
-      <UIModalDelete
+      <ModalDelete
         isOpen={modalOpen}
         handleClose={onCloseModal}
         handleConfirm={handleDeleteClick}

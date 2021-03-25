@@ -24,7 +24,12 @@ function UIFacetLink({ facetComponentId, item }) {
   };
 
   return (
-    <Button isText data-testid="facet-link" onClick={handleClick}>
+    <Button
+      isText
+      data-testid="facet-link"
+      className="break-word"
+      onClick={handleClick}
+    >
       {facetValue}
     </Button>
   );

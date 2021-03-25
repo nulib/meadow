@@ -26,79 +26,81 @@ export default function DashboardsBatchEditList() {
   );
 
   return (
-    <table
-      className="table is-striped is-fullwidth"
-      data-testid="batch-dashboard-table"
-    >
-      <thead>
-        <tr>
-          <th className="is-hidden"></th>
-          {colHeaders.map((col) => (
-            <th key={col}>{col}</th>
-          ))}
-          <th></th>
-        </tr>
-      </thead>
-      <tbody data-testid="batch-dashboard-table-body">
-        {sortedBatches.map((record) => {
-          const {
-            id,
-            nickname,
-            started,
-            status,
-            type,
-            user,
-            worksUpdated,
-          } = record;
+    <div className="table-container">
+      <table
+        className="table is-striped is-fullwidth"
+        data-testid="batch-dashboard-table"
+      >
+        <thead>
+          <tr>
+            <th className="is-hidden"></th>
+            {colHeaders.map((col) => (
+              <th key={col}>{col}</th>
+            ))}
+            <th></th>
+          </tr>
+        </thead>
+        <tbody data-testid="batch-dashboard-table-body">
+          {sortedBatches.map((record) => {
+            const {
+              id,
+              nickname,
+              started,
+              status,
+              type,
+              user,
+              worksUpdated,
+            } = record;
 
-          return (
-            <tr key={id} data-testid="batches-row">
-              <td className="is-hidden">{id}</td>
-              <td>{nickname}</td>
-              <td>{type}</td>
-              <td>
-                <UIDate dateString={started} />
-              </td>
-              <td>{user}</td>
-              <td>{worksUpdated}</td>
-              <td>
-                <Tag
-                  isSuccess={status === "COMPLETE"}
-                  isDanger={status === "ERROR"}
-                  isWarning={status === "IN_PROGRESS"}
-                >
-                  {status}
-                </Tag>
-              </td>
-              <td>
-                <div className="field is-grouped is-justify-content-flex-end">
-                  <Link
-                    className="button is-light is-small"
-                    to={`/dashboards/batch-edit/${id}`}
-                    data-testid="view-button"
-                    title="View Batch Edit details"
+            return (
+              <tr key={id} data-testid="batches-row">
+                <td className="is-hidden">{id}</td>
+                <td>{nickname}</td>
+                <td>{type}</td>
+                <td>
+                  <UIDate dateString={started} />
+                </td>
+                <td>{user}</td>
+                <td>{worksUpdated}</td>
+                <td>
+                  <Tag
+                    isSuccess={status === "COMPLETE"}
+                    isDanger={status === "ERROR"}
+                    isWarning={status === "IN_PROGRESS"}
                   >
-                    <IconView />
-                  </Link>
-                  {type == "UPDATE" && (
+                    {status}
+                  </Tag>
+                </td>
+                <td>
+                  <div className="field is-grouped is-justify-content-flex-end">
                     <Link
-                      data-testid="button-to-search"
                       className="button is-light is-small"
-                      title="View updated works"
-                      to={{
-                        pathname: "/search",
-                        state: { passedInSearchTerm: `batches:\"${id}\"` },
-                      }}
+                      to={`/dashboards/batch-edit/${id}`}
+                      data-testid="view-button"
+                      title="View Batch Edit details"
                     >
-                      <IconImages />
+                      <IconView />
                     </Link>
-                  )}
-                </div>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                    {type == "UPDATE" && (
+                      <Link
+                        data-testid="button-to-search"
+                        className="button is-light is-small"
+                        title="View updated works"
+                        to={{
+                          pathname: "/search",
+                          state: { passedInSearchTerm: `batches:\"${id}\"` },
+                        }}
+                      >
+                        <IconImages />
+                      </Link>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

@@ -14,6 +14,12 @@ import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
 import IconImages from "@js/components/Icon/Images";
 import UILevelItem from "@js/components/UI/LevelItem";
+import {
+  ActionHeadline,
+  LevelItem,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
@@ -39,7 +45,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   });
 
   if (worksLoading || errorsLoading || workCountLoading)
-    return <UISkeleton rows={10} />;
+    return <Skeleton rows={10} />;
   if (worksError) return <Error error={worksError} />;
   if (errorsError) return <Error error={errorsError} />;
   if (workCountError) return <Error error={workCountError} />;
@@ -64,7 +70,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
       {ingestSheetErrors.length === 0 && (
         // <IngestSheetDetails totalWorks={workCountData.ingestSheetWorkCount} />
         <div className="level">
-          <UILevelItem
+          <LevelItem
             heading="Total Works"
             content={workCountData.ingestSheetWorkCount}
           />
@@ -78,18 +84,23 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
       {ingestSheetErrors.length === 0 && (
         <>
           <hr />
-          <div className="is-flex is-justify-content-space-between mb-6 content">
-            <h3>Preview of ingest sheet works...</h3>
-            <Button isPrimary onClick={handleClick}>
-              <span className="icon">
-                <IconImages />
-              </span>
-              <span>View ingest sheet works</span>
-            </Button>
+          <div className="content">
+            <ActionHeadline>
+              <>
+                <h3>Preview of ingest sheet works...</h3>
+                <Button isPrimary onClick={handleClick}>
+                  <span className="icon">
+                    <IconImages />
+                  </span>
+                  <span>View ingest sheet works</span>
+                </Button>
+              </>
+            </ActionHeadline>
           </div>
+
           <div data-testid="preview-wrapper">
             {errorsLoading || worksLoading ? (
-              <UISkeleton rows={5} />
+              <Skeleton rows={5} />
             ) : (
               <div>
                 <UIPreviewItems items={works} />

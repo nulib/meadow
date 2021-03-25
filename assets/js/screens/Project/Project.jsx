@@ -6,20 +6,24 @@ import IngestSheetList from "../../components/IngestSheet/List";
 import Error from "../../components/UI/Error";
 import UISkeleton from "../../components/UI/Skeleton";
 import { useQuery } from "@apollo/client";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
 } from "../../components/Project/project.gql.js";
 import { formatDate } from "../../services/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import IconImages from "@js/components/Icon/Images";
 import IconAdd from "@js/components/Icon/Add";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  FallbackErrorComponent,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const ScreensProject = () => {
   const history = useHistory();
@@ -82,9 +86,9 @@ const ScreensProject = () => {
         <section className="section">
           <div className="container">
             {loading ? (
-              <UISkeleton rows={1} />
+              <Skeleton rows={1} />
             ) : (
-              <UIBreadcrumbs
+              <Breadcrumbs
                 items={[
                   {
                     label: "Projects",
@@ -102,23 +106,13 @@ const ScreensProject = () => {
             <>
               <div className="box">
                 {loading ? (
-                  <UISkeleton rows={5} />
+                  <Skeleton rows={5} />
                 ) : (
-                  <div className="columns" data-testid="screen-header">
-                    <div className="column is-three-fifths content">
-                      <h1 className="title">{data.project.title}</h1>
-                      <dl>
-                        <dt>Last updated</dt>
-                        <dd>{formatDate(data.project.updatedAt)}</dd>
-                        <dt>Total Ingest Sheets</dt>
-                        <dd>{data.project.ingestSheets.length}</dd>
-                        <dt>S3 Bucket Folder</dt>
-                        <dd>{data.project.folder}</dd>
-                      </dl>
-                    </div>
-                    <div className="column is-two-fifths">
+                  <>
+                    <ActionHeadline data-testid="screen-header">
+                      <PageTitle>{data.project.title}</PageTitle>
                       <AuthDisplayAuthorized>
-                        <div className="buttons is-right">
+                        <div className="buttons">
                           <Button
                             data-testid="button-new-ingest-sheet"
                             isPrimary
@@ -141,15 +135,25 @@ const ScreensProject = () => {
                           </Button>
                         </div>
                       </AuthDisplayAuthorized>
+                    </ActionHeadline>
+                    <div className="content">
+                      <dl>
+                        <dt>Last updated</dt>
+                        <dd>{formatDate(data.project.updatedAt)}</dd>
+                        <dt>Total Ingest Sheets</dt>
+                        <dd>{data.project.ingestSheets.length}</dd>
+                        <dt>S3 Bucket Folder</dt>
+                        <dd>{data.project.folder}</dd>
+                      </dl>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
               <div className="box" data-testid="screen-content">
                 {loading ? (
                   <UISkeleton rows={15} />
                 ) : (
-                  <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                  <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                     <IngestSheetList
                       project={data.project}
                       subscribeToIngestSheetStatusChanges={() =>
@@ -167,7 +171,7 @@ const ScreensProject = () => {
           </div>
         </section>
       </div>
-      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+      <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
         <ProjectIngestSheetModal
           closeModal={() => setIsModalHidden(true)}
           isHidden={isModalHidden}
