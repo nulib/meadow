@@ -186,7 +186,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 <h3>Project / Job Information</h3>
               </div>
 
-              <UIFormField label="Project / Job Description">
+              <UIFormField label="Ingest Project">
                 {project ? (
                   <p>
                     <Button

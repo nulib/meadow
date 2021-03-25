@@ -85,20 +85,6 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "Project",
-    dataField: "project.title.keyword",
-    showSearch: true,
-    title: "Project",
-  },
-  {
-    ...defaultListItemValues,
-    componentId: "IngestSheet",
-    dataField: "sheet.title.keyword",
-    showSearch: true,
-    title: "Ingest Sheet",
-  },
-  {
-    ...defaultListItemValues,
     componentId: "Creator",
     dataField: "descriptiveMetadata.creator.displayFacet",
     showSearch: true,
@@ -237,6 +223,61 @@ export const FACET_TECHNICAL_METADATA_SENSORS = [
     componentId: "PhotometricInterpretation",
     dataField: "fileSets.exif.photometricInterpretation.keyword",
     title: "Photometric Interpretation",
+  },
+];
+
+export const FACET_PROJECT_SENSORS = [
+  {
+    ...defaultListItemValues,
+    componentId: "IngestProject",
+    dataField: "project.title.keyword",
+    showSearch: true,
+    title: "Ingest Project",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "IngestSheet",
+    dataField: "sheet.title.keyword",
+    showSearch: true,
+    title: "Ingest Sheet",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectName",
+    dataField: "administrativeMetadata.projectName.keyword",
+    showSearch: true,
+    title: "Project Name",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectCycle",
+    dataField: "administrativeMetadata.projectCycle.keyword",
+    title: "Project Cycle",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectDesc",
+    dataField: "administrativeMetadata.projectDesc.keyword",
+    title: "Project Description",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectManager",
+    dataField: "administrativeMetadata.projectManager.keyword",
+    title: "Project Manager",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectProposer",
+    dataField: "administrativeMetadata.projectProposer.keyword",
+    title: "Project Proposer",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ProjectTaskNumber",
+    dataField: "administrativeMetadata.projectTaskNumber.keyword",
+    showSearch: true,
+    title: "Project Task Number",
   },
 ];
 
