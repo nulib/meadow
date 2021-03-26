@@ -1,12 +1,24 @@
 import React from "react";
 import SearchFacetSidebar from "./FacetSidebar";
 import { renderWithRouter } from "../../services/testing-helpers";
+import { screen } from "@testing-library/react";
+
+// NOTE: We can't test the actual ReactiveSearch facets, so have to mock them just to avoid tests crashing
 
 describe("SearchFacetSidebar component", () => {
-  //TODO: For some reason Jest doesn't recognize the ReactiveSearch component "RangeSlider".
-  // Maybe figure this out later when more time
-  xit("renders without crashing", () => {
-    const { getByTestId } = renderWithRouter(<SearchFacetSidebar />);
-    expect(getByTestId("search-facet-sidebar-wrapper")).toBeInTheDocument();
+  beforeEach(() => {
+    renderWithRouter(<SearchFacetSidebar />);
+  });
+
+  it("renders without crashing", () => {
+    expect(
+      screen.getByTestId("search-facet-sidebar-wrapper")
+    ).toBeInTheDocument();
+  });
+
+  it("renders all general facet category boxes", () => {
+    expect(screen.getByTestId("general-facets"));
+    expect(screen.getByTestId("technical-facets"));
+    expect(screen.getByTestId("project-facets"));
   });
 });

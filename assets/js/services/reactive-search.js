@@ -256,12 +256,6 @@ export const FACET_PROJECT_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "ProjectDesc",
-    dataField: "administrativeMetadata.projectDesc.keyword",
-    title: "Project Description",
-  },
-  {
-    ...defaultListItemValues,
     componentId: "ProjectManager",
     dataField: "administrativeMetadata.projectManager.keyword",
     title: "Project Manager",
