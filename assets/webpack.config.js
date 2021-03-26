@@ -4,7 +4,41 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HoneybadgerSourceMapPlugin = require("@honeybadger-io/webpack");
 const Webpack = require("webpack");
+
+const buildPlugins = (env, options) => {
+  let result = [
+    new MiniCssExtractPlugin({ filename: "../css/app.css" }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: "static/", to: "../" }],
+    }),
+    new Webpack.DefinePlugin({
+      __HONEYBADGER_API_KEY__: JSON.stringify(process.env.HONEYBADGER_API_KEY),
+      __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
+        process.env.HONEYBADGER_ENVIRONMENT
+      ),
+      __HONEYBADGER_REVISION__: JSON.stringify(
+        process.env.HONEYBADGER_REVISION
+      ),
+      __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
+    }),
+    new Webpack.SourceMapDevToolPlugin({
+      filename: "[name].js.map",
+    }),
+  ];
+
+  if (typeof process.env.HONEYBADGER_API_KEY === "string") {
+    result.push(
+      new HoneybadgerSourceMapPlugin({
+        apiKey: process.env.HONEYBADGER_API_KEY,
+        assetsUrl: "http*://meadow*.library.northwestern.edu",
+        revision: process.env.HONEYBADGER_REVISION,
+      })
+    );
+  }
+  return result;
+};
 
 module.exports = (env, options) => ({
   optimization: {
@@ -64,26 +98,7 @@ module.exports = (env, options) => ({
       },
     ],
   },
-  plugins: [
-    new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-    new CopyWebpackPlugin({
-      patterns: [{ from: "static/", to: "../" }],
-    }),
-    new Webpack.DefinePlugin({
-      __HONEYBADGER_API_KEY__: JSON.stringify(process.env.HONEYBADGER_API_KEY),
-      __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
-        process.env.HONEYBADGER_ENVIRONMENT
-      ),
-      __HONEYBADGER_REVISION__: JSON.stringify(
-        process.env.HONEYBADGER_REVISION
-      ),
-      __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
-    }),
-    new Webpack.SourceMapDevToolPlugin({
-      filename: "[name].js.map",
-      exclude: ["vendors~app.bundle.js"],
-    }),
-  ],
+  plugins: buildPlugins(env, options),
   devtool: false,
   resolve: {
     extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
