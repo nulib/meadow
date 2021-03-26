@@ -109,6 +109,7 @@ config :honeybadger,
   revision: System.get_env("HONEYBADGER_REVISION", nil),
   repos: [Meadow.Repo],
   breadcrumbs_enabled: true,
+  notice_filter: Meadow.Error.Filter,
   exclude_envs: [:dev, :test]
 
 aws_env =
