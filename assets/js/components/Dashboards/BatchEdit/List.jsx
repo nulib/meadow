@@ -74,7 +74,7 @@ export default function DashboardsBatchEditList() {
                 <td>
                   <div className="field is-grouped is-justify-content-flex-end">
                     <Link
-                      className="button is-light is-small"
+                      className="button is-light"
                       to={`/dashboards/batch-edit/${id}`}
                       data-testid="view-button"
                       title="View Batch Edit details"
@@ -84,7 +84,7 @@ export default function DashboardsBatchEditList() {
                     {type == "UPDATE" && (
                       <Link
                         data-testid="button-to-search"
-                        className="button is-light is-small"
+                        className="button is-light"
                         title="View updated works"
                         to={{
                           pathname: "/search",
