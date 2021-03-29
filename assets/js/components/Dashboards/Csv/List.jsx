@@ -112,25 +112,27 @@ function DashboardsCsvList(props) {
                     <div className="field is-grouped is-justify-content-flex-end">
                       <Link
                         to={`/dashboards/csv-metadata-update/${id}`}
-                        className="button is-small is-light"
+                        className="button is-light"
                         data-testid="view-button"
                         title="View Metadata Update Job details"
                       >
                         <IconView />
                       </Link>
-                      <Link
-                        data-testid="button-to-search"
-                        className="button is-small is-light"
-                        title="View updated works"
-                        to={{
-                          pathname: "/search",
-                          state: {
-                            passedInSearchTerm: `metadataUpdateJobs:\"${id}\"`,
-                          },
-                        }}
-                      >
-                        <IconImages />
-                      </Link>
+                      {status.toUpperCase() === "COMPLETE" && (
+                        <Link
+                          data-testid="button-to-search"
+                          className="button is-light"
+                          title="View updated works"
+                          to={{
+                            pathname: "/search",
+                            state: {
+                              passedInSearchTerm: `metadataUpdateJobs:\"${id}\"`,
+                            },
+                          }}
+                        >
+                          <IconImages />
+                        </Link>
+                      )}
                     </div>
                   </td>
                 </tr>
