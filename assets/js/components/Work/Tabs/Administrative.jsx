@@ -244,7 +244,7 @@ const WorkTabsAdministrative = ({ work }) => {
                       />
                     ) : (
                       <UIFormFieldArrayDisplay
-                        items={administrativeMetadata[item.name]}
+                        values={administrativeMetadata[item.name]}
                         label={item.label}
                       />
                     )}

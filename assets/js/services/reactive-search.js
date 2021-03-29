@@ -70,6 +70,20 @@ const defaultListItemValues = {
 export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
+    componentId: "BoxName",
+    dataField: "descriptiveMetadata.boxName.keyword",
+    showSearch: true,
+    title: "Box Name",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "BoxNumber",
+    dataField: "descriptiveMetadata.boxNumber.keyword",
+    showSearch: false,
+    title: "Box Number",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "Contributor",
     dataField: "descriptiveMetadata.contributor.displayFacet",
     showSearch: true,
@@ -89,6 +103,20 @@ export const FACET_SENSORS = [
     dataField: "descriptiveMetadata.creator.displayFacet",
     showSearch: true,
     title: "Creator",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FolderName",
+    dataField: "descriptiveMetadata.folderName.keyword",
+    showSearch: true,
+    title: "Folder Name",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "FolderNumber",
+    dataField: "descriptiveMetadata.folderNumber.keyword",
+    showSearch: false,
+    title: "Folder Number",
   },
   {
     ...defaultListItemValues,
@@ -145,6 +173,13 @@ export const FACET_SENSORS = [
     componentId: "RightsStatement",
     dataField: "descriptiveMetadata.rightsStatement.label.keyword",
     title: "Rights Statement",
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "Series",
+    dataField: "descriptiveMetadata.series.keyword",
+    showSearch: false,
+    title: "Series",
   },
   {
     ...defaultListItemValues,

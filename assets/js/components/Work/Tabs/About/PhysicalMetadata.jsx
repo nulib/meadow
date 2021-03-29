@@ -1,8 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import { PHYSICAL_METADATA } from "../../../../services/metadata";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import { METADATA_FIELDS, PHYSICAL_METADATA } from "@js/services/metadata";
+
+const {
+  BOX_NAME,
+  BOX_NUMBER,
+  FOLDER_NAME,
+  FOLDER_NUMBER,
+  SERIES,
+} = METADATA_FIELDS;
+const itemsToLink = [BOX_NAME, BOX_NUMBER, FOLDER_NAME, FOLDER_NUMBER, SERIES];
 
 const WorkTabsAboutPhysicalMetadata = ({ descriptiveMetadata, isEditing }) => {
   return (
@@ -13,8 +22,12 @@ const WorkTabsAboutPhysicalMetadata = ({ descriptiveMetadata, isEditing }) => {
             <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
             <UIFormFieldArrayDisplay
-              items={descriptiveMetadata[item.name]}
+              values={descriptiveMetadata[item.name]}
+              isFacetLink={Boolean(
+                itemsToLink.find((o) => o.name === item.name)
+              )}
               label={item.label}
+              metadataItem={item}
             />
           )}
         </div>
