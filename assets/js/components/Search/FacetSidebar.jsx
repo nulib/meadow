@@ -3,6 +3,7 @@ import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
 import {
   FACET_SENSORS,
   //FACET_RANGE_SENSORS,
+  FACET_PROJECT_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
@@ -14,6 +15,9 @@ import { allImagesQuery } from "@js/services/elasticsearch";
  * Organize the facetable metadata into groups
  */
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+const facetProjectSensors = FACET_PROJECT_SENSORS.map(
+  (sensor) => sensor.componentId
+);
 // const facetRangeSensors = FACET_RANGE_SENSORS.map(
 //   (sensor) => sensor.componentId
 // );
@@ -28,6 +32,21 @@ const filterList = (filterId) => {
   );
   return [
     ...filtersMinusCurrent,
+    ...facetProjectSensors,
+    ...facetTechnicalMetadataSensors,
+    //...facetRangeSensors,
+    SEARCH_SENSOR,
+  ];
+};
+
+// Return all connected facets for project metadata
+const filterProjectList = (filterId) => {
+  let filtersMinusCurrent = facetProjectSensors.filter(
+    (filterItem) => filterItem !== filterId
+  );
+  return [
+    ...filtersMinusCurrent,
+    ...facetSensors,
     ...facetTechnicalMetadataSensors,
     //...facetRangeSensors,
     SEARCH_SENSOR,
@@ -42,6 +61,7 @@ const filterTechnicalMetadataList = (filterId) => {
   return [
     ...filtersMinusCurrent,
     ...facetSensors,
+    ...facetProjectSensors,
     //...facetRangeSensors,
     SEARCH_SENSOR,
   ];
@@ -109,43 +129,64 @@ export default function SearchFacetSidebar() {
     return getQueryPartsFacetValue(prevFacets, sensor);
   }
 
+  const defaultMultiListProps = {
+    defaultQuery: () => allImagesQuery,
+    placeholder: "Filter",
+    showFilter: true,
+    URLParams: true,
+  };
+
   return (
     <div data-testid="search-facet-sidebar-wrapper" className="is-size-7">
-      {FACET_SENSORS.map((sensor) => (
-        <MultiList
-          key={sensor.componentId}
-          {...sensor}
-          defaultValue={getDefaultValue(sensor)}
-          defaultQuery={() => allImagesQuery}
-          missingLabel="None"
-          placeholder="Filter"
-          react={{
-            and: filterList(sensor.componentId),
-          }}
-          showMissing={
-            ["Published"].indexOf(sensor.componentId) > -1 ? false : true
-          }
-          showFilter={true}
-          URLParams={true}
-        />
-      ))}
+      <div className="box" data-testid="general-facets">
+        {FACET_SENSORS.map((sensor) => (
+          <MultiList
+            key={sensor.componentId}
+            {...sensor}
+            {...defaultMultiListProps}
+            defaultValue={getDefaultValue(sensor)}
+            missingLabel="None"
+            react={{
+              and: filterList(sensor.componentId),
+            }}
+            showMissing={
+              ["Published"].indexOf(sensor.componentId) > -1 ? false : true
+            }
+          />
+        ))}
+      </div>
+
+      <div className="box" data-testid="technical-facets">
+        <h3 className="title is-size-5">Technical Metadata</h3>
+        {FACET_TECHNICAL_METADATA_SENSORS.map((sensor) => (
+          <MultiList
+            key={sensor.componentId}
+            {...sensor}
+            {...defaultMultiListProps}
+            defaultValue={getDefaultValue(sensor)}
+            react={{
+              and: filterTechnicalMetadataList(sensor.componentId),
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="box" data-testid="project-facets">
+        <h3 className="title is-size-5">Ingest Sheet and Project Metadata</h3>
+        {FACET_PROJECT_SENSORS.map((sensor) => (
+          <MultiList
+            key={sensor.componentId}
+            {...sensor}
+            {...defaultMultiListProps}
+            defaultValue={getDefaultValue(sensor)}
+            react={{
+              and: filterProjectList(sensor.componentId),
+            }}
+          />
+        ))}
+      </div>
 
       <hr />
-      <h3 className="title is-size-5">Technical Metadata</h3>
-      {FACET_TECHNICAL_METADATA_SENSORS.map((sensor) => (
-        <MultiList
-          key={sensor.componentId}
-          {...sensor}
-          defaultValue={getDefaultValue(sensor)}
-          defaultQuery={() => allImagesQuery}
-          placeholder="Filter"
-          react={{
-            and: filterTechnicalMetadataList(sensor.componentId),
-          }}
-          showFilter={true}
-          URLParams={true}
-        />
-      ))}
 
       {/* {FACET_RANGE_SENSORS.map((sensor) => (
         <RangeSlider

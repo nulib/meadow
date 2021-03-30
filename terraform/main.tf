@@ -23,6 +23,7 @@ module "rds" {
   subnet_ids                = data.aws_subnet_ids.private_subnets.ids
   family                    = "postgres11"
   vpc_security_group_ids    = [aws_security_group.meadow_db.id]
+  deletion_protection       = true
 
   parameters = [
     {
@@ -185,6 +186,10 @@ resource "aws_security_group" "meadow_efs_client" {
   tags = var.tags
 }
 
+data "aws_security_group" "stack_db_group" {
+  name = "stack-${var.environment}-db-client"
+}
+
 resource "aws_security_group" "meadow_db" {
   name        = "${var.stack_name}-db"
   description = "The Meadow RDS Instance"
@@ -206,6 +211,15 @@ resource "aws_security_group_rule" "allow_meadow_db_access" {
   to_port                  = 5432
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.meadow.id
+  security_group_id        = aws_security_group.meadow_db.id
+}
+
+resource "aws_security_group_rule" "allow_stack_db_access" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = data.aws_security_group.stack_db_group.id
   security_group_id        = aws_security_group.meadow_db.id
 }
 

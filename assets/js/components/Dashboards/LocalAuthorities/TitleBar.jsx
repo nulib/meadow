@@ -7,6 +7,7 @@ import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
 import IconAdd from "@js/components/Icon/Add";
+import { ActionHeadline, PageTitle } from "@js/components/UI/UI";
 
 function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();
@@ -41,15 +42,13 @@ function DashboardsLocalAuthoritiesTitleBar() {
 
   return (
     <React.Fragment>
-      <div
-        className="is-flex is-justify-content-space-between"
-        data-testid="nul-authorities-title-bar"
-      >
-        <h1 className="title" data-testid="local-authorities-dashboard-title">
+      <ActionHeadline data-testid="nul-authorities-title-bar">
+        <PageTitle data-testid="local-authorities-dashboard-title">
           <UIIconText icon={<NLogo width="24px" height="24px" />}>
             Local Authorities Dashboard
           </UIIconText>
-        </h1>
+        </PageTitle>
+
         <Button
           isPrimary
           onClick={() => setIsAddModalOpen(true)}
@@ -58,7 +57,8 @@ function DashboardsLocalAuthoritiesTitleBar() {
           <IconAdd className="icon" />
           <span>Add Local Authority</span>
         </Button>
-      </div>
+      </ActionHeadline>
+
       <DashboardsLocalAuthoritiesModalAdd
         isOpen={isAddModalOpen}
         handleAddLocalAuthority={handleAddLocalAuthority}

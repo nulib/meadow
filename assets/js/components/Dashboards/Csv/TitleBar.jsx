@@ -3,23 +3,21 @@ import DashboardsCsvImport from "./Import";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { GrDocumentCsv } from "react-icons/gr";
 import IconText from "@js/components/UI/IconText";
+import { ActionHeadline, PageTitle } from "@js/components/UI/UI";
 
 function DashboardsCsvTitleBar() {
   return (
     <React.Fragment>
-      <div
-        className="is-flex is-justify-content-space-between"
-        data-testid="csv-job-title-bar"
-      >
-        <h1 className="title" data-testid="csv-dashboard-title">
+      <ActionHeadline data-testid="csv-job-title-bar">
+        <PageTitle data-testid="csv-dashboard-title">
           <IconText icon={<GrDocumentCsv />}>CSV Metadata Update</IconText>
-        </h1>
+        </PageTitle>
         <div>
           <AuthDisplayAuthorized level="MANAGER">
             <DashboardsCsvImport />
           </AuthDisplayAuthorized>
         </div>
-      </div>
+      </ActionHeadline>
     </React.Fragment>
   );
 }

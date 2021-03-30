@@ -1,17 +1,16 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
-import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsCsvList from "@js/components/Dashboards/Csv/List";
 import DashboardsCsvTitleBar from "@js/components/Dashboards/Csv/TitleBar";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import { Breadcrumbs, FallbackErrorComponent } from "@js/components/UI/UI";
 
 function ScreensDashboardsCsvList() {
   return (
     <Layout>
       <section className="section" data-testid="dashboard-csv-screen">
         <div className="container">
-          <UIBreadCrumbs
+          <Breadcrumbs
             items={[
               {
                 label: "Dashboards",
@@ -25,7 +24,7 @@ function ScreensDashboardsCsvList() {
             ]}
           />
           <div className="box">
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
               <DashboardsCsvTitleBar />
               <DashboardsCsvList />
             </ErrorBoundary>

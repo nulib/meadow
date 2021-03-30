@@ -23,7 +23,7 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
             <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
             <UIFormFieldArrayDisplay
-              items={descriptiveMetadata[item.name]}
+              values={descriptiveMetadata[item.name]}
               label={item.label}
             />
           )}

@@ -93,64 +93,70 @@ const ProjectList = ({ projects }) => {
         />
       </UISearchBarRow>
 
-      <table
-        data-testid="project-list"
-        className="table is-striped is-hoverable is-fullwidth"
-      >
-        <caption>All Projects</caption>
-        <thead>
-          <tr>
-            <th>Project</th>
-            <th>s3 Bucket Folder</th>
-            <th className="text-right has-text-right"># Ingest Sheets</th>
-            <th className="has-text-right">Last Updated</th>
-            <AuthDisplayAuthorized>
-              <th className="has-text-right">Actions</th>
-            </AuthDisplayAuthorized>
-          </tr>
-        </thead>
-        <tbody>
-          {projectList &&
-            projectList.map((project) => {
-              const { id, folder, title, updatedAt, ingestSheets } = project;
-              return (
-                <tr key={id}>
-                  <td>
-                    <Link to={`/project/${id}`} data-testid="project-title-row">
-                      {title}
-                    </Link>
-                  </td>
-                  <td>{folder}</td>
-                  <td className="has-text-right">{ingestSheets.length}</td>
-                  <td className="has-text-right">{formatDate(updatedAt)}</td>
-                  <AuthDisplayAuthorized>
+      <div className="table-container">
+        <table
+          data-testid="project-list"
+          className="table is-striped is-hoverable is-fullwidth"
+        >
+          <caption>All Projects</caption>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>s3 Bucket Folder</th>
+              <th className="text-right has-text-right"># Ingest Sheets</th>
+              <th className="has-text-right">Last Updated</th>
+              <AuthDisplayAuthorized>
+                <th className="has-text-right">Actions</th>
+              </AuthDisplayAuthorized>
+            </tr>
+          </thead>
+          <tbody>
+            {projectList &&
+              projectList.map((project) => {
+                const { id, folder, title, updatedAt, ingestSheets } = project;
+                return (
+                  <tr key={id}>
                     <td>
-                      <div className="buttons-end">
-                        <p className="control">
-                          <Button
-                            isLight
-                            onClick={(e) => onEditProject(project)}
-                          >
-                            <IconEdit />
-                          </Button>
-                        </p>
-                        <p className="control">
-                          <Button
-                            isLight
-                            data-testid="delete-button-row"
-                            onClick={(e) => onOpenModal(e, project)}
-                          >
-                            <FontAwesomeIcon icon="trash" />
-                          </Button>
-                        </p>
-                      </div>
+                      <Link
+                        to={`/project/${id}`}
+                        data-testid="project-title-row"
+                      >
+                        {title}
+                      </Link>
                     </td>
-                  </AuthDisplayAuthorized>
-                </tr>
-              );
-            })}
-        </tbody>
-      </table>
+                    <td>{folder}</td>
+                    <td className="has-text-right">{ingestSheets.length}</td>
+                    <td className="has-text-right">{formatDate(updatedAt)}</td>
+                    <AuthDisplayAuthorized>
+                      <td>
+                        <div className="buttons-end">
+                          <p className="control">
+                            <Button
+                              isLight
+                              onClick={(e) => onEditProject(project)}
+                            >
+                              <IconEdit />
+                            </Button>
+                          </p>
+                          <p className="control">
+                            <Button
+                              isLight
+                              data-testid="delete-button-row"
+                              onClick={(e) => onOpenModal(e, project)}
+                            >
+                              <FontAwesomeIcon icon="trash" />
+                            </Button>
+                          </p>
+                        </div>
+                      </td>
+                    </AuthDisplayAuthorized>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </div>
+
       <ProjectForm
         showForm={showForm}
         setShowForm={setShowForm}

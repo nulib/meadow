@@ -1,13 +1,16 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
 import { useParams } from "react-router-dom";
-import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsCsvDetails from "@js/components/Dashboards/Csv/Details";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { GET_CSV_METADATA_UPDATE_JOB } from "@js/components/Dashboards/dashboards.gql";
 import { useQuery } from "@apollo/client";
-import UISkeleton from "@js/components/UI/Skeleton";
+import {
+  Breadcrumbs,
+  FallbackErrorComponent,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 export default function ScreensDashboardsCsvDetails() {
   const params = useParams();
@@ -18,13 +21,13 @@ export default function ScreensDashboardsCsvDetails() {
     },
   });
 
-  if (loading) return <UISkeleton />;
+  if (loading) return <Skeleton />;
 
   return (
     <Layout>
       <section className="section" data-testid="dashboard-csv-screen">
         <div className="container">
-          <UIBreadCrumbs
+          <Breadcrumbs
             items={[
               {
                 label: "Dashboards",
@@ -43,9 +46,8 @@ export default function ScreensDashboardsCsvDetails() {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="page-title">
-              CSV Import Details
-            </h1>
+            <PageTitle data-testid="page-title">CSV Import Details</PageTitle>
+
             {error && (
               <div
                 className="notification is-danger is-light"
@@ -57,7 +59,7 @@ export default function ScreensDashboardsCsvDetails() {
             )}
 
             {data.csvMetadataUpdateJob && (
-              <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+              <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                 <DashboardsCsvDetails
                   csvMetadataUpdateJob={data.csvMetadataUpdateJob}
                 />

@@ -58,7 +58,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
       )}
 
       {project.ingestSheets.length > 0 && (
-        <>
+        <div className="table-container">
           <table className="table is-striped is-hoverable is-fullwidth">
             <caption>All Project Ingest Sheets</caption>
             <thead>
@@ -118,7 +118,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
               activeModal ? activeModal.title : ""
             }`}
           />
-        </>
+        </div>
       )}
     </div>
   );

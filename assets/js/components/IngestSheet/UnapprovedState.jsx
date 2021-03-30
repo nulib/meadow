@@ -65,16 +65,18 @@ const IngestSheetUnapprovedState = ({ rows }) => {
   }
 
   return (
-    <table className="table is-striped is-fullwidth is-bordered">
-      <thead>
-        <tr>
-          <th>Work Accession Number</th>
-          <th>Fileset Accession Number</th>
-          <th>Fileset Data</th>
-        </tr>
-      </thead>
-      {renderGroupings()}
-    </table>
+    <div className="table-container">
+      <table className="table is-striped is-fullwidth is-bordered">
+        <thead>
+          <tr>
+            <th>Work Accession Number</th>
+            <th>Fileset Accession Number</th>
+            <th>Fileset Data</th>
+          </tr>
+        </thead>
+        {renderGroupings()}
+      </table>
+    </div>
   );
 };
 

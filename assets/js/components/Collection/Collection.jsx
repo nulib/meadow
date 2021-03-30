@@ -73,7 +73,7 @@ const Collection = ({ collection }) => {
           )}
         </div>
         <div className="column content">
-          <dl>
+          <dl className="spaced">
             <dt>
               <strong>Description</strong>
             </dt>

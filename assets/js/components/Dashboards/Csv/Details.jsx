@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import UIDate from "@js/components/UI/Date";
 import DashboardsCsvErrors from "@js/components/Dashboards/Csv/Errors";
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
+import { Link } from "react-router-dom";
+import IconImages from "@js/components/Icon/Images";
 
 function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
   const {
@@ -55,6 +57,27 @@ function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
           </div>
         </div>
       </section>
+
+      {status.toUpperCase() === "COMPLETE" && (
+        <Link
+          data-testid="button-to-search"
+          className="button"
+          title="View updated works"
+          to={{
+            pathname: "/search",
+            state: {
+              passedInSearchTerm: `metadataUpdateJobs:\"${updateId}\"`,
+            },
+          }}
+        >
+          <span className="icon">
+            <IconImages />
+          </span>
+
+          <span>View CSV import works</span>
+        </Link>
+      )}
+
       {errors && errors.length > 0 && <DashboardsCsvErrors errors={errors} />}
     </>
   );

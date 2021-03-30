@@ -3,16 +3,20 @@ import Layout from "../Layout";
 import ProjectList from "@js/components/Project/List";
 import { GET_PROJECTS } from "@js/components/Project/project.gql.js";
 import ProjectForm from "@js/components/Project/Form";
-import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
-import UILevelItem from "@js/components/UI/LevelItem";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { useQuery } from "@apollo/client";
-import UISkeleton from "@js/components/UI/Skeleton";
 import Error from "@js/components/UI/Error";
 import IconAdd from "@js/components/Icon/Add";
+import {
+  ActionHeadline,
+  Breadcrumbs,
+  FallbackErrorComponent,
+  LevelItem,
+  PageTitle,
+  Skeleton,
+} from "@js/components/UI/UI";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
@@ -30,16 +34,14 @@ const ScreensProjectList = () => {
     <Layout>
       <section className="section">
         <div className="container">
-          <UIBreadcrumbs
+          <Breadcrumbs
             items={[{ label: "Projects", route: "/project/list" }]}
           />
           <div className="box">
-            <div className="columns" data-testid="screen-header">
-              <div className="column is-8">
-                <h1 className="title">Projects</h1>
-              </div>
-              <AuthDisplayAuthorized>
-                <div className="column is-4 has-text-right">
+            <ActionHeadline data-testid="screen-header">
+              <>
+                <PageTitle>Projects</PageTitle>
+                <AuthDisplayAuthorized>
                   <Button
                     isPrimary
                     data-testid="button-new-project"
@@ -50,15 +52,16 @@ const ScreensProjectList = () => {
                     </span>
                     <span>Add Project</span>
                   </Button>
-                </div>
-              </AuthDisplayAuthorized>
-            </div>
+                </AuthDisplayAuthorized>
+              </>
+            </ActionHeadline>
+
             <div className="level">
-              <UILevelItem
+              <LevelItem
                 heading="Total Projects"
                 content={`${projects.length}`}
               />
-              <UILevelItem
+              <LevelItem
                 heading="Total Sheets Ingested"
                 content={`${getIngestSheetsCount(projects)}`}
               />
@@ -68,12 +71,12 @@ const ScreensProjectList = () => {
           </div>
 
           <div className="box">
-            {loading && <UISkeleton rows={20} />}
+            {loading && <Skeleton rows={20} />}
             {error && <Error error={error} />}
 
             {!loading && !error && (
               <div data-testid="screen-content">
-                <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+                <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                   <ProjectList
                     projects={projects}
                     loading={loading}
@@ -86,7 +89,7 @@ const ScreensProjectList = () => {
         </div>
       </section>
 
-      <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+      <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
         <ProjectForm showForm={showForm} setShowForm={setShowForm} />
       </ErrorBoundary>
     </Layout>

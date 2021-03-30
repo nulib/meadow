@@ -1,18 +1,21 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
-import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsBatchEditList from "@js/components/Dashboards/BatchEdit/List";
 import { ErrorBoundary } from "react-error-boundary";
-import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { GrMultiple } from "react-icons/gr";
 import IconText from "@js/components/UI/IconText";
+import {
+  Breadcrumbs,
+  FallbackErrorComponent,
+  PageTitle,
+} from "@js/components/UI/UI";
 
 function ScreensDashboardsBatchEditList(props) {
   return (
     <Layout>
       <section className="section" data-testid="dashboard-batch-edit-screen">
         <div className="container">
-          <UIBreadCrumbs
+          <Breadcrumbs
             items={[
               {
                 label: "Dashboards",
@@ -26,10 +29,10 @@ function ScreensDashboardsBatchEditList(props) {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="batch-edit-dashboard-title">
+            <PageTitle data-testid="batch-edit-dashboard-title">
               <IconText icon={<GrMultiple />}>Batch Edit Dashboard</IconText>
-            </h1>
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            </PageTitle>
+            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
               <DashboardsBatchEditList />
             </ErrorBoundary>
           </div>

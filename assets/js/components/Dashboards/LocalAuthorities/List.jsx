@@ -11,13 +11,13 @@ import {
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
-import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
-import UISearchBarRow from "@js/components/UI/SearchBarRow";
 import UIFormInput from "@js/components/UI/Form/Input";
+import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
+import IconEdit from "@js/components/Icon/Edit";
+import IconTrashCan from "@js/components/Icon/TrashCan";
 
 const colHeaders = ["Label", "Hint"];
 
@@ -174,7 +174,7 @@ export default function DashboardsLocalAuthoritiesList() {
 
   return (
     <React.Fragment>
-      <UISearchBarRow isCentered>
+      <SearchBarRow isCentered>
         <UIFormInput
           placeholder="Search"
           name="nulSearch"
@@ -182,58 +182,61 @@ export default function DashboardsLocalAuthoritiesList() {
           onChange={handleSearchChange}
           value={searchValue}
         />
-      </UISearchBarRow>
-      <table
-        className="table is-striped is-fullwidth"
-        data-testid="local-authorities-dashboard-table"
-      >
-        <thead>
-          <tr>
-            {colHeaders.map((col) => (
-              <th key={col}>{col}</th>
-            ))}
-            <th>Id</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody data-testid="local-authorities-table-body">
-          {filteredAuthorities.map((record) => {
-            const { id = "", hint = "", label = "" } = record;
+      </SearchBarRow>
 
-            return (
-              <tr key={id} data-testid="nul-authorities-row">
-                <td>{label}</td>
-                <td>{hint}</td>
-                <td>{id}</td>
+      <div className="table-container">
+        <table
+          className="table is-striped is-fullwidth"
+          data-testid="local-authorities-dashboard-table"
+        >
+          <thead>
+            <tr>
+              {colHeaders.map((col) => (
+                <th key={col}>{col}</th>
+              ))}
+              <th>Id</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-testid="local-authorities-table-body">
+            {filteredAuthorities.map((record) => {
+              const { id = "", hint = "", label = "" } = record;
 
-                <td className="has-text-right is-right mb-0">
-                  <div className="field is-grouped">
-                    <Button
-                      isLight
-                      data-testid="edit-button"
-                      title="Edit NUL Local Authority"
-                      className="is-small"
-                      onClick={() => handleUpdateButtonClick(record)}
-                    >
-                      <FontAwesomeIcon icon="pen" />
-                    </Button>
-                    <Button
-                      isLight
-                      data-testid="delete-button"
-                      className="is-small"
-                      onClick={() => handleDeleteClick(record)}
-                    >
-                      <FontAwesomeIcon icon="trash" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              return (
+                <tr key={id} data-testid="nul-authorities-row">
+                  <td>{label}</td>
+                  <td>{hint}</td>
+                  <td>{id}</td>
 
-      <UIModalDelete
+                  <td className="has-text-right is-right mb-0">
+                    <div className="field is-grouped">
+                      <Button
+                        isLight
+                        data-testid="edit-button"
+                        title="Edit NUL Local Authority"
+                        className="is-small"
+                        onClick={() => handleUpdateButtonClick(record)}
+                      >
+                        <IconEdit />
+                      </Button>
+                      <Button
+                        isLight
+                        data-testid="delete-button"
+                        className="is-small"
+                        onClick={() => handleDeleteClick(record)}
+                      >
+                        <IconTrashCan />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <ModalDelete
         isOpen={modalsState.delete.isOpen}
         handleClose={() =>
           setModalsState({

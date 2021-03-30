@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { ActionHeadline } from "@js/components/UI/UI";
 
 const UITabsStickyHeader = ({ title, children, ...restProps }) => {
   const [headerHeight, setHeaderHeight] = useState();
@@ -26,16 +27,12 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
       className="box is-shadowless is-marginless has-background-light py-0 px-4"
       {...restProps}
     >
-      <div className="columns is-mobile">
-        <div className="column is-half">
-          <h2 className="title is-size-4 has-text-grey">{title}</h2>
-        </div>
-        <div className="column is-half ">
-          <AuthDisplayAuthorized>
-            <div className="buttons is-right">{children}</div>
-          </AuthDisplayAuthorized>
-        </div>
-      </div>
+      <ActionHeadline>
+        <h2 className="title is-size-4 has-text-grey">{title}</h2>
+        <AuthDisplayAuthorized>
+          <div className="buttons">{children}</div>
+        </AuthDisplayAuthorized>
+      </ActionHeadline>
     </header>
   );
 };

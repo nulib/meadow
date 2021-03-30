@@ -205,83 +205,87 @@ const WorkTabsPreservation = ({ work }) => {
         </AuthDisplayAuthorized>
       </UITabsStickyHeader>
       <div className="box mt-4">
-        <table
-          className="table is-fullwidth is-striped is-hoverable is-fixed"
-          data-testid="preservation-table"
-        >
-          <thead>
-            <tr>
-              <th className="is-hidden">ID</th>
-              <th>Role</th>
-              <th className="is-flex">
-                <FontAwesomeIcon
-                  icon={[
-                    "fas",
-                    orderedFileSets.order === "asc"
-                      ? "sort-alpha-down"
-                      : "sort-alpha-down-alt",
-                  ]}
-                  className="icon"
-                />
-                <a className="ml-2" onClick={handleOrderClick}>
-                  Filename
-                </a>
-              </th>
-              <th>Checksum</th>
-              <th>s3 Key</th>
-              <th className="has-text-centered">Verified</th>
-              <AuthDisplayAuthorized action="delete">
-                <th className="has-text-right">Actions</th>
-              </AuthDisplayAuthorized>
-            </tr>
-          </thead>
-          <tbody>
-            {orderedFileSets.fileSets.length > 0 &&
-              orderedFileSets.fileSets.map((fileset) => {
-                const metadata = fileset.metadata;
-                return (
-                  <tr key={fileset.id} data-testid="preservation-row">
-                    <td className="is-hidden">{fileset.id}</td>
-                    <td>{fileset.role && fileset.role.label}</td>
-                    <td className="break-word">
-                      {metadata ? metadata.originalFilename : " "}
-                    </td>
-                    <td className="break-word">
-                      {metadata ? metadata.sha256 : ""}
-                    </td>
-                    <td className="break-word">
-                      {metadata ? metadata.location : ""}
-                    </td>
-                    <td className="has-text-centered">
-                      <Verified id={fileset.id} />
-                    </td>
-                    <AuthDisplayAuthorized action="delete">
-                      <td>
-                        <div className="buttons buttons-end">
-                          <Button
-                            isLight
-                            data-testid="button-show-technical-metadata"
-                            onClick={() => handleTechnicalMetaClick(fileset)}
-                            title="View technical metadata"
-                          >
-                            <IconView />
-                          </Button>
-                          <Button
-                            isLight
-                            data-testid="button-fileset-delete"
-                            onClick={() => handleDeleteFilesetClick(fileset)}
-                            title="Delete file set"
-                          >
-                            <IconTrashCan />
-                          </Button>
-                        </div>
+        {/* TODO: Put a mobile block display here instead of table below */}
+        <div className="table-container">
+          <table
+            className="table is-fullwidth is-striped is-hoverable is-fixed"
+            data-testid="preservation-table"
+          >
+            <thead>
+              <tr>
+                <th className="is-hidden">ID</th>
+                <th>Role</th>
+                <th className="is-flex">
+                  <FontAwesomeIcon
+                    icon={[
+                      "fas",
+                      orderedFileSets.order === "asc"
+                        ? "sort-alpha-down"
+                        : "sort-alpha-down-alt",
+                    ]}
+                    className="icon"
+                  />
+                  <a className="ml-2" onClick={handleOrderClick}>
+                    Filename
+                  </a>
+                </th>
+                <th>Checksum</th>
+                <th>s3 Key</th>
+                <th className="has-text-centered">Verified</th>
+                <AuthDisplayAuthorized action="delete">
+                  <th className="has-text-right">Actions</th>
+                </AuthDisplayAuthorized>
+              </tr>
+            </thead>
+            <tbody>
+              {orderedFileSets.fileSets.length > 0 &&
+                orderedFileSets.fileSets.map((fileset) => {
+                  const metadata = fileset.metadata;
+                  return (
+                    <tr key={fileset.id} data-testid="preservation-row">
+                      <td className="is-hidden">{fileset.id}</td>
+                      <td>{fileset.role && fileset.role.label}</td>
+                      <td className="break-word">
+                        {metadata ? metadata.originalFilename : " "}
                       </td>
-                    </AuthDisplayAuthorized>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
+                      <td className="break-word">
+                        {metadata ? metadata.sha256 : ""}
+                      </td>
+                      <td className="break-word">
+                        {metadata ? metadata.location : ""}
+                      </td>
+                      <td className="has-text-centered">
+                        <Verified id={fileset.id} />
+                      </td>
+                      <AuthDisplayAuthorized action="delete">
+                        <td>
+                          <div className="buttons buttons-end">
+                            <Button
+                              isLight
+                              data-testid="button-show-technical-metadata"
+                              onClick={() => handleTechnicalMetaClick(fileset)}
+                              title="View technical metadata"
+                            >
+                              <IconView />
+                            </Button>
+                            <Button
+                              isLight
+                              data-testid="button-fileset-delete"
+                              onClick={() => handleDeleteFilesetClick(fileset)}
+                              title="Delete file set"
+                            >
+                              <IconTrashCan />
+                            </Button>
+                          </div>
+                        </td>
+                      </AuthDisplayAuthorized>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+
         <WorkTabsPreservationFileSetModal
           closeModal={() => setIsAddFilesetModalVisible(false)}
           isVisible={isAddFilesetModalVisible}
