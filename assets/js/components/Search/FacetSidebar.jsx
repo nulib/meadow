@@ -138,7 +138,7 @@ export default function SearchFacetSidebar() {
 
   return (
     <div data-testid="search-facet-sidebar-wrapper" className="is-size-7">
-      <div className="box">
+      <div className="box" data-testid="general-facets">
         {FACET_SENSORS.map((sensor) => (
           <MultiList
             key={sensor.componentId}
@@ -156,7 +156,7 @@ export default function SearchFacetSidebar() {
         ))}
       </div>
 
-      <div className="box">
+      <div className="box" data-testid="technical-facets">
         <h3 className="title is-size-5">Technical Metadata</h3>
         {FACET_TECHNICAL_METADATA_SENSORS.map((sensor) => (
           <MultiList
@@ -171,7 +171,7 @@ export default function SearchFacetSidebar() {
         ))}
       </div>
 
-      <div className="box">
+      <div className="box" data-testid="project-facets">
         <h3 className="title is-size-5">Ingest Sheet and Project Metadata</h3>
         {FACET_PROJECT_SENSORS.map((sensor) => (
           <MultiList
