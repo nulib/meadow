@@ -14,7 +14,9 @@ const buildPlugins = (env, options) => {
       patterns: [{ from: "static/", to: "../" }],
     }),
     new Webpack.DefinePlugin({
-      __HONEYBADGER_API_KEY__: JSON.stringify(process.env.HONEYBADGER_API_KEY),
+      __HONEYBADGER_API_KEY__: JSON.stringify(
+        process.env.HONEYBADGER_API_KEY_FRONTEND
+      ),
       __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
         process.env.HONEYBADGER_ENVIRONMENT
       ),
@@ -28,10 +30,10 @@ const buildPlugins = (env, options) => {
     }),
   ];
 
-  if (typeof process.env.HONEYBADGER_API_KEY === "string") {
+  if (typeof process.env.HONEYBADGER_API_KEY_FRONTEND === "string") {
     result.push(
       new HoneybadgerSourceMapPlugin({
-        apiKey: process.env.HONEYBADGER_API_KEY,
+        apiKey: process.env.HONEYBADGER_API_KEY_FRONTEND,
         assetsUrl: "http*://meadow*.library.northwestern.edu",
         revision: process.env.HONEYBADGER_REVISION,
       })
