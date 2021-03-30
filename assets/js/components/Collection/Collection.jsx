@@ -100,19 +100,17 @@ const Collection = ({ collection }) => {
             <dd>{totalWorks}</dd>
           </dl>
           {totalWorks > 0 && (
-            <AuthDisplayAuthorized>
-              <div className="pt-3">
-                <Button
-                  onClick={handleViewAllWorksClick}
-                  data-testid="view-works-button"
-                >
-                  <span className="icon">
-                    <IconImages />
-                  </span>
-                  <span>View collection works</span>
-                </Button>
-              </div>
-            </AuthDisplayAuthorized>
+            <div className="pt-3">
+              <Button
+                onClick={handleViewAllWorksClick}
+                data-testid="view-works-button"
+              >
+                <span className="icon">
+                  <IconImages />
+                </span>
+                <span>View collection works</span>
+              </Button>
+            </div>
           )}
         </div>
       </div>
