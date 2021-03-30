@@ -19,7 +19,7 @@ config :meadow, Meadow.Repo,
 config :meadow, MeadowWeb.Endpoint,
   http: [port: 3000],
   https: [
-    port: 3001,
+    port: 443,
     cipher_suite: :strong,
     certfile: "/usr/local/etc/devbox_ssl/devbox.library.full.pem",
     keyfile: "/usr/local/etc/devbox_ssl/devbox.library.key.pem"
