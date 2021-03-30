@@ -26,7 +26,7 @@
   - `assets.install` looks for all `yarn.lock` files project-wide and runs `yarn install` in each directory found, so you don't need to run `yarn install` in individual directories.
 - `cd` back to the `meadow` project folder and start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
-Now you can visit [`https://devbox.library.northwestern.edu:3001/`](https://devbox.library.northwestern.edu:3001/) from your browser.
+Now you can visit [`https://devbox.library.northwestern.edu/`](https://devbox.library.northwestern.edu/) from your browser.
 
 ## Running the application
 
@@ -89,7 +89,7 @@ See your local "s3" buckets.
 
 ### GraphQL API
 
-You can visit the GraphiQL interface at: [`https://devbox.library.northwestern.edu:3001/api/graphiql`](https://devbox.library.northwestern.edu:3001/api/graphiql)
+You can visit the GraphiQL interface at: [`https://devbox.library.northwestern.edu/api/graphiql`](https://devbox.library.northwestern.edu/api/graphiql)
 
 ### IIIF Server
 
