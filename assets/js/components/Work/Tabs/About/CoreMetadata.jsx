@@ -57,7 +57,7 @@ const WorkTabsAboutCoreMetadata = ({
           />
         ) : (
           <UIFormFieldArrayDisplay
-            items={descriptiveMetadata.description}
+            values={descriptiveMetadata.description}
             label="Description"
           />
         )}

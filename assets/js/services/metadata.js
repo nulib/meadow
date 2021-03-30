@@ -11,11 +11,13 @@ export const METADATA_FIELDS = {
   },
   BOX_NAME: {
     name: "boxName",
+    facetComponentId: "BoxName",
     label: "Box Name",
     metadataClass: "descriptive",
   },
   BOX_NUMBER: {
     name: "boxNumber",
+    facetComponentId: "BoxNumber",
     label: "Box Number",
     metadataClass: "descriptive",
   },
@@ -50,11 +52,13 @@ export const METADATA_FIELDS = {
   },
   FOLDER_NAME: {
     name: "folderName",
+    facetComponentId: "FolderName",
     label: "Folder Name",
     metadataClass: "descriptive",
   },
   FOLDER_NUMBER: {
     name: "folderNumber",
+    facetComponentId: "FolderName",
     label: "Folder Number",
     metadataClass: "descriptive",
   },
@@ -172,7 +176,12 @@ export const METADATA_FIELDS = {
     label: "Scope and Content",
     metadataClass: "descriptive",
   },
-  SERIES: { name: "series", label: "Series", metadataClass: "descriptive" },
+  SERIES: {
+    name: "series",
+    facetComponentId: "Series",
+    label: "Series",
+    metadataClass: "descriptive",
+  },
   SOURCE: { name: "source", label: "Source", metadataClass: "descriptive" },
   STATUS: { name: "status", label: "Status", metadataClass: "core" },
   STYLE_PERIOD: {

@@ -1,21 +1,35 @@
 import React from "react";
 import PropTypes from "prop-types";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 
 const UIFormFieldArrayDisplay = ({
-  items = [],
-  label = "",
-  mocked,
-  notLive,
+  isFacetLink,
+  label,
+  metadataItem,
+  values = [],
 }) => {
+  const { handleFacetLinkClick } = useFacetLinkClick();
+
   return (
-    <div className="field content mb-3">
+    <div className="field content block">
       <p data-testid="items-label">
-        <strong>{label}</strong> {mocked && <span className="tag">Mocked</span>}{" "}
-        {notLive && <span className="tag">Not Live</span>}
+        <strong>{label}</strong>
       </p>
       <ul data-testid="field-array-item-list">
-        {items.map((item, i) => (
-          <li key={i}>{item}</li>
+        {values.map((value, i) => (
+          <li key={i}>
+            {isFacetLink ? (
+              <a
+                onClick={() =>
+                  handleFacetLinkClick(metadataItem?.facetComponentId, value)
+                }
+              >
+                {value}
+              </a>
+            ) : (
+              value
+            )}
+          </li>
         ))}
       </ul>
     </div>
@@ -23,10 +37,10 @@ const UIFormFieldArrayDisplay = ({
 };
 
 UIFormFieldArrayDisplay.propTypes = {
-  items: PropTypes.array,
-  label: PropTypes.string.isRequired,
-  mocked: PropTypes.bool,
-  notLive: PropTypes.bool,
+  isFacetLink: PropTypes.bool,
+  label: PropTypes.string,
+  metadataItem: PropTypes.object,
+  values: PropTypes.array,
 };
 
 export default UIFormFieldArrayDisplay;
