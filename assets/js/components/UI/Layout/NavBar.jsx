@@ -18,6 +18,7 @@ import IconText from "@js/components/UI/IconText";
 import IconCheck from "@js/components/Icon/Check";
 import NLogo from "@js/components/northwesternN.svg";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
+import UIDevBgToggle from "@js/components/UI/DevBgToggle";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -228,6 +229,8 @@ const UILayoutNavBar = () => {
                     <span>Search</span>
                   </Link>
                 </div>
+
+                <UIDevBgToggle />
               </div>
             </>
           )}

@@ -4,6 +4,7 @@ import UILayoutFooter from "../components/UI/Layout/Footer";
 import UILayoutNavBar from "../components/UI/Layout/NavBar";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import UILayoutMain from "@js/components/UI/Layout/Main";
 
 const Layout = ({ children }) => {
   return (
@@ -12,7 +13,7 @@ const Layout = ({ children }) => {
         <UILayoutNavBar />
       </ErrorBoundary>
       <div>
-        <main>{children}</main>
+        <UILayoutMain>{children}</UILayoutMain>
         <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
           <UILayoutFooter />
         </ErrorBoundary>
