@@ -32,7 +32,7 @@ Now you can visit [`https://devbox.library.northwestern.edu/`](https://devbox.li
 
 Start the Phoenix with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
-Note: after a `devstack down`, you may have to run `mix meadow.pipeline.setup` before starting the server.
+_Note:_ after a `devstack down`, you may have to run `mix meadow.pipeline.setup` before starting the server.
 
 ## Stopping the application
 
@@ -121,3 +121,18 @@ The development LDAP is available at `localhost` port `390`
 ### Terraform
 
 Meadow's Terraform code is stored in this repo. To run Terraform commands, you'll need to do the [configuration setup](https://github.com/nulib/repodev_planning_and_docs/blob/a36472895ae5c851f4f36b6f598dc5f666cea672/docs/2._Developer_Guides/Meadow/Terraform-Setup-on-Meadow.md)
+
+### UI Customization
+
+Meadow runs in Development, Staging and Production environments. To help distinguish environments (and avoid potential errors), Staging and Development environments support alternate, background colors.
+
+#### Staging
+
+- Dark grey background by default.
+- A wrapper CSS class of `is-staging-environment` wraps the `main` HTML element.
+
+#### Development
+
+- Supports a toggle background color switch in the site header
+- A wrapper CSS class of `is-development-environment` wraps the `main` HTML element.
+- Customize your own dev background color by updating the hex value for `localStorage` property `devBg`
