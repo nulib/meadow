@@ -22,6 +22,7 @@ RUN for flag in $(find . -name .docker-yarn); do \
 # Create elixir release
 FROM nulib/elixir-phoenix-base:1.11.1 AS release
 ARG HONEYBADGER_API_KEY=
+ARG HONEYBADGER_API_KEY_FRONTEND=
 ARG HONEYBADGER_ENVIRONMENT=
 ARG HONEYBADGER_REVISION=
 ARG MEADOW_VERSION=
