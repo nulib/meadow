@@ -1311,10 +1311,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.0.tgz#0eee6373e11418bfe0b5638f654df7a4ca6a3950"
   integrity sha512-wYn6r8zVZyQJ6rQaALBEln5B1pzxb9shV5Ef97kTvn6yVGrqyXVnDqnU24MXnFubR+rZjBY9NWuxX3FB2sTsjg==
 
-"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.1.0.tgz#8274c22e06f1e427f1d71eb68c8af7ce316c9ccf"
-  integrity sha512-An371pjE5jYtF5XlWgIiYL2HTDKjwyzmiJmbJ4Y84lDvKl7J36mzqk+X2uQceFwJo6xHZC6Pwd0WBAKjttg5vA==
+"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.2.0.tgz#8e6c513e744ec214d6ae871c6a9395f7445fbf70"
+  integrity sha512-Wo+6fE7Tyo1RmOSndqUELs+IuPhEwrFoyQUwSmfHotk9pVY9TVcHjsID9mGr12Fl+UHBRWFIvgZppbjWHPytvQ==
   dependencies:
     stacktrace-parser "^0.1.10"
 
