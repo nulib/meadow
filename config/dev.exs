@@ -19,7 +19,7 @@ config :meadow, Meadow.Repo,
 config :meadow, MeadowWeb.Endpoint,
   http: [port: 3000],
   https: [
-    port: 443,
+    port: 3001,
     cipher_suite: :strong,
     certfile: "/usr/local/etc/devbox_ssl/devbox.library.full.pem",
     keyfile: "/usr/local/etc/devbox_ssl/devbox.library.key.pem"
@@ -165,7 +165,7 @@ config :ueberauth, Ueberauth,
     nusso:
       {Ueberauth.Strategy.NuSSO,
        [
-         base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
+         base_url: System.get_env("SETTINGS__NUSSO__BASE_URL"),
          callback_path: "/auth/nusso/callback",
          consumer_key: System.get_env("SETTINGS__NUSSO__CONSUMER_KEY"),
          include_attributes: true,
