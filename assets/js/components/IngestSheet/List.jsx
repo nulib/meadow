@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/client";
-import { INGEST_SHEETS, DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
+import { DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "../../services/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UIIconText from "@js/components/UI/IconText";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
-import IconView from "@js/components/Icon/View";
-import IconTrashCan from "@js/components/Icon/TrashCan";
+import { IconAlert, IconTrashCan, IconView } from "@js/components/Icon";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
 
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
@@ -52,8 +51,9 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     <div>
       {project.ingestSheets.length === 0 && (
         <p className="notification" data-testid="no-ingest-sheets-notification">
-          <FontAwesomeIcon icon="info-circle" />{" "}
-          <span className="ml-1">No ingest sheets</span>
+          <UIIconText icon={<IconAlert />} isCentered>
+            No ingest sheets
+          </UIIconText>
         </p>
       )}
 
@@ -90,7 +90,8 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                           to={`/project/${project.id}/ingest-sheet/${id}`}
                           className="button is-light"
                         >
-                          {<IconView />} <span className="sr-only">View</span>
+                          {<IconView />}{" "}
+                          <span className="is-sr-only">View</span>
                         </Link>
                       )}
                       {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
@@ -101,7 +102,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                           onClick={(e) => onOpenModal(e, { id, title })}
                         >
                           {<IconTrashCan />}{" "}
-                          <span className="sr-only">Delete</span>
+                          <span className="is-sr-only">Delete</span>
                         </button>
                       )}
                     </td>

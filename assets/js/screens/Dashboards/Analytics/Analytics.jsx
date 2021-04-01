@@ -4,9 +4,8 @@ import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsAnalytics from "@js/components/Dashboards/Analytics/Analytics";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import { SiGoogleanalytics } from "react-icons/si";
 import IconText from "@js/components/UI/IconText";
-import IconChart from "@js/components/Icon/Chart";
+import { IconChart } from "@js/components/Icon";
 
 export default function ScreensDashboardsAnalytics() {
   return (

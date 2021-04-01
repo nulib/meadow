@@ -10,16 +10,9 @@ import {
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
-import UISkeleton from "../UI/Skeleton";
 import { Button } from "@nulib/admin-react-components";
-import IconImages from "@js/components/Icon/Images";
-import UILevelItem from "@js/components/UI/LevelItem";
-import {
-  ActionHeadline,
-  LevelItem,
-  PageTitle,
-  Skeleton,
-} from "@js/components/UI/UI";
+import { IconImages } from "@js/components/Icon";
+import { ActionHeadline, LevelItem, Skeleton } from "@js/components/UI/UI";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();

@@ -6,7 +6,7 @@ import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalA
 import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd } from "@js/components/Icon";
 import { ActionHeadline, PageTitle } from "@js/components/UI/UI";
 
 function DashboardsLocalAuthoritiesTitleBar() {
@@ -54,7 +54,9 @@ function DashboardsLocalAuthoritiesTitleBar() {
           onClick={() => setIsAddModalOpen(true)}
           data-testid="add-button"
         >
-          <IconAdd className="icon" />
+          <span className="icon">
+            <IconAdd />
+          </span>
           <span>Add Local Authority</span>
         </Button>
       </ActionHeadline>

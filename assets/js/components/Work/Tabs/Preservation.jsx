@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useMutation, useQuery } from "@apollo/client";
@@ -17,13 +16,19 @@ import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
 import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
-import IconAdd from "@js/components/Icon/Add";
-import IconBinaryFile from "@js/components/Icon/BinaryFile";
-import IconBucket from "@js/components/Icon/Bucket";
-import IconView from "@js/components/Icon/View";
-import IconTrashCan from "@js/components/Icon/TrashCan";
 import { formatDate } from "@js/services/helpers";
 import { useClipboard } from "use-clipboard-copy";
+import {
+  IconAdd,
+  IconArrowDown,
+  IconArrowUp,
+  IconBinaryFile,
+  IconBucket,
+  IconCheck,
+  IconDelete,
+  IconTrashCan,
+  IconView,
+} from "@js/components/Icon";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -154,10 +159,10 @@ const WorkTabsPreservation = ({ work }) => {
         {fileset && fileset.verified ? (
           <React.Fragment>
             <span className="sr-only">Verified</span>
-            <FontAwesomeIcon icon="check" className="has-text-success" />
+            <IconCheck className="has-text-success" />
           </React.Fragment>
         ) : (
-          <FontAwesomeIcon icon="times" className="has-text-danger" />
+          <IconDelete className="has-text-danger" />
         )}
       </div>
     );
@@ -211,7 +216,9 @@ const WorkTabsPreservation = ({ work }) => {
                 setIsAddFilesetModalVisible(!isAddFilesetModalVisible)
               }
             >
-              <IconAdd className="icon" />
+              <span className="icon">
+                <IconAdd />
+              </span>
               <span>Add a fileset</span>
             </Button>
           </div>
@@ -229,15 +236,11 @@ const WorkTabsPreservation = ({ work }) => {
                 <th className="is-hidden">ID</th>
                 <th>Role</th>
                 <th className="is-flex">
-                  <FontAwesomeIcon
-                    icon={[
-                      "fas",
-                      orderedFileSets.order === "asc"
-                        ? "sort-alpha-down"
-                        : "sort-alpha-down-alt",
-                    ]}
-                    className="icon"
-                  />
+                  {orderedFileSets.order === "asc" ? (
+                    <IconArrowDown />
+                  ) : (
+                    <IconArrowUp />
+                  )}
                   <a className="ml-2" onClick={handleOrderClick}>
                     Filename
                   </a>

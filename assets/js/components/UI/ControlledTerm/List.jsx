@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconExternalLink } from "@js/components/Icon";
 import { FACET_SENSORS } from "../../../services/reactive-search";
 import UIFacetLink from "../FacetLink";
 import UITooltip from "@js/components/UI/Tooltip/Tooltip";
@@ -35,7 +35,7 @@ const UIControlledTermList = ({ items = [], title }) => {
                     data-testid="external-link"
                   >
                     <span className="icon" title={item.term.id}>
-                      <FontAwesomeIcon icon="external-link-alt" />
+                      <IconExternalLink />
                     </span>
                     <span>{item.term.id}</span>
                   </a>

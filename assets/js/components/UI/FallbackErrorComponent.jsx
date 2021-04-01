@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconAlert } from "@js/components/Icon";
 
 function UIFallbackErrorComponent({ error }) {
   return (
@@ -9,8 +9,7 @@ function UIFallbackErrorComponent({ error }) {
       className="notification is-danger has-text-centered content"
     >
       <p>
-        <FontAwesomeIcon icon="exclamation-triangle" /> There was an error
-        rendering
+        <IconAlert /> There was an error rendering
       </p>
       <p>
         <strong>Error</strong>: {error.message}

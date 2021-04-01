@@ -15,7 +15,7 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@nulib/admin-react-components";
 import CollectionTags from "@js/components/Collection/Tags";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconEdit } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,
@@ -121,7 +121,9 @@ const ScreensCollection = () => {
                         className="button is-primary"
                         data-testid="edit-button"
                       >
-                        <IconEdit className="icon" />
+                        <span className="icon">
+                          <IconEdit />
+                        </span>
                         <span>Edit</span>
                       </Link>
                     </AuthDisplayAuthorized>

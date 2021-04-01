@@ -6,8 +6,7 @@ import { useQuery } from "@apollo/client";
 import { GET_CSV_METADATA_UPDATE_JOBS } from "@js/components/Dashboards/dashboards.gql";
 import { formatDate } from "@js/services/helpers";
 import { Link } from "react-router-dom";
-import IconView from "@js/components/Icon/View";
-import IconImages from "@js/components/Icon/Images";
+import { IconImages, IconView } from "@js/components/Icon";
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
 
 const displayFields = [

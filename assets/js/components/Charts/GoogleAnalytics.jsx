@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import IconChart from "@js/components/Icon/Chart";
+import { IconChart } from "@js/components/Icon";
 import UIActionHeadline from "@js/components/UI/ActionHeadline";
 
 function ChartsGoogleAnalytics(props) {
@@ -13,7 +13,9 @@ function ChartsGoogleAnalytics(props) {
             Digital Collections traffic last 30 days
           </h3>
           <Link to="/dashboards/analytics" className="button">
-            <IconChart className="icon" />
+            <span className="icon">
+              <IconChart />
+            </span>
             <span>View GA Dashboard</span>
           </Link>
         </>

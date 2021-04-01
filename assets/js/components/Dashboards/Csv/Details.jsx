@@ -4,7 +4,7 @@ import UIDate from "@js/components/UI/Date";
 import DashboardsCsvErrors from "@js/components/Dashboards/Csv/Errors";
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
 import { Link } from "react-router-dom";
-import IconImages from "@js/components/Icon/Images";
+import { IconImages } from "@js/components/Icon";
 
 function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
   const {

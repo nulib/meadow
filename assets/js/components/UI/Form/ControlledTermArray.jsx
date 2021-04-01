@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "../../../services/metadata";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@nulib/admin-react-components";
+import { IconAdd, IconTrashCan } from "@js/components/Icon";
 
 const UIFormControlledTermArray = ({
   authorities = [],
@@ -100,7 +100,7 @@ const UIFormControlledTermArray = ({
                   data-testid="button-delete-field-array-row"
                 >
                   <span className="icon">
-                    <FontAwesomeIcon icon="trash" />
+                    <IconTrashCan />
                   </span>
                   <span>Remove</span>
                 </button>
@@ -118,7 +118,7 @@ const UIFormControlledTermArray = ({
         data-testid="button-add-field-array-row"
       >
         <span className="icon">
-          <FontAwesomeIcon icon="plus" />
+          <IconAdd />
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
       </Button>

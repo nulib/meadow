@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import { Link } from "react-router-dom";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import IconProjects from "@js/components/Icon/Projects";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd, IconProjects } from "@js/components/Icon";
 
 function HomeIngestBox({ handleAddWork }) {
   return (

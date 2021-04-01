@@ -4,7 +4,7 @@ import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsPreservationChecksList from "@js/components/Dashboards/PreservationChecks/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
-import IconCheck from "@js/components/Icon/Check";
+import { IconCheck } from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
 
 function ScreensDashboardsPreservationChecksList(props) {

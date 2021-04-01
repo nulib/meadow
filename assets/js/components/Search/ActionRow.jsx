@@ -1,14 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
-import IconEdit from "@js/components/Icon/Edit";
-import IconCsv from "@js/components/Icon/Csv";
-import IconTrashCan from "@js/components/Icon/TrashCan";
+import {
+  IconEdit,
+  IconCsv,
+  IconMinus,
+  IconTrashCan,
+} from "@js/components/Icon";
 
 export default function SearchActionRow({
   handleDeselectAll,
@@ -83,7 +85,7 @@ export default function SearchActionRow({
               onClick={handleDeselectAll}
             >
               <span className="icon">
-                <FontAwesomeIcon icon="minus-square" />
+                <IconMinus />
               </span>
               <span>Deselect all</span>
             </Button>

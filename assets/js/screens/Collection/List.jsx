@@ -13,7 +13,7 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,

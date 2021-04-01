@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconCard, IconList } from "@js/components/Icon";
 
 const UIResultsDisplaySwitcher = ({ isListView, onGridClick, onListClick }) => {
   return (
@@ -14,7 +14,7 @@ const UIResultsDisplaySwitcher = ({ isListView, onGridClick, onListClick }) => {
           title="List view"
         >
           <span className={`icon`}>
-            <FontAwesomeIcon icon="th-list" />
+            <IconList />
           </span>
           <span>List view</span>
         </button>
@@ -28,7 +28,7 @@ const UIResultsDisplaySwitcher = ({ isListView, onGridClick, onListClick }) => {
           title="Grid view"
         >
           <span className={`icon`}>
-            <FontAwesomeIcon icon="th-large" />
+            <IconCard />
           </span>
           <span>Grid view</span>
         </button>
