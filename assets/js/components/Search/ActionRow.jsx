@@ -5,13 +5,12 @@ import { Button } from "@nulib/admin-react-components";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import IconEdit from "@js/components/Icon/Edit";
 import IconCsv from "@js/components/Icon/Csv";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 
 export default function SearchActionRow({
-  handleCsvExportAllItems,
-  handleCsvExportItems,
   handleDeselectAll,
   handleEditAllItems,
   handleEditItems,
@@ -36,16 +35,6 @@ export default function SearchActionRow({
   function handleDeleteItemsClick() {
     setIsModalItemsOpen(false);
     setIsModalBatchDeleteConfirmationOpen(true);
-  }
-
-  function handleCsvExportAllItemsClick() {
-    setIsModalAllItemsOpen(false);
-    handleCsvExportAllItems();
-  }
-
-  function handleCsvExportItemsClick() {
-    setIsModalItemsOpen(false);
-    handleCsvExportItems();
   }
 
   function handleEditAllItemsClick() {
@@ -102,107 +91,142 @@ export default function SearchActionRow({
         )}
       </div>
 
-      {/* Batch edit ALL items */}
+      {/* Process ALL items */}
       <SearchBatchModal
         handleCloseClick={() => setIsModalAllItemsOpen(false)}
         isOpen={isModalAllItemsOpen}
       >
         <AuthDisplayAuthorized level="EDITOR">
           <>
-            <Button
-              isLight
-              className="mb-4 is-fullwidth"
-              data-testid="button-batch-all-edit"
-              onClick={handleEditAllItemsClick}
+            <div className="block">
+              <Button
+                isLight
+                className="is-fullwidth"
+                data-testid="button-batch-all-edit"
+                onClick={handleEditAllItemsClick}
+              >
+                <span className="icon">
+                  <IconEdit />
+                </span>
+                <span>Batch edit {numberOfResults} works</span>
+              </Button>
+            </div>
+            <form
+              method="POST"
+              action="/api/export/all_items.csv"
+              className="block"
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
-              <span>Batch edit {numberOfResults} works</span>
-            </Button>
-            <Button
-              isLight
-              className="mb-4 is-fullwidth"
-              data-testid="button-csv-all-export"
-              onClick={handleCsvExportAllItemsClick}
-            >
-              <span className="icon">
-                <IconCsv />
-              </span>
-              <span>Export metadata from {numberOfResults} works </span>
-            </Button>
+              <input
+                type="hidden"
+                name="query"
+                value={JSON.stringify({ query: filteredQuery })}
+              />
+              <Button
+                isLight
+                className="is-fullwidth"
+                data-testid="button-csv-all-export"
+                type="submit"
+              >
+                <span className="icon">
+                  <IconCsv />
+                </span>
+                <span>Export metadata from {numberOfResults} works </span>
+              </Button>
+            </form>
           </>
         </AuthDisplayAuthorized>
 
         <AuthDisplayAuthorized level="MANAGER">
-          <Button
-            isLight
-            className="is-fullwidth"
-            data-testid="button-batch-all-delete"
-            onClick={handleDeleteAllItemsClick}
-          >
-            <span className="icon">
-              <IconTrashCan />
-            </span>
-            <span>Delete {numberOfResults} works </span>
-          </Button>
+          <div className="block">
+            <Button
+              isLight
+              className="is-fullwidth"
+              data-testid="button-batch-all-delete"
+              onClick={handleDeleteAllItemsClick}
+            >
+              <span className="icon">
+                <IconTrashCan />
+              </span>
+              <span>Delete {numberOfResults} works </span>
+            </Button>
+          </div>
         </AuthDisplayAuthorized>
       </SearchBatchModal>
 
-      {/* Batch edit selected items */}
+      {/* Process selected items */}
       <SearchBatchModal
         handleCloseClick={() => setIsModalItemsOpen(false)}
         isOpen={isModalItemsOpen}
       >
         <AuthDisplayAuthorized level="EDITOR">
-          <Button
-            isLight
-            className="mb-4 is-fullwidth"
-            data-testid="button-batch-items-edit"
-            onClick={handleEditItemsClick}
+          <div className="block">
+            <Button
+              isLight
+              className="is-fullwidth"
+              data-testid="button-batch-items-edit"
+              onClick={handleEditItemsClick}
+            >
+              <span className="icon">
+                <IconEdit />
+              </span>
+              <span>Batch edit {numSelectedItems} works</span>
+            </Button>
+          </div>
+          <div className="block">
+            <Button
+              isLight
+              className="is-fullwidth"
+              data-testid="button-view-and-edit"
+              onClick={handleViewAndEditClick}
+            >
+              <span className="icon">
+                <IconEdit />
+              </span>
+              <span>View and edit {numSelectedItems} individual works</span>
+            </Button>
+          </div>
+          <form
+            method="POST"
+            action="/api/export/selected_items.csv"
+            className="block"
           >
-            <span className="icon">
-              <IconEdit />
-            </span>
-            <span>Batch edit {numSelectedItems} works</span>
-          </Button>
-          <Button
-            isLight
-            className="mb-4 is-fullwidth"
-            data-testid="button-view-and-edit"
-            onClick={handleViewAndEditClick}
-          >
-            <span className="icon">
-              <IconEdit />
-            </span>
-            <span>View and edit {numSelectedItems} individual works</span>
-          </Button>
-          <Button
-            isLight
-            className="mb-4 is-fullwidth"
-            data-testid="button-csv-items-export"
-            onClick={handleCsvExportItemsClick}
-          >
-            <span className="icon">
-              <IconCsv />
-            </span>
-            <span>Export metadata from {numSelectedItems} works </span>
-          </Button>
+            <input
+              type="hidden"
+              name="query"
+              value={JSON.stringify({
+                query: buildSelectedItemsQuery(selectedItems),
+              })}
+            />
+            <Button
+              isLight
+              className="is-fullwidth"
+              data-testid="button-csv-items-export"
+              type="submit"
+            >
+              <span className="icon">
+                <IconCsv />
+              </span>
+              <span>Export metadata from {numSelectedItems} works </span>
+            </Button>
+          </form>
         </AuthDisplayAuthorized>
         <AuthDisplayAuthorized level="MANAGER">
-          <Button
-            isLight
-            className="is-fullwidth"
-            data-testid="button-delete-items"
-            onClick={handleDeleteItemsClick}
-          >
-            <span className="icon">
-              <IconTrashCan />
-            </span>
-            <span>Delete {numSelectedItems} works </span>
-          </Button>
+          <div className="block">
+            <Button
+              isLight
+              className="is-fullwidth"
+              data-testid="button-delete-items"
+              onClick={handleDeleteItemsClick}
+            >
+              <span className="icon">
+                <IconTrashCan />
+              </span>
+              <span>Delete {numSelectedItems} works </span>
+            </Button>
+          </div>
         </AuthDisplayAuthorized>
       </SearchBatchModal>
+
       <BatchDeleteConfirmationModal
         numberOfResults={numberOfResults}
         filteredQuery={filteredQuery}
@@ -215,8 +239,6 @@ export default function SearchActionRow({
 }
 
 SearchActionRow.propTypes = {
-  handleCsvExportAllItems: PropTypes.func.isRequired,
-  handleCsvExportItems: PropTypes.func.isRequired,
   handleDeselectAll: PropTypes.func,
   handleEditAllItems: PropTypes.func.isRequired,
   handleEditItems: PropTypes.func.isRequired,
