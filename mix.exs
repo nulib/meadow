@@ -87,7 +87,7 @@ defmodule Meadow.MixProject do
       {:quantum, "~> 3.0"},
       {:sequins, "~> 0.7.1"},
       {:sigaws, "~> 0.7.2"},
-      {:sitemapper, "~> 0.4.0"},
+      {:sitemapper, "~> 0.5.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.4"},
       {:tzdata, "~> 1.1.0"},
