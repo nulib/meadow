@@ -51,11 +51,13 @@ describe("SearchActionRow component", () => {
     });
 
     it("renders 'batch edit', 'csv export' and 'batch delete' buttons when select all button is clicked", () => {
+      // Open the modal
       userEvent.click(screen.getByTestId("button-select-all"));
+
       userEvent.click(screen.getByTestId("button-batch-all-edit"));
       expect(props.handleEditAllItems).toHaveBeenCalled();
-      userEvent.click(screen.getByTestId("button-csv-all-export"));
-      expect(props.handleCsvExportAllItems).toHaveBeenCalled();
+
+      expect(screen.getByTestId("button-csv-all-export"));
       expect(screen.getByTestId("button-batch-all-delete"));
     });
   });
@@ -79,13 +81,16 @@ describe("SearchActionRow component", () => {
     });
 
     it("renders 'batch edit', 'csv export' and 'batch_delete' buttons when select all button is clicked", () => {
+      // Open the modal
       userEvent.click(screen.getByTestId("button-edit-items"));
+
       userEvent.click(screen.getByTestId("button-batch-items-edit"));
       expect(props.handleEditItems).toHaveBeenCalled();
+
       userEvent.click(screen.getByTestId("button-view-and-edit"));
       expect(props.handleViewAndEdit).toHaveBeenCalled();
-      userEvent.click(screen.getByTestId("button-csv-items-export"));
-      expect(props.handleCsvExportItems).toHaveBeenCalled();
+
+      expect(screen.getByTestId("button-csv-items-export"));
       expect(screen.getByTestId("button-delete-items"));
     });
   });

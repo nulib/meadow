@@ -14,7 +14,6 @@ import {
 import { useBatchDispatch } from "@js/context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import useCsvFileSave from "@js/hooks/useCsvFileSave";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import {
   FallbackErrorComponent,
@@ -44,16 +43,6 @@ const ScreensSearch = () => {
   const [filteredQuery, setFilteredQuery] = useState();
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
-  const { downloadCsvFile } = useCsvFileSave();
-
-  const handleCsvExportAllItems = () => {
-    downloadCsvFile("search_results_all_items", filteredQuery);
-  };
-
-  const handleCsvExportItems = () => {
-    const myQuery = buildSelectedItemsQuery(selectedItems);
-    downloadCsvFile("search_results_selected_items", myQuery);
-  };
 
   const handleEditAllItems = async () => {
     const parsedAggregations = await getParsedAggregations(filteredQuery);
@@ -144,8 +133,6 @@ const ScreensSearch = () => {
               <PageTitle>Search Results</PageTitle>
               <AuthDisplayAuthorized level="EDITOR">
                 <SearchActionRow
-                  handleCsvExportAllItems={handleCsvExportAllItems}
-                  handleCsvExportItems={handleCsvExportItems}
                   handleDeselectAll={handleDeselectAll}
                   handleEditAllItems={handleEditAllItems}
                   handleEditItems={handleEditItems}
