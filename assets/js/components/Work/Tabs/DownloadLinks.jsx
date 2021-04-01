@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IIIFContext } from "../../IIIF/IIIFProvider";
-import { IIIF_SIZES } from "../../../services/global-vars";
+import { IIIF_SIZES } from "@js/services/global-vars";
+import { IconDownload } from "@js/components/Icon";
 
 const WorkTabsDownloadLinks = ({ handleDownloadClick, fileSetId }) => {
   const iiifServerUrl = useContext(IIIFContext);
@@ -16,7 +16,7 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick, fileSetId }) => {
           className="button"
         >
           <span className="icon">
-            <FontAwesomeIcon icon="file-download" />
+            <IconDownload />
           </span>{" "}
           <span>TIFF</span>
         </a>
@@ -28,7 +28,7 @@ const WorkTabsDownloadLinks = ({ handleDownloadClick, fileSetId }) => {
           className="button"
         >
           <span className="icon">
-            <FontAwesomeIcon icon="file-download" />
+            <IconDownload />
           </span>{" "}
           <span>JPG</span>
         </a>

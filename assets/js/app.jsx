@@ -4,7 +4,6 @@ import isUndefined from "lodash.isundefined";
 import React from "react";
 import ReactDOM from "react-dom";
 import Root from "./screens/Root";
-import setupFontAwesome from "./font-awesome-setup";
 import Honeybadger from "@honeybadger-io/js";
 import ErrorBoundary from "@honeybadger-io/react";
 
@@ -24,8 +23,6 @@ const honeybadger = Honeybadger.configure(config).setContext({
   meadow_version: ifDefined(__MEADOW_VERSION__, "unknown"),
   tags: "frontend",
 });
-
-setupFontAwesome();
 
 ReactDOM.render(
   <ErrorBoundary honeybadger={honeybadger}>

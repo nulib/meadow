@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import classNames from "classnames";
-import IconSearch from "@js/components/Icon/Search";
+import { IconSearch } from "@js/components/Icon";
 
 function UISearchBarRow({ isCentered, children }) {
   return (

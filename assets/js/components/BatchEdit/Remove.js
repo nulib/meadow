@@ -1,10 +1,10 @@
 import React from "react";
 import UIFormField from "../UI/Form/Field";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { splitFacetKey } from "../../services/metadata";
 import { useBatchDispatch } from "../../context/batch-edit-context";
 import { Button } from "@nulib/admin-react-components";
+import { IconDelete, IconMinus } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -41,7 +41,7 @@ export default function BatchEditRemove({
           onClick={() => handleRemoveClick({ label, name })}
         >
           <span className="icon">
-            <FontAwesomeIcon icon="minus-square" />
+            <IconMinus />
           </span>
           <span>View and remove {label}</span>
         </Button>
@@ -60,7 +60,7 @@ export default function BatchEditRemove({
                     onClick={(e) => removeFromDelete(e, item)}
                     data-testid="remove-delete-entries"
                   >
-                    {<FontAwesomeIcon icon="times" />}
+                    <IconDelete />
                   </span>
                 </li>
               );

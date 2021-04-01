@@ -3,14 +3,13 @@ import { Link } from "react-router-dom";
 import { useMutation, useApolloClient } from "@apollo/client";
 import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate, toastWrapper } from "@js/services/helpers";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconEdit, IconTrashCan } from "@js/components/Icon";
 
 const ProjectList = ({ projects }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -144,7 +143,7 @@ const ProjectList = ({ projects }) => {
                               data-testid="delete-button-row"
                               onClick={(e) => onOpenModal(e, project)}
                             >
-                              <FontAwesomeIcon icon="trash" />
+                              <IconTrashCan />
                             </Button>
                           </p>
                         </div>

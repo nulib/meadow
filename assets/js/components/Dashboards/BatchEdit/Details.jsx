@@ -6,7 +6,7 @@ import JSONPretty from "react-json-pretty";
 import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
-import IconImages from "@js/components/Icon/Images";
+import { IconImages } from "@js/components/Icon";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconArrowDown, IconArrowRight } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -17,9 +17,7 @@ const UIAccordion = ({ title, testid, defaultOpen = true, children }) => {
         <h3 className="mb-4">
           {title}{" "}
           <a onClick={() => setIsContentOpen(!isContentOpen)}>
-            <FontAwesomeIcon
-              icon={isContentOpen ? "chevron-down" : "chevron-right"}
-            />
+            {isContentOpen ? <IconArrowDown /> : <IconArrowRight />}
           </a>
         </h3>
       </div>

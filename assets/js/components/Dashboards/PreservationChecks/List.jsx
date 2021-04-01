@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import { GET_PRESERVATION_CHECKS } from "@js/components/Dashboards/dashboards.gql";
 import UIDate from "@js/components/UI/Date";
-import IconDownload from "@js/components/Icon/Download";
+import { IconDownload } from "@js/components/Icon";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { Tag } from "@nulib/admin-react-components";
 

@@ -10,8 +10,8 @@ import {
   GET_COLLECTIONS,
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { IconAlert } from "@js/components/Icon";
 
 function WorkTabsAdministrativeCollection({
   collection,
@@ -164,7 +164,7 @@ function WorkTabsAdministrativeCollection({
           </div>
           {isHelperMessageVisible && (
             <p className="notification is-warning is-light is-flex is-align-items-center">
-              <FontAwesomeIcon icon="info-circle" size="2x" />
+              <IconAlert size="2x" />
               <span className="ml-3">
                 To select a new featured image for the Collection, please
                 navigate to the new Work.

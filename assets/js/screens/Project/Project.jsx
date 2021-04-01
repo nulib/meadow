@@ -15,8 +15,7 @@ import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 import { ErrorBoundary } from "react-error-boundary";
-import IconImages from "@js/components/Icon/Images";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd, IconImages } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,

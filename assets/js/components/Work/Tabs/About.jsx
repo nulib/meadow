@@ -26,7 +26,7 @@ import {
   deleteKeyFromObject,
 } from "@js/services/metadata";
 import UIError from "../../UI/Error";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconEdit } from "@js/components/Icon";
 import { Button } from "@nulib/admin-react-components";
 import { Skeleton, TabsStickyHeader } from "@js/components/UI/UI";
 
@@ -186,7 +186,9 @@ const WorkTabsAbout = ({ work }) => {
               data-testid="edit-button"
               onClick={() => setIsEditing(true)}
             >
-              <IconEdit className="icon" />
+              <span className="icon">
+                <IconEdit />
+              </span>
               <span>Edit</span>
             </Button>
           )}

@@ -1,8 +1,7 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDropzone } from "react-dropzone";
 import { formatBytes } from "@js/services/helpers";
+import { IconFile } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -46,11 +45,7 @@ function WorkTabsPreservationFileSetDropzone({
         >
           <input {...getInputProps()} />
           <p>
-            <FontAwesomeIcon
-              icon="file-image"
-              size="2x"
-              className="has-text-grey mr-3"
-            />
+            <IconFile size="2x" className="has-text-grey mr-3" />
             {!isDragActive &&
               "Drag 'n' drop a file here, or click to select file"}
             {isDragActive &&

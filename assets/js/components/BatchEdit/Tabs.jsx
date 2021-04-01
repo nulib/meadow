@@ -20,7 +20,7 @@ import {
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { Button } from "@nulib/admin-react-components";
 import UIIconText from "../UI/IconText";
-import IconAlert from "@js/components/Icon/Alert";
+import { IconAlert } from "@js/components/Icon";
 
 export default function BatchEditTabs() {
   const [activeTab, setActiveTab] = useState("tab-about");

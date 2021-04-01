@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { TiWarning } from "react-icons/ti";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
@@ -10,10 +9,12 @@ import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTab
 import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
-import IconReplace from "@js/components/Icon/Replace";
-import IconAdd from "@js/components/Icon/Add";
-import IconAlert from "@js/components/Icon/Alert";
-import IconTrashCan from "@js/components/Icon/TrashCan";
+import {
+  IconAdd,
+  IconReplace,
+  IconAlert,
+  IconTrashCan,
+} from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
 
 /** @jsx jsx */

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
@@ -9,6 +8,7 @@ import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/admin-react-components";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
+import { IconAlert } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -104,8 +104,7 @@ const BatchDeleteConfirmationModal = ({
           </div>
           <div className="notification is-danger is-light has-text-centered content">
             <p>
-              <FontAwesomeIcon icon="exclamation-triangle" /> NOTE: This batch
-              operation will permanently delete{" "}
+              <IconAlert /> NOTE: This batch operation will permanently delete{" "}
               {selectedItems.length || numberOfResults} works. To execute this
               change, type "<b>permanently delete</b>"
             </p>

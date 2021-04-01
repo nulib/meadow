@@ -4,14 +4,13 @@ import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIPreviewItems from "@js/components/UI/PreviewItems";
 import BatchEditTabs from "@js/components/BatchEdit/Tabs";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useBatchState } from "@js/context/batch-edit-context";
 import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import UIIconText from "@js/components/UI/IconText";
-import IconAlert from "@js/components/Icon/Alert";
+import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import UISticky from "@js/components/UI/Sticky";
 
 const ScreensBatchEdit = () => {
@@ -96,7 +95,7 @@ const ScreensBatchEdit = () => {
                   }}
                 >
                   <span className="icon">
-                    <FontAwesomeIcon icon="chevron-left" />
+                    <IconArrowLeft />
                   </span>
                   <span>Back to search</span>
                 </Link>

@@ -4,7 +4,7 @@ import { ELASTICSEARCH_FIELDS_TO_SEARCH } from "../../services/elasticsearch";
 import { RESULT_SENSOR, SEARCH_SENSOR } from "../../services/reactive-search";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 import useSearchTerm from "@js/hooks/useSearchTerm";
-import IconSearch from "@js/components/Icon/Search";
+import { IconSearch } from "@js/components/Icon";
 
 const UISearchBar = () => {
   const queryParts = userPreviousQueryParts();

@@ -13,10 +13,9 @@ import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { Button } from "@nulib/admin-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WorkTabsStructureFilesetList from "./FilesetList";
 import classNames from "classnames";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconEdit, IconSort } from "@js/components/Icon";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -137,7 +136,9 @@ const WorkTabsStructure = ({ work }) => {
               onClick={() => setIsEditing(true)}
               disabled={isReordering}
             >
-              <IconEdit className="icon" />
+              <span className="icon">
+                <IconEdit />
+              </span>
               <span>Edit</span>
             </Button>
           )}
@@ -163,7 +164,7 @@ const WorkTabsStructure = ({ work }) => {
             disabled={isEditing || isReordering}
           >
             <span className="icon">
-              <FontAwesomeIcon icon="sort" />
+              <IconSort />
             </span>{" "}
             <span>Re-order</span>
           </Button>

@@ -122,7 +122,9 @@ function DashboardsCsvImport() {
         onClick={() => setIsModalOpen(true)}
         data-testid="import-csv-button"
       >
-        <IconUpload className="icon" />
+        <span className="icon">
+          <IconUpload />
+        </span>
         <span>Import CSV file</span>
       </Button>
       <DashboardsCsvImportModal

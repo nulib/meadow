@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { IconDelete } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -58,7 +58,7 @@ function FieldArrayRow({
           onClick={() => handleRemoveClick(index)}
           data-testid="button-delete-field-array-row"
         >
-          <FontAwesomeIcon icon="times" />
+          <IconDelete />
         </Button>
       </div>
       {errors[name] && errors[name][index] && (
