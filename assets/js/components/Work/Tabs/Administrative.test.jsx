@@ -68,6 +68,8 @@ xdescribe("Work Administrative tab component", () => {
       expect(getByText(/Project Cycle Name/i));
       expect(getByText(/Started/i));
       expect(getByText(/Collection 1232432 Name/i));
+      expect(getByText(/2019-02-04T19:16:16/i));
+      expect(getByText(/2019-12-02T22:22:16/i));
       expect(getByTestId("view-collection-works-button"));
     });
 

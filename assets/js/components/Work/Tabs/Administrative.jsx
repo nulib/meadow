@@ -21,6 +21,7 @@ import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administr
 import { useHistory } from "react-router-dom";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import IconEdit from "@js/components/Icon/Edit";
+import { formatDate } from "@js/services/helpers";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
@@ -31,6 +32,8 @@ const WorkTabsAdministrative = ({ work }) => {
     project,
     published,
     visibility,
+    insertedAt,
+    updatedAt,
   } = work;
   const [isEditing, setIsEditing] = useIsEditing();
 
@@ -251,6 +254,14 @@ const WorkTabsAdministrative = ({ work }) => {
                   </div>
                 );
               })}
+              <div className="field content">
+                <p data-testid="inserted-at-label">
+                  <strong>Work Created</strong>: {formatDate(insertedAt)}
+                </p>
+                <p data-testid="updated-at-label">
+                  <strong>Last Modified</strong>: {formatDate(updatedAt)}
+                </p>
+              </div>
             </div>
           </div>
         </div>
