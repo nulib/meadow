@@ -9,7 +9,6 @@ function UIDevBgToggle(props) {
 
   function handleChange(e) {
     const val = toggleRef.current.checked ? BG_HEX_VALUE : "";
-    console.log(`\nDevBgToggle val`, val);
     localStorage.setItem("devBg", val);
     setDevBg(val);
     location.reload();

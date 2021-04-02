@@ -45,7 +45,7 @@ function WorkTabsPreservationFileSetDropzone({
         >
           <input {...getInputProps()} />
           <p>
-            <IconFile size="2x" className="has-text-grey mr-3" />
+            <IconFile className="has-text-grey mr-3" />
             {!isDragActive &&
               "Drag 'n' drop a file here, or click to select file"}
             {isDragActive &&
