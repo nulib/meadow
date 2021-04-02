@@ -22,6 +22,7 @@ import IconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 import UIDevBgToggle from "@js/components/UI/DevBgToggle";
+import useEnvironment from "@js/hooks/useEnvironment";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -35,6 +36,7 @@ const UILayoutNavBar = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeHoverNav, setActiveHoverNav] = useState();
   const location = useLocation();
+  const env = useEnvironment();
 
   const isActive = (matcher) => {
     return location.pathname.includes(matcher);
@@ -233,7 +235,7 @@ const UILayoutNavBar = () => {
                   </Link>
                 </div>
 
-                <UIDevBgToggle />
+                {env === "DEV" && <UIDevBgToggle />}
               </div>
             </>
           )}

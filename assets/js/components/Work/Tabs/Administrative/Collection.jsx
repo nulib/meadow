@@ -164,7 +164,7 @@ function WorkTabsAdministrativeCollection({
           </div>
           {isHelperMessageVisible && (
             <p className="notification is-warning is-light is-flex is-align-items-center">
-              <IconAlert size="2x" />
+              <IconAlert />
               <span className="ml-3">
                 To select a new featured image for the Collection, please
                 navigate to the new Work.

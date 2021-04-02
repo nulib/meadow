@@ -171,11 +171,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           >
             <input {...getInputProps()} />
             <p>
-              <IconCsv
-                icon="file-csv"
-                size="2x"
-                className="has-text-grey mr-3"
-              />
+              <IconCsv icon="file-csv" className="has-text-grey mr-3" />
               {isDragActive
                 ? "Drop the file here ..."
                 : "Drag 'n' drop a file here, or click to select file"}
