@@ -258,6 +258,21 @@ defmodule Meadow.Data.IndexerTest do
     end
   end
 
+  describe "update_mappings?/0" do
+    test "returns false if mapping file on disk is equiavalent to stored mapping" do
+      refute Indexer.update_mapping?()
+    end
+
+    test "returns true if mapping file on disk is different from stored mapping" do
+      ~w(templates properties settings)
+      |> Enum.each(fn type_of_change ->
+        assert Indexer.update_mapping?(
+                 "test/fixtures/elasticsearch/different_#{type_of_change}.json"
+               )
+      end)
+    end
+  end
+
   describe "mix task" do
     setup do
       {:ok, indexable_data()}

@@ -35,7 +35,7 @@
           "search_analyzer": "stopword_analyzer",
           "search_quote_analyzer": "full_analyzer"
         },
-        "all_titles": {
+        "all_titles_but_different": {
           "type": "text",
           "analyzer": "full_analyzer",
           "search_analyzer": "stopword_analyzer",
