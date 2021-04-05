@@ -7,8 +7,8 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
 
   @bucket "test-ingest"
   @key "generate_file_set_digests_test/test.tif"
-  @content "test/fixtures/coffee.tif"
-  @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
+  @good_content "test/fixtures/coffee.tif"
+  @bad_content "test/fixtures/not_a_tiff.tif"
 
   setup do
     file_set =
@@ -24,16 +24,29 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     {:ok, file_set_id: file_set.id}
   end
 
-  @tag s3: [@fixture]
-  test "process/2", %{file_set_id: file_set_id} do
-    assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
-    assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+  describe "process/2" do
+    @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@good_content)}]
+    test "good content", %{file_set_id: file_set_id} do
+      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 
-    file_set = FileSets.get_file_set!(file_set_id)
-    assert(file_set.metadata.mime_type == "image/tiff")
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.metadata.mime_type == "image/tiff")
 
-    assert capture_log(fn ->
-             ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
-           end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
+    end
+
+    @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@bad_content)}]
+    test "bad content", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert({:error, _} = ExtractMimeType.process(%{file_set_id: file_set_id}, %{}))
+          assert(ActionStates.error?(file_set_id, ExtractMimeType))
+        end)
+
+      assert log =~ ~r/Received undefined response from lambda/
+    end
   end
 end
