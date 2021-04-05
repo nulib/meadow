@@ -170,6 +170,7 @@ jobs:
   deploy:
     executor: aws-cli/default
     steps:
+      - checkout
       - run:
           name: Set DEPLOY_TAG from branch name
           command: |
