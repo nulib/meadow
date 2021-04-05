@@ -14,5 +14,7 @@ defmodule Meadow.Ingest.SheetNotifier do
     sheet = Sheets.get_ingest_sheet!(id)
     Notifications.ingest_sheet(sheet)
     {:noreply, state}
+  rescue
+    Ecto.NoResultsError -> {:noreply, state}
   end
 end
