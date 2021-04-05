@@ -7,7 +7,7 @@
       "analyzer": {
         "full_analyzer": {
           "type": "custom",
-          "tokenizer": "standard",
+          "tokenizer": "pattern",
           "char_filter": ["html_strip"],
           "filter": ["lowercase", "asciifolding"]
         },

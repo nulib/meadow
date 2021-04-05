@@ -52,7 +52,7 @@
         },
         {
           "latlong": {
-            "match": ".*Geo|^geo",
+            "match": ".*Geo|^geo|geeeeeeo",
             "match_pattern": "regex",
             "mapping": { "type": "geo_point" }
           }
