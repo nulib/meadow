@@ -6,8 +6,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { IconCheck } from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
+import useGTM from "@js/hooks/useGTM";
 
 function ScreensDashboardsPreservationChecksList(props) {
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Preservation Checks Dashboard" });
+  }, []);
+
   return (
     <Layout>
       <section

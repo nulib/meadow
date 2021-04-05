@@ -23,13 +23,18 @@ import {
   SearchBarRow,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [activeCollection, setActiveCollection] = useState();
   const [modalOpen, setModalOpen] = useState(false);
-  const inputEl = useRef(null);
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "All Collections" });
+  }, []);
 
   useEffect(() => {
     if (data && data.collections) {

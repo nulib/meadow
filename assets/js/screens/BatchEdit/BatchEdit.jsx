@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../Layout";
 import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIPreviewItems from "@js/components/UI/PreviewItems";
@@ -12,6 +12,7 @@ import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import UIIconText from "@js/components/UI/IconText";
 import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import UISticky from "@js/components/UI/Sticky";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -19,11 +20,16 @@ const ScreensBatchEdit = () => {
   const resultsCount = batchState.resultStats
     ? batchState.resultStats.numberOfResults
     : "";
+  const { loadDataLayer } = useGTM();
 
   const [previewItems, setPreviewItems] = useState([]);
   const [isLoadingPreviewItems, setIsLoadingPreviewItems] = useState(true);
 
   useEffect(() => {
+    loadDataLayer({
+      pageTitle: "Batch Edit",
+    });
+
     async function getResultItems() {
       let resultItems = [];
       let results = await elasticsearchDirectSearch({

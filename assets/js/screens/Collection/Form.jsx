@@ -10,6 +10,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { CodeListProvider } from "@js/context/code-list-context";
 import UISkeleton from "@js/components/UI/Skeleton";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollectionForm = () => {
   const { id } = useParams();
@@ -21,6 +22,11 @@ const ScreensCollectionForm = () => {
       route: "/collection/list",
     },
   ];
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Collection Form" });
+  }, []);
 
   if (edit) {
     const { data, loading, error } = useQuery(GET_COLLECTION, {

@@ -17,9 +17,16 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "All Projects" });
+  }, []);
+
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
   const projects = (projectsData && projectsData.projects) || [];
 

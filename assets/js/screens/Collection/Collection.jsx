@@ -25,6 +25,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -33,6 +34,17 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    {
+      data && // Update GTM datalayer
+        loadDataLayer({
+          pageTitle: `${data.collection.title} - Collection`,
+          visibility: data.collection?.visibility?.label,
+        });
+    }
+  }, []);
 
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
@@ -75,12 +87,6 @@ const ScreensCollection = () => {
   const handleDeleteClick = () => {
     setModalOpen(false);
     deleteCollection({ variables: { collectionId: id } });
-  };
-
-  const handlePublishClick = () => {
-    updateCollection({
-      variables: { collectionId: id, published: !data.collection.published },
-    });
   };
 
   function getCrumbs() {

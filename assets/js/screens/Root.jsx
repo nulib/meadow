@@ -9,7 +9,6 @@ import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
 import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
 import ScreensDashboardsAnalytics from "@js/screens/Dashboards/Analytics/Analytics";
 import ScreensProjectList from "./Project/List";
-import ScreensProjectForm from "./Project/Form";
 import ScreensProject from "./Project/Project";
 import Home from "./Home/Home";
 import NotFound from "./404";
@@ -84,11 +83,6 @@ export default class Root extends React.Component {
                   exact
                   path="/project/list"
                   component={ScreensProjectList}
-                />
-                <PrivateRoute
-                  exact
-                  path="/project/create"
-                  component={ScreensProjectForm}
                 />
                 <PrivateRoute
                   exact

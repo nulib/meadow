@@ -9,8 +9,15 @@ import {
   FallbackErrorComponent,
   PageTitle,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 function ScreensDashboardsBatchEditList(props) {
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Batch Edit Dashboard" });
+  }, []);
+
   return (
     <Layout>
       <section className="section" data-testid="dashboard-batch-edit-screen">
