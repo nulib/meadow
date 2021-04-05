@@ -20,6 +20,7 @@ import {
   PageTitle,
   ResultsDisplaySwitcher,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 async function getParsedAggregations(query) {
   try {
@@ -43,6 +44,11 @@ const ScreensSearch = () => {
   const [filteredQuery, setFilteredQuery] = useState();
   const [resultStats, setResultStats] = useState(0);
   const dispatch = useBatchDispatch();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Search" });
+  }, []);
 
   const handleEditAllItems = async () => {
     const parsedAggregations = await getParsedAggregations(filteredQuery);

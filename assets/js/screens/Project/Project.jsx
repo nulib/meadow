@@ -2,15 +2,15 @@ import React from "react";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import Layout from "../Layout";
-import IngestSheetList from "../../components/IngestSheet/List";
-import Error from "../../components/UI/Error";
-import UISkeleton from "../../components/UI/Skeleton";
+import IngestSheetList from "@js/components/IngestSheet/List";
+import Error from "@js/components/UI/Error";
+import UISkeleton from "@js/components/UI/Skeleton";
 import { useQuery } from "@apollo/client";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
-} from "../../components/Project/project.gql.js";
-import { formatDate } from "../../services/helpers";
+} from "@js/components/Project/project.gql.js";
+import { formatDate } from "@js/services/helpers";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
@@ -23,11 +23,18 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensProject = () => {
   const history = useHistory();
   const { id } = useParams();
   const [isModalHidden, setIsModalHidden] = React.useState(true);
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Project Details" });
+  }, []);
+
   const { loading, error, data, subscribeToMore } = useQuery(GET_PROJECT, {
     variables: { projectId: id },
   });

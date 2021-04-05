@@ -4,8 +4,15 @@ import DashboardsLocalAuthoritiesList from "@js/components/Dashboards/LocalAutho
 import DashboardsLocalAuthoritiesTitleBar from "@js/components/Dashboards/LocalAuthorities/TitleBar";
 import { ErrorBoundary } from "react-error-boundary";
 import { Breadcrumbs, FallbackErrorComponent } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 function ScreensDashboardsLocalAuthoritiesList() {
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Local Authorities Dashboard" });
+  }, []);
+
   return (
     <Layout>
       <section

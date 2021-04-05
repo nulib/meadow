@@ -4,22 +4,21 @@ import {
   CREATE_SHARED_LINK,
   GET_WORK,
   UPDATE_WORK,
-} from "../../components/Work/work.gql.js";
+} from "@js/components/Work/work.gql.js";
 import { useHistory, useParams } from "react-router-dom";
 import Layout from "../Layout";
-import UISkeleton from "../../components/UI/Skeleton";
-import Work from "../../components/Work/Work";
-import { toastWrapper } from "../../services/helpers";
-import WorkTagsList from "../../components/Work/TagsList";
-import WorkHeaderButtons from "../../components/Work/HeaderButtons";
-import WorkSharedLinkNotification from "../../components/Work/SharedLinkNotification";
-import WorkPublicLinkNotification from "../../components/Work/PublicLinkNotification";
-import WorkMultiEditBar from "../../components/Work/MultiEditBar";
-import { useBatchState } from "../../context/batch-edit-context";
+import UISkeleton from "@js/components/UI/Skeleton";
+import Work from "@js/components/Work/Work";
+import { toastWrapper } from "@js/services/helpers";
+import WorkTagsList from "@js/components/Work/TagsList";
+import WorkHeaderButtons from "@js/components/Work/HeaderButtons";
+import WorkSharedLinkNotification from "@js/components/Work/SharedLinkNotification";
+import WorkPublicLinkNotification from "@js/components/Work/PublicLinkNotification";
+import WorkMultiEditBar from "@js/components/Work/MultiEditBar";
+import { useBatchState } from "@js/context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import {
-  ActionHeadline,
   Breadcrumbs,
   FallbackErrorComponent,
   LevelItem,
@@ -28,6 +27,7 @@ import {
 } from "@js/components/UI/UI";
 import classNames from "classnames";
 import { isMobile } from "react-device-detect";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -36,6 +36,11 @@ const ScreensWork = () => {
   const batchState = useBatchState();
   const [isWorkOpen, setIsWorkOpen] = useState(false);
   const { handleFacetLinkClick } = useFacetLinkClick();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    console.log(`data`, data);
+  }, []);
 
   const multiCurrentIndex = params.counter
     ? parseInt(params.counter.split(",")[0])
@@ -50,6 +55,29 @@ const ScreensWork = () => {
       history.push("/404", {
         message:
           "There was an error retrieving the work, or the work id does not exist.",
+      });
+    },
+    onCompleted({ work }) {
+      const creators =
+        work.descriptiveMetadata.creator.length > 0
+          ? work.descriptiveMetadata.creator.map((c) => c.term?.label)
+          : [];
+      const contributors =
+        work.descriptiveMetadata.contributor.length > 0
+          ? work.descriptiveMetadata.contributor.map((c) => c.term?.label)
+          : [];
+      const subjects =
+        work.descriptiveMetadata.subject.length > 0
+          ? work.descriptiveMetadata.subject.map((s) => s.term?.label)
+          : [];
+      loadDataLayer({
+        adminset: work.administrativeMetadata.libraryUnit?.label,
+        collections: [work.collection?.title],
+        creatorsContributors: [...creators, ...contributors],
+        pageTitle: "Work Details",
+        rightsStatement: work.descriptiveMetadata.rightsStatement?.label,
+        subjects,
+        visibility: work.visibility?.label,
       });
     },
   });
