@@ -65,7 +65,7 @@ defmodule Meadow.Data.Indexer do
     end
   end
 
-  def update_mapping?() do
+  def update_mapping? do
     Meadow.Config.priv_path("elasticsearch/meadow.json")
     |> update_mapping?()
   end
@@ -125,7 +125,7 @@ defmodule Meadow.Data.Indexer do
     not all_from_a_in_b?(file_settings, stored_settings, ["index"])
   end
 
-  defp index(), do: Config.elasticsearch_index()
+  defp index, do: Config.elasticsearch_index()
 
   defp upload_batch(wait_interval) when is_integer(wait_interval), do: :timer.sleep(wait_interval)
 
