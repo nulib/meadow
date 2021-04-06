@@ -4,7 +4,78 @@ orbs:
   aws-cli: circleci/aws-cli@1.3.1
   docker: circleci/docker@0.5.19
 jobs:
-  test:
+  dependencies:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.11-node
+    steps:
+      - checkout
+      - run:
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
+      - restore_cache:
+          keys:
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
+      - run:
+          name: Install Elixir Dependencies
+          command: mix do deps.get, deps.compile
+          environment:
+            MIX_ENV: test
+      - run:
+          name: Install JS Dependencies
+          command: yarn install --cwd assets
+      - save_cache:
+          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/deps
+      - save_cache:
+          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/_build
+      - save_cache:
+          key: yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/assets/node_modules
+  js-test:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.11-node
+    steps:
+      - checkout
+      - run:
+          name: Generate checksums for dependency lock files
+          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock | sort > ./assets/yarn.lock
+      - restore_cache:
+          keys:
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
+      - run:
+          name: JS Static Analysis
+          command: yarn prettier
+          working_directory: ~/meadow/assets
+      - run:
+          name: JS Tests
+          command: |
+            yarn ci -w 1
+          working_directory: ~/meadow/assets
+      - run:
+          name: Test Webpack Build
+          command: yarn deploy
+          working_directory: ~/meadow/assets
+  elixir-test:
     working_directory: ~/meadow
     docker:
       - image: circleci/elixir:1.11-node
@@ -33,8 +104,8 @@ jobs:
           command: sudo apt-get install -y ldap-utils
       - checkout
       - run:
-          name: Generate checksums for dependency lock files
-          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock > .yarn-checksums
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
@@ -47,37 +118,17 @@ jobs:
             - build-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
-          name: Install hex & rebar
-          command: mix do local.hex --force, local.rebar --force
-      - run:
-          name: Install Elixir Dependencies
-          command: mix do deps.get, deps.compile
-          environment:
-            MIX_ENV: test
-      - run:
-          name: Install JS Dependencies
+          name: Install Lambda Dependencies
           command: |
-            for pkg in $(find . -name package.json ! -path './**/node_modules/*' ! -path './deps/*')
+            for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
             do
+              echo "yarn install --cwd $(dirname $pkg)"
               yarn install --cwd $(dirname $pkg)
             done
-      - save_cache:
-          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/deps
-      - save_cache:
-          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/_build
-      - save_cache:
-          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/assets/node_modules
-            - ~/meadow/priv/nodejs/*/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo
@@ -89,19 +140,6 @@ jobs:
       - run:
           name: Elixir Tests
           command: mix coveralls.circle
-      - run:
-          name: JS Static Analysis
-          command: yarn prettier
-          working_directory: ~/meadow/assets
-      - run:
-          name: JS Tests
-          command: |
-            yarn ci -w 1
-          working_directory: ~/meadow/assets
-      - run:
-          name: Test Webpack Build
-          command: yarn deploy
-          working_directory: ~/meadow/assets
       - run:
           name: Test db rollback
           command: mix ecto.rollback --all
@@ -199,10 +237,17 @@ jobs:
 workflows:
   ci:
     jobs:
-      - test
+      - dependencies
+      - js-test:
+          requires:
+            - dependencies
+      - elixir-test:
+          requires:
+            - dependencies
       - publish:
           requires:
-            - test
+            - js-test
+            - elixir-test
           filters:
             branches:
               only:
