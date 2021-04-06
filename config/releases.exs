@@ -43,7 +43,13 @@ port = String.to_integer(System.get_env("PORT", "4000"))
 
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
-  http: [:inet6, port: port],
+  http: [
+    :inet6,
+    port: port,
+    protocol_options: [
+      idle_timeout: :infinity
+    ]
+  ],
   check_origin: System.get_env("ALLOWED_ORIGINS", "") |> String.split(~r/,\s*/),
   secret_key_base: get_required_var.("SECRET_KEY_BASE"),
   live_view: [signing_salt: get_required_var.("SECRET_KEY_BASE")]
