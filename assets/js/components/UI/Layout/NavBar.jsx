@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../Auth/Auth";
 import client from "../../../client";
@@ -13,11 +12,17 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import RoleNavDropdown from "@js/components/Role/NavDropdown";
 import Honeybadger from "@honeybadger-io/js";
 import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
-import IconChart from "@js/components/Icon/Chart";
+import {
+  IconChart,
+  IconCheck,
+  IconSearch,
+  IconUser,
+} from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
-import IconCheck from "@js/components/Icon/Check";
 import NLogo from "@js/components/northwesternN.svg";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
+import UIDevBgToggle from "@js/components/UI/DevBgToggle";
+import useEnvironment from "@js/hooks/useEnvironment";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -31,6 +36,7 @@ const UILayoutNavBar = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeHoverNav, setActiveHoverNav] = useState();
   const location = useLocation();
+  const env = useEnvironment();
 
   const isActive = (matcher) => {
     return location.pathname.includes(matcher);
@@ -194,7 +200,7 @@ const UILayoutNavBar = () => {
                   onMouseLeave={() => setActiveHoverNav("")}
                 >
                   <UILayoutNavDropdownHeader label="User">
-                    <FontAwesomeIcon icon="user" />
+                    <IconUser />
                   </UILayoutNavDropdownHeader>
                   <UILayoutNavDropdownBody>
                     <UILayoutNavDropdownItem>
@@ -214,7 +220,7 @@ const UILayoutNavBar = () => {
                 <div className="navbar-item">
                   {/* Desktop search button */}
                   <Link to="/search" className="button is-hidden-touch">
-                    <FontAwesomeIcon icon="search" />
+                    <IconSearch />
                   </Link>
 
                   {/* Mobile search button */}
@@ -223,11 +229,13 @@ const UILayoutNavBar = () => {
                     className="button is-text is-hidden-desktop"
                   >
                     <span className="icon">
-                      <FontAwesomeIcon icon="search" />
+                      <IconSearch />
                     </span>
                     <span>Search</span>
                   </Link>
                 </div>
+
+                {env === "DEV" && <UIDevBgToggle />}
               </div>
             </>
           )}

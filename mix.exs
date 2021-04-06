@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "1.4.1"
+  @app_version "1.5.0"
 
   def project do
     [
@@ -58,10 +58,10 @@ defmodule Meadow.MixProject do
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0"},
-      {:elastix, "~> 0.8.0"},
+      {:elastix, "~> 0.9.0"},
       {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},
-      {:ex_aws, "~> 2.1 and < 2.1.7"},
+      {:ex_aws, "~> 2.1.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:ex_aws_lambda, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
@@ -140,7 +140,7 @@ defmodule Meadow.MixProject do
 
   def build_assets(release) do
     System.cmd("yarn", ["deploy"], cd: "assets")
-    Mix.Tasks.Phx.Digest.run([])
+    Mix.Task.run("phx.digest")
     release
   end
 end

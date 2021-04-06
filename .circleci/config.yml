@@ -4,7 +4,78 @@ orbs:
   aws-cli: circleci/aws-cli@1.3.1
   docker: circleci/docker@0.5.19
 jobs:
-  test:
+  dependencies:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.11-node
+    steps:
+      - checkout
+      - run:
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
+      - restore_cache:
+          keys:
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - hex-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}
+            - build-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
+      - run:
+          name: Install Elixir Dependencies
+          command: mix do deps.get, deps.compile
+          environment:
+            MIX_ENV: test
+      - run:
+          name: Install JS Dependencies
+          command: yarn install --cwd assets
+      - save_cache:
+          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/deps
+      - save_cache:
+          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/_build
+      - save_cache:
+          key: yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+          paths:
+            - ~/meadow/assets/node_modules
+  js-test:
+    working_directory: ~/meadow
+    docker:
+      - image: circleci/elixir:1.11-node
+    steps:
+      - checkout
+      - run:
+          name: Generate checksums for dependency lock files
+          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock | sort > ./assets/yarn.lock
+      - restore_cache:
+          keys:
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
+      - run:
+          name: JS Static Analysis
+          command: yarn prettier
+          working_directory: ~/meadow/assets
+      - run:
+          name: JS Tests
+          command: |
+            yarn ci -w 1
+          working_directory: ~/meadow/assets
+      - run:
+          name: Test Webpack Build
+          command: yarn deploy
+          working_directory: ~/meadow/assets
+  elixir-test:
     working_directory: ~/meadow
     docker:
       - image: circleci/elixir:1.11-node
@@ -33,8 +104,8 @@ jobs:
           command: sudo apt-get install -y ldap-utils
       - checkout
       - run:
-          name: Generate checksums for dependency lock files
-          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock > .yarn-checksums
+          name: Install hex & rebar
+          command: mix do local.hex --force, local.rebar --force
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
@@ -47,37 +118,17 @@ jobs:
             - build-cache-{{ .Environment.CACHE_PREFIX }}-
       - restore_cache:
           keys:
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-
-            - npm-cache-{{ .Environment.CACHE_PREFIX }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
+            - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
-          name: Install hex & rebar
-          command: mix do local.hex --force, local.rebar --force
-      - run:
-          name: Install Elixir Dependencies
-          command: mix do deps.get, deps.compile
-          environment:
-            MIX_ENV: test
-      - run:
-          name: Install JS Dependencies
+          name: Install Lambda Dependencies
           command: |
-            for pkg in $(find . -name package.json ! -path './**/node_modules/*' ! -path './deps/*')
+            for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
             do
+              echo "yarn install --cwd $(dirname $pkg)"
               yarn install --cwd $(dirname $pkg)
             done
-      - save_cache:
-          key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/deps
-      - save_cache:
-          key: build-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/_build
-      - save_cache:
-          key: npm-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum ".yarn-checksums" }}-{{ .Branch }}
-          paths:
-            - ~/meadow/assets/node_modules
-            - ~/meadow/priv/nodejs/*/node_modules
       - run:
           name: Elixir Static Analysis
           command: mix credo
@@ -89,19 +140,6 @@ jobs:
       - run:
           name: Elixir Tests
           command: mix coveralls.circle
-      - run:
-          name: JS Static Analysis
-          command: yarn prettier
-          working_directory: ~/meadow/assets
-      - run:
-          name: JS Tests
-          command: |
-            yarn ci -w 1
-          working_directory: ~/meadow/assets
-      - run:
-          name: Test Webpack Build
-          command: yarn deploy
-          working_directory: ~/meadow/assets
       - run:
           name: Test db rollback
           command: mix ecto.rollback --all
@@ -142,10 +180,11 @@ jobs:
       - docker/check
       - docker/build:
           cache_from: nulib/meadow-deps:${DEPLOY_TAG}
-          extra_build_args: --build-arg HONEYBADGER_API_KEY=${HONEYBADGER_API_KEY} --build-arg HONEYBADGER_ENVIRONMENT=${DEPLOY_TAG} --build-arg HONEYBADGER_REVISION=${CIRCLE_SHA1} --build-arg MEADOW_VERSION=${MEADOW_VERSION}
+          extra_build_args: --build-arg HONEYBADGER_API_KEY=${HONEYBADGER_API_KEY} --build-arg HONEYBADGER_API_KEY_FRONTEND=${HONEYBADGER_API_KEY_FRONTEND} --build-arg HONEYBADGER_ENVIRONMENT=${DEPLOY_TAG} --build-arg HONEYBADGER_REVISION=${CIRCLE_SHA1} --build-arg MEADOW_VERSION=${MEADOW_VERSION}
           image: nulib/meadow
           tag: ${DEPLOY_TAG}
       - run:
+          name: Tag Deps Image
           command: |
             DEPS_IMAGE=$(docker image ls --filter "label=edu.northwestern.library.app=meadow" --filter "label=edu.northwestern.library.stage=deps" --format '{{.CreatedAt}}\t{{.ID}}' | sort -nr | cut -f2 | head -1)
             docker tag ${DEPS_IMAGE} nulib/meadow-deps:${DEPLOY_TAG}
@@ -155,18 +194,21 @@ jobs:
       - docker/push:
           image: nulib/meadow
           tag: ${DEPLOY_TAG}
+      - run:
+          name: Upload Source Maps to Honeybadger
+          command: ./.circleci/scripts/upload_source_maps.sh
       - when:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run:
                 name: "Push release tag"
-                command: |
-                  git push origin v${MEADOW_VERSION}
+                command: git push origin v${MEADOW_VERSION}
           
   deploy:
     executor: aws-cli/default
     steps:
+      - checkout
       - run:
           name: Set DEPLOY_TAG from branch name
           command: |
@@ -188,26 +230,24 @@ jobs:
             ECS_SERVICE: meadow
             ECS_TASK: meadow-all
             ECS_CONTAINER: meadow-all
-          command: |
-            networkconfig=$(aws ecs describe-services --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} | jq -cM '.services[0].networkConfiguration')
-            overrides='{"containerOverrides":[{"name":"'${ECS_CONTAINER}'","environment": [{"name": "MEADOW_PROCESSES", "value": "none"}, {"name": "DB_POOL_SIZE", "value": "10"}],"command":["eval","Meadow.ReleaseTasks.migrate()"]}]}'
-            aws ecs run-task --platform-version 1.4.0 --cluster ${ECS_CLUSTER} --task-definition ${ECS_TASK} --overrides "${overrides}" --launch-type FARGATE --network-configuration ${networkconfig}
-            for service in $(aws ecs list-services --cluster meadow | jq -r '.serviceArns[] | split("/") | last'); do
-              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${service} --force-new-deployment
-            done
+          command: ./.circleci/scripts/update_ecs_service.sh
       - run:
           name: Notify Honeybadger
-          command: |
-            curl \
-              --data "deploy[environment]=${DEPLOY_TAG}&deploy[local_username]=&deploy[revision]=${CIRCLE_SHA1}&api_key=${HONEYBADGER_API_KEY}" \
-              https://api.honeybadger.io/v1/deploys
+          command: ./.circleci/scripts/honeybadger_deploy_notification.sh
 workflows:
   ci:
     jobs:
-      - test
+      - dependencies
+      - js-test:
+          requires:
+            - dependencies
+      - elixir-test:
+          requires:
+            - dependencies
       - publish:
           requires:
-            - test
+            - js-test
+            - elixir-test
           filters:
             branches:
               only:

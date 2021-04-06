@@ -17,6 +17,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const GET_CRUMB_DATA = gql`
   query GetCrumbData($sheetId: ID!) {
@@ -33,6 +34,12 @@ const GET_CRUMB_DATA = gql`
 
 const ScreensIngestSheet = ({ match }) => {
   const { id, sheetId } = match.params;
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Ingest Sheet Details" });
+  }, []);
+
   const {
     loading: crumbsLoading,
     error: crumbsError,

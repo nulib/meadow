@@ -16,8 +16,7 @@ import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
-import IconEdit from "@js/components/Icon/Edit";
-import IconTrashCan from "@js/components/Icon/TrashCan";
+import { IconEdit, IconTrashCan } from "@js/components/Icon";
 
 const colHeaders = ["Label", "Hint"];
 

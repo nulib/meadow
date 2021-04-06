@@ -1,10 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UISticky from "@js/components/UI/Sticky";
 import UIIconText from "@js/components/UI/IconText";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconArrowLeft, IconArrowRight, IconEdit } from "@js/components/Icon";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
 
@@ -24,7 +23,7 @@ function MultiEditBar({ currentIndex, handleMultiNavClick, totalItems }) {
             disabled={currentIndex === 0}
             onClick={() => handleMultiNavClick(currentIndex - 1)}
           >
-            <FontAwesomeIcon icon="chevron-left" />
+            <IconArrowLeft />
           </Button>
           <p className="is-size-5" data-testid="multi-edit-display-message">
             <UIIconText icon={<IconEdit />}>
@@ -37,7 +36,7 @@ function MultiEditBar({ currentIndex, handleMultiNavClick, totalItems }) {
             disabled={currentIndex + 1 === totalItems}
             onClick={() => handleMultiNavClick(currentIndex + 1)}
           >
-            <FontAwesomeIcon icon="chevron-right" />
+            <IconArrowRight />
           </Button>
         </div>
       </div>

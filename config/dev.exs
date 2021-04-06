@@ -165,7 +165,7 @@ config :ueberauth, Ueberauth,
     nusso:
       {Ueberauth.Strategy.NuSSO,
        [
-         base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
+         base_url: System.get_env("SETTINGS__NUSSO__BASE_URL"),
          callback_path: "/auth/nusso/callback",
          consumer_key: System.get_env("SETTINGS__NUSSO__CONSUMER_KEY"),
          include_attributes: true,

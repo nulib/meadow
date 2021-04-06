@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
-import IconCsv from "@js/components/Icon/Csv";
+import { IconCsv } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
 
 /** @jsx jsx */

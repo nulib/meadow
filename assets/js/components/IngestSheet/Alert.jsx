@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconAlert } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
 
 const IngestSheetAlert = ({ ingestSheet }) => {
@@ -82,7 +82,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       } ${alertObj.type}`}
       data-testid="ui-alert"
     >
-      <UIIconText icon={<FontAwesomeIcon icon={alertObj.icon} />} isCentered>
+      <UIIconText icon={<IconAlert />} isCentered>
         <p className="pl-2">{alertObj.body}</p>
       </UIIconText>
     </article>

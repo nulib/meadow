@@ -11,6 +11,20 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
+  @doc "Retrieve Elasticsearch index name"
+  def elasticsearch_index do
+    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
+    |> Keyword.get(:indexes)
+    |> Map.keys()
+    |> List.first()
+  end
+
+  @doc "Retrieve Elasticsearch URL"
+  def elasticsearch_url do
+    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
+    |> Keyword.get(:url)
+  end
+
   @doc "Retrieve the configured indexing interval"
   def index_interval do
     Application.get_env(:meadow, :index_interval, 120_000)

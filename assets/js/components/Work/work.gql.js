@@ -211,6 +211,8 @@ export const GET_WORK = gql`
           originalFilename
           sha256
         }
+        insertedAt
+        updatedAt
       }
       ingestSheet {
         id
@@ -260,6 +262,8 @@ export const GET_WORKS = gql`
           label
           sha256
         }
+        insertedAt
+        updatedAt
       }
       insertedAt
       manifestUrl

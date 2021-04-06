@@ -14,5 +14,7 @@ defmodule Meadow.IIIF.ManifestListener do
     Logger.info("Writing manifest for #{id}")
     id |> IIIF.write_manifest()
     {:noreply, state}
+  rescue
+    Ecto.NoResultsError -> {:noreply, state}
   end
 end

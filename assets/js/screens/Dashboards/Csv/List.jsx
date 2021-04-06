@@ -4,8 +4,15 @@ import DashboardsCsvList from "@js/components/Dashboards/Csv/List";
 import DashboardsCsvTitleBar from "@js/components/Dashboards/Csv/TitleBar";
 import { ErrorBoundary } from "react-error-boundary";
 import { Breadcrumbs, FallbackErrorComponent } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 function ScreensDashboardsCsvList() {
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Csv Metadata Export Dashboard" });
+  }, []);
+
   return (
     <Layout>
       <section className="section" data-testid="dashboard-csv-screen">

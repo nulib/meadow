@@ -1,7 +1,7 @@
 {
   "settings": {
     "index": {
-      "max_result_window": 50000
+      "max_result_window": "50000"
     },
     "analysis": {
       "analyzer": {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import IconSearch from "@js/components/Icon/Search";
+import { IconSearch } from "@js/components/Icon";
 
 function HomeSearchAndDescribeBox(props) {
   return (

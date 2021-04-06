@@ -63,6 +63,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
       {:ok, %{"ext" => _, "mime" => mime_type}} ->
         {:ok, mime_type}
 
+      {:ok, _other} ->
+        {:error, "Unknown response from MIME extractor"}
+
       {:error, error} ->
         {:error, error}
     end

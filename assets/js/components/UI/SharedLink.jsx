@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import IconAlert from "@js/components/Icon/Alert";
+import { IconAlert } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
 import { useClipboard } from "use-clipboard-copy";
 import { Button } from "@nulib/admin-react-components";

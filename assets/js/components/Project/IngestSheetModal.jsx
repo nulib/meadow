@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconCsv } from "@js/components/Icon";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { CREATE_INGEST_SHEET } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_PROJECT } from "@js/components/Project/project.gql.js";
@@ -171,11 +171,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           >
             <input {...getInputProps()} />
             <p>
-              <FontAwesomeIcon
-                icon="file-csv"
-                size="2x"
-                className="has-text-grey mr-3"
-              />
+              <IconCsv icon="file-csv" className="has-text-grey mr-3" />
               {isDragActive
                 ? "Drop the file here ..."
                 : "Drag 'n' drop a file here, or click to select file"}

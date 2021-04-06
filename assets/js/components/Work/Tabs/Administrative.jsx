@@ -14,13 +14,14 @@ import UISkeleton from "@js/components/UI/Skeleton";
 import {
   PROJECT_METADATA,
   prepFieldArrayItemsForPost,
-} from "../../../services/metadata";
+} from "@js/services/metadata";
 import { Button } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
 import { useHistory } from "react-router-dom";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
-import IconEdit from "@js/components/Icon/Edit";
+import { formatDate } from "@js/services/helpers";
+import { IconEdit } from "@js/components/Icon";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
@@ -31,6 +32,8 @@ const WorkTabsAdministrative = ({ work }) => {
     project,
     published,
     visibility,
+    insertedAt,
+    updatedAt,
   } = work;
   const [isEditing, setIsEditing] = useIsEditing();
 
@@ -141,7 +144,9 @@ const WorkTabsAdministrative = ({ work }) => {
               onClick={() => setIsEditing(true)}
               data-testid="edit-button"
             >
-              <IconEdit className="icon" />
+              <span className="icon">
+                <IconEdit />
+              </span>
               <span>Edit</span>
             </Button>
           )}
@@ -251,6 +256,14 @@ const WorkTabsAdministrative = ({ work }) => {
                   </div>
                 );
               })}
+              <div className="field content">
+                <p data-testid="inserted-at-label">
+                  <strong>Work Created</strong>: {formatDate(insertedAt)}
+                </p>
+                <p data-testid="updated-at-label">
+                  <strong>Last Modified</strong>: {formatDate(updatedAt)}
+                </p>
+              </div>
             </div>
           </div>
         </div>

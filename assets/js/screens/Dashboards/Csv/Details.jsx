@@ -11,9 +11,15 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 export default function ScreensDashboardsCsvDetails() {
   const params = useParams();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Csv Metadata Export Details" });
+  }, []);
 
   const { error, loading, data } = useQuery(GET_CSV_METADATA_UPDATE_JOB, {
     variables: {

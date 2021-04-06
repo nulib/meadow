@@ -4,8 +4,8 @@ import { DELETE_INGEST_SHEET } from "./ingestSheet.gql";
 import { useMutation } from "@apollo/client";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { IconTrashCan } from "@js/components/Icon";
 
 const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   const history = useHistory();
@@ -53,7 +53,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
           -1 && (
           <Button onClick={onOpenModal}>
             <span className="icon">
-              <FontAwesomeIcon icon="trash" />
+              <IconTrashCan />
             </span>{" "}
             <span>Delete and start over</span>
           </Button>

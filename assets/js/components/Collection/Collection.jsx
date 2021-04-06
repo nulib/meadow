@@ -3,8 +3,7 @@ import PropTypes, { shape } from "prop-types";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { Button } from "@nulib/admin-react-components";
 import { Link, useHistory } from "react-router-dom";
-import IconEdit from "@js/components/Icon/Edit";
-import IconImages from "@js/components/Icon/Images";
+import { IconEdit, IconImages } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -100,19 +99,17 @@ const Collection = ({ collection }) => {
             <dd>{totalWorks}</dd>
           </dl>
           {totalWorks > 0 && (
-            <AuthDisplayAuthorized>
-              <div className="pt-3">
-                <Button
-                  onClick={handleViewAllWorksClick}
-                  data-testid="view-works-button"
-                >
-                  <span className="icon">
-                    <IconImages />
-                  </span>
-                  <span>View collection works</span>
-                </Button>
-              </div>
-            </AuthDisplayAuthorized>
+            <div className="pt-3">
+              <Button
+                onClick={handleViewAllWorksClick}
+                data-testid="view-works-button"
+              >
+                <span className="icon">
+                  <IconImages />
+                </span>
+                <span>View collection works</span>
+              </Button>
+            </div>
           )}
         </div>
       </div>

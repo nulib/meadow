@@ -13,7 +13,7 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionsList from "@js/components/Collection/List";
 import { ErrorBoundary } from "react-error-boundary";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,
@@ -23,13 +23,18 @@ import {
   SearchBarRow,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollectionList = () => {
   const { data, loading, error } = useQuery(GET_COLLECTIONS);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [activeCollection, setActiveCollection] = useState();
   const [modalOpen, setModalOpen] = useState(false);
-  const inputEl = useRef(null);
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "All Collections" });
+  }, []);
 
   useEffect(() => {
     if (data && data.collections) {

@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import { isUrlValid } from "../../../services/helpers";
 import { Button } from "@nulib/admin-react-components";
 import { useFormContext } from "react-hook-form";
+import { IconAdd, IconTrashCan } from "@js/components/Icon";
 
 // Final shape of the Related URL input to API is
 // relatedUrl: { label: { id: "ABC123", scheme: "RELATED_URL" }, url: "http://yo.com"}
@@ -132,7 +132,7 @@ const UIFormRelatedURL = ({
                   data-testid={`button-related-url-remove`}
                 >
                   <span className="icon">
-                    <FontAwesomeIcon icon="trash" />
+                    <IconTrashCan />
                   </span>
                   <span>Remove</span>
                 </Button>
@@ -150,7 +150,7 @@ const UIFormRelatedURL = ({
         data-testid="button-add-field-array-row"
       >
         <span className="icon">
-          <FontAwesomeIcon icon="plus" />
+          <IconAdd />
         </span>
         <span>Add {fields.length > 0 && "another"}</span>
       </Button>

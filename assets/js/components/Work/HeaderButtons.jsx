@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { IconChain } from "@js/components/Icon";
 
 export default function WorkHeaderButtons({
   handleCreateSharableBtnClick,
@@ -19,7 +19,7 @@ export default function WorkHeaderButtons({
         data-testid="button-sharable-link"
       >
         <span className="icon">
-          <FontAwesomeIcon icon="link" />
+          <IconChain />
         </span>
         <span>Get sharable link</span>
       </Button>

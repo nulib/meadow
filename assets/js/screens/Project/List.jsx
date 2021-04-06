@@ -8,7 +8,7 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQuery } from "@apollo/client";
 import Error from "@js/components/UI/Error";
-import IconAdd from "@js/components/Icon/Add";
+import { IconAdd } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,
@@ -17,9 +17,16 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensProjectList = () => {
   const [showForm, setShowForm] = useState();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "All Projects" });
+  }, []);
+
   const { loading, error, data: projectsData } = useQuery(GET_PROJECTS);
   const projects = (projectsData && projectsData.projects) || [];
 

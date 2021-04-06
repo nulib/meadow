@@ -2,6 +2,8 @@ module.exports = {
   globals: {
     __MEADOW_VERSION__: "v1.2.3",
     __HONEYBADGER_REVISION__: "1234567",
+    __HONEYBADGER_ENVIRONMENT__: "staging",
+    dataLayer: [],
   },
   verbose: true,
   moduleNameMapper: {

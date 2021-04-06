@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@nulib/admin-react-components";
+import { IconAdd } from "@js/components/Icon";
 
 function FieldArrayAddButton({ btnLabel, handleAddClick }) {
   return (
@@ -12,7 +12,7 @@ function FieldArrayAddButton({ btnLabel, handleAddClick }) {
       className="mb-2"
     >
       <span className="icon">
-        <FontAwesomeIcon icon="plus" />
+        <IconAdd />
       </span>
       <span>{btnLabel}</span>
     </Button>

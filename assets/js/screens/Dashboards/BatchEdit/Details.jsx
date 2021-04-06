@@ -5,9 +5,15 @@ import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
 import DashboardsBatchEditDetails from "@js/components/Dashboards/BatchEdit/Details";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
+import useGTM from "@js/hooks/useGTM";
 
 export default function ScreensDashboardsBatchEditDetails() {
   const params = useParams();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Batch Edit Details" });
+  }, []);
 
   return (
     <Layout>

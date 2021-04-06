@@ -20,6 +20,10 @@ defmodule Meadow.IIIF.ManifestListenerTest do
       end)
     end
 
+    test "fails gracefully when work is not found" do
+      assert {:noreply, nil} == ManifestListener.handle_notification(:works, :insert, %{id: Ecto.UUID.generate()}, nil)
+    end
+
     test "ignores DELETE notification" do
       work = work_fixture()
       Repo.delete(work)

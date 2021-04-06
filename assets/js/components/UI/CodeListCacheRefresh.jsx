@@ -1,6 +1,6 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
+import { IconBell } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -19,7 +19,7 @@ export default function UICodeListCacheRefresh({ handleClick }) {
     >
       <p>
         <span className="icon">
-          <FontAwesomeIcon icon="bell" />
+          <IconBell />
         </span>
         Role and Authority fields are using cached dropdown values (as these
         rarely change).

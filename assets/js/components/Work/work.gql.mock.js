@@ -153,6 +153,8 @@ export const mockWork = {
         originalFilename: "coffee.jpg",
         sha256: "foobar",
       },
+      insertedAt: "2020-09-12T10:01:01",
+      updatedAt: "2020-09-18T09:01:01",
     },
     {
       accessionNumber: "Donohue_001_01",
@@ -168,6 +170,8 @@ export const mockWork = {
         label: "foo.tiff",
         sha256: "foobar",
       },
+      insertedAt: "2020-11-12T10:01:01",
+      updatedAt: "2020-11-18T09:01:01",
     },
     {
       accessionNumber: "Donohue_001_03",
@@ -180,6 +184,8 @@ export const mockWork = {
         label: "foo.tiff",
         sha256: "foobar",
       },
+      insertedAt: "2020-04-12T10:01:01",
+      updatedAt: "2020-04-18T09:01:01",
     },
     {
       accessionNumber: "Donohue_001_02",
@@ -192,6 +198,8 @@ export const mockWork = {
         label: "foo.tiff",
         sha256: "foobar",
       },
+      insertedAt: "2020-06-12T10:01:01",
+      updatedAt: "2020-06-18T09:01:01",
     },
   ],
   ingestSheet: {
@@ -309,6 +317,8 @@ const mockWork2 = {
           "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
       },
       role: { id: "A", label: "Access" },
+      insertedAt: "2020-07-12T10:01:01",
+      updatedAt: "2020-07-18T09:01:01",
     },
     {
       accessionNumber: "Donohue_002_01b",

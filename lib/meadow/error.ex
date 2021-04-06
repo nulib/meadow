@@ -43,15 +43,17 @@ defmodule Meadow.Error.Filter do
   @moduledoc """
   Honeybadger message filter for NU-specific sensitive data
   """
-  @behaviour Honeybadger.NoticeFilter
 
+  alias Honeybadger.NoticeFilter
   alias Plug.Conn.Cookies
+
+  @behaviour NoticeFilter
 
   @redact [~r/^nusso/i, ~r/^_meadow_key$/, ~r/^dcApi/]
   @redacted "[REDACTED]"
 
   def filter(message) do
-    with result <- Honeybadger.NoticeFilter.Default.filter(message) do
+    with result <- NoticeFilter.Default.filter(message) do
       Map.put(result, :request, filter_request(result.request))
     end
   end

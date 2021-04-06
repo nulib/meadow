@@ -10,10 +10,16 @@ import ChartsRepositoryGrowth from "@js/components/Charts/RepositoryGrowth";
 import ChartsVisibility from "@js/components/Charts/Visibility";
 import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
 import { Link } from "react-router-dom";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
   const { stats = {} } = useRepositoryStats();
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    loadDataLayer({ pageTitle: "Home" });
+  }, []);
 
   const statsConfig = [
     {

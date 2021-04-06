@@ -15,7 +15,7 @@ import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@nulib/admin-react-components";
 import CollectionTags from "@js/components/Collection/Tags";
-import IconEdit from "@js/components/Icon/Edit";
+import { IconEdit } from "@js/components/Icon";
 import {
   ActionHeadline,
   Breadcrumbs,
@@ -25,6 +25,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -33,6 +34,17 @@ const ScreensCollection = () => {
   const { data, loading, error } = useQuery(GET_COLLECTION, {
     variables: { id },
   });
+  const { loadDataLayer } = useGTM();
+
+  React.useEffect(() => {
+    {
+      data && // Update GTM datalayer
+        loadDataLayer({
+          pageTitle: `${data.collection.title} - Collection`,
+          visibility: data.collection?.visibility?.label,
+        });
+    }
+  }, []);
 
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
@@ -77,12 +89,6 @@ const ScreensCollection = () => {
     deleteCollection({ variables: { collectionId: id } });
   };
 
-  const handlePublishClick = () => {
-    updateCollection({
-      variables: { collectionId: id, published: !data.collection.published },
-    });
-  };
-
   function getCrumbs() {
     return [
       {
@@ -121,7 +127,9 @@ const ScreensCollection = () => {
                         className="button is-primary"
                         data-testid="edit-button"
                       >
-                        <IconEdit className="icon" />
+                        <span className="icon">
+                          <IconEdit />
+                        </span>
                         <span>Edit</span>
                       </Link>
                     </AuthDisplayAuthorized>

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useMutation, useQuery } from "@apollo/client";
@@ -17,9 +16,19 @@ import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
 import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
-import IconAdd from "@js/components/Icon/Add";
-import IconView from "@js/components/Icon/View";
-import IconTrashCan from "@js/components/Icon/TrashCan";
+import { formatDate } from "@js/services/helpers";
+import { useClipboard } from "use-clipboard-copy";
+import {
+  IconAdd,
+  IconArrowDown,
+  IconArrowUp,
+  IconBinaryFile,
+  IconBucket,
+  IconCheck,
+  IconDelete,
+  IconTrashCan,
+  IconView,
+} from "@js/components/Icon";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -46,6 +55,15 @@ const WorkTabsPreservation = ({ work }) => {
   const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
     fileset: {},
     isVisible: false,
+  });
+
+  const clipboard = useClipboard({
+    onSuccess() {
+      toastWrapper("is-success", `Copied successfully.`);
+    },
+    onError() {
+      toastWrapper("is-danger", "Failed to copy.");
+    },
   });
 
   const {
@@ -141,10 +159,10 @@ const WorkTabsPreservation = ({ work }) => {
         {fileset && fileset.verified ? (
           <React.Fragment>
             <span className="sr-only">Verified</span>
-            <FontAwesomeIcon icon="check" className="has-text-success" />
+            <IconCheck className="has-text-success" />
           </React.Fragment>
         ) : (
-          <FontAwesomeIcon icon="times" className="has-text-danger" />
+          <IconDelete className="has-text-danger" />
         )}
       </div>
     );
@@ -198,7 +216,9 @@ const WorkTabsPreservation = ({ work }) => {
                 setIsAddFilesetModalVisible(!isAddFilesetModalVisible)
               }
             >
-              <IconAdd className="icon" />
+              <span className="icon">
+                <IconAdd />
+              </span>
               <span>Add a fileset</span>
             </Button>
           </div>
@@ -208,7 +228,7 @@ const WorkTabsPreservation = ({ work }) => {
         {/* TODO: Put a mobile block display here instead of table below */}
         <div className="table-container">
           <table
-            className="table is-fullwidth is-striped is-hoverable is-fixed"
+            className="table is-fullwidth is-striped is-hoverable is-narrow"
             data-testid="preservation-table"
           >
             <thead>
@@ -216,21 +236,16 @@ const WorkTabsPreservation = ({ work }) => {
                 <th className="is-hidden">ID</th>
                 <th>Role</th>
                 <th className="is-flex">
-                  <FontAwesomeIcon
-                    icon={[
-                      "fas",
-                      orderedFileSets.order === "asc"
-                        ? "sort-alpha-down"
-                        : "sort-alpha-down-alt",
-                    ]}
-                    className="icon"
-                  />
+                  {orderedFileSets.order === "asc" ? (
+                    <IconArrowDown />
+                  ) : (
+                    <IconArrowUp />
+                  )}
                   <a className="ml-2" onClick={handleOrderClick}>
                     Filename
                   </a>
                 </th>
-                <th>Checksum</th>
-                <th>s3 Key</th>
+                <th>Created</th>
                 <th className="has-text-centered">Verified</th>
                 <AuthDisplayAuthorized action="delete">
                   <th className="has-text-right">Actions</th>
@@ -245,29 +260,42 @@ const WorkTabsPreservation = ({ work }) => {
                     <tr key={fileset.id} data-testid="preservation-row">
                       <td className="is-hidden">{fileset.id}</td>
                       <td>{fileset.role && fileset.role.label}</td>
-                      <td className="break-word">
-                        {metadata ? metadata.originalFilename : " "}
-                      </td>
-                      <td className="break-word">
-                        {metadata ? metadata.sha256 : ""}
-                      </td>
-                      <td className="break-word">
-                        {metadata ? metadata.location : ""}
-                      </td>
+                      <td>{metadata ? metadata.originalFilename : " "}</td>
+                      <td>{formatDate(fileset.insertedAt)}</td>
                       <td className="has-text-centered">
                         <Verified id={fileset.id} />
                       </td>
-                      <AuthDisplayAuthorized action="delete">
-                        <td>
-                          <div className="buttons buttons-end">
-                            <Button
-                              isLight
-                              data-testid="button-show-technical-metadata"
-                              onClick={() => handleTechnicalMetaClick(fileset)}
-                              title="View technical metadata"
-                            >
-                              <IconView />
-                            </Button>
+                      <td>
+                        <div className="buttons buttons-end">
+                          <Button
+                            isLight
+                            data-testid="button-copy-checksum"
+                            onClick={() =>
+                              clipboard.copy(fileset.metadata.sha256)
+                            }
+                            title="Copy checksum (sha256) to clipboard"
+                          >
+                            <IconBinaryFile />
+                          </Button>
+                          <Button
+                            isLight
+                            data-testid="button-copy-preservation-location"
+                            onClick={() =>
+                              clipboard.copy(fileset.metadata.location)
+                            }
+                            title="Copy preservation location to clipboard"
+                          >
+                            <IconBucket />
+                          </Button>
+                          <Button
+                            isLight
+                            data-testid="button-show-technical-metadata"
+                            onClick={() => handleTechnicalMetaClick(fileset)}
+                            title="View technical metadata"
+                          >
+                            <IconView />
+                          </Button>
+                          <AuthDisplayAuthorized action="delete">
                             <Button
                               isLight
                               data-testid="button-fileset-delete"
@@ -276,9 +304,9 @@ const WorkTabsPreservation = ({ work }) => {
                             >
                               <IconTrashCan />
                             </Button>
-                          </div>
-                        </td>
-                      </AuthDisplayAuthorized>
+                          </AuthDisplayAuthorized>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}

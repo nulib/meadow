@@ -3,8 +3,7 @@ import { useQuery } from "@apollo/client";
 import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
 import { Link } from "react-router-dom";
 import UIDate from "@js/components/UI/Date";
-import IconView from "@js/components/Icon/View";
-import IconImages from "@js/components/Icon/Images";
+import { IconImages, IconView } from "@js/components/Icon";
 import { Tag } from "@nulib/admin-react-components";
 
 const colHeaders = [

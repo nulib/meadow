@@ -28,15 +28,8 @@ describe("WorkTabsPreservation component", () => {
   });
 
   it("renders preservation column headers", async () => {
-    const cols = [
-      "Role",
-      "Filename",
-      "Checksum",
-      "s3 Key",
-      "Verified",
-      "Actions",
-    ];
-    const th = await screen.findByText("Checksum");
+    const cols = ["Role", "Filename", "Created", "Verified", "Actions"];
+    const th = await screen.findByText("Filename");
     const row = th.closest("tr");
     const utils = within(row);
     for (let col of cols) {
@@ -55,7 +48,7 @@ describe("WorkTabsPreservation component", () => {
     const utils = within(row);
     expect(utils.getByText("Access"));
     expect(utils.getByText(/coffee.jpg/i));
-    expect(utils.getByText("s3://bucket/foo/bar"));
+    expect(utils.getByText("Sep 12, 2020 10:01 AM"));
   });
 
   it("renders a verified status in the fileset row", async () => {
@@ -75,6 +68,20 @@ describe("WorkTabsPreservation component", () => {
     const row = td.closest("tr");
     const utils = within(row);
     expect(utils.getByTestId("button-fileset-delete"));
+  });
+
+  it("renders a copy preservation location button in the row", async () => {
+    const td = await screen.findByText(mockWork.fileSets[0].id);
+    const row = td.closest("tr");
+    const utils = within(row);
+    expect(utils.getByTestId("button-copy-preservation-location"));
+  });
+
+  it("renders a copy checksum button in the row", async () => {
+    const td = await screen.findByText(mockWork.fileSets[0].id);
+    const row = td.closest("tr");
+    const utils = within(row);
+    expect(utils.getByTestId("button-copy-checksum"));
   });
 
   it("renders a delete Work button", async () => {

@@ -1,18 +1,18 @@
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../Layout";
 import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIPreviewItems from "@js/components/UI/PreviewItems";
 import BatchEditTabs from "@js/components/BatchEdit/Tabs";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useBatchState } from "@js/context/batch-edit-context";
 import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import UIIconText from "@js/components/UI/IconText";
-import IconAlert from "@js/components/Icon/Alert";
+import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import UISticky from "@js/components/UI/Sticky";
+import useGTM from "@js/hooks/useGTM";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -20,11 +20,16 @@ const ScreensBatchEdit = () => {
   const resultsCount = batchState.resultStats
     ? batchState.resultStats.numberOfResults
     : "";
+  const { loadDataLayer } = useGTM();
 
   const [previewItems, setPreviewItems] = useState([]);
   const [isLoadingPreviewItems, setIsLoadingPreviewItems] = useState(true);
 
   useEffect(() => {
+    loadDataLayer({
+      pageTitle: "Batch Edit",
+    });
+
     async function getResultItems() {
       let resultItems = [];
       let results = await elasticsearchDirectSearch({
@@ -96,7 +101,7 @@ const ScreensBatchEdit = () => {
                   }}
                 >
                   <span className="icon">
-                    <FontAwesomeIcon icon="chevron-left" />
+                    <IconArrowLeft />
                   </span>
                   <span>Back to search</span>
                 </Link>
