@@ -19,7 +19,7 @@ function UILayoutMain({ children }) {
     <main
       css={wrapper}
       className={classNames({
-        "has-background-grey": env === "STAGING",
+        // "has-background-grey": env === "STAGING",
         // The following are just helper classes which may or may not get used
         "is-dev-environment": env === "DEV",
         "is-staging-environment": env === "STAGING",
