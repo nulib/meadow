@@ -4,33 +4,39 @@ defmodule Meadow.Pipeline.Actions.Common do
   """
   defmacro __using__(_) do
     quote do
+      use Meadow.Utils.Logging
+
       alias Meadow.Data.{ActionStates, FileSets}
       alias Meadow.Ingest.{Progress, Rows}
 
       def process(data, attrs) do
-        Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
+        with_log_metadata context: __MODULE__, id: data.file_set_id do
+          try do
+            Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
 
-        Honeybadger.add_breadcrumb(to_string(__MODULE__),
-          metadata: %{
-            data: data,
-            attrs: attrs
-          }
-        )
+            Honeybadger.add_breadcrumb(to_string(__MODULE__),
+              metadata: %{
+                data: data,
+                attrs: attrs
+              }
+            )
 
-        file_set = FileSets.get_file_set!(data.file_set_id)
-        precheck(file_set, attrs)
+            file_set = FileSets.get_file_set!(data.file_set_id)
+            precheck(file_set, attrs)
 
-        with complete <-
-               ActionStates.ok?(file_set.id, __MODULE__) ||
-                 ActionStates.error?(file_set.id, __MODULE__) do
-          result = process(file_set, attrs, complete)
-          unless complete, do: update_progress(data, attrs, result)
-          result
+            with complete <-
+                   ActionStates.ok?(file_set.id, __MODULE__) ||
+                     ActionStates.error?(file_set.id, __MODULE__) do
+              result = process(file_set, attrs, complete)
+              unless complete, do: update_progress(data, attrs, result)
+              result
+            end
+          rescue
+            exception ->
+              Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
+              reraise(exception, __STACKTRACE__)
+          end
         end
-      rescue
-        exception ->
-          Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
-          reraise(exception, __STACKTRACE__)
       end
 
       defp precheck(file_set, %{overwrite: "false"} = attrs) do

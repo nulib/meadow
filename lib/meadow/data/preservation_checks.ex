@@ -2,6 +2,7 @@ defmodule Meadow.Data.PreservationChecks do
   @moduledoc """
   Create and manage preservation check jobs
   """
+  use Meadow.Utils.Logging
 
   import Ecto.Query, warn: false
   require Logger
@@ -60,7 +61,7 @@ defmodule Meadow.Data.PreservationChecks do
   def start_job do
     with {:ok, count} <- purge_stalled(@timeout) do
       if count > 0 do
-        Logger.info("Timeout #{count} stalled #{Inflex.inflect("preservation checks", count)}")
+        Logger.warn("Timeout #{count} stalled #{Inflex.inflect("preservation checks", count)}")
       end
     end
 
@@ -72,16 +73,18 @@ defmodule Meadow.Data.PreservationChecks do
 
     case create_job(attrs) do
       {:ok, job} ->
-        Logger.info("Starting preservation check: #{job.id}")
+        with_log_metadata(context: __MODULE__, id: job.id) do
+          Logger.info("Starting preservation check: #{job.id}")
 
-        try do
-          job
-          |> generate_report()
-        rescue
-          exception ->
-            Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
-            Logger.error("Error for preservation check: #{job.id}")
-            update_job(job, %{status: "error", active: false})
+          try do
+            job
+            |> generate_report()
+          rescue
+            exception ->
+              Meadow.Error.report(exception, __MODULE__, __STACKTRACE__)
+              Logger.error("Error for preservation check: #{job.id}")
+              update_job(job, %{status: "error", active: false})
+          end
         end
 
       {:error, %Ecto.Changeset{}} ->
@@ -95,11 +98,13 @@ defmodule Meadow.Data.PreservationChecks do
   defp generate_report(job) do
     case PreservationCheckWriter.generate_report(job.filename) do
       {:ok, s3_location, invalid_rows} ->
-        Logger.info(
-          "Preservation check complete: #{job.id}. S3 location: #{s3_location}. Failures: #{
-            invalid_rows
-          }"
-        )
+        [
+          "Preservation check complete: #{job.id}.",
+          "S3 location: #{s3_location}.",
+          "Failures: #{invalid_rows}."
+        ]
+        |> Enum.join(" ")
+        |> Logger.info()
 
         update_job(job, %{
           status: "complete",

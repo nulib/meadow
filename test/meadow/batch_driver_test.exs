@@ -62,6 +62,6 @@ defmodule Meadow.BatchDriverTest do
       assert work.descriptive_metadata.alternate_title == ["First", "Second"]
     end)
 
-    assert logged |> String.contains?("Found next batch to start")
+    assert logged |> String.contains?("Starting batch")
   end
 end
