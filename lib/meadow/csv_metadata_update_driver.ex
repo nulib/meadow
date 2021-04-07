@@ -9,6 +9,7 @@ defmodule Meadow.CSVMetadataUpdateDriver do
   alias Meadow.IntervalTask
 
   use IntervalTask, default_interval: 5_000, function: :drive_update_job
+  use Meadow.Utils.Logging
 
   require Logger
 
@@ -27,7 +28,10 @@ defmodule Meadow.CSVMetadataUpdateDriver do
 
       job ->
         Logger.info("Starting CSV update job #{job.id}")
-        MetadataUpdateJobs.apply_job(job)
+
+        with_log_metadata(context: MetadataUpdateJobs, id: job.id) do
+          MetadataUpdateJobs.apply_job(job)
+        end
     end
 
     {:noreply, state}

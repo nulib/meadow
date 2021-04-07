@@ -9,6 +9,7 @@ defmodule Meadow.BatchDriver do
   alias Meadow.IntervalTask
 
   use IntervalTask, default_interval: 30_000, function: :drive_batch
+  use Meadow.Utils.Logging
 
   require Logger
 
@@ -20,7 +21,7 @@ defmodule Meadow.BatchDriver do
   def drive_batch(state) do
     with {:ok, count} <- Batches.purge_stalled(@timeout) do
       if count > 0 do
-        Logger.info("Purging #{count} stalled #{Inflex.inflect("batch", count)} from queue")
+        Logger.warn("Purging #{count} stalled #{Inflex.inflect("batch", count)} from queue")
       end
     end
 
@@ -29,8 +30,10 @@ defmodule Meadow.BatchDriver do
         :noop
 
       batch ->
-        Logger.info("Found next batch to start #{inspect(batch)}")
-        Batches.process_batch(batch)
+        with_log_metadata(context: Batches, id: batch.id) do
+          Logger.info("Starting batch #{batch.id}")
+          Batches.process_batch(batch)
+        end
     end
 
     {:noreply, state}

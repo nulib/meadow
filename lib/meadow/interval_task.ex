@@ -63,9 +63,8 @@ defmodule Meadow.IntervalTask do
       def init(args) do
         interval = Keyword.get(args, :interval, unquote(default_interval))
 
-        Logger.info(
-          "IntervalTask: Invoking #{__MODULE__}.#{unquote(function)} every #{interval}ms"
-        )
+        "IntervalTask: Invoking #{__MODULE__}.#{unquote(function)} every #{interval}ms"
+        |> Logger.info()
 
         state =
           initial_state(args)

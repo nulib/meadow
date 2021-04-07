@@ -16,7 +16,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   end
 
   defp process(file_set, _, _) do
-    Logger.info("Beginning #{__MODULE__} for FileSet #{file_set.id}")
     source = file_set.metadata.location
     target = FileSets.pyramid_uri_for(file_set.id)
 

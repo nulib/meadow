@@ -9,11 +9,9 @@ defmodule Meadow.Ingest.Notifications do
     do: {:ok, ingest_sheet(sheet)}
 
   def ingest_sheet(%Sheet{} = sheet) do
-    Logger.info(
-      "Sending notifications for ingest sheet: #{sheet.id}, in project: #{sheet.project_id} with status: #{
-        sheet.status
-      }"
-    )
+    ("Sending notifications for ingest sheet: #{sheet.id} " <>
+       "in project: #{sheet.project_id} with status: #{sheet.status}")
+    |> Logger.info()
 
     Absinthe.Subscription.publish(
       MeadowWeb.Endpoint,

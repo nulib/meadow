@@ -8,7 +8,11 @@ defmodule Meadow.Accounts.User.Test do
 
   describe "Meadow.Accounts.User.find/1" do
     setup do
+      old_level = Logger.level()
+      Logger.configure(level: :debug)
+      on_exit(fn -> Logger.configure(level: old_level) end)
       Cachex.clear!(Meadow.Cache.Users)
+
       :ok
     end
 

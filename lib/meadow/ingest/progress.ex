@@ -2,6 +2,8 @@ defmodule Meadow.Ingest.Progress do
   @moduledoc """
   Translate action state notifications into ingest sheet progress notifications
   """
+  use Meadow.Utils.Logging
+
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.IntervalTask
@@ -11,7 +13,6 @@ defmodule Meadow.Ingest.Progress do
 
   import Ecto.Query
   import Meadow.Utils.Atoms
-  import Meadow.Utils.Logging
 
   use IntervalTask, default_interval: 500, function: :send_progress_notifications
   require Logger
@@ -281,7 +282,10 @@ defmodule Meadow.Ingest.Progress do
   end
 
   def send_progress_notifications(state) do
-    with_log_level(:info, &send_notifications/0)
+    with_log_level :info do
+      send_notifications()
+    end
+
     {:noreply, state}
   end
 end
