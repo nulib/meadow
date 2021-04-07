@@ -4,7 +4,7 @@ import { SelectedFilters } from "@appbaseio/reactivesearch";
 import SearchBar from "@js/components/UI/SearchBar";
 import SearchResults from "@js/components/Search/Results";
 import SearchFacetSidebar from "@js/components/Search/FacetSidebar";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import SearchActionRow from "@js/components/Search/ActionRow";
 import {
   parseESAggregationResults,
@@ -39,6 +39,7 @@ async function getParsedAggregations(query) {
 
 const ScreensSearch = () => {
   let history = useHistory();
+  const location = useLocation();
   const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteredQuery, setFilteredQuery] = useState();
@@ -48,6 +49,18 @@ const ScreensSearch = () => {
 
   React.useEffect(() => {
     loadDataLayer({ pageTitle: "Search" });
+
+    function handlePopState(e) {
+      // If ReactiveSearch pushed a state onto the history stack
+      // take user directly to the previous screen.
+      if (e.state.state) {
+        window.history.go(-1);
+      }
+    }
+    // Handle browser's "back" button click
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const handleEditAllItems = async () => {
