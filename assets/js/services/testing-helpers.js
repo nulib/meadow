@@ -117,7 +117,7 @@ export function renderWithApollo(ui, { mocks = [] }) {
     <MockedProvider
       mocks={mocks}
       addTypename={false}
-      resolvers={resolvers}
+      //resolvers={resolvers}
       defaultOptions={{
         watchQuery: { fetchPolicy: "no-cache" },
         query: { fetchPolicy: "no-cache" },

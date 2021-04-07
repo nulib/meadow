@@ -30,7 +30,11 @@ function BatchEditCollection() {
           {collectionData &&
             sortItemsArray(collectionData.collections, "title").map(
               ({ id, title }) => (
-                <option key={id} value={JSON.stringify({ id, title })}>
+                <option
+                  key={id}
+                  data-testid="select-option"
+                  value={JSON.stringify({ id, title })}
+                >
                   {title}
                 </option>
               )

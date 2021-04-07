@@ -16,6 +16,7 @@ import {
   IconTrashCan,
 } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
+import { useCodeLists } from "@js/context/code-list-context";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -44,6 +45,7 @@ const BatchEditConfirmation = ({
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
   const [batchNickname, setBatchNickname] = useState();
+  const codeLists = useCodeLists();
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
     onCompleted({ batchUpdate }) {
@@ -147,11 +149,12 @@ const BatchEditConfirmation = ({
 
         <div className="modal-card-body has-background-light">
           {hasAdds && (
-            <section className="box content">
+            <section className="box content" data-testid="confirmation-adds">
               <h3>
                 <UIIconText icon={<IconAdd />}>Adding</UIIconText>
               </h3>
               <BatchEditConfirmationTable
+                codeLists={codeLists}
                 itemsObj={{
                   ...batchAdds.administrativeMetadata,
                   ...batchAdds.descriptiveMetadata,
@@ -162,11 +165,15 @@ const BatchEditConfirmation = ({
           )}
 
           {hasDeletes && (
-            <section className={`box content`}>
+            <section
+              className={`box content`}
+              data-testid="confirmation-deletes"
+            >
               <h3>
                 <UIIconText icon={<IconTrashCan />}>Removing</UIIconText>
               </h3>
               <BatchEditConfirmationTable
+                codeLists={codeLists}
                 itemsObj={batchDeletes}
                 type="remove"
               />
@@ -174,11 +181,15 @@ const BatchEditConfirmation = ({
           )}
 
           {(hasReplaces || hasCollection || hasVisibility) && (
-            <section className="box content">
+            <section
+              className="box content"
+              data-testid="confirmation-replaces"
+            >
               <h3>
                 <UIIconText icon={<IconReplace />}>Replacing</UIIconText>
               </h3>
               <BatchEditConfirmationTable
+                codeLists={codeLists}
                 itemsObj={{
                   ...batchReplaces.administrativeMetadata,
                   ...batchReplaces.descriptiveMetadata,
@@ -253,7 +264,7 @@ const BatchEditConfirmation = ({
             isPrimary
             disabled={confirmationError || !hasDataToPost}
             onClick={handleBatchEditConfirm}
-            data-testid="button-set-image"
+            data-testid="button-submit"
           >
             Confirm changes
           </Button>

@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getMetadataLabel } from "@js/services/metadata";
-import { useCodeLists } from "@js/context/code-list-context";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -17,8 +16,18 @@ const displayTable = css`
   }
 `;
 
-export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
-  const codeLists = useCodeLists();
+export default function BatchEditConfirmationTable({
+  codeLists,
+  itemsObj,
+  type = "add",
+}) {
+  if (
+    !codeLists.marcData ||
+    !codeLists.relatedUrlData ||
+    !codeLists.subjectRoleData
+  )
+    return null;
+
   const marcRelators = codeLists.marcData.codeList || [];
   const relatedUrls = codeLists.relatedUrlData.codeList || [];
 
@@ -29,7 +38,7 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
         (item) => item.id === roleId
       );
     }
-    return foundItem.label || "No role label found";
+    return foundItem?.label || "No role label found";
   }
 
   function getUrlLabel(url) {
@@ -38,7 +47,11 @@ export default function BatchEditConfirmationTable({ itemsObj, type = "add" }) {
   }
 
   return (
-    <table className={`table is-fullwidth`} css={displayTable}>
+    <table
+      className={`table is-fullwidth`}
+      css={displayTable}
+      data-testid="confirmation-table"
+    >
       <thead>
         <tr>
           <th>Metadata Field</th>
