@@ -126,7 +126,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
-  @invalid_delete_status ["approved", "completed"]
+  @invalid_delete_status ["approved", "completed", "error"]
 
   def delete_ingest_sheet(%{status: status}) when status in @invalid_delete_status do
     {

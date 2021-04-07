@@ -5,7 +5,7 @@ import { Tag } from "@nulib/admin-react-components";
 function IngestSheetStatusTag({ status, children }) {
   return (
     <Tag
-      isDanger={["ROW_FAIL", "FILE_FAIL"].indexOf(status) > -1}
+      isDanger={["ROW_FAIL", "FILE_FAIL", "COMPLETED_ERROR"].indexOf(status) > -1}
       isSuccess={["APPROVED", "COMPLETED", "VALID"].indexOf(status) > -1}
       isWarning={status === "UPLOADED"}
     >

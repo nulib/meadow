@@ -213,7 +213,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:row_fail, as: "row_fail", description: "Errors in content rows")
     value(:valid, as: "valid", description: "Passes validation")
     value(:approved, as: "approved", description: "Approved, ingest in progress")
-    value(:completed, as: "completed", description: "Ingest Completed")
+    value(:completed, as: "completed", description: "Ingest completed")
+    value(:completed_error, as: "completed_error", description: "Ingest completed (with errors)")
     value(:deleted, as: "deleted", description: "Ingest Sheet deleted")
   end
 
