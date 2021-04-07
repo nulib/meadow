@@ -419,6 +419,19 @@ defmodule Meadow.Data.Works do
   end
 
   def mint_ark(%Work{} = work) do
+    case work |> ark_attributes() |> Ark.mint() do
+      {:ok, result} ->
+        update_work(work, %{descriptive_metadata: %{ark: result.ark}})
+
+      {:error, error_message} ->
+        Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
+
+      other ->
+        other
+    end
+  end
+
+  defp ark_attributes(work) do
     scalar_value = fn value ->
       case value do
         [%ControlledMetadataEntry{term: %{label: value}} | _] -> value
@@ -431,7 +444,7 @@ defmodule Meadow.Data.Works do
 
     status = if work.published, do: "public", else: "reserved"
 
-    attributes = [
+    [
       creator: scalar_value.(work.descriptive_metadata.creator),
       title: work.descriptive_metadata.title,
       publisher: scalar_value.(work.descriptive_metadata.publisher),
@@ -440,14 +453,6 @@ defmodule Meadow.Data.Works do
       status: status,
       target: ark_target_url(work)
     ]
-
-    case Ark.mint(attributes) do
-      {:ok, result} ->
-        update_work(work, %{descriptive_metadata: %{ark: result.ark}})
-
-      other ->
-        other
-    end
   end
 
   def mint_ark!(work) do

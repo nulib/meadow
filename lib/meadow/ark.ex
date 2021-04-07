@@ -165,7 +165,7 @@ defmodule Meadow.Ark do
       |> String.split("\n")
       |> Enum.map(fn attribute ->
         [key, value] = String.split(attribute, ": ")
-        {Map.get(field_map, key), value}
+        {Map.get(field_map, key), URI.decode(value)}
       end)
       |> Enum.reject(fn {key, _} -> is_nil(key) end)
     )
@@ -183,5 +183,5 @@ defmodule Meadow.Ark do
     |> Enum.join("\n")
   end
 
-  defp serialize({key, value}) when is_atom(key), do: Map.get(@datacite_map, key) <> ": " <> value
+  defp serialize({key, value}) when is_atom(key), do: Map.get(@datacite_map, key) <> ": " <> URI.encode(value)
 end
