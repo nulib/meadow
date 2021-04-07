@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../Auth/Auth";
@@ -81,7 +81,10 @@ const UILayoutNavBar = () => {
 
                 <div className="level-item is-family-secondary is-size-4">
                   <div>
-                    <Link to="/">Meadow</Link>{" "}
+                    <Link to="/">Meadow</Link>
+                    {env !== "PRODUCTION" && (
+                      <span className="mx-2">{env}</span>
+                    )}
                     <span className="has-text-grey is-size-6">
                       <UIMeadowVersion />
                     </span>
@@ -235,7 +238,7 @@ const UILayoutNavBar = () => {
                   </Link>
                 </div>
 
-                {env === "DEV" && <UIDevBgToggle />}
+                {env !== "PRODUCTION" && <UIDevBgToggle />}
               </div>
             </>
           )}

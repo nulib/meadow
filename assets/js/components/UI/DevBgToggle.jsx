@@ -2,7 +2,7 @@ import React from "react";
 
 // Default color light blue
 // You can update this in your browser's console by setting a new hex value for "devBg" property
-const BG_HEX_VALUE = "#eff5fa";
+const BG_HEX_VALUE = "#7fcecd";
 function UIDevBgToggle(props) {
   const toggleRef = React.useRef();
   const [devBg, setDevBg] = React.useState(localStorage.getItem("devBg") || "");
