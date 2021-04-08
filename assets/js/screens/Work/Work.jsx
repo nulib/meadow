@@ -28,6 +28,7 @@ import {
 import classNames from "classnames";
 import { isMobile } from "react-device-detect";
 import useGTM from "@js/hooks/useGTM";
+import { Helmet } from "react-helmet";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -37,10 +38,6 @@ const ScreensWork = () => {
   const [isWorkOpen, setIsWorkOpen] = useState(false);
   const { handleFacetLinkClick } = useFacetLinkClick();
   const { loadDataLayer } = useGTM();
-
-  React.useEffect(() => {
-    console.log(`data`, data);
-  }, []);
 
   const multiCurrentIndex = params.counter
     ? parseInt(params.counter.split(",")[0])
@@ -74,6 +71,7 @@ const ScreensWork = () => {
         adminset: work.administrativeMetadata.libraryUnit?.label,
         collections: [work.collection?.title],
         creatorsContributors: [...creators, ...contributors],
+        isPublished: work.published,
         pageTitle: "Work Details",
         rightsStatement: work.descriptiveMetadata.rightsStatement?.label,
         subjects,
@@ -156,6 +154,12 @@ const ScreensWork = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>
+          {data ? data.work.descriptiveMetadata.title : ``} - Meadow -
+          Northwestern University
+        </title>
+      </Helmet>
       {isMulti() && (
         <WorkMultiEditBar
           currentIndex={multiCurrentIndex}
