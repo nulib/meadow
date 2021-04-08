@@ -7,6 +7,7 @@ import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import IconText from "@js/components/UI/IconText";
 import { IconChart } from "@js/components/Icon";
 import useGTM from "@js/hooks/useGTM";
+import { PageTitle } from "@js/components/UI/UI";
 
 export default function ScreensDashboardsAnalytics() {
   const { loadDataLayer } = useGTM();
@@ -34,11 +35,11 @@ export default function ScreensDashboardsAnalytics() {
             ]}
           />
           <div className="box">
-            <h1 className="title" data-testid="page-title">
+            <PageTitle data-testid="page-title">
               <IconText icon={<IconChart />}>
                 Digital Collections Analytics
               </IconText>
-            </h1>
+            </PageTitle>
             <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
               <DashboardsAnalytics />
             </ErrorBoundary>
