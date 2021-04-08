@@ -85,7 +85,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       </IngestSheetStatusTag>
                     </td>
                     <td className="has-text-right">
-                      {["APPROVED", "COMPLETED"].indexOf(status) > -1 && (
+                      {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(status) > -1 && (
                         <Link
                           to={`/project/${project.id}/ingest-sheet/${id}`}
                           className="button is-light"

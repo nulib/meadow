@@ -23,7 +23,7 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
     });
   }, []);
 
-  const isCompleted = status === "COMPLETED";
+  const isCompleted = ["COMPLETED", "COMPLETED_ERROR"].indexOf(status) > -1;
 
   return (
     <>
