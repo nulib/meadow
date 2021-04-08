@@ -13,12 +13,12 @@ defmodule NUL.AuthorityRecords do
 
   ## Examples
 
-      iex> list_authority_records()
+      iex> list_authority_records(2)
       [%NUL.Schemas.AuthorityRecord{}, %NUL.Schemas.AuthorityRecord{}]
 
   """
-  def list_authority_records do
-    from(a in AuthorityRecord, order_by: [desc: a.inserted_at, desc: a.id], limit: 100)
+  def list_authority_records(limit \\ 100) do
+    from(a in AuthorityRecord, order_by: [desc: a.inserted_at, desc: a.id], limit: ^limit)
     |> Repo.all()
   end
 

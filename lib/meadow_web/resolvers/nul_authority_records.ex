@@ -6,8 +6,8 @@ defmodule MeadowWeb.Resolvers.NULAuthorityRecords do
   alias Meadow.Utils.ChangesetErrors
   alias NUL.AuthorityRecords
 
-  def nul_authority_records(_, _args, _) do
-    {:ok, AuthorityRecords.list_authority_records()}
+  def nul_authority_records(_, %{limit: limit}, _) do
+    {:ok, AuthorityRecords.list_authority_records(limit)}
   end
 
   def nul_authority_record(_, %{id: id}, _) do

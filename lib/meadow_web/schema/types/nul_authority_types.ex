@@ -10,6 +10,7 @@ defmodule MeadowWeb.Schema.NULAuthorityTypes do
   object :nul_authority_queries do
     @desc "Get a list of NUL AuthorityRecords"
     field :nul_authority_records, list_of(:nul_authority_record) do
+      arg(:limit, :integer, default_value: 100)
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.NULAuthorityRecords.nul_authority_records/3)
     end

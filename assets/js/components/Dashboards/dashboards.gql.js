@@ -141,8 +141,8 @@ export const GET_CSV_METADATA_UPDATE_JOBS = gql`
 `;
 
 export const GET_NUL_AUTHORITY_RECORDS = gql`
-  query NulAuthorityRecords {
-    nulAuthorityRecords {
+  query NulAuthorityRecords($limit: Int) {
+    nulAuthorityRecords(limit: $limit) {
       id
       hint
       label

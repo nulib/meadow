@@ -14,11 +14,11 @@ defmodule MeadowWeb.Schema.Query.NULAuthorityRecordsTest do
 
     {:ok, result} =
       query_gql(
-        variables: %{},
+        variables: %{"limit" => 2},
         context: gql_context()
       )
 
     nul_authority_records = get_in(result, [:data, "nulAuthorityRecords"])
-    assert length(nul_authority_records) == 3
+    assert length(nul_authority_records) == 2
   end
 end
