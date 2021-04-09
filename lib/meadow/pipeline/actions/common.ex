@@ -14,13 +14,6 @@ defmodule Meadow.Pipeline.Actions.Common do
           try do
             Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
 
-            Honeybadger.add_breadcrumb(to_string(__MODULE__),
-              metadata: %{
-                data: data,
-                attrs: attrs
-              }
-            )
-
             file_set = FileSets.get_file_set!(data.file_set_id)
             precheck(file_set, attrs)
 
