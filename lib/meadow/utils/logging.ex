@@ -9,7 +9,7 @@ defmodule Meadow.Utils.Logging do
   end
 
   @doc """
-  Transparently change the logging level around a function
+  Transparently change the logging level around a block
 
   Examples:
     iex> Meadow.Utils.Logging.with_log_level :warn do
@@ -36,6 +36,15 @@ defmodule Meadow.Utils.Logging do
     end
   end
 
+  @doc """
+  Transparently change the logging metadata around a block
+
+  Examples:
+    iex> Meadow.Utils.Logging.with_log_metadata context: "math" do
+    ...>   8 * 8
+    ...> end
+    64
+  """
   defmacro with_log_metadata(metadata, do: block) do
     quote do
       old_metadata =

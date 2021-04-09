@@ -23,19 +23,6 @@ defmodule Meadow.Error do
       meadow_version: Config.meadow_version(),
       notifier: module
     })
-    |> add_tag("backend")
-  end
-
-  def add_tag(metadata, new_tag) do
-    tag_list =
-      with tags <- Map.get(metadata, :tags) do
-        [tags, new_tag]
-        |> Enum.reject(&is_nil/1)
-        |> Enum.uniq()
-        |> Enum.join(",")
-      end
-
-    Map.put(metadata, :tags, tag_list)
   end
 end
 

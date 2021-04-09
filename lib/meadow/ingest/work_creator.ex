@@ -28,10 +28,12 @@ defmodule Meadow.Ingest.WorkCreator do
   Turn a batch of pending work rows into works
   """
   def create_works(state) do
-    with_log_level :info do
-      state
-      |> get_and_update_pending_work_rows()
-      |> handle_result()
+    with_log_metadata context: __MODULE__ do
+      with_log_level :info do
+        state
+        |> get_and_update_pending_work_rows()
+        |> handle_result()
+      end
     end
 
     {:noreply, state}
