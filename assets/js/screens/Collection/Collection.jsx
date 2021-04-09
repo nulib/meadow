@@ -105,12 +105,15 @@ const ScreensCollection = () => {
     ];
   }
 
+  function getTitle() {
+    if (!data) return "";
+    return data.collection.title || "";
+  }
+
   return (
     <Layout>
       <Helmet>
-        <title>
-          {data ? data.collection.title : ``} - Meadow - Northwestern University
-        </title>
+        <title>{getTitle()} - Meadow - Northwestern University</title>
       </Helmet>
       <section className="section" data-testid="collection-screen-hero">
         <div className="container">

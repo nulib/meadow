@@ -72,7 +72,7 @@ const ScreensWork = () => {
         collections: [work.collection?.title],
         creatorsContributors: [...creators, ...contributors],
         isPublished: work.published,
-        pageTitle: "Work Details",
+        pageTitle: `${getTitle()} - Work Details`,
         rightsStatement: work.descriptiveMetadata.rightsStatement?.label,
         subjects,
         visibility: work.visibility?.label,
@@ -95,6 +95,11 @@ const ScreensWork = () => {
 
   if (error) {
     return null;
+  }
+
+  function getTitle() {
+    if (!data) return "";
+    return data.work.descriptiveMetadata.title || "";
   }
 
   const handleCreateSharableBtnClick = () => {
@@ -155,10 +160,7 @@ const ScreensWork = () => {
   return (
     <Layout>
       <Helmet>
-        <title>
-          {data ? data.work.descriptiveMetadata.title : ``} - Meadow -
-          Northwestern University
-        </title>
+        <title>{getTitle()} - Meadow - Northwestern University</title>
       </Helmet>
       {isMulti() && (
         <WorkMultiEditBar
