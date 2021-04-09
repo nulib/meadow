@@ -126,13 +126,17 @@ Meadow's Terraform code is stored in this repo. To run Terraform commands, you'l
 
 Meadow runs in Development, Staging and Production environments. To help distinguish environments (and avoid potential errors), Staging and Development environments support alternate, background colors.
 
+#### Production
+- A wrapper CSS class of `is-production-environment` wraps the `main` HTML element (in case anyone wants to target a selector for any reason).
+
 #### Staging
 
-- Dark grey background by default.
+- Supports a toggle background color switch in the site header
+- Customize your own dev background color by updating the hex value for `localStorage` property `devBg`
 - A wrapper CSS class of `is-staging-environment` wraps the `main` HTML element.
 
 #### Development
 
 - Supports a toggle background color switch in the site header
-- A wrapper CSS class of `is-development-environment` wraps the `main` HTML element.
 - Customize your own dev background color by updating the hex value for `localStorage` property `devBg`
+- A wrapper CSS class of `is-development-environment` wraps the `main` HTML element.
