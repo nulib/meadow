@@ -1,5 +1,5 @@
-query GetNULAuthorityRecords {
-  nulAuthorityRecords {
+query GetNULAuthorityRecords($limit: Int) {
+  nulAuthorityRecords(limit: $limit) {
     id
     label
     hint

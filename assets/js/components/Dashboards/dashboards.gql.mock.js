@@ -222,6 +222,9 @@ export const getCsvMetadataUpdateJobsMock = {
 export const getNulAuthorityRecordsMock = {
   request: {
     query: GET_NUL_AUTHORITY_RECORDS,
+    variables: {
+      limit: 100,
+    }
   },
   result: {
     data: {
