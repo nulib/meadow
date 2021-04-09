@@ -94,4 +94,5 @@ module.exports = (env, options) => ({
       "@js": path.resolve(__dirname, "./js"),
     },
   },
+  externals: ["react-helmet"],
 });
