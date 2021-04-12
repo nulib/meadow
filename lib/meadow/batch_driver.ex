@@ -30,7 +30,7 @@ defmodule Meadow.BatchDriver do
         :noop
 
       batch ->
-        with_log_metadata(context: Batches, id: batch.id) do
+        with_log_metadata module: Batches, id: batch.id do
           Logger.info("Starting batch #{batch.id}")
           Batches.process_batch(batch)
         end

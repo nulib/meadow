@@ -75,7 +75,7 @@ end
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $levelpad$message\n",
-  metadata: [:request_id, :context, :id]
+  metadata: [:request_id, :module, :id]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
