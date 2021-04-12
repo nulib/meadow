@@ -36,6 +36,7 @@ export default function DashboardsLocalAuthoritiesList() {
 
   // GraphQL
   const { loading, error, data } = useQuery(GET_NUL_AUTHORITY_RECORDS, {
+    variables: { limit: 100 },
     pollInterval: 1000,
   });
 

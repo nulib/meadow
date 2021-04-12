@@ -2,6 +2,8 @@ defmodule Meadow.Data.Indexer do
   @moduledoc """
   Indexes individual structs into Elasticsearch, preloading if necessary.
   """
+  use Meadow.Utils.Logging
+
   alias Meadow.Config
   alias Meadow.Data.IndexTimes
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
@@ -11,10 +13,12 @@ defmodule Meadow.Data.Indexer do
   require Logger
 
   def synchronize_index do
-    [:deleted, FileSet, Work, Collection]
-    |> Enum.each(&synchronize_schema/1)
+    with_log_metadata(context: __MODULE__) do
+      [:deleted, FileSet, Work, Collection]
+      |> Enum.each(&synchronize_schema/1)
 
-    Elasticsearch.Index.refresh(Cluster, to_string(index()))
+      Elasticsearch.Index.refresh(Cluster, to_string(index()))
+    end
   end
 
   def reindex_all! do
@@ -171,9 +175,8 @@ defmodule Meadow.Data.Indexer do
   end
 
   defp log_update_count({add_ids, update_ids, delete_ids}) do
-    Logger.info(
-      "Index updates: +#{length(add_ids)} ~#{length(update_ids)} -#{length(delete_ids)}"
-    )
+    "Index updates: +#{length(add_ids)} ~#{length(update_ids)} -#{length(delete_ids)}"
+    |> Logger.info()
   end
 
   defp config do

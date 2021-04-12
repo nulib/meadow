@@ -26,6 +26,7 @@ import {
   Skeleton,
 } from "@js/components/UI/UI";
 import useGTM from "@js/hooks/useGTM";
+import { Helmet } from "react-helmet";
 
 const ScreensCollection = () => {
   const { id } = useParams();
@@ -44,7 +45,7 @@ const ScreensCollection = () => {
           visibility: data.collection?.visibility?.label,
         });
     }
-  }, []);
+  }, [data]);
 
   const [updateCollection] = useMutation(UPDATE_COLLECTION, {
     onCompleted({ updateCollection }) {
@@ -75,6 +76,7 @@ const ScreensCollection = () => {
   });
 
   if (error) return <Error error={error} />;
+  //if (!data) return null;
 
   const onOpenModal = () => {
     setModalOpen(true);
@@ -103,8 +105,16 @@ const ScreensCollection = () => {
     ];
   }
 
+  function getTitle() {
+    if (!data) return "";
+    return data.collection.title || "";
+  }
+
   return (
     <Layout>
+      <Helmet>
+        <title>{getTitle()} - Meadow - Northwestern University</title>
+      </Helmet>
       <section className="section" data-testid="collection-screen-hero">
         <div className="container">
           {loading ? (

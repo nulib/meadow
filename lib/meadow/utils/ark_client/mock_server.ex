@@ -45,35 +45,62 @@ defmodule Meadow.Utils.ArkClient.MockServer do
 
     case Cachex.get!(@cache, ark) do
       nil -> send_resp(conn, 404, "error: bad request - no such identifier")
-      data -> send_resp(conn, 200, "success: #{ark}\n#{data}")
+      data -> send_resp(conn, 200, "success: #{ark}\n#{anvl_encode(data)}")
     end
   end
 
   post "/shoulder/*stem" do
-    shoulder = Enum.join(stem, "/")
+    try do
+      shoulder = Enum.join(stem, "/")
 
-    ark = shoulder <> timestamp()
+      ark = shoulder <> timestamp()
 
-    {:ok, body, _} = Plug.Conn.read_body(conn)
+      {:ok, body, _} = Plug.Conn.read_body(conn)
 
-    send_message({:post, :shoulder, shoulder})
-    send_message({:post, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
-    send_message({:post, :body, body})
+      body = anvl_decode(body)
 
-    Cachex.put!(@cache, ark, body)
-    send_resp(conn, 201, "success: #{ark}")
+      send_message({:post, :shoulder, shoulder})
+      send_message({:post, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
+      send_message({:post, :body, body})
+
+      Cachex.put!(@cache, ark, body)
+      send_resp(conn, 201, "success: #{ark}")
+    rescue
+      ArgumentError ->
+        send_resp(conn, 400, "error: bad request - ANVL parse error (percent-decode error)")
+    end
   end
 
   put "/id/*stem" do
-    ark = Enum.join(stem, "/")
-    {:ok, body, _} = Plug.Conn.read_body(conn)
+    try do
+      ark = Enum.join(stem, "/")
+      {:ok, body, _} = Plug.Conn.read_body(conn)
 
-    send_message({:put, :ark, ark})
-    send_message({:put, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
-    send_message({:put, :body, body})
+      body = anvl_decode(body)
 
-    Cachex.put!(@cache, ark, body)
-    send_resp(conn, 200, "success: #{ark}\n#{body}")
+      send_message({:put, :ark, ark})
+      send_message({:put, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
+      send_message({:put, :body, body})
+
+      Cachex.put!(@cache, ark, body)
+      send_resp(conn, 200, "success: #{ark}\n#{body}")
+    rescue
+      ArgumentError ->
+        send_resp(conn, 400, "error: bad request - ANVL parse error (percent-decode error)")
+    end
+  end
+
+  defp anvl_encode(body), do: anvl_process(body, &URI.encode/1)
+  defp anvl_decode(body), do: anvl_process(body, &URI.decode/1)
+
+  defp anvl_process(body, func) do
+    body
+    |> String.split(~r/\r?\n/)
+    |> Enum.map(fn line ->
+      [key, value] = String.split(line, ~r/:\s*/, parts: 2)
+      [key, func.(value)] |> Enum.join(": ")
+    end)
+    |> Enum.join("\n")
   end
 
   defp send_message(message) do

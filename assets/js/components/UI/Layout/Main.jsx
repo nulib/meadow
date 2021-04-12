@@ -12,7 +12,7 @@ function UILayoutMain({ children }) {
 
   // Sets bg color for the DEV environment only
   const wrapper = css`
-    background: ${(env === "DEV" && devBg) || false};
+    background: ${(env !== "PRODUCTION" && devBg) || false};
   `;
 
   return (

@@ -65,6 +65,7 @@ export const TEMP_USER_FRIENDLY_STATUS = {
   VALID: "Valid, waiting for approval",
   APPROVED: "Ingest in progress...",
   COMPLETED: "Ingest Complete",
+  COMPLETED_ERROR: "Ingest Complete (with errors)",
 };
 
 export function prepWorkItemForDisplay(res) {

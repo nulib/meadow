@@ -108,7 +108,7 @@ defmodule Meadow.ArkTest do
     end
 
     test "valid ARK", %{fixture: fixture} do
-      update = Map.put(fixture, :title, "A New Title for This ARK")
+      update = Map.put(fixture, :title, "A 100% New Title for This ARK!")
       assert {:ok, update} == Ark.put(update)
       assert {:ok, update} == Ark.get(fixture.ark)
       assert_received({:put, :credentials, {"mockuser", "mockpassword"}})
@@ -118,7 +118,7 @@ defmodule Meadow.ArkTest do
           "_profile: datacite",
           "datacite.creator: Lovelace, Ada",
           "_target: http://example.edu/work",
-          "datacite.title: A New Title for This ARK"
+          "datacite.title: A 100% New Title for This ARK!"
         ]
         |> Enum.join("\n")
 

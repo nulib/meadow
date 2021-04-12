@@ -29,7 +29,6 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   end
 
   defp process(file_set, _attributes, _) do
-    Logger.info("Beginning #{__MODULE__} for FileSet #{file_set.id}")
     ActionStates.set_state!(file_set, __MODULE__, "started")
     source = file_set.metadata.location
 

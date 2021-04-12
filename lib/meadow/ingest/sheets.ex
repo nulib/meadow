@@ -384,6 +384,22 @@ defmodule Meadow.Ingest.Sheets do
     end)
   end
 
+  def sheet_has_errors_query(sheet_id) do
+    row_errors =
+      from([entry: entry, row: row] in row_action_states(sheet_id),
+        where: entry.outcome in ["error", "skipped"],
+        select: entry.object_id
+      )
+
+    file_set_errors =
+      from([entry: entry, row: row] in file_set_action_states(sheet_id),
+        where: entry.outcome in ["error", "skipped"],
+        select: entry.object_id
+      )
+
+    from(row_errors, distinct: true, union_all: ^file_set_errors)
+  end
+
   def row_action_states(sheet_id) do
     from(a in ActionState,
       as: :entry,

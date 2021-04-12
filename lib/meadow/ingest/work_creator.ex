@@ -2,8 +2,9 @@ defmodule Meadow.Ingest.WorkCreator do
   @moduledoc """
   IntervalTask to create works from pending ingest sheet rows
   """
+  use Meadow.Utils.Logging
+
   import Ecto.Query, warn: false
-  import Meadow.Utils.Logging
 
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, Works}
@@ -27,11 +28,13 @@ defmodule Meadow.Ingest.WorkCreator do
   Turn a batch of pending work rows into works
   """
   def create_works(state) do
-    with_log_level(:info, fn ->
-      state
-      |> get_and_update_pending_work_rows()
-      |> handle_result()
-    end)
+    with_log_metadata context: __MODULE__ do
+      with_log_level :info do
+        state
+        |> get_and_update_pending_work_rows()
+        |> handle_result()
+      end
+    end
 
     {:noreply, state}
   end

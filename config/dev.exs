@@ -151,7 +151,7 @@ config :exldap, :settings,
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
   format: "$metadata[$level] $levelpad$message\n",
-  metadata: [:action]
+  metadata: [:context, :id]
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

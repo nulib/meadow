@@ -135,7 +135,7 @@ defmodule Meadow.Batches do
         try do
           case do_update(batch) do
             {:ok, _any} ->
-              Logger.info("Setting batch to complete")
+              Logger.info("Batch #{batch.id} complete")
               {:ok, set_complete!(batch)}
 
             {:error, any} ->
@@ -152,7 +152,7 @@ defmodule Meadow.Batches do
         end
 
       {:error, %Ecto.Changeset{}} ->
-        Logger.info("Couldn't start batch. Active batch already exists")
+        Logger.info("Couldn't start batch #{batch.id}. Active batch already exists.")
         {:ok, batch}
     end
   end
@@ -279,7 +279,7 @@ defmodule Meadow.Batches do
     delete = prepare_controlled_field_list(delete)
     add = prepare_controlled_field_list(add)
 
-    Logger.info("Batch updating controlled fields")
+    Logger.debug("Batch updating controlled fields")
 
     from(w in Work, where: w.id in ^work_ids)
     |> Works.replace_controlled_value(
@@ -376,7 +376,7 @@ defmodule Meadow.Batches do
   defp update_top_level_field(work_ids, _field, :not_present), do: work_ids
 
   defp update_top_level_field(work_ids, field, value) do
-    Logger.info("Batch updating #{field}")
+    Logger.debug("Batch updating #{field}")
 
     update_args = Keyword.new([{field, value}, {:updated_at, DateTime.utc_now()}])
 
@@ -393,7 +393,7 @@ defmodule Meadow.Batches do
   defp update_collection(work_ids, :not_present), do: work_ids
 
   defp update_collection(work_ids, value) do
-    Logger.info("Batch updating collection_id: #{value}")
+    Logger.debug("Batch updating collection_id: #{value}")
 
     from(w in Work, where: w.id in ^work_ids)
     |> Repo.update_all(
@@ -407,7 +407,7 @@ defmodule Meadow.Batches do
   end
 
   defp apply_batch_association(work_ids, batch_id) do
-    Logger.info("Associating batch_id: #{batch_id} with works")
+    Logger.debug("Associating batch_id: #{batch_id} with works")
     {:ok, b_id} = Ecto.UUID.dump(batch_id)
 
     entries =
@@ -457,7 +457,7 @@ defmodule Meadow.Batches do
 
     total = Map.get(hits, "total")
 
-    Logger.info(
+    Logger.debug(
       "Indexing for batch update scroll_id: #{scroll_id}, hits: #{length(current_hits)}, total: #{
         total
       }"
@@ -477,8 +477,8 @@ defmodule Meadow.Batches do
       |> Map.put("_source", "")
       |> Jason.encode!()
 
-    Logger.info("Starting Elasticsearch scroll for batch update")
-    Logger.info("query #{inspect(query)}")
+    Logger.debug("Starting Elasticsearch scroll for batch update")
+    Logger.debug("query #{inspect(query)}")
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
@@ -513,8 +513,8 @@ defmodule Meadow.Batches do
       |> Map.put("_source", "")
       |> Jason.encode!()
 
-    Logger.info("Starting Elasticsearch scroll for batch delete")
-    Logger.info("query #{inspect(query)}")
+    Logger.debug("Starting Elasticsearch scroll for batch delete")
+    Logger.debug("query #{inspect(query)}")
 
     Meadow.ElasticsearchCluster
     |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
@@ -539,9 +539,9 @@ defmodule Meadow.Batches do
 
   defp log_batch_info(batch) do
     Logger.info("Processing batch #{batch.type} for batch_id: #{batch.id}")
-    Logger.info("query: #{batch.query}")
-    Logger.info("delete: #{inspect(batch.delete)}")
-    Logger.info("add: #{inspect(batch.add)}")
-    Logger.info("replace: #{inspect(batch.replace)}")
+    Logger.debug("query: #{batch.query}")
+    Logger.debug("delete: #{inspect(batch.delete)}")
+    Logger.debug("add: #{inspect(batch.add)}")
+    Logger.debug("replace: #{inspect(batch.replace)}")
   end
 end

@@ -62,19 +62,28 @@ export default function BatchEditAboutModalRemove({
   }
 
   return (
-    <div className={`modal ${isRemoveModalOpen ? "is-active" : ""}`}>
+    <div
+      className={`modal ${isRemoveModalOpen ? "is-active" : ""}`}
+      data-testid="modal-remove"
+    >
       <div className="modal-background"></div>
       <div className="modal-content" css={modalContent}>
         <div className="box">
           <header>
-            <h3 className="title">{currentRemoveField.label}</h3>
+            <h3 className="title" data-testid="field-title">
+              {currentRemoveField.label}
+            </h3>
             <h4 className="subtitle">
               Select values to remove from all batch Works
             </h4>
           </header>
           <div className="my-4">
             {candidateList.map((item) => (
-              <div className="field" key={`${item.key}`}>
+              <div
+                className="field"
+                key={`${item.key}`}
+                data-testid="checkbox-field"
+              >
                 <div className="control">
                   <input
                     type="checkbox"
@@ -92,7 +101,7 @@ export default function BatchEditAboutModalRemove({
           </div>
           <footer>
             <div className="buttons is-right">
-              <Button isLight onClick={closeModal}>
+              <Button isLight onClick={closeModal} data-testid="close-button">
                 Save &amp; close
               </Button>
             </div>

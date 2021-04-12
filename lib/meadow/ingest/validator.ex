@@ -13,6 +13,7 @@ defmodule Meadow.Ingest.Validator do
   import Ecto.Query
 
   use Meadow.Constants
+  use Meadow.Utils.Logging
 
   require Logger
 
@@ -28,19 +29,21 @@ defmodule Meadow.Ingest.Validator do
   end
 
   def validate(%Sheet{} = sheet) do
-    Logger.info("Beginning validation for Ingest Sheet: #{sheet.id}")
+    with_log_metadata context: __MODULE__, id: sheet.id do
+      Logger.info("Beginning validation for Ingest Sheet: #{sheet.id}")
 
-    unless Ecto.assoc_loaded?(sheet.project) do
-      raise ArgumentError, "Ingest Sheet association not loaded"
+      unless Ecto.assoc_loaded?(sheet.project) do
+        raise ArgumentError, "Ingest Sheet association not loaded"
+      end
+
+      events = [
+        {"file", &load_file/1},
+        {"rows", &validate_rows/1},
+        {"overall", &overall_status/1}
+      ]
+
+      with {_, result} <- check_result(sheet, events), do: result
     end
-
-    events = [
-      {"file", &load_file/1},
-      {"rows", &validate_rows/1},
-      {"overall", &overall_status/1}
-    ]
-
-    with {_, result} <- check_result(sheet, events), do: result
   end
 
   defp check_result(sheet, {event, func}) do
@@ -206,7 +209,7 @@ defmodule Meadow.Ingest.Validator do
           {:ok, sheet}
 
         {:error, sheet} ->
-          Logger.info("Ingest sheet: #{sheet.id} has failing rows")
+          Logger.warn("Ingest sheet: #{sheet.id} has failing rows")
           Sheets.update_ingest_sheet_status(sheet, "row_fail")
           {:error, sheet}
       end
@@ -325,7 +328,7 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp add_file_errors(sheet, messages) do
-    Logger.info("Ingest sheet: #{sheet.id} has file errors")
+    Logger.warn("Ingest sheet: #{sheet.id} has file errors")
 
     sheet
     |> Sheets.add_file_validation_errors_to_ingest_sheet(messages)

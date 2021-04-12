@@ -35,6 +35,14 @@ const IngestSheetAlert = ({ ingestSheet }) => {
         icon: "exclamation-triangle",
       };
       break;
+    case "COMPLETED_ERROR":
+      alertObj = {
+        type: "is-danger",
+        title: "Ingestion Complete (with errors)",
+        body: "Ingestion complete, but some works and/or file sets have errors.",
+        icon: "check-circle",
+      };
+      break;
     case "FILE_FAIL":
       alertObj = {
         type: "is-danger",
