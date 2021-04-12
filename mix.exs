@@ -61,7 +61,7 @@ defmodule Meadow.MixProject do
       {:elastix, "~> 0.9.0"},
       {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},
-      {:ex_aws, "~> 2.1.0"},
+      {:ex_aws, "~> 2.2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:ex_aws_lambda, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
