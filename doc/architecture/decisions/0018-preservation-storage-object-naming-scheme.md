@@ -6,6 +6,8 @@ Date: 2019-10-11
 
 Accepted
 
+Amended by [28. Use Only FileSet Digest for Preservation Object Name](0028-use-only-fileset-digest-for-preservation-object-name.md)
+
 ## Context
 
 The application needs a way to store objects in preservation buckets that facilitate upload and retrieval and allows for duplicate file names among FileSets associated with a Work object.
