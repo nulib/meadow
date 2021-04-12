@@ -129,4 +129,26 @@ defmodule Meadow.ArkTest do
       assert {:error, "cannot update an ARK without an ID"} == Ark.put(%Ark{})
     end
   end
+
+  describe "mock ARK server" do
+    setup tags do
+      fixtures =
+        0..tags[:arks]
+        |> Enum.map(fn i ->
+          with {:ok, result} <-
+                 Ark.mint(target: "http://example.edu/work#{i}", creator: "Creator ##{i}") do
+            result
+          end
+        end)
+
+      {:ok, fixtures: fixtures}
+    end
+
+    @tag arks: 100
+    test "creates unique values", %{fixtures: fixtures} do
+      with arks <- Enum.map(fixtures, &Map.get(&1, :ark)) do
+        assert arks == Enum.uniq(arks)
+      end
+    end
+  end
 end
