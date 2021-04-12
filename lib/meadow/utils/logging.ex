@@ -40,7 +40,7 @@ defmodule Meadow.Utils.Logging do
   Transparently change the logging metadata around a block
 
   Examples:
-    iex> Meadow.Utils.Logging.with_log_metadata context: "math" do
+    iex> Meadow.Utils.Logging.with_log_metadata module: "math" do
     ...>   8 * 8
     ...> end
     64

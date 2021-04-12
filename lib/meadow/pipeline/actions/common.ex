@@ -10,7 +10,7 @@ defmodule Meadow.Pipeline.Actions.Common do
       alias Meadow.Ingest.{Progress, Rows}
 
       def process(data, attrs) do
-        with_log_metadata context: __MODULE__, id: data.file_set_id do
+        with_log_metadata module: __MODULE__, id: data.file_set_id do
           try do
             Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
 

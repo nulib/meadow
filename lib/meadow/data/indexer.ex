@@ -13,7 +13,7 @@ defmodule Meadow.Data.Indexer do
   require Logger
 
   def synchronize_index do
-    with_log_metadata(context: __MODULE__) do
+    with_log_metadata module: __MODULE__ do
       [:deleted, FileSet, Work, Collection]
       |> Enum.each(&synchronize_schema/1)
 

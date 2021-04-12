@@ -73,7 +73,7 @@ defmodule Meadow.Data.PreservationChecks do
 
     case create_job(attrs) do
       {:ok, job} ->
-        with_log_metadata(context: __MODULE__, id: job.id) do
+        with_log_metadata module: __MODULE__, id: job.id do
           Logger.info("Starting preservation check: #{job.id}")
 
           try do
