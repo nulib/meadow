@@ -110,8 +110,8 @@ defmodule Meadow.Data.PreservationCheckWriter do
         file_set.id,
         file_set.metadata.label,
         file_set.role.id,
-        Map.get(file_set.metadata.digests, "sha256"),
-        Map.get(file_set.metadata.digests, "sha1"),
+        get_if_map(result.digests, "sha256"),
+        get_if_map(result.digests, "sha1"),
         file_set.metadata.location,
         Map.fetch!(result, :preservation),
         FileSets.pyramid_uri_for(file_set),
@@ -120,18 +120,32 @@ defmodule Meadow.Data.PreservationCheckWriter do
     end
   end
 
+  defp get_if_map(map, key) when is_map(map) do
+    Map.get(map, key, "MISSING")
+  end
+
+  defp get_if_map(_, _), do: "MISSING"
+
   defp check_files(file_set) do
     %{
+      :digests => file_set.metadata |> Map.get(:digests),
       :preservation => validate_preservation_file(file_set.metadata.location),
       :pyramid => validate_pyramid_present(file_set)
     }
   end
 
-  defp record_invalid_file_set(%{:preservation => false, :pyramid => _}, cache_key),
+  defp record_invalid_file_set(%{preservation: false}, cache_key),
     do: record_invalid_file_set(cache_key)
 
-  defp record_invalid_file_set(%{:pyramid => false, :preservation => _}, cache_key),
+  defp record_invalid_file_set(%{pyramid: false}, cache_key),
     do: record_invalid_file_set(cache_key)
+
+  defp record_invalid_file_set(%{digests: digests}, cache_key) do
+    case digests do
+      %{"sha256" => <<_sha256::binary-size(64)>>, "sha1" => <<_sha1::binary-size(40)>>} -> :noop
+      _ -> record_invalid_file_set(cache_key)
+    end
+  end
 
   defp record_invalid_file_set(_, _cache_key), do: :noop
 

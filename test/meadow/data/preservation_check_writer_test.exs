@@ -64,10 +64,14 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
   end
 
   describe "generate_report/1" do
-    setup do
+    setup %{file_set_1: file_set_1, file_set_2: file_set_2} do
       on_exit(fn ->
         delete_object(@preservation_check_bucket, @report_filename)
+        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
+        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
       end)
+
+      :ok
     end
 
     @describetag s3: [@preservation_fixture]
@@ -75,11 +79,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      on_exit(fn ->
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
-      end)
-
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
@@ -94,11 +93,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      on_exit(fn ->
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
-      end)
-
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
@@ -120,11 +114,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      on_exit(fn ->
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
-      end)
-
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
@@ -142,20 +131,29 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
 
     @describetag s3: [@preservation_fixture]
     test "records an error if pyramid file not found in expected location", %{
-      file_set_1: file_set_1,
-      file_set_2: file_set_2
+      file_set_1: file_set_1
     } do
-      on_exit(fn ->
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
-        delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
-      end)
-
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
 
       assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
 
       assert object_exists?(@preservation_check_bucket, @report_filename)
+    end
+
+    @describetag s3: [@preservation_fixture]
+    test "records an error if file set digests are missing", %{
+      file_set_1: file_set_1,
+      file_set_2: file_set_2
+    } do
+      FileSets.update_file_set(file_set_1, %{metadata: %{digests: nil}})
+      FileSets.update_file_set(file_set_2, %{metadata: %{digests: %{"sha256" => "badsha"}}})
+
+      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
+      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+
+      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 2} =
+               PreservationCheckWriter.generate_report(@report_filename)
     end
   end
 end
