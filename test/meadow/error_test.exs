@@ -1,6 +1,7 @@
 defmodule Meadow.ErrorTest do
   use Honeybadger.Case
   use MeadowWeb.ConnCase, async: true
+  use Meadow.Utils.Logging
 
   alias Meadow.Config
   alias Plug.Conn.Cookies
@@ -22,11 +23,13 @@ defmodule Meadow.ErrorTest do
       restart_with_config(exclude_envs: [])
 
       bad_function = fn denominator ->
-        try do
-          107 / denominator
-        rescue
-          exception ->
-            Meadow.Error.report(exception, __MODULE__, __STACKTRACE__, %{extra_data: "foo"})
+        with_log_metadata module: __MODULE__, id: 107 do
+          try do
+            107 / denominator
+          rescue
+            exception ->
+              Meadow.Error.report(exception, __MODULE__, __STACKTRACE__, %{extra_data: "foo"})
+          end
         end
       end
 

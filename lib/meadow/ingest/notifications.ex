@@ -11,7 +11,7 @@ defmodule Meadow.Ingest.Notifications do
     do: {:ok, ingest_sheet(sheet)}
 
   def ingest_sheet(%Sheet{} = sheet) do
-    with_log_metadata context: __MODULE__, id: sheet.id do
+    with_log_metadata module: __MODULE__, id: sheet.id do
       ("Sending notifications for ingest sheet: #{sheet.id} " <>
          "in project: #{sheet.project_id} with status: #{sheet.status}")
       |> Logger.info()

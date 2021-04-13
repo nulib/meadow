@@ -29,7 +29,7 @@ defmodule Meadow.Ingest.Validator do
   end
 
   def validate(%Sheet{} = sheet) do
-    with_log_metadata context: __MODULE__, id: sheet.id do
+    with_log_metadata module: __MODULE__, id: sheet.id do
       Logger.info("Beginning validation for Ingest Sheet: #{sheet.id}")
 
       unless Ecto.assoc_loaded?(sheet.project) do

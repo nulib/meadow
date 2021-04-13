@@ -12,7 +12,7 @@ defmodule Meadow.IIIF.ManifestListener do
   def handle_notification(:works, :delete, _key, state), do: {:noreply, state}
 
   def handle_notification(:works, _op, %{id: id}, state) do
-    with_log_metadata(context: __MODULE__, id: id) do
+    with_log_metadata module: __MODULE__, id: id do
       Logger.info("Writing manifest for #{id}")
       id |> IIIF.write_manifest()
     end
