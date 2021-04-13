@@ -17,7 +17,6 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   plug :dispatch
 
   @cache Meadow.Utils.ArkClient.MockServer.Cache
-  @epoch ~N[2020-06-01 00:00:00]
 
   @doc """
   Specify a process to send messages to about requests. Good for testing
@@ -53,7 +52,7 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     try do
       shoulder = Enum.join(stem, "/")
 
-      ark = shoulder <> timestamp()
+      ark = shoulder <> identifier()
 
       {:ok, body, _} = Plug.Conn.read_body(conn)
 
@@ -110,13 +109,8 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     end
   end
 
-  defp timestamp do
-    now =
-      NaiveDateTime.local_now()
-      |> NaiveDateTime.truncate(:millisecond)
-      |> NaiveDateTime.diff(@epoch, :millisecond)
-
-    Kernel.trunc(now / 1000)
+  defp identifier do
+    :rand.uniform(99_999_999)
     |> Integer.to_string()
     |> String.pad_leading(8, "0")
   end
