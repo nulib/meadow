@@ -60,7 +60,10 @@
         {
           "ids": {
             "path_match": "*.id",
-            "mapping": { "type": "keyword" }
+            "mapping": { 
+              "type": "keyword",
+              "copy_to": ["all_controlled_terms"] 
+            }
           }
         },
         {
@@ -97,7 +100,7 @@
               "fields": {
                 "keyword": { "type": "keyword" }
               },
-              "copy_to": ["full_text"]
+              "copy_to": ["full_text", "all_controlled_labels"]
             }
           }
         },
