@@ -54,7 +54,7 @@
     "react-icons": "^4.2.0",
     "react-json-pretty": "^2.2.0",
     "recharts": "^2.0.9",
-    "use-clipboard-copy": "^0.1.2"
+    "use-clipboard-copy": "^0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.15",
