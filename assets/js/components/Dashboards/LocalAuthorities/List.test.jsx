@@ -40,13 +40,14 @@ describe("DashboardsLocalAuthoritiesList component", () => {
     expect(utils.getByText(/Ima Hint 1/i));
   });
 
-  it("renders an edit and delete buttons", async () => {
+  it("renders an edit, search, and delete buttons", async () => {
     const td = await screen.findByText(
       "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc"
     );
     const row = td.closest("tr");
     const utils = within(row);
     expect(utils.getByTestId("edit-button"));
+    expect(utils.getByTestId("button-to-search"));
     expect(utils.getByTestId("delete-button"));
   });
 });

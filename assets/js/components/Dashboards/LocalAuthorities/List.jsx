@@ -12,11 +12,12 @@ import {
 } from "@js/components/Dashboards/dashboards.gql";
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
 import { Button } from "@nulib/admin-react-components";
+import { Link } from "react-router-dom";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
 import UIFormInput from "@js/components/UI/Form/Input";
 import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
-import { IconEdit, IconTrashCan } from "@js/components/Icon";
+import { IconEdit, IconImages, IconTrashCan } from "@js/components/Icon";
 
 const colHeaders = ["Label", "Hint"];
 
@@ -227,6 +228,17 @@ export default function DashboardsLocalAuthoritiesList() {
                       >
                         <IconTrashCan />
                       </Button>
+                      <Link
+                        data-testid="button-to-search"
+                        className="button is-small is-light"
+                        title="View works containing this record"
+                        to={{
+                          pathname: "/search",
+                          state: { passedInSearchTerm: `all_controlled_terms:\"${id}\"` },
+                        }}
+                      >
+                        <IconImages />
+                      </Link>
                     </div>
                   </td>
                 </tr>
