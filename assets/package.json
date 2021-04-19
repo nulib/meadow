@@ -86,7 +86,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
-    "mini-css-extract-plugin": "^1.4.1",
+    "mini-css-extract-plugin": "^1.5.0",
     "node-fetch": "^2.6.1",
     "node-sass": "^5.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
