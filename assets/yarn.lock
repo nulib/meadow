@@ -1294,10 +1294,10 @@
   dependencies:
     "@honeybadger-io/js" "^3.0.1"
 
-"@honeybadger-io/webpack@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/webpack/-/webpack-1.3.0.tgz#91150743b26818ba67e4dd78e532a4c752b29349"
-  integrity sha512-/is8OZ0dDtK+7s+h+bS4ojGX7jxRNcrtm2Qa7NJ7eiwb+qWlY7MaIQ/yl9EjDKm5Wk01q5CCkDA6Ny1OIMzKWQ==
+"@honeybadger-io/webpack@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/webpack/-/webpack-1.4.0.tgz#d10e91e3531288810bcde23568f11188021f1dcd"
+  integrity sha512-ljBG72xB/LiOF2O2kIN4cCxPL6SpXXIm1e9Hat0hShM2l1CViOnL/JUfb9LYcV51uS48sGSsF/G3cRE9FlE1sw==
   dependencies:
     "@babel/runtime" "^7.13.10"
     "@vercel/fetch-retry" "^5.0.3"
