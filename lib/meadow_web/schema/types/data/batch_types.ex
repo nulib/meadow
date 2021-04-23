@@ -126,6 +126,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :box_number, list_of(:string)
     field :caption, list_of(:string)
     field :catalog_key, list_of(:string)
+    field :cultural_context, list_of(:string)
     field :date_created, list_of(:edtf_date_input)
     field :description, list_of(:string)
     field :folder_name, list_of(:string)

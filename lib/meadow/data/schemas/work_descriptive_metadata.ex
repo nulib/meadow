@@ -18,6 +18,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:caption, true},
     {:catalog_key, true},
     {:citation, true},
+    {:cultural_context, true},
     {:description, true},
     {:folder_name, true},
     {:folder_number, true},
