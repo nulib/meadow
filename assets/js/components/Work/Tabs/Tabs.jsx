@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import WorkTabAbout from "./About";
 import WorkTabStructure from "./Structure/Structure";
-import WorkTabsAdministrative from "./Administrative";
+import WorkTabsAdministrative from "./Administrative/Administrative";
 import WorkTabsPreservation from "./Preservation";
 import { IIIFProvider } from "../../IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";

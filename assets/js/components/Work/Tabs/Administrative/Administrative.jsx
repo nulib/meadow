@@ -36,6 +36,8 @@ const WorkTabsAdministrative = ({ work }) => {
     updatedAt,
   } = work;
   const [isEditing, setIsEditing] = useIsEditing();
+  const methods = useForm();
+  const { handleFacetLinkClick } = useFacetLinkClick();
 
   const [
     updateWork,
@@ -49,26 +51,15 @@ const WorkTabsAdministrative = ({ work }) => {
     awaitRefetchQueries: true,
   });
   const {
-    libraryUnit,
-    preservationLevel,
-    status,
     projectCycle,
   } = administrativeMetadata;
-
-  const methods = useForm();
-  const history = useHistory();
-  const { handleFacetLinkClick } = useFacetLinkClick();
 
   useEffect(() => {
     // Update a Work after the form has been submitted
     let resetValues = {};
     for (let group of [PROJECT_METADATA]) {
       for (let obj of group) {
-        resetValues[obj.name] = administrativeMetadata[obj.name].map(
-          (value) => ({
-            metadataItem: value,
-          })
-        );
+        resetValues[obj.name] = administrativeMetadata[obj.name][0];
       }
     }
     methods.reset({
@@ -79,6 +70,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   const onSubmit = (data) => {
     let currentFormValues = methods.getValues();
+    console.log(`currentFormValues`, currentFormValues)
 
     let workUpdateInput = {
       administrativeMetadata: {
@@ -106,7 +98,7 @@ const WorkTabsAdministrative = ({ work }) => {
     for (let term of PROJECT_METADATA) {
       workUpdateInput.administrativeMetadata[
         term.name
-      ] = prepFieldArrayItemsForPost(currentFormValues[term.name]);
+      ] = [currentFormValues[term.name]];
     }
 
     updateWork({
@@ -240,20 +232,20 @@ const WorkTabsAdministrative = ({ work }) => {
 
               {PROJECT_METADATA.map((item) => {
                 return (
-                  <div key={item.name} data-testid={item.name}>
+                  <UIFormField label={item.label} key={item.name} data-testid={item.name}>
                     {isEditing ? (
-                      <UIFormFieldArray
-                        required
-                        name={item.name}
+                      <UIFormInput
+                        isReactHookForm
+                        // NOTE: Eventually Project data will come in as single values instead of an array
+                        defaultValue={administrativeMetadata[item.name][0]}
                         label={item.label}
+                        name={item.name}
+                        placeholder={item.label}
                       />
                     ) : (
-                      <UIFormFieldArrayDisplay
-                        values={administrativeMetadata[item.name]}
-                        label={item.label}
-                      />
+                      <p>{administrativeMetadata[item.name][0]}</p>
                     )}
-                  </div>
+                    </UIFormField>
                 );
               })}
               <div className="field content">
