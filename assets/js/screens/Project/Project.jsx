@@ -24,12 +24,14 @@ import {
   Skeleton,
 } from "@js/components/UI/UI";
 import useGTM from "@js/hooks/useGTM";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 
 const ScreensProject = () => {
   const history = useHistory();
   const { id } = useParams();
   const [isModalHidden, setIsModalHidden] = React.useState(true);
   const { loadDataLayer } = useGTM();
+  const { handleFacetLinkClick } = useFacetLinkClick();
 
   React.useEffect(() => {
     loadDataLayer({ pageTitle: "Project Details" });
@@ -73,15 +75,6 @@ const ScreensProject = () => {
         ingestSheets: updatedIngestSheets,
       },
     };
-  };
-
-  const handleFacetClick = () => {
-    history.push("/search", {
-      externalFacet: {
-        facetComponentId: "Project",
-        value: data.project.title,
-      },
-    });
   };
 
   if (error) return <Error error={error} />;
@@ -131,7 +124,7 @@ const ScreensProject = () => {
                           </Button>
 
                           <Button
-                            onClick={handleFacetClick}
+                            onClick={() => handleFacetLinkClick("IngestProject", data.project.title)}
                             data-testid="button-view-all-works"
                           >
                             <span className="icon">
