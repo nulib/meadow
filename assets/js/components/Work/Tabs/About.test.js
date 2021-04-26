@@ -1,6 +1,6 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
-import { mockWork } from "../work.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { mockWork } from "@js/components/Work/work.gql.mock";
 import WorkTabsAbout from "./About";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";

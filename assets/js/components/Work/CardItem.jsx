@@ -1,10 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { setVisibilityClass, getImageUrl } from "@js/services/helpers";
+import { getImageUrl } from "@js/services/helpers";
 import UIWorkImage from "@js/components/UI/WorkImage";
 import { Tag } from "@nulib/admin-react-components";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
+
+/** @jsx jsx */
+import { css, jsx } from "@emotion/react";
+const breakWord = css`
+  word-break: break-all
+`;
 
 const WorkCardItem = ({
   id,
@@ -45,7 +51,7 @@ const WorkCardItem = ({
           )}
         </div>
         <p data-testid={`work-title-${id}`}>{title}</p>
-        <p data-testid="accession-number">{accessionNumber}</p>
+        <p data-testid="accession-number" css={breakWord}>{accessionNumber}</p>
 
         {collectionName && <p className="heading">{collectionName}</p>}
       </div>
