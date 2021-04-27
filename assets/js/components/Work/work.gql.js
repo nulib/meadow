@@ -115,6 +115,7 @@ export const GET_WORK = gql`
             label
           }
         }
+        culturalContext
         dateCreated {
           edtf
           humanized
@@ -323,12 +324,6 @@ export const UPDATE_WORK = gql`
       }
 
       descriptiveMetadata {
-        title
-        description
-        dateCreated {
-          edtf
-          humanized
-        }
         contributor {
           term {
             id
@@ -340,12 +335,17 @@ export const UPDATE_WORK = gql`
             scheme
           }
         }
-        termsOfUse
         creator {
           term {
             id
             label
           }
+        }
+        culturalContext
+        description
+        dateCreated {
+          edtf
+          humanized
         }
         genre {
           term {
@@ -396,6 +396,8 @@ export const UPDATE_WORK = gql`
             label
           }
         }
+        title
+        termsOfUse
       }
       insertedAt
       published
