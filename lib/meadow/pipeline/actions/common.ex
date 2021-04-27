@@ -14,15 +14,22 @@ defmodule Meadow.Pipeline.Actions.Common do
           try do
             Logger.info("Beginning #{__MODULE__} for file set: #{data.file_set_id}")
 
-            file_set = FileSets.get_file_set!(data.file_set_id)
-            precheck(file_set, attrs)
+            file_set = FileSets.get_file_set(data.file_set_id)
 
-            with complete <-
-                   ActionStates.ok?(file_set.id, __MODULE__) ||
-                     ActionStates.error?(file_set.id, __MODULE__) do
-              result = process(file_set, attrs, complete)
-              unless complete, do: update_progress(data, attrs, result)
-              result
+            if file_set do
+              precheck(file_set, attrs)
+
+              with complete <-
+                     ActionStates.ok?(file_set.id, __MODULE__) ||
+                       ActionStates.error?(file_set.id, __MODULE__) do
+                result = process(file_set, attrs, complete)
+                unless complete, do: update_progress(data, attrs, result)
+                result
+              end
+            else
+              Logger.warn("Marking #{__MODULE__} for #{data.file_set_id} as error because the file set was not found")
+              update_progress(data, attrs, {:error, "FileSet #{data.file_set_id} not found"})
+              {:error, "FileSet #{data.file_set_id} not found"}
             end
           rescue
             exception ->
