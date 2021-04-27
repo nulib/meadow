@@ -24,7 +24,7 @@ fragment WorkDescriptiveMetadataFields on Work {
         label
       }
     }
-    cultural_context
+    culturalContext
     genre {
       term {
         id
