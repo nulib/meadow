@@ -30,26 +30,10 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
 
   defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
-    source = file_set.metadata.location
 
-    case extract_exif_metadata(source) do
-      {:ok, nil} ->
-        ActionStates.set_state!(file_set, __MODULE__, "ok")
-        :ok
-
-      {:ok, exif_metadata} ->
-        ActionStates.set_state!(file_set, __MODULE__, "ok")
-        FileSets.update_file_set(file_set, %{metadata: %{exif: exif_metadata}})
-        :ok
-
-      {:error, {:http_error, status, message}} ->
-        Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
-        :retry
-
-      {:error, error} ->
-        ActionStates.set_state!(file_set, __MODULE__, "error", error)
-        {:error, error}
-    end
+    file_set.metadata.location
+    |> extract_exif_metadata()
+    |> handle_result(file_set)
   rescue
     err in RuntimeError -> {:error, err}
   end
@@ -61,5 +45,26 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   defp extract_exif_metadata(source) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
+  end
+
+  def handle_result({:ok, nil}, file_set) do
+    ActionStates.set_state!(file_set, __MODULE__, "ok")
+    :ok
+  end
+
+  def handle_result({:ok, exif_metadata}, file_set) do
+    FileSets.update_file_set(file_set, %{metadata: %{exif: exif_metadata}})
+    ActionStates.set_state!(file_set, __MODULE__, "ok")
+    :ok
+  end
+
+  def handle_result({:error, {:http_error, status, message}}, _file_set) do
+    Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+    :retry
+  end
+
+  def handle_result({:error, error}, file_set) do
+    ActionStates.set_state!(file_set, __MODULE__, "error", error)
+    {:error, error}
   end
 end
