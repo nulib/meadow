@@ -59,50 +59,45 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   } catch (e) {}
 
   return (
-    <div>
-      {ingestSheetErrors.length === 0 && (
-        // <IngestSheetDetails totalWorks={workCountData.ingestSheetWorkCount} />
-        <div className="level">
-          <LevelItem
-            heading="Total Works"
-            content={workCountData.ingestSheetWorkCount}
-          />
+    <>
+      {ingestSheetErrors.length > 0 && (
+        <div className="box">
+          <IngestSheetCompletedErrors errors={ingestSheetErrors} />
         </div>
       )}
 
-      {ingestSheetErrors.length > 0 && (
-        <IngestSheetCompletedErrors errors={ingestSheetErrors} />
-      )}
+      <div className="box" data-testid="preview-wrapper">
+        {errorsLoading || worksLoading ? (
+          <Skeleton rows={5} />
+        ) : (
+          <>
+            <div className="content">
+              <ActionHeadline>
+                <>
+                  <div>
+                    <h3 className="title is-size-4">
+                      Preview of ingest sheet works...
+                    </h3>
+                    <p className="subtitle">
+                      <strong>{workCountData.ingestSheetWorkCount}</strong>{" "}
+                      total works
+                    </p>
+                  </div>
 
-      {ingestSheetErrors.length === 0 && (
-        <>
-          <hr />
-          <div className="content">
-            <ActionHeadline>
-              <>
-                <h3>Preview of ingest sheet works...</h3>
-                <Button isPrimary onClick={handleClick}>
-                  <span className="icon">
-                    <IconImages />
-                  </span>
-                  <span>View ingest sheet works</span>
-                </Button>
-              </>
-            </ActionHeadline>
-          </div>
-
-          <div data-testid="preview-wrapper">
-            {errorsLoading || worksLoading ? (
-              <Skeleton rows={5} />
-            ) : (
-              <div>
-                <UIPreviewItems items={works} />
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+                  <Button isPrimary onClick={handleClick}>
+                    <span className="icon">
+                      <IconImages />
+                    </span>
+                    <span>View ingest sheet works</span>
+                  </Button>
+                </>
+              </ActionHeadline>
+            </div>
+            <UIPreviewItems items={works} />
+          </>
+        )}
+      </div>
+    </>
   );
 };
 
