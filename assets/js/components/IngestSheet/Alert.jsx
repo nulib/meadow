@@ -39,7 +39,8 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       alertObj = {
         type: "is-danger",
         title: "Ingestion Complete (with errors)",
-        body: "Ingestion complete, but some works and/or file sets have errors.",
+        body:
+          "Ingestion complete, but some works and/or file sets have errors.",
         icon: "check-circle",
       };
       break;
@@ -91,7 +92,7 @@ const IngestSheetAlert = ({ ingestSheet }) => {
       data-testid="ui-alert"
     >
       <UIIconText icon={<IconAlert />} isCentered>
-        <p className="pl-2">{alertObj.body}</p>
+        <p>{alertObj.body}</p>
       </UIIconText>
     </article>
   );
