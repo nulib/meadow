@@ -16,6 +16,7 @@ import {
   prepControlledTermInput,
   prepFacetKey,
   prepRelatedUrl,
+  PROJECT_METADATA,
 } from "@js/services/metadata";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import { Button } from "@nulib/admin-react-components";
@@ -64,7 +65,6 @@ export default function BatchEditTabs() {
    * @param {Object} data Comes from React Hook Form
    */
   const onSubmit = (data) => {
-    console.log("data", data);
     // "data" here returns everything (which was set above in the useEffect()),
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
@@ -102,6 +102,11 @@ export default function BatchEditTabs() {
     if (currentFormValues.projectCycle) {
       replaceItems.administrative.projectCycle = currentFormValues.projectCycle;
     }
+    PROJECT_METADATA.forEach((pm) => {
+      if (currentFormValues[pm.name]) {
+        replaceItems.administrative[pm.name] = [currentFormValues[pm.name]];
+      }
+    });
 
     // Update controlled term values to match shape the GraphQL mutation expects
     for (let term of CONTROLLED_METADATA) {

@@ -1,13 +1,13 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../services/testing-helpers";
-import { mockWork } from "../work.gql.mock";
+import { renderWithRouterApollo } from "../../../../services/testing-helpers";
+import { mockWork } from "../../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import {
   getCollectionMock,
   getCollectionsMock,
 } from "@js/components/Collection/collection.gql.mock";
-import { mockUser } from "../../Auth/auth.gql.mock";
+import { mockUser } from "../../../Auth/auth.gql.mock";
 import userEvent from "@testing-library/user-event";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
