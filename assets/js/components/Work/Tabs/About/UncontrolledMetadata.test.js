@@ -1,9 +1,9 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../../services/testing-helpers";
-import { mockWork } from "../../work.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { mockWork } from "@js/components/Work/work.gql.mock";
 import WorkTabsAboutUncontrolledMetadata from "./UncontrolledMetadata";
 import { waitFor } from "@testing-library/react";
-import { UNCONTROLLED_METADATA } from "../../../../services/metadata";
+import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 
 describe("Work About tab Uncontrolled Metadata component", () => {
   function setupTests() {

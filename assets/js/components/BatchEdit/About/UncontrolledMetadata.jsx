@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
-import { UNCONTROLLED_METADATA } from "../../../services/metadata";
+import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
+import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 
 const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
   return (

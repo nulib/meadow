@@ -31,32 +31,19 @@ defmodule Meadow.Error.Filter do
   Honeybadger message filter for NU-specific sensitive data
   """
 
-  alias Honeybadger.NoticeFilter
+  use Honeybadger.Filter.Mixin
   alias Plug.Conn.Cookies
-
-  @behaviour NoticeFilter
 
   @redact [~r/^nusso/i, ~r/^_meadow_key$/, ~r/^dcApi/]
   @redacted "[REDACTED]"
 
-  def filter(message) do
-    with result <- NoticeFilter.Default.filter(message) do
-      Map.put(result, :request, filter_request(result.request))
-    end
-  end
-
-  defp filter_request(%{cgi_data: cgi_data} = request) when is_map(cgi_data) do
-    request |> Map.put(:cgi_data, filter_cgi_data(cgi_data))
-  end
-
-  defp filter_request(request), do: request
-
-  defp filter_cgi_data(cgi_data) do
+  @impl true
+  def filter_cgi_data(cgi_data) do
     cgi_data
     |> Map.put("HTTP_COOKIE", cgi_data |> Map.get("HTTP_COOKIE") |> filter_cookie())
   end
 
-  def filter_cookie(cookie) when is_binary(cookie) do
+  defp filter_cookie(cookie) when is_binary(cookie) do
     cookie
     |> Cookies.decode()
     |> Enum.map(fn {name, value} ->
@@ -67,5 +54,5 @@ defmodule Meadow.Error.Filter do
     |> Enum.join("; ")
   end
 
-  def filter_cookie(cookie), do: cookie
+  defp filter_cookie(cookie), do: cookie
 end

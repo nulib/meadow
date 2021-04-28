@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import BatchEditAboutCoreMetadata from "./CoreMetadata";
 import BatchEditAboutControlledMetadata from "./ControlledMetadata";
 import BatchEditAboutUncontrolledMetadata from "./UncontrolledMetadata";
 import BatchEditAboutPhysicalMetadata from "./PhysicalMetadata";
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
 import BatchEditAboutIdentifiersMetadata from "./IdentifiersMetadata";
-import UIAccordion from "../../UI/Accordion";
+import UIAccordion from "@js/components/UI/Accordion";
 
 const BatchEditAbout = () => {
   return (

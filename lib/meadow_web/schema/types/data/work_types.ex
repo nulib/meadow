@@ -150,6 +150,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :box_number, list_of(:string)
     field :caption, list_of(:string)
     field :catalog_key, list_of(:string)
+    field :cultural_context, list_of(:string)
     field :description, list_of(:string)
     field :folder_name, list_of(:string)
     field :folder_number, list_of(:string)

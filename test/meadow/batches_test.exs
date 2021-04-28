@@ -1,8 +1,11 @@
 defmodule Meadow.BatchesTest do
   use Meadow.DataCase
   use Meadow.IndexCase
+
+  alias Ecto.Adapters.SQL
   alias Meadow.Batches
   alias Meadow.Data.{Indexer, Works}
+  alias Meadow.Repo
   alias Meadow.TestSupport.MetadataGenerator
 
   describe "Meadow.BatchesTest" do
@@ -209,6 +212,43 @@ defmodule Meadow.BatchesTest do
                  %{edtf: "100X", humanized: "1000s"},
                  %{edtf: "~1968", humanized: "circa 1968?"}
                ]
+      end)
+    end
+
+    test "process_batch/1 works if field is missing from existing descriptive_metadata map" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
+
+      add = %{
+        descriptive_metadata: %{
+          box_name: ["His Airness"],
+          cultural_context: ["Some Context", "Some More Context"],
+          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968"}]
+        }
+      }
+
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        add: Jason.encode!(add),
+        replace: Jason.encode!(%{})
+      }
+
+      assert {:ok, batch} = Batches.create_batch(attrs)
+
+      Repo
+      |> SQL.query!(
+        "UPDATE works SET descriptive_metadata = descriptive_metadata - 'cultural_context'"
+      )
+
+      assert({:ok, _result} = Batches.process_batch(batch))
+
+      Works.list_works()
+      |> Enum.each(fn work ->
+        assert work.descriptive_metadata.cultural_context == ["Some Context", "Some More Context"]
+        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
       end)
     end
 

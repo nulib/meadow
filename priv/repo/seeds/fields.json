@@ -100,6 +100,15 @@
   },
   {
     "metadata_class": "descriptive",
+    "id": "cultural_context",
+    "label": "Cultural Context",
+    "required": false,
+    "repeating": true,
+    "scheme": null,
+    "role": null
+  },
+  {
+    "metadata_class": "descriptive",
     "id": "date_created",
     "label": "Date Created",
     "required": true,

@@ -46,6 +46,7 @@
       %{term: %{id: "http://vocab.getty.edu/ulan/500102192"}},
       %{term: %{id: "http://vocab.getty.edu/ulan/500029268"}}
     ],
+    cultural_context: ["Context 1", "Context 2"],
     license: %{id: "http://www.europeana.eu/portal/rights/rr-r.html", scheme: "license"},
     description: ["Three", "Descriptions", "With a | pipe in the third"],
     keywords: ["orb", "bly", "western"],

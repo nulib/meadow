@@ -11,6 +11,7 @@
     "pbl:http://id.loc.gov/authorities/names/n83175996 | vac:http://id.loc.gov/authorities/names/n85153068 | lil:http://id.loc.gov/authorities/names/n50053919 | aut:http://id.loc.gov/authorities/names/no2011087251 | mrb:http://id.loc.gov/authorities/names/no2011087251 | stl:http://id.loc.gov/authorities/names/n85153068",
   creator:
     "http://vocab.getty.edu/ulan/500030701 | http://vocab.getty.edu/ulan/500445403 | http://vocab.getty.edu/ulan/500102192 | http://vocab.getty.edu/ulan/500029268",
+  cultural_context: "Context 1 | Context 2",
   date_created: "~1899",
   description: "Three | Descriptions | With a \\| pipe in the third",
   folder_name: "Folder 2",

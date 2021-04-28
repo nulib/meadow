@@ -40,6 +40,11 @@ export const METADATA_FIELDS = {
     scheme: "MARC_RELATOR",
   },
   CREATOR: { name: "creator", label: "Creator", metadataClass: "descriptive" },
+  CULTURAL_CONTEXT: {
+    name: "culturalContext",
+    label: "Cultural Context",
+    metadataClass: "descriptive",
+  },
   DATE_CREATED: {
     name: "dateCreated",
     label: "Date Created",
@@ -223,6 +228,7 @@ const {
   CATALOG_KEY,
   CONTRIBUTOR,
   CREATOR,
+  CULTURAL_CONTEXT,
   DATE_CREATED,
   DESCRIPTION,
   FOLDER_NAME,
@@ -282,6 +288,7 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   BOX_NUMBER,
   CAPTION,
   CATALOG_KEY,
+  CULTURAL_CONTEXT,
   DATE_CREATED,
   DESCRIPTION,
   FOLDER_NAME,
@@ -332,6 +339,7 @@ export const OTHER_METADATA = [
 export const UNCONTROLLED_METADATA = [
   ABSTRACT,
   CAPTION,
+  CULTURAL_CONTEXT,
   KEYWORDS,
   NOTES,
   TABLE_OF_CONTENTS,

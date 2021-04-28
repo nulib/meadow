@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import { UNCONTROLLED_METADATA } from "../../../../services/metadata";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 
 const WorkTabsAboutUncontrolledMetadata = ({
   descriptiveMetadata,

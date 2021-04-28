@@ -28,27 +28,10 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
 
   defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
-    source = file_set.metadata.location
 
-    case extract_mime_type(source) do
-      {:ok, nil} ->
-        ActionStates.set_state!(file_set, __MODULE__, "ok")
-        :ok
-
-      {:ok, mime_type} ->
-        ActionStates.set_state!(file_set, __MODULE__, "ok")
-        FileSets.update_file_set(file_set, %{metadata: %{mime_type: mime_type}})
-        :ok
-
-      {:error, {:http_error, status, message}} ->
-        Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
-        :retry
-
-      {:error, _error} ->
-        Logger.error(@error_message)
-        ActionStates.set_state!(file_set, __MODULE__, "error", @error_message)
-        {:error, @error_message}
-    end
+    file_set.metadata.location
+    |> extract_mime_type()
+    |> handle_result(file_set)
   end
 
   defp extract_mime_type("s3://" <> _ = source) do
@@ -73,5 +56,27 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   defp extract_mime_type(source) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
+  end
+
+  def handle_result({:ok, nil}, file_set) do
+    ActionStates.set_state!(file_set, __MODULE__, "ok")
+    :ok
+  end
+
+  def handle_result({:ok, mime_type}, file_set) do
+    FileSets.update_file_set(file_set, %{metadata: %{mime_type: mime_type}})
+    ActionStates.set_state!(file_set, __MODULE__, "ok")
+    :ok
+  end
+
+  def handle_result({:error, {:http_error, status, message}}, _file_set) do
+    Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+    :retry
+  end
+
+  def handle_result({:error, _error}, file_set) do
+    Logger.error(@error_message)
+    ActionStates.set_state!(file_set, __MODULE__, "error", @error_message)
+    {:error, @error_message}
   end
 end

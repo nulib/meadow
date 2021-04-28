@@ -124,7 +124,8 @@ const ScreensIngestSheet = ({ match }) => {
                 )}
               </>
             )}
-
+          </div>
+          <div>
             {sheetLoading ? (
               <Skeleton rows={20} />
             ) : (

@@ -1,17 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { IconAlert } from "@js/components/Icon";
+import IconText from "@js/components/UI/IconText";
 
 const styles = {
   tableWrapper: {
     height: "500px",
     overflowY: "auto",
+    border: "1px solid #efefef",
   },
 };
 
 const IngestSheetCompletedErrors = ({ errors = [] }) => {
   return (
     <>
-      <p className="notification is-danger">Errors occurred during ingest</p>
+      <p className="notification is-danger is-light">
+        <IconText isCentered icon={<IconAlert />}>
+          Errors occurred during ingest
+        </IconText>
+      </p>
       <div style={styles.tableWrapper} className="table-container">
         <table className="table is-fullwidth is-striped">
           <thead>

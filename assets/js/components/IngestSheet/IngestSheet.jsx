@@ -28,7 +28,9 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
   return (
     <>
       {["APPROVED"].indexOf(status) > -1 && (
-        <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+        <div className="box">
+          <IngestSheetApprovedInProgress ingestSheet={ingestSheetData} />
+        </div>
       )}
 
       {isCompleted && (
@@ -38,7 +40,9 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
       )}
 
       {["ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
-        <IngestSheetValidations sheetId={id} status={status} />
+        <div className="box">
+          <IngestSheetValidations sheetId={id} status={status} />
+        </div>
       )}
     </>
   );

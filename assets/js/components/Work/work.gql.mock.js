@@ -3,8 +3,8 @@ import {
   DELETE_FILESET,
   GET_WORK,
   VERIFY_FILE_SETS,
-} from "../../components/Work/work.gql.js";
-import { mockVisibility, mockWorkType } from "../../client-local";
+} from "@js/components/Work/work.gql.js";
+import { mockVisibility, mockWorkType } from "@js/client-local";
 
 export const mockWork = {
   id: "ABC123",
@@ -57,6 +57,7 @@ export const mockWork = {
         },
       },
     ],
+    culturalContext: ["Ima context"],
     dateCreated: [{ edtf: "2010" }, { edtf: "2020" }],
     description: ["Work description here"],
     folderName: [],
