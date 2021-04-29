@@ -12,13 +12,19 @@ defmodule Meadow.Data.CSV.Utils do
 
   def combine_multivalued_field(values) do
     values
-    |> Enum.map(fn str -> String.replace(str, @delimiter, @escaped_delimiter) end)
+    |> Enum.map(&escape_delimiters/1)
     |> Enum.join(" #{@delimiter} ")
   end
 
   def split_multivalued_field(combined) do
     combined
     |> String.split(@split_regex)
-    |> Enum.map(fn str -> String.replace(str, @escaped_delimiter, @delimiter) end)
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&unescape_delimiters/1)
+    |> Enum.reject(&is_empty/1)
   end
+
+  defp is_empty(string), do: is_nil(string) || string == ""
+  defp escape_delimiters(string), do: String.replace(string, @delimiter, @escaped_delimiter)
+  defp unescape_delimiters(string), do: String.replace(string, @escaped_delimiter, @delimiter)
 end
