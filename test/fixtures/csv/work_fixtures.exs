@@ -4184,7 +4184,13 @@
       scope_and_contents: [],
       caption: []
     },
-    id: "dc20eb57-2333-4e57-9067-72c91a3fa7fe"
+    id: "dc20eb57-2333-4e57-9067-72c91a3fa7fe",
+    published: true,
+    visibility: %{
+      id: "OPEN",
+      label: "Public",
+      scheme: "visibility"
+    }
   },
   %{
     accession_number: "Voyager:3744344",
@@ -4294,7 +4300,13 @@
       scope_and_contents: [],
       caption: []
     },
-    id: "0bb6bd72-b349-4855-8ea6-0500dc752ff7"
+    id: "0bb6bd72-b349-4855-8ea6-0500dc752ff7",
+    published: false,
+    visibility: %{
+      id: "OPEN",
+      label: "Public",
+      scheme: "visibility"
+    }
   },
   %{
     accession_number: "UA065",
