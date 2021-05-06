@@ -5,8 +5,10 @@ defmodule MeadowWeb.Schema.Middleware.Authorize do
   """
   @behaviour Absinthe.Middleware
 
+  alias Meadow.Roles
+
   def call(%{context: %{current_user: current_user}} = resolution, role) do
-    if authorized_role?(current_user, role) do
+    if Roles.authorized?(current_user, role) do
       resolution
     else
       resolution
@@ -18,12 +20,4 @@ defmodule MeadowWeb.Schema.Middleware.Authorize do
     resolution
     |> Absinthe.Resolution.put_result({:error, %{message: "Forbidden", status: 403}})
   end
-
-  defp authorized_role?(%{}, :any), do: true
-  defp authorized_role?(%{role: "Administrator"}, _role), do: true
-  defp authorized_role?(%{role: "Manager"}, "Editor"), do: true
-  defp authorized_role?(%{role: "Manager"}, "User"), do: true
-  defp authorized_role?(%{role: "Editor"}, "User"), do: true
-  defp authorized_role?(%{role: role}, role), do: true
-  defp authorized_role?(_, _), do: false
 end

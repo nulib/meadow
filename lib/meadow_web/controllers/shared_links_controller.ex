@@ -1,8 +1,9 @@
-defmodule MeadowWeb.ExportController do
+defmodule MeadowWeb.SharedLinksController do
   use MeadowWeb, :controller
-  alias Meadow.Data.CSV.Export
-  alias Meadow.Roles
   import Plug.Conn
+
+  alias Meadow.Data.SharedLinks
+  alias Meadow.Roles
 
   plug :authorize_user
 
@@ -20,7 +21,7 @@ defmodule MeadowWeb.ExportController do
       )
       |> send_chunked(:ok)
 
-    for chunk <- Export.stream_csv(query) do
+    for chunk <- SharedLinks.generate_many(query) do
       chunk(conn, chunk)
     end
 
@@ -35,7 +36,7 @@ defmodule MeadowWeb.ExportController do
   end
 
   def authorize_user(%{assigns: %{current_user: current_user}} = conn, _params) do
-    if Roles.authorized?(current_user, :any) do
+    if Roles.authorized?(current_user, "Editor") do
       conn
     else
       conn
