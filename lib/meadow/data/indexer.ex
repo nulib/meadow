@@ -69,66 +69,6 @@ defmodule Meadow.Data.Indexer do
     end
   end
 
-  def update_mapping? do
-    Meadow.Config.priv_path("elasticsearch/meadow.json")
-    |> update_mapping?()
-  end
-
-  def update_mapping?(path) do
-    file =
-      path
-      |> File.read!()
-      |> Jason.decode!()
-
-    stored =
-      with {:ok, %{body: body}} <-
-             Config.elasticsearch_url()
-             |> Elastix.Mapping.get(to_string(index()), "_doc") do
-        body |> Map.values() |> List.first()
-      end
-
-    mappings_unequal?(file, stored) or
-      properties_unequal?(file, stored) or
-      settings_unequal?(file)
-  end
-
-  defp all_from_a_in_b?(a, b, path) do
-    case {get_in(a, path), get_in(b, path)} do
-      {a_value, b_value} when is_map(a_value) ->
-        a_value == Map.take(b_value, Map.keys(a_value))
-
-      {a_value, b_value} ->
-        a_value == b_value
-    end
-  end
-
-  defp mappings_unequal?(file, stored) do
-    not all_from_a_in_b?(file, stored, ["mappings", "_doc", "dynamic_templates"])
-  end
-
-  defp properties_unequal?(file, stored) do
-    not all_from_a_in_b?(file, stored, ["mappings", "_doc", "properties"])
-  end
-
-  defp settings_unequal?(file) do
-    file_settings =
-      with analysis_settings <- file |> get_in(["settings", "analysis"]) do
-        file
-        |> get_in(["settings"])
-        |> Map.delete("analysis")
-        |> put_in(["index", "analysis"], analysis_settings)
-      end
-
-    stored_settings =
-      with {:ok, %{body: body}} <-
-             Config.elasticsearch_url()
-             |> Elastix.Index.get(to_string(index())) do
-        body |> Map.values() |> List.first() |> get_in(["settings"])
-      end
-
-    not all_from_a_in_b?(file_settings, stored_settings, ["index"])
-  end
-
   defp index, do: Config.elasticsearch_index()
 
   defp upload_batch(wait_interval) when is_integer(wait_interval), do: :timer.sleep(wait_interval)

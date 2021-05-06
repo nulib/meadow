@@ -4,7 +4,6 @@ defmodule Meadow.ReleaseTasks do
   """
 
   alias Meadow.Config
-  alias Meadow.Data.Indexer
 
   @app :meadow
   @modules [
@@ -17,7 +16,7 @@ defmodule Meadow.ReleaseTasks do
 
   require Logger
 
-  def migrate do
+  def migrate(reindex? \\ false) do
     Logger.info("Starting Meadow")
     System.put_env("MEADOW_PROCESSES", "none")
     Application.ensure_all_started(@app)
@@ -29,7 +28,7 @@ defmodule Meadow.ReleaseTasks do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
 
-    if Indexer.update_mapping?() do
+    if reindex? do
       Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
       Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, Config.elasticsearch_index())
     end
