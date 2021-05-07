@@ -96,7 +96,7 @@ defmodule Meadow.Data.SharedLinks do
 
   defp csv_result(docs) do
     [
-      ["work_id", "title", "description", "expires", "shared_link"]
+      ~w(work_id shared_link expires accession_number title description)
       | docs |> Enum.map(fn {row, _} -> row end)
     ]
     |> CSV.dump_to_stream()
@@ -173,7 +173,7 @@ defmodule Meadow.Data.SharedLinks do
 
   defp shared_link(work_id, ttl) do
     ttl = if is_nil(ttl), do: Config.shared_link_ttl(), else: ttl
-    expires = DateTime.utc_now() |> DateTime.add(ttl, :millisecond)
+    expires = DateTime.utc_now() |> DateTime.add(ttl, :millisecond) |> DateTime.truncate(:second)
     %__MODULE__{shared_link_id: Ecto.UUID.generate(), expires: expires, work_id: work_id}
   end
 
@@ -187,13 +187,21 @@ defmodule Meadow.Data.SharedLinks do
   end
 
   defp shared_link_row(work_doc, link_id, expires, type) do
+    expires_string =
+      case expires do
+        %DateTime{} -> DateTime.to_iso8601(expires)
+        %NaiveDateTime{} -> NaiveDateTime.to_iso8601(expires)
+        _ -> to_string(expires)
+      end
+
     with base_uri <- Config.digital_collections_url() |> URI.parse() do
       [
         work_doc |> get_in(["id"]),
+        base_uri |> URI.merge("#{type}/#{link_id}") |> URI.to_string(),
+        expires_string,
+        work_doc |> get_in(["accessionNumber"]),
         work_doc |> get_in(["descriptiveMetadata", "title"]),
-        (work_doc |> get_in(["descriptiveMetadata", "description"]) || []) |> List.first(),
-        expires,
-        base_uri |> URI.merge("#{type}/#{link_id}") |> URI.to_string()
+        (work_doc |> get_in(["descriptiveMetadata", "description"]) || []) |> List.first()
       ]
     end
   end
