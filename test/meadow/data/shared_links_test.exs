@@ -74,7 +74,7 @@ defmodule Meadow.Data.SharedLinksTest do
     test "generate_many/1", %{works: works} do
       csv = SharedLinks.generate_many(@query) |> Enum.join("")
       [header | data] = CSV.parse_string(csv, skip_headers: false)
-      assert header == ["work_id", "title", "description", "expires", "shared_link"]
+      assert header == ~w(work_id shared_link expires accession_number title description)
       assert length(data) == length(works)
 
       # Make sure there's at least one work that should have a public link
@@ -85,16 +85,21 @@ defmodule Meadow.Data.SharedLinksTest do
              end)
 
       data
-      |> Enum.each(fn [work_id, _title, _description, expires, link] ->
-        with work <- works |> Enum.find(fn work -> work.id == work_id end) do
+      |> Enum.each(fn row ->
+        map = header |> Enum.zip(row) |> Enum.into(%{})
+
+        with work <- works |> Enum.find(fn work -> work.id == map["work_id"] end) do
+          assert map["accession_number"] == work.accession_number
+
           case work do
             %{visibility: %{id: "OPEN"}, published: true} ->
-              assert link =~ ~r"/items/"
-              assert expires == ""
+              assert map["shared_link"] =~ ~r"/items/"
+              assert map["expires"] == ""
 
             _ ->
-              assert link =~ ~r"/shared/"
-              assert NaiveDateTime.from_iso8601!(expires)
+              assert map["shared_link"] =~ ~r"/shared/"
+              assert byte_size(map["expires"]) == byte_size("2021-05-07T12:02:38Z")
+              assert NaiveDateTime.from_iso8601!(map["expires"])
           end
         end
       end)
