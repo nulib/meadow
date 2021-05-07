@@ -6,7 +6,6 @@ import { useMutation, useQuery } from "@apollo/client";
 import {
   DELETE_FILESET,
   DELETE_WORK,
-  GET_WORK,
   VERIFY_FILE_SETS,
 } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
@@ -29,6 +28,9 @@ import {
   IconTrashCan,
   IconView,
 } from "@js/components/Icon";
+import UIDropdown from "@js/components/UI/Dropdown";
+import UIDropdownItem from "@js/components/UI/DropdownItem";
+import UIIconText from "@js/components/UI/IconText";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -226,7 +228,7 @@ const WorkTabsPreservation = ({ work }) => {
       </UITabsStickyHeader>
       <div className="box mt-4">
         {/* TODO: Put a mobile block display here instead of table below */}
-        <div className="table-container">
+        <div className="">
           <table
             className="table is-fullwidth is-striped is-hoverable is-narrow"
             data-testid="preservation-table"
@@ -235,6 +237,7 @@ const WorkTabsPreservation = ({ work }) => {
               <tr>
                 <th className="is-hidden">ID</th>
                 <th>Role</th>
+                <th>Accession #</th>
                 <th className="is-flex">
                   {orderedFileSets.order === "asc" ? (
                     <IconArrowDown />
@@ -247,9 +250,7 @@ const WorkTabsPreservation = ({ work }) => {
                 </th>
                 <th>Created</th>
                 <th className="has-text-centered">Verified</th>
-                <AuthDisplayAuthorized action="delete">
-                  <th className="has-text-right">Actions</th>
-                </AuthDisplayAuthorized>
+                <th className="has-text-right"></th>
               </tr>
             </thead>
             <tbody>
@@ -259,52 +260,57 @@ const WorkTabsPreservation = ({ work }) => {
                   return (
                     <tr key={fileset.id} data-testid="preservation-row">
                       <td className="is-hidden">{fileset.id}</td>
-                      <td>{fileset.role && fileset.role.label}</td>
+                      <td>{fileset.role?.label.slice(0, 1)}</td>
+                      <td>{fileset.accessionNumber}</td>
                       <td>{metadata ? metadata.originalFilename : " "}</td>
                       <td>{formatDate(fileset.insertedAt)}</td>
                       <td className="has-text-centered">
                         <Verified id={fileset.id} />
                       </td>
                       <td>
-                        <div className="buttons buttons-end">
-                          <Button
-                            isLight
-                            data-testid="button-copy-checksum"
-                            onClick={() =>
-                              clipboard.copy(fileset.metadata.sha256)
-                            }
-                            title="Copy checksum (sha256) to clipboard"
-                          >
-                            <IconBinaryFile />
-                          </Button>
-                          <Button
-                            isLight
-                            data-testid="button-copy-preservation-location"
-                            onClick={() =>
-                              clipboard.copy(fileset.metadata.location)
-                            }
-                            title="Copy preservation location to clipboard"
-                          >
-                            <IconBucket />
-                          </Button>
-                          <Button
-                            isLight
-                            data-testid="button-show-technical-metadata"
-                            onClick={() => handleTechnicalMetaClick(fileset)}
-                            title="View technical metadata"
-                          >
-                            <IconView />
-                          </Button>
-                          <AuthDisplayAuthorized action="delete">
-                            <Button
-                              isLight
-                              data-testid="button-fileset-delete"
-                              onClick={() => handleDeleteFilesetClick(fileset)}
-                              title="Delete file set"
+                        <div>
+                          <UIDropdown isRight>
+                            <UIDropdownItem
+                              data-testid="button-copy-checksum"
+                              onClick={() =>
+                                clipboard.copy(fileset.metadata.sha256)
+                              }
                             >
-                              <IconTrashCan />
-                            </Button>
-                          </AuthDisplayAuthorized>
+                              <UIIconText icon={<IconBinaryFile />}>
+                                Copy checksum (sha256) to clipboard
+                              </UIIconText>
+                            </UIDropdownItem>
+                            <UIDropdownItem
+                              data-testid="button-copy-preservation-location"
+                              onClick={() =>
+                                clipboard.copy(fileset.metadata.location)
+                              }
+                            >
+                              <UIIconText icon={<IconBucket />}>
+                                Copy preservation location to clipboard
+                              </UIIconText>
+                            </UIDropdownItem>
+                            <UIDropdownItem
+                              data-testid="button-show-technical-metadata"
+                              onClick={() => handleTechnicalMetaClick(fileset)}
+                            >
+                              <UIIconText icon={<IconView />}>
+                                View technical metadata
+                              </UIIconText>
+                            </UIDropdownItem>
+                            <AuthDisplayAuthorized>
+                              <UIDropdownItem
+                                data-testid="button-fileset-delete"
+                                onClick={() =>
+                                  handleDeleteFilesetClick(fileset)
+                                }
+                              >
+                                <UIIconText icon={<IconTrashCan />}>
+                                  Delete fileset
+                                </UIIconText>
+                              </UIDropdownItem>
+                            </AuthDisplayAuthorized>
+                          </UIDropdown>
                         </div>
                       </td>
                     </tr>

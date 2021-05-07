@@ -1524,6 +1524,13 @@
   resolved "https://registry.yarnpkg.com/@reglendo/canvas2image/-/canvas2image-1.0.5-2.tgz#57b50017d1a4914ff687fb65eb7aef341762d20d"
   integrity sha512-nt9QaZPwJxZdPZall2GuxpTLyZwSXwHlL35K8uJjpl29uCYVlWJAMa8JZ8vAXIhHSJ8e5a1tbiOqDBWX5JxVvA==
 
+"@samvera/image-downloader@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@samvera/image-downloader/-/image-downloader-1.1.0.tgz#2313e05e741d7c8e4ebde615faf48ff8ad7d1840"
+  integrity sha512-WWLrrwTw7Rv3oIrKrSOX4HetipXyv2ejPl0zda1Vjr+dUFQssj51kvqa2CG9mE2Scv4m6fjPcd6neklTpAhPFw==
+  dependencies:
+    svg-loaders-react "^2.2.1"
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.2.tgz#858f5c4b48d80778fde4b9d541f27edc0d56488b"
@@ -8988,6 +8995,11 @@ supports-hyperlinks@^2.0.0:
   dependencies:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
+
+svg-loaders-react@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/svg-loaders-react/-/svg-loaders-react-2.2.1.tgz#d546cea2a895144cfd652e1bd846166d8a07d2ed"
+  integrity sha512-ATfg5pAMOla2GqPcwGRDrNTLlTQzl2fMvfW290j20qH7qpB61C3SQAnu+T9t8Z+V4IKKN2Bm1d/SaCv5IR1DDA==
 
 svg-parser@^2.0.2:
   version "2.0.4"

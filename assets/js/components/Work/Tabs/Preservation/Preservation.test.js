@@ -28,7 +28,7 @@ describe("WorkTabsPreservation component", () => {
   });
 
   it("renders preservation column headers", async () => {
-    const cols = ["Role", "Filename", "Created", "Verified", "Actions"];
+    const cols = ["Role", "Filename", "Created", "Verified"];
     const th = await screen.findByText("Filename");
     const row = th.closest("tr");
     const utils = within(row);
@@ -46,7 +46,7 @@ describe("WorkTabsPreservation component", () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
-    expect(utils.getByText("Access"));
+    expect(utils.getByText("A"));
     expect(utils.getByText(/coffee.jpg/i));
     expect(utils.getByText("Sep 12, 2020 10:01 AM"));
   });
