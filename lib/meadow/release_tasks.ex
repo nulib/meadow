@@ -14,6 +14,8 @@ defmodule Meadow.ReleaseTasks do
     Meadow.Ingest.WorkRedriver
   ]
 
+  use Meadow.Utils.Logging
+
   require Logger
 
   def migrate(reindex? \\ false) do
@@ -28,12 +30,25 @@ defmodule Meadow.ReleaseTasks do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
 
+    seed("seeds.exs")
+
     if reindex? do
       Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
       Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, Config.elasticsearch_index())
     end
   after
     resume!()
+  end
+
+  def seed(name) do
+    with_log_level :info do
+      Ecto.Migrator.with_repo(Meadow.Repo, fn _ ->
+        Config.priv_path("repo/#{name}")
+        |> Path.expand()
+        |> Code.compile_file()
+        |> Enum.each(fn {module, _} -> module.run() end)
+      end)
+    end
   end
 
   def pause! do
