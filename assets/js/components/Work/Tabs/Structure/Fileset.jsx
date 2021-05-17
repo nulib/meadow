@@ -81,7 +81,7 @@ function WorkTabsStructureFileset({
               </AuthDisplayAuthorized>
               <WorkTabsDownloadLinks
                 handleDownloadClick={handleDownloadClick}
-                fileSetId={fileSet.id}
+                fileset={fileSet}
               />
             </>
           )}
