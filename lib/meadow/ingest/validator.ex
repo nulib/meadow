@@ -76,8 +76,7 @@ defmodule Meadow.Ingest.Validator do
       {:error, _} ->
         case attempt do
           @max_attempts ->
-            add_file_errors(sheet, ["Could not load ingest sheet from S3"])
-            {:error, sheet}
+            {:error, add_file_errors(sheet, ["Could not load ingest sheet from S3"])}
 
           i ->
             :timer.sleep(@sleep_time)
@@ -110,13 +109,14 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_headers(sheet, headers) do
-    case headers do
+    case Enum.sort(headers) do
       @ingest_sheet_headers ->
         {:ok, sheet}
 
       _ ->
         missing = check_missing_headers(@ingest_sheet_headers -- headers)
         invalid = check_invalid_headers(headers -- @ingest_sheet_headers)
+
         errors = missing ++ invalid
         add_file_errors(sheet, errors)
 
@@ -213,6 +213,24 @@ defmodule Meadow.Ingest.Validator do
           Sheets.update_ingest_sheet_status(sheet, "row_fail")
           {:error, sheet}
       end
+    end
+  end
+
+  defp validate_value({"work_image", value}, _existing_files, _duplicate_accession_numbers) do
+    if ["" | @true_values ++ @false_values] |> Enum.member?(value),
+      do: :ok,
+      else: {:error, "work_image", "work_image: boolean type required"}
+  end
+
+  defp validate_value({"work_type", ""}, _existing_files, _duplicate_accession_numbers), do: :ok
+
+  defp validate_value({"work_type", value}, _existing_files, _duplicate_accession_numbers) do
+    case CodedTerms.get_coded_term(value, "work_type") do
+      {{:ok, _}, _term} ->
+        :ok
+
+      nil ->
+        {:error, "work_type", "work_type: #{value} is invalid"}
     end
   end
 
@@ -330,9 +348,12 @@ defmodule Meadow.Ingest.Validator do
   defp add_file_errors(sheet, messages) do
     Logger.warn("Ingest sheet: #{sheet.id} has file errors")
 
-    sheet
-    |> Sheets.add_file_validation_errors_to_ingest_sheet(messages)
-    |> Sheets.update_ingest_sheet_status("file_fail")
+    {:ok, result} =
+      sheet
+      |> Sheets.add_file_validation_errors_to_ingest_sheet(messages)
+      |> Sheets.update_ingest_sheet_status("file_fail")
+
+    result
   end
 
   defp update_state({result, sheet}, event) do

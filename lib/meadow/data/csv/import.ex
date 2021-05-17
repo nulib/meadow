@@ -3,6 +3,8 @@ defmodule Meadow.Data.CSV.Import do
   Converts CSV data into Work metadata
   """
 
+  use Meadow.Constants
+
   alias Meadow.Data.CSV.Export
   alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias Meadow.Utils.Stream, as: StreamUtil
@@ -13,8 +15,6 @@ defmodule Meadow.Data.CSV.Import do
 
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
   @coded_fields ~w(library_unit license preservation_level rights_statement status visibility work_type)a
-  @false_values ["false", "f", "no", "n", "0"]
-  @true_values ["true", "t", "yes", "y", "1", "-1"]
 
   defstruct query: nil, headers: nil, stream: nil
 
