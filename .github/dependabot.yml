@@ -12,6 +12,9 @@ updates:
     target-branch: dependencies
     ignore:
       - dependency-name: "react-hook-form"
+      - dependency-name: "node-sass"
+      - dependency-name: "sass-loader"
+      - dependency-name: "webpack"
       - dependency-name: "webpack-cli"
   - package-ecosystem: npm
     directory: "/priv/nodejs/*"
