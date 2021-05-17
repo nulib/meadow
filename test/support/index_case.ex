@@ -66,7 +66,10 @@ defmodule Meadow.IndexCase do
           1..5
           |> Enum.map(fn i ->
             work_fixture(%{
-              descriptive_metadata: %{title: "Test Work #{i}"},
+              descriptive_metadata: %{
+                title: "Test Work #{i}",
+                alternate_title: ["Alt Title 1", "Alt Title 2"]
+              },
               collection_id: collection.id,
               published: false
             })
