@@ -17,7 +17,14 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      assert(length(trail) == 7)
+      case file_set.role.id do
+        "A" ->
+          assert(length(trail) == 7)
+
+        "P" ->
+          assert(length(trail) == 6)
+      end
+
       assert_all_have_value(trail, "outcome", "WAITING")
     end
   end
