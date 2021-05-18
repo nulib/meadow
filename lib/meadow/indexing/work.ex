@@ -6,7 +6,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
     as: DescriptiveMetadataDocument
 
   alias Meadow.IIIF
-  alias Meadow.Utils.Exif, as: ExifUtil
+  alias Meadow.Utils.ExtractedMetadata
 
   def id(work), do: work.id
   def routing(_), do: false
@@ -25,7 +25,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
             id: file_set.id,
             accessionNumber: file_set.accession_number,
             label: file_set.metadata.label,
-            exif: ExifUtil.index(file_set.metadata.exif)
+            extractedMetadata: ExtractedMetadata.transform(file_set.metadata.extracted_metadata)
           }
         end),
       id: work.id,

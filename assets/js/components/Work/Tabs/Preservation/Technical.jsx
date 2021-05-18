@@ -29,7 +29,8 @@ function WorkTabsPreservationTechnical({
   isVisible,
 }) {
   const { metadata } = fileSet;
-  const exifData = metadata && metadata.exif ? JSON.parse(metadata.exif) : null;
+  const extracted = metadata?.extractedMetadata ? JSON.parse(metadata.extractedMetadata) : null;
+  const exifData = extracted?.exif?.value;
 
   return (
     <div

@@ -52,6 +52,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
            Software
            XResolution
            YResolution)
+  @tool_name "exifr"
 
   setup do
     exif_file_set =
@@ -100,8 +101,13 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
+      assert file_set.metadata.extracted_metadata |> is_map()
 
-      assert_maps_equal(file_set.metadata.exif, @exif, @keys)
+      with subject <- file_set.metadata.extracted_metadata |> Map.get("exif") do
+        assert Map.get(subject, "tool") == @tool_name
+        assert Map.get(subject, "tool_version")
+        assert_maps_equal(Map.get(subject, "value"), @exif, @keys)
+      end
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
@@ -117,7 +123,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      assert is_nil(file_set.metadata.exif)
+      with extracted <- file_set.metadata.extracted_metadata do
+        assert is_nil(extracted) || is_nil(Map.get(extracted, "exif"))
+      end
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})

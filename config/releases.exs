@@ -142,7 +142,8 @@ config :meadow, :lambda,
   digester: {:lambda, "meadow-digester"},
   mime_type: {:lambda, "meadow-mime-type"},
   tiff: {:lambda, "meadow-pyramid-tiff"},
-  exif: {:lambda, "meadow-exif"}
+  exif: {:lambda, "meadow-exif"},
+  mediainfo: {:lambda, "meadow-mediainfo"}
 
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [
