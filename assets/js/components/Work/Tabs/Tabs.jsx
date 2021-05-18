@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import WorkTabAbout from "./About";
-import WorkTabStructure from "./Structure/Structure";
-import WorkTabsAdministrative from "./Administrative";
-import WorkTabsPreservation from "./Preservation";
-import { IIIFProvider } from "../../IIIF/IIIFProvider";
+import React, { useState } from "react";
+import WorkTabAbout from "@js/components/Work/Tabs/About";
+import WorkTabStructure from "@js/components/Work/Tabs/Structure/Structure";
+import WorkTabsAdministrative from "@js/components/Work/Tabs/Administrative/Administrative";
+import WorkTabsPreservation from "@js/components/Work/Tabs/Preservation/Preservation";
+import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 

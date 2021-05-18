@@ -73,8 +73,9 @@ defmodule Mix.Tasks.Meadow.Seed do
   Run database seeds
   """
   use Mix.Task
-
   use Meadow.Utils.Logging
+
+  alias Meadow.ReleaseTasks
 
   def run([]), do: run("seeds.exs")
   def run([name | []]), do: run("seeds/#{name}.exs")
@@ -84,15 +85,7 @@ defmodule Mix.Tasks.Meadow.Seed do
     run(names)
   end
 
-  def run(name) do
-    with_log_level :info do
-      Ecto.Migrator.with_repo(Meadow.Repo, fn _ ->
-        Path.expand("priv/repo/#{name}")
-        |> Code.compile_file()
-        |> Enum.each(fn {module, _} -> module.run() end)
-      end)
-    end
-  end
+  def run(name), do: ReleaseTasks.seed(name)
 end
 
 defmodule Mix.Tasks.Meadow.Processes do

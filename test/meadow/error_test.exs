@@ -34,7 +34,7 @@ defmodule Meadow.ErrorTest do
       end
 
       bad_function.(0)
-      assert_receive {:api_request, report}, 1000
+      assert_receive {:api_request, report}, 2500
 
       with request_context <- report |> get_in(["request", "context"]) do
         assert request_context |> Map.get("extra_data") == "foo"

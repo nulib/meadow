@@ -41,6 +41,9 @@ const client = new ApolloClient({
   link: link,
   cache: new InMemoryCache({
     typePolicies: {
+      ControlledValue: {
+        keyFields: ["id", "hint"]
+      },
       FileSet: {
         fields: {
           metadata: { merge: false },
