@@ -260,7 +260,7 @@ const WorkTabsPreservation = ({ work }) => {
                   return (
                     <tr key={fileset.id} data-testid="preservation-row">
                       <td className="is-hidden">{fileset.id}</td>
-                      <td>{fileset.role?.label.slice(0, 1)}</td>
+                      <td>{fileset.role?.id}</td>
                       <td>{fileset.accessionNumber}</td>
                       <td>{metadata ? metadata.originalFilename : " "}</td>
                       <td>{formatDate(fileset.insertedAt)}</td>
