@@ -1,9 +1,10 @@
 defmodule Meadow.Data.IndexerTest do
   @moduledoc false
+  use Meadow.AuthorityCase
   use Meadow.DataCase
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Data.{Collections, FileSets, Indexer, Works}
+  alias Meadow.Data.{Collections, CodedTerms, FileSets, Indexer, Works}
   alias Meadow.Data.Schemas
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Repo
@@ -246,6 +247,54 @@ defmodule Meadow.Data.IndexerTest do
       with metadata <- subject.administrative_metadata do
         assert doc |> get_in(["administrativeMetadata", "projectName"]) == metadata.project_name
       end
+    end
+
+    test "work encode of copy fields", %{work: subject} do
+      {:ok, subject} =
+        subject
+        |> Works.update_work(%{
+          descriptive_metadata: %{
+            alternate_title: ["Alt Title 1", "Alt Title 2"],
+            creator: [%{term: %{id: "mock1:result1"}}],
+            date_created: [%{edtf: "~1899"}],
+            contributor: [
+              %{role: %{id: "aut", scheme: "marc_relator"}, term: %{id: "mock1:result1"}}
+            ],
+            subject: [
+              %{
+                role: %{id: "GEOGRAPHICAL", scheme: "subject_role"},
+                term: %{id: "mock1:result1"}
+              }
+            ]
+          }
+        })
+
+      Indexer.synchronize_index()
+      [_header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+      assert doc |> get_in(["title"]) == subject.descriptive_metadata.title
+      assert doc |> get_in(["alternateTitle"]) == subject.descriptive_metadata.alternate_title
+      assert doc |> get_in(["collectionTitle"]) == subject.collection.title
+
+      creators =
+        Enum.map(subject.descriptive_metadata.creator, fn creator -> creator.term.label end)
+
+      assert doc |> get_in(["creator"]) == creators
+
+      contributors =
+        Enum.map(subject.descriptive_metadata.contributor, fn contributor ->
+          contributor.term.label <>
+            " (" <> CodedTerms.label(contributor.role.id, "marc_relator") <> ")"
+        end)
+
+      assert doc |> get_in(["contributor"]) == contributors
+
+      subjects = Enum.map(subject.descriptive_metadata.subject, fn s -> s.term.label end)
+
+      assert doc |> get_in(["subject"]) == subjects
+
+      dates = Enum.map(subject.descriptive_metadata.date_created, fn d -> d.humanized end)
+
+      assert doc |> get_in(["dateCreated"]) == dates
     end
 
     test "file set encoding", %{file_set: subject} do
