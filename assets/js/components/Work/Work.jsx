@@ -2,6 +2,11 @@ import React from "react";
 import { OpenSeadragonViewer } from "openseadragon-react-viewer";
 import WorkTabs from "./Tabs/Tabs";
 import PropTypes from "prop-types";
+import UIMediaPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
+import {
+  mockVideoSources,
+  mockVideoTracks,
+} from "@js/components/UI/MediaPlayer/MediaPlayer";
 
 const osdOptions = {
   showDropdown: true,
@@ -55,6 +60,14 @@ const Work = ({ work }) => {
             />
           )}
         </div>
+      </section>
+      <section className="section">
+        <UIMediaPlayer
+          controls
+          autoPlay
+          sources={mockVideoSources}
+          tracks={mockVideoTracks}
+        />
       </section>
       <section className="section">
         <div className="container" data-testid="tabs-wrapper">
