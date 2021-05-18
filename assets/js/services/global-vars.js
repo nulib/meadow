@@ -43,4 +43,5 @@ export const VISIBILITY_OPTIONS = [
   { label: "Private", value: "RESTRICTED" },
 ];
 
-export const URL_PATTERN_MATCH = /(((http|https):\/\/)|www\.)(\S+)\.([a-z]{2,}?)(.*?)( |,|$|\.)/gim;
+export const URL_PATTERN_MATCH =
+  /(((http|https):\/\/)|www\.)(\S+)\.([a-z]{2,}?)(.*?)( |,|$|\.)/gim;
