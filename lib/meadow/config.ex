@@ -55,6 +55,10 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :pyramid_bucket)
   end
 
+  def streaming_bucket do
+    Application.get_env(:meadow, :streaming_bucket)
+  end
+
   @doc "Retrieve the configured migration binary bucket"
   def migration_binary_bucket do
     Application.get_env(:meadow, :migration_binary_bucket)
@@ -177,6 +181,20 @@ defmodule Meadow.Config do
   @doc "Validation subscription update interval"
   def validation_ping_interval,
     do: configured_integer_value(:validation_ping_interval, :timer.seconds(15))
+
+  @doc "ARN of the MediaConvert transcoder queue"
+  def transcoder_queue do
+    Application.get_env(:meadow, :mediaconvert_queue, "arn:aws:mediaconvert:::queues/Default")
+  end
+
+  @doc "ARN of the MediaConvert transcoder service role"
+  def transcoder_role do
+    Application.get_env(
+      :meadow,
+      :mediaconvert_role,
+      "arn:aws:iam:::role/service-role/MediaConvert_Default_Role"
+    )
+  end
 
   def workers do
     System.get_env("MEADOW_PROCESSES", "ALL")

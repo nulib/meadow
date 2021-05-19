@@ -212,7 +212,7 @@ defmodule Meadow.Ingest.Progress do
   end
 
   defp row_actions("P", include_work) do
-    actions = List.delete(Pipeline.actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
+    actions = Pipeline.actions() -- [Meadow.Pipeline.Actions.CreatePyramidTiff, Meadow.Pipeline.Actions.CreateTranscodeJob]
 
     if include_work do
       ["CreateWork" | actions]

@@ -60,6 +60,8 @@ defmodule Meadow.Pipeline.Actions.Common do
         ActionStates.abort_remaining_waiting_actions(data.file_set_id)
       end
 
+      def update_progress(data, attrs, :skip), do: update_progress(data, attrs, :ok)
+
       def update_progress(data, attrs, {status, _, _}, _),
         do: update_progress(data, attrs, status)
 

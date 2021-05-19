@@ -90,6 +90,9 @@ config :meadow,
   iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL"),
   iiif_server_url: get_required_var.("IIIF_SERVER_URL"),
   ingest_bucket: get_required_var.("INGEST_BUCKET"),
+  mediaconvert_client: MediaConvert,
+  mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE"),
+  mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE"),
   migration_binary_bucket: System.get_env("MIGRATION_BINARY_BUCKET"),
   migration_manifest_bucket: System.get_env("MIGRATION_MANIFEST_BUCKET"),
   pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
@@ -104,6 +107,7 @@ config :meadow,
     store_config: [bucket: get_required_var.("SITEMAP_BUCKET")],
     sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
   ],
+  streaming_bucket: get_required_var.("STREAMING_BUCKET"),
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
