@@ -3,11 +3,10 @@ defmodule Meadow.Data.CSV.Import do
   Converts CSV data into Work metadata
   """
 
-  use Meadow.Constants
-
   alias Meadow.Data.CSV.Export
   alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias Meadow.Utils.Stream, as: StreamUtil
+  alias Meadow.Utils.Truth
   alias NimbleCSV.RFC4180, as: CSV
 
   import Meadow.Data.CSV.Utils
@@ -140,8 +139,8 @@ defmodule Meadow.Data.CSV.Import do
   defp decode_field(:boolean, value) do
     with value <- value |> to_string() |> String.downcase() do
       cond do
-        Enum.member?(@true_values, value) -> true
-        Enum.member?(@false_values, value) -> false
+        Truth.true?(value) -> true
+        Truth.false?(value) -> false
         true -> value
       end
     end

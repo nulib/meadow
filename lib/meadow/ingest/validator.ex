@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Validator do
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
-  alias Meadow.Utils.MapList
+  alias Meadow.Utils.{MapList, Truth}
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
@@ -217,9 +217,11 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_value({"work_image", value}, _existing_files, _duplicate_accession_numbers) do
-    if ["" | @true_values ++ @false_values] |> Enum.member?(value),
-      do: :ok,
-      else: {:error, "work_image", "work_image: boolean type required"}
+    cond do
+      value == "" -> :ok
+      Truth.to_bool(value) != :unknown -> :ok
+      true -> {:error, "work_image", "work_image: boolean type required"}
+    end
   end
 
   defp validate_value({"work_type", ""}, _existing_files, _duplicate_accession_numbers), do: :ok
