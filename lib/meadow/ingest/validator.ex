@@ -188,9 +188,28 @@ defmodule Meadow.Ingest.Validator do
         end)
         |> Enum.into(%{})
 
+      work_types =
+        rows
+        |> Enum.group_by(&Row.field_value(&1, "work_accession_number"))
+        |> Enum.map(fn {work_accession_number, rows} ->
+          values =
+            Enum.map(rows, &Row.field_value(&1, "work_type"))
+            |> Enum.reject(&(is_nil(&1) or &1 == ""))
+            |> Enum.uniq()
+
+          {work_accession_number, values}
+        end)
+        |> Enum.into(%{})
+
+      context = %{
+        existing_files: existing_files,
+        duplicate_accession_numbers: duplicate_accession_numbers,
+        work_types: work_types
+      }
+
       row_check = fn
         row, result ->
-          case validate_row(row, existing_files, duplicate_accession_numbers) do
+          case validate_row(row, context) do
             "pass" -> result
             "fail" -> :error
           end
@@ -216,91 +235,97 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value({"work_image", value}, _existing_files, _duplicate_accession_numbers) do
+  defp validate_value(row, {"work_image", value}, _context) do
+    role = Row.field_value(row, "role")
+
     cond do
       value == "" -> :ok
-      Truth.to_bool(value) != :unknown -> :ok
-      true -> {:error, "work_image", "work_image: boolean type required"}
+      Truth.false?(value) -> :ok
+      Truth.true?(value) and Enum.member?(["A", "X"], role) -> :ok
+      Truth.true?(value) -> {:error, "work_image", "role #{role} cannot be a work image"}
+      true -> {:error, "work_image", "boolean type required"}
     end
   end
 
-  defp validate_value({"work_type", ""}, _existing_files, _duplicate_accession_numbers), do: :ok
+  defp validate_value(row, {"work_type", value}, %{work_types: work_types}) do
+    work_accession_number = Row.field_value(row, "work_accession_number")
+    work_type_values = Map.get(work_types, work_accession_number)
 
-  defp validate_value({"work_type", value}, _existing_files, _duplicate_accession_numbers) do
-    case CodedTerms.get_coded_term(value, "work_type") do
-      {{:ok, _}, _term} ->
+    cond do
+      Enum.empty?(work_type_values) ->
+        {:error, "work_type", "work #{work_accession_number} missing work_type"}
+
+      length(work_type_values) > 1 ->
+        {:error, "work_type", "work #{work_accession_number} has conflicting work_type values"}
+
+      value == "" ->
         :ok
 
-      nil ->
-        {:error, "work_type", "work_type: #{value} is invalid"}
+      CodedTerms.get_coded_term(value, "work_type") |> is_nil() ->
+        {:error, "work_type", "#{value} is invalid"}
+
+      true ->
+        :ok
     end
   end
 
-  defp validate_value({field_name, value}, _existing_files, _duplicate_accession_numbers)
+  defp validate_value(_row, {field_name, value}, _context)
        when byte_size(value) == 0,
-       do: {:error, field_name, "#{field_name} cannot be blank"}
+       do: {:error, field_name, "cannot be blank"}
 
-  defp validate_value({"role", value}, _existing_files, _duplicate_accession_numbers) do
+  defp validate_value(_row, {"role", value}, _context) do
     case CodedTerms.get_coded_term(value, "file_set_role") do
       {{:ok, _}, _term} ->
         :ok
 
       nil ->
-        {:error, "role", "role: #{value} is invalid"}
+        {:error, "role", "#{value} is invalid"}
     end
   end
 
   defp validate_value(
+         _row,
          {"file_accession_number", value},
-         _existing_files,
-         duplicate_accession_numbers
+         %{duplicate_accession_numbers: duplicate_accession_numbers}
        ) do
     case Map.get(duplicate_accession_numbers, value) do
       nil ->
         if FileSets.accession_exists?(value),
-          do:
-            {:error, "file_accession_number",
-             "accession_number #{value} already exists in system"},
+          do: {:error, "file_accession_number", "#{value} already exists in system"},
           else: :ok
 
       duplicate_rows ->
         with row_list <- duplicate_rows |> Enum.map(&to_string/1) |> Enum.join(", ") do
-          {:error, "file_accession_number",
-           "accession_number #{value} is duplicated on rows #{row_list}"}
+          {:error, "file_accession_number", "#{value} is duplicated on rows #{row_list}"}
         end
     end
   end
 
-  defp validate_value(
-         {"work_accession_number", value},
-         _existing_files,
-         _duplicate_accession_numbers
-       ) do
+  defp validate_value(_row, {"work_accession_number", value}, _context) do
     case Works.accession_exists?(value) do
       true ->
-        {:error, "work_accession_number",
-         "work_accession_number #{value} already exists in system"}
+        {:error, "work_accession_number", "#{value} already exists in system"}
 
       false ->
         :ok
     end
   end
 
-  defp validate_value({"filename", value}, existing_files, _duplicate_accession_numbers) do
+  defp validate_value(_row, {"filename", value}, %{existing_files: existing_files}) do
     case MapSet.member?(existing_files, value) do
       true -> :ok
       false -> {:error, "filename", "File not Found: #{value}"}
     end
   end
 
-  defp validate_value({_field_name, _value}, _existing_files, _duplicate_accession_numbers),
+  defp validate_value(_row, {_field_name, _value}, _context),
     do: :ok
 
-  defp validate_row(%Row{state: "pending"} = row, existing_files, duplicate_accession_numbers) do
+  defp validate_row(%Row{state: "pending"} = row, context) do
     reducer = fn %Row.Field{header: field_name, value: value}, acc ->
-      case validate_value({field_name, value}, existing_files, duplicate_accession_numbers) do
+      case validate_value(row, {field_name, value}, context) do
         :ok -> acc
-        {:error, field, error} -> [%{field: field, message: error} | acc]
+        {:error, field, error} -> [%{field: field, message: "#{field}: #{error}"} | acc]
       end
     end
 

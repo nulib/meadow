@@ -4,8 +4,7 @@ defmodule Meadow.Data.IndexerTest do
   use Meadow.DataCase
   use Meadow.IndexCase
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Data.{Collections, CodedTerms, FileSets, Indexer, Works}
-  alias Meadow.Data.Schemas
+  alias Meadow.Data.{CodedTerms, Collections, FileSets, Indexer, Schemas, Works}
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.Repo
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
