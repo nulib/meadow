@@ -7,7 +7,6 @@ defmodule Meadow.Ingest.SheetsToWorks do
   alias Meadow.Ingest.{Progress, Rows, Sheets, WorkCreator}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
-  alias Meadow.Utils.MapList
 
   def create_works_from_ingest_sheet(%Sheet{} = ingest_sheet, :sync) do
     create_works_from_ingest_sheet(ingest_sheet)
@@ -39,7 +38,7 @@ defmodule Meadow.Ingest.SheetsToWorks do
         rows
         |> Enum.with_index()
         |> Enum.map(fn {row, index} ->
-          {row.id, MapList.get(row.fields, :header, :value, :role), index == 0}
+          {row.id, index == 0}
         end)
       end)
       |> Progress.initialize_entries()

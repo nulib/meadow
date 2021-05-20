@@ -8,6 +8,9 @@ defmodule Meadow.Data.PipelineTest do
   alias Meadow.Data.ActionStates
   alias Meadow.Data.Schemas.{ActionState, FileSet}
   alias Meadow.Pipeline
+  alias Meadow.Pipeline.Actions.Dispatcher
+
+  import Assertions
 
   describe "ingesting file set" do
     @valid_attrs %{
@@ -29,21 +32,11 @@ defmodule Meadow.Data.PipelineTest do
       assert [%ActionState{} | _states] = ActionStates.get_states(file_set.id)
     end
 
-    test "kickoff access (Image) file pipeline initializes CreatePyramidTiff action" do
-      {:ok, file_set} = Pipeline.ingest_file_set(@valid_attrs)
-
-      assert %{outcome: "waiting"} =
-               ActionStates.get_latest_state(
-                 file_set.id,
-                 Meadow.Pipeline.Actions.CreatePyramidTiff
-               )
-    end
-
-    test "kickoff preservation (Image) file pipeline does not initialize CreatePyramidTiff action" do
+    test "kickoff pipeline creates action_state records for initial common actions" do
       preservation_attrs = %{
         accession_number: "12345",
-        role: %{id: "P", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
+        metadata: %{
           description: "yes",
           location: "https://example.com",
           original_filename: "test.tiff"
@@ -52,11 +45,20 @@ defmodule Meadow.Data.PipelineTest do
 
       {:ok, file_set} = Pipeline.ingest_file_set(preservation_attrs)
 
-      assert nil ==
-               ActionStates.get_latest_state(
-                 file_set.id,
-                 Meadow.Pipeline.Actions.CreatePyramidTiff
-               )
+      assert ActionStates.get_states(file_set.id) |> length() ==
+               Dispatcher.initial_actions() |> length()
+
+      assert_lists_equal(
+        ActionStates.get_states(file_set.id) |> Enum.map(fn state -> state.action end),
+        [
+          "Meadow.Pipeline.Actions.ExtractMimeType",
+          "Meadow.Pipeline.Actions.IngestFileSet",
+          "Meadow.Pipeline.Actions.InitializeDispatch"
+        ]
+      )
+
+      ActionStates.get_states(file_set.id)
+      |> Enum.each(fn action -> assert action.outcome == "waiting" end)
     end
   end
 end

@@ -27,7 +27,10 @@ defmodule Meadow.Pipeline.Actions.Common do
                 result
               end
             else
-              Logger.warn("Marking #{__MODULE__} for #{data.file_set_id} as error because the file set was not found")
+              Logger.warn(
+                "Marking #{__MODULE__} for #{data.file_set_id} as error because the file set was not found"
+              )
+
               update_progress(data, attrs, {:error, "FileSet #{data.file_set_id} not found"})
               {:error, "FileSet #{data.file_set_id} not found"}
             end

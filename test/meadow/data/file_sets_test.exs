@@ -4,7 +4,7 @@ defmodule Meadow.Data.FileSetsTest do
   alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Utils.{ChangesetErrors, Pairtree}
+  alias Meadow.Utils.ChangesetErrors
 
   describe "queries" do
     @valid_attrs %{

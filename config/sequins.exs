@@ -3,12 +3,14 @@ import Config
 alias Meadow.Pipeline.Actions.{
   CopyFileToPreservation,
   CreatePyramidTiff,
+  CreateTranscodeJob,
+  Dispatcher,
   ExtractMimeType,
   FileSetComplete,
   GenerateFileSetDigests,
   ExtractExifMetadata,
-  CreateTranscodeJob,
-  IngestFileSet
+  IngestFileSet,
+  InitializeDispatch
 }
 
 config :sequins,
@@ -19,6 +21,8 @@ config :sequins, Meadow.Pipeline,
   actions: [
     IngestFileSet,
     ExtractMimeType,
+    InitializeDispatch,
+    Dispatcher,
     GenerateFileSetDigests,
     ExtractExifMetadata,
     CopyFileToPreservation,
@@ -39,6 +43,13 @@ config :sequins, ExtractMimeType,
   ],
   notify_on: [IngestFileSet: [status: :ok], ExtractMimeType: [status: :retry]]
 
+config :sequins, InitializeDispatch,
+  queue_config: [receive_interval: 1000, wait_time_seconds: 1, processor_concurrency: 10],
+  notify_on: [
+    ExtractMimeType: [status: :ok],
+    InitializeDispatch: [status: :retry]
+  ]
+
 config :sequins, GenerateFileSetDigests,
   queue_config: [
     receive_interval: 1000,
@@ -46,11 +57,11 @@ config :sequins, GenerateFileSetDigests,
     processor_concurrency: 1,
     visibility_timeout: 300
   ],
-  notify_on: [ExtractMimeType: [status: :ok], GenerateFileSetDigests: [status: :retry]]
+  notify_on: [GenerateFileSetDigests: [status: :retry]]
 
 config :sequins, CopyFileToPreservation,
   queue_config: [receive_interval: 1000, wait_time_seconds: 1, visibility_timeout: 300],
-  notify_on: [GenerateFileSetDigests: [status: :ok], CopyFileToPreservation: [status: :retry]]
+  notify_on: [CopyFileToPreservation: [status: :retry]]
 
 config :sequins, ExtractExifMetadata,
   queue_config: [
@@ -59,7 +70,7 @@ config :sequins, ExtractExifMetadata,
     processor_concurrency: 1,
     visibility_timeout: 300
   ],
-  notify_on: [CopyFileToPreservation: [status: :ok], ExtractExifMetadata: [status: :retry]]
+  notify_on: [ExtractExifMetadata: [status: :retry]]
 
 config :sequins, CreatePyramidTiff,
   queue_config: [
@@ -69,7 +80,6 @@ config :sequins, CreatePyramidTiff,
     visibility_timeout: 300
   ],
   notify_on: [
-    ExtractExifMetadata: [status: :ok, role: "A"],
     CreatePyramidTiff: [status: :retry]
   ]
 
@@ -81,16 +91,23 @@ config :sequins, CreateTranscodeJob,
     visibility_timeout: 300
   ],
   notify_on: [
-    CreatePyramidTiff: [status: :ok, role: "A"],
     CreateTranscodeJob: [status: :retry]
   ]
 
 config :sequins, FileSetComplete,
   queue_config: [receive_interval: 1000, wait_time_seconds: 1, processor_concurrency: 10],
   notify_on: [
-    CreatePyramidTiff: [status: :ok],
-    FileSetComplete: [status: :retry],
-    ExtractExifMetadata: [status: :ok, role: "P"],
     CreateTranscodeJob: [status: :ok],
-    CreateTranscodeJob: [status: :skip]
+    CreateTranscodeJob: [status: :skip],
+    FileSetComplete: [status: :retry]
+  ]
+
+config :sequins, Dispatcher,
+  queue_config: [receive_interval: 1000, wait_time_seconds: 1, processor_concurrency: 10],
+  notify_on: [
+    InitializeDispatch: [status: :ok],
+    GenerateFileSetDigests: [status: :ok],
+    CopyFileToPreservation: [status: :ok],
+    ExtractExifMetadata: [status: :ok],
+    CreatePyramidTiff: [status: :ok]
   ]

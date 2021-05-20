@@ -161,7 +161,7 @@ defmodule Meadow.Ingest.SheetsTest do
         rows
         |> Enum.with_index()
         |> Enum.map(fn {row, index} ->
-          {row.id, MapList.get(row.fields, :header, :value, :role), rem(index, 4) == 0}
+          {row.id, rem(index, 4) == 0}
         end)
         |> Progress.initialize_entries()
 

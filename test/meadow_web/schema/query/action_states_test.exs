@@ -3,7 +3,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
   alias Meadow.Data.ActionStates
-  alias Meadow.Pipeline.Actions.{GenerateFileSetDigests, IngestFileSet}
+  alias Meadow.Pipeline.Actions.{ExtractMimeType, IngestFileSet}
   import Assertions
 
   load_gql(MeadowWeb.Schema, "test/gql/GetActionStates.gql")
@@ -17,37 +17,24 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      case file_set.role.id do
-        "A" ->
-          assert(length(trail) == 8)
-
-        "P" ->
-          assert(length(trail) == 6)
-      end
-
+      assert(length(trail) == 3)
       assert_all_have_value(trail, "outcome", "WAITING")
     end
   end
 
   test "contains records", %{file_set: file_set} do
     ActionStates.set_state!(file_set, IngestFileSet, "ok")
-    ActionStates.set_state!(file_set, GenerateFileSetDigests, "ok")
+    ActionStates.set_state!(file_set, ExtractMimeType, "ok")
     {:ok, result} = query_gql(variables: %{"objectId" => file_set.id}, context: gql_context())
 
     with trail <- get_in(result, [:data, "actionStates"]) do
-      case file_set.role.id do
-        "A" ->
-          assert(length(trail) == 8)
-
-        "P" ->
-          assert(length(trail) == 6)
-      end
+      assert(length(trail) == 3)
 
       assert(
         Enum.all?(trail, fn %{"action" => action, "outcome" => outcome} ->
           case action do
             "Start Ingesting a FileSet" -> outcome == "OK"
-            "Generate Digests for FileSet" -> outcome == "OK"
+            "Extract mime type from FileSet" -> outcome == "OK"
             _ -> outcome == "WAITING"
           end
         end)
