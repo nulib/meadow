@@ -19,7 +19,7 @@ const UIFormSelect = ({
 
   if (isReactHookForm) {
     const context = useFormContext();
-    errors = context.errors;
+    errors = context.formState.errors;
     register = context.register;
   }
 
@@ -28,7 +28,7 @@ const UIFormSelect = ({
       <div className={`select ${hasErrors || errors[name] ? "is-danger" : ""}`}>
         <select
           name={name}
-          ref={register && register({ required })}
+          {...(register && register(name, { required }))}
           defaultValue={defaultValue}
           {...passedInProps}
         >

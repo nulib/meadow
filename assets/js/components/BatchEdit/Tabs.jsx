@@ -54,7 +54,7 @@ export default function BatchEditTabs() {
   const methods = useForm({
     defaultValues: {},
   });
-  const hasFormErrors = Object.keys(methods.errors).length > 0;
+  const hasFormErrors = Object.keys(methods.formState.errors).length > 0;
 
   const onCloseModal = () => {
     setIsConfirmModalOpen(false);
@@ -77,7 +77,7 @@ export default function BatchEditTabs() {
     let multiValues = {};
 
     // Process Descriptive metadata items
-    if (currentFormValues.relatedUrl) {
+    if (currentFormValues.relatedUrl?.length > 0) {
       replaceItems.descriptive.relatedUrl = prepRelatedUrl(
         currentFormValues.relatedUrl
       );
@@ -206,7 +206,7 @@ export default function BatchEditTabs() {
             <p className="notification is-danger is-light">
               <UIIconText isCentered icon={<IconAlert />}>
                 The following form fields have validation errors:
-                {Object.keys(methods.errors).map((key) => " " + key)}
+                {Object.keys(methods.formState.errors).map((key) => " " + key)}
               </UIIconText>
             </p>
           )}

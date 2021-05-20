@@ -19,7 +19,10 @@ function FieldArrayRow({
   isTextarea,
   validateFn,
 }) {
-  const { errors, register } = useFormContext();
+  const {
+    formState: { errors },
+    register,
+  } = useFormContext();
   const itemName = `${[name]}[${index}]`;
 
   return (
@@ -35,7 +38,7 @@ function FieldArrayRow({
               errors[name] && errors[name][index] ? "is-danger" : ""
             }`}
             defaultValue={item.metadataItem}
-            ref={register({ required: true })}
+            {...register(`${itemName}.metadataItem`, { required: true })}
             data-testid="input-field-array"
           />
         ) : (
@@ -46,7 +49,7 @@ function FieldArrayRow({
             }`}
             defaultValue={item.metadataItem}
             placeholder={`New ${label || name}`}
-            ref={register({
+            {...register(`${itemName}.metadataItem`, {
               required: true,
               validate: validateFn || false,
             })}

@@ -16,7 +16,7 @@ const UIFormInput = ({
 
   if (isReactHookForm) {
     const context = useFormContext();
-    errors = context.errors;
+    errors = context.formState.errors;
     register = context.register;
   }
 
@@ -26,7 +26,7 @@ const UIFormInput = ({
         id={id || name}
         name={name}
         type={type}
-        ref={register && register({ required })}
+        {...(register && register(name, { required }))}
         className={`input ${errors[name] ? "is-danger" : ""}`}
         {...passedInProps}
       />

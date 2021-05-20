@@ -327,8 +327,7 @@ export const elasticSearchResponse = {
           published: false,
           representativeFileSet: {
             fileSetId: "1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
-            url:
-              "https://devbox.library.northwestern.edu:8183/iiif/2/1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
+            url: "https://devbox.library.northwestern.edu:8183/iiif/2/1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
           },
           sheet: {
             id: "c8b870c0-84c2-47f6-b8c4-23566b7dea52",
@@ -781,8 +780,7 @@ export const elasticSearchResponse = {
           published: false,
           representativeFileSet: {
             fileSetId: "e064fb2d-20c3-4fff-8773-f4e1aeae0162",
-            url:
-              "https://devbox.library.northwestern.edu:8183/iiif/2/e064fb2d-20c3-4fff-8773-f4e1aeae0162",
+            url: "https://devbox.library.northwestern.edu:8183/iiif/2/e064fb2d-20c3-4fff-8773-f4e1aeae0162",
           },
           sheet: {
             id: "f731ee5e-a92d-46a4-8fd1-65db645d13bc",

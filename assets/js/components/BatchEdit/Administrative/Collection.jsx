@@ -25,7 +25,7 @@ function BatchEditCollection() {
   return (
     <UIFormField label="Collection">
       <div className="select">
-        <select name="collection" ref={register()} data-testid="collection">
+        <select {...register("collection")} data-testid="collection">
           <option value="">-- Select --</option>
           {collectionData &&
             sortItemsArray(collectionData.collections, "title").map(
