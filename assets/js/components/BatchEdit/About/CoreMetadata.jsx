@@ -73,7 +73,7 @@ const BatchEditAboutCoreMetadata = ({ ...restProps }) => {
       <div className="column is-full">
         <UIFormField label="Rights Statement">
           <div className="select" data-testid="rights-statement">
-            <select name="rightsStatement" ref={register()}>
+            <select {...register("rightsStatement")}>
               <option value="">-- Select --</option>
               {codeLists.rightsStatementData &&
                 codeLists.rightsStatementData.codeList.map((item) => (

@@ -3,7 +3,7 @@ import { useLazyQuery } from "@apollo/client";
 import { AUTHORITIES_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useForm } from "react-hook-form";
 
 const UIFormControlledTermArrayItem = ({
   authorities,
@@ -12,7 +12,11 @@ const UIFormControlledTermArrayItem = ({
   label,
   name,
 }) => {
-  const { control, errors, register } = useFormContext();
+  const {
+    formState: { errors },
+    register,
+    setValue,
+  } = useFormContext();
   const [currentAuthority, setCurrentAuthority] = useState(authorities[0].id);
   const [isLoading, setIsLoading] = useState(false);
   const [getAuthResults, { error, loading, data }] = useLazyQuery(
@@ -45,7 +49,7 @@ const UIFormControlledTermArrayItem = ({
   // Handle user selecting an item in the dropdown list
   const handleItemSelected = (val) => {
     // Set new value with React Hook Form of the hidden variable below
-    control.setValue(`${inputName}.termId`, val.id);
+    setValue(`${inputName}.termId`, val.id);
   };
 
   return (
@@ -62,7 +66,11 @@ const UIFormControlledTermArrayItem = ({
       </div>
 
       {/* Hidden form field which tracks the "id" of selection, which we need in form submit */}
-      <input type="hidden" name={`${inputName}.termId`} ref={register()} />
+      <input
+        type="hidden"
+        name={`${inputName}.termId`}
+        {...register(`${inputName}.termId`)}
+      />
 
       <div className="field">
         <DropDownComboBox
@@ -147,7 +155,7 @@ function DropDownComboBox({
           {...getInputProps({
             className: `input ${hasErrors ? "is-danger" : ""}`,
             name: `${inputName}.label`,
-            ref: register({ required: true }),
+            ...register(`${inputName}.label`, { required: true }),
           })}
         />
       </div>

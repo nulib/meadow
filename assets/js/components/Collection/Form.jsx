@@ -193,9 +193,8 @@ const CollectionForm = ({ collection }) => {
                 <input
                   type="checkbox"
                   id="featured"
-                  ref={methods.register}
+                  {...methods.register("featured")}
                   className="switch"
-                  name="featured"
                   data-testid="checkbox-featured"
                   defaultChecked={collection ? collection.featured : false}
                 />{" "}
@@ -207,8 +206,7 @@ const CollectionForm = ({ collection }) => {
               <input
                 id="published"
                 type="checkbox"
-                ref={methods.register}
-                name="published"
+                {...methods.register("published")}
                 className="switch"
                 data-testid="checkbox-published"
                 defaultChecked={collection ? collection.published : false}

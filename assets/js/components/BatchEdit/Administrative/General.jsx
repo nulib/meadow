@@ -14,7 +14,7 @@ const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
     <div data-testid="project-status-metadata" {...restProps}>
       <UIFormField label="Library Unit" data-testid="libraryUnit">
         <div className="select">
-          <select name="libraryUnit" ref={register()}>
+          <select {...register("libraryUnit")}>
             <option value="">-- Select --</option>
             {codeLists.libraryUnitData &&
               codeLists.libraryUnitData.codeList.map((item) => (
@@ -35,7 +35,7 @@ const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
 
       <UIFormField label="Preservation Level" data-testid="preservationLevel">
         <div className="select">
-          <select name="preservationLevel" ref={register()}>
+          <select {...register("preservationLevel")}>
             <option value="">-- Select --</option>
             {codeLists.preservationLevelData &&
               codeLists.preservationLevelData.codeList.map((item) => (
@@ -56,7 +56,7 @@ const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
 
       <UIFormField label="Status" data-testid="status">
         <div className="select">
-          <select name="status" ref={register()}>
+          <select {...register("status")}>
             <option value="">-- Select --</option>
             {codeLists.statusData &&
               codeLists.statusData.codeList.map((item) => (
@@ -77,7 +77,7 @@ const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
 
       <UIFormField label="Visibility" data-testid="visibility">
         <div className="select">
-          <select name="visibility" ref={register()}>
+          <select {...register("visibility")}>
             <option value="">-- Select --</option>
             {codeLists.visibilityData &&
               codeLists.visibilityData.codeList.map((item) => (

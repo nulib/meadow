@@ -17,7 +17,11 @@ const UIFormRelatedURL = ({
   required,
   ...passedInProps
 }) => {
-  const { control, errors, register } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+    register,
+  } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name, // Metadata item form name
@@ -57,14 +61,14 @@ const UIFormRelatedURL = ({
                     <input
                       type="hidden"
                       name={`${itemName}.url`}
-                      ref={register()}
+                      {...register(`${itemName}.url`)}
                       value={item.url}
                     />
                     <input
                       type="hidden"
                       name={`${itemName}.labelId`}
-                      ref={register()}
-                      value={item.label ? item.label.id : null}
+                      {...register(`${itemName}.labelId`)}
+                      value={item.label ? item.label.id : ""}
                     />
                   </div>
                 )}
@@ -84,7 +88,7 @@ const UIFormRelatedURL = ({
                             ? "is-danger"
                             : ""
                         }`}
-                        ref={register({
+                        {...register(`${itemName}.url`, {
                           required: "Related URL is required",
                           validate: (value) =>
                             isUrlValid(value) || "Please enter a valid URL",
