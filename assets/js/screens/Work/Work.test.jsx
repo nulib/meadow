@@ -1,47 +1,67 @@
 import React from "react";
 import ScreensWork from "./Work";
 import { Route } from "react-router-dom";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { getWorkMock } from "../../components/Work/work.gql.mock";
-const mocks = [getWorkMock];
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { getWorkMock, MOCK_WORK_ID } from "@js/components/Work/work.gql.mock";
+import { BatchProvider } from "@js/context/batch-edit-context";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { screen } from "@testing-library/react";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
-// This function helps mock out a component's dependency on
-// react-router's param object
-function setupMatchTests() {
-  return renderWithRouterApollo(
-    <Route path="/work/:id" component={ScreensWork} />,
-    {
-      mocks,
-      route: "/work/ABC123",
-    }
-  );
-}
+// Mock the getManifest call from the child Work component
+jest.mock("@js/services/get-manifest");
 
-jest.mock("../../services/elasticsearch");
-
-// TODO: Figure out why the getWorkMock is not working.
-
-xit("renders without crashing", () => {
-  setupMatchTests();
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
 });
 
-xit("renders Publish, and Delete buttons", async () => {
-  const { findByTestId, getByTestId, debug } = setupMatchTests();
-  const buttonEl = await findByTestId("publish-button");
-  debug();
-  expect(buttonEl).toBeInTheDocument();
-  expect(getByTestId("delete-button")).toBeInTheDocument();
-});
+const mocks = [getWorkMock, ...allCodeListMocks];
 
-xit("renders breadcrumbs", async () => {
-  const { findByTestId, debug } = setupMatchTests();
-  const crumbsEl = await findByTestId("work-breadcrumbs");
-  expect(crumbsEl).toBeInTheDocument();
-});
+describe("ScreensWork component", () => {
+  beforeEach(() => {
+    return renderWithRouterApollo(
+      <BatchProvider>
+        <Route path="/work/:id" component={ScreensWork} />
+      </BatchProvider>,
+      {
+        mocks,
+        route: `/work/${MOCK_WORK_ID}`,
+      }
+    );
+  });
 
-xit("renders a delete button which fires a callback function", () => {
-  const { getByTestId } = render(<WorkHeaderButtons {...props} />);
-  const el = getByTestId("delete-button");
-  fireEvent.click(el);
-  expect(mockOnOpenModal).toHaveBeenCalled();
+  it("renders", async () => {
+    const el = await screen.findByTestId("work-hero");
+    expect(el);
+  });
+
+  it("renders breadcrumbs", async () => {
+    const crumbsEl = await screen.findByTestId("work-breadcrumbs");
+    expect(crumbsEl).toBeInTheDocument();
+  });
+
+  it("renders work title", async () => {
+    expect(await screen.findByTestId("work-page-title")).toHaveTextContent(
+      "Work title here"
+    );
+  });
+
+  it("renders the correct work header info", async () => {
+    expect(await screen.findByTestId("work-header-id")).toHaveTextContent(
+      "Work id"
+    );
+    expect(screen.getByTestId("work-header-id")).toHaveTextContent("ABC123");
+    expect(screen.getByTestId("work-header-ark")).toHaveTextContent("Ark");
+    expect(screen.getByTestId("work-header-ark")).toHaveTextContent("ark123");
+
+    expect(
+      screen.getByTestId("work-header-accession-number")
+    ).toHaveTextContent("Accession number");
+    expect(
+      screen.getByTestId("work-header-accession-number")
+    ).toHaveTextContent("Donohue_002b");
+  });
 });

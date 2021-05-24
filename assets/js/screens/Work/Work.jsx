@@ -89,9 +89,8 @@ const ScreensWork = () => {
     },
   });
 
-  const [createSharedLink, { data: createSharedLinkData }] = useMutation(
-    CREATE_SHARED_LINK
-  );
+  const [createSharedLink, { data: createSharedLinkData }] =
+    useMutation(CREATE_SHARED_LINK);
 
   if (error) {
     return null;
@@ -179,7 +178,7 @@ const ScreensWork = () => {
                 <Skeleton rows={5} />
               ) : (
                 <>
-                  <PageTitle>
+                  <PageTitle data-testid="work-page-title">
                     {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                   </PageTitle>
 
@@ -226,18 +225,21 @@ const ScreensWork = () => {
                     )}
 
                     <hr />
-                    <div className="level">
+                    <div className="level" data-testid="work-headers">
                       <LevelItem
+                        data-testid="work-header-id"
                         heading="Work id"
                         content={data.work.id}
                         contentClassname="is-size-6"
                       />
                       <LevelItem
+                        data-testid="work-header-ark"
                         heading="Ark"
                         content={data.work.descriptiveMetadata.ark || ""}
                         contentClassname="is-size-6"
                       />
                       <LevelItem
+                        data-testid="work-header-accession-number"
                         heading="Accession number"
                         content={data.work.accessionNumber || ""}
                         contentClassname="is-size-6"

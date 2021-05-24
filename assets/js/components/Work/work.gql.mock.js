@@ -6,8 +6,10 @@ import {
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
 
+export const MOCK_WORK_ID = "ABC123";
+
 export const mockWork = {
-  id: "ABC123",
+  id: MOCK_WORK_ID,
   accessionNumber: "Donohue_001",
   administrativeMetadata: {
     libraryUnit: { id: "Unit 1", label: "Unit 1" },
@@ -149,6 +151,7 @@ export const mockWork = {
         description: "Letter, page 2, If these papers, verso, blank",
         extractedMetadata:
           '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
+        exif: '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
         originalFilename: "coffee.jpg",
@@ -165,6 +168,7 @@ export const mockWork = {
         description: "Letter, page 1, Dear Sir, recto",
         extractedMetadata:
           '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
+        exif: '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
@@ -221,7 +225,7 @@ export const mockWork = {
 };
 
 const mockWork2 = {
-  id: "ABC123",
+  id: MOCK_WORK_ID,
   accessionNumber: "Donohue_002b",
   administrativeMetadata: {
     libraryUnit: null,
@@ -236,6 +240,7 @@ const mockWork2 = {
   },
   collection: null,
   descriptiveMetadata: {
+    ark: "ark123",
     source: [],
     title: "Work title here",
     scopeAndContents: [],
@@ -379,7 +384,7 @@ export const getWorkMock = {
   request: {
     query: GET_WORK,
     variables: {
-      id: "ABC123",
+      id: MOCK_WORK_ID,
     },
   },
   result: {
@@ -404,7 +409,7 @@ export const createWorkMock = {
         descriptiveMetadata: {
           title: "New mock work title",
         },
-        id: "ABC123",
+        id: MOCK_WORK_ID,
       },
     },
   },
@@ -414,13 +419,13 @@ export const deleteFilesetMock = {
   request: {
     query: DELETE_FILESET,
     variables: {
-      fileSetId: "ABC123",
+      fileSetId: MOCK_WORK_ID,
     },
   },
   result: {
     data: {
       deleteFileSet: {
-        id: "ABC123",
+        id: MOCK_WORK_ID,
       },
     },
   },
@@ -430,7 +435,7 @@ export const verifyFileSetsMock = {
   request: {
     query: VERIFY_FILE_SETS,
     variables: {
-      workId: "ABC123",
+      workId: MOCK_WORK_ID,
     },
   },
   result: {
