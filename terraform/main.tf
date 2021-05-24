@@ -85,6 +85,12 @@ resource "aws_s3_bucket" "meadow_preservation_checks" {
   tags   = var.tags
 }
 
+resource "aws_s3_bucket" "meadow_streaming" {
+  bucket = "${var.stack_name}-${var.environment}-streaming"
+  acl    = "private"
+  tags   = var.tags
+}
+
 data "aws_s3_bucket" "pyramid_bucket" {
   bucket = var.pyramid_bucket
 }
@@ -313,4 +319,41 @@ resource "aws_efs_mount_target" "meadow_working_mount" {
   file_system_id  = aws_efs_file_system.meadow_working.id
   subnet_id       = each.key
   security_groups = [aws_security_group.meadow_working_access.id]
+}
+
+resource "aws_iam_role" "transcode_role" {
+  name               = "${var.stack_name}-transcode-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "mediaconvert.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "${var.stack_name}-transcode-policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow"
+          Action = ["s3:Get*","s3:List*"]
+          Resource = ["${aws_s3_bucket.meadow_preservation.arn}/*"]
+        },
+        {
+          Effect = "Allow"
+          Action = ["s3:Put*"]
+          Resource = ["${aws_s3_bucket.meadow_streaming.arn}/*"]
+        }
+      ]
+    })
+  }
 }
