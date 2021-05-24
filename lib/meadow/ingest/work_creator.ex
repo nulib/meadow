@@ -7,13 +7,14 @@ defmodule Meadow.Ingest.WorkCreator do
   import Ecto.Query, warn: false
 
   alias Meadow.Config
-  alias Meadow.Data.{ActionStates, Works}
+  alias Meadow.Data.{ActionStates, FileSets, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Ingest.Schemas.Row
   alias Meadow.IntervalTask
   alias Meadow.Pipeline
   alias Meadow.Repo
+  alias Meadow.Utils.Truth
 
   use IntervalTask, default_interval: 500, function: :create_works
 
@@ -66,9 +67,10 @@ defmodule Meadow.Ingest.WorkCreator do
     work_rows
     |> Enum.map(fn pending_work_row ->
       sheet = pending_work_row.row.sheet
-      work_accession_number = pending_work_row.row |> Row.field_value("work_accession_number")
+      work_row = pending_work_row.row
+      work_accession_number = work_row |> Row.field_value(:work_accession_number)
       file_set_rows = Rows.get_rows_by_work_accession_number(sheet.id, work_accession_number)
-      ingest_work({work_accession_number, file_set_rows}, sheet)
+      ingest_work({work_row, file_set_rows}, sheet)
     end)
   end
 
@@ -90,7 +92,8 @@ defmodule Meadow.Ingest.WorkCreator do
   end
 
   # Ingest a single work and update its status inside a single atomic transaction
-  defp ingest_work({accession_number, file_set_rows}, ingest_sheet) do
+  defp ingest_work({work_row, file_set_rows}, ingest_sheet) do
+    accession_number = work_row |> Row.field_value(:work_accession_number)
     Logger.info("Creating work #{accession_number} with #{length(file_set_rows)} file sets")
 
     ingest_bucket = Config.ingest_bucket()
@@ -117,10 +120,11 @@ defmodule Meadow.Ingest.WorkCreator do
       ingest_sheet_id: ingest_sheet.id,
       published: false,
       visibility: %{id: "RESTRICTED", scheme: "visibility"},
-      work_type: %{id: "IMAGE", scheme: "work_type"}
+      work_type: %{id: work_row |> Row.field_value(:work_type), scheme: "work_type"}
     }
 
     on_complete = fn work ->
+      work = set_work_image(work, file_set_rows)
       Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
       ActionStates.set_state!(work, "Create Work", "ok")
       send_work_to_pipeline(ingest_sheet, work, file_set_rows)
@@ -142,6 +146,23 @@ defmodule Meadow.Ingest.WorkCreator do
         end)
 
         create_changeset_errors(changeset, file_set_rows)
+    end
+  end
+
+  defp set_work_image(work, []), do: work
+
+  defp set_work_image(work, [file_set_row | file_set_rows]) do
+    if file_set_row
+       |> Row.field_value(:work_image)
+       |> Truth.true?() do
+      file_set =
+        file_set_row
+        |> Row.field_value(:file_accession_number)
+        |> FileSets.get_file_set_by_accession_number!()
+
+      work |> Works.set_representative_image!(file_set)
+    else
+      set_work_image(work, file_set_rows)
     end
   end
 

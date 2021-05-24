@@ -129,14 +129,30 @@ defmodule Meadow.Ingest.ValidatorTest do
     |> Map.get(:ingest_sheet_rows)
     |> Enum.each(fn
       %{file_set_accession_number: "Donohue_001_02", errors: [error]} ->
-        assert error.message == "accession_number Donohue_001_02 is duplicated on rows 2, 3"
+        assert error.message == "file_accession_number: Donohue_001_02 is duplicated on rows 2, 3"
 
       %{file_set_accession_number: "Donohue_002_01", errors: [error]} ->
         assert error.message ==
-                 "accession_number Donohue_002_01 is duplicated on rows 5, 6, 7"
+                 "file_accession_number: Donohue_002_01 is duplicated on rows 5, 6, 7"
 
       row ->
         assert row.errors == []
     end)
+  end
+
+  @tag sheet: "ingest_sheet_missing_work_type.csv"
+  test "fails with missing work type", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_invalid_work_image.csv"
+  test "fails when specified work_image has an invalid role", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
   end
 end

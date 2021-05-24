@@ -258,14 +258,24 @@ defmodule Meadow.TestHelpers do
 
       rows =
         rows
-        |> Enum.map(fn [wan | [an | rest]] ->
-          ["#{prefix}_#{wan}", "#{prefix}_#{an}"] ++ rest
-        end)
+        |> Enum.map(&uniqify_ingest_sheet_row(&1, headers, prefix))
 
       [headers | rows]
       |> CSV.dump_to_iodata()
       |> IO.iodata_to_binary()
     end
+  end
+
+  defp uniqify_ingest_sheet_row(row, headers, prefix) do
+    row
+    |> Enum.with_index()
+    |> Enum.map(fn {value, index} ->
+      if headers |> Enum.at(index) |> String.contains?("accession_number") do
+        [prefix, value] |> Enum.join("_")
+      else
+        value
+      end
+    end)
   end
 
   defp test_id do
