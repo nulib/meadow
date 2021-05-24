@@ -13,7 +13,7 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     field :description
     field :label
     field :digests, :map
-    field :exif, :map
+    field :extracted_metadata, :map
     field :mime_type
 
     timestamps()
@@ -24,11 +24,11 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     |> cast(params, [
       :description,
       :digests,
-      :exif,
       :label,
       :location,
       :mime_type,
-      :original_filename
+      :original_filename,
+      :extracted_metadata
     ])
     |> validate_required([:location, :original_filename])
   end

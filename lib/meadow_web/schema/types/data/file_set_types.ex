@@ -8,7 +8,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   alias Meadow.Data
-  alias Meadow.Utils.Exif
+  alias Meadow.Utils.ExtractedMetadata
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
@@ -123,11 +123,11 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       end)
     end
 
-    field :exif, :string do
+    field :extracted_metadata, :string do
       resolve(fn metadata, _, _ ->
-        case metadata.exif do
+        case metadata |> Map.get(:extracted_metadata) do
           nil -> {:ok, nil}
-          exif -> exif |> Exif.transform() |> Jason.encode()
+          value -> ExtractedMetadata.transform(value) |> Jason.encode()
         end
       end)
     end

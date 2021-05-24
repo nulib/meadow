@@ -1,9 +1,6 @@
-defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
+defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   @moduledoc """
-  Action to extract the EXIF metadata from a FileSet
-
-  Subscribes to:
-  * Kicked off manually
+  Action to extract the media metadata from a FileSet
 
   """
   alias Meadow.Config
@@ -16,14 +13,14 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
 
   require Logger
 
-  @actiondoc "Extract EXIF metadata from FileSet"
-  @timeout 10_000
+  @actiondoc "Extract media metadata from FileSet"
+  @timeout 120_000
 
   defp already_complete?(file_set, _) do
     with existing_metadata <-
            file_set
            |> StructMap.deep_struct_to_map()
-           |> get_in([:metadata, :extracted_metadata, "exif"]) do
+           |> get_in([:metadata, :extracted_metadata, "mediainfo"]) do
       not (is_nil(existing_metadata) or Enum.empty?(existing_metadata))
     end
   end
@@ -32,17 +29,17 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     file_set.metadata.location
-    |> extract_exif_metadata()
+    |> extract_media_metadata()
     |> handle_result(file_set)
   rescue
     err in RuntimeError -> {:error, err}
   end
 
-  defp extract_exif_metadata("s3://" <> _ = source) do
-    Lambda.invoke(Config.lambda_config(:exif), %{source: source}, @timeout)
+  defp extract_media_metadata("s3://" <> _ = source) do
+    Lambda.invoke(Config.lambda_config(:mediainfo), %{source: source}, @timeout)
   end
 
-  defp extract_exif_metadata(source) do
+  defp extract_media_metadata(source) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end
@@ -52,11 +49,11 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
     :ok
   end
 
-  def handle_result({:ok, exif_metadata}, file_set) do
+  def handle_result({:ok, metadata}, file_set) do
     extracted_metadata =
       case file_set.metadata.extracted_metadata do
-        nil -> %{exif: exif_metadata}
-        map -> Map.put(map, :exif, exif_metadata)
+        nil -> %{mediainfo: metadata}
+        map -> Map.put(map, :mediainfo, metadata)
       end
 
     changes = %{metadata: %{extracted_metadata: extracted_metadata}}

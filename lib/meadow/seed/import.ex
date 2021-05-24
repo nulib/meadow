@@ -102,10 +102,10 @@ defmodule Meadow.Seed.Import do
         Logger.info("Importing #{name} into #{schema}")
         load(schema, Path.join([prefix, to_string(name)]) <> ".csv")
       end)
-
-      ensure_representative_images()
-      fix_file_set_preservation_locations()
     end)
+
+    ensure_representative_images()
+    fix_file_set_preservation_locations()
 
     Works.list_works()
     |> Enum.each(fn %{id: work_id} ->
