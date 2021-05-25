@@ -36,13 +36,13 @@ function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
             </figure>
             <UIFormField label="Label">
               <p className="mr-6" data-testid="fileset-label">
-                {fileSet.metadata.label}
+                {fileSet.coreMetadata.label}
               </p>
             </UIFormField>
 
             <UIFormField label="Description">
               <p data-testid="fileset-description">
-                {fileSet.metadata.description}
+                {fileSet.coreMetadata.description}
               </p>
             </UIFormField>
           </div>

@@ -21,7 +21,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         id: @id,
         accession_number: "123",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           digests: %{
             "sha256" => @sha256,
             "sha1" => @sha1
@@ -34,7 +34,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
     {:ok,
      file_set_id: file_set.id,
-     preservation_key: Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))}
+     preservation_key:
+       Pairtree.preservation_path(Map.get(file_set.core_metadata.digests, "sha256"))}
   end
 
   describe "success" do
@@ -45,7 +46,9 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      assert(file_set.metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}")
+      assert(
+        file_set.core_metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}"
+      )
 
       assert(object_exists?(@preservation_bucket, preservation_key))
 
@@ -70,7 +73,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     @describetag s3: [@fixture]
     test "process/2", %{file_set_id: file_set_id} do
       file_set = FileSets.get_file_set!(file_set_id)
-      FileSets.update_file_set(file_set, %{metadata: %{digests: %{}}})
+      FileSets.update_file_set(file_set, %{core_metadata: %{digests: %{}}})
 
       assert(
         CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) ==
@@ -80,7 +83,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       assert(ActionStates.error?(file_set_id, CopyFileToPreservation))
       file_set = FileSets.get_file_set!(file_set_id)
 
-      assert(file_set.metadata.location =~ "s3://#{@ingest_bucket}/#{@key}")
+      assert(file_set.core_metadata.location =~ "s3://#{@ingest_bucket}/#{@key}")
     end
   end
 
@@ -124,7 +127,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       with file_set <- FileSets.get_file_set!(tags[:file_set_id]),
            preservation_url <- "s3://#{@preservation_bucket}/#{tags.preservation_key}" do
-        FileSets.update_file_set(file_set, %{metadata: %{location: preservation_url}})
+        FileSets.update_file_set(file_set, %{core_metadata: %{location: preservation_url}})
       end
 
       on_exit(fn ->

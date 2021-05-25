@@ -13,7 +13,7 @@ defmodule Meadow.Data.PipelineTest do
     @valid_attrs %{
       accession_number: "12345",
       role: %{id: "A", scheme: "FILE_SET_ROLE"},
-      metadata: %{
+      core_metadata: %{
         description: "yes",
         location: "https://example.com",
         original_filename: "test.tiff"
@@ -43,7 +43,7 @@ defmodule Meadow.Data.PipelineTest do
       preservation_attrs = %{
         accession_number: "12345",
         role: %{id: "P", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           description: "yes",
           location: "https://example.com",
           original_filename: "test.tiff"

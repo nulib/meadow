@@ -46,7 +46,7 @@ const client = new ApolloClient({
       },
       FileSet: {
         fields: {
-          metadata: { merge: false },
+          coreMetadata: { merge: false },
         },
       },
     },

@@ -17,7 +17,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
       file_set_fixture(%{
         accession_number: "123",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@key}",
           original_filename: "test.tif"
         }
@@ -32,7 +32,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
-    assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+    assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
 
     assert capture_log(fn ->
              GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
@@ -44,7 +44,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
     setup %{file_set_id: file_set_id} do
       FileSets.get_file_set!(file_set_id)
-      |> FileSets.update_file_set(%{metadata: %{digests: %{sha1: @sha1, sha256: @sha256}}})
+      |> FileSets.update_file_set(%{core_metadata: %{digests: %{sha1: @sha1, sha256: @sha256}}})
 
       :ok
     end
@@ -55,7 +55,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
           assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+          assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
         end)
 
       refute log =~ ~r/already complete without overwriting/
@@ -71,7 +71,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+          assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
         end)
 
       assert log =~ ~r/already complete without overwriting/

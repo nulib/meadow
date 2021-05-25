@@ -19,7 +19,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
         id: "cecb1180-054e-4764-8d2b-8a46c6b777b2",
         accession_number: "1234",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@media_key}",
           original_filename: "small.m4v"
         }
@@ -30,7 +30,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
         id: "bbcb54da-fb1d-48ed-8438-99a030431086",
         accession_number: "2314",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@missing_media_key}",
           original_filename: "missing.m4v"
         }
@@ -41,7 +41,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
         id: "979d3570-9dc9-4d3b-ac1b-ee5524ee0bd3",
         accession_number: "4321",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "invalid",
           original_filename: "small.m4v"
         }
@@ -60,9 +60,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      assert file_set.metadata.extracted_metadata |> is_map()
+      assert file_set.extracted_metadata |> is_map()
 
-      with subject <- file_set.metadata.extracted_metadata |> Map.get("mediainfo") do
+      with subject <- file_set.extracted_metadata |> Map.get("mediainfo") do
         assert Map.get(subject, "tool") == @tool_name
         assert Map.get(subject, "tool_version")
 
@@ -93,7 +93,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      with extracted <- file_set.metadata.extracted_metadata do
+      with extracted <- file_set.extracted_metadata do
         assert is_nil(extracted) || is_nil(Map.get(extracted, "mediainfo"))
       end
 

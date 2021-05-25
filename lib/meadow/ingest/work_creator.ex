@@ -109,7 +109,7 @@ defmodule Meadow.Ingest.WorkCreator do
           %{
             accession_number: row |> Row.field_value(:file_accession_number),
             role: %{scheme: "file_set_role", id: row |> Row.field_value(:role)},
-            metadata: %{
+            core_metadata: %{
               description: row |> Row.field_value(:description),
               location: location,
               original_filename: Path.basename(file_path),

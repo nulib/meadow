@@ -20,7 +20,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
     with existing_metadata <-
            file_set
            |> StructMap.deep_struct_to_map()
-           |> get_in([:metadata, :extracted_metadata, "mediainfo"]) do
+           |> get_in([:extracted_metadata, "mediainfo"]) do
       not (is_nil(existing_metadata) or Enum.empty?(existing_metadata))
     end
   end
@@ -28,7 +28,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
-    file_set.metadata.location
+    file_set.core_metadata.location
     |> extract_media_metadata()
     |> handle_result(file_set)
   rescue
@@ -51,13 +51,12 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
 
   def handle_result({:ok, metadata}, file_set) do
     extracted_metadata =
-      case file_set.metadata.extracted_metadata do
+      case file_set.extracted_metadata do
         nil -> %{mediainfo: metadata}
         map -> Map.put(map, :mediainfo, metadata)
       end
 
-    changes = %{metadata: %{extracted_metadata: extracted_metadata}}
-    FileSets.update_file_set(file_set, changes)
+    FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end

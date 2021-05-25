@@ -154,7 +154,7 @@ defmodule Meadow.Migration do
   @doc """
   Alter file set manifest's source location and digests to match S3
   """
-  def update_file_set_metadata(manifest) do
+  def update_file_set_core_metadata(manifest) do
     with {_, result} <-
            manifest
            |> Map.get_and_update(:file_sets, fn
@@ -188,7 +188,7 @@ defmodule Meadow.Migration do
     with {work_attributes, representative_file_set_id} <-
            source
            |> read_manifest()
-           |> update_file_set_metadata()
+           |> update_file_set_core_metadata()
            |> extract_representative_file_set_id() do
       case work_attributes |> check_binaries() |> create_work() do
         {:ok, work} ->
@@ -207,7 +207,7 @@ defmodule Meadow.Migration do
   defp check_binaries(work_attributes) do
     case work_attributes
          |> Map.get(:file_sets, [])
-         |> Enum.map(&get_in(&1, [:metadata, :location]))
+         |> Enum.map(&get_in(&1, [:core_metadata, :location]))
          |> Enum.reject(&Meadow.Utils.Stream.exists?/1) do
       [] -> {:ok, work_attributes}
       missing_binaries -> {:error, "Binaries missing: " <> inspect(missing_binaries)}
@@ -259,6 +259,7 @@ defmodule Meadow.Migration do
 
   defp update_file_set(file_set) do
     file_set
+    |> move_core_metadata()
     |> update_location()
     |> update_digests()
     |> update_original_filename()
@@ -266,7 +267,15 @@ defmodule Meadow.Migration do
     |> update_role()
   end
 
-  defp update_location(%{metadata: %{location: location}} = file_set) do
+  defp move_core_metadata(%{metadata: metadata} = file_set) do
+    file_set
+    |> Map.put(:core_metadata, metadata)
+    |> Map.delete(:metadata)
+  end
+
+  defp move_core_metadata(file_set), do: file_set
+
+  defp update_location(%{core_metadata: %{location: location}} = file_set) do
     result =
       with %{path: key} <- URI.parse(location) do
         %URI{
@@ -277,10 +286,10 @@ defmodule Meadow.Migration do
         |> URI.to_string()
       end
 
-    put_in(file_set, [:metadata, :location], result)
+    put_in(file_set, [:core_metadata, :location], result)
   end
 
-  defp update_digests(%{metadata: %{location: location}} = file_set) do
+  defp update_digests(%{core_metadata: %{location: location}} = file_set) do
     digests =
       with %{host: bucket, path: "/" <> key} <- URI.parse(location) do
         case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
@@ -299,13 +308,13 @@ defmodule Meadow.Migration do
         end
       end
 
-    put_in(file_set, [:metadata, :digests], digests)
+    put_in(file_set, [:core_metadata, :digests], digests)
   end
 
-  defp update_label(%{metadata: %{original_filename: original_filename}} = file_set) do
-    case file_set |> get_in([:metadata, :label]) do
-      nil -> put_in(file_set, [:metadata, :label], original_filename)
-      "" -> put_in(file_set, [:metadata, :label], original_filename)
+  defp update_label(%{core_metadata: %{original_filename: original_filename}} = file_set) do
+    case file_set |> get_in([:core_metadata, :label]) do
+      nil -> put_in(file_set, [:core_metadata, :label], original_filename)
+      "" -> put_in(file_set, [:core_metadata, :label], original_filename)
       _ -> file_set
     end
   end
@@ -314,14 +323,16 @@ defmodule Meadow.Migration do
     put_in(file_set.role, %{id: "A", scheme: "FILE_SET_ROLE"})
   end
 
-  defp update_original_filename(%{metadata: %{original_filename: original_filename}} = file_set) do
+  defp update_original_filename(
+         %{core_metadata: %{original_filename: original_filename}} = file_set
+       ) do
     with %{path: filename} <- URI.parse(original_filename) do
-      put_in(file_set, [:metadata, :original_filename], filename)
+      put_in(file_set, [:core_metadata, :original_filename], filename)
     end
   end
 
   defp update_original_filename(file_set),
-    do: put_in(file_set, [:metadata, :original_filename], "")
+    do: put_in(file_set, [:core_metadata, :original_filename], "")
 
   # Join DonutWork to Work and return status information on
   # both in a single query

@@ -4,7 +4,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   """
   use Ecto.Schema
   alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Data.Schemas.FileSetMetadata
+  alias Meadow.Data.Schemas.FileSetCoreMetadata
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Types
 
@@ -14,16 +14,19 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   use Meadow.Constants
 
+  require Logger
+
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "file_sets" do
     field :accession_number
+    field :extracted_metadata, :map
     field :role, Types.CodedTerm
     field :rank, :integer
     field :position, :any, virtual: true
 
-    embeds_one :metadata, FileSetMetadata, on_replace: :update
+    embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
     timestamps()
 
     belongs_to :work, Work
@@ -35,16 +38,16 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   defp changeset_params do
-    {[:accession_number, :role], [:work_id, :position]}
+    {[:accession_number, :role], [:work_id, :position, :extracted_metadata]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do
     with {required_params, optional_params} <- changeset_params() do
       file_set
-      |> cast(params, required_params ++ optional_params)
-      |> prepare_embed(:metadata)
-      |> cast_embed(:metadata)
-      |> validate_required([:metadata | required_params])
+      |> cast(rename_core_metadata(params), required_params ++ optional_params)
+      |> prepare_embed(:core_metadata)
+      |> cast_embed(:core_metadata)
+      |> validate_required([:core_metadata | required_params])
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
@@ -53,6 +56,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   def migration_changeset(file_set, %{role: "am"} = params) do
+    params = rename_core_metadata(params)
     params = put_in(params.role, %{id: "A", scheme: "FILE_SET_ROLE"})
     migration_changeset(file_set, params)
   end
@@ -62,10 +66,10 @@ defmodule Meadow.Data.Schemas.FileSet do
       required_params = [:id | required_params]
 
       file_set
-      |> cast(params, required_params ++ optional_params)
-      |> prepare_embed(:metadata)
-      |> cast_embed(:metadata)
-      |> validate_required([:metadata | required_params])
+      |> cast(rename_core_metadata(params), required_params ++ optional_params)
+      |> prepare_embed(:core_metadata)
+      |> cast_embed(:core_metadata)
+      |> validate_required([:core_metadata | required_params])
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
@@ -74,10 +78,24 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   def update_changeset(file_set, params) do
-    file_set
-    |> cast(params, [:work_id, :position])
-    |> prepare_embed(:metadata)
-    |> cast_embed(:metadata)
-    |> set_rank(scope: [:work_id, :role])
+    with {_, optional_params} <- changeset_params() do
+      file_set
+      |> cast(rename_core_metadata(params), optional_params)
+      |> prepare_embed(:core_metadata)
+      |> cast_embed(:core_metadata)
+      |> set_rank(scope: [:work_id, :role])
+    end
   end
+
+  defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
+    Logger.warn("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
+    params
+  end
+
+  defp rename_core_metadata(%{metadata: metadata} = params) do
+    Logger.warn("Parameter map has :metadata. Renaming to :core_metadata.")
+    params |> Map.put(:core_metadata, metadata) |> Map.delete(:metadata)
+  end
+
+  defp rename_core_metadata(params), do: params
 end

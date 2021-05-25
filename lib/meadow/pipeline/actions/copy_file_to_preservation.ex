@@ -20,7 +20,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   defp already_complete?(file_set, _) do
     with dest_location <- preservation_location(file_set) do
-      if file_set.metadata.location == dest_location,
+      if file_set.core_metadata.location == dest_location,
         do: Meadow.Utils.Stream.exists?(dest_location),
         else: false
     end
@@ -32,7 +32,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     case copy_file_to_preservation(file_set, attributes) do
       {:ok, new_location} ->
         file_set
-        |> FileSets.update_file_set(%{metadata: %{location: new_location}})
+        |> FileSets.update_file_set(%{core_metadata: %{location: new_location}})
 
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
@@ -47,7 +47,10 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     dest_bucket = Config.preservation_bucket()
 
     dest_key =
-      Path.join(["/", Pairtree.preservation_path(Map.get(file_set.metadata.digests, "sha256"))])
+      Path.join([
+        "/",
+        Pairtree.preservation_path(Map.get(file_set.core_metadata.digests, "sha256"))
+      ])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
@@ -67,15 +70,15 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   end
 
   defp copy_file_if_missing(file_set, dest_location) do
-    with src_location <- file_set.metadata.location,
+    with src_location <- file_set.core_metadata.location,
          %{host: src_bucket, path: "/" <> src_key} <- URI.parse(src_location),
          %{host: dest_bucket, path: "/" <> dest_key} <- URI.parse(dest_location),
-         original_filename <- file_set.metadata.original_filename,
-         s3_metadata <- file_set.metadata.digests |> Enum.into([]) do
+         original_filename <- file_set.core_metadata.original_filename,
+         s3_metadata <- file_set.core_metadata.digests |> Enum.into([]) do
       Logger.info("Copying #{original_filename} from #{src_location} to #{dest_location}")
 
       content_type =
-        case file_set.metadata.mime_type do
+        case file_set.core_metadata.mime_type do
           nil -> "application/octet-stream"
           mime_type -> mime_type
         end

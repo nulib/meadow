@@ -26,7 +26,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       arg(:accession_number, non_null(:string))
       arg(:role, non_null(:coded_term_input))
       arg(:work_id, non_null(:id))
-      arg(:metadata, non_null(:file_set_metadata_input))
+      arg(:core_metadata, non_null(:file_set_core_metadata_input))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.ingest_file_set/3)
@@ -35,7 +35,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     @desc "Update a FileSet's metadata"
     field :update_file_set, :file_set do
       arg(:id, non_null(:id))
-      arg(:metadata, non_null(:file_set_metadata_update))
+      arg(:core_metadata, non_null(:file_set_core_metadata_update))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_file_set/3)
@@ -62,22 +62,22 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   # Input Object Types
   #
 
-  @desc "Same as `file_set_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
-  input_object :file_set_metadata_input do
+  @desc "Same as `file_set_core_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
+  input_object :file_set_core_metadata_input do
     field :label, :string
     field :location, :string
     field :original_filename, :string
     field :description, :string
   end
 
-  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
   input_object :file_set_update do
     field :id, non_null(:id)
-    field :metadata, :file_set_metadata_update
+    field :core_metadata, :file_set_core_metadata_update
   end
 
-  @desc "Same as `file_set_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
-  input_object :file_set_metadata_update do
+  @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
+  input_object :file_set_core_metadata_update do
     field :label, :string
     field :description, :string
   end
@@ -86,7 +86,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   input_object :file_set_input do
     field :accession_number, non_null(:string)
     field :role, non_null(:coded_term_input)
-    field :metadata, :file_set_metadata_input
+    field :core_metadata, :file_set_core_metadata_input
   end
 
   #
@@ -101,13 +101,23 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :position, :string
     field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
-    field :metadata, :file_set_metadata
+    field :core_metadata, :file_set_core_metadata
+
+    field :extracted_metadata, :string do
+      resolve(fn file_set, _, _ ->
+        case file_set |> Map.get(:extracted_metadata) do
+          nil -> {:ok, nil}
+          value -> ExtractedMetadata.transform(value) |> Jason.encode()
+        end
+      end)
+    end
+
     field :inserted_at, non_null(:datetime)
     field :updated_at, non_null(:datetime)
   end
 
-  @desc "`file_set_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
-  object :file_set_metadata do
+  @desc "`file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
+  object :file_set_core_metadata do
     field :location, :string
     field :label, :string
     field :mime_type, :string
@@ -119,15 +129,6 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
         case metadata.digests do
           nil -> {:ok, nil}
           digests -> {:ok, digests["sha256"]}
-        end
-      end)
-    end
-
-    field :extracted_metadata, :string do
-      resolve(fn metadata, _, _ ->
-        case metadata |> Map.get(:extracted_metadata) do
-          nil -> {:ok, nil}
-          value -> ExtractedMetadata.transform(value) |> Jason.encode()
         end
       end)
     end

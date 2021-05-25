@@ -49,7 +49,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
       onCompleted({ ingestFileSet }) {
         toastWrapper(
           "is-success",
-          `FileSet record id: ${ingestFileSet.id} created successfully and ${ingestFileSet.metadata.original_filename} was submitted to the ingest pipeline.`
+          `FileSet record id: ${ingestFileSet.id} created successfully and ${ingestFileSet.coreMetadata.original_filename} was submitted to the ingest pipeline.`
         );
         resetForm();
         closeModal();
@@ -74,7 +74,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
         accession_number: data.accessionNumber,
         workId,
         role: { id: data.role, scheme: "FILE_SET_ROLE" },
-        metadata: {
+        coreMetadata: {
           description: data.description,
           label: data.label,
           original_filename: currentFile.name,

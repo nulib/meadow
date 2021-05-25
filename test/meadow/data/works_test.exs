@@ -441,7 +441,7 @@ defmodule Meadow.Data.WorksTest do
 
       Enum.each(work.file_sets, fn file_set ->
         FileSets.update_file_set(file_set, %{
-          metadata: %{location: location}
+          core_metadata: %{location: location}
         })
       end)
 

@@ -9,7 +9,7 @@ defmodule Meadow.Data.FileSetsTest do
     @valid_attrs %{
       accession_number: "12345",
       role: %{id: "A", scheme: "FILE_SET_ROLE"},
-      metadata: %{
+      core_metadata: %{
         description: "yes",
         location: "https://example.com",
         original_filename: "test.tiff"
@@ -41,9 +41,11 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
 
       assert {:ok, %FileSet{} = file_set} =
-               FileSets.update_file_set(file_set, %{metadata: %{description: "New description"}})
+               FileSets.update_file_set(file_set, %{
+                 core_metadata: %{description: "New description"}
+               })
 
-      assert file_set.metadata.description == "New description"
+      assert file_set.core_metadata.description == "New description"
     end
 
     test "update_file_set/2 with invalid attributes returns an error" do
@@ -58,12 +60,12 @@ defmodule Meadow.Data.FileSetsTest do
       assert {:ok, %FileSet{} = updated_file_set} =
                FileSets.update_file_set(file_set, %{
                  rank: 123,
-                 metadata: %{label: "New label"},
+                 core_metadata: %{label: "New label"},
                  accession_number: "Unsupported",
                  role: %{id: "P", scheme: "FILE_SET_ROLE"}
                })
 
-      assert updated_file_set.metadata.label == "New label"
+      assert updated_file_set.core_metadata.label == "New label"
       assert updated_file_set.role.id == "A"
       assert updated_file_set.accession_number == file_set.accession_number
       assert updated_file_set.rank == file_set.rank
@@ -73,21 +75,21 @@ defmodule Meadow.Data.FileSetsTest do
       file_set1 = file_set_fixture()
       file_set2 = file_set_fixture()
 
-      updates1 = %{id: file_set1.id, metadata: %{description: "New description"}}
-      updates2 = %{id: file_set2.id, metadata: %{label: "New label"}}
+      updates1 = %{id: file_set1.id, core_metadata: %{description: "New description"}}
+      updates2 = %{id: file_set2.id, core_metadata: %{label: "New label"}}
 
       assert {:ok, [file_set1, file_set2]} = FileSets.update_file_sets([updates1, updates2])
 
-      assert file_set1.metadata.description == "New description"
-      assert file_set2.metadata.label == "New label"
+      assert file_set1.core_metadata.description == "New description"
+      assert file_set2.core_metadata.label == "New label"
     end
 
     test "update_file_sets/1 with bad data returns an error" do
       file_set1 = file_set_fixture()
       file_set2 = file_set_fixture()
 
-      updates1 = %{id: file_set1.id, metadata: %{description: 900}}
-      updates2 = %{id: file_set2.id, metadata: %{label: "New label"}}
+      updates1 = %{id: file_set1.id, core_metadata: %{description: 900}}
+      updates2 = %{id: file_set2.id, core_metadata: %{label: "New label"}}
 
       assert {:error, :index_1, %Ecto.Changeset{} = changeset} =
                FileSets.update_file_sets([updates1, updates2])
@@ -95,7 +97,7 @@ defmodule Meadow.Data.FileSetsTest do
       refute changeset.valid?
 
       assert ChangesetErrors.error_details(changeset) == %{
-               metadata: %{description: [%{error: "is invalid", value: "900"}]}
+               core_metadata: %{description: [%{error: "is invalid", value: "900"}]}
              }
     end
 

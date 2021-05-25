@@ -108,11 +108,11 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
       [
         file_set.id,
-        file_set.metadata.label,
+        file_set.core_metadata.label,
         file_set.role.id,
         get_if_map(result.digests, "sha256"),
         get_if_map(result.digests, "sha1"),
-        file_set.metadata.location,
+        file_set.core_metadata.location,
         Map.fetch!(result, :preservation),
         FileSets.pyramid_uri_for(file_set),
         Map.fetch!(result, :pyramid)
@@ -128,8 +128,8 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
   defp check_files(file_set) do
     %{
-      :digests => file_set.metadata |> Map.get(:digests),
-      :preservation => validate_preservation_file(file_set.metadata.location),
+      :digests => file_set.core_metadata |> Map.get(:digests),
+      :preservation => validate_preservation_file(file_set.core_metadata.location),
       :pyramid => validate_pyramid_present(file_set)
     }
   end

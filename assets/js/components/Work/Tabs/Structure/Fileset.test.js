@@ -30,8 +30,8 @@ describe("Fileset component", () => {
       await waitFor(() => {
         expect(screen.getByTestId("fileset-item"));
         expect(screen.getByTestId("fileset-image"));
-        expect(screen.getByText(mockFileSets[0].metadata.label));
-        expect(screen.getByText(mockFileSets[0].metadata.description));
+        expect(screen.getByText(mockFileSets[0].coreMetadata.label));
+        expect(screen.getByText(mockFileSets[0].coreMetadata.description));
       });
     });
 

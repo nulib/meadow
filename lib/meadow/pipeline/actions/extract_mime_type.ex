@@ -22,14 +22,14 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   defp already_complete?(file_set, _) do
     file_set
     |> StructMap.deep_struct_to_map()
-    |> get_in([:metadata, :mime_type])
+    |> get_in([:core_metadata, :mime_type])
     |> is_binary()
   end
 
   defp process(file_set, _attributes, _) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
-    file_set.metadata.location
+    file_set.core_metadata.location
     |> extract_mime_type()
     |> handle_result(file_set)
   end
@@ -64,7 +64,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   end
 
   def handle_result({:ok, mime_type}, file_set) do
-    FileSets.update_file_set(file_set, %{metadata: %{mime_type: mime_type}})
+    FileSets.update_file_set(file_set, %{core_metadata: %{mime_type: mime_type}})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end

@@ -7,15 +7,15 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
   def encode(file_set) do
     %{
       createDate: file_set.inserted_at,
-      description: file_set.metadata.description,
-      label: file_set.metadata.label,
-      mime_type: file_set.metadata.mime_type,
+      description: file_set.core_metadata.description,
+      label: file_set.core_metadata.label,
+      mime_type: file_set.core_metadata.mime_type,
       model: %{application: "Meadow", name: "FileSet"},
       modifiedDate: file_set.updated_at,
       role: format(file_set.role),
       visibility: format(file_set.work.visibility),
       workId: file_set.work.id,
-      extractedMetadata: ExtractedMetadata.transform(file_set.metadata.extracted_metadata)
+      extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata)
     }
   end
 

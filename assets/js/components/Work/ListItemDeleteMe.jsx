@@ -35,9 +35,9 @@ const WorkListItem = ({ work }) => {
             i < fileSetsToDisplay - 1 ? (
               <span key={fileSet.id} className="list-item">
                 {fileSet.accessionNumber} -{" "}
-                {fileSet.metadata &&
-                  fileSet.metadata.description &&
-                  fileSet.metadata.description}
+                {fileSet.coreMetadata &&
+                  fileSet.coreMetadata.description &&
+                  fileSet.coreMetadata.description}
               </span>
             ) : null
           )}

@@ -17,7 +17,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   end
 
   defp process(file_set, _, _) do
-    source = file_set.metadata.location
+    source = file_set.core_metadata.location
     target = FileSets.pyramid_uri_for(file_set.id)
 
     case create_pyramid_tiff(source, target) do

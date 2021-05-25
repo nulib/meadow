@@ -35,7 +35,7 @@ alias Meadow.Data.Schemas.{
   ControlledTermCache,
   Field,
   FileSet,
-  FileSetMetadata,
+  FileSetCoreMetadata,
   IndexTime,
   Value,
   Work,
