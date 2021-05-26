@@ -146,7 +146,8 @@ defmodule Meadow.Data.FileSets do
         multi,
         :"index_#{index}",
         FileSet.update_changeset(get_file_set!(changes.id), %{
-          core_metadata: changes.core_metadata,
+          core_metadata: Map.get(changes, :core_metadata, %{}),
+          structural_metadata: Map.get(changes, :structural_metadata, %{}),
           updated_at: NaiveDateTime.utc_now()
         })
       )

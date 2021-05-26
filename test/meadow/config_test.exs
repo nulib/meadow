@@ -44,7 +44,8 @@ defmodule Meadow.ConfigTest do
       "test-pyramids",
       "test-migration-binaries",
       "test-migration-manifests",
-      "test-preservation-checks"
+      "test-preservation-checks",
+      "test-streaming"
     ]
     |> assert_lists_equal(Config.buckets())
   end

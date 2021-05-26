@@ -1,5 +1,6 @@
 defmodule Meadow.TimeoutError, do: defexception([:message])
 defmodule Meadow.LambdaError, do: defexception([:message])
+defmodule Meadow.AwsError, do: defexception([:message])
 
 defmodule Meadow.Error do
   @moduledoc """
@@ -7,6 +8,9 @@ defmodule Meadow.Error do
   """
   alias Meadow.Config
 
+  @doc """
+  Report an exception to Honeybadger
+  """
   def report(exception, module, stacktrace, additional_context \\ %{}) do
     Honeybadger.notify(exception,
       metadata:
@@ -17,12 +21,34 @@ defmodule Meadow.Error do
     )
   end
 
+  @doc """
+  Add version and module information to all error reports
+  """
   def add_default_metadata(context, module \\ nil) do
     context
     |> Map.merge(%{
       meadow_version: Config.meadow_version(),
       notifier: module
     })
+  end
+
+  @doc """
+  Pass `response` through, notifying Honeybadger if the response indicates anything
+  but success
+  """
+  def handle_ex_aws_response(response, module) do
+    case response do
+      {:error, {:http_error, status, _}} ->
+        report(%Meadow.AwsError{message: to_string(status)}, module, [])
+
+      {:error, message} ->
+        report(%Meadow.AwsError{message: to_string(message)}, module, [])
+
+      _ ->
+        :noop
+    end
+
+    response
   end
 end
 

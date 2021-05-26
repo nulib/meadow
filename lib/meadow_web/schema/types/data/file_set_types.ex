@@ -27,6 +27,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       arg(:role, non_null(:coded_term_input))
       arg(:work_id, non_null(:id))
       arg(:core_metadata, non_null(:file_set_core_metadata_input))
+      arg(:structural_metadata, :file_set_structural_metadata_input)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.ingest_file_set/3)
@@ -35,7 +36,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     @desc "Update a FileSet's metadata"
     field :update_file_set, :file_set do
       arg(:id, non_null(:id))
-      arg(:core_metadata, non_null(:file_set_core_metadata_update))
+      arg(:core_metadata, :file_set_core_metadata_update)
+      arg(:structural_metadata, :file_set_structural_metadata_input)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_file_set/3)
@@ -74,6 +76,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   input_object :file_set_update do
     field :id, non_null(:id)
     field :core_metadata, :file_set_core_metadata_update
+    field :structural_metadata, :file_set_structural_metadata_input
   end
 
   @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
@@ -87,6 +90,12 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :accession_number, non_null(:string)
     field :role, non_null(:coded_term_input)
     field :core_metadata, :file_set_core_metadata_input
+  end
+
+  @desc "Input fields for `file_set_structural_metadata`."
+  input_object :file_set_structural_metadata_input do
+    field :type, :string
+    field :value, :string
   end
 
   #
@@ -112,6 +121,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       end)
     end
 
+    field :structural_metadata, :file_set_structural_metadata
     field :inserted_at, non_null(:datetime)
     field :updated_at, non_null(:datetime)
   end
@@ -132,5 +142,11 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
         end
       end)
     end
+  end
+
+  @desc "`file_set_structural_metadata` represents the structural metadata within a file set object."
+  object :file_set_structural_metadata do
+    field :type, :string
+    field :value, :string
   end
 end
