@@ -20,7 +20,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
           "accession_number" => "99999",
           "role" => %{"id" => "A", "scheme" => "FILE_SET_ROLE"},
           "work_id" => work.id,
-          "metadata" => %{
+          "coreMetadata" => %{
             "description" => "Something",
             "original_filename" => "file.tif",
             "location" => "s3://#{@bucket}/#{@key}"
@@ -43,7 +43,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
             "accession_number" => "99999",
             "role" => %{"id" => "A", "scheme" => "FILE_SET_ROLE"},
             "work_id" => work.id,
-            "metadata" => %{
+            "coreMetadata" => %{
               "description" => "Something",
               "original_filename" => "file.tif",
               "location" => "s3://#{@bucket}/#{@key}"

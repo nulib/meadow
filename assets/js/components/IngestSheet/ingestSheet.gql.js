@@ -190,7 +190,7 @@ export const INGEST_SHEET_WORKS = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
           originalFilename
           label

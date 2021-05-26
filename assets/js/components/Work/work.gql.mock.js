@@ -147,16 +147,14 @@ export const mockWork = {
       accessionNumber: "Donohue_001_04",
       id: "01E08T3EXBJX3PWDG22NSRE0BS",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 2, If these papers, verso, blank",
-        extractedMetadata:
-          '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
-        exif: '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
         originalFilename: "coffee.jpg",
         sha256: "foobar",
       },
+      extractedMetadata: '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-09-12T10:01:01",
       updatedAt: "2020-09-18T09:01:01",
     },
@@ -164,17 +162,15 @@ export const mockWork = {
       accessionNumber: "Donohue_001_01",
       id: "01E08T3EW3TQ9T0AXCR6X9QDJW",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 1, Dear Sir, recto",
-        extractedMetadata:
-          '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
-        exif: '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
         sha256: "foobar",
       },
+      extractedMetadata: '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-11-12T10:01:01",
       updatedAt: "2020-11-18T09:01:01",
     },
@@ -182,7 +178,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_03",
       id: "01E08T3EWRPXMWW0B1NHZ56AW6",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 2, If these papers, recto",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
@@ -196,7 +192,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_02",
       id: "01E08T3EWFJB35RY3RVR65AXMK",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 1, Dear Sir, verso, blank",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
@@ -313,7 +309,7 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_03b",
       id: "0afa26f5-78e0-4ccb-b96f-052034dbbe27",
-      metadata: {
+      coreMetadata: {
         description: "Photo, two children praying",
         label: "painting7.JPG",
         location:
@@ -329,7 +325,7 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_01b",
       id: "38620e42-7c71-4364-8123-8106db5fd31c",
-      metadata: {
+      coreMetadata: {
         description: "Photo, man with two children",
         label: "painting5.JPG",
         location:
@@ -343,7 +339,7 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_02b",
       id: "251a0c80-4dbe-48c5-a77b-bcf8c403591d",
-      metadata: {
+      coreMetadata: {
         description: "Verso",
         label: "painting6.JPG",
         location:

@@ -24,8 +24,8 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
           %{
             id: file_set.id,
             accessionNumber: file_set.accession_number,
-            label: file_set.metadata.label,
-            extractedMetadata: ExtractedMetadata.transform(file_set.metadata.extracted_metadata)
+            label: file_set.core_metadata.label,
+            extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata)
           }
         end),
       id: work.id,

@@ -21,7 +21,7 @@ defmodule Meadow.Data.PreservationChecksTest do
       work_id: work.id,
       accession_number: "123",
       role: %{id: "A", scheme: "FILE_SET_ROLE"},
-      metadata: %{
+      core_metadata: %{
         digests: %{
           "sha256" => @sha256,
           "sha1" => @sha1

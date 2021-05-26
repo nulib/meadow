@@ -108,8 +108,8 @@ export function setVisibilityClass(visibility = "") {
  */
 export function sortFileSets({ order = "asc", fileSets = [] }) {
   const orderedFileSets = [...fileSets].sort((a, b) => {
-    const aName = a.metadata.originalFilename;
-    const bName = b.metadata.originalFilename;
+    const aName = a.coreMetadata.originalFilename;
+    const bName = b.coreMetadata.originalFilename;
 
     if (aName === bName) return 0;
 

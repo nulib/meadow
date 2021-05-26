@@ -3,7 +3,7 @@ export const mockFileSets = [
     id: "45226a50-87ca-443e-bc05-f47884e14505",
     role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2569254_FILE_0",
-    metadata: {
+    coreMetadata: {
       description: "inu-dil-9d35d0ba-a84b-4e0a-99e6-9c6b548a46db.tif",
       originalFilename: "inu-dil-9d35d0ba-a84b-4e0a-99e6-9c6b548a46db.jpg",
       label: "inu-dil-9d35d0ba-a84b-4e0a-99e6-9c6b548a46db.jpg",
@@ -18,8 +18,8 @@ export const mockFileSets = [
     id: "109b9a5c-3c6f-4a98-b98b-12402b871dc7",
     role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2572813_FILE_0",
-    metadata: {
-      __typename: "FileSetMetadata",
+    coreMetadata: {
+      __typename: "FileSetCoreMetadata",
       description: "inu-dil-41913a91-037f-494b-9113-06004a8a98fb.tif",
       originalFilename: "inu-dil-41913a91-037f-494b-9113-06004a8a98fb.jpg",
       label: "inu-dil-41913a91-037f-494b-9113-06004a8a98fb.jpg",
@@ -34,8 +34,8 @@ export const mockFileSets = [
     id: "d414d3d4-b72c-49cc-b7cc-faa9bc0f256e",
     role: { id: "A", scheme: "FILE_SET_ROLE" },
     accessionNumber: "Voyager:2553177_FILE_0",
-    metadata: {
-      __typename: "FileSetMetadata",
+    coreMetadata: {
+      __typename: "FileSetCoreMetadata",
       description: "inu-dil-96e6d167-5022-42e7-9de7-7f851a866f44.tif",
       originalFilename: "inu-dil-96e6d167-5022-42e7-9de7-7f851a866f44.jpg",
       label: "inu-dil-96e6d167-5022-42e7-9de7-7f851a866f44.jpg",

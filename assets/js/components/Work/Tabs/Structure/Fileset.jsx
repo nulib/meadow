@@ -38,10 +38,10 @@ function WorkTabsStructureFileset({
                 name={`${fileSet.id}.label`}
                 data-testid="input-label"
                 placeholder="Label"
-                defaultValue={fileSet.metadata.label}
+                defaultValue={fileSet.coreMetadata.label}
               />
             ) : (
-              <p>{fileSet.metadata.label}</p>
+              <p>{fileSet.coreMetadata.label}</p>
             )}
           </UIFormField>
 
@@ -51,12 +51,12 @@ function WorkTabsStructureFileset({
                 isReactHookForm
                 name={`${fileSet.id}.description`}
                 data-testid="textarea-metadata-description"
-                defaultValue={fileSet.metadata.description}
+                defaultValue={fileSet.coreMetadata.description}
                 label="Description"
                 rows="2"
               />
             ) : (
-              <p>{fileSet.metadata.description}</p>
+              <p>{fileSet.coreMetadata.description}</p>
             )}
           </UIFormField>
         </div>

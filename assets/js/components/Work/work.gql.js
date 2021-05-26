@@ -204,14 +204,14 @@ export const GET_WORK = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
-          extractedMetadata
           label
           location
           originalFilename
           sha256
         }
+        extractedMetadata
         insertedAt
         updatedAt
       }
@@ -256,7 +256,7 @@ export const GET_WORKS = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
           originalFilename
           location
@@ -417,13 +417,13 @@ export const INGEST_FILE_SET = gql`
   mutation IngestFileSet(
     $accession_number: String!
     $role: FileSetRole!
-    $metadata: FileSetMetadataInput!
+    $coreMetadata: FileSetCoreMetadataInput!
     $workId: ID!
   ) {
     ingestFileSet(
       accessionNumber: $accession_number
       role: $role
-      metadata: $metadata
+      coreMetadata: $coreMetadata
       workId: $workId
     ) {
       id
@@ -435,7 +435,7 @@ export const INGEST_FILE_SET = gql`
       work {
         id
       }
-      metadata {
+      coreMetadata {
         location
         label
         description
@@ -458,7 +458,7 @@ export const UPDATE_FILE_SETS = gql`
   mutation UpdateFileSets($fileSets: [FileSetUpdate]!) {
     updateFileSets(fileSets: $fileSets) {
       id
-      metadata {
+      coreMetadata {
         description
         label
       }

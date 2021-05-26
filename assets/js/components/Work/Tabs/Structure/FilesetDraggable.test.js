@@ -21,10 +21,10 @@ describe("WorkTabsStructureFilesetDraggable components", () => {
   it("renders image, label and description", () => {
     expect(screen.getByTestId("fileset-image"));
     expect(screen.getByTestId("fileset-label")).toHaveTextContent(
-      mockFileSets[0].metadata.label
+      mockFileSets[0].coreMetadata.label
     );
     expect(screen.getByTestId("fileset-description")).toHaveTextContent(
-      mockFileSets[0].metadata.description
+      mockFileSets[0].coreMetadata.description
     );
   });
 });

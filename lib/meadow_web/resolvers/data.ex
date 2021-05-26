@@ -140,10 +140,10 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def update_file_set(_, %{id: id, metadata: metadata_params}, _) do
+  def update_file_set(_, %{id: id, core_metadata: metadata_params}, _) do
     file_set = FileSets.get_file_set!(id)
 
-    case FileSets.update_file_set(file_set, %{metadata: metadata_params}) do
+    case FileSets.update_file_set(file_set, %{core_metadata: metadata_params}) do
       {:error, changeset} ->
         {:error,
          message: "Could not update FileSet", details: ChangesetErrors.humanize_errors(changeset)}

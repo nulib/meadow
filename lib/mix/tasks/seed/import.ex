@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Meadow.Seed.Import do
         |> Map.get(:prefix)
         |> normalize_prefix()
 
-      Import.import_assets(prefix, parsed_opts.threads)
+      #      Import.import_assets(prefix, parsed_opts.threads)
       Import.import(prefix)
     else
       Logger.error("Import can only be run on an empty database.")

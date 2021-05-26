@@ -79,8 +79,8 @@ describe("Sort file sets", () => {
       id: "2357ea03-9dd5-49f2-a88c-dfc9aa88be3c",
       role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_0",
-      metadata: {
-        __typename: "FileSetMetadata",
+      coreMetadata: {
+        __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-6.tif",
         originalFilename: "BBBBBBB.jpg",
         label: "inu-fava-5145080-6.jpg",
@@ -94,8 +94,8 @@ describe("Sort file sets", () => {
       id: "26357d25-b5e0-4e27-b683-c6844a13dc6b",
       role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_1",
-      metadata: {
-        __typename: "FileSetMetadata",
+      coreMetadata: {
+        __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-5.tif",
         originalFilename: "CCCCCC.jpg",
         label: "inu-fava-5145080-5.jpg",
@@ -109,8 +109,8 @@ describe("Sort file sets", () => {
       id: "0607a735-9f99-4d38-b75a-6c10027f0937",
       role: { id: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_2",
-      metadata: {
-        __typename: "FileSetMetadata",
+      coreMetadata: {
+        __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-1.tif",
         originalFilename: "AAAAA.jpg",
         label: "inu-fava-5145080-1.jpg",
@@ -124,13 +124,13 @@ describe("Sort file sets", () => {
 
   it("should order file sets in ascending order", () => {
     const sorted = sortFileSets({ fileSets: originalFileSets });
-    expect(sorted[0].metadata.originalFilename).toEqual("AAAAA.jpg");
-    expect(sorted[2].metadata.originalFilename).toEqual("CCCCCC.jpg");
+    expect(sorted[0].coreMetadata.originalFilename).toEqual("AAAAA.jpg");
+    expect(sorted[2].coreMetadata.originalFilename).toEqual("CCCCCC.jpg");
   });
 
   it("should order file sets in descending order", () => {
     const sorted = sortFileSets({ order: "desc", fileSets: originalFileSets });
-    expect(sorted[2].metadata.originalFilename).toEqual("AAAAA.jpg");
-    expect(sorted[0].metadata.originalFilename).toEqual("CCCCCC.jpg");
+    expect(sorted[2].coreMetadata.originalFilename).toEqual("AAAAA.jpg");
+    expect(sorted[0].coreMetadata.originalFilename).toEqual("CCCCCC.jpg");
   });
 });

@@ -256,7 +256,7 @@ const WorkTabsPreservation = ({ work }) => {
             <tbody>
               {orderedFileSets.fileSets.length > 0 &&
                 orderedFileSets.fileSets.map((fileset) => {
-                  const metadata = fileset.metadata;
+                  const metadata = fileset.coreMetadata;
                   return (
                     <tr key={fileset.id} data-testid="preservation-row">
                       <td className="is-hidden">{fileset.id}</td>
@@ -273,7 +273,7 @@ const WorkTabsPreservation = ({ work }) => {
                             <UIDropdownItem
                               data-testid="button-copy-checksum"
                               onClick={() =>
-                                clipboard.copy(fileset.metadata.sha256)
+                                clipboard.copy(fileset.coreMetadata.sha256)
                               }
                             >
                               <UIIconText icon={<IconBinaryFile />}>
@@ -283,7 +283,7 @@ const WorkTabsPreservation = ({ work }) => {
                             <UIDropdownItem
                               data-testid="button-copy-preservation-location"
                               onClick={() =>
-                                clipboard.copy(fileset.metadata.location)
+                                clipboard.copy(fileset.coreMetadata.location)
                               }
                             >
                               <UIIconText icon={<IconBucket />}>
@@ -357,8 +357,8 @@ const WorkTabsPreservation = ({ work }) => {
             }
             handleConfirm={handleConfirmDeleteFileset}
             thingToDeleteLabel={`Fileset: ${
-              deleteFilesetModal.fileset.metadata
-                ? deleteFilesetModal.fileset.metadata.label
+              deleteFilesetModal.fileset.coreMetadata
+                ? deleteFilesetModal.fileset.coreMetadata.label
                 : ""
             }`}
           />

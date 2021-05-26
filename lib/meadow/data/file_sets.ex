@@ -122,10 +122,10 @@ defmodule Meadow.Data.FileSets do
 
   ## Examples
 
-      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: "new label", description: "new description"}})
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", core_metadata: %{label: "new label", description: "new description"}})
       {:ok, [%Meadow.Data.Schemas.FileSet{}]}
 
-      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: 009, description: "new description"}})
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", core_metadata: %{label: 009, description: "new description"}})
       {:error, :file_set_1, %Ecto.Changeset{}}
   """
   def update_file_sets(file_set_updates) do
@@ -146,7 +146,7 @@ defmodule Meadow.Data.FileSets do
         multi,
         :"index_#{index}",
         FileSet.update_changeset(get_file_set!(changes.id), %{
-          metadata: changes.metadata,
+          core_metadata: changes.core_metadata,
           updated_at: NaiveDateTime.utc_now()
         })
       )

@@ -113,7 +113,7 @@ const WorkTabsStructure = ({ work }) => {
     for (let id of filteredIds) {
       formPostData.push({
         id,
-        metadata: {
+        coreMetadata: {
           label: data[id].label,
           description: data[id].description,
         },

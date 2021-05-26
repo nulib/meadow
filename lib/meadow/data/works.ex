@@ -631,7 +631,7 @@ defmodule Meadow.Data.Works do
   defp verify_file_set(file_set) do
     case ExAws.S3.head_object(
            Config.preservation_bucket(),
-           URI.parse(file_set.metadata.location).path
+           URI.parse(file_set.core_metadata.location).path
          )
          |> ExAws.request() do
       {:ok, _} -> true

@@ -22,7 +22,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   defp already_complete?(file_set, _) do
     case file_set
          |> StructMap.deep_struct_to_map()
-         |> get_in([:metadata, :digests]) do
+         |> get_in([:core_metadata, :digests]) do
       %{"sha1" => _, "sha256" => _} -> true
       %{sha1: _, sha256: _} -> true
       _ -> false
@@ -33,7 +33,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     try do
-      file_set.metadata.location
+      file_set.core_metadata.location
       |> generate_hashes()
       |> handle_result(file_set)
     rescue
@@ -59,7 +59,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
         file_set
       ) do
     Logger.info("Hash for #{file_set.id}: #{sha256}")
-    FileSets.update_file_set(file_set, %{metadata: %{digests: hashes}})
+    FileSets.update_file_set(file_set, %{core_metadata: %{digests: hashes}})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end

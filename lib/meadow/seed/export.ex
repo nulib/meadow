@@ -76,7 +76,7 @@ defmodule Meadow.Seed.Export do
       where: w.ingest_sheet_id in ^ingest_sheet_ids,
       select: %{
         id: fs.id,
-        preservation_file: fragment("?.metadata::jsonb -> 'location'", fs)
+        preservation_file: fragment("?.core_metadata::jsonb -> 'location'", fs)
       }
     )
     |> Repo.all()
@@ -90,7 +90,7 @@ defmodule Meadow.Seed.Export do
       where: fs.work_id in ^work_ids,
       select: %{
         id: fs.id,
-        preservation_file: fragment("?.metadata::jsonb -> 'location'", fs)
+        preservation_file: fragment("?.core_metadata::jsonb -> 'location'", fs)
       }
     )
     |> Repo.all()

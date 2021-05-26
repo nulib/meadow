@@ -192,13 +192,14 @@ defmodule Meadow.TestHelpers do
     Enum.into(attrs, %{
       accession_number: attrs[:accession_number] || Faker.String.base64(),
       role: attrs[:role] || %{id: Faker.Util.pick(["A", "P"]), scheme: "FILE_SET_ROLE"},
-      metadata:
-        attrs[:metadata] ||
+      core_metadata:
+        attrs[:core_metadata] ||
           %{
             description: attrs[:description] || Faker.String.base64(),
             location: "https://fake-s3-bucket/" <> Faker.String.base64(),
             original_filename: Faker.File.file_name()
-          }
+          },
+      extracted_metadata: attrs[:extracted_metadata] || %{}
     })
   end
 

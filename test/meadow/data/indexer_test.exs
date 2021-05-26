@@ -182,7 +182,7 @@ defmodule Meadow.Data.IndexerTest do
 
   describe "parent update triggers" do
     @tag unboxed: true
-    test "file_set metadata changes cascade to work" do
+    test "file_set.core_metadata changes cascade to work" do
       Sandbox.unboxed_run(Repo, fn ->
         %{file_sets: [file_set | _]} = indexable_data()
 
@@ -194,7 +194,7 @@ defmodule Meadow.Data.IndexerTest do
         {:ok, file_set} =
           file_set
           |> FileSets.update_file_set(%{
-            metadata: %{label: "New Label", description: "New Description"}
+            core_metadata: %{label: "New Label", description: "New Description"}
           })
 
         work_updated_timestamp = Works.get_work!(file_set.work_id).updated_at
@@ -301,8 +301,8 @@ defmodule Meadow.Data.IndexerTest do
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "FileSet"
-      assert doc |> get_in(["description"]) == subject.metadata.description
-      assert doc |> get_in(["label"]) == subject.metadata.label
+      assert doc |> get_in(["description"]) == subject.core_metadata.description
+      assert doc |> get_in(["label"]) == subject.core_metadata.label
     end
   end
 

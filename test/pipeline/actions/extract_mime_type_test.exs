@@ -15,7 +15,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
       file_set_fixture(%{
         accession_number: "123",
         role: %{id: "P", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@key}",
           original_filename: "test.tif"
         }
@@ -31,7 +31,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      assert(file_set.metadata.mime_type == "image/tiff")
+      assert(file_set.core_metadata.mime_type == "image/tiff")
 
       assert capture_log(fn ->
                ExtractMimeType.process(%{file_set_id: file_set_id}, %{})

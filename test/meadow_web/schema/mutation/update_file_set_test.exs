@@ -11,14 +11,14 @@ defmodule MeadowWeb.Schema.Mutation.UpdateFileSetTest do
       query_gql(
         variables: %{
           "id" => file_set.id,
-          "metadata" => %{"label" => "Something"}
+          "coreMetadata" => %{"label" => "Something"}
         },
         context: gql_context()
       )
 
     assert {:ok, query_data} = result
 
-    label = get_in(query_data, [:data, "updateFileSet", "metadata", "label"])
+    label = get_in(query_data, [:data, "updateFileSet", "coreMetadata", "label"])
     assert label == "Something"
   end
 end

@@ -19,7 +19,7 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Collection do
                     %Canvas{
                       images: %ImageResource{
                         id: IIIF.image_id(file_set.id),
-                        label: file_set.metadata.description
+                        label: file_set.core_metadata.description
                       }
                     }
                   ]

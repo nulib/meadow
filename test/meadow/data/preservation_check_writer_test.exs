@@ -33,7 +33,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         work_id: work.id,
         accession_number: "123",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           digests: %{
             "sha256" => @sha256,
             "sha1" => @sha1
@@ -49,7 +49,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         work_id: work.id,
         accession_number: "456",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           digests: %{
             "sha256" => @sha256,
             "sha1" => @sha1
@@ -97,7 +97,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
       FileSets.update_file_set(file_set_2, %{
-        metadata: %{
+        core_metadata: %{
           location:
             "s3://#{@preservation_bucket}/d6d3ac3443c6141638faad1ac06c73a4fa355682da9364c5fa863ead4cf2361a"
         }
@@ -118,7 +118,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
       FileSets.update_file_set(file_set_2, %{
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@ingest_bucket}/#{@key}"
         }
       })
@@ -146,8 +146,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      FileSets.update_file_set(file_set_1, %{metadata: %{digests: nil}})
-      FileSets.update_file_set(file_set_2, %{metadata: %{digests: %{"sha256" => "badsha"}}})
+      FileSets.update_file_set(file_set_1, %{core_metadata: %{digests: nil}})
+      FileSets.update_file_set(file_set_2, %{core_metadata: %{digests: %{"sha256" => "badsha"}}})
 
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
