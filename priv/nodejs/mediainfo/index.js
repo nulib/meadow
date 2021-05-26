@@ -19,21 +19,25 @@ const makeCallbacks = (input) => {
 
   const readChunk = (length, offset) => {
     return new Promise((resolve, _reject) => {
-      let params = {...input};
-  
-      if (typeof offset === 'number') {
-        let end = length ? offset + length - 1 : undefined;
-        params.Range = `bytes=${[offset, end].join('-')}`;
-      }
-  
-      s3.getObject(params, (err, data) => {
-        if (err) {
-          console.error(err);
-          resolve(undefined);
-        } else {
-          resolve(data.Body);
+      if (length < 1) {
+        resolve("");
+      } else {
+        let params = {...input};
+    
+        if (typeof offset === 'number') {
+          let end = length ? offset + length - 1 : undefined;
+          params.Range = `bytes=${[offset, end].join('-')}`;
         }
-      });
+    
+        s3.getObject(params, (err, data) => {
+          if (err) {
+            console.error(err);
+            resolve(undefined);
+          } else {
+            resolve(data.Body);
+          }
+        });
+      }
     });
   };
 

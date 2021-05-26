@@ -145,5 +145,14 @@ defmodule Meadow.Data.FileSetsTest do
         assert uri.path |> String.length() == 55
       end
     end
+
+    test "add_derivatives/3" do
+      assert FileSets.add_derivative(%FileSet{derivatives: nil}, "playlist", "test.m3u8") ==
+               %{"playlist" => "test.m3u8"}
+
+      assert %FileSet{derivatives: %{"pyramid" => "test.tif"}}
+             |> FileSets.add_derivative("playlist", "test.m3u8") ==
+               %{"pyramid" => "test.tif", "playlist" => "test.m3u8"}
+    end
   end
 end

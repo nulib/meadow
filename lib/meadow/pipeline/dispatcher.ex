@@ -13,12 +13,15 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
+    CreateTranscodeJob,
     ExtractExifMetadata,
+    ExtractMediaMetadata,
     ExtractMimeType,
     FileSetComplete,
     GenerateFileSetDigests,
     IngestFileSet,
-    InitializeDispatch
+    InitializeDispatch,
+    TranscodeComplete
   }
 
   use Action
@@ -40,11 +43,31 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
     FileSetComplete
   ]
 
+  @access_audio_actions [
+    GenerateFileSetDigests,
+    CopyFileToPreservation,
+    ExtractMediaMetadata,
+    CreateTranscodeJob,
+    TranscodeComplete,
+    FileSetComplete
+  ]
+
+  @access_video_actions @access_audio_actions
+
   @preservation_actions [
     GenerateFileSetDigests,
     CopyFileToPreservation,
     FileSetComplete
   ]
+
+  @preservation_audio_actions [
+    GenerateFileSetDigests,
+    CopyFileToPreservation,
+    ExtractMediaMetadata,
+    FileSetComplete
+  ]
+
+  @preservation_video_actions @preservation_audio_actions
 
   @preservation_image_actions [
     GenerateFileSetDigests,
@@ -52,6 +75,19 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
     CopyFileToPreservation,
     FileSetComplete
   ]
+
+  @all_actions [
+                 @initial_actions,
+                 @preservation_actions,
+                 @preservation_image_actions,
+                 @access_image_actions,
+                 @preservation_audio_actions,
+                 @preservation_video_actions,
+                 @access_audio_actions,
+                 @access_video_actions
+               ]
+               |> List.flatten()
+               |> Enum.uniq()
 
   def process(data, attributes) do
     Logger.info("Dispatching #{data.file_set_id}")
@@ -65,12 +101,7 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   def initial_actions, do: @initial_actions
 
-  def all_progress_actions do
-    Enum.uniq(
-      @initial_actions ++
-        @preservation_actions ++ @preservation_image_actions ++ @access_image_actions
-    )
-  end
+  def all_progress_actions, do: @all_actions
 
   def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _}}),
     do: @access_image_actions
@@ -80,6 +111,18 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "image/" <> _}}),
     do: @preservation_image_actions
+
+  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}}),
+    do: @access_audio_actions
+
+  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "audio/" <> _}}),
+    do: @preservation_audio_actions
+
+  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}}),
+    do: @access_video_actions
+
+  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}),
+    do: @preservation_video_actions
 
   def dispatcher_actions(%{role: %{id: "S"}}),
     do: @preservation_actions

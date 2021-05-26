@@ -41,7 +41,8 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
 
   describe "handle errors from MediaConvert response" do
     test "process/2" do
-      mock_error_file_input = "s3://error/test.mov"
+      mock_error_file_input = "s3://input-error/test.mov"
+
       object =
         file_set_fixture(
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
@@ -52,13 +53,13 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
           }
         )
 
-        assert capture_log(fn ->
-          assert(
-            {:error, "Fake error response"} =
-              CreateTranscodeJob.process(%{file_set_id: object.id}, %{})
-          )
-        end) =~
-          "Error creating MediaConvert Job"
+      assert capture_log(fn ->
+               assert(
+                 {:error, "Fake error response"} =
+                   CreateTranscodeJob.process(%{file_set_id: object.id}, %{})
+               )
+             end) =~
+               "Error creating MediaConvert Job"
     end
   end
 end

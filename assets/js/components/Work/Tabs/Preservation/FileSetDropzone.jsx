@@ -27,7 +27,7 @@ function WorkTabsPreservationFileSetDropzone({
     isDragReject,
   } = useDropzone({
     onDrop,
-    accept: "image/tiff, image/jpeg, image/jpg",
+    accept: "image/*, audio/*, video/*",
     multiple: false,
   });
 
