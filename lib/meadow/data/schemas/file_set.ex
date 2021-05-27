@@ -3,9 +3,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   FileSets are used to describe objects stored in Amazon S3
   """
   use Ecto.Schema
-  alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Data.Schemas.FileSetCoreMetadata
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{ActionState, FileSetCoreMetadata, FileSetStructuralMetadata, Work}
   alias Meadow.Data.Types
 
   import Ecto.Changeset
@@ -27,6 +25,7 @@ defmodule Meadow.Data.Schemas.FileSet do
     field :position, :any, virtual: true
 
     embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
+    embeds_one :structural_metadata, FileSetStructuralMetadata, on_replace: :delete
     timestamps()
 
     belongs_to :work, Work
@@ -47,6 +46,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> cast(rename_core_metadata(params), required_params ++ optional_params)
       |> prepare_embed(:core_metadata)
       |> cast_embed(:core_metadata)
+      |> prepare_embed(:structural_metadata)
+      |> cast_embed(:structural_metadata)
       |> validate_required([:core_metadata | required_params])
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
@@ -69,6 +70,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> cast(rename_core_metadata(params), required_params ++ optional_params)
       |> prepare_embed(:core_metadata)
       |> cast_embed(:core_metadata)
+      |> prepare_embed(:structural_metadata)
+      |> cast_embed(:structural_metadata)
       |> validate_required([:core_metadata | required_params])
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
@@ -83,6 +86,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> cast(rename_core_metadata(params), optional_params)
       |> prepare_embed(:core_metadata)
       |> cast_embed(:core_metadata)
+      |> prepare_embed(:structural_metadata)
+      |> cast_embed(:structural_metadata)
       |> set_rank(scope: [:work_id, :role])
     end
   end

@@ -78,4 +78,41 @@ defmodule Meadow.ErrorTest do
       end
     end
   end
+
+  describe "handle_ex_aws_response/2" do
+    test "does not report anything when AWS request is successful" do
+      restart_with_config(exclude_envs: [])
+
+      ExAws.S3.head_bucket(Config.upload_bucket())
+      |> ExAws.request()
+      |> Meadow.Error.handle_ex_aws_response(__MODULE__)
+
+      refute_receive {:api_request, _report}, 1000
+    end
+
+    test "reports error when AWS returns an HTTP error" do
+      restart_with_config(exclude_envs: [])
+
+      ExAws.S3.head_bucket("nonexistent-bucket")
+      |> ExAws.request()
+      |> Meadow.Error.handle_ex_aws_response(__MODULE__)
+
+      assert_receive {:api_request, report}, 1000
+
+      assert report |> get_in(["error", "class"]) == "Meadow.AwsError"
+      assert report |> get_in(["error", "message"]) == "404"
+    end
+
+    test "reports error when ExAws fails any other way" do
+      restart_with_config(exclude_envs: [])
+
+      {:error, "Catastrophic Failure"}
+      |> Meadow.Error.handle_ex_aws_response(__MODULE__)
+
+      assert_receive {:api_request, report}, 1000
+
+      assert report |> get_in(["error", "class"]) == "Meadow.AwsError"
+      assert report |> get_in(["error", "message"]) == "Catastrophic Failure"
+    end
+  end
 end

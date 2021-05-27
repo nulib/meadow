@@ -1,9 +1,10 @@
 defmodule Meadow.Data.FileSetsTest do
   use Meadow.DataCase
 
+  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Utils.ChangesetErrors
+  alias Meadow.Utils.{ChangesetErrors, Pairtree}
 
   describe "queries" do
     @valid_attrs %{
@@ -137,12 +138,12 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "streaming_uri_for/1 for a FileSet with any role besides 'P'" do
-      file_set =
-        file_set_fixture(
-          role: %{id: "A", scheme: "FILE_SET_ROLE"}
-        )
+      file_set = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
 
-      assert FileSets.streaming_uri_for(file_set) |> String.length() == 58
+      with uri <- file_set |> FileSets.streaming_uri_for() |> URI.parse() do
+        assert uri.host == Config.streaming_bucket()
+        assert uri.path |> String.length() == 55
+      end
     end
   end
 end

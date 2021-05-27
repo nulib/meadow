@@ -99,7 +99,8 @@ defmodule Meadow.Config do
       upload_bucket(),
       pyramid_bucket(),
       migration_binary_bucket(),
-      migration_manifest_bucket()
+      migration_manifest_bucket(),
+      streaming_bucket()
     ]
     |> Enum.reject(&is_nil/1)
   end

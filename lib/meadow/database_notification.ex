@@ -41,7 +41,11 @@ defmodule Meadow.DatabaseNotification do
     import Meadow.DatabaseNotification
 
     def up do
+      # to be notified of all changes
       create_notification_trigger(:my_table)
+
+      # to be notified of changes to specific fields
+      create_notification_trigger(:my_table, ["specific", "fields"])
     end
 
     def down do
@@ -117,7 +121,9 @@ defmodule Meadow.DatabaseNotification do
     end
   end
 
-  def create_notification_trigger(table) do
+  def create_notification_trigger(table, fields \\ []) do
+    condition = field_condition(fields)
+
     Ecto.Migration.execute("""
       CREATE OR REPLACE FUNCTION notify_#{table}_changed()
       RETURNS trigger AS $$
@@ -125,12 +131,18 @@ defmodule Meadow.DatabaseNotification do
         changed JSONB;
         key_field TEXT;
         key JSONB := jsonb_object('{}');
+        notify BOOLEAN;
         payload TEXT;
       BEGIN
-        IF TG_OP IN ('INSERT', 'UPDATE') THEN
+        IF TG_OP = 'INSERT' THEN
           changed = row_to_json(NEW)::JSONB;
+          notify = true;
+        ELSIF TG_OP = 'UPDATE' THEN
+          changed = row_to_json(NEW)::JSONB;
+          notify = #{condition};
         ELSE
           changed = row_to_json(OLD)::JSONB;
+          notify = true;
         END IF;
 
         -- Build the key dynamically based on the primary key
@@ -138,19 +150,21 @@ defmodule Meadow.DatabaseNotification do
         -- but this allows for notifications on tables with
         -- compound keys.
 
-        FOR key_field IN
-          SELECT c.column_name
-          FROM information_schema.key_column_usage AS c
-          LEFT JOIN information_schema.table_constraints AS t
-          ON t.constraint_name = c.constraint_name
-          WHERE t.table_name = '#{table}' AND t.constraint_type = 'PRIMARY KEY'
-          ORDER BY c.ordinal_position
-        LOOP
-          key = jsonb_set(key, ('{'||key_field||'}')::text[], changed->key_field);
-        END LOOP;
+        IF notify THEN
+          FOR key_field IN
+            SELECT c.column_name
+            FROM information_schema.key_column_usage AS c
+            LEFT JOIN information_schema.table_constraints AS t
+            ON t.constraint_name = c.constraint_name
+            WHERE t.table_name = '#{table}' AND t.constraint_type = 'PRIMARY KEY'
+            ORDER BY c.ordinal_position
+          LOOP
+            key = jsonb_set(key, ('{'||key_field||'}')::text[], changed->key_field);
+          END LOOP;
 
-        SELECT json_build_object('operation', TG_OP, 'key', key)::text INTO payload;
-        PERFORM pg_notify('#{table}_changed', payload);
+          SELECT json_build_object('operation', TG_OP, 'key', key)::text INTO payload;
+          PERFORM pg_notify('#{table}_changed', payload);
+        END IF;
 
         RETURN NEW;
       END;
@@ -168,5 +182,19 @@ defmodule Meadow.DatabaseNotification do
   def drop_notification_trigger(table) do
     Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed ON #{table}")
     Ecto.Migration.execute("DROP FUNCTION IF EXISTS notify_#{table}_changed")
+  end
+
+  defp field_condition([]), do: "true"
+
+  defp field_condition(fields) do
+    fields
+    |> Enum.flat_map(
+      &[
+        "(NEW.#{&1} <> OLD.#{&1})",
+        "(NEW.#{&1} IS NULL AND OLD.#{&1} IS NOT NULL)",
+        "(NEW.#{&1} IS NOT NULL AND OLD.#{&1} IS NULL)"
+      ]
+    )
+    |> Enum.join(" OR ")
   end
 end
