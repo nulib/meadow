@@ -357,3 +357,8 @@ resource "aws_iam_role" "transcode_role" {
     })
   }
 }
+
+resource "aws_media_convert_queue" "transcode_queue" {
+  name   = var.stack_name
+  status = "ACTIVE"
+}
