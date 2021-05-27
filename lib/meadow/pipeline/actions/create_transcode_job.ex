@@ -3,8 +3,6 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
   Action to create an AWS Elemental MediaConvert Job for an audio or video file
   """
 
-  @mediaconvert_client Application.compile_env(:meadow, :mediaconvert_client)
-
   alias Meadow.Data.{ActionStates, FileSets}
   alias MediaConvert.{AudioTemplate, VideoTemplate}
   alias Sequins.Pipeline.Action
@@ -51,14 +49,14 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
   defp transcode(user_metadata, "video/" <> _subtype, "s3://" <> _ = source, destination) do
     user_metadata
     |> VideoTemplate.render(source, destination)
-    |> @mediaconvert_client.create_job()
+    |> mediaconvert_client().create_job()
     |> handle_job()
   end
 
   defp transcode(user_metadata, "audio/" <> _subtype, "s3://" <> _ = source, destination) do
     user_metadata
     |> AudioTemplate.render(source, destination)
-    |> @mediaconvert_client.create_job()
+    |> mediaconvert_client().create_job()
     |> handle_job()
   end
 
@@ -73,4 +71,6 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
     Logger.error("Error creating MediaConvert Job")
     {:error, error}
   end
+
+  defp mediaconvert_client, do: Application.get_env(:meadow, :mediaconvert_client)
 end
