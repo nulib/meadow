@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     with trail <- get_in(result, [:data, "actionStates"]) do
       case file_set.role.id do
         "A" ->
-          assert(length(trail) == 7)
+          assert(length(trail) == 8)
 
         "P" ->
           assert(length(trail) == 6)
@@ -37,7 +37,7 @@ defmodule MeadowWeb.Schema.Query.ActionStatesTest do
     with trail <- get_in(result, [:data, "actionStates"]) do
       case file_set.role.id do
         "A" ->
-          assert(length(trail) == 7)
+          assert(length(trail) == 8)
 
         "P" ->
           assert(length(trail) == 6)

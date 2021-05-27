@@ -23,7 +23,7 @@ defmodule Meadow.Pipeline do
   def kickoff(%FileSet{} = file_set, context), do: kickoff(file_set.id, context)
 
   def kickoff(file_set_id, %{role: "P"} = context) do
-    actions = List.delete(actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
+    actions = actions() -- [Meadow.Pipeline.Actions.CreatePyramidTiff, Meadow.Pipeline.Actions.CreateTranscodeJob]
     kickoff(file_set_id, context, actions)
   end
 

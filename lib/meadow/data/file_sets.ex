@@ -183,4 +183,16 @@ defmodule Meadow.Data.FileSets do
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
+
+  @doc """
+  Get the streaming path for a file set
+  """
+  def streaming_uri_for(%FileSet{role: %{id: "P"}}), do: nil
+  def streaming_uri_for(%FileSet{} = file_set), do: streaming_uri_for(file_set.id)
+
+  def streaming_uri_for(file_set_id) do
+    bucket = Config.streaming_bucket()
+    key = "/" <> Pairtree.generate!(file_set_id) <> "/"
+    %URI{scheme: "s3", host: bucket, path: key} |> URI.to_string()
+  end
 end

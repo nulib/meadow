@@ -9,6 +9,8 @@ defmodule Meadow.Data.ActionStates do
   alias Meadow.Data.Schemas.ActionState
   alias Meadow.Repo
 
+  @ok_states ["ok", "n/a"]
+
   def latest_outcome(object_id) do
     case get_latest_state(object_id) do
       %ActionState{outcome: outcome} -> outcome
@@ -20,7 +22,7 @@ defmodule Meadow.Data.ActionStates do
     do: get_states(object_id) |> Enum.any?(fn state -> state.outcome == "error" end)
 
   def ok?(object_id),
-    do: get_states(object_id) |> Enum.all?(fn state -> state.outcome == "ok" end)
+    do: get_states(object_id) |> Enum.all?(fn state -> Enum.member?(@ok_states, state.outcome) end)
 
   def latest_outcome(object_id, action) do
     case get_latest_state(object_id, action) do
@@ -30,7 +32,7 @@ defmodule Meadow.Data.ActionStates do
   end
 
   def error?(object_id, action), do: latest_outcome(object_id, action) == "error"
-  def ok?(object_id, action), do: latest_outcome(object_id, action) == "ok"
+  def ok?(object_id, action), do: Enum.member?(@ok_states, latest_outcome(object_id, action))
 
   def initialize_states(object, actions, initial_status \\ "waiting")
 

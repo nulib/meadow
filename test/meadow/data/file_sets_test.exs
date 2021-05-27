@@ -129,4 +129,20 @@ defmodule Meadow.Data.FileSetsTest do
              ]
     end
   end
+
+  describe "utilities" do
+    test "streaming_uri_for/1 for a FileSet with a 'P' role" do
+      file_set = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
+      assert is_nil(FileSets.streaming_uri_for(file_set))
+    end
+
+    test "streaming_uri_for/1 for a FileSet with any role besides 'P'" do
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"}
+        )
+
+      assert FileSets.streaming_uri_for(file_set) |> String.length() == 58
+    end
+  end
 end

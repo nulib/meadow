@@ -88,6 +88,8 @@ config :meadow,
   preservation_bucket: "dev-preservation",
   preservation_check_bucket: "dev-preservation-checks",
   pyramid_bucket: "dev-pyramids",
+  streaming_bucket: "dev-streaming",
+  mediaconvert_client: MediaConvert.Mock,
   migration_binary_bucket: "dev-migration-binaries",
   migration_manifest_bucket: "dev-migration-manifests",
   iiif_server_url:
