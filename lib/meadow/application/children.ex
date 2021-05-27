@@ -13,6 +13,7 @@ defmodule Meadow.Application.Children do
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       "manifest_listener" => Meadow.IIIF.ManifestListener,
+      "scheduler" => Meadow.Scheduler,
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
     }
   end
