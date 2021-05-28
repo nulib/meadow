@@ -22,9 +22,9 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
   }, []);
 
   return (
-    <header
+    <div
       style={styles.headerStyle}
-      className="box is-shadowless is-marginless has-background-light py-0 px-4"
+      className="box is-shadowless is-marginless has-background-light pt-3 pb-0"
       {...restProps}
     >
       <ActionHeadline>
@@ -33,7 +33,7 @@ const UITabsStickyHeader = ({ title, children, ...restProps }) => {
           <div className="buttons">{children}</div>
         </AuthDisplayAuthorized>
       </ActionHeadline>
-    </header>
+    </div>
   );
 };
 

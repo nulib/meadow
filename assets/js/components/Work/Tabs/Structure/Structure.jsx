@@ -13,7 +13,7 @@ import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { Button } from "@nulib/admin-react-components";
-import WorkTabsStructureFilesetList from "./FilesetList";
+import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
 
@@ -83,10 +83,6 @@ const WorkTabsStructure = ({ work }) => {
     setIsReordering(false);
   };
 
-  const handleDownloadClick = (type) => {
-    console.log("Download clicked and type: ", type);
-  };
-
   const handleSaveReorder = (orderedFileSets = []) => {
     updateAccessMasterOrder({
       variables: { workId: work.id, fileSetIds: orderedFileSets },
@@ -100,8 +96,16 @@ const WorkTabsStructure = ({ work }) => {
     setWorkImage({ variables: { fileSetId: id, workId: work.id } });
   };
 
-  const filterAccessMasters = (fileSets) => {
-    return fileSets.filter((fs) => fs.role.id == "A");
+  const filterFilesets = (fileSets) => {
+    const returnObj = {
+      access: fileSets.filter((fs) => fs.role.id === "A"),
+      auxillary: fileSets.filter((fs) => fs.role.id === "X"),
+    };
+    return returnObj;
+  };
+
+  const filterDraggableFilesets = (fileSets) => {
+    return fileSets.filter((fs) => fs.role.id === "A");
   };
 
   const onSubmit = (data) => {
@@ -129,7 +133,7 @@ const WorkTabsStructure = ({ work }) => {
         name="work-structure-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
-        <UITabsStickyHeader title="Filesets">
+        <UITabsStickyHeader title="Structure of Filesets">
           {!isEditing && (
             <Button
               isPrimary
@@ -180,17 +184,17 @@ const WorkTabsStructure = ({ work }) => {
           )}
           {isReordering ? (
             <WorkTabsStructureFilesetsDragAndDrop
-              fileSets={filterAccessMasters(work.fileSets)}
+              fileSets={filterDraggableFilesets(work.fileSets)}
               handleCancelReorder={handleCancelReorder}
               handleSaveReorder={handleSaveReorder}
             />
           ) : (
-            <WorkTabsStructureFilesetList
-              fileSets={filterAccessMasters(work.fileSets)}
-              handleDownloadClick={handleDownloadClick}
+            <WorkFilesetList
+              fileSets={filterFilesets(work.fileSets)}
               handleWorkImageChange={handleWorkImageChange}
               isEditing={isEditing}
               workImageFilesetId={workImageFilesetId}
+              workType={work.workType?.id}
             />
           )}
         </div>

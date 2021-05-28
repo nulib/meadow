@@ -1,13 +1,13 @@
 import React from "react";
-import WorkTabsStructureFilesetDraggable from "./FilesetDraggable";
+import WorkFilesetDraggable from "./Draggable";
 import { render, screen } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
 import { withReactBeautifulDND } from "@js/services/testing-helpers";
 
-describe("WorkTabsStructureFilesetDraggable components", () => {
+describe("WorkFilesetDraggable components", () => {
   beforeEach(() => {
     render(
-      withReactBeautifulDND(WorkTabsStructureFilesetDraggable, {
+      withReactBeautifulDND(WorkFilesetDraggable, {
         fileSet: mockFileSets[0],
         index: 0,
       })
