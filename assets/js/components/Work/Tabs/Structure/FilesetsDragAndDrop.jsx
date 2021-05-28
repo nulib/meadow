@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import WorkTabsStructureFilesetList from "@js/components/Work/Tabs/Structure/FilesetList";
+import WorkFilesetList from "@js/components/Work/Fileset/List";
 import PropTypes from "prop-types";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Button } from "@nulib/admin-react-components";
@@ -66,8 +66,8 @@ function FilesetsDragAndDrop({
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              <WorkTabsStructureFilesetList
-                fileSets={state.fileSets}
+              <WorkFilesetList
+                fileSets={{ access: state.fileSets }}
                 isReordering
               />
               {provided.placeholder}

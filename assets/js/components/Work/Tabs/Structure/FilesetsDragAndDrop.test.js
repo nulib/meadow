@@ -18,8 +18,8 @@ describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
     );
   });
 
-  it("renders the Drag and Drop wrapper", () => {
-    expect(screen.getByTestId("fileset-dnd-wrapper"));
+  it("renders the Drag and Drop wrapper", async () => {
+    expect(await screen.findByTestId("fileset-dnd-wrapper"));
   });
 
   it("renders save and cancel buttons", () => {

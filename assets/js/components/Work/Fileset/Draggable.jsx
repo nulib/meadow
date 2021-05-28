@@ -13,7 +13,7 @@ const content = css`
   justify-content: flex-start;
 `;
 
-function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
+function WorkFilesetDraggable({ fileSet, index }) {
   const iiifServerUrl = useContext(IIIFContext);
 
   return (
@@ -52,9 +52,9 @@ function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
   );
 }
 
-WorkTabsStructureFilesetDraggable.propTypes = {
+WorkFilesetDraggable.propTypes = {
   fileSet: PropTypes.object,
   index: PropTypes.number,
 };
 
-export default WorkTabsStructureFilesetDraggable;
+export default WorkFilesetDraggable;

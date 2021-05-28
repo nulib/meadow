@@ -151,10 +151,12 @@ export const mockWork = {
         description: "Letter, page 2, If these papers, verso, blank",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        mimeType: "image",
         originalFilename: "coffee.jpg",
         sha256: "foobar",
       },
-      extractedMetadata: '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
+      extractedMetadata:
+        '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-09-12T10:01:01",
       updatedAt: "2020-09-18T09:01:01",
     },
@@ -165,12 +167,14 @@ export const mockWork = {
       coreMetadata: {
         description: "Letter, page 1, Dear Sir, recto",
         location: "s3://bucket/foo/bar",
+        mimeType: "image",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
         sha256: "foobar",
       },
-      extractedMetadata: '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
+      extractedMetadata:
+        '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-11-12T10:01:01",
       updatedAt: "2020-11-18T09:01:01",
     },
@@ -182,6 +186,7 @@ export const mockWork = {
         description: "Letter, page 2, If these papers, recto",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
+        mimeType: "image",
         label: "foo.tiff",
         sha256: "foobar",
       },
@@ -197,6 +202,7 @@ export const mockWork = {
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        mimeType: "image",
         sha256: "foobar",
       },
       insertedAt: "2020-06-12T10:01:01",
@@ -314,6 +320,7 @@ const mockWork2 = {
         label: "painting7.JPG",
         location:
           "s3://dev-preservation/0a/fa/26/f5/6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
+        mimeType: "image",
         originalFilename: "painting7.JPG",
         sha256:
           "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",

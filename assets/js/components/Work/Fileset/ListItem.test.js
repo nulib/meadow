@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import WorkTabsStructureFileset from "./Fileset";
+import WorkFilesetListItemImage from "./ListItem";
 import { mockFileSets } from "@js/mock-data/filesets";
 import {
   renderWithReactHookForm,
@@ -19,7 +19,7 @@ describe("Fileset component", () => {
   describe("when not editing", () => {
     function setUpTests(workImageFilesetId) {
       return render(
-        <WorkTabsStructureFileset
+        <WorkFilesetListItemImage
           fileSet={mockFileSets[0]}
           workImageFilesetId={workImageFilesetId}
         />
@@ -55,7 +55,7 @@ describe("Fileset component", () => {
   describe("when editing", () => {
     beforeEach(() => {
       return renderWithReactHookForm(
-        withReactBeautifulDND(WorkTabsStructureFileset, {
+        withReactBeautifulDND(WorkFilesetListItemImage, {
           fileSet: mockFileSets[0],
           index: 0,
           isEditing: true,

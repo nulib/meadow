@@ -208,6 +208,7 @@ export const GET_WORK = gql`
           description
           label
           location
+          mimeType
           originalFilename
           sha256
         }
