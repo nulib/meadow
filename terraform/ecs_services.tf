@@ -35,6 +35,9 @@ locals {
     ldap_bind_dn               = var.ldap_bind_dn
     ldap_bind_password         = var.ldap_bind_password
     preservation_check_bucket  = aws_s3_bucket.meadow_preservation_checks.bucket
+    streaming_bucket           = aws_s3_bucket.meadow_streaming.bucket
+    mediaconvert_queue         = aws_media_convert_queue.transcode_queue.arn
+    mediaconvert_role          = aws_iam_role.transcode_role.arn
   }
 }
 
