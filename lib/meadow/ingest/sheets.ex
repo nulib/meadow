@@ -7,6 +7,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
+  alias Meadow.Ingest.Progress
   alias Meadow.Ingest.Schemas.{Project, Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
@@ -455,5 +456,18 @@ defmodule Meadow.Ingest.Sheets do
       where: s.updated_at >= ^since
     )
     |> Repo.all()
+  end
+
+  def kick(%Sheet{} = sheet), do: kick!(sheet.id)
+  def kick!(sheet_id) do
+    with entry <-
+           sheet_id
+           |> Progress.get_entries()
+           |> List.first() do
+      Repo.query("UPDATE ingest_progress SET status = status WHERE row_id = $1 AND action = $2", [
+        Ecto.UUID.dump!(entry.row_id),
+        entry.action
+      ])
+    end
   end
 end

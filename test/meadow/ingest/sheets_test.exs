@@ -3,7 +3,8 @@ defmodule Meadow.Ingest.SheetsTest do
 
   alias Meadow.Data.Works
   alias Meadow.Ingest.Schemas.Sheet
-  alias Meadow.Ingest.Sheets
+  alias Meadow.Ingest.{Progress, Rows, Sheets}
+  alias Meadow.Utils.MapList
 
   describe "ingest_sheets" do
     @valid_attrs %{
@@ -147,6 +148,29 @@ defmodule Meadow.Ingest.SheetsTest do
       |> Enum.each(fn _ -> work_fixture(%{ingest_sheet_id: ingest_sheet.id}) end)
 
       assert Sheets.work_count(ingest_sheet) == 30
+    end
+  end
+
+  describe "fix stuck ingest sheet" do
+    @fixture "test/fixtures/ingest_sheet.csv"
+
+    setup do
+      ingest_sheet = ingest_sheet_rows_fixture(@fixture)
+
+      with rows <- Rows.list_ingest_sheet_rows(sheet: ingest_sheet) do
+        rows
+        |> Enum.with_index()
+        |> Enum.map(fn {row, index} ->
+          {row.id, MapList.get(row.fields, :header, :value, :role), rem(index, 4) == 0}
+        end)
+        |> Progress.initialize_entries()
+
+        {:ok, %{ingest_sheet: ingest_sheet}}
+      end
+    end
+
+    test "kick!/1", %{ingest_sheet: ingest_sheet} do
+      assert {:ok, %Postgrex.Result{command: :update, num_rows: 1}} = Sheets.kick!(ingest_sheet)
     end
   end
 end
