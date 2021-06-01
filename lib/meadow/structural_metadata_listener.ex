@@ -5,9 +5,9 @@ defmodule Meadow.StructuralMetadataListener do
   """
   use Meadow.DatabaseNotification, tables: [:file_sets]
   use Meadow.Utils.Logging
-  alias Meadow.{Config, Error}
+  alias Meadow.Config
   alias Meadow.Data.FileSets
-  alias Meadow.Utils.Pairtree
+  alias Meadow.Utils.{AWS, Pairtree}
   require Logger
 
   @impl true
@@ -34,16 +34,14 @@ defmodule Meadow.StructuralMetadataListener do
     Logger.info("Writing structural metadata for #{id}")
 
     ExAws.S3.put_object(Config.streaming_bucket(), vtt_location(id), vtt, content_type: "text/vtt")
-    |> ExAws.request()
-    |> Error.handle_ex_aws_response(__MODULE__)
+    |> AWS.request()
   end
 
   defp write_structural_metadata(%{id: id}) do
     Logger.info("Deleting structural metadata for #{id}")
 
     ExAws.S3.delete_object(Config.streaming_bucket(), vtt_location(id))
-    |> ExAws.request()
-    |> Error.handle_ex_aws_response(__MODULE__)
+    |> AWS.request()
   end
 
   defp vtt_location(id), do: Path.join(Pairtree.generate!(id), id <> ".vtt")
