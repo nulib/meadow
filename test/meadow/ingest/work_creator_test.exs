@@ -3,7 +3,8 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.{Progress, SheetsToWorks, WorkCreator}
-  alias Meadow.{Pipeline, Repo}
+  alias Meadow.Repo
+  alias Meadow.Pipeline.Actions.Dispatcher
 
   import Assertions
   import ExUnit.CaptureLog
@@ -44,7 +45,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         assert_async(timeout: 1500, sleep_time: 150) do
           assert Works.list_works() |> length() == 1
 
-          assert ["CreateWork" | Pipeline.actions()]
+          assert ["CreateWork" | Dispatcher.all_progress_actions()]
                  |> Enum.all?(fn action ->
                    Progress.get_entry(row, action) |> Map.get(:status) == "error"
                  end)

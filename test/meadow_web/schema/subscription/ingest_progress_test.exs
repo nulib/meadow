@@ -3,11 +3,11 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   use MeadowWeb.SubscriptionCase, async: true
   alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks}
   alias Meadow.Pipeline
-  alias Meadow.Pipeline.Actions.GenerateFileSetDigests
+  alias Meadow.Pipeline.Actions.{Dispatcher, GenerateFileSetDigests}
 
   @work_count 2
   @file_set_count 7
-  @action_count length(Pipeline.actions())
+  @action_count length(Dispatcher.all_progress_actions())
   @pct_factor 100 / (@file_set_count * @action_count - 1 + @work_count)
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
