@@ -8,6 +8,7 @@ defmodule Meadow.Ingest.ValidatorTest do
   @uploads_bucket Meadow.Config.upload_bucket()
   @ingest_bucket Meadow.Config.ingest_bucket()
   @image_fixture "test/fixtures/coffee.tif"
+  @json_fixture "test/fixtures/details.json"
 
   setup context do
     project =
@@ -34,9 +35,16 @@ defmodule Meadow.Ingest.ValidatorTest do
       File.read!(@image_fixture)
     )
 
+    upload_object(
+      @ingest_bucket,
+      "#{project.folder}/details.json",
+      File.read!(@json_fixture)
+    )
+
     on_exit(fn ->
       delete_object(@uploads_bucket, @sheet_path <> context.sheet)
       delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
+      delete_object(@ingest_bucket, "#{project.folder}/details.json")
     end)
 
     {:ok, %{sheet: sheet, project: project}}

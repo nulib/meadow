@@ -6,10 +6,10 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
     CopyFileToPreservation,
     CreatePyramidTiff,
     Dispatcher,
+    ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
     GenerateFileSetDigests,
-    ExtractExifMetadata,
     IngestFileSet,
     InitializeDispatch
   }

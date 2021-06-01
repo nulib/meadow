@@ -3,6 +3,7 @@ defmodule Meadow.Ingest.RowsTest do
   alias Meadow.Ingest.Rows
 
   @fixture "test/fixtures/ingest_sheet.csv"
+  @file_set_count 8
 
   describe "list_ingest_sheet_rows/1" do
     setup %{criteria: criteria} do
@@ -16,17 +17,17 @@ defmodule Meadow.Ingest.RowsTest do
 
     @tag criteria: []
     test "fetch all rows for sheet", %{result: result} do
-      assert result == [1, 2, 3, 4, 5, 6, 7]
+      assert result == 1..@file_set_count |> Enum.to_list()
     end
 
     @tag criteria: [state: ["pending"]]
     test "fetch all rows in pending state", %{result: result} do
-      assert result == [1, 2, 3, 4, 5, 6, 7]
+      assert result == 1..@file_set_count |> Enum.to_list()
     end
 
     @tag criteria: [start: 3]
     test "fetch rows with a start index", %{result: result} do
-      assert result == [3, 4, 5, 6, 7]
+      assert result == 3..@file_set_count |> Enum.to_list()
     end
 
     @tag criteria: [limit: 3]
@@ -59,7 +60,7 @@ defmodule Meadow.Ingest.RowsTest do
       end
 
       with rows <- Rows.get_rows_by_work_accession_number(sheet.id, "#{prefix}_Donohue_002") do
-        assert length(rows) == 3
+        assert length(rows) == 4
 
         Enum.each(rows, fn row ->
           assert String.starts_with?(row.file_set_accession_number, "#{prefix}_Donohue_002_")
