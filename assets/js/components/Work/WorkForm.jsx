@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
-import { CREATE_WORK } from "./work.gql.js";
+import { useMutation, useQuery } from "@apollo/client";
+import { CREATE_WORK, GET_WORK_TYPES } from "./work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
 import Error from "@js/components/UI/Error";
 import Loading from "@js/components/UI/Loading";
 import { toastWrapper } from "@js/services/helpers";
-import UIFormInput from "@js/components/UI/Form/Input.jsx";
-import UIFormField from "@js/components/UI/Form/Field.jsx";
+import UIFormInput from "@js/components/UI/Form/Input";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
 import { Button } from "@nulib/admin-react-components";
 import { useHistory } from "react-router-dom";
 
@@ -14,6 +15,11 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
   const [formError, setFormError] = useState();
   const methods = useForm();
   const history = useHistory();
+  let {
+    data: workTypeData,
+    loading: workTypeLoading,
+    error: workTypeError,
+  } = useQuery(GET_WORK_TYPES);
   let [createWork, { loading, error: mutationError, data }] = useMutation(
     CREATE_WORK,
     {
@@ -35,11 +41,21 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
     }
   );
 
+  if (mutationError || workTypeError)
+    return (
+      <p className="notification is-danger">
+        Error loading GraphQL data: {mutationError || workTypeError}
+      </p>
+    );
   if (loading) return <Loading />;
 
   const onSubmit = (data) => {
     createWork({
-      variables: { accessionNumber: data.accessionNumber, title: data.title },
+      variables: {
+        accessionNumber: data.accessionNumber,
+        title: data.title,
+        workType: { id: data.workType, scheme: "WORK_TYPE" },
+      },
     });
   };
 
@@ -87,6 +103,14 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
                   data-testid="title-input"
                   name="title"
                   placeholder="Name your work..."
+                />
+              </UIFormField>
+              <UIFormField label="Work type">
+                <UIFormSelect
+                  isReactHookForm
+                  name="workType"
+                  options={workTypeData?.codeList}
+                  data-testid="work-type"
                 />
               </UIFormField>
             </div>

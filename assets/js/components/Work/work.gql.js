@@ -19,17 +19,26 @@ export const CREATE_SHARED_LINK = gql`
 `;
 
 export const CREATE_WORK = gql`
-  mutation createWork($accessionNumber: String!, $title: String) {
+  mutation createWork(
+    $accessionNumber: String!
+    $title: String
+    $workType: CodedTermInput
+  ) {
     createWork(
       accessionNumber: $accessionNumber
       administrativeMetadata: {}
       descriptiveMetadata: { title: $title }
+      workType: $workType
     ) {
       accessionNumber
       descriptiveMetadata {
         title
       }
       id
+      workType {
+        id
+        label
+      }
     }
   }
 `;
@@ -288,6 +297,16 @@ export const GET_WORKS = gql`
         id
         label
       }
+    }
+  }
+`;
+
+export const GET_WORK_TYPES = gql`
+  query GetWorkTypes {
+    codeList(scheme: WORK_TYPE) {
+      id
+      label
+      scheme
     }
   }
 `;

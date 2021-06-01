@@ -2,6 +2,7 @@ import {
   CREATE_WORK,
   DELETE_FILESET,
   GET_WORK,
+  GET_WORK_TYPES,
   VERIFY_FILE_SETS,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
@@ -397,12 +398,48 @@ export const getWorkMock = {
   },
 };
 
+export const getWorkTypesMock = {
+  request: {
+    query: GET_WORK_TYPES,
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "AUDIO",
+          label: "Audio",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "DOCUMENT",
+          label: "Document",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "IMAGE",
+          label: "Image",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "VIDEO",
+          label: "Video",
+          scheme: "WORK_TYPE",
+        },
+      ],
+    },
+  },
+};
+
 export const createWorkMock = {
   request: {
     query: CREATE_WORK,
     variables: {
       accessionNumber: "Donohue_001",
       title: "New mock work title",
+      workType: {
+        id: "IMAGE",
+        scheme: "WORK_TYPE",
+      },
     },
   },
   result: {
@@ -413,6 +450,10 @@ export const createWorkMock = {
           title: "New mock work title",
         },
         id: MOCK_WORK_ID,
+        workType: {
+          id: "IMAGE",
+          label: "Image",
+        },
       },
     },
   },
