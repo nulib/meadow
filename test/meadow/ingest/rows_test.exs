@@ -66,5 +66,12 @@ defmodule Meadow.Ingest.RowsTest do
         end)
       end
     end
+
+    test "get_row_by_file_set_accession_number/2", %{prefix: prefix, sheet: sheet} do
+      with row <-
+             Rows.get_row_by_file_set_accession_number(sheet.id, "#{prefix}_Donohue_001_01") do
+        assert row.file_set_accession_number == "#{prefix}_Donohue_001_01"
+      end
+    end
   end
 end

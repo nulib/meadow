@@ -42,9 +42,12 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
       assert(InitializeDispatch.process(%{file_set_id: file_set_id}, %{}) == :ok)
 
       assert capture_log(fn ->
-               Dispatcher.process(%{file_set_id: file_set_id}, %{})
+               Dispatcher.process(%{file_set_id: file_set_id}, %{
+                 process: "InitializeDispatch",
+                 status: "ok"
+               })
              end) =~
-               "Last action was: Meadow.Pipeline.Actions.InitializeDispatch, next action is: Elixir.Meadow.Pipeline.Actions.GenerateFileSetDigests for file set id: #{
+               "Last action was: Elixir.Meadow.Pipeline.Actions.InitializeDispatch, next action is: Elixir.Meadow.Pipeline.Actions.GenerateFileSetDigests for file set id: #{
                  file_set_id
                }"
     end

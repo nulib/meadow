@@ -60,7 +60,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
   defp fixup_progress(%{work: work}) when is_nil(work), do: :noop
 
   defp fixup_progress(%{work_id: _work_id, work: %{ingest_sheet_id: ingest_sheet_id}} = file_set) do
-    Rows.get_row_by_accession_number(ingest_sheet_id, file_set.accession_number)
+    Rows.get_row_by_file_set_accession_number(ingest_sheet_id, file_set.accession_number)
     |> Progress.update_entries(
       Dispatcher.not_my_actions(file_set),
       "ok"

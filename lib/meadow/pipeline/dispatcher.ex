@@ -8,7 +8,6 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.Atoms
   alias Sequins.Pipeline.Action
 
   alias Meadow.Pipeline.Actions.{
@@ -55,7 +54,7 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   ]
 
   def process(data, attributes) do
-    Logger.info("dispatcher called")
+    Logger.info("Dispatching #{data.file_set_id}")
     file_set = FileSets.get_file_set(data.file_set_id)
 
     dispatch_next_action(file_set, attributes)
@@ -87,30 +86,40 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   def dispatcher_actions(_), do: nil
 
+  @spec not_my_actions(any) :: list
   def not_my_actions(file_set) do
     (all_progress_actions() -- @initial_actions) -- dispatcher_actions(file_set)
   end
 
+  defp dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
+    do: dispatch_next_action(file_set, action, attributes)
+
+  defp dispatch_next_action(file_set, %{process: "Dispatcher", status: "retry"} = attributes),
+    do: dispatch_next_action(file_set, ActionStates.get_latest_state(file_set.id), attributes)
+
   defp dispatch_next_action(file_set, attributes) do
-    last = ActionStates.get_latest_state(file_set.id)
+    Logger.warn("Unexpected dispatch state for #{file_set.id}, #{attributes}")
+    :noop
+  end
+
+  defp dispatch_next_action(file_set, last_action, attributes) do
+    last = Module.safe_concat(Meadow.Pipeline.Actions, last_action)
 
     next_action =
       next_action(
-        last.action,
+        last,
         dispatcher_actions(file_set)
       )
 
     Logger.info(
-      "Last action was: #{last.action}, next action is: #{next_action} for file set id: #{
-        file_set.id
-      }"
+      "Last action was: #{last}, next action is: #{next_action} for file set id: #{file_set.id}"
     )
 
     next_action.send_message(%{file_set_id: file_set.id}, attributes)
   end
 
   defp next_action(last_action, action_queue) do
-    index = action_queue |> Enum.find_index(&(Atoms.atom_to_string(&1) == last_action))
+    index = action_queue |> Enum.find_index(&(&1 == last_action))
 
     case index do
       nil ->
