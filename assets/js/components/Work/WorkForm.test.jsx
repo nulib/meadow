@@ -1,14 +1,17 @@
 import React from "react";
 import WorkForm from "./WorkForm";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { createWorkMock } from "@js/components/Work/work.gql.mock";
+import {
+  createWorkMock,
+  getWorkTypesMock,
+} from "@js/components/Work/work.gql.mock";
 import userEvent from "@testing-library/user-event";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 
 describe("ProjectForm component", () => {
   beforeEach(() => {
     renderWithRouterApollo(<WorkForm />, {
-      mocks: [createWorkMock],
+      mocks: [createWorkMock, getWorkTypesMock],
     });
   });
 
@@ -19,8 +22,13 @@ describe("ProjectForm component", () => {
   it("renders form inputs and buttons", () => {
     expect(screen.getByTestId("accession-number-input"));
     expect(screen.getByTestId("title-input"));
+    expect(screen.getByTestId("work-type"));
     expect(screen.getByTestId("submit-button"));
     expect(screen.getByTestId("cancel-button"));
+  });
+
+  it("renders Work Type options in dropdown", async () => {
+    expect(await screen.findByDisplayValue("Audio"));
   });
 
   it("displays input error when empty form is submitted", async () => {
