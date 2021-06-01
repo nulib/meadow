@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.SheetsToWorksTest do
 
   @fixture "test/fixtures/ingest_sheet.csv"
   @fixture_works 2
-  @fixture_file_sets 7
+  @fixture_file_sets 8
 
   setup do
     sheet = ingest_sheet_rows_fixture(@fixture)

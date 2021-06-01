@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   alias Meadow.Pipeline.Actions.{Dispatcher, GenerateFileSetDigests}
 
   @work_count 2
-  @file_set_count 7
+  @file_set_count 8
   @action_count length(Dispatcher.all_progress_actions())
   @pct_factor 100 / (@file_set_count * @action_count - 1 + @work_count)
 

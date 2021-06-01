@@ -13,10 +13,10 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
+    ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
     GenerateFileSetDigests,
-    ExtractExifMetadata,
     IngestFileSet,
     InitializeDispatch
   }
