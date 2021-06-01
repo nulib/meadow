@@ -50,7 +50,7 @@ describe("SearchActionRow component", () => {
       expect(screen.getByTestId("button-edit-items")).toBeDisabled();
     });
 
-    it("renders 'batch edit', 'csv export' and 'batch delete' buttons when select all button is clicked", () => {
+    it("renders all buttons when select all button is clicked", () => {
       // Open the modal
       userEvent.click(screen.getByTestId("button-select-all"));
 
@@ -58,6 +58,7 @@ describe("SearchActionRow component", () => {
       expect(props.handleEditAllItems).toHaveBeenCalled();
 
       expect(screen.getByTestId("button-csv-all-export"));
+      expect(screen.getByTestId("button-csv-all-shared-links"));
       expect(screen.getByTestId("button-batch-all-delete"));
     });
   });
@@ -91,6 +92,7 @@ describe("SearchActionRow component", () => {
       expect(props.handleViewAndEdit).toHaveBeenCalled();
 
       expect(screen.getByTestId("button-csv-items-export"));
+      expect(screen.getByTestId("button-csv-items-shared-links"));
       expect(screen.getByTestId("button-delete-items"));
     });
   });

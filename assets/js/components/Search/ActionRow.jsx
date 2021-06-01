@@ -11,7 +11,17 @@ import {
   IconMinus,
   IconTrashCan,
 } from "@js/components/Icon";
+import SearchFormDownloadWrapper from "@js/components/Search/FormDownloadWrapper";
+const { inflect } = require("inflection");
 
+function ModalButton({ children, icon, label, ...restProps }) {
+  return (
+    <Button isLight {...restProps}>
+      <span className="icon">{icon}</span>
+      <span>{label}</span>
+    </Button>
+  );
+}
 export default function SearchActionRow({
   handleDeselectAll,
   handleEditAllItems,
@@ -74,7 +84,10 @@ export default function SearchActionRow({
             disabled={selectedItems.length === 0}
             onClick={() => setIsModalItemsOpen(!isModalItemsOpen)}
           >
-            <span>Edit {selectedItems.length} Items</span>
+            <span>
+              Edit {selectedItems.length}{" "}
+              {inflect("Work", selectedItems.length)}
+            </span>
           </Button>
         </p>
         {selectedItems.length > 0 && (
@@ -98,61 +111,65 @@ export default function SearchActionRow({
         handleCloseClick={() => setIsModalAllItemsOpen(false)}
         isOpen={isModalAllItemsOpen}
       >
-        <AuthDisplayAuthorized level="EDITOR">
-          <>
-            <div className="block">
-              <Button
-                isLight
-                className="is-fullwidth"
-                data-testid="button-batch-all-edit"
-                onClick={handleEditAllItemsClick}
+        <div className="is-flex is-flex-direction-column is-align-items-center">
+          <AuthDisplayAuthorized level="EDITOR">
+            <>
+              <div className="block">
+                <ModalButton
+                  icon={<IconEdit />}
+                  label={`Batch edit ${numberOfResults} ${inflect(
+                    "work",
+                    numberOfResults
+                  )}`}
+                  data-testid="button-batch-all-edit"
+                  onClick={handleEditAllItemsClick}
+                />
+              </div>
+              <SearchFormDownloadWrapper
+                formAction="/api/export/all_items.csv"
+                queryValue={filteredQuery}
               >
-                <span className="icon">
-                  <IconEdit />
-                </span>
-                <span>Batch edit {numberOfResults} works</span>
-              </Button>
-            </div>
-            <form
-              method="POST"
-              action="/api/export/all_items.csv"
-              className="block"
-            >
-              <input
-                type="hidden"
-                name="query"
-                value={JSON.stringify({ query: filteredQuery })}
-              />
-              <Button
-                isLight
-                className="is-fullwidth"
-                data-testid="button-csv-all-export"
-                type="submit"
+                <ModalButton
+                  icon={<IconCsv />}
+                  label={`Export metadata from ${numberOfResults} ${inflect(
+                    "work",
+                    numberOfResults
+                  )}`}
+                  data-testid="button-csv-all-export"
+                  type="submit"
+                />
+              </SearchFormDownloadWrapper>
+              <SearchFormDownloadWrapper
+                formAction="/api/create_shared_links/all_items.csv"
+                queryValue={filteredQuery}
               >
-                <span className="icon">
-                  <IconCsv />
-                </span>
-                <span>Export metadata from {numberOfResults} works </span>
-              </Button>
-            </form>
-          </>
-        </AuthDisplayAuthorized>
+                <ModalButton
+                  icon={<IconCsv />}
+                  label={`Download shared links for ${numberOfResults} ${inflect(
+                    "work",
+                    numberOfResults
+                  )}`}
+                  data-testid="button-csv-all-shared-links"
+                  type="submit"
+                />
+              </SearchFormDownloadWrapper>
+            </>
+          </AuthDisplayAuthorized>
 
-        <AuthDisplayAuthorized level="MANAGER">
-          <div className="block">
-            <Button
-              isLight
-              className="is-fullwidth"
-              data-testid="button-batch-all-delete"
-              onClick={handleDeleteAllItemsClick}
-            >
-              <span className="icon">
-                <IconTrashCan />
-              </span>
-              <span>Delete {numberOfResults} works </span>
-            </Button>
-          </div>
-        </AuthDisplayAuthorized>
+          <AuthDisplayAuthorized level="MANAGER">
+            <div className="block">
+              <ModalButton
+                icon={<IconTrashCan />}
+                label={`Delete ${numberOfResults} ${inflect(
+                  "work",
+                  numberOfResults
+                )}`}
+                data-testid="button-batch-all-delete"
+                onClick={handleDeleteAllItemsClick}
+              />
+            </div>
+          </AuthDisplayAuthorized>
+        </div>
       </SearchBatchModal>
 
       {/* Process selected items */}
@@ -160,73 +177,74 @@ export default function SearchActionRow({
         handleCloseClick={() => setIsModalItemsOpen(false)}
         isOpen={isModalItemsOpen}
       >
-        <AuthDisplayAuthorized level="EDITOR">
-          <div className="block">
-            <Button
-              isLight
-              className="is-fullwidth"
-              data-testid="button-batch-items-edit"
-              onClick={handleEditItemsClick}
+        <div className="is-flex is-flex-direction-column is-align-items-center">
+          <AuthDisplayAuthorized level="EDITOR">
+            <div className="block">
+              <ModalButton
+                icon={<IconEdit />}
+                label={`Batch edit ${numSelectedItems} ${inflect(
+                  "work",
+                  numSelectedItems
+                )}`}
+                data-testid="button-batch-items-edit"
+                onClick={handleEditItemsClick}
+              />
+            </div>
+            <div className="block">
+              <ModalButton
+                icon={<IconEdit />}
+                label={`View and edit ${numSelectedItems} individual ${inflect(
+                  "work",
+                  numSelectedItems
+                )}`}
+                data-testid="button-view-and-edit"
+                onClick={handleViewAndEditClick}
+              />
+            </div>
+            <SearchFormDownloadWrapper
+              formAction="/api/export/selected_items.csv"
+              queryValue={buildSelectedItemsQuery(selectedItems)}
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
-              <span>Batch edit {numSelectedItems} works</span>
-            </Button>
-          </div>
-          <div className="block">
-            <Button
-              isLight
-              className="is-fullwidth"
-              data-testid="button-view-and-edit"
-              onClick={handleViewAndEditClick}
+              <ModalButton
+                icon={<IconCsv />}
+                label={`Export metadata from ${numSelectedItems} ${inflect(
+                  "work",
+                  numSelectedItems
+                )}`}
+                data-testid="button-csv-items-export"
+                type="submit"
+              />
+            </SearchFormDownloadWrapper>
+
+            <SearchFormDownloadWrapper
+              formAction="/api/create_shared_links/selected_items.csv"
+              queryValue={buildSelectedItemsQuery(selectedItems)}
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
-              <span>View and edit {numSelectedItems} individual works</span>
-            </Button>
-          </div>
-          <form
-            method="POST"
-            action="/api/export/selected_items.csv"
-            className="block"
-          >
-            <input
-              type="hidden"
-              name="query"
-              value={JSON.stringify({
-                query: buildSelectedItemsQuery(selectedItems),
-              })}
-            />
-            <Button
-              isLight
-              className="is-fullwidth"
-              data-testid="button-csv-items-export"
-              type="submit"
-            >
-              <span className="icon">
-                <IconCsv />
-              </span>
-              <span>Export metadata from {numSelectedItems} works </span>
-            </Button>
-          </form>
-        </AuthDisplayAuthorized>
-        <AuthDisplayAuthorized level="MANAGER">
-          <div className="block">
-            <Button
-              isLight
-              className="is-fullwidth"
-              data-testid="button-delete-items"
-              onClick={handleDeleteItemsClick}
-            >
-              <span className="icon">
-                <IconTrashCan />
-              </span>
-              <span>Delete {numSelectedItems} works </span>
-            </Button>
-          </div>
-        </AuthDisplayAuthorized>
+              <ModalButton
+                icon={<IconCsv />}
+                label={`Download shared links for ${numSelectedItems} ${inflect(
+                  "work",
+                  numSelectedItems
+                )}`}
+                data-testid="button-csv-items-shared-links"
+                type="submit"
+              />
+            </SearchFormDownloadWrapper>
+          </AuthDisplayAuthorized>
+          <AuthDisplayAuthorized level="MANAGER">
+            <div className="block">
+              <ModalButton
+                icon={<IconTrashCan />}
+                label={`Delete ${numSelectedItems} ${inflect(
+                  "work",
+                  numSelectedItems
+                )}`}
+                data-testid="button-delete-items"
+                onClick={handleDeleteItemsClick}
+              />
+            </div>
+          </AuthDisplayAuthorized>
+        </div>
       </SearchBatchModal>
 
       <BatchDeleteConfirmationModal
