@@ -25,11 +25,10 @@ defmodule Meadow.Data.CodedTermsTest do
 
     test "lists terms within a scheme" do
       with results <- CodedTerms.list_coded_terms("work_type") do
-        assert_lists_equal(results |> Enum.map(& &1.id), ["AUDIO", "DOCUMENT", "IMAGE", "VIDEO"])
+        assert_lists_equal(results |> Enum.map(& &1.id), ["AUDIO", "IMAGE", "VIDEO"])
 
         assert_lists_equal(results |> Enum.map(& &1.label), [
           "Audio",
-          "Document",
           "Image",
           "Video"
         ])
