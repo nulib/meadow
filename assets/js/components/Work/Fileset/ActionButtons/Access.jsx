@@ -4,6 +4,7 @@ import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { IconDownload } from "@js/components/Icon";
 import { ImageDownloader } from "@samvera/image-downloader";
+import { Button } from "@nulib/admin-react-components";
 
 function MediaButtons() {
   return (

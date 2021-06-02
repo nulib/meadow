@@ -20,16 +20,13 @@ function WorkTabsPreservationFileSetDropzone({
     handleSetFile(acceptedFiles[0]);
   }, []);
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    accept: "image/tiff, image/jpeg, image/jpg",
-    multiple: false,
-  });
+  const { getRootProps, getInputProps, isDragActive, isDragReject } =
+    useDropzone({
+      onDrop,
+      accept:
+        "image/tiff, image/jpeg, image/jpg, video/mp4, audio/mp3, audio/wav",
+      multiple: false,
+    });
 
   const handleDelete = () => {
     handleSetFile(null);
