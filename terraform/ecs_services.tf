@@ -36,7 +36,7 @@ locals {
     ldap_bind_password         = var.ldap_bind_password
     preservation_check_bucket  = aws_s3_bucket.meadow_preservation_checks.bucket
     streaming_bucket           = aws_s3_bucket.meadow_streaming.bucket
-    streaming_url              = aws_route53_record.meadow_streaming_cloudfront.fqdn
+    streaming_url              = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
     mediaconvert_queue         = aws_media_convert_queue.transcode_queue.arn
     mediaconvert_role          = aws_iam_role.transcode_role.arn
   }

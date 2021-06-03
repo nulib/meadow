@@ -198,12 +198,7 @@ defmodule Meadow.Data.FileSets do
   """
   def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}}) do
     with %{path: path} <- URI.parse(playlist) do
-      %URI{
-        scheme: "https",
-        host: Config.streaming_host(),
-        path: path
-      }
-      |> URI.to_string()
+      Config.streaming_url() |> Path.join(path)
     end
   end
 
