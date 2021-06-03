@@ -10,7 +10,11 @@ defmodule MediaConvert do
   """
   def configure! do
     with endpoint <- get_endpoint() |> URI.parse() do
-      Application.put_env(:ex_aws, :mediaconvert, host: endpoint.host, scheme: endpoint.scheme, port: endpoint.port)
+      Application.put_env(:ex_aws, :mediaconvert,
+        host: endpoint.host,
+        scheme: endpoint.scheme,
+        port: endpoint.port
+      )
     end
   end
 
@@ -18,6 +22,8 @@ defmodule MediaConvert do
   Send a :post request to create a MediaConvert job via the MediaConvert HTTP API
   """
   def create_job(template) do
+    if Application.get_env(:ex_aws, :mediaconvert) |> is_nil(), do: configure!()
+
     case request(:post, "jobs", template) |> ExAws.request() do
       {:ok, response} -> {:ok, get_in(response, ["job", "id"])}
       {:error, reason} -> {:error, reason}
