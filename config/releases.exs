@@ -108,6 +108,7 @@ config :meadow,
     sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
   ],
   streaming_bucket: get_required_var.("STREAMING_BUCKET"),
+  streaming_url: get_required_var.("STREAMING_URL"),
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 

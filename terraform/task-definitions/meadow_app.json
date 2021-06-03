@@ -149,6 +149,10 @@
         "value": "${streaming_bucket}"
       },
       {
+        "name": "STREAMING_URL",
+        "value": "${streaming_url}"
+      },
+      {
         "name": "UPLOAD_BUCKET",
         "value": "${upload_bucket}"
       },
