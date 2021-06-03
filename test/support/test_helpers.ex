@@ -199,7 +199,8 @@ defmodule Meadow.TestHelpers do
             location: "https://fake-s3-bucket/" <> Faker.String.base64(),
             original_filename: Faker.File.file_name()
           },
-      extracted_metadata: attrs[:extracted_metadata] || %{}
+      extracted_metadata: attrs[:extracted_metadata] || %{},
+      derivatives: %{"playlist" => "s3://foo/bar.m3u8"}
     })
   end
 
