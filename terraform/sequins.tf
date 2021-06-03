@@ -1,44 +1,57 @@
 locals {
-  actions = ["ingest-file-set", "extract-mime-type", "generate-file-set-digests", 
-             "extract-exif-metadata", "copy-file-to-preservation", "create-pyramid-tiff", 
-             "create-transcode-job", "transcode-complete", "file-set-complete"]
+  actions = ["ingest-file-set", "extract-mime-type", "generate-file-set-digests",
+    "extract-exif-metadata", "copy-file-to-preservation", "create-pyramid-tiff",
+  "create-transcode-job", "transcode-complete", "file-set-complete"]
 }
 
 resource "aws_sqs_queue" "sequins_queue" {
   for_each = toset(local.actions)
-  name = "${var.stack_name}-${each.key}"
+  name     = "${var.stack_name}-${each.key}"
   policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Sid = "sns-notifications-1"
-          Effect = "Allow"
-          Principal = { "AWS" : "*" }
-          Action = "SQS:SendMessage"
-          Resource = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.stack_name}-${each.key}"
-          Condition = {
-            ArnLike = {
-              "aws:SourceArn" = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.id}:*"
-            }
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "sns-notifications-1"
+        Effect    = "Allow"
+        Principal = { "AWS" : "*" }
+        Action    = "SQS:SendMessage"
+        Resource  = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.stack_name}-${each.key}"
+        Condition = {
+          ArnLike = {
+            "aws:SourceArn" = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.id}:*"
           }
         }
-      ]
+      },
+      {
+        Sid       = "eventbridge-notifications-1"
+        Effect    = "Allow"
+        Principal = { "AWS" : "*" }
+        Action    = "SQS:SendMessage"
+        Resource  = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.stack_name}-${each.key}"
+        Condition = {
+          ArnLike = {
+            "aws:SourceArn" = "arn:aws:events:${var.aws_region}:${data.aws_caller_identity.current.id}:rule/*"
+          }
+        }
+      }
+    ]
   })
 }
 
 resource "aws_sns_topic" "sequins_topic" {
   for_each = toset(local.actions)
-  name = "${var.stack_name}-${each.key}"
+  name     = "${var.stack_name}-${each.key}"
 }
 
 resource "aws_cloudwatch_event_rule" "mediaconvert_state_change" {
-  name = "${var.stack_name}-mediaconvert-state-change"
+  name        = "${var.stack_name}-mediaconvert-state-change"
   description = "Send MediaConvert state changes to Meadow"
   event_pattern = jsonencode({
-    source = ["aws.mediaconvert"]
+    source        = ["aws.mediaconvert"]
     "detail-type" = ["MediaConvert Job State Change"]
     detail = {
-      queue = [aws_media_convert_queue.transcode_queue.arn]
+      status = ["COMPLETE", "ERROR"]
+      queue  = [aws_media_convert_queue.transcode_queue.arn]
     }
   })
 }
