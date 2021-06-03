@@ -64,11 +64,11 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.ingest_sheet_works/3)
     end
 
-    @desc "Get total number of works for an Ingest Sheet"
-    field :ingest_sheet_work_count, :integer do
+    @desc "Get total number of works and file sets created for an Ingest Sheet"
+    field :ingest_sheet_work_count, :ingest_sheet_counts do
       arg(:id, non_null(:id))
       middleware(Middleware.Authenticate)
-      resolve(&Resolvers.Ingest.ingest_sheet_work_count/3)
+      resolve(&Resolvers.Ingest.ingest_sheet_counts/3)
     end
 
     @desc "Get errors for completed ingest sheet"
@@ -244,6 +244,12 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :fields, list_of(:field)
     field :errors, list_of(:error)
     field :state, :state
+  end
+
+  @desc "Fields for an ingest sheet's works and file sets count"
+  object :ingest_sheet_counts do
+    field :total_works, :integer
+    field :total_file_sets, :integer
   end
 
   @desc "Object that tracks Sheet state"

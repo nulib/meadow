@@ -317,7 +317,7 @@ defmodule Meadow.Ingest.Sheets do
     |> Works.add_representative_image()
   end
 
-  def work_count(%Sheet{} = ingest_sheet), do: work_count(ingest_sheet.id)
+  def work_count(%{} = ingest_sheet), do: work_count(ingest_sheet.id)
 
   def work_count(sheet_id) do
     from(w in Work,
@@ -459,6 +459,7 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   def kick(%Sheet{} = sheet), do: kick!(sheet.id)
+
   def kick!(sheet_id) do
     with entry <-
            sheet_id
