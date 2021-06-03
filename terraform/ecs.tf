@@ -123,6 +123,11 @@ resource "aws_iam_role_policy_attachment" "bucket_role_access" {
   policy_arn = aws_iam_policy.this_bucket_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "meadow_transcode_passrole" {
+  role       = aws_iam_role.meadow_role.name
+  policy_arn = aws_iam_policy.allow_transcode.arn
+}
+
 resource "aws_cloudwatch_log_group" "meadow_logs" {
   name = "/ecs/${var.stack_name}"
   tags = var.tags

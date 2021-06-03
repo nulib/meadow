@@ -360,6 +360,28 @@ resource "aws_iam_role" "transcode_role" {
   }
 }
 
+data "aws_iam_policy_document" "pass_transcode_role" {
+  statement {
+    effect = "Allow"
+    actions = ["iam:PassRole"]
+    resources = [aws_iam_role.transcode_role.arn]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "mediaconvert:CreateJob", 
+      "mediaconvert:DescribeEndpoints"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "allow_transcode" {
+  name = "${var.stack_name}-mediaconvert-access"
+  policy = data.aws_iam_policy_document.pass_transcode_role.json
+}
+
 resource "aws_media_convert_queue" "transcode_queue" {
   name   = var.stack_name
   status = "ACTIVE"
