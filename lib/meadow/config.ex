@@ -59,6 +59,12 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :streaming_bucket)
   end
 
+  @doc "Retrieve the environment specific URL for the streaming endpoint"
+  def streaming_url do
+    Application.get_env(:meadow, :streaming_url)
+    |> ensure_trailing_slash()
+  end
+
   @doc "Retrieve the configured migration binary bucket"
   def migration_binary_bucket do
     Application.get_env(:meadow, :migration_binary_bucket)
