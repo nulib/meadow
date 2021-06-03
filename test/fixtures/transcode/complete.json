@@ -1,0 +1,44 @@
+{
+  "version": "0",
+  "id": "15d08782-e7da-c31e-66e3-544ec526d647",
+  "detail-type": "MediaConvert Job State Change",
+  "source": "aws.mediaconvert",
+  "account": "012345678901",
+  "time": "2021-05-26T19:48:02Z",
+  "region": "us-east-1",
+  "resources": [
+    "arn:aws:mediaconvert:us-east-1:012345678901:jobs/1622058474636-k5t3hx"
+  ],
+  "detail": {
+    "timestamp": 1622058482317,
+    "accountId": "012345678901",
+    "queue": "arn:aws:mediaconvert:us-east-1:012345678901:queues/Default",
+    "jobId": "1622058474636-k5t3hx",
+    "status": "COMPLETE",
+    "userMetadata": {
+      "file_set_id": "2d4d7380-68d2-49b5-a6ee-3de577f63770",
+      "context": "Test"
+    },
+    "outputGroupDetails": [
+      {
+        "outputDetails": [
+          {
+            "durationInMs": 5538,
+            "videoDetails": {
+              "widthInPx": 1280,
+              "heightInPx": 720
+            }
+          },
+          {
+            "durationInMs": 5526
+          }
+        ],
+        "playlistFilePaths": [
+          "s3://test-streaming/event-test/small.mpd",
+          "s3://test-streaming/event-test/small.m3u8"
+        ],
+        "type": "CMAF_GROUP"
+      }
+    ]
+  }
+}

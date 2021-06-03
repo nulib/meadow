@@ -10,7 +10,7 @@ defmodule Meadow.Utils.ExtractedMetadata do
     |> Enum.map(fn {key, data} ->
       case key do
         "exif" -> {key, transform_data(data, &Exif.transform/1)}
-        other -> {key, other}
+        _ -> {key, data}
       end
     end)
     |> Enum.into(%{})

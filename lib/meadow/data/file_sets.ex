@@ -138,6 +138,14 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
+  def add_derivative(%FileSet{derivatives: nil}, type, value),
+    do: add_derivative_to_map(%{}, type, value)
+
+  def add_derivative(%FileSet{derivatives: map}, type, value),
+    do: add_derivative_to_map(map, type, value)
+
+  defp add_derivative_to_map(map, type, value), do: Map.put(map, to_string(type), value)
+
   defp multi_update(file_set_updates) do
     file_set_updates
     |> Enum.with_index(1)

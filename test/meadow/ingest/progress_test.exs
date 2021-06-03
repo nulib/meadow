@@ -110,7 +110,7 @@ defmodule Meadow.Ingest.ProgressTest do
     end
 
     test "action_count/1", %{ingest_sheet: sheet} do
-      assert Progress.action_count(sheet) == 66
+      assert Progress.action_count(sheet) == 90
       assert Progress.action_count(@bad_sheet_id) == 0
     end
 
@@ -136,7 +136,7 @@ defmodule Meadow.Ingest.ProgressTest do
         assert progress.sheet_id == sheet.id
         assert progress.total_file_sets == 8
         assert progress.completed_file_sets == 0
-        assert progress.total_actions == 66
+        assert progress.total_actions == 90
         assert progress.completed_actions == 0
         assert progress.percent_complete == 0.0
       end
@@ -155,7 +155,7 @@ defmodule Meadow.Ingest.ProgressTest do
 
       with progress <- Progress.pipeline_progress(sheet) do
         assert progress.completed_file_sets == 8
-        assert progress.completed_actions == 66
+        assert progress.completed_actions == 90
         assert progress.percent_complete == 100.0
       end
 

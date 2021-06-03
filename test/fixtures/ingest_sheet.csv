@@ -4,6 +4,6 @@ IMAGE,Donohue_001,Donohue_001_01,coffee.tif,"Letter, page 1, Dear Sir, recto",A,
 ,Donohue_001,Donohue_001_03,coffee.tif,"Letter, page 2, If these papers, recto",A,"The label",TRUE
 ,Donohue_001,Donohue_001_04,coffee.tif,"Letter, page 2, If these papers, verso, blank",X,"The label",
 VIDEO,Donohue_002,Donohue_002_01,coffee.tif,"Photo, man with two children",A,"The label",
-,Donohue_002,Donohue_002_02,coffee.tif,Verso,A,"The label",
+,Donohue_002,Donohue_002_02,small.m4v,Small Video,A,"The label",
 ,Donohue_002,Donohue_002_03,coffee.tif,"Photo, two children praying",X,"The label",
 ,Donohue_002,Donohue_002_04,details.json,"Supplemental information",S,"Supplement",

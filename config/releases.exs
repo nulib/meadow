@@ -169,6 +169,16 @@ config :sequins, Actions.ExtractExifMetadata,
     visibility_timeout: 360
   ]
 
+config :sequins, Actions.ExtractMediaMetadata,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
 config :sequins, Actions.ExtractMimeType,
   queue_config: [
     producer_concurrency: 10,
@@ -180,6 +190,26 @@ config :sequins, Actions.ExtractMimeType,
   ]
 
 config :sequins, Actions.CreatePyramidTiff,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
+config :sequins, Actions.CreateTranscodeJob,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
+config :sequins, Actions.TranscodeComplete,
   queue_config: [
     producer_concurrency: 10,
     receive_interval: 1000,

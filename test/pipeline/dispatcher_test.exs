@@ -5,13 +5,15 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
+    CreateTranscodeJob,
     Dispatcher,
     ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
     GenerateFileSetDigests,
     IngestFileSet,
-    InitializeDispatch
+    InitializeDispatch,
+    TranscodeComplete
   }
 
   import ExUnit.CaptureLog
@@ -139,12 +141,76 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
              ]
     end
 
-    test "dispatcher_actions for unknown mime type" do
+    test "dispatcher_actions for file set role: A, mime_type: audio/*" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "audio/aac",
+            location: "s3://blahblah",
+            original_filename: "test.aac"
+          }
+        })
+
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+    end
+
+    test "dispatcher_actions for file set role: P, mime_type: audio/*" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "audio/aac",
+            location: "s3://blahblah",
+            original_filename: "test.aac"
+          }
+        })
+
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+    end
+
+    test "dispatcher_actions for file set role: A, mime_type: video/*" do
       file_set =
         file_set_fixture(%{
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             mime_type: "video/mp4",
+            location: "s3://blahblah",
+            original_filename: "test.m4v"
+          }
+        })
+
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+    end
+
+    test "dispatcher_actions for file set role: P, mime_type: video/*" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "video/mp4",
+            location: "s3://blahblah",
+            original_filename: "test.m4v"
+          }
+        })
+
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+    end
+
+    test "dispatcher_actions for unknown mime type" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "application/octet-stream",
             location: "s3://blahblah",
             original_filename: "test.tif"
           }

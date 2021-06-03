@@ -1,7 +1,7 @@
 defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
   use Meadow.DataCase
   use Meadow.S3Case
-  alias Meadow.Data.ActionStates
+  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.CreatePyramidTiff
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -49,6 +49,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
       assert(object_exists?(@pyramid_bucket, dest))
+
+      assert FileSets.get_file_set(file_set_id)
+             |> Map.get(:derivatives)
+             |> Map.get("pyramid_tiff") == "s3://#{@pyramid_bucket}/#{dest}"
 
       with metadata <- object_metadata(@pyramid_bucket, dest) do
         assert metadata.height == "1024"

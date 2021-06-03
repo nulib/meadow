@@ -111,3 +111,38 @@ defmodule Mix.Tasks.Meadow.Processes do
     |> IO.puts()
   end
 end
+
+defmodule Mix.Tasks.Meadow.InitializeDerivatives do
+  @moduledoc """
+  Initialize derivatives map for existing image file sets
+  """
+  use Mix.Task
+
+  alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Data.FileSets
+  alias Meadow.Repo
+  import Ecto.Query
+
+  def run(_) do
+    System.put_env("MEADOW_PROCESSES", "none")
+    Mix.Task.run("app.start")
+
+    Repo.transaction(
+      fn ->
+        from(f in FileSet)
+        |> where(fragment("role ->> 'id' in ('A', 'X')"))
+        |> where(fragment("core_metadata ->> 'mime_type' LIKE 'image/%'"))
+        |> Repo.stream()
+        |> Stream.each(fn file_set ->
+          with pyramid_location <- FileSets.pyramid_uri_for(file_set) do
+            file_set
+            |> FileSet.changeset(%{derivatives: %{pyramid_tiff: pyramid_location}})
+            |> Repo.update()
+          end
+        end)
+        |> Stream.run()
+      end,
+      timeout: :infinity
+    )
+  end
+end

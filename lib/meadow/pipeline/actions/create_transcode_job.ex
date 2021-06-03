@@ -26,25 +26,17 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
     mime_type = file_set.core_metadata.mime_type
     user_metadata = Map.put(attributes, :file_set_id, file_set.id)
 
-    if supported_mime_type?(mime_type) && file_set.role do
-      case transcode(user_metadata, mime_type, source, destination) do
-        {:ok, job_id} ->
-          Logger.info("MediaConvert Job #{job_id} created")
-          ActionStates.set_state!(file_set, __MODULE__, "ok")
-          :ok
+    case transcode(user_metadata, mime_type, source, destination) do
+      {:ok, job_id} ->
+        Logger.info("MediaConvert Job #{job_id} created")
+        ActionStates.set_state!(file_set, __MODULE__, "ok")
+        :ok
 
-        {:error, error} ->
-          ActionStates.set_state!(file_set, __MODULE__, "error", error)
-          {:error, error}
-      end
-    else
-      ActionStates.set_state!(file_set, __MODULE__, "n/a")
-      :skip
+      {:error, error} ->
+        ActionStates.set_state!(file_set, __MODULE__, "error", error)
+        {:error, error}
     end
   end
-
-  defp supported_mime_type?(nil), do: false
-  defp supported_mime_type?(mime_type), do: String.match?(mime_type, ~r/^(audio|video)\/.+$/)
 
   defp transcode(user_metadata, "video/" <> _subtype, "s3://" <> _ = source, destination) do
     user_metadata

@@ -5,12 +5,14 @@ alias Meadow.Pipeline.Actions.{
   CreatePyramidTiff,
   CreateTranscodeJob,
   Dispatcher,
+  ExtractMediaMetadata,
   ExtractMimeType,
   FileSetComplete,
   GenerateFileSetDigests,
   ExtractExifMetadata,
   IngestFileSet,
-  InitializeDispatch
+  InitializeDispatch,
+  TranscodeComplete
 }
 
 config :sequins,
@@ -27,7 +29,9 @@ config :sequins, Meadow.Pipeline,
     ExtractExifMetadata,
     CopyFileToPreservation,
     CreatePyramidTiff,
+    ExtractMediaMetadata,
     CreateTranscodeJob,
+    TranscodeComplete,
     FileSetComplete
   ]
 
@@ -72,6 +76,15 @@ config :sequins, ExtractExifMetadata,
   ],
   notify_on: [ExtractExifMetadata: [status: :retry]]
 
+config :sequins, ExtractMediaMetadata,
+  queue_config: [
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    processor_concurrency: 1,
+    visibility_timeout: 300
+  ],
+  notify_on: [ExtractMediaMetadata: [status: :retry]]
+
 config :sequins, CreatePyramidTiff,
   queue_config: [
     receive_interval: 1000,
@@ -94,11 +107,20 @@ config :sequins, CreateTranscodeJob,
     CreateTranscodeJob: [status: :retry]
   ]
 
+config :sequins, TranscodeComplete,
+  queue_config: [
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    processor_concurrency: 1,
+    visibility_timeout: 300
+  ],
+  notify_on: [
+    TranscodeComplete: [status: :retry]
+  ]
+
 config :sequins, FileSetComplete,
   queue_config: [receive_interval: 1000, wait_time_seconds: 1, processor_concurrency: 10],
   notify_on: [
-    CreateTranscodeJob: [status: :ok],
-    CreateTranscodeJob: [status: :skip],
     FileSetComplete: [status: :retry]
   ]
 
@@ -109,5 +131,7 @@ config :sequins, Dispatcher,
     GenerateFileSetDigests: [status: :ok],
     CopyFileToPreservation: [status: :ok],
     ExtractExifMetadata: [status: :ok],
-    CreatePyramidTiff: [status: :ok]
+    ExtractMediaMetadata: [status: :ok],
+    CreatePyramidTiff: [status: :ok],
+    TranscodeComplete: [status: :ok]
   ]
