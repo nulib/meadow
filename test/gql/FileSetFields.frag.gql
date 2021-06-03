@@ -8,6 +8,7 @@ fragment FileSetFields on FileSet {
   }
   rank
   position
+  streamingUrl
   coreMetadata {
     description
     sha256

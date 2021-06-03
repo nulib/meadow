@@ -146,6 +146,18 @@ defmodule Meadow.Data.FileSetsTest do
       end
     end
 
+    test "distribution_streaming_uri_for/1 for a FileSet with any role besides 'P'" do
+      file_set = file_set_fixture()
+
+      with uri <- file_set |> FileSets.distribution_streaming_uri_for() |> URI.parse() do
+        assert uri.host == Config.streaming_host()
+        assert uri.path == "/bar.m3u8"
+      end
+
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: nil})
+      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
+    end
+
     test "add_derivatives/3" do
       assert FileSets.add_derivative(%FileSet{derivatives: nil}, "playlist", "test.m3u8") ==
                %{"playlist" => "test.m3u8"}

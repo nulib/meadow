@@ -6,7 +6,7 @@ defmodule Meadow.Data.IndexerTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{CodedTerms, Collections, FileSets, Indexer, Schemas, Works}
   alias Meadow.Ingest.{Projects, Sheets}
-  alias Meadow.Repo
+  alias Meadow.{Config, Repo}
   alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
   describe "indexing" do
@@ -303,6 +303,9 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "name"]) == "FileSet"
       assert doc |> get_in(["description"]) == subject.core_metadata.description
       assert doc |> get_in(["label"]) == subject.core_metadata.label
+
+      assert doc |> get_in(["streamingUrl"]) ==
+               "https://" <> Config.streaming_host() <> "/bar.m3u8"
     end
   end
 

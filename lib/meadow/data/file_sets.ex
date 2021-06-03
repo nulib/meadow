@@ -194,6 +194,22 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Get the distribution streaming playlist url for a file set
+  """
+  def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}}) do
+    with %{path: path} <- URI.parse(playlist) do
+      %URI{
+        scheme: "https",
+        host: Config.streaming_host(),
+        path: path
+      }
+      |> URI.to_string()
+    end
+  end
+
+  def distribution_streaming_uri_for(_), do: nil
+
+  @doc """
   Get the streaming path for a file set
   """
   def streaming_uri_for(%FileSet{role: %{id: "P"}}), do: nil

@@ -8,6 +8,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
 
   alias Meadow.Data
+  alias Meadow.Data.FileSets
   alias Meadow.Utils.ExtractedMetadata
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
@@ -111,6 +112,12 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field :rank, :integer
     field :work, :work, resolve: dataloader(Data)
     field :core_metadata, :file_set_core_metadata
+
+    field :streaming_url, :string do
+      resolve(fn file_set, _, _ ->
+        {:ok, FileSets.distribution_streaming_uri_for(file_set)}
+      end)
+    end
 
     field :extracted_metadata, :string do
       resolve(fn file_set, _, _ ->

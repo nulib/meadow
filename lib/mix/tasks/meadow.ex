@@ -118,8 +118,8 @@ defmodule Mix.Tasks.Meadow.InitializeDerivatives do
   """
   use Mix.Task
 
-  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.FileSets
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
   import Ecto.Query
 
