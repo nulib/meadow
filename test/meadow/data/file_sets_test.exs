@@ -149,9 +149,9 @@ defmodule Meadow.Data.FileSetsTest do
     test "distribution_streaming_uri_for/1 for a FileSet with any role besides 'P'" do
       file_set = file_set_fixture()
 
-      with uri <- file_set |> FileSets.distribution_streaming_uri_for() |> URI.parse() do
-        assert uri.host == Config.streaming_host()
-        assert uri.path == "/bar.m3u8"
+      with url <- file_set |> FileSets.distribution_streaming_uri_for() do
+        assert url |> String.starts_with?(Config.streaming_url())
+        assert url |> String.ends_with?("/bar.m3u8")
       end
 
       {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: nil})

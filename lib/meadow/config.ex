@@ -60,7 +60,7 @@ defmodule Meadow.Config do
   end
 
   @doc "Retrieve the environment specific URL for the streaming endpoint"
-  def streaming_host do
+  def streaming_url do
     Application.get_env(:meadow, :streaming_url)
   end
 

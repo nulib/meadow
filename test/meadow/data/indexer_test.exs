@@ -304,8 +304,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["description"]) == subject.core_metadata.description
       assert doc |> get_in(["label"]) == subject.core_metadata.label
 
-      assert doc |> get_in(["streamingUrl"]) ==
-               "https://" <> Config.streaming_host() <> "/bar.m3u8"
+      assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
     end
   end
 
