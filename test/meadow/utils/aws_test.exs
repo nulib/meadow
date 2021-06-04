@@ -41,6 +41,19 @@ defmodule Meadow.Utils.AWSTest do
     end
   end
 
+  test "presigned_url/2 for a file set uses the original filename's extension" do
+    config = ExAws.Config.new(:s3)
+    scheme = config[:scheme]
+    host = config[:host]
+    port = config[:port]
+    regex = ~r{#{scheme}#{host}:#{port}/#{@bucket}/file_sets(.)*.jpg}
+
+    with {:ok, presigned_url} <-
+           AWS.presigned_url(@bucket, %{upload_type: "file_set", filename: "original.jpg"}) do
+      assert presigned_url =~ regex
+    end
+  end
+
   describe "error handling" do
     setup do
       {:ok, _} = Honeybadger.API.start(self())
