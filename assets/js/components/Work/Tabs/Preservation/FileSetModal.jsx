@@ -71,11 +71,12 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
   );
 
   const handleSubmit = (data) => {
+    console.log(`data`, data);
     ingestFileSet({
       variables: {
         accession_number: data.accessionNumber,
         workId,
-        role: { id: data.role, scheme: "FILE_SET_ROLE" },
+        role: { id: data.fileSetRole, scheme: "FILE_SET_ROLE" },
         coreMetadata: {
           description: data.description,
           label: data.label,

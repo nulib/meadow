@@ -36,13 +36,10 @@ const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
 
   const history = useHistory();
-  const [isDeleteWorkModalVisible, setIsDeleteWorkModalVisible] = useState(
-    false
-  );
-  const [
-    isAddFilesetModalVisible,
-    setIsAddFilesetModalVisible,
-  ] = React.useState(false);
+  const [isDeleteWorkModalVisible, setIsDeleteWorkModalVisible] =
+    useState(false);
+  const [isAddFilesetModalVisible, setIsAddFilesetModalVisible] =
+    React.useState(false);
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
@@ -160,7 +157,7 @@ const WorkTabsPreservation = ({ work }) => {
       <div data-testid="verified">
         {fileset && fileset.verified ? (
           <React.Fragment>
-            <span className="sr-only">Verified</span>
+            <span className="is-sr-only">Verified</span>
             <IconCheck className="has-text-success" />
           </React.Fragment>
         ) : (
@@ -267,7 +264,7 @@ const WorkTabsPreservation = ({ work }) => {
                       <td className="has-text-centered">
                         <Verified id={fileset.id} />
                       </td>
-                      <td>
+                      <td className="has-text-right">
                         <div>
                           <UIDropdown isRight>
                             <UIDropdownItem

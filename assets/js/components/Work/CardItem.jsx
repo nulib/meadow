@@ -9,7 +9,7 @@ import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
 const breakWord = css`
-  word-break: break-all
+  word-break: break-all;
 `;
 
 const WorkCardItem = ({
@@ -36,6 +36,11 @@ const WorkCardItem = ({
       </div>
       <div className="card-content content">
         <div className="tags">
+          {workType.id && (
+            <Tag isInfo data-testid="tag-work-type">
+              {workType.label}
+            </Tag>
+          )}
           {published ? (
             <Tag isSuccess data-testid="result-item-published">
               Published
@@ -51,7 +56,9 @@ const WorkCardItem = ({
           )}
         </div>
         <p data-testid={`work-title-${id}`}>{title}</p>
-        <p data-testid="accession-number" css={breakWord}>{accessionNumber}</p>
+        <p data-testid="accession-number" css={breakWord}>
+          {accessionNumber}
+        </p>
 
         {collectionName && <p className="heading">{collectionName}</p>}
       </div>

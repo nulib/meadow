@@ -46,7 +46,7 @@ function ImageButtons({ iiifServerUrl, fileSet }) {
 const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
   const iiifServerUrl = useContext(IIIFContext);
   const { coreMetadata } = fileSet;
-  const isImageType = coreMetadata.mimeType.includes("image");
+  const isImageType = coreMetadata.mimeType?.includes("image");
 
   if (isImageType) {
     return <ImageButtons iiifServerUrl={iiifServerUrl} fileSet={fileSet} />;

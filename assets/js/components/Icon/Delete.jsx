@@ -1,6 +1,6 @@
 import React from "react";
-import { TiDelete } from "react-icons/ti";
+import { GrClose } from "react-icons/gr";
 
 export default function IconDelete(props) {
-  return <TiDelete {...props} />;
+  return <GrClose {...props} />;
 }

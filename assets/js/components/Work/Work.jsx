@@ -17,14 +17,16 @@ const osdOptions = {
   height: 800,
 };
 
-const Work = ({ work, isAudio, isVideo }) => {
+const Work = ({ work }) => {
   const [manifestObj, setManifestObj] = React.useState();
   const [randomUrlKey, setRandomUrlKey] = React.useState(Date.now());
   const [manifestChangeItems, setManifestChangeItems] = React.useState({
     label: "",
     canvasCount: "",
   });
-  const isImageWorkType = !isAudio && !isVideo;
+  const isImageWorkType =
+    work.workType?.id === "IMAGE" &&
+    ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
 
   React.useEffect(() => {
     async function getData() {
@@ -66,12 +68,16 @@ const Work = ({ work, isAudio, isVideo }) => {
 
       {!isImageWorkType && (
         <section className="section">
-          <UIMediaPlayer
+          <div className="container">
+            <p className="notification is-warning is-light has-text-centered">
+              Audio/video Work Type player not yet supported
+            </p>
+            {/* <UIMediaPlayer
             controls
-            autoPlay
             sources={mockVideoSources}
             tracks={mockVideoTracks}
-          />
+          /> */}
+          </div>
         </section>
       )}
 
@@ -85,8 +91,6 @@ const Work = ({ work, isAudio, isVideo }) => {
 };
 
 Work.propTypes = {
-  isAudio: PropTypes.bool,
-  isVideo: PropTypes.bool,
   work: PropTypes.object,
 };
 
