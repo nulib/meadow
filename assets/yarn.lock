@@ -332,16 +332,6 @@
     "@babel/traverse" "^7.14.2"
     "@babel/types" "^7.14.4"
 
-"@babel/helper-replace-supers@^7.14.4":
-  version "7.14.4"
-  resolved "https://registry.yarnpkg.com/@babel/helper-replace-supers/-/helper-replace-supers-7.14.4.tgz#b2ab16875deecfff3ddfcd539bc315f72998d836"
-  integrity sha512-zZ7uHCWlxfEAAOVDYQpEf/uyi1dmeC7fX4nCf2iz9drnCwi1zvwXL3HwWWNXUQEJ1k23yVn3VbddiI9iJEXaTQ==
-  dependencies:
-    "@babel/helper-member-expression-to-functions" "^7.13.12"
-    "@babel/helper-optimise-call-expression" "^7.12.13"
-    "@babel/traverse" "^7.14.2"
-    "@babel/types" "^7.14.4"
-
 "@babel/helper-simple-access@^7.13.12":
   version "7.13.12"
   resolved "https://registry.yarnpkg.com/@babel/helper-simple-access/-/helper-simple-access-7.13.12.tgz#dd6c538afb61819d205a012c31792a39c7a5eaf6"
@@ -4454,6 +4444,14 @@ figgy-pudding@^3.5.1:
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
   integrity sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==
 
+file-loader@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-6.2.0.tgz#baef7cf8e1840df325e4390b4484879480eebe4d"
+  integrity sha512-qo3glqyTa61Ytg4u73GultjHGjdRyig3tG6lPtyX/jOEJvHif9uB0/OCI2Kif6ctF3caQTW2G5gym21oAsI4pw==
+  dependencies:
+    loader-utils "^2.0.0"
+    schema-utils "^3.0.0"
+
 file-saver@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.5.tgz#d61cfe2ce059f414d899e9dd6d4107ee25670c38"
@@ -5726,10 +5724,10 @@ jest-leak-detector@^26.6.2:
     jest-get-type "^26.3.0"
     pretty-format "^26.6.2"
 
-jest-localstorage-mock@^2.4.13:
-  version "2.4.13"
-  resolved "https://registry.yarnpkg.com/jest-localstorage-mock/-/jest-localstorage-mock-2.4.13.tgz#67564cfca453409eb4e72920fcf6872521d6ad64"
-  integrity sha512-wCKZTgjaJB3CwJduY1x+VFn5Ldky5bRl8I+qZ/i0GSHWwxNYbjwI8OlNSDncDMg2GZ8AF11PuvluZuj5u1ESPA==
+jest-localstorage-mock@^2.4.14:
+  version "2.4.14"
+  resolved "https://registry.yarnpkg.com/jest-localstorage-mock/-/jest-localstorage-mock-2.4.14.tgz#f42f2ce66ac2675955d537c99f93cff807967d0f"
+  integrity sha512-B+Y0y3J4wBOHdmcFSicWmVYMFAZFbJvjs1EfRIzUJRg2UAK+YVVUgTn7/MdjENey5xbBKmraBmKY5EX+x1NJXA==
 
 jest-matcher-utils@^26.6.2:
   version "26.6.2"
