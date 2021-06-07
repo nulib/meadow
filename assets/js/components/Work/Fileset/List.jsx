@@ -3,6 +3,9 @@ import PropTypes from "prop-types";
 import WorkFilesetListItem from "@js/components/Work/Fileset/ListItem";
 import WorkFilesetDraggable from "@js/components/Work/Fileset/Draggable";
 
+function SubHead({ children }) {
+  return <h3 className="my-4 ml-5 is-size-5">{children}</h3>;
+}
 function WorkFilesetList({
   fileSets,
   handleWorkImageChange,
@@ -28,6 +31,7 @@ function WorkFilesetList({
     <>
       {/* Access Files  */}
       <div data-testid="fileset-list" className="mb-5">
+        <SubHead>Access files</SubHead>
         {fileSets.access.map((fileSet) => (
           <WorkFilesetListItem
             key={fileSet.id}
@@ -43,7 +47,7 @@ function WorkFilesetList({
       {/* Auxillary Files  */}
       {fileSets.auxillary.length > 0 && (
         <>
-          <h3 className="my-4 ml-5">Auxillary Files</h3>
+          <SubHead>Auxiliary files</SubHead>
           {fileSets.auxillary.map((fileSet) => (
             <WorkFilesetListItem
               key={fileSet.id}

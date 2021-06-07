@@ -43,7 +43,7 @@ describe("WorkFilesetList component", () => {
       })
     );
     await waitFor(() => {
-      expect(screen.getByTestId("fileset-list").children).toHaveLength(3);
+      expect(screen.getAllByTestId("fileset-item")).toHaveLength(3);
     });
   });
 });

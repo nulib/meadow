@@ -3,16 +3,18 @@ import PropTypes from "prop-types";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { ImageDownloader } from "@samvera/image-downloader";
-import { Button } from "@nulib/admin-react-components";
 
-const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
+const WorkFilesetActionButtonsAuxiliary = ({ fileSet }) => {
   const iiifServerUrl = useContext(IIIFContext);
+  const url = `${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL}`;
 
   return (
     <div className="buttons is-flex is-justify-content-flex-end">
-      <Button>View Aux File</Button>
+      <a className="button" href={url} target="_blank">
+        View Aux File
+      </a>
       <ImageDownloader
-        imageUrl={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL}`}
+        imageUrl={url}
         imageTitle={fileSet.accessionNumber}
         className="button"
       >
@@ -22,8 +24,8 @@ const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
   );
 };
 
-WorkFilesetActionButtonsAccess.propTypes = {
+WorkFilesetActionButtonsAuxiliary.propTypes = {
   fileSet: PropTypes.object,
 };
 
-export default WorkFilesetActionButtonsAccess;
+export default WorkFilesetActionButtonsAuxiliary;

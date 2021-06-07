@@ -17,15 +17,31 @@ function WorkFilesetListItem({
   const iiifServerUrl = useContext(IIIFContext);
   const { id, coreMetadata } = fileSet;
 
+  // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
+  const [imgState, setImgState] = React.useState({
+    errored: false, // This prevents a potential infinite loop
+    src: `${iiifServerUrl}${id}/square/500,500/0/default.jpg`,
+  });
+
+  const handleError = (e) => {
+    if (!imgState.errored) {
+      setImgState({
+        errored: true,
+        src: "/images/placeholder.png",
+      });
+    }
+  };
+
   return (
     <article className="box" data-testid="fileset-item">
       <div className="columns">
         <div className="column is-2">
           <figure className="image">
             <img
-              src={`${iiifServerUrl}${id}/square/500,500/0/default.jpg`}
+              src={imgState.src}
               placeholder="Fileset Image"
               data-testid="fileset-image"
+              onError={handleError}
             />
           </figure>
         </div>

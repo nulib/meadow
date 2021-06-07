@@ -39,6 +39,7 @@ const WorkListItem = ({
             <Link to={`/work/${id}`}>{title ? title : "Untitled"}</Link>
           </p>
           <div className="tags">
+            <Tag isInfo>{workType.label}</Tag>
             {published ? (
               <Tag isSuccess data-testid="result-item-published">
                 Published
