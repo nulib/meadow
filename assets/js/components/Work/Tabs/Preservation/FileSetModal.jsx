@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
-import { useQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useForm, FormProvider } from "react-hook-form";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
@@ -35,11 +35,13 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
     shouldUnregister: false,
   });
 
-  const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
+  const [getPresignedUrl, { urlError, urlLoading, urlData }] = useLazyQuery(
     GET_PRESIGNED_URL,
     {
-      variables: { uploadType: "FILE_SET" },
-      fetchPolicy: "no-cache",
+      onCompleted: (data) => {
+        console.log(JSON.stringify(data.presignedUrl.url));
+        uploadFile(data.presignedUrl.url);
+      },
     }
   );
 
@@ -101,13 +103,20 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
   const handleSetFile = (file) => {
     setCurrentFile(file);
     if (file != null) {
-      uploadFile(file);
+      console.log("file.name", file.name);
+      getPresignedUrl({
+        variables: {
+          uploadType: "FILE_SET",
+          filename: file.name,
+        },
+        fetchPolicy: "no-cache",
+      });
     } else {
       setUploadProgress(0);
     }
   };
 
-  const uploadFile = (file) => {
+  const uploadFile = (presignedUrl) => {
     let request = new XMLHttpRequest();
 
     request.upload.addEventListener("progress", function (e) {
@@ -122,7 +131,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
 
     request.addEventListener("load", function (e) {
       if (request.status === 200) {
-        setS3UploadLocation(s3Location(urlData.presignedUrl.url));
+        setS3UploadLocation(s3Location(presignedUrl));
       } else {
         setUploadError(
           `Error uploading file to S3. Response status: ${request.status}`
@@ -135,13 +144,11 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
       console.log("Received abort event. Cancelling upload");
     });
 
-    request.open("put", urlData.presignedUrl.url);
+    request.open("put", presignedUrl);
     request.setRequestHeader("Content-Type", "multipart/form-data");
-    request.send(file);
+    request.send(currentFile);
     setStateXhr(request);
   };
-
-  if (urlLoading) return <p>Presigned URL Loading</p>;
 
   return (
     <div className={`modal ${isVisible ? "is-active" : ""}`} css={modalCss}>
@@ -181,10 +188,11 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
                   handleSetFile={handleSetFile}
                   uploadProgress={uploadProgress}
                 />
-
-                <WorkTabsPreservationFileSetForm
-                  s3UploadLocation={s3UploadLocation}
-                />
+                {s3UploadLocation && (
+                  <WorkTabsPreservationFileSetForm
+                    s3UploadLocation={s3UploadLocation}
+                  />
+                )}
               </section>
 
               <footer className="modal-card-foot is-justify-content-flex-end">

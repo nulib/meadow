@@ -35,12 +35,12 @@ defmodule Meadow.Utils.AWS do
     generate_presigned_url(bucket, "#{filename}", :get)
   end
 
-  def presigned_url(bucket, %{upload_type: "ingest_sheet"}) do
-    generate_presigned_url(bucket, "ingest_sheets/#{Ecto.UUID.generate()}.csv")
+  def presigned_url(bucket, %{upload_type: "file_set", filename: filename}) do
+    generate_presigned_url(bucket, "file_sets/#{Ecto.UUID.generate()}.#{Path.extname(filename)}")
   end
 
-  def presigned_url(bucket, %{upload_type: "file_set"}) do
-    generate_presigned_url(bucket, "file_sets/#{Ecto.UUID.generate()}")
+  def presigned_url(bucket, %{upload_type: "ingest_sheet"}) do
+    generate_presigned_url(bucket, "ingest_sheets/#{Ecto.UUID.generate()}.csv")
   end
 
   def presigned_url(bucket, %{upload_type: "csv_metadata"}) do
