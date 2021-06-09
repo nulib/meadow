@@ -185,9 +185,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
   def ingest_sheet_counts(_, %{id: sheet_id}, _) do
     {:ok,
      %{
-       total_works: sheet_id |> Sheets.work_count(),
-       total_file_sets: sheet_id |> Sheets.file_set_count()
-     }}
+       total_works: sheet_id |> Sheets.work_count() || 0,
+       total_file_sets: sheet_id |> Sheets.file_set_count() || 0
+     }
+     |> Map.merge(Sheets.list_ingest_sheet_row_success_fail(sheet_id))}
   end
 
   def ingest_sheet_errors(_, %{id: sheet_id}, _) do

@@ -250,6 +250,8 @@ defmodule MeadowWeb.Schema.IngestTypes do
   object :ingest_sheet_counts do
     field :total_works, :integer
     field :total_file_sets, :integer
+    field :pass, :integer
+    field :fail, :integer
   end
 
   @desc "Object that tracks Sheet state"

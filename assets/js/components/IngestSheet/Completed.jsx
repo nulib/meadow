@@ -62,7 +62,13 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
     <>
       {ingestSheetErrors.length > 0 && (
         <div className="box">
-          <IngestSheetCompletedErrors errors={ingestSheetErrors} />
+          <IngestSheetCompletedErrors
+            errors={ingestSheetErrors}
+            totalWorks={workCountData.ingestSheetWorkCount.totalWorks}
+            totalFileSets={workCountData.ingestSheetWorkCount.totalFileSets}
+            pass={workCountData.ingestSheetWorkCount.pass}
+            fail={workCountData.ingestSheetWorkCount.fail}
+          />
         </div>
       )}
 

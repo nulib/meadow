@@ -12,8 +12,20 @@ defmodule MeadowWeb.Schema.Query.IngestSheetWorkCount do
 
     {:ok, result} = query_gql(variables: %{"sheetId" => sheet.id}, context: gql_context())
 
-    with result <- get_in(result, [:data, "ingestSheetWorkCount"]) do
+    with result <- get_in(result, [:data, "ingestSheetWorkCount", "totalWorks"]) do
       assert result == 2
+    end
+
+    with result <- get_in(result, [:data, "ingestSheetWorkCount", "totalFileSets"]) do
+      assert result == 8
+    end
+
+    with result <- get_in(result, [:data, "ingestSheetWorkCount", "pass"]) do
+      assert result == 8
+    end
+
+    with result <- get_in(result, [:data, "ingestSheetWorkCount", "fail"]) do
+      assert result == 0
     end
   end
 end
