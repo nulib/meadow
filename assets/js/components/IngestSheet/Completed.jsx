@@ -79,8 +79,14 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
                       Preview of ingest sheet works...
                     </h3>
                     <p className="subtitle">
-                      <strong>{workCountData.ingestSheetWorkCount}</strong>{" "}
-                      total works
+                      <strong>
+                        {workCountData.ingestSheetWorkCount.totalFileSets}
+                      </strong>{" "}
+                      file_sets in{" "}
+                      <strong>
+                        {workCountData.ingestSheetWorkCount.totalWorks}
+                      </strong>{" "}
+                      works{" "}
                     </p>
                   </div>
 
