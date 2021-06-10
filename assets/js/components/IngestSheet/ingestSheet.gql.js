@@ -173,6 +173,8 @@ export const INGEST_SHEET_WORK_COUNT = gql`
     ingestSheetWorkCount(id: $id) {
       totalWorks
       totalFileSets
+      pass
+      fail
     }
   }
 `;

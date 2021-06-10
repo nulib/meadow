@@ -11,13 +11,24 @@ const styles = {
   },
 };
 
-const IngestSheetCompletedErrors = ({ errors = [] }) => {
+const IngestSheetCompletedErrors = ({
+  errors = [],
+  totalWorks,
+  totalFileSets,
+  pass,
+  fail,
+}) => {
   return (
     <>
       <p className="notification is-danger is-light">
         <IconText isCentered icon={<IconAlert />}>
           Errors occurred during ingest
         </IconText>
+      </p>
+      <p className="subtitle">
+        <strong>{totalWorks}</strong> works containing{" "}
+        <strong>{totalFileSets}</strong> file_sets ({pass} passed, {fail}{" "}
+        failed)
       </p>
       <div style={styles.tableWrapper} className="table-container">
         <table className="table is-fullwidth is-striped">
@@ -58,6 +69,10 @@ const IngestSheetCompletedErrors = ({ errors = [] }) => {
 
 IngestSheetCompletedErrors.propTypes = {
   errors: PropTypes.array,
+  totalWorks: PropTypes.number,
+  totalFileSets: PropTypes.number,
+  pass: PropTypes.number,
+  fail: PropTypes.number,
 };
 
 export default IngestSheetCompletedErrors;
