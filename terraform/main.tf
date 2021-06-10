@@ -9,7 +9,7 @@ provider "aws" {
 module "rds" {
   source                    = "terraform-aws-modules/rds/aws"
   version                   = "2.5.0"
-  allocated_storage         = "5"
+  allocated_storage         = var.db_size
   backup_window             = "04:00-05:00"
   engine                    = "postgres"
   engine_version            = "11.10"
@@ -387,6 +387,10 @@ resource "aws_media_convert_queue" "transcode_queue" {
   status = "ACTIVE"
 }
 
+data "aws_acm_certificate" "wildcard_cert" {
+  domain = "*.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
+}
+
 resource "aws_cloudfront_origin_access_identity" "meadow_streaming_access_identity" {
   comment = var.stack_name
 }
@@ -461,7 +465,7 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
 
   viewer_certificate {
     cloudfront_default_certificate = false
-    acm_certificate_arn            = join("", data.aws_acm_certificate.meadow_cert.*.arn)
+    acm_certificate_arn            = join("", data.aws_acm_certificate.wildcard_cert.*.arn)
     ssl_support_method             = "sni-only"
   }
 }
