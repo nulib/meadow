@@ -3,6 +3,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
 
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Repo
   alias Meadow.Utils.Lambda
   alias Sequins.Pipeline.Action
   use Action
@@ -17,12 +18,17 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   end
 
   defp process(file_set, _, _) do
-    source = file_set.metadata.location
+    source = file_set.core_metadata.location
     target = FileSets.pyramid_uri_for(file_set.id)
 
     case create_pyramid_tiff(source, target) do
-      {:ok, _dest} ->
-        ActionStates.set_state!(file_set, __MODULE__, "ok")
+      {:ok, dest} ->
+        Repo.transaction(fn ->
+          derivatives = FileSets.add_derivative(file_set, :pyramid_tiff, dest)
+          FileSets.update_file_set(file_set, %{derivatives: derivatives})
+          ActionStates.set_state!(file_set, __MODULE__, "ok")
+        end)
+
         :ok
 
       {:error, {:http_error, status, message}} ->

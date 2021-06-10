@@ -32,6 +32,7 @@ defmodule Meadow.Seed.Migration do
       Logger.warn("Migrating Repo down to #{version}")
       Ecto.Migrator.run(Repo, :down, to: target_version)
       func.()
+      :timer.sleep(2000)
       Logger.warn("Migrating Repo up to current")
       Ecto.Migrator.run(Repo, :up, all: true)
     else

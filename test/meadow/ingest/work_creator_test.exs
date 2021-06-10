@@ -1,9 +1,10 @@
 defmodule Meadow.Ingest.WorkCreatorTest do
   use Meadow.IngestCase, async: false
   alias Ecto.Adapters.SQL.Sandbox
-  alias Meadow.Data.Works
+  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.{Progress, SheetsToWorks, WorkCreator}
-  alias Meadow.{Pipeline, Repo}
+  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Repo
 
   import Assertions
   import ExUnit.CaptureLog
@@ -22,7 +23,17 @@ defmodule Meadow.Ingest.WorkCreatorTest do
       SheetsToWorks.create_works_from_ingest_sheet(sheet)
 
       assert_async(timeout: 1500, sleep_time: 150) do
-        assert Works.list_works() |> length() == 2
+        with works <- Works.list_works() do
+          assert works |> length() == 2
+          assert works |> Enum.map(& &1.work_type.id) |> Enum.sort() == ["IMAGE", "VIDEO"]
+
+          assert works
+                 |> List.first()
+                 |> Map.get(:representative_file_set_id)
+                 |> FileSets.get_file_set!()
+                 |> Map.get(:accession_number)
+                 |> String.ends_with?("Donohue_001_03")
+        end
       end
     end
 
@@ -34,7 +45,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         assert_async(timeout: 1500, sleep_time: 150) do
           assert Works.list_works() |> length() == 1
 
-          assert ["CreateWork" | Pipeline.actions()]
+          assert ["CreateWork" | Dispatcher.all_progress_actions()]
                  |> Enum.all?(fn action ->
                    Progress.get_entry(row, action) |> Map.get(:status) == "error"
                  end)

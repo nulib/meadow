@@ -52,9 +52,9 @@ defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
         skipped = results |> Enum.filter(&(&1["outcome"] == "SKIPPED"))
         errors = results |> Enum.filter(&(&1["outcome"] == "ERROR"))
 
-        assert length(results) == 4
+        assert length(results) == 5
         assert length(errors) == 1
-        assert length(skipped) == 3
+        assert length(skipped) == 4
 
         with error <- List.first(errors) do
           assert error["rowNumber"] == 5

@@ -63,7 +63,7 @@ export const DELETE_INGEST_SHEET = gql`
 `;
 
 export const GET_PRESIGNED_URL = gql`
-  query($uploadType: S3UploadType!, $filename: String) {
+  query ($uploadType: S3UploadType!, $filename: String) {
     presignedUrl(uploadType: $uploadType, filename: $filename) {
       url
     }
@@ -170,7 +170,12 @@ export const INGEST_SHEET_VALIDATION_PROGRESS = gql`
 
 export const INGEST_SHEET_WORK_COUNT = gql`
   query IngestSheetWorkCount($id: ID!) {
-    ingestSheetWorkCount(id: $id)
+    ingestSheetWorkCount(id: $id) {
+      totalWorks
+      totalFileSets
+      pass
+      fail
+    }
   }
 `;
 
@@ -190,7 +195,7 @@ export const INGEST_SHEET_WORKS = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
           originalFilename
           label

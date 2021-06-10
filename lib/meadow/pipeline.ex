@@ -6,6 +6,7 @@ defmodule Meadow.Pipeline do
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Pipeline.Actions.Dispatcher
 
   def ingest_file_set(attrs \\ %{}) do
     case FileSets.create_file_set(attrs) do
@@ -22,16 +23,8 @@ defmodule Meadow.Pipeline do
 
   def kickoff(%FileSet{} = file_set, context), do: kickoff(file_set.id, context)
 
-  def kickoff(file_set_id, %{role: "P"} = context) do
-    actions = List.delete(actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
-    kickoff(file_set_id, context, actions)
-  end
-
   def kickoff(file_set_id, context) do
-    kickoff(file_set_id, context, actions())
-  end
-
-  def kickoff(file_set_id, context, actions) do
+    actions = Dispatcher.initial_actions()
     ActionStates.initialize_states({FileSet, file_set_id}, actions)
 
     with initial_action <- List.first(actions) do

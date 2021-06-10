@@ -1,11 +1,11 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import CollectionForm from "../../components/Collection/Form";
+import CollectionForm from "@js/components/Collection/Form";
 import Layout from "../Layout";
-import Error from "../../components/UI/Error";
-import { GET_COLLECTION } from "../../components/Collection/collection.gql.js";
+import Error from "@js/components/UI/Error";
+import { GET_COLLECTION } from "@js/components/Collection/collection.gql.js";
 import { useQuery } from "@apollo/client";
-import UIBreadcrumbs from "../../components/UI/Breadcrumbs";
+import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import { CodeListProvider } from "@js/context/code-list-context";

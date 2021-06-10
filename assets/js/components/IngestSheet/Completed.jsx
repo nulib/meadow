@@ -62,7 +62,13 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
     <>
       {ingestSheetErrors.length > 0 && (
         <div className="box">
-          <IngestSheetCompletedErrors errors={ingestSheetErrors} />
+          <IngestSheetCompletedErrors
+            errors={ingestSheetErrors}
+            totalWorks={workCountData.ingestSheetWorkCount.totalWorks}
+            totalFileSets={workCountData.ingestSheetWorkCount.totalFileSets}
+            pass={workCountData.ingestSheetWorkCount.pass}
+            fail={workCountData.ingestSheetWorkCount.fail}
+          />
         </div>
       )}
 
@@ -79,8 +85,14 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
                       Preview of ingest sheet works...
                     </h3>
                     <p className="subtitle">
-                      <strong>{workCountData.ingestSheetWorkCount}</strong>{" "}
-                      total works
+                      <strong>
+                        {workCountData.ingestSheetWorkCount.totalFileSets}
+                      </strong>{" "}
+                      file_sets in{" "}
+                      <strong>
+                        {workCountData.ingestSheetWorkCount.totalWorks}
+                      </strong>{" "}
+                      works{" "}
                     </p>
                   </div>
 

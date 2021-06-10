@@ -1,0 +1,15 @@
+{
+  "name": "exif",
+  "version": "0.1.0",
+  "description": "Extract image exif data.",
+  "main": "index.js",
+  "author": "bmquinn",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mediainfo.js": "^0.1.5",
+    "uri-js": "^4.4.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.829.0"
+  }
+}

@@ -214,49 +214,51 @@ export const FACET_TECHNICAL_METADATA_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "Compression",
-    dataField: "fileSets.exif.compression.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.compression.keyword",
     title: "Compression",
   },
   {
     ...defaultListItemValues,
     componentId: "ExtraSamples",
-    dataField: "fileSets.exif.extraSamples.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.extraSamples.keyword",
     title: "Extra Samples",
   },
   {
     ...defaultListItemValues,
     componentId: "FillOrder",
-    dataField: "fileSets.exif.fillOrder.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.fillOrder.keyword",
     title: "Fill Order",
   },
   {
     ...defaultListItemValues,
     componentId: "GrayResponseUnit",
-    dataField: "fileSets.exif.grayResponseUnit.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.grayResponseUnit.keyword",
     title: "Gray Response Unit",
   },
   {
     ...defaultListItemValues,
     componentId: "Make",
-    dataField: "fileSets.exif.make.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.make.keyword",
     title: "Make",
   },
   {
     ...defaultListItemValues,
     componentId: "Model",
-    dataField: "fileSets.exif.model.keyword",
+    dataField: "fileSets.extractedMetadata.exif.value.model.keyword",
     title: "Model",
   },
   {
     ...defaultListItemValues,
     componentId: "PlanarConfiguration",
-    dataField: "fileSets.exif.planarConfiguration.keyword",
+    dataField:
+      "fileSets.extractedMetadata.exif.value.planarConfiguration.keyword",
     title: "Planar Configuration",
   },
   {
     ...defaultListItemValues,
     componentId: "PhotometricInterpretation",
-    dataField: "fileSets.exif.photometricInterpretation.keyword",
+    dataField:
+      "fileSets.extractedMetadata.exif.value.photometricInterpretation.keyword",
     title: "Photometric Interpretation",
   },
 ];
@@ -312,7 +314,7 @@ export const FACET_PROJECT_SENSORS = [
 
 /**
  * Range Sliders - Facets for Numerical technical metadata
- * ES indexed "fileSets[].exif" fields:
+ * ES indexed "fileSets[].extractedMetadata.exif.value" fields:
  * { imageHeight, imageWidth, xResolution, yResolution }:
  */
 const rangeClasses = {
@@ -329,7 +331,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeImageHeight",
-    dataField: "fileSets.exif.imageHeight",
+    dataField: "fileSets.extractedMetadata.exif.value.imageHeight",
     defaultValue: { start: 0, end: 3000 },
     range: { start: 0, end: 3000 },
     rangeLabels: { start: "0px", end: "3000px" },
@@ -338,7 +340,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeImageWidth",
-    dataField: "fileSets.exif.imageWidth",
+    dataField: "fileSets.extractedMetadata.exif.value.imageWidth",
     defaultValue: { start: 0, end: 3000 },
     range: { start: 0, end: 3000 },
     rangeLabels: { start: "0px", end: "3000px" },
@@ -347,7 +349,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeXResolution",
-    dataField: "fileSets.exif.xResolution",
+    dataField: "fileSets.extractedMetadata.exif.value.xResolution",
     title: "XResolution",
     range: { start: 0, end: 1000 },
     rangeLabels: { start: "0px", end: "1000px" },
@@ -356,7 +358,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeYResolution",
-    dataField: "fileSets.exif.yResolution",
+    dataField: "fileSets.extractedMetadata.exif.value.yResolution",
     title: "YResolution",
     range: { start: 0, end: 1000 },
     rangeLabels: { start: "0px", end: "1000px" },

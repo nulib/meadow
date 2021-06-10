@@ -27,7 +27,10 @@ defmodule Meadow.Pipeline.Actions.Common do
                 result
               end
             else
-              Logger.warn("Marking #{__MODULE__} for #{data.file_set_id} as error because the file set was not found")
+              Logger.warn(
+                "Marking #{__MODULE__} for #{data.file_set_id} as error because the file set was not found"
+              )
+
               update_progress(data, attrs, {:error, "FileSet #{data.file_set_id} not found"})
               {:error, "FileSet #{data.file_set_id} not found"}
             end
@@ -59,6 +62,8 @@ defmodule Meadow.Pipeline.Actions.Common do
         Progress.abort_remaining_pending_entries(attrs)
         ActionStates.abort_remaining_waiting_actions(data.file_set_id)
       end
+
+      def update_progress(data, attrs, :skip), do: update_progress(data, attrs, :ok)
 
       def update_progress(data, attrs, {status, _, _}, _),
         do: update_progress(data, attrs, status)

@@ -5,6 +5,8 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const Webpack = require("webpack");
 
+const devMode = process.env.NODE_ENV !== "production";
+
 module.exports = (env, options) => ({
   optimization: {
     minimizer: [
@@ -19,7 +21,6 @@ module.exports = (env, options) => ({
     app: "./js/app.jsx",
   },
   output: {
-    //filename: "app.js",
     // `filename` provides a template for naming your bundles (remember to use `[name]`)
     filename: "[name].bundle.js",
     // `chunkFilename` provides a template for naming code-split bundles (optional)
@@ -43,9 +44,9 @@ module.exports = (env, options) => ({
       {
         test: /\.(sa|sc|c)ss$/,
         use: [
-          MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: {} },
-          { loader: "sass-loader", options: {} },
+          devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+          "css-loader",
+          "sass-loader",
         ],
       },
       {

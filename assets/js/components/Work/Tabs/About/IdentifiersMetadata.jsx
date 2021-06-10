@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import UIFormField from "../../../UI/Form/Field";
-import UIFormFieldArray from "../../../UI/Form/FieldArray";
-import UIFormFieldArrayDisplay from "../../../UI/Form/FieldArrayDisplay";
-import { IDENTIFIER_METADATA } from "../../../../services/metadata";
-import UIFormRelatedURL from "../../../UI/Form/RelatedURL";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
+import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import { IDENTIFIER_METADATA } from "@js/services/metadata";
+import UIFormRelatedURL from "@js/components/UI/Form/RelatedURL";
 import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutIdentifiersMetadata = ({

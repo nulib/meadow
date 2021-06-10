@@ -13,13 +13,13 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Work do
             Enum.map(work.file_sets, fn file_set ->
               %Canvas{
                 id: "#{IIIF.manifest_id(work.id)}/canvas/#{file_set.id}",
-                label: file_set.metadata.label,
+                label: file_set.core_metadata.label,
                 images: [
                   %Image{
                     resource: %ImageResource{
                       id: IIIF.image_id(file_set.id),
-                      label: file_set.metadata.label,
-                      description: file_set.metadata.description,
+                      label: file_set.core_metadata.label,
+                      description: file_set.core_metadata.description,
                       service: %Service{
                         id: IIIF.image_service_id(file_set.id)
                       }

@@ -4,10 +4,6 @@
     "label": "Audio"
   },
   {
-    "id": "DOCUMENT",
-    "label": "Document"
-  },
-  {
     "id": "IMAGE",
     "label": "Image"
   },

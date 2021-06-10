@@ -3,18 +3,34 @@ import PropTypes from "prop-types";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormField from "@js/components/UI/Form/Field";
-import WorkTabsDownloadLinks from "@js/components/Work/Tabs/DownloadLinks";
+import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionButtons/Access";
+import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 
-function WorkTabsStructureFileset({
+function WorkFilesetListItem({
   fileSet,
-  handleDownloadClick,
   handleWorkImageChange,
   isEditing,
   workImageFilesetId,
 }) {
   const iiifServerUrl = useContext(IIIFContext);
+  const { id, coreMetadata } = fileSet;
+
+  // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
+  const [imgState, setImgState] = React.useState({
+    errored: false, // This prevents a potential infinite loop
+    src: `${iiifServerUrl}${id}/square/500,500/0/default.jpg`,
+  });
+
+  const handleError = (e) => {
+    if (!imgState.errored) {
+      setImgState({
+        errored: true,
+        src: "/images/placeholder.png",
+      });
+    }
+  };
 
   return (
     <article className="box" data-testid="fileset-item">
@@ -22,9 +38,10 @@ function WorkTabsStructureFileset({
         <div className="column is-2">
           <figure className="image">
             <img
-              src={`${iiifServerUrl}${fileSet.id}/square/500,500/0/default.jpg`}
+              src={imgState.src}
               placeholder="Fileset Image"
               data-testid="fileset-image"
+              onError={handleError}
             />
           </figure>
         </div>
@@ -35,13 +52,13 @@ function WorkTabsStructureFileset({
                 isReactHookForm
                 required
                 label="Label"
-                name={`${fileSet.id}.label`}
+                name={`${id}.label`}
                 data-testid="input-label"
                 placeholder="Label"
-                defaultValue={fileSet.metadata.label}
+                defaultValue={coreMetadata.label}
               />
             ) : (
-              <p>{fileSet.metadata.label}</p>
+              <p>{coreMetadata.label}</p>
             )}
           </UIFormField>
 
@@ -49,14 +66,14 @@ function WorkTabsStructureFileset({
             {isEditing ? (
               <UIFormTextarea
                 isReactHookForm
-                name={`${fileSet.id}.description`}
+                name={`${id}.description`}
                 data-testid="textarea-metadata-description"
-                defaultValue={fileSet.metadata.description}
+                defaultValue={coreMetadata.description}
                 label="Description"
                 rows="2"
               />
             ) : (
-              <p>{fileSet.metadata.description}</p>
+              <p>{coreMetadata.description}</p>
             )}
           </UIFormField>
         </div>
@@ -66,23 +83,29 @@ function WorkTabsStructureFileset({
               <AuthDisplayAuthorized>
                 <div className="field">
                   <input
-                    id={`checkbox-work-switch-${fileSet.id}`}
+                    id={`checkbox-work-switch-${id}`}
                     type="checkbox"
-                    name={`checkbox-work-switch-${fileSet.id}`}
+                    name={`checkbox-work-switch-${id}`}
                     className="switch"
-                    checked={workImageFilesetId === fileSet.id}
-                    onChange={(e) => handleWorkImageChange(fileSet.id)}
+                    checked={workImageFilesetId === id}
+                    onChange={() => handleWorkImageChange(id)}
                     data-testid="work-image-selector"
                   />
-                  <label htmlFor={`checkbox-work-switch-${fileSet.id}`}>
+                  <label htmlFor={`checkbox-work-switch-${id}`}>
                     Work image
                   </label>
                 </div>
               </AuthDisplayAuthorized>
-              <WorkTabsDownloadLinks
-                handleDownloadClick={handleDownloadClick}
-                fileset={fileSet}
-              />
+
+              {fileSet.role.id === "A" && (
+                <WorkFilesetActionButtonsAccess fileSet={fileSet} />
+              )}
+              {fileSet.role.id === "X" && (
+                <WorkFilesetActionButtonsAuxillary fileSet={fileSet} />
+              )}
+              {fileSet.role.id === "S" && (
+                <WorkFilesetActionButtonsSupplemental fileSet={fileSet} />
+              )}
             </>
           )}
         </div>
@@ -91,12 +114,11 @@ function WorkTabsStructureFileset({
   );
 }
 
-WorkTabsStructureFileset.propTypes = {
+WorkFilesetListItem.propTypes = {
   fileSet: PropTypes.object,
-  handleDownloadClick: PropTypes.func,
   handleWorkImageChange: PropTypes.func,
   isEditing: PropTypes.bool,
   workImageFilesetId: PropTypes.string,
 };
 
-export default WorkTabsStructureFileset;
+export default WorkFilesetListItem;

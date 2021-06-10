@@ -649,11 +649,10 @@ export function removeLabelsFromBatchEditPostData(
       });
     batchAdds.administrativeMetadata &&
       Object.keys(batchAdds.administrativeMetadata).forEach((key) => {
-        returnObj.add.administrativeMetadata[
-          key
-        ] = batchAdds.administrativeMetadata[key].map((item) => {
-          return deleteKeyFromObject(item);
-        });
+        returnObj.add.administrativeMetadata[key] =
+          batchAdds.administrativeMetadata[key].map((item) => {
+            return deleteKeyFromObject(item);
+          });
       });
   }
 
@@ -664,17 +663,15 @@ export function removeLabelsFromBatchEditPostData(
         if (key === "dateCreated") {
           returnObj.replace.descriptiveMetadata[key] = prepEDTFforPost(item);
         } else {
-          returnObj.replace.descriptiveMetadata[key] = deleteKeyFromObject(
-            item
-          );
+          returnObj.replace.descriptiveMetadata[key] =
+            deleteKeyFromObject(item);
         }
       });
     batchReplaces.administrativeMetadata &&
       Object.keys(batchReplaces.administrativeMetadata).forEach((key) => {
         let item = batchReplaces.administrativeMetadata[key];
-        returnObj.replace.administrativeMetadata[key] = deleteKeyFromObject(
-          item
-        );
+        returnObj.replace.administrativeMetadata[key] =
+          deleteKeyFromObject(item);
       });
 
     // Handle published or unpublished values

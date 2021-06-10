@@ -29,6 +29,7 @@ const createPyramidTiff = (source, dest) => {
           tileWidth: 256,
           pyramid: true
         })
+        .withMetadata()
         .on("info", (info) => metadata = info);
 
       const uploadStream = concat((data) => {

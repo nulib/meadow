@@ -16,28 +16,33 @@ defmodule Meadow.MigrationTest do
       end
     end
 
-    test "update_file_set_metadata/1", %{manifests: [source | _]} do
+    test "update_file_set_core_metadata/1", %{manifests: [source | _]} do
       manifest = Migration.read_manifest(source)
       original_file_set = manifest |> Map.get(:file_sets) |> List.first()
 
       updated_file_set =
-        manifest |> Migration.update_file_set_metadata() |> Map.get(:file_sets) |> List.first()
+        manifest
+        |> Migration.update_file_set_core_metadata()
+        |> Map.get(:file_sets)
+        |> List.first()
 
       assert original_file_set
              |> get_in([:metadata, :location])
              |> String.starts_with?("s3://stack-p-fedora-binaries/")
 
       assert updated_file_set
-             |> get_in([:metadata, :location])
+             |> get_in([:core_metadata, :location])
              |> String.starts_with?("s3://#{Config.migration_binary_bucket()}/")
 
-      assert updated_file_set |> get_in([:metadata, :digests]) |> Map.has_key?(:sha1)
-      assert updated_file_set |> get_in([:metadata, :digests]) |> Map.has_key?(:sha256)
+      assert updated_file_set |> get_in([:core_metadata, :digests]) |> Map.has_key?(:sha1)
+      assert updated_file_set |> get_in([:core_metadata, :digests]) |> Map.has_key?(:sha256)
 
-      assert updated_file_set |> get_in([:metadata, :label]) ==
-               updated_file_set |> get_in([:metadata, :original_filename])
+      assert updated_file_set |> get_in([:core_metadata, :label]) ==
+               updated_file_set |> get_in([:core_metadata, :original_filename])
 
-      refute updated_file_set |> get_in([:metadata, :original_filename]) |> String.contains?("?")
+      refute updated_file_set
+             |> get_in([:core_metadata, :original_filename])
+             |> String.contains?("?")
     end
 
     test "changeset/1", %{manifests: [source | _]} do
@@ -138,9 +143,11 @@ defmodule Meadow.MigrationTest do
     end
 
     test "missing binary", %{manifests: [first | _]} do
-      work_attributes = first |> Migration.read_manifest() |> Migration.update_file_set_metadata()
+      work_attributes =
+        first |> Migration.read_manifest() |> Migration.update_file_set_core_metadata()
+
       [file_set | _] = work_attributes.file_sets
-      binary = file_set |> get_in([:metadata, :location])
+      binary = file_set |> get_in([:core_metadata, :location])
       s3_uri = URI.parse(binary)
 
       with key <- "/" <> s3_uri.path do

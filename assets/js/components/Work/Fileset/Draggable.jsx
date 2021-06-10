@@ -13,7 +13,7 @@ const content = css`
   justify-content: flex-start;
 `;
 
-function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
+function WorkFilesetDraggable({ fileSet, index }) {
   const iiifServerUrl = useContext(IIIFContext);
 
   return (
@@ -36,13 +36,13 @@ function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
             </figure>
             <UIFormField label="Label">
               <p className="mr-6" data-testid="fileset-label">
-                {fileSet.metadata.label}
+                {fileSet.coreMetadata.label}
               </p>
             </UIFormField>
 
             <UIFormField label="Description">
               <p data-testid="fileset-description">
-                {fileSet.metadata.description}
+                {fileSet.coreMetadata.description}
               </p>
             </UIFormField>
           </div>
@@ -52,9 +52,9 @@ function WorkTabsStructureFilesetDraggable({ fileSet, index }) {
   );
 }
 
-WorkTabsStructureFilesetDraggable.propTypes = {
+WorkFilesetDraggable.propTypes = {
   fileSet: PropTypes.object,
   index: PropTypes.number,
 };
 
-export default WorkTabsStructureFilesetDraggable;
+export default WorkFilesetDraggable;

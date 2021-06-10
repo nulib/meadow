@@ -54,9 +54,6 @@ jobs:
       - image: circleci/elixir:1.11-node
     steps:
       - checkout
-      - run:
-          name: Generate checksums for dependency lock files
-          command: sha256sum assets/yarn.lock priv/nodejs/*/yarn.lock | sort > ./assets/yarn.lock
       - restore_cache:
           keys:
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}

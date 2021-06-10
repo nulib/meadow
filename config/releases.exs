@@ -90,6 +90,9 @@ config :meadow,
   iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL"),
   iiif_server_url: get_required_var.("IIIF_SERVER_URL"),
   ingest_bucket: get_required_var.("INGEST_BUCKET"),
+  mediaconvert_client: MediaConvert,
+  mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE"),
+  mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE"),
   migration_binary_bucket: System.get_env("MIGRATION_BINARY_BUCKET"),
   migration_manifest_bucket: System.get_env("MIGRATION_MANIFEST_BUCKET"),
   pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
@@ -104,6 +107,8 @@ config :meadow,
     store_config: [bucket: get_required_var.("SITEMAP_BUCKET")],
     sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
   ],
+  streaming_bucket: get_required_var.("STREAMING_BUCKET"),
+  streaming_url: get_required_var.("STREAMING_URL"),
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
 
@@ -142,7 +147,8 @@ config :meadow, :lambda,
   digester: {:lambda, "meadow-digester"},
   mime_type: {:lambda, "meadow-mime-type"},
   tiff: {:lambda, "meadow-pyramid-tiff"},
-  exif: {:lambda, "meadow-exif"}
+  exif: {:lambda, "meadow-exif"},
+  mediainfo: {:lambda, "meadow-mediainfo"}
 
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [
@@ -164,6 +170,16 @@ config :sequins, Actions.ExtractExifMetadata,
     visibility_timeout: 360
   ]
 
+config :sequins, Actions.ExtractMediaMetadata,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
 config :sequins, Actions.ExtractMimeType,
   queue_config: [
     producer_concurrency: 10,
@@ -175,6 +191,26 @@ config :sequins, Actions.ExtractMimeType,
   ]
 
 config :sequins, Actions.CreatePyramidTiff,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
+config :sequins, Actions.CreateTranscodeJob,
+  queue_config: [
+    producer_concurrency: 10,
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    max_number_of_messages: 10,
+    processor_concurrency: 100,
+    visibility_timeout: 360
+  ]
+
+config :sequins, Actions.TranscodeComplete,
   queue_config: [
     producer_concurrency: 10,
     receive_interval: 1000,

@@ -1,3 +1,8 @@
 query IngestSheetWorkCount($sheetId: ID!) {
-  ingestSheetWorkCount(id: $sheetId)
+  ingestSheetWorkCount(id: $sheetId) {
+    totalWorks
+    totalFileSets
+    pass
+    fail
+  }
 }

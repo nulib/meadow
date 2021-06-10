@@ -12,8 +12,8 @@ defmodule MeadowWeb.Schema.Mutation.UpdateFileSetsTest do
       query_gql(
         variables: %{
           "fileSets" => [
-            %{"id" => file_set1.id, "metadata" => %{"label" => "Something"}},
-            %{"id" => file_set2.id, "metadata" => %{"label" => "Something Else"}}
+            %{"id" => file_set1.id, "coreMetadata" => %{"label" => "Something"}},
+            %{"id" => file_set2.id, "coreMetadata" => %{"label" => "Something Else"}}
           ]
         },
         context: gql_context()
@@ -24,7 +24,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateFileSetsTest do
     updated_file_sets = get_in(query_data, [:data, "updateFileSets"])
 
     Enum.each(updated_file_sets, fn fs ->
-      case get_in(fs, ["metadata", "label"]) do
+      case get_in(fs, ["coreMetadata", "label"]) do
         "Something" ->
           assert get_in(fs, ["id"]) == file_set1.id
 

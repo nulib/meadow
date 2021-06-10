@@ -7,9 +7,8 @@ defmodule Meadow.Ingest.Progress do
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.IntervalTask
-  alias Meadow.Pipeline
+  alias Meadow.Pipeline.Actions.Dispatcher
   alias Meadow.Repo
-  alias Meadow.Utils.MapList
 
   import Ecto.Query
   import Meadow.Utils.Atoms
@@ -98,11 +97,11 @@ defmodule Meadow.Ingest.Progress do
   an additional entry if the row creates a new work
   """
   def initialize_entry(%Row{} = row, include_work) do
-    initialize_entry(row.id, MapList.get(row.fields, :header, :value, :role), include_work)
+    initialize_entry(row.id, include_work)
   end
 
-  def initialize_entry(row_id, row_role, include_work) do
-    row_actions(row_role, include_work)
+  def initialize_entry(row_id, include_work) do
+    row_actions(include_work)
     |> Enum.each(fn action -> update_entry(row_id, action, "pending") end)
   end
 
@@ -121,8 +120,8 @@ defmodule Meadow.Ingest.Progress do
 
   defp initialize_chunk(chunk, timestamp) do
     new_entries =
-      Enum.flat_map(chunk, fn {row_id, row_role, include_work} ->
-        row_actions(row_role, include_work)
+      Enum.flat_map(chunk, fn {row_id, include_work} ->
+        row_actions(include_work)
         |> Enum.map(fn action ->
           %{
             row_id: row_id,
@@ -140,13 +139,31 @@ defmodule Meadow.Ingest.Progress do
   @doc """
   Update the status of several progress entries at once
   """
-  def update_entries(entries, action, status) do
+  def update_entries(entries, action, status) when is_list(entries) do
     now = DateTime.utc_now()
     row_ids = Enum.map(entries, fn %{row_id: id} -> id end)
 
     {_count, result} =
       from(p in Progress,
         where: p.row_id in ^row_ids and p.action == ^action,
+        select: p
+      )
+      |> Repo.update_all(set: [status: status, updated_at: now])
+
+    result
+  end
+
+  def update_entries(%Row{} = entry, actions, status) when is_list(actions) do
+    update_entries(entry.id, actions, status)
+  end
+
+  def update_entries(entry_id, actions, status) when is_list(actions) do
+    now = DateTime.utc_now()
+    actions = Enum.map(actions, fn a -> atom_to_string(a) end)
+
+    {_count, result} =
+      from(p in Progress,
+        where: p.row_id == ^entry_id and p.action in ^actions,
         select: p
       )
       |> Repo.update_all(set: [status: status, updated_at: now])
@@ -211,21 +228,11 @@ defmodule Meadow.Ingest.Progress do
     |> Repo.aggregate(:count)
   end
 
-  defp row_actions("P", include_work) do
-    actions = List.delete(Pipeline.actions(), Meadow.Pipeline.Actions.CreatePyramidTiff)
-
+  defp row_actions(include_work) do
     if include_work do
-      ["CreateWork" | actions]
+      ["CreateWork" | Dispatcher.all_progress_actions()]
     else
-      actions
-    end
-  end
-
-  defp row_actions(_, include_work) do
-    if include_work do
-      ["CreateWork" | Pipeline.actions()]
-    else
-      Pipeline.actions()
+      Dispatcher.all_progress_actions()
     end
   end
 

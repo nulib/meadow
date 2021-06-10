@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
-import { hasRole } from "../../../services/metadata";
+import { hasRole } from "@js/services/metadata";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@nulib/admin-react-components";
 import { IconAdd, IconTrashCan } from "@js/components/Icon";
@@ -12,16 +12,28 @@ const UIFormControlledTermArray = ({
   authorities = [],
   label,
   name,
-  required,
   roleDropdownOptions = [],
-  ...passedInProps
 }) => {
-  const { control, errors, register } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+    register,
+  } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name, // Metadata item form name
     keyName: "useFieldArrayId",
   });
+
+  function getRoleId({ role, roleId }) {
+    if (!role && !roleId) return;
+    return role ? role.id : roleId;
+  }
+
+  function getTermId({ term, termId }) {
+    if (!term && !termId) return;
+    return term ? term.id : termId;
+  }
 
   return (
     <>
@@ -39,24 +51,24 @@ const UIFormControlledTermArray = ({
                 >{`${label} #${index + 1}`}</legend>
 
                 {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
-                {(item.term || item.termId) && (
+                {getTermId(item) && (
                   <>
                     <p>
-                      {item.term.label} {item.role && `(${item.role.label})`}
-                      {item.term.id && ` - ${item.term.id}`}
+                      {item.term?.label || item.label} <br />
+                      {getTermId(item)}
+                      <br />
+                      {`${item.role?.label || item.roleId}`}
                     </p>
                     <input
                       type="hidden"
-                      name={`${itemName}.termId`}
-                      ref={register()}
-                      value={item.term.id}
+                      {...register(`${itemName}.termId`)}
+                      value={getTermId(item)}
                     />
-                    {item.role && (
+                    {getRoleId(item) && (
                       <input
                         type="hidden"
-                        name={`${itemName}.roleId`}
-                        ref={register()}
-                        value={item.role ? item.role.id : null}
+                        {...register(`${itemName}.roleId`)}
+                        value={getRoleId(item) || null}
                       />
                     )}
                   </>
@@ -128,10 +140,8 @@ const UIFormControlledTermArray = ({
 
 UIFormControlledTermArray.propTypes = {
   authorities: PropTypes.array,
-  defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  required: PropTypes.bool,
   roleDropdownOptions: PropTypes.array,
 };
 

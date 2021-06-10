@@ -53,6 +53,11 @@ resource "aws_iam_role_policy_attachment" "meadow_ec2_target_group_access" {
   policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "meadow_ec2_transcode_passrole" {
+  role       = aws_iam_role.meadow_ec2_role.name
+  policy_arn = aws_iam_policy.allow_transcode.arn
+}
+
 resource "aws_iam_instance_profile" "meadow_instance_profile" {
   name = "${var.stack_name}-ec2"
   role = aws_iam_role.meadow_ec2_role.name

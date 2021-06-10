@@ -8,11 +8,13 @@ fragment FileSetFields on FileSet {
   }
   rank
   position
-  metadata {
+  streamingUrl
+  coreMetadata {
     description
     sha256
     label
     location
-    original_filename
+    originalFilename
   }
+  extractedMetadata
 }

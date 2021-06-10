@@ -102,10 +102,10 @@ defmodule Meadow.Seed.Import do
         Logger.info("Importing #{name} into #{schema}")
         load(schema, Path.join([prefix, to_string(name)]) <> ".csv")
       end)
-
-      ensure_representative_images()
-      fix_file_set_preservation_locations()
     end)
+
+    ensure_representative_images()
+    fix_file_set_preservation_locations()
 
     Works.list_works()
     |> Enum.each(fn %{id: work_id} ->
@@ -168,17 +168,30 @@ defmodule Meadow.Seed.Import do
     )
   end
 
-  defp update_file_set_preservation_location(%FileSet{metadata: %{location: location}} = file_set)
-       when is_binary(location) do
-    new_location =
-      URI.parse(location)
-      |> Map.put(:host, Config.preservation_bucket())
-      |> URI.to_string()
+  defp update_file_set_preservation_location(%FileSet{} = file_set) do
+    case Map.from_struct(file_set) |> update_file_set_preservation_location() do
+      :noop -> :noop
+      attrs -> file_set |> FileSets.update_file_set(attrs)
+    end
+  end
 
-    file_set |> FileSets.update_file_set(%{metadata: %{location: new_location}})
+  defp update_file_set_preservation_location(%{core_metadata: %{location: location}} = file_set)
+       when is_map(file_set) and is_binary(location) do
+    %{core_metadata: %{location: update_location(location)}}
+  end
+
+  defp update_file_set_preservation_location(%{metadata: %{location: location}} = file_set)
+       when is_map(file_set) and is_binary(location) do
+    %{metadata: %{location: update_location(location)}}
   end
 
   defp update_file_set_preservation_location(_), do: :noop
+
+  defp update_location(location) do
+    URI.parse(location)
+    |> Map.put(:host, Config.preservation_bucket())
+    |> URI.to_string()
+  end
 
   defp prepare_stream(data, headers, schema) do
     with rows <- data |> CSV.parse_stream(headers: true) do

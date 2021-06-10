@@ -12,7 +12,7 @@ defmodule Meadow.IIIF.GeneratorTest do
         file_set_fixture(%{
           work_id: work.id,
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
-          metadata: %{
+          core_metadata: %{
             location: "foo",
             description: "bar",
             original_filename: "something",
@@ -24,7 +24,7 @@ defmodule Meadow.IIIF.GeneratorTest do
         file_set_fixture(%{
           work_id: work.id,
           role: %{id: "P", scheme: "FILE_SET_ROLE"},
-          metadata: %{
+          core_metadata: %{
             location: "foo",
             description: "preservation master",
             original_filename: "something",

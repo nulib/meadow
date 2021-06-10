@@ -23,6 +23,16 @@ defmodule Meadow.Ingest.Rows do
   end
 
   @doc """
+  Gets a row by ingest sheet and file set accession_number
+  """
+  def get_row_by_file_set_accession_number(sheet_id, file_set_accession_number) do
+    from(r in Row,
+      where: r.sheet_id == ^sheet_id and r.file_set_accession_number == ^file_set_accession_number
+    )
+    |> Repo.one()
+  end
+
+  @doc """
   Changes the validation state of a Row
   """
   def change_ingest_sheet_row_validation_state(

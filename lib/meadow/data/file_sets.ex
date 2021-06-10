@@ -122,10 +122,10 @@ defmodule Meadow.Data.FileSets do
 
   ## Examples
 
-      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: "new label", description: "new description"}})
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", core_metadata: %{label: "new label", description: "new description"}})
       {:ok, [%Meadow.Data.Schemas.FileSet{}]}
 
-      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", metadata: %{label: 009, description: "new description"}})
+      iex> update_file_sets(%{id: "2b281f5f-bbca-4bfb-a323-df1ab595e99f", core_metadata: %{label: 009, description: "new description"}})
       {:error, :file_set_1, %Ecto.Changeset{}}
   """
   def update_file_sets(file_set_updates) do
@@ -138,6 +138,14 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
+  def add_derivative(%FileSet{derivatives: nil}, type, value),
+    do: add_derivative_to_map(%{}, type, value)
+
+  def add_derivative(%FileSet{derivatives: map}, type, value),
+    do: add_derivative_to_map(map, type, value)
+
+  defp add_derivative_to_map(map, type, value), do: Map.put(map, to_string(type), value)
+
   defp multi_update(file_set_updates) do
     file_set_updates
     |> Enum.with_index(1)
@@ -146,7 +154,8 @@ defmodule Meadow.Data.FileSets do
         multi,
         :"index_#{index}",
         FileSet.update_changeset(get_file_set!(changes.id), %{
-          metadata: changes.metadata,
+          core_metadata: Map.get(changes, :core_metadata, %{}),
+          structural_metadata: Map.get(changes, :structural_metadata, %{}),
           updated_at: NaiveDateTime.utc_now()
         })
       )
@@ -182,5 +191,28 @@ defmodule Meadow.Data.FileSets do
     dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
+  @doc """
+  Get the distribution streaming playlist url for a file set
+  """
+  def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}}) do
+    with %{path: path} <- URI.parse(playlist) do
+      Config.streaming_url() |> Path.join(path)
+    end
+  end
+
+  def distribution_streaming_uri_for(_), do: nil
+
+  @doc """
+  Get the streaming path for a file set
+  """
+  def streaming_uri_for(%FileSet{role: %{id: "P"}}), do: nil
+  def streaming_uri_for(%FileSet{} = file_set), do: streaming_uri_for(file_set.id)
+
+  def streaming_uri_for(file_set_id) do
+    bucket = Config.streaming_bucket()
+    key = "/" <> Pairtree.generate!(file_set_id) <> "/"
+    %URI{scheme: "s3", host: bucket, path: key} |> URI.to_string()
   end
 end

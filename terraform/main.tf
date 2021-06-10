@@ -85,6 +85,12 @@ resource "aws_s3_bucket" "meadow_preservation_checks" {
   tags   = var.tags
 }
 
+resource "aws_s3_bucket" "meadow_streaming" {
+  bucket = "${var.stack_name}-${var.environment}-streaming"
+  acl    = "private"
+  tags   = var.tags
+}
+
 data "aws_s3_bucket" "pyramid_bucket" {
   bucket = var.pyramid_bucket
 }
@@ -126,6 +132,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation.arn,
       aws_s3_bucket.meadow_preservation_checks.arn,
+      aws_s3_bucket.meadow_streaming.arn,
       data.aws_s3_bucket.pyramid_bucket.arn,
       data.aws_s3_bucket.migration_binary_bucket.arn,
       data.aws_s3_bucket.migration_manifest_bucket.arn,
@@ -148,6 +155,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation.arn}/*",
       "${aws_s3_bucket.meadow_preservation_checks.arn}/*",
+      "${aws_s3_bucket.meadow_streaming.arn}/*",
       "${data.aws_s3_bucket.pyramid_bucket.arn}/*",
       "${data.aws_s3_bucket.migration_binary_bucket.arn}/*",
       "${data.aws_s3_bucket.migration_manifest_bucket.arn}/*",
@@ -313,4 +321,155 @@ resource "aws_efs_mount_target" "meadow_working_mount" {
   file_system_id  = aws_efs_file_system.meadow_working.id
   subnet_id       = each.key
   security_groups = [aws_security_group.meadow_working_access.id]
+}
+
+resource "aws_iam_role" "transcode_role" {
+  name = "${var.stack_name}-transcode-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "mediaconvert.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "${var.stack_name}-transcode-policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect   = "Allow"
+          Action   = ["s3:Get*", "s3:List*"]
+          Resource = ["${aws_s3_bucket.meadow_preservation.arn}/*"]
+        },
+        {
+          Effect   = "Allow"
+          Action   = ["s3:Put*"]
+          Resource = ["${aws_s3_bucket.meadow_streaming.arn}/*"]
+        }
+      ]
+    })
+  }
+}
+
+data "aws_iam_policy_document" "pass_transcode_role" {
+  statement {
+    effect = "Allow"
+    actions = ["iam:PassRole"]
+    resources = [aws_iam_role.transcode_role.arn]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "mediaconvert:CreateJob", 
+      "mediaconvert:DescribeEndpoints"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "allow_transcode" {
+  name = "${var.stack_name}-mediaconvert-access"
+  policy = data.aws_iam_policy_document.pass_transcode_role.json
+}
+
+resource "aws_media_convert_queue" "transcode_queue" {
+  name   = var.stack_name
+  status = "ACTIVE"
+}
+
+resource "aws_cloudfront_origin_access_identity" "meadow_streaming_access_identity" {
+  comment = var.stack_name
+}
+
+data "aws_iam_policy_document" "meadow_streaming_bucket_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.meadow_streaming.arn}/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.meadow_streaming_access_identity.iam_arn]
+    }
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.meadow_streaming.arn]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.meadow_streaming_access_identity.iam_arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "allow_cloudfront_streaming_access" {
+  bucket = aws_s3_bucket.meadow_streaming.id
+  policy = data.aws_iam_policy_document.meadow_streaming_bucket_policy.json
+}
+
+resource "aws_cloudfront_distribution" "meadow_streaming" {
+  enabled          = true
+  is_ipv6_enabled  = true
+  retain_on_delete = true
+  aliases          = ["${var.stack_name}-streaming.${var.dns_zone}"]
+  price_class      = "PriceClass_100"
+
+  origin {
+    domain_name = aws_s3_bucket.meadow_streaming.bucket_domain_name
+    origin_id   = "${var.stack_name}-origin"
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.meadow_streaming_access_identity.cloudfront_access_identity_path
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "${var.stack_name}-origin"
+    viewer_protocol_policy = "allow-all"
+
+    forwarded_values {
+      cookies {
+        forward = "none"
+      }
+
+      query_string = false
+      headers      = ["Origin"]
+    }
+
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = false
+    acm_certificate_arn            = join("", data.aws_acm_certificate.meadow_cert.*.arn)
+    ssl_support_method             = "sni-only"
+  }
+}
+
+resource "aws_route53_record" "meadow_streaming_cloudfront" {
+  zone_id = data.aws_route53_zone.app_zone.zone_id
+  name    = "${var.stack_name}-streaming"
+  type    = "CNAME"
+  ttl     = "900"
+  records = [aws_cloudfront_distribution.meadow_streaming.domain_name]
 }

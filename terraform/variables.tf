@@ -143,3 +143,4 @@ variable "ezid_target_base_url" {
 variable "ezid_user" {
   type = string
 }
+

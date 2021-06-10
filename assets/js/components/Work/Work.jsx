@@ -2,6 +2,12 @@ import React from "react";
 import { OpenSeadragonViewer } from "openseadragon-react-viewer";
 import WorkTabs from "./Tabs/Tabs";
 import PropTypes from "prop-types";
+import UIMediaPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
+import {
+  mockVideoSources,
+  mockVideoTracks,
+} from "@js/components/UI/MediaPlayer/MediaPlayer";
+import { getManifest } from "@js/services/get-manifest";
 
 const osdOptions = {
   showDropdown: true,
@@ -18,11 +24,13 @@ const Work = ({ work }) => {
     label: "",
     canvasCount: "",
   });
+  const isImageWorkType =
+    work.workType?.id === "IMAGE" &&
+    ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
 
   React.useEffect(() => {
     async function getData() {
-      const response = await fetch(`${work.manifestUrl}?${Date.now()}`);
-      const data = await response.json();
+      const data = await getManifest(`${work.manifestUrl}?${Date.now()}`);
 
       // Check if watch items in manifest are different.
       // If so, trigger a re-render of OSD viewer
@@ -39,29 +47,46 @@ const Work = ({ work }) => {
       setManifestObj(data);
     }
 
-    getData();
+    isImageWorkType && getData();
   }, [work.fileSets, work.descriptiveMetadata.title]);
 
   return (
-    <>
-      <section>
-        <div data-testid="viewer">
-          {manifestObj && (
-            <OpenSeadragonViewer
-              //manifestUrl={`${work.manifestUrl}?timestamp=${Date.now()}`}
-              manifest={manifestObj}
-              options={osdOptions}
-              key={`${work.id}_${randomUrlKey}`}
-            />
-          )}
-        </div>
-      </section>
+    <div data-testid="work-component">
+      {isImageWorkType && (
+        <section>
+          <div data-testid="viewer">
+            {manifestObj && (
+              <OpenSeadragonViewer
+                manifest={manifestObj}
+                options={osdOptions}
+                key={`${work.id}_${randomUrlKey}`}
+              />
+            )}
+          </div>
+        </section>
+      )}
+
+      {!isImageWorkType && (
+        <section className="section">
+          <div className="container">
+            <p className="notification is-warning is-light has-text-centered">
+              Audio/video Work Type player not yet supported
+            </p>
+            {/* <UIMediaPlayer
+            controls
+            sources={mockVideoSources}
+            tracks={mockVideoTracks}
+          /> */}
+          </div>
+        </section>
+      )}
+
       <section className="section">
         <div className="container" data-testid="tabs-wrapper">
           <WorkTabs work={work} />
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

@@ -8,7 +8,7 @@ const work = {
     {
       accessionNumber: "Example-34-3",
       id: "01DV4BAEAGKNT5P3GH10X263K1",
-      metadata: {
+      coreMetadata: {
         description: "Lorem Ipsum",
       },
       work: {
@@ -18,7 +18,7 @@ const work = {
     {
       accessionNumber: "Example-34-4",
       id: "01DV4BAEANHGYQKQ2EPBWJVJSR",
-      metadata: {
+      coreMetadata: {
         description: "Lorem Ipsum",
       },
       work: {
@@ -28,7 +28,7 @@ const work = {
   ],
   id: "01DV4BAE9NDQHSMRHKM8KC4FNC",
   insertedAt: "2019-12-02T22:22:30",
-  metadata: {
+  coreMetadata: {
     title: null,
   },
   updatedAt: "2019-12-02T22:22:30",

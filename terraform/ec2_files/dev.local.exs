@@ -56,6 +56,10 @@ config :meadow, preservation_check_bucket: get_required_var.("PRESERVATION_CHECK
 config :meadow, iiif_server_url: get_required_var.("IIIF_SERVER_URL")
 config :meadow, iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL")
 config :meadow, digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
+config :meadow, mediaconvert_client: MediaConvert,
+config :meadow, mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE")
+config :meadow, mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE")
+config :meadow, streaming_bucket: get_required_var.("STREAMING_BUCKET")
 config :meadow, sitemaps: [
   gzip: true,
   store: Sitemapper.S3Store,

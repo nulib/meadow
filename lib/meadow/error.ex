@@ -7,6 +7,9 @@ defmodule Meadow.Error do
   """
   alias Meadow.Config
 
+  @doc """
+  Report an exception to Honeybadger
+  """
   def report(exception, module, stacktrace, additional_context \\ %{}) do
     Honeybadger.notify(exception,
       metadata:
@@ -17,6 +20,9 @@ defmodule Meadow.Error do
     )
   end
 
+  @doc """
+  Add version and module information to all error reports
+  """
   def add_default_metadata(context, module \\ nil) do
     context
     |> Map.merge(%{

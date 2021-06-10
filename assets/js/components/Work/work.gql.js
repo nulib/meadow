@@ -19,17 +19,26 @@ export const CREATE_SHARED_LINK = gql`
 `;
 
 export const CREATE_WORK = gql`
-  mutation createWork($accessionNumber: String!, $title: String) {
+  mutation createWork(
+    $accessionNumber: String!
+    $title: String
+    $workType: CodedTermInput
+  ) {
     createWork(
       accessionNumber: $accessionNumber
       administrativeMetadata: {}
       descriptiveMetadata: { title: $title }
+      workType: $workType
     ) {
       accessionNumber
       descriptiveMetadata {
         title
       }
       id
+      workType {
+        id
+        label
+      }
     }
   }
 `;
@@ -204,14 +213,15 @@ export const GET_WORK = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
-          exif
           label
           location
+          mimeType
           originalFilename
           sha256
         }
+        extractedMetadata
         insertedAt
         updatedAt
       }
@@ -256,7 +266,7 @@ export const GET_WORKS = gql`
           label
         }
         accessionNumber
-        metadata {
+        coreMetadata {
           description
           originalFilename
           location
@@ -287,6 +297,16 @@ export const GET_WORKS = gql`
         id
         label
       }
+    }
+  }
+`;
+
+export const GET_WORK_TYPES = gql`
+  query GetWorkTypes {
+    codeList(scheme: WORK_TYPE) {
+      id
+      label
+      scheme
     }
   }
 `;
@@ -417,13 +437,13 @@ export const INGEST_FILE_SET = gql`
   mutation IngestFileSet(
     $accession_number: String!
     $role: FileSetRole!
-    $metadata: FileSetMetadataInput!
+    $coreMetadata: FileSetCoreMetadataInput!
     $workId: ID!
   ) {
     ingestFileSet(
       accessionNumber: $accession_number
       role: $role
-      metadata: $metadata
+      coreMetadata: $coreMetadata
       workId: $workId
     ) {
       id
@@ -435,7 +455,7 @@ export const INGEST_FILE_SET = gql`
       work {
         id
       }
-      metadata {
+      coreMetadata {
         location
         label
         description
@@ -458,7 +478,7 @@ export const UPDATE_FILE_SETS = gql`
   mutation UpdateFileSets($fileSets: [FileSetUpdate]!) {
     updateFileSets(fileSets: $fileSets) {
       id
-      metadata {
+      coreMetadata {
         description
         label
       }

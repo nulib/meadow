@@ -38,9 +38,9 @@ const WorkRow = ({ work }) => {
                     i < fileSetsToDisplay - 1 ? (
                       <li key={fileSet.id}>
                         {fileSet.accessionNumber} -{" "}
-                        {fileSet.metadata &&
-                          fileSet.metadata.description &&
-                          fileSet.metadata.description}
+                        {fileSet.coreMetadata &&
+                          fileSet.coreMetadata.description &&
+                          fileSet.coreMetadata.description}
                       </li>
                     ) : null
                   )}

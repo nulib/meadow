@@ -52,6 +52,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
            Software
            XResolution
            YResolution)
+  @tool_name "exifr"
 
   setup do
     exif_file_set =
@@ -59,7 +60,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
         id: "cecb1180-054e-4764-8d2b-8a46c6b777b2",
         accession_number: "1234",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@exif_key}",
           original_filename: "test.tif"
         }
@@ -70,7 +71,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
         id: "bbcb54da-fb1d-48ed-8438-99a030431086",
         accession_number: "2314",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "s3://#{@bucket}/#{@no_exif_key}",
           original_filename: "test.tif"
         }
@@ -81,7 +82,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
         id: "979d3570-9dc9-4d3b-ac1b-ee5524ee0bd3",
         accession_number: "4321",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{
+        core_metadata: %{
           location: "invalid",
           original_filename: "test.tif"
         }
@@ -100,8 +101,13 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
+      assert file_set.extracted_metadata |> is_map()
 
-      assert_maps_equal(file_set.metadata.exif, @exif, @keys)
+      with subject <- file_set.extracted_metadata |> Map.get("exif") do
+        assert Map.get(subject, "tool") == @tool_name
+        assert Map.get(subject, "tool_version")
+        assert_maps_equal(Map.get(subject, "value"), @exif, @keys)
+      end
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
@@ -117,7 +123,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      assert is_nil(file_set.metadata.exif)
+      with extracted <- file_set.extracted_metadata do
+        assert is_nil(extracted) || is_nil(Map.get(extracted, "exif"))
+      end
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})

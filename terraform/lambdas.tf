@@ -86,6 +86,24 @@ module "exif_function" {
   )
 }
 
+module "mediainfo_function" {
+  depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
+  source      = "./modules/meadow_lambda"
+  name        = "mediainfo"
+  description = "Function to extract technical metadata from an A/V S3 object"
+  role        = aws_iam_role.lambda_role.arn
+  stack_name  = var.stack_name
+  memory_size = 512
+  timeout     = 120
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowMediaInfo"
+    },
+  )
+}
+
 module "mime_type_function" {
   depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
   source      = "./modules/meadow_lambda"

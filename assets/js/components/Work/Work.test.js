@@ -1,24 +1,45 @@
 import React from "react";
 import Work from "./Work";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { mockWork } from "./work.gql.mock";
-import { iiifServerUrlMock } from "../IIIF/iiif.gql.mock";
+import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
+import { screen } from "@testing-library/react";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import {
+  getCollectionMock,
+  getCollectionsMock,
+} from "@js/components/Collection/collection.gql.mock";
 
-const mocks = [iiifServerUrlMock];
+jest.mock("@js/hooks/useIsAuthorized");
+useIsAuthorized.mockReturnValue({
+  user: mockUser,
+  isAuthorized: () => true,
+});
+
+const mocks = [
+  iiifServerUrlMock,
+  getCollectionMock,
+  getCollectionsMock,
+  ...allCodeListMocks,
+];
+
+jest.mock("@js/services/get-manifest");
 
 describe("Work component", () => {
-  function setupTests() {
-    return renderWithRouterApollo(<Work work={mockWork} />, { mocks });
-  }
-
-  it("renders without crashing", () => {
-    expect(setupTests()).toBeTruthy();
+  beforeEach(() => {
+    renderWithRouterApollo(<Work work={mockWork} />, { mocks });
   });
 
-  it("renders the viewer and tabs", () => {
-    const { getByTestId } = setupTests();
+  it("renders without crashing", async () => {
+    expect(await screen.findByTestId("work-component"));
+  });
 
-    expect(getByTestId("viewer")).toBeInTheDocument();
-    expect(getByTestId("tabs-wrapper")).toBeInTheDocument();
+  //TODO: Figure out how to accurately test this component in relative isolation
+  // and not have to mock every child dependency the whole component tree needs
+  xit("renders the viewer and tabs", async () => {
+    expect(await screen.findByTestId("viewer"));
+    expect(await screen.findByTestId("tabs-wrapper"));
   });
 });

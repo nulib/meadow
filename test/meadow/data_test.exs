@@ -11,7 +11,7 @@ defmodule Meadow.DataTest do
         %{
           accession_number: "1234",
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
-          metadata: %{
+          core_metadata: %{
             description: "This is the description",
             location: "https://www.library.northwestern.edu",
             original_filename: "test.tiff"
@@ -34,7 +34,7 @@ defmodule Meadow.DataTest do
         work_id: work.id,
         accession_number: "2222",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{location: "test", original_filename: "test"}
+        core_metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
 
@@ -44,7 +44,7 @@ defmodule Meadow.DataTest do
         work_id: work.id,
         accession_number: "1111",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{location: "test", original_filename: "test"}
+        core_metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
 
@@ -54,7 +54,7 @@ defmodule Meadow.DataTest do
         work_id: work.id,
         accession_number: "no",
         role: %{id: "P", scheme: "FILE_SET_ROLE"},
-        metadata: %{location: "test", original_filename: "test"}
+        core_metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
 
@@ -63,7 +63,7 @@ defmodule Meadow.DataTest do
         position: 0,
         accession_number: "nono",
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        metadata: %{location: "test", original_filename: "test"}
+        core_metadata: %{location: "test", original_filename: "test"}
       })
       |> Repo.insert!()
 

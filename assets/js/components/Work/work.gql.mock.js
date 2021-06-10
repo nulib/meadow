@@ -2,12 +2,15 @@ import {
   CREATE_WORK,
   DELETE_FILESET,
   GET_WORK,
+  GET_WORK_TYPES,
   VERIFY_FILE_SETS,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
 
+export const MOCK_WORK_ID = "ABC123";
+
 export const mockWork = {
-  id: "ABC123",
+  id: MOCK_WORK_ID,
   accessionNumber: "Donohue_001",
   administrativeMetadata: {
     libraryUnit: { id: "Unit 1", label: "Unit 1" },
@@ -145,15 +148,16 @@ export const mockWork = {
       accessionNumber: "Donohue_001_04",
       id: "01E08T3EXBJX3PWDG22NSRE0BS",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 2, If these papers, verso, blank",
-        exif:
-          '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        mimeType: "image",
         originalFilename: "coffee.jpg",
         sha256: "foobar",
       },
+      extractedMetadata:
+        '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-09-12T10:01:01",
       updatedAt: "2020-09-18T09:01:01",
     },
@@ -161,16 +165,17 @@ export const mockWork = {
       accessionNumber: "Donohue_001_01",
       id: "01E08T3EW3TQ9T0AXCR6X9QDJW",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 1, Dear Sir, recto",
-        exif:
-          '{"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}',
         location: "s3://bucket/foo/bar",
+        mimeType: "image",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
         sha256: "foobar",
       },
+      extractedMetadata:
+        '{"exif": {"tool": "exifr", "tool_version": "6.1.1", "value": {"Artist":"Artist Name","BitsPerSample":{"0":8,"1":8,"2":8},"Compression":1,"Copyright":"In Copyright","FillOrder":1,"ImageDescription":"inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6","ImageHeight":1024,"ImageWidth":1024,"Make":"Better Light","Model":"Model Super8K","Orientation":"Horizontal (normal)","PhotometricInterpretation":2,"PlanarConfiguration":1,"ResolutionUnit":"inches","SamplesPerPixel":3,"Software":"Adobe Photoshop CC 2015.5 (Windows)","XResolution":72,"YResolution":72}}}',
       insertedAt: "2020-11-12T10:01:01",
       updatedAt: "2020-11-18T09:01:01",
     },
@@ -178,10 +183,11 @@ export const mockWork = {
       accessionNumber: "Donohue_001_03",
       id: "01E08T3EWRPXMWW0B1NHZ56AW6",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 2, If these papers, recto",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
+        mimeType: "image",
         label: "foo.tiff",
         sha256: "foobar",
       },
@@ -192,11 +198,12 @@ export const mockWork = {
       accessionNumber: "Donohue_001_02",
       id: "01E08T3EWFJB35RY3RVR65AXMK",
       role: { id: "A", label: "Access" },
-      metadata: {
+      coreMetadata: {
         description: "Letter, page 1, Dear Sir, verso, blank",
         originalFilename: "coffee.jpg",
         location: "s3://bucket/foo/bar",
         label: "foo.tiff",
+        mimeType: "image",
         sha256: "foobar",
       },
       insertedAt: "2020-06-12T10:01:01",
@@ -221,7 +228,7 @@ export const mockWork = {
 };
 
 const mockWork2 = {
-  id: "ABC123",
+  id: MOCK_WORK_ID,
   accessionNumber: "Donohue_002b",
   administrativeMetadata: {
     libraryUnit: null,
@@ -236,6 +243,7 @@ const mockWork2 = {
   },
   collection: null,
   descriptiveMetadata: {
+    ark: "ark123",
     source: [],
     title: "Work title here",
     scopeAndContents: [],
@@ -308,11 +316,12 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_03b",
       id: "0afa26f5-78e0-4ccb-b96f-052034dbbe27",
-      metadata: {
+      coreMetadata: {
         description: "Photo, two children praying",
         label: "painting7.JPG",
         location:
           "s3://dev-preservation/0a/fa/26/f5/6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
+        mimeType: "image",
         originalFilename: "painting7.JPG",
         sha256:
           "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
@@ -324,7 +333,7 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_01b",
       id: "38620e42-7c71-4364-8123-8106db5fd31c",
-      metadata: {
+      coreMetadata: {
         description: "Photo, man with two children",
         label: "painting5.JPG",
         location:
@@ -338,7 +347,7 @@ const mockWork2 = {
     {
       accessionNumber: "Donohue_002_02b",
       id: "251a0c80-4dbe-48c5-a77b-bcf8c403591d",
-      metadata: {
+      coreMetadata: {
         description: "Verso",
         label: "painting6.JPG",
         location:
@@ -379,12 +388,44 @@ export const getWorkMock = {
   request: {
     query: GET_WORK,
     variables: {
-      id: "ABC123",
+      id: MOCK_WORK_ID,
     },
   },
   result: {
     data: {
       work: mockWork2,
+    },
+  },
+};
+
+export const getWorkTypesMock = {
+  request: {
+    query: GET_WORK_TYPES,
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "AUDIO",
+          label: "Audio",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "DOCUMENT",
+          label: "Document",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "IMAGE",
+          label: "Image",
+          scheme: "WORK_TYPE",
+        },
+        {
+          id: "VIDEO",
+          label: "Video",
+          scheme: "WORK_TYPE",
+        },
+      ],
     },
   },
 };
@@ -395,6 +436,10 @@ export const createWorkMock = {
     variables: {
       accessionNumber: "Donohue_001",
       title: "New mock work title",
+      workType: {
+        id: "IMAGE",
+        scheme: "WORK_TYPE",
+      },
     },
   },
   result: {
@@ -404,7 +449,11 @@ export const createWorkMock = {
         descriptiveMetadata: {
           title: "New mock work title",
         },
-        id: "ABC123",
+        id: MOCK_WORK_ID,
+        workType: {
+          id: "IMAGE",
+          label: "Image",
+        },
       },
     },
   },
@@ -414,13 +463,13 @@ export const deleteFilesetMock = {
   request: {
     query: DELETE_FILESET,
     variables: {
-      fileSetId: "ABC123",
+      fileSetId: MOCK_WORK_ID,
     },
   },
   result: {
     data: {
       deleteFileSet: {
-        id: "ABC123",
+        id: MOCK_WORK_ID,
       },
     },
   },
@@ -430,7 +479,7 @@ export const verifyFileSetsMock = {
   request: {
     query: VERIFY_FILE_SETS,
     variables: {
-      workId: "ABC123",
+      workId: MOCK_WORK_ID,
     },
   },
   result: {

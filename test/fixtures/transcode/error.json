@@ -1,0 +1,25 @@
+{
+  "version": "0",
+  "id": "9a8d71df-b96f-e5a2-0654-41d09c07fb58",
+  "detail-type": "MediaConvert Job State Change",
+  "source": "aws.mediaconvert",
+  "account": "012345678901",
+  "time": "2021-05-27T00:14:12Z",
+  "region": "us-east-1",
+  "resources": [
+    "arn:aws:mediaconvert:us-east-1:012345678901:jobs/1622074446914-kze5ap"
+  ],
+  "detail": {
+    "timestamp": 1622074452932,
+    "accountId": "012345678901",
+    "queue": "arn:aws:mediaconvert:us-east-1:012345678901:queues/Default",
+    "jobId": "1622074446914-kze5ap",
+    "status": "ERROR",
+    "errorCode": 1401,
+    "errorMessage": "Unable to open input file [s3://test-preservation/test/bad_input.mp4]: [Failed probe/open: [Can't read input stream: [Failed to read data: Access denied to s3://test-preservation/test/bad_input.mp4]]]",
+    "userMetadata": {
+      "file_set_id": "66116b0f-8fd5-4d44-9508-7540abcd6239",
+      "context": "Test"
+    }
+  }
+}

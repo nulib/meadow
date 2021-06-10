@@ -113,6 +113,14 @@
         "value": "${db_queue_interval}"
       },
       {
+        "name": "MEDIACONVERT_QUEUE",
+        "value": "${mediaconvert_queue}"
+      },
+      {
+        "name": "MEDIACONVERT_ROLE",
+        "value": "${mediaconvert_role}"
+      },
+      {
         "name": "PRESERVATION_BUCKET",
         "value": "${preservation_bucket}"
       },
@@ -135,6 +143,14 @@
       {
         "name": "RELEASE_DISTRIBUTION",
         "value": "name"
+      },
+      {
+        "name": "STREAMING_BUCKET",
+        "value": "${streaming_bucket}"
+      },
+      {
+        "name": "STREAMING_URL",
+        "value": "${streaming_url}"
       },
       {
         "name": "UPLOAD_BUCKET",

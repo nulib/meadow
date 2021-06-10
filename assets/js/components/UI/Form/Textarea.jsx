@@ -14,7 +14,7 @@ const UIFormTextarea = ({
 
   if (isReactHookForm) {
     const context = useFormContext();
-    errors = context.errors;
+    errors = context.formState.errors;
     register = context.register;
   }
 
@@ -22,7 +22,7 @@ const UIFormTextarea = ({
     <>
       <textarea
         name={name}
-        ref={register && register({ required })}
+        {...(register && register(name, { required }))}
         className={`textarea ${errors[name] ? "is-danger" : ""}`}
         {...passedInProps}
       />

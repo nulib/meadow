@@ -1,13 +1,13 @@
 import React from "react";
-import WorkTabsStructureFilesetDraggable from "./FilesetDraggable";
+import WorkFilesetDraggable from "./Draggable";
 import { render, screen } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
 import { withReactBeautifulDND } from "@js/services/testing-helpers";
 
-describe("WorkTabsStructureFilesetDraggable components", () => {
+describe("WorkFilesetDraggable components", () => {
   beforeEach(() => {
     render(
-      withReactBeautifulDND(WorkTabsStructureFilesetDraggable, {
+      withReactBeautifulDND(WorkFilesetDraggable, {
         fileSet: mockFileSets[0],
         index: 0,
       })
@@ -21,10 +21,10 @@ describe("WorkTabsStructureFilesetDraggable components", () => {
   it("renders image, label and description", () => {
     expect(screen.getByTestId("fileset-image"));
     expect(screen.getByTestId("fileset-label")).toHaveTextContent(
-      mockFileSets[0].metadata.label
+      mockFileSets[0].coreMetadata.label
     );
     expect(screen.getByTestId("fileset-description")).toHaveTextContent(
-      mockFileSets[0].metadata.description
+      mockFileSets[0].coreMetadata.description
     );
   });
 });

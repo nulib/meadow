@@ -48,8 +48,7 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
           <UIFormField label="Role">
             <UIFormSelect
               isReactHookForm
-              name="role"
-              showHelper={true}
+              name="fileSetRole"
               label="Fileset Role"
               options={codeLists.fileSetRoleData.codeList}
               required

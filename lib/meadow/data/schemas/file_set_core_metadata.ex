@@ -1,4 +1,4 @@
-defmodule Meadow.Data.Schemas.FileSetMetadata do
+defmodule Meadow.Data.Schemas.FileSetCoreMetadata do
   @moduledoc """
   Descriptive metadata embedded in FileSet records.
   """
@@ -13,7 +13,6 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     field :description
     field :label
     field :digests, :map
-    field :exif, :map
     field :mime_type
 
     timestamps()
@@ -24,7 +23,6 @@ defmodule Meadow.Data.Schemas.FileSetMetadata do
     |> cast(params, [
       :description,
       :digests,
-      :exif,
       :label,
       :location,
       :mime_type,
