@@ -27,8 +27,7 @@ const IngestSheetCompletedErrors = ({
       </p>
       <p className="subtitle">
         <strong>{totalWorks}</strong> works containing{" "}
-        <strong>{totalFileSets}</strong> file_sets ({pass} passed, {fail}{" "}
-        failed)
+        <strong>{totalFileSets}</strong> file_sets
       </p>
       <div style={styles.tableWrapper} className="table-container">
         <table className="table is-fullwidth is-striped">
