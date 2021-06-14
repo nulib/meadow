@@ -17,6 +17,19 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   plug :dispatch
 
   @cache Meadow.Utils.ArkClient.MockServer.Cache
+  @valid_resource_types ~w(Audiovisual Collection Dataset Event Image InteractiveResource Model
+    PhysicalObject Service Software Sound Text Workflow Other)
+  @valid_statuses ~w(public reserved)
+
+  @schema [
+    {"datacite.creator", :optional, :binary},
+    {"datacite.title", :optional, :binary},
+    {"datacite.publisher", :optional, :binary},
+    {"datacite.publicationyear", :optional, :binary},
+    {"datacite.resourcetype", :optional, @valid_resource_types},
+    {"_status", :required, @valid_statuses},
+    {"_target", :required, ~r/^.+:.+$/}
+  ]
 
   @doc """
   Specify a process to send messages to about requests. Good for testing
@@ -62,8 +75,14 @@ defmodule Meadow.Utils.ArkClient.MockServer do
       send_message({:post, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
       send_message({:post, :body, body})
 
-      Cachex.put!(@cache, ark, body)
-      send_resp(conn, 201, "success: #{ark}")
+      case verify_metadata(body) do
+        :ok ->
+          Cachex.put!(@cache, ark, body)
+          send_resp(conn, 201, "success: #{ark}")
+
+        {:error, reason} ->
+          send_resp(conn, 400, "error: bad request - #{reason}")
+      end
     rescue
       ArgumentError ->
         send_resp(conn, 400, "error: bad request - ANVL parse error (percent-decode error)")
@@ -81,13 +100,58 @@ defmodule Meadow.Utils.ArkClient.MockServer do
       send_message({:put, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
       send_message({:put, :body, body})
 
-      Cachex.put!(@cache, ark, body)
-      send_resp(conn, 200, "success: #{ark}\n#{body}")
+      case verify_metadata(body) do
+        :ok ->
+          Cachex.put!(@cache, ark, body)
+          send_resp(conn, 200, "success: #{ark}\n#{body}")
+
+        {:error, reason} ->
+          send_resp(conn, 400, "error: bad request - #{reason}")
+      end
     rescue
       ArgumentError ->
         send_resp(conn, 400, "error: bad request - ANVL parse error (percent-decode error)")
     end
   end
+
+  defp verify_metadata(body) do
+    data =
+      body
+      |> String.split(~r/\n/)
+      |> Enum.map(fn entry -> entry |> String.split(~r/:\s*/, parts: 2) |> List.to_tuple() end)
+      |> Enum.into(%{})
+
+    @schema
+    |> Enum.reduce(:ok, fn {field, requirement, validator}, acc ->
+      validate_field(acc, data, field, requirement, validator)
+    end)
+  end
+
+  defp validate_field({:error, reason}, _, _, _, _), do: {:error, reason}
+
+  defp validate_field(:ok, data, field, :required, validator) do
+    case data |> Map.get(field) do
+      nil -> {:error, "#{field}: missing mandatory value"}
+      "" -> {:error, "#{field}: missing mandatory value"}
+      value -> if validate(value, validator), do: :ok, else: {:error, "#{field}: invalid value"}
+    end
+  end
+
+  defp validate_field(:ok, data, field, :optional, validator) do
+    case data |> Map.get(field) do
+      nil -> :ok
+      "" -> :ok
+      value -> if validate(value, validator), do: :ok, else: {:error, "#{field}: invalid value"}
+    end
+  end
+
+  defp validate(value, :binary), do: is_binary(value)
+  defp validate(value, allowed) when is_list(allowed), do: Enum.member?(allowed, value)
+
+  defp validate(value, %Regex{} = validator),
+    do: is_binary(value) and Regex.match?(validator, value)
+
+  defp validate(_value, _), do: :ok
 
   defp anvl_encode(body), do: anvl_process(body, &URI.encode/1)
   defp anvl_decode(body), do: anvl_process(body, &URI.decode/1)

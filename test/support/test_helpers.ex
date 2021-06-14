@@ -38,6 +38,12 @@ defmodule Meadow.TestHelpers do
   def random_user(category \\ :access), do: category |> test_users |> Enum.random()
   def user_fixture(category \\ :access), do: category |> random_user() |> User.find()
 
+  def seed_values(type) do
+    "priv/repo/seeds/#{type}.json"
+    |> File.read!()
+    |> Jason.decode!(keys: :atoms)
+  end
+
   def ingest_sheet_fixture(attrs \\ %{}) do
     project = project_fixture()
     title = "title-#{System.unique_integer([:positive])}"
