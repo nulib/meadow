@@ -6,20 +6,63 @@ defmodule Meadow.ArkTest do
 
   @ark_format ~r'^ark:/12345/nu2\d{8}$'
   @fields ~w(creator title publisher publication_year resource_type status target)a
+  @valid_resource_types ~w(Audiovisual Collection Dataset Event Image InteractiveResource Model
+    PhysicalObject Service Software Sound Text Workflow Other)
+  @valid_statuses ~w(public reserved)
 
   setup do
     MockServer.send_to(self())
   end
 
   describe "mint/1" do
-    test "no arguments" do
-      with {:ok, result} <- Ark.mint() do
+    test "missing status" do
+      assert {:error, error} = Ark.mint()
+      assert error == "error: bad request - _status: missing mandatory value"
+    end
+
+    test "valid status" do
+      @valid_statuses
+      |> Enum.each(
+        &assert {:ok, _result} = Ark.mint(status: &1, target: "http://example.edu/work")
+      )
+    end
+
+    test "invalid status" do
+      assert {:error, error} = Ark.mint(status: "meh", target: "http://example.edu/work")
+      assert error == "error: bad request - _status: invalid value"
+    end
+
+    test "valid resource type" do
+      @valid_resource_types
+      |> Enum.each(
+        &assert {:ok, _result} =
+                  Ark.mint(
+                    status: "reserved",
+                    target: "http://example.edu/work",
+                    resource_type: &1
+                  )
+      )
+    end
+
+    test "invalid resource type" do
+      assert {:error, error} =
+               Ark.mint(
+                 status: "reserved",
+                 target: "http://example.edu/work",
+                 resource_type: "JustMakeSomethingUp"
+               )
+
+      assert error == "error: bad request - datacite.resourcetype: invalid value"
+    end
+
+    test "minimal arguments" do
+      with {:ok, result} <- Ark.mint(status: "reserved") do
         assert String.match?(result.ark, @ark_format)
         Enum.each(@fields, &assert(result |> Map.get(&1) |> is_nil()))
       end
 
       assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
-      assert_received({:post, :body, "_profile: datacite"})
+      assert_received({:post, :body, "_profile: datacite\n_status: reserved"})
     end
 
     test "attribute list argument" do
@@ -88,7 +131,9 @@ defmodule Meadow.ArkTest do
 
   describe "get/1" do
     setup do
-      {:ok, result} = Ark.mint(target: "http://example.edu/work", creator: "Lovelace, Ada")
+      {:ok, result} =
+        Ark.mint(status: "reserved", target: "http://example.edu/work", creator: "Lovelace, Ada")
+
       {:ok, fixture: result}
     end
 
@@ -103,7 +148,9 @@ defmodule Meadow.ArkTest do
 
   describe "put/1" do
     setup do
-      {:ok, result} = Ark.mint(target: "http://example.edu/work", creator: "Lovelace, Ada")
+      {:ok, result} =
+        Ark.mint(status: "reserved", target: "http://example.edu/work", creator: "Lovelace, Ada")
+
       {:ok, fixture: result}
     end
 
@@ -117,6 +164,7 @@ defmodule Meadow.ArkTest do
         [
           "_profile: datacite",
           "datacite.creator: Lovelace, Ada",
+          "_status: reserved",
           "_target: http://example.edu/work",
           "datacite.title: A 100% New Title for This ARK!"
         ]
@@ -136,7 +184,11 @@ defmodule Meadow.ArkTest do
         0..tags[:arks]
         |> Enum.map(fn i ->
           with {:ok, result} <-
-                 Ark.mint(target: "http://example.edu/work#{i}", creator: "Creator ##{i}") do
+                 Ark.mint(
+                   status: "reserved",
+                   target: "http://example.edu/work#{i}",
+                   creator: "Creator ##{i}"
+                 ) do
             result
           end
         end)

@@ -12,6 +12,11 @@ defmodule Meadow.Data.Works do
 
   use Meadow.Data.Works.BatchFunctions
 
+  @work_type_resource_type_mapping %{
+    "AUDIO" => "Sound",
+    "VIDEO" => "Audiovisual"
+  }
+
   @doc """
   Returns the list of Works.
 
@@ -425,35 +430,38 @@ defmodule Meadow.Data.Works do
 
       {:error, error_message} ->
         Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
-
-      other ->
-        other
+        {:error, error_message}
     end
   end
 
   defp ark_attributes(work) do
-    scalar_value = fn value ->
-      case value do
-        [%ControlledMetadataEntry{term: %{label: value}} | _] -> value
-        [value | _] -> value
-        %{label: value} -> value
-        [] -> nil
-        other -> other
-      end
-    end
-
     status = if work.published, do: "public", else: "reserved"
 
     [
-      creator: scalar_value.(work.descriptive_metadata.creator),
+      creator: scalar_value(work.descriptive_metadata.creator),
       title: work.descriptive_metadata.title,
-      publisher: scalar_value.(work.descriptive_metadata.publisher),
+      publisher: scalar_value(work.descriptive_metadata.publisher),
       publication_year: nil,
-      resource_type: scalar_value.(work.work_type),
+      resource_type: resource_type(work),
       status: status,
       target: ark_target_url(work)
     ]
   end
+
+  defp resource_type(%{work_type: nil}), do: nil
+
+  defp resource_type(%{work_type: %{id: work_type}}) do
+    case Map.get(@work_type_resource_type_mapping, work_type) do
+      nil -> work_type |> String.downcase() |> Inflex.Camelize.camelize()
+      value -> value
+    end
+  end
+
+  defp scalar_value([%ControlledMetadataEntry{term: %{label: value}} | _]), do: value
+  defp scalar_value([value | _]), do: value
+  defp scalar_value(%{label: value}), do: value
+  defp scalar_value([]), do: nil
+  defp scalar_value(value), do: value
 
   def mint_ark!(work) do
     case mint_ark(work) do
