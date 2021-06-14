@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { IconAlert } from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
+import { Notification } from "@nulib/admin-react-components";
 
 const styles = {
   tableWrapper: {
@@ -20,11 +21,11 @@ const IngestSheetCompletedErrors = ({
 }) => {
   return (
     <>
-      <p className="notification is-danger is-light">
+      <Notification isDanger>
         <IconText isCentered icon={<IconAlert />}>
           Errors occurred during ingest
         </IconText>
-      </p>
+      </Notification>
       <p className="subtitle">
         <strong>{totalWorks}</strong> works containing{" "}
         <strong>{totalFileSets}</strong> file_sets

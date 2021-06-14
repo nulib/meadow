@@ -12,7 +12,7 @@ import {
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
@@ -176,11 +176,11 @@ const WorkTabsStructure = ({ work }) => {
 
         <div className="mt-4">
           {error && (
-            <p className="notification is-danger">
+            <Notification isDanger>
               {`${error.message}`}
               <br />
               <br /> {`${error.responseError.toString()}`}
-            </p>
+            </Notification>
           )}
           {isReordering ? (
             <WorkTabsStructureFilesetsDragAndDrop

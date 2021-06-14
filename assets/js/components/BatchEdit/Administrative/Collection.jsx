@@ -4,6 +4,7 @@ import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
 import { useQuery } from "@apollo/client";
 import { sortItemsArray } from "@js/services/helpers";
+import { Notification } from "@nulib/admin-react-components";
 
 function BatchEditCollection() {
   const context = useFormContext();
@@ -16,7 +17,7 @@ function BatchEditCollection() {
   } = useQuery(GET_COLLECTIONS);
 
   if (collectionError) {
-    return <p className="notification is-danger">Error loading Collections</p>;
+    return <Notification isDanger>Error loading Collections</Notification>;
   }
   if (collectionLoading) {
     return null;

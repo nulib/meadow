@@ -1597,13 +1597,13 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@nulib/admin-react-components@^1.8.1":
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.8.1.tgz#1c14696d5631f84ada5e3d303c221b3ef4b53d33"
-  integrity sha512-558oweUknX8i1fBVPhlJKIC1kKR2QWdL334aCiXeYQ8Hc9AqyxotFCRo5tqu3F3ZGtEexqf+akSevb3cZDaamQ==
+"@nulib/admin-react-components@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.9.0.tgz#21c060ae6a03d1318d9420db2b2066618683fa8f"
+  integrity sha512-Goh9dM/m5SutZU/Xz6X3Zz0rpbWW/uNAGUNBRGWJDnc39OwpCLWLVWNoZrFCLlI8VcWW2Wm7MxNTHl+2xavroA==
   dependencies:
-    "@emotion/react" "^11.1.5"
-    classnames "^2.2.6"
+    "@emotion/react" "^11.4.0"
+    classnames "^2.3.1"
 
 "@nulib/prettier-config@^1.2.0":
   version "1.2.0"

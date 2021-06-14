@@ -7,6 +7,7 @@ import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
 import { IconImages } from "@js/components/Icon";
+import { Notification } from "@nulib/admin-react-components";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {
@@ -18,13 +19,10 @@ function DashboardsBatchEditDetails({ id }) {
   if (loading) return <UISkeleton />;
   if (error) {
     return (
-      <div
-        className="notification is-danger is-light"
-        data-testid="error-fetching"
-      >
+      <Notification isDanger data-testid="error-fetching">
         <p>Error fetching batch job id</p>
         <p>{error.toString()}</p>
-      </div>
+      </Notification>
     );
   }
 

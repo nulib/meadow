@@ -4,11 +4,12 @@ import { Link } from "react-router-dom";
 import { useApolloClient, useMutation } from "@apollo/client";
 import { DELETE_INGEST_SHEET } from "./ingestSheet.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
-import { toastWrapper } from "../../services/helpers";
+import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
-import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
+import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "@js/services/helpers";
 import { IconAlert, IconTrashCan, IconView } from "@js/components/Icon";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
+import { Notification } from "@nulib/admin-react-components";
 
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -50,11 +51,11 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   return (
     <div>
       {project.ingestSheets.length === 0 && (
-        <p className="notification" data-testid="no-ingest-sheets-notification">
+        <Notification data-testid="no-ingest-sheets-notification">
           <UIIconText icon={<IconAlert />} isCentered>
             No ingest sheets
           </UIIconText>
-        </p>
+        </Notification>
       )}
 
       {project.ingestSheets.length > 0 && (
@@ -85,7 +86,9 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       </IngestSheetStatusTag>
                     </td>
                     <td className="has-text-right">
-                      {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(status) > -1 && (
+                      {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(
+                        status
+                      ) > -1 && (
                         <Link
                           to={`/project/${project.id}/ingest-sheet/${id}`}
                           className="button is-light"

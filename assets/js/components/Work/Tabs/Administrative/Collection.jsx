@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { toastWrapper, sortItemsArray } from "@js/services/helpers";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
@@ -19,9 +19,8 @@ function WorkTabsAdministrativeCollection({
   isEditing,
   workId,
 }) {
-  const [isHelperMessageVisible, setIsHelperMessageVisible] = React.useState(
-    false
-  );
+  const [isHelperMessageVisible, setIsHelperMessageVisible] =
+    React.useState(false);
   const [isCollectionImage, setIsCollectionImage] = React.useState(false);
   const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
 
@@ -163,13 +162,13 @@ function WorkTabsAdministrativeCollection({
             <label htmlFor={`featured-image-toggle`}>Collection image</label>
           </div>
           {isHelperMessageVisible && (
-            <p className="notification is-warning is-light is-flex is-align-items-center">
+            <Notification isWarning className="is-flex is-align-items-center">
               <IconAlert />
               <span className="ml-3">
                 To select a new featured image for the Collection, please
                 navigate to the new Work.
               </span>
-            </p>
+            </Notification>
           )}
         </AuthDisplayAuthorized>
       )}

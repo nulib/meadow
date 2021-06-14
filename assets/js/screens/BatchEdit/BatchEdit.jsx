@@ -13,6 +13,7 @@ import UIIconText from "@js/components/UI/IconText";
 import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import UISticky from "@js/components/UI/Sticky";
 import useGTM from "@js/hooks/useGTM";
+import { Notification } from "@nulib/admin-react-components";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -55,14 +56,15 @@ const ScreensBatchEdit = () => {
     <Layout>
       {isActiveSearch && (
         <UISticky>
-          <p
-            className="notification is-warning is-light is-size-5"
+          <Notification
+            isWarning
+            className="is-size-5"
             data-testid="batch-edit-preview-notification"
           >
             <UIIconText isCentered icon={<IconAlert />}>
               You are batch editing the following {resultsCount} works.
             </UIIconText>
-          </p>
+          </Notification>
         </UISticky>
       )}
 
@@ -124,11 +126,11 @@ const ScreensBatchEdit = () => {
 
             {!isActiveSearch && (
               <div className="has-text-centered">
-                <div className="notification block">
+                <Notification className="block">
                   <UIIconText icon={<IconAlert />} isCentered>
                     No search results saved in the browsers memory
                   </UIIconText>
-                </div>
+                </Notification>
                 <p>
                   <Link to="/search" className="button">
                     Search again

@@ -6,7 +6,7 @@ import { toastWrapper } from "@js/services/helpers";
 import { BATCH_DELETE } from "@js/components/BatchEdit/batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import { IconAlert } from "@js/components/Icon";
 
@@ -102,7 +102,7 @@ const BatchDeleteConfirmationModal = ({
               />
             </UIFormField>
           </div>
-          <div className="notification is-danger is-light has-text-centered content">
+          <Notification isDanger isCentered className="content">
             <p>
               <IconAlert /> NOTE: This batch operation will permanently delete{" "}
               {selectedItems.length || numberOfResults} works. To execute this
@@ -119,7 +119,7 @@ const BatchDeleteConfirmationModal = ({
                 data-testid="input-confirmation-text"
               />
             </div>
-          </div>
+          </Notification>
         </section>
         <footer className="modal-card-foot is-justify-content-flex-end">
           <Button

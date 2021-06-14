@@ -6,6 +6,7 @@ import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
 import { INGEST_SHEET_ROWS } from "./ingestSheet.gql";
 import UISkeleton from "@js/components/UI/Skeleton";
+import { Notification } from "@nulib/admin-react-components";
 
 function IngestSheetReport({ sheetId, status }) {
   const hasErrors = ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;
@@ -33,9 +34,9 @@ function IngestSheetReport({ sheetId, status }) {
       ) : (
         <IngestSheetUnapprovedState rows={ingestSheetRows} />
       )}
-      <p className="notification is-italic">
+      <Notification className="is-italic">
         * Note: Work/Fileset preview is limited to 100 rows/filesets
-      </p>
+      </Notification>
     </>
   );
 }

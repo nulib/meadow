@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { useDropzone } from "react-dropzone";
 import { IconCsv } from "@js/components/Icon";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
@@ -22,13 +22,14 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
   const [currentFile, setCurrentFile] = React.useState();
   const [displayError, setDisplayError] = React.useState();
 
-  const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
-    GET_PRESIGNED_URL,
-    {
-      variables: { uploadType: "INGEST_SHEET" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const {
+    loading: urlLoading,
+    error: urlError,
+    data: urlData,
+  } = useQuery(GET_PRESIGNED_URL, {
+    variables: { uploadType: "INGEST_SHEET" },
+    fetchPolicy: "no-cache",
+  });
   if (urlError) {
     setDisplayError(urlError.toString());
   }
@@ -160,9 +161,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           ></button>
         </header>
         <section className="modal-card-body">
-          {displayError && (
-            <p className="notification is-danger">{displayError}</p>
-          )}
+          {displayError && <Notification isDanger>{displayError}</Notification>}
 
           <div
             {...getRootProps()}

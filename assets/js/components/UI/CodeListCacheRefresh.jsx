@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { IconBell } from "@js/components/Icon";
+import { Notification } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -12,9 +13,9 @@ const cacheNotification = css`
 
 export default function UICodeListCacheRefresh({ handleClick }) {
   return (
-    <div
+    <Notification
       data-testid="cache-refresh"
-      className="notification is-size-7"
+      className="is-size-7"
       css={cacheNotification}
     >
       <p>
@@ -32,7 +33,7 @@ export default function UICodeListCacheRefresh({ handleClick }) {
       >
         Sync with latest values
       </button>
-    </div>
+    </Notification>
   );
 }
 

@@ -8,7 +8,7 @@ import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
 import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import {
   IconAdd,
   IconReplace,
@@ -230,12 +230,12 @@ const BatchEditConfirmation = ({
               </div>
             </div>
           ) : (
-            <p className="notification is-white">
+            <Notification className="is-white">
               No data currently selected to batch update.
-            </p>
+            </Notification>
           )}
 
-          <div className="notification is-danger is-light has-text-centered content">
+          <Notification isDanger isCentered className="content">
             <div className="block">
               <UIIconText icon={<IconAlert />} isCentered>
                 This batch edit will affect {numberOfResults} works. To execute
@@ -253,7 +253,7 @@ const BatchEditConfirmation = ({
                 data-testid="input-confirmation-text"
               />
             </div>
-          </div>
+          </Notification>
         </div>
 
         <footer className="modal-card-foot buttons is-right">

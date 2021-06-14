@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import CollectionListRow from "../../components/Collection/ListRow";
+import CollectionListRow from "@js/components/Collection/ListRow";
+import { Notification } from "@nulib/admin-react-components";
 
 function CollectionList({ collections, filteredCollections, onOpenModal }) {
   return (
@@ -17,7 +18,7 @@ function CollectionList({ collections, filteredCollections, onOpenModal }) {
       </ul>
       {collections.length === 0 && (
         <div className="content">
-          <p className="notification">No collections returned</p>
+          <Notification>No collections returned</Notification>
         </div>
       )}
     </div>
