@@ -2,6 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { formatBytes } from "@js/services/helpers";
 import { IconFile } from "@js/components/Icon";
+import { Notification } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -52,7 +53,7 @@ function WorkTabsPreservationFileSetDropzone({
       )}
 
       {currentFile && uploadProgress === 100 && (
-        <div className="notification is-light is-success">
+        <Notification isSuccess>
           <button onClick={handleDelete} className="delete"></button>
           <p>
             <strong>{currentFile.name}</strong>
@@ -61,11 +62,11 @@ function WorkTabsPreservationFileSetDropzone({
             <br />
             File uploaded successfully
           </p>
-        </div>
+        </Notification>
       )}
 
       {currentFile && uploadProgress < 100 && (
-        <div className="notification is-light">
+        <Notification>
           <p>
             <strong>{currentFile.name}</strong>
             <br />
@@ -77,7 +78,7 @@ function WorkTabsPreservationFileSetDropzone({
             max="100"
           ></progress>
           <p>({Math.round(Number(uploadProgress))}%)</p>
-        </div>
+        </Notification>
       )}
     </section>
   );

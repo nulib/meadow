@@ -7,18 +7,12 @@ import { UPDATE_WORK, GET_WORK } from "@js/components/Work/work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
 import UIFormField from "@js/components/UI/Form/Field";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
-import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import UISkeleton from "@js/components/UI/Skeleton";
-import {
-  PROJECT_METADATA,
-  prepFieldArrayItemsForPost,
-} from "@js/services/metadata";
-import { Button } from "@nulib/admin-react-components";
+import { PROJECT_METADATA } from "@js/services/metadata";
+import { Button, Notification } from "@nulib/admin-react-components";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
-import { useHistory } from "react-router-dom";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import { formatDate } from "@js/services/helpers";
 import { IconEdit } from "@js/components/Icon";
@@ -39,20 +33,16 @@ const WorkTabsAdministrative = ({ work }) => {
   const methods = useForm();
   const { handleFacetLinkClick } = useFacetLinkClick();
 
-  const [
-    updateWork,
-    { loading: updateWorkLoading, error: updateWorkError },
-  ] = useMutation(UPDATE_WORK, {
-    onCompleted({ updateWork }) {
-      setIsEditing(false);
-      toastWrapper("is-success", "Work form updated successfully");
-    },
-    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
-    awaitRefetchQueries: true,
-  });
-  const {
-    projectCycle,
-  } = administrativeMetadata;
+  const [updateWork, { loading: updateWorkLoading, error: updateWorkError }] =
+    useMutation(UPDATE_WORK, {
+      onCompleted({ updateWork }) {
+        setIsEditing(false);
+        toastWrapper("is-success", "Work form updated successfully");
+      },
+      refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+      awaitRefetchQueries: true,
+    });
+  const { projectCycle } = administrativeMetadata;
 
   useEffect(() => {
     // Update a Work after the form has been submitted
@@ -70,7 +60,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   const onSubmit = (data) => {
     let currentFormValues = methods.getValues();
-    console.log(`currentFormValues`, currentFormValues)
+    console.log(`currentFormValues`, currentFormValues);
 
     let workUpdateInput = {
       administrativeMetadata: {
@@ -96,9 +86,9 @@ const WorkTabsAdministrative = ({ work }) => {
     };
 
     for (let term of PROJECT_METADATA) {
-      workUpdateInput.administrativeMetadata[
-        term.name
-      ] = [currentFormValues[term.name]];
+      workUpdateInput.administrativeMetadata[term.name] = [
+        currentFormValues[term.name],
+      ];
     }
 
     updateWork({
@@ -116,9 +106,9 @@ const WorkTabsAdministrative = ({ work }) => {
 
   if (updateWorkError) {
     return (
-      <p className="notification is-danger">
+      <Notification isDanger>
         There was an error loading GraphQL data on the Work Administrative tab
-      </p>
+      </Notification>
     );
   }
 
@@ -232,7 +222,11 @@ const WorkTabsAdministrative = ({ work }) => {
 
               {PROJECT_METADATA.map((item) => {
                 return (
-                  <UIFormField label={item.label} key={item.name} data-testid={item.name}>
+                  <UIFormField
+                    label={item.label}
+                    key={item.name}
+                    data-testid={item.name}
+                  >
                     {isEditing ? (
                       <UIFormInput
                         isReactHookForm
@@ -245,7 +239,7 @@ const WorkTabsAdministrative = ({ work }) => {
                     ) : (
                       <p>{administrativeMetadata[item.name][0]}</p>
                     )}
-                    </UIFormField>
+                  </UIFormField>
                 );
               })}
               <div className="field content">

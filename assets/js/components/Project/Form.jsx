@@ -7,7 +7,7 @@ import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormField from "../UI/Form/Field.jsx";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 
 const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
   const [formError, setFormError] = useState();
@@ -70,9 +70,9 @@ const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
             <div className="modal-content">
               <div className="box">
                 {formError && (
-                  <div className="notification">
+                  <Notification>
                     <Error error={formError} />
-                  </div>
+                  </Notification>
                 )}
 
                 <UIFormField label="Project Title">

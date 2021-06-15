@@ -3,6 +3,7 @@ import UIProgressBar from "../UI/UIProgressBar";
 import PropTypes from "prop-types";
 import { useSubscription } from "@apollo/client";
 import { INGEST_PROGRESS_SUBSCRIPTION } from "./ingestSheet.gql";
+import { Notification } from "@nulib/admin-react-components";
 
 const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
   const { data, loading, error } = useSubscription(
@@ -16,9 +17,9 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
   if (error) {
     console.error(error);
     return (
-      <p className="notification is-danger is-light">
+      <Notification isDanger>
         Error in Ingest Progress Subscription: {error.message}
-      </p>
+      </Notification>
     );
   }
 

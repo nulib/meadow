@@ -4,6 +4,7 @@ import { Redirect } from "react-router-dom";
 import Layout from "./Layout";
 import { IconAlert } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
+import { Notification } from "@nulib/admin-react-components";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -22,11 +23,11 @@ const ScreensLogin = () => {
     <Layout>
       <div className="section" css={wrapper} className="">
         <div className="container has-text-centered">
-          <p className="is-size-5 notification is-light is-warning">
+          <Notification isWarning className="is-size-5">
             <UIIconText icon={<IconAlert />}>
               You must be logged in to access Meadow
             </UIIconText>
-          </p>
+          </Notification>
         </div>
       </div>
     </Layout>

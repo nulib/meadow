@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import MediaPlayerNav from "@js/components/UI/MediaPlayer/Nav";
 const webvtt = require("node-webvtt");
+import { Notification } from "@nulib/admin-react-components";
 
 const vttSampleUrl =
   "https://s3.amazonaws.com/demo.jwplayer.com/text-tracks/assets/chapters.vtt";
@@ -95,9 +96,9 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
 
   return (
     <>
-      <p className="notification is-warning is-light has-text-centered">
+      <Notification isWarning isCentered>
         This is a hardcoded test video
-      </p>
+      </Notification>
       <div className="columns">
         <video
           data-testid="video-player"

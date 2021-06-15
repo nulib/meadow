@@ -11,7 +11,7 @@ import {
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { Link } from "react-router-dom";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
@@ -127,16 +127,13 @@ export default function DashboardsLocalAuthoritiesList() {
   }, [data, searchValue]);
 
   if (loading || deleteAuthorityLoading || updateLoading) return null;
-  if (error)
-    return <p className="notification is-danger">{error.toString()}</p>;
+  if (error) return <Notification isDanger>{error.toString()}</Notification>;
   if (deleteAuthorityError)
     return (
-      <p className="notification is-danger">
-        {deleteAuthorityError.toString()}
-      </p>
+      <Notification isDanger>{deleteAuthorityError.toString()}</Notification>
     );
   if (updateError)
-    return <p className="notification is-danger">{updateError.toString()}</p>;
+    return <Notification isDanger>{updateError.toString()}</Notification>;
 
   const handleConfirmDelete = () => {
     deleteNulAuthorityRecord({ variables: { id: currentAuthority.id } });
@@ -234,7 +231,9 @@ export default function DashboardsLocalAuthoritiesList() {
                         title="View works containing this record"
                         to={{
                           pathname: "/search",
-                          state: { passedInSearchTerm: `all_controlled_terms:\"${id}\"` },
+                          state: {
+                            passedInSearchTerm: `all_controlled_terms:\"${id}\"`,
+                          },
                         }}
                       >
                         <IconImages />

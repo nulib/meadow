@@ -10,7 +10,7 @@ import {
 } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
@@ -138,9 +138,7 @@ const WorkTabsPreservation = ({ work }) => {
 
   if (verifyFileSetsError)
     return (
-      <p className="notification is-danger">
-        Error loading VerifyFileSets query
-      </p>
+      <Notification isDanger>Error loading VerifyFileSets query</Notification>
     );
   if (verifyFileSetsLoading) return <UISkeleton />;
 

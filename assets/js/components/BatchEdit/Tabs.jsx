@@ -19,7 +19,7 @@ import {
   PROJECT_METADATA,
 } from "@js/services/metadata";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import UIIconText from "../UI/IconText";
 import { IconAlert } from "@js/components/Icon";
 
@@ -203,12 +203,12 @@ export default function BatchEditTabs() {
       <div className="tabs-container">
         <FormProvider {...methods}>
           {hasFormErrors && (
-            <p className="notification is-danger is-light">
+            <Notification isDanger>
               <UIIconText isCentered icon={<IconAlert />}>
                 The following form fields have validation errors:
                 {Object.keys(methods.formState.errors).map((key) => " " + key)}
               </UIIconText>
-            </p>
+            </Notification>
           )}
           <form
             name="batch-edit-form"
