@@ -63,25 +63,20 @@ describe("WorkTabsPreservation component", () => {
     expect(utils2.getByTestId("verified")).not.toHaveTextContent(/verified/i);
   });
 
-  it("renders a delete Fileset button in the row", async () => {
+  it("renders the correct menu options in the action dropdown", async () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
+    expect(utils.getByTestId("button-copy-id"));
     expect(utils.getByTestId("button-fileset-delete"));
-  });
-
-  it("renders a copy preservation location button in the row", async () => {
-    const td = await screen.findByText(mockWork.fileSets[0].id);
-    const row = td.closest("tr");
-    const utils = within(row);
     expect(utils.getByTestId("button-copy-preservation-location"));
+    expect(utils.getByTestId("button-copy-checksum"));
   });
 
-  it("renders a copy checksum button in the row", async () => {
+  it("renders a copy fileset id button in the row", async () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
-    expect(utils.getByTestId("button-copy-checksum"));
   });
 
   it("renders a delete Work button", async () => {
