@@ -1,19 +1,21 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import UIVideoPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
+import UIMediaPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
 import {
   mockVideoSources,
   mockVideoTracks,
 } from "@js/components/UI/MediaPlayer/MediaPlayer";
 
-describe("UIVideoPlayer component", () => {
+jest.mock("@js/services/get-vtt-file");
+
+describe("UIMediaPlayer component", () => {
   it("renders", () => {
-    render(<UIVideoPlayer />);
+    render(<UIMediaPlayer />);
     expect(screen.getByTestId("video-player"));
   });
 
   it("renders pass through props", () => {
-    render(<UIVideoPlayer controls autoPlay={true} />);
+    render(<UIMediaPlayer controls autoPlay={true} />);
     const videoEl = screen.getByTestId("video-player");
 
     expect(videoEl).toHaveAttribute("controls");
@@ -21,12 +23,12 @@ describe("UIVideoPlayer component", () => {
   });
 
   it("renders source elements", () => {
-    render(<UIVideoPlayer sources={mockVideoSources} />);
+    render(<UIMediaPlayer sources={mockVideoSources} />);
     expect(screen.getAllByTestId("source-item")).toHaveLength(3);
   });
 
-  it("renders VTT track elements", () => {
-    render(<UIVideoPlayer tracks={mockVideoTracks} />);
-    expect(screen.getAllByTestId("track")).toHaveLength(1);
+  it("renders VTT track elements", async () => {
+    render(<UIMediaPlayer tracks={mockVideoTracks} />);
+    expect(await screen.findAllByTestId("track")).toHaveLength(1);
   });
 });
