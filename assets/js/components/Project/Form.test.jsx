@@ -23,7 +23,7 @@ describe("ProjectForm component", () => {
     const el = await screen.findByTestId("project-title-input");
     expect(el);
 
-    userEvent.type(el, "");
+    userEvent.clear(el);
     userEvent.click(screen.getByTestId("submit-button"));
     expect(await screen.findByTestId("input-errors"));
   });
