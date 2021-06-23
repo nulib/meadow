@@ -4081,10 +4081,10 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
 
-edtf@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/edtf/-/edtf-3.1.0.tgz#63ff89a0e8b29345b72a233ea7455ec4af10d58b"
-  integrity sha512-m9pPUyBb/REAYraG/+l+D7HRHpCwK+8jaZyBrO0BP0elRSRxt0O+4ttbpY5SyctkLL/hF/AMEaco36m74ZxQIw==
+edtf@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/edtf/-/edtf-4.0.0.tgz#a3335d14c3e67e6b170f30319d3f1cc57d94b515"
+  integrity sha512-lI6LEMu9aQaQU2ny3980xheHvp0nrgJiqswW82CoGMSlaTpggYD1MMPowSly7K3TctD8cd0gU3+UAwVrdF+9jw==
   dependencies:
     nearley "^2.19.7"
   optionalDependencies:
