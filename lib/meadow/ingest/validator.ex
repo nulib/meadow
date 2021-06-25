@@ -269,6 +269,8 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
+  defp validate_value(_row, {"structure", _value}, _context), do: :ok
+
   defp validate_value(_row, {field_name, value}, _context)
        when byte_size(value) == 0,
        do: {:error, field_name, "cannot be blank"}

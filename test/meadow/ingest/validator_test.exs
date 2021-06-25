@@ -62,7 +62,6 @@ defmodule Meadow.Ingest.ValidatorTest do
   test "validates an ingest sheet", context do
     assert(Validator.result(context.sheet.id) == "pass")
     ingest_sheet = Validator.validate(context.sheet.id)
-
     assert(ingest_sheet.file_errors == [])
 
     assert(ingest_sheet.status == "valid")
