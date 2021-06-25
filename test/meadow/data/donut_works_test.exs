@@ -75,7 +75,7 @@ defmodule Meadow.Data.DonutWorksTest do
         |> Enum.map(fn _ ->
           Task.async(fn ->
             DonutWorks.with_next_donut_work(fn dw ->
-              (:random.uniform() * 1000) |> trunc() |> :timer.sleep()
+              (:rand.uniform() * 1000) |> trunc() |> :timer.sleep()
               dw
             end)
           end)
