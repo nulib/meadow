@@ -4,6 +4,7 @@ import WorkTabs from "./Tabs/Tabs";
 import PropTypes from "prop-types";
 import { Notification } from "@nulib/admin-react-components";
 import { getManifest } from "@js/services/get-manifest";
+import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
 
 const osdOptions = {
   showDropdown: true,
@@ -65,9 +66,7 @@ const Work = ({ work }) => {
       {!isImageWorkType && (
         <section className="section">
           <div className="container">
-            <Notification isWarning isCentered>
-              Audio/video Work Type player not yet supported
-            </Notification>
+            <MediaPlayerWrapper fileSet={work.fileSets[0]} />
           </div>
         </section>
       )}

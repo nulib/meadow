@@ -208,10 +208,6 @@ export const GET_WORK = gql`
       }
       fileSets {
         id
-        role {
-          id
-          label
-        }
         accessionNumber
         coreMetadata {
           description
@@ -223,6 +219,15 @@ export const GET_WORK = gql`
         }
         extractedMetadata
         insertedAt
+        role {
+          id
+          label
+        }
+        streamingUrl
+        structuralMetadata {
+          type
+          value
+        }
         updatedAt
       }
       ingestSheet {
