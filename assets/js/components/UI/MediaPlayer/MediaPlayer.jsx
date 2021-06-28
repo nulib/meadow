@@ -1,58 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import MediaPlayerNav from "@js/components/UI/MediaPlayer/Nav";
-const webvtt = require("node-webvtt");
-import { Notification } from "@nulib/admin-react-components";
 import getVttFile from "@js/services/get-vtt-file";
-
-const vttSampleUrl =
-  "https://s3.amazonaws.com/demo.jwplayer.com/text-tracks/assets/chapters.vtt";
-
-export const mockVideoSources = [
-  {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4",
-    type: "Video",
-    format: "video/mp4",
-    height: 1080,
-    width: 1920,
-    duration: 662.037,
-    label: {
-      "@none": ["high"],
-    },
-  },
-  {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/medium/volleyball-for-boys.mp4",
-    type: "Video",
-    format: "video/mp4",
-    height: 1080,
-    width: 1920,
-    duration: 662.037,
-    label: {
-      "@none": ["medium"],
-    },
-  },
-  {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/low/volleyball-for-boys.mp4",
-    type: "Video",
-    format: "video/mp4",
-    height: 1080,
-    width: 1920,
-    duration: 662.037,
-    label: {
-      "@none": ["low"],
-    },
-  },
-];
-
-export const mockVideoTracks = [
-  {
-    id: "nav",
-    src: vttSampleUrl,
-    kind: "chapters",
-    label: "",
-    srcLang: "en",
-  },
-];
 
 function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
   const playerRef = React.useRef();
@@ -78,14 +27,12 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
 
   return (
     <>
-      <Notification isWarning isCentered>
-        This is a hardcoded test video
-      </Notification>
       <div className="columns">
         <video
           data-testid="video-player"
           crossOrigin="anonymous"
           ref={playerRef}
+          controls
           className="column is-three-quarters"
           {...restProps}
         >
@@ -119,6 +66,7 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
 
 MediaPlayer.propTypes = {
   sources: PropTypes.array,
+  tracks: PropTypes.array,
 };
 
 export default MediaPlayer;
