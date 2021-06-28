@@ -1,5 +1,5 @@
 # Install elixir & npm dependencies
-FROM nulib/elixir-phoenix-base:1.11.1 AS deps
+FROM nulib/elixir-phoenix-base:1.12.1 AS deps
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
@@ -8,7 +8,7 @@ COPY ./mix.exs /app/mix.exs
 COPY ./mix.lock /app/mix.lock
 WORKDIR /app
 RUN mix deps.get --only prod \
-    && mix deps.compile 
+    && mix deps.compile
 COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/yarn.lock /app/assets/yarn.lock
 WORKDIR /app/assets
@@ -20,7 +20,7 @@ RUN for flag in $(find . -name .docker-yarn); do \
     done
 
 # Create elixir release
-FROM nulib/elixir-phoenix-base:1.11.1 AS release
+FROM nulib/elixir-phoenix-base:1.12.1 AS release
 ARG HONEYBADGER_API_KEY=
 ARG HONEYBADGER_API_KEY_FRONTEND=
 ARG HONEYBADGER_ENVIRONMENT=

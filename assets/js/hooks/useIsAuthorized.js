@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useQuery } from "@apollo/client";
 import { GET_CURRENT_USER_QUERY } from "@js/components/Auth/auth.gql";
+import { Notification } from "@nulib/admin-react-components";
 
 /**
  * More info in the Docs:
@@ -17,9 +18,9 @@ export default function useIsAuthorized() {
   if (loading) return;
   if (error)
     return (
-      <p className="notification is-danger">
+      <Notification isDanger>
         Error retrieving Current User GraphQL query
-      </p>
+      </Notification>
     );
 
   /**

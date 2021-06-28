@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import { useLazyQuery, useMutation } from "@apollo/client";
@@ -158,9 +158,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
       {urlError ? (
         <div className="modal-card">
           <section className="modal-card-body">
-            <div className="notification is-danger">
-              Error retrieving presigned url
-            </div>
+            <Notification isDanger>Error retrieving presigned url</Notification>
           </section>
         </div>
       ) : (
@@ -181,7 +179,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
               </header>
               <section className="modal-card-body">
                 {uploadError && (
-                  <div className="notification is-danger">{uploadError}</div>
+                  <Notification isDanger>{uploadError}</Notification>
                 )}
                 {error && <Error error={error} />}
                 <WorkTabsPreservationFileSetDropzone

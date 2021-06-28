@@ -7,7 +7,7 @@ jobs:
   dependencies:
     working_directory: ~/meadow
     docker:
-      - image: circleci/elixir:1.11-node
+      - image: circleci/elixir:1.12-node
     steps:
       - checkout
       - run:
@@ -51,7 +51,7 @@ jobs:
   js-test:
     working_directory: ~/meadow
     docker:
-      - image: circleci/elixir:1.11-node
+      - image: circleci/elixir:1.12-node
     steps:
       - checkout
       - restore_cache:
@@ -75,7 +75,7 @@ jobs:
   elixir-test:
     working_directory: ~/meadow
     docker:
-      - image: circleci/elixir:1.11-node
+      - image: circleci/elixir:1.12-node
         environment:
           DATABASE_URL: ecto://root@localhost/circle_test
           DB_PORT: "5432"

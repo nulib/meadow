@@ -67,36 +67,36 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_core_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_core_metadata_input do
-    field :label, :string
-    field :location, :string
-    field :original_filename, :string
-    field :description, :string
+    field(:label, :string)
+    field(:location, :string)
+    field(:original_filename, :string)
+    field(:description, :string)
   end
 
   @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
   input_object :file_set_update do
-    field :id, non_null(:id)
-    field :core_metadata, :file_set_core_metadata_update
-    field :structural_metadata, :file_set_structural_metadata_input
+    field(:id, non_null(:id))
+    field(:core_metadata, :file_set_core_metadata_update)
+    field(:structural_metadata, :file_set_structural_metadata_input)
   end
 
   @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
   input_object :file_set_core_metadata_update do
-    field :label, :string
-    field :description, :string
+    field(:label, :string)
+    field(:description, :string)
   end
 
   @desc "Input fields for a `file_set` creation object "
   input_object :file_set_input do
-    field :accession_number, non_null(:string)
-    field :role, non_null(:coded_term_input)
-    field :core_metadata, :file_set_core_metadata_input
+    field(:accession_number, non_null(:string))
+    field(:role, non_null(:coded_term_input))
+    field(:core_metadata, :file_set_core_metadata_input)
   end
 
   @desc "Input fields for `file_set_structural_metadata`."
   input_object :file_set_structural_metadata_input do
-    field :type, :string
-    field :value, :string
+    field(:type, :structural_metadata_type)
+    field(:value, :string)
   end
 
   #
@@ -105,13 +105,13 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "A `file_set` object represents one file (repository object in S3)"
   object :file_set do
-    field :id, non_null(:id)
-    field :accession_number, non_null(:string)
-    field :role, non_null(:coded_term)
-    field :position, :string
-    field :rank, :integer
-    field :work, :work, resolve: dataloader(Data)
-    field :core_metadata, :file_set_core_metadata
+    field(:id, non_null(:id))
+    field(:accession_number, non_null(:string))
+    field(:role, non_null(:coded_term))
+    field(:position, :string)
+    field(:rank, :integer)
+    field(:work, :work, resolve: dataloader(Data))
+    field(:core_metadata, :file_set_core_metadata)
 
     field :streaming_url, :string do
       resolve(fn file_set, _, _ ->
@@ -128,18 +128,18 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       end)
     end
 
-    field :structural_metadata, :file_set_structural_metadata
-    field :inserted_at, non_null(:datetime)
-    field :updated_at, non_null(:datetime)
+    field(:structural_metadata, :file_set_structural_metadata)
+    field(:inserted_at, non_null(:datetime))
+    field(:updated_at, non_null(:datetime))
   end
 
   @desc "`file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
   object :file_set_core_metadata do
-    field :location, :string
-    field :label, :string
-    field :mime_type, :string
-    field :original_filename, :string
-    field :description, :string
+    field(:location, :string)
+    field(:label, :string)
+    field(:mime_type, :string)
+    field(:original_filename, :string)
+    field(:description, :string)
 
     field :sha256, :string do
       resolve(fn metadata, _, _ ->
@@ -153,7 +153,12 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "`file_set_structural_metadata` represents the structural metadata within a file set object."
   object :file_set_structural_metadata do
-    field :type, :string
-    field :value, :string
+    field(:type, :structural_metadata_type)
+    field(:value, :string)
+  end
+
+  @desc "accepted types for structural metadata"
+  enum :structural_metadata_type do
+    value(:webvtt, as: "webvtt", description: "Web VTT")
   end
 end

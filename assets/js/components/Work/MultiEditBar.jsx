@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import UISticky from "@js/components/UI/Sticky";
 import UIIconText from "@js/components/UI/IconText";
 import { IconArrowLeft, IconArrowRight, IconEdit } from "@js/components/Icon";
@@ -16,7 +16,7 @@ const wrapperBar = css`
 function MultiEditBar({ currentIndex, handleMultiNavClick, totalItems }) {
   return (
     <UISticky>
-      <div className="box notification is-warning is-light">
+      <Notification isWarning className="box">
         <div data-testid="multi-edit-bar" css={wrapperBar}>
           <Button
             data-testid="multi-edit-back-button"
@@ -39,7 +39,7 @@ function MultiEditBar({ currentIndex, handleMultiNavClick, totalItems }) {
             <IconArrowRight />
           </Button>
         </div>
-      </div>
+      </Notification>
     </UISticky>
   );
 }

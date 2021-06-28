@@ -9,9 +9,9 @@ export default function WorkTagsList({ work }) {
   }
   return (
     <p className="tags">
-      {work.workType && <Tag isInfo>Work Type: {work.workType.label}</Tag>}
+      {work.workType && <Tag isInfo>{work.workType.label}</Tag>}
       {work.published ? (
-        <Tag isPrimary>Published</Tag>
+        <Tag isSuccess>Published</Tag>
       ) : (
         <Tag>Not Published</Tag>
       )}

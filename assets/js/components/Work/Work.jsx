@@ -2,11 +2,7 @@ import React from "react";
 import { OpenSeadragonViewer } from "openseadragon-react-viewer";
 import WorkTabs from "./Tabs/Tabs";
 import PropTypes from "prop-types";
-import UIMediaPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
-import {
-  mockVideoSources,
-  mockVideoTracks,
-} from "@js/components/UI/MediaPlayer/MediaPlayer";
+import { Notification } from "@nulib/admin-react-components";
 import { getManifest } from "@js/services/get-manifest";
 
 const osdOptions = {
@@ -69,14 +65,9 @@ const Work = ({ work }) => {
       {!isImageWorkType && (
         <section className="section">
           <div className="container">
-            <p className="notification is-warning is-light has-text-centered">
+            <Notification isWarning isCentered>
               Audio/video Work Type player not yet supported
-            </p>
-            {/* <UIMediaPlayer
-            controls
-            sources={mockVideoSources}
-            tracks={mockVideoTracks}
-          /> */}
+            </Notification>
           </div>
         </section>
       )}

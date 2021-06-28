@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { IconAlert } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
 import { useClipboard } from "use-clipboard-copy";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 
 function UISharedLink({
   isSuccess,
@@ -18,14 +18,11 @@ function UISharedLink({
   });
 
   return (
-    <div
-      className={classNames(
-        ["notification", "has-text-centered", "is-light", "my-5"],
-        {
-          "is-success": isSuccess,
-          "is-warning": isWarning,
-        }
-      )}
+    <Notification
+      isCentered
+      isSuccess
+      isWarning
+      className={classNames(["my-5"])}
       {...restProps}
     >
       <p>
@@ -49,7 +46,7 @@ function UISharedLink({
           {clipboard.copied ? "Copied!" : "Copy Link"}
         </Button>
       </p>
-    </div>
+    </Notification>
   );
 }
 

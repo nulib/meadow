@@ -8,7 +8,7 @@ import { toastWrapper } from "@js/services/helpers";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { useHistory } from "react-router-dom";
 
 const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
@@ -43,9 +43,9 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
 
   if (mutationError || workTypeError)
     return (
-      <p className="notification is-danger">
+      <Notification isDanger>
         Error loading GraphQL data: {mutationError || workTypeError}
-      </p>
+      </Notification>
     );
   if (loading) return <Loading />;
 
@@ -82,9 +82,9 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
           >
             <div className="modal-card-body">
               {formError && (
-                <div className="notification">
+                <Notification>
                   <Error error={formError} />
-                </div>
+                </Notification>
               )}
               <UIFormField label="Work accession number">
                 <UIFormInput

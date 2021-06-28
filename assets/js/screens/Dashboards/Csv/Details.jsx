@@ -11,6 +11,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
+import { Notification } from "@nulib/admin-react-components";
 import useGTM from "@js/hooks/useGTM";
 
 export default function ScreensDashboardsCsvDetails() {
@@ -55,13 +56,10 @@ export default function ScreensDashboardsCsvDetails() {
             <PageTitle data-testid="page-title">CSV Import Details</PageTitle>
 
             {error && (
-              <div
-                className="notification is-danger is-light"
-                data-testid="error-fetching"
-              >
+              <Notification isDanger data-testid="error-fetching">
                 <p>Error fetching batch job id</p>
                 <p>{error.toString()}</p>
-              </div>
+              </Notification>
             )}
 
             {data.csvMetadataUpdateJob && (

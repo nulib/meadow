@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "2.0.0"
+  @app_version "2.0.2"
 
   def project do
     [
@@ -58,7 +58,7 @@ defmodule Meadow.MixProject do
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0"},
-      {:elastix, "~> 0.9.0"},
+      {:elastix, "~> 0.10.0"},
       {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},
       {:ex_aws, "~> 2.2.0"},
@@ -86,7 +86,7 @@ defmodule Meadow.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:quantum, "~> 3.0"},
       {:sequins, "~> 0.7.1"},
-      {:sigaws, "~> 0.7.2"},
+      {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.5.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.4"},

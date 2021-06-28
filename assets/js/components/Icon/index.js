@@ -11,6 +11,7 @@ import IconCard from "@js/components/Icon/Card";
 import IconChain from "@js/components/Icon/Chain";
 import IconChart from "@js/components/Icon/Chart";
 import IconCheck from "@js/components/Icon/Check";
+import IconCopyToClipboard from "@js/components/Icon/CopyToClipboard";
 import IconCsv from "@js/components/Icon/Csv";
 import IconDelete from "@js/components/Icon/Delete";
 import IconDownload from "@js/components/Icon/Download";
@@ -43,6 +44,7 @@ export {
   IconChain,
   IconChart,
   IconCheck,
+  IconCopyToClipboard,
   IconCsv,
   IconDelete,
   IconDownload,

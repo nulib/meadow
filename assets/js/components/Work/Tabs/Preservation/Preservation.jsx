@@ -10,7 +10,7 @@ import {
 } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/admin-react-components";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
@@ -24,6 +24,7 @@ import {
   IconBinaryFile,
   IconBucket,
   IconCheck,
+  IconCopyToClipboard,
   IconDelete,
   IconTrashCan,
   IconView,
@@ -138,9 +139,7 @@ const WorkTabsPreservation = ({ work }) => {
 
   if (verifyFileSetsError)
     return (
-      <p className="notification is-danger">
-        Error loading VerifyFileSets query
-      </p>
+      <Notification isDanger>Error loading VerifyFileSets query</Notification>
     );
   if (verifyFileSetsLoading) return <UISkeleton />;
 
@@ -224,7 +223,6 @@ const WorkTabsPreservation = ({ work }) => {
         </AuthDisplayAuthorized>
       </UITabsStickyHeader>
       <div className="box mt-4">
-        {/* TODO: Put a mobile block display here instead of table below */}
         <div className="">
           <table
             className="table is-fullwidth is-striped is-hoverable is-narrow"
@@ -232,7 +230,7 @@ const WorkTabsPreservation = ({ work }) => {
           >
             <thead>
               <tr>
-                <th className="is-hidden">ID</th>
+                <th>ID</th>
                 <th>Role</th>
                 <th>Accession #</th>
                 <th className="is-flex">
@@ -256,7 +254,7 @@ const WorkTabsPreservation = ({ work }) => {
                   const metadata = fileset.coreMetadata;
                   return (
                     <tr key={fileset.id} data-testid="preservation-row">
-                      <td className="is-hidden">{fileset.id}</td>
+                      <td>{fileset.id}</td>
                       <td>{fileset.role?.id}</td>
                       <td>{fileset.accessionNumber}</td>
                       <td>{metadata ? metadata.originalFilename : " "}</td>
@@ -267,6 +265,14 @@ const WorkTabsPreservation = ({ work }) => {
                       <td className="has-text-right">
                         <div>
                           <UIDropdown isRight>
+                            <UIDropdownItem
+                              data-testid="button-copy-id"
+                              onClick={() => clipboard.copy(fileset.id)}
+                            >
+                              <UIIconText icon={<IconCopyToClipboard />}>
+                                Copy id to clipboard
+                              </UIIconText>
+                            </UIDropdownItem>
                             <UIDropdownItem
                               data-testid="button-copy-checksum"
                               onClick={() =>

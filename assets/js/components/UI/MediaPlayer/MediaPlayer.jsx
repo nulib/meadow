@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import MediaPlayerNav from "@js/components/UI/MediaPlayer/Nav";
 const webvtt = require("node-webvtt");
+import { Notification } from "@nulib/admin-react-components";
+import getVttFile from "@js/services/get-vtt-file";
 
 const vttSampleUrl =
   "https://s3.amazonaws.com/demo.jwplayer.com/text-tracks/assets/chapters.vtt";
@@ -57,35 +59,16 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
   const [cues, setCues] = React.useState([]);
 
   React.useEffect(() => {
-    async function getVttFile() {
-      try {
-        // Get network request VTT file
-        const response = await fetch(tracks[0].src, {
-          method: "GET",
-          headers: {
-            "Content-Type": "text/text; charset=utf-8",
-          },
-        });
-
-        // Handle errors
-        if (!response.ok) {
-          throw new Error("Error grabbing VTT file");
-        }
-
-        // Parse contents and add cues to state
-        const vttContents = await response.text();
-        const parsed = webvtt.parse(vttContents);
-        if (!parsed.valid) {
-          throw new Error("Invalid VTT file");
-        }
+    if (tracks.length === 0) return;
+    async function getVtt() {
+      const parsed = await getVttFile(tracks[0].src);
+      if (parsed) {
         setCues([...parsed.cues]);
-      } catch (e) {
-        console.error("Error loading and parsing VTT file");
       }
     }
 
-    getVttFile();
-  }, []);
+    getVtt();
+  }, [tracks]);
 
   const handleNavClick = (e, cue) => {
     e.preventDefault();
@@ -95,9 +78,9 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
 
   return (
     <>
-      <p className="notification is-warning is-light has-text-centered">
+      <Notification isWarning isCentered>
         This is a hardcoded test video
-      </p>
+      </Notification>
       <div className="columns">
         <video
           data-testid="video-player"

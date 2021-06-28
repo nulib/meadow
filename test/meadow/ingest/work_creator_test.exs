@@ -11,6 +11,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   import Meadow.TestHelpers
 
   @args [works_per_tick: 20, interval: 500]
+  @work_creator_timeout 3000
 
   describe "normal operation" do
     setup do
@@ -22,7 +23,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
       assert Works.list_works() |> length() == 0
       SheetsToWorks.create_works_from_ingest_sheet(sheet)
 
-      assert_async(timeout: 1500, sleep_time: 150) do
+      assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
         with works <- Works.list_works() do
           assert works |> length() == 2
           assert works |> Enum.map(& &1.work_type.id) |> Enum.sort() == ["IMAGE", "VIDEO"]
@@ -42,7 +43,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         file_set_fixture(accession_number: row.file_set_accession_number)
         SheetsToWorks.create_works_from_ingest_sheet(sheet)
 
-        assert_async(timeout: 1500, sleep_time: 150) do
+        assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
           assert Works.list_works() |> length() == 1
 
           assert ["CreateWork" | Dispatcher.all_progress_actions()]
@@ -64,7 +65,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
           spawn(fn -> WorkCreator.create_works(%{batch_size: 20}) end)
         end)
 
-        assert_async(timeout: 1500, sleep_time: 150) do
+        assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
           assert Works.list_works() |> length() == 2
         end
       end)
