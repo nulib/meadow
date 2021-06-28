@@ -109,10 +109,10 @@
   dependencies:
     "@apollo/client" latest
 
-"@appbaseio/reactivecore@9.11.1":
-  version "9.11.1"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.11.1.tgz#b3dd9908def2d7474af17f98a1625c038822feef"
-  integrity sha512-HQkM3iTLs1zPuUnbX7LkZBdHtF86XpqmWlKDmxIuiL6xuRKeOIq8GZ5HcABTLmHBxAqtL9XSMw8Akv+AjTlc6A==
+"@appbaseio/reactivecore@9.11.8":
+  version "9.11.8"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivecore/-/reactivecore-9.11.8.tgz#a99b176ac6901acd323545f50467aa35ad2bfd9b"
+  integrity sha512-vlkZm9sxIlQBog7l13XOoJX/iGP/cUPtF6D31Xhfwy04mvc+rD8GDiZkEx2cgVy+1lQ0sul7oWysqHZgciIVPg==
   dependencies:
     cross-fetch "^3.0.4"
     prop-types "^15.6.0"
@@ -120,12 +120,12 @@
     redux-thunk "^2.3.0"
     xdate "^0.8.2"
 
-"@appbaseio/reactivesearch@3.18.1":
-  version "3.18.1"
-  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.18.1.tgz#d34bb584753626fe59218c292cc6a5f2088710d1"
-  integrity sha512-UpQWbIwQHx2mmGkuEJZVRc7+pwRJMqCPU7Ifzs3SmP8hg5kYLxghksUfgRq2MWdHiBODwjltFZOs9UgS140OMA==
+"@appbaseio/reactivesearch@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@appbaseio/reactivesearch/-/reactivesearch-3.19.0.tgz#d5b7e15443df2e878754431e1a33264b1249df7d"
+  integrity sha512-rytJjF61728A6ycQcPbnhQxiVnsLmhBQvsJgnqu33iTAzjnQGgr/My1QsBYg0aGwkOkGaZpkBse3M3hAn1Ercg==
   dependencies:
-    "@appbaseio/reactivecore" "9.11.1"
+    "@appbaseio/reactivecore" "9.11.8"
     "@emotion/core" "^10.0.28"
     "@emotion/styled" "^10.0.27"
     appbase-js "^4.1.0"
