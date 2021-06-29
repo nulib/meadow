@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import MediaPlayer from "@js/components/UI/MediaPlayer/MediaPlayer";
+import useTechnicalMetadata from "@js/hooks/useTechnicalMetadata";
+import useFileSet from "@js/hooks/useFileSet";
 
 const vttSampleUrl =
   "https://s3.amazonaws.com/demo.jwplayer.com/text-tracks/assets/chapters.vtt";
@@ -17,19 +19,16 @@ export const mockVideoTracks = [
 ];
 
 function MediaPlayerWrapper({ fileSet }) {
-  let mediaInfoTracks;
-  try {
-    mediaInfoTracks = JSON.parse(fileSet.extractedMetadata).mediainfo?.value
-      ?.media?.track;
-  } catch (e) {
-    console.error("Error extracting extractedMetadata from an AV fileset", e);
-  }
+  const { getTechnicalMetadata } = useTechnicalMetadata();
+  const mediaInfoTracks = getTechnicalMetadata(fileSet);
+  const { isEmpty } = useFileSet();
+  if (isEmpty(fileSet)) return null;
 
   const sources = [
     {
-      id: fileSet.streamingUrl,
+      id: fileSet?.streamingUrl,
       type: mediaInfoTracks[1]["@type"],
-      format: fileSet.coreMetadata?.mimeType,
+      format: fileSet?.coreMetadata?.mimeType,
       height: mediaInfoTracks[1].Height,
       width: mediaInfoTracks[1].Width,
       duration: mediaInfoTracks[1].Duration,
