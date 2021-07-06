@@ -6,8 +6,9 @@ defmodule Meadow.CSVMetadataUpdateDriverTest do
   alias Meadow.Data.Schemas.CSV.MetadataUpdateJob
   alias Meadow.Repo
 
-  import Assertions
   import ExUnit.CaptureLog
+
+  @state %{interval: 5_000, status: :running}
 
   setup %{source_url: source_url} do
     with {:ok, job} <- MetadataUpdateJobs.create_job(%{source: source_url}) do
@@ -20,11 +21,8 @@ defmodule Meadow.CSVMetadataUpdateDriverTest do
 
     test "runs the job", %{job: %{id: job_id}} do
       assert MetadataUpdateJobs.get_job(job_id) |> Map.get(:status) == "pending"
-      start_supervised!({CSVMetadataUpdateDriver, interval: 250})
-
-      assert_async(timeout: 1000, sleep_time: 100) do
-        assert MetadataUpdateJobs.get_job(job_id) |> Map.get(:status) == "complete"
-      end
+      assert CSVMetadataUpdateDriver.drive_update_job(@state) == {:noreply, @state}
+      assert MetadataUpdateJobs.get_job(job_id) |> Map.get(:status) == "complete"
     end
 
     test "redrives stalled jobs", %{job: job} do
@@ -34,11 +32,8 @@ defmodule Meadow.CSVMetadataUpdateDriverTest do
             Repo.update_all(MetadataUpdateJob, set: [updated_at: timestamp, status: "processing"])
           end
 
-          start_supervised!({CSVMetadataUpdateDriver, interval: 250})
-
-          assert_async(timeout: 1000, sleep_time: 100) do
-            assert MetadataUpdateJobs.get_job(job.id) |> Map.get(:status) == "complete"
-          end
+          assert CSVMetadataUpdateDriver.drive_update_job(@state) == {:noreply, @state}
+          assert MetadataUpdateJobs.get_job(job.id) |> Map.get(:status) == "complete"
         end)
 
       assert log |> String.contains?("Resetting 1 stalled update job")

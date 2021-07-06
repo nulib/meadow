@@ -6,35 +6,28 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   alias Meadow.Pipeline.Actions.Dispatcher
   alias Meadow.Repo
 
-  import Assertions
   import ExUnit.CaptureLog
   import Meadow.TestHelpers
 
-  @args [works_per_tick: 20, interval: 500]
-  @work_creator_timeout 3000
+  @state %{batch_size: 20, works_per_tick: 20, interval: 500, status: :running}
 
   describe "normal operation" do
-    setup do
-      worker = start_supervised!({WorkCreator, @args})
-      %{worker: worker}
-    end
-
-    test "handle_info/2", %{ingest_sheet: sheet} do
+    test "create_works/1", %{ingest_sheet: sheet} do
       assert Works.list_works() |> length() == 0
       SheetsToWorks.create_works_from_ingest_sheet(sheet)
 
-      assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
-        with works <- Works.list_works() do
-          assert works |> length() == 2
-          assert works |> Enum.map(& &1.work_type.id) |> Enum.sort() == ["IMAGE", "VIDEO"]
+      assert WorkCreator.create_works(@state) == {:noreply, @state}
 
-          assert works
-                 |> List.first()
-                 |> Map.get(:representative_file_set_id)
-                 |> FileSets.get_file_set!()
-                 |> Map.get(:accession_number)
-                 |> String.ends_with?("Donohue_001_03")
-        end
+      with works <- Works.list_works() do
+        assert works |> length() == 2
+        assert works |> Enum.map(& &1.work_type.id) |> Enum.sort() == ["IMAGE", "VIDEO"]
+
+        assert works
+               |> List.first()
+               |> Map.get(:representative_file_set_id)
+               |> FileSets.get_file_set!()
+               |> Map.get(:accession_number)
+               |> String.ends_with?("Donohue_001_03")
       end
     end
 
@@ -43,14 +36,13 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         file_set_fixture(accession_number: row.file_set_accession_number)
         SheetsToWorks.create_works_from_ingest_sheet(sheet)
 
-        assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
-          assert Works.list_works() |> length() == 1
+        assert WorkCreator.create_works(@state) == {:noreply, @state}
+        assert Works.list_works() |> length() == 1
 
-          assert ["CreateWork" | Dispatcher.all_progress_actions()]
-                 |> Enum.all?(fn action ->
-                   Progress.get_entry(row, action) |> Map.get(:status) == "error"
-                 end)
-        end
+        assert ["CreateWork" | Dispatcher.all_progress_actions()]
+               |> Enum.all?(fn action ->
+                 Progress.get_entry(row, action) |> Map.get(:status) == "error"
+               end)
       end
     end
   end
@@ -61,13 +53,12 @@ defmodule Meadow.Ingest.WorkCreatorTest do
 
     log =
       capture_log(fn ->
-        Enum.each(1..5, fn _ ->
-          spawn(fn -> WorkCreator.create_works(%{batch_size: 20}) end)
+        Enum.map(1..5, fn _ ->
+          Task.async(fn -> WorkCreator.create_works(%{batch_size: 20}) end)
         end)
+        |> Task.await_many()
 
-        assert_async(timeout: @work_creator_timeout, sleep_time: 150) do
-          assert Works.list_works() |> length() == 2
-        end
+        assert Works.list_works() |> length() == 2
       end)
 
     assert Regex.scan(~r/Creating work [A-Z0-9]+_Donohue_001 with 4 file sets/, log)
