@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
+import useTechnicalMetadata from "@js/hooks/useTechnicalMetadata";
+import useFileSet from "@js/hooks/useFileSet";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -23,13 +25,29 @@ function TechDataDisplay({ value }) {
   return value;
 }
 
+function DefinitionList({ obj }) {
+  return (
+    <dl>
+      {Object.keys(obj).map((key) => (
+        <div key={key}>
+          <dt>{key}</dt>
+          <dd>
+            <TechDataDisplay value={obj[key]} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function WorkTabsPreservationTechnical({
   fileSet = {},
   handleClose,
   isVisible,
 }) {
-  const extractedMetadata = fileSet.extractedMetadata ? JSON.parse(fileSet.extractedMetadata) : null;
-  const exifData = extractedMetadata?.exif?.value;
+  const { getTechnicalMetadata } = useTechnicalMetadata();
+  const { isImage, isMedia } = useFileSet();
+  const techMetadata = getTechnicalMetadata(fileSet);
 
   return (
     <div
@@ -41,23 +59,28 @@ function WorkTabsPreservationTechnical({
       <div className="modal-content content">
         <div className="box">
           <h3>Technical Metadata</h3>
-          {!exifData && (
+          {!techMetadata && (
             <p data-testid="no-data-notification">
               No technical metadata exists for this File Set
             </p>
           )}
-          {exifData && (
-            <dl>
-              {Object.keys(exifData).map((key) => (
-                <div key={key}>
-                  <dt>{key}</dt>
-                  <dd>
-                    <TechDataDisplay value={exifData[key]} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
+
+          {/* Display Image technical metadata */}
+          {techMetadata && isImage(fileSet) && (
+            <DefinitionList obj={{ ...techMetadata }} />
           )}
+
+          {/* Display Media technical metadata */}
+          {techMetadata && isMedia(fileSet) && (
+            <>
+              <h4>{techMetadata[0]["@type"]}</h4>
+              <DefinitionList obj={techMetadata[0]} />
+
+              <h4>{techMetadata[1]["@type"]}</h4>
+              <DefinitionList obj={techMetadata[1]} />
+            </>
+          )}
+
           <div className="buttons is-right">
             <Button isText onClick={handleClose}>
               Close

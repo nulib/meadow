@@ -3,7 +3,12 @@ import PropTypes from "prop-types";
 import MediaPlayerNav from "@js/components/UI/MediaPlayer/Nav";
 import getVttFile from "@js/services/get-vtt-file";
 
-function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
+function MediaPlayer({
+  sources = [],
+  tracks = [],
+  videoElAttrs = {},
+  ...restProps
+}) {
   const playerRef = React.useRef();
   const [cues, setCues] = React.useState([]);
 
@@ -34,15 +39,11 @@ function MediaPlayer({ sources = [], tracks = [], ...restProps }) {
           ref={playerRef}
           controls
           className="column is-three-quarters"
+          {...videoElAttrs}
           {...restProps}
         >
-          {sources.map((source) => (
-            <source
-              key={source.id}
-              data-testid="source-item"
-              src={source.id}
-              type={source.format}
-            />
+          {sources.map(({ src, type }) => (
+            <source key={src} data-testid="source-item" src={src} type={type} />
           ))}
           {tracks.map((track) => (
             <track
