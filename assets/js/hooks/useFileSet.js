@@ -1,6 +1,6 @@
 export default function useFileSet() {
   function isEmpty(fileSet = {}) {
-    return Object.keys(fileSet).length === 0;
+    return !fileSet || Object.keys(fileSet).length === 0;
   }
 
   function isImage(fileSet = {}) {

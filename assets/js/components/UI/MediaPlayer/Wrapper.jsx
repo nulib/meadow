@@ -22,15 +22,13 @@ export const mockVideoTracks = [
 ];
 
 function MediaPlayerWrapper({ fileSet }) {
-  const { getTechnicalMetadata } = useTechnicalMetadata();
-  const mediaInfoTracks = getTechnicalMetadata(fileSet);
   const { isEmpty } = useFileSet();
-
   if (isEmpty(fileSet)) return null;
 
-  {
-    /* FileSet hasn't yet been fully ran through the pipeline */
-  }
+  const { getTechnicalMetadata } = useTechnicalMetadata();
+  const mediaInfoTracks = getTechnicalMetadata(fileSet);
+
+  // FileSet hasn't yet been fully ran through the pipeline
   if (!fileSet?.coreMetadata?.mimeType) {
     return (
       <Notification isWarning>
@@ -57,6 +55,7 @@ function MediaPlayerWrapper({ fileSet }) {
   return (
     <div>
       <MediaPlayer
+        key={fileSet.id}
         sources={sources}
         tracks={mockVideoTracks}
         videoElAttrs={videoElAttrs}

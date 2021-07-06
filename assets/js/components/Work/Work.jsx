@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { Notification } from "@nulib/admin-react-components";
 import { getManifest } from "@js/services/get-manifest";
 import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 const osdOptions = {
   showDropdown: true,
@@ -17,6 +18,8 @@ const osdOptions = {
 const Work = ({ work }) => {
   const [manifestObj, setManifestObj] = React.useState();
   const [randomUrlKey, setRandomUrlKey] = React.useState(Date.now());
+  const workContextState = useWorkState();
+  const workDispatch = useWorkDispatch();
   const [manifestChangeItems, setManifestChangeItems] = React.useState({
     label: "",
     canvasCount: "",
@@ -47,6 +50,16 @@ const Work = ({ work }) => {
     isImageWorkType && getData();
   }, [work.fileSets, work.descriptiveMetadata.title]);
 
+  React.useEffect(() => {
+    // If Work Context State doesn't yet have an active File Set, default to the first File Set
+    if (!workContextState?.activeMediaFileSet) {
+      workDispatch({
+        type: "updateActiveMediaFileSet",
+        fileSet: work.fileSets[0],
+      });
+    }
+  }, []);
+
   return (
     <div data-testid="work-component">
       {isImageWorkType && (
@@ -66,7 +79,9 @@ const Work = ({ work }) => {
       {!isImageWorkType && (
         <section className="section">
           <div className="container">
-            <MediaPlayerWrapper fileSet={work.fileSets[0]} />
+            <MediaPlayerWrapper
+              fileSet={workContextState?.activeMediaFileSet}
+            />
           </div>
         </section>
       )}

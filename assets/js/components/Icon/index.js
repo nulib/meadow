@@ -21,6 +21,7 @@ import IconFile from "@js/components/Icon/File";
 import IconImages from "@js/components/Icon/Images";
 import IconList from "@js/components/Icon/List";
 import IconMinus from "@js/components/Icon/Minus";
+import IconPlay from "@js/components/Icon/Play";
 import IconProjects from "@js/components/Icon/Projects";
 import IconReplace from "@js/components/Icon/Replace";
 import IconSearch from "@js/components/Icon/Search";
@@ -54,6 +55,7 @@ export {
   IconImages,
   IconList,
   IconMinus,
+  IconPlay,
   IconProjects,
   IconReplace,
   IconSearch,

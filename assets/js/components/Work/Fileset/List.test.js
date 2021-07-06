@@ -5,6 +5,7 @@ import { mockFileSets } from "@js/mock-data/filesets";
 import { withReactBeautifulDND } from "@js/services/testing-helpers";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { WorkProvider } from "@js/context/work-context";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -15,10 +16,12 @@ useIsAuthorized.mockReturnValue({
 describe("WorkFilesetList component", () => {
   it("renders a draggable list component if re-ordering the list", async () => {
     render(
-      withReactBeautifulDND(WorkFilesetList, {
-        fileSets: { access: mockFileSets, auxillary: [] },
-        isReordering: true,
-      })
+      <WorkProvider>
+        {withReactBeautifulDND(WorkFilesetList, {
+          fileSets: { access: mockFileSets, auxillary: [] },
+          isReordering: true,
+        })}
+      </WorkProvider>
     );
     await waitFor(() => {
       expect(screen.getByTestId("fileset-draggable-list"));
@@ -27,9 +30,11 @@ describe("WorkFilesetList component", () => {
 
   it("renders a non-draggable list if not-reordering", async () => {
     render(
-      withReactBeautifulDND(WorkFilesetList, {
-        fileSets: { access: mockFileSets, auxillary: [] },
-      })
+      <WorkProvider>
+        {withReactBeautifulDND(WorkFilesetList, {
+          fileSets: { access: mockFileSets, auxillary: [] },
+        })}
+      </WorkProvider>
     );
     await waitFor(() => {
       expect(screen.getByTestId("fileset-list"));
@@ -38,9 +43,11 @@ describe("WorkFilesetList component", () => {
 
   it("renders the correct number of list elements", async () => {
     render(
-      withReactBeautifulDND(WorkFilesetList, {
-        fileSets: { access: mockFileSets, auxillary: [] },
-      })
+      <WorkProvider>
+        {withReactBeautifulDND(WorkFilesetList, {
+          fileSets: { access: mockFileSets, auxillary: [] },
+        })}
+      </WorkProvider>
     );
     await waitFor(() => {
       expect(screen.getAllByTestId("fileset-item")).toHaveLength(3);
