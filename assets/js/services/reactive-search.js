@@ -208,6 +208,12 @@ export const FACET_SENSORS = [
     dataField: "visibility.label.keyword",
     title: "Visibility",
   },
+  {
+    ...defaultListItemValues,
+    componentId: "WorkType",
+    dataField: "workType.label.keyword",
+    title: "Work Type",
+  },
 ];
 
 export const FACET_TECHNICAL_METADATA_SENSORS = [
