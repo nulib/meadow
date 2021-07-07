@@ -8,6 +8,7 @@ import {
 } from "@js/services/testing-helpers";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { WorkProvider } from "@js/context/work-context";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -19,10 +20,12 @@ describe("Fileset component", () => {
   describe("when not editing", () => {
     function setUpTests(workImageFilesetId) {
       return render(
-        <WorkFilesetListItemImage
-          fileSet={mockFileSets[0]}
-          workImageFilesetId={workImageFilesetId}
-        />
+        <WorkProvider>
+          <WorkFilesetListItemImage
+            fileSet={mockFileSets[0]}
+            workImageFilesetId={workImageFilesetId}
+          />
+        </WorkProvider>
       );
     }
     it("renders the image preview, label and description", async () => {
@@ -54,13 +57,13 @@ describe("Fileset component", () => {
 
   describe("when editing", () => {
     beforeEach(() => {
-      return renderWithReactHookForm(
-        withReactBeautifulDND(WorkFilesetListItemImage, {
-          fileSet: mockFileSets[0],
-          index: 0,
-          isEditing: true,
-        })
-      );
+      const Wrapped = withReactBeautifulDND(WorkFilesetListItemImage, {
+        fileSet: mockFileSets[0],
+        index: 0,
+        isEditing: true,
+      });
+
+      return renderWithReactHookForm(<WorkProvider>{Wrapped}</WorkProvider>);
     });
 
     it("renders the component", async () => {

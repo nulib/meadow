@@ -7,6 +7,10 @@ import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionBu
 import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import useFileSet from "@js/hooks/useFileSet";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+import { Button, Tag } from "@nulib/admin-react-components";
+import { IconPlay } from "@js/components/Icon";
 
 function WorkFilesetListItem({
   fileSet,
@@ -16,6 +20,11 @@ function WorkFilesetListItem({
 }) {
   const iiifServerUrl = useContext(IIIFContext);
   const { id, coreMetadata } = fileSet;
+  const dispatch = useWorkDispatch();
+  const { isMedia } = useFileSet();
+  const workContextState = useWorkState();
+  const isCurrentStateFileSet =
+    workContextState?.activeMediaFileSet?.id === fileSet?.id;
 
   // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
   const [imgState, setImgState] = React.useState({
@@ -44,8 +53,30 @@ function WorkFilesetListItem({
               onError={handleError}
             />
           </figure>
+          {isMedia(fileSet) && (
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "updateActiveMediaFileSet",
+                  fileSet,
+                })
+              }
+              className="is-small is-fullwidth mt-2"
+            >
+              <span className="icon">
+                <IconPlay />
+              </span>
+              <span>Play</span>
+            </Button>
+          )}
         </div>
         <div className="column">
+          {isMedia(fileSet) && isCurrentStateFileSet && (
+            <span className="mb-4 is-inline-block">
+              <Tag isInfo>Now Playing</Tag>
+            </span>
+          )}
+
           <UIFormField label="Label">
             {isEditing ? (
               <UIFormInput
@@ -77,7 +108,7 @@ function WorkFilesetListItem({
             )}
           </UIFormField>
         </div>
-        <div className="column is-3 has-text-right is-clearfix">
+        <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
               <AuthDisplayAuthorized>
