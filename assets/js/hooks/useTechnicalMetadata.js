@@ -15,7 +15,7 @@ export default function useTechnicalMetadata() {
         return extracted.mediainfo.value.media.track;
       } else if (isImage) {
         // Return Image technical metadata
-        return extracted.exif.value;
+        return extracted.exif?.value;
       }
     } catch (e) {
       console.error("Error extracting extractedMetadata from an AV fileset", e);

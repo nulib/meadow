@@ -479,6 +479,22 @@ export const UPDATE_ACCESS_MASTER_ORDER = gql`
   }
 `;
 
+export const UPDATE_FILE_SET = gql`
+  mutation UpdateFileSet(
+    $id: ID!
+    $coreMetadata: FileSetCoreMetadataUpdate
+    $structuralMetadata: FileSetStructuralMetadataInput
+  ) {
+    updateFileSet(
+      id: $id
+      coreMetadata: $coreMetadata
+      structuralMetadata: $structuralMetadata
+    ) {
+      id
+    }
+  }
+`;
+
 export const UPDATE_FILE_SETS = gql`
   mutation UpdateFileSets($fileSets: [FileSetUpdate]!) {
     updateFileSets(fileSets: $fileSets) {

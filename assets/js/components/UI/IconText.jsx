@@ -18,7 +18,6 @@ function UIIconText({ children, icon, isCentered }) {
 UIIconText.propTypes = {
   children: PropTypes.node,
   icon: PropTypes.node,
-
   isCentered: PropTypes.bool,
 };
 
