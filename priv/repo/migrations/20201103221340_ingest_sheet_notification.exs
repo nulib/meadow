@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.IngestSheetNotification do
 
 
   def up do
-    create_notification_trigger(:ingest_sheets)
+    create_notification_trigger(:row, :ingest_sheets, :all)
   end
 
   def down do

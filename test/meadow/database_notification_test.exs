@@ -16,7 +16,7 @@ defmodule Meadow.DatabaseNotificationTest do
         add(:data, :string)
       end
 
-      create_notification_trigger(@table)
+      create_notification_trigger(@table, :all)
     end
 
     def down do
