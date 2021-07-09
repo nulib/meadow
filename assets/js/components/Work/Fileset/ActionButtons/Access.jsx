@@ -23,7 +23,7 @@ function MediaButtons({ fileSet }) {
           })
         }
       >
-        Add structure (vtt)
+        Edit structure (vtt)
       </Button>
     </div>
   );

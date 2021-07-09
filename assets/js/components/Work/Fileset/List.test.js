@@ -1,9 +1,9 @@
 import React from "react";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
 import {
-  renderWithApollo,
+  renderWithRouterApollo,
   withReactBeautifulDND,
 } from "@js/services/testing-helpers";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
@@ -18,7 +18,7 @@ useIsAuthorized.mockReturnValue({
 
 describe("WorkFilesetList component", () => {
   it("renders a draggable list component if re-ordering the list", async () => {
-    renderWithApollo(
+    renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
           fileSets: { access: mockFileSets, auxillary: [] },
@@ -33,7 +33,7 @@ describe("WorkFilesetList component", () => {
   });
 
   it("renders a non-draggable list if not-reordering", async () => {
-    renderWithApollo(
+    renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
           fileSets: { access: mockFileSets, auxillary: [] },
@@ -47,7 +47,7 @@ describe("WorkFilesetList component", () => {
   });
 
   it("renders the correct number of list elements", async () => {
-    renderWithApollo(
+    renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
           fileSets: { access: mockFileSets, auxillary: [] },

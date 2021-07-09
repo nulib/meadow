@@ -7,6 +7,7 @@ const webvtt = require("node-webvtt");
 import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
 import { toastWrapper } from "@js/services/helpers";
 import { useMutation } from "@apollo/client";
+import { useParams } from "react-router-dom";
 
 function WorkTabsStructureWebVTTModal({ isActive }) {
   const dispatch = useWorkDispatch();
@@ -14,6 +15,8 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
   const [parseErrors, setParseErrors] = React.useState();
   const workState = useWorkState();
   const [webVttValue, setWebVttValue] = React.useState("");
+  const params = useParams();
+  const workId = params.id;
 
   React.useEffect(() => {
     setWebVttValue(workState.webVttModal.webVttString);
@@ -40,7 +43,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
       {
         query: GET_WORK,
         variables: {
-          id: "5fc58a24-b17d-45f1-85b2-4747470427e4",
+          id: workId,
         },
       },
     ],
@@ -49,7 +52,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
   const handleChange = (e) => {
     setWebVttValue(e.target.value);
     try {
-      const parsed = webvtt.parse(webVttValue);
+      const parsed = webvtt.parse(e.target.value);
       if (parsed.valid) {
         setParseErrors(null);
       }
@@ -105,6 +108,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
             className="textarea"
             onChange={handleChange}
             placeholder="Enter Web VTT text here"
+            ref={textAreaRef}
             rows="10"
             style={{ whiteSpace: "pre-wrap" }}
             value={webVttValue}
