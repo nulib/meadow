@@ -60,7 +60,23 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         }
       })
 
-    {:ok, file_set_1: file_set_1, file_set_2: file_set_2}
+    file_set_3 =
+      file_set_fixture(%{
+        work_id: work.id,
+        accession_number: "789",
+        role: %{id: "S", scheme: "FILE_SET_ROLE"},
+        core_metadata: %{
+          digests: %{
+            "sha256" => @sha256,
+            "sha1" => @sha1
+          },
+          location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+          mime_type: "image/tiff",
+          original_filename: "test.tif"
+        }
+      })
+
+    {:ok, file_set_1: file_set_1, file_set_2: file_set_2, file_set_3: file_set_3}
   end
 
   describe "generate_report/1" do
