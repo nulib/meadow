@@ -43,7 +43,6 @@ function MediaPlayerWrapper({ fileSet }) {
   const sources = [
     {
       src: fileSet?.streamingUrl,
-      type: fileSet?.coreMetadata?.mimeType,
     },
   ];
   const videoElAttrs = mediaInfoTracks &&

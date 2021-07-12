@@ -35,7 +35,6 @@ function MediaPlayer({
       <div className="columns">
         <video
           data-testid="video-player"
-          crossOrigin="anonymous"
           ref={playerRef}
           controls
           className="column is-three-quarters"
