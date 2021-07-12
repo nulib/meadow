@@ -5,12 +5,26 @@ const WorkDispatchContext = React.createContext();
 
 const defaultState = {
   activeMediaFileSet: null,
+  webVttModal: {
+    fileSetId: null,
+    isOpen: false,
+    webVttString: "",
+  },
 };
 
 function workReducer(state, action) {
   switch (action.type) {
+    case "toggleWebVttModal": {
+      return {
+        ...state,
+        webVttModal: {
+          fileSetId: action.fileSetId,
+          isOpen: Boolean(action.fileSetId),
+          webVttString: action.webVttString,
+        },
+      };
+    }
     case "updateActiveMediaFileSet": {
-      console.log(`action.type`, action.type);
       return {
         ...state,
         activeMediaFileSet: { ...action.fileSet },

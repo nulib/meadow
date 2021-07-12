@@ -1,4 +1,13 @@
 export default function useFileSet() {
+  function getWebVttString(fileSet = {}) {
+    if (isEmpty(fileSet)) return "";
+    let webVtt =
+      fileSet.structuralMetadata?.type === "WEBVTT"
+        ? fileSet.structuralMetadata.value
+        : "";
+    return webVtt;
+  }
+
   function isEmpty(fileSet = {}) {
     return !fileSet || Object.keys(fileSet).length === 0;
   }
@@ -16,6 +25,7 @@ export default function useFileSet() {
   }
 
   return {
+    getWebVttString,
     isEmpty,
     isImage,
     isMedia,
