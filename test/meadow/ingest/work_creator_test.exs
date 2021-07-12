@@ -1,8 +1,9 @@
 defmodule Meadow.Ingest.WorkCreatorTest do
   use Meadow.IngestCase, async: false
+  use Meadow.S3Case
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{FileSets, Works}
-  alias Meadow.Ingest.{Progress, SheetsToWorks, WorkCreator}
+  alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks, WorkCreator}
   alias Meadow.Pipeline.Actions.Dispatcher
   alias Meadow.Repo
 
@@ -10,8 +11,26 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   import Meadow.TestHelpers
 
   @state %{batch_size: 20, works_per_tick: 20, interval: 500, status: :running}
+  @vtt_fixture "Donohue_002_01.vtt"
+  @ingest_bucket Meadow.Config.ingest_bucket()
+  @streaming_bucket Meadow.Config.streaming_bucket()
 
   describe "normal operation" do
+    setup %{ingest_sheet: sheet} do
+      sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
+
+      upload_object(
+        @ingest_bucket,
+        "#{sheet_with_project.project.folder}/#{@vtt_fixture}",
+        File.read!("test/fixtures/#{@vtt_fixture}")
+      )
+
+      on_exit(fn ->
+        empty_bucket(@ingest_bucket)
+        empty_bucket(@streaming_bucket)
+      end)
+    end
+
     test "create_works/1", %{ingest_sheet: sheet} do
       assert Works.list_works() |> length() == 0
       SheetsToWorks.create_works_from_ingest_sheet(sheet)
@@ -28,6 +47,14 @@ defmodule Meadow.Ingest.WorkCreatorTest do
                |> FileSets.get_file_set!()
                |> Map.get(:accession_number)
                |> String.ends_with?("Donohue_001_03")
+
+        assert %{type: "webvtt", value: _} =
+                 Enum.find(works, fn w -> w.work_type.id == "VIDEO" end)
+                 |> Map.get(:id)
+                 |> Works.with_file_sets()
+                 |> Map.get(:file_sets)
+                 |> List.first()
+                 |> Map.get(:structural_metadata)
       end
     end
 
