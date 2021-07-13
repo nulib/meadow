@@ -31,16 +31,6 @@ export const mockVideoSources = [
   },
 ];
 
-export const mockVideoTracks = [
-  {
-    id: "nav",
-    src: "http://foobar.com",
-    kind: "chapters",
-    label: "",
-    srcLang: "en",
-  },
-];
-
 describe("UIMediaPlayer component", () => {
   it("renders", () => {
     render(<UIMediaPlayer />);
@@ -58,10 +48,5 @@ describe("UIMediaPlayer component", () => {
   it("renders source elements", () => {
     render(<UIMediaPlayer sources={mockVideoSources} />);
     expect(screen.getAllByTestId("source-item")).toHaveLength(3);
-  });
-
-  it("renders VTT track elements", async () => {
-    render(<UIMediaPlayer tracks={mockVideoTracks} />);
-    expect(await screen.findAllByTestId("track")).toHaveLength(1);
   });
 });

@@ -1,4 +1,15 @@
 export default function useFileSet() {
+  /**
+   * Helper function which separates file sets by role
+   */
+  function filterFileSets(fileSets = []) {
+    const returnObj = {
+      access: fileSets.filter((fs) => fs.role.id === "A"),
+      auxiliary: fileSets.filter((fs) => fs.role.id === "X"),
+    };
+    return returnObj;
+  }
+
   function getWebVttString(fileSet = {}) {
     if (isEmpty(fileSet)) return "";
     let webVtt =
@@ -25,6 +36,7 @@ export default function useFileSet() {
   }
 
   return {
+    filterFileSets,
     getWebVttString,
     isEmpty,
     isImage,

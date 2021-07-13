@@ -6,27 +6,16 @@ import useFileSet from "@js/hooks/useFileSet";
 import { Notification } from "@nulib/admin-react-components";
 import UIIconText from "@js/components/UI/IconText";
 import { IconAlert } from "@js/components/Icon";
-
-const vttSampleUrl =
-  "https://s3.amazonaws.com/demo.jwplayer.com/text-tracks/assets/chapters.vtt";
-
-/* https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track */
-export const mockVideoTracks = [
-  {
-    id: "nav",
-    src: vttSampleUrl,
-    kind: "chapters",
-    label: "",
-    srcLang: "en",
-  },
-];
+const webvtt = require("node-webvtt");
 
 function MediaPlayerWrapper({ fileSet }) {
-  const { isEmpty } = useFileSet();
+  const { getWebVttString, isEmpty } = useFileSet();
   if (isEmpty(fileSet)) return null;
 
   const { getTechnicalMetadata } = useTechnicalMetadata();
   const mediaInfoTracks = getTechnicalMetadata(fileSet);
+  const webVttString = getWebVttString(fileSet);
+  let navCues;
 
   // FileSet hasn't yet been fully ran through the pipeline
   if (!fileSet?.coreMetadata?.mimeType) {
@@ -51,12 +40,26 @@ function MediaPlayerWrapper({ fileSet }) {
       width: mediaInfoTracks[1].Width,
     };
 
+  try {
+    if (webVttString) {
+      const parsed = webvtt.parse(webVttString);
+      if (parsed.valid) {
+        navCues = parsed.cues;
+      }
+    }
+  } catch (e) {
+    console.error(
+      "Error parsing webvtt preparing nav cues for the MediaPlayer",
+      e
+    );
+  }
+
   return (
     <div>
       <MediaPlayer
         key={fileSet.id}
+        navCues={navCues}
         sources={sources}
-        tracks={mockVideoTracks}
         videoElAttrs={videoElAttrs}
       />
     </div>
