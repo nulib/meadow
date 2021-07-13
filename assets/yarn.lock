@@ -4996,6 +4996,11 @@ history@^4.9.0:
     tiny-warning "^1.0.0"
     value-equal "^1.0.1"
 
+hls.js@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.0.7.tgz#b4ab75e7a46650d02245a1da091efd15f07d16eb"
+  integrity sha512-NsGaksvOuYNyTmu/w239EtYFMadFzIoDkmStc1FDRcrGmvxOfMGKad/hLj4NHoE8H1S+Q8dT7HufMJJ6yiht7g==
+
 hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
