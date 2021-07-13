@@ -160,5 +160,6 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   @desc "accepted types for structural metadata"
   enum :structural_metadata_type do
     value(:webvtt, as: "webvtt", description: "Web VTT")
+    value(:poster_offset, as: "poster_offset", description: "Offset in milliseconds for poster image")
   end
 end

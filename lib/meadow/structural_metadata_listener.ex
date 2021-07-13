@@ -6,7 +6,7 @@ defmodule Meadow.StructuralMetadataListener do
   use Meadow.DatabaseNotification, tables: [:file_sets]
   use Meadow.Utils.Logging
   alias Meadow.Config
-  alias Meadow.Data.FileSets
+  alias Meadow.Data.{FileSets, Posters}
   alias Meadow.Utils.{AWS, Pairtree}
   require Logger
 
@@ -35,6 +35,16 @@ defmodule Meadow.StructuralMetadataListener do
 
     ExAws.S3.put_object(Config.streaming_bucket(), vtt_location(id), vtt, content_type: "text/vtt")
     |> AWS.request()
+  end
+
+  defp write_structural_metadata(%{
+         id: id,
+         structural_metadata: %{type: "poster_offset", value: poster_offset}
+       })
+       when is_binary(poster_offset) do
+    Logger.info("Creating poster for #{id}")
+
+    Posters.create_with_offset(id, poster_offset)
   end
 
   defp write_structural_metadata(%{id: id}) do
