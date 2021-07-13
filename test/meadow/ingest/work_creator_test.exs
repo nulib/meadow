@@ -48,6 +48,12 @@ defmodule Meadow.Ingest.WorkCreatorTest do
                |> Map.get(:accession_number)
                |> String.ends_with?("Donohue_001_03")
 
+        assert is_nil(
+                 works
+                 |> Enum.find(fn w -> w.work_type.id == "VIDEO" end)
+                 |> Map.get(:representative_file_set_id)
+               )
+
         assert %{type: "webvtt", value: _} =
                  Enum.find(works, fn w -> w.work_type.id == "VIDEO" end)
                  |> Map.get(:id)

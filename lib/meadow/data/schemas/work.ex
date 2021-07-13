@@ -26,7 +26,6 @@ defmodule Meadow.Data.Schemas.Work do
   schema "works" do
     field(:accession_number, :string)
     field(:published, :boolean, default: false)
-    field(:representative_file_set_id, Ecto.UUID, default: nil)
     field(:visibility, Types.CodedTerm)
     field(:work_type, Types.CodedTerm)
 
@@ -47,6 +46,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     belongs_to(:ingest_sheet, Sheet)
     has_one(:project, through: [:ingest_sheet, :project])
+
+    belongs_to(:representative_file_set, FileSet, on_replace: :nilify)
 
     field(:representative_image, :string, virtual: true, default: nil)
 
@@ -86,6 +87,7 @@ defmodule Meadow.Data.Schemas.Work do
       |> cast_embed(:descriptive_metadata)
       |> cast_assoc(:file_sets)
       |> assoc_constraint(:collection)
+      |> assoc_constraint(:representative_file_set)
       |> validate_required(required_params)
       |> unique_constraint(:accession_number)
     end
@@ -112,7 +114,7 @@ defmodule Meadow.Data.Schemas.Work do
     cast(work, %{updated_at: timestamp}, [:updated_at])
   end
 
-  def update_changeset(work, attrs) do
+  def update_changeset(work, attrs \\ %{}) do
     allowed_params = [
       :collection_id,
       :ingest_sheet_id,
@@ -128,9 +130,18 @@ defmodule Meadow.Data.Schemas.Work do
     |> cast_embed(:administrative_metadata)
     |> cast_embed(:descriptive_metadata)
     |> assoc_constraint(:collection)
+    |> assoc_constraint(:representative_file_set)
   end
 
   def required_index_preloads do
-    [:collection, :file_sets, :ingest_sheet, :project, :batches, :metadata_update_jobs]
+    [
+      :collection,
+      :file_sets,
+      :ingest_sheet,
+      :project,
+      :batches,
+      :metadata_update_jobs,
+      :representative_file_set
+    ]
   end
 end

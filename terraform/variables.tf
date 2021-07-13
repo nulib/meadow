@@ -71,6 +71,11 @@ variable "upload_bucket" {
   default = ""
 }
 
+variable "nul_public_bucket" {
+  type    = string
+  default = ""
+}
+
 variable "pyramid_bucket" {
   type    = string
   default = ""
@@ -149,3 +154,6 @@ variable "ezid_user" {
   type = string
 }
 
+variable "ffmpeg_layer_sha256" {
+  type = string
+}

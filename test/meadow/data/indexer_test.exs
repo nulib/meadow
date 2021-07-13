@@ -209,6 +209,38 @@ defmodule Meadow.Data.IndexerTest do
                  work_updated_timestamp
       end)
     end
+
+    @tag unboxed: true
+    test "file_set.derivatives changes cascade to work" do
+      Sandbox.unboxed_run(Repo, fn ->
+        %{file_sets: [file_set | _]} = indexable_data()
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(file_set.id) |> get_in(["representativeImageUrl"]) ==
+                 nil
+
+        {:ok, file_set} =
+          file_set
+          |> FileSets.update_file_set(%{
+            derivatives: %{"poster" => "s3://foo/bar.tif"}
+          })
+
+        work = Works.get_work!(file_set.work_id)
+        Works.set_representative_image!(work, file_set)
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(file_set.id) |> get_in(["representativeImageUrl"]) ==
+                 "#{Config.iiif_server_url()}posters/#{file_set.id}"
+
+        assert indexed_doc(file_set.work_id) |> get_in(["modifiedDate"]) >
+                 work.updated_at
+
+        assert indexed_doc(file_set.work_id) |> get_in(["representativeFileSet", "url"]) ==
+                 "#{Config.iiif_server_url()}posters/#{file_set.id}"
+      end)
+    end
   end
 
   describe "encoding" do
@@ -297,6 +329,11 @@ defmodule Meadow.Data.IndexerTest do
     end
 
     test "file set encoding", %{file_set: subject} do
+      derivatives = FileSets.add_derivative(subject, :poster, FileSets.poster_uri_for(subject))
+      FileSets.update_file_set(subject, %{derivatives: derivatives})
+
+      subject = FileSets.get_file_set_with_work_and_sheet!(subject.id)
+
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
@@ -305,6 +342,15 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["label"]) == subject.core_metadata.label
 
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
+
+      poster_url =
+        with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+          uri
+          |> URI.merge("posters/#{subject.id}")
+          |> URI.to_string()
+        end
+
+      assert doc |> get_in(["representativeImageUrl"]) == poster_url
     end
   end
 

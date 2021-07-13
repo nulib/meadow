@@ -1,7 +1,15 @@
 #import "./FileSetFields.frag.gql"
 
-mutation($id: ID!, $coreMetadata: FileSetCoreMetadataUpdate!) {
-  updateFileSet(id: $id, coreMetadata: $coreMetadata) {
+mutation (
+  $id: ID!
+  $coreMetadata: FileSetCoreMetadataUpdate!
+  $structuralMetadata: FileSetStructuralMetadataInput
+) {
+  updateFileSet(
+    id: $id
+    coreMetadata: $coreMetadata
+    structuralMetadata: $structuralMetadata
+  ) {
     ...FileSetFields
   }
 }

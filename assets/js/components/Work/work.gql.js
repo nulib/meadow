@@ -223,6 +223,7 @@ export const GET_WORK = gql`
           id
           label
         }
+        representativeImageUrl
         streamingUrl
         structuralMetadata {
           type
@@ -278,6 +279,7 @@ export const GET_WORKS = gql`
           label
           sha256
         }
+        representativeImageUrl
         insertedAt
         updatedAt
       }

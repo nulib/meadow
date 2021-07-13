@@ -1,13 +1,13 @@
 variable "name" {
-  type    = string
+  type = string
 }
 
 variable "description" {
-  type    = string
+  type = string
 }
 
 variable "environment" {
-  type    = map
+  type    = map(any)
   default = {}
 }
 
@@ -27,14 +27,19 @@ variable "timeout" {
 }
 
 variable "role" {
-  type    = string
+  type = string
 }
 
 variable "stack_name" {
-  type    = string
+  type = string
 }
 
 variable "tags" {
-  type    = map
+  type    = map(any)
   default = {}
+}
+
+variable "layers" {
+  type    = list(any)
+  default = []
 }

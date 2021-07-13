@@ -3,11 +3,14 @@ defmodule Meadow.Data.FileSets do
   The FileSets context.
   """
 
+  import Ecto.Changeset
   import Ecto.Query, warn: false
+
   alias Ecto.Multi
 
   alias Meadow.Config
   alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
@@ -112,10 +115,43 @@ defmodule Meadow.Data.FileSets do
   Updates a FileSet.
   """
   def update_file_set(%FileSet{} = file_set, attrs) do
-    file_set
-    |> FileSet.update_changeset(attrs)
-    |> Repo.update()
+    changeset =
+      FileSet.update_changeset(file_set, attrs)
+      |> validate_poster_offset(file_set)
+
+    response = Repo.update(changeset)
+
+    case response do
+      {:ok, _file_set} -> post_process(changeset)
+      other -> other
+    end
+
+    response
   end
+
+  defp validate_poster_offset(%{changes: %{poster_offset: poster_offset}} = changeset, file_set)
+       when is_integer(poster_offset) do
+    duration = duration_in_milliseconds(file_set)
+
+    if poster_offset > duration do
+      add_error(
+        changeset,
+        :poster_offset,
+        "Poster offset #{poster_offset} must be less than #{duration}"
+      )
+    else
+      changeset
+    end
+  end
+
+  defp validate_poster_offset(changeset, _file_set), do: changeset
+
+  defp post_process(%{changes: %{poster_offset: poster_offset}} = changeset)
+       when is_integer(poster_offset) do
+    Task.async(fn -> GeneratePosterImage.process(%{file_set_id: changeset.data.id}, %{}) end)
+  end
+
+  defp post_process(_), do: :noop
 
   @doc """
   Processes metadata updates for an array of file sets.
@@ -180,6 +216,29 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Get the representative image url for a file set. Could be a pyramid, poster, or nil
+  """
+  def representative_image_url_for(
+        %FileSet{derivatives: %{"pyramid_tiff" => _pyramid}} = file_set
+      ) do
+    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+      uri
+      |> URI.merge(file_set.id)
+      |> URI.to_string()
+    end
+  end
+
+  def representative_image_url_for(%FileSet{derivatives: %{"poster" => _poster}} = file_set) do
+    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+      uri
+      |> URI.merge("posters/#{file_set.id}")
+      |> URI.to_string()
+    end
+  end
+
+  def representative_image_url_for(_), do: nil
+
+  @doc """
   Get the pyramid path for a file set
   """
   def pyramid_uri_for(%FileSet{role: %{id: "P"}}), do: nil
@@ -190,6 +249,16 @@ defmodule Meadow.Data.FileSets do
     dest_bucket = Config.pyramid_bucket()
 
     dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])
+
+    %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
+  def poster_uri_for(%FileSet{} = file_set), do: poster_uri_for(file_set.id)
+
+  def poster_uri_for(file_set_id) do
+    dest_bucket = Config.pyramid_bucket()
+
+    dest_key = Path.join(["/posters/", Pairtree.poster_path(file_set_id)])
 
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
@@ -216,4 +285,21 @@ defmodule Meadow.Data.FileSets do
     key = "/" <> Pairtree.generate!(file_set_id) <> "/"
     %URI{scheme: "s3", host: bucket, path: key} |> URI.to_string()
   end
+
+  def duration_in_milliseconds(%FileSet{extracted_metadata: %{"mediainfo" => mediainfo}}) do
+    with {duration, _} <-
+           Float.parse(
+             get_in(mediainfo, [
+               "value",
+               "media",
+               "track",
+               Access.at(0),
+               "Duration"
+             ])
+           ) do
+      duration * 1000
+    end
+  end
+
+  def duration_in_milliseconds(_), do: nil
 end

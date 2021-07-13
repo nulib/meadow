@@ -96,14 +96,14 @@ defmodule Meadow.Data.PreservationCheckWriter do
       work.file_sets
       |> Stream.map(fn file_set ->
         [work.id, work.descriptive_metadata.title] ++
-          file_set_row_data(file_set, cache_key)
+          file_set_row_data(file_set, cache_key, work.work_type.id)
       end)
     end)
     |> CSV.dump_to_stream()
   end
 
-  defp file_set_row_data(file_set, cache_key) do
-    with result <- check_files(file_set) do
+  defp file_set_row_data(file_set, cache_key, work_type_id) do
+    with result <- check_files(file_set, work_type_id) do
       record_invalid_file_set(result, cache_key)
 
       [
@@ -126,11 +126,11 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
   defp get_if_map(_, _), do: "MISSING"
 
-  defp check_files(file_set) do
+  defp check_files(file_set, work_type) do
     %{
       :digests => file_set.core_metadata |> Map.get(:digests),
       :preservation => validate_preservation_file(file_set.core_metadata.location),
-      :pyramid => validate_pyramid_present(file_set)
+      :pyramid => validate_pyramid_present(file_set, work_type)
     }
   end
 
@@ -153,10 +153,12 @@ defmodule Meadow.Data.PreservationCheckWriter do
     Cachex.incr(Meadow.Cache.PreservationChecks, cache_key)
   end
 
-  defp validate_pyramid_present(%{role: %{id: "P"}}), do: "N/A"
-  defp validate_pyramid_present(%{role: %{id: "S"}}), do: "N/A"
+  defp validate_pyramid_present(%{role: %{id: "P"}}, _work_type_id), do: "N/A"
+  defp validate_pyramid_present(%{role: %{id: "S"}}, _work_type_id), do: "N/A"
+  defp validate_pyramid_present(%{role: %{id: "A"}}, "VIDEO"), do: "N/A"
+  defp validate_pyramid_present(%{role: %{id: "A"}}, "AUDIO"), do: "N/A"
 
-  defp validate_pyramid_present(file_set) do
+  defp validate_pyramid_present(file_set, _work_type_id) do
     Meadow.Utils.Stream.exists?(FileSets.pyramid_uri_for(file_set))
   end
 

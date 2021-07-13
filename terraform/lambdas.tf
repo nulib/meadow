@@ -121,3 +121,23 @@ module "mime_type_function" {
     },
   )
 }
+
+module "frame_extractor_function" {
+  depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
+  source      = "./modules/meadow_lambda"
+  name        = "frame-extractor"
+  description = "Function to generate a poster image with an offset from an S3 video"
+  role        = aws_iam_role.lambda_role.arn
+  stack_name  = var.stack_name
+  memory_size = 1024
+  timeout     = 240
+  layers      = [aws_lambda_layer_version.ffmpeg.arn]
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowFrameExtractor"
+    },
+  )
+}
+

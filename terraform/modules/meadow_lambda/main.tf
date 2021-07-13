@@ -30,6 +30,7 @@ resource "aws_lambda_function" "this_lambda_function" {
   timeout       = var.timeout
   role          = var.role
   tags          = var.tags
+  layers        = var.layers
 
   dynamic "environment" {
     for_each = length(var.environment) > 0 ? [1] : []

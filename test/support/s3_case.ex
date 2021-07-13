@@ -42,6 +42,11 @@ defmodule Meadow.S3Case do
 
   using do
     quote do
+      defp object_exists?(uri) do
+        %{path: key, host: bucket} = URI.parse(uri)
+        object_exists?(bucket, key)
+      end
+
       defp object_exists?(bucket, key) do
         case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
           {:ok, _} -> true
