@@ -13,7 +13,7 @@ defmodule MediaConvert.AudioTemplate do
       :OutputGroups,
       Access.at(0),
       :OutputGroupSettings,
-      :FileGroupSettings,
+      :HlsGroupSettings,
       :Destination
     ]
 
@@ -41,33 +41,16 @@ defmodule MediaConvert.AudioTemplate do
         ],
         OutputGroups: [
           %{
-            Name: "File Group",
+            Name: "HLS",
             OutputGroupSettings: %{
-              FileGroupSettings: %{},
-              Type: "FILE_GROUP_SETTINGS"
+              HlsGroupSettings: %{
+                MinSegmentLength: 0,
+                SegmentControl: "SEGMENTED_FILES",
+                SegmentLength: 2
+              },
+              Type: "HLS_GROUP_SETTINGS"
             },
-            Outputs: [
-              %{
-                ContainerSettings: %{
-                  Container: "MP4",
-                  Mp4Settings: %{}
-                },
-                AudioDescriptions: [
-                  %{
-                    AudioSourceName: "Audio Selector 1",
-                    CodecSettings: %{
-                      Codec: "AAC",
-                      AacSettings: %{
-                        VbrQuality: "MEDIUM_HIGH",
-                        RateControlMode: "VBR",
-                        CodingMode: "CODING_MODE_2_0",
-                        SampleRate: 44_100
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
+            Outputs: Config.transcoding_presets(:audio)
           }
         ],
         TimecodeConfig: %{Source: "ZEROBASED"}

@@ -202,6 +202,11 @@ defmodule Meadow.Config do
     )
   end
 
+  def transcoding_presets(type) do
+    Application.get_env(:meadow, :transcoding_presets, %{})
+    |> Map.get(type, [])
+  end
+
   def workers do
     System.get_env("MEADOW_PROCESSES", "ALL")
     |> String.split(~r/\s*,\s*/)

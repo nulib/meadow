@@ -1,6 +1,7 @@
 defmodule MediaConvert.AudioTemplateTest do
   use Meadow.DataCase
 
+  alias Meadow.Config
   alias MediaConvert.AudioTemplate
 
   @template %{
@@ -19,30 +20,17 @@ defmodule MediaConvert.AudioTemplateTest do
       ],
       OutputGroups: [
         %{
-          Name: "File Group",
+          Name: "HLS",
           OutputGroupSettings: %{
-            FileGroupSettings: %{Destination: "s3://destination/"},
-            Type: "FILE_GROUP_SETTINGS"
+            HlsGroupSettings: %{
+              MinSegmentLength: 0,
+              SegmentControl: "SEGMENTED_FILES",
+              SegmentLength: 2,
+              Destination: "s3://destination/"
+            },
+            Type: "HLS_GROUP_SETTINGS"
           },
-          Outputs: [
-            %{
-              AudioDescriptions: [
-                %{
-                  AudioSourceName: "Audio Selector 1",
-                  CodecSettings: %{
-                    AacSettings: %{
-                      CodingMode: "CODING_MODE_2_0",
-                      RateControlMode: "VBR",
-                      SampleRate: 44_100,
-                      VbrQuality: "MEDIUM_HIGH"
-                    },
-                    Codec: "AAC"
-                  }
-                }
-              ],
-              ContainerSettings: %{Container: "MP4", Mp4Settings: %{}}
-            }
-          ]
+          Outputs: Config.transcoding_presets(:audio)
         }
       ],
       TimecodeConfig: %{Source: "ZEROBASED"}
@@ -52,7 +40,12 @@ defmodule MediaConvert.AudioTemplateTest do
 
   describe "render/2" do
     test "template" do
-      assert @template == AudioTemplate.render(%{file_set_id: "fake-file-set-id"}, "s3://source/test.wav", "s3://destination/")
+      assert @template ==
+               AudioTemplate.render(
+                 %{file_set_id: "fake-file-set-id"},
+                 "s3://source/test.wav",
+                 "s3://destination/"
+               )
     end
   end
 end
