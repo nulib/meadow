@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-function MediaPlayerNav({ cues, handleNavClick }) {
+function MediaPlayerNav({ cues = [], handleNavClick }) {
   return (
     <ul>
       {cues.map((cue) => (
-        <li key={cue.identifier}>
+        <li key={cue.start}>
           <a href="#" onClick={(e) => handleNavClick(e, cue)}>
             {cue.text} - ({cue.start} - {cue.end}s)
           </a>

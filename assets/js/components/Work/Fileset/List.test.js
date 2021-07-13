@@ -21,7 +21,7 @@ describe("WorkFilesetList component", () => {
     renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
-          fileSets: { access: mockFileSets, auxillary: [] },
+          fileSets: { access: mockFileSets, auxiliary: [] },
           isReordering: true,
         })}
       </WorkProvider>,
@@ -36,7 +36,7 @@ describe("WorkFilesetList component", () => {
     renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
-          fileSets: { access: mockFileSets, auxillary: [] },
+          fileSets: { access: mockFileSets, auxiliary: [] },
         })}
       </WorkProvider>,
       {}
@@ -50,7 +50,7 @@ describe("WorkFilesetList component", () => {
     renderWithRouterApollo(
       <WorkProvider>
         {withReactBeautifulDND(WorkFilesetList, {
-          fileSets: { access: mockFileSets, auxillary: [] },
+          fileSets: { access: mockFileSets, auxiliary: [] },
         })}
       </WorkProvider>,
       {}
