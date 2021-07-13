@@ -432,7 +432,7 @@ resource "aws_wafv2_regex_pattern_set" "meadow_streaming" {
   description = "Pattern set to match to Meadow and DC domains"
   scope       = "CLOUDFRONT"
   regular_expression {
-    regex_string = "(digitalcollections|meadow|dc)\\.(rdc(-staging)?\\.)?library\\.northwestern\\.edu"
+    regex_string = "(devbox|digitalcollections|meadow|dc)\\.(rdc(-staging)?\\.)?library\\.northwestern\\.edu(:3001)?"
   }
   tags = var.tags
 
