@@ -42,7 +42,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         assert works |> Enum.map(& &1.work_type.id) |> Enum.sort() == ["IMAGE", "VIDEO"]
 
         assert works
-               |> List.first()
+               |> Enum.find(fn w -> w.work_type.id == "IMAGE" end)
                |> Map.get(:representative_file_set_id)
                |> FileSets.get_file_set!()
                |> Map.get(:accession_number)
