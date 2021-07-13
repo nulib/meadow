@@ -75,16 +75,7 @@ defmodule MediaConvert.Mock do
   defp destination(%{
          Settings: %{
            OutputGroups: [
-             %{OutputGroupSettings: %{CmafGroupSettings: %{Destination: destination}}}
-           ]
-         }
-       }),
-       do: destination
-
-  defp destination(%{
-         Settings: %{
-           OutputGroups: [
-             %{OutputGroupSettings: %{FileGroupSettings: %{Destination: destination}}}
+             %{OutputGroupSettings: %{HlsGroupSettings: %{Destination: destination}}}
            ]
          }
        }),
@@ -92,8 +83,8 @@ defmodule MediaConvert.Mock do
 
   defp destination(_template), do: ""
 
-  defp media_type(%{Settings: %{OutputGroups: [%{Name: "File Group"}]}}), do: :audio
-  defp media_type(%{Settings: %{OutputGroups: [%{Name: "CMAF"}]}}), do: :video
+  defp media_type(%{Settings: %{Inputs: [%{AudioSelectorGroups: %{}}]}}), do: :audio
+  defp media_type(%{Settings: %{Inputs: [%{VideoSelector: %{}}]}}), do: :video
   defp media_type(_), do: :unknown
 
   defp send_transcode_complete(template) do

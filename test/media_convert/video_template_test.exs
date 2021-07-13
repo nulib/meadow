@@ -1,6 +1,7 @@
 defmodule MediaConvert.VideoTemplateTest do
   use Meadow.DataCase
 
+  alias Meadow.Config
   alias MediaConvert.VideoTemplate
 
   @template %{
@@ -17,45 +18,17 @@ defmodule MediaConvert.VideoTemplateTest do
       ],
       OutputGroups: [
         %{
-          Name: "CMAF",
+          Name: "HLS",
           OutputGroupSettings: %{
-            CmafGroupSettings: %{
-              Destination: "s3://destination/",
-              FragmentLength: 2,
-              SegmentLength: 10
+            HlsGroupSettings: %{
+              MinSegmentLength: 0,
+              SegmentControl: "SEGMENTED_FILES",
+              SegmentLength: 2,
+              Destination: "s3://destination/"
             },
-            Type: "CMAF_GROUP_SETTINGS"
+            Type: "HLS_GROUP_SETTINGS"
           },
-          Outputs: [
-            %{
-              NameModifier: "-1080",
-              Preset: "System-Ott_Cmaf_Cmfc_Avc_16x9_Sdr_1920x1080p_30Hz_8Mbps_Qvbr_Vq8"
-            },
-            %{
-              NameModifier: "-720",
-              Preset: "System-Ott_Cmaf_Cmfc_Avc_16x9_Sdr_1280x720p_30Hz_4Mbps_Qvbr_Vq7"
-            },
-            %{
-              NameModifier: "-540",
-              Preset: "System-Ott_Cmaf_Cmfc_Avc_16x9_Sdr_960x540p_30Hz_2.5Mbps_Qvbr_Vq7"
-            },
-            %{
-              AudioDescriptions: [
-                %{
-                  AudioSourceName: "Audio Selector 1",
-                  CodecSettings: %{
-                    AacSettings: %{
-                      Bitrate: 192_000,
-                      CodingMode: "CODING_MODE_2_0",
-                      SampleRate: 44_100
-                    },
-                    Codec: "AAC"
-                  }
-                }
-              ],
-              ContainerSettings: %{Container: "CMFC"}
-            }
-          ]
+          Outputs: Config.transcoding_presets(:video)
         }
       ],
       TimecodeConfig: %{Source: "ZEROBASED"}
@@ -65,7 +38,12 @@ defmodule MediaConvert.VideoTemplateTest do
 
   describe "render/2" do
     test "template" do
-      assert @template == VideoTemplate.render(%{file_set_id: "fake-file-set-id"}, "s3://source/test.mkv", "s3://destination/")
+      assert @template ==
+               VideoTemplate.render(
+                 %{file_set_id: "fake-file-set-id"},
+                 "s3://source/test.mkv",
+                 "s3://destination/"
+               )
     end
   end
 end
