@@ -6,7 +6,8 @@ defmodule Meadow.StructuralMetadataListener do
   use Meadow.DatabaseNotification, tables: [:file_sets]
   use Meadow.Utils.Logging
   alias Meadow.Config
-  alias Meadow.Data.{FileSets, Posters}
+  alias Meadow.Data.FileSets
+  alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.{AWS, Pairtree}
   require Logger
 
@@ -42,9 +43,9 @@ defmodule Meadow.StructuralMetadataListener do
          structural_metadata: %{type: "poster_offset", value: poster_offset}
        })
        when is_binary(poster_offset) do
-    Logger.info("Creating poster for #{id}")
+    Logger.info("Creating poster for #{id} with offset #{poster_offset}")
 
-    Posters.create_with_offset(id, poster_offset)
+    GeneratePosterImage.process(%{file_set_id: id}, %{offset: poster_offset})
   end
 
   defp write_structural_metadata(%{id: id}) do
