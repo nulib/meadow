@@ -146,6 +146,24 @@ defmodule Meadow.Data.FileSetsTest do
       end
     end
 
+    test "pyramid_uri_for/1 for a FileSet" do
+      file_set_a = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
+      file_set_s = file_set_fixture(role: %{id: "S", scheme: "FILE_SET_ROLE"})
+      file_set_p = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
+      file_set_x = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+
+      with uri <- file_set_a |> FileSets.pyramid_uri_for() |> URI.parse() do
+        assert uri.host == Config.pyramid_bucket()
+      end
+
+      assert is_nil(FileSets.pyramid_uri_for(file_set_s))
+      assert is_nil(FileSets.pyramid_uri_for(file_set_p))
+
+      with uri <- file_set_x |> FileSets.pyramid_uri_for() |> URI.parse() do
+        assert uri.host == Config.pyramid_bucket()
+      end
+    end
+
     test "distribution_streaming_uri_for/1 for a FileSet with any role besides 'P'" do
       file_set = file_set_fixture()
 
