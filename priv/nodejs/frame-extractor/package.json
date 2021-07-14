@@ -1,0 +1,15 @@
+{
+  "name": "frame-extractor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "private": true,
+  "devDependencies": {
+    "aws-sdk": "^2.946.0"
+  },
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "tempy": "^1.0.1",
+    "uri-js": "^4.4.1"
+  }
+}
