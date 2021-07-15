@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 const URI = require("uri-js");
 const fs = require("fs");
 const tempy = require("tempy");
-const spawn = require("child_process").spawn;
+const { spawnSync } = require("child_process");
 const s3 = new AWS.S3();
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
@@ -39,7 +39,7 @@ const extractFrame = async (bucket, key, offset) => {
       `${dir}/out.jpg`,
     ];
 
-    proc = spawn(cmd, args, { shell: true });
+    // proc = spawn(cmd, args, { shell: true });
 
     // proc.stdout.on("data", function (data) {
     //   console.log(data);
@@ -54,20 +54,36 @@ const extractFrame = async (bucket, key, offset) => {
     //   console.log("finished");
     // });
 
-    uploadToS3(`${dir}/out.jpg`, dest)
-      .then(result => console.log(result))
-      .catch(err => console.log(err));
+    await runCommand(cmd, args);
 
-    return dest;
+    const data = fs.readFileSync(`${dir}/out.jpg`);
+
+    uploadToS3(data, dest)
+      .then((result) => console.log(result))
+      .catch((err) => console.log(err));
+    return Promise.resolve(dest);
   } finally {
     console.info(`Deleting ${dir}`);
-    fs.unlink(dir, (err) => {
+    fs.rmdir(dir, { recursive: true }, (err) => {
       if (err) {
         throw err;
       }
     });
   }
 };
+
+const runCommand = (cmd, args) =>
+  new Promise((resolve, reject) => {
+    const command = spawnSync(cmd, args, { shell: true });
+    command.on("data", (data) => {
+      console.log(data);
+    });
+    command.on("close", () => resolve());
+    command.on("error", (error) => {
+      console.error(error);
+      reject(error);
+    });
+  });
 
 const makeInputFile = async (location) => {
   return new Promise((resolve, reject) => {
