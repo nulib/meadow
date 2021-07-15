@@ -22,7 +22,7 @@ const extractFrame = (bucket, key, offset) => {
   try {
     const inputFile = await makeInputFile(source);
     const dir = tempy.directory();
-    const cmd = "/usr/local/bin/ffmpeg";
+    const cmd = "/opt/bin/ffmpeg";
     const frameNumber = offset === "0" ? "00" : offset - 1;
     const frameNumberPadded = frameNumber.toString().padStart(2, "0");
     const vfArgs = `select=eq(n\\,${frameNumberPadded})`;
