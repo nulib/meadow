@@ -3,6 +3,7 @@ const URI = require("uri-js");
 const fs = require("fs");
 const tempy = require("tempy");
 const spawn = require("child_process").spawn;
+const s3 = new AWS.S3();
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
@@ -12,16 +13,17 @@ const handler = async (event, _context, _callback) => {
   return await extractFrame(event.bucket, event.key, event.offset);
 };
 
-const extractFrame = (bucket, key, offset) => {
+const extractFrame = async (bucket, key, offset) => {
   console.log(
     `Extracting frame at offset ${offset} from s3://${bucket}/${key}`
   );
 
   const source = `s3://${bucket}/${key}`;
   const dest = `s3://${dest_bucket}/test-ffmpeg/test.jpg`;
+  const dir = tempy.directory();
+
   try {
     const inputFile = await makeInputFile(source);
-    const dir = tempy.directory();
     const cmd = "/opt/bin/ffmpeg";
     const frameNumber = offset === "0" ? "00" : offset - 1;
     const frameNumberPadded = frameNumber.toString().padStart(2, "0");
@@ -52,9 +54,11 @@ const extractFrame = (bucket, key, offset) => {
     //   console.log("finished");
     // });
 
-    const frame = await sendToDestination(fileName, dest);
+    uploadToS3(`${dir}/out.jpg`, dest)
+      .then(result => console.log(result))
+      .catch(err => console.log(err));
 
-    return new Promise((resolve, reject) => {});
+    return dest;
   } finally {
     console.info(`Deleting ${dir}`);
     fs.unlink(dir, (err) => {
@@ -65,7 +69,7 @@ const extractFrame = (bucket, key, offset) => {
   }
 };
 
-const makeInputFile = (location) => {
+const makeInputFile = async (location) => {
   return new Promise((resolve, reject) => {
     let uri = URI.parse(location);
     let fileName = tempy.file();
@@ -90,29 +94,19 @@ const makeInputFile = (location) => {
   });
 };
 
-const sendToDestination = (data, location) => {
-  console.info(`Writing to ${location}`);
+const uploadToS3 = (data, location) => {
   let uri = URI.parse(location);
   return new Promise((resolve, reject) => {
-    sharp(data)
-      .metadata()
-      .then(({ width, height }) => {
-        new AWS.S3().upload(
-          {
-            Bucket: uri.host,
-            Key: getS3Key(uri),
-            Body: data,
-            Metadata: { width: width.toString(), height: height.toString() },
-          },
-          (err, _data) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(location);
-            }
-          }
-        );
-      });
+    s3.upload(
+      { Bucket: uri.host, Key: getS3Key(uri), Body: data },
+      (err, _data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(location);
+        }
+      }
+    );
   });
 };
 
