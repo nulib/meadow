@@ -2,10 +2,10 @@ import React from "react";
 import { OpenSeadragonViewer } from "openseadragon-react-viewer";
 import WorkTabs from "./Tabs/Tabs";
 import PropTypes from "prop-types";
-import { Notification } from "@nulib/admin-react-components";
 import { getManifest } from "@js/services/get-manifest";
 import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+import useFileSet from "@js/hooks/useFileSet";
 
 const osdOptions = {
   showDropdown: true,
@@ -27,8 +27,10 @@ const Work = ({ work }) => {
   const isImageWorkType =
     work.workType?.id === "IMAGE" &&
     ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
+  const { filterFileSets } = useFileSet();
 
   React.useEffect(() => {
+    // Get data for an Image Work Type
     async function getData() {
       const data = await getManifest(`${work.manifestUrl}?${Date.now()}`);
 
@@ -51,14 +53,21 @@ const Work = ({ work }) => {
   }, [work.fileSets, work.descriptiveMetadata.title]);
 
   React.useEffect(() => {
-    // If Work Context State doesn't yet have an active File Set, default to the first File Set
-    if (!workContextState?.activeMediaFileSet) {
-      workDispatch({
-        type: "updateActiveMediaFileSet",
-        fileSet: work.fileSets[0],
-      });
-    }
-  }, []);
+    if (isImageWorkType) return;
+
+    // If no active media file set yet exists in Context, use the first Access file set
+    // If an active file set does exist, then put the latest data from API into the Context state
+    let fileSet = !workContextState?.activeMediaFileSet
+      ? filterFileSets(work.fileSets).access[0]
+      : work.fileSets.find(
+          (fs) => fs.id === workContextState.activeMediaFileSet.id
+        );
+
+    workDispatch({
+      type: "updateActiveMediaFileSet",
+      fileSet,
+    });
+  }, [work.fileSets]);
 
   return (
     <div data-testid="work-component">

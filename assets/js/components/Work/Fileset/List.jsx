@@ -47,10 +47,10 @@ function WorkFilesetList({
       </div>
 
       {/* Auxillary Files  */}
-      {fileSets.auxillary.length > 0 && (
+      {fileSets.auxiliary.length > 0 && (
         <>
           <SubHead>Auxiliary files</SubHead>
-          {fileSets.auxillary.map((fileSet) => (
+          {fileSets.auxiliary.map((fileSet) => (
             <WorkFilesetListItem
               key={fileSet.id}
               fileSet={fileSet}
