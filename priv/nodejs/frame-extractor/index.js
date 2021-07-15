@@ -21,11 +21,11 @@ const extractFrame = (bucket, key, offset) => {
   const dest = `s3://${dest_bucket}/test-ffmpeg/test.jpg`;
   try {
     const inputFile = await makeInputFile(source);
-    let dir = tempy.directory();
-
+    const dir = tempy.directory();
     const cmd = "/usr/local/bin/ffmpeg";
-
-    const vfArgs = "select=eq(n\\,02)";
+    const frameNumber = offset === "0" ? "00" : offset - 1;
+    const frameNumberPadded = frameNumber.toString().padStart(2, "0");
+    const vfArgs = `select=eq(n\\,${frameNumberPadded})`;
 
     const args = [
       "-i",
@@ -39,18 +39,18 @@ const extractFrame = (bucket, key, offset) => {
 
     proc = spawn(cmd, args, { shell: true });
 
-    proc.stdout.on("data", function (data) {
-      //   console.log(data);
-    });
+    // proc.stdout.on("data", function (data) {
+    //   console.log(data);
+    // });
 
-    proc.stderr.setEncoding("utf8");
-    proc.stderr.on("data", function (data) {
-      console.log(data);
-    });
+    // proc.stderr.setEncoding("utf8");
+    // proc.stderr.on("data", function (data) {
+    //   console.log(data);
+    // });
 
-    proc.on("close", function () {
-      console.log("finished");
-    });
+    // proc.on("close", function () {
+    //   console.log("finished");
+    // });
 
     const frame = await sendToDestination(fileName, dest);
 
