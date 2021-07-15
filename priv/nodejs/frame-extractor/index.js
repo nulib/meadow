@@ -2,29 +2,30 @@ const AWS = require("aws-sdk");
 const URI = require("uri-js");
 const fs = require("fs");
 const tempy = require("tempy");
-const { spawnSync } = require("child_process");
-const s3 = new AWS.S3();
+const spawn = require("child_process").spawn;
+const { Buffer } = require("buffer");
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
-const dest_bucket = "meadow-s-streaming";
-
 const handler = async (event, _context, _callback) => {
-  return await extractFrame(event.bucket, event.key, event.offset);
+  return await extractFrame(event.source_bucket, event.dest_bucket, event.key, event.offset);
 };
 
-const extractFrame = async (bucket, key, offset) => {
+const extractFrame = async (sourceBucket, destBucket, key, offset) => {
   console.log(
-    `Extracting frame at offset ${offset} from s3://${bucket}/${key}`
+    `Extracting frame at offset ${offset} from s3://${sourceBucket}/${key}`
   );
 
-  const source = `s3://${bucket}/${key}`;
-  const dest = `s3://${dest_bucket}/test-ffmpeg/test.jpg`;
+  const source = `s3://${sourceBucket}/${key}`;
+  const dest = `s3://${destBucket}/test-ffmpeg/test.jpg`;
   const dir = tempy.directory();
+
+  console.info(`DIRECTORY: ${dir}`);
 
   try {
     const inputFile = await makeInputFile(source);
-    const cmd = "/opt/bin/ffmpeg";
+    // const cmd = "/opt/bin/ffmpeg";
+    const cmd = "/usr/local/bin/ffmpeg";
     const frameNumber = offset === "0" ? "00" : offset - 1;
     const frameNumberPadded = frameNumber.toString().padStart(2, "0");
     const vfArgs = `select=eq(n\\,${frameNumberPadded})`;
@@ -39,44 +40,44 @@ const extractFrame = async (bucket, key, offset) => {
       `${dir}/out.jpg`,
     ];
 
-    // proc = spawn(cmd, args, { shell: true });
-
-    // proc.stdout.on("data", function (data) {
-    //   console.log(data);
-    // });
-
-    // proc.stderr.setEncoding("utf8");
-    // proc.stderr.on("data", function (data) {
-    //   console.log(data);
-    // });
-
-    // proc.on("close", function () {
-    //   console.log("finished");
-    // });
-
     await runCommand(cmd, args);
 
-    const data = fs.readFileSync(`${dir}/out.jpg`);
 
-    uploadToS3(data, dest)
-      .then((result) => console.log(result))
-      .catch((err) => console.log(err));
-    return Promise.resolve(dest);
+    return new Promise((resolve, reject) => {
+      console.log('inside uploadToS3 function');
+      fs.readFile(`${dir}/out.jpg`, function (err, data) {
+          if (err) {
+              reject(err);
+              return;
+          }
+
+          const base64data = Buffer.from(data).toString('base64');
+          const s3 = new AWS.S3();
+          s3.putObject({
+              Bucket: destBucket,
+              Key: 'test.jpg',
+              Body: base64data
+          }, function (resp) {
+              console.log('Done');
+              resolve();
+          });
+      });
+  });
   } finally {
     console.info(`Deleting ${dir}`);
-    fs.rmdir(dir, { recursive: true }, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
+    // fs.rmdir(dir, { recursive: true }, (err) => {
+    //   if (err) {
+    //     throw err;
+    //   }
+    // });
   }
 };
 
 const runCommand = (cmd, args) =>
   new Promise((resolve, reject) => {
-    const command = spawnSync(cmd, args, { shell: true });
+    const command = spawn(cmd, args, { shell: true });
     command.on("data", (data) => {
-      console.log(data);
+      console.info(data);
     });
     command.on("close", () => resolve());
     command.on("error", (error) => {

@@ -11,7 +11,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       on_exit(fn ->
         delete_object("test-ingest", "small.m4v")
-        empty_bucket("test-streaming")
+        # empty_bucket("test-streaming")
       end)
 
       :ok

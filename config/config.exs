@@ -59,6 +59,7 @@ config :meadow, :lambda,
   digester: {:local, {"nodejs/digester/index.js", "handler"}},
   edtf: {:local, {"nodejs/edtf/index.js", "handler"}},
   exif: {:local, {"nodejs/exif/index.js", "handler"}},
+  frame_extractor: {:local, {"nodejs/frame-extractor/index.js", "handler"}},
   mediainfo: {:local, {"nodejs/mediainfo/index.js", "handler"}},
   mime_type: {:local, {"nodejs/mime-type/index.js", "handler"}},
   tiff: {:local, {"nodejs/pyramid-tiff/index.js", "handler"}}
