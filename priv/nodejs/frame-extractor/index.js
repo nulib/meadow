@@ -1,134 +1,58 @@
 const AWS = require("aws-sdk");
-const URI = require("uri-js");
+const s3 = new AWS.S3();
+const ffmpeg = require('fluent-ffmpeg');
+const stream = require('stream');
+
 const fs = require("fs");
-const tempy = require("tempy");
-const spawn = require("child_process").spawn;
-const { Buffer } = require("buffer");
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
-  return await extractFrame(event.source_bucket, event.dest_bucket, event.key, event.offset);
-};
-
-const extractFrame = async (sourceBucket, destBucket, key, offset) => {
-  console.log(
-    `Extracting frame at offset ${offset} from s3://${sourceBucket}/${key}`
+  return await extractFrame(
+    event.source_bucket,
+    event.dest_bucket,
+    event.key,
+    event.offset
   );
+};
 
-  const source = `s3://${sourceBucket}/${key}`;
-  const dest = `s3://${destBucket}/test-ffmpeg/test.jpg`;
-  const dir = tempy.directory();
+const extractFrame = async () => {
+  const sourceBucket = "test-streaming";
+  const destBucket = "test-streaming";
+  const key =
+    "6298d09f04833eb737504941812b0442e6253a4e286e79db3b11e16f9b39c604-1080_00001.ts";
+  const offset = "5";
 
-  console.info(`DIRECTORY: ${dir}`);
+  // let readStream = s3
+  //   .getObject({ Bucket: sourceBucket, Key: key })
+  //   .createReadStream();
 
-  try {
-    const inputFile = await makeInputFile(source);
-    // const cmd = "/opt/bin/ffmpeg";
-    const cmd = "/usr/local/bin/ffmpeg";
-    const frameNumber = offset === "0" ? "00" : offset - 1;
-    const frameNumberPadded = frameNumber.toString().padStart(2, "0");
-    const vfArgs = `select=eq(n\\,${frameNumberPadded})`;
+  let readStream = fs.createReadStream("/Users/brendan/test.ts");
+  let writeStream = fs.createWriteStream("/Users/brendan/frame.jpg");
 
-    const args = [
-      "-i",
-      inputFile,
-      "-vf",
-      '"' + vfArgs + '"',
-      "-vframes",
-      "1",
-      `${dir}/out.jpg`,
-    ];
+  let ffmpegProcess = new ffmpeg(readStream).outputOptions(["-vf select='eq(n\,02)'", "-vframes 1",]).toFormat("image2");
 
-    await runCommand(cmd, args);
+  ffmpegProcess.pipe(writeStream, { end: true });
 
+  // ffmpegProcess
+  //   .on("error", (err, stdout, stderr) => {})
+  //   .on("end", () => {
+  //     console.info("FINISHED");
+  //   })
+  //   .pipe(writeStream, {end: true });
+    // .pipe(() => {
+    //   let passThrough = new stream.PassThrough();
 
-    return new Promise((resolve, reject) => {
-      console.log('inside uploadToS3 function');
-      fs.readFile(`${dir}/out.jpg`, function (err, data) {
-          if (err) {
-              reject(err);
-              return;
-          }
-
-          const base64data = Buffer.from(data).toString('base64');
-          const s3 = new AWS.S3();
-          s3.putObject({
-              Bucket: destBucket,
-              Key: 'test.jpg',
-              Body: base64data
-          }, function (resp) {
-              console.log('Done');
-              resolve();
-          });
-      });
-  });
-  } finally {
-    console.info(`Deleting ${dir}`);
-    // fs.rmdir(dir, { recursive: true }, (err) => {
-    //   if (err) {
-    //     throw err;
-    //   }
+    //   s3.upload(
+    //     { Bucket: destBucket, Key: "frame.jpg", Body: passThrough },
+    //     (err, data) => {
+    //       if (err) {
+    //         return console.error(err);
+    //       }
+    //       console.info("UPLOADED");
+    //     }
+    //   );
     // });
-  }
-};
-
-const runCommand = (cmd, args) =>
-  new Promise((resolve, reject) => {
-    const command = spawn(cmd, args, { shell: true });
-    command.on("data", (data) => {
-      console.info(data);
-    });
-    command.on("close", () => resolve());
-    command.on("error", (error) => {
-      console.error(error);
-      reject(error);
-    });
-  });
-
-const makeInputFile = async (location) => {
-  return new Promise((resolve, reject) => {
-    let uri = URI.parse(location);
-    let fileName = tempy.file();
-    console.info(`Retrieving ${location} to ${fileName}`);
-    let writable = fs
-      .createWriteStream(fileName)
-      .on("error", (err) => reject(err));
-    let s3Stream = new AWS.S3()
-      .getObject({
-        Bucket: uri.host,
-        Key: getS3Key(uri),
-      })
-      .createReadStream();
-
-    s3Stream.on("error", (err) => reject(err));
-    s3Stream.on("data", (_chunk) => console.debug("ping"));
-
-    s3Stream
-      .pipe(writable)
-      .on("close", () => resolve(fileName))
-      .on("error", (err) => reject(err));
-  });
-};
-
-const uploadToS3 = (data, location) => {
-  let uri = URI.parse(location);
-  return new Promise((resolve, reject) => {
-    s3.upload(
-      { Bucket: uri.host, Key: getS3Key(uri), Body: data },
-      (err, _data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(location);
-        }
-      }
-    );
-  });
-};
-
-const getS3Key = (uri) => {
-  return uri.path.replace(/^\/+/, "");
 };
 
 module.exports = { handler };

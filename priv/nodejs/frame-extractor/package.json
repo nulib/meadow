@@ -8,6 +8,7 @@
     "aws-sdk": "^2.946.0"
   },
   "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",
     "tempy": "^1.0.1",
     "uri-js": "^4.4.1"
