@@ -2,7 +2,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   @moduledoc "Generate an image for a video FileSet from an offset"
 
   alias Meadow.Config
-  alias Meadow.Data.ActionStates
+  # alias Meadow.Data.ActionStates
   alias Meadow.Utils.Lambda
   alias Sequins.Pipeline.Action
   use Action
@@ -18,14 +18,25 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     Logger.info(
       "Generating poster image for FileSet #{file_set.id} with offest #{attributes.offset}"
     )
+    key = Map.get(attributes, :key)
+    offset = Map.get(attributes, :offset)
 
+    case generate_poster(key, offset) do
+      {:ok, _dest} ->
+        :ok
+
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  defp generate_poster(key, offset) do
     Lambda.invoke(
       Config.lambda_config(:frame_extractor),
       %{
-        source_bucket: Config.streaming_bucket(),
-        dest_bucket: Config.streaming_bucket(),
-        key: "6298d09f04833eb737504941812b0442e6253a4e286e79db3b11e16f9b39c604-1080_00001.ts",
-        offset: "5"
+        source: Config.streaming_bucket(),
+        dest: Config.streaming_bucket(),
+        key: key,
+        offset: offset
       },
       @timeout
     )

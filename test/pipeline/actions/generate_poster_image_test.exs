@@ -1,17 +1,15 @@
 defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   use Meadow.DataCase
   use Meadow.S3Case
-  alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.GeneratePosterImage
-  import ExUnit.CaptureLog
 
   describe "file set exists" do
     setup do
-      upload_object("test-ingest", "small.m4v", File.read!("test/fixtures/small.m4v"))
+      upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
 
       on_exit(fn ->
-        delete_object("test-ingest", "small.m4v")
-        # empty_bucket("test-streaming")
+        delete_object("test-streaming", "small.m4v")
+        empty_bucket("test-streaming")
       end)
 
       :ok
@@ -28,8 +26,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
           }
         )
 
-      assert(GeneratePosterImage.process(%{file_set_id: object.id}, %{offset: 100}) == :ok)
-      assert(ActionStates.ok?(object.id, GeneratePosterImage))
+      assert(GeneratePosterImage.process(%{file_set_id: object.id}, %{key: "small.m4v", offset: 100}) == :ok)
     end
   end
 end
