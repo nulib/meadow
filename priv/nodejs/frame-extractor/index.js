@@ -2,58 +2,60 @@ const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
 const ffmpeg = require("fluent-ffmpeg");
 const concat = require("concat-stream");
+const URI = require("uri-js");
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
-  return await extractFrame(
-    event.source,
-    event.dest,
-    event.key,
-    event.offset
-  );
+  return await extractFrame(event.source, event.destination, event.offset);
 };
 
-const extractFrame = async (source, dest, key, offset) => {
+const extractFrame = async (source, destination, offset) => {
   return new Promise((resolve, reject) => {
     try {
+      let uri = URI.parse(source);
+
       let readStream = s3
-        .getObject({ Bucket: source, Key: key })
+        .getObject({ Bucket: uri.host, Key: getS3Key(uri) })
         .createReadStream()
         .on("error", (error) => console.error(error));
-
-      // const fs = require("fs");
-      // let writeStream = fs.createWriteStream("/Users/brendan/frame.jpg");
 
       let ffmpegProcess = new ffmpeg(readStream)
         .outputOptions([`-vf select='eq(n,${offset - 1})'`, "-vframes 1"])
         .toFormat("image2");
 
-      // ffmpegProcess.pipe(writeStream, { end: true });
-
       const uploadStream = concat((data) => {
-        uploadToS3(data, dest, "frame.jpg")
+        uploadToS3(data, destination)
           .then((result) => resolve(result))
           .catch((err) => reject(err));
       });
 
-      const uploadToS3 = (data, bucket, key) => {
+      const uploadToS3 = (data, destination) => {
         return new Promise((resolve, reject) => {
-          s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(key);
+          let uri = URI.parse(destination);
+
+          s3.upload(
+            { Bucket: uri.host, Key: getS3Key(uri), Body: data },
+            (err, _data) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(destination);
+              }
             }
-          });
+          );
         });
       };
 
-      ffmpegProcess.pipe(uploadStream, {end: true});
-    } catch(err) {
+      ffmpegProcess.pipe(uploadStream, { end: true });
+    } catch (err) {
       reject(err);
     }
   });
+};
+
+const getS3Key = (uri) => {
+  return uri.path.replace(/^\/+/, "");
 };
 
 module.exports = { handler };

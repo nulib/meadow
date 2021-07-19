@@ -3,20 +3,9 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   use Meadow.S3Case
   alias Meadow.Pipeline.Actions.GeneratePosterImage
 
-  describe "file set exists" do
+  describe "file set exists with no playlist uri" do
     setup do
-      upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
-
-      on_exit(fn ->
-        delete_object("test-streaming", "small.m4v")
-        empty_bucket("test-streaming")
-      end)
-
-      :ok
-    end
-
-    test "process/2" do
-      object =
+      file_set =
         file_set_fixture(
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
@@ -26,7 +15,18 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
           }
         )
 
-      assert(GeneratePosterImage.process(%{file_set_id: object.id}, %{key: "small.m4v", offset: 100}) == :ok)
+      upload_object("test-ingest", "small.m4v", File.read!("test/fixtures/small.m4v"))
+
+      on_exit(fn ->
+        delete_object("test-ingest", "small.m4v")
+        empty_bucket("test-ingest")
+      end)
+
+      {:ok, file_set: file_set}
+    end
+
+    test "process/2", %{file_set: file_set} do
+      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 100}) == :ok)
     end
   end
 end
