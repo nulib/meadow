@@ -9,65 +9,105 @@ const path = require("path");
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
-  return await extractFrame(event.source, event.destination, event.offset);
+  if (event.source.endsWith(".m3u8")) {
+    return await extractFrameFromPlaylist(
+      event.source,
+      event.destination,
+      event.offset
+    );
+  } else {
+    return await extractFrameFromVideo(
+      event.source,
+      event.destination,
+      event.offset
+    );
+  }
 };
 
-const extractFrame = async (source, destination, offset) => {
+const extractFrameFromPlaylist = async (source, destination, offset) => {
   return new Promise((resolve, reject) => {
     try {
       let uri = URI.parse(source);
-      const key = getS3Key(uri);
+      let key = getS3Key(uri);
+      let off = offset;
 
+      parsePlaylist(uri.host, key, off).then(
+        ({ location, segmentOffset }) => {
+          console.log("location1: ", location);
+          console.log("segmentOffset1: ", segmentOffset);
+
+          off = segmentOffset;
+
+          const segOffInSeconds = segmentOffset / 1000;
+          console.log("segOffInSeconds: ", segOffInSeconds);
+
+          let readStream = s3
+            .getObject({ Bucket: uri.host, Key: key })
+            .createReadStream()
+            .on("error", (error) => console.error(error));
+
+          let ffmpegProcess = new ffmpeg(readStream)
+            .seek(segOffInSeconds)
+            .outputOptions(["-vframes 1"])
+            .toFormat("image2");
+
+          const uploadStream = concat((data) => {
+            uploadToS3(data, URI.parse(destination).host, "playlist_frame.jpg")
+              .then((result) => resolve(result))
+              .catch((err) => reject(err));
+          });
+
+          const uploadToS3 = (data, bucket, key) => {
+            return new Promise((resolve, reject) => {
+              s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(key);
+                }
+              });
+            });
+          };
+
+          ffmpegProcess.pipe(uploadStream, { end: true });
+        }
+      );
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+const extractFrameFromVideo = async (source, destination, offset) => {
+  return new Promise((resolve, reject) => {
+    try {
+      let uri = URI.parse(source);
+      let key = getS3Key(uri);
       let readStream = s3
         .getObject({ Bucket: uri.host, Key: key })
         .createReadStream()
         .on("error", (error) => console.error(error));
 
-      if (key.endsWith(".m3u8")) {
-        let playlistStream = s3
-          .getObject({ Bucket: uri.host, Key: key })
-          .createReadStream()
-          .on("error", (error) => console.error(error));
-
-        parsePlaylist(playlistStream, offset, key).then(
-          ({ location, segmentOffset }) => {
-            console.log("location1: ", location);
-            console.log("segmentOffset1: ", segmentOffset);
-
-            offset = segmentOffset;
-
-            readStream = s3
-              .getObject({ Bucket: uri.host, Key: location })
-              .createReadStream()
-              .on("error", (error) => console.error(error));
-          }
-        );
-      }
-
       let ffmpegProcess = new ffmpeg(readStream)
-        .outputOptions([`-vf select='eq(n,${offset - 1})'`, "-vframes 1"])
+        .seek(offset / 1000.0)
+        .outputOptions(["-vframes 1"])
         .toFormat("image2");
 
       const uploadStream = concat((data) => {
-        uploadToS3(data, destination)
+        uploadToS3(data, URI.parse(destination).host, "frame.jpg")
           .then((result) => resolve(result))
           .catch((err) => reject(err));
       });
 
-      const uploadToS3 = (data, destination) => {
+      const uploadToS3 = (data, bucket, key) => {
         return new Promise((resolve, reject) => {
-          let uri = URI.parse(destination);
-
-          s3.upload(
-            { Bucket: uri.host, Key: getS3Key(uri), Body: data },
-            (err, _data) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(destination);
-              }
+          s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(key);
             }
-          );
+          });
         });
       };
 
@@ -78,7 +118,7 @@ const extractFrame = async (source, destination, offset) => {
   });
 };
 
-const parsePlaylist = (input, offset, key) => {
+const parsePlaylist = (bucket, key, offset) => {
   const reader = new M3U8FileParser();
 
   try {
@@ -86,7 +126,12 @@ const parsePlaylist = (input, offset, key) => {
     let location = "";
     let segmentOffset = "";
     return new Promise((resolve, reject) => {
-      const interface = readline.createInterface({ input: input });
+      let playlistStream = s3
+        .getObject({ Bucket: bucket, Key: key })
+        .createReadStream()
+        .on("error", (error) => console.error(error));
+
+      const interface = readline.createInterface({ input: playlistStream });
       interface.on("line", (line) => {
         reader.read(line);
       });
@@ -100,8 +145,6 @@ const parsePlaylist = (input, offset, key) => {
           if (elapsed + duration > offset) {
             location = path.parse(key).dir + "/" + segment.url;
             segmentOffset = offset - elapsed;
-            console.log("location2: ", location);
-            console.log("segmentOffset2: ", segmentOffset);
             break;
           }
           elapsed += duration;

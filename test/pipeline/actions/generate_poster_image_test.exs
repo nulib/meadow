@@ -27,7 +27,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     end
 
     test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 100}) == :ok)
+      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 7000}) == :ok)
     end
   end
 
