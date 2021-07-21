@@ -11,23 +11,23 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
 
   @actiondoc "Generate poster image for a FileSet"
 
-  @timeout 120_000
+  @timeout 30_000
 
   defp already_complete?(_, _), do: false
 
   defp process(
-         %FileSet{derivatives: %{playlist: location}} = file_set,
+         %FileSet{derivatives: %{"playlist" => location}} = file_set,
          attributes,
          _
-       ) do
+       )
+       when is_binary(location) do
     Logger.info(
-      "Generating poster image for FileSet #{file_set.id}, with playlist: #{location} and offset #{attributes.offset}"
+      "Generating poster image for FileSet #{file_set.id}, with playlist: #{location} and offset: #{attributes[:offset]}"
     )
 
     destination = FileSets.poster_uri_for(file_set)
-    offset = Map.get(attributes, :offset)
 
-    case generate_poster(location, destination, offset) do
+    case generate_poster(location, destination, attributes[:offset]) do
       {:ok, _dest} ->
         :ok
 
@@ -38,13 +38,12 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
 
   defp process(%FileSet{core_metadata: %{location: location}} = file_set, attributes, _) do
     Logger.info(
-      "Generating poster image for FileSet #{file_set.id} with location: #{location} and offset #{attributes.offset}"
+      "Generating poster image for FileSet #{file_set.id} with location: #{location} and offset: #{attributes[:offset]}"
     )
 
     destination = FileSets.poster_uri_for(file_set)
-    offset = Map.get(attributes, :offset)
 
-    case generate_poster(location, destination, offset) do
+    case generate_poster(location, destination, attributes[:offset]) do
       {:ok, _dest} ->
         :ok
 
@@ -54,7 +53,6 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   end
 
   defp process(file_set, _attributes, _) do
-    # ActionStates.set_state!(file_set, __MODULE__, "error", error)
     {:error, "No video found to generate poster from file set: #{file_set.id}."}
   end
 

@@ -147,7 +147,7 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "poster_uri_for/1 for a FileSet with a playlist" do
-      file_set = file_set_fixture(derivatives: %{playlist: "test.m3u8"})
+      file_set = file_set_fixture()
 
       with url <- file_set |> FileSets.poster_uri_for() do
         assert url |> String.starts_with?("s3://test-pyramids/posters/")

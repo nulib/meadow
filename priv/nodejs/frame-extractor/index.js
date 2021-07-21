@@ -14,6 +14,8 @@ const extractFrame = async (source, destination, offset) => {
   return new Promise((resolve, reject) => {
     try {
       let uri = URI.parse(source);
+      console.log("S3 KEY:", getS3Key(uri));
+      console.log("BUCKET:", uri.host);
 
       let readStream = s3
         .getObject({ Bucket: uri.host, Key: getS3Key(uri) })
@@ -33,6 +35,9 @@ const extractFrame = async (source, destination, offset) => {
       const uploadToS3 = (data, destination) => {
         return new Promise((resolve, reject) => {
           let uri = URI.parse(destination);
+
+          console.log("S3 KEY 2:", getS3Key(uri));
+          console.log("BUCKET 2:", uri.host);
 
           s3.upload(
             { Bucket: uri.host, Key: getS3Key(uri), Body: data },
