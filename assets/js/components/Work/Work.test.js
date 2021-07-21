@@ -11,6 +11,7 @@ import {
   getCollectionMock,
   getCollectionsMock,
 } from "@js/components/Collection/collection.gql.mock";
+import { WorkProvider } from "@js/context/work-context";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -29,7 +30,12 @@ jest.mock("@js/services/get-manifest");
 
 describe("Work component", () => {
   beforeEach(() => {
-    renderWithRouterApollo(<Work work={mockWork} />, { mocks });
+    renderWithRouterApollo(
+      <WorkProvider>
+        <Work work={mockWork} />
+      </WorkProvider>,
+      { mocks }
+    );
   });
 
   it("renders without crashing", async () => {

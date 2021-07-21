@@ -63,6 +63,19 @@ config :meadow, :lambda,
   mime_type: {:local, {"nodejs/mime-type/index.js", "handler"}},
   tiff: {:local, {"nodejs/pyramid-tiff/index.js", "handler"}}
 
+config :meadow,
+  transcoding_presets: %{
+    audio: [
+      %{NameModifier: "-high", Preset: "meadow-audio-high"},
+      %{NameModifier: "-medium", Preset: "meadow-audio-medium"}
+    ],
+    video: [
+      %{NameModifier: "-1080", Preset: "System-Avc_16x9_1080p_29_97fps_8500kbps"},
+      %{NameModifier: "-720", Preset: "System-Avc_16x9_720p_29_97fps_5000kbps"},
+      %{NameModifier: "-540", Preset: "System-Avc_16x9_540p_29_97fps_3500kbps"}
+    ]
+  }
+
 # Configures the pyramid TIFF processor
 with val <- System.get_env("PYRAMID_PROCESSOR") do
   unless is_nil(val), do: config(:meadow, pyramid_processor: val)

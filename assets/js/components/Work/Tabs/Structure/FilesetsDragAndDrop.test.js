@@ -3,6 +3,7 @@ import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { render, screen } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
 import userEvent from "@testing-library/user-event";
+import { WorkProvider } from "@js/context/work-context";
 
 const mockHandleCancelFn = jest.fn();
 const mockHandleSaveFn = jest.fn();
@@ -10,11 +11,13 @@ const mockHandleSaveFn = jest.fn();
 describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
   beforeEach(() => {
     render(
-      <WorkTabsStructureFilesetsDragAndDrop
-        fileSets={mockFileSets}
-        handleCancelReorder={mockHandleCancelFn}
-        handleSaveReorder={mockHandleSaveFn}
-      />
+      <WorkProvider>
+        <WorkTabsStructureFilesetsDragAndDrop
+          fileSets={mockFileSets}
+          handleCancelReorder={mockHandleCancelFn}
+          handleSaveReorder={mockHandleSaveFn}
+        />
+      </WorkProvider>
     );
   });
 

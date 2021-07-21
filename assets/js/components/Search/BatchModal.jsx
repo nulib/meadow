@@ -11,7 +11,7 @@ function SearchBatchModal({ children, handleCloseClick, isOpen }) {
       <div className="modal-background"></div>
       <div className="modal-card">
         <header className="modal-card-head">
-          <p className="modal-card-title">Batch update options</p>
+          <p className="modal-card-title">Bulk actions</p>
           <button
             className="delete"
             aria-label="close"

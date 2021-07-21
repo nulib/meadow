@@ -1,6 +1,7 @@
 defmodule Meadow.Repo.Migrations.CreateDependencyTriggers do
   use Ecto.Migration
-  use Meadow.Utils.DependencyTriggers
+
+  import Meadow.Utils.DependencyTriggers.ForEachRow
 
   def up do
     create_dependency_trigger(:ingest_sheets, :works, [:title])

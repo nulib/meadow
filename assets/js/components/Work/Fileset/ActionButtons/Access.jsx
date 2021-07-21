@@ -5,12 +5,26 @@ import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { IconDownload } from "@js/components/Icon";
 import { ImageDownloader } from "@samvera/image-downloader";
+import { useWorkDispatch } from "@js/context/work-context";
+import useFileSet from "@js/hooks/useFileSet";
 
-function MediaButtons() {
+function MediaButtons({ fileSet }) {
+  const { getWebVttString } = useFileSet();
+  const dispatch = useWorkDispatch();
   return (
     <div className="buttons is-flex is-justify-content-flex-end">
       <Button>Download media file</Button>
-      <Button>Add structure (vtt)</Button>
+      <Button
+        onClick={() =>
+          dispatch({
+            type: "toggleWebVttModal",
+            fileSetId: fileSet?.id,
+            webVttString: getWebVttString(fileSet),
+          })
+        }
+      >
+        Edit structure (vtt)
+      </Button>
     </div>
   );
 }
@@ -52,7 +66,7 @@ const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
     return <ImageButtons iiifServerUrl={iiifServerUrl} fileSet={fileSet} />;
   }
   if (!isImageType) {
-    return <MediaButtons />;
+    return <MediaButtons fileSet={fileSet} />;
   }
 };
 

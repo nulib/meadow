@@ -89,6 +89,14 @@ resource "aws_s3_bucket" "meadow_streaming" {
   bucket = "${var.stack_name}-${var.environment}-streaming"
   acl    = "private"
   tags   = var.tags
+
+  cors_rule {
+    allowed_headers = ["Authorization", "Access-Control-Allow-Origin"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["*.northwestern.edu"]
+    expose_headers  = []
+    max_age_seconds = 3000
+  }
 }
 
 data "aws_s3_bucket" "pyramid_bucket" {
@@ -362,15 +370,15 @@ resource "aws_iam_role" "transcode_role" {
 
 data "aws_iam_policy_document" "pass_transcode_role" {
   statement {
-    effect = "Allow"
-    actions = ["iam:PassRole"]
+    effect    = "Allow"
+    actions   = ["iam:PassRole"]
     resources = [aws_iam_role.transcode_role.arn]
   }
 
   statement {
     effect = "Allow"
     actions = [
-      "mediaconvert:CreateJob", 
+      "mediaconvert:CreateJob",
       "mediaconvert:DescribeEndpoints"
     ]
     resources = ["*"]
@@ -378,7 +386,7 @@ data "aws_iam_policy_document" "pass_transcode_role" {
 }
 
 resource "aws_iam_policy" "allow_transcode" {
-  name = "${var.stack_name}-mediaconvert-access"
+  name   = "${var.stack_name}-mediaconvert-access"
   policy = data.aws_iam_policy_document.pass_transcode_role.json
 }
 
@@ -419,6 +427,65 @@ data "aws_iam_policy_document" "meadow_streaming_bucket_policy" {
   }
 }
 
+resource "aws_wafv2_regex_pattern_set" "meadow_streaming" {
+  name        = "${var.stack_name}-streaming-allowed-referer-patterns"
+  description = "Pattern set to match to Meadow and DC domains"
+  scope       = "CLOUDFRONT"
+  regular_expression {
+    regex_string = "(devbox|digitalcollections|meadow|dc)\\.(rdc(-staging)?\\.)?library\\.northwestern\\.edu(:3001)?"
+  }
+  tags = var.tags
+
+}
+
+resource "aws_wafv2_web_acl" "meadow_streaming" {
+  name        = "${var.stack_name}-streaming-web-acl"
+  description = "Only allow requests for video from Meadow or DC."
+  scope       = "CLOUDFRONT"
+
+  default_action {
+    block {}
+  }
+
+  rule {
+    name     = "meadow-referer-match-rule"
+    priority = 0
+
+    action {
+      allow {}
+    }
+
+    statement {
+      regex_pattern_set_reference_statement {
+        arn = aws_wafv2_regex_pattern_set.meadow_streaming.arn
+        field_to_match {
+          single_header {
+            name = "referer"
+          }
+        }
+        text_transformation {
+          priority = 1
+          type     = "NONE"
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = false
+      metric_name                = "${var.stack_name}-video-streaming-rule-metric"
+      sampled_requests_enabled   = false
+    }
+  }
+
+  tags = var.tags
+
+  visibility_config {
+    cloudwatch_metrics_enabled = false
+    metric_name                = "${var.stack_name}-video-streaming-web-acl-metric"
+    sampled_requests_enabled   = false
+  }
+}
+
 resource "aws_s3_bucket_policy" "allow_cloudfront_streaming_access" {
   bucket = aws_s3_bucket.meadow_streaming.id
   policy = data.aws_iam_policy_document.meadow_streaming_bucket_policy.json
@@ -430,6 +497,7 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
   retain_on_delete = true
   aliases          = ["${var.stack_name}-streaming.${var.dns_zone}"]
   price_class      = "PriceClass_100"
+  web_acl_id       = aws_wafv2_web_acl.meadow_streaming.arn
 
   origin {
     domain_name = aws_s3_bucket.meadow_streaming.bucket_domain_name
@@ -469,7 +537,6 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
     ssl_support_method             = "sni-only"
   }
 }
-
 resource "aws_route53_record" "meadow_streaming_cloudfront" {
   zone_id = data.aws_route53_zone.app_zone.zone_id
   name    = "${var.stack_name}-streaming"

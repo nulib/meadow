@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSetStructuralMetadata do
 
   def up do
     alter table("file_sets"), do: add :structural_metadata, :map, default: %{}
-    create_notification_trigger(:file_sets, ["structural_metadata"])
+    create_notification_trigger(:row, :file_sets, ["structural_metadata"])
   end
 
   def down do

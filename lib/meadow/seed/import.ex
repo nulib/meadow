@@ -88,6 +88,28 @@ defmodule Meadow.Seed.Import do
     StreamUtil.copy(source, dest)
   end
 
+  def disable_triggers do
+    Logger.info("Disabling triggers")
+
+    @import_tables
+    |> Enum.each(fn {_name, schema} ->
+      with table_name <- schema.__schema__(:source) do
+        SQL.query!(Repo, "ALTER TABLE #{table_name} DISABLE TRIGGER ALL")
+      end
+    end)
+  end
+
+  def enable_triggers do
+    Logger.info("Enabling triggers")
+
+    @import_tables
+    |> Enum.each(fn {_name, schema} ->
+      with table_name <- schema.__schema__(:source) do
+        SQL.query!(Repo, "ALTER TABLE #{table_name} ENABLE TRIGGER ALL")
+      end
+    end)
+  end
+
   def import(prefix) do
     manifest =
       StreamUtil.stream_from(Path.join(prefix, "manifest.json"))
@@ -97,20 +119,32 @@ defmodule Meadow.Seed.Import do
     database_version = manifest |> Map.get(:last_migration_version)
 
     Migration.with_database_version(database_version, fn ->
+      disable_triggers()
+
       @import_tables
       |> Enum.each(fn {name, schema} ->
         Logger.info("Importing #{name} into #{schema}")
         load(schema, Path.join([prefix, to_string(name)]) <> ".csv")
       end)
+
+      enable_triggers()
     end)
 
+    disable_triggers()
+    Logger.info("Setting default images on works")
     ensure_representative_images()
+    Logger.info("Fixing file set preservation locations")
     fix_file_set_preservation_locations()
+    enable_triggers()
 
-    Works.list_works()
-    |> Enum.each(fn %{id: work_id} ->
-      Logger.info("Writing manifest for #{work_id}")
-      IIIF.write_manifest(work_id)
+    Repo.transaction(fn ->
+      from(w in Work, select: %{id: w.id})
+      |> Repo.stream()
+      |> Stream.each(fn %{id: work_id} ->
+        Logger.info("Writing manifest for #{work_id}")
+        IIIF.write_manifest(work_id)
+      end)
+      |> Stream.run()
     end)
 
     Logger.info("Synchronizing index")

@@ -183,6 +183,7 @@ defmodule Meadow.Data.FileSets do
   Get the pyramid path for a file set
   """
   def pyramid_uri_for(%FileSet{role: %{id: "P"}}), do: nil
+  def pyramid_uri_for(%FileSet{role: %{id: "S"}}), do: nil
   def pyramid_uri_for(%FileSet{} = file_set), do: pyramid_uri_for(file_set.id)
 
   def pyramid_uri_for(file_set_id) do

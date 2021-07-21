@@ -16,6 +16,7 @@ import { Button, Notification } from "@nulib/admin-react-components";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
+import useFileSet from "@js/hooks/useFileSet";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -33,6 +34,7 @@ const WorkTabsStructure = ({ work }) => {
   );
   const [isReordering, setIsReordering] = useState();
   const [error, setError] = React.useState();
+  const { filterFileSets } = useFileSet();
 
   const methods = useForm();
 
@@ -94,14 +96,6 @@ const WorkTabsStructure = ({ work }) => {
 
     setWorkImageFilesetId(id === workImageFilesetId ? null : id);
     setWorkImage({ variables: { fileSetId: id, workId: work.id } });
-  };
-
-  const filterFilesets = (fileSets) => {
-    const returnObj = {
-      access: fileSets.filter((fs) => fs.role.id === "A"),
-      auxillary: fileSets.filter((fs) => fs.role.id === "X"),
-    };
-    return returnObj;
   };
 
   const filterDraggableFilesets = (fileSets) => {
@@ -190,11 +184,10 @@ const WorkTabsStructure = ({ work }) => {
             />
           ) : (
             <WorkFilesetList
-              fileSets={filterFilesets(work.fileSets)}
+              fileSets={filterFileSets(work.fileSets)}
               handleWorkImageChange={handleWorkImageChange}
               isEditing={isEditing}
               workImageFilesetId={workImageFilesetId}
-              workType={work.workType?.id}
             />
           )}
         </div>

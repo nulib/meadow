@@ -6,6 +6,7 @@ defmodule Meadow.IIIF.ManifestListener do
   use Meadow.Utils.Logging
   require Logger
 
+  alias Meadow.Data.Works
   alias Meadow.IIIF
 
   @impl true
@@ -13,8 +14,13 @@ defmodule Meadow.IIIF.ManifestListener do
 
   def handle_notification(:works, _op, %{id: id}, state) do
     with_log_metadata module: __MODULE__, id: id do
-      Logger.info("Writing manifest for #{id}")
-      id |> IIIF.write_manifest()
+      case Works.get_work!(id) do
+        %{work_type: %{id: "IMAGE"}} ->
+          Logger.info("Writing manifest for #{id}")
+          id |> IIIF.write_manifest()
+        _ -> Logger.info("Skipping manifest writing for non-image work #{id}")
+      end
+
     end
 
     {:noreply, state}

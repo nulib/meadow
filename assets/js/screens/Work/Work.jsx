@@ -29,6 +29,7 @@ import classNames from "classnames";
 import { isMobile } from "react-device-detect";
 import useGTM from "@js/hooks/useGTM";
 import { Helmet } from "react-helmet";
+import { WorkProvider } from "@js/context/work-context";
 
 const ScreensWork = () => {
   const params = useParams();
@@ -257,7 +258,9 @@ const ScreensWork = () => {
         <UISkeleton rows={20} />
       ) : (
         <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-          <Work work={data.work} />
+          <WorkProvider>
+            <Work work={data.work} />
+          </WorkProvider>
         </ErrorBoundary>
       )}
     </Layout>

@@ -9,7 +9,7 @@ defmodule Meadow.Ingest.WorkCreator do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest.{Progress, Rows}
+  alias Meadow.Ingest.{Progress, Rows, Sheets}
   alias Meadow.Ingest.Schemas.Row
   alias Meadow.IntervalTask
   alias Meadow.Pipeline
@@ -106,6 +106,9 @@ defmodule Meadow.Ingest.WorkCreator do
           file_path = Row.field_value(row, :filename)
           location = "s3://#{ingest_bucket}/#{file_path}"
 
+          structure_attributes =
+            structure_attributes(Row.field_value(row, :structure), ingest_sheet)
+
           %{
             accession_number: row |> Row.field_value(:file_accession_number),
             role: %{scheme: "file_set_role", id: row |> Row.field_value(:role)},
@@ -114,7 +117,8 @@ defmodule Meadow.Ingest.WorkCreator do
               location: location,
               original_filename: Path.basename(file_path),
               label: row |> Row.field_value(:label)
-            }
+            },
+            structural_metadata: structure_attributes
           }
         end),
       ingest_sheet_id: ingest_sheet.id,
@@ -146,6 +150,27 @@ defmodule Meadow.Ingest.WorkCreator do
         end)
 
         create_changeset_errors(changeset, file_set_rows)
+    end
+  end
+
+  defp structure_attributes("", _sheet), do: %{type: nil, value: nil}
+
+  defp structure_attributes(path, sheet) do
+    sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
+
+    case Meadow.Config.ingest_bucket()
+         |> ExAws.S3.get_object("#{sheet_with_project.project.folder}/#{path}")
+         |> ExAws.request() do
+      {:ok, vtt} ->
+        %{type: "webvtt", value: vtt.body}
+
+      {:error, {:http_error, 404, _}} ->
+        Logger.error(".vtt file not found at #{sheet_with_project.project.folder}/#{path}")
+        %{type: nil, value: nil}
+
+      {:error, other} ->
+        Logger.error(inspect(other))
+        %{type: nil, value: nil}
     end
   end
 

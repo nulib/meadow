@@ -154,6 +154,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
   end
 
   defp validate_pyramid_present(%{role: %{id: "P"}}), do: "N/A"
+  defp validate_pyramid_present(%{role: %{id: "S"}}), do: "N/A"
 
   defp validate_pyramid_present(file_set) do
     Meadow.Utils.Stream.exists?(FileSets.pyramid_uri_for(file_set))

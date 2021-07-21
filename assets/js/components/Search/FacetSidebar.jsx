@@ -133,6 +133,7 @@ export default function SearchFacetSidebar() {
     defaultQuery: () => allImagesQuery,
     placeholder: "Filter",
     showFilter: true,
+    sortBy: "asc",
     URLParams: true,
   };
 

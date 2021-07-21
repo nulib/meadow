@@ -74,7 +74,7 @@ export default function SearchActionRow({
             disabled={selectedItems.length > 0}
             data-testid="button-select-all"
           >
-            <span>Select All</span>
+            <span>View bulk actions (all works)</span>
           </Button>
         </p>
         <p className="control">
@@ -85,8 +85,12 @@ export default function SearchActionRow({
             onClick={() => setIsModalItemsOpen(!isModalItemsOpen)}
           >
             <span>
-              Edit {selectedItems.length}{" "}
-              {inflect("Work", selectedItems.length)}
+              {selectedItems.length > 0
+                ? `View bulk actions (${selectedItems.length} ${inflect(
+                    "work",
+                    selectedItems.length
+                  )})`
+                : "View bulk actions (selected works)"}
             </span>
           </Button>
         </p>

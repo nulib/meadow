@@ -42,7 +42,7 @@ defmodule Meadow.DatabaseNotification do
 
     def up do
       # to be notified of all changes
-      create_notification_trigger(:my_table)
+      create_notification_trigger(:my_table, :all)
 
       # to be notified of changes to specific fields
       create_notification_trigger(:my_table, ["specific", "fields"])
@@ -98,13 +98,19 @@ defmodule Meadow.DatabaseNotification do
           @impl GenServer
           def handle_info({:notification, _pid, _ref, message, payload}, state) do
             with data <- Jason.decode!(payload, keys: :atoms) do
-              {:noreply, state} =
-                handle_notification(
-                  unquote(table),
-                  Map.get(data, :operation) |> String.downcase() |> String.to_atom(),
-                  Map.get(data, :key, nil),
-                  state
-                )
+              state =
+                Map.get(data, :ids)
+                |> Enum.reduce(state, fn id, new_state ->
+                  {:noreply, new_state} =
+                    handle_notification(
+                      unquote(table),
+                      Map.get(data, :operation) |> String.downcase() |> String.to_atom(),
+                      %{id: id},
+                      new_state
+                    )
+
+                  new_state
+                end)
             end
 
             {:noreply, state}
@@ -121,8 +127,13 @@ defmodule Meadow.DatabaseNotification do
     end
   end
 
-  def create_notification_trigger(table, fields \\ []) do
-    condition = field_condition(fields)
+  def create_notification_trigger(table, fields),
+    do: create_notification_trigger(:statement, table, fields)
+
+  def create_notification_trigger(level, table, fields)
+
+  def create_notification_trigger(:row, table, fields) do
+    condition = field_condition(fields, {"NEW", "OLD"})
 
     Ecto.Migration.execute("""
       CREATE OR REPLACE FUNCTION notify_#{table}_changed()
@@ -179,20 +190,89 @@ defmodule Meadow.DatabaseNotification do
     """)
   end
 
+  def create_notification_trigger(:statement, table, fields) do
+    condition = field_condition(fields)
+
+    Ecto.Migration.execute("""
+      CREATE OR REPLACE FUNCTION notify_#{table}_changed()
+      RETURNS trigger AS $$
+      DECLARE
+        ids UUID[];
+        payload TEXT;
+      BEGIN
+        CASE TG_OP
+          WHEN 'INSERT' THEN
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT id, '#{table}' FROM new_table);
+          WHEN 'UPDATE' THEN
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT new_table.id, '#{table}'
+              FROM new_table
+              JOIN old_table
+              ON new_table.id = old_table.id
+              AND (#{condition}));
+          WHEN 'DELETE' THEN
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT id, '#{table}' FROM old_table);
+          END CASE;
+
+        SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications LIMIT 100) AS notification_ids;
+        WHILE array_length(ids, 1) > 0 LOOP
+          SELECT json_build_object('operation', TG_OP, 'ids', ids)::text INTO payload;
+          RAISE NOTICE 'Sending payload: %', payload;
+          PERFORM pg_notify('#{table}_changed', payload);
+          DELETE FROM notifications WHERE id = ANY(ids);
+          SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications LIMIT 100) AS notification_ids;
+        END LOOP;
+        DROP TABLE notifications;
+        RETURN NULL;
+      END;
+      $$ LANGUAGE plpgsql;
+    """)
+
+    Ecto.Migration.execute("""
+      CREATE TRIGGER #{table}_changed_insert
+        AFTER INSERT ON #{table}
+        REFERENCING NEW TABLE AS new_table
+        FOR EACH STATEMENT
+        EXECUTE PROCEDURE notify_#{table}_changed()
+    """)
+
+    Ecto.Migration.execute("""
+      CREATE TRIGGER #{table}_changed_update
+        AFTER UPDATE ON #{table}
+        REFERENCING OLD TABLE AS old_table NEW TABLE AS new_table
+        FOR EACH STATEMENT
+        EXECUTE PROCEDURE notify_#{table}_changed()
+    """)
+
+    Ecto.Migration.execute("""
+      CREATE TRIGGER #{table}_changed_delete
+        AFTER DELETE ON #{table}
+        REFERENCING OLD TABLE AS old_table
+        FOR EACH STATEMENT
+        EXECUTE PROCEDURE notify_#{table}_changed()
+    """)
+  end
+
   def drop_notification_trigger(table) do
     Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed ON #{table}")
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed_insert ON #{table}")
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed_update ON #{table}")
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed_delete ON #{table}")
     Ecto.Migration.execute("DROP FUNCTION IF EXISTS notify_#{table}_changed")
   end
 
-  defp field_condition([]), do: "true"
+  defp field_condition(fields, new_old_table_names \\ {"new_table", "old_table"})
 
-  defp field_condition(fields) do
+  defp field_condition(:all, _), do: "true"
+
+  defp field_condition([], _), do: "true"
+
+  defp field_condition(fields, {new, old}) do
     fields
     |> Enum.flat_map(
       &[
-        "(NEW.#{&1} <> OLD.#{&1})",
-        "(NEW.#{&1} IS NULL AND OLD.#{&1} IS NOT NULL)",
-        "(NEW.#{&1} IS NOT NULL AND OLD.#{&1} IS NULL)"
+        "(#{new}.#{&1} <> #{old}.#{&1})",
+        "(#{new}.#{&1} IS NULL AND #{old}.#{&1} IS NOT NULL)",
+        "(#{new}.#{&1} IS NOT NULL AND #{old}.#{&1} IS NULL)"
       ]
     )
     |> Enum.join(" OR ")

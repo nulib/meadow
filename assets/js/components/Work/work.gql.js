@@ -208,10 +208,6 @@ export const GET_WORK = gql`
       }
       fileSets {
         id
-        role {
-          id
-          label
-        }
         accessionNumber
         coreMetadata {
           description
@@ -223,6 +219,15 @@ export const GET_WORK = gql`
         }
         extractedMetadata
         insertedAt
+        role {
+          id
+          label
+        }
+        streamingUrl
+        structuralMetadata {
+          type
+          value
+        }
         updatedAt
       }
       ingestSheet {
@@ -469,6 +474,22 @@ export const INGEST_FILE_SET = gql`
 export const UPDATE_ACCESS_MASTER_ORDER = gql`
   mutation UpdateAccessMasterOrder($workId: ID!, $fileSetIds: [ID]) {
     updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_FILE_SET = gql`
+  mutation UpdateFileSet(
+    $id: ID!
+    $coreMetadata: FileSetCoreMetadataUpdate
+    $structuralMetadata: FileSetStructuralMetadataInput
+  ) {
+    updateFileSet(
+      id: $id
+      coreMetadata: $coreMetadata
+      structuralMetadata: $structuralMetadata
+    ) {
       id
     }
   }

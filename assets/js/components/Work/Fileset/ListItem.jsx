@@ -7,6 +7,10 @@ import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionBu
 import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import useFileSet from "@js/hooks/useFileSet";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+import { Button, Tag } from "@nulib/admin-react-components";
+import { IconPlay } from "@js/components/Icon";
 
 function WorkFilesetListItem({
   fileSet,
@@ -16,6 +20,13 @@ function WorkFilesetListItem({
 }) {
   const iiifServerUrl = useContext(IIIFContext);
   const { id, coreMetadata } = fileSet;
+  const dispatch = useWorkDispatch();
+  const { isMedia } = useFileSet();
+  const workContextState = useWorkState();
+
+  // Helper for media type file sets
+  const isCurrentStateFileSet =
+    workContextState?.activeMediaFileSet?.id === fileSet?.id;
 
   // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
   const [imgState, setImgState] = React.useState({
@@ -27,7 +38,9 @@ function WorkFilesetListItem({
     if (!imgState.errored) {
       setImgState({
         errored: true,
-        src: "/images/placeholder.png",
+        src: isMedia(fileSet)
+          ? "/images/video-placeholder.png"
+          : "/images/placeholder.png",
       });
     }
   };
@@ -44,8 +57,30 @@ function WorkFilesetListItem({
               onError={handleError}
             />
           </figure>
+          {isMedia(fileSet) && (
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "updateActiveMediaFileSet",
+                  fileSet,
+                })
+              }
+              className="is-small is-fullwidth mt-2"
+            >
+              <span className="icon">
+                <IconPlay />
+              </span>
+              <span>Play</span>
+            </Button>
+          )}
         </div>
         <div className="column">
+          {isMedia(fileSet) && isCurrentStateFileSet && (
+            <span className="mb-4 is-inline-block">
+              <Tag isInfo>Now Playing</Tag>
+            </span>
+          )}
+
           <UIFormField label="Label">
             {isEditing ? (
               <UIFormInput
@@ -77,25 +112,29 @@ function WorkFilesetListItem({
             )}
           </UIFormField>
         </div>
-        <div className="column is-3 has-text-right is-clearfix">
+        <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <AuthDisplayAuthorized>
-                <div className="field">
-                  <input
-                    id={`checkbox-work-switch-${id}`}
-                    type="checkbox"
-                    name={`checkbox-work-switch-${id}`}
-                    className="switch"
-                    checked={workImageFilesetId === id}
-                    onChange={() => handleWorkImageChange(id)}
-                    data-testid="work-image-selector"
-                  />
-                  <label htmlFor={`checkbox-work-switch-${id}`}>
-                    Work image
-                  </label>
-                </div>
-              </AuthDisplayAuthorized>
+              {/* Only display representative image toggle for Image file sets */}
+              {/* Its assumed media files will only have placeholder thumbnails for now */}
+              {!isMedia(fileSet) && (
+                <AuthDisplayAuthorized>
+                  <div className="field">
+                    <input
+                      id={`checkbox-work-switch-${id}`}
+                      type="checkbox"
+                      name={`checkbox-work-switch-${id}`}
+                      className="switch"
+                      checked={workImageFilesetId === id}
+                      onChange={() => handleWorkImageChange(id)}
+                      data-testid="work-image-selector"
+                    />
+                    <label htmlFor={`checkbox-work-switch-${id}`}>
+                      Work image
+                    </label>
+                  </div>
+                </AuthDisplayAuthorized>
+              )}
 
               {fileSet.role.id === "A" && (
                 <WorkFilesetActionButtonsAccess fileSet={fileSet} />

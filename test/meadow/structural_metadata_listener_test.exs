@@ -35,6 +35,15 @@ defmodule Meadow.StructuralMetadataListenerTest do
       assert object_exists?(@streaming_bucket, location)
       assert object_size(@streaming_bucket, location) == byte_size(@vtt)
     end
+
+    test "when file set is created" do
+      file_set = file_set_fixture(%{structural_metadata: %{type: "webvtt", value: @vtt}})
+      StructuralMetadataListener.handle_notification(:file_sets, :create, %{id: file_set.id}, nil)
+      location = Path.join(Pairtree.generate!(file_set.id), file_set.id <> ".vtt")
+
+      assert object_exists?(@streaming_bucket, location)
+      assert object_size(@streaming_bucket, location) == byte_size(@vtt)
+    end
   end
 
   describe "delete structural metadata file" do

@@ -1,6 +1,9 @@
 defmodule Meadow.IIIF.ManifestListenerTest do
   use Meadow.DataCase
   use Meadow.S3Case
+
+  import ExUnit.CaptureLog
+
   alias Meadow.Config
   alias Meadow.IIIF.ManifestListener
   alias Meadow.Utils.Pairtree
@@ -11,7 +14,8 @@ defmodule Meadow.IIIF.ManifestListenerTest do
     test "writes a manifest to S3 when it receives a Postgres INSERT/UPDATE notification" do
       work = work_fixture()
       destination = Pairtree.manifest_key(work.id)
-      ManifestListener.handle_notification(:works, :insert, %{id: work.id}, nil)
+      assert capture_log(fn -> ManifestListener.handle_notification(:works, :insert, %{id: work.id}, nil) end)
+               |> String.contains?("Writing manifest for #{work.id}")
 
       assert(object_exists?(@pyramid_bucket, destination))
 
@@ -28,6 +32,13 @@ defmodule Meadow.IIIF.ManifestListenerTest do
       work = work_fixture()
       Repo.delete(work)
       ManifestListener.handle_notification(:works, :delete, %{id: work.id}, nil)
+    end
+
+    test "only writes manifests for the image work type" do
+      work = work_fixture(%{work_type: %{id: "VIDEO", scheme: "work_type"}})
+
+      assert capture_log(fn -> ManifestListener.handle_notification(:works, :insert, %{id: work.id}, nil) end)
+               |> String.contains?("Skipping manifest writing for non-image work #{work.id}")
     end
   end
 end
