@@ -3,7 +3,8 @@ const s3 = new AWS.S3();
 const ffmpeg = require("fluent-ffmpeg");
 const concat = require("concat-stream");
 const URI = require("uri-js");
-const M3U8FileParser = require('m3u8-file-parser');
+const M3U8FileParser = require("m3u8-file-parser");
+const path = require("path");
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
@@ -23,19 +24,24 @@ const extractFrame = async (source, destination, offset) => {
         .on("error", (error) => console.error(error));
 
       if (key.endsWith(".m3u8")) {
-        const reader = new M3U8FileParser();
-        const readline = require('readline');
-      
-        const interface = readline.createInterface({ input: readStream });
-        interface.on('line', line => {
-          reader.read(line);
-        });
-        interface.on('close', () => {
-          const result = reader.getResult();
-          console.log("DURATION: ", result.targetDuration);
-          console.log("SEGMENTS: ", result.segments.length);
-          reader.reset();
-        });
+        let playlistStream = s3
+          .getObject({ Bucket: uri.host, Key: key })
+          .createReadStream()
+          .on("error", (error) => console.error(error));
+
+        parsePlaylist(playlistStream, offset, key).then(
+          ({ location, segmentOffset }) => {
+            console.log("location1: ", location);
+            console.log("segmentOffset1: ", segmentOffset);
+
+            offset = segmentOffset;
+
+            readStream = s3
+              .getObject({ Bucket: uri.host, Key: location })
+              .createReadStream()
+              .on("error", (error) => console.error(error));
+          }
+        );
       }
 
       let ffmpegProcess = new ffmpeg(readStream)
@@ -72,7 +78,40 @@ const extractFrame = async (source, destination, offset) => {
   });
 };
 
-const parsePlaylist = (input, offset) => {
+const parsePlaylist = (input, offset, key) => {
+  const reader = new M3U8FileParser();
+
+  try {
+    const readline = require("readline");
+    let location = "";
+    let segmentOffset = "";
+    return new Promise((resolve, reject) => {
+      const interface = readline.createInterface({ input: input });
+      interface.on("line", (line) => {
+        reader.read(line);
+      });
+      interface.on("close", () => {
+        const result = reader.getResult();
+
+        let elapsed = 0.0;
+        for (segment of result.segments) {
+          const duration = segment.inf.duration * 1000;
+
+          if (elapsed + duration > offset) {
+            location = path.parse(key).dir + "/" + segment.url;
+            segmentOffset = offset - elapsed;
+            console.log("location2: ", location);
+            console.log("segmentOffset2: ", segmentOffset);
+            break;
+          }
+          elapsed += duration;
+        }
+        resolve({ location: location, segmentOffset: segmentOffset });
+      });
+    });
+  } finally {
+    reader.reset();
+  }
 };
 
 const getS3Key = (uri) => {
