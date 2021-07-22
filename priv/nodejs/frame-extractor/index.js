@@ -34,7 +34,6 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
       parsePlaylist(uri.host, key, off).then(
         ({ location, segmentOffset }) => {
           const segOffInSeconds = segmentOffset / 1000;
-          console.log("URI HOST: ", uri.host);
 
           let readStream = s3
             .getObject({ Bucket: uri.host, Key: location })
