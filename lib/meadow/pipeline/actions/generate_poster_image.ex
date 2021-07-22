@@ -36,24 +36,10 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     end
   end
 
-  defp process(%FileSet{core_metadata: %{location: location}} = file_set, attributes, _) do
-    Logger.info(
-      "Generating poster image for FileSet #{file_set.id} with location: #{location} and offset: #{attributes[:offset]}"
-    )
+  defp process(%FileSet{} = file_set, _attributes, _) do
+    Logger.error("FileSet #{file_set.id} has no value for playlist")
 
-    destination = FileSets.poster_uri_for(file_set)
-
-    case generate_poster(location, destination, attributes[:offset]) do
-      {:ok, _dest} ->
-        :ok
-
-      {:error, error} ->
-        {:error, error}
-    end
-  end
-
-  defp process(file_set, _attributes, _) do
-    {:error, "No video found to generate poster from file set: #{file_set.id}."}
+    {:error, "FileSet #{file_set.id} has no value for playlist"}
   end
 
   defp generate_poster(location, destination, offset) do
