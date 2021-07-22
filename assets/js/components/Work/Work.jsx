@@ -90,6 +90,7 @@ const Work = ({ work }) => {
           <div className="container">
             <MediaPlayerWrapper
               fileSet={workContextState?.activeMediaFileSet}
+              fileSets={[...filterFileSets(work.fileSets).access]}
             />
           </div>
         </section>
