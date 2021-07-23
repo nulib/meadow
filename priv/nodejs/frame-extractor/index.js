@@ -11,6 +11,9 @@ AWS.config.update({ httpOptions: { timeout: 600000 } });
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
     let source = event.source.replace(".m3u8", "-1080.m3u8");
+    console.log("SOURCE: ", source);
+    console.log("DESTINATION: ", event.destination);
+    console.log("OFFSET: ", event.offset);
     return await extractFrameFromPlaylist(
       source,
       event.destination,
@@ -44,11 +47,17 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
           let ffmpegProcess = new ffmpeg(readStream)
             .seek(segOffInSeconds)
             .outputOptions(["-vframes 1"])
-            .toFormat("image2");
+            .toFormat("image2")
+            .on('error', function(err, _stdout, _stderr) {
+              console.error('Cannot process video: ' + err.message);
+            })
+            .on('end', function(_stdout, _stderr) {
+              console.log('Transcoding succeeded !');
+            });
 
           const uploadStream = concat((data) => {
             const poster = URI.parse(destination);
-            uploadToS3(data, poster.host, poster.path)
+            uploadToS3(data, poster.host, getS3Key(poster))
               .then((result) => resolve(result))
               .catch((err) => reject(err));
           });
@@ -76,11 +85,17 @@ const extractFrameFromVideo = async (source, destination, offset) => {
         .seek(offset / 1000.0)
         .size("600x?")
         .outputOptions(["-vframes 1"])
-        .toFormat("image2");
+        .toFormat("image2")
+        .on('error', function(err, stdout, stderr) {
+          console.error('Cannot process video: ' + err.message);
+        })
+        .on('end', function(_stdout, _stderr) {
+          console.log('Transcoding succeeded !');
+        });
 
       const uploadStream = concat((data) => {
         const poster = URI.parse(destination);
-        uploadToS3(data, poster.host, poster.path)
+        uploadToS3(data, poster.host, getS3Key(poster))
           .then((result) => resolve(result))
           .catch((err) => reject(err));
       });
