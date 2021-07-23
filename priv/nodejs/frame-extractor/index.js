@@ -10,8 +10,9 @@ AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
+    let source = event.source.replace(".m3u8", "-1080.m3u8");
     return await extractFrameFromPlaylist(
-      event.source,
+      source,
       event.destination,
       event.offset
     );
@@ -46,22 +47,11 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
             .toFormat("image2");
 
           const uploadStream = concat((data) => {
-            uploadToS3(data, URI.parse(destination).host, "playlist_frame.jpg")
+            const poster = URI.parse(destination);
+            uploadToS3(data, poster.host, poster.path)
               .then((result) => resolve(result))
               .catch((err) => reject(err));
           });
-
-          const uploadToS3 = (data, bucket, key) => {
-            return new Promise((resolve, reject) => {
-              s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve(key);
-                }
-              });
-            });
-          };
 
           ffmpegProcess.pipe(uploadStream, { end: true });
         }
@@ -88,22 +78,11 @@ const extractFrameFromVideo = async (source, destination, offset) => {
         .toFormat("image2");
 
       const uploadStream = concat((data) => {
-        uploadToS3(data, URI.parse(destination).host, "frame.jpg")
+        const poster = URI.parse(destination);
+        uploadToS3(data, poster.host, poster.path)
           .then((result) => resolve(result))
           .catch((err) => reject(err));
       });
-
-      const uploadToS3 = (data, bucket, key) => {
-        return new Promise((resolve, reject) => {
-          s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(key);
-            }
-          });
-        });
-      };
 
       ffmpegProcess.pipe(uploadStream, { end: true });
     } catch (err) {
@@ -149,6 +128,18 @@ const parsePlaylist = (bucket, key, offset) => {
   } finally {
     reader.reset();
   }
+};
+
+const uploadToS3 = (data, bucket, key) => {
+  return new Promise((resolve, reject) => {
+    s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(key);
+      }
+    });
+  });
 };
 
 const getS3Key = (uri) => {
