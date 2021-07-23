@@ -29,7 +29,22 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     test "process/2", %{file_set: file_set} do
       assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 7000}) == :ok)
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
-      assert(FileSets.get_file_set!(file_set.id).derivatives["poster"] == FileSets.poster_uri_for(file_set))
+
+      assert(
+        FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
+          FileSets.poster_uri_for(file_set)
+      )
+    end
+
+    test "process/2 with offset out of range", %{file_set: file_set} do
+      assert(
+        {:error, "Offset out of range"} =
+          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 1_000_000})
+      )
+
+      assert(!object_exists?(FileSets.poster_uri_for(file_set)))
+
+      assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])
     end
   end
 
@@ -59,35 +74,19 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     test "process/2", %{file_set: file_set} do
       assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 100}) == :ok)
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
-      assert(FileSets.get_file_set!(file_set.id).derivatives["poster"] == FileSets.poster_uri_for(file_set))
-    end
-  end
 
-  describe "offset out of range" do
-    setup do
-      file_set =
-        file_set_fixture(
-          role: %{id: "A", scheme: "FILE_SET_ROLE"},
-          core_metadata: %{
-            mime_type: "video/mov",
-            location: "s3://test-ingest/small.m4v",
-            original_filename: "small.m4v"
-          },
-          derivatives: %{"playlist" => "s3://test-streaming/small.m4v"}
-        )
-
-      upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
-
-      on_exit(fn ->
-        empty_bucket("test-pyramids")
-        empty_bucket("test-streaming")
-      end)
-
-      {:ok, file_set: file_set}
+      assert(
+        FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
+          FileSets.poster_uri_for(file_set)
+      )
     end
 
-    test "process/2", %{file_set: file_set} do
-      assert({:error, _} = GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 1_000_000}))
+    test "process/2 with offset out of range", %{file_set: file_set} do
+      assert(
+        {:error, "Offset out of range"} =
+          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 1_000_000})
+      )
+
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
       assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])
     end

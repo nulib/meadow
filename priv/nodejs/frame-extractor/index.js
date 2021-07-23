@@ -30,44 +30,41 @@ const handler = async (event, _context, _callback) => {
 
 const extractFrameFromPlaylist = async (source, destination, offset) => {
   return new Promise((resolve, reject) => {
-    try {
-      let uri = URI.parse(source);
-      let key = getS3Key(uri);
-      let off = offset;
+    let uri = URI.parse(source);
+    let key = getS3Key(uri);
+    let off = offset;
 
-      parsePlaylist(uri.host, key, off).then(
-        ({ location, segmentOffset }) => {
-          const segOffInSeconds = segmentOffset / 1000;
+    parsePlaylist(uri.host, key, off)
+      .then(({ location, segmentOffset }) => {
+        const segOffInSeconds = segmentOffset / 1000;
 
-          let readStream = s3
-            .getObject({ Bucket: uri.host, Key: location })
-            .createReadStream()
-            .on("error", (error) => console.error(error));
+        let readStream = s3
+          .getObject({ Bucket: uri.host, Key: location })
+          .createReadStream()
+          .on("error", (error) => console.error(error));
 
-          let ffmpegProcess = new ffmpeg(readStream)
-            .seek(segOffInSeconds)
-            .outputOptions(["-vframes 1"])
-            .toFormat("image2")
-            .on('error', function(err, _stdout, _stderr) {
-              console.error('Cannot process video: ' + err.message);
-            })
-            .on('end', function(_stdout, _stderr) {
-              console.log('Transcoding succeeded !');
-            });
-
-          const uploadStream = concat((data) => {
-            const poster = URI.parse(destination);
-            uploadToS3(data, poster.host, getS3Key(poster))
-              .then((result) => resolve(result))
-              .catch((err) => reject(err));
+        let ffmpegProcess = new ffmpeg(readStream)
+          .seek(segOffInSeconds)
+          .outputOptions(["-vframes 1"])
+          .toFormat("image2")
+          .on("error", function (err, _stdout, _stderr) {
+            console.error("Cannot process video: " + err.message);
+          })
+          .on("end", function (_stdout, _stderr) {
+            console.log("Transcoding succeeded !");
           });
 
-          ffmpegProcess.pipe(uploadStream, { end: true });
-        }
-      );
-    } catch (err) {
-      reject(err);
-    }
+        const uploadStream = concat((data) => {
+          uploadToS3(data, destination)
+            .then((result) => resolve(result))
+            .catch((err) => reject(err));
+        });
+
+        ffmpegProcess.pipe(uploadStream, { end: true });
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 };
 
@@ -86,16 +83,15 @@ const extractFrameFromVideo = async (source, destination, offset) => {
         .size("600x?")
         .outputOptions(["-vframes 1"])
         .toFormat("image2")
-        .on('error', function(err, stdout, stderr) {
-          console.error('Cannot process video: ' + err.message);
+        .on("error", function (err, _stdout, _stderr) {
+          console.error("Cannot process video: " + err.message);
         })
-        .on('end', function(_stdout, _stderr) {
-          console.log('Transcoding succeeded !');
+        .on("end", function (_stdout, _stderr) {
+          console.log("Transcoding succeeded !");
         });
 
       const uploadStream = concat((data) => {
-        const poster = URI.parse(destination);
-        uploadToS3(data, poster.host, getS3Key(poster))
+        uploadToS3(data, destination)
           .then((result) => resolve(result))
           .catch((err) => reject(err));
       });
@@ -138,7 +134,11 @@ const parsePlaylist = (bucket, key, offset) => {
           }
           elapsed += duration;
         }
-        resolve({ location: location, segmentOffset: segmentOffset });
+        if (segmentOffset === "") {
+          return reject("Offset out of range");
+        } else {
+          resolve({ location: location, segmentOffset: segmentOffset });
+        }
       });
     });
   } finally {
@@ -146,15 +146,19 @@ const parsePlaylist = (bucket, key, offset) => {
   }
 };
 
-const uploadToS3 = (data, bucket, key) => {
+const uploadToS3 = (data, destination) => {
   return new Promise((resolve, reject) => {
-    s3.upload({ Bucket: bucket, Key: key, Body: data }, (err, _data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(`s3://${bucket}${key}`);
+    const poster = URI.parse(destination);
+    s3.upload(
+      { Bucket: poster.host, Key: getS3Key(poster), Body: data },
+      (err, _data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(destination);
+        }
       }
-    });
+    );
   });
 };
 
