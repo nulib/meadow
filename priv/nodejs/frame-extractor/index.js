@@ -74,6 +74,7 @@ const extractFrameFromVideo = async (source, destination, offset) => {
 
       let ffmpegProcess = new ffmpeg(readStream)
         .seek(offset / 1000.0)
+        .size("600x?")
         .outputOptions(["-vframes 1"])
         .toFormat("image2");
 
@@ -136,7 +137,7 @@ const uploadToS3 = (data, bucket, key) => {
       if (err) {
         reject(err);
       } else {
-        resolve(key);
+        resolve(`s3://${bucket}${key}`);
       }
     });
   });

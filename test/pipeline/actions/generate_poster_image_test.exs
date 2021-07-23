@@ -19,8 +19,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       upload_object("test-streaming", ts, File.read!("test/fixtures/test.ts"))
 
       on_exit(fn ->
-        delete_object("test-streaming", ts)
-        delete_object("test-streaming", m3u8)
+        empty_bucket("test-pyramids")
         empty_bucket("test-streaming")
       end)
 
@@ -29,6 +28,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
     test "process/2", %{file_set: file_set} do
       assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 7000}) == :ok)
+      assert(object_exists?(FileSets.poster_uri_for(file_set)))
+      assert(FileSets.get_file_set!(file_set.id).derivatives["poster"] == FileSets.poster_uri_for(file_set))
     end
   end
 
@@ -48,7 +49,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
 
       on_exit(fn ->
-        delete_object("test-streaming", "small.m4v")
+        empty_bucket("test-pyramids")
         empty_bucket("test-streaming")
       end)
 
@@ -57,6 +58,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
     test "process/2", %{file_set: file_set} do
       assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 100}) == :ok)
+      assert(object_exists?(FileSets.poster_uri_for(file_set)))
+      assert(FileSets.get_file_set!(file_set.id).derivatives["poster"] == FileSets.poster_uri_for(file_set))
     end
   end
 end

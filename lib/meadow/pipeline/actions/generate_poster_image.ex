@@ -28,7 +28,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     destination = FileSets.poster_uri_for(file_set)
 
     case generate_poster(location, destination, attributes[:offset]) do
-      {:ok, _dest} ->
+      {:ok, destination} ->
+        FileSets.update_file_set(file_set, %{derivatives: %{"poster" => destination}})
         :ok
 
       {:error, error} ->
