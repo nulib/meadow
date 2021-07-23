@@ -7,8 +7,9 @@ import { Notification } from "@nulib/admin-react-components";
 import UIIconText from "@js/components/UI/IconText";
 import { IconAlert } from "@js/components/Icon";
 const webvtt = require("node-webvtt");
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
-function MediaPlayerWrapper({ fileSet }) {
+function MediaPlayerWrapper({ fileSet, fileSets }) {
   const { getWebVttString, isEmpty } = useFileSet();
   if (isEmpty(fileSet)) return null;
 
@@ -16,6 +17,8 @@ function MediaPlayerWrapper({ fileSet }) {
   const mediaInfoTracks = getTechnicalMetadata(fileSet);
   const webVttString = getWebVttString(fileSet);
   let navCues;
+  const workState = useWorkState();
+  const dispatch = useWorkDispatch();
 
   // FileSet hasn't yet been fully ran through the pipeline
   if (!fileSet?.coreMetadata?.mimeType) {
@@ -54,20 +57,50 @@ function MediaPlayerWrapper({ fileSet }) {
     );
   }
 
+  const handleSelectChange = (e) => {
+    dispatch({
+      type: "updateActiveMediaFileSet",
+      fileSet: fileSets.find((fs) => fs.id === e.target.value),
+    });
+  };
+
   return (
-    <div>
-      <MediaPlayer
-        key={fileSet.id}
-        navCues={navCues}
-        sources={sources}
-        videoElAttrs={videoElAttrs}
-      />
-    </div>
+    <>
+      <div className="columns content">
+        <div className="column is-three-quarters">
+          <h4 className="mb-0">{fileSet.coreMetadata?.label}</h4>
+        </div>
+        <div className="column is-one-quarter">
+          <div className="select is-fullwidth">
+            <select
+              className="is-fullwidth"
+              value={workState?.activeMediaFileSet?.id}
+              onChange={handleSelectChange}
+            >
+              {fileSets.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.coreMetadata?.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div>
+        <MediaPlayer
+          key={fileSet.id}
+          navCues={navCues}
+          sources={sources}
+          videoElAttrs={videoElAttrs}
+        />
+      </div>
+    </>
   );
 }
 
 MediaPlayerWrapper.propTypes = {
   fileSet: PropTypes.object,
+  fileSets: PropTypes.array,
 };
 
 export default MediaPlayerWrapper;

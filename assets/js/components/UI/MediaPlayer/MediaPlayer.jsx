@@ -28,12 +28,12 @@ function MediaPlayer({
           {...videoElAttrs}
           {...restProps}
         >
-          {sources.map(({ src, type }) => (
+          {sources.map(({ src, type }, i) => (
             <source key={src} data-testid="source-item" src={src} type={type} />
           ))}
         </video>
-        <div className="block" className="column is-one-quarter">
-          <h3>Video nav</h3>
+        <div className="column is-one-quarter content">
+          <h5 className="is-size-6">Navigation</h5>
           <MediaPlayerNav cues={navCues} handleNavClick={handleNavClick} />
         </div>
       </div>
