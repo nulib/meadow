@@ -91,10 +91,10 @@ resource "aws_s3_bucket" "meadow_streaming" {
   tags   = var.tags
 
   cors_rule {
-    allowed_headers = ["Authorization", "Access-Control-Allow-Origin"]
-    allowed_methods = ["GET"]
-    allowed_origins = ["*.northwestern.edu"]
-    expose_headers  = []
+    allowed_headers = ["Authorization", "Access-Control-Allow-Origin", "Range", "*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["Access-Control-Allow-Origin", "Access-Control-Allow-Headers"]
     max_age_seconds = 3000
   }
 }
@@ -491,6 +491,21 @@ resource "aws_s3_bucket_policy" "allow_cloudfront_streaming_access" {
   policy = data.aws_iam_policy_document.meadow_streaming_bucket_policy.json
 }
 
+resource "aws_cloudfront_function" "meadow_streaming_cors" {
+  name = "${var.stack_name}-cors-streaming-headers"
+  runtime = "cloudfront-js-1.0"
+  publish = true
+  code = file("${path.module}/js/cors_streaming_headers.js")
+}
+
+data "aws_cloudfront_cache_policy" "caching_optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_origin_request_policy" "cors_s3_origin" {
+  name = "Managed-CORS-S3Origin"
+}
+
 resource "aws_cloudfront_distribution" "meadow_streaming" {
   enabled          = true
   is_ipv6_enabled  = true
@@ -509,20 +524,18 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
   }
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "${var.stack_name}-origin"
     viewer_protocol_policy = "allow-all"
 
-    forwarded_values {
-      cookies {
-        forward = "none"
-      }
+    cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3_origin.id
 
-      query_string = false
-      headers      = ["Origin"]
+    function_association {
+      event_type   = "viewer-response"
+      function_arn = aws_cloudfront_function.meadow_streaming_cors.arn
     }
-
   }
 
   restrictions {
