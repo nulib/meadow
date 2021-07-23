@@ -13,7 +13,7 @@ export default function WorkTagsList({ work }) {
       {work.published ? (
         <Tag isSuccess>Published</Tag>
       ) : (
-        <Tag>Not Published</Tag>
+        <Tag isWarning>Not Published</Tag>
       )}
       {work.visibility && <UIVisibilityTag visibility={work.visibility} />}
     </p>

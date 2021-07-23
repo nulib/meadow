@@ -86,7 +86,7 @@ const Work = ({ work }) => {
       )}
 
       {!isImageWorkType && (
-        <section className="section">
+        <section className="section hero is-black">
           <div className="container">
             <MediaPlayerWrapper
               fileSet={workContextState?.activeMediaFileSet}

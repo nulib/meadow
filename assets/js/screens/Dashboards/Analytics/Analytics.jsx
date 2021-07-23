@@ -34,16 +34,16 @@ export default function ScreensDashboardsAnalytics() {
               },
             ]}
           />
-          <div className="box">
-            <PageTitle data-testid="page-title">
-              <IconText icon={<IconChart />}>
-                Digital Collections Analytics
-              </IconText>
-            </PageTitle>
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+          <PageTitle data-testid="page-title">
+            <IconText icon={<IconChart />}>
+              Digital Collections Analytics
+            </IconText>
+          </PageTitle>
+          <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            <section className="box">
               <DashboardsAnalytics />
-            </ErrorBoundary>
-          </div>
+            </section>
+          </ErrorBoundary>
         </div>
       </section>
     </Layout>

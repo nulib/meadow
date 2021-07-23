@@ -33,7 +33,7 @@ function MediaPlayer({
           ))}
         </video>
         <div className="column is-one-quarter content">
-          <h5 className="is-size-6">Navigation</h5>
+          <h5 className="is-size-6 has-text-light">Navigation</h5>
           <MediaPlayerNav cues={navCues} handleNavClick={handleNavClick} />
         </div>
       </div>

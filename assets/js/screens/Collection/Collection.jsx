@@ -123,7 +123,7 @@ const ScreensCollection = () => {
             <Breadcrumbs items={getCrumbs()} />
           )}
 
-          <div className="box">
+          <div className="">
             {loading ? (
               <Skeleton rows={10} />
             ) : (
@@ -148,7 +148,9 @@ const ScreensCollection = () => {
 
                 <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
                   <CollectionTags collection={data.collection} />
-                  <Collection collection={data.collection} />
+                  <div className="box">
+                    <Collection collection={data.collection} />
+                  </div>
                 </ErrorBoundary>
               </>
             )}

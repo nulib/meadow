@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
-import UIBreadCrumbs from "@js/components/UI/Breadcrumbs";
+import { Breadcrumbs, PageTitle } from "@js/components/UI/UI";
 import DashboardsPreservationChecksList from "@js/components/Dashboards/PreservationChecks/List";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
@@ -22,7 +22,7 @@ function ScreensDashboardsPreservationChecksList(props) {
         data-testid="dashboard-preservation-checks-screen"
       >
         <div className="container">
-          <UIBreadCrumbs
+          <Breadcrumbs
             items={[
               {
                 label: "Dashboards",
@@ -35,19 +35,14 @@ function ScreensDashboardsPreservationChecksList(props) {
               },
             ]}
           />
-          <div className="box">
-            <h1
-              className="title"
-              data-testid="preservation-checks-dashboard-title"
-            >
-              <IconText icon={<IconCheck />}>
-                Preservation Check Dashboard
-              </IconText>
-            </h1>
-            <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
-              <DashboardsPreservationChecksList />
-            </ErrorBoundary>
-          </div>
+          <PageTitle data-testid="preservation-checks-dashboard-title">
+            <IconText icon={<IconCheck />}>
+              Preservation Check Dashboard
+            </IconText>
+          </PageTitle>
+          <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
+            <DashboardsPreservationChecksList />
+          </ErrorBoundary>
         </div>
       </section>
     </Layout>

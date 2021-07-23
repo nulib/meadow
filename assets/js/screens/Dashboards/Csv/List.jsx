@@ -30,12 +30,10 @@ function ScreensDashboardsCsvList() {
               },
             ]}
           />
-          <div className="box">
-            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-              <DashboardsCsvTitleBar />
-              <DashboardsCsvList />
-            </ErrorBoundary>
-          </div>
+          <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
+            <DashboardsCsvTitleBar />
+            <DashboardsCsvList />
+          </ErrorBoundary>
         </div>
       </section>
     </Layout>
