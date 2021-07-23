@@ -72,7 +72,7 @@ function DashboardsBatchEditDetails({ id }) {
       {worksUpdated && type == "UPDATE" && (
         <Link
           data-testid="button-to-search"
-          className="button"
+          className="button is-primary"
           to={{
             pathname: "/search",
             state: { passedInSearchTerm: `batches:\"${id}\"` },

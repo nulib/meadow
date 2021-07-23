@@ -33,12 +33,10 @@ function ScreensDashboardsLocalAuthoritiesList() {
               },
             ]}
           />
-          <div className="box">
-            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-              <DashboardsLocalAuthoritiesTitleBar />
-              <DashboardsLocalAuthoritiesList />
-            </ErrorBoundary>
-          </div>
+          <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
+            <DashboardsLocalAuthoritiesTitleBar />
+            <DashboardsLocalAuthoritiesList />
+          </ErrorBoundary>
         </div>
       </section>
     </Layout>

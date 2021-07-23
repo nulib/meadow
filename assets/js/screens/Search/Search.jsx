@@ -141,33 +141,31 @@ const ScreensSearch = () => {
             <SearchFacetSidebar />
           </div>
           <div className="column is-three-quarters">
-            <div className="box">
+            <PageTitle>Search</PageTitle>
+            <div className="block mb-5">
               <SearchBar />
               <div className="mt-2">
                 <SelectedFilters />
               </div>
             </div>
 
-            <div className="box pb-0">
-              <PageTitle>Search Results</PageTitle>
-              <AuthDisplayAuthorized level="EDITOR">
-                <SearchActionRow
-                  handleDeselectAll={handleDeselectAll}
-                  handleEditAllItems={handleEditAllItems}
-                  handleEditItems={handleEditItems}
-                  handleViewAndEdit={handleViewAndEdit}
-                  numberOfResults={resultStats.numberOfResults}
-                  selectedItems={selectedItems}
-                  filteredQuery={filteredQuery}
-                />
-              </AuthDisplayAuthorized>
-              <hr />
-              <ResultsDisplaySwitcher
-                isListView={isListView}
-                onGridClick={() => setIsListView(false)}
-                onListClick={() => setIsListView(true)}
+            <AuthDisplayAuthorized level="EDITOR">
+              <SearchActionRow
+                handleDeselectAll={handleDeselectAll}
+                handleEditAllItems={handleEditAllItems}
+                handleEditItems={handleEditItems}
+                handleViewAndEdit={handleViewAndEdit}
+                numberOfResults={resultStats.numberOfResults}
+                selectedItems={selectedItems}
+                filteredQuery={filteredQuery}
               />
-            </div>
+            </AuthDisplayAuthorized>
+
+            <ResultsDisplaySwitcher
+              isListView={isListView}
+              onGridClick={() => setIsListView(false)}
+              onListClick={() => setIsListView(true)}
+            />
 
             <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
               <SearchResults

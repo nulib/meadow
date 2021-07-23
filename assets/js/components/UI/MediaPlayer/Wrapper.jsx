@@ -66,26 +66,6 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
 
   return (
     <>
-      <div className="columns content">
-        <div className="column is-three-quarters">
-          <h4 className="mb-0">{fileSet.coreMetadata?.label}</h4>
-        </div>
-        <div className="column is-one-quarter">
-          <div className="select is-fullwidth">
-            <select
-              className="is-fullwidth"
-              value={workState?.activeMediaFileSet?.id}
-              onChange={handleSelectChange}
-            >
-              {fileSets.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.coreMetadata?.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
       <div>
         <MediaPlayer
           key={fileSet.id}
@@ -93,6 +73,23 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
           sources={sources}
           videoElAttrs={videoElAttrs}
         />
+      </div>
+      <div className="block content mt-4">
+        <p>
+          <strong>Select media:</strong>
+        </p>
+        <div className="select">
+          <select
+            value={workState?.activeMediaFileSet?.id}
+            onChange={handleSelectChange}
+          >
+            {fileSets.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.coreMetadata?.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </>
   );

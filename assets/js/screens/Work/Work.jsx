@@ -19,9 +19,10 @@ import { useBatchState } from "@js/context/batch-edit-context";
 import { ErrorBoundary } from "react-error-boundary";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import {
+  ActionHeadline,
   Breadcrumbs,
   FallbackErrorComponent,
-  LevelItem,
+  Message,
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
@@ -174,82 +175,66 @@ const ScreensWork = () => {
           <div className="container">
             <Breadcrumbs items={breadCrumbs} data-testid="work-breadcrumbs" />
 
-            <div className="box">
-              {loading ? (
-                <Skeleton rows={5} />
-              ) : (
-                <>
+            {loading ? (
+              <Skeleton rows={5} />
+            ) : (
+              <>
+                <ActionHeadline>
                   <PageTitle data-testid="work-page-title">
                     {data.work.descriptiveMetadata.title || "Untitled"}{" "}
                   </PageTitle>
+                  <WorkHeaderButtons
+                    handleCreateSharableBtnClick={handleCreateSharableBtnClick}
+                    handlePublishClick={handlePublishClick}
+                    published={data.work.published}
+                    hasCollection={data.work.collection ? true : false}
+                  />
+                </ActionHeadline>
 
-                  <div className="is-flex-desktop is-justify-content-space-between is-align-items-flex-start block">
-                    {data.work.collection && data.work.collection.title && (
-                      <div
-                        className={classNames({
-                          block: isMobile,
-                        })}
-                      >
-                        <span className="heading">Collection</span>
-                        <a
-                          onClick={() =>
-                            handleFacetLinkClick(
-                              "Collection",
-                              data.work.collection.title
-                            )
-                          }
-                        >
-                          {data.work.collection.title}
-                        </a>
-                      </div>
-                    )}
-                    <WorkHeaderButtons
-                      handleCreateSharableBtnClick={
-                        handleCreateSharableBtnClick
-                      }
-                      handlePublishClick={handlePublishClick}
-                      published={data.work.published}
-                      hasCollection={data.work.collection ? true : false}
+                <WorkTagsList work={data.work} />
+
+                <div className="content">
+                  {createSharedLinkData && (
+                    <WorkSharedLinkNotification
+                      linkData={createSharedLinkData.createSharedLink}
                     />
-                  </div>
+                  )}
+                  {isWorkOpen && (
+                    <WorkPublicLinkNotification workId={data.work.id} />
+                  )}
+                </div>
 
-                  <WorkTagsList work={data.work} />
-
-                  <div className="content">
-                    {createSharedLinkData && (
-                      <WorkSharedLinkNotification
-                        linkData={createSharedLinkData.createSharedLink}
-                      />
+                <Message data-testid="work-headers">
+                  <dl>
+                    <dt data-testid="work-header-id">Id</dt>
+                    <dd>{data.work.id}</dd>
+                    <dt data-testid="work-header-ark">Ark</dt>
+                    <dd>{data.work.descriptiveMetadata.ark || ""}</dd>
+                    <dt data-testid="work-header-accession-number">
+                      Accession number
+                    </dt>
+                    <dd>{data.work.accessionNumber || ""}</dd>
+                    {data.work.collection?.title && (
+                      <>
+                        <dt>Collection</dt>
+                        <dd>
+                          <a
+                            onClick={() =>
+                              handleFacetLinkClick(
+                                "Collection",
+                                data.work.collection.title
+                              )
+                            }
+                          >
+                            {data.work.collection.title}
+                          </a>
+                        </dd>
+                      </>
                     )}
-                    {isWorkOpen && (
-                      <WorkPublicLinkNotification workId={data.work.id} />
-                    )}
-
-                    <hr />
-                    <div className="level" data-testid="work-headers">
-                      <LevelItem
-                        data-testid="work-header-id"
-                        heading="Work id"
-                        content={data.work.id}
-                        contentClassname="is-size-6"
-                      />
-                      <LevelItem
-                        data-testid="work-header-ark"
-                        heading="Ark"
-                        content={data.work.descriptiveMetadata.ark || ""}
-                        contentClassname="is-size-6"
-                      />
-                      <LevelItem
-                        data-testid="work-header-accession-number"
-                        heading="Accession number"
-                        content={data.work.accessionNumber || ""}
-                        contentClassname="is-size-6"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  </dl>
+                </Message>
+              </>
+            )}
           </div>
         </section>
       </ErrorBoundary>

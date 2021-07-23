@@ -35,14 +35,12 @@ function ScreensDashboardsBatchEditList(props) {
               },
             ]}
           />
-          <div className="box">
-            <PageTitle data-testid="batch-edit-dashboard-title">
-              <IconText icon={<GrMultiple />}>Batch Edit Dashboard</IconText>
-            </PageTitle>
-            <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-              <DashboardsBatchEditList />
-            </ErrorBoundary>
-          </div>
+          <PageTitle data-testid="batch-edit-dashboard-title">
+            <IconText icon={<GrMultiple />}>Batch Edit Dashboard</IconText>
+          </PageTitle>
+          <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
+            <DashboardsBatchEditList />
+          </ErrorBoundary>
         </div>
       </section>
     </Layout>
