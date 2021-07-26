@@ -44,9 +44,4 @@ describe("UIMediaPlayer component", () => {
     expect(videoEl).toHaveAttribute("controls");
     expect(videoEl).toHaveAttribute("autoplay");
   });
-
-  it("renders source elements", () => {
-    render(<UIMediaPlayer sources={mockVideoSources} />);
-    expect(screen.getAllByTestId("source-item")).toHaveLength(3);
-  });
 });

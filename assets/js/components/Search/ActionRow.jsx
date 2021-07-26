@@ -65,11 +65,8 @@ export default function SearchActionRow({
   }
 
   return (
-    <div className="message">
-      <div
-        className="field is-grouped mb-6 message-body"
-        data-testid="search-action-row"
-      >
+    <>
+      <div className="field is-grouped mb-6" data-testid="search-action-row">
         <p className="control">
           <Button
             onClick={() => setIsModalAllItemsOpen(!isModalAllItemsOpen)}
@@ -258,7 +255,7 @@ export default function SearchActionRow({
         isOpen={isModalBatchDeleteConfirmationOpen}
         selectedItems={selectedItems}
       />
-    </div>
+    </>
   );
 }
 
