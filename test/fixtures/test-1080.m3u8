@@ -6,9 +6,9 @@
 #EXTINF:3,
 not_a_file.ts
 #EXTINF:3,
-not_a_file.ts
-#EXTINF:3,
 test.ts
+#EXTINF:3,
+not_a_file.ts
 #EXTINF:3,
 not_a_file.ts
 #EXTINF:3,

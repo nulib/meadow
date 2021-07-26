@@ -25,15 +25,33 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
       "Generating poster image for FileSet #{file_set.id}, with playlist: #{location} and offset: #{attributes[:offset]}"
     )
 
-    destination = FileSets.poster_uri_for(file_set)
+    {duration, _} =
+      Float.parse(
+        get_in(file_set.extracted_metadata["mediainfo"], [
+          "value",
+          "media",
+          "track",
+          Access.at(0),
+          "Duration"
+        ])
+      )
 
-    case generate_poster(location, destination, attributes[:offset]) do
-      {:ok, destination} ->
-        FileSets.update_file_set(file_set, %{derivatives: %{"poster" => destination}})
-        :ok
+    duration_in_milliseconds = duration * 1000
 
-      {:error, error} ->
-        {:error, error}
+    if attributes[:offset] > duration_in_milliseconds do
+      {:error,
+       "Offset #{attributes[:offset]} out of range for video duration #{duration_in_milliseconds}"}
+    else
+      destination = FileSets.poster_uri_for(file_set)
+
+      case generate_poster(location, destination, attributes[:offset]) do
+        {:ok, destination} ->
+          FileSets.update_file_set(file_set, %{derivatives: %{"poster" => destination}})
+          :ok
+
+        {:error, error} ->
+          {:error, error}
+      end
     end
   end
 

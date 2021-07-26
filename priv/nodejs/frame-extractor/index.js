@@ -11,9 +11,6 @@ AWS.config.update({ httpOptions: { timeout: 600000 } });
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
     let source = event.source.replace(".m3u8", "-1080.m3u8");
-    console.log("SOURCE: ", source);
-    console.log("DESTINATION: ", event.destination);
-    console.log("OFFSET: ", event.offset);
     return await extractFrameFromPlaylist(
       source,
       event.destination,
@@ -51,7 +48,7 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
             console.error("Cannot process video: " + err.message);
           })
           .on("end", function (_stdout, _stderr) {
-            console.log("Transcoding succeeded !");
+            console.log("Transcoding succeeded");
           });
 
         const uploadStream = concat((data) => {

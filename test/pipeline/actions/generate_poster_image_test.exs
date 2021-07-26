@@ -5,9 +5,30 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
 
+  @mediainfo %{
+    "mediainfo" => %{
+      "tool" => "mediainfo",
+      "value" => %{
+        "media" => %{
+          "track" => [
+            %{
+              "@type" => "General",
+              "Duration" => "1000.999"
+            }
+          ]
+        }
+      }
+    }
+  }
+
   describe "file set exists with a playlist uri" do
     setup do
-      file_set = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata: @mediainfo
+        )
+
       ts = "/" <> Pairtree.generate!(file_set.id) <> "/test.ts"
       m3u8 = "/" <> Pairtree.generate!(file_set.id) <> "/test-1080.m3u8"
       m3u8_uri = FileSets.streaming_uri_for(file_set.id) <> "test.m3u8"
@@ -27,7 +48,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     end
 
     test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 7000}) == :ok)
+      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 4000}) == :ok)
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
@@ -39,7 +60,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     test "process/2 with offset out of range", %{file_set: file_set} do
       assert(
         {:error, "Offset out of range"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 1_000_000})
+          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 90_000})
       )
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
@@ -58,6 +79,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
             location: "s3://test-ingest/small.m4v",
             original_filename: "small.m4v"
           },
+          extracted_metadata: @mediainfo,
           derivatives: %{"playlist" => "s3://test-streaming/small.m4v"}
         )
 
@@ -83,8 +105,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
     test "process/2 with offset out of range", %{file_set: file_set} do
       assert(
-        {:error, "Offset out of range"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 1_000_000})
+        {:error, "Offset 2000000 out of range for video duration 1000999.0"} =
+          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{offset: 2_000_000})
       )
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
