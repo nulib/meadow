@@ -4,6 +4,7 @@ import IconArrowDown from "@js/components/Icon/ArrowDown";
 import IconArrowLeft from "@js/components/Icon/ArrowLeft";
 import IconArrowRight from "@js/components/Icon/ArrowRight";
 import IconArrowUp from "@js/components/Icon/ArrowUp";
+import IconAudio from "@js/components/Icon/Audio";
 import IconBell from "@js/components/Icon/Bell";
 import IconBinaryFile from "@js/components/Icon/BinaryFile";
 import IconBucket from "@js/components/Icon/Bucket";
@@ -28,6 +29,7 @@ import IconSearch from "@js/components/Icon/Search";
 import IconSort from "@js/components/Icon/Sort";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 import IconUpload from "@js/components/Icon/Upload";
+import IconVideo from "@js/components/Icon/Video";
 import IconView from "@js/components/Icon/View";
 import IconUser from "@js/components/Icon/User";
 
@@ -38,6 +40,7 @@ export {
   IconArrowLeft,
   IconArrowRight,
   IconArrowUp,
+  IconAudio,
   IconBell,
   IconBinaryFile,
   IconBucket,
@@ -62,6 +65,7 @@ export {
   IconSort,
   IconTrashCan,
   IconUpload,
+  IconVideo,
   IconView,
   IconUser,
 };

@@ -32,11 +32,6 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
     );
   }
 
-  const sources = [
-    {
-      src: fileSet?.streamingUrl,
-    },
-  ];
   const videoElAttrs = mediaInfoTracks &&
     mediaInfoTracks[1] && {
       height: mediaInfoTracks[1].Height,
@@ -70,13 +65,13 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
         <MediaPlayer
           key={fileSet.id}
           navCues={navCues}
-          sources={sources}
+          src={fileSet?.streamingUrl}
           videoElAttrs={videoElAttrs}
         />
       </div>
       <div className="block content mt-4">
         <p>
-          <strong>Select media:</strong>
+          <strong>Attached Filesets:</strong>
         </p>
         <div className="select">
           <select
