@@ -169,7 +169,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
           >
             <div className="modal-card">
               <header className="modal-card-head">
-                <p className="modal-card-title">Add FileSet to Work</p>
+                <p className="modal-card-title">Add Fileset to Work</p>
                 <button
                   type="button"
                   className="delete"
