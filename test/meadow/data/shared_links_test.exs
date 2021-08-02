@@ -94,7 +94,7 @@ defmodule Meadow.Data.SharedLinksTest do
           case work do
             %{visibility: %{id: "OPEN"}, published: true} ->
               assert map["shared_link"] =~ ~r"/items/"
-              assert map["expires"] == ""
+              assert map["expires"] == "Never"
 
             _ ->
               assert map["shared_link"] =~ ~r"/shared/"
