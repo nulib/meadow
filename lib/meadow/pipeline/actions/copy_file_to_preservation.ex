@@ -103,7 +103,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   defp extract_error(body) do
     with error <-
            SweetXml.xmap(body, code: ~x"/Error/Code/text()", message: ~x"/Error/Message/text()") do
-      "#{error.code}: #{error.message}"
+      "#{error[:code]}: #{error[:message]}"
     end
   end
 end

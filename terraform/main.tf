@@ -78,6 +78,18 @@ resource "aws_s3_bucket" "meadow_preservation" {
     enabled = true
   }
 
+  lifecycle_rule {
+    id = "retain-on-delete"
+    enabled = true
+    
+    noncurrent_version_expiration {
+      days = var.deleted_object_expiration
+    }
+    expiration {
+      expired_object_delete_marker = true
+    }
+  }
+
   tags = var.tags
 }
 
