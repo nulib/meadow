@@ -1,5 +1,5 @@
 locals {
-  container_ports = list(4000, 4369, 24601)
+  container_ports = tolist([4000, 4369, 24601])
 
   meadow_urls = [for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : "//${hostname}"]
 
