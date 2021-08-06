@@ -206,7 +206,7 @@ defmodule Meadow.TestHelpers do
             original_filename: Faker.File.file_name()
           },
       extracted_metadata: attrs[:extracted_metadata] || %{},
-      derivatives: %{"playlist" => "s3://foo/bar.m3u8"}
+      derivatives: attrs[:derivatives] || %{"playlist" => "s3://foo/bar.m3u8"}
     })
   end
 

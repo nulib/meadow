@@ -10,12 +10,15 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
 
     works = [
       work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/1-pyramid.tif"},
         role: %{id: "A", scheme: "FILE_SET_ROLE"}
       }),
       work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/2-pyramid.tif"},
         role: %{id: "A", scheme: "FILE_SET_ROLE"}
       }),
       work_with_file_sets_fixture(1, %{collection_id: collection.id}, %{
+        derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/3-pyramid.tif"},
         role: %{id: "A", scheme: "FILE_SET_ROLE"}
       })
     ]

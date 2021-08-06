@@ -19,6 +19,22 @@ defmodule Meadow.Data.FileSetsTest do
 
     @invalid_attrs %{accession_number: nil}
 
+    @mediainfo %{
+      "mediainfo" => %{
+        "tool" => "mediainfo",
+        "value" => %{
+          "media" => %{
+            "track" => [
+              %{
+                "@type" => "General",
+                "Duration" => "1000.999"
+              }
+            ]
+          }
+        }
+      }
+    }
+
     test "list_file_sets/0 returns all file_sets" do
       file_set_fixture()
       assert length(FileSets.list_file_sets()) == 1
@@ -132,6 +148,29 @@ defmodule Meadow.Data.FileSetsTest do
   end
 
   describe "utilities" do
+    test "representative_image_url_for/1 for a video with a poster" do
+      file_set = file_set_fixture(%{derivatives: %{"poster" => "poster.tiff"}})
+
+      with uri <- file_set |> FileSets.representative_image_url_for() |> URI.parse() do
+        assert uri.host == "localhost"
+        assert uri.path == "/iiif/2/posters/#{file_set.id}"
+      end
+    end
+
+    test "representative_image_url_for/1 for a video without a poster" do
+      file_set = file_set_fixture(%{derivatives: nil})
+      assert is_nil(FileSets.representative_image_url_for(file_set))
+    end
+
+    test "representative_image_url_for/1 for an image" do
+      file_set = file_set_fixture(%{derivatives: %{"pyramid_tiff" => "pyramid.tif"}})
+
+      with uri <- file_set |> FileSets.representative_image_url_for() |> URI.parse() do
+        assert uri.host == "localhost"
+        assert uri.path == "/iiif/2/#{file_set.id}"
+      end
+    end
+
     test "streaming_uri_for/1 for a FileSet with a 'P' role" do
       file_set = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
       assert is_nil(FileSets.streaming_uri_for(file_set))
@@ -164,6 +203,15 @@ defmodule Meadow.Data.FileSetsTest do
       end
     end
 
+    test "poster_uri_for/1 for a FileSet with a playlist" do
+      file_set = file_set_fixture()
+
+      with url <- file_set |> FileSets.poster_uri_for() do
+        assert url |> String.starts_with?("s3://test-pyramids/posters/")
+        assert url |> String.ends_with?("-poster.tif")
+      end
+    end
+
     test "distribution_streaming_uri_for/1 for a FileSet with any role besides 'P'" do
       file_set = file_set_fixture()
 
@@ -183,6 +231,23 @@ defmodule Meadow.Data.FileSetsTest do
       assert %FileSet{derivatives: %{"pyramid" => "test.tif"}}
              |> FileSets.add_derivative("playlist", "test.m3u8") ==
                %{"pyramid" => "test.tif", "playlist" => "test.m3u8"}
+    end
+
+    test "duration_in_milliseconds/1 for a file set with extracted mediainfo" do
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata: @mediainfo
+        )
+
+        assert FileSets.duration_in_milliseconds(file_set) == 1_000_999.0
+    end
+
+    test "duration_in_milliseconds/1 for a file set without extracted mediainfo" do
+      file_set =
+        file_set_fixture()
+
+        assert is_nil(FileSets.duration_in_milliseconds(file_set))
     end
   end
 end

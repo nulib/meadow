@@ -2,10 +2,12 @@ defmodule Meadow.Data.Works do
   @moduledoc """
   The Works context.
   """
+  import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias Meadow.Ark
   alias Meadow.Config
+  alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work}
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -480,14 +482,44 @@ defmodule Meadow.Data.Works do
       iex> set_representative_image(work, file_set)
       {:ok, %Work{}}
   """
-  def set_representative_image(%Work{} = work, %FileSet{id: id}) do
+  def set_representative_image(
+        %Work{work_type: %{id: "VIDEO"}} = work,
+        %FileSet{id: _id, role: %{id: "A"}, derivatives: %{"poster" => _poster}} = file_set
+      ) do
     work
-    |> update_work(%{representative_file_set_id: id})
+    |> Repo.preload(:representative_file_set)
+    |> Work.update_changeset()
+    |> put_assoc(:representative_file_set, file_set)
+    |> Repo.update()
+    |> add_representative_image()
+  end
+
+  def set_representative_image(%Work{work_type: %{id: "VIDEO"}} = work, %FileSet{
+        id: _id,
+        role: %{id: "A"}
+      }),
+      do: {:ok, work}
+
+  def set_representative_image(%Work{} = work, file_set_id) when is_binary(file_set_id) do
+    set_representative_image(work, FileSets.get_file_set!(file_set_id))
+  end
+
+  def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set) do
+    work
+    |> Repo.preload(:representative_file_set)
+    |> Work.update_changeset()
+    |> put_assoc(:representative_file_set, file_set)
+    |> Repo.update()
+    |> add_representative_image()
   end
 
   def set_representative_image(%Work{} = work, nil) do
     work
-    |> update_work(%{representative_file_set_id: nil})
+    |> Repo.preload(:representative_file_set)
+    |> Work.update_changeset()
+    |> put_assoc(:representative_file_set, nil)
+    |> Repo.update()
+    |> add_representative_image()
   end
 
   def set_representative_image!(work, file_set) do
@@ -498,13 +530,26 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
-  Sets the default representative_file_set_id for a work
+  Sets the default representative_file_set_id for a work.
+  For an image work, that's the first file set
+  For an audio or video type work, default is nil
 
   ## Examples
 
       iex> set_default_representative_image(work)
       {:ok, %Work{}}
   """
+
+  def set_default_representative_image(
+        %Work{work_type: %{id: "AUDIO", scheme: "work_type"}} = work
+      ),
+      do: {:ok, work}
+
+  def set_default_representative_image(
+        %Work{work_type: %{id: "VIDEO", scheme: "work_type"}} = work
+      ),
+      do: {:ok, work}
+
   def set_default_representative_image(%Work{} = work) do
     work
     |> set_representative_image(get_access_masters(work.id) |> List.first())
@@ -529,10 +574,20 @@ defmodule Meadow.Data.Works do
   Sets the value of the representative_image virtual field
   for a work, list of works, or stream of works
   """
+
   def add_representative_image(%Work{} = work) do
-    case work.representative_file_set_id do
-      nil -> Map.put(work, :representative_image, nil)
-      id -> Map.put(work, :representative_image, representative_image_url(id))
+    work =
+      if Ecto.assoc_loaded?(work.representative_file_set),
+        do: work,
+        else: work |> Repo.preload(:representative_file_set)
+
+    case work.representative_file_set do
+      nil ->
+        Map.put(work, :representative_image, nil)
+
+      file_set ->
+        work
+        |> Map.put(:representative_image, FileSets.representative_image_url_for(file_set))
     end
   end
 
@@ -546,16 +601,6 @@ defmodule Meadow.Data.Works do
     do: {:ok, add_representative_image(object)}
 
   def add_representative_image(x), do: x
-
-  defp representative_image_url(nil), do: nil
-
-  defp representative_image_url(id) do
-    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
-      uri
-      |> URI.merge(id)
-      |> URI.to_string()
-    end
-  end
 
   @doc """
   Set :updated_at

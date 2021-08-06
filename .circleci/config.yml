@@ -99,6 +99,14 @@ jobs:
       - run:
           name: Install LDAP utils
           command: sudo apt-get install -y ldap-utils
+      - run:
+          name: Install FFMPEG
+          command: |
+            mkdir -p /tmp/ffmpeg && \
+            cd /tmp/ffmpeg && \
+            curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
+            sudo cp `find . -type f -executable` /usr/local/bin/ && \
+            echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
       - checkout
       - run:
           name: Install hex & rebar

@@ -31,7 +31,7 @@ function WorkFilesetListItem({
   // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
   const [imgState, setImgState] = React.useState({
     errored: false, // This prevents a potential infinite loop
-    src: `${iiifServerUrl}${id}/square/500,500/0/default.jpg`,
+    src: `${fileSet.representativeImageUrl}/square/500,500/0/default.jpg`,
   });
 
   const handleError = (e) => {
@@ -49,7 +49,7 @@ function WorkFilesetListItem({
     <article className="box" data-testid="fileset-item">
       <div className="columns">
         <div className="column is-2">
-          <figure className="image">
+          <figure className="image is-square">
             <img
               src={imgState.src}
               placeholder="Fileset Image"
@@ -115,26 +115,22 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {/* Only display representative image toggle for Image file sets */}
-              {/* Its assumed media files will only have placeholder thumbnails for now */}
-              {!isMedia(fileSet) && (
-                <AuthDisplayAuthorized>
-                  <div className="field">
-                    <input
-                      id={`checkbox-work-switch-${id}`}
-                      type="checkbox"
-                      name={`checkbox-work-switch-${id}`}
-                      className="switch"
-                      checked={workImageFilesetId === id}
-                      onChange={() => handleWorkImageChange(id)}
-                      data-testid="work-image-selector"
-                    />
-                    <label htmlFor={`checkbox-work-switch-${id}`}>
-                      Work image
-                    </label>
-                  </div>
-                </AuthDisplayAuthorized>
-              )}
+              <AuthDisplayAuthorized>
+                <div className="field">
+                  <input
+                    id={`checkbox-work-switch-${id}`}
+                    type="checkbox"
+                    name={`checkbox-work-switch-${id}`}
+                    className="switch"
+                    checked={workImageFilesetId === id}
+                    onChange={() => handleWorkImageChange(id)}
+                    data-testid="work-image-selector"
+                  />
+                  <label htmlFor={`checkbox-work-switch-${id}`}>
+                    Work image
+                  </label>
+                </div>
+              </AuthDisplayAuthorized>
 
               {fileSet.role.id === "A" && (
                 <WorkFilesetActionButtonsAccess fileSet={fileSet} />

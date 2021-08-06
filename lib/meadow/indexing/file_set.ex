@@ -13,6 +13,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
       mime_type: file_set.core_metadata.mime_type,
       model: %{application: "Meadow", name: "FileSet"},
       modifiedDate: file_set.updated_at,
+      representativeImageUrl: FileSets.representative_image_url_for(file_set),
       streamingUrl: FileSets.distribution_streaming_uri_for(file_set),
       role: format(file_set.role),
       visibility: format(file_set.work.visibility),

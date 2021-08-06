@@ -11,7 +11,11 @@ defmodule Meadow.Data.WorksTest do
   describe "queries" do
     @valid_attrs %{
       accession_number: "12345",
-      descriptive_metadata: %{title: "Test"}
+      descriptive_metadata: %{title: "Test"},
+      work_type: %{
+        id: "IMAGE",
+        scheme: "work_type"
+      }
     }
     @invalid_attrs %{accession_number: nil}
 
@@ -105,15 +109,27 @@ defmodule Meadow.Data.WorksTest do
     end
 
     test "work metadata should default to empty maps" do
-      {:ok, work} = Works.create_work(%{accession_number: "abc"})
+      {:ok, work} =
+        Works.create_work(%{
+          accession_number: "abc",
+          work_type: %{
+            id: "IMAGE",
+            scheme: "work_type"
+          }
+        })
 
       assert work.descriptive_metadata.title == nil
     end
   end
 
-  describe "representative images" do
+  describe "representative images for image type works" do
     setup do
-      work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      work =
+        work_with_file_sets_fixture(3, %{work_type: %{id: "IMAGE", scheme: "work_type"}}, %{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/1-pyramid.tif"}
+        })
+
       file_set = work.file_sets |> Enum.at(1)
 
       {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
@@ -206,6 +222,53 @@ defmodule Meadow.Data.WorksTest do
     end
   end
 
+  describe "representative images for video type works" do
+    test "representative image for video works defaults to nil" do
+      work =
+        work_with_file_sets_fixture(3, %{work_type: %{id: "VIDEO", scheme: "work_type"}}, %{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"}
+        })
+
+      work = Work |> Repo.get!(work.id) |> Works.add_representative_image()
+      assert is_nil(work.representative_image)
+    end
+
+    test "set_representative_image/1 for video works sets the representative image to the poster url" do
+      work =
+        work_with_file_sets_fixture(3, %{work_type: %{id: "VIDEO", scheme: "work_type"}}, %{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"}
+        })
+
+      file_set = work.file_sets |> Enum.at(1)
+      derivatives = FileSets.add_derivative(file_set, :poster, FileSets.poster_uri_for(file_set))
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: derivatives})
+
+      {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
+
+      assert work.representative_image == FileSets.representative_image_url_for(file_set)
+    end
+
+    test "add_representative_image/1 single work for video type work" do
+      work =
+        work_with_file_sets_fixture(3, %{work_type: %{id: "VIDEO", scheme: "work_type"}}, %{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"}
+        })
+
+      file_set = work.file_sets |> Enum.at(1)
+      derivatives = FileSets.add_derivative(file_set, :poster, FileSets.poster_uri_for(file_set))
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: derivatives})
+
+      {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
+
+      work =
+        Work
+        |> Repo.get!(work.id)
+        |> Works.add_representative_image()
+
+      assert work.representative_image == FileSets.representative_image_url_for(file_set)
+    end
+  end
+
   describe "works with coded term fields" do
     test "create_work/1 with valid coded term fields creates a work" do
       attrs = %{
@@ -226,6 +289,10 @@ defmodule Meadow.Data.WorksTest do
         visibility: %{
           id: "OPEN",
           scheme: "visibility"
+        },
+        work_type: %{
+          id: "IMAGE",
+          scheme: "work_type"
         }
       }
 
@@ -255,6 +322,10 @@ defmodule Meadow.Data.WorksTest do
         visibility: %{
           id: "OPEN",
           scheme: "visibility"
+        },
+        work_type: %{
+          id: "IMAGE",
+          scheme: "work_type"
         }
       }
 
@@ -275,7 +346,11 @@ defmodule Meadow.Data.WorksTest do
   describe "works with controlled fields" do
     @valid %{
       accession_number: "12345",
-      descriptive_metadata: %{title: "Test"}
+      descriptive_metadata: %{title: "Test"},
+      work_type: %{
+        id: "IMAGE",
+        scheme: "work_type"
+      }
     }
 
     test "create_work/1 with valid controlled entries creates a work" do
@@ -312,13 +387,17 @@ defmodule Meadow.Data.WorksTest do
 
     test "update_work/2 with valid controlled entries updates a work" do
       attrs =
-        Map.put(@valid, :descriptive_metadata, %{
-          contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
-          subject: [
-            %{term: "mock1:result1", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}},
-            %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
-          ]
-        })
+        Map.put(
+          @valid,
+          :descriptive_metadata,
+          %{
+            contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+            subject: [
+              %{term: "mock1:result1", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}},
+              %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
+            ]
+          }
+        )
 
       assert {:ok, %Work{} = work} = Works.create_work(attrs)
 
@@ -373,6 +452,10 @@ defmodule Meadow.Data.WorksTest do
               label: %{id: "FINDING_AID", scheme: "related_url"}
             }
           ]
+        },
+        work_type: %{
+          id: "IMAGE",
+          scheme: "work_type"
         }
       }
 

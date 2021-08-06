@@ -66,6 +66,11 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
           key={fileSet.id}
           navCues={navCues}
           src={fileSet?.streamingUrl}
+          poster={
+            fileSet?.representativeImageUrl
+              ? `${fileSet?.representativeImageUrl}/full/600,/0/default.jpg`
+              : `/images/video-placeholder.png`
+          }
           videoElAttrs={videoElAttrs}
         />
       </div>

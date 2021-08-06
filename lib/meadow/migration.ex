@@ -6,7 +6,7 @@ defmodule Meadow.Migration do
   alias Ecto.Changeset
   alias Meadow.Config
   alias Meadow.Data.{ControlledTerms, DonutWorks, Works}
-  alias Meadow.Data.Schemas.{DonutWork, FileSet, Work}
+  alias Meadow.Data.Schemas.{DonutWork, Work}
   alias Meadow.Pipeline
   alias Meadow.Repo
   alias Meadow.Utils.ChangesetErrors
@@ -171,9 +171,9 @@ defmodule Meadow.Migration do
         Logger.info("Setting default representative image for work #{work.id}")
         Works.set_default_representative_image!(work)
 
-      id ->
+      file_set_id ->
         Logger.info("Setting #{file_set_id} as the representative image for work #{work.id}")
-        Works.set_representative_image!(work, %FileSet{id: id})
+        Works.set_representative_image!(work, file_set_id)
     end
   end
 

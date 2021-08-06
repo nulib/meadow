@@ -50,7 +50,7 @@ defmodule Meadow.Utils.AWS do
   def create_s3_folder(bucket, name) do
     bucket
     |> check_bucket()
-    |> ExAws.S3.put_object("#{name}/", "")
+    |> ExAws.S3.put_object("#{name}/.folder", "")
     |> request()
   end
 

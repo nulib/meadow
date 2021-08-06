@@ -67,6 +67,7 @@ MediaPlayer.propTypes = {
   navCues: PropTypes.array,
   src: PropTypes.string.isRequired,
   videoElAttrs: PropTypes.object,
+  poster: PropTypes.string,
 };
 
 export default MediaPlayer;
