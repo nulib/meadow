@@ -48,7 +48,6 @@ module "meadow_task_all" {
   cpu              = 2048
   db_pool_size     = 100
   db_queue_target  = 1000
-  file_system_id   = aws_efs_file_system.meadow_working.id
   meadow_processes = "all"
   memory           = 4096
   name             = "all"
@@ -62,6 +61,7 @@ resource "aws_ecs_service" "meadow_all" {
   cluster                           = aws_ecs_cluster.meadow.id
   task_definition                   = module.meadow_task_all.task_definition.arn
   desired_count                     = 1
+  enable_execute_command            = true
   health_check_grace_period_seconds = 600
   launch_type                       = "FARGATE"
   depends_on                        = [aws_lb.meadow_load_balancer]
@@ -69,7 +69,7 @@ resource "aws_ecs_service" "meadow_all" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.meadow_target.arn
-    container_name   = "meadow-all"
+    container_name   = "meadow"
     container_port   = 4000
   }
 
@@ -90,7 +90,6 @@ module "meadow_task_web" {
   source           = "./modules/meadow_task"
   container_config = local.container_config
   cpu              = 512
-  file_system_id   = aws_efs_file_system.meadow_working.id
   meadow_processes = "web"
   memory           = 1024
   name             = "web"
@@ -104,6 +103,7 @@ resource "aws_ecs_service" "meadow_web" {
   cluster                           = aws_ecs_cluster.meadow.id
   task_definition                   = module.meadow_task_web.task_definition.arn
   desired_count                     = 0
+  enable_execute_command            = true
   health_check_grace_period_seconds = 600
   launch_type                       = "FARGATE"
   depends_on                        = [aws_lb.meadow_load_balancer]
@@ -111,7 +111,7 @@ resource "aws_ecs_service" "meadow_web" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.meadow_target.arn
-    container_name   = "meadow-web"
+    container_name   = "meadow"
     container_port   = 4000
   }
 
@@ -134,7 +134,6 @@ module "meadow_task_workers" {
   cpu              = 1024
   db_pool_size     = 50
   db_queue_target  = 1000
-  file_system_id   = aws_efs_file_system.meadow_working.id
   meadow_processes = "basic,pipeline"
   memory           = 2048
   name             = "workers"

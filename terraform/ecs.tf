@@ -97,6 +97,10 @@ resource "aws_security_group" "meadow_load_balancer" {
   }
 }
 
+data "aws_iam_policy" "ecs_exec_command" {
+  name = "allow-ecs-exec"
+}
+
 resource "aws_iam_role" "meadow_role" {
   name               = "${var.stack_name}-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
@@ -121,6 +125,11 @@ resource "aws_iam_policy" "this_bucket_policy" {
 resource "aws_iam_role_policy_attachment" "bucket_role_access" {
   role       = aws_iam_role.meadow_role.name
   policy_arn = aws_iam_policy.this_bucket_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_exec_command" {
+  role       = aws_iam_role.meadow_role.name
+  policy_arn = data.aws_iam_policy.ecs_exec_command.arn
 }
 
 resource "aws_iam_role_policy_attachment" "meadow_transcode_passrole" {

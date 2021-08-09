@@ -112,8 +112,7 @@ cat > /home/ec2-user/bin/iex-remote <<'__END__'
 #!/bin/bash
 
 target_ip=$(aws --region $${AWS_REGION} elbv2 describe-target-health --target-group-arn ${target_group_arn} --query 'TargetHealthDescriptions[*].Target.Id' | jq -r '.[0]')
-target_host=$(awk '{ split($1, ip, ".");  print "ip-" ip[1] "-" ip[2] "-" ip[3] "-" ip[4] ".ec2.internal" }' <<< $target_ip)
-iex --name "$(whoami)@$(hostname)" --remsh "meadow@$target_host" --cookie $SECRET_KEY_BASE
+iex --name "$(whoami)@$(hostname)" --remsh "meadow@$target_ip" --cookie $SECRET_KEY_BASE
 __END__
 
 chmod 0755 /home/ec2-user/bin/iex-remote
