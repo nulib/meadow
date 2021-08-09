@@ -234,7 +234,7 @@ jobs:
             ECS_CLUSTER: meadow
             ECS_SERVICE: meadow
             ECS_TASK: meadow-all
-            ECS_CONTAINER: meadow-all
+            ECS_CONTAINER: meadow
           command: ./.circleci/scripts/update_ecs_service.sh
       - run:
           name: Notify Honeybadger

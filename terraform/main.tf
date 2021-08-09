@@ -189,21 +189,6 @@ resource "aws_security_group" "meadow" {
   tags = var.tags
 }
 
-resource "aws_security_group" "meadow_efs_client" {
-  name        = "${var.stack_name}-efs-client"
-  description = "Access to Meadow EFS Working Filesystem"
-  vpc_id      = data.aws_vpc.this_vpc.id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = var.tags
-}
-
 data "aws_security_group" "stack_db_group" {
   name = "stack-${var.environment}-db-client"
 }
@@ -299,38 +284,6 @@ resource "aws_ssm_parameter" "meadow_node_name" {
   type      = "String"
   value     = "${var.stack_name}@${aws_route53_record.app_hostname.fqdn}"
   overwrite = true
-}
-
-resource "aws_security_group" "meadow_working_access" {
-  name        = "allow_meadow_access_to_efs"
-  description = "Allow Meadow access to EFS file system"
-  vpc_id      = data.aws_vpc.this_vpc.id
-
-  ingress {
-    description     = "NFS from Meadow"
-    from_port       = 2049
-    to_port         = 2049
-    protocol        = "tcp"
-    security_groups = [aws_security_group.meadow.id, aws_security_group.meadow_efs_client.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_efs_file_system" "meadow_working" {
-  tags = merge(var.tags, { Name = "${var.stack_name}-working" })
-}
-
-resource "aws_efs_mount_target" "meadow_working_mount" {
-  for_each        = data.aws_subnet_ids.private_subnets.ids
-  file_system_id  = aws_efs_file_system.meadow_working.id
-  subnet_id       = each.key
-  security_groups = [aws_security_group.meadow_working_access.id]
 }
 
 resource "aws_iam_role" "transcode_role" {

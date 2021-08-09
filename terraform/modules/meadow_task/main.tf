@@ -12,13 +12,6 @@ resource "aws_ecs_task_definition" "this_task_definition" {
   cpu                      = var.cpu
   memory                   = var.memory
   tags                     = var.tags
-
-  volume {
-    name = "meadow-working"
-    efs_volume_configuration {
-      file_system_id = var.file_system_id
-    }
-  }
 }
 
 locals {
