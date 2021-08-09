@@ -10,6 +10,8 @@ defmodule Meadow.Ingest.ValidatorTest do
   @image_fixture "test/fixtures/coffee.tif"
   @json_fixture "test/fixtures/details.json"
   @video_fixture "test/fixtures/small.m4v"
+  @vtt_fixture "test/fixtures/Donohue_002_01.vtt"
+  @invalid_vtt_fixture "test/fixtures/invalid.vtt"
 
   setup context do
     project =
@@ -48,11 +50,25 @@ defmodule Meadow.Ingest.ValidatorTest do
       File.read!(@video_fixture)
     )
 
+    upload_object(
+      @ingest_bucket,
+      "#{project.folder}/Donohue_002_01.vtt",
+      File.read!(@vtt_fixture)
+    )
+
+    upload_object(
+      @ingest_bucket,
+      "#{project.folder}/invalid.vtt",
+      File.read!(@invalid_vtt_fixture)
+    )
+
     on_exit(fn ->
       delete_object(@uploads_bucket, @sheet_path <> context.sheet)
       delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
       delete_object(@ingest_bucket, "#{project.folder}/details.json")
       delete_object(@ingest_bucket, "#{project.folder}/small.m4v")
+      delete_object(@ingest_bucket, "#{project.folder}/Donohue_002_01.vtt")
+      delete_object(@ingest_bucket, "#{project.folder}/invalid.vtt")
     end)
 
     {:ok, %{sheet: sheet, project: project}}
@@ -165,6 +181,22 @@ defmodule Meadow.Ingest.ValidatorTest do
 
   @tag sheet: "ingest_sheet_invalid_work_image.csv"
   test "fails when specified work_image has an invalid role", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_missing_webvtt.csv"
+  test "fails when the webvtt structure file is missing", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+    ingest_sheet = Validator.validate(context.sheet.id)
+
+    assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_invalid_webvtt.csv"
+  test "fails when the webvtt structure file is invalid", context do
     assert(Validator.result(context.sheet.id) == "fail")
     ingest_sheet = Validator.validate(context.sheet.id)
 
