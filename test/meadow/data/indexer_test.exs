@@ -330,7 +330,17 @@ defmodule Meadow.Data.IndexerTest do
 
     test "file set encoding", %{file_set: subject} do
       derivatives = FileSets.add_derivative(subject, :poster, FileSets.poster_uri_for(subject))
-      FileSets.update_file_set(subject, %{derivatives: derivatives})
+
+      {:ok, subject} =
+        subject
+        |> FileSets.update_file_set(%{
+          derivatives: derivatives,
+          structural_metadata: %{
+            type: "webvtt",
+            value:
+              "WEBVTT\n\n00:00:00.500 --> 00:00:02.000\nThe Web is always changing\n\n00:00:02.500 --> 00:00:04.300\nand the way we access it is changing"
+          }
+        })
 
       subject = FileSets.get_file_set_with_work_and_sheet!(subject.id)
 
@@ -340,6 +350,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "name"]) == "FileSet"
       assert doc |> get_in(["description"]) == subject.core_metadata.description
       assert doc |> get_in(["label"]) == subject.core_metadata.label
+      assert doc |> get_in(["webvtt"]) == subject.structural_metadata.value
 
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
 
