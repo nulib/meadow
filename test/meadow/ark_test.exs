@@ -144,6 +144,17 @@ defmodule Meadow.ArkTest do
     test "unknown ARK" do
       assert {:error, "error: bad request - no such identifier"} == Ark.get("ark:/99999/invalid")
     end
+
+    test "can handle colons in attribute values" do
+      {:ok, result} =
+        Ark.mint(
+          status: "reserved",
+          target: "http://example.edu/work",
+          title: "Before colon : after colon"
+        )
+
+      assert {:ok, %Ark{title: "Before colon : after colon"}} = Ark.get(result.ark)
+    end
   end
 
   describe "put/1" do

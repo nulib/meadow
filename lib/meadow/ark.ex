@@ -164,7 +164,7 @@ defmodule Meadow.Ark do
       |> String.trim()
       |> String.split("\n")
       |> Enum.map(fn attribute ->
-        [key, value] = String.split(attribute, ": ")
+        [key, value] = String.split(attribute, ": ", parts: 2)
         {Map.get(field_map, key), URI.decode(value)}
       end)
       |> Enum.reject(fn {key, _} -> is_nil(key) end)
