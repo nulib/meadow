@@ -35,6 +35,11 @@ variable "digital_collections_url" {
   type = string
 }
 
+variable "deleted_object_expiration" {
+  type    = number
+  default = 180
+}
+
 variable "geonames_username" {
   type = string
 }
