@@ -145,10 +145,11 @@ config :hackney,
 
 config :meadow, :lambda,
   digester: {:lambda, "meadow-digester"},
-  mime_type: {:lambda, "meadow-mime-type"},
-  tiff: {:lambda, "meadow-pyramid-tiff"},
   exif: {:lambda, "meadow-exif"},
-  mediainfo: {:lambda, "meadow-mediainfo"}
+  frame_extractor: {:lambda, "meadow-frame-extractor"},
+  mediainfo: {:lambda, "meadow-mediainfo"},
+  mime_type: {:lambda, "meadow-mime-type"},
+  tiff: {:lambda, "meadow-pyramid-tiff"}
 
 config :sequins, Actions.GenerateFileSetDigests,
   queue_config: [
