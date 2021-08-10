@@ -202,6 +202,7 @@ defmodule Meadow.Ingest.Validator do
         |> Enum.into(%{})
 
       context = %{
+        project_folder: sheet.project.folder,
         existing_files: existing_files,
         duplicate_accession_numbers: duplicate_accession_numbers,
         work_types: work_types
@@ -269,7 +270,24 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value(_row, {"structure", _value}, _context), do: :ok
+  defp validate_value(_row, {"structure", value}, context) do
+    if String.trim(value) == "" do
+      :ok
+    else
+      case Meadow.Config.ingest_bucket()
+           |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
+           |> ExAws.request() do
+        {:ok, %{body: vtt}} ->
+          if String.match?(vtt, ~r/^WEBVTT/), do: :ok, else: {:error, "structure", "#{value} is not a valid WebVTT file"}
+
+        {:error, {:http_error, 404, _}} ->
+          {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
+
+        {:error, other} ->
+          {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
+      end
+    end
+  end
 
   defp validate_value(_row, {field_name, value}, _context)
        when byte_size(value) == 0,
