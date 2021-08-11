@@ -265,10 +265,12 @@ defmodule Meadow.Data.IndexerTest do
 
     test "work encoding", %{work: subject} do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "Image"
       assert doc |> get_in(["fileSets"]) |> length == 2
+      assert doc |> get_in(["fileSets"]) |> List.first |> map_size() == 5
 
       with metadata <- subject.descriptive_metadata do
         assert doc |> get_in(["descriptiveMetadata", "title"]) ==
