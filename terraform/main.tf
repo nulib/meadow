@@ -29,9 +29,15 @@ module "rds" {
 
   parameters = [
     {
-      name  = "client_encoding"
-      value = "UTF8"
+      name = "client_encoding",
+      value = "UTF8",
+      apply_method = "pending-reboot"
     },
+    { 
+      name = "max_locks_per_transaction",
+      value = 256,
+      apply_method = "pending-reboot" 
+    }
   ]
 
   tags = var.tags
