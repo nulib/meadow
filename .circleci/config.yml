@@ -13,6 +13,9 @@ jobs:
       - run:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
+      - run:
+          name: Generate lambda checksums
+          command: md5sum priv/nodejs/*/yarn.lock > ./lambda_checksums.txt
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
@@ -28,6 +31,11 @@ jobs:
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
+      - restore_cache:
+          keys:
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Branch }}-{{ checksum "./lambda_checksums.txt" }}
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Branch }}-
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
           name: Install Elixir Dependencies
           command: mix do deps.get, deps.compile
@@ -36,6 +44,14 @@ jobs:
       - run:
           name: Install JS Dependencies
           command: yarn install --cwd assets
+      - run:
+          name: Install Lambda Dependencies
+          command: |
+            for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
+            do
+              echo "yarn install --cwd $(dirname $pkg)"
+              yarn install --cwd $(dirname $pkg)
+            done
       - save_cache:
           key: hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
           paths:
@@ -48,6 +64,17 @@ jobs:
           key: yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
           paths:
             - ~/meadow/assets/node_modules
+      - save_cache:
+          key: lambda-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Branch }}-{{ checksum "./lambda_checksums.txt" }}
+          paths:
+            - ~/meadow/priv/nodejs/digester/node_modules
+            - ~/meadow/priv/nodejs/edtf/node_modules
+            - ~/meadow/priv/nodejs/exif/node_modules
+            - ~/meadow/priv/nodejs/frame-extractor/node_modules
+            - ~/meadow/priv/nodejs/lambda/node_modules
+            - ~/meadow/priv/nodejs/mediainfo/node_modules
+            - ~/meadow/priv/nodejs/mime-type/node_modules
+            - ~/meadow/priv/nodejs/pyramid-tiff/node_modules
   js-test:
     working_directory: ~/meadow
     docker:
@@ -73,6 +100,11 @@ jobs:
           command: yarn deploy
           working_directory: ~/meadow/assets
   elixir-test:
+    parameters:
+      partitions:
+        type: integer
+      partition:
+        type: integer
     working_directory: ~/meadow
     docker:
       - image: circleci/elixir:1.12-node
@@ -111,6 +143,9 @@ jobs:
       - run:
           name: Install hex & rebar
           command: mix do local.hex --force, local.rebar --force
+      - run:
+          name: Generate lambda checksums
+          command: md5sum priv/nodejs/*/yarn.lock > ./lambda_checksums.txt
       - restore_cache:
           keys:
             - hex-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "mix.lock" }}-{{ .Branch }}
@@ -126,14 +161,11 @@ jobs:
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-{{ .Branch }}
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-{{ checksum "./assets/yarn.lock" }}-
             - yarn-cache-{{ .Environment.CACHE_PREFIX }}-
-      - run:
-          name: Install Lambda Dependencies
-          command: |
-            for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
-            do
-              echo "yarn install --cwd $(dirname $pkg)"
-              yarn install --cwd $(dirname $pkg)
-            done
+      - restore_cache:
+          keys:
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Branch }}-{{ checksum "./lambda_checksums.txt" }}
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-{{ .Branch }}-
+            - lambda-cache-{{ .Environment.CACHE_PREFIX }}-
       - run:
           name: Elixir Static Analysis
           command: mix credo
@@ -144,7 +176,9 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Elixir Tests
-          command: mix coveralls.circle
+          command: mix test --partitions << parameters.partitions >>
+          environment:
+            MIX_TEST_PARTITION: << parameters.partition >>
       - run:
           name: Test db rollback
           command: mix ecto.rollback --all
@@ -249,6 +283,10 @@ workflows:
       - elixir-test:
           requires:
             - dependencies
+          matrix:
+            parameters:
+              partitions: [6]
+              partition: [1, 2, 3, 4, 5, 6]
       - publish:
           requires:
             - js-test
