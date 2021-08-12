@@ -8,7 +8,8 @@ config :meadow, Meadow.Repo,
   hostname: "localhost",
   port: System.get_env("DB_PORT", "5434"),
   pool: Ecto.Adapters.SQL.Sandbox,
-  queue_target: 5000
+  queue_target: 5000,
+  pool_size: 50
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -42,8 +43,6 @@ config :meadow,
   streaming_bucket: "test-streaming",
   streaming_url: "https://test-streaming-url/",
   mediaconvert_client: MediaConvert.Mock,
-  migration_binary_bucket: "test-migration-binaries",
-  migration_manifest_bucket: "test-migration-manifests",
   iiif_server_url: "http://localhost:8184/iiif/2/",
   iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"

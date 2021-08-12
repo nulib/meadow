@@ -42,8 +42,6 @@ defmodule Meadow.ConfigTest do
       "test-preservation",
       "test-uploads",
       "test-pyramids",
-      "test-migration-binaries",
-      "test-migration-manifests",
       "test-preservation-checks",
       "test-streaming"
     ]

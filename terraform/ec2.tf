@@ -93,9 +93,7 @@ data "template_file" "ec2_meadow_config" {
     local.container_config,
     {
       meadow_ec2_hostname       = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
-      meadow_hostname           = aws_route53_record.app_hostname.fqdn,
-      migration_binary_bucket   = var.migration_binary_bucket,
-      migration_manifest_bucket = var.migration_manifest_bucket
+      meadow_hostname           = aws_route53_record.app_hostname.fqdn
     }
   )
 }

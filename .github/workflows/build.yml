@@ -104,7 +104,7 @@ jobs:
       MIX_ENV: test
     services:
       db:
-        image: postgres:10-alpine
+        image: nulib/postgres:10-alpine
         env:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r

@@ -64,16 +64,6 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :streaming_url)
   end
 
-  @doc "Retrieve the configured migration binary bucket"
-  def migration_binary_bucket do
-    Application.get_env(:meadow, :migration_binary_bucket)
-  end
-
-  @doc "Retrieve the configured migration manifest bucket"
-  def migration_manifest_bucket do
-    Application.get_env(:meadow, :migration_manifest_bucket)
-  end
-
   @doc "Retrieve configured lambda scripts"
   def lambda_config(config_key) do
     case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do
@@ -103,8 +93,6 @@ defmodule Meadow.Config do
       preservation_check_bucket(),
       upload_bucket(),
       pyramid_bucket(),
-      migration_binary_bucket(),
-      migration_manifest_bucket(),
       streaming_bucket()
     ]
     |> Enum.reject(&is_nil/1)
