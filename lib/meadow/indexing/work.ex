@@ -5,6 +5,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
   alias Elasticsearch.Document.Meadow.Data.Schemas.WorkDescriptiveMetadata,
     as: DescriptiveMetadataDocument
 
+  alias Meadow.Data.FileSets
   alias Meadow.IIIF
   alias Meadow.Utils.ExtractedMetadata
 
@@ -25,7 +26,8 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
             id: file_set.id,
             accessionNumber: file_set.accession_number,
             label: file_set.core_metadata.label,
-            extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata)
+            extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata),
+            representativeImageUrl: FileSets.representative_image_url_for(file_set)
           }
         end),
       id: work.id,
