@@ -154,8 +154,8 @@ jobs:
           sudo apt-get install -y ldap-utils
       - name: Install FFMPEG
         run: |
-          mkdir -p /tmp/ffmpeg && \
-          cd /tmp/ffmpeg && \
+          mkdir -p ${{ runner.temp }}/ffmpeg && \
+          cd ${{ runner.temp }}/ffmpeg && \
           curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
           sudo cp $(find . -type f -executable) /usr/local/bin/ && \
           echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
@@ -194,3 +194,88 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Test DB Rollback
         run: mix ecto.rollback --all
+  publish:
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/') }}
+    runs-on: ubuntu-latest
+    needs:
+      - elixir-test
+      - js-test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set DOCKER_TAG from Branch Name
+        run: |
+          if [[ $BRANCH == "master" ]]; then
+            echo "DOCKER_TAG=production" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Extract MEADOW_VERSION from mix.exs
+        run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DOCKER_TAG}"
+      - name: Tag Meadow Release
+        if: ${{ github.ref == 'master' }}
+        run: |
+          git config --global user.email "$(git log --pretty=format:"%ae" | head -1)"
+          git config --global user.name "$(git log --pretty=format:"%an" | head -1)"
+          git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: nulib/meadow:${{ env.DOCKER_TAG }}
+          build-args: |
+            HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
+            HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+            HONEYBADGER_ENVIRONMENT=${{ env.DOCKER_TAG }}
+            HONEYBADGER_REVISION=${{ github.sha }}
+      - name: Upload Source Maps to Honeybadger
+        run: .github/scripts/upload_source_maps.sh
+        env:
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
+          HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+          HONEYBADGER_REVISION: ${{ github.sha }}
+      - name:  Set GitHub Deploy Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.REPO_PRIVATE_KEY }}
+      - name: Push Release Tag
+        if: ${{ github.ref == 'master' }}
+        run: |
+          git push origin v${MEADOW_VERSION}
+  deploy:
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') }}
+    runs-on: ubuntu-latest
+    needs: publish
+    steps:
+      - name: Set DOCKER_TAG from Branch Name
+        run: |
+          if [[ $BRANCH == "master" ]]; then
+            echo "DOCKER_TAG=production" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Update ECS Service
+        run: .github/scripts/update_ecs_service.sh
+        env:
+          APP_NAME: meadow
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          ECS_CLUSTER: meadow
+          ECS_SERVICE: meadow
+          ECS_TASK: meadow-all
+          ECS_CONTAINER: meadow
+      - name: Notify Honeybadger
+        run: ./.circleci/scripts/honeybadger_deploy_notification.sh
+        env:
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          HONEYBADGER_API_KEY: ${{ secrets.HONEYBADGER_API_KEY }}
+          HONEYBADGER_REVISION: ${{ github.sha }}
