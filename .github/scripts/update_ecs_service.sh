@@ -1,5 +1,11 @@
 #!/bin/bash
 
+environment=$(echo $DEPLOY_ENV | tr a-z A-Z)
+access_key_id_var=${environment}_AWS_ACCESS_KEY_ID
+secret_key_var=${environment}_AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID="${!access_key_id_var}"
+AWS_SECRET_ACCESS_KEY="${!secret_key_var}"
+
 changed_files=$(git diff --name-only HEAD HEAD^)
 case $changed_files in
   lib/meadow/indexing/*)
