@@ -102,6 +102,43 @@ jobs:
     needs: dependencies
     env:
       MIX_ENV: test
+    services:
+      db:
+        image: postgres:10-alpine
+        env:
+          POSTGRES_USER: docker
+          POSTGRES_PASSWORD: d0ck3r
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5434:5432
+      goaws:
+        image: nulib/goaws
+        ports:
+          - 4102:4100
+      ldap:
+        image: nulib/ldap-alpine
+        ports:
+          - 391:389
+          - 638:636
+      elasticsearch:
+        image: bitnami/elasticsearch:6
+        env:
+          ELASTICSEARCH_HEAP_SIZE: "256m"
+        ports:
+          - 9202:9200
+      minio:
+        image: bitnami/minio
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: minio123
+        ports:
+          - 9002:9000
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -111,6 +148,17 @@ jobs:
         with:
           otp-version: '24'
           elixir-version: '1.12.1'
+      - name: Install LDAP utils
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ldap-utils
+      - name: Install FFMPEG
+        run: |
+          mkdir -p /tmp/ffmpeg && \
+          cd /tmp/ffmpeg && \
+          curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
+          sudo cp $(find . -type f -executable) /usr/local/bin/ && \
+          echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -140,3 +188,9 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Elixir Static Analysis
         run: mix credo
+      - name: Elixir Tests
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test DB Rollback
+        run: mix ecto.rollback --all
