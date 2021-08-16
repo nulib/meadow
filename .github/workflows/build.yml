@@ -1,0 +1,41 @@
+---
+name: meadow-test
+on: [push]
+jobs:
+  elixir-test:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.12.1'
+          hex-version: '0.21.2'
+          rebar3-version: '3.15.2'
+      - name: Install Elixir dependencies
+        run: mix do deps.get, deps.compile
+      - name: Install JS dependencies
+        run: yarn install --cwd assets
+      - name: Install Lambda dependencies
+        run: |
+          for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
+          do
+            echo "yarn install --cwd $(dirname $pkg)"
+            yarn install --cwd $(dirname $pkg)
+          done
+      - name: JS Static Analysis
+        run: yarn prettier
+        working-directory: ./assets
+      - name: JS Tests
+        run: yarn ci -w 1
+        working-directory: ./assets
+      - name: Test Webpack Build
+        run: yarn deploy
+        working-directory: ./assets
+      - name: Elixir Static Analysis
+        run: mix credo
