@@ -77,7 +77,7 @@ config :ex_aws,
 
 config :ex_aws, :s3,
   host: "localhost",
-  port: if(System.get_env("CI"), do: 9000, else: 9002),
+  port: 9002,
   scheme: "http://",
   region: "us-east-1",
   access_key_id: "minio",
@@ -85,7 +85,7 @@ config :ex_aws, :s3,
 
 config :ex_aws, :sqs,
   host: "localhost",
-  port: if(System.get_env("CI"), do: 4100, else: 4102),
+  port: 4102,
   scheme: "http://",
   region: "us-east-1"
 
@@ -93,14 +93,14 @@ config :ex_aws, :sns,
   access_key_id: "",
   secret_access_key: "",
   host: "localhost",
-  port: if(System.get_env("CI"), do: 4100, else: 4102),
+  port: 4102,
   scheme: "http://",
   region: "us-east-1"
 
 config :exldap, :settings,
   server: "localhost",
   base: "DC=library,DC=northwestern,DC=edu",
-  port: if(System.get_env("CI"), do: 389, else: 391),
+  port: 391,
   user_dn: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu",
   password: "d0ck3rAdm1n!"
 
