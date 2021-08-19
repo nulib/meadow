@@ -6,7 +6,12 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
   load_gql(MeadowWeb.Schema, "test/gql/SetWorkImage.gql")
 
   test "should be a valid mutation" do
-    work = work_with_file_sets_fixture(3, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+    work =
+      work_with_file_sets_fixture(3, %{}, %{
+        derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar-pyramid.tif"},
+        role: %{id: "A", scheme: "FILE_SET_ROLE"}
+      })
+
     expected_file_set = work.file_sets |> Enum.at(1)
     file_set_image = Meadow.Config.iiif_server_url() <> expected_file_set.id
 

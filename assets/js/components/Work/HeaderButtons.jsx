@@ -15,6 +15,7 @@ export default function WorkHeaderButtons({
   return (
     <div className="buttons" data-testid="work-header-buttons">
       <Button
+        isPrimary
         onClick={handleCreateSharableBtnClick}
         data-testid="button-sharable-link"
       >

@@ -13,7 +13,7 @@ import {
   ActionHeadline,
   Breadcrumbs,
   FallbackErrorComponent,
-  LevelItem,
+  Message,
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
@@ -44,38 +44,33 @@ const ScreensProjectList = () => {
           <Breadcrumbs
             items={[{ label: "Projects", route: "/project/list" }]}
           />
-          <div className="box">
-            <ActionHeadline data-testid="screen-header">
-              <>
-                <PageTitle>Projects</PageTitle>
-                <AuthDisplayAuthorized>
-                  <Button
-                    isPrimary
-                    data-testid="button-new-project"
-                    onClick={() => setShowForm(!showForm)}
-                  >
-                    <span className="icon">
-                      <IconAdd />
-                    </span>
-                    <span>Add Project</span>
-                  </Button>
-                </AuthDisplayAuthorized>
-              </>
-            </ActionHeadline>
+          <ActionHeadline data-testid="screen-header">
+            <>
+              <PageTitle>Projects</PageTitle>
+              <AuthDisplayAuthorized>
+                <Button
+                  isPrimary
+                  data-testid="button-new-project"
+                  onClick={() => setShowForm(!showForm)}
+                >
+                  <span className="icon">
+                    <IconAdd />
+                  </span>
+                  <span>Add Project</span>
+                </Button>
+              </AuthDisplayAuthorized>
+            </>
+          </ActionHeadline>
 
-            <div className="level">
-              <LevelItem
-                heading="Total Projects"
-                content={`${projects.length}`}
-              />
-              <LevelItem
-                heading="Total Sheets Ingested"
-                content={`${getIngestSheetsCount(projects)}`}
-              />
+          <Message>
+            <dl>
+              <dt>Total Projects</dt>
+              <dd>{projects.length}</dd>
+              <dt>Total Sheets Ingested</dt>
+              <dd>{getIngestSheetsCount(projects)}</dd>
               {/* TODO - need to wire up total works processed count */}
-              {/* <UILevelItem heading="Total Works Processed" content="5,384" /> */}
-            </div>
-          </div>
+            </dl>
+          </Message>
 
           <div className="box">
             {loading && <Skeleton rows={20} />}

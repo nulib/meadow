@@ -18,6 +18,7 @@ import {
   ActionHeadline,
   Breadcrumbs,
   FallbackErrorComponent,
+  Message,
   ModalDelete,
   PageTitle,
   SearchBarRow,
@@ -94,7 +95,7 @@ const ScreensCollectionList = () => {
         <div className="container">
           <Breadcrumbs items={[{ label: "Collections", isActive: true }]} />
 
-          <div className="box">
+          <div className="block">
             <ActionHeadline>
               <PageTitle>Collections</PageTitle>
               <AuthDisplayAuthorized level="MANAGER">
@@ -105,7 +106,16 @@ const ScreensCollectionList = () => {
               </AuthDisplayAuthorized>
             </ActionHeadline>
           </div>
-          <div className="box" data-testid="collection-list">
+
+          {/* TODO: Complete this */}
+          {/* <Message>
+            <dl>
+              <dt># of Collections</dt>
+              <dd>[fill this in]</dd>
+            </dl>
+          </Message> */}
+
+          <div className="" data-testid="collection-list">
             {loading ? (
               <Skeleton rows={10} />
             ) : (

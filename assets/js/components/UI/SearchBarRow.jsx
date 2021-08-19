@@ -7,7 +7,7 @@ import { IconSearch } from "@js/components/Icon";
 function UISearchBarRow({ isCentered, children }) {
   return (
     <div
-      className={classNames(["columns", "mb-6"], {
+      className={classNames(["columns", "mb-5"], {
         "is-centered": isCentered,
       })}
       data-testid="search-bar-row"

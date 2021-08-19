@@ -35,6 +35,18 @@ defmodule Meadow.Utils.Pairtree do
   end
 
   @doc """
+  Generate a poster path
+
+  Examples:
+    iex> Meadow.Utils.Pairtree.poster_path("a13d45b1-69a6-447f-9d42-90b989a2949c")
+    "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-poster.tif"
+  """
+  def poster_path(id) do
+    id
+    |> with_extension("poster", "tif")
+  end
+
+  @doc """
   Generate a manifest path
 
   Examples:

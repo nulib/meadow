@@ -24,6 +24,7 @@ defmodule Meadow.Data.Schemas.FileSet do
     field :rank, :integer
     field :position, :any, virtual: true
     field :derivatives, :map
+    field :poster_offset, :integer
 
     embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
     embeds_one :structural_metadata, FileSetStructuralMetadata, on_replace: :delete
@@ -38,7 +39,8 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   defp changeset_params do
-    {[:accession_number, :role], [:work_id, :position, :extracted_metadata, :derivatives]}
+    {[:accession_number, :role],
+     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do
@@ -50,6 +52,7 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> prepare_embed(:structural_metadata)
       |> cast_embed(:structural_metadata)
       |> validate_required([:core_metadata | required_params])
+      |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
       |> assoc_constraint(:work)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
@@ -90,6 +93,7 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> prepare_embed(:structural_metadata)
       |> cast_embed(:structural_metadata)
       |> set_rank(scope: [:work_id, :role])
+      |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
     end
   end
 

@@ -6,7 +6,7 @@ jest.mock("@js/services/get-vtt-file");
 
 export const mockVideoSources = [
   {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4",
+    src: "http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4",
     type: "Video",
     format: "video/mp4",
     height: 1080,
@@ -14,7 +14,7 @@ export const mockVideoSources = [
     duration: 662.037,
   },
   {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/medium/volleyball-for-boys.mp4",
+    src: "http://dlib.indiana.edu/iiif_av/volleyball/medium/volleyball-for-boys.mp4",
     type: "Video",
     format: "video/mp4",
     height: 1080,
@@ -22,7 +22,7 @@ export const mockVideoSources = [
     duration: 662.037,
   },
   {
-    id: "http://dlib.indiana.edu/iiif_av/volleyball/low/volleyball-for-boys.mp4",
+    src: "http://dlib.indiana.edu/iiif_av/volleyball/low/volleyball-for-boys.mp4",
     type: "Video",
     format: "video/mp4",
     height: 1080,
@@ -43,10 +43,5 @@ describe("UIMediaPlayer component", () => {
 
     expect(videoEl).toHaveAttribute("controls");
     expect(videoEl).toHaveAttribute("autoplay");
-  });
-
-  it("renders source elements", () => {
-    render(<UIMediaPlayer sources={mockVideoSources} />);
-    expect(screen.getAllByTestId("source-item")).toHaveLength(3);
   });
 });

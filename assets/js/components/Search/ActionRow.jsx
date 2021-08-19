@@ -16,7 +16,7 @@ const { inflect } = require("inflection");
 
 function ModalButton({ children, icon, label, ...restProps }) {
   return (
-    <Button isLight {...restProps}>
+    <Button {...restProps}>
       <span className="icon">{icon}</span>
       <span>{label}</span>
     </Button>
@@ -65,11 +65,10 @@ export default function SearchActionRow({
   }
 
   return (
-    <React.Fragment>
-      <div className="field is-grouped" data-testid="search-action-row">
+    <>
+      <div className="field is-grouped mb-6" data-testid="search-action-row">
         <p className="control">
           <Button
-            isLight
             onClick={() => setIsModalAllItemsOpen(!isModalAllItemsOpen)}
             disabled={selectedItems.length > 0}
             data-testid="button-select-all"
@@ -79,7 +78,6 @@ export default function SearchActionRow({
         </p>
         <p className="control">
           <Button
-            isLight
             data-testid="button-edit-items"
             disabled={selectedItems.length === 0}
             onClick={() => setIsModalItemsOpen(!isModalItemsOpen)}
@@ -97,7 +95,6 @@ export default function SearchActionRow({
         {selectedItems.length > 0 && (
           <p className="control">
             <Button
-              isLight
               data-testid="button-deselect-all"
               onClick={handleDeselectAll}
             >
@@ -258,7 +255,7 @@ export default function SearchActionRow({
         isOpen={isModalBatchDeleteConfirmationOpen}
         selectedItems={selectedItems}
       />
-    </React.Fragment>
+    </>
   );
 }
 

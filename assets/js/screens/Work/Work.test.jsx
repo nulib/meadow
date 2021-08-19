@@ -50,18 +50,10 @@ describe("ScreensWork component", () => {
   });
 
   it("renders the correct work header info", async () => {
-    expect(await screen.findByTestId("work-header-id")).toHaveTextContent(
-      "Work id"
-    );
-    expect(screen.getByTestId("work-header-id")).toHaveTextContent("ABC123");
+    expect(await screen.findByTestId("work-header-id")).toHaveTextContent("Id");
     expect(screen.getByTestId("work-header-ark")).toHaveTextContent("Ark");
-    expect(screen.getByTestId("work-header-ark")).toHaveTextContent("ark123");
-
     expect(
       screen.getByTestId("work-header-accession-number")
     ).toHaveTextContent("Accession number");
-    expect(
-      screen.getByTestId("work-header-accession-number")
-    ).toHaveTextContent("Donohue_002b");
   });
 });

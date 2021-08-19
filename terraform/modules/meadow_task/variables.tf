@@ -21,10 +21,6 @@ variable "db_queue_interval" {
   default = 1000
 }
 
-variable "file_system_id" {
-  type    = string
-}
-
 variable "meadow_processes" {
   type    = string
   default = "all"

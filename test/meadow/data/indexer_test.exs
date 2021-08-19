@@ -209,6 +209,38 @@ defmodule Meadow.Data.IndexerTest do
                  work_updated_timestamp
       end)
     end
+
+    @tag unboxed: true
+    test "file_set.derivatives changes cascade to work" do
+      Sandbox.unboxed_run(Repo, fn ->
+        %{file_sets: [file_set | _]} = indexable_data()
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(file_set.id) |> get_in(["representativeImageUrl"]) ==
+                 nil
+
+        {:ok, file_set} =
+          file_set
+          |> FileSets.update_file_set(%{
+            derivatives: %{"poster" => "s3://foo/bar.tif"}
+          })
+
+        work = Works.get_work!(file_set.work_id)
+        Works.set_representative_image!(work, file_set)
+
+        Indexer.synchronize_index()
+
+        assert indexed_doc(file_set.id) |> get_in(["representativeImageUrl"]) ==
+                 "#{Config.iiif_server_url()}posters/#{file_set.id}"
+
+        assert indexed_doc(file_set.work_id) |> get_in(["modifiedDate"]) >
+                 work.updated_at
+
+        assert indexed_doc(file_set.work_id) |> get_in(["representativeFileSet", "url"]) ==
+                 "#{Config.iiif_server_url()}posters/#{file_set.id}"
+      end)
+    end
   end
 
   describe "encoding" do
@@ -233,10 +265,12 @@ defmodule Meadow.Data.IndexerTest do
 
     test "work encoding", %{work: subject} do
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "Image"
       assert doc |> get_in(["fileSets"]) |> length == 2
+      assert doc |> get_in(["fileSets"]) |> List.first |> map_size() == 5
 
       with metadata <- subject.descriptive_metadata do
         assert doc |> get_in(["descriptiveMetadata", "title"]) ==
@@ -297,14 +331,39 @@ defmodule Meadow.Data.IndexerTest do
     end
 
     test "file set encoding", %{file_set: subject} do
+      derivatives = FileSets.add_derivative(subject, :poster, FileSets.poster_uri_for(subject))
+
+      {:ok, subject} =
+        subject
+        |> FileSets.update_file_set(%{
+          derivatives: derivatives,
+          structural_metadata: %{
+            type: "webvtt",
+            value:
+              "WEBVTT\n\n00:00:00.500 --> 00:00:02.000\nThe Web is always changing\n\n00:00:02.500 --> 00:00:04.300\nand the way we access it is changing"
+          }
+        })
+
+      subject = FileSets.get_file_set_with_work_and_sheet!(subject.id)
+
       [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "FileSet"
       assert doc |> get_in(["description"]) == subject.core_metadata.description
       assert doc |> get_in(["label"]) == subject.core_metadata.label
+      assert doc |> get_in(["webvtt"]) == subject.structural_metadata.value
 
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
+
+      poster_url =
+        with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+          uri
+          |> URI.merge("posters/#{subject.id}")
+          |> URI.to_string()
+        end
+
+      assert doc |> get_in(["representativeImageUrl"]) == poster_url
     end
   end
 

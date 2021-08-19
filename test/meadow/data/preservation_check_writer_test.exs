@@ -25,69 +25,65 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     content: File.read!(@content)
   }
 
-  setup do
-    work = work_fixture()
-
-    file_set_1 =
-      file_set_fixture(%{
-        work_id: work.id,
-        accession_number: "123",
-        role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
-          digests: %{
-            "sha256" => @sha256,
-            "sha1" => @sha1
-          },
-          location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
-          mime_type: "image/tiff",
-          original_filename: "test.tif"
-        }
-      })
-
-    file_set_2 =
-      file_set_fixture(%{
-        work_id: work.id,
-        accession_number: "456",
-        role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
-          digests: %{
-            "sha256" => @sha256,
-            "sha1" => @sha1
-          },
-          location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
-          mime_type: "image/tiff",
-          original_filename: "test.tif"
-        }
-      })
-
-    file_set_3 =
-      file_set_fixture(%{
-        work_id: work.id,
-        accession_number: "789",
-        role: %{id: "S", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
-          digests: %{
-            "sha256" => @sha256,
-            "sha1" => @sha1
-          },
-          location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
-          mime_type: "image/tiff",
-          original_filename: "test.tif"
-        }
-      })
-
-    {:ok, file_set_1: file_set_1, file_set_2: file_set_2, file_set_3: file_set_3}
-  end
-
   describe "generate_report/1" do
-    setup %{file_set_1: file_set_1, file_set_2: file_set_2} do
+    setup do
+      image_work = work_fixture(%{work_type: %{id: "IMAGE", scheme: "work_type"}})
+
+      file_set_1 =
+        file_set_fixture(%{
+          work_id: image_work.id,
+          accession_number: "123",
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            digests: %{
+              "sha256" => @sha256,
+              "sha1" => @sha1
+            },
+            location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+            mime_type: "image/tiff",
+            original_filename: "test.tif"
+          }
+        })
+
+      file_set_2 =
+        file_set_fixture(%{
+          work_id: image_work.id,
+          accession_number: "456",
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            digests: %{
+              "sha256" => @sha256,
+              "sha1" => @sha1
+            },
+            location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+            mime_type: "image/tiff",
+            original_filename: "test.tif"
+          }
+        })
+
+      file_set_3 =
+        file_set_fixture(%{
+          work_id: image_work.id,
+          accession_number: "789",
+          role: %{id: "S", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            digests: %{
+              "sha256" => @sha256,
+              "sha1" => @sha1
+            },
+            location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+            mime_type: "image/tiff",
+            original_filename: "test.tif"
+          }
+        })
+
       on_exit(fn ->
         delete_object(@preservation_check_bucket, @report_filename)
         delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_1.id))
         delete_object(@pyramid_bucket, Pairtree.pyramid_path(file_set_2.id))
       end)
 
-      :ok
+      {:ok, file_set_1: file_set_1, file_set_2: file_set_2, file_set_3: file_set_3}
     end
 
     @describetag s3: [@preservation_fixture]
@@ -169,6 +165,38 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
       assert {:ok, "s3://test-preservation-checks/pres_check.csv", 2} =
+               PreservationCheckWriter.generate_report(@report_filename)
+    end
+  end
+
+  describe "generate_report/1 with video file sets" do
+    setup do
+      video_work = work_fixture(%{work_type: %{id: "VIDEO", scheme: "work_type"}})
+
+      video_access_file_set =
+        file_set_fixture(%{
+          work_id: video_work.id,
+          accession_number: "101112",
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            digests: %{
+              "sha256" => @sha256,
+              "sha1" => @sha1
+            },
+            location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+            mime_type: "video/mp4",
+            original_filename: "test.mp4"
+          }
+        })
+
+      {:ok, file_set: video_access_file_set}
+    end
+
+    @describetag s3: [@preservation_fixture]
+    test "does not record an error if video access file set pyramids are missing", %{
+      file_set: _file_set
+    } do
+      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)
     end
   end

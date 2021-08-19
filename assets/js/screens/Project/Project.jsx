@@ -20,6 +20,7 @@ import {
   ActionHeadline,
   Breadcrumbs,
   FallbackErrorComponent,
+  Message,
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
@@ -103,7 +104,7 @@ const ScreensProject = () => {
               />
             )}
             <>
-              <div className="box">
+              <div className="">
                 {loading ? (
                   <Skeleton rows={5} />
                 ) : (
@@ -124,7 +125,12 @@ const ScreensProject = () => {
                           </Button>
 
                           <Button
-                            onClick={() => handleFacetLinkClick("IngestProject", data.project.title)}
+                            onClick={() =>
+                              handleFacetLinkClick(
+                                "IngestProject",
+                                data.project.title
+                              )
+                            }
                             data-testid="button-view-all-works"
                           >
                             <span className="icon">
@@ -135,16 +141,19 @@ const ScreensProject = () => {
                         </div>
                       </AuthDisplayAuthorized>
                     </ActionHeadline>
-                    <div className="content">
-                      <dl>
-                        <dt>Last updated</dt>
-                        <dd>{formatDate(data.project.updatedAt)}</dd>
-                        <dt>Total Ingest Sheets</dt>
-                        <dd>{data.project.ingestSheets.length}</dd>
-                        <dt>S3 Bucket Folder</dt>
-                        <dd>{data.project.folder}</dd>
-                      </dl>
-                    </div>
+
+                    <section className="mb-5">
+                      <Message>
+                        <dl>
+                          <dt>Last updated</dt>
+                          <dd>{formatDate(data.project.updatedAt)}</dd>
+                          <dt>Total Ingest Sheets</dt>
+                          <dd>{data.project.ingestSheets.length}</dd>
+                          <dt>S3 Bucket Folder</dt>
+                          <dd>{data.project.folder}</dd>
+                        </dl>
+                      </Message>
+                    </section>
                   </>
                 )}
               </div>
@@ -157,7 +166,8 @@ const ScreensProject = () => {
                       project={data.project}
                       subscribeToIngestSheetStatusChanges={() =>
                         subscribeToMore({
-                          document: INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
+                          document:
+                            INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
                           variables: { projectId: id },
                           updateQuery: handleIngestSheetStatusChange,
                         })

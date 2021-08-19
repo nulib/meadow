@@ -37,6 +37,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     @desc "Update a FileSet's metadata"
     field :update_file_set, :file_set do
       arg(:id, non_null(:id))
+      arg(:poster_offset, :integer)
       arg(:core_metadata, :file_set_core_metadata_update)
       arg(:structural_metadata, :file_set_structural_metadata_input)
       middleware(Middleware.Authenticate)
@@ -112,10 +113,17 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:rank, :integer)
     field(:work, :work, resolve: dataloader(Data))
     field(:core_metadata, :file_set_core_metadata)
+    field(:poster_offset, :integer)
 
     field :streaming_url, :string do
       resolve(fn file_set, _, _ ->
         {:ok, FileSets.distribution_streaming_uri_for(file_set)}
+      end)
+    end
+
+    field :representative_image_url, :string do
+      resolve(fn file_set, _, _ ->
+        {:ok, FileSets.representative_image_url_for(file_set)}
       end)
     end
 

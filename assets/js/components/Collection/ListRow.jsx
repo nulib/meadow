@@ -27,7 +27,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
   const { truncate } = useTruncateText();
 
   return (
-    <li data-testid="collection-list-row" css={row}>
+    <li data-testid="collection-list-row" css={row} className="box">
       <article
         className={classNames(["is-flex", "is-align-items-flex-start"], {
           "is-flex-direction-column": isMobile && !isTablet,
@@ -47,12 +47,10 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
         </figure>
         <div className="is-flex-grow-1 is-flex-shrink-1">
           <p className="small-title block">
-            <Link to={`/collection/${id}`}>{title}</Link>
+            <Link to={`/collection/${id}`}>{title}</Link>{" "}
+            <span className="pl-3 has-text-grey">({totalWorks} works)</span>
           </p>
           <CollectionTags collection={collection} />
-          <p className="block">
-            <strong># Works:</strong> {totalWorks}
-          </p>
           <p className="block">{description && truncate(description, 350)}</p>
         </div>
         <div className="is-flex-grow-0 is-flex-shrink-0">

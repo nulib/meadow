@@ -9,6 +9,7 @@ alias Meadow.Pipeline.Actions.{
   ExtractMimeType,
   FileSetComplete,
   GenerateFileSetDigests,
+  GeneratePosterImage,
   ExtractExifMetadata,
   IngestFileSet,
   InitializeDispatch,
@@ -32,6 +33,7 @@ config :sequins, Meadow.Pipeline,
     ExtractMediaMetadata,
     CreateTranscodeJob,
     TranscodeComplete,
+    GeneratePosterImage,
     FileSetComplete
   ]
 
@@ -117,6 +119,10 @@ config :sequins, TranscodeComplete,
   notify_on: [
     TranscodeComplete: [status: :retry]
   ]
+
+config :sequins, GeneratePosterImage,
+  queue_config: [receive_interval: 1000, wait_time_seconds: 1, visibility_timeout: 300],
+  notify_on: [GeneratePosterImage: [status: :retry]]
 
 config :sequins, FileSetComplete,
   queue_config: [receive_interval: 1000, wait_time_seconds: 1, processor_concurrency: 10],

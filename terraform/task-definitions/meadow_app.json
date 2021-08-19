@@ -1,15 +1,10 @@
 [
   {
-    "name": "meadow-${name}",
+    "name": "meadow",
     "image": "nulib/meadow:${docker_tag}",
     "cpu": ${cpu_reservation},
     "memoryReservation": ${memory_reservation},
-    "mountPoints": [
-      {
-        "sourceVolume": "meadow-working",
-        "containerPath": "/working"
-      }
-    ],
+    "mountPoints": [],
     "essential": true,
     "environment": [
       {

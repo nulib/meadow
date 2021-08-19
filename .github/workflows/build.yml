@@ -1,0 +1,288 @@
+---
+name: meadow
+on: [push]
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.12.1'
+      - name: Cache Elixir dependencies
+        uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-
+      - name: Cache Elixir build
+        uses: actions/cache@v2
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-
+      - name: Cache JS dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            assets/node_modules
+            priv/nodejs/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
+            ${{ runner.os }}-yarn-
+      - name: Install Elixir dependencies
+        run: mix do deps.get, deps.compile
+      - name: Install JS dependencies
+        run: yarn install --cwd assets
+      - name: Install Lambda dependencies
+        run: |
+          for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
+          do
+            echo "yarn install --cwd $(dirname $pkg)"
+            yarn install --cwd $(dirname $pkg)
+          done
+  js-test:
+    runs-on: ubuntu-latest
+    needs: dependencies
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Cache Elixir dependencies
+        uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-
+      - name: Cache Elixir build
+        uses: actions/cache@v2
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-
+      - name: Cache JS dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            assets/node_modules
+            priv/nodejs/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
+            ${{ runner.os }}-yarn-
+      - name: JS Static Analysis
+        run: yarn prettier
+        working-directory: assets
+      - name: JS Tests
+        run: yarn ci -w 1
+        working-directory: assets
+      - name: Test Webpack Build
+        run: yarn deploy
+        working-directory: assets
+  elixir-test:
+    runs-on: ubuntu-latest
+    needs: dependencies
+    env:
+      MIX_ENV: test
+    services:
+      db:
+        image: postgres:10-alpine
+        env:
+          POSTGRES_USER: docker
+          POSTGRES_PASSWORD: d0ck3r
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5434:5432
+      goaws:
+        image: nulib/goaws
+        ports:
+          - 4102:4100
+      ldap:
+        image: nulib/ldap-alpine
+        ports:
+          - 391:389
+          - 638:636
+      elasticsearch:
+        image: bitnami/elasticsearch:6
+        env:
+          ELASTICSEARCH_HEAP_SIZE: "256m"
+        ports:
+          - 9202:9200
+      minio:
+        image: bitnami/minio
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: minio123
+        ports:
+          - 9002:9000
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.12.1'
+      - name: Install LDAP utils
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ldap-utils
+      - name: Install FFMPEG
+        run: |
+          mkdir -p ${{ runner.temp }}/ffmpeg && \
+          cd ${{ runner.temp }}/ffmpeg && \
+          curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
+          sudo cp $(find . -type f -executable) /usr/local/bin/ && \
+          echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
+      - name: Cache Elixir dependencies
+        uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-
+      - name: Cache Elixir build
+        uses: actions/cache@v2
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-
+      - name: Cache JS dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            assets/node_modules
+            priv/nodejs/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
+            ${{ runner.os }}-yarn-
+      - name: Elixir Static Analysis
+        run: mix credo
+      - name: Elixir Tests
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test DB Rollback
+        run: mix ecto.rollback --all
+  publish:
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/') }}
+    runs-on: ubuntu-latest
+    needs:
+      - elixir-test
+      - js-test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set DEPLOY_ENV from Branch Name
+        run: |
+          if [[ $BRANCH == "master" ]]; then
+            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Extract MEADOW_VERSION from mix.exs
+        run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
+      - name: Tag Meadow Release
+        if: ${{ github.ref == 'master' }}
+        run: |
+          git config --global user.email "$(git log --pretty=format:"%ae" | head -1)"
+          git config --global user.name "$(git log --pretty=format:"%an" | head -1)"
+          git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: nulib/meadow:${{ env.DEPLOY_ENV }}
+          build-args: |
+            HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
+            HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+            HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
+            HONEYBADGER_REVISION=${{ github.sha }}
+            MEADOW_VERSION=${{ env.MEADOW_VERSION }}
+      - name: Upload Source Maps to Honeybadger
+        run: .github/scripts/upload_source_maps.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
+          HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+          HONEYBADGER_REVISION: ${{ github.sha }}
+      - name:  Set GitHub Deploy Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.REPO_PRIVATE_KEY }}
+      - name: Push Release Tag
+        if: ${{ github.ref == 'master' }}
+        run: |
+          git push origin v${MEADOW_VERSION}
+  deploy:
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') }}
+    runs-on: ubuntu-latest
+    needs: publish
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set DEPLOY_ENV from Branch Name
+        run: |
+          if [[ $BRANCH == "master" ]]; then
+            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Configure AWS
+        run: .github/scripts/configure_aws.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          SECRETS: ${{ toJSON(secrets) }}
+      - name: Update ECS Service
+        run: .github/scripts/update_ecs_service.sh
+        env:
+          ECS_CLUSTER: meadow
+          ECS_CONTAINER: meadow
+          ECS_SERVICE: meadow
+          ECS_TASK: meadow-all
+      - name: Notify Honeybadger
+        run: .github/scripts/honeybadger_deploy_notification.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          HONEYBADGER_API_KEY: ${{ secrets.HONEYBADGER_API_KEY }}
+          HONEYBADGER_REVISION: ${{ github.sha }}

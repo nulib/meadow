@@ -35,6 +35,11 @@ variable "digital_collections_url" {
   type = string
 }
 
+variable "deleted_object_expiration" {
+  type    = number
+  default = 180
+}
+
 variable "geonames_username" {
   type = string
 }
@@ -67,6 +72,11 @@ variable "tags" {
 }
 
 variable "upload_bucket" {
+  type    = string
+  default = ""
+}
+
+variable "nul_public_bucket" {
   type    = string
   default = ""
 }
@@ -149,3 +159,6 @@ variable "ezid_user" {
   type = string
 }
 
+variable "ffmpeg_layer_sha256" {
+  type = string
+}

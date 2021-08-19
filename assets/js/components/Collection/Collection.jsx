@@ -7,11 +7,6 @@ import { IconEdit, IconImages } from "@js/components/Icon";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-const imgCol = css`
-  border-right: 1px solid #efefef;
-  margin-right: 1rem;
-  padding-right: 1rem;
-`;
 
 const Collection = ({ collection }) => {
   const history = useHistory();
@@ -37,10 +32,7 @@ const Collection = ({ collection }) => {
   return (
     <div data-testid="collection">
       <div className="columns">
-        <div
-          className="column is-one-quarter-desktop is-half-tablet"
-          css={imgCol}
-        >
+        <div className="column is-one-quarter-desktop is-half-tablet">
           <figure className="image is-square">
             {representativeWork ? (
               <Link to={`/work/${representativeWork.id}`} title="View work">

@@ -8,6 +8,7 @@ defmodule Meadow.Data.SharedLinks do
   alias NimbleCSV.RFC4180, as: CSV
 
   @index "shared_links"
+  @public_expiration "Never"
   @type_name "_doc"
 
   @enforce_keys [:work_id, :expires]
@@ -57,7 +58,7 @@ defmodule Meadow.Data.SharedLinks do
       |> Stream.map(fn %{"_source" => work_doc} ->
         case work_doc do
           %{"visibility" => %{"id" => "OPEN"}, "published" => true} ->
-            {shared_link_row(work_doc, work_doc["id"], nil, "items"), nil}
+            {shared_link_row(work_doc, work_doc["id"], @public_expiration, "items"), nil}
 
           _ ->
             with doc <- shared_link(work_doc["id"], ttl) |> shared_link_document(),
