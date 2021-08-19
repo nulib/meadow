@@ -2,6 +2,12 @@
 name: meadow
 on: [push]
 jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - run: "echo ${CONTEXT}"
+        env:
+          CONTEXT: ${{ toJSON(github) }}
   dependencies:
     runs-on: ubuntu-latest
     env:
@@ -261,7 +267,7 @@ jobs:
           fetch-depth: 2
       - name: Set DEPLOY_ENV from Branch Name
         run: |
-          if [[ $BRANCH == "master" ]]; then
+          if [[ $BRANCH =~ /master$ ]]; then
             echo "DEPLOY_ENV=production" >> $GITHUB_ENV
           else
             echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
