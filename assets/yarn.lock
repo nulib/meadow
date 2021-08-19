@@ -1218,7 +1218,7 @@
   resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.5.tgz#2c40f81449a4e554e9fc6396910ed4843ec2be50"
   integrity sha512-igX9a37DR2ZPGYtV6suZ6whr8pTFtyHL3K/oLUotxpSVO2ASaprmAe2Dkq7tBo7CRY7MMDrAa9nuQP9/YG8FxQ==
 
-"@emotion/react@^11.1.1", "@emotion/react@^11.4.0", "@emotion/react@^11.4.1":
+"@emotion/react@^11.1.1", "@emotion/react@^11.1.5", "@emotion/react@^11.4.0", "@emotion/react@^11.4.1":
   version "11.4.1"
   resolved "https://registry.yarnpkg.com/@emotion/react/-/react-11.4.1.tgz#a1b0b767b5bad57515ffb0cad9349614d27f4d57"
   integrity sha512-pRegcsuGYj4FCdZN6j5vqCALkNytdrKw3TZMekTzNXixRg4wkLsU5QEaBG5LC6l01Vppxlp7FE3aTHpIG5phLg==
@@ -7037,15 +7037,15 @@ onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openseadragon-react-viewer@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/openseadragon-react-viewer/-/openseadragon-react-viewer-3.2.0.tgz#49316d52e93c46565db83b41f5017afd5addd35c"
-  integrity sha512-Jncsb8ifoYOhw4BITRINA/+llUghpRY6jNxkS26pN6hx7GGnFxV3WpTToB40KQktjJMRsP93Xl5Z1y8G1zz1cA==
+openseadragon-react-viewer@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/openseadragon-react-viewer/-/openseadragon-react-viewer-3.3.0.tgz#2a7c5fdf8e177f85be1c4abd5f0a733525ef7d90"
+  integrity sha512-2W+t8AlVSwieP0/rKBDyHL+6Y6m0vrh0Y3gfUgfhwO0T5dDO2FzS7FwgocTUhFqj6EaKiKQeQNIJgDhr7m9Qzw==
   dependencies:
-    "@emotion/react" "^11.4.1"
+    "@emotion/react" "^11.1.5"
     "@reglendo/canvas2image" "^1.0.5-2"
-    react-device-detect "^1.17.0"
-    react-select "^4.3.1"
+    react-device-detect "^1.12.1"
+    react-select "^4.1.0"
 
 openseadragon@^2.4.2:
   version "2.4.2"
@@ -7872,7 +7872,7 @@ react-day-picker@^7.0.5:
   dependencies:
     prop-types "^15.6.2"
 
-react-device-detect@^1.17.0:
+react-device-detect@^1.12.1:
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/react-device-detect/-/react-device-detect-1.17.0.tgz#a00b4fd6880cebfab3fd8a42a79dc0290cdddca9"
   integrity sha512-bBblIStwpHmoS281JFIVqeimcN3LhpoP5YKDWzxQdBIUP8S2xPvHDgizLDhUq2ScguLfVPmwfF5y268EEQR60w==
@@ -8034,7 +8034,7 @@ react-router@5.2.0:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-select@^4.3.1:
+react-select@^4.1.0:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-select/-/react-select-4.3.1.tgz#389fc07c9bc7cf7d3c377b7a05ea18cd7399cb81"
   integrity sha512-HBBd0dYwkF5aZk1zP81Wx5UsLIIT2lSvAY2JiJo199LjoLHoivjn9//KsmvQMEFGNhe58xyuOITjfxKCcGc62Q==
