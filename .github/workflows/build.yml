@@ -195,16 +195,16 @@ jobs:
       - name: Test DB Rollback
         run: mix ecto.rollback --all
   publish:
-    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/') }}
-    runs-on: ubuntu-latest
     needs:
       - elixir-test
       - js-test
+    if: ${{ (!github.event.pull_request) && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/')) }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set DEPLOY_ENV from Branch Name
         run: |
-          if [[ $BRANCH == "master" ]]; then
+          if [[ $BRANCH == 'refs/heads/master' ]]; then
             echo "DEPLOY_ENV=production" >> $GITHUB_ENV
           else
             echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
@@ -215,7 +215,7 @@ jobs:
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
       - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
       - name: Tag Meadow Release
-        if: ${{ github.ref == 'master' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           git config --global user.email "$(git log --pretty=format:"%ae" | head -1)"
           git config --global user.name "$(git log --pretty=format:"%an" | head -1)"
@@ -248,20 +248,20 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.REPO_PRIVATE_KEY }}
       - name: Push Release Tag
-        if: ${{ github.ref == 'master' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           git push origin v${MEADOW_VERSION}
   deploy:
-    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/deploy/') }}
-    runs-on: ubuntu-latest
     needs: publish
+    if: ${{ ! startsWith(github.ref, 'refs/heads/build/') }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
       - name: Set DEPLOY_ENV from Branch Name
         run: |
-          if [[ $BRANCH == "master" ]]; then
+          if [[ $BRANCH == 'refs/heads/master' ]]; then
             echo "DEPLOY_ENV=production" >> $GITHUB_ENV
           else
             echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
