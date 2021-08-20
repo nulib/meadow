@@ -1218,7 +1218,7 @@
   resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.5.tgz#2c40f81449a4e554e9fc6396910ed4843ec2be50"
   integrity sha512-igX9a37DR2ZPGYtV6suZ6whr8pTFtyHL3K/oLUotxpSVO2ASaprmAe2Dkq7tBo7CRY7MMDrAa9nuQP9/YG8FxQ==
 
-"@emotion/react@^11.1.1", "@emotion/react@^11.1.5", "@emotion/react@^11.4.0", "@emotion/react@^11.4.1":
+"@emotion/react@^11.1.1", "@emotion/react@^11.1.5", "@emotion/react@^11.4.1":
   version "11.4.1"
   resolved "https://registry.yarnpkg.com/@emotion/react/-/react-11.4.1.tgz#a1b0b767b5bad57515ffb0cad9349614d27f4d57"
   integrity sha512-pRegcsuGYj4FCdZN6j5vqCALkNytdrKw3TZMekTzNXixRg4wkLsU5QEaBG5LC6l01Vppxlp7FE3aTHpIG5phLg==
@@ -1638,12 +1638,12 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@nulib/admin-react-components@^1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.9.0.tgz#21c060ae6a03d1318d9420db2b2066618683fa8f"
-  integrity sha512-Goh9dM/m5SutZU/Xz6X3Zz0rpbWW/uNAGUNBRGWJDnc39OwpCLWLVWNoZrFCLlI8VcWW2Wm7MxNTHl+2xavroA==
+"@nulib/admin-react-components@^1.10.0":
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@nulib/admin-react-components/-/admin-react-components-1.10.0.tgz#9cbfdc029f9a495bf578f57db41b4a0e27cc807a"
+  integrity sha512-GMbLubepV/AnnS6fQVtevM9aR5eU1sdpUkvP6Q5SVkIAZ4kfQLLQTZlL4wtNMY8Zwu6/JI0+Jpn+mEB6wlULUA==
   dependencies:
-    "@emotion/react" "^11.4.0"
+    "@emotion/react" "^11.4.1"
     classnames "^2.3.1"
 
 "@nulib/prettier-config@^1.2.0":
