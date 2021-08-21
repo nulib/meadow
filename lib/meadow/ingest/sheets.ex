@@ -7,8 +7,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
-  alias Meadow.Ingest.Progress
-  alias Meadow.Ingest.Schemas.{Project, Row, Sheet}
+  alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
@@ -499,17 +498,29 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.all()
   end
 
-  def kick(%Sheet{} = sheet), do: kick!(sheet.id)
+  def update_completed_sheets() do
+    from(s in Sheet, where: s.status == "approved")
+    |> Repo.all()
+    |> Enum.each(&check_sheet_for_completeness/1)
+  end
 
-  def kick!(sheet_id) do
-    with entry <-
-           sheet_id
-           |> Progress.get_entries()
-           |> List.first() do
-      Repo.query("UPDATE ingest_progress SET status = status WHERE row_id = $1 AND action = $2", [
-        Ecto.UUID.dump!(entry.row_id),
-        entry.action
-      ])
+  def check_sheet_for_completeness(%Sheet{} = sheet) do
+    sheet_statuses =
+      from(r in Row,
+        join: p in Progress,
+        on: r.id == p.row_id,
+        select: [p.status],
+        where: r.sheet_id == ^sheet.id,
+        distinct: true
+      )
+      |> Repo.all()
+      |> List.flatten()
+      |> Enum.sort()
+
+    case sheet_statuses do
+      ["ok"] -> update_ingest_sheet_status(sheet, "completed")
+      ["error" | _] -> update_ingest_sheet_status(sheet, "completed_error")
+      _ -> {:ok, sheet}
     end
   end
 end

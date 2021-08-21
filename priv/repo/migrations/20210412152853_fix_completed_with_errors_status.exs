@@ -1,4 +1,4 @@
-defmodule Meadow.Repo.Migrations.AddCompletedWithErrorsStatus do
+defmodule Meadow.Repo.Migrations.FixCompletedWithErrorsStatus do
   use Ecto.Migration
 
   require Logger

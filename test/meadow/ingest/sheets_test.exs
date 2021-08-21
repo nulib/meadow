@@ -150,11 +150,12 @@ defmodule Meadow.Ingest.SheetsTest do
     end
   end
 
-  describe "fix stuck ingest sheet" do
+  describe "update_completed_sheets/0" do
     @fixture "test/fixtures/ingest_sheet.csv"
 
-    setup do
-      ingest_sheet = ingest_sheet_rows_fixture(@fixture)
+    setup tags do
+      {:ok, ingest_sheet} =
+        ingest_sheet_rows_fixture(@fixture) |> Sheets.update_ingest_sheet_status("approved")
 
       with rows <- Rows.list_ingest_sheet_rows(sheet: ingest_sheet) do
         rows
@@ -164,12 +165,33 @@ defmodule Meadow.Ingest.SheetsTest do
         end)
         |> Progress.initialize_entries()
 
+        Progress.get_entries(ingest_sheet)
+        |> Enum.each(&Progress.update_entry(&1.row_id, &1.action, Enum.random(tags[:statuses])))
+
         {:ok, %{ingest_sheet: ingest_sheet}}
       end
     end
 
-    test "kick!/1", %{ingest_sheet: ingest_sheet} do
-      assert {:ok, %Postgrex.Result{command: :update, num_rows: 1}} = Sheets.kick!(ingest_sheet)
+    @tag statuses: ["ok", "error"]
+    test "sets status to completed_error when there are errors", %{ingest_sheet: ingest_sheet} do
+      Sheets.update_completed_sheets()
+      assert Sheets.get_ingest_sheet!(ingest_sheet.id).status == "completed_error"
+    end
+
+    @tag statuses: ["ok"]
+    test "sets status to completed on when all ok", %{ingest_sheet: ingest_sheet} do
+      Sheets.update_completed_sheets()
+      assert Sheets.get_ingest_sheet!(ingest_sheet.id).status == "completed"
+    end
+
+    @tag statuses: ["ok", "pending"]
+    test "doesn't change status when not complete", %{ingest_sheet: ingest_sheet} do
+      Sheets.update_completed_sheets()
+
+      with sheet <- assert(Sheets.get_ingest_sheet!(ingest_sheet.id)) do
+        assert sheet.status == "approved"
+        assert sheet.updated_at == ingest_sheet.updated_at
+      end
     end
   end
 end
