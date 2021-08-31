@@ -7,8 +7,10 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
 
   def encode(file_set) do
     %{
+      accessionNumber: file_set.accession_number,
       createDate: file_set.inserted_at,
       description: file_set.core_metadata.description,
+      id: file_set.id,
       label: file_set.core_metadata.label,
       mime_type: file_set.core_metadata.mime_type,
       model: %{application: "Meadow", name: "FileSet"},
