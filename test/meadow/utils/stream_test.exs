@@ -61,14 +61,14 @@ defmodule Meadow.Utils.StreamTest do
 
   describe "list_contents/1" do
     test "file://" do
-      with path <- Path.expand("test/fixtures/migration"),
+      with path <- Path.expand("test/fixtures/csv"),
            result <- Stream.list_contents("file://#{path}") do
         assert result |> length() > 0
 
         assert result
                |> Enum.all?(fn "file://" <> file ->
                  file |> File.regular?() and
-                   file |> String.contains?("test/fixtures/migration")
+                   file |> String.contains?("test/fixtures/csv")
                end)
       end
     end
