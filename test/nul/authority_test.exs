@@ -15,7 +15,13 @@ defmodule NUL.AuthorityTest do
       AuthorityRecords.create_authority_record!(%{
         label: "steering committee"
       }),
-      AuthorityRecords.create_authority_record!(%{label: "Netsch, Walter A."})
+      AuthorityRecords.create_authority_record!(%{
+        label: "Netsch, Walter A.",
+        hint: "Also a Legend"
+      }),
+      AuthorityRecords.create_authority_record!(%{
+        label: "Legendary label"
+      })
     ]
 
     {:ok, authority_record: List.first(authority_records)}
@@ -70,6 +76,12 @@ defmodule NUL.AuthorityTest do
 
       with {:ok, results} <- Authority.search("stee") do
         assert Enum.all?(results, fn result -> String.match?(result.label, ~r/stee/i) end)
+      end
+    end
+
+    test "includes results for both labels and hints" do
+      with {:ok, results} <- Authority.search("Legend") do
+        assert length(results) == 3
       end
     end
 
