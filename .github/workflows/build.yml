@@ -280,7 +280,6 @@ jobs:
           ECS_CONTAINER: meadow
           ECS_SERVICE: meadow
           ECS_TASK: meadow-all
-          NEW_HEAD: ${{ github.event.head }}
           PRIOR_HEAD: ${{ github.event.before }}
       - name: Notify Honeybadger
         run: .github/scripts/honeybadger_deploy_notification.sh
