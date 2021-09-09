@@ -31,7 +31,9 @@ function WorkFilesetListItem({
   // https://stackoverflow.com/questions/34097560/react-js-replace-img-src-onerror
   const [imgState, setImgState] = React.useState({
     errored: false, // This prevents a potential infinite loop
-    src: `${fileSet.representativeImageUrl}/square/500,500/0/default.jpg`,
+    src: `${fileSet.representativeImageUrl}/${
+      isMedia(fileSet) ? "full" : "square"
+    }/500,/0/default.jpg`,
   });
 
   const handleError = (e) => {
@@ -39,7 +41,7 @@ function WorkFilesetListItem({
       setImgState({
         errored: true,
         src: isMedia(fileSet)
-          ? "/images/video-placeholder.png"
+          ? "/images/video-placeholder2.png"
           : "/images/placeholder.png",
       });
     }
@@ -49,7 +51,7 @@ function WorkFilesetListItem({
     <article className="box" data-testid="fileset-item">
       <div className="columns">
         <div className="column is-2">
-          <figure className="image is-square">
+          <figure className="image">
             <img
               src={imgState.src}
               placeholder="Fileset Image"

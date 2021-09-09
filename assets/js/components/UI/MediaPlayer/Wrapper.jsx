@@ -7,7 +7,8 @@ import { Notification } from "@nulib/admin-react-components";
 import UIIconText from "@js/components/UI/IconText";
 import { IconAlert } from "@js/components/Icon";
 const webvtt = require("node-webvtt");
-import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+import MediaPlayerPosterSelector from "@js/components/UI/MediaPlayer/PosterSelector";
+import MediaPlayerSwitcher from "@js/components/UI/MediaPlayer/Switcher";
 
 function MediaPlayerWrapper({ fileSet, fileSets }) {
   const { getWebVttString, isEmpty } = useFileSet();
@@ -17,8 +18,6 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
   const mediaInfoTracks = getTechnicalMetadata(fileSet);
   const webVttString = getWebVttString(fileSet);
   let navCues;
-  const workState = useWorkState();
-  const dispatch = useWorkDispatch();
 
   // FileSet hasn't yet been fully ran through the pipeline
   if (!fileSet?.coreMetadata?.mimeType) {
@@ -52,45 +51,32 @@ function MediaPlayerWrapper({ fileSet, fileSets }) {
     );
   }
 
-  const handleSelectChange = (e) => {
-    dispatch({
-      type: "updateActiveMediaFileSet",
-      fileSet: fileSets.find((fs) => fs.id === e.target.value),
-    });
-  };
-
   return (
     <>
-      <div>
-        <MediaPlayer
-          key={fileSet.id}
-          navCues={navCues}
-          src={fileSet?.streamingUrl}
-          poster={
-            fileSet?.representativeImageUrl
-              ? `${fileSet?.representativeImageUrl}/full/600,/0/default.jpg`
-              : `/images/video-placeholder.png`
-          }
-          videoElAttrs={videoElAttrs}
-        />
-      </div>
-      <div className="block content mt-4">
-        <p>
-          <strong>Attached Filesets:</strong>
-        </p>
-        <div className="select">
-          <select
-            value={workState?.activeMediaFileSet?.id}
-            onChange={handleSelectChange}
-          >
-            {fileSets.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.coreMetadata?.label}
-              </option>
-            ))}
-          </select>
+      <div className="has-background-grey-lighter py-3">
+        <div className="container block">
+          <MediaPlayerSwitcher fileSets={fileSets} />
         </div>
       </div>
+
+      <section className="section hero is-black">
+        <div className="container">
+          <div>
+            <MediaPlayer
+              key={fileSet.id}
+              navCues={navCues}
+              src={fileSet?.streamingUrl}
+              poster={
+                fileSet?.representativeImageUrl
+                  ? `${fileSet?.representativeImageUrl}/full/1200,/0/default.jpg`
+                  : `/images/video-placeholder2.png`
+              }
+              videoElAttrs={videoElAttrs}
+            />
+          </div>
+          <MediaPlayerPosterSelector />
+        </div>
+      </section>
     </>
   );
 }
