@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Looking for index changes between ${NEW_HEAD} and ${PRIOR_HEAD}"
-changed_files=$(git diff --name-only ${NEW_HEAD} ${PRIOR_HEAD})
+echo "Looking for index changes between ${GITHUB_SHA} and ${PRIOR_HEAD}"
+changed_files=$(git diff --name-only ${GITHUB_SHA} ${PRIOR_HEAD})
 case $changed_files in
   lib/meadow/indexing/*)
     reindex=true
