@@ -13,7 +13,6 @@ function MediaButtons({ fileSet }) {
   const dispatch = useWorkDispatch();
   return (
     <div className="buttons is-flex is-justify-content-flex-end">
-      <Button>Download media file</Button>
       <Button
         onClick={() =>
           dispatch({
