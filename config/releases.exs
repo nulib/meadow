@@ -72,7 +72,11 @@ config :meadow, Meadow.ElasticsearchCluster,
     meadow: %{
       settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
-      sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
+      sources: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ],
       bulk_page_size: 200,
       bulk_wait_interval: 500
     }

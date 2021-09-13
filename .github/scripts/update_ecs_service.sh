@@ -9,6 +9,9 @@ case $changed_files in
   priv/elasticsearch/*)
     reindex=true
     ;;
+  config/releases.exs)
+    reindex=true
+    ;;
   *)
     reindex=false
     ;;
