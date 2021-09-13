@@ -337,6 +337,7 @@ defmodule Meadow.Data.IndexerTest do
         subject
         |> FileSets.update_file_set(%{
           derivatives: derivatives,
+          poster_offset: 100,
           structural_metadata: %{
             type: "webvtt",
             value:
@@ -352,6 +353,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "name"]) == "FileSet"
       assert doc |> get_in(["description"]) == subject.core_metadata.description
       assert doc |> get_in(["label"]) == subject.core_metadata.label
+      assert doc |> get_in(["posterOffset"]) == 100
       assert doc |> get_in(["webvtt"]) == subject.structural_metadata.value
 
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
