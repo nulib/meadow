@@ -189,16 +189,19 @@ defmodule Meadow.Data.FileSets do
       Multi.update(
         multi,
         :"index_#{index}",
-        FileSet.update_changeset(get_file_set!(changes.id), %{
-          core_metadata: Map.get(changes, :core_metadata, %{}),
-          structural_metadata: Map.get(changes, :structural_metadata, %{}),
-          updated_at: NaiveDateTime.utc_now()
-        })
+        FileSet.update_changeset(get_file_set!(changes.id), prep_changes(changes))
       )
     end)
     |> Repo.transaction()
   end
 
+  defp prep_changes(changes) do
+    Enum.filter(changes, fn {k, _v} -> Enum.member?([:structural_metadata, :core_metadata], k) end)
+    |> Enum.into(%{})
+    |> Map.put(:updated_at, NaiveDateTime.utc_now())
+  end
+
+  @spec compute_positions(any) :: list
   @doc """
   Dynamically compute the position for each item in a list of maps
   that include the key `:position`.

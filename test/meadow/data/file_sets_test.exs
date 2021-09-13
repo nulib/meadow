@@ -89,7 +89,14 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "update_file_sets/1 updates multiple file_sets" do
-      file_set1 = file_set_fixture()
+      file_set1 =
+        file_set_fixture(%{
+          structural_metadata: %{
+            type: "WEBVTT",
+            value: "WEBVTT - Translation of that film I like\n\n"
+          }
+        })
+
       file_set2 = file_set_fixture()
 
       updates1 = %{id: file_set1.id, core_metadata: %{description: "New description"}}
@@ -99,6 +106,8 @@ defmodule Meadow.Data.FileSetsTest do
 
       assert file_set1.core_metadata.description == "New description"
       assert file_set2.core_metadata.label == "New label"
+
+      assert file_set1.structural_metadata.type == "WEBVTT"
     end
 
     test "update_file_sets/1 with bad data returns an error" do
@@ -240,14 +249,13 @@ defmodule Meadow.Data.FileSetsTest do
           extracted_metadata: @mediainfo
         )
 
-        assert FileSets.duration_in_milliseconds(file_set) == 1_000_999.0
+      assert FileSets.duration_in_milliseconds(file_set) == 1_000_999.0
     end
 
     test "duration_in_milliseconds/1 for a file set without extracted mediainfo" do
-      file_set =
-        file_set_fixture()
+      file_set = file_set_fixture()
 
-        assert is_nil(FileSets.duration_in_milliseconds(file_set))
+      assert is_nil(FileSets.duration_in_milliseconds(file_set))
     end
   end
 end
