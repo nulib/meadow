@@ -32,7 +32,6 @@ config :exldap, :settings,
   password: get_required_var.("LDAP_BIND_PASSWORD")
 
 config :meadow, Meadow.Repo,
-  # ssl: true,
   url: get_required_var.("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("DB_POOL_SIZE", "10")),
   queue_target: String.to_integer(System.get_env("DB_QUEUE_TARGET", "50")),

@@ -2,20 +2,11 @@
 
 echo "Looking for index changes between ${GITHUB_SHA} and ${PRIOR_HEAD}"
 changed_files=$(git diff --name-only ${GITHUB_SHA} ${PRIOR_HEAD})
-case $changed_files in
-  lib/meadow/indexing/*)
-    reindex=true
-    ;;
-  priv/elasticsearch/*)
-    reindex=true
-    ;;
-  config/releases.exs)
-    reindex=true
-    ;;
-  *)
-    reindex=false
-    ;;
-esac
+reindex_changes='lib/meadow/indexing/|priv/elasticsearch/|config/releases.exs'
+reindex=false
+if grep -E $reindex_changes > /dev/null <<< $changed_files; then
+  reindex=true
+fi
 echo "Reindex: ${reindex}"
 
 networkconfig=$(aws ecs describe-services --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} | jq -cM '.services[0].networkConfiguration')
