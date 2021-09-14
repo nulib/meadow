@@ -47,8 +47,6 @@ config :meadow,
 config :meadow, pipeline_delay: :timer.seconds(5)
 config :meadow, environment: :prod
 config :meadow, ingest_bucket: get_required_var.("INGEST_BUCKET")
-config :meadow, migration_binary_bucket: System.get_env("MIGRATION_BINARY_BUCKET")
-config :meadow, migration_manifest_bucket: System.get_env("MIGRATION_MANIFEST_BUCKET")
 config :meadow, preservation_bucket: get_required_var.("PRESERVATION_BUCKET")
 config :meadow, upload_bucket: get_required_var.("UPLOAD_BUCKET")
 config :meadow, pyramid_bucket: get_required_var.("PYRAMID_BUCKET")

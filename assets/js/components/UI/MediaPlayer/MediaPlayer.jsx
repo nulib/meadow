@@ -46,6 +46,7 @@ function MediaPlayer({ navCues = [], src, videoElAttrs = {}, ...restProps }) {
       <div className="columns">
         <video
           data-testid="video-player"
+          id="media-player"
           ref={playerRef}
           controls
           className="column is-three-quarters"

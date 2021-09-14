@@ -13,7 +13,7 @@ defmodule Meadow.Ingest.Progress do
   import Ecto.Query
   import Meadow.Utils.Atoms
 
-  use IntervalTask, default_interval: 500, function: :send_progress_notifications
+  use IntervalTask, default_interval: 500, function: :send_notifications_and_update_sheet_status
   require Logger
 
   defstruct sheet_id: nil,
@@ -288,10 +288,12 @@ defmodule Meadow.Ingest.Progress do
     )
   end
 
-  def send_progress_notifications(state) do
+  def send_notifications_and_update_sheet_status(state) do
     with_log_level :info do
       send_notifications()
     end
+
+    Sheets.update_completed_sheets()
 
     {:noreply, state}
   end

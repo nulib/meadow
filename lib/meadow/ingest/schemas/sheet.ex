@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     %{name: "overall", state: "pending"}
   ]
 
-  @statuses ~w(uploaded file_fail row_fail valid approved completed deleted)
+  @statuses ~w(uploaded file_fail row_fail valid approved completed completed_error deleted)
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID

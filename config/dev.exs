@@ -91,8 +91,6 @@ config :meadow,
   streaming_bucket: "dev-streaming",
   streaming_url: "https://devbox.library.northwestern.edu:9001/dev-streaming/",
   mediaconvert_client: MediaConvert.Mock,
-  migration_binary_bucket: "dev-migration-binaries",
-  migration_manifest_bucket: "dev-migration-manifests",
   iiif_server_url:
     System.get_env("IIIF_SERVER_URL", "https://devbox.library.northwestern.edu:8183/iiif/2/"),
   iiif_manifest_url:

@@ -3,7 +3,7 @@ defmodule Meadow.Ark do
   Functions to create and manipulate ARKs using the EZID API
   """
 
-  alias Meadow.Ark.Client
+  alias Meadow.Ark.{Client, Serializer}
   alias Meadow.Config
 
   defstruct ark: nil,
@@ -14,17 +14,6 @@ defmodule Meadow.Ark do
             resource_type: nil,
             status: nil,
             target: nil
-
-  @datacite_map %{
-    ark: "success",
-    creator: "datacite.creator",
-    title: "datacite.title",
-    publisher: "datacite.publisher",
-    publication_year: "datacite.publicationyear",
-    resource_type: "datacite.resourcetype",
-    status: "_status",
-    target: "_target"
-  }
 
   @doc """
   Mint a new ARK identifier
@@ -74,9 +63,9 @@ defmodule Meadow.Ark do
 
   def mint(%__MODULE__{} = ark) do
     with shoulder <- Config.ark_config() |> Map.get(:default_shoulder) do
-      case Client.post("/shoulder/#{shoulder}", serialize(ark)) do
+      case Client.post("/shoulder/#{shoulder}", Serializer.serialize(ark)) do
         {:ok, %{status_code: status, body: body}} when status in 200..201 ->
-          new_id = deserialize(body) |> Map.get(:ark)
+          new_id = Serializer.deserialize(body) |> Map.get(:ark)
           {:ok, Map.put(ark, :ark, new_id)}
 
         {:ok, %{body: body}} ->
@@ -115,7 +104,7 @@ defmodule Meadow.Ark do
   """
   def get(id) do
     case Client.get("/id/#{id}") do
-      {:ok, %{status_code: 200, body: body}} -> {:ok, deserialize(body)}
+      {:ok, %{status_code: 200, body: body}} -> {:ok, Serializer.deserialize(body)}
       {:ok, %{body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end
@@ -145,43 +134,10 @@ defmodule Meadow.Ark do
   end
 
   def put(%__MODULE__{} = ark) do
-    case Client.put("/id/#{ark.ark}?update_if_exists=yes", serialize(ark)) do
+    case Client.put("/id/#{ark.ark}?update_if_exists=yes", Serializer.serialize(ark)) do
       {:ok, %{status_code: status}} when status in 200..201 -> {:ok, ark}
       {:ok, %{body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end
   end
-
-  defp deserialize(response) do
-    field_map =
-      Map.values(@datacite_map)
-      |> Enum.zip(Map.keys(@datacite_map))
-      |> Enum.into(%{})
-
-    struct!(
-      __MODULE__,
-      response
-      |> String.trim()
-      |> String.split("\n")
-      |> Enum.map(fn attribute ->
-        [key, value] = String.split(attribute, ": ", parts: 2)
-        {Map.get(field_map, key), URI.decode(value)}
-      end)
-      |> Enum.reject(fn {key, _} -> is_nil(key) end)
-    )
-  end
-
-  defp serialize(%__MODULE__{} = ark), do: serialize(Map.from_struct(ark))
-
-  defp serialize(ark) when is_map(ark) do
-    Enum.reduce(ark, ["_profile: datacite"], fn
-      {_, nil}, acc -> acc
-      {:ark, _}, acc -> acc
-      entry, acc -> [serialize(entry) | acc]
-    end)
-    |> Enum.reverse()
-    |> Enum.join("\n")
-  end
-
-  defp serialize({key, value}) when is_atom(key), do: Map.get(@datacite_map, key) <> ": " <> URI.encode(value)
 end

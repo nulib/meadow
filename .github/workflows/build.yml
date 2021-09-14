@@ -104,7 +104,7 @@ jobs:
       MIX_ENV: test
     services:
       db:
-        image: postgres:10-alpine
+        image: nulib/postgres:10-alpine
         env:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
@@ -280,6 +280,7 @@ jobs:
           ECS_CONTAINER: meadow
           ECS_SERVICE: meadow
           ECS_TASK: meadow-all
+          PRIOR_HEAD: ${{ github.event.before }}
       - name: Notify Honeybadger
         run: .github/scripts/honeybadger_deploy_notification.sh
         env:

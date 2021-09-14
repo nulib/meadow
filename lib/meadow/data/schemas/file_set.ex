@@ -60,30 +60,6 @@ defmodule Meadow.Data.Schemas.FileSet do
     end
   end
 
-  def migration_changeset(file_set, %{role: "am"} = params) do
-    params = rename_core_metadata(params)
-    params = put_in(params.role, %{id: "A", scheme: "FILE_SET_ROLE"})
-    migration_changeset(file_set, params)
-  end
-
-  def migration_changeset(file_set, params) do
-    with {required_params, optional_params} <- changeset_params() do
-      required_params = [:id | required_params]
-
-      file_set
-      |> cast(rename_core_metadata(params), required_params ++ optional_params)
-      |> prepare_embed(:core_metadata)
-      |> cast_embed(:core_metadata)
-      |> prepare_embed(:structural_metadata)
-      |> cast_embed(:structural_metadata)
-      |> validate_required([:core_metadata | required_params])
-      |> assoc_constraint(:work)
-      |> unsafe_validate_unique([:accession_number], Meadow.Repo)
-      |> unique_constraint(:accession_number)
-      |> set_rank(scope: [:work_id, :role])
-    end
-  end
-
   def update_changeset(file_set, params) do
     with {_, optional_params} <- changeset_params() do
       file_set

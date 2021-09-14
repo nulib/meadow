@@ -51,6 +51,7 @@ defmodule NUL.Authority do
   defp get_records(query, max_results) do
     from(a in AuthorityRecord,
       where: ilike(a.label, ^"%#{query}%"),
+      or_where: ilike(a.hint, ^"%#{query}%"),
       limit: ^max_results,
       select: %{id: a.id, label: a.label, hint: a.hint}
     )

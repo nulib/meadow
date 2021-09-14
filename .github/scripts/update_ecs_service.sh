@@ -1,17 +1,13 @@
 #!/bin/bash
 
-changed_files=$(git diff --name-only HEAD HEAD^)
-case $changed_files in
-  lib/meadow/indexing/*)
-    reindex=true
-    ;;
-  priv/elasticsearch/*)
-    reindex=true
-    ;;
-  *)
-    reindex=false
-    ;;
-esac
+echo "Looking for index changes between ${GITHUB_SHA} and ${PRIOR_HEAD}"
+changed_files=$(git diff --name-only ${GITHUB_SHA} ${PRIOR_HEAD})
+reindex_changes='lib/meadow/indexing/|priv/elasticsearch/|config/releases.exs'
+reindex=false
+if grep -E $reindex_changes > /dev/null <<< $changed_files; then
+  reindex=true
+fi
+echo "Reindex: ${reindex}"
 
 networkconfig=$(aws ecs describe-services --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} | jq -cM '.services[0].networkConfiguration')
 overrides='{"containerOverrides":[{"name":"'${ECS_CONTAINER}'","environment": [{"name": "MEADOW_PROCESSES", "value": "none"}, {"name": "DB_POOL_SIZE", "value": "10"}],"command":["eval","Meadow.ReleaseTasks.migrate('${reindex}')"]}]}'

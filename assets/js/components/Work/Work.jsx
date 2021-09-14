@@ -86,14 +86,10 @@ const Work = ({ work }) => {
       )}
 
       {!isImageWorkType && (
-        <section className="section hero is-black">
-          <div className="container">
-            <MediaPlayerWrapper
-              fileSet={workContextState?.activeMediaFileSet}
-              fileSets={[...filterFileSets(work.fileSets).access]}
-            />
-          </div>
-        </section>
+        <MediaPlayerWrapper
+          fileSet={workContextState?.activeMediaFileSet}
+          fileSets={[...filterFileSets(work.fileSets).access]}
+        />
       )}
 
       <section className="section">

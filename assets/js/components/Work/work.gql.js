@@ -485,11 +485,13 @@ export const UPDATE_FILE_SET = gql`
   mutation UpdateFileSet(
     $id: ID!
     $coreMetadata: FileSetCoreMetadataUpdate
+    $posterOffset: Int
     $structuralMetadata: FileSetStructuralMetadataInput
   ) {
     updateFileSet(
       id: $id
       coreMetadata: $coreMetadata
+      posterOffset: $posterOffset
       structuralMetadata: $structuralMetadata
     ) {
       id

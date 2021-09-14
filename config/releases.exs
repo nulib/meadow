@@ -32,7 +32,6 @@ config :exldap, :settings,
   password: get_required_var.("LDAP_BIND_PASSWORD")
 
 config :meadow, Meadow.Repo,
-  # ssl: true,
   url: get_required_var.("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("DB_POOL_SIZE", "10")),
   queue_target: String.to_integer(System.get_env("DB_QUEUE_TARGET", "50")),
@@ -72,7 +71,11 @@ config :meadow, Meadow.ElasticsearchCluster,
     meadow: %{
       settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
-      sources: [Meadow.Data.Schemas.Work, Meadow.Data.Schemas.Collection],
+      sources: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ],
       bulk_page_size: 200,
       bulk_wait_interval: 500
     }
@@ -93,8 +96,6 @@ config :meadow,
   mediaconvert_client: MediaConvert,
   mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE"),
   mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE"),
-  migration_binary_bucket: System.get_env("MIGRATION_BINARY_BUCKET"),
-  migration_manifest_bucket: System.get_env("MIGRATION_MANIFEST_BUCKET"),
   pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
   preservation_bucket: get_required_var.("PRESERVATION_BUCKET"),
   preservation_check_bucket: get_required_var.("PRESERVATION_CHECK_BUCKET"),

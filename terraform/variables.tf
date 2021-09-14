@@ -86,16 +86,6 @@ variable "pyramid_bucket" {
   default = ""
 }
 
-variable "migration_binary_bucket" {
-  type    = string
-  default = ""
-}
-
-variable "migration_manifest_bucket" {
-  type    = string
-  default = ""
-}
-
 variable "preservation_check_bucket" {
   type    = string
   default = ""
