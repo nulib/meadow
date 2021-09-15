@@ -1426,7 +1426,7 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.0.tgz#0eee6373e11418bfe0b5638f654df7a4ca6a3950"
   integrity sha512-wYn6r8zVZyQJ6rQaALBEln5B1pzxb9shV5Ef97kTvn6yVGrqyXVnDqnU24MXnFubR+rZjBY9NWuxX3FB2sTsjg==
 
-"@honeybadger-io/js@^3.0.1", "@honeybadger-io/js@^3.2.4":
+"@honeybadger-io/js@^3.2.4":
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-3.2.4.tgz#d416054d5e3ba1ef81ae3228a55e5c6c9adfb41d"
   integrity sha512-3VeFcjFDGMf5bJBCWmrKUCvWLzWKicW4ZeGIOrBElp1XVw2iM+GnmP0uGT35AKEniBLYxoXp3pX1ZChT60qi0A==
@@ -1434,12 +1434,12 @@
     "@types/express" "^4.17.13"
     stacktrace-parser "^0.1.10"
 
-"@honeybadger-io/react@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-1.0.1.tgz#8ef227baeed30daf7138d619a8b60555801bc06e"
-  integrity sha512-jTdoaPO+/XgTIY1X4eFSOAi7xNnye/BUOvlyMqIJBTOmX8gL+5OtzVsS2HzQSHq3rutARYWasiYQJLSOFGj5MA==
+"@honeybadger-io/react@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-1.0.2.tgz#b90ef0e9686981257fac118fd2ff6e301ece9b7f"
+  integrity sha512-1RZlpSgktPFupBIf83e4lmemsTkkPHVHZee3g6zmOiG12NLt/YStcYVwB6Im+SI/EOFAFclulNFUFkyxeHF5SA==
   dependencies:
-    "@honeybadger-io/js" "^3.0.1"
+    "@honeybadger-io/js" "^3.2.4"
 
 "@honeybadger-io/webpack@^1.5.0":
   version "1.5.0"
