@@ -1,9 +1,9 @@
 work_type,work_accession_number,file_accession_number,filename,description,role,label,work_image,structure
 IMAGE,Donohue_001,Donohue_001_01,coffee.tif,"Letter, page 1, Dear Sir, recto",A,"The label",,
-,Donohue_001,Donohue_001_02,coffee.tif,"Letter, page 1, Dear Sir, verso, blank",P,"The label",,
-,Donohue_001,Donohue_001_03,coffee.tif,"Letter, page 2, If these papers, recto",A,"The label",TRUE,
-,Donohue_001,Donohue_001_04,coffee.tif,"Letter, page 2, If these papers, verso, blank",X,"The label",,
+IMAGE,Donohue_001,Donohue_001_02,coffee.tif,"Letter, page 1, Dear Sir, verso, blank",P,"The label",,
+IMAGE,Donohue_001,Donohue_001_03,coffee.tif,"Letter, page 2, If these papers, recto",A,"The label",TRUE,
+IMAGE,Donohue_001,Donohue_001_04,coffee.tif,"Letter, page 2, If these papers, verso, blank",X,"The label",,
 VIDEO,Donohue_002,Donohue_002_01,small.m4v,"Photo, man with two children",A,"The label",,MISSING_FILE.vtt
-,Donohue_002,Donohue_002_02,small.m4v,Small Video,A,"The label",,
-,Donohue_002,Donohue_002_03,coffee.tif,"Photo, two children praying",X,"The label",,
-,Donohue_002,Donohue_002_04,details.json,"Supplemental information",S,"Supplement",,
+VIDEO,Donohue_002,Donohue_002_02,small.m4v,Small Video,A,"The label",,
+VIDEO,Donohue_002,Donohue_002_03,coffee.tif,"Photo, two children praying",X,"The label",,
+VIDEO,Donohue_002,Donohue_002_04,details.json,"Supplemental information",S,"Supplement",,
