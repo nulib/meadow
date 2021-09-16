@@ -2,7 +2,7 @@ defmodule Meadow.Ingest.ValidatorTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
-  alias Meadow.Ingest.Validator
+  alias Meadow.Ingest.{Rows, Sheets, Validator}
 
   @sheet_path "/validator_test/"
   @uploads_bucket Meadow.Config.upload_bucket()
@@ -201,5 +201,30 @@ defmodule Meadow.Ingest.ValidatorTest do
     ingest_sheet = Validator.validate(context.sheet.id)
 
     assert(ingest_sheet.status == "row_fail")
+  end
+
+  @tag sheet: "ingest_sheet_wrong_mime_type.csv"
+  test "fails when the a file set has an invalid mime type", context do
+    assert(Validator.result(context.sheet.id) == "fail")
+
+    ingest_sheet = Validator.validate(context.sheet.id)
+    assert(ingest_sheet.status == "row_fail")
+
+    assert [%{count: 1, state: "fail"}, %{count: 8, state: "pass"}] =
+             Sheets.list_ingest_sheet_row_counts(ingest_sheet.id)
+
+    %{
+      errors: [
+        %Meadow.Ingest.Schemas.Row.Error{
+          field: "filename",
+          message: message
+        }
+      ]
+    } = Rows.get_row(ingest_sheet.id, 9)
+
+    assert String.contains?(message, [
+             "Mime-type:",
+             "not accepted for work type: AUDIO and file set role: A"
+           ])
   end
 end

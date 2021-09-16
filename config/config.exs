@@ -150,6 +150,10 @@ config :ex_aws,
 
 config :httpoison_retry, wait: 50
 
+config :mime, :types, %{
+  "video/x-m4v" => ["m4v"]
+}
+
 import_config "sequins.exs"
 
 # Import environment specific config. This must remain at the bottom
