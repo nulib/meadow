@@ -16,6 +16,23 @@ defmodule Meadow.Data.Collections do
     |> add_representative_image()
   end
 
+  def list_collections(criteria) do
+    query = from(Collection)
+
+    Enum.reduce(criteria, query, fn
+      {:limit, limit}, query ->
+        from c in query, limit: ^limit
+
+      {:offset, offset}, query ->
+        from c in query, offset: ^offset
+
+      {:order, order}, query ->
+        from c in query, order_by: [{^order, :id}]
+    end)
+    |> Repo.all()
+    |> add_representative_image()
+  end
+
   def get_collection!(id) do
     Repo.get!(Collection, id, preload: :representative_work)
     |> add_representative_image()

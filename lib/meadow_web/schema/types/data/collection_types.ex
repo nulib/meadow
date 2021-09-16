@@ -10,6 +10,8 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
   object :collection_queries do
     @desc "Get a list of collections"
     field :collections, list_of(:collection) do
+      arg(:limit, :integer)
+      arg(:offset, :integer)
       middleware(Middleware.Authenticate)
       resolve(&MeadowWeb.Resolvers.Data.Collections.collections/3)
     end
