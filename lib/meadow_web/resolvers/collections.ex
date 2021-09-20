@@ -6,8 +6,8 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Utils.ChangesetErrors
 
-  def collections(_, _, _) do
-    {:ok, Collections.list_collections()}
+  def collections(_, args, _) do
+    {:ok, Collections.list_collections(args)}
   end
 
   def collection(_, %{collection_id: id}, _) do

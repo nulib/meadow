@@ -4,6 +4,7 @@ import {
   GET_COLLECTIONS,
   DELETE_COLLECTION,
 } from "@js/components/Collection/collection.gql.js";
+import { Button } from "@nulib/admin-react-components";
 import Error from "@js/components/UI/Error";
 import { Link } from "react-router-dom";
 import { useMutation } from "@apollo/client";
@@ -27,9 +28,13 @@ import {
 import useGTM from "@js/hooks/useGTM";
 
 const ScreensCollectionList = () => {
-  const { data, loading, error } = useQuery(GET_COLLECTIONS);
+  const LIMIT = 5;
+  const { data, loading, error, fetchMore } = useQuery(GET_COLLECTIONS, {
+    variables: { limit: LIMIT, offset: 0 },
+  });
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [activeCollection, setActiveCollection] = useState();
+  const [hasMoreCollections, setMoreCollections] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const { loadDataLayer } = useGTM();
 
@@ -89,6 +94,28 @@ const ScreensCollectionList = () => {
     }
   };
 
+  const seeMore = () => {
+    fetchMore({
+      variables: {
+        offset: data.collections.length,
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return previousResult;
+
+        if (fetchMoreResult.collections.length < LIMIT) {
+          setMoreCollections(true);
+        }
+
+        return {
+          collections: [
+            ...previousResult.collections,
+            ...fetchMoreResult.collections,
+          ],
+        };
+      },
+    });
+  };
+
   return (
     <Layout>
       <section className="section" data-testid="collection-list-wrapper">
@@ -137,6 +164,10 @@ const ScreensCollectionList = () => {
                     onOpenModal={onOpenModal}
                   />
                 </ErrorBoundary>
+                <br/>
+                <Button disabled={!hasMoreCollections} onClick={seeMore}>
+                  See More
+                </Button>
               </>
             )}
           </div>

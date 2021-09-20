@@ -118,8 +118,11 @@ export const GET_COLLECTION = gql`
 //   ${Collection.fragments.parts}
 // `;
 export const GET_COLLECTIONS = gql`
-  query GetCollections {
-    collections {
+  query GetCollections(
+    $limit: Int,
+    $offset: Int
+  ) {
+    collections(limit: $limit, offset: $offset) {
       adminEmail
       featured
       findingAidUrl
