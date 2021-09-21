@@ -189,7 +189,7 @@ jobs:
       - name: Elixir Static Analysis
         run: mix credo
       - name: Elixir Tests
-        run: mix coveralls.github
+        run: mix test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Test DB Rollback
