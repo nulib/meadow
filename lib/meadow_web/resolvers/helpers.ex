@@ -25,4 +25,8 @@ defmodule MeadowWeb.Resolvers.Helpers do
   def digital_collections_url(_, _args, _) do
     {:ok, %{url: Config.digital_collections_url()}}
   end
+
+  def work_archiver_endpoint(_, _args, _) do
+    {:ok, %{url: Config.work_archiver_endpoint()}}
+  end
 end

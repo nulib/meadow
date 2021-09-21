@@ -34,6 +34,7 @@ export SECRET_KEY_BASE="${secret_key_base}"
 export SITEMAP_BUCKET="${digital_collections_bucket}"
 export STREAMING_BUCKET="${streaming_bucket}
 export UPLOAD_BUCKET="${upload_bucket}"
+export WORK_ARCHIVER_ENDPOINT="${work_archiver_endpoint}"
 export PRESERVATION_CHECK_BUCKET="${preservation_check_bucket}"
 export MEDIACONVERT_QUEUE="${mediaconvert_queue}"
 export MEDIACONVERT_ROLE="${mediaconvert_role}"

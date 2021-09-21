@@ -85,6 +85,11 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
+  @doc "Retrieve the work archiver endpoint"
+  def work_archiver_endpoint do
+    Application.get_env(:meadow, :work_archiver_endpoint)
+  end
+
   @doc "Retrieve a list of configured buckets"
   def buckets do
     [

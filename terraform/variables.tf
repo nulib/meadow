@@ -152,3 +152,7 @@ variable "ezid_user" {
 variable "ffmpeg_layer_sha256" {
   type = string
 }
+
+variable "work_archiver_endpoint" {
+  type = string
+}

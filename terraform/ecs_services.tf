@@ -39,6 +39,7 @@ locals {
     streaming_url              = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
     mediaconvert_queue         = aws_media_convert_queue.transcode_queue.arn
     mediaconvert_role          = aws_iam_role.transcode_role.arn
+    work_archiver_endpoint     = var.work_archiver_endpoint
   }
 }
 

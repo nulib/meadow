@@ -14,7 +14,7 @@ module "rds" {
   allocated_storage         = var.db_size
   backup_window             = "04:00-05:00"
   engine                    = "postgres"
-  engine_version            = "11.10"
+  engine_version            = "11.12"
   final_snapshot_identifier = "meadow-final"
   identifier                = "${var.stack_name}-db"
   instance_class            = "db.t3.medium"
@@ -29,14 +29,14 @@ module "rds" {
 
   parameters = [
     {
-      name = "client_encoding",
-      value = "UTF8",
+      name         = "client_encoding",
+      value        = "UTF8",
       apply_method = "pending-reboot"
     },
-    { 
-      name = "max_locks_per_transaction",
-      value = 256,
-      apply_method = "pending-reboot" 
+    {
+      name         = "max_locks_per_transaction",
+      value        = 256,
+      apply_method = "pending-reboot"
     }
   ]
 
@@ -85,9 +85,9 @@ resource "aws_s3_bucket" "meadow_preservation" {
   }
 
   lifecycle_rule {
-    id = "retain-on-delete"
+    id      = "retain-on-delete"
     enabled = true
-    
+
     noncurrent_version_expiration {
       days = var.deleted_object_expiration
     }
@@ -453,10 +453,10 @@ resource "aws_s3_bucket_policy" "allow_cloudfront_streaming_access" {
 }
 
 resource "aws_cloudfront_function" "meadow_streaming_cors" {
-  name = "${var.stack_name}-cors-streaming-headers"
+  name    = "${var.stack_name}-cors-streaming-headers"
   runtime = "cloudfront-js-1.0"
   publish = true
-  code = file("${path.module}/js/cors_streaming_headers.js")
+  code    = file("${path.module}/js/cors_streaming_headers.js")
 }
 
 data "aws_cloudfront_cache_policy" "caching_optimized" {
@@ -490,7 +490,7 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
     target_origin_id       = "${var.stack_name}-origin"
     viewer_protocol_policy = "allow-all"
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
+    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_optimized.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3_origin.id
 
     function_association {

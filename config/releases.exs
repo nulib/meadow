@@ -111,7 +111,8 @@ config :meadow,
   streaming_bucket: get_required_var.("STREAMING_BUCKET"),
   streaming_url: get_required_var.("STREAMING_URL"),
   upload_bucket: get_required_var.("UPLOAD_BUCKET"),
-  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000")
+  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
+  work_archiver_endpoint: get_required_var.("WORK_ARCHIVER_ENDPOINT")
 
 config :logger, level: :info
 
