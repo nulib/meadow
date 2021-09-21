@@ -71,7 +71,9 @@ const ScreensCollection = () => {
       history.push("/collection/list");
     },
     refetchQueries(mutationResult) {
-      return [{ query: GET_COLLECTIONS }];
+      return [
+        { query: GET_COLLECTIONS, variables: { limit: 5, offset: 0 } },
+      ];
     },
   });
 

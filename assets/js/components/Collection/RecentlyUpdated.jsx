@@ -8,7 +8,9 @@ import { Link } from "react-router-dom";
 import CollectionTags from "@js/components/Collection/Tags";
 
 function CollectionRecentlyUpdated({ recentlyUpdatedCollections = [] }) {
-  const { data, loading, error } = useQuery(GET_COLLECTIONS);
+  const { data, loading, error } = useQuery(GET_COLLECTIONS, {
+    variables: { limit: 5, offset: 0 },
+  });
 
   if (error) return <p>Error loading collections</p>;
   if (loading) return <UISkeleton />;

@@ -22,7 +22,9 @@ function WorkTabsAdministrativeCollection({
   const [isHelperMessageVisible, setIsHelperMessageVisible] =
     React.useState(false);
   const [isCollectionImage, setIsCollectionImage] = React.useState(false);
-  const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
+  const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS, {
+    variables: { limit: 5, offset: 0 },
+  });
 
   /**
    * Update Collection representative image

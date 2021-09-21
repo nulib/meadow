@@ -14,7 +14,9 @@ function BatchEditCollection() {
     loading: collectionLoading,
     error: collectionError,
     data: collectionData,
-  } = useQuery(GET_COLLECTIONS);
+  } = useQuery(GET_COLLECTIONS, {
+    variables: { limit: 5, offset: 0 },
+  });
 
   if (collectionError) {
     return <Notification isDanger>Error loading Collections</Notification>;

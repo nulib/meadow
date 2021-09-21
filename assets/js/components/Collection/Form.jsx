@@ -36,7 +36,7 @@ const CollectionForm = ({ collection }) => {
         console.log("onError() error :>> ", error);
       },
       refetchQueries(mutationResult) {
-        return [{ query: GET_COLLECTIONS }];
+        return [{ query: GET_COLLECTIONS, variables: { limit: 5, offset: 0} }];
       },
     }
   );
