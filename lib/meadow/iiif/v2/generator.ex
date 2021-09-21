@@ -1,11 +1,11 @@
-defmodule Meadow.IIIF.Generator do
+defmodule Meadow.IIIF.V2.Generator do
   @moduledoc """
   Generates resources in accordance with the IIIF Presentation API 2.x
   based on the encoding defined in the schema
   """
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, Work}
-  alias Meadow.IIIF.Resource
+  alias Meadow.IIIF.V2.Resource
 
   import Ecto.Query, warn: false
 

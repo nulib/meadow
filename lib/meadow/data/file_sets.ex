@@ -296,6 +296,22 @@ defmodule Meadow.Data.FileSets do
     %URI{scheme: "s3", host: bucket, path: key} |> URI.to_string()
   end
 
+  @doc """
+  Get the path (key) for a structural metadata file (vtt) for a file set
+  """
+  def vtt_location(id), do: Path.join("public/vtt/" <> Pairtree.generate!(id), id <> ".vtt")
+
+  @doc """
+  Get the path for a structural metadata file (vtt) for a file set
+  """
+  def public_vtt_url_for(id) do
+    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+      uri
+      |> URI.merge(vtt_location(id))
+      |> URI.to_string()
+    end
+  end
+
   def duration_in_milliseconds(%FileSet{extracted_metadata: %{"mediainfo" => mediainfo}}) do
     with {duration, _} <-
            Float.parse(
@@ -312,4 +328,61 @@ defmodule Meadow.Data.FileSets do
   end
 
   def duration_in_milliseconds(_), do: nil
+
+  def height(%FileSet{
+        role: %{id: "A"},
+        extracted_metadata: %{"mediainfo" => mediainfo},
+        core_metadata: %{mime_type: "video/" <> _}
+      }) do
+    with {height, _} <-
+           Integer.parse(
+             get_in(mediainfo, [
+               "value",
+               "media",
+               "track",
+               Access.at(1),
+               "Height"
+             ])
+           ) do
+      height
+    end
+  end
+
+  def height(%FileSet{extracted_metadata: %{"exif" => %{"value" => %{"ImageHeight" => height}}}}),
+    do: height
+
+  def height(_), do: nil
+
+  def width(%FileSet{
+        role: %{id: "A"},
+        extracted_metadata: %{"mediainfo" => mediainfo},
+        core_metadata: %{mime_type: "video/" <> _}
+      }) do
+    with {width, _} <-
+           Integer.parse(
+             get_in(mediainfo, [
+               "value",
+               "media",
+               "track",
+               Access.at(1),
+               "Width"
+             ])
+           ) do
+      width
+    end
+  end
+
+  def width(%FileSet{extracted_metadata: %{"exif" => %{"value" => %{"ImageWidth" => width}}}}),
+    do: width
+
+  def width(_), do: nil
+
+  def access?(%{role: %{id: "A"}}), do: true
+  def access?(_), do: false
+  def preservation?(%{role: %{id: "P"}}), do: true
+  def preservation?(_), do: false
+  def auxiliary?(%{role: %{id: "X"}}), do: true
+  def auxiliary?(_), do: false
+  def supplemental?(%{role: %{id: "S"}}), do: true
+  def supplemental?(_), do: false
 end

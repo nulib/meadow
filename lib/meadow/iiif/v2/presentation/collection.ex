@@ -1,4 +1,4 @@
-defmodule IIIF.Presentation.Collection do
+defmodule IIIF.V2.Presentation.Collection do
   @moduledoc """
   IIIF Presentation API 2.1.x Collection Resource
   """

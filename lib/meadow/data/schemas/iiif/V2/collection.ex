@@ -1,8 +1,8 @@
-alias IIIF.Presentation.{Canvas, Collection, ImageResource, Manifest, Sequence}
+alias IIIF.V2.Presentation.{Canvas, Collection, ImageResource, Manifest, Sequence}
 
 alias Meadow.IIIF
 
-defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Collection do
+defimpl Meadow.IIIF.V2.Resource, for: Meadow.Data.Schemas.Collection do
   def encode(collection) do
     %Collection{
       id: collection.id,
@@ -10,7 +10,7 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Collection do
       manifests:
         Enum.map(collection.works, fn work ->
           %Manifest{
-            id: IIIF.manifest_id(work.id),
+            id: IIIF.V2.manifest_id(work.id),
             label: work.descriptive_metadata.title,
             sequences:
               Enum.map(work.file_sets, fn file_set ->
@@ -18,7 +18,7 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Collection do
                   canvases: [
                     %Canvas{
                       images: %ImageResource{
-                        id: IIIF.image_id(file_set.id),
+                        id: IIIF.V2.image_id(file_set.id),
                         label: file_set.core_metadata.description
                       }
                     }
