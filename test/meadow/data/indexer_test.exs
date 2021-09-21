@@ -270,7 +270,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "Image"
       assert doc |> get_in(["fileSets"]) |> length == 2
-      assert doc |> get_in(["fileSets"]) |> List.first |> map_size() == 5
+      assert doc |> get_in(["fileSets"]) |> List.first() |> map_size() == 5
 
       with metadata <- subject.descriptive_metadata do
         assert doc |> get_in(["descriptiveMetadata", "title"]) ==
@@ -355,6 +355,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["label"]) == subject.core_metadata.label
       assert doc |> get_in(["posterOffset"]) == 100
       assert doc |> get_in(["webvtt"]) == subject.structural_metadata.value
+      assert doc |> get_in(["rank"]) == subject.rank
 
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
 
