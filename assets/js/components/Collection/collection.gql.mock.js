@@ -55,6 +55,10 @@ export const getCollectionMock = {
 export const getCollectionsMock = {
   request: {
     query: GET_COLLECTIONS,
+    variables: {
+      limit: 5,
+      offset: 0,
+    },
   },
   result: {
     data: {

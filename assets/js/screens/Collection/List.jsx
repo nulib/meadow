@@ -164,8 +164,12 @@ const ScreensCollectionList = () => {
                     onOpenModal={onOpenModal}
                   />
                 </ErrorBoundary>
-                <br/>
-                <Button disabled={!hasMoreCollections} onClick={seeMore}>
+                <br />
+                <Button
+                  className="button is-primary"
+                  disabled={!hasMoreCollections}
+                  onClick={seeMore}
+                >
                   See More
                 </Button>
               </>

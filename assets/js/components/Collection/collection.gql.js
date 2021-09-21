@@ -110,8 +110,8 @@ export const GET_COLLECTION = gql`
 `;
 
 // export const GET_COLLECTIONS = gql`
-//   query GetCollections {
-//     collections {
+//   query GetCollections($limit: Int, $offset: Int) {
+//     collections(limit: $limit, offset: $offset) {
 //       ...CollectionParts
 //     }
 //   }
