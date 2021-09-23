@@ -248,6 +248,32 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
+  defp validate_value(_row, {"structure", value}, context) do
+    if String.trim(value) == "" do
+      :ok
+    else
+      case Meadow.Config.ingest_bucket()
+           |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
+           |> ExAws.request() do
+        {:ok, %{body: vtt}} ->
+          if String.match?(vtt, ~r/^WEBVTT/),
+            do: :ok,
+            else: {:error, "structure", "#{value} is not a valid WebVTT file"}
+
+        {:error, {:http_error, 404, _}} ->
+          {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
+
+        {:error, other} ->
+          {:error, "structure",
+           "The following error occurred validating #{value}: #{inspect(other)}"}
+      end
+    end
+  end
+
+  defp validate_value(_row, {field_name, value}, _context)
+       when byte_size(value) == 0,
+       do: {:error, field_name, "cannot be blank"}
+
   defp validate_value(row, {"work_type", value}, %{work_types: work_types}) do
     work_accession_number = Row.field_value(row, "work_accession_number")
     work_type_values = Map.get(work_types, work_accession_number)
@@ -269,29 +295,6 @@ defmodule Meadow.Ingest.Validator do
         :ok
     end
   end
-
-  defp validate_value(_row, {"structure", value}, context) do
-    if String.trim(value) == "" do
-      :ok
-    else
-      case Meadow.Config.ingest_bucket()
-           |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
-           |> ExAws.request() do
-        {:ok, %{body: vtt}} ->
-          if String.match?(vtt, ~r/^WEBVTT/), do: :ok, else: {:error, "structure", "#{value} is not a valid WebVTT file"}
-
-        {:error, {:http_error, 404, _}} ->
-          {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
-
-        {:error, other} ->
-          {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
-      end
-    end
-  end
-
-  defp validate_value(_row, {field_name, value}, _context)
-       when byte_size(value) == 0,
-       do: {:error, field_name, "cannot be blank"}
 
   defp validate_value(_row, {"role", value}, _context) do
     case CodedTerms.get_coded_term(value, "file_set_role") do
@@ -331,10 +334,21 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value(_row, {"filename", value}, %{existing_files: existing_files}) do
-    case MapSet.member?(existing_files, value) do
-      true -> :ok
-      false -> {:error, "filename", "File not Found: #{value}"}
+  defp validate_value(row, {"filename", value}, %{existing_files: existing_files}) do
+    role = Row.field_value(row, "role")
+    work_type = Row.field_value(row, "work_type")
+    mime_type = MIME.from_path(value)
+
+    cond do
+      Truth.false?(MapSet.member?(existing_files, value)) ->
+        {:error, "filename", "File not Found: #{value}"}
+
+      Truth.false?(mime_type_accepted?(work_type, role, mime_type)) ->
+        {:error, "filename",
+         "Mime-type: #{value}, not accepted for work type: #{work_type} and file set role: #{role}."}
+
+      true ->
+        :ok
     end
   end
 
@@ -361,6 +375,28 @@ defmodule Meadow.Ingest.Validator do
         "fail"
     end
   end
+
+  defp mime_type_accepted?(_, "X", "image/" <> _rest), do: true
+  defp mime_type_accepted?(_, "S", "text/" <> _rest), do: true
+
+  defp mime_type_accepted?(_, "S", "application/" <> rest)
+       when rest in [
+              "json",
+              "xml",
+              "pdf",
+              "msword",
+              "vnd.ms-excel",
+              "vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ],
+       do: true
+
+  defp mime_type_accepted?("IMAGE", "A", "image/" <> _rest), do: true
+  defp mime_type_accepted?("IMAGE", "P", "image/" <> _rest), do: true
+  defp mime_type_accepted?("VIDEO", "A", "video/" <> _rest), do: true
+  defp mime_type_accepted?("VIDEO", "P", "video/" <> _rest), do: true
+  defp mime_type_accepted?("AUDIO", "A", "audio/" <> _rest), do: true
+  defp mime_type_accepted?("AUDIO", "P", "audio/" <> _rest), do: true
+  defp mime_type_accepted?(_, _, _), do: false
 
   defp load_sheet(sheet_id) do
     Sheet

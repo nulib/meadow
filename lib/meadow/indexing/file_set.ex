@@ -16,6 +16,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
       model: %{application: "Meadow", name: "FileSet"},
       modifiedDate: file_set.updated_at,
       posterOffset: file_set.poster_offset,
+      rank: file_set.rank,
       representativeImageUrl: FileSets.representative_image_url_for(file_set),
       streamingUrl: FileSets.distribution_streaming_uri_for(file_set),
       role: format(file_set.role),

@@ -27,6 +27,12 @@ defmodule MeadowWeb.Schema.HelperTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Helpers.get_presigned_url/3)
     end
+
+    @desc "Get work archiver endpoint"
+    field :work_archiver_endpoint, :url do
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Helpers.work_archiver_endpoint/3)
+    end
   end
 
   enum :s3_upload_type do

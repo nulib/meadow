@@ -152,6 +152,10 @@
         "value": "${upload_bucket}"
       },
       {
+        "name": "WORK_ARCHIVER_ENDPOINT",
+        "value": "${work_archiver_endpoint}"
+      },
+      {
         "name": "AGENTLESS_SSO_KEY",
         "value": "${agentless_sso_key}"
       },

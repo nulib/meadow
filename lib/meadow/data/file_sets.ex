@@ -246,6 +246,13 @@ defmodule Meadow.Data.FileSets do
   """
   def pyramid_uri_for(%FileSet{role: %{id: "P"}}), do: nil
   def pyramid_uri_for(%FileSet{role: %{id: "S"}}), do: nil
+
+  def pyramid_uri_for(%FileSet{core_metadata: %{mime_type: "video/" <> _thing}}),
+    do: nil
+
+  def pyramid_uri_for(%FileSet{core_metadata: %{mime_type: "audio/" <> _thing}}),
+    do: nil
+
   def pyramid_uri_for(%FileSet{} = file_set), do: pyramid_uri_for(file_set.id)
 
   def pyramid_uri_for(file_set_id) do

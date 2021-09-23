@@ -45,7 +45,8 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   iiif_server_url: "http://localhost:8184/iiif/2/",
   iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
-  digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
+  digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/",
+  work_archiver_endpoint: ""
 
 config :meadow,
   ark: %{
