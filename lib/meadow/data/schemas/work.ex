@@ -26,7 +26,11 @@ defmodule Meadow.Data.Schemas.Work do
   schema "works" do
     field(:accession_number, :string)
     field(:published, :boolean, default: false)
-    field(:visibility, Types.CodedTerm)
+
+    field(:visibility, Types.CodedTerm,
+      default: %{id: "RESTRICTED", scheme: "visibility", label: "Private"}
+    )
+
     field(:work_type, Types.CodedTerm)
 
     timestamps()
