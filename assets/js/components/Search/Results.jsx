@@ -16,7 +16,7 @@ import {
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
 import { prepWorkItemForDisplay } from "@js/services/helpers";
-import { allImagesQuery } from "@js/services/elasticsearch";
+import { allWorksQuery } from "@js/services/elasticsearch";
 import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
 
 const SearchResults = ({
@@ -45,7 +45,7 @@ const SearchResults = ({
           <ReactiveList
             componentId={RESULT_SENSOR}
             dataField="accession_number"
-            defaultQuery={() => allImagesQuery}
+            defaultQuery={() => allWorksQuery}
             innerClass={{
               list: `${isListView ? "" : "columns is-multiline"}`,
               resultStats: "column is-size-6 has-text-grey",

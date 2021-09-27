@@ -64,13 +64,13 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   },
 };
 
-export const allImagesQuery = {
+export const allWorksQuery = {
   query: {
     bool: {
       must: [
         {
           match: {
-            "model.name": "Image",
+            "model.name": "Work",
           },
         },
       ],

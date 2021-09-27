@@ -96,7 +96,7 @@ const props = {
     title: "Department of Art History || Architecture Collection",
   },
   filteredQuery:
-    '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"should":[{"terms":{"descriptiveMetadata.contributor.displayFacet":["Olivier, Barry, 1935- (Photographer)"]}}]}},{"bool":{"must":[{"match":{"model.name":"Image"}}]}}]}}]}}}',
+    '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"should":[{"terms":{"descriptiveMetadata.contributor.displayFacet":["Olivier, Barry, 1935- (Photographer)"]}}]}},{"bool":{"must":[{"match":{"model.name":"Work"}}]}}]}}]}}}',
   handleClose: jest.fn(),
   handleFormReset: jest.fn(),
   isConfirmModalOpen: true,

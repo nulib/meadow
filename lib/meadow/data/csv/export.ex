@@ -9,7 +9,7 @@ defmodule Meadow.Data.CSV.Export do
 
   import Meadow.Data.CSV.Utils
 
-  @exportable_types ["Image"]
+  @exportable_types ["Work"]
   @top_level_fields [
     ["id"],
     ["accessionNumber"],
