@@ -15,7 +15,7 @@
     "@apollo/client": "latest",
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
-    "@appbaseio/reactivesearch": "3.24.0",
+    "@appbaseio/reactivesearch": "3.24.1",
     "@emotion/react": "^11.4.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
