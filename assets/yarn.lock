@@ -1435,10 +1435,10 @@
     "@types/express" "^4.17.13"
     stacktrace-parser "^0.1.10"
 
-"@honeybadger-io/react@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-2.0.0.tgz#10fd7dad9708b967e330889db05971efb2783205"
-  integrity sha512-yRk2Ry1DyciZJRZW3bF+C5GTcME9smPAw+S6pr0ZVxCpls8jFLQ81KjhkJFiiOUKA6oU7qDeU0KERPppsQq6DQ==
+"@honeybadger-io/react@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-1.0.2.tgz#b90ef0e9686981257fac118fd2ff6e301ece9b7f"
+  integrity sha512-1RZlpSgktPFupBIf83e4lmemsTkkPHVHZee3g6zmOiG12NLt/YStcYVwB6Im+SI/EOFAFclulNFUFkyxeHF5SA==
   dependencies:
     "@honeybadger-io/js" "^3.2.4"
 
@@ -7398,7 +7398,7 @@ phoenix@^1.4.0:
   integrity sha512-qWnQMry55oYL1eUj0gK9EN7uWtpQ+hl2DD4Oirnb9pcMAEaP7Dj2wC3Q+w0hpTutKYSLiTnD0qu+O2EHGB5neA==
 
 "phoenix@file:../deps/phoenix":
-  version "1.5.9"
+  version "1.5.12"
 
 "phoenix_html@file:../deps/phoenix_html":
   version "2.14.3"
