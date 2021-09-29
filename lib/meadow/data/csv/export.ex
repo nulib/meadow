@@ -72,7 +72,7 @@ defmodule Meadow.Data.CSV.Export do
 
   def normalize_field(field_path) do
     case field_path |> List.last() do
-      "id" -> field_path |> Enum.map(&Inflex.underscore/1) |> Enum.join("_")
+      "id" -> field_path |> Enum.map_join("_", &Inflex.underscore/1)
       field_name -> Inflex.underscore(field_name)
     end
   end

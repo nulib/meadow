@@ -53,8 +53,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
           |> String.split(~r"\n")
           |> Enum.filter(&String.starts_with?(&1, "dn:"))
           |> Enum.reverse()
-          |> Enum.map(&"#{&1}\nchangetype: delete\n")
-          |> Enum.join("\n")
+          |> Enum.map_join("\n", &"#{&1}\nchangetype: delete\n")
 
         File.write!(tempfile, ldif)
         Common.run(tempfile)

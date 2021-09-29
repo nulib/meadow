@@ -76,8 +76,7 @@ defmodule Meadow.Data.Indexer do
       %{index: %{_index: index(), _id: indexable.id}},
       indexable |> Elasticsearch.Document.encode()
     ]
-    |> Enum.map(&json_encode/1)
-    |> Enum.join("\n")
+    |> Enum.map_join("\n", &json_encode/1)
   end
 
   def upload(stream) do

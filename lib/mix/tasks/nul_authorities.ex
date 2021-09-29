@@ -174,9 +174,7 @@ defmodule Mix.Tasks.NulAuthorities.Import do
          |> ExAws.request() do
       {:error, _} ->
         Logger.error(
-          "Error loading: #{filename}. Make sure your file is in the correct bucket: #{
-            Config.upload_bucket()
-          }"
+          "Error loading: #{filename}. Make sure your file is in the correct bucket: #{Config.upload_bucket()}"
         )
 
       {:ok, csv} ->
@@ -228,8 +226,7 @@ defmodule Mix.Tasks.NulAuthorities.Export do
       |> Repo.all()
       |> Enum.map(fn record -> [record.id, record.label] end)
       |> CSVParser.dump_to_iodata()
-      |> Enum.map(&IO.iodata_to_binary/1)
-      |> Enum.join("")
+      |> Enum.map_join("", &IO.iodata_to_binary/1)
 
     ExAws.S3.put_object(Config.upload_bucket(), key, data)
     |> ExAws.request!()

@@ -170,11 +170,10 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   defp anvl_process(body, func) do
     body
     |> String.split(~r/\r?\n/)
-    |> Enum.map(fn line ->
+    |> Enum.map_join("\n", fn line ->
       [key, value] = String.split(line, ~r/:\s*/, parts: 2)
       [key, func.(value)] |> Enum.join(": ")
     end)
-    |> Enum.join("\n")
   end
 
   defp send_message(message) do

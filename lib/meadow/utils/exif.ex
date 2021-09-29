@@ -256,8 +256,7 @@ defmodule Meadow.Utils.Exif do
   defp transform_value("ExtraSamples", value) when is_map(value) do
     value
     |> Map.values()
-    |> Enum.map(&transform_value("ExtraSamples", &1))
-    |> Enum.join(", ")
+    |> Enum.map_join(", ", &transform_value("ExtraSamples", &1))
   end
 
   defp transform_value("ExtraSamples", value) when is_integer(value) do
