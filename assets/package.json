@@ -26,7 +26,7 @@
     "@nulib/admin-react-components": "^1.10.0",
     "@samvera/image-downloader": "^1.1.0",
     "bulma": "^0.9.3",
-    "bulma-checkradio": "^1.1.1",
+    "bulma-checkradio": "^2.1.2",
     "bulma-pageloader": "^0.3.0",
     "bulma-switch": "^2.0.0",
     "bulma-toast": "^2.4.1",
