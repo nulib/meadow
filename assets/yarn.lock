@@ -1738,10 +1738,10 @@
   resolved "https://registry.yarnpkg.com/@reglendo/canvas2image/-/canvas2image-1.0.5-2.tgz#57b50017d1a4914ff687fb65eb7aef341762d20d"
   integrity sha512-nt9QaZPwJxZdPZall2GuxpTLyZwSXwHlL35K8uJjpl29uCYVlWJAMa8JZ8vAXIhHSJ8e5a1tbiOqDBWX5JxVvA==
 
-"@samvera/image-downloader@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@samvera/image-downloader/-/image-downloader-1.1.0.tgz#2313e05e741d7c8e4ebde615faf48ff8ad7d1840"
-  integrity sha512-WWLrrwTw7Rv3oIrKrSOX4HetipXyv2ejPl0zda1Vjr+dUFQssj51kvqa2CG9mE2Scv4m6fjPcd6neklTpAhPFw==
+"@samvera/image-downloader@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@samvera/image-downloader/-/image-downloader-1.1.1.tgz#ab718de290f703b414b249daab22936fbae9afd0"
+  integrity sha512-1CKFWJJ8TggcICUbpCQvLOogQpVEBIdmgwOY7UlThFu67UsuH0Ljc5562Qqq2+A7GMQX3LbabMpHpDd++EwFjA==
   dependencies:
     svg-loaders-react "^2.2.1"
 
