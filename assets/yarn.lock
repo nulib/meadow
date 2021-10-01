@@ -7146,10 +7146,10 @@ onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openseadragon-react-viewer@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/openseadragon-react-viewer/-/openseadragon-react-viewer-3.3.0.tgz#2a7c5fdf8e177f85be1c4abd5f0a733525ef7d90"
-  integrity sha512-2W+t8AlVSwieP0/rKBDyHL+6Y6m0vrh0Y3gfUgfhwO0T5dDO2FzS7FwgocTUhFqj6EaKiKQeQNIJgDhr7m9Qzw==
+openseadragon-react-viewer@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/openseadragon-react-viewer/-/openseadragon-react-viewer-3.3.1.tgz#a1e289bfd5befa6a270dd2ca943b262dc56be03c"
+  integrity sha512-o9ZaB2iWW7WPbVqHyFfSWcAEO1e+jUlmEPQKW3fg9P3bQvN+ZN2zqVDp0HrqSidmkyLfGfdtD/i4kD+A9ctDzA==
   dependencies:
     "@emotion/react" "^11.1.5"
     "@reglendo/canvas2image" "^1.0.5-2"
