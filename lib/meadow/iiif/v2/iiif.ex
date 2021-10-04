@@ -54,6 +54,9 @@ defmodule Meadow.IIIF.V2 do
     end
   end
 
+  def resource_type("AUDIO"), do: "Sound"
+  def resource_type(work_type), do: work_type
+
   defp write_to_s3(manifest, key) do
     ExAws.S3.put_object(
       Meadow.Config.pyramid_bucket(),
