@@ -36,75 +36,71 @@ defmodule Meadow.IIIF.V3.GeneratorTest do
       {
         \"id\": \"#{IIIF.V3.manifest_id(work.id)}\",
         \"items\": [
-          [
-            {
-              \"height\": 480,
-              \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set.id)}\",
-              \"items\": [
-                {
-                  \"id\": \"#{IIIF.V3.annotation_page_id(work.id, file_set.id, 1)}\",
-                  \"items\": [
-                    {
-                      \"body\": {
-                        \"id\": \"https://test-streaming-url/bar.m3u8\",
-                        \"type\": \"Video\"
-                      },
-                      \"id\": \"#{IIIF.V3.annotation_id(work.id, file_set.id, 1, 1)}\",
-                      \"motivation\": \"painting\",
-                      \"type\": \"Annotation\"
+          {
+            \"height\": 480,
+            \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set.id)}\",
+            \"items\": [
+              {
+                \"id\": \"#{IIIF.V3.annotation_page_id(work.id, file_set.id, 1)}\",
+                \"items\": [
+                  {
+                    \"body\": {
+                      \"id\": \"https://test-streaming-url/bar.m3u8\",
+                      \"type\": \"Video\"
                     },
-                    {}
-                  ],
-                  \"type\": \"AnnotationPage\"
-                }
-              ],
-              \"label\": {
-                \"en\": [
-                  \"This is the label\"
-                ]
-              },
-              \"type\": \"Canvas\",
-              \"width\": 640
-            }
-          ],
-          [
-            {
-              \"height\": 480,
-              \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set2.id)}\",
-              \"items\": [
-                {
-                  \"id\": \"#{IIIF.V3.annotation_page_id(work.id, file_set2.id, 1)}\",
-                  \"items\": [
-                    {
-                      \"body\": {
-                        \"id\": \"http://localhost:8184/iiif/2/#{file_set2.id}/full/max/0/default.jpg\",
-                        \"service\": [
-                          {
-                            \"id\": \"http://localhost:8184/iiif/2/#{file_set2.id}\",
-                            \"profile\": \"http://iiif.io/api/image/2/level2.json\",
-                            \"type\": \"ImageService2\"
-                          }
-                        ],
-                        \"type\": \"Image\"
-                      },
-                      \"id\": \"#{IIIF.V3.annotation_id(work.id, file_set2.id, 1, 1)}\",
-                      \"motivation\": \"painting\",
-                      \"target\": \"#{IIIF.V3.canvas_id(work.id, file_set2.id)}\",
-                      \"type\": \"Annotation\"
-                    }
-                  ],
-                  \"type\": \"AnnotationPage\"
-                }
-              ],
-              \"label\": {
-                \"en\": [
-                  \"This should not be in the manifest\"
-                ]
-              },
-              \"type\": \"Canvas\",
-              \"width\": 640
-            }
-          ]
+                    \"id\": \"#{IIIF.V3.annotation_id(work.id, file_set.id, 1, 1)}\",
+                    \"motivation\": \"painting\",
+                    \"type\": \"Annotation\"
+                  },
+                  {}
+                ],
+                \"type\": \"AnnotationPage\"
+              }
+            ],
+            \"label\": {
+              \"en\": [
+                \"This is the label\"
+              ]
+            },
+            \"type\": \"Canvas\",
+            \"width\": 640
+          },
+          {
+            \"height\": 480,
+            \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set2.id)}\",
+            \"items\": [
+              {
+                \"id\": \"#{IIIF.V3.annotation_page_id(work.id, file_set2.id, 1)}\",
+                \"items\": [
+                  {
+                    \"body\": {
+                      \"id\": \"http://localhost:8184/iiif/2/#{file_set2.id}/full/max/0/default.jpg\",
+                      \"service\": [
+                        {
+                          \"id\": \"http://localhost:8184/iiif/2/#{file_set2.id}\",
+                          \"profile\": \"http://iiif.io/api/image/2/level2.json\",
+                          \"type\": \"ImageService2\"
+                        }
+                      ],
+                      \"type\": \"Image\"
+                    },
+                    \"id\": \"#{IIIF.V3.annotation_id(work.id, file_set2.id, 1, 1)}\",
+                    \"motivation\": \"painting\",
+                    \"target\": \"#{IIIF.V3.canvas_id(work.id, file_set2.id)}\",
+                    \"type\": \"Annotation\"
+                  }
+                ],
+                \"type\": \"AnnotationPage\"
+              }
+            ],
+            \"label\": {
+              \"en\": [
+                \"This should not be in the manifest\"
+              ]
+            },
+            \"type\": \"Canvas\",
+            \"width\": 640
+          }
         ],
         \"label\": {
           \"en\": [
