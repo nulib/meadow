@@ -142,7 +142,7 @@ defmodule Meadow.Seed.Import do
       |> Repo.stream()
       |> Stream.each(fn %{id: work_id} ->
         Logger.info("Writing manifest for #{work_id}")
-        IIIF.write_manifest(work_id)
+        IIIF.V2.write_manifest(work_id)
       end)
       |> Stream.run()
     end)

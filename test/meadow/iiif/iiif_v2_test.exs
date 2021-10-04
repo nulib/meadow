@@ -1,12 +1,13 @@
-defmodule Meadow.IIIFTest do
+defmodule Meadow.IIIF.V2.Test do
   use Meadow.DataCase
   use Meadow.S3Case
   alias Meadow.Config
+  alias Meadow.IIIF
   alias Meadow.Utils.Pairtree
 
   import ExUnit.DocTest
 
-  doctest Meadow.IIIF, import: true
+  doctest Meadow.IIIF.V2, import: true
 
   @pyramid_bucket Config.pyramid_bucket()
 
@@ -23,7 +24,7 @@ defmodule Meadow.IIIFTest do
     end
 
     test "writes a IIIF manifest for a valid work to S3", %{work: work, destination: destination} do
-      assert {:ok, %{status_code: 200}} = Meadow.IIIF.write_manifest(work.id)
+      assert {:ok, %{status_code: 200}} = IIIF.V2.write_manifest(work.id)
 
       with {:ok, result} <- ExAws.S3.head_object(@pyramid_bucket, destination) |> ExAws.request() do
         assert result.status_code == 200

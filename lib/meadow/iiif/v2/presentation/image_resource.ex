@@ -1,4 +1,4 @@
-defmodule IIIF.Presentation.ImageResource do
+defmodule IIIF.V2.Presentation.ImageResource do
   @moduledoc """
   IIIF Presentation API 2.1.x ImageResource
   """

@@ -1,11 +1,11 @@
-defmodule Meadow.IIIF do
+defmodule Meadow.IIIF.V2 do
   @moduledoc """
   API for IIIF related functions
   """
 
   alias Meadow.Config
   alias Meadow.Data.Works
-  alias Meadow.IIIF.Generator
+  alias Meadow.IIIF.V2.Generator
   alias Meadow.Utils.Pairtree
 
   def write_manifest(work_id) do

@@ -498,7 +498,7 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.all()
   end
 
-  def update_completed_sheets() do
+  def update_completed_sheets do
     from(s in Sheet, where: s.status == "approved")
     |> Repo.all()
     |> Enum.each(&check_sheet_for_completeness/1)

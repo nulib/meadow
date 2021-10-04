@@ -1,4 +1,4 @@
-defmodule IIIF.Presentation.Manifest do
+defmodule IIIF.V2.Presentation.Manifest do
   @moduledoc """
   IIIF Presentation API 2.1.x Manifest resource
   """

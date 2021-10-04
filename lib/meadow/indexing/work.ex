@@ -30,7 +30,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
           }
         end),
       id: work.id,
-      iiifManifest: IIIF.manifest_id(work.id),
+      iiifManifest: manifest_id(work),
       model: %{application: "Meadow", name: "Image"},
       modifiedDate: work.updated_at,
       project: format(work.project),
@@ -78,4 +78,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
   defp copy_field(%{displayFacet: display_facet}), do: display_facet
   defp copy_field(%{humanized: humanized}), do: humanized
   defp copy_field(value), do: value
+
+  defp manifest_id(%{work_type: %{id: "IMAGE"}} = work), do: IIIF.V2.manifest_id(work.id)
+  defp manifest_id(work), do: IIIF.V3.manifest_id(work.id)
 end

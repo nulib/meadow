@@ -1,10 +1,10 @@
-alias IIIF.Presentation.{Canvas, Image, ImageResource, Manifest, Sequence, Service}
+alias IIIF.V2.Presentation.{Canvas, Image, ImageResource, Manifest, Sequence, Service}
 alias Meadow.IIIF
 
-defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Work do
+defimpl Meadow.IIIF.V2.Resource, for: Meadow.Data.Schemas.Work do
   def encode(work) do
     %Manifest{
-      id: IIIF.manifest_id(work.id),
+      id: IIIF.V2.manifest_id(work.id),
       label: work.descriptive_metadata.title,
       description: work.descriptive_metadata.description,
       sequences: [
@@ -12,16 +12,16 @@ defimpl Meadow.IIIF.Resource, for: Meadow.Data.Schemas.Work do
           canvases:
             Enum.map(work.file_sets, fn file_set ->
               %Canvas{
-                id: "#{IIIF.manifest_id(work.id)}/canvas/#{file_set.id}",
+                id: "#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}",
                 label: file_set.core_metadata.label,
                 images: [
                   %Image{
                     resource: %ImageResource{
-                      id: IIIF.image_id(file_set.id),
+                      id: IIIF.V2.image_id(file_set.id),
                       label: file_set.core_metadata.label,
                       description: file_set.core_metadata.description,
                       service: %Service{
-                        id: IIIF.image_service_id(file_set.id)
+                        id: IIIF.V2.image_service_id(file_set.id)
                       }
                     }
                   }

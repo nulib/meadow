@@ -1,4 +1,4 @@
-defmodule IIIF.Presentation.Service do
+defmodule IIIF.V2.Presentation.Service do
   @moduledoc """
   IIIF Presentation API 2.1.x Service
   """

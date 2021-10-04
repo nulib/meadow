@@ -115,7 +115,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     field :manifest_url, :string do
       resolve(fn work, _, _ ->
-        {:ok, Works.iiif_manifest_url(work.id)}
+        {:ok, Works.iiif_manifest_url(work.id, work.work_type.id)}
       end)
     end
 
