@@ -3,8 +3,8 @@ defmodule IIIF.V3.Presentation.Canvas do
   IIIF Presentation API 2.1.x Canvas resource
   """
   @rdf_type "Canvas"
-  @default_width "640"
-  @default_height "480"
+  @default_width 640
+  @default_height 480
 
   defstruct id: nil,
             type: @rdf_type,

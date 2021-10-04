@@ -38,7 +38,7 @@ defmodule Meadow.IIIF.V3.GeneratorTest do
         \"items\": [
           [
             {
-              \"height\": \"480\",
+              \"height\": 480,
               \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set.id)}\",
               \"items\": [
                 {
@@ -64,12 +64,12 @@ defmodule Meadow.IIIF.V3.GeneratorTest do
                 ]
               },
               \"type\": \"Canvas\",
-              \"width\": \"640\"
+              \"width\": 640
             }
           ],
           [
             {
-              \"height\": \"480\",
+              \"height\": 480,
               \"id\": \"#{IIIF.V3.canvas_id(work.id, file_set2.id)}\",
               \"items\": [
                 {
@@ -102,7 +102,7 @@ defmodule Meadow.IIIF.V3.GeneratorTest do
                 ]
               },
               \"type\": \"Canvas\",
-              \"width\": \"640\"
+              \"width\": 640
             }
           ]
         ],
