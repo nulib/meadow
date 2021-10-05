@@ -33,6 +33,10 @@ defmodule EDTF.Humanize.Date do
     "circa " <> (input |> Map.delete(:approximate) |> humanize())
   end
 
+  def humanize(%{type: "Date", unspecified: 15, values: values})
+      when length(values) == 1,
+      do: "Unknown"
+
   def humanize(%{type: "Date", unspecified: unspecified, values: values} = input)
       when unspecified in [8, 12, 14] and length(values) == 1 do
     input
