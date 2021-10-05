@@ -50,9 +50,9 @@ defmodule Meadow.IIIF.V3.GeneratorTest do
                     },
                     \"id\": \"#{IIIF.V3.annotation_id(work.id, file_set.id, 1, 1)}\",
                     \"motivation\": \"painting\",
+                    \"target\": \"#{IIIF.V3.canvas_id(work.id, file_set.id)}\",
                     \"type\": \"Annotation\"
-                  },
-                  {}
+                  }
                 ],
                 \"type\": \"AnnotationPage\"
               }
