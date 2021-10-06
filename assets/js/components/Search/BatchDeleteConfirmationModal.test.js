@@ -21,7 +21,7 @@ function setupMatchTests() {
             {
               bool: {
                 must: [
-                  { bool: { must: [{ match: { "model.name": "Image" } }] } },
+                  { bool: { must: [{ match: { "model.name": "Work" } }] } },
                 ],
               },
             },

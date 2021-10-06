@@ -31,7 +31,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
         end),
       id: work.id,
       iiifManifest: manifest_id(work),
-      model: %{application: "Meadow", name: "Image"},
+      model: %{application: "Meadow", name: "Work"},
       modifiedDate: work.updated_at,
       project: format(work.project),
       published: work.published,

@@ -53,7 +53,7 @@ describe("reactive-search.js service module", () => {
                       must: [
                         {
                           match: {
-                            "model.name": "Image",
+                            "model.name": "Work",
                           },
                         },
                       ],

@@ -7,7 +7,7 @@ export const batchDeleteMock = {
     query: BATCH_DELETE,
     variables: {
       query:
-        '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"must":[{"match":{"model.name":"Image"}}]}}]}}]}}}',
+        '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"must":[{"match":{"model.name":"Work"}}]}}]}}]}}}',
       nickname: "Test Batch Delete",
     },
   },
@@ -21,7 +21,7 @@ export const batchDeleteMock = {
         started: "2021-02-09T23:28:16.823480Z",
         type: "DELETE",
         query:
-          '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"must":[{"match":{"model.name":"Image"}}]}}]}}]}}}',
+          '{"query":{"bool":{"must":[{"bool":{"must":[{"bool":{"must":[{"match":{"model.name":"Work"}}]}}]}}]}}}',
         add: null,
         replace: null,
         delete: null,
