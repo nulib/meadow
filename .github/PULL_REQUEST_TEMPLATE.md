@@ -40,6 +40,7 @@ Also please let developers know if there are any special instructions to test th
 - [ ] Requires reindex
 - [ ] Terraform changes
   - [ ] Adds/requires new or changed Terraform variables
+- [ ] Pipeline configuration changes (requires `mix meadow.pipeline.setup` run)
 - [ ] Requires new variable added to `miscellany`
 - [ ] Specific deployment synchronization instructions with other apps/API's
 - [ ] Other specific instructions/tasks
