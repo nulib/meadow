@@ -19,7 +19,7 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   @cache Meadow.Utils.ArkClient.MockServer.Cache
   @valid_resource_types ~w(Audiovisual Collection Dataset Event Image InteractiveResource Model
     PhysicalObject Service Software Sound Text Workflow Other)
-  @valid_statuses ~w(public reserved)
+  @valid_statuses ~w(public reserved unavailable)
 
   @schema [
     {"datacite.creator", :optional, :binary},
@@ -58,6 +58,17 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     case Cachex.get!(@cache, ark) do
       nil -> send_resp(conn, 404, "error: bad request - no such identifier")
       data -> send_resp(conn, 200, "success: #{ark}\n#{anvl_encode(data)}")
+    end
+  end
+
+  delete "/id/*stem" do
+    ark = Enum.join(stem, "/")
+
+    send_message({:delete, :ark, ark})
+    send_message({:delete, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
+
+    with {:ok, true} <- Cachex.del(@cache, ark) do
+      send_resp(conn, 200, "success: #{ark} deleted}")
     end
   end
 

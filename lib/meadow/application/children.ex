@@ -13,6 +13,7 @@ defmodule Meadow.Application.Children do
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
       "database_listeners" => [
+        Meadow.ARKListener,
         Meadow.FilesetDeleteListener,
         Meadow.IIIF.ManifestListener,
         Meadow.StructuralMetadataListener
