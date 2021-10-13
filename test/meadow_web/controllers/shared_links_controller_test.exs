@@ -3,7 +3,7 @@ defmodule MeadowWeb.SharedLinksControllerTest do
   use Meadow.DataCase, async: true
   alias Meadow.Data.Indexer
 
-  @query ~s({"query":{"term":{"model.name.keyword": "Image"}}})
+  @query ~s({"query":{"term":{"model.name.keyword": "Work"}}})
 
   describe "POST /api/create_shared_links/:filename (failure)" do
     test "unauthorized request", %{conn: conn} do

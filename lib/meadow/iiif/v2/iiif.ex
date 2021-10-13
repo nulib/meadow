@@ -1,11 +1,11 @@
-defmodule Meadow.IIIF do
+defmodule Meadow.IIIF.V2 do
   @moduledoc """
   API for IIIF related functions
   """
 
   alias Meadow.Config
   alias Meadow.Data.Works
-  alias Meadow.IIIF.Generator
+  alias Meadow.IIIF.V2.Generator
   alias Meadow.Utils.Pairtree
 
   def write_manifest(work_id) do
@@ -53,6 +53,9 @@ defmodule Meadow.IIIF do
         Config.iiif_server_url() <> id
     end
   end
+
+  def resource_type("AUDIO"), do: "Sound"
+  def resource_type(work_type), do: work_type
 
   defp write_to_s3(manifest, key) do
     ExAws.S3.put_object(

@@ -9,7 +9,7 @@ import {
 } from "@js/services/reactive-search";
 import { useLocation } from "react-router-dom";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
-import { allImagesQuery } from "@js/services/elasticsearch";
+import { allWorksQuery } from "@js/services/elasticsearch";
 
 /**
  * Organize the facetable metadata into groups
@@ -130,7 +130,7 @@ export default function SearchFacetSidebar() {
   }
 
   const defaultMultiListProps = {
-    defaultQuery: () => allImagesQuery,
+    defaultQuery: () => allWorksQuery,
     placeholder: "Filter",
     showFilter: true,
     sortBy: "asc",

@@ -1,4 +1,4 @@
-defmodule IIIF.Presentation.Canvas do
+defmodule IIIF.V2.Presentation.Canvas do
   @moduledoc """
   IIIF Presentation API 2.1.x Canvas resource
   """

@@ -7,7 +7,7 @@ defmodule Meadow.StructuralMetadataListener do
   use Meadow.Utils.Logging
   alias Meadow.Config
   alias Meadow.Data.FileSets
-  alias Meadow.Utils.{AWS, Pairtree}
+  alias Meadow.Utils.AWS
   require Logger
 
   @impl true
@@ -33,16 +33,16 @@ defmodule Meadow.StructuralMetadataListener do
        when is_binary(vtt) do
     Logger.info("Writing structural metadata for #{id}")
 
-    ExAws.S3.put_object(Config.streaming_bucket(), vtt_location(id), vtt, content_type: "text/vtt")
+    ExAws.S3.put_object(Config.pyramid_bucket(), FileSets.vtt_location(id), vtt,
+      content_type: "text/vtt"
+    )
     |> AWS.request()
   end
 
   defp write_structural_metadata(%{id: id}) do
     Logger.info("Deleting structural metadata for #{id}")
 
-    ExAws.S3.delete_object(Config.streaming_bucket(), vtt_location(id))
+    ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
     |> AWS.request()
   end
-
-  defp vtt_location(id), do: Path.join(Pairtree.generate!(id), id <> ".vtt")
 end

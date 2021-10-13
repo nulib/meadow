@@ -268,7 +268,7 @@ defmodule Meadow.Data.IndexerTest do
 
       assert header |> get_in(["index", "_id"]) == subject.id
       assert doc |> get_in(["model", "application"]) == "Meadow"
-      assert doc |> get_in(["model", "name"]) == "Image"
+      assert doc |> get_in(["model", "name"]) == "Work"
       assert doc |> get_in(["fileSets"]) |> length == 2
       assert doc |> get_in(["fileSets"]) |> List.first() |> map_size() == 5
 

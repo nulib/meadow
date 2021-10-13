@@ -7,9 +7,9 @@ import {
 /**
  * Elasticsearch queries
  */
-const matchImage = {
+const matchWork = {
   match: {
-    "model.name.keyword": "Image",
+    "model.name": "Work",
   },
 };
 
@@ -120,10 +120,10 @@ export default function useRepositoryStats() {
       },
     ])
   );
-  const worksQuery = elasticsearchDirectCount(query([matchImage]));
+  const worksQuery = elasticsearchDirectCount(query([matchWork]));
   const worksPublishedQuery = elasticsearchDirectCount(
     query([
-      matchImage,
+      matchWork,
       {
         match: {
           published: true,
@@ -133,7 +133,7 @@ export default function useRepositoryStats() {
   );
   // NOTE: This only returns projects which contain a work
   const projectsQuery = elasticsearchDirectSearch({
-    ...query([matchImage]),
+    ...query([matchWork]),
     size: 0,
     aggs: {
       projects: {
@@ -144,7 +144,7 @@ export default function useRepositoryStats() {
     },
   });
   const visibilityQuery = elasticsearchDirectSearch({
-    ...query([matchImage]),
+    ...query([matchWork]),
     size: 0,
     aggs: {
       visibilities: {
@@ -162,7 +162,7 @@ export default function useRepositoryStats() {
     },
   });
   const worksCreatedByWeek = elasticsearchDirectSearch({
-    ...query([matchImage]),
+    ...query([matchWork]),
     size: 0,
     aggs: {
       works_created_by_week: {
@@ -175,7 +175,7 @@ export default function useRepositoryStats() {
   });
   // This grabs max 3 Collections from works updated in past quarter
   const collectionsRecentlyUpdated = elasticsearchDirectSearch({
-    ...query([matchImage]),
+    ...query([matchWork]),
     size: 0,
     aggs: {
       works_recently_updated: {

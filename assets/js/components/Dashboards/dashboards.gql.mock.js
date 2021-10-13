@@ -18,7 +18,7 @@ export const mockGetBatchesResults = [
     id: "f97d222b-3cf6-45ff-98c6-d09a3261964f",
     nickname: null,
     query:
-      '{"query":{"bool":{"must":[{"match":{"model.name":"Image"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
+      '{"query":{"bool":{"must":[{"match":{"model.name":"Work"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
     replace:
       '{"administrative_metadata":{},"descriptive_metadata":{"title":"Yo Ima Batch Title"}}',
     started: "2020-12-08T15:27:13.396560Z",
@@ -35,7 +35,7 @@ export const mockGetBatchesResults = [
     id: "7b9fa4c5-fa97-46e8-8fd7-db0001dc76c3",
     nickname: "My Batch Job",
     query:
-      '{"query":{"bool":{"must":[{"match":{"model.name":"Image"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
+      '{"query":{"bool":{"must":[{"match":{"model.name":"Work"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
     replace:
       '{"administrative_metadata":{},"descriptive_metadata":{"description":["Description replacer"],"rights_statement":{"id":"http://rightsstatements.org/vocab/InC/1.0/","scheme":"rights_statement"}}}',
     started: "2020-12-08T17:24:49.278717Z",
@@ -51,7 +51,7 @@ export const mockGetBatchesResults = [
     id: "ABC-f97d222b-3cf6-45ff-98c6",
     nickname: null,
     query:
-      '{"query":{"bool":{"must":[{"match":{"model.name":"Image"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
+      '{"query":{"bool":{"must":[{"match":{"model.name":"Work"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
     replace:
       '{"administrative_metadata":{},"descriptive_metadata":{"title":"Yo Ima Batch Title"}}',
     started: "2020-12-09T15:27:13.396560Z",
@@ -67,7 +67,7 @@ export const mockGetBatchesResults = [
     id: "ZYZ-f97d222b-3cf6-45ff-98c6",
     nickname: null,
     query:
-      '{"query":{"bool":{"must":[{"match":{"model.name":"Image"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
+      '{"query":{"bool":{"must":[{"match":{"model.name":"Work"}},{"query_string":{"query":" id.keyword:(aceee345-4fc9-4917-a499-7f9e0379231d OR 620cbd4f-7e44-45bc-aab9-0b0fb97ff2ea)"}}]}}}',
     replace:
       '{"administrative_metadata":{},"descriptive_metadata":{"title":"Yo Ima Batch Title"}}',
     started: "2020-12-09T15:27:13.396560Z",

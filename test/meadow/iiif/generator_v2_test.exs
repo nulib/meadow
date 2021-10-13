@@ -1,7 +1,7 @@
-defmodule Meadow.IIIF.GeneratorTest do
+defmodule Meadow.IIIF.V2.GeneratorTest do
   use Meadow.DataCase
   alias Meadow.IIIF
-  alias Meadow.IIIF.Generator
+  alias Meadow.IIIF.V2.Generator
   import Meadow.TestHelpers
 
   describe "Manifest generation" do
@@ -49,9 +49,9 @@ defmodule Meadow.IIIF.GeneratorTest do
                       \"service\": {
                         \"profile\": \"http://iiif.io/api/image/2/level2.json\",
                         \"@context\": \"http://iiif.io/api/image/2/context.json\",
-                        \"@id\": \"#{IIIF.image_service_id(file_set.id)}\"
+                        \"@id\": \"#{IIIF.V2.image_service_id(file_set.id)}\"
                       },
-                      \"@id\": \"#{IIIF.image_id(file_set.id)}\",
+                      \"@id\": \"#{IIIF.V2.image_id(file_set.id)}\",
                       \"@type\": \"dctypes:Image\"
                     },
                     \"@type\": \"oa:Annotation\"
@@ -59,7 +59,7 @@ defmodule Meadow.IIIF.GeneratorTest do
                 ],
                 \"label\": \"This is the label\",
                 \"width\": \"640\",
-                \"@id\": \"#{IIIF.manifest_id(work.id)}/canvas/#{file_set.id}\",
+                \"@id\": \"#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}\",
                 \"@type\": \"sc:Canvas\"
               }
             ],
@@ -69,7 +69,7 @@ defmodule Meadow.IIIF.GeneratorTest do
           }
         ],
         \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-        \"@id\": \"#{IIIF.manifest_id(work.id)}\",
+        \"@id\": \"#{IIIF.V2.manifest_id(work.id)}\",
         \"@type\": \"sc:Manifest\"
       }\
       """
@@ -91,7 +91,7 @@ defmodule Meadow.IIIF.GeneratorTest do
             \"label\": \"Test title\",
             \"sequences\": [],
             \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-            \"@id\": \"#{IIIF.manifest_id(work.id)}\",
+            \"@id\": \"#{IIIF.V2.manifest_id(work.id)}\",
             \"@type\": \"sc:Manifest\"
           }
         ],

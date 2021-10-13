@@ -70,6 +70,17 @@ defmodule Meadow.Utils.Pairtree do
   end
 
   @doc """
+  Generate an S3 Key for a IIIF v3.x manifest
+
+  Examples:
+    iex> Meadow.Utils.Pairtree.manifest_v3_key("a13d45b1-69a6-447f-9d42-90b989a2949c")
+    "public/iiif3/a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
+  """
+  def manifest_v3_key(id) do
+    "public/" <> "iiif3/" <> with_extension(id, "manifest", "json")
+  end
+
+  @doc """
   Generate a Pairtree with ending and extension
 
   Examples:

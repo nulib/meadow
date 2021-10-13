@@ -26,7 +26,7 @@ let props = {
       must: [
         {
           bool: {
-            must: [{ bool: { must: [{ match: { "model.name": "Image" } }] } }],
+            must: [{ bool: { must: [{ match: { "model.name": "Work" } }] } }],
           },
         },
       ],

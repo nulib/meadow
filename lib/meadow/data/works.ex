@@ -372,19 +372,27 @@ defmodule Meadow.Data.Works do
 
   @doc """
   Retrieves the IIIF Manifest URL for a work
-  iex> iiif_manifest_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47")
+  iex> iiif_manifest_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47", "IMAGE")
   "https://iiif.stack.rdc.library.northwestern.edu/public/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
 
-  iex> iiif_manifest_url(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47"})
+  iex> iiif_manifest_url(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47", work_type: %{id: "IMAGE"}})
   "https://iiif.stack.rdc.library.northwestern.edu/public/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
 
   """
-  def iiif_manifest_url(%Work{id: id}) do
-    iiif_manifest_url(id)
+  def iiif_manifest_url(%Work{id: id, work_type: %{id: work_type}}) do
+    iiif_manifest_url(id, work_type)
   end
 
-  def iiif_manifest_url(work_id) do
+  def iiif_manifest_url(work_id, "IMAGE") do
     Config.iiif_manifest_url() <> Pairtree.manifest_path(work_id)
+  end
+
+  def iiif_manifest_url(work_id, "VIDEO") do
+    Config.iiif_manifest_url() <> "iiif3/" <> Pairtree.manifest_path(work_id)
+  end
+
+  def iiif_manifest_url(work_id, "AUDIO") do
+    Config.iiif_manifest_url() <> "iiif3/" <> Pairtree.manifest_path(work_id)
   end
 
   @doc """

@@ -38,7 +38,7 @@ export function buildSelectedItemsQuery(selectedItems = []) {
       must: [
         {
           match: {
-            "model.name": "Image",
+            "model.name": "Work",
           },
         },
         {

@@ -40,7 +40,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
     "query" => %{
       "bool" => %{
         "must" => [
-          %{"match" => %{"model.name" => "Image"}},
+          %{"match" => %{"model.name" => "Work"}},
           %{"match" => %{"model.application" => "NextGen"}}
         ]
       }

@@ -16,6 +16,7 @@ updates:
       - dependency-name: "sass-loader"
       - dependency-name: "webpack"
       - dependency-name: "webpack-cli"
+      - dependency-name: "@honeybadger-io/react"
   - package-ecosystem: npm
     directory: "/priv/nodejs/*"
     schedule:

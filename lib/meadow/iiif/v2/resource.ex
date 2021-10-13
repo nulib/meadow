@@ -1,4 +1,4 @@
-defprotocol Meadow.IIIF.Resource do
+defprotocol Meadow.IIIF.V2.Resource do
   @moduledoc """
   A protocol for converting a struct into a 2.0 IIIF Manifest
   """
