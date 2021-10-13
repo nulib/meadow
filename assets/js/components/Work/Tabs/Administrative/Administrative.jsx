@@ -44,25 +44,9 @@ const WorkTabsAdministrative = ({ work }) => {
     });
   const { projectCycle } = administrativeMetadata;
 
-  useEffect(() => {
-    // Update a Work after the form has been submitted
-    let resetValues = {};
-    for (let group of [PROJECT_METADATA]) {
-      for (let obj of group) {
-        resetValues[obj.name] = administrativeMetadata[obj.name][0];
-      }
-    }
-    methods.reset({
-      ...resetValues,
-      projectCycle: administrativeMetadata.projectCycle,
-    });
-  }, [work]);
-
   const onSubmit = (data) => {
-    let currentFormValues = methods.getValues();
-    console.log(`currentFormValues`, currentFormValues);
-
-    let workUpdateInput = {
+    const currentFormValues = methods.getValues();
+    const workUpdateInput = {
       administrativeMetadata: {
         libraryUnit: currentFormValues.libraryUnit
           ? { id: currentFormValues.libraryUnit, scheme: "LIBRARY_UNIT" }
