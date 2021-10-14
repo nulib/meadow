@@ -19,18 +19,18 @@ jobs:
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v1-
+            ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v2-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v1-
+            ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v2-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
@@ -65,18 +65,18 @@ jobs:
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v1-
+            ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v2-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v1-
+            ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v2-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
@@ -163,18 +163,18 @@ jobs:
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v1-
+            ${{ runner.os }}-hex-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v2-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v1-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v1-
+            ${{ runner.os }}-build-v2-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v2-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
