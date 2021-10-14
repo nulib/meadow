@@ -17,6 +17,7 @@ updates:
       - dependency-name: "webpack"
       - dependency-name: "webpack-cli"
       - dependency-name: "@honeybadger-io/react"
+      - dependency-name: "@appbaseio/reactivesearch"
   - package-ecosystem: npm
     directory: "/priv/nodejs/*"
     schedule:
