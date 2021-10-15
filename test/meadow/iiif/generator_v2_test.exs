@@ -43,6 +43,7 @@ defmodule Meadow.IIIF.V2.GeneratorTest do
                 \"images\": [
                   {
                     \"motivation\": \"sc:painting\",
+                    \"on\": \"#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}\",
                     \"resource\": {
                       \"description\": \"bar\",
                       \"label\": \"This is the label\",

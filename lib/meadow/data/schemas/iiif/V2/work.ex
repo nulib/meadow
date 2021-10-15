@@ -16,6 +16,7 @@ defimpl Meadow.IIIF.V2.Resource, for: Meadow.Data.Schemas.Work do
                 label: file_set.core_metadata.label,
                 images: [
                   %Image{
+                    on: "#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}",
                     resource: %ImageResource{
                       id: IIIF.V2.image_id(file_set.id),
                       label: file_set.core_metadata.label,
