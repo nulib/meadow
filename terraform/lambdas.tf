@@ -93,8 +93,8 @@ module "mediainfo_function" {
   description = "Function to extract technical metadata from an A/V S3 object"
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
-  memory_size = 512
-  timeout     = 120
+  memory_size = 1024
+  timeout     = 900
 
   tags = merge(
     var.tags,
