@@ -153,7 +153,8 @@ config :httpoison_retry, wait: 50
 config :mime, :types, %{
   "video/x-m4v" => ["m4v"],
   "video/x-matroska" => ["mkv"],
-  "audio/x-aiff" => ["aif","aiff","aifc"]
+  "audio/x-aiff" => ["aif", "aiff", "aifc"],
+  "audio/x-flac" => ["flac"]
 }
 
 import_config "sequins.exs"
