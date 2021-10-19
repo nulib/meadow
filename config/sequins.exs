@@ -83,7 +83,7 @@ config :sequins, ExtractMediaMetadata,
     receive_interval: 1000,
     wait_time_seconds: 1,
     processor_concurrency: 1,
-    visibility_timeout: 300
+    visibility_timeout: 960
   ],
   notify_on: [ExtractMediaMetadata: [status: :retry]]
 
