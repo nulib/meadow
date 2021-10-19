@@ -20,7 +20,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/react-fontawesome": "^0.1.15",
+    "@fortawesome/react-fontawesome": "^0.1.16",
     "@honeybadger-io/js": "^3.2.5",
     "@honeybadger-io/react": "^2.0.0",
     "@nulib/admin-react-components": "^1.10.0",
