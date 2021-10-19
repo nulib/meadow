@@ -87,7 +87,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
   describe "missing file" do
     test "process/2", %{missing_media_file_set_id: file_set_id} do
       assert {:error, message} = ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
-      assert message |> String.contains?("404 NotFound")
+      assert message |> String.contains?("404 Not Found")
 
       assert ActionStates.error?(file_set_id, ExtractMediaMetadata)
 
