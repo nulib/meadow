@@ -377,19 +377,8 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp mime_type_accepted?(_, "X", "image/" <> _rest), do: true
-  defp mime_type_accepted?(_, "S", "text/" <> _rest), do: true
 
-  defp mime_type_accepted?(_, "S", "application/" <> rest)
-       when rest in [
-              "json",
-              "xml",
-              "pdf",
-              "msword",
-              "vnd.ms-excel",
-              "vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            ],
-       do: true
-
+  defp mime_type_accepted?(_, "S", _), do: true
   defp mime_type_accepted?("IMAGE", role, "image/" <> _rest) when role in ["A", "P"], do: true
   defp mime_type_accepted?("VIDEO", "A", "video/x-matroska"), do: false
   defp mime_type_accepted?("VIDEO", role, "video/" <> _rest) when role in ["A", "P"], do: true
