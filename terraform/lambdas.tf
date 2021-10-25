@@ -93,8 +93,13 @@ module "mediainfo_function" {
   description = "Function to extract technical metadata from an A/V S3 object"
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
-  memory_size = 1024
-  timeout     = 900
+  memory_size = 512
+  timeout     = 240
+  layers      = [aws_lambda_layer_version.mediainfo.arn]
+  environment = {
+    MEDIAINFO_PATH = "/opt/bin/mediainfo"
+  }
+
 
   tags = merge(
     var.tags,
