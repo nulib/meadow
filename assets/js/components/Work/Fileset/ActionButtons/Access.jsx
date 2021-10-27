@@ -7,23 +7,28 @@ import { IconDownload } from "@js/components/Icon";
 import { ImageDownloader } from "@samvera/image-downloader";
 import { useWorkDispatch } from "@js/context/work-context";
 import useFileSet from "@js/hooks/useFileSet";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 function MediaButtons({ fileSet }) {
   const { getWebVttString } = useFileSet();
+  const { isAuthorized } = useIsAuthorized();
+
   const dispatch = useWorkDispatch();
   return (
     <div className="buttons is-flex is-justify-content-flex-end">
-      <Button
-        onClick={() =>
-          dispatch({
-            type: "toggleWebVttModal",
-            fileSetId: fileSet?.id,
-            webVttString: getWebVttString(fileSet),
-          })
-        }
-      >
-        Edit structure (vtt)
-      </Button>
+      {isAuthorized() && (
+        <Button
+          onClick={() =>
+            dispatch({
+              type: "toggleWebVttModal",
+              fileSetId: fileSet?.id,
+              webVttString: getWebVttString(fileSet),
+            })
+          }
+        >
+          Edit structure (vtt)
+        </Button>
+      )}
     </div>
   );
 }

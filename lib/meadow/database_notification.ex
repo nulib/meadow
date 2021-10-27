@@ -32,8 +32,21 @@ defmodule Meadow.DatabaseNotification do
   ## Creating the database notification triggers
 
   In order for the process to receive change notifications, the database has
-  to send them. #{__MODULE__} provides two functions to assist with the creation
-  (and destruction) of the necessary Postgres functions and triggers:
+  to send them.
+
+  It is currently not possible to have more than one trigger on a table,
+  each trigger listening for specific field/column changes.
+
+  So, first see if a database trigger already exists for the table you need
+  and confirm that it is listening for changes on :all fields
+  (or on the specific field you need).
+
+  Only if the trigger does not exist for the table would you need to create one.
+
+  #{__MODULE__} provides two functions to assist with the creation
+  (and destruction) of the necessary Postgres functions and triggers/
+
+  Create a database migration containing the trigger you need.
 
   ```
   defmodule MyDatabaseNotificationTrigger do
@@ -132,70 +145,7 @@ defmodule Meadow.DatabaseNotification do
     end
   end
 
-  def create_notification_trigger(table, fields),
-    do: create_notification_trigger(:statement, table, fields)
-
-  def create_notification_trigger(level, table, fields)
-
-  def create_notification_trigger(:row, table, fields) do
-    condition = field_condition(fields, {"NEW", "OLD"})
-
-    Ecto.Migration.execute("""
-      CREATE OR REPLACE FUNCTION notify_#{table}_changed()
-      RETURNS trigger AS $$
-      DECLARE
-        changed JSONB;
-        key_field TEXT;
-        key JSONB := jsonb_object('{}');
-        notify BOOLEAN;
-        payload TEXT;
-      BEGIN
-        IF TG_OP = 'INSERT' THEN
-          changed = row_to_json(NEW)::JSONB;
-          notify = true;
-        ELSIF TG_OP = 'UPDATE' THEN
-          changed = row_to_json(NEW)::JSONB;
-          notify = #{condition};
-        ELSE
-          changed = row_to_json(OLD)::JSONB;
-          notify = true;
-        END IF;
-
-        -- Build the key dynamically based on the primary key
-        -- of the table. This will usually be {"id": record.id}
-        -- but this allows for notifications on tables with
-        -- compound keys.
-
-        IF notify THEN
-          FOR key_field IN
-            SELECT c.column_name
-            FROM information_schema.key_column_usage AS c
-            LEFT JOIN information_schema.table_constraints AS t
-            ON t.constraint_name = c.constraint_name
-            WHERE t.table_name = '#{table}' AND t.constraint_type = 'PRIMARY KEY'
-            ORDER BY c.ordinal_position
-          LOOP
-            key = jsonb_set(key, ('{'||key_field||'}')::text[], changed->key_field);
-          END LOOP;
-
-          SELECT json_build_object('operation', TG_OP, 'key', key)::text INTO payload;
-          PERFORM pg_notify('#{table}_changed', payload);
-        END IF;
-
-        RETURN NEW;
-      END;
-      $$ LANGUAGE plpgsql;
-    """)
-
-    Ecto.Migration.execute("""
-      CREATE TRIGGER #{table}_changed
-        AFTER INSERT OR UPDATE OR DELETE ON #{table}
-        FOR EACH ROW
-        EXECUTE PROCEDURE notify_#{table}_changed()
-    """)
-  end
-
-  def create_notification_trigger(:statement, table, fields) do
+  def create_notification_trigger(table, fields) do
     condition = field_condition(fields)
 
     Ecto.Migration.execute("""

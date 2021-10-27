@@ -71,9 +71,9 @@ config :meadow,
       %{NameModifier: "-medium", Preset: "meadow-audio-medium"}
     ],
     video: [
-      %{NameModifier: "-1080", Preset: "System-Avc_16x9_1080p_29_97fps_8500kbps"},
-      %{NameModifier: "-720", Preset: "System-Avc_16x9_720p_29_97fps_5000kbps"},
-      %{NameModifier: "-540", Preset: "System-Avc_16x9_540p_29_97fps_3500kbps"}
+      %{NameModifier: "-1080", Preset: "meadow-video-high"},
+      %{NameModifier: "-720", Preset: "meadow-video-medium"},
+      %{NameModifier: "-540", Preset: "meadow-video-low"}
     ]
   }
 
@@ -151,7 +151,10 @@ config :ex_aws,
 config :httpoison_retry, wait: 50
 
 config :mime, :types, %{
-  "video/x-m4v" => ["m4v"]
+  "video/x-m4v" => ["m4v"],
+  "video/x-matroska" => ["mkv"],
+  "audio/x-aiff" => ["aif", "aiff", "aifc"],
+  "audio/x-flac" => ["flac"]
 }
 
 import_config "sequins.exs"

@@ -4,7 +4,7 @@ defmodule Meadow.Repo.Migrations.CreateControlledTermCache do
   def change do
     create table(:controlled_term_cache, primary_key: false) do
       add :id, :string, primary_key: true
-      add :label, :string
+      add :label, :text
 
       timestamps()
     end

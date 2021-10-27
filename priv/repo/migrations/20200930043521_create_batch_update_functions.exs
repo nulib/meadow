@@ -45,7 +45,11 @@ defmodule Meadow.Repo.Migrations.CreateBatchUpdateFunctions do
       FOR key, value IN SELECT * FROM jsonb_each(new_values) LOOP
         CASE mode
           WHEN 'append' THEN
-            new_value = result->key || value;
+            IF result->key IS NULL THEN
+              new_value = value;
+            ELSE
+              new_value = result->key || value;
+            END IF;
           WHEN 'replace' THEN
             new_value = value;
           ELSE

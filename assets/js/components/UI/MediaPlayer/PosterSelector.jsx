@@ -1,16 +1,17 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Button } from "@nulib/admin-react-components";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useWorkState } from "@js/context/work-context";
 import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
 import { toastWrapper } from "@js/services/helpers";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 function MediaPlayerPosterSelector() {
   const params = useParams();
   const workId = params.id;
   const workState = useWorkState();
+  const { isAuthorized } = useIsAuthorized();
 
   const [updateFileSet] = useMutation(UPDATE_FILE_SET, {
     onCompleted({ updateFileSet }) {
@@ -53,6 +54,9 @@ function MediaPlayerPosterSelector() {
     });
   };
 
+  if (!isAuthorized()) {
+    return null;
+  }
   return (
     <div className="block is-flex">
       <Button isPrimary onClick={handleSave}>

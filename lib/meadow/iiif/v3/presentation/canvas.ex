@@ -11,6 +11,7 @@ defmodule IIIF.V3.Presentation.Canvas do
             label: nil,
             metadata: [],
             items: [],
+            annotations: [],
             duration: nil,
             height: @default_height,
             width: @default_width,

@@ -2,7 +2,7 @@ defmodule Meadow.Repo.Migrations.CreateCSVMetadataMetadataUpdateJobs do
   use Ecto.Migration
 
   def change do
-    create table("csv_metadata_update_jobs") do
+    create table(:csv_metadata_update_jobs) do
       add(:filename, :string)
       add(:source, :string)
       add(:rows, :integer)

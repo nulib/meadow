@@ -14,7 +14,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   require Logger
 
   @actiondoc "Extract media metadata from FileSet"
-  @timeout 120_000
+  @timeout 240_000
 
   defp already_complete?(file_set, _) do
     with existing_metadata <-

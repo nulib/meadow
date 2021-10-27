@@ -10,6 +10,8 @@
   - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
 - Install Node.js (you can use `nvm` (`brew install nvm`) or `asdf` to install node)
 - Install libffi `brew install libffi`
+- Install ffmpeg `brew install ffmpeg`
+- Install mediainfo `brew install mediainfo`
 - Make sure you've completed the [Developer Setup](http://docs.rdc.library.northwestern.edu/2._Developer_Guides/Environment_and_Tools/Developer-Tools---Dev-Environment-Setup/#setup)
 
 ## Initial setup:

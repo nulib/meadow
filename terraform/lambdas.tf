@@ -94,7 +94,12 @@ module "mediainfo_function" {
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
   memory_size = 512
-  timeout     = 120
+  timeout     = 240
+  layers      = [aws_lambda_layer_version.mediainfo.arn]
+  environment = {
+    MEDIAINFO_PATH = "/opt/bin/mediainfo"
+  }
+
 
   tags = merge(
     var.tags,

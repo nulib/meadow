@@ -2,7 +2,7 @@ defmodule Meadow.Repo.Migrations.CreateBatches do
   use Ecto.Migration
 
   def change do
-    create table("batches") do
+    create table(:batches) do
       add(:nickname, :string)
       add(:user, :string)
       add(:type, :string)
