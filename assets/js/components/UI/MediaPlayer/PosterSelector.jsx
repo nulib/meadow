@@ -43,7 +43,7 @@ function MediaPlayerPosterSelector() {
   });
 
   const handleSave = () => {
-    const el = document.getElementById("media-player");
+    const el = document.getElementById("react-media-player");
     const posterOffset = parseInt(el.currentTime * 1000);
 
     updateFileSet({
@@ -57,10 +57,13 @@ function MediaPlayerPosterSelector() {
   if (!isAuthorized()) {
     return null;
   }
+
+  const label = workState.activeMediaFileSet.coreMetadata.label;
+
   return (
-    <div className="block is-flex">
+    <div className="block mt-5 is-flex is-justify-content-center">
       <Button isPrimary onClick={handleSave}>
-        Set poster image
+        Set poster image for &nbsp;<strong>{label}</strong>
       </Button>
     </div>
   );
