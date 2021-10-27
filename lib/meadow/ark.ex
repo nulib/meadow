@@ -140,4 +140,25 @@ defmodule Meadow.Ark do
       {:error, error} -> {:error, error}
     end
   end
+
+  def put(attributes) do
+    put(struct!(__MODULE__, Enum.into(attributes, [])))
+  end
+
+  @doc """
+  Remove the ARK identifier
+
+  ## Examples:
+
+   iex> delete("ark:/99999/fk4n31617m")
+   {:ok,true}}
+
+   iex> delete("ark:/99999/fk4unknown")
+   {:error, "error: bad request - no such identifier"}
+  """
+  def delete(id) do
+    case Client.delete("/id/#{id}") do
+      {:ok, %{status_code: 200, body: body}} -> {:ok, Serializer.deserialize(body)}
+    end
+  end
 end

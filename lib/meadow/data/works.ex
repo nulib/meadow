@@ -14,6 +14,8 @@ defmodule Meadow.Data.Works do
 
   use Meadow.Data.Works.BatchFunctions
 
+  require Logger
+
   @work_type_resource_type_mapping %{
     "AUDIO" => "Sound",
     "VIDEO" => "Audiovisual"
@@ -434,7 +436,7 @@ defmodule Meadow.Data.Works do
   end
 
   def mint_ark(%Work{} = work) do
-    case work |> ark_attributes() |> Ark.mint() do
+    case work |> initial_ark_attributes() |> Ark.mint() do
       {:ok, result} ->
         update_work(work, %{descriptive_metadata: %{ark: result.ark}})
 
@@ -444,7 +446,7 @@ defmodule Meadow.Data.Works do
     end
   end
 
-  defp ark_attributes(work) do
+  defp initial_ark_attributes(work) do
     status = if work.published, do: "public", else: "reserved"
 
     [
@@ -454,6 +456,40 @@ defmodule Meadow.Data.Works do
       publication_year: nil,
       resource_type: resource_type(work),
       status: status,
+      target: ark_target_url(work)
+    ]
+  end
+
+  def update_ark_metatdata(%Work{} = work) do
+    case Ark.get(work.descriptive_metadata.ark) do
+      {:error, message} ->
+        {:error, message}
+
+      {:ok, %{status: current_status}} ->
+        new_status = ark_update_status(current_status, work)
+
+        case work |> ark_update_attributes(new_status) |> Ark.put() do
+          {:ok, result} ->
+            Logger.info("Ark successfully updated. #{inspect(result)}")
+
+            {:ok, result}
+
+          {:error, error_message} ->
+            Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
+            {:error, error_message}
+        end
+    end
+  end
+
+  defp ark_update_attributes(work, new_status) do
+    [
+      ark: work.descriptive_metadata.ark,
+      creator: scalar_value(work.descriptive_metadata.creator),
+      title: work.descriptive_metadata.title,
+      publisher: scalar_value(work.descriptive_metadata.publisher),
+      publication_year: nil,
+      resource_type: resource_type(work),
+      status: new_status,
       target: ark_target_url(work)
     ]
   end
@@ -480,6 +516,30 @@ defmodule Meadow.Data.Works do
       {_, other} -> raise other
     end
   end
+
+  defp ark_update_status(_current_status, %{visibility: %{id: visibility_id}, published: true})
+       when visibility_id in ["OPEN", "AUTHENTICATED"],
+       do: "public"
+
+  defp ark_update_status("public", %{visibility: %{id: "RESTRICTED"}, published: _}),
+    do: "unavailable"
+
+  defp ark_update_status(current_status, %{visibility: %{id: "RESTRICTED"}, published: _}),
+    do: current_status
+
+  defp ark_update_status("public", %{visibility: %{id: visibility_id}, published: false})
+       when visibility_id in ["OPEN", "AUTHENTICATED"],
+       do: "unavailable"
+
+  defp ark_update_status(current_status, %{visibility: %{id: visibility_id}, published: false})
+       when visibility_id in ["OPEN", "AUTHENTICATED"],
+       do: current_status
+
+  defp ark_update_status("public", _),
+    do: "unavailable"
+
+  defp ark_update_status(current_status, _),
+    do: current_status
 
   @doc """
   Sets the representative_file_set_id for a work based

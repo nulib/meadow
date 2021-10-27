@@ -32,8 +32,21 @@ defmodule Meadow.DatabaseNotification do
   ## Creating the database notification triggers
 
   In order for the process to receive change notifications, the database has
-  to send them. #{__MODULE__} provides two functions to assist with the creation
-  (and destruction) of the necessary Postgres functions and triggers:
+  to send them.
+
+  It is currently not possible to have more than one trigger on a table,
+  each trigger listening for specific field/column changes.
+
+  So, first see if a database trigger already exists for the table you need
+  and confirm that it is listening for changes on :all fields
+  (or on the specific field you need).
+
+  Only if the trigger does not exist for the table would you need to create one.
+
+  #{__MODULE__} provides two functions to assist with the creation
+  (and destruction) of the necessary Postgres functions and triggers/
+
+  Create a database migration containing the trigger you need.
 
   ```
   defmodule MyDatabaseNotificationTrigger do
