@@ -145,70 +145,7 @@ defmodule Meadow.DatabaseNotification do
     end
   end
 
-  def create_notification_trigger(table, fields),
-    do: create_notification_trigger(:statement, table, fields)
-
-  def create_notification_trigger(level, table, fields)
-
-  def create_notification_trigger(:row, table, fields) do
-    condition = field_condition(fields, {"NEW", "OLD"})
-
-    Ecto.Migration.execute("""
-      CREATE OR REPLACE FUNCTION notify_#{table}_changed()
-      RETURNS trigger AS $$
-      DECLARE
-        changed JSONB;
-        key_field TEXT;
-        key JSONB := jsonb_object('{}');
-        notify BOOLEAN;
-        payload TEXT;
-      BEGIN
-        IF TG_OP = 'INSERT' THEN
-          changed = row_to_json(NEW)::JSONB;
-          notify = true;
-        ELSIF TG_OP = 'UPDATE' THEN
-          changed = row_to_json(NEW)::JSONB;
-          notify = #{condition};
-        ELSE
-          changed = row_to_json(OLD)::JSONB;
-          notify = true;
-        END IF;
-
-        -- Build the key dynamically based on the primary key
-        -- of the table. This will usually be {"id": record.id}
-        -- but this allows for notifications on tables with
-        -- compound keys.
-
-        IF notify THEN
-          FOR key_field IN
-            SELECT c.column_name
-            FROM information_schema.key_column_usage AS c
-            LEFT JOIN information_schema.table_constraints AS t
-            ON t.constraint_name = c.constraint_name
-            WHERE t.table_name = '#{table}' AND t.constraint_type = 'PRIMARY KEY'
-            ORDER BY c.ordinal_position
-          LOOP
-            key = jsonb_set(key, ('{'||key_field||'}')::text[], changed->key_field);
-          END LOOP;
-
-          SELECT json_build_object('operation', TG_OP, 'key', key)::text INTO payload;
-          PERFORM pg_notify('#{table}_changed', payload);
-        END IF;
-
-        RETURN NEW;
-      END;
-      $$ LANGUAGE plpgsql;
-    """)
-
-    Ecto.Migration.execute("""
-      CREATE TRIGGER #{table}_changed
-        AFTER INSERT OR UPDATE OR DELETE ON #{table}
-        FOR EACH ROW
-        EXECUTE PROCEDURE notify_#{table}_changed()
-    """)
-  end
-
-  def create_notification_trigger(:statement, table, fields) do
+  def create_notification_trigger(table, fields) do
     condition = field_condition(fields)
 
     Ecto.Migration.execute("""
