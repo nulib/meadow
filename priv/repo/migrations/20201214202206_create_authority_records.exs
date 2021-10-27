@@ -1,4 +1,4 @@
-defmodule Meadow.Repo.Migrations.AddAuthorityRecordsTable do
+defmodule Meadow.Repo.Migrations.CreateAuthorityRecords do
   use Ecto.Migration
 
   def change do

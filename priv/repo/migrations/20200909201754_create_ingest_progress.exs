@@ -3,7 +3,7 @@ defmodule Meadow.Repo.Migrations.CreateIngestProgress do
 
   def change do
     create table(:ingest_progress, primary_key: false) do
-      add :row_id, references("ingest_sheet_rows", on_delete: :delete_all),
+      add :row_id, references(:ingest_sheet_rows, on_delete: :delete_all),
         null: false,
         primary_key: true
 

@@ -2,7 +2,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSetCleanupTrigger do
   use Ecto.Migration
 
   def up do
-    Ecto.Migration.execute("""
+    execute("""
       CREATE OR REPLACE FUNCTION notify_file_sets_deleted()
       RETURNS trigger AS $$
       DECLARE
@@ -26,7 +26,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSetCleanupTrigger do
       $$ LANGUAGE plpgsql;
     """)
 
-    Ecto.Migration.execute("""
+    execute("""
       CREATE TRIGGER file_sets_deleted
         AFTER DELETE ON file_sets
         REFERENCING OLD TABLE AS old_table
@@ -36,7 +36,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSetCleanupTrigger do
   end
 
   def down do
-    Ecto.Migration.execute("DROP TRIGGER IF EXISTS file_sets_deleted ON file_sets")
-    Ecto.Migration.execute("DROP FUNCTION IF EXISTS notify_file_sets_deleted")
+    execute("DROP TRIGGER IF EXISTS file_sets_deleted ON file_sets")
+    execute("DROP FUNCTION IF EXISTS notify_file_sets_deleted")
   end
 end

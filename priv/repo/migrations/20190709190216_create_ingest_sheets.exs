@@ -14,5 +14,6 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheets do
     end
 
     create(unique_index(:ingest_sheets, [:title]))
+    create(index(:ingest_sheets, [:project_id]))
   end
 end

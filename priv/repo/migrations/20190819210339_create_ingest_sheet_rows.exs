@@ -3,7 +3,7 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetRows do
 
   def change do
     create table(:ingest_sheet_rows) do
-      add(:sheet_id, references("ingest_sheets", on_delete: :delete_all), null: false)
+      add(:sheet_id, references(:ingest_sheets, on_delete: :delete_all), null: false)
       add(:row, :integer, null: false)
       add(:state, :string)
       add(:errors, :jsonb)

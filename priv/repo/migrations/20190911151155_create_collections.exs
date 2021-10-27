@@ -2,7 +2,7 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
   use Ecto.Migration
 
   def change do
-    create table("collections") do
+    create table(:collections) do
       add(:title, :string)
       add(:description, :text)
       add(:keywords, {:array, :string}, default: [])

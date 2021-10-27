@@ -1,4 +1,4 @@
-defmodule Meadow.Repo.Migrations.ProjectWorkAssociationTrigger do
+defmodule Meadow.Repo.Migrations.CreateProjectWorkAssociationTrigger do
   use Ecto.Migration
 
   def up do
