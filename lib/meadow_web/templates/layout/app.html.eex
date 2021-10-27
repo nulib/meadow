@@ -16,7 +16,6 @@
     })(window,document,'script','dataLayer','GTM-5W2MPSH');</script>
     <!-- End Google Tag Manager -->
     <title>Meadow · Northwestern University</title>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
