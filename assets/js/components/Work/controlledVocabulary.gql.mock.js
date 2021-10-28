@@ -338,14 +338,24 @@ export const codeListFileSetRoleMock = {
     data: {
       codeList: [
         {
+          __typename: "CodedTerm",
           id: "A",
           label: "Access",
-          __typename: "CodedTerm",
         },
         {
+          __typename: "CodedTerm",
+          id: "X",
+          label: "Auxiliary",
+        },
+        {
+          __typename: "CodedTerm",
           id: "P",
           label: "Preservation",
+        },
+        {
           __typename: "CodedTerm",
+          id: "S",
+          label: "Supplemental",
         },
       ],
     },

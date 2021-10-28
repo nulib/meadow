@@ -7,11 +7,14 @@ import {
 import { AuthProvider } from "@js/components/Auth/Auth";
 import { getPresignedUrlForFileSetMock } from "@js/components/IngestSheet/ingestSheet.gql.mock";
 import { mockWork } from "@js/components/Work/work.gql.mock.js";
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
 import userEvent from "@testing-library/user-event";
 import { CodeListProvider } from "@js/context/code-list-context";
-import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import {
+  allCodeListMocks,
+  codeListFileSetRoleMock,
+} from "@js/components/Work/controlledVocabulary.gql.mock";
 
 let isModalOpen = true;
 
@@ -22,9 +25,10 @@ const handleClose = () => {
 describe("Add fileset to work modal", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(FileSetModal, {
-      workId: mockWork.id,
-      isHidden: !isModalOpen,
       closeModal: handleClose,
+      isVisible: isModalOpen,
+      workId: mockWork.id,
+      workTypeId: mockWork.workType.id,
     });
     return renderWithRouterApollo(
       <AuthProvider>
