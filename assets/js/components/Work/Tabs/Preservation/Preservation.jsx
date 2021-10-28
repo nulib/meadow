@@ -222,8 +222,6 @@ const WorkTabsPreservation = ({ work }) => {
               <span>Add a fileset</span>
             </Button>
           </AuthDisplayAuthorized>
-
-          {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}
         </div>
       </UITabsStickyHeader>
       <div className="box mt-4">
