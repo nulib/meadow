@@ -26,12 +26,14 @@ import {
   IconCheck,
   IconCopyToClipboard,
   IconDelete,
+  IconDownload,
   IconTrashCan,
   IconView,
 } from "@js/components/Icon";
 import UIDropdown from "@js/components/UI/Dropdown";
 import UIDropdownItem from "@js/components/UI/DropdownItem";
 import UIIconText from "@js/components/UI/IconText";
+import DownloadAll from "@js/components/UI/Modal/DownloadAll";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -205,8 +207,8 @@ const WorkTabsPreservation = ({ work }) => {
   return (
     <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Preservation and Access">
-        <AuthDisplayAuthorized>
-          <div className="buttons is-right">
+        <div className="buttons is-right">
+          <AuthDisplayAuthorized>
             <Button
               data-testid="button-new-file-set"
               isPrimary
@@ -219,8 +221,10 @@ const WorkTabsPreservation = ({ work }) => {
               </span>
               <span>Add a fileset</span>
             </Button>
-          </div>
-        </AuthDisplayAuthorized>
+          </AuthDisplayAuthorized>
+
+          {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}
+        </div>
       </UITabsStickyHeader>
       <div className="box mt-4">
         <div className="">
