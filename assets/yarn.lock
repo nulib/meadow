@@ -1815,10 +1815,10 @@
   resolved "https://registry.yarnpkg.com/@nulib/prettier-config/-/prettier-config-1.2.0.tgz#c514ba973b18876935036a1998e5663b761cad2e"
   integrity sha512-TvNrkmyaqKiN2dkpkQG302qE0v91NPprFs+By3GpOyGHJ8cZHFKUDanhuSlt35pxvt40Bdb8ZnSLV7SsiVlS4w==
 
-"@nulib/react-media-player@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@nulib/react-media-player/-/react-media-player-1.1.2.tgz#9dc8eac87c628d12e0110f64450f2e2895a941c6"
-  integrity sha512-NnCa/aAAkQGSi1kndRhZViDj2T2irRcbYtUEjLO0hPdeZZsAZlDaOCU5Gsvnm3L5eKHg3LfRUBkllPsQ91Hsrg==
+"@nulib/react-media-player@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@nulib/react-media-player/-/react-media-player-1.1.4.tgz#b6078752ff7ba695f92ffc1f7a2df486af8b5692"
+  integrity sha512-8LbpGylAlO6w3PizAgY5grDQX1nPhS9Bwgqn4H3zfMso9pNZt1AUuo48jymoF3gdexUchwlLWm6Ep+pNZmedLA==
   dependencies:
     "@hyperion-framework/parser" "^1.0.0"
     "@hyperion-framework/types" "^1.0.0"
