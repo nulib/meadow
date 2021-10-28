@@ -15,11 +15,13 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
   const [formError, setFormError] = useState();
   const methods = useForm();
   const history = useHistory();
+
   let {
     data: workTypeData,
     loading: workTypeLoading,
     error: workTypeError,
   } = useQuery(GET_WORK_TYPES);
+
   let [createWork, { loading, error: mutationError, data }] = useMutation(
     CREATE_WORK,
     {
@@ -40,6 +42,13 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
       },
     }
   );
+
+  React.useEffect(() => {
+    // Because we're getting the <select> options values asynchronously
+    // need to manually set the default value once we get the data returned
+    if (!workTypeData) return;
+    methods.setValue("workType", workTypeData.codeList[0].id);
+  }, [workTypeData]);
 
   if (mutationError || workTypeError)
     return (
@@ -111,6 +120,7 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
                   name="workType"
                   options={workTypeData?.codeList}
                   data-testid="work-type"
+                  required
                 />
               </UIFormField>
             </div>
