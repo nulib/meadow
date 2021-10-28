@@ -5,7 +5,6 @@ import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import {
   mockWork,
   verifyFileSetsMock,
-  workArchiverEndpointMock,
 } from "@js/components/Work/work.gql.mock";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
@@ -25,11 +24,7 @@ describe("WorkTabsPreservation component", () => {
         <WorkTabsPreservation work={mockWork} />
       </CodeListProvider>,
       {
-        mocks: [
-          verifyFileSetsMock,
-          workArchiverEndpointMock,
-          ...allCodeListMocks,
-        ],
+        mocks: [verifyFileSetsMock, ...allCodeListMocks],
       }
     );
   });
