@@ -4,6 +4,7 @@ import {
   GET_WORK,
   GET_WORK_TYPES,
   VERIFY_FILE_SETS,
+  WORK_ARCHIVER_ENDPOINT,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
 
@@ -502,6 +503,19 @@ export const verifyFileSetsMock = {
           verified: true,
         },
       ],
+    },
+  },
+};
+
+export const workArchiverEndpointMock = {
+  request: {
+    query: WORK_ARCHIVER_ENDPOINT,
+  },
+  result: {
+    data: {
+      workArchiverEndpoint: {
+        url: "http://mockendpoint.com/",
+      },
     },
   },
 };

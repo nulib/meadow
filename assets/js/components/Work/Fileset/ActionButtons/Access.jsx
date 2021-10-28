@@ -45,7 +45,7 @@ function ImageButtons({ iiifServerUrl, fileSet }) {
           <span className="icon">
             <IconDownload />
           </span>{" "}
-          <span>TIFF</span>
+          <span>TIF</span>
         </a>
       </p>
       <p className="control">
