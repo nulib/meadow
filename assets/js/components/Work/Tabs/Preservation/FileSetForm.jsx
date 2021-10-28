@@ -2,12 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
 import UIFormField from "@js/components/UI/Form/Field.jsx";
-import UIFormSelect from "@js/components/UI/Form/Select.jsx";
-import { useCodeLists } from "@js/context/code-list-context";
 
 function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
-  const codeLists = useCodeLists();
-
   return (
     <>
       {s3UploadLocation && (
@@ -42,16 +38,6 @@ function WorkTabsPreservationFileSetForm({ s3UploadLocation }) {
               data-testid="fileset-description-input"
               name="description"
               placeholder="Description of the Fileset"
-            />
-          </UIFormField>
-
-          <UIFormField label="Role">
-            <UIFormSelect
-              isReactHookForm
-              name="fileSetRole"
-              label="Fileset Role"
-              options={codeLists.fileSetRoleData.codeList}
-              required
             />
           </UIFormField>
         </div>

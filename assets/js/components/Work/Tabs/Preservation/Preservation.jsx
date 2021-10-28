@@ -327,6 +327,7 @@ const WorkTabsPreservation = ({ work }) => {
           closeModal={() => setIsAddFilesetModalVisible(false)}
           isVisible={isAddFilesetModalVisible}
           workId={work.id}
+          workTypeId={work.workType?.id}
         />
       </div>
       <div className="container buttons">
