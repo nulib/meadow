@@ -9,6 +9,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
   @good_tiff "coffee.tif"
   @bad_tiff "not_a_tiff.tif"
   @json_file "details.json"
+  @framemd5_file "supplemental_file.framemd5"
 
   setup tags do
     key = Path.join("extract_mime_type_test", tags[:fixture_file])
@@ -18,7 +19,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     file_set =
       file_set_fixture(%{
         accession_number: "123",
-        role: %{id: "P", scheme: "FILE_SET_ROLE"},
+        role: %{id: tags[:file_set_role_id], scheme: "FILE_SET_ROLE"},
         core_metadata: %{
           location: "s3://#{@bucket}/#{key}",
           original_filename: tags[:fixture_file]
@@ -29,7 +30,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
   end
 
   describe "process/2" do
-    @tag fixture_file: @good_tiff
+    @tag fixture_file: @good_tiff, file_set_role_id: "P"
     test "good tiff", %{file_set_id: file_set_id} do
       assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
@@ -42,7 +43,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
              end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
     end
 
-    @tag fixture_file: @bad_tiff
+    @tag fixture_file: @bad_tiff, file_set_role_id: "P"
     test "bad tiff", %{file_set_id: file_set_id} do
       log =
         capture_log(fn ->
@@ -54,7 +55,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
       assert log =~ ~r"not_a_tiff.tif appears to be image/tiff but magic number doesn't match."
     end
 
-    @tag fixture_file: @json_file
+    @tag fixture_file: @json_file, file_set_role_id: "P"
     test "non-binary content", %{file_set_id: file_set_id} do
       assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
@@ -65,6 +66,15 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
       assert capture_log(fn ->
                ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
+    end
+
+    @tag fixture_file: @framemd5_file, file_set_role_id: "S"
+    test "supplemntal file falls back to application/octet-stream", %{file_set_id: file_set_id} do
+      ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "application/octet-stream")
     end
   end
 end
