@@ -43,7 +43,9 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   if (errorsError) return <Error error={errorsError} />;
   if (workCountError) return <Error error={workCountError} />;
 
-  const works = worksData.ingestSheetWorks;
+  const works = worksData.ingestSheetWorks.map((item) => {
+    return { workTypeId: item.workType.id, ...item };
+  });
   const handleClick = () => {
     history.push("/search", {
       externalFacet: {

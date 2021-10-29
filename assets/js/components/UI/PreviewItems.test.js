@@ -2,6 +2,7 @@ import React from "react";
 import UIPreviewItems from "./PreviewItems";
 import { renderWithRouter } from "../../services/testing-helpers";
 import { batchEditPreviewItems } from "../../mock-data/batch-edit-preview-items";
+import { screen } from "@testing-library/react";
 
 describe("Batch-edit preview items component", () => {
   function setUpTests() {
@@ -35,14 +36,13 @@ describe("Batch-edit preview items component", () => {
       "/work/" + batchEditPreviewItems[9].id
     );
 
-    //Renders correct image
+    // Renders correct image
     expect(imageEls[0].getAttribute("src")).toContain(
       `${batchEditPreviewItems[0].representativeImage.url}/square/256,256/0/default.jpg`
     );
+    expect(anchorEls[0].querySelector("svg")).toBeNull();
 
     // Renders default image
-    expect(imageEls[2].getAttribute("src")).toContain(
-      `/images/placeholder.png`
-    );
+    expect(anchorEls[2].querySelector("svg")).not.toBeNull();
   });
 });
