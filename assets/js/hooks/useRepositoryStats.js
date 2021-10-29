@@ -13,6 +13,12 @@ const matchWork = {
   },
 };
 
+const matchFileSet = {
+  match: {
+    "model.name": "FileSet",
+  },
+};
+
 function query(matchItemsArray = []) {
   return {
     query: {
@@ -108,6 +114,7 @@ export default function useRepositoryStats() {
   const [stats, setStats] = React.useState({
     collections: 0,
     works: 0,
+    fileSets: 0,
     worksPublished: 0,
   });
 
@@ -121,6 +128,7 @@ export default function useRepositoryStats() {
     ])
   );
   const worksQuery = elasticsearchDirectCount(query([matchWork]));
+  const fileSetsQuery = elasticsearchDirectCount(query([matchFileSet]));
   const worksPublishedQuery = elasticsearchDirectCount(
     query([
       matchWork,
@@ -202,6 +210,7 @@ export default function useRepositoryStats() {
     const promises = [
       collectionsQuery,
       worksQuery,
+      fileSetsQuery,
       worksPublishedQuery,
       projectsQuery,
       visibilityQuery,
@@ -215,25 +224,26 @@ export default function useRepositoryStats() {
       setStats({
         collections: resultArray[0].count,
         works: resultArray[1].count,
-        worksPublished: resultArray[2].count,
-        ...(resultArray[3] && {
-          projects: getProjectsCount(
-            resultArray[3].aggregations.projects.buckets
-          ),
-        }),
+        fileSets: resultArray[2].count,
+        worksPublished: resultArray[3].count,
         ...(resultArray[4] && {
-          visibility: getVisbilityData(
-            resultArray[4].aggregations.visibilities.buckets
+          projects: getProjectsCount(
+            resultArray[4].aggregations.projects.buckets
           ),
         }),
         ...(resultArray[5] && {
-          worksCreatedByWeek: getWorksCreatedByWeek(
-            resultArray[5].aggregations.works_created_by_week.buckets
+          visibility: getVisbilityData(
+            resultArray[5].aggregations.visibilities.buckets
           ),
         }),
         ...(resultArray[6] && {
+          worksCreatedByWeek: getWorksCreatedByWeek(
+            resultArray[6].aggregations.works_created_by_week.buckets
+          ),
+        }),
+        ...(resultArray[7] && {
           collectionsRecentlyUpdated: getRecentCollections(
-            resultArray[6].aggregations.works_recently_updated.buckets
+            resultArray[7].aggregations.works_recently_updated.buckets
           ),
         }),
       });

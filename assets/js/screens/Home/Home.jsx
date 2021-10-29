@@ -31,6 +31,10 @@ const ScreensHome = () => {
       title: stats.works,
     },
     {
+      heading: "File Sets",
+      title: stats.fileSets,
+    },
+    {
       heading: "Works Published",
       title: stats.worksPublished,
     },
