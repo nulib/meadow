@@ -44,10 +44,10 @@ UIPreviewItems.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      representativeImage: PropTypes.shape({
-        fileSetId: PropTypes.string,
-        url: PropTypes.string,
-      }),
+      representativeImage: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.string,
+      ]),
       workTypeId: PropTypes.oneOf(["AUDIO", "IMAGE", "VIDEO"]).isRequired,
     })
   ),

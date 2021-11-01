@@ -2,10 +2,10 @@ import React from "react";
 import {
   renderWithRouterApollo,
   withReactHookForm,
-} from "../../../../services/testing-helpers";
-import { mockWork } from "../../work.gql.mock";
+} from "@js/services/testing-helpers";
+import { mockWork } from "@js/components/Work/work.gql.mock";
 import WorkTabsAboutRightsMetadata from "./RightsMetadata";
-import { RIGHTS_METADATA } from "../../../../services/metadata";
+import { RIGHTS_METADATA } from "@js/services/metadata";
 import { screen } from "@testing-library/react";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
