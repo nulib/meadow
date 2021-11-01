@@ -69,7 +69,7 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               defaultValue={descriptiveMetadata.termsOfUse}
             />
           ) : (
-            <p>{descriptiveMetadata.termsOfUse || "No value"}</p>
+            <p>{descriptiveMetadata.termsOfUse}</p>
           )}
         </UIFormField>
       </div>

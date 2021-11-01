@@ -481,6 +481,14 @@ export const UPDATE_ACCESS_MASTER_ORDER = gql`
   }
 `;
 
+export const WORK_ARCHIVER_ENDPOINT = gql`
+  query WorkArchiverEndpoint {
+    workArchiverEndpoint {
+      url
+    }
+  }
+`;
+
 export const UPDATE_FILE_SET = gql`
   mutation UpdateFileSet(
     $id: ID!

@@ -31,7 +31,7 @@ export const REACTIVESEARCH_SORT_OPTIONS = [
 export const IIIF_SIZES = {
   IIIF_SQUARE: "/square/500,500/0/default.jpg",
   IIIF_FULL: "/full/full/0/default.jpg",
-  IIIF_FULL_TIFF: "/full/full/0/default.tiff",
+  IIIF_FULL_TIFF: "/full/full/0/default.tif",
 };
 
 // Browser localStorage variable used to hold code lists

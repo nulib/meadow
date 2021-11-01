@@ -43,7 +43,11 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
   if (errorsError) return <Error error={errorsError} />;
   if (workCountError) return <Error error={workCountError} />;
 
-  const works = worksData.ingestSheetWorks;
+  const works = worksData.ingestSheetWorks.map(
+    ({ workType, id, representativeImage }) => {
+      return { workTypeId: workType.id, id, representativeImage };
+    }
+  );
   const handleClick = () => {
     history.push("/search", {
       externalFacet: {

@@ -17,16 +17,19 @@ export default function UIPreviewItems({ items = [] }) {
   return (
     <div className="is-centered" css={previewContainer}>
       <ul className="columns is-multiline" data-testid="list-preview-items">
-        {items.slice(0, MAX_ITEMS_SHOWN).map(({ id, representativeImage }) => (
-          <li key={id} className="column is-one-fifth">
-            <Link to={`/work/${id}`} target="_blank">
-              <UIWorkImage
-                imageUrl={getImageUrl(representativeImage)}
-                size={256}
-              />
-            </Link>
-          </li>
-        ))}
+        {items
+          .slice(0, MAX_ITEMS_SHOWN)
+          .map(({ id, representativeImage, workTypeId }) => (
+            <li key={id} className="column is-one-fifth">
+              <Link to={`/work/${id}`} target="_blank">
+                <UIWorkImage
+                  imageUrl={getImageUrl(representativeImage)}
+                  size={256}
+                  workTypeId={workTypeId}
+                />
+              </Link>
+            </li>
+          ))}
       </ul>
       {items.length > MAX_ITEMS_SHOWN && (
         <p className="has-text-centered">
@@ -41,7 +44,11 @@ UIPreviewItems.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      representativeFileSet: PropTypes.object,
+      representativeImage: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.string,
+      ]),
+      workTypeId: PropTypes.oneOf(["AUDIO", "IMAGE", "VIDEO"]).isRequired,
     })
   ),
 };

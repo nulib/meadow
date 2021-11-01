@@ -9,6 +9,11 @@ import { useForm, FormProvider } from "react-hook-form";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
 import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
 import Error from "@js/components/UI/Error";
+import classNames from "classnames";
+import UIFormField from "@js/components/UI/Form/Field.jsx";
+import UIFormSelect from "@js/components/UI/Form/Select.jsx";
+import { useCodeLists } from "@js/context/code-list-context";
+import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -16,18 +21,25 @@ const modalCss = css`
   z-index: 100;
 `;
 
-function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
+function WorkTabsPreservationFileSetModal({
+  closeModal,
+  isVisible,
+  workId,
+  workTypeId,
+}) {
   const [currentFile, setCurrentFile] = useState();
   const [uploadProgress, setUploadProgress] = useState();
   const [s3UploadLocation, setS3UploadLocation] = useState();
   const [uploadError, setUploadError] = useState();
   const [stateXhr, setStateXhr] = useState(null);
+  const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
+
+  const codeLists = useCodeLists();
 
   const defaultValues = {
     accessionNumber: "",
     label: "",
     description: "",
-    role: { id: "A", scheme: "FILE_SET_ROLE" },
   };
 
   const methods = useForm({
@@ -35,12 +47,28 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
     shouldUnregister: false,
   });
 
+  // Watch form select element fileSetRole for changes, to determine what types
+  // of files are allowed to upload
+  const watchRole = methods.watch("fileSetRole");
+
+  React.useEffect(() => {
+    if (!watchRole) return;
+    const mimeTypes = useAcceptedMimeTypes({
+      fileSetRole: watchRole,
+      workTypeId,
+    });
+    setAcceptedFileTypes(mimeTypes);
+  }, [watchRole]);
+
   const [getPresignedUrl, { urlError, urlLoading, urlData }] = useLazyQuery(
     GET_PRESIGNED_URL,
     {
+      fetchPolicy: "no-cache",
       onCompleted: (data) => {
-        console.log(JSON.stringify(data.presignedUrl.url));
         uploadFile(data.presignedUrl.url);
+      },
+      onError(error) {
+        console.error(`error`, error);
       },
     }
   );
@@ -57,6 +85,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
         closeModal();
       },
       onError(error) {
+        console.error(`error:`, error);
         // bug with this error not clearing/resetting
         // https://github.com/apollographql/apollo-feature-requests/issues/170
       },
@@ -71,12 +100,11 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
   );
 
   const handleSubmit = (data) => {
-    console.log(`data`, data);
     ingestFileSet({
       variables: {
         accession_number: data.accessionNumber,
         workId,
-        role: { id: data.fileSetRole, scheme: "FILE_SET_ROLE" },
+        role: { id: watchRole, scheme: "FILE_SET_ROLE" },
         coreMetadata: {
           description: data.description,
           label: data.label,
@@ -103,8 +131,7 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
-    if (file != null) {
-      console.log("file.name", file.name);
+    if (file) {
       getPresignedUrl({
         variables: {
           uploadType: "FILE_SET",
@@ -112,8 +139,6 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
         },
         fetchPolicy: "no-cache",
       });
-    } else {
-      setUploadProgress(0);
     }
   };
 
@@ -152,7 +177,12 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
   };
 
   return (
-    <div className={`modal ${isVisible ? "is-active" : ""}`} css={modalCss}>
+    <div
+      className={classNames("modal", {
+        "is-active": isVisible,
+      })}
+      css={modalCss}
+    >
       <div className="modal-background"></div>
 
       {urlError ? (
@@ -182,11 +212,33 @@ function WorkTabsPreservationFileSetModal({ closeModal, isVisible, workId }) {
                   <Notification isDanger>{uploadError}</Notification>
                 )}
                 {error && <Error error={error} />}
-                <WorkTabsPreservationFileSetDropzone
-                  currentFile={currentFile}
-                  handleSetFile={handleSetFile}
-                  uploadProgress={uploadProgress}
-                />
+
+                <UIFormField label="Fileset Role">
+                  <UIFormSelect
+                    isReactHookForm
+                    name="fileSetRole"
+                    label="Fileset Role"
+                    options={codeLists?.fileSetRoleData?.codeList}
+                    required
+                    showHelper
+                    disabled={Boolean(s3UploadLocation)}
+                  />
+                </UIFormField>
+
+                {watchRole && (
+                  <div className="block">
+                    <WorkTabsPreservationFileSetDropzone
+                      currentFile={currentFile}
+                      acceptedFileTypes={acceptedFileTypes}
+                      fileSetRole={watchRole}
+                      handleRemoveFile={resetForm}
+                      handleSetFile={handleSetFile}
+                      uploadProgress={uploadProgress}
+                      workTypeId={workTypeId}
+                    />
+                  </div>
+                )}
+
                 {s3UploadLocation && (
                   <WorkTabsPreservationFileSetForm
                     s3UploadLocation={s3UploadLocation}
@@ -225,6 +277,7 @@ WorkTabsPreservationFileSetModal.propTypes = {
   closeModal: PropTypes.func,
   isVisible: PropTypes.bool,
   workId: PropTypes.string,
+  workTypeId: PropTypes.oneOf(["IMAGE", "AUDIO", "VIDEO"]),
 };
 
 export default WorkTabsPreservationFileSetModal;

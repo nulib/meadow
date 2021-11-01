@@ -30,6 +30,7 @@ const WorkListItem = ({
               <UIWorkImage
                 imageUrl={getImageUrl(representativeImage)}
                 size={500}
+                workTypeId={workType.id}
               />
             </Link>
           </div>

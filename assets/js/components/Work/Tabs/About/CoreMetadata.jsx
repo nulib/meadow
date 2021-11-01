@@ -41,7 +41,7 @@ const WorkTabsAboutCoreMetadata = ({
               defaultValue={descriptiveMetadata.title}
             />
           ) : (
-            <p>{descriptiveMetadata.title || "No value"}</p>
+            <p>{descriptiveMetadata.title}</p>
           )}
         </UIFormField>
       </div>

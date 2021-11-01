@@ -43,6 +43,7 @@ const ScreensBatchEdit = () => {
           return {
             id: hit._source.id,
             representativeImage: hit._source.representativeFileSet,
+            workTypeId: hit._source.workType.id,
           };
         });
       }

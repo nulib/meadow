@@ -8,6 +8,8 @@ import {
 } from "@js/components/Work/work.gql.mock";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { CodeListProvider } from "@js/context/code-list-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -17,9 +19,14 @@ useIsAuthorized.mockReturnValue({
 
 describe("WorkTabsPreservation component", () => {
   beforeEach(() => {
-    renderWithRouterApollo(<WorkTabsPreservation work={mockWork} />, {
-      mocks: [verifyFileSetsMock],
-    });
+    renderWithRouterApollo(
+      <CodeListProvider>
+        <WorkTabsPreservation work={mockWork} />
+      </CodeListProvider>,
+      {
+        mocks: [verifyFileSetsMock, ...allCodeListMocks],
+      }
+    );
   });
 
   it("renders the component and tab title", async () => {

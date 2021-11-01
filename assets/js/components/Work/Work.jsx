@@ -89,6 +89,7 @@ const Work = ({ work }) => {
         <MediaPlayerWrapper
           fileSet={workContextState?.activeMediaFileSet}
           fileSets={[...filterFileSets(work.fileSets).access]}
+          manifestId={work.manifestUrl}
         />
       )}
 

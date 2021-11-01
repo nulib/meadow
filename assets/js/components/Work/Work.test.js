@@ -1,7 +1,7 @@
 import React from "react";
 import Work from "./Work";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { mockWork } from "./work.gql.mock";
+import { mockWork, workArchiverEndpointMock } from "./work.gql.mock";
 import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
 import { screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
@@ -23,6 +23,7 @@ const mocks = [
   iiifServerUrlMock,
   getCollectionMock,
   getCollectionsMock,
+  workArchiverEndpointMock,
   ...allCodeListMocks,
 ];
 

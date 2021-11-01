@@ -17,6 +17,7 @@ import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
 import useFileSet from "@js/hooks/useFileSet";
+import DownloadAll from "@js/components/UI/Modal/DownloadAll";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -166,6 +167,8 @@ const WorkTabsStructure = ({ work }) => {
             </span>{" "}
             <span>Re-order</span>
           </Button>
+
+          {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}
         </UITabsStickyHeader>
 
         <div className="mt-4">

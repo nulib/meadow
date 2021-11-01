@@ -33,7 +33,7 @@ function WorkTabsStructureDownloadAll(props) {
         </div>
 
         <div className="column buttons has-text-right">
-          <button className="button">Download Tiffs</button>
+          <button className="button">Download Tifs</button>
           <button className="button">Download JPGs</button>
         </div>
       </div>

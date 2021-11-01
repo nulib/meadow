@@ -6,7 +6,7 @@ import {
   getWorkTypesMock,
 } from "@js/components/Work/work.gql.mock";
 import userEvent from "@testing-library/user-event";
-import { screen, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 describe("ProjectForm component", () => {
   beforeEach(() => {
@@ -34,5 +34,11 @@ describe("ProjectForm component", () => {
   it("displays input error when empty form is submitted", async () => {
     userEvent.click(screen.getByTestId("submit-button"));
     expect(await screen.findByTestId("input-errors"));
+  });
+
+  it("should give a default value for the work type select element", async () => {
+    const el = await screen.findByTestId("work-type");
+    const mockDefaultValue = getWorkTypesMock.result.data.codeList[0].id;
+    expect(el).toHaveValue(mockDefaultValue);
   });
 });
