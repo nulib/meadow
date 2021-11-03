@@ -19,7 +19,7 @@ Also please let developers know if there are any special instructions to test th
 
 # :rocket: Deployment Notes
 
-**Note** - __if you check any of these boxes go to the [(always open) `master` <- `staging` PR](https://github.com/nulib/meadow/pulls) and add detailed notes and instructions to help out others who may end up deploying your changes to production__
+**Note** - __if you check any of these boxes go to the [(always open) `main` <- `staging` PR](https://github.com/nulib/meadow/pulls) and add detailed notes and instructions to help out others who may end up deploying your changes to production__
 
 - Backward compatible API changes
   - [ ] Database Schema changes

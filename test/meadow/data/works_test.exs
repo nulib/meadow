@@ -213,7 +213,7 @@ defmodule Meadow.Data.WorksTest do
       assert(is_nil(Works.get_work!(work.id) |> Map.get(:representative_image)))
     end
 
-    test "set_representative_image/2 with a preservation master does not set the representative image" do
+    test "set_representative_image/2 with a preservation file does not set the representative image" do
       work = work_with_file_sets_fixture(1, %{}, %{role: %{id: "P", scheme: "FILE_SET_ROLE"}})
       file_set = work.file_sets |> Enum.at(1)
 

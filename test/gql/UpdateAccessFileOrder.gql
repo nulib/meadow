@@ -1,0 +1,8 @@
+mutation ($workId: ID!, $fileSetIds: [ID!]) {
+  updateAccessFileOrder(workId: $workId, fileSetIds: $fileSetIds) {
+    id
+    fileSets {
+      id
+    }
+  }
+}

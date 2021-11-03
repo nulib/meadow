@@ -138,7 +138,7 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
-  def get_access_masters(work_id) do
+  def get_access_files(work_id) do
     map = %{"id" => "A"}
 
     Repo.all(
@@ -620,7 +620,7 @@ defmodule Meadow.Data.Works do
 
   def set_default_representative_image(%Work{} = work) do
     work
-    |> set_representative_image(get_access_masters(work.id) |> List.first())
+    |> set_representative_image(get_access_files(work.id) |> List.first())
   end
 
   @doc """

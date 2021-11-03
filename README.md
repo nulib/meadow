@@ -1,6 +1,6 @@
 # Meadow
 
-[![CircleCI](https://circleci.com/gh/nulib/meadow.svg?style=svg)](https://circleci.com/gh/nulib/meadow)
+[![Build](https://github.com/nulib/meadow/actions/workflows/build.yml/badge.svg)](https://github.com/nulib/meadow/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/nulib/meadow/badge.svg)](https://coveralls.io/github/nulib/meadow)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=nulib/meadow)](https://dependabot.com)
 

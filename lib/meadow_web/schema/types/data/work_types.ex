@@ -67,7 +67,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       resolve(&Resolvers.Data.update_work/3)
     end
 
-    @desc "Set the representative FileSet (Access Master) for a Work"
+    @desc "Set the representative FileSet (Access or Auxiliary) for a Work"
     field :set_work_image, :work do
       arg(:work_id, non_null(:id))
       arg(:file_set_id, non_null(:id))
@@ -93,13 +93,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       resolve(&Resolvers.Data.add_work_to_collection/3)
     end
 
-    @desc "Change the order of a work's access masters"
-    field :update_access_master_order, :work do
+    @desc "Change the order of a work's access files"
+    field :update_access_file_order, :work do
       arg(:work_id, non_null(:id))
       arg(:file_set_ids, list_of(:id))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
-      resolve(&Resolvers.Data.update_access_master_order/3)
+      resolve(&Resolvers.Data.update_access_file_order/3)
     end
   end
 

@@ -164,7 +164,7 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def update_access_master_order(
+  def update_access_file_order(
         _,
         %{work_id: work_id, file_set_ids: file_set_ids},
         _

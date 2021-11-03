@@ -1,7 +1,7 @@
 node {
   def aws_region = "us-east-1"
   def tag_name = env.BRANCH_NAME.split('/').last()
-  if ( tag_name == "master" ) {
+  if ( tag_name == "main" ) {
     tag_name = "production"
   }
   checkout scm
