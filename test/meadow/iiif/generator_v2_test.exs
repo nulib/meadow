@@ -26,7 +26,7 @@ defmodule Meadow.IIIF.V2.GeneratorTest do
           role: %{id: "P", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             location: "foo",
-            description: "preservation master",
+            description: "preservation file",
             original_filename: "something",
             label: "This should not be in the manifest"
           }

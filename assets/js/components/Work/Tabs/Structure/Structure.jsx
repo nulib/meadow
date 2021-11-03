@@ -7,7 +7,7 @@ import {
   GET_WORK,
   SET_WORK_IMAGE,
   UPDATE_FILE_SETS,
-  UPDATE_ACCESS_MASTER_ORDER,
+  UPDATE_ACCESS_FILE_ORDER,
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
@@ -67,7 +67,7 @@ const WorkTabsStructure = ({ work }) => {
       },
     }
   );
-  const [updateAccessMasterOrder] = useMutation(UPDATE_ACCESS_MASTER_ORDER, {
+  const [updateAccessFileOrder] = useMutation(UPDATE_ACCESS_FILE_ORDER, {
     onCompleted() {
       setIsReordering(false);
       toastWrapper(
@@ -87,7 +87,7 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const handleSaveReorder = (orderedFileSets = []) => {
-    updateAccessMasterOrder({
+    updateAccessFileOrder({
       variables: { workId: work.id, fileSetIds: orderedFileSets },
     });
   };

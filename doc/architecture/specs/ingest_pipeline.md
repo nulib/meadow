@@ -4,7 +4,7 @@
 
 ### Action
 
-A single idempotent unit of work performed on an Object as part of a pipeline. _Examples: Attach FileSet to Work, Create Derivatives, Move Master to Permanent Storage._
+A single idempotent unit of work performed on an Object as part of a pipeline. _Examples: Attach FileSet to Work, Create Derivatives, Move File to Permanent Storage._
 
 Every Action has three pieces:
 
