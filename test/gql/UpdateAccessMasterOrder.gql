@@ -1,8 +1,0 @@
-mutation($workId: ID!, $fileSetIds: [ID!]) {
-  updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
-    id
-    fileSets {
-      id
-    }
-  }
-}

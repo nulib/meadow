@@ -473,9 +473,9 @@ export const INGEST_FILE_SET = gql`
   }
 `;
 
-export const UPDATE_ACCESS_MASTER_ORDER = gql`
-  mutation UpdateAccessMasterOrder($workId: ID!, $fileSetIds: [ID]) {
-    updateAccessMasterOrder(workId: $workId, fileSetIds: $fileSetIds) {
+export const UPDATE_ACCESS_FILE_ORDER = gql`
+  mutation UpdateAccessFileOrder($workId: ID!, $fileSetIds: [ID]) {
+    updateAccessFileOrder(workId: $workId, fileSetIds: $fileSetIds) {
       id
     }
   }
