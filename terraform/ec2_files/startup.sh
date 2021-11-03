@@ -72,14 +72,14 @@ done
 git clone https://github.com/asdf-vm/asdf.git $HOME/.asdf --branch v0.8.0
 . $HOME/.asdf/asdf.sh
 
-# Install erlang, Elixir, NodeJS, and Yarn
-for lang in erlang elixir nodejs yarn; do
+# Install erlang, Elixir, and NodeJS
+for lang in erlang elixir nodejs; do
   asdf plugin add $lang
 done
 
 bash -c '$${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 
-for lang in erlang elixir nodejs yarn; do
+for lang in erlang elixir nodejs; do
   asdf install $lang latest
   asdf global $lang $(asdf list $lang)
 done

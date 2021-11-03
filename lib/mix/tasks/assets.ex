@@ -48,12 +48,12 @@ defmodule Mix.Tasks.Assets.Install do
 
   @shortdoc @moduledoc
   def run(_) do
-    Path.wildcard("**/yarn.lock")
+    Path.wildcard("**/package-lock.json")
     |> Enum.reject(&String.starts_with?(&1, "_build"))
     |> Enum.reject(&String.contains?(&1, "node_modules"))
     |> Enum.map(&Path.dirname/1)
     |> Enum.each(fn path ->
-      Mix.Tasks.Assets.IO.run("yarn install", path)
+      Mix.Tasks.Assets.IO.run("npm install", path)
     end)
   end
 end
@@ -68,6 +68,6 @@ defmodule Mix.Tasks.Assets.Build do
   @shortdoc @moduledoc
   def run(_) do
     Install.run(0)
-    Mix.Tasks.Assets.IO.run("yarn deploy --production", "assets")
+    Mix.Tasks.Assets.IO.run("npm run-script deploy -- --production", "assets")
   end
 end
