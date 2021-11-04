@@ -139,7 +139,7 @@ defmodule Meadow.MixProject do
   end
 
   def build_assets(release) do
-    System.cmd("yarn", ["deploy"], cd: "assets")
+    System.cmd("npm", ["run-script", "deploy"], cd: "assets")
     Mix.Task.run("phx.digest")
     release
   end

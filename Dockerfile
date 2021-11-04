@@ -11,13 +11,15 @@ WORKDIR /app
 RUN mix deps.get --only prod \
     && mix deps.compile
 COPY ./assets/package.json /app/assets/package.json
-COPY ./assets/yarn.lock /app/assets/yarn.lock
+COPY ./assets/package-lock.json /app/assets/package-lock.json
 WORKDIR /app/assets
-RUN yarn install
+RUN npm install
 COPY ./priv/nodejs /app/priv/nodejs
 WORKDIR /app/priv/nodejs
-RUN for flag in $(find . -name .docker-yarn); do \
-      yarn install --cwd $(dirname ${flag}); \
+RUN for flag in $(find . -name .docker-npm); do \
+      cd $(dirname ${flag}); \
+      npm install; \
+      cd -; \
     done
 
 # Create elixir release

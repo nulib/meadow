@@ -16,7 +16,6 @@
 
 ## Initial setup:
 
-- Install yarn if it's not already present: `npm -g install yarn`, or `asdf install yarn [VERSION]`
 - From the `meadow` project root, install Elixir dependencies with `mix deps.get`
 - Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
   - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
@@ -25,7 +24,7 @@
 - Setup/seed the LDAP ([see below](###seeding-the-ldap-server) for instructions)
   - You can run both the general setup and the LDAP setup at the same time with `mix do meadow.setup, meadow.ldap.setup /path/to/seed/file/filename.ldif`
 - Install Node.js dependencies with `mix assets.install`
-  - `assets.install` looks for all `yarn.lock` files project-wide and runs `yarn install` in each directory found, so you don't need to run `yarn install` in individual directories.
+  - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
 - `cd` back to the `meadow` project folder and start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
 
 Now you can visit [`https://devbox.library.northwestern.edu:3001/`](https://devbox.library.northwestern.edu:3001/) from your browser.
