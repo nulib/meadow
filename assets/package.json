@@ -37,7 +37,7 @@
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
     "graphql": "^15.7.2",
-    "graphql-tag": "^2.12.5",
+    "graphql-tag": "^2.12.6",
     "hls.js": "^1.0.12",
     "inflection": "^1.13.1",
     "js-cookie": "^3.0.1",
