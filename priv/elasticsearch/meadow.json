@@ -1,7 +1,12 @@
 {
   "settings": {
     "index": {
-      "max_result_window": "50000"
+      "max_result_window": "50000",
+      "mapping": {
+        "total_fields": {
+          "limit": 1200
+        }
+      }
     },
     "analysis": {
       "analyzer": {
@@ -60,9 +65,9 @@
         {
           "ids": {
             "path_match": "*.id",
-            "mapping": { 
+            "mapping": {
               "type": "keyword",
-              "copy_to": ["all_controlled_terms"] 
+              "copy_to": ["all_controlled_terms"]
             }
           }
         },
