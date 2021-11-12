@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { IconAlert } from "@js/components/Icon";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 function UIFallbackErrorComponent({ error }) {
   return (

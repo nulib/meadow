@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import { useLazyQuery, useMutation } from "@apollo/client";

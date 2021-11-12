@@ -13,9 +13,7 @@ function ChartsGoogleAnalytics(props) {
             Digital Collections traffic last 30 days
           </h3>
           <Link to="/dashboards/analytics" className="button">
-            <span className="icon">
-              <IconChart />
-            </span>
+            <IconChart />
             <span>View GA Dashboard</span>
           </Link>
         </>

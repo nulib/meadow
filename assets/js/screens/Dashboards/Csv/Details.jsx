@@ -11,7 +11,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 import useGTM from "@js/hooks/useGTM";
 
 export default function ScreensDashboardsCsvDetails() {

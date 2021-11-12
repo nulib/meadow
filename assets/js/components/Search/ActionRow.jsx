@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
@@ -17,7 +17,7 @@ const { inflect } = require("inflection");
 function ModalButton({ children, icon, label, ...restProps }) {
   return (
     <Button {...restProps}>
-      <span className="icon">{icon}</span>
+      {icon}
       <span>{label}</span>
     </Button>
   );
@@ -98,9 +98,7 @@ export default function SearchActionRow({
               data-testid="button-deselect-all"
               onClick={handleDeselectAll}
             >
-              <span className="icon">
-                <IconMinus />
-              </span>
+              <IconMinus />
               <span>Deselect all</span>
             </Button>
           </p>

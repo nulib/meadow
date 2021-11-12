@@ -5,7 +5,7 @@ import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
 import UIModalDelete from "../UI/Modal/Delete";
 import { formatDate, toastWrapper } from "@js/services/helpers";
 import UIFormInput from "@js/components/UI/Form/Input";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectForm from "@js/components/Project/Form";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";

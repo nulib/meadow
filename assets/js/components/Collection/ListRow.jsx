@@ -1,13 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import CollectionTags from "@js/components/Collection/Tags";
 import CollectionImage from "@js/components/Collection/Image";
-import { IconEdit, IconDelete, IconTrashCan } from "@js/components/Icon";
+import { IconEdit, IconTrashCan } from "@js/components/Icon";
 import useTruncateText from "@js/hooks/useTruncateText";
 import classNames from "classnames";
 import { isMobile, isTablet, isDesktop } from "react-device-detect";
+import { Button } from "@nulib/design-system";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -18,13 +19,17 @@ const row = css`
   &:last-of-type {
     border: none;
     margin-bottom: inherit;
-    padding-bottom: inherit;
   }
 `;
 
 const CollectionListRow = ({ collection, onOpenModal }) => {
   const { id, title = "", description, totalWorks } = collection;
   const { truncate } = useTruncateText();
+  const history = useHistory();
+
+  const handleEditClick = () => {
+    history.push(`/collection/form/${id}`);
+  };
 
   return (
     <li data-testid="collection-list-row" css={row} className="box">
@@ -57,20 +62,17 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
           <div className="buttons-end">
             <AuthDisplayAuthorized level="MANAGER">
               <p className="control">
-                <Link className="button is-light" to={`/collection/form/${id}`}>
+                <Button isLight onClick={handleEditClick}>
                   <IconEdit />
-                </Link>
+                </Button>
               </p>
             </AuthDisplayAuthorized>
             {totalWorks === 0 && (
               <AuthDisplayAuthorized level="MANAGER">
                 <p className="control">
-                  <button
-                    className="button is-light"
-                    onClick={() => onOpenModal({ id, title })}
-                  >
+                  <Button isLight onClick={() => onOpenModal({ id, title })}>
                     <IconTrashCan />
-                  </button>
+                  </Button>
                 </p>
               </AuthDisplayAuthorized>
             )}

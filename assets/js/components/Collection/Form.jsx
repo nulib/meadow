@@ -13,7 +13,7 @@ import UIFormField from "../UI/Form/Field.jsx";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useCodeLists } from "@js/context/code-list-context";
 import UISkeleton from "@js/components/UI/Skeleton";

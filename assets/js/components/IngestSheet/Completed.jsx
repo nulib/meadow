@@ -10,7 +10,7 @@ import {
 import Error from "../UI/Error";
 import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconImages } from "@js/components/Icon";
 import { ActionHeadline, LevelItem, Skeleton } from "@js/components/UI/UI";
 
@@ -101,9 +101,7 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
                   </div>
 
                   <Button isPrimary onClick={handleClick}>
-                    <span className="icon">
-                      <IconImages />
-                    </span>
+                    <IconImages />
                     <span>View ingest sheet works</span>
                   </Button>
                 </>

@@ -70,10 +70,7 @@ function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
             },
           }}
         >
-          <span className="icon">
-            <IconImages />
-          </span>
-
+          <IconImages />
           <span>View CSV import works</span>
         </Link>
       )}

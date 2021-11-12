@@ -6,20 +6,21 @@ import DashboardsCsvImportModal from "@js/components/Dashboards/Csv/ImportModal"
 import { CSV_METADATA_UPDATE_JOB } from "@js/components/Dashboards/dashboards.gql.js";
 import { useMutation } from "@apollo/client";
 import { s3Location, toastWrapper } from "@js/services/helpers";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import IconUpload from "@js/components/Icon/Upload";
 
 function DashboardsCsvImport() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [currentFile, setCurrentFile] = React.useState();
 
-  const { loading: urlLoading, error: urlError, data: urlData } = useQuery(
-    GET_PRESIGNED_URL,
-    {
-      variables: { uploadType: "CSV_METADATA" },
-      fetchPolicy: "no-cache",
-    }
-  );
+  const {
+    loading: urlLoading,
+    error: urlError,
+    data: urlData,
+  } = useQuery(GET_PRESIGNED_URL, {
+    variables: { uploadType: "CSV_METADATA" },
+    fetchPolicy: "no-cache",
+  });
 
   const [csvMetadataUpdate, { data, loading, error }] = useMutation(
     CSV_METADATA_UPDATE_JOB,
@@ -122,9 +123,7 @@ function DashboardsCsvImport() {
         onClick={() => setIsModalOpen(true)}
         data-testid="import-csv-button"
       >
-        <span className="icon">
-          <IconUpload />
-        </span>
+        <IconUpload />
         <span>Import CSV file</span>
       </Button>
       <DashboardsCsvImportModal

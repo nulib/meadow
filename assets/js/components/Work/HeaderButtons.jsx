@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { IconChain } from "@js/components/Icon";
 
@@ -19,9 +19,7 @@ export default function WorkHeaderButtons({
         onClick={handleCreateSharableBtnClick}
         data-testid="button-sharable-link"
       >
-        <span className="icon">
-          <IconChain />
-        </span>
+        <IconChain />
         <span>Get sharable link</span>
       </Button>
       <AuthDisplayAuthorized level="MANAGER">

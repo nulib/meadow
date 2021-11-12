@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 
 function SearchBatchModal({ children, handleCloseClick, isOpen }) {
   return (

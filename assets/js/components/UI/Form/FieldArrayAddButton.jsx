@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconAdd } from "@js/components/Icon";
 
 function FieldArrayAddButton({ btnLabel, handleAddClick }) {
@@ -11,9 +11,7 @@ function FieldArrayAddButton({ btnLabel, handleAddClick }) {
       data-testid="button-add-field-array-row"
       className="mb-2"
     >
-      <span className="icon">
-        <IconAdd />
-      </span>
+      <IconAdd />
       <span>{btnLabel}</span>
     </Button>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Button, Tag } from "@nulib/design-system";
 
 function LevelItem({ heading, title }) {
   return (
@@ -14,18 +15,20 @@ function LevelItem({ heading, title }) {
 
 function HomeStatsRow({ stats }) {
   return (
-    <div
-      data-testid="stats-row"
-      className="box notification is-primary is-light has-text-centered"
-    >
-      {stats.map((stat) => (
-        <LevelItem
-          key={stat.heading}
-          heading={stat.heading}
-          title={stat.title}
-        />
-      ))}
-    </div>
+    <>
+      <div
+        data-testid="stats-row"
+        className="box notification is-primary is-light has-text-centered"
+      >
+        {stats.map((stat) => (
+          <LevelItem
+            key={stat.heading}
+            heading={stat.heading}
+            title={stat.title}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 

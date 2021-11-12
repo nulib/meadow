@@ -3,7 +3,7 @@ import UIFormField from "../UI/Form/Field";
 import PropTypes from "prop-types";
 import { splitFacetKey } from "../../services/metadata";
 import { useBatchDispatch } from "../../context/batch-edit-context";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconDelete, IconMinus } from "@js/components/Icon";
 
 /** @jsx jsx */
@@ -40,9 +40,7 @@ export default function BatchEditRemove({
           isLight
           onClick={() => handleRemoveClick({ label, name })}
         >
-          <span className="icon">
-            <IconMinus />
-          </span>
+          <IconMinus />
           <span>View and remove {label}</span>
         </Button>
       </UIFormField>

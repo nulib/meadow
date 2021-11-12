@@ -3,7 +3,7 @@ import Layout from "../Layout";
 import ProjectList from "@js/components/Project/List";
 import { GET_PROJECTS } from "@js/components/Project/project.gql.js";
 import ProjectForm from "@js/components/Project/Form";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQuery } from "@apollo/client";
@@ -53,9 +53,7 @@ const ScreensProjectList = () => {
                   data-testid="button-new-project"
                   onClick={() => setShowForm(!showForm)}
                 >
-                  <span className="icon">
-                    <IconAdd />
-                  </span>
+                  <IconAdd />
                   <span>Add Project</span>
                 </Button>
               </AuthDisplayAuthorized>

@@ -7,7 +7,7 @@ import {
   getImageUrl,
 } from "@js/services/helpers";
 import UIWorkImage from "../UI/WorkImage";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
 const WorkListItem = ({

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { IconAlert } from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 const styles = {
   tableWrapper: {

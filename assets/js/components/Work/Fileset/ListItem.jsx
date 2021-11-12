@@ -9,7 +9,7 @@ import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import useFileSet from "@js/hooks/useFileSet";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-import { Button, Tag } from "@nulib/admin-react-components";
+import { Button, Tag } from "@nulib/design-system";
 import { IconPlay } from "@js/components/Icon";
 
 function WorkFilesetListItem({
@@ -69,9 +69,7 @@ function WorkFilesetListItem({
               }
               className="is-small is-fullwidth mt-2"
             >
-              <span className="icon">
-                <IconPlay />
-              </span>
+              <IconPlay />
               <span>Play</span>
             </Button>
           )}

@@ -11,7 +11,7 @@ import {
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
 } from "@js/components/Project/project.gql.js";
 import { formatDate } from "@js/services/helpers";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import ProjectIngestSheetModal from "@js/components/Project/IngestSheetModal";
 import { ErrorBoundary } from "react-error-boundary";
@@ -133,9 +133,7 @@ const ScreensProject = () => {
                             }
                             data-testid="button-view-all-works"
                           >
-                            <span className="icon">
-                              <IconImages />
-                            </span>{" "}
+                            <IconImages />
                             <span>View Project Works</span>
                           </Button>
                         </div>

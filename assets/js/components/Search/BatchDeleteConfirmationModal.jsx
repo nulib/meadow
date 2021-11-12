@@ -6,7 +6,7 @@ import { toastWrapper } from "@js/services/helpers";
 import { BATCH_DELETE } from "@js/components/BatchEdit/batch-edit.gql";
 import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import { IconAlert } from "@js/components/Icon";
 
@@ -65,7 +65,6 @@ const BatchDeleteConfirmationModal = ({
       });
     }
 
-    console.log("query", query);
     batchDelete({
       variables: {
         query: query,

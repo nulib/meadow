@@ -7,7 +7,7 @@ import Loading from "../UI/Loading";
 import { toastWrapper } from "../../services/helpers";
 import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormField from "../UI/Form/Field.jsx";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 
 const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
   const [formError, setFormError] = useState();
