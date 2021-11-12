@@ -37,21 +37,23 @@ jobs:
           path: |
             assets/node_modules
             priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
+            ${{ runner.os }}-npm-
       - name: Install Elixir dependencies
         run: mix do deps.get, deps.compile
       - name: Install JS dependencies
-        run: yarn install --cwd assets
+        run: npm install
+        working-directory: assets
       - name: Install Lambda dependencies
         run: |
-          for pkg in $(find priv/nodejs -maxdepth 2 -name yarn.lock)
+          for pkg in $(find priv/nodejs -maxdepth 2 -name package-lock.json)
           do
-            echo "yarn install --cwd $(dirname $pkg)"
-            yarn install --cwd $(dirname $pkg)
+            cd $(dirname $pkg)
+            npm install
+            cd -
           done
   js-test:
     runs-on: ubuntu-latest
@@ -83,19 +85,19 @@ jobs:
           path: |
             assets/node_modules
             priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
+            ${{ runner.os }}-npm-
       - name: JS Static Analysis
-        run: yarn prettier
+        run: npm run-script prettier
         working-directory: assets
       - name: JS Tests
-        run: yarn ci -w 1
+        run: npm run-script ci -- -w 1
         working-directory: assets
       - name: Test Webpack Build
-        run: yarn deploy
+        run: npm run-script deploy
         working-directory: assets
   elixir-test:
     runs-on: ubuntu-latest
@@ -181,11 +183,11 @@ jobs:
           path: |
             assets/node_modules
             priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-${{ hashFiles ('priv/nodejs/*/yarn.lock') }}
-            ${{ runner.os }}-yarn-${{ hashFiles('assets/yarn.lock') }}-
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
+            ${{ runner.os }}-npm-
       - name: Elixir Static Analysis
         run: mix credo
       - name: Elixir Tests

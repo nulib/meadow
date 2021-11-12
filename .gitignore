@@ -36,7 +36,6 @@ npm-debug.log
 
 # The directory NPM downloads your dependencies sources to.
 /assets/coverage/
-/assets/package-lock.json
 
 # Since we are building assets from assets/,
 # we ignore priv/static. You may want to comment
@@ -57,7 +56,7 @@ npm-debug.log
 
 # Accounts for a package on the front-end to enable autocomplete for Jest in VSCode
 node_modules
-/yarn.lock
+yarn.lock
 /package.json
 /priv/nodejs/*/node_modules/.yarn-integrity
 

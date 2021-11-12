@@ -166,6 +166,8 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "s3:PutObjectAcl",
       "s3:GetObject",
       "s3:DeleteObject",
+      "s3:HeadObject",
+      "s3:PutObjectTagging"
     ]
 
     resources = [
