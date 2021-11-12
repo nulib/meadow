@@ -208,6 +208,12 @@ defmodule Meadow.Config do
 
   def meadow_version, do: @meadow_version
 
+  @doc "Retrieve checksum timeout"
+  def checksum_wait_timeout, do: Application.get_env(:meadow, :checksum_wait_timeout)
+
+  @doc "Retrieve required checksum tags"
+  def required_checksum_tags, do: Application.get_env(:meadow, :required_checksum_tags)
+
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)

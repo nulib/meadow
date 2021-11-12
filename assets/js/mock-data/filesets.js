@@ -10,8 +10,10 @@ export const mockFileSets = [
       location:
         "s3://dev-preservation/45/22/6a/50/6be181760c0adb1f3425a0ae3438f3633b0baa9a6f74afa973c94ae6de6f45cb",
       mimeType: "image/jpeg",
-      sha256:
-        "6be181760c0adb1f3425a0ae3438f3633b0baa9a6f74afa973c94ae6de6f45cb",
+      digests: {
+        sha256:
+          "6be181760c0adb1f3425a0ae3438f3633b0baa9a6f74afa973c94ae6de6f45cb",
+      },
     },
   },
   {
@@ -27,8 +29,10 @@ export const mockFileSets = [
       location:
         "s3://dev-preservation/10/9b/9a/5c/1477fbefbeeb04f0d02ac3cbd9594df0d9e7edca993ec076272d7fea67ab26a8",
       mimeType: "image/jpeg",
-      sha256:
-        "1477fbefbeeb04f0d02ac3cbd9594df0d9e7edca993ec076272d7fea67ab26a8",
+      digests: {
+        sha256:
+          "1477fbefbeeb04f0d02ac3cbd9594df0d9e7edca993ec076272d7fea67ab26a8",
+      },
     },
   },
   {
@@ -44,8 +48,10 @@ export const mockFileSets = [
       location:
         "s3://dev-preservation/d4/14/d3/d4/f7f1324a418e2c7c6ef17c45fc14ec6ce5a6124e636cb96272a7f35dc72d9664",
       mimeType: "image/jpeg",
-      sha256:
-        "f7f1324a418e2c7c6ef17c45fc14ec6ce5a6124e636cb96272a7f35dc72d9664",
+      digests: {
+        sha256:
+          "f7f1324a418e2c7c6ef17c45fc14ec6ce5a6124e636cb96272a7f35dc72d9664",
+      },
     },
   },
 ];

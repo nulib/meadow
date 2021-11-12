@@ -69,6 +69,11 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
           mime_type -> mime_type
         end
 
+      tagging =
+        file_set.core_metadata.digests
+        |> Enum.map(fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
+        |> Enum.join("&")
+
       case ExAws.S3.put_object_copy(
              dest_bucket,
              dest_key,
@@ -77,8 +82,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
              content_type: content_type,
              metadata_directive: :REPLACE,
              meta: s3_metadata,
-             tagging:
-               "computed-sha1=#{file_set.core_metadata.digests["sha1"]}&computed-sha256=#{file_set.core_metadata.digests["sha256"]}",
+             tagging: tagging,
              tagging_directive: :REPLACE
            )
            |> ExAws.request() do

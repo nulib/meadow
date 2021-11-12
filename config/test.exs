@@ -49,6 +49,14 @@ config :meadow,
   work_archiver_endpoint: ""
 
 config :meadow,
+  checksum_notification: %{
+    arn: "arn:minio:sqs::checksum:webhook",
+    buckets: ["test-ingest", "test-uploads"]
+  },
+  required_checksum_tags: ["computed-md5"],
+  checksum_wait_timeout: 5_000
+
+config :meadow,
   ark: %{
     default_shoulder: "ark:/12345/nu2",
     user: "mockuser",

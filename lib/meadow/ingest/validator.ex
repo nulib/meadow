@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Validator do
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
-  alias Meadow.Utils.{MapList, Truth}
+  alias Meadow.Utils.{AWS, MapList, Truth}
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
@@ -334,7 +334,9 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value(row, {"filename", value}, %{existing_files: existing_files}) do
+  defp validate_value(row, {"filename", value}, %{
+         existing_files: existing_files
+       }) do
     role = Row.field_value(row, "role")
     work_type = Row.field_value(row, "work_type")
     mime_type = MIME.from_path(value)
@@ -348,7 +350,15 @@ defmodule Meadow.Ingest.Validator do
          "Mime-type: #{value}, not accepted for work type: #{work_type} and file set role: #{role}."}
 
       true ->
-        :ok
+        if AWS.check_object_tags!(
+             Config.ingest_bucket(),
+             value,
+             Config.required_checksum_tags()
+           ) do
+          :ok
+        else
+          {:error, "filename", "#{value} missing computed-md5 tag"}
+        end
     end
   end
 

@@ -77,6 +77,11 @@ config :meadow,
     ]
   }
 
+# Configure checksum requirements
+config :meadow,
+  required_checksum_tags: ["computed-md5"],
+  checksum_wait_timeout: 3_600_000
+
 # Configures the pyramid TIFF processor
 with val <- System.get_env("PYRAMID_PROCESSOR") do
   unless is_nil(val), do: config(:meadow, pyramid_processor: val)

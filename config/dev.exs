@@ -104,6 +104,12 @@ config :meadow,
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
   work_archiver_endpoint: ""
 
+config :meadow,
+  checksum_notification: %{
+    arn: "arn:minio:sqs::checksum:webhook",
+    buckets: ["dev-ingest", "dev-uploads"]
+  }
+
 config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
 

@@ -2,11 +2,15 @@ defmodule Meadow.Ingest.ValidatorTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
+  alias Meadow.Config
   alias Meadow.Ingest.{Rows, Sheets, Validator}
+  alias Meadow.Utils.AWS
+
+  import WaitForIt
 
   @sheet_path "/validator_test/"
-  @uploads_bucket Meadow.Config.upload_bucket()
-  @ingest_bucket Meadow.Config.ingest_bucket()
+  @uploads_bucket Config.upload_bucket()
+  @ingest_bucket Config.ingest_bucket()
   @image_fixture "test/fixtures/coffee.tif"
   @json_fixture "test/fixtures/details.json"
   @video_fixture "test/fixtures/small.m4v"
@@ -26,49 +30,29 @@ defmodule Meadow.Ingest.ValidatorTest do
         filename: "s3://" <> @uploads_bucket <> @sheet_path <> context.sheet
       })
 
-    upload_object(
-      @uploads_bucket,
-      @sheet_path <> context.sheet,
-      File.read!("test/fixtures/#{context.sheet}")
-    )
+    file_fixtures = [
+      {@uploads_bucket, @sheet_path <> context.sheet,
+       File.read!("test/fixtures/#{context.sheet}")},
+      {@ingest_bucket, "#{project.folder}/coffee.tif", File.read!(@image_fixture)},
+      {@ingest_bucket, "#{project.folder}/details.json", File.read!(@json_fixture)},
+      {@ingest_bucket, "#{project.folder}/small.m4v", File.read!(@video_fixture)},
+      {@ingest_bucket, "#{project.folder}/Donohue_002_01.vtt", File.read!(@vtt_fixture)},
+      {@ingest_bucket, "#{project.folder}/invalid.vtt", File.read!(@invalid_vtt_fixture)}
+    ]
 
-    upload_object(
-      @ingest_bucket,
-      "#{project.folder}/coffee.tif",
-      File.read!(@image_fixture)
-    )
+    file_fixtures
+    |> Task.async_stream(fn {bucket, key, content} ->
+      upload_object(bucket, key, content)
 
-    upload_object(
-      @ingest_bucket,
-      "#{project.folder}/details.json",
-      File.read!(@json_fixture)
-    )
-
-    upload_object(
-      @ingest_bucket,
-      "#{project.folder}/small.m4v",
-      File.read!(@video_fixture)
-    )
-
-    upload_object(
-      @ingest_bucket,
-      "#{project.folder}/Donohue_002_01.vtt",
-      File.read!(@vtt_fixture)
-    )
-
-    upload_object(
-      @ingest_bucket,
-      "#{project.folder}/invalid.vtt",
-      File.read!(@invalid_vtt_fixture)
-    )
+      AWS.check_object_tags!(bucket, key, Config.required_checksum_tags())
+      |> wait(timeout: Config.checksum_wait_timeout(), frequency: 250)
+    end)
+    |> Stream.run()
 
     on_exit(fn ->
-      delete_object(@uploads_bucket, @sheet_path <> context.sheet)
-      delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
-      delete_object(@ingest_bucket, "#{project.folder}/details.json")
-      delete_object(@ingest_bucket, "#{project.folder}/small.m4v")
-      delete_object(@ingest_bucket, "#{project.folder}/Donohue_002_01.vtt")
-      delete_object(@ingest_bucket, "#{project.folder}/invalid.vtt")
+      file_fixtures
+      |> Task.async_stream(fn {bucket, key, _} -> delete_object(bucket, key) end)
+      |> Stream.run()
     end)
 
     {:ok, %{sheet: sheet, project: project}}
@@ -226,5 +210,48 @@ defmodule Meadow.Ingest.ValidatorTest do
              "Mime-type:",
              "not accepted for work type: AUDIO and file set role: A"
            ])
+  end
+
+  describe "File set missing object tags" do
+    setup %{project: project} do
+      wait(
+        AWS.check_object_tags!(
+          @ingest_bucket,
+          "#{project.folder}/coffee.tif",
+          Config.required_checksum_tags()
+        ),
+        timeout: Config.checksum_wait_timeout(),
+        frequency: 250
+      )
+
+      ExAws.S3.delete_object_tagging(@ingest_bucket, "#{project.folder}/coffee.tif")
+      |> ExAws.request!()
+
+      :ok
+    end
+
+    @tag sheet: "ingest_sheet.csv"
+    test "Will report validation error if file set missing object tags", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+
+      assert [%{count: 5, state: "fail"}, %{count: 3, state: "pass"}] =
+               Sheets.list_ingest_sheet_row_counts(ingest_sheet.id)
+
+      %{
+        errors: [
+          %Meadow.Ingest.Schemas.Row.Error{
+            field: "filename",
+            message: message
+          }
+        ]
+      } = Rows.get_row(ingest_sheet.id, 1)
+
+      assert String.contains?(
+               message,
+               "filename: #{context.project.folder}/coffee.tif missing computed-md5 tag"
+             )
+    end
   end
 end

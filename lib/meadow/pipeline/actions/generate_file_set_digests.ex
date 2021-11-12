@@ -1,14 +1,13 @@
 defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   @moduledoc """
-  Action to generate the digest map for a FileSet
+  Action to copy the digest map for a FileSet from the object tags
 
   Subscribes to:
   * Kicked off manually
 
   """
-  alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.{Lambda, StructMap}
+  alias Meadow.Utils.StructMap
   alias Sequins.Pipeline.Action
 
   use Action
@@ -17,14 +16,17 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   require Logger
 
   @actiondoc "Generate Digests for FileSet"
-  @timeout 240_000
 
   defp already_complete?(file_set, _) do
     case file_set
          |> StructMap.deep_struct_to_map()
          |> get_in([:core_metadata, :digests]) do
-      %{"sha1" => _, "sha256" => _} -> true
-      %{sha1: _, sha256: _} -> true
+      %{"sha1" => _} -> true
+      %{"sha256" => _} -> true
+      %{"md5" => _} -> true
+      %{sha1: _} -> true
+      %{sha256: _} -> true
+      %{md5: _} -> true
       _ -> false
     end
   end
@@ -34,7 +36,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
     try do
       file_set.core_metadata.location
-      |> generate_hashes()
+      |> copy_hashes_from_s3()
       |> handle_result(file_set)
     rescue
       Meadow.TimeoutError ->
@@ -47,34 +49,41 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     end
   end
 
-  def generate_hashes(url) do
+  defp copy_hashes_from_s3(url) do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
-    Lambda.invoke(Config.lambda_config(:digester), %{bucket: bucket, key: key}, @timeout)
+    ExAws.S3.get_object_tagging(bucket, key)
+    |> ExAws.request!()
+    |> get_in([:body, :tags])
+    |> extract_tags()
+    |> Enum.reject(&is_nil/1)
+    |> Enum.into(%{})
   end
 
-  def handle_result(
-        {:ok,
-         %{"sha256" => <<sha256::binary-size(64)>>, "sha1" => <<_sha1::binary-size(40)>>} = hashes},
-        file_set
-      ) do
-    Logger.info("Hash for #{file_set.id}: #{sha256}")
+  defp extract_tags([]), do: []
+
+  defp extract_tags([%{key: key, value: value} | tags]) do
+    result =
+      if key |> String.ends_with?("last-modified") do
+        nil
+      else
+        case key do
+          "computed-" <> algorithm ->
+            {algorithm, value}
+
+          _ ->
+            nil
+        end
+      end
+
+    [result | extract_tags(tags)]
+  end
+
+  def handle_result(hashes, _) when map_size(hashes) == 0, do: :ok
+
+  def handle_result(hashes, file_set) do
     FileSets.update_file_set(file_set, %{core_metadata: %{digests: hashes}})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
-  end
-
-  def handle_result({:ok, unexpected_result}, file_set) do
-    ActionStates.set_state!(file_set, __MODULE__, "error", unexpected_result)
-    {:error, unexpected_result}
-  end
-
-  def handle_result({:error, {:http_error, status, message}}, _file_set) do
-    Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
-    :retry
-  end
-
-  def handle_result({:error, error}, _file_set) do
-    raise error
   end
 end

@@ -40,6 +40,10 @@ variable "deleted_object_expiration" {
   default = 180
 }
 
+variable "fixity_function" {
+  type = string
+}
+
 variable "geonames_username" {
   type = string
 }
