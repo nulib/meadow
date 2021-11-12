@@ -4,7 +4,7 @@ import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
 import { Link } from "react-router-dom";
 import UIDate from "@js/components/UI/Date";
 import { IconImages, IconView } from "@js/components/Icon";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 
 const colHeaders = [
   "Nickname",
@@ -41,15 +41,8 @@ export default function DashboardsBatchEditList() {
         </thead>
         <tbody data-testid="batch-dashboard-table-body">
           {sortedBatches.map((record) => {
-            const {
-              id,
-              nickname,
-              started,
-              status,
-              type,
-              user,
-              worksUpdated,
-            } = record;
+            const { id, nickname, started, status, type, user, worksUpdated } =
+              record;
 
             return (
               <tr key={id} data-testid="batches-row">

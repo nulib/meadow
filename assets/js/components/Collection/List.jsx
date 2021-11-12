@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import CollectionListRow from "@js/components/Collection/ListRow";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 function CollectionList({ collections, filteredCollections, onOpenModal }) {
   return (

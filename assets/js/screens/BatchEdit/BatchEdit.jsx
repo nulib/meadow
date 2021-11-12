@@ -13,7 +13,7 @@ import UIIconText from "@js/components/UI/IconText";
 import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import UISticky from "@js/components/UI/Sticky";
 import useGTM from "@js/hooks/useGTM";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();

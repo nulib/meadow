@@ -1,0 +1,70 @@
+// web fonts
+@font-face {
+  font-family: "Akkurat Pro Light";
+  src: url("#{$path-fonts}/AkkuratProLight.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akkurat Pro Light Italic";
+  src: url("#{$path-fonts}/AkkuratProLightItalic.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akkurat Pro Regular";
+  src: url("#{$path-fonts}/AkkuratProRegular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akkurat Pro Italic";
+  src: url("#{$path-fonts}/AkkuratProItalic.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akkurat Pro Bold";
+  src: url("#{$path-fonts}/AkkuratProBold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Akkurat Pro Bold Italic";
+  src: url("#{$path-fonts}/AkkuratProBoldItalic.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Campton Book";
+  src: url("#{$path-fonts}/CamptonBook.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Campton Bold";
+  src: url("#{$path-fonts}/CamptonBold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Campton Extra Bold";
+  src: url("#{$path-fonts}/CamptonExtraBold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Campton Extra Light";
+  src: url("#{$path-fonts}/CamptonExtraLight.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}

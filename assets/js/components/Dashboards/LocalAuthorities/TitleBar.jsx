@@ -1,7 +1,7 @@
 import React from "react";
 import { CREATE_NUL_AUTHORITY_RECORD } from "@js/components/Dashboards/dashboards.gql";
 import { useMutation } from "@apollo/client";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalAuthorities/ModalAdd";
 import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
@@ -54,9 +54,7 @@ function DashboardsLocalAuthoritiesTitleBar() {
           onClick={() => setIsAddModalOpen(true)}
           data-testid="add-button"
         >
-          <span className="icon">
-            <IconAdd />
-          </span>
+          <IconAdd />
           <span>Add Local Authority</span>
         </Button>
       </ActionHeadline>

@@ -9,7 +9,7 @@ import UIIconText from "@js/components/UI/IconText";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "@js/services/helpers";
 import { IconAlert, IconTrashCan, IconView } from "@js/components/Icon";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   const [modalOpen, setModalOpen] = useState(false);

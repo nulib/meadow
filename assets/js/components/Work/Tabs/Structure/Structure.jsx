@@ -12,7 +12,7 @@ import {
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
@@ -135,9 +135,7 @@ const WorkTabsStructure = ({ work }) => {
               onClick={() => setIsEditing(true)}
               disabled={isReordering}
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
+              <IconEdit />
               <span>Edit</span>
             </Button>
           )}
@@ -162,9 +160,7 @@ const WorkTabsStructure = ({ work }) => {
             onClick={() => setIsReordering(true)}
             disabled={isEditing || isReordering}
           >
-            <span className="icon">
-              <IconSort />
-            </span>{" "}
+            <IconSort />
             <span>Re-order</span>
           </Button>
 

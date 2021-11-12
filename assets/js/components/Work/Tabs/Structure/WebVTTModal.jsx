@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import classNames from "classnames";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 const webvtt = require("node-webvtt");

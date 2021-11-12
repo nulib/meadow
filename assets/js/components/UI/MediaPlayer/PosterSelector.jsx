@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useWorkState } from "@js/context/work-context";

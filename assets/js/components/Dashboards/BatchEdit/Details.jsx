@@ -7,7 +7,7 @@ import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { Link } from "react-router-dom";
 import { IconImages } from "@js/components/Icon";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {
@@ -78,9 +78,7 @@ function DashboardsBatchEditDetails({ id }) {
             state: { passedInSearchTerm: `batches:\"${id}\"` },
           }}
         >
-          <span className="icon">
-            <IconImages />
-          </span>
+          <IconImages />
           <span>View batch edit works</span>
         </Link>
       )}

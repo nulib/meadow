@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconDownload } from "@js/components/Icon";
 import classNames from "classnames";
 import UIFormField from "@js/components/UI/Form/Field";
@@ -74,9 +74,7 @@ const UIDownloadAll = ({ workId }) => {
         data-testid="download-all-button"
         onClick={() => setIsModalVisible(true)}
       >
-        <span className="icon">
-          <IconDownload />
-        </span>
+        <IconDownload />
         <span>Download all</span>
       </Button>
 

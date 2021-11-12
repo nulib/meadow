@@ -10,7 +10,7 @@ import {
 } from "@js/components/Work/work.gql";
 import UIModalDelete from "@js/components/UI/Modal/Delete";
 import { useHistory } from "react-router-dom";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import UISkeleton from "@js/components/UI/Skeleton";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";

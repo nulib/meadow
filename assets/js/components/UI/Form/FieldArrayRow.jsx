@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconDelete } from "@js/components/Icon";
 
 /** @jsx jsx */

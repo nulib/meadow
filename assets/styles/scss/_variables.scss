@@ -1,0 +1,72 @@
+// path to image and font files - the default is common.northwestern.edu and can be http or https
+$path-fonts: "https://common.northwestern.edu/v8/css/fonts";
+
+// basic colors
+$white: #fff;
+$black: #000;
+$medium-grey: #ccc;
+$light-grey: #f0f0f0;
+$light-grey2: #e3e3e3;
+$red: #b2292e;
+
+// northwestern purples
+$nu-purple: #4e2a84; // official NU Purple (default link color)
+$nu-purple-120: #401f68; // NU Purple 120
+$nu-purple-70: #765da0; // NU Purple 70
+$nu-purple-60: #836eaa; // NU Purple 60
+$nu-purple-30: #b6acd1; // NU Purple 30
+$nu-purple-10: #e4e0ee; // NU Purple 10
+
+// rich blacks
+$rich-black-80: #342f2e; // Rich Black 80 (default body text)
+$rich-black-50: #716c6b; // Rich Black 50
+$rich-black-20: #bbb8b8; // Rich Black 20
+$rich-black-10: #d8d6d6; // Rich Black 10
+
+// secondary palette - brights
+$bright-green: #58b947;
+$aqua: #7fcecd;
+$blue: #5091cd;
+$yellow: #ede93b;
+$gold: #ffc520;
+$red2: #ef553f;
+
+// secondary pallette - darks
+$dark-green: #008656;
+$turquoise: #007fa4;
+$dark-blue: #0d2d6c;
+$marigold: #d9c826;
+$burnt-orange: #ca7c1b;
+$blood-orange: #d85820;
+
+// font stack
+$AkkuratLight: "Akkurat Pro Light", Arial, sans-serif;
+$AkkuratLightItalic: "Akkurat Pro Light Italic", Arial, sans-serif;
+$AkkuratProRegular: "Akkurat Pro Regular", Arial, sans-serif;
+$AkkuratProItalic: "Akkurat Pro Italic", Arial, sans-serif;
+$AkkuratProBold: "Akkurat Pro Bold", "Arial Black", sans-serif;
+$AkkuratProBoldItalic: "Akkurat Pro Bold Italic", "Arial Black", sans-serif;
+$CamptonBook: "Campton Book", Tahoma, sans-serif;
+$CamptonBold: "Campton Bold", Impact, sans-serif;
+$CamptonExtraBold: "Campton Extra Bold", Impact, sans-serif;
+$CamptonExtraLight: "Campton Extra Light", "Courier New", sans-serif;
+
+// Customize Bulma with these variables
+// Colors
+$primary: $nu-purple;
+$link: $nu-purple;
+$info: $blue;
+$success: $bright-green;
+$warning: $yellow;
+$danger: $red2;
+$dark: $rich-black-80;
+
+// General
+$breadcrumb-item-separator-color: $rich-black-50;
+$family-primary: $AkkuratProRegular;
+$family-secondary: $CamptonBook;
+$navbar-height: 4rem;
+
+$title-family: $CamptonExtraLight;
+$title-weight: 400;
+$grey: $rich-black-50;

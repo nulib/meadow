@@ -6,7 +6,7 @@ import IngestSheetErrorsState from "./ErrorsState";
 import IngestSheetUnapprovedState from "./UnapprovedState";
 import { INGEST_SHEET_ROWS } from "./ingestSheet.gql";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 function IngestSheetReport({ sheetId, status }) {
   const hasErrors = ["FILE_FAIL", "ROW_FAIL"].indexOf(status) > -1;

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 
 function UIVisibilityTag({ visibility, ...restProps }) {
   if (!visibility.id || !visibility.label) return null;

@@ -4,7 +4,7 @@ import { Redirect } from "react-router-dom";
 import Layout from "./Layout";
 import { IconAlert } from "@js/components/Icon";
 import UIIconText from "@js/components/UI/IconText";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";

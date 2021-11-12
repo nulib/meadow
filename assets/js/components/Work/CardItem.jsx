@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { getImageUrl } from "@js/services/helpers";
 import UIWorkImage from "@js/components/UI/WorkImage";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
 /** @jsx jsx */

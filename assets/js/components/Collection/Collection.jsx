@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes, { shape } from "prop-types";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { Link, useHistory } from "react-router-dom";
 import { IconEdit, IconImages } from "@js/components/Icon";
 
@@ -54,9 +54,7 @@ const Collection = ({ collection }) => {
                   onClick={handleViewAllWorksClick}
                   className="is-fullwidth"
                 >
-                  <span className="icon">
-                    <IconEdit />
-                  </span>
+                  <IconEdit />
                   <span>Update Image</span>
                 </Button>
               </p>
@@ -96,9 +94,7 @@ const Collection = ({ collection }) => {
                 onClick={handleViewAllWorksClick}
                 data-testid="view-works-button"
               >
-                <span className="icon">
-                  <IconImages />
-                </span>
+                <IconImages />
                 <span>View collection works</span>
               </Button>
             </div>

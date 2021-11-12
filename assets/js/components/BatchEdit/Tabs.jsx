@@ -19,7 +19,7 @@ import {
   PROJECT_METADATA,
 } from "@js/services/metadata";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import UIIconText from "../UI/IconText";
 import { IconAlert } from "@js/components/Icon";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 
 function UIFacetLink({ facetComponentId, item }) {
   const history = useHistory();

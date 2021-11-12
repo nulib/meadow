@@ -11,6 +11,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
+      - name: Update npm
+        run: npm install -g npm@latest
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
@@ -63,6 +65,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -146,6 +150,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
+      - name: Update npm
+        run: npm install -g npm@latest
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
