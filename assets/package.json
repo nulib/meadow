@@ -38,7 +38,7 @@
     "file-saver": "^2.0.5",
     "graphql": "^16.0.1",
     "graphql-tag": "^2.12.6",
-    "hls.js": "^1.1.0",
+    "hls.js": "^1.1.1",
     "inflection": "^1.13.1",
     "js-cookie": "^3.0.1",
     "moment": "^2.29.1",

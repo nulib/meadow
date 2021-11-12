@@ -5083,10 +5083,10 @@ history@^4.9.0:
     tiny-warning "^1.0.0"
     value-equal "^1.0.1"
 
-hls.js@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.1.0.tgz#2cac6bbb39ecdd6d7f66233c56a15826e30afde4"
-  integrity sha512-H0zTitroA/l1JGUHFDOEcqqERGgHJnIwk12OG/9v/hXVGhNY6Yy17a0TecNdKFBiA8s/PaLswx1UwR1QKxouBQ==
+hls.js@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.1.1.tgz#d8ff641f764741f13259a2740aa33336810a10a5"
+  integrity sha512-2VEVzO/gr5LOD6K/DEmBkKEary6hr4YZ/SLb0PV81jOAM/Tl9DviL0sFMoUHDq05/j4OZxIj691Zo0p40u3Gtw==
 
 hmac-drbg@^1.0.1:
   version "1.0.1"
