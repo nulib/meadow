@@ -32,10 +32,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         }
       })
 
-    {:ok,
-     file_set_id: file_set.id,
-     preservation_key:
-       Pairtree.preservation_path(Map.get(file_set.core_metadata.digests, "sha256"))}
+    {:ok, file_set_id: file_set.id, preservation_key: Pairtree.preservation_path(file_set.id)}
   end
 
   describe "success" do
@@ -61,29 +58,12 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         assert headers |> Enum.member?({"Content-Type", "image/tiff"})
         assert headers |> Enum.member?({"x-amz-meta-sha1", @sha1})
         assert headers |> Enum.member?({"x-amz-meta-sha256", @sha256})
+        assert headers |> Enum.member?({"x-amz-tagging-count", "2"})
       end
 
       on_exit(fn ->
         delete_object(@preservation_bucket, preservation_key)
       end)
-    end
-  end
-
-  describe "failure due to bad sha256" do
-    @describetag s3: [@fixture]
-    test "process/2", %{file_set_id: file_set_id} do
-      file_set = FileSets.get_file_set!(file_set_id)
-      FileSets.update_file_set(file_set, %{core_metadata: %{digests: %{}}})
-
-      assert(
-        CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) ==
-          {:error, "Error creating preservation path"}
-      )
-
-      assert(ActionStates.error?(file_set_id, CopyFileToPreservation))
-      file_set = FileSets.get_file_set!(file_set_id)
-
-      assert(file_set.core_metadata.location =~ "s3://#{@ingest_bucket}/#{@key}")
     end
   end
 

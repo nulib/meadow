@@ -4,7 +4,7 @@ defmodule Meadow.Data.FileSetsTest do
   alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Utils.ChangesetErrors
+  alias Meadow.Utils.{ChangesetErrors, Pairtree}
 
   describe "queries" do
     @valid_attrs %{
@@ -240,6 +240,15 @@ defmodule Meadow.Data.FileSetsTest do
       with url <- file_set |> FileSets.poster_uri_for() do
         assert url |> String.starts_with?("s3://test-pyramids/posters/")
         assert url |> String.ends_with?("-poster.tif")
+      end
+    end
+
+    test "preservation_location/1 for a FileSet" do
+      file_set = file_set_fixture()
+
+      with url <- FileSets.preservation_location(file_set) do
+        assert url |> String.starts_with?("s3://test-preservation/")
+        assert url |> String.ends_with?(Pairtree.preservation_path(file_set.id))
       end
     end
 

@@ -7,9 +7,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   *
 
   """
-  alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.Pairtree
   alias Sequins.Pipeline.Action
   use Action
   use Meadow.Pipeline.Actions.Common
@@ -19,7 +17,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   @actiondoc "Copy File to Preservation"
 
   defp already_complete?(file_set, _) do
-    with dest_location <- preservation_location(file_set) do
+    with dest_location <- FileSets.preservation_location(file_set) do
       if file_set.core_metadata.location == dest_location,
         do: Meadow.Utils.Stream.exists?(dest_location),
         else: false
@@ -43,20 +41,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     end
   end
 
-  defp preservation_location(file_set) do
-    dest_bucket = Config.preservation_bucket()
-
-    dest_key =
-      Path.join([
-        "/",
-        Pairtree.preservation_path(Map.get(file_set.core_metadata.digests, "sha256"))
-      ])
-
-    %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
-  end
-
   defp copy_file_to_preservation(file_set, attributes) do
-    with dest_location <- preservation_location(file_set),
+    with dest_location <- FileSets.preservation_location(file_set),
          retain <- Map.get(attributes, :overwrite) == "false" do
       if retain and Meadow.Utils.Stream.exists?(dest_location) do
         Logger.info("#{dest_location} already exists")
@@ -90,7 +76,10 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
              src_key,
              content_type: content_type,
              metadata_directive: :REPLACE,
-             meta: s3_metadata
+             meta: s3_metadata,
+             tagging:
+               "computed-sha1=#{file_set.core_metadata.digests["sha1"]}&computed-sha256=#{file_set.core_metadata.digests["sha256"]}",
+             tagging_directive: :REPLACE
            )
            |> ExAws.request() do
         {:ok, _} -> {:ok, dest_location}

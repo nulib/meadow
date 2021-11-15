@@ -263,6 +263,18 @@ defmodule Meadow.Data.FileSets do
     %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
   end
 
+  def preservation_location(file_set) do
+    dest_bucket = Config.preservation_bucket()
+
+    dest_key =
+      Path.join([
+        "/",
+        Pairtree.preservation_path(file_set.id)
+      ])
+
+    %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
   def poster_uri_for(%FileSet{} = file_set), do: poster_uri_for(file_set.id)
 
   def poster_uri_for(file_set_id) do

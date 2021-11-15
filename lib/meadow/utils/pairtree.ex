@@ -4,22 +4,15 @@ defmodule Meadow.Utils.Pairtree do
   """
 
   @doc """
-  Generates a pyramid path
+  Generates a preservation path
 
   ## Examples
 
-    iex> Pairtree.preservation_path("412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90")
-    "41/2c/a1/47/412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
-
-    iex> Pairtree.preservation_path("412ca147684a67883226c64")
-    ** (ArgumentError) Invalid sha256 hash
+    iex> Pairtree.preservation_path("6bdd9d3a-6507-41f9-84b2-71d49713cf6f")
+    "6b/dd/9d/3a/6bdd9d3a-6507-41f9-84b2-71d49713cf6f"
   """
-  def preservation_path(sha256) when byte_size(sha256) == 64 do
-    generate!(sha256, 4) <> "/" <> sha256
-  end
-
-  def preservation_path(_) do
-    raise ArgumentError, message: "Invalid sha256 hash"
+  def preservation_path(uuid) do
+    generate!(uuid, 4) <> "/" <> uuid
   end
 
   @doc """
