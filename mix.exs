@@ -52,7 +52,7 @@ defmodule Meadow.MixProject do
       {:briefly, "~> 0.3.0", only: :test},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_psql_extras, "~> 0.2"},
