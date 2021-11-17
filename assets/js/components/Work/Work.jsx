@@ -30,6 +30,10 @@ const Work = ({ work }) => {
   const { filterFileSets } = useFileSet();
 
   React.useEffect(() => {
+    workDispatch({ type: "updateWorkType", workTypeId: work.workType.id });
+  }, []);
+
+  React.useEffect(() => {
     // Get data for an Image Work Type
     async function getData() {
       const data = await getManifest(`${work.manifestUrl}?${Date.now()}`);
@@ -90,6 +94,7 @@ const Work = ({ work }) => {
           fileSet={workContextState?.activeMediaFileSet}
           fileSets={[...filterFileSets(work.fileSets).access]}
           manifestId={work.manifestUrl}
+          workTypeId={work.workType?.id}
         />
       )}
 

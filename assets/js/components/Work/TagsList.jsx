@@ -22,7 +22,7 @@ export default function WorkTagsList({ work }) {
   }
 
   return (
-    <p className="tags">
+    <div className="tags">
       {work.workType && <Tag isInfo>{renderWorkType()}</Tag>}
       {work.published ? (
         <Tag isSuccess>Published</Tag>
@@ -30,7 +30,7 @@ export default function WorkTagsList({ work }) {
         <Tag isWarning>Not Published</Tag>
       )}
       {work.visibility && <UIVisibilityTag visibility={work.visibility} />}
-    </p>
+    </div>
   );
 }
 

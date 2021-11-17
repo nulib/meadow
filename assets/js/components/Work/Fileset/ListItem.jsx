@@ -115,22 +115,24 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <AuthDisplayAuthorized>
-                <div className="field">
-                  <input
-                    id={`checkbox-work-switch-${id}`}
-                    type="checkbox"
-                    name={`checkbox-work-switch-${id}`}
-                    className="switch"
-                    checked={workImageFilesetId === id}
-                    onChange={() => handleWorkImageChange(id)}
-                    data-testid="work-image-selector"
-                  />
-                  <label htmlFor={`checkbox-work-switch-${id}`}>
-                    Work image
-                  </label>
-                </div>
-              </AuthDisplayAuthorized>
+              {workContextState.workTypeId !== "AUDIO" && (
+                <AuthDisplayAuthorized>
+                  <div className="field">
+                    <input
+                      id={`checkbox-work-switch-${id}`}
+                      type="checkbox"
+                      name={`checkbox-work-switch-${id}`}
+                      className="switch"
+                      checked={workImageFilesetId === id}
+                      onChange={() => handleWorkImageChange(id)}
+                      data-testid="work-image-selector"
+                    />
+                    <label htmlFor={`checkbox-work-switch-${id}`}>
+                      Work image
+                    </label>
+                  </div>
+                </AuthDisplayAuthorized>
+              )}
 
               {fileSet.role.id === "A" && (
                 <WorkFilesetActionButtonsAccess fileSet={fileSet} />

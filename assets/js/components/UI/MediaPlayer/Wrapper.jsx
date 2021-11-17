@@ -8,6 +8,8 @@ function MediaPlayerWrapper({ fileSets, manifestId }) {
   const workState = useWorkState();
   const dispatch = useWorkDispatch();
 
+  const { activeMediaFileSet, workTypeId } = workState;
+
   const handleCanvasIdCallback = (canvasId) => {
     if (canvasId !== "")
       dispatch({
@@ -19,15 +21,17 @@ function MediaPlayerWrapper({ fileSets, manifestId }) {
     return;
   };
 
-  if (!workState.activeMediaFileSet) return <></>;
+  if (!activeMediaFileSet) return <></>;
 
   return (
-    <div className="container">
+    <div className="container" data-testid="media-player-wrapper">
       <ReactMediaPlayer
         manifestId={manifestId}
         canvasIdCallback={handleCanvasIdCallback}
       />
-      {workState.activeMediaFileSet?.id && <MediaPlayerPosterSelector />}
+      {workTypeId !== "AUDIO" && activeMediaFileSet?.id && (
+        <MediaPlayerPosterSelector />
+      )}
     </div>
   );
 }
