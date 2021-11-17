@@ -1,3 +1,4 @@
+defmodule Meadow.IndexerError, do: defexception([:message])
 defmodule Meadow.TimeoutError, do: defexception([:message])
 defmodule Meadow.LambdaError, do: defexception([:message])
 
