@@ -34,7 +34,7 @@ defmodule Meadow.ReleaseTasks do
 
     if reindex? do
       Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
-      Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, Config.elasticsearch_index())
+      Meadow.Data.Indexer.hot_swap()
     end
   after
     resume!()

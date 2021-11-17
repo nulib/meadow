@@ -12,6 +12,26 @@ defmodule Meadow.Data.Indexer do
 
   require Logger
 
+  def hot_swap do
+    case Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, :meadow) do
+      {:error, errors} when is_list(errors) ->
+        Enum.each(errors, fn error ->
+          Logger.warn(error.message)
+          Meadow.Error.report(error, Elasticsearch.Index, [])
+        end)
+
+        {:error, errors}
+
+      {:error, error} ->
+        Logger.warn(error.message)
+        Meadow.Error.report(error, Elasticsearch.Index, [])
+        {:error, error}
+
+      other ->
+        other
+    end
+  end
+
   def synchronize_index do
     with_log_metadata module: __MODULE__ do
       [:deleted, FileSet, Work, Collection]
@@ -84,6 +104,25 @@ defmodule Meadow.Data.Indexer do
     |> after_upload_batch(bulk_document)
   end
 
+  defp after_upload_batch({:ok, %{"errors" => true, "items" => items} = results}, bulk_document) do
+    Enum.filter(items, &(&1 |> Map.values() |> List.first() |> Map.has_key?("error")))
+    |> Enum.each(fn error ->
+      with [%{"error" => %{"reason" => reason, "type" => type}} | _] <- Map.values(error),
+           message <- "(#{type}) #{reason}" do
+        Logger.warn(message)
+
+        Meadow.Error.report(
+          %Meadow.IndexerError{message: message},
+          __MODULE__,
+          [],
+          %{document_size: bulk_document |> byte_size() |> to_string()}
+        )
+      end
+    end)
+
+    after_upload_batch({:ok, Map.put(results, "errors", false)}, bulk_document)
+  end
+
   defp after_upload_batch({:ok, results}, _) do
     results
     |> Map.get("items")
@@ -105,6 +144,7 @@ defmodule Meadow.Data.Indexer do
       |> IO.iodata_to_binary()
 
     Logger.warn(message)
+    Meadow.Error.report(error, __MODULE__, [])
 
     {0, 0}
   end
