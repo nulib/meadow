@@ -61,7 +61,10 @@ function MediaPlayerPosterSelector() {
   const label = workState.activeMediaFileSet.coreMetadata.label;
 
   return (
-    <div className="block mt-5 is-flex is-justify-content-center">
+    <div
+      className="block mt-5 is-flex is-justify-content-center"
+      data-testid="set-poster-image-button"
+    >
       <Button isPrimary onClick={handleSave}>
         Set poster image for &nbsp;<strong>{label}</strong>
       </Button>
