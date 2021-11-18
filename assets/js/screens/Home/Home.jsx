@@ -10,6 +10,7 @@ import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
 import { Link } from "react-router-dom";
 import useGTM from "@js/hooks/useGTM";
 import CalloutActionsRow from "@js/components/Home/CalloutActionsRow";
+import HomeIngestBox from "@js/components/Home/IngestBox";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
@@ -58,6 +59,7 @@ const ScreensHome = () => {
             </div>
 
             <div className="column is-one-third">
+              <HomeIngestBox handleAddWork={handleAddWork} />
               <HomeStatsRow stats={statsConfig} />
             </div>
           </div>
