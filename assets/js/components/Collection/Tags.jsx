@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 
 function CollectionTags({ collection }) {
   const { featured, published, visibility } = collection;

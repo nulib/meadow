@@ -8,7 +8,7 @@ import { toastWrapper } from "@js/services/helpers";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import { useHistory } from "react-router-dom";
 
 const WorkForm = ({ showWorkForm, setShowWorkForm }) => {

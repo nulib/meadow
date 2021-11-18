@@ -10,7 +10,7 @@ import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
 import UISkeleton from "@js/components/UI/Skeleton";
 import { PROJECT_METADATA } from "@js/services/metadata";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
@@ -110,9 +110,7 @@ const WorkTabsAdministrative = ({ work }) => {
               onClick={() => setIsEditing(true)}
               data-testid="edit-button"
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
+              <IconEdit />
               <span>Edit</span>
             </Button>
           )}

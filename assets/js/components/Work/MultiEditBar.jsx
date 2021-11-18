@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import UISticky from "@js/components/UI/Sticky";
 import UIIconText from "@js/components/UI/IconText";
 import { IconArrowLeft, IconArrowRight, IconEdit } from "@js/components/Icon";

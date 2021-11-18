@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import PropTypes from "prop-types";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);

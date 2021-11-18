@@ -27,7 +27,7 @@ import {
 } from "@js/services/metadata";
 import UIError from "../../UI/Error";
 import { IconEdit } from "@js/components/Icon";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { Skeleton, TabsStickyHeader } from "@js/components/UI/UI";
 
 function prepFormData(work) {
@@ -92,20 +92,18 @@ const WorkTabsAbout = ({ work }) => {
     methods.reset(updatedData);
   }, [work]);
 
-  const [
-    updateWork,
-    { loading: updateWorkLoading, error: updateWorkError },
-  ] = useMutation(UPDATE_WORK, {
-    onCompleted({ updateWork }) {
-      setIsEditing(false);
-      toastWrapper("is-success", "Work metadata successfully updated");
-    },
-    onError(error) {
-      console.log("error in the updateWork GraphQL mutation :>> ", error);
-    },
-    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
-    awaitRefetchQueries: true,
-  });
+  const [updateWork, { loading: updateWorkLoading, error: updateWorkError }] =
+    useMutation(UPDATE_WORK, {
+      onCompleted({ updateWork }) {
+        setIsEditing(false);
+        toastWrapper("is-success", "Work metadata successfully updated");
+      },
+      onError(error) {
+        console.log("error in the updateWork GraphQL mutation :>> ", error);
+      },
+      refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+      awaitRefetchQueries: true,
+    });
 
   // Handle About tab form submit (Core and Descriptive metadata)
   const onSubmit = (data) => {
@@ -114,7 +112,6 @@ const WorkTabsAbout = ({ work }) => {
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
     let currentFormValues = methods.getValues();
-    console.log("currentFormValues", currentFormValues);
 
     const { title = "" } = currentFormValues;
     let workUpdateInput = {
@@ -147,9 +144,8 @@ const WorkTabsAbout = ({ work }) => {
       UNCONTROLLED_METADATA,
     ]) {
       for (let term of group) {
-        workUpdateInput.descriptiveMetadata[
-          term.name
-        ] = prepFieldArrayItemsForPost(currentFormValues[term.name]);
+        workUpdateInput.descriptiveMetadata[term.name] =
+          prepFieldArrayItemsForPost(currentFormValues[term.name]);
       }
     }
 
@@ -186,9 +182,7 @@ const WorkTabsAbout = ({ work }) => {
               data-testid="edit-button"
               onClick={() => setIsEditing(true)}
             >
-              <span className="icon">
-                <IconEdit />
-              </span>
+              <IconEdit />
               <span>Edit</span>
             </Button>
           )}

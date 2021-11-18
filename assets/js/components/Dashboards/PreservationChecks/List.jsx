@@ -4,7 +4,7 @@ import { GET_PRESERVATION_CHECKS } from "@js/components/Dashboards/dashboards.gq
 import UIDate from "@js/components/UI/Date";
 import { IconDownload } from "@js/components/Icon";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
-import { Tag } from "@nulib/admin-react-components";
+import { Tag } from "@nulib/design-system";
 
 const colHeaders = [
   "Started",
@@ -61,14 +61,8 @@ export default function DashboardsPreservationChecksList() {
       </thead>
       <tbody data-testid="preservation-checks-dashboard-table-body">
         {sortedPreservationChecks.map((record) => {
-          const {
-            id,
-            insertedAt,
-            updatedAt,
-            status,
-            invalidRows,
-            filename,
-          } = record;
+          const { id, insertedAt, updatedAt, status, invalidRows, filename } =
+            record;
           return (
             <tr key={id} data-testid="preservation-check-row">
               <td className="is-hidden">{id}</td>

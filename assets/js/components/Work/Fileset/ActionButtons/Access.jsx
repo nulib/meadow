@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { IconDownload } from "@js/components/Icon";

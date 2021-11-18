@@ -9,7 +9,7 @@ import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import useFileSet from "@js/hooks/useFileSet";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-import { Button, Tag } from "@nulib/admin-react-components";
+import { Button, Tag } from "@nulib/design-system";
 import { IconPlay } from "@js/components/Icon";
 
 function WorkFilesetListItem({
@@ -69,9 +69,7 @@ function WorkFilesetListItem({
               }
               className="is-small is-fullwidth mt-2"
             >
-              <span className="icon">
-                <IconPlay />
-              </span>
+              <IconPlay />
               <span>Play</span>
             </Button>
           )}
@@ -117,22 +115,24 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              <AuthDisplayAuthorized>
-                <div className="field">
-                  <input
-                    id={`checkbox-work-switch-${id}`}
-                    type="checkbox"
-                    name={`checkbox-work-switch-${id}`}
-                    className="switch"
-                    checked={workImageFilesetId === id}
-                    onChange={() => handleWorkImageChange(id)}
-                    data-testid="work-image-selector"
-                  />
-                  <label htmlFor={`checkbox-work-switch-${id}`}>
-                    Work image
-                  </label>
-                </div>
-              </AuthDisplayAuthorized>
+              {workContextState.workTypeId !== "AUDIO" && (
+                <AuthDisplayAuthorized>
+                  <div className="field">
+                    <input
+                      id={`checkbox-work-switch-${id}`}
+                      type="checkbox"
+                      name={`checkbox-work-switch-${id}`}
+                      className="switch"
+                      checked={workImageFilesetId === id}
+                      onChange={() => handleWorkImageChange(id)}
+                      data-testid="work-image-selector"
+                    />
+                    <label htmlFor={`checkbox-work-switch-${id}`}>
+                      Work image
+                    </label>
+                  </div>
+                </AuthDisplayAuthorized>
+              )}
 
               {fileSet.role.id === "A" && (
                 <WorkFilesetActionButtonsAccess fileSet={fileSet} />

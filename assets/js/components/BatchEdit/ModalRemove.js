@@ -5,7 +5,7 @@ import {
   useBatchState,
 } from "../../context/batch-edit-context";
 import { splitFacetKey } from "../../services/metadata";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";

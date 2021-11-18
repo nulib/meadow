@@ -64,7 +64,7 @@ config :meadow, Meadow.ElasticsearchCluster,
       secret: get_required_var.("ELASTICSEARCH_SECRET")
     ],
     timeout: 20_000,
-    recv_timeout: 30_000
+    recv_timeout: 90_000
   ],
   json_library: Jason,
   indexes: %{

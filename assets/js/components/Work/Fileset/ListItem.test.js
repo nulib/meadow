@@ -38,19 +38,47 @@ describe("Fileset component", () => {
       });
     });
 
-    it("renders an checked Work image toggle if current fileset is a representative Work image", async () => {
-      setUpTests(mockFileSets[0].id);
-      await waitFor(() => {
-        const toggleEl = screen.getByTestId("work-image-selector");
-        expect(toggleEl).toBeChecked();
+    describe("Image and Video work types", () => {
+      it("renders an checked Work image toggle if current fileset is a representative Work image", async () => {
+        setUpTests(mockFileSets[0].id);
+        await waitFor(() => {
+          const toggleEl = screen.getByTestId("work-image-selector");
+          expect(toggleEl).toBeChecked();
+        });
+      });
+
+      it("renders an unchecked Work image toggle if current fileset is NOT a representative Work image", async () => {
+        setUpTests("ABC123");
+        await waitFor(() => {
+          const toggleEl = screen.getByTestId("work-image-selector");
+          expect(toggleEl).not.toBeChecked();
+        });
       });
     });
 
-    it("renders an unchecked Work image toggle if current fileset is NOT a representative Work image", async () => {
-      setUpTests("ABC123");
-      await waitFor(() => {
-        const toggleEl = screen.getByTestId("work-image-selector");
-        expect(toggleEl).not.toBeChecked();
+    describe("Audio work type", () => {
+      // Set up the test so the Work type id is "AUDIO"
+      const initialState = {
+        activeMediaFileSet: null,
+        webVttModal: {
+          fileSetId: null,
+          isOpen: false,
+          webVttString: "",
+        },
+        workTypeId: "AUDIO",
+      };
+      it("doesn't render the Work image toggle", () => {
+        render(
+          <WorkProvider initialState={initialState}>
+            <WorkFilesetListItemImage
+              fileSet={mockFileSets[0]}
+              workImageFilesetId={undefined}
+            />
+          </WorkProvider>
+        );
+        expect(
+          screen.queryByTestId("work-image-selector")
+        ).not.toBeInTheDocument();
       });
     });
   });

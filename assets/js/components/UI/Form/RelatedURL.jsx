@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useFieldArray } from "react-hook-form";
 import UIFormSelect from "./Select";
 import { isUrlValid } from "../../../services/helpers";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { useFormContext } from "react-hook-form";
 import { IconAdd, IconTrashCan } from "@js/components/Icon";
 
@@ -135,9 +135,7 @@ const UIFormRelatedURL = ({
                   onClick={() => remove(index)}
                   data-testid={`button-related-url-remove`}
                 >
-                  <span className="icon">
-                    <IconTrashCan />
-                  </span>
+                  <IconTrashCan />
                   <span>Remove</span>
                 </Button>
               </fieldset>
@@ -153,9 +151,7 @@ const UIFormRelatedURL = ({
         }}
         data-testid="button-add-field-array-row"
       >
-        <span className="icon">
-          <IconAdd />
-        </span>
+        <IconAdd />
         <span>Add {fields.length > 0 && "another"}</span>
       </Button>
     </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { useForm, FormProvider } from "react-hook-form";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";

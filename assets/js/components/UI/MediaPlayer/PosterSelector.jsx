@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useWorkState } from "@js/context/work-context";
@@ -61,7 +61,10 @@ function MediaPlayerPosterSelector() {
   const label = workState.activeMediaFileSet.coreMetadata.label;
 
   return (
-    <div className="block mt-5 is-flex is-justify-content-center">
+    <div
+      className="block mt-5 is-flex is-justify-content-center"
+      data-testid="set-poster-image-button"
+    >
       <Button isPrimary onClick={handleSave}>
         Set poster image for &nbsp;<strong>{label}</strong>
       </Button>

@@ -2,8 +2,6 @@ import React from "react";
 import Layout from "../Layout";
 import CollectionRecentlyUpdated from "@js/components/Collection/RecentlyUpdated";
 import WorkForm from "@js/components/Work/WorkForm";
-import HomeIngestBox from "@js/components/Home/IngestBox";
-import HomeSearchAndSubscribeBox from "@js/components/Home/SearchAndDescribeBox";
 import HomeStatsRow from "@js/components/Home/StatsRow";
 import useRepositoryStats from "@js/hooks/useRepositoryStats";
 import ChartsRepositoryGrowth from "@js/components/Charts/RepositoryGrowth";
@@ -11,6 +9,7 @@ import ChartsVisibility from "@js/components/Charts/Visibility";
 import ChartsGoogleAnalytics from "@js/components/Charts/GoogleAnalytics";
 import { Link } from "react-router-dom";
 import useGTM from "@js/hooks/useGTM";
+import CalloutActionsRow from "@js/components/Home/CalloutActionsRow";
 
 const ScreensHome = () => {
   const [showWorkForm, setShowWorkForm] = React.useState(false);
@@ -46,7 +45,8 @@ const ScreensHome = () => {
 
   return (
     <Layout>
-      <HomeSearchAndSubscribeBox />
+      {/* <HomeSearchAndSubscribeBox /> */}
+      <CalloutActionsRow handleAddWork={handleAddWork} />
 
       <section className="section">
         <div className="container">
@@ -58,7 +58,6 @@ const ScreensHome = () => {
             </div>
 
             <div className="column is-one-third">
-              <HomeIngestBox handleAddWork={handleAddWork} />
               <HomeStatsRow stats={statsConfig} />
             </div>
           </div>

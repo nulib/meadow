@@ -11,7 +11,7 @@ import {
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import { Link } from "react-router-dom";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";

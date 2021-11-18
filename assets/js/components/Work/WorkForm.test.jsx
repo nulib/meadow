@@ -6,7 +6,7 @@ import {
   getWorkTypesMock,
 } from "@js/components/Work/work.gql.mock";
 import userEvent from "@testing-library/user-event";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 
 describe("ProjectForm component", () => {
   beforeEach(() => {
@@ -37,8 +37,8 @@ describe("ProjectForm component", () => {
   });
 
   it("should give a default value for the work type select element", async () => {
-    const el = await screen.findByTestId("work-type");
-    const mockDefaultValue = getWorkTypesMock.result.data.codeList[0].id;
-    expect(el).toHaveValue(mockDefaultValue);
+    waitFor(() => {
+      expect(screen.getByTestId("work-type")).toHaveValue(mockDefaultValue);
+    });
   });
 });

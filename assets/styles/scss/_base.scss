@@ -1,3 +1,24 @@
+button,
+.button {
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+table {
+  caption {
+    @extend .has-text-grey;
+    @extend .is-italic;
+    @extend .is-size-6;
+  }
+  &.is-fixed {
+    table-layout: fixed;
+  }
+}
+
+.break-word {
+  overflow-wrap: break-word;
+}
+
 h1,
 .content h1 {
   font-weight: 400;
@@ -34,6 +55,11 @@ fieldset {
   &.remove {
     border-color: $danger;
   }
+}
+
+strong {
+  color: inherit;
+  font-family: "Akkurat Pro Bold";
 }
 
 footer {

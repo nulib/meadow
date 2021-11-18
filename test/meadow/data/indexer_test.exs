@@ -1,5 +1,6 @@
 defmodule Meadow.Data.IndexerTest do
   @moduledoc false
+  use Honeybadger.Case
   use Meadow.AuthorityCase
   use Meadow.DataCase
   use Meadow.IndexCase
@@ -384,6 +385,51 @@ defmodule Meadow.Data.IndexerTest do
 
       Elasticsearch.Index.refresh(Meadow.ElasticsearchCluster, "meadow")
       assert indexed_doc_count() == count
+    end
+  end
+
+  describe "error reporting" do
+    @describetag :skip
+
+    setup do
+      {:ok, _} = Honeybadger.API.start(self())
+      on_exit(&Honeybadger.API.stop/0)
+
+      fake_metadata = %{
+        "tool" => "mediainfo",
+        "tool_version" => "21.09",
+        "value" => %{"media" => %{}}
+      }
+
+      %{file_sets: [file_set_1 | [file_set_2 | _]]} = indexable_data()
+
+      file_set_1
+      |> FileSets.update_file_set(%{
+        extracted_metadata: %{mediainfo: Jason.encode!(fake_metadata)}
+      })
+
+      file_set_2 |> FileSets.update_file_set(%{extracted_metadata: %{mediainfo: fake_metadata}})
+      :ok
+    end
+
+    test "indexing errors reported to Honeybadger" do
+      restart_with_config(exclude_envs: [])
+      Indexer.reindex_all!()
+      assert_receive {:api_request, report_1}, 2500
+      assert_receive {:api_request, report_2}, 2500
+
+      assert [report_1, report_2]
+             |> Enum.all?(&(get_in(&1, ["error", "class"]) == "Meadow.IndexerError"))
+    end
+
+    test "hot swap errors reported to Honeybadger" do
+      restart_with_config(exclude_envs: [])
+      assert {:error, _} = Indexer.hot_swap()
+      assert_receive {:api_request, report_1}, 2500
+      assert_receive {:api_request, report_2}, 2500
+
+      assert [report_1, report_2]
+             |> Enum.all?(&(get_in(&1, ["error", "class"]) == "Elasticsearch.Exception"))
     end
   end
 end

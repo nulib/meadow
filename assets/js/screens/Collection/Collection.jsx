@@ -13,7 +13,7 @@ import { toastWrapper } from "@js/services/helpers";
 import Layout from "@js/screens/Layout";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import CollectionTags from "@js/components/Collection/Tags";
 import { IconEdit } from "@js/components/Icon";
 import {

@@ -4,7 +4,7 @@ import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
 import { useQuery } from "@apollo/client";
 import { sortItemsArray } from "@js/services/helpers";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 function BatchEditCollection() {
   const context = useFormContext();

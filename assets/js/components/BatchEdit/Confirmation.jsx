@@ -8,7 +8,7 @@ import { useMutation } from "@apollo/client";
 import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
 import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { useHistory } from "react-router-dom";
-import { Button, Notification } from "@nulib/admin-react-components";
+import { Button, Notification } from "@nulib/design-system";
 import {
   IconAdd,
   IconReplace,

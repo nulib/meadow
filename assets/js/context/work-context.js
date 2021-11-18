@@ -10,6 +10,7 @@ const defaultState = {
     isOpen: false,
     webVttString: "",
   },
+  workTypeId: null,
 };
 
 function workReducer(state, action) {
@@ -25,9 +26,16 @@ function workReducer(state, action) {
       };
     }
     case "updateActiveMediaFileSet": {
+      const workTypeId = action.workTypeId || state.workTypeId;
       return {
         ...state,
         activeMediaFileSet: { ...action.fileSet },
+      };
+    }
+    case "updateWorkType": {
+      return {
+        ...state,
+        workTypeId: action.workTypeId,
       };
     }
     default: {

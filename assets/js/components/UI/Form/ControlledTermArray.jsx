@@ -5,7 +5,7 @@ import UIFormSelect from "./Select";
 import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
 import { hasRole } from "@js/services/metadata";
 import { useFormContext } from "react-hook-form";
-import { Button } from "@nulib/admin-react-components";
+import { Button } from "@nulib/design-system";
 import { IconAdd, IconTrashCan } from "@js/components/Icon";
 
 const UIFormControlledTermArray = ({
@@ -129,9 +129,7 @@ const UIFormControlledTermArray = ({
         }}
         data-testid="button-add-field-array-row"
       >
-        <span className="icon">
-          <IconAdd />
-        </span>
+        <IconAdd />
         <span>Add {fields.length > 0 && "another"}</span>
       </Button>
     </>

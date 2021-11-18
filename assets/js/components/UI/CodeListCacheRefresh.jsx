@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { IconBell } from "@js/components/Icon";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -19,9 +19,7 @@ export default function UICodeListCacheRefresh({ handleClick }) {
       css={cacheNotification}
     >
       <p>
-        <span className="icon">
-          <IconBell />
-        </span>
+        <IconBell />
         Role and Authority fields are using cached dropdown values (as these
         rarely change).
       </p>

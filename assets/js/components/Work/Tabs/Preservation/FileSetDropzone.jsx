@@ -2,7 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { formatBytes } from "@js/services/helpers";
 import { IconFile } from "@js/components/Icon";
-import { Notification } from "@nulib/admin-react-components";
+import { Notification } from "@nulib/design-system";
 import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 
 /** @jsx jsx */
