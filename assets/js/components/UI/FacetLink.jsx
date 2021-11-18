@@ -29,8 +29,9 @@ function UIFacetLink({ facetComponentId, item }) {
       data-testid="facet-link"
       className="break-word"
       onClick={handleClick}
+      css={{ padding: "0", textTransform: "none !important" }}
     >
-      {facetValue}
+      <span>{facetValue}</span>
     </Button>
   );
 }
