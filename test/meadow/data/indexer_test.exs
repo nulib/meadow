@@ -389,6 +389,8 @@ defmodule Meadow.Data.IndexerTest do
   end
 
   describe "error reporting" do
+    @describetag :skip
+
     setup do
       {:ok, _} = Honeybadger.API.start(self())
       on_exit(&Honeybadger.API.stop/0)

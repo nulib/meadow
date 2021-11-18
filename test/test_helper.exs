@@ -1,4 +1,4 @@
-ExUnit.start(capture_log: true, exclude: [manual: true])
+ExUnit.start(capture_log: true, exclude: [:skip, manual: true])
 Faker.start()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
 Authoritex.Mock.init()
