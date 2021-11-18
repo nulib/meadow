@@ -59,20 +59,6 @@ function WorkFilesetListItem({
               onError={handleError}
             />
           </figure>
-          {isMedia(fileSet) && (
-            <Button
-              onClick={() =>
-                dispatch({
-                  type: "updateActiveMediaFileSet",
-                  fileSet,
-                })
-              }
-              className="is-small is-fullwidth mt-2"
-            >
-              <IconPlay />
-              <span>Play</span>
-            </Button>
-          )}
         </div>
         <div className="column">
           {isMedia(fileSet) && isCurrentStateFileSet && (
