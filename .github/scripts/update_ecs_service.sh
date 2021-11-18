@@ -5,7 +5,8 @@ changed_files=$(git diff --name-only ${GITHUB_SHA} ${PRIOR_HEAD})
 reindex_changes='lib/meadow/indexing/|priv/elasticsearch/|config/releases.exs'
 reindex=false
 if grep -E $reindex_changes > /dev/null <<< $changed_files; then
-  reindex=true
+  echo "AUTOMATIC HOT SWAP TEMPORARILY DISABLED"
+#  reindex=true
 fi
 echo "Reindex: ${reindex}"
 
