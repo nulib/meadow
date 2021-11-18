@@ -7,13 +7,13 @@ describe("DashboardCsvStatus component", () => {
     render(<DashboardsCsvStatus status="completed" />);
     const statusEl = screen.getByTestId("csv-job-status");
     expect(statusEl).toHaveTextContent(/completed/i);
-    expect(statusEl).toHaveClass("tag is-success");
+    expect(statusEl.className.includes("-isSuccess-true")).toBeTruthy();
   });
 
   it("renders invalid status", () => {
     render(<DashboardsCsvStatus status="invalid" />);
     const statusEl = screen.getByTestId("csv-job-status");
     expect(statusEl).toHaveTextContent(/invalid/i);
-    expect(statusEl).toHaveClass("tag is-danger");
+    expect(statusEl.className.includes("-isDanger-true")).toBeTruthy();
   });
 });
