@@ -139,7 +139,7 @@ defimpl Meadow.IIIF.V3.Resource, for: Meadow.Data.Schemas.Work do
               type: "Text",
               format: "text/vtt",
               label: %Label{
-                en: ["Transcript"]
+                en: ["Chapters"]
               },
               language: "en"
             },
