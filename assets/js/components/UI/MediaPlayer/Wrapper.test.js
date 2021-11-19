@@ -37,7 +37,11 @@ describe("MediaPlayerWrapper component", () => {
   it("renders the poster selector button for a Video work type", async () => {
     renderWithRouterApollo(
       <WorkProvider initialState={initialState}>
-        <MediaPlayerWrapper fileSets={[...mockFileSets]} manifestId="ABC123" />
+        <MediaPlayerWrapper
+          fileSets={[...mockFileSets]}
+          manifestId="ABC123"
+          canvasReady={true}
+        />
       </WorkProvider>
     );
     expect(await screen.findByTestId("set-poster-image-button"));
