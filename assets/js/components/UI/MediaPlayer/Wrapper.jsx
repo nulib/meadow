@@ -25,7 +25,10 @@ const MediaPlayerWrapper = ({ fileSets, manifestId, canvasReady = false }) => {
   };
 
   return (
-    <div className="container" data-testid="media-player-wrapper">
+    <div
+      className="container react-media-player"
+      data-testid="media-player-wrapper"
+    >
       <ReactMediaPlayer
         manifestId={manifestId}
         canvasIdCallback={handleCanvasIdCallback}
