@@ -1,15 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Tag } from "@nulib/design-system";
 function DashboardsCsvStatus({ status }) {
-  let displayStatus = status.toUpperCase();
-  let className = "is-success";
-  if (displayStatus === "INVALID") {
-    className = "is-danger";
-  }
+  const displayStatus = status.toUpperCase();
+  const isError = ["INVALID", "ERROR"].indexOf(displayStatus) > -1;
+  const isPending = displayStatus === "PENDING";
+
   return (
-    <div data-testid="csv-job-status" className={`tag is-light ${className}`}>
+    <Tag
+      data-testid="csv-job-status"
+      isDanger={isError}
+      isSuccess={!isError}
+      isWarning={isPending}
+    >
       {displayStatus}
-    </div>
+    </Tag>
   );
 }
 

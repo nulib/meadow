@@ -2,7 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { formatBytes } from "@js/services/helpers";
 import { IconFile } from "@js/components/Icon";
-import { Notification } from "@nulib/design-system";
+import { Button, Notification } from "@nulib/design-system";
 import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 
 /** @jsx jsx */
@@ -99,11 +99,13 @@ function WorkTabsPreservationFileSetDropzone({
 
       {currentFile && uploadProgress === 100 && (
         <Notification isSuccess>
-          <button onClick={handleRemoveFile} className="delete"></button>
           <h4>
             <strong>File uploaded successfully</strong>
           </h4>
-          <ul>{acceptedFileItems}</ul>
+          <ul className="block">{acceptedFileItems}</ul>
+          <Button css={{ padding: "5px" }} onClick={handleRemoveFile}>
+            Remove file
+          </Button>
         </Notification>
       )}
 

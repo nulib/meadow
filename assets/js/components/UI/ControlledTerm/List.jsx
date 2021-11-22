@@ -31,7 +31,12 @@ const UIControlledTermList = ({ items = [], title }) => {
                   <a
                     href={item.term.id}
                     target="_blank"
-                    className="ml-1 button is-text is-small"
+                    className="button is-text is-small"
+                    style={{
+                      textTransform: "none",
+                      backgroundColor: "#4e2a84",
+                      color: "white",
+                    }}
                     data-testid="external-link"
                   >
                     <span className="icon" title={item.term.id}>

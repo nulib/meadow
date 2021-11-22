@@ -21,6 +21,7 @@ const createPyramidTiff = (source, dest) => {
           fit: "inside",
           withoutEnlargement: true
         })
+        .rotate()
         .tiff({
           compression: "jpeg",
           quality: 75,
