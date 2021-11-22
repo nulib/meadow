@@ -24,8 +24,6 @@ const MediaPlayerWrapper = ({ fileSets, manifestId, canvasReady = false }) => {
     return;
   };
 
-  if (!activeMediaFileSet?.id) return <></>;
-
   return (
     <div className="container" data-testid="media-player-wrapper">
       <ReactMediaPlayer
