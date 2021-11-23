@@ -7,7 +7,7 @@ import {
   ingestSheetUpdatesMock,
 } from "../../components/Project/project.gql.mock";
 import { getPresignedUrlForIngestSheetMock } from "@js/components/IngestSheet/ingestSheet.gql.mock";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
@@ -25,7 +25,7 @@ const mocks = [
   ingestSheetUpdatesMock,
 ];
 
-describe("BatchEditAboutCoreMetadata component", () => {
+describe("Project screen component", () => {
   beforeEach(() => {
     return renderWithRouterApollo(
       <Route path="/project/:id" component={ScreensProject} />,
@@ -50,7 +50,9 @@ describe("BatchEditAboutCoreMetadata component", () => {
     ).toBeInTheDocument();
   });
   it("renders both screen header and screen content components", async () => {
-    expect(await screen.findByTestId("screen-header")).toBeInTheDocument();
-    expect(await screen.findByTestId("screen-content")).toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.getByTestId("screen-header"));
+      expect(screen.getByTestId("screen-content"));
+    });
   });
 });
