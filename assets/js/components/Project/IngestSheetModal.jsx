@@ -40,7 +40,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
       onCompleted({ createIngestSheet }) {
         toastWrapper(
           "is-success",
-          `Ingest Sheet ${currentFile.name} created successfully`
+          `Ingest Sheet ${createIngestSheet.title} created successfully`
         );
         closeModal();
         history.push(
@@ -49,13 +49,18 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
       },
       onError({ graphQLErrors, networkError }) {
         let errorStrings = [];
-        if (graphQLErrors.length > 0) {
+        if (graphQLErrors?.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
               `${message}: ${details && details.title ? details.title : ""}`
           );
         }
-        toastWrapper("is-danger", errorStrings.join(" \n "));
+        toastWrapper(
+          "is-danger",
+          errorStrings.length > 0
+            ? errorStrings.join(" \n ")
+            : "Unknown error occurred creating the Ingest sheet"
+        );
         setCurrentFile(null);
         closeModal();
       },
