@@ -17,7 +17,7 @@ defmodule EDTF.Humanize do
     case values do
       [value | [%{type: "Infinity"}]] -> "from #{humanize(value)}"
       [%{type: "Infinity"} | [value]] -> "before #{humanize(value)}"
-      _ -> values |> Enum.map(&humanize/1) |> Enum.join(" to ")
+      _ -> values |> Enum.map_join(" to ", &humanize/1)
     end
   end
 

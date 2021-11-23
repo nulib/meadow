@@ -170,7 +170,7 @@ defmodule Meadow.Seed.Export do
   end
 
   defp param_to_sql(param) when is_list(param) do
-    "ARRAY[" <> (Enum.map(param, &param_to_sql/1) |> Enum.join(", ")) <> "]"
+    "ARRAY[" <> Enum.map_join(param, ", ", &param_to_sql/1) <> "]"
   end
 
   defp param_to_sql(param) when is_binary(param) do
