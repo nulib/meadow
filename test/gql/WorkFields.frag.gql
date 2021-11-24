@@ -15,6 +15,7 @@ fragment WorkFields on Work {
     title
   }
   published
+  readingRoom
   representativeImage
   ingest_sheet {
     id
