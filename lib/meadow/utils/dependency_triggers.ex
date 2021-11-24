@@ -50,7 +50,7 @@ defmodule Meadow.Utils.DependencyTriggers do
           WHEN 'INSERT' THEN
             IF EXISTS (SELECT FROM new_table) THEN
               UPDATE #{parent} SET updated_at = NOW()
-              WHERE id = ANY (SELECT DISTINCT new_table.id FROM new_table);
+              WHERE id = ANY (SELECT DISTINCT new_table.#{Inflex.singularize(parent)}_id FROM new_table);
             END IF;
           WHEN 'UPDATE' THEN
             IF EXISTS (SELECT FROM new_table) THEN
@@ -63,7 +63,7 @@ defmodule Meadow.Utils.DependencyTriggers do
           WHEN 'DELETE' THEN
             IF EXISTS (SELECT FROM old_table) THEN
               UPDATE #{parent} SET updated_at = NOW()
-              WHERE id = ANY (SELECT DISTINCT old_table.id FROM old_table);
+              WHERE id = ANY (SELECT DISTINCT old_table.#{Inflex.singularize(parent)}_id FROM old_table);
             END IF;
         END CASE;
         RETURN NULL;
