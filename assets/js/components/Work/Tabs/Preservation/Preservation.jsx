@@ -277,12 +277,14 @@ const WorkTabsPreservation = ({ work }) => {
                             </UIDropdownItem>
                             <UIDropdownItem
                               data-testid="button-copy-checksum"
-                              onClick={() =>
-                                clipboard.copy(fileset.coreMetadata.sha256)
-                              }
+                              onClick={() => {
+                                let digests = { ...fileset.coreMetadata.digests };
+                                delete digests["__typename"];
+                                return clipboard.copy(JSON.stringify(digests));
+                              }}
                             >
                               <UIIconText icon={<IconBinaryFile />}>
-                                Copy checksum (sha256) to clipboard
+                                Copy checksums to clipboard
                               </UIIconText>
                             </UIDropdownItem>
                             <UIDropdownItem

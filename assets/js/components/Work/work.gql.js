@@ -215,7 +215,11 @@ export const GET_WORK = gql`
           location
           mimeType
           originalFilename
-          sha256
+          digests {
+            md5
+            sha1
+            sha256
+          }
         }
         extractedMetadata
         insertedAt
@@ -277,7 +281,11 @@ export const GET_WORKS = gql`
           originalFilename
           location
           label
-          sha256
+          digests {
+            md5
+            sha1
+            sha256
+          }
         }
         representativeImageUrl
         insertedAt
@@ -467,7 +475,11 @@ export const INGEST_FILE_SET = gql`
         label
         description
         original_filename
-        sha256
+        digests {
+          md5
+          sha1
+          sha256
+        }
       }
     }
   }

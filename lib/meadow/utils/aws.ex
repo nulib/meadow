@@ -58,6 +58,17 @@ defmodule Meadow.Utils.AWS do
     request.headers ++ generate_aws_signature(request, region, access_key, secret)
   end
 
+  def check_object_tags!(bucket, key, required_tags) do
+    case ExAws.S3.get_object_tagging(bucket, key) |> ExAws.request() do
+      {:ok, %{status_code: 200, body: %{tags: actual_tags}}} ->
+        existing_tags = Enum.map(actual_tags, &Map.get(&1, :key))
+        required_tags -- existing_tags == []
+
+      other ->
+        raise "Unexpected response: #{other}"
+    end
+  end
+
   defp generate_aws_signature(request, region, access_key, secret) do
     signed_request =
       Sigaws.sign_req(
