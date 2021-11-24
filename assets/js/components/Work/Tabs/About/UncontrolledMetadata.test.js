@@ -1,33 +1,41 @@
 import React from "react";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import {
+  renderWithRouterApollo,
+  withReactHookForm,
+} from "@js/services/testing-helpers";
 import { mockWork } from "@js/components/Work/work.gql.mock";
+import { screen } from "@testing-library/react";
 import WorkTabsAboutUncontrolledMetadata from "./UncontrolledMetadata";
 import { waitFor } from "@testing-library/react";
 import { UNCONTROLLED_METADATA } from "@js/services/metadata";
+import { allCodeListMocks } from "../../controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work About tab Uncontrolled Metadata component", () => {
-  function setupTests() {
+  beforeEach(() => {
+    const Wrapped = withReactHookForm(WorkTabsAboutUncontrolledMetadata, {
+      isEditing: true,
+      descriptiveMetadata: mockWork.descriptiveMetadata,
+    });
+
     return renderWithRouterApollo(
-      <WorkTabsAboutUncontrolledMetadata
-        descriptiveMetadata={mockWork.descriptiveMetadata}
-      />
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
     );
-  }
+  });
 
   it("renders uncontrolled metadata component", async () => {
-    let { queryByTestId } = setupTests();
-    await waitFor(() => {
-      expect(queryByTestId("uncontrolled-metadata")).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("uncontrolled-metadata"));
   });
 
   it("renders expected uncontrolled metadata fields", async () => {
-    let { getByTestId } = setupTests(true);
-
-    await waitFor(() => {
-      for (let item of UNCONTROLLED_METADATA) {
-        expect(getByTestId(item.name)).toBeInTheDocument();
-      }
-    });
+    for (let item of UNCONTROLLED_METADATA) {
+      expect(await screen.findByTestId(item.name));
+    }
+    expect(await screen.findByTestId("notes"));
   });
 });

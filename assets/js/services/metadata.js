@@ -296,7 +296,6 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   IDENTIFIER,
   KEYWORDS,
   LEGACY_IDENTIFIER,
-  NOTES,
   PHYSICAL_DESCRIPTION_MATERIAL,
   PHYSICAL_DESCRIPTION_SIZE,
   PRESERVATION_LEVEL,
@@ -325,6 +324,7 @@ export const OTHER_METADATA = [
   DATE_CREATED,
   DESCRIPTION,
   LICENSE,
+  NOTES,
   RELATED_URL,
   RIGHTS_STATEMENT,
   TITLE,
@@ -335,7 +335,6 @@ export const UNCONTROLLED_METADATA = [
   CAPTION,
   CULTURAL_CONTEXT,
   KEYWORDS,
-  NOTES,
   TABLE_OF_CONTENTS,
 ];
 
@@ -367,6 +366,7 @@ export const DESCRIPTIVE_METADATA = {
     GENRE,
     LANGUAGE,
     LOCATION,
+    NOTES,
     STYLE_PERIOD,
     SUBJECT_ROLE,
     TECHNIQUE,
@@ -569,6 +569,26 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
   });
 
   return arr;
+}
+
+/**
+ * Prepares Notes form data for an upcoming GraphQL post
+ * @param {Array} items Array of object entries possible in form
+ * @returns {Array} of properly shaped values for Notes
+ */
+export function prepNotes(items = []) {
+  try {
+    return items.map((item) => ({
+      note: item.note,
+      type: {
+        scheme: "NOTE_TYPE",
+        id: item.typeId,
+      },
+    }));
+  } catch (e) {
+    console.error("Error preparing Notes value for form post");
+    return [];
+  }
 }
 
 /**

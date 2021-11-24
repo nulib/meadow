@@ -4037,7 +4037,7 @@
       citation: ["Citation"],
       cultural_context: ["Context 1", "Context 2"],
       rights_holder: ["Rights Holder"],
-      notes: ["Notes"],
+      notes: [%{note: "Notes", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}],
       physical_description_size: ["12cm"],
       alternate_title: ["That Bruce Campbell Show"],
       catalog_key: ["Catalog Key"],

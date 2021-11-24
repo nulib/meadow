@@ -26,7 +26,7 @@
   license: "http://www.europeana.eu/portal/rights/rr-r.html",
   location:
     "https://sws.geonames.org/2347283/ | https://sws.geonames.org/3530597/ | https://sws.geonames.org/3582677/",
-  notes: "Notes",
+  notes: "GENERAL_NOTE:Notes",
   physical_description_material: "DVD",
   physical_description_size: "12cm",
   preservation_level: "2",

@@ -74,6 +74,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :humanized, :string
   end
 
+  @desc "NoteEntry"
+  object :note_entry do
+    field :note, :string
+    field :type, :coded_term
+  end
+
   @desc "RelatedURLEntry"
   object :related_url_entry do
     field :url, :string
@@ -97,6 +103,12 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :edtf, :string
   end
 
+  @desc "Note input"
+  input_object :note_entry_input do
+    field :note, :string
+    field :type, :coded_term_input
+  end
+
   @desc "Related URL input"
   input_object :related_url_entry_input do
     field :url, :string
@@ -110,6 +122,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     value(:library_unit, as: "library_unit", description: "Library Unit")
     value(:license, as: "license", description: "License")
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
+    value(:note_type, as: "note_type", description: "Note Type")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")
     value(:rights_statement, as: "rights_statement", description: "Rights Statement")
     value(:related_url, as: "related_url", description: "Related URL")

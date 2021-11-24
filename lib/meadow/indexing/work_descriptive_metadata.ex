@@ -1,6 +1,6 @@
 defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.WorkDescriptiveMetadata do
   alias Meadow.Data.Schemas.ControlledMetadataEntry
-  alias Meadow.Data.Schemas.RelatedURLEntry
+  alias Meadow.Data.Schemas.{NoteEntry, RelatedURLEntry}
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata, as: Source
 
   def id(md), do: md.id
@@ -35,6 +35,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.WorkDescriptiveMetadata
     )
   end
 
+  def encode_field(%NoteEntry{} = field), do: Map.from_struct(field)
   def encode_field(%RelatedURLEntry{} = field), do: Map.from_struct(field)
 
   def encode_field(field), do: field

@@ -157,7 +157,14 @@ export const GET_WORK = gql`
             label
           }
         }
-        notes
+        notes {
+          note
+          type {
+            id
+            label
+            scheme
+          }
+        }
         physicalDescriptionMaterial
         physicalDescriptionSize
         provenance

@@ -2,6 +2,8 @@ defmodule Meadow.Data.CSV.ImportTest do
   use Meadow.DataCase
   alias Meadow.Data.CSV.Import
 
+  import Assertions
+
   @sample_record exs_fixture("test/fixtures/csv/import_fixture_31.exs")
 
   describe "csv files" do
@@ -15,7 +17,7 @@ defmodule Meadow.Data.CSV.ImportTest do
     end
 
     test "fields/1", %{subject: subject} do
-      assert subject.headers == Import.fields()
+      assert_lists_equal(subject.headers, Import.fields())
     end
 
     test "stream/1", %{subject: subject} do

@@ -15,6 +15,7 @@ import {
   parseMultiValues,
   prepControlledTermInput,
   prepFacetKey,
+  prepNotes,
   prepRelatedUrl,
   PROJECT_METADATA,
 } from "@js/services/metadata";
@@ -77,6 +78,11 @@ export default function BatchEditTabs() {
     let multiValues = {};
 
     // Process Descriptive metadata items
+    if (currentFormValues.notes?.length > 0) {
+      replaceItems.descriptive.notes = prepNotes(
+        currentFormValues.notes
+      );
+    }
     if (currentFormValues.relatedUrl?.length > 0) {
       replaceItems.descriptive.relatedUrl = prepRelatedUrl(
         currentFormValues.relatedUrl

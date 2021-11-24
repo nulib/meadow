@@ -6,20 +6,30 @@ import {
 } from "../../../services/testing-helpers";
 import BatchEditAboutUncontrolledMetadata from "./UncontrolledMetadata";
 import { UNCONTROLLED_METADATA } from "../../../services/metadata";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("BatchEditAboutUncontrolledMetadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(BatchEditAboutUncontrolledMetadata);
-    return renderWithRouterApollo(<Wrapped />);
+    return renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
+    );
   });
 
-  it("renders the component", () => {
-    expect(screen.getByTestId("uncontrolled-metadata"));
+  it("renders the component", async () => {
+    expect(await screen.findByTestId("uncontrolled-metadata"));
   });
 
-  it("renders expected uncontrolled metadata fields", () => {
+  it("renders expected uncontrolled metadata fields", async () => {
     for (let item of UNCONTROLLED_METADATA) {
-      expect(screen.getByTestId(item.name));
+      expect(await screen.findByTestId(item.name));
     }
+    expect(await screen.findByTestId("notes"));
   });
 });

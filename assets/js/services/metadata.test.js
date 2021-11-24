@@ -11,7 +11,6 @@ describe("getBatchMultiValueDataFromForm()", () => {
     "abstract--editType": "append",
     "caption--editType": "append",
     "keywords--editType": "append",
-    "notes--editType": "append",
     "tableOfContents--editType": "append",
     "boxName--editType": "append",
     "boxNumber--editType": "append",
@@ -175,6 +174,40 @@ describe("prepFieldArrayItemsForPost()", () => {
   });
 });
 
+describe("prepNotes()", () => {
+  var notesFormValues = [
+    {
+      note: "note 1",
+      typeId: "GENERAL_NOTE",
+    },
+    {
+      note: "note 2",
+      typeId: "BIOGRAPHICAL_HISTORICAL_NOTE",
+    },
+  ];
+
+  it("returns a properly formatted array of notes objects ready for form post", () => {
+    let results = metadata.prepNotes(notesFormValues);
+    let expectedResults = [
+      {
+        note: "note 1",
+        type: {
+          scheme: "NOTE_TYPE",
+          id: "GENERAL_NOTE",
+        },
+      },
+      {
+        note: "note 2",
+        type: {
+          scheme: "NOTE_TYPE",
+          id: "BIOGRAPHICAL_HISTORICAL_NOTE",
+        },
+      },
+    ];
+    expect(results).toEqual(expectedResults);
+  });
+});
+
 describe("prepRelatedUrl()", () => {
   var relatedUrlFormValues = [
     {
@@ -187,7 +220,7 @@ describe("prepRelatedUrl()", () => {
     },
   ];
 
-  it("returns a properly formatted array of objects ready for form post", () => {
+  it("returns a properly formatted array of relatedUrl objects ready for form post", () => {
     let results = metadata.prepRelatedUrl(relatedUrlFormValues);
     let expectedResults = [
       {
