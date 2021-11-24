@@ -10,9 +10,11 @@ defmodule Meadow.DatabaseNotification do
 
     def handle_notification(table, operation, key) do
       # Handle the notification here
-      # `table` is the name of the table (as an atom)
+      # `table` is the name of the table that _triggered_ the notification,
+      #    not necessarily the table _receiving_ the notification.
       # `operation` is `:insert`, `:update`, or `:delete`
-      # `key` is a map containing the primary key fields
+      # `key` is a map containing the primary key fields of the row _receiving_
+      #    the notification
       # of the changed record.
 
       :ok
@@ -116,7 +118,7 @@ defmodule Meadow.DatabaseNotification do
                 |> Enum.reduce(state, fn id, new_state ->
                   {:noreply, new_state} =
                     handle_notification(
-                      unquote(table),
+                      Map.get(data, :source) |> String.to_atom(),
                       Map.get(data, :operation) |> String.downcase() |> String.to_atom(),
                       %{id: id},
                       new_state
@@ -145,36 +147,44 @@ defmodule Meadow.DatabaseNotification do
     end
   end
 
-  def create_notification_trigger(table, fields) do
+  def create_notification_trigger(table, fields),
+    do: create_notification_trigger(table, fields, table, "id")
+
+  def create_notification_trigger(table, fields, target, target_field) do
     condition = field_condition(fields)
+    function_name = "notify_#{target}_when_#{table}_changes"
 
     Ecto.Migration.execute("""
-      CREATE OR REPLACE FUNCTION notify_#{table}_changed()
+      CREATE OR REPLACE FUNCTION #{function_name}()
       RETURNS trigger AS $$
       DECLARE
         ids UUID[];
+        id_count INT;
         payload TEXT;
       BEGIN
         CASE TG_OP
           WHEN 'INSERT' THEN
-            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT id, '#{table}' FROM new_table);
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT #{target_field} AS id FROM new_table);
           WHEN 'UPDATE' THEN
-            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT new_table.id, '#{table}'
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT new_table.#{target_field} AS id
               FROM new_table
               JOIN old_table
               ON new_table.id = old_table.id
               AND (#{condition}));
           WHEN 'DELETE' THEN
-            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT id, '#{table}' FROM old_table);
+            CREATE TEMPORARY TABLE notifications AS (SELECT DISTINCT #{target_field} AS id FROM old_table);
           END CASE;
 
-        SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications LIMIT 100) AS notification_ids;
-        WHILE array_length(ids, 1) > 0 LOOP
-          SELECT json_build_object('operation', TG_OP, 'ids', ids)::text INTO payload;
-          RAISE NOTICE 'Sending payload: %', payload;
-          PERFORM pg_notify('#{table}_changed', payload);
+        SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications WHERE id IS NOT NULL LIMIT 100) AS notification_ids;
+        SELECT array_length(ids, 1) INTO id_count;
+
+        WHILE (ids IS NOT NULL) AND (id_count > 0) AND NOT (id_count = 1 AND ids[1] IS NULL) LOOP
+          SELECT json_build_object('operation', TG_OP, 'source', '#{table}', 'ids', ids)::text INTO payload;
+          RAISE NOTICE 'Sending % from % with payload: %', '#{target}_changed', '#{function_name}', payload;
+          PERFORM pg_notify('#{target}_changed', payload);
           DELETE FROM notifications WHERE id = ANY(ids);
-          SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications LIMIT 100) AS notification_ids;
+          SELECT array_agg(id) INTO ids FROM (SELECT id FROM notifications WHERE id IS NOT NULL LIMIT 100) AS notification_ids;
+          SELECT array_length(ids, 1) INTO id_count;
         END LOOP;
         DROP TABLE notifications;
         RETURN NULL;
@@ -182,32 +192,50 @@ defmodule Meadow.DatabaseNotification do
       $$ LANGUAGE plpgsql;
     """)
 
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_insert ON #{table}")
+
     Ecto.Migration.execute("""
-      CREATE TRIGGER #{table}_changed_insert
+      CREATE TRIGGER #{function_name}_insert
         AFTER INSERT ON #{table}
         REFERENCING NEW TABLE AS new_table
         FOR EACH STATEMENT
-        EXECUTE PROCEDURE notify_#{table}_changed()
+        EXECUTE PROCEDURE #{function_name}()
     """)
 
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_update ON #{table}")
+
     Ecto.Migration.execute("""
-      CREATE TRIGGER #{table}_changed_update
+      CREATE TRIGGER #{function_name}_update
         AFTER UPDATE ON #{table}
         REFERENCING OLD TABLE AS old_table NEW TABLE AS new_table
         FOR EACH STATEMENT
-        EXECUTE PROCEDURE notify_#{table}_changed()
+        EXECUTE PROCEDURE #{function_name}()
     """)
 
+    Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_delete ON #{table}")
+
     Ecto.Migration.execute("""
-      CREATE TRIGGER #{table}_changed_delete
+      CREATE TRIGGER #{function_name}_delete
         AFTER DELETE ON #{table}
         REFERENCING OLD TABLE AS old_table
         FOR EACH STATEMENT
-        EXECUTE PROCEDURE notify_#{table}_changed()
+        EXECUTE PROCEDURE #{function_name}()
     """)
   end
 
-  def drop_notification_trigger(table) do
+  def drop_notification_trigger(table), do: drop_notification_trigger(table, table)
+
+  def drop_notification_trigger(table, target) do
+    with function_name <- "notify_#{target}_when_#{table}_changes" do
+      Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name} ON #{table}")
+      Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_insert ON #{table}")
+      Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_update ON #{table}")
+      Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{function_name}_delete ON #{table}")
+      Ecto.Migration.execute("DROP FUNCTION IF EXISTS #{function_name}")
+    end
+  end
+
+  def drop_old_notification_trigger(table) do
     Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed ON #{table}")
     Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed_insert ON #{table}")
     Ecto.Migration.execute("DROP TRIGGER IF EXISTS #{table}_changed_update ON #{table}")

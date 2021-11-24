@@ -31,6 +31,8 @@ defmodule Meadow.ARKListener do
     Ecto.NoResultsError -> {:noreply, state}
   end
 
+  def handle_notification(_, _, _, state), do: {:noreply, state}
+
   defp update_ark_metadata(work) do
     Logger.info(
       "Updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}"

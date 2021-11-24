@@ -9,7 +9,7 @@ defmodule Meadow.DatabaseNotificationTest do
     use Ecto.Migration
     import DatabaseNotification
 
-    @table :database_notification_test
+    @table :notify_test
 
     def up do
       create table(@table) do
@@ -26,10 +26,10 @@ defmodule Meadow.DatabaseNotificationTest do
   end
 
   defmodule NotificationTestListener do
-    use DatabaseNotification, tables: [:database_notification_test]
+    use DatabaseNotification, tables: [:notify_test]
 
     @impl true
-    def handle_notification(:database_notification_test, op, key, listener) do
+    def handle_notification(:notify_test, op, key, listener) do
       send(listener, {op, key})
       {:noreply, listener}
     end
@@ -43,7 +43,7 @@ defmodule Meadow.DatabaseNotificationTest do
       Ecto.Migrator.down(repo, @migration_version, NotificationTestMigration)
     end)
 
-    sql = "INSERT INTO database_notification_test (data) VALUES ('initial value') RETURNING id"
+    sql = "INSERT INTO notify_test (data) VALUES ('initial value') RETURNING id"
 
     [[uuid]] =
       repo
@@ -65,7 +65,7 @@ defmodule Meadow.DatabaseNotificationTest do
   describe "update" do
     setup %{repo: repo} do
       assert_receive({:insert, _})
-      SQL.query!(repo, "UPDATE database_notification_test SET data = 'updated value'")
+      SQL.query!(repo, "UPDATE notify_test SET data = 'updated value'")
       :ok
     end
 
@@ -79,7 +79,7 @@ defmodule Meadow.DatabaseNotificationTest do
   describe "delete" do
     setup %{repo: repo} do
       assert_receive({:insert, _})
-      SQL.query!(repo, "DELETE FROM database_notification_test")
+      SQL.query!(repo, "DELETE FROM notify_test")
       :ok
     end
 
