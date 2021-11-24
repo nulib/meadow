@@ -206,6 +206,7 @@ export const INGEST_SHEET_WORKS = gql`
       manifestUrl
       published
       representativeImage
+      readingRoom
       updatedAt
       workType {
         id
