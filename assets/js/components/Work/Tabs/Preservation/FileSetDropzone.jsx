@@ -103,7 +103,16 @@ function WorkTabsPreservationFileSetDropzone({
             <strong>File uploaded successfully</strong>
           </h4>
           <ul className="block">{acceptedFileItems}</ul>
-          <Button css={{ padding: "5px" }} onClick={handleRemoveFile}>
+          <Button
+            css={{
+              padding: "5px",
+              textDecoration: "underline",
+              textTransform: "unset",
+              color: "White",
+            }}
+            isText
+            onClick={handleRemoveFile}
+          >
             Remove file
           </Button>
         </Notification>

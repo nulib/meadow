@@ -50,12 +50,17 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
     methods.setValue("workType", workTypeData.codeList[0].id);
   }, [workTypeData]);
 
-  if (mutationError || workTypeError)
+  if (mutationError || workTypeError) {
+    let msg = mutationError
+      ? typeof mutationError === "object"
+        ? mutationError.toString()
+        : mutationError
+      : workTypeError;
+
     return (
-      <Notification isDanger>
-        Error loading GraphQL data: {mutationError || workTypeError}
-      </Notification>
+      <Notification isDanger>Error loading GraphQL data: {msg}</Notification>
     );
+  }
   if (loading) return <Loading />;
 
   const onSubmit = (data) => {
