@@ -98,7 +98,7 @@ jobs:
         run: npm run-script prettier
         working-directory: assets
       - name: JS Tests
-        run: npm run-script ci -- -w 1
+        run: npm run-script ci:silent -- -w 1
         working-directory: assets
       - name: Test Webpack Build
         run: npm run-script deploy

@@ -5,11 +5,12 @@
     "deploy": "webpack --mode production",
     "watch": "webpack --mode development --watch",
     "ci": "jest --ci --coverage",
-    "ci-local": "TZ=UTC jest --ci --coverage && echo \"Exit status: $?\"",
+    "ci:silent": "jest --ci --coverage --silent",
+    "ci:local": "TZ=UTC jest --ci --coverage && echo \"Exit status: $?\"",
     "test": "TZ=UTC jest --watch",
     "test:silent": "TZ=UTC jest --watch --silent",
     "prettier": "prettier --check js/**/*.js* styles/**/*.scss ./*.js ./*.json",
-    "prettier-fix": "prettier --write js/**/*.js* styles/**/*.scss ./*.js ./*.json"
+    "prettier:fix": "prettier --write js/**/*.js* styles/**/*.scss ./*.js ./*.json"
   },
   "prettier": "@nulib/prettier-config",
   "dependencies": {
