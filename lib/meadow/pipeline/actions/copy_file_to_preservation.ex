@@ -8,6 +8,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Utils.AWS
   alias Sequins.Pipeline.Action
   use Action
   use Meadow.Pipeline.Actions.Common
@@ -74,7 +75,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
         |> Enum.map(fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
         |> Enum.join("&")
 
-      case ExAws.S3.put_object_copy(
+      case AWS.copy_object(
              dest_bucket,
              dest_key,
              src_bucket,
@@ -84,8 +85,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
              meta: s3_metadata,
              tagging: tagging,
              tagging_directive: :REPLACE
-           )
-           |> ExAws.request() do
+           ) do
         {:ok, _} -> {:ok, dest_location}
         {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
         {:error, other} -> {:error, inspect(other)}
