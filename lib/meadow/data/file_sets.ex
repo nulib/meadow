@@ -325,21 +325,25 @@ defmodule Meadow.Data.FileSets do
   end
 
   def duration_in_milliseconds(%FileSet{extracted_metadata: %{"mediainfo" => mediainfo}}) do
-    with {duration, _} <-
-           Float.parse(
-             get_in(mediainfo, [
-               "value",
-               "media",
-               "track",
-               Access.at(0),
-               "Duration"
-             ])
-           ) do
-      duration * 1000
+    case mediainfo do
+      %{"value" => %{"media" => %{"track" => [%{"Duration" => duration_string} | _]}}} ->
+        parse_duration_string(duration_string)
+
+      _ ->
+        nil
     end
   end
 
   def duration_in_milliseconds(_), do: nil
+
+  defp parse_duration_string(value) when is_binary(value) do
+    case Float.parse(value) do
+      {duration, _} -> duration * 1000
+      :error -> nil
+    end
+  end
+
+  defp parse_duration_string(_), do: nil
 
   def height(%FileSet{
         role: %{id: "A"},
