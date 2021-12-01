@@ -231,28 +231,25 @@ export const FACET_TECHNICAL_METADATA_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "FillOrder",
-    dataField: "fileSets.extractedMetadata.exif.value.fillOrder.keyword",
-    title: "Fill Order",
-  },
-  {
-    ...defaultListItemValues,
     componentId: "GrayResponseUnit",
     dataField: "fileSets.extractedMetadata.exif.value.grayResponseUnit.keyword",
     title: "Gray Response Unit",
   },
-  {
-    ...defaultListItemValues,
-    componentId: "Make",
-    dataField: "fileSets.extractedMetadata.exif.value.make.keyword",
-    title: "Make",
-  },
-  {
-    ...defaultListItemValues,
-    componentId: "Model",
-    dataField: "fileSets.extractedMetadata.exif.value.model.keyword",
-    title: "Model",
-  },
+  /**
+   * NOTE: Bad data reported in these facets, so temporarily hiding from UI display
+   */
+  // {
+  //   ...defaultListItemValues,
+  //   componentId: "Make",
+  //   dataField: "fileSets.extractedMetadata.exif.value.make.keyword",
+  //   title: "Make",
+  // },
+  // {
+  //   ...defaultListItemValues,
+  //   componentId: "Model",
+  //   dataField: "fileSets.extractedMetadata.exif.value.model.keyword",
+  //   title: "Model",
+  // },
   {
     ...defaultListItemValues,
     componentId: "PlanarConfiguration",

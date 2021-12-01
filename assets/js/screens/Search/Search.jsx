@@ -39,7 +39,6 @@ async function getParsedAggregations(query) {
 
 const ScreensSearch = () => {
   let history = useHistory();
-  const location = useLocation();
   const [isListView, setIsListView] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteredQuery, setFilteredQuery] = useState();
