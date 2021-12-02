@@ -56,7 +56,9 @@ const WorkCardItem = ({
             />
           )}
         </div>
-        <p data-testid={`work-title-${id}`}>{title}</p>
+        <p data-testid={`work-title-${id}`} css={breakWord}>
+          {title}
+        </p>
         <p data-testid="accession-number" css={breakWord}>
           {accessionNumber}
         </p>
