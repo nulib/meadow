@@ -10,6 +10,12 @@ import UIWorkImage from "../UI/WorkImage";
 import { Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 
+/** @jsx jsx */
+import { css, jsx } from "@emotion/react";
+const breakWord = css`
+  word-break: break-all;
+`;
+
 const WorkListItem = ({
   id,
   representativeImage,
@@ -37,7 +43,9 @@ const WorkListItem = ({
         </figure>
         <div className="media-content">
           <p className="small-title block">
-            <Link to={`/work/${id}`}>{title ? title : "Untitled"}</Link>
+            <Link to={`/work/${id}`} css={breakWord}>
+              {title ? title : "Untitled"}
+            </Link>
           </p>
           <div className="tags">
             <Tag isInfo>{workType.label}</Tag>
