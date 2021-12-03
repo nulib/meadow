@@ -5,6 +5,8 @@ defmodule Meadow.Utils.AWS do
   Utility functions for AWS requests and object management
   """
   alias Meadow.Error
+  alias Meadow.Utils.AWS.MultipartCopy
+
   import SweetXml, only: [sigil_x: 2]
 
   @doc """
@@ -68,6 +70,9 @@ defmodule Meadow.Utils.AWS do
         raise "Unexpected response: #{other}"
     end
   end
+
+  def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []),
+    do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
   defp generate_aws_signature(request, region, access_key, secret) do
     signed_request =
