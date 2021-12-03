@@ -27,10 +27,11 @@ defmodule Meadow.Repo.Migrations.ChangeNotesToEmbeddedSchema do
   end
 
   defp transform_notes(transformer) do
+    execute "ALTER TABLE works DISABLE TRIGGER USER"
     Repo.transaction(fn ->
       from(
         w in "works",
-        where: fragment("descriptive_metadata->'notes' IS NOT NULL"),
+        where: fragment("descriptive_metadata->'notes' != '[]'::jsonb"),
         select: %{
           id: w.id,
           descriptive_metadata: w.descriptive_metadata
@@ -45,5 +46,6 @@ defmodule Meadow.Repo.Migrations.ChangeNotesToEmbeddedSchema do
       end)
       |> Stream.run()
     end)
+    execute "ALTER TABLE works ENABLE TRIGGER USER"
   end
 end
