@@ -130,6 +130,13 @@ defmodule Meadow.Data.CSV.Export do
     end
   end
 
+  defp to_field(%{"note" => note, "type" => type}) do
+    case normalize_coded_term(type) do
+      nil -> note
+      prefix -> [prefix, note] |> Enum.join(":")
+    end
+  end
+
   defp to_field(%{"id" => id}), do: id
 
   defp to_field(%{}), do: nil

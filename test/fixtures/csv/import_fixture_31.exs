@@ -64,7 +64,7 @@
       %{term: %{id: "http://vocab.getty.edu/aat/300053376"}}
     ],
     box_name: ["Box 1"],
-    notes: ["Notes"],
+    notes: [%{note: "Notes", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}],
     rights_statement: %{
       id: "http://rightsstatements.org/vocab/InC/1.0/",
       scheme: "rights_statement"

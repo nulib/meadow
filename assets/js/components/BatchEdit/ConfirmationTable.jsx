@@ -23,12 +23,14 @@ export default function BatchEditConfirmationTable({
 }) {
   if (
     !codeLists.marcData ||
+    !codeLists.notesData ||
     !codeLists.relatedUrlData ||
     !codeLists.subjectRoleData
   )
     return null;
 
   const marcRelators = codeLists.marcData.codeList || [];
+  const notes = codeLists.notesData.codeList || [];
   const relatedUrls = codeLists.relatedUrlData.codeList || [];
 
   function getRoleLabel(roleId) {
@@ -39,6 +41,11 @@ export default function BatchEditConfirmationTable({
       );
     }
     return foundItem?.label || "No role label found";
+  }
+
+  function getNotesLabel(note) {
+    let foundItem = notes.find((item) => item.id === note);
+    return foundItem.label || "No Notes label found";
   }
 
   function getUrlLabel(url) {
@@ -88,6 +95,14 @@ export default function BatchEditConfirmationTable({
               rowKey = `${item.term}-${item.label}`;
               value = `${item.label} | ${item.term} | ${
                 item.role && getRoleLabel(item.role.id)
+              }`;
+            }
+
+            // Notes.
+            if (typeof item === "object" && item.note) {
+              rowKey = item.note;
+              value = `${item.note} | ${
+                item.type && getNotesLabel(item.type.id)
               }`;
             }
 

@@ -134,7 +134,7 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :identifier, list_of(:string)
     field :keywords, list_of(:string)
     field :legacy_identifier, list_of(:string)
-    field :notes, list_of(:string)
+    field :notes, list_of(:note_entry_input)
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
     field :provenance, list_of(:string)

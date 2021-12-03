@@ -1,0 +1,44 @@
+[
+  {
+    "id": "AWARDS",
+    "label": "Awards"
+  },
+  {
+    "id": "BIOGRAPHICAL_HISTORICAL_NOTE",
+    "label": "Biographical/Historical Note"
+  },
+  {
+    "id": "CREATION_PRODUCTION_CREDITS",
+    "label": "Creation/Production Credits"
+  },
+  {
+    "id": "GENERAL_NOTE",
+    "label": "General Note"
+  },
+  {
+    "id": "LANGUAGE_NOTE",
+    "label": "Language Note"
+  },
+  {
+    "id": "LOCAL_NOTE",
+    "label": "Local Note"
+  },
+  {
+    "id": "PERFORMERS",
+    "label": "Performers"
+  },
+  {
+    "id": "STATEMENT_OF_RESPONSIBILITY",
+    "label": "Statement of Responsibility"
+  },
+  {
+    "id": "VENUE_EVENT_DATE",
+    "label": "Venue/Event Date"
+  }
+]
+
+
+
+
+
+

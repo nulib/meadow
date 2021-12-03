@@ -49,6 +49,17 @@ function CodeListProvider({ children }) {
     throw new Error("Error getting marc data");
   }
 
+  // GET NOTES
+  const {
+    data: notesData,
+    error: notesError,
+    loading: notesLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "NOTE_TYPE" } });
+
+  if (notesError) {
+    throw new Error("Error getting notes data");
+  }
+
   // GET PRESERVATION_LEVEL DATA
   const {
     data: preservationLevelData,
@@ -136,6 +147,7 @@ function CodeListProvider({ children }) {
         libraryUnitData,
         licenseData,
         marcData,
+        notesData,
         preservationLevelData,
         relatedUrlData,
         rightsStatementData,
@@ -148,6 +160,7 @@ function CodeListProvider({ children }) {
             libraryUnitLoading ||
             licenseLoading ||
             marcLoading ||
+            notesLoading ||
             preservationLevelLoading ||
             relatedUrlLoading ||
             rightsStatementLoading ||

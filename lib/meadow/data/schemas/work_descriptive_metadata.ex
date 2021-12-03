@@ -5,7 +5,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
   import Ecto.Changeset
   use Ecto.Schema
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, RelatedURLEntry}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
   alias Meadow.Data.Types
 
   # {field_name, repeating}
@@ -25,7 +25,6 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:identifier, true},
     {:keywords, true},
     {:legacy_identifier, true},
-    {:notes, true},
     {:terms_of_use, false},
     {:physical_description_material, true},
     {:physical_description_size, true},
@@ -83,6 +82,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
       field f, {:array, Types.EDTFDate}, default: []
     end)
 
+    embeds_many(:notes, NoteEntry, on_replace: :delete)
     embeds_many(:related_url, RelatedURLEntry, on_replace: :delete)
 
     timestamps()
@@ -92,6 +92,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     changeset =
       metadata
       |> cast(params, permitted())
+      |> cast_embed(:notes)
       |> cast_embed(:related_url)
 
     @controlled_fields

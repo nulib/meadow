@@ -9,6 +9,7 @@ defmodule Meadow.Data.CodedTermsTest do
     "library_unit",
     "license",
     "marc_relator",
+    "note_type",
     "preservation_level",
     "related_url",
     "rights_statement",

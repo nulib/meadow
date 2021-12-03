@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
 import {
   marcRelatorMock,
+  notesSchemeMock,
   relatedUrlSchemeMock,
   subjectMock,
 } from "@js/components/Work/controlledVocabulary.gql.mock";
@@ -10,6 +11,7 @@ import {
 const props = {
   codeLists: {
     marcData: { codeList: marcRelatorMock },
+    notesData: {codeList: notesSchemeMock},
     relatedUrlData: { codeList: relatedUrlSchemeMock },
     subjectRoleData: { codeList: subjectMock },
   },
@@ -22,7 +24,13 @@ const props = {
       },
     ],
     alternateTitle: ["gggg"],
-    notes: ["asdfasf", "gggggg"],
+    notes: [
+      { note: "asdfasf", type: { id: "GENERAL_NOTE", scheme: "NOTE_TYPE" } },
+      {
+        note: "gggggg",
+        type: { id: "BIOGRAPHICAL_HISTORICAL_NOTE", scheme: "NOTE_TYPE" },
+      },
+    ],
   },
   type: "add",
 };
