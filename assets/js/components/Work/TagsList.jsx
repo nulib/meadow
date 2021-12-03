@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Tag } from "@nulib/design-system";
+import { Icon, Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 import { IconAudio, IconImages, IconVideo } from "../Icon";
 
@@ -13,9 +13,11 @@ export default function WorkTagsList({ work }) {
     const id = work.workType.id;
     return (
       <>
-        {id === "AUDIO" && <IconAudio />}
-        {id === "VIDEO" && <IconVideo />}
-        {id === "IMAGE" && <IconImages />}
+        <Icon>
+          {id === "AUDIO" && <Icon.Audio />}
+          {id === "IMAGE" && <Icon.Image />}
+          {id === "VIDEO" && <Icon.Video />}
+        </Icon>
         <span>{work.workType.label}</span>
       </>
     );
@@ -23,7 +25,11 @@ export default function WorkTagsList({ work }) {
 
   return (
     <div className="tags">
-      {work.workType && <Tag isInfo>{renderWorkType()}</Tag>}
+      {work.workType && (
+        <Tag isInfo isIcon>
+          {renderWorkType()}
+        </Tag>
+      )}
       {work.published ? (
         <Tag isSuccess>Published</Tag>
       ) : (
