@@ -10,19 +10,14 @@ defmodule Meadow.Pipeline do
   alias Meadow.Pipeline.Actions.Dispatcher
   alias Meadow.Utils.AWS
 
+  require Logger
+
   import WaitForIt
 
   def ingest_file_set(attrs \\ %{}) do
-    case wait_for_checksum_tags(attrs) do
-      :ok -> do_ingest_file_set(attrs)
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp do_ingest_file_set(attrs) do
     case FileSets.create_file_set(attrs) do
       {:ok, file_set} ->
-        kickoff(file_set, %{role: file_set.role.id})
+        Task.async(fn -> wait_for_checksum_tags(file_set) end)
         {:ok, file_set}
 
       {:error, changeset} ->
@@ -43,22 +38,19 @@ defmodule Meadow.Pipeline do
     end
   end
 
-  defp wait_for_checksum_tags(%{core_metadata: %{location: location}} = attrs) do
+  defp wait_for_checksum_tags(%{core_metadata: %{location: location}} = file_set) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(location) do
       case wait(AWS.check_object_tags!(bucket, key, Config.required_checksum_tags()),
              timeout: Config.checksum_wait_timeout(),
              frequency: 1_000
            ) do
         {:ok, true} ->
-          :ok
+          kickoff(file_set, %{role: file_set.role.id})
 
         {:timeout, timeout} ->
-          {:error,
-           FileSet.changeset(attrs)
-           |> Ecto.Changeset.add_error(
-             :checksums,
-             "Timed out after #{timeout}ms waiting for checksum tags"
-           )}
+          Logger.error(
+            "Timed out after #{timeout}ms waiting for checksum tags for file set id: #{file_set.id}"
+          )
       end
     end
   end
