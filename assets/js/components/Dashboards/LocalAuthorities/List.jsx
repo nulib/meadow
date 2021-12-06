@@ -12,7 +12,7 @@ import {
 } from "@js/components/Dashboards/dashboards.gql";
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
 import { Button, Notification } from "@nulib/design-system";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { toastWrapper } from "@js/services/helpers";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
 import UIFormInput from "@js/components/UI/Form/Input";
@@ -23,6 +23,7 @@ const colHeaders = ["Label", "Hint"];
 
 export default function DashboardsLocalAuthoritiesList() {
   const client = useApolloClient();
+  const history = useHistory();
   const [currentAuthority, setCurrentAuthority] = React.useState();
   const [filteredAuthorities, setFilteredAuthorities] = React.useState([]);
   const [modalsState, setModalsState] = React.useState({
@@ -51,7 +52,7 @@ export default function DashboardsLocalAuthoritiesList() {
         },
       });
     } else {
-      setFilteredAuthorities(data.nulAuthorityRecords);
+      setFilteredAuthorities([...data.nulAuthorityRecords]);
     }
   }
 
@@ -109,7 +110,7 @@ export default function DashboardsLocalAuthoritiesList() {
   ] = useLazyQuery(AUTHORITIES_SEARCH, {
     fetchPolicy: "network-only",
     onCompleted: (data) => {
-      setFilteredAuthorities(dataAuthoritiesSearch.authoritiesSearch);
+      setFilteredAuthorities([...data.authoritiesSearch]);
     },
     onError({ graphQLErrors, networkError }) {
       console.error("graphQLErrors", graphQLErrors);
@@ -170,6 +171,12 @@ export default function DashboardsLocalAuthoritiesList() {
     setSearchValue(e.target.value);
   };
 
+  const handleViewClick = (id) => {
+    history.push("/search", {
+      passedInSearchTerm: `all_controlled_terms:\"${id}\"`,
+    });
+  };
+
   return (
     <React.Fragment>
       <SearchBarRow isCentered>
@@ -218,6 +225,14 @@ export default function DashboardsLocalAuthoritiesList() {
                         <IconEdit />
                       </Button>
                       <Button
+                        onClick={() => handleViewClick(id)}
+                        isLight
+                        data-testid="button-to-search"
+                        title="View works containing this record"
+                      >
+                        <IconImages />
+                      </Button>
+                      <Button
                         isLight
                         data-testid="delete-button"
                         className="is-small"
@@ -225,19 +240,6 @@ export default function DashboardsLocalAuthoritiesList() {
                       >
                         <IconTrashCan />
                       </Button>
-                      <Link
-                        data-testid="button-to-search"
-                        className="button is-small is-light"
-                        title="View works containing this record"
-                        to={{
-                          pathname: "/search",
-                          state: {
-                            passedInSearchTerm: `all_controlled_terms:\"${id}\"`,
-                          },
-                        }}
-                      >
-                        <IconImages />
-                      </Link>
                     </div>
                   </td>
                 </tr>
