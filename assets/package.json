@@ -25,7 +25,7 @@
     "@honeybadger-io/js": "^3.2.7",
     "@honeybadger-io/react": "^2.0.0",
     "@nulib/design-system": "^1.3.5",
-    "@nulib/react-media-player": "^1.5.0",
+    "@nulib/react-media-player": "^1.5.2",
     "@samvera/image-downloader": "^1.1.1",
     "bulma": "^0.9.3",
     "bulma-checkradio": "^2.1.2",
