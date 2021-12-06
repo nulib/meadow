@@ -16,6 +16,9 @@ describe("useAcceptedMimeTypes hook", () => {
     const { isFileValid } = useAcceptedMimeTypes();
     const result = isFileValid("S", "IMAGE", "application/*");
     expect(result.isValid).toBeTruthy();
+
+    const resultNoMimeType = isFileValid("S", "", "");
+    expect(resultNoMimeType.isValid).toBeTruthy();
   });
 
   it("returns valid states for a auxiliary role", () => {
