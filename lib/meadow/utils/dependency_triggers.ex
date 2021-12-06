@@ -15,21 +15,27 @@ defmodule Meadow.Utils.DependencyTriggers do
         CASE TG_OP
           WHEN 'INSERT' THEN
             IF EXISTS (SELECT FROM new_table) THEN
-              UPDATE #{child} SET updated_at = NOW()
-              WHERE #{Inflex.singularize(column_name)}_id = ANY (SELECT DISTINCT new_table.id FROM new_table);
+              DELETE FROM index_times
+              USING #{child}
+              WHERE index_times.id = #{child}.id
+              AND #{child}.#{Inflex.singularize(column_name)}_id = ANY (SELECT DISTINCT new_table.id FROM new_table);
             END IF;
           WHEN 'UPDATE' THEN
             IF EXISTS (SELECT FROM new_table) THEN
-              UPDATE #{child} SET updated_at = NOW()
-              WHERE #{Inflex.singularize(column_name)}_id = ANY (
+              DELETE FROM index_times
+              USING #{child}
+              WHERE index_times.id = #{child}.id
+              AND #{child}.#{Inflex.singularize(column_name)}_id = ANY (
                 SELECT DISTINCT new_table.id
                 FROM new_table JOIN old_table ON new_table.id = old_table.id AND (#{condition})
               );
             END IF;
           WHEN 'DELETE' THEN
             IF EXISTS (SELECT FROM old_table) THEN
-              UPDATE #{child} SET updated_at = NOW()
-              WHERE #{Inflex.singularize(column_name)}_id = ANY (SELECT DISTINCT old_table.id FROM old_table);
+              DELETE FROM index_times
+              USING #{child}
+              WHERE index_times.id = #{child}.id
+              AND #{child}.#{Inflex.singularize(column_name)}_id = ANY (SELECT DISTINCT old_table.id FROM old_table);
             END IF;
         END CASE;
         RETURN NULL;
@@ -49,21 +55,27 @@ defmodule Meadow.Utils.DependencyTriggers do
         CASE TG_OP
           WHEN 'INSERT' THEN
             IF EXISTS (SELECT FROM new_table) THEN
-              UPDATE #{parent} SET updated_at = NOW()
-              WHERE id = ANY (SELECT DISTINCT new_table.id FROM new_table);
+              DELETE FROM index_times
+              USING #{parent}
+              WHERE index_times.id = #{parent}.id
+              AND #{parent}.id = ANY (SELECT DISTINCT new_table.#{Inflex.singularize(parent)}_id FROM new_table);
             END IF;
           WHEN 'UPDATE' THEN
             IF EXISTS (SELECT FROM new_table) THEN
-              UPDATE #{parent} SET updated_at = NOW()
-              WHERE id = ANY (
+              DELETE FROM index_times
+              USING #{parent}
+              WHERE index_times.id = #{parent}.id
+              AND #{parent}.id = ANY (
                 SELECT DISTINCT new_table.#{Inflex.singularize(parent)}_id
                 FROM new_table JOIN old_table ON new_table.id = old_table.id AND (#{condition})
               );
             END IF;
           WHEN 'DELETE' THEN
             IF EXISTS (SELECT FROM old_table) THEN
-              UPDATE #{parent} SET updated_at = NOW()
-              WHERE id = ANY (SELECT DISTINCT old_table.id FROM old_table);
+              DELETE FROM index_times
+              USING #{parent}
+              WHERE index_times.id = #{parent}.id
+              AND #{parent}.id = ANY (SELECT DISTINCT old_table.#{Inflex.singularize(parent)}_id FROM old_table);
             END IF;
         END CASE;
         RETURN NULL;
