@@ -2,6 +2,11 @@
 
 export default function useAcceptedMimeTypes() {
   function isFileValid(fileSetRole, workTypeId, mimeType) {
+    // Automatically pass through Supplemental file types
+    if (fileSetRole === "S") {
+      return { code: "", message: "", isValid: true };
+    }
+
     if (!fileSetRole || !workTypeId || !mimeType) {
       return { isValid: false };
     }
@@ -15,9 +20,6 @@ export default function useAcceptedMimeTypes() {
     let isValid = true;
 
     switch (fileSetRole) {
-      case "S":
-        return { code, message, isValid };
-
       case "X":
         if (!isImage) {
           isValid = false;
