@@ -76,8 +76,10 @@ config :meadow, Meadow.ElasticsearchCluster,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
       ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500
+      bulk_page_size:
+        System.get_env("ELASTICSEARCH_BULK_PAGE_SIZE", "200") |> String.to_integer(),
+      bulk_wait_interval:
+        System.get_env("ELASTICSEARCH_BULK_WAIT_INTERVAL", "2000") |> String.to_integer()
     }
   }
 
