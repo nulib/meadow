@@ -7,13 +7,14 @@ defmodule Meadow.Data.PipelineTest do
   use ExUnit.Case
 
   alias Meadow.Config
-  alias Meadow.Data.ActionStates
-  alias Meadow.Data.Schemas.{ActionState, FileSet}
+  alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Pipeline
   alias Meadow.Pipeline.Actions.Dispatcher
   alias Meadow.Utils.AWS
 
   import Assertions
+  import ExUnit.CaptureLog
   import WaitForIt
 
   @tiff_fixture File.read!("test/fixtures/coffee.tif")
@@ -40,11 +41,6 @@ defmodule Meadow.Data.PipelineTest do
       assert {:ok, %FileSet{} = _file_set} = Pipeline.ingest_file_set(@valid_attrs)
     end
 
-    test "ingest_file_set/1 kicks off the ingest pipeline for a file set" do
-      {:ok, file_set} = Pipeline.ingest_file_set(@valid_attrs)
-      assert [%ActionState{} | _states] = ActionStates.get_states(file_set.id)
-    end
-
     test "kickoff pipeline creates action_state records for initial common actions" do
       preservation_attrs = %{
         accession_number: "12345",
@@ -56,7 +52,9 @@ defmodule Meadow.Data.PipelineTest do
         }
       }
 
-      {:ok, file_set} = Pipeline.ingest_file_set(preservation_attrs)
+      {:ok, file_set} = FileSets.create_file_set(preservation_attrs)
+
+      Pipeline.kickoff(file_set, %{role: file_set.role.id})
 
       assert ActionStates.get_states(file_set.id) |> length() ==
                Dispatcher.initial_actions() |> length()
@@ -103,9 +101,14 @@ defmodule Meadow.Data.PipelineTest do
     end
 
     test "ingest_file_set/1 times out waiting for checksums" do
-      assert {:error, %Ecto.Changeset{} = changeset} = Pipeline.ingest_file_set(@valid_attrs)
-      assert {message, []} = changeset |> Map.get(:errors) |> Keyword.get(:checksums)
-      assert message |> String.contains?("Timed out")
+      logged =
+        capture_log(fn ->
+          Pipeline.ingest_file_set(@valid_attrs)
+          :timer.sleep(Config.checksum_wait_timeout() * 2)
+        end)
+
+      assert logged
+             |> String.contains?("Timed out after 1000ms waiting for checksum tags")
     end
   end
 end

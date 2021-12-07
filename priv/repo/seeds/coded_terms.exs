@@ -1,6 +1,5 @@
 defmodule Meadow.Repo.Seeds.CodedTerms do
   alias Meadow.Data.CodedTerms
-  alias Meadow.Repo
 
   def run do
     Path.relative_to_cwd(__ENV__.file)
