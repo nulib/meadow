@@ -9,6 +9,7 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   """
   alias Meadow.Data.{ActionStates, FileSets}
   alias Sequins.Pipeline.Action
+  alias Meadow.Utils.Stream
 
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
@@ -54,6 +55,13 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   @access_video_actions @access_audio_actions
 
+  @skip_transcode_actions [
+    GenerateFileSetDigests,
+    CopyFileToPreservation,
+    ExtractMediaMetadata,
+    FileSetComplete
+  ]
+
   @preservation_actions [
     GenerateFileSetDigests,
     CopyFileToPreservation,
@@ -84,7 +92,8 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
                  @preservation_audio_actions,
                  @preservation_video_actions,
                  @access_audio_actions,
-                 @access_video_actions
+                 @access_video_actions,
+                 @skip_transcode_actions
                ]
                |> List.flatten()
                |> Enum.uniq()
@@ -112,14 +121,32 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "image/" <> _}}),
     do: @preservation_image_actions
 
-  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}}),
-    do: @access_audio_actions
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}} = file_set
+      ) do
+    case skip_transcode?(file_set) do
+      true ->
+        @skip_transcode_actions
+
+      _ ->
+        @access_audio_actions
+    end
+  end
 
   def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "audio/" <> _}}),
     do: @preservation_audio_actions
 
-  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}}),
-    do: @access_video_actions
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}} = file_set
+      ) do
+    case skip_transcode?(file_set) do
+      true ->
+        @skip_transcode_actions
+
+      _ ->
+        @access_video_actions
+    end
+  end
 
   def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}),
     do: @preservation_video_actions
@@ -129,10 +156,11 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   def dispatcher_actions(_), do: nil
 
-  @spec not_my_actions(any) :: list
   def not_my_actions(file_set) do
     (all_progress_actions() -- @initial_actions) -- dispatcher_actions(file_set)
   end
+
+  defp skip_transcode?(file_set), do: Stream.exists?(FileSets.streaming_uri_for(file_set))
 
   defp dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
     do: dispatch_next_action(file_set, action, attributes)
