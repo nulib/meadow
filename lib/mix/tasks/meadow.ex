@@ -53,7 +53,8 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
     notification_configuration = """
       <NotificationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
         <QueueConfiguration>
-          <Event>s3:ObjectCreated:*</Event>
+          <Event>s3:ObjectCreated:Put</Event>
+          <Event>s3:ObjectCreated:CompleteMultipartUpload</Event>
           <Queue>#{notification_arn}</Queue>
         </QueueConfiguration>
       </NotificationConfiguration>
