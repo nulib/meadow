@@ -53,7 +53,9 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
       end
     end
   rescue
-    ArgumentError -> {:error, "Error creating preservation path"}
+    err in ArgumentError ->
+      Logger.error("Error creating preservation path: #{inspect(err)}")
+      {:error, "Error creating preservation path: #{inspect(err)}"}
   end
 
   defp copy_file_if_missing(file_set, dest_location) do
