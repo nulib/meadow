@@ -79,9 +79,7 @@ export default function BatchEditTabs() {
 
     // Process Descriptive metadata items
     if (currentFormValues.notes?.length > 0) {
-      replaceItems.descriptive.notes = prepNotes(
-        currentFormValues.notes
-      );
+      replaceItems.descriptive.notes = prepNotes(currentFormValues.notes);
     }
     if (currentFormValues.relatedUrl?.length > 0) {
       replaceItems.descriptive.relatedUrl = prepRelatedUrl(
