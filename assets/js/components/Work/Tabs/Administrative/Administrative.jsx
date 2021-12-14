@@ -25,6 +25,7 @@ const WorkTabsAdministrative = ({ work }) => {
     ingestSheet,
     project,
     published,
+    readingRoom,
     visibility,
     insertedAt,
     updatedAt,
@@ -64,6 +65,7 @@ const WorkTabsAdministrative = ({ work }) => {
         projectCycle: currentFormValues.projectCycle,
       },
       collectionId: currentFormValues.collection,
+      readingRoom: currentFormValues.readingRoom,
       visibility: currentFormValues.visibility
         ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
         : {},
@@ -145,6 +147,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 administrativeMetadata={administrativeMetadata}
                 isEditing={isEditing}
                 published={published}
+                readingRoom={readingRoom}
                 visibility={visibility}
               />
             </div>

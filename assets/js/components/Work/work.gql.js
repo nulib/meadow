@@ -445,6 +445,7 @@ export const UPDATE_WORK = gql`
       }
       insertedAt
       published
+      readingRoom
       workType {
         id
         label
