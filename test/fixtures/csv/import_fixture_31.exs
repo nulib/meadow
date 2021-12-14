@@ -130,5 +130,6 @@
     series: ["The Adventures of Brisco County, Jr."]
   },
   published: true,
+  reading_room: false,
   visibility: %{id: "AUTHENTICATED", scheme: "visibility"}
 }

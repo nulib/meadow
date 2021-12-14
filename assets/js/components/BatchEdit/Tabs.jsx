@@ -72,6 +72,7 @@ export default function BatchEditTabs() {
     // updated.
 
     let currentFormValues = methods.getValues();
+    console.log(`currentFormValues`, currentFormValues);
     let addItems = { administrative: {}, descriptive: {} };
     let deleteReadyItems = {};
     let replaceItems = { administrative: {}, descriptive: {} };
@@ -79,9 +80,7 @@ export default function BatchEditTabs() {
 
     // Process Descriptive metadata items
     if (currentFormValues.notes?.length > 0) {
-      replaceItems.descriptive.notes = prepNotes(
-        currentFormValues.notes
-      );
+      replaceItems.descriptive.notes = prepNotes(currentFormValues.notes);
     }
     if (currentFormValues.relatedUrl?.length > 0) {
       replaceItems.descriptive.relatedUrl = prepRelatedUrl(
@@ -161,6 +160,9 @@ export default function BatchEditTabs() {
       },
       ...((batchPublish.publish || batchPublish.unpublish) && {
         published: { ...batchPublish },
+      }),
+      ...(currentFormValues.readingRoom && {
+        readingRoom: currentFormValues.readingRoom,
       }),
       descriptiveMetadata: {
         ...replaceItems.descriptive,

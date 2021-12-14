@@ -10,32 +10,17 @@ export const collectionMock = {
   findingAidUrl: "https://northwestern.edu",
   id: MOCK_COLLECTION_ID,
   keywords: ["yo", "foo", "bar", "work", "hey"],
-  title: "Great collection",
   published: false,
-  //visibility: published,
-  totalWorks: 2,
-  works: [
-    {
-      id: "1id-23343432",
-      accessionNumber: "accessNumber1",
-      representativeImage: "repImage1url.com",
-      descriptiveMetadata: {
-        title: "Title 1",
-      },
-    },
-    {
-      id: "2is-234o24332-id",
-      accessionNumber: "accessNumber2",
-      representativeImage: null,
-      descriptiveMetadata: {
-        title: null,
-      },
-    },
-  ],
   representativeWork: {
     id: "ABC123",
+    representativeImage: "http://a-url-here.com/123",
   },
-  //representativeWork: null,
+  title: "Great collection",
+  totalWorks: 2,
+  visibility: {
+    id: "OPEN",
+    label: "Public",
+  },
 };
 
 export const getCollectionMock = {

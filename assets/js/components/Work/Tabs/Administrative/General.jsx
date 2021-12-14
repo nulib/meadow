@@ -4,11 +4,12 @@ import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
 import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
+import UIFormReadingRoom from "@js/components/UI/Form/ReadingRoom";
 
 function WorkAdministrativeTabsGeneral({
   administrativeMetadata,
   isEditing,
-  published,
+  readingRoom,
   visibility,
 }) {
   const codeLists = useCodeLists();
@@ -16,7 +17,7 @@ function WorkAdministrativeTabsGeneral({
 
   return (
     <div>
-      <UIFormField label="Library Unit">
+      <UIFormField label="Library Unit" data-testid="library-unit-wrapper">
         {isEditing ? (
           <UIFormSelect
             isReactHookForm
@@ -35,7 +36,10 @@ function WorkAdministrativeTabsGeneral({
         )}
       </UIFormField>
 
-      <UIFormField label="Preservation Level">
+      <UIFormField
+        label="Preservation Level"
+        data-testid="preservation-level-wrapper"
+      >
         {isEditing ? (
           <UIFormSelect
             isReactHookForm
@@ -54,7 +58,7 @@ function WorkAdministrativeTabsGeneral({
         )}
       </UIFormField>
 
-      <UIFormField label="Status">
+      <UIFormField label="Status" data-testid="status-wrapper">
         {isEditing ? (
           <UIFormSelect
             data-testid="status"
@@ -69,7 +73,7 @@ function WorkAdministrativeTabsGeneral({
           <p>{status ? status.label : "None selected"}</p>
         )}
       </UIFormField>
-      <UIFormField label="Visibility">
+      <UIFormField label="Visibility" data-testid="visibility-wrapper">
         {isEditing ? (
           <UIFormSelect
             data-testid="visibility"
@@ -86,6 +90,7 @@ function WorkAdministrativeTabsGeneral({
           <UICodedTermItem item={visibility} />
         )}
       </UIFormField>
+      <UIFormReadingRoom isEditing={isEditing} value={readingRoom} />
     </div>
   );
 }
@@ -94,6 +99,7 @@ WorkAdministrativeTabsGeneral.propTypes = {
   administrativeMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
+  readingRoom: PropTypes.bool,
   visibility: PropTypes.object,
 };
 

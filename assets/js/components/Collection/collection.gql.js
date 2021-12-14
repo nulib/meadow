@@ -89,18 +89,18 @@ export const GET_COLLECTION = gql`
   query GetCollection($id: ID!) {
     collection(collectionId: $id) {
       adminEmail
+      description
       featured
       findingAidUrl
+      id
+      keywords
       published
-      title
-      description
-      totalWorks
       representativeWork {
         id
         representativeImage
       }
-      id
-      keywords
+      title
+      totalWorks
       visibility {
         id
         label
