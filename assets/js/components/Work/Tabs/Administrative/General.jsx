@@ -5,6 +5,9 @@ import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
 import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import UIFormReadingRoom from "@js/components/UI/Form/ReadingRoom";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
+import { Button } from "@nulib/design-system";
 
 function WorkAdministrativeTabsGeneral({
   administrativeMetadata,
@@ -14,12 +17,15 @@ function WorkAdministrativeTabsGeneral({
 }) {
   const codeLists = useCodeLists();
   const { libraryUnit, preservationLevel, status } = administrativeMetadata;
+  const { handleFacetLinkClick } = useFacetLinkClick();
+  const { handlePassedInSearchTerm } = usePassedInSearchTerm();
 
   return (
     <div>
       <UIFormField label="Library Unit" data-testid="library-unit-wrapper">
         {isEditing ? (
           <UIFormSelect
+            data-testid="library-unit"
             isReactHookForm
             name="libraryUnit"
             showHelper={true}
@@ -31,8 +37,20 @@ function WorkAdministrativeTabsGeneral({
             }
             defaultValue={libraryUnit ? libraryUnit.id : ""}
           />
+        ) : libraryUnit ? (
+          <Button
+            isText
+            data-testid="library-unit-link"
+            className="break-word"
+            onClick={() =>
+              handleFacetLinkClick("LibraryUnit", libraryUnit.label)
+            }
+            css={{ padding: "0", textTransform: "none !important" }}
+          >
+            <span>{libraryUnit.label}</span>
+          </Button>
         ) : (
-          <p>{libraryUnit ? libraryUnit.label : "None selected"}</p>
+          <p>None selected</p>
         )}
       </UIFormField>
 
@@ -42,6 +60,7 @@ function WorkAdministrativeTabsGeneral({
       >
         {isEditing ? (
           <UIFormSelect
+            data-testid="preservation-level"
             isReactHookForm
             name="preservationLevel"
             showHelper={true}
@@ -53,8 +72,23 @@ function WorkAdministrativeTabsGeneral({
             }
             defaultValue={preservationLevel ? preservationLevel.id : ""}
           />
+        ) : preservationLevel ? (
+          <Button
+            isText
+            data-testid="preservation-level-link"
+            className="break-word"
+            onClick={() =>
+              handlePassedInSearchTerm(
+                "administrativeMetadata.preservationLevel.label",
+                preservationLevel.label
+              )
+            }
+            css={{ padding: "0", textTransform: "none !important" }}
+          >
+            <span>{preservationLevel.label}</span>
+          </Button>
         ) : (
-          <p>{preservationLevel ? preservationLevel.label : "None selected"}</p>
+          <p>None selected</p>
         )}
       </UIFormField>
 
@@ -69,8 +103,23 @@ function WorkAdministrativeTabsGeneral({
             options={codeLists.statusData ? codeLists.statusData.codeList : []}
             defaultValue={status ? status.id : ""}
           />
+        ) : status ? (
+          <Button
+            isText
+            data-testid="status-link"
+            className="break-word"
+            onClick={() =>
+              handlePassedInSearchTerm(
+                "administrativeMetadata.status.label",
+                status.label
+              )
+            }
+            css={{ padding: "0", textTransform: "none !important" }}
+          >
+            <span>{status.label}</span>
+          </Button>
         ) : (
-          <p>{status ? status.label : "None selected"}</p>
+          <p>None selected</p>
         )}
       </UIFormField>
       <UIFormField label="Visibility" data-testid="visibility-wrapper">
@@ -86,8 +135,18 @@ function WorkAdministrativeTabsGeneral({
             }
             defaultValue={visibility ? visibility.id : ""}
           />
+        ) : visibility ? (
+          <Button
+            isText
+            data-testid="visibility-link"
+            className="break-word"
+            onClick={() => handleFacetLinkClick("Visibility", visibility.label)}
+            css={{ padding: "0", textTransform: "none !important" }}
+          >
+            <span>{visibility.label}</span>
+          </Button>
         ) : (
-          <UICodedTermItem item={visibility} />
+          <p>None selected</p>
         )}
       </UIFormField>
       <UIFormReadingRoom isEditing={isEditing} value={readingRoom} />
