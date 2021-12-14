@@ -82,6 +82,8 @@ function DashboardsCsvImport() {
   }
 
   const handleImportCsv = () => {
+    setIsSubmitted(true);
+
     if (currentFile) {
       uploadToS3()
         .then(

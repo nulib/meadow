@@ -19,6 +19,16 @@ function DashboardsCsvImportModal({
   isOpen,
   setCurrentFile,
 }) {
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+
+  React.useEffect(() => {
+    // Reset the isSubmitted value when re-opening the modal
+    // so user can click the Submit button once again
+    if (isSubmitted && isOpen) {
+      setIsSubmitted(false);
+    }
+  }, [isOpen]);
+
   // Handle file drop
   const onDrop = React.useCallback((acceptedFiles) => {
     setCurrentFile(acceptedFiles[0]);
@@ -31,6 +41,7 @@ function DashboardsCsvImportModal({
   };
 
   const handleImportClick = () => {
+    setIsSubmitted(true);
     handleImportCsv(currentFile);
   };
 
@@ -104,7 +115,7 @@ function DashboardsCsvImportModal({
           <Button
             isPrimary
             onClick={handleImportClick}
-            disabled={!currentFile}
+            disabled={!currentFile || isSubmitted}
             data-testid="submit-button"
           >
             Import
