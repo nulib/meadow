@@ -35,6 +35,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :ingest_bucket)
   end
 
+  @doc "Retrieve the configured multipart upload concurrency value"
+  def multipart_upload_concurrency do
+    Application.get_env(:meadow, :multipart_upload_concurrency) |> String.to_integer()
+  end
+
   @doc "Retrieve the configured preservation bucket"
   def preservation_bucket do
     Application.get_env(:meadow, :preservation_bucket)

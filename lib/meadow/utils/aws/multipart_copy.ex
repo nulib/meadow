@@ -3,6 +3,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   Perform a multipart S3-to-S3 copy using ExAws
   """
 
+  alias Meadow.Config
   alias Meadow.Utils.AWS
 
   import SweetXml, only: [sigil_x: 2]
@@ -92,7 +93,10 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
 
       parts =
         1..chunks
-        |> Task.async_stream(&upload_chunk(op, &1), timeout: :infinity, max_concurrency: 10)
+        |> Task.async_stream(&upload_chunk(op, &1),
+          timeout: :infinity,
+          max_concurrency: Config.multipart_upload_concurrency()
+        )
         |> Enum.to_list()
 
       case parts |> Enum.map(fn {status, _} -> status end) |> Enum.uniq() do
