@@ -4,9 +4,20 @@
 amazon-linux-extras install epel -y
 yum update -y
 yum install -y amazon-cloudwatch-agent autoconf curl dirmngr fop gawk git gpg htop \
-               inotify-tools jq libxslt ncurses-devel openssl-devel tmux postgresql-9.2.24 \
+               inotify-tools jq libxslt ncurses-devel openssl-devel tmux postgresql \
                wxGTK3-devel wxBase3 
 yum groupinstall -y 'Development Tools' 'C Development Tools and Libraries'
+
+cd /tmp
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+./aws/install
+rm -rf ./aws
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm"
+yum install -y session-manager-plugin.rpm
+rm -f session-manager-plugin.rpm
+aws configure set region us-east-1
+cd -
 
 # Set up log stream
 mkdir -p /var/log/meadow
@@ -79,10 +90,13 @@ done
 
 bash -c '$${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 
-for lang in erlang elixir nodejs; do
-  asdf install $lang latest
-  asdf global $lang $(asdf list $lang)
-done
+asdf install erlang ${erlang_version}
+asdf global erlang ${erlang_version}
+asdf install elixir ${elixir_version}
+asdf global elixir ${elixir_version}
+asdf install nodejs ${nodejs_version}
+asdf global nodejs ${nodejs_version}
+npm install -g npm@latest
 
 # Update login script
 echo '. $HOME/.asdf/asdf.sh' >> $HOME/.bashrc
@@ -111,8 +125,10 @@ mkdir -p /home/ec2-user/bin
 cat > /home/ec2-user/bin/iex-remote <<'__END__'
 #!/bin/bash
 
-target_ip=$(aws --region $${AWS_REGION} elbv2 describe-target-health --target-group-arn ${target_group_arn} --query 'TargetHealthDescriptions[*].Target.Id' | jq -r '.[0]')
-iex --name "$(whoami)@$(hostname)" --remsh "meadow@$target_ip" --cookie $SECRET_KEY_BASE
+command="bin/meadow remote"
+task_id=$(aws ecs list-tasks --cluster meadow --service meadow | jq -r '.taskArns[0] | split("/") | last')
+echo "Running \`$${command}\` on task $${task_id}"
+aws ecs execute-command --cluster meadow --container meadow --interactive --command "$${command}" --task $${task_id}
 __END__
 
 chmod 0755 /home/ec2-user/bin/iex-remote

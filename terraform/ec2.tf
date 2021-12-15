@@ -58,6 +58,30 @@ resource "aws_iam_role_policy_attachment" "meadow_ec2_transcode_passrole" {
   policy_arn = aws_iam_policy.allow_transcode.arn
 }
 
+resource "aws_iam_policy" "meadow_ec2_ecs" {
+  name = "${var.stack_name}-ecs-task-definition-access"
+  policy = jsonencode({
+      Version = "2012-10-17",
+      Statement = [{
+        Sid = "ECSAccess",
+        Effect = "Allow",
+        Action = [
+          "ecs:*",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:CreateControlChannel"
+        ],
+        Resource = "*"
+      }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "meadow_ec2_ecs" {
+  role       = aws_iam_role.meadow_ec2_role.id
+  policy_arn = aws_iam_policy.meadow_ec2_ecs.arn
+}
+
 resource "aws_iam_instance_profile" "meadow_instance_profile" {
   name = "${var.stack_name}-ec2"
   role = aws_iam_role.meadow_ec2_role.name
@@ -80,6 +104,9 @@ resource "aws_security_group" "meadow_ec2" {
 data "template_file" "ec2_user_data" {
   template = file("ec2_files/startup.sh")
   vars = {
+    erlang_version        = "24.2"
+    elixir_version        = "1.12.1"
+    nodejs_version        = "14.17.5"
     dev_local_exs         = file("ec2_files/dev.local.exs"),
     ec2_instance_users    = join(" ", var.ec2_instance_users),
     meadow_rc             = data.template_file.ec2_meadow_config.rendered
@@ -110,6 +137,11 @@ resource "aws_instance" "this_ec2_instance" {
   lifecycle {
     create_before_destroy = true
     ignore_changes = [ ami, user_data, instance_type, tags ]
+  }
+
+  timeouts {
+    create = "60m"
+    delete = "20m"
   }
 
   tags = merge(
