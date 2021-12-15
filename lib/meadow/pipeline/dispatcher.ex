@@ -7,9 +7,10 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   *
 
   """
+  alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Utils.Pairtree
   alias Sequins.Pipeline.Action
-  alias Meadow.Utils.Stream
 
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
@@ -160,7 +161,14 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
     (all_progress_actions() -- @initial_actions) -- dispatcher_actions(file_set)
   end
 
-  defp skip_transcode?(file_set), do: Stream.exists?(FileSets.streaming_uri_for(file_set))
+  defp skip_transcode?(file_set) do
+    Config.streaming_bucket()
+    |> ExAws.S3.list_objects_v2(prefix: Pairtree.generate!(file_set.id))
+    |> ExAws.request!
+    |> get_in([:body, :key_count])
+    |> String.to_integer()
+    |> then(& &1 > 0)
+  end
 
   defp dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
     do: dispatch_next_action(file_set, action, attributes)
