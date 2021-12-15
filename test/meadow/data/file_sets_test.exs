@@ -283,6 +283,30 @@ defmodule Meadow.Data.FileSetsTest do
       assert FileSets.duration_in_milliseconds(file_set) == 1_000_999.0
     end
 
+    test "duration_in_milliseconds/1 for a file set with extracted mediainfo but nil duration" do
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata:
+            @mediainfo
+            |> put_in(["mediainfo", "value", "media", "track", Access.at(0), "Duration"], nil)
+        )
+
+      assert is_nil(FileSets.duration_in_milliseconds(file_set))
+    end
+
+    test "duration_in_milliseconds/1 for a file set with extracted mediainfo but no tracks" do
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata:
+            @mediainfo
+            |> put_in(["mediainfo", "value", "media", "track"], [])
+        )
+
+      assert is_nil(FileSets.duration_in_milliseconds(file_set))
+    end
+
     test "duration_in_milliseconds/1 for a file set without extracted mediainfo" do
       file_set = file_set_fixture()
 

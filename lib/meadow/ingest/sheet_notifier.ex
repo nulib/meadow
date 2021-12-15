@@ -17,4 +17,6 @@ defmodule Meadow.Ingest.SheetNotifier do
   rescue
     Ecto.NoResultsError -> {:noreply, state}
   end
+
+  def handle_notification(_, _, _, state), do: {:noreply, state}
 end

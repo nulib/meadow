@@ -2,6 +2,8 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
   use Meadow.S3Case
   use Meadow.DataCase
 
+  alias Meadow.Config
+
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
@@ -16,9 +18,12 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
     TranscodeComplete
   }
 
+  alias Meadow.Utils.Pairtree
+
   import ExUnit.CaptureLog
 
   @bucket "test-ingest"
+  @streaming_bucket Config.streaming_bucket()
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
 
@@ -49,9 +54,7 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
                  status: "ok"
                })
              end) =~
-               "Last action was: Elixir.Meadow.Pipeline.Actions.InitializeDispatch, next action is: Elixir.Meadow.Pipeline.Actions.GenerateFileSetDigests for file set id: #{
-                 file_set_id
-               }"
+               "Last action was: Elixir.Meadow.Pipeline.Actions.InitializeDispatch, next action is: Elixir.Meadow.Pipeline.Actions.GenerateFileSetDigests for file set id: #{file_set_id}"
     end
   end
 
@@ -217,6 +220,40 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
         })
 
       assert Dispatcher.dispatcher_actions(file_set) == nil
+    end
+  end
+
+  describe "playlist exists" do
+    setup do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "video/mp4",
+            location: "s3://blahblah",
+            original_filename: "test.m4v"
+          }
+        })
+
+      upload_object(
+        @streaming_bucket,
+        Pairtree.generate!(file_set.id),
+        File.read!(@content)
+      )
+
+      on_exit(fn ->
+        empty_bucket(@streaming_bucket)
+      end)
+
+      {:ok, file_set: file_set}
+    end
+
+    test "dispatcher_actions for A/V file set where playlist exists skips trancoding steps", %{
+      file_set: file_set
+    } do
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CopyFileToPreservation)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
     end
   end
 end

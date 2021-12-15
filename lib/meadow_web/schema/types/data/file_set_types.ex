@@ -148,15 +148,14 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:mime_type, :string)
     field(:original_filename, :string)
     field(:description, :string)
+    field(:digests, :digests)
+  end
 
-    field :sha256, :string do
-      resolve(fn metadata, _, _ ->
-        case metadata.digests do
-          nil -> {:ok, nil}
-          digests -> {:ok, digests["sha256"]}
-        end
-      end)
-    end
+  @desc "`digests` represents the possible digest hashes for a file set."
+  object :digests do
+    field :md5, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "md5")} end)
+    field :sha1, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha1")} end)
+    field :sha256, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha256")} end)
   end
 
   @desc "`file_set_structural_metadata` represents the structural metadata within a file set object."

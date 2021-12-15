@@ -29,6 +29,8 @@ defmodule Meadow.StructuralMetadataListener do
     Ecto.NoResultsError -> {:noreply, state}
   end
 
+  def handle_notification(_, _, _, state), do: {:noreply, state}
+
   defp write_structural_metadata(%{id: id, structural_metadata: %{type: "webvtt", value: vtt}})
        when is_binary(vtt) do
     Logger.info("Writing structural metadata for #{id}")

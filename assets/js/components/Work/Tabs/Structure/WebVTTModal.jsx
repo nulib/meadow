@@ -24,7 +24,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
 
   const [updateFileSet] = useMutation(UPDATE_FILE_SET, {
     onCompleted({ updateFileSet }) {
-      toastWrapper("is-success", "webVTT structure successfully updated");
+      toastWrapper("is-success", "WebVTT structure successfully updated");
       handleClose();
     },
     onError({ graphQLErrors, networkError }) {
@@ -67,14 +67,11 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
     setWebVttValue("");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (structuralMetadata) => {
     updateFileSet({
       variables: {
         id: workState.webVttModal.fileSetId,
-        structuralMetadata: {
-          type: "WEBVTT",
-          value: webVttValue,
-        },
+        structuralMetadata,
       },
     });
   };
@@ -88,7 +85,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
       <div className="modal-background"></div>
       <div className="modal-card">
         <header className="modal-card-head">
-          <p className="modal-card-title">Update webVTT structure</p>
+          <p className="modal-card-title">Update WebVTT structure</p>
           <button
             type="button"
             className="delete"
@@ -102,23 +99,43 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
             (parseErrors ? (
               <Notification isDanger>{parseErrors.message}</Notification>
             ) : (
-              <Notification isSuccess>Web VTT is valid</Notification>
+              <Notification isSuccess>WebVTT is valid</Notification>
             ))}
           <textarea
             className="textarea"
             onChange={handleChange}
-            placeholder="Enter Web VTT text here"
+            placeholder="Enter WebVTT text here"
             ref={textAreaRef}
             rows="10"
             style={{ whiteSpace: "pre-wrap" }}
             value={webVttValue}
           />
         </section>
-        <footer className="modal-card-foot buttons is-right">
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button isPrimary onClick={handleSubmit} disabled={parseErrors}>
-            Submit
-          </Button>
+        <footer className="modal-card-foot buttons is-justify-content-space-between">
+          {webVttValue?.trim().length > 0 && (
+            <Button
+              isText
+              onClick={() => handleSubmit({})}
+              css={{ backgroundColor: "transparent" }}
+            >
+              Delete WebVTT
+            </Button>
+          )}
+          <div className="is-flex is-justify-content-flex-end is-flex-grow-1">
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button
+              isPrimary
+              onClick={() =>
+                handleSubmit({
+                  type: "WEBVTT",
+                  value: webVttValue,
+                })
+              }
+              disabled={parseErrors}
+            >
+              Submit
+            </Button>
+          </div>
         </footer>
       </div>
     </div>

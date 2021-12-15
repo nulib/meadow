@@ -76,8 +76,10 @@ config :meadow, Meadow.ElasticsearchCluster,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
       ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500
+      bulk_page_size:
+        System.get_env("ELASTICSEARCH_BULK_PAGE_SIZE", "200") |> String.to_integer(),
+      bulk_wait_interval:
+        System.get_env("ELASTICSEARCH_BULK_WAIT_INTERVAL", "2000") |> String.to_integer()
     }
   }
 
@@ -96,6 +98,7 @@ config :meadow,
   mediaconvert_client: MediaConvert,
   mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE"),
   mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE"),
+  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "50"),
   pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
   preservation_bucket: get_required_var.("PRESERVATION_BUCKET"),
   preservation_check_bucket: get_required_var.("PRESERVATION_CHECK_BUCKET"),

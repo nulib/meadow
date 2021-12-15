@@ -15,6 +15,20 @@ resource "aws_iam_role" "lambda_role" {
   name               = "${var.stack_name}-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
   tags               = var.tags
+
+  inline_policy {
+    name = "${var.stack_name}-allow-fixity-function"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect   = "Allow"
+          Action   = "states:StartExecution"
+          Resource = "arn:aws:states:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stateMachine:${var.fixity_function}"
+        }
+      ]
+    })
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_bucket_access" {
@@ -142,6 +156,28 @@ module "frame_extractor_function" {
     var.tags,
     {
       Name = "MeadowFrameExtractor"
+    },
+  )
+}
+
+module "execute_fixity_function" {
+  depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
+  source      = "./modules/meadow_lambda"
+  name        = "execute-fixity"
+  description = "Function that receives S3 upload notification and triggers fixity step function execution"
+  role        = aws_iam_role.lambda_role.arn
+  stack_name  = var.stack_name
+  memory_size = 256
+  timeout     = 60
+  environment = {
+    stateMachineArn = "arn:aws:states:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stateMachine:${var.fixity_function}"
+  }
+
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowExecuteFixity"
     },
   )
 }

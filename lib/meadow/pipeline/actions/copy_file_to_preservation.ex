@@ -8,6 +8,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.Utils.AWS
   alias Sequins.Pipeline.Action
   use Action
   use Meadow.Pipeline.Actions.Common
@@ -52,7 +53,9 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
       end
     end
   rescue
-    ArgumentError -> {:error, "Error creating preservation path"}
+    err in ArgumentError ->
+      Logger.error("Error creating preservation path: #{inspect(err)}")
+      {:error, "Error creating preservation path: #{inspect(err)}"}
   end
 
   defp copy_file_if_missing(file_set, dest_location) do
@@ -69,7 +72,12 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
           mime_type -> mime_type
         end
 
-      case ExAws.S3.put_object_copy(
+      tagging =
+        file_set.core_metadata.digests
+        |> Enum.map(fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
+        |> Enum.join("&")
+
+      case AWS.copy_object(
              dest_bucket,
              dest_key,
              src_bucket,
@@ -77,11 +85,9 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
              content_type: content_type,
              metadata_directive: :REPLACE,
              meta: s3_metadata,
-             tagging:
-               "computed-sha1=#{file_set.core_metadata.digests["sha1"]}&computed-sha256=#{file_set.core_metadata.digests["sha256"]}",
+             tagging: tagging,
              tagging_directive: :REPLACE
-           )
-           |> ExAws.request() do
+           ) do
         {:ok, _} -> {:ok, dest_location}
         {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
         {:error, other} -> {:error, inspect(other)}

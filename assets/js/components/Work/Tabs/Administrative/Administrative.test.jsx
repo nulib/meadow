@@ -1,17 +1,19 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../../../services/testing-helpers";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
 import { fireEvent, waitFor, screen } from "@testing-library/react";
 import {
+  MOCK_COLLECTION_ID,
   getCollectionMock,
   getCollectionsMock,
 } from "@js/components/Collection/collection.gql.mock";
-import { mockUser } from "../../../Auth/auth.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import userEvent from "@testing-library/user-event";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { formatDate } from "@js/services/helpers";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -19,7 +21,11 @@ useIsAuthorized.mockReturnValue({
   isAuthorized: () => true,
 });
 
-xdescribe("Work Administrative tab component", () => {
+// To properly mock the GraphQL response, need to override "mockWork"'s collection
+// with another Collection id
+mockWork.collection.id = MOCK_COLLECTION_ID;
+
+describe("Work Administrative tab component", () => {
   beforeEach(() => {
     renderWithRouterApollo(
       <CodeListProvider>
@@ -32,13 +38,10 @@ xdescribe("Work Administrative tab component", () => {
   });
 
   it("renders without crashing", async () => {
-    await waitFor(() => {
-      let yo = screen.getByTestId("work-administrative-form");
-      expect(yo);
-    });
+    expect(await screen.findByTestId("work-administrative-form"));
   });
 
-  xit("switches between edit and non edit mode", async () => {
+  it("switches between edit and non edit mode", async () => {
     const editButton = await screen.findByTestId("edit-button");
     expect(editButton);
 
@@ -48,33 +51,38 @@ xdescribe("Work Administrative tab component", () => {
     expect(await screen.findByTestId("cancel-button"));
   });
 
-  xit("displays form elements only when in edit mode", async () => {
+  it("displays form elements only when in edit mode", async () => {
     await waitFor(() => {
-      expect(queryByTestId("visibility")).toBeFalsy();
-      expect(queryByTestId("project-cycle")).toBeFalsy();
+      expect(screen.queryByTestId("visibility")).toBeFalsy();
+      expect(screen.queryByTestId("project-cycle")).toBeFalsy();
     });
 
-    fireEvent.click(queryByTestId("edit-button"));
-    expect(queryByTestId("visibility"));
-    expect(queryByTestId("project-cycle"));
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    expect(screen.queryByTestId("visibility"));
+    expect(screen.queryByTestId("project-cycle"));
   });
 
-  xit("dislays correct work item metadata values", async () => {
-    const { getByText, getByTestId, getByDisplayValue } = setupTests();
-
+  it("displays correct Project metadata values", async () => {
+    const description = /New Project Description/i;
+    const cycleName = /Project Cycle Name/i;
     await waitFor(() => {
-      expect(getByText(/New Project Description/i));
-      expect(getByText(/Another Project Description/i));
-      expect(getByText(/Project Cycle Name/i));
-      expect(getByText(/Started/i));
-      expect(getByText(/Collection 1232432 Name/i));
-      expect(getByText(/2019-02-04T19:16:16/i));
-      expect(getByText(/2019-12-02T22:22:16/i));
-      expect(getByTestId("view-collection-works-button"));
+      expect(screen.getByText(description));
+      expect(screen.getByText(cycleName));
+      expect(screen.getByText(/Started/i));
+      expect(screen.getByText(/Collection 1232432 Name/i));
+      expect(screen.getByTestId("view-collection-works-button"));
     });
 
     // And ensure the values transfer to the form elements when in edit mode
-    fireEvent.click(getByTestId("edit-button"));
-    expect(getByDisplayValue(/Another Project Description/i));
+    fireEvent.click(screen.getByTestId("edit-button"));
+    expect(screen.getByDisplayValue(description));
+    expect(screen.getByDisplayValue(cycleName));
+  });
+
+  it("displays correct Project metadata values", async () => {
+    const insertedAtEl = await screen.findByTestId("inserted-at-label");
+    const updatedAtEl = await screen.findByTestId("updated-at-label");
+    expect(insertedAtEl).toHaveTextContent(formatDate("2019-02-04T19:16:16"));
+    expect(updatedAtEl).toHaveTextContent(formatDate("2019-12-02T22:22:16"));
   });
 });

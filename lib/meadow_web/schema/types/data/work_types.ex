@@ -52,6 +52,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:work_type, :coded_term_input)
       arg(:visibility, :coded_term_input)
       arg(:published, :boolean)
+      arg(:reading_room, :boolean)
       arg(:file_sets, list_of(:file_set_input))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
@@ -112,6 +113,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :work_type, :coded_term
     field :visibility, :coded_term
     field :published, :boolean
+    field :reading_room, :boolean
 
     field :manifest_url, :string do
       resolve(fn work, _, _ ->
@@ -136,6 +138,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :genre, list_of(:controlled_metadata_entry)
     field :language, list_of(:controlled_metadata_entry)
     field :location, list_of(:controlled_metadata_entry)
+    field :notes, list_of(:note_entry)
     field :related_url, list_of(:related_url_entry)
     field :style_period, list_of(:controlled_metadata_entry)
     field :subject, list_of(:controlled_metadata_entry)
@@ -157,7 +160,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :identifier, list_of(:string)
     field :keywords, list_of(:string)
     field :legacy_identifier, list_of(:string)
-    field :notes, list_of(:string)
     field :terms_of_use, :string
     field :physical_description_material, list_of(:string)
     field :physical_description_size, list_of(:string)
@@ -178,6 +180,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :citation, list_of(:string)
     field :date_created, list_of(:edtf_date_entry)
     field :license, :coded_term
+    field :notes, list_of(:note_entry)
     field :rights_statement, :coded_term
     field :related_url, list_of(:related_url_entry)
     import_fields(:uncontrolled_descriptive_fields)
@@ -230,6 +233,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :descriptive_metadata, :work_descriptive_metadata_input
     field :visibility, :coded_term_input
     field :published, :boolean
+    field :reading_room, :boolean
     field :collection_id, :id
   end
 
@@ -246,6 +250,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   input_object :work_descriptive_metadata_input do
     field :date_created, list_of(:edtf_date_input)
     field :license, :coded_term_input
+    field :notes, list_of(:note_entry_input)
     field :rights_statement, :coded_term_input
     field :related_url, list_of(:related_url_entry_input)
     import_fields(:controlled_fields_input)

@@ -1,16 +1,19 @@
 defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
   use Meadow.S3Case
   use Meadow.DataCase
+  alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.GenerateFileSetDigests
+  alias Meadow.Utils.AWS
   import ExUnit.CaptureLog
+  import WaitForIt
 
   @bucket "test-ingest"
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
-  @sha256 "509ecd36cbb1ba4dc57430de5418ad64cf106aa209ca839ef753fa853c972753"
   @sha1 "0f4e109d2a4c8f954e940ceb356b40bd393120d0"
+  @md5 "85062e8c916f55ae0c514cb0732cfb1f"
 
   setup do
     file_set =
@@ -23,6 +26,16 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
         }
       })
 
+    wait(
+      AWS.check_object_tags!(
+        @bucket,
+        @key,
+        Config.required_checksum_tags()
+      ),
+      timeout: Config.checksum_wait_timeout(),
+      frequency: 250
+    )
+
     {:ok, file_set_id: file_set.id}
   end
 
@@ -32,7 +45,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
-    assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+    assert(file_set.core_metadata.digests == %{"md5" => @md5, "sha1" => @sha1})
 
     assert capture_log(fn ->
              GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
@@ -44,7 +57,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
     setup %{file_set_id: file_set_id} do
       FileSets.get_file_set!(file_set_id)
-      |> FileSets.update_file_set(%{core_metadata: %{digests: %{sha1: @sha1, sha256: @sha256}}})
+      |> FileSets.update_file_set(%{core_metadata: %{digests: %{sha1: @sha1, md5: @md5}}})
 
       :ok
     end
@@ -55,7 +68,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
           assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+          assert(file_set.core_metadata.digests == %{"md5" => @md5, "sha1" => @sha1})
         end)
 
       refute log =~ ~r/already complete without overwriting/
@@ -71,7 +84,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.core_metadata.digests == %{"sha256" => @sha256, "sha1" => @sha1})
+          assert(file_set.core_metadata.digests == %{"md5" => @md5, "sha1" => @sha1})
         end)
 
       assert log =~ ~r/already complete without overwriting/

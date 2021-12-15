@@ -12,7 +12,19 @@ defmodule Meadow.IIIF.ManifestListener do
   @impl true
   def handle_notification(:works, :delete, _key, state), do: {:noreply, state}
 
+  def handle_notification(:file_sets, _op, %{id: id}, state) do
+    update_manifest(id)
+    {:noreply, state}
+  end
+
   def handle_notification(:works, _op, %{id: id}, state) do
+    update_manifest(id)
+    {:noreply, state}
+  end
+
+  def handle_notification(_, _, _, state), do: {:noreply, state}
+
+  defp update_manifest(id) do
     with_log_metadata module: __MODULE__, id: id do
       case Works.get_work!(id) do
         %{work_type: %{id: "IMAGE"}} ->
@@ -27,9 +39,7 @@ defmodule Meadow.IIIF.ManifestListener do
           Logger.warn("Skipping manifest writing for work of unknown type. Work id: #{id}")
       end
     end
-
-    {:noreply, state}
   rescue
-    Ecto.NoResultsError -> {:noreply, state}
+    Ecto.NoResultsError -> :noop
   end
 end

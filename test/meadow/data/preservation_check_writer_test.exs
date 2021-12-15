@@ -15,6 +15,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
 
   @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
   @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
+  @md5 "85062e8c916f55ae0c514cb0732cfb1f"
   @key "copy_file_to_preservation_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @ingest_fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
@@ -26,6 +27,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
   }
 
   describe "generate_report/1" do
+    @describetag s3: [@preservation_fixture]
+
     setup do
       image_work = work_fixture(%{work_type: %{id: "IMAGE", scheme: "work_type"}})
 
@@ -37,7 +40,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
           core_metadata: %{
             digests: %{
               "sha256" => @sha256,
-              "sha1" => @sha1
+              "sha1" => @sha1,
+              "md5" => @md5
             },
             location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
             mime_type: "image/tiff",
@@ -53,7 +57,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
           core_metadata: %{
             digests: %{
               "sha256" => @sha256,
-              "sha1" => @sha1
+              "sha1" => @sha1,
+              "md5" => @md5
             },
             location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
             mime_type: "image/tiff",
@@ -69,7 +74,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
           core_metadata: %{
             digests: %{
               "sha256" => @sha256,
-              "sha1" => @sha1
+              "sha1" => @sha1,
+              "md5" => @md5
             },
             location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
             mime_type: "image/tiff",
@@ -86,7 +92,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       {:ok, file_set_1: file_set_1, file_set_2: file_set_2, file_set_3: file_set_3}
     end
 
-    @describetag s3: [@preservation_fixture]
     test "generates and uploads a preservation check report", %{
       file_set_1: file_set_1,
       file_set_2: file_set_2
@@ -100,7 +105,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       assert object_exists?(@preservation_check_bucket, @report_filename)
     end
 
-    @describetag s3: [@preservation_fixture]
     test "records an error if preservation file not found in expected location", %{
       file_set_1: file_set_1,
       file_set_2: file_set_2
@@ -141,7 +145,6 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       assert object_exists?(@preservation_check_bucket, @report_filename)
     end
 
-    @describetag s3: [@preservation_fixture]
     test "records an error if pyramid file not found in expected location", %{
       file_set_1: file_set_1
     } do
@@ -153,16 +156,43 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       assert object_exists?(@preservation_check_bucket, @report_filename)
     end
 
-    @describetag s3: [@preservation_fixture]
     test "records an error if file set digests are missing", %{
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
       FileSets.update_file_set(file_set_1, %{core_metadata: %{digests: nil}})
-      FileSets.update_file_set(file_set_2, %{core_metadata: %{digests: %{"sha256" => "badsha"}}})
 
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+
+      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
+               PreservationCheckWriter.generate_report(@report_filename)
+    end
+
+    test "succeeds if at least one valid digest is present", %{
+      file_set_1: file_set_1,
+      file_set_2: file_set_2
+    } do
+      FileSets.update_file_set(file_set_1, %{core_metadata: %{digests: %{"md5" => @md5}}})
+
+      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
+      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+
+      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 0} =
+               PreservationCheckWriter.generate_report(@report_filename)
+    end
+
+    test "records an error if any existing digest is invalid", %{
+      file_set_1: file_set_1,
+      file_set_2: file_set_2
+    } do
+      FileSets.update_file_set(file_set_1, %{
+        core_metadata: %{digests: %{"md5" => @md5, "sha1" => "badsha"}}
+      })
+
+      FileSets.update_file_set(file_set_2, %{
+        core_metadata: %{digests: %{"md5" => @md5, "sha256" => @sha1}}
+      })
 
       assert {:ok, "s3://test-preservation-checks/pres_check.csv", 2} =
                PreservationCheckWriter.generate_report(@report_filename)
@@ -181,7 +211,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
           core_metadata: %{
             digests: %{
               "sha256" => @sha256,
-              "sha1" => @sha1
+              "sha1" => @sha1,
+              "md5" => @md5
             },
             location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
             mime_type: "video/mp4",

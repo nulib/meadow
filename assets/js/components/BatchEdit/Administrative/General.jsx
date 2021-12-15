@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
-import UIFormInput from "../../UI/Form/Input";
 import { useFormContext } from "react-hook-form";
 import { useCodeLists } from "@js/context/code-list-context";
+import UIFormSelect from "@js/components/UI/Form/Select";
+import UIFormReadingRoomHelperText from "@js/components/UI/Form/ReadingRoomHelperText";
 
 const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
   const context = useFormContext();
@@ -94,6 +95,25 @@ const BatchEditAdministrativeGeneral = ({ ...restProps }) => {
               ))}
           </select>
         </div>
+      </UIFormField>
+      <UIFormField label="Reading Room" data-testid="reading-room">
+        <UIFormSelect
+          isReactHookForm
+          name="readingRoom"
+          label="Reading Room"
+          showHelper
+          options={[
+            {
+              value: "set",
+              label: "Set",
+            },
+            {
+              value: "unset",
+              label: "Unset",
+            },
+          ]}
+        />
+        <UIFormReadingRoomHelperText />
       </UIFormField>
     </div>
   );

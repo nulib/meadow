@@ -35,6 +35,17 @@ export const authorityMock = [
   },
 ];
 
+export const notesSchemeMock = [
+  {
+    id: "GENERAL_NOTE",
+    label: "General note"
+  },
+  {
+    id: "BIOGRAPHICAL_HISTORICAL_NOTE",
+    label: "Biographical/Historical Note"
+  }
+]
+
 export const relatedUrlSchemeMock = [
   {
     id: "FINDING_AID",
@@ -221,6 +232,18 @@ export const codeListPreservationLevelMock = {
   },
 };
 
+export const codeListNotesMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "NOTE_TYPE" },
+  },
+  result: {
+    data: {
+      codeList: notesSchemeMock,
+    }
+  }
+}
+
 export const codeListRelatedUrlMock = {
   request: {
     query: CODE_LIST_QUERY,
@@ -368,6 +391,7 @@ export const allCodeListMocks = [
   codeListLibraryUnitMock,
   codeListLicenseMock,
   codeListMarcRelatorMock,
+  codeListNotesMock,
   codeListPreservationLevelMock,
   codeListRelatedUrlMock,
   codeListRightsStatementMock,

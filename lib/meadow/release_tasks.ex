@@ -4,6 +4,7 @@ defmodule Meadow.ReleaseTasks do
   """
 
   alias Meadow.Config
+  alias Meadow.Data.Indexer
 
   @app :meadow
   @modules [
@@ -34,7 +35,7 @@ defmodule Meadow.ReleaseTasks do
 
     if reindex? do
       Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
-      Meadow.Data.Indexer.hot_swap()
+      Indexer.hot_swap()
     end
   after
     resume!()

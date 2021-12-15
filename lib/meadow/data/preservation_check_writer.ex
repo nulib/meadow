@@ -17,11 +17,13 @@ defmodule Meadow.Data.PreservationCheckWriter do
     "file_set_role",
     "sha256",
     "sha1",
+    "md5",
     "preservation_location",
     "preservation_exists",
     "pyramid_location",
     "pyramid_exists"
   ]
+  @known_digests %{"md5" => 32, "sha1" => 40, "sha256" => 64}
 
   def generate_report(filename) do
     cache_key = Ecto.UUID.generate()
@@ -112,6 +114,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
         file_set.role.id,
         get_if_map(result.digests, "sha256"),
         get_if_map(result.digests, "sha1"),
+        get_if_map(result.digests, "md5"),
         file_set.core_metadata.location,
         Map.fetch!(result, :preservation),
         FileSets.pyramid_uri_for(file_set),
@@ -140,10 +143,21 @@ defmodule Meadow.Data.PreservationCheckWriter do
   defp record_invalid_file_set(%{pyramid: false}, cache_key),
     do: record_invalid_file_set(cache_key)
 
+  defp record_invalid_file_set(%{digests: nil}, cache_key), do: record_invalid_file_set(cache_key)
+
   defp record_invalid_file_set(%{digests: digests}, cache_key) do
-    case digests do
-      %{"sha256" => <<_sha256::binary-size(64)>>, "sha1" => <<_sha1::binary-size(40)>>} -> :noop
-      _ -> record_invalid_file_set(cache_key)
+    with valid_types <- Map.keys(@known_digests),
+         digest_types <- Map.keys(digests) do
+      cond do
+        not Enum.any?(valid_types, &Enum.member?(digest_types, &1)) ->
+          record_invalid_file_set(cache_key)
+
+        not Enum.all?(digests, &digest_is_valid/1) ->
+          record_invalid_file_set(cache_key)
+
+        true ->
+          :noop
+      end
     end
   end
 
@@ -152,6 +166,18 @@ defmodule Meadow.Data.PreservationCheckWriter do
   defp record_invalid_file_set(cache_key) do
     Cachex.incr(Meadow.Cache.PreservationChecks, cache_key)
   end
+
+  defp digest_is_valid({algorithm, value}) when is_atom(algorithm),
+    do: digest_is_valid({to_string(algorithm), value})
+
+  defp digest_is_valid({algorithm, value}) when is_binary(value) do
+    with digest_length <- Map.get(@known_digests, algorithm) do
+      Regex.compile!("^[0-9a-f]{#{digest_length}}$", "i")
+      |> Regex.match?(value)
+    end
+  end
+
+  defp digest_is_valid(_), do: false
 
   defp validate_pyramid_present(%{role: %{id: "P"}}, _work_type_id), do: "N/A"
   defp validate_pyramid_present(%{role: %{id: "S"}}, _work_type_id), do: "N/A"

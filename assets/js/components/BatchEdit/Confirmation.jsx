@@ -45,6 +45,7 @@ const BatchEditConfirmation = ({
   const history = useHistory();
   const [confirmationError, setConfirmationError] = useState({});
   const [batchNickname, setBatchNickname] = useState();
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const codeLists = useCodeLists();
 
   const [batchUpdate] = useMutation(BATCH_UPDATE, {
@@ -75,6 +76,8 @@ const BatchEditConfirmation = ({
   };
 
   const handleBatchEditConfirm = () => {
+    setIsSubmitted(true);
+
     const cleanedPostValues = removeLabelsFromBatchEditPostData(
       batchAdds,
       batchDeletes,
@@ -118,7 +121,8 @@ const BatchEditConfirmation = ({
     batchReplaces &&
     (Object.keys(batchReplaces.administrativeMetadata).length > 0 ||
       Object.keys(batchReplaces.descriptiveMetadata).length > 0 ||
-      batchReplaces.published);
+      batchReplaces.published ||
+      Boolean(batchReplaces.readingRoom));
 
   const hasCollection =
     batchCollection && Object.keys(batchCollection).length > 0;
@@ -206,6 +210,7 @@ const BatchEditConfirmation = ({
                       ? "Publish works"
                       : "Unpublish works",
                   }),
+                  readingRoom: batchReplaces.readingRoom,
                 }}
                 type="replace"
               />
@@ -262,7 +267,7 @@ const BatchEditConfirmation = ({
           </Button>
           <Button
             isPrimary
-            disabled={confirmationError || !hasDataToPost}
+            disabled={confirmationError || !hasDataToPost || isSubmitted}
             onClick={handleBatchEditConfirm}
             data-testid="button-submit"
           >

@@ -65,6 +65,25 @@ const defaultListItemValues = {
 };
 
 /**
+ * Helper function to handle boolean value displays
+ */
+function renderBooleanFacetLabel(label, count) {
+  return (
+    <span>
+      <span>{label ? "YES" : "NO"}</span>
+      <span>{count}</span>
+    </span>
+  );
+}
+
+/**
+ * Need this as ReactiveSearch complains when we send back a 1/0, instead of true/false
+ */
+function transformBooleanData(data) {
+  return data.map((item) => ({ ...item, key: item.key === 1 }));
+}
+
+/**
  * General Metadata Facets
  */
 export const FACET_SENSORS = [
@@ -154,19 +173,17 @@ export const FACET_SENSORS = [
     ...defaultListItemValues,
     componentId: "Published",
     dataField: "published",
-    renderItem: function (label, count) {
-      return (
-        <span>
-          <span>{label ? "YES" : "NO"}</span>
-          <span>{count}</span>
-        </span>
-      );
-    },
+    renderItem: renderBooleanFacetLabel,
     title: "Published",
-    // Need this as ReactiveSearch complains when we send back a 1/0, instead of true/false
-    transformData: function (data) {
-      return data.map((item) => ({ ...item, key: item.key === 1 }));
-    },
+    transformData: transformBooleanData,
+  },
+  {
+    ...defaultListItemValues,
+    componentId: "ReadingRoom",
+    dataField: "readingRoom",
+    renderItem: renderBooleanFacetLabel,
+    title: "Reading Room",
+    transformData: transformBooleanData,
   },
   {
     ...defaultListItemValues,
@@ -231,28 +248,25 @@ export const FACET_TECHNICAL_METADATA_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "FillOrder",
-    dataField: "fileSets.extractedMetadata.exif.value.fillOrder.keyword",
-    title: "Fill Order",
-  },
-  {
-    ...defaultListItemValues,
     componentId: "GrayResponseUnit",
     dataField: "fileSets.extractedMetadata.exif.value.grayResponseUnit.keyword",
     title: "Gray Response Unit",
   },
-  {
-    ...defaultListItemValues,
-    componentId: "Make",
-    dataField: "fileSets.extractedMetadata.exif.value.make.keyword",
-    title: "Make",
-  },
-  {
-    ...defaultListItemValues,
-    componentId: "Model",
-    dataField: "fileSets.extractedMetadata.exif.value.model.keyword",
-    title: "Model",
-  },
+  /**
+   * NOTE: Bad data reported in these facets, so temporarily hiding from UI display
+   */
+  // {
+  //   ...defaultListItemValues,
+  //   componentId: "Make",
+  //   dataField: "fileSets.extractedMetadata.exif.value.make.keyword",
+  //   title: "Make",
+  // },
+  // {
+  //   ...defaultListItemValues,
+  //   componentId: "Model",
+  //   dataField: "fileSets.extractedMetadata.exif.value.model.keyword",
+  //   title: "Model",
+  // },
   {
     ...defaultListItemValues,
     componentId: "PlanarConfiguration",

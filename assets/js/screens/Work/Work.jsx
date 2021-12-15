@@ -26,11 +26,14 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
-import classNames from "classnames";
-import { isMobile } from "react-device-detect";
 import useGTM from "@js/hooks/useGTM";
 import { Helmet } from "react-helmet";
 import { WorkProvider } from "@js/context/work-context";
+
+function getTitle(data) {
+  if (!data) return "";
+  return data.work?.descriptiveMetadata?.title || "";
+}
 
 const ScreensWork = () => {
   const params = useParams();
@@ -74,7 +77,7 @@ const ScreensWork = () => {
         collections: [work.collection?.title],
         creatorsContributors: [...creators, ...contributors],
         isPublished: work.published,
-        pageTitle: `${getTitle()} - Work Details`,
+        pageTitle: `${getTitle(work)} - Work Details`,
         rightsStatement: work.descriptiveMetadata.rightsStatement?.label,
         subjects,
         visibility: work.visibility?.label,
@@ -96,11 +99,6 @@ const ScreensWork = () => {
 
   if (error) {
     return null;
-  }
-
-  function getTitle() {
-    if (!data) return "";
-    return data.work.descriptiveMetadata.title || "";
   }
 
   const handleCreateSharableBtnClick = () => {
@@ -161,7 +159,7 @@ const ScreensWork = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{getTitle()} - Meadow - Northwestern University</title>
+        <title>{getTitle(data)} - Meadow - Northwestern University</title>
       </Helmet>
       {isMulti() && (
         <WorkMultiEditBar

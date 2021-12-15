@@ -157,7 +157,14 @@ export const GET_WORK = gql`
             label
           }
         }
-        notes
+        notes {
+          note
+          type {
+            id
+            label
+            scheme
+          }
+        }
         physicalDescriptionMaterial
         physicalDescriptionSize
         provenance
@@ -215,7 +222,11 @@ export const GET_WORK = gql`
           location
           mimeType
           originalFilename
-          sha256
+          digests {
+            md5
+            sha1
+            sha256
+          }
         }
         extractedMetadata
         insertedAt
@@ -243,6 +254,7 @@ export const GET_WORK = gql`
       }
       published
       representativeImage
+      readingRoom
       updatedAt
       visibility {
         id
@@ -277,7 +289,11 @@ export const GET_WORKS = gql`
           originalFilename
           location
           label
-          sha256
+          digests {
+            md5
+            sha1
+            sha256
+          }
         }
         representativeImageUrl
         insertedAt
@@ -294,6 +310,7 @@ export const GET_WORKS = gql`
         title
       }
       published
+      readingRoom
       representativeImage
       updatedAt
       workType {
@@ -428,6 +445,7 @@ export const UPDATE_WORK = gql`
       }
       insertedAt
       published
+      readingRoom
       workType {
         id
         label
@@ -467,7 +485,11 @@ export const INGEST_FILE_SET = gql`
         label
         description
         original_filename
-        sha256
+        digests {
+          md5
+          sha1
+          sha256
+        }
       }
     }
   }

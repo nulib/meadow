@@ -5,7 +5,7 @@ const UIModalDelete = ({
   isOpen,
   handleClose,
   handleConfirm,
-  thingToDeleteLabel
+  thingToDeleteLabel,
 }) => {
   return (
     <div
@@ -43,7 +43,7 @@ UIModalDelete.propTypes = {
   isOpen: PropTypes.bool,
   handleClose: PropTypes.func,
   handleConfirm: PropTypes.func,
-  thingToDeleteLabel: PropTypes.string
+  thingToDeleteLabel: PropTypes.string,
 };
 
 export default UIModalDelete;

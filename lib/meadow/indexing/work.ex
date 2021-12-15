@@ -35,6 +35,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
       modifiedDate: work.updated_at,
       project: format(work.project),
       published: work.published,
+      readingRoom: work.reading_room,
       representativeFileSet:
         case work.representative_file_set_id do
           nil ->

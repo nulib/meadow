@@ -6,6 +6,8 @@ defmodule Meadow.Data.CodedTerms do
 
   import Ecto.Query
 
+  require Logger
+
   @doc """
   List all coded term schemes
 
@@ -82,6 +84,22 @@ defmodule Meadow.Data.CodedTerms do
 
       {{:ok, _}, term} ->
         term.label
+    end
+  end
+
+  def seed(file) do
+    with scheme <- Path.basename(file, ".json") do
+      Logger.info("Seeding #{scheme} scheme from #{file}")
+      seed_time = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+      data =
+        File.read!(file)
+        |> Jason.decode!(keys: :atoms)
+        |> Enum.map(fn term ->
+          Map.merge(term, %{scheme: scheme, inserted_at: seed_time, updated_at: seed_time})
+        end)
+
+      Repo.insert_all(CodedTerm, data, on_conflict: :replace_all, conflict_target: [:id, :scheme])
     end
   end
 

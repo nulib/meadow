@@ -1,0 +1,9 @@
+{
+  "name": "execute-fixity",
+  "version": "0.1.0",
+  "description": "Receives S3 upload notification and triggers fixity step function execution",
+  "main": "index.js",
+  "author": "nulib",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

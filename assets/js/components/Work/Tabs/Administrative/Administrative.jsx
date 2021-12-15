@@ -16,6 +16,7 @@ import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administr
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import { formatDate } from "@js/services/helpers";
 import { IconEdit } from "@js/components/Icon";
+import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
 
 const WorkTabsAdministrative = ({ work }) => {
   const {
@@ -25,6 +26,7 @@ const WorkTabsAdministrative = ({ work }) => {
     ingestSheet,
     project,
     published,
+    readingRoom,
     visibility,
     insertedAt,
     updatedAt,
@@ -32,6 +34,7 @@ const WorkTabsAdministrative = ({ work }) => {
   const [isEditing, setIsEditing] = useIsEditing();
   const methods = useForm();
   const { handleFacetLinkClick } = useFacetLinkClick();
+  const { handlePassedInSearchTerm } = usePassedInSearchTerm();
 
   const [updateWork, { loading: updateWorkLoading, error: updateWorkError }] =
     useMutation(UPDATE_WORK, {
@@ -42,7 +45,14 @@ const WorkTabsAdministrative = ({ work }) => {
       refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
       awaitRefetchQueries: true,
     });
-  const { projectCycle } = administrativeMetadata;
+  const {
+    projectCycle,
+    projectDesc,
+    projectManager,
+    projectName,
+    projectProposer,
+    projectTaskNumber,
+  } = administrativeMetadata;
 
   const onSubmit = (data) => {
     const currentFormValues = methods.getValues();
@@ -64,6 +74,7 @@ const WorkTabsAdministrative = ({ work }) => {
         projectCycle: currentFormValues.projectCycle,
       },
       collectionId: currentFormValues.collection,
+      readingRoom: currentFormValues.readingRoom,
       visibility: currentFormValues.visibility
         ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
         : {},
@@ -145,6 +156,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 administrativeMetadata={administrativeMetadata}
                 isEditing={isEditing}
                 published={published}
+                readingRoom={readingRoom}
                 visibility={visibility}
               />
             </div>
@@ -157,34 +169,34 @@ const WorkTabsAdministrative = ({ work }) => {
 
               <UIFormField label="Ingest Project">
                 {project ? (
-                  <p>
-                    <Button
-                      isText
-                      onClick={() =>
-                        handleFacetLinkClick("Project", project.title || null)
-                      }
-                      data-testid="view-project-works"
-                    >
-                      {project.title || ""}
-                    </Button>
-                  </p>
+                  <Button
+                    isText
+                    data-testid="view-project-works"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("IngestProject", project.title)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{project.title}</span>
+                  </Button>
                 ) : null}
               </UIFormField>
 
               <UIFormField label="Ingest Sheet">
-                <p>
-                  {project && ingestSheet && (
-                    <Button
-                      isText
-                      onClick={() =>
-                        handleFacetLinkClick("IngestSheet", ingestSheet.title)
-                      }
-                      data-testid="view-ingest-sheet-works"
-                    >
-                      {ingestSheet.title}
-                    </Button>
-                  )}
-                </p>
+                {project && ingestSheet ? (
+                  <Button
+                    isText
+                    data-testid="view-ingest-sheet-works"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("IngestSheet", ingestSheet.title)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{ingestSheet.title}</span>
+                  </Button>
+                ) : null}
               </UIFormField>
 
               <UIFormField label="Project Cycle">
@@ -197,33 +209,152 @@ const WorkTabsAdministrative = ({ work }) => {
                     label="Project Cycle"
                     defaultValue={projectCycle}
                   />
-                ) : (
-                  <p>{projectCycle}</p>
-                )}
+                ) : projectCycle ? (
+                  <Button
+                    isText
+                    data-testid="project-cycle-link"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("ProjectCycle", projectCycle)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{projectCycle}</span>
+                  </Button>
+                ) : null}
               </UIFormField>
 
-              {PROJECT_METADATA.map((item) => {
-                return (
-                  <UIFormField
-                    label={item.label}
-                    key={item.name}
-                    data-testid={item.name}
+              <UIFormField label="Project / Job Name">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-name"
+                    isReactHookForm
+                    placeholder="Project Name"
+                    name="projectName"
+                    label="Project Name"
+                    defaultValue={projectName}
+                  />
+                ) : projectName.length > 0 ? (
+                  <Button
+                    isText
+                    data-testid="project-name-link"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("ProjectName", projectName)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    {isEditing ? (
-                      <UIFormInput
-                        isReactHookForm
-                        // NOTE: Eventually Project data will come in as single values instead of an array
-                        defaultValue={administrativeMetadata[item.name][0]}
-                        label={item.label}
-                        name={item.name}
-                        placeholder={item.label}
-                      />
-                    ) : (
-                      <p>{administrativeMetadata[item.name][0]}</p>
-                    )}
-                  </UIFormField>
-                );
-              })}
+                    <span>{projectName}</span>
+                  </Button>
+                ) : null}
+              </UIFormField>
+
+              <UIFormField label="Project / Job Description">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-description"
+                    isReactHookForm
+                    placeholder="Project Description"
+                    name="projectDescription"
+                    label="Project Description"
+                    defaultValue={projectDesc}
+                  />
+                ) : projectDesc.length > 0 ? (
+                  <Button
+                    isText
+                    data-testid="project-description-link"
+                    className="break-word"
+                    onClick={() =>
+                      handlePassedInSearchTerm(
+                        "administrativeMetadata.projectDesc",
+                        projectDesc || null
+                      )
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{projectDesc}</span>
+                  </Button>
+                ) : null}
+              </UIFormField>
+
+              <UIFormField label="Project / Job Manager">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-manager"
+                    isReactHookForm
+                    placeholder="Project Manager"
+                    name="projectManager"
+                    label="Project Manager"
+                    defaultValue={projectManager}
+                  />
+                ) : projectManager.length > 0 ? (
+                  <Button
+                    isText
+                    data-testid="project-manager-link"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("ProjectManager", projectManager)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{projectManager}</span>
+                  </Button>
+                ) : null}
+              </UIFormField>
+
+              <UIFormField label="Project / Job Proposer">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-proposer"
+                    isReactHookForm
+                    placeholder="Project Proposer"
+                    name="projectProposer"
+                    label="Project Proposer"
+                    defaultValue={projectProposer}
+                  />
+                ) : projectProposer.length > 0 ? (
+                  <Button
+                    isText
+                    data-testid="project-proposer-link"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick("ProjectProposer", projectProposer)
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{projectProposer}</span>
+                  </Button>
+                ) : null}
+              </UIFormField>
+
+              <UIFormField label="Project / Job Tasker Number">
+                {isEditing ? (
+                  <UIFormInput
+                    data-testid="project-task-number"
+                    isReactHookForm
+                    placeholder="Project Task Number"
+                    name="projectTaskNumber"
+                    label="Project Task Number"
+                    defaultValue={projectTaskNumber}
+                  />
+                ) : projectTaskNumber.length > 0 ? (
+                  <Button
+                    isText
+                    data-testid="project-task-number-link"
+                    className="break-word"
+                    onClick={() =>
+                      handleFacetLinkClick(
+                        "ProjectTaskNumber",
+                        projectTaskNumber
+                      )
+                    }
+                    css={{ padding: "0", textTransform: "none !important" }}
+                  >
+                    <span>{projectTaskNumber}</span>
+                  </Button>
+                ) : null}
+              </UIFormField>
+
               <div className="field content">
                 <p data-testid="inserted-at-label">
                   <strong>Work Created</strong>: {formatDate(insertedAt)}

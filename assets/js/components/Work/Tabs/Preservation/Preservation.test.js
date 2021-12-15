@@ -74,10 +74,7 @@ describe("WorkTabsPreservation component", () => {
     const td = await screen.findByText(mockWork.fileSets[0].id);
     const row = td.closest("tr");
     const utils = within(row);
-    expect(utils.getByTestId("button-copy-id"));
-    expect(utils.getByTestId("button-fileset-delete"));
-    expect(utils.getByTestId("button-copy-preservation-location"));
-    expect(utils.getByTestId("button-copy-checksum"));
+    expect(utils.getByTestId("fileset-actions"));
   });
 
   it("renders a copy fileset id button in the row", async () => {

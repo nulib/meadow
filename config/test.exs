@@ -43,10 +43,19 @@ config :meadow,
   streaming_bucket: "test-streaming",
   streaming_url: "https://test-streaming-url/",
   mediaconvert_client: MediaConvert.Mock,
+  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url: "http://localhost:8184/iiif/2/",
   iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/",
   work_archiver_endpoint: ""
+
+config :meadow,
+  checksum_notification: %{
+    arn: "arn:minio:sqs::checksum:webhook",
+    buckets: ["test-ingest", "test-uploads"]
+  },
+  required_checksum_tags: ["computed-md5"],
+  checksum_wait_timeout: 5_000
 
 config :meadow,
   ark: %{

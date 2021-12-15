@@ -21,6 +21,9 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
       end
     end)
 
+    Application.get_env(:meadow, :checksum_notification, nil)
+    |> configure_bucket_notifications()
+
     with bucket <- Meadow.Config.pyramid_bucket() do
       policy =
         %{
@@ -45,6 +48,32 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
       bucket |> ExAws.S3.put_bucket_policy(policy) |> ExAws.request!()
     end
   end
+
+  defp configure_bucket_notifications(%{arn: notification_arn, buckets: buckets}) do
+    notification_configuration = """
+      <NotificationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+        <QueueConfiguration>
+          <Event>s3:ObjectCreated:Put</Event>
+          <Event>s3:ObjectCreated:CompleteMultipartUpload</Event>
+          <Queue>#{notification_arn}</Queue>
+        </QueueConfiguration>
+      </NotificationConfiguration>
+    """
+
+    Enum.each(buckets, fn bucket ->
+      Logger.info("Configuring #{bucket} for fixity notification")
+
+      %ExAws.Operation.S3{
+        http_method: :put,
+        bucket: bucket,
+        resource: "notification",
+        body: notification_configuration
+      }
+      |> ExAws.request()
+    end)
+  end
+
+  defp configure_bucket_notifications(_), do: :noop
 end
 
 defmodule Mix.Tasks.Meadow.Reset do

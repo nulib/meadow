@@ -15,6 +15,7 @@ import {
   parseMultiValues,
   prepControlledTermInput,
   prepFacetKey,
+  prepNotes,
   prepRelatedUrl,
   PROJECT_METADATA,
 } from "@js/services/metadata";
@@ -71,12 +72,16 @@ export default function BatchEditTabs() {
     // updated.
 
     let currentFormValues = methods.getValues();
+    console.log(`currentFormValues`, currentFormValues);
     let addItems = { administrative: {}, descriptive: {} };
     let deleteReadyItems = {};
     let replaceItems = { administrative: {}, descriptive: {} };
     let multiValues = {};
 
     // Process Descriptive metadata items
+    if (currentFormValues.notes?.length > 0) {
+      replaceItems.descriptive.notes = prepNotes(currentFormValues.notes);
+    }
     if (currentFormValues.relatedUrl?.length > 0) {
       replaceItems.descriptive.relatedUrl = prepRelatedUrl(
         currentFormValues.relatedUrl
@@ -155,6 +160,9 @@ export default function BatchEditTabs() {
       },
       ...((batchPublish.publish || batchPublish.unpublish) && {
         published: { ...batchPublish },
+      }),
+      ...(currentFormValues.readingRoom && {
+        readingRoom: currentFormValues.readingRoom,
       }),
       descriptiveMetadata: {
         ...replaceItems.descriptive,

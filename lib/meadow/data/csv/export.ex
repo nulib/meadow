@@ -15,6 +15,7 @@ defmodule Meadow.Data.CSV.Export do
     ["accessionNumber"],
     ["collection", "id"],
     ["published"],
+    ["readingRoom"],
     ["visibility"]
   ]
 
@@ -127,6 +128,13 @@ defmodule Meadow.Data.CSV.Export do
     case normalize_coded_term(related_url_label) do
       nil -> url
       prefix -> [prefix, url] |> Enum.join(":")
+    end
+  end
+
+  defp to_field(%{"note" => note, "type" => type}) do
+    case normalize_coded_term(type) do
+      nil -> note
+      prefix -> [prefix, note] |> Enum.join(":")
     end
   end
 

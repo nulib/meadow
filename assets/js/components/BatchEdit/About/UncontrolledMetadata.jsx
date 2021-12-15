@@ -1,9 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
+import UIFormField from "@js/components/UI/Form/Field";
 import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
 import { UNCONTROLLED_METADATA } from "@js/services/metadata";
+import UIFormNote from "@js/components/UI/Form/Note";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
+  const codeLists = useCodeLists();
+
   return (
     <div
       className="columns is-multiline"
@@ -15,6 +20,17 @@ const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
           <UIFormBatchFieldArray required name={item.name} label={item.label} />
         </div>
       ))}
+      <div className="column is-full" data-testid="notes">
+        <UIFormField label="Notes">
+          <UIFormNote
+            codeLists={
+              codeLists.notesData ? codeLists.notesData.codeList : []
+            }
+            label="Notes"
+            name="notes"
+          />
+        </UIFormField>
+      </div>
     </div>
   );
 };

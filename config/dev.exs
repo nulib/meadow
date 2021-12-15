@@ -91,6 +91,7 @@ config :meadow,
   streaming_bucket: "dev-streaming",
   streaming_url: "https://devbox.library.northwestern.edu:9001/dev-streaming/",
   mediaconvert_client: MediaConvert.Mock,
+  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url:
     System.get_env("IIIF_SERVER_URL", "https://devbox.library.northwestern.edu:8183/iiif/2/"),
   iiif_manifest_url:
@@ -103,6 +104,12 @@ config :meadow,
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
   work_archiver_endpoint: ""
+
+config :meadow,
+  checksum_notification: %{
+    arn: "arn:minio:sqs::checksum:webhook",
+    buckets: ["dev-ingest", "dev-uploads"]
+  }
 
 config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}

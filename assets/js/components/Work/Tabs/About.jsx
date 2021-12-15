@@ -17,6 +17,7 @@ import {
   prepControlledTermInput,
   prepFieldArrayItemsForPost,
   prepEDTFforPost,
+  prepNotes,
   prepRelatedUrl,
   CONTROLLED_METADATA,
   IDENTIFIER_METADATA,
@@ -67,6 +68,7 @@ function prepFormData(work) {
     dateCreated: descriptiveMetadata.dateCreated.map((value) => ({
       metadataItem: value.edtf,
     })),
+    notes: descriptiveMetadata.notes,
     relatedUrl: descriptiveMetadata.relatedUrl,
     license: descriptiveMetadata.license,
     ...resetValues,
@@ -124,6 +126,7 @@ const WorkTabsAbout = ({ work }) => {
         license: data.license
           ? deleteKeyFromObject(JSON.parse(data.license))
           : {},
+        notes: prepNotes(currentFormValues.notes),
         relatedUrl: prepRelatedUrl(currentFormValues.relatedUrl),
         rightsStatement: data.rightsStatement
           ? {

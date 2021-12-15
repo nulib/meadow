@@ -35,6 +35,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :ingest_bucket)
   end
 
+  @doc "Retrieve the configured multipart upload concurrency value"
+  def multipart_upload_concurrency do
+    Application.get_env(:meadow, :multipart_upload_concurrency) |> String.to_integer()
+  end
+
   @doc "Retrieve the configured preservation bucket"
   def preservation_bucket do
     Application.get_env(:meadow, :preservation_bucket)
@@ -207,6 +212,12 @@ defmodule Meadow.Config do
   end
 
   def meadow_version, do: @meadow_version
+
+  @doc "Retrieve checksum timeout"
+  def checksum_wait_timeout, do: Application.get_env(:meadow, :checksum_wait_timeout)
+
+  @doc "Retrieve required checksum tags"
+  def required_checksum_tags, do: Application.get_env(:meadow, :required_checksum_tags)
 
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do

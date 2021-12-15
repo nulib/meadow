@@ -98,7 +98,7 @@ jobs:
         run: npm run-script prettier
         working-directory: assets
       - name: JS Tests
-        run: npm run-script ci -- -w 1
+        run: npm run-script ci:silent -- -w 1
         working-directory: assets
       - name: Test Webpack Build
         run: npm run-script deploy
@@ -143,8 +143,16 @@ jobs:
           MINIO_ROOT_PASSWORD: minio123
           MINIO_ACCESS_KEY: minio
           MINIO_SECRET_KEY: minio123
+          MINIO_NOTIFY_WEBHOOK_ENABLE_checksum: on
+          MINIO_NOTIFY_WEBHOOK_ENDPOINT_checksum: http://minio-checksum:8000/fixity
         ports:
           - 9002:9000
+      minio-checksum:
+        image: nulib/minio-checksum
+        env:
+          AWS_ACCESS_KEY_ID: minio
+          AWS_SECRET_ACCESS_KEY: minio123
+          AWS_S3_ENDPOINT: http://minio:9000/
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
