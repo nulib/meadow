@@ -14,6 +14,13 @@ get_required_var = fn var ->
   end
 end
 
+priv_path = fn path ->
+  case :code.priv_dir(:meadow) do
+    {:error, :bad_name} -> Path.join([".", "priv", path])
+    priv_dir -> priv_dir |> to_string() |> Path.join(path)
+  end
+end
+
 config :elastix,
   custom_headers:
     {Meadow.Utils.AWS, :add_aws_signature,
@@ -69,7 +76,7 @@ config :meadow, Meadow.ElasticsearchCluster,
   json_library: Jason,
   indexes: %{
     meadow: %{
-      settings: Meadow.Config.priv_path("elasticsearch/meadow.json"),
+      settings: priv_path.("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [
         Meadow.Data.Schemas.Collection,
