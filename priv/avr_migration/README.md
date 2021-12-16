@@ -27,4 +27,13 @@
     ```elixir
     iex> AVR.Migration.import_subjects()
     ```
-11. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+11. Create FileSet objects and link them to their works.
+    ```elixir
+    iex> AVR.Migration.import_filesets(ingest_bucket, Path.join([project_folder, "master_files"])
+    ```
+12. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+
+# MasterFile/Derivative moves
+
+1. Create FileSet objects with accession numbers `"avr:#{masterfile_id}`
+2. 

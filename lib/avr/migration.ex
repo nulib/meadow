@@ -1,5 +1,5 @@
 defmodule AVR.Migration do
-  alias Meadow.Data.Schemas.{Collection, Work}
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Ingest.Rows
   alias Meadow.Ingest.Schemas.Row
@@ -25,19 +25,26 @@ defmodule AVR.Migration do
     end
   end
 
-  def import_filesets(bucket, prefix) do
-    ExAws.S3.list_objects_v2(bucket, prefix: prefix)
-    |> ExAws.stream!()
-    |> Stream.each(fn %{key: key} ->
-      ExAws.S3.get_object(bucket, key)
-      |> ExAws.request!()
-      |> Map.get(:body)
-      |> Jason.decode!(keys: :atoms)
-      |> import_work_filesets()
-    end)
-    |> Stream.run()
+  def find_avr_work(mediaobject_id) do
+    from(w in Work, where: w.accession_number == ^"avr:#{mediaobject_id}") |> Repo.one()
   end
 
+  def list_avr_works do
+    from(w in Work, where: like(w.accession_number, "avr:%"), preload: :file_sets)
+    |> Repo.all()
+  end
+
+  def find_avr_fileset(masterfile_id) do
+    from(fs in FileSet, where: fs.accession_number == ^"avr:#{masterfile_id}") |> Repo.one()
+  end
+
+  def list_avr_filesets do
+    from(fs in FileSet,
+      where: like(fs.accession_number, "avr:%"),
+      where: not like(fs.accession_number, "%:mods")
+    )
+    |> Repo.all()
+  end
 
   defp find_or_create_subject(%{id: id} = attributes) do
     case AuthorityRecords.get_authority_record(id) do
@@ -129,7 +136,9 @@ defmodule AVR.Migration do
       |> Enum.map(fn record ->
         record
         |> Map.from_struct()
-        |> Enum.reject(fn {key, _} -> Enum.member?([:__meta__, :inserted_at, :updated_at], key) end)
+        |> Enum.reject(fn {key, _} ->
+          Enum.member?([:__meta__, :inserted_at, :updated_at], key)
+        end)
         |> Enum.into(%{})
       end)
       |> Enum.map(fn
