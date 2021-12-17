@@ -11,29 +11,24 @@
 5. Ingest `avr_migration.csv` into the AVR Migration project. It should take about 2 minutes to 
    validate and 20 to ingest.
 6. Copy the ID of the completed ingest sheet.
-7. Load the migration module.
-   ```elixir
-   iex> Code.compile_file("priv/avr_migration/avr_migration.exs")
-   ```
-8. Create AVR collections.
+7. Create AVR collections.
    ```elixir
    iex> AVR.Migration.import_collections()
    ```
-9. Link ingested works to their collections.
+8. Link ingested works to their collections.
    ```elixir
    iex> AVR.Migration.map_works_to_collections(ingest_sheet_id)
    ```
-10. Create AVR Subject Headings.
+9.  Create AVR Subject Headings.
     ```elixir
     iex> AVR.Migration.import_subjects()
     ```
-11. Create FileSet objects and link them to their works.
+10. Create FileSet objects and link them to their works.
     ```elixir
-    iex> AVR.Migration.import_filesets(ingest_bucket, Path.join([project_folder, "master_files"])
+    iex> AVR.Migration.FileSets.import_filesets(Meadow.Config.ingest_bucket(), Path.join([project.folder, "master_files"]))
+    ```
+11. Migrate preservation and derivative files and attach them to FileSets.
+    ```elixir
+    iex> AVR.Migration.FileMover.process_all_file_set_files()
     ```
 12. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
-
-# MasterFile/Derivative moves
-
-1. Create FileSet objects with accession numbers `"avr:#{masterfile_id}`
-2. 

@@ -1,4 +1,10 @@
 defmodule AVR.Migration.FileMover do
+  @moduledoc """
+  Support code to move preservation and derivative files during
+  the AVR -> Meadow migration
+  """
+
+  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Utils.AWS
   alias Meadow.Utils.Stream, as: StreamUtils
@@ -7,24 +13,36 @@ defmodule AVR.Migration.FileMover do
 
   @avr_derivative_bucket "avalon-derivatives-cfx3wj9"
 
-  def process_all_file_set_files do
+  def process_all_file_set_files(project) do
     AVR.Migration.list_avr_filesets()
-    |> Task.async_stream(&process_file_set_files/1, timeout: :infinity)
+    |> Task.async_stream(&process_file_set_files(&1, project), timeout: :infinity)
     |> Stream.run()
   end
 
-  def process_file_set_files(file_set) do
+  def process_file_set_files(file_set, project) do
     file_set
-    |> copy_preservation_file()
+    |> copy_preservation_file(project)
     |> copy_derivatives()
   end
 
-  def copy_preservation_file(file_set) do
+  defp ingest_file_location(file_set, project) do
+    with "avr:" <> masterfile_id <- file_set.accession_number do
+      "s3://" <>
+        Path.join([
+          Config.ingest_bucket(),
+          project.folder,
+          masterfile_id,
+          file_set.core_metadata.original_filename
+        ])
+    end
+  end
+
+  def copy_preservation_file(file_set, project) do
     with %{core_metadata: %{location: current_location}} <- file_set,
-         preservation_location <- FileSets.preservation_location(file_set) do
-      case maybe_copy(current_location, preservation_location) do
+         ingest_location <- ingest_file_location(file_set, project) do
+      case maybe_copy(current_location, ingest_location) do
         :exists ->
-          Logger.warn("[#{file_set.id}] Destination #{preservation_location} already exists")
+          Logger.warn("[#{file_set.id}] Destination #{ingest_location} already exists")
           file_set
 
         :unknown_source ->
@@ -34,7 +52,7 @@ defmodule AVR.Migration.FileMover do
         {:ok, %{status_code: 200}} ->
           {:ok, result} =
             file_set
-            |> FileSets.update_file_set(%{core_metadata: %{location: preservation_location}})
+            |> FileSets.update_file_set(%{core_metadata: %{location: ingest_location}})
 
           result
 
@@ -80,15 +98,18 @@ defmodule AVR.Migration.FileMover do
         |> List.first()
       end
 
-    derivatives = FileSets.add_derivative(file_set, :playlist, playlist)
+    if not is_nil(playlist) do
+      derivatives = FileSets.add_derivative(file_set, :playlist, playlist)
 
-    with {:ok, result} <- FileSets.update_file_set(file_set, %{derivatives: derivatives}) do
-      result
+      with {:ok, result} <- FileSets.update_file_set(file_set, %{derivatives: derivatives}) do
+        result
+      end
     end
   end
 
   defp maybe_copy("s3://preservation-cfx3wj9/" <> _ = src, dest), do: copy_file(src, dest)
   defp maybe_copy("s3://stack-p-avr-masterfiles/" <> _ = src, dest), do: copy_file(src, dest)
+  defp maybe_copy("s3://meadow-s-preservation/" <> _, _), do: :exists
   defp maybe_copy(_, _), do: :unknown_source
 
   defp copy_file(src, dest) do

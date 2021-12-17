@@ -1,4 +1,9 @@
 defmodule AVR.Migration.FileSets do
+  @moduledoc """
+  Support code for file set creation during the
+  AVR -> Meadow migration
+  """
+
   alias Meadow.Data.FileSets
   alias Meadow.Repo
 

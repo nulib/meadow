@@ -1,4 +1,8 @@
 defmodule AVR.Migration do
+  @moduledoc """
+  Support code for AVR -> Meadow migration
+  """
+
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Ingest.Rows
