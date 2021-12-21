@@ -9,6 +9,7 @@ defmodule MeadowWeb.Schema do
 
   alias Meadow.{Data, Ingest, Repo}
   alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Ingest.Schemas.Sheet
   import Ecto.Query
 
   import_types(__MODULE__.AccountTypes)
@@ -88,6 +89,7 @@ defmodule MeadowWeb.Schema do
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Ingest, Ingest.datasource())
+      |> Dataloader.add_source(OrderedIngestSheets, ordered_ingest_sheet_source())
       |> Dataloader.add_source(Data, Data.datasource())
       |> Dataloader.add_source(OrderedFileSets, ordered_file_set_source())
 
@@ -102,6 +104,15 @@ defmodule MeadowWeb.Schema do
     Dataloader.Ecto.new(Repo,
       query: fn
         FileSet, _ -> from(f in FileSet, order_by: f.rank)
+        queryable, _ -> queryable
+      end
+    )
+  end
+
+  defp ordered_ingest_sheet_source do
+    Dataloader.Ecto.new(Repo,
+      query: fn
+        Sheet, _ -> from(s in Sheet, order_by: [desc: s.updated_at])
         queryable, _ -> queryable
       end
     )
