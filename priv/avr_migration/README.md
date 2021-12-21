@@ -19,16 +19,17 @@
    ```elixir
    iex> AVR.Migration.map_works_to_collections(ingest_sheet_id)
    ```
-9.  Create AVR Subject Headings.
-    ```elixir
-    iex> AVR.Migration.import_subjects()
-    ```
-10. Create FileSet objects and link them to their works.
+9.  Create FileSet objects and link them to their works.
     ```elixir
     iex> AVR.Migration.FileSets.import_filesets(Meadow.Config.ingest_bucket(), Path.join([project.folder, "master_files"]))
     ```
-11. Migrate preservation and derivative files and attach them to FileSets.
+10. Migrate preservation and derivative files and attach them to FileSets.
     ```elixir
-    iex> AVR.Migration.FileMover.process_all_file_set_files()
+    iex> AVR.Migration.FileMover.process_all_file_set_files(project)
     ```
-12. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+11. Iterate over `AVR.Migration.list_avr_filesets()` and Generate an S3 Batch inventory CSV 
+    for the preservation files.
+12. Use an S3 Batch Operation to kick off the checksum Step Function for each preservation file.
+13. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
+    ingest pipeline.
+14. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
