@@ -1,0 +1,8 @@
+query IiifManifestHeaders($workId: ID!) {
+  iiifManifestHeaders(workId: $workId) {
+    manifestUrl
+    etag
+    lastModified
+    workId
+  }
+}

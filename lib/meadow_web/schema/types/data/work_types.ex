@@ -41,6 +41,13 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authenticate)
       resolve(&MeadowWeb.Resolvers.Data.verify_file_sets/3)
     end
+
+    @desc "Get last modified timestamp and etag for IIIF manifest"
+    field :iiif_manifest_headers, :iiif_manifest_headers do
+      arg(:work_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      resolve(&MeadowWeb.Resolvers.Data.iiif_manifest_headers/3)
+    end
   end
 
   object :work_mutations do
@@ -221,6 +228,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :file_set_verification_status do
     field :file_set_id, :id
     field :verified, :boolean
+  end
+
+  @desc "IIIF Manifest etag and last modified headers"
+  object :iiif_manifest_headers do
+    field :work_id, :id
+    field :manifest_url, :string
+    field :etag, :string
+    field :last_modified, :string
   end
 
   #
