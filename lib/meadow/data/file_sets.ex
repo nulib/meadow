@@ -288,10 +288,13 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the distribution streaming playlist url for a file set
   """
-  def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}}) do
+  def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}})
+      when is_binary(playlist) and byte_size(playlist) > 0 do
     with %{path: path} <- URI.parse(playlist) do
       Config.streaming_url() |> Path.join(path)
     end
+  rescue
+    FunctionClauseError -> nil
   end
 
   def distribution_streaming_uri_for(_), do: nil

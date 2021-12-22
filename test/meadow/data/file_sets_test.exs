@@ -252,18 +252,6 @@ defmodule Meadow.Data.FileSetsTest do
       end
     end
 
-    test "distribution_streaming_uri_for/1 for a FileSet with any role besides 'P'" do
-      file_set = file_set_fixture()
-
-      with url <- file_set |> FileSets.distribution_streaming_uri_for() do
-        assert url |> String.starts_with?(Config.streaming_url())
-        assert url |> String.ends_with?("/bar.m3u8")
-      end
-
-      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: nil})
-      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
-    end
-
     test "add_derivatives/3" do
       assert FileSets.add_derivative(%FileSet{derivatives: nil}, "playlist", "test.m3u8") ==
                %{"playlist" => "test.m3u8"}
@@ -311,6 +299,39 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
 
       assert is_nil(FileSets.duration_in_milliseconds(file_set))
+    end
+  end
+
+  describe "distribution_streaming_uri_for/1" do
+    setup do
+      {:ok, %{file_set: file_set_fixture()}}
+    end
+
+    test "for a FileSet with any role besides 'P'", %{file_set: file_set} do
+      with url <- file_set |> FileSets.distribution_streaming_uri_for() do
+        assert url |> String.starts_with?(Config.streaming_url())
+        assert url |> String.ends_with?("/bar.m3u8")
+      end
+    end
+
+    test "with nil derivatives", %{file_set: file_set} do
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: nil})
+      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
+    end
+
+    test "with nil playlist", %{file_set: file_set} do
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => nil}})
+      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
+    end
+
+    test "with empty playlist", %{file_set: file_set} do
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => ""}})
+      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
+    end
+
+    test "with unparseable playlist", %{file_set: file_set} do
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => 42}})
+      assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
     end
   end
 end
