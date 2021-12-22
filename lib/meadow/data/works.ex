@@ -398,6 +398,27 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Retrieves the IIIF Manifest S3 key for a work
+  iex> iiif_manifest_key("f352eb30-ae2f-4b49-81f9-6eb4659a3f47", "IMAGE")
+  "public/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
+
+  iex> iiif_manifest_key(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47", work_type: %{id: "VIDEO"}})
+  "iiif3/f3/52/eb/30/-a/e2/f-/4b/49/-8/1f/9-/6e/b4/65/9a/3f/47-manifest.json"
+
+  """
+  def iiif_manifest_key(%Work{id: id, work_type: %{id: work_type}}) do
+    iiif_manifest_key(id, work_type)
+  end
+
+  def iiif_manifest_key(work_id, "IMAGE") do
+    "public/" <> Pairtree.manifest_path(work_id)
+  end
+
+  def iiif_manifest_key(work_id, work_type) when work_type in ["AUDIO", "VIDEO"] do
+    "public/iiif3/" <> Pairtree.manifest_path(work_id)
+  end
+
+  @doc """
   Retrieves the ARK Target URL for a work
   iex> ark_target_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47")
   "https://dc.library.northwestern.edu/items/f352eb30-ae2f-4b49-81f9-6eb4659a3f47"
@@ -757,6 +778,39 @@ defmodule Meadow.Data.Works do
          |> ExAws.request() do
       {:ok, _} -> true
       {:error, _} -> false
+    end
+  end
+
+  def iiif_manifest_headers(work_id) do
+    work = Repo.get!(Work, work_id)
+
+    case ExAws.S3.head_object(
+           Config.pyramid_bucket(),
+           iiif_manifest_key(work)
+         )
+         |> ExAws.request() do
+      {:ok, %{headers: headers, status_code: 200}} ->
+        etag =
+          headers
+          |> Enum.into(%{})
+          |> Map.get("ETag")
+          |> Jason.decode!()
+
+        last_modified =
+          headers
+          |> Enum.into(%{})
+          |> Map.get("Last-Modified")
+
+        {:ok,
+         %{
+           work_id: work_id,
+           etag: etag,
+           last_modified: last_modified,
+           manifest_url: iiif_manifest_url(work)
+         }}
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 end
