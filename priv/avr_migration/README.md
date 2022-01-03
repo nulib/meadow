@@ -27,9 +27,7 @@
     ```elixir
     iex> AVR.Migration.FileMover.process_all_file_set_files(project)
     ```
-11. Iterate over `AVR.Migration.list_avr_filesets()` and Generate an S3 Batch inventory CSV 
-    for the preservation files.
-12. Use an S3 Batch Operation to kick off the checksum Step Function for each preservation file.
-13. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
+11. Wait for all files under the S3 project folder to have checksum tags.
+12. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
     ingest pipeline.
-14. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+13. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
