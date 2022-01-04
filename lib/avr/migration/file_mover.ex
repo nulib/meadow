@@ -15,14 +15,20 @@ defmodule AVR.Migration.FileMover do
 
   def process_all_file_set_files(project) do
     AVR.Migration.list_avr_filesets()
-    |> Task.async_stream(&process_file_set_files(&1, project), timeout: :infinity)
+    |> Task.async_stream(&process_file_set_files(&1, project),
+      max_concurrency: Config.concurrency(),
+      timeout: :infinity
+    )
     |> Stream.run()
   end
 
   def process_file_set_files(file_set, project) do
-    file_set
-    |> copy_preservation_file(project)
-    |> copy_derivatives()
+    [
+      fn -> copy_preservation_file(file_set, project) end,
+      fn -> copy_derivatives(file_set) end
+    ]
+    |> Enum.map(&Task.async/1)
+    |> Task.await_many(:infinity)
   end
 
   defp ingest_file_location(file_set, project) do
@@ -31,6 +37,7 @@ defmodule AVR.Migration.FileMover do
         Path.join([
           Config.ingest_bucket(),
           project.folder,
+          "file_sets",
           masterfile_id,
           file_set.core_metadata.original_filename
         ])
@@ -82,6 +89,7 @@ defmodule AVR.Migration.FileMover do
               ["s3://", dest_bucket, "/", dest_key] |> IO.iodata_to_binary()
             end
           end,
+          max_concurrency: Config.concurrency(),
           timeout: :infinity
         )
         |> Stream.map(fn {:ok, val} -> val end)

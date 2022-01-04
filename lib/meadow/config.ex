@@ -227,6 +227,8 @@ defmodule Meadow.Config do
   @doc "Retrieve required checksum tags"
   def required_checksum_tags, do: Application.get_env(:meadow, :required_checksum_tags)
 
+  def concurrency, do: Application.get_env(:meadow, :max_concurrency, System.schedulers_online())
+
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)

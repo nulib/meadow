@@ -26,8 +26,12 @@ defmodule AVR.Migration do
   end
 
   def list_avr_works do
-    from(w in Work, where: like(w.accession_number, "avr:%"), preload: :file_sets)
+    avr_works_query()
     |> Repo.all()
+  end
+
+  def avr_works_query do
+    from(w in Work, where: like(w.accession_number, "avr:%"), preload: :file_sets)
   end
 
   def find_avr_fileset(masterfile_id) do
@@ -35,11 +39,15 @@ defmodule AVR.Migration do
   end
 
   def list_avr_filesets do
+    avr_filesets_query()
+    |> Repo.all()
+  end
+
+  def avr_filesets_query do
     from(fs in FileSet,
       where: like(fs.accession_number, "avr:%"),
       where: not like(fs.accession_number, "%:mods")
     )
-    |> Repo.all()
   end
 
   def map_works_to_collections(ingest_sheet_id) do

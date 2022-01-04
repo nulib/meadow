@@ -27,7 +27,18 @@
     ```elixir
     iex> AVR.Migration.FileMover.process_all_file_set_files(project)
     ```
-11. Wait for all files under the S3 project folder to have checksum tags.
-12. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
+11. While that's running, update work metadata from attached MODS.
+    ```
+    AVR.Migration.list_avr_works() 
+    |> Enum.filter(& &1.descriptive_metadata.title |> is_nil()) 
+    |> Repo.preload(:file_sets) 
+    |> Task.async_stream(&AVR.Migration.Metadata.update_work_metadata/1, timeout: :infinity) 
+    |> Stream.run()
+    ```
+12. Wait for all files under the S3 project folder to have checksum tags.
+13. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
     ingest pipeline.
-13. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+    ```
+    AVR.Migration.list_avr_filesets() |> Enum.each(&Meadow.Pipeline.kickoff/1)
+    ```
+14. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
