@@ -1,11 +1,14 @@
 var aws = require("aws-sdk");
 const stateMachineArn = process.env.stateMachineArn;
+
+const fullyDecode = (str) => decodeURIComponent(str.replace(/\+/g, " "));
+
 exports.handler = (event, context, callback) => {
   var params = {
     stateMachineArn: stateMachineArn,
     input: JSON.stringify({
-      Bucket: event.Records[0].s3.bucket.name,
-      Key: event.Records[0].s3.object.key,
+      Bucket: fullyDecode(event.Records[0].s3.bucket.name),
+      Key: fullyDecode(event.Records[0].s3.object.key),
     }),
   };
   var stepfunctions = new aws.StepFunctions();

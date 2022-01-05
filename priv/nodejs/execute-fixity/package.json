@@ -5,5 +5,6 @@
   "main": "index.js",
   "author": "nulib",
   "license": "Apache-2.0",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {"aws-sdk": "^2.1050.0"}
 }
