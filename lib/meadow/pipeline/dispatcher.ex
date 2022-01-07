@@ -164,10 +164,10 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
   defp skip_transcode?(file_set) do
     Config.streaming_bucket()
     |> ExAws.S3.list_objects_v2(prefix: Pairtree.generate!(file_set.id))
-    |> ExAws.request!
+    |> ExAws.request!()
     |> get_in([:body, :key_count])
     |> String.to_integer()
-    |> then(& &1 > 0)
+    |> then(&(&1 > 0))
   end
 
   defp dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
@@ -196,6 +196,8 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
     next_action.send_message(%{file_set_id: file_set.id}, attributes)
   end
+
+  defp next_action(TranscodeComplete, _), do: FileSetComplete
 
   defp next_action(last_action, action_queue) do
     index = action_queue |> Enum.find_index(&(&1 == last_action))
