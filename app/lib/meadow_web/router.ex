@@ -32,7 +32,11 @@ defmodule MeadowWeb.Router do
 
   scope "/dashboard" do
     pipe_through :secure_browser
-    live_dashboard "/", metrics: Meadow.Telemetry, ecto_repos: [Meadow.Repo]
+
+    live_dashboard "/",
+      metrics: Meadow.Telemetry,
+      ecto_repos: [Meadow.Repo],
+      additional_pages: [broadway: {BroadwayDashboard, pipelines: Meadow.Pipeline.actions()}]
   end
 
   scope "/elasticsearch" do

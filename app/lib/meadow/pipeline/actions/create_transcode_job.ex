@@ -5,20 +5,18 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias MediaConvert.{AudioTemplate, VideoTemplate}
-  alias Sequins.Pipeline.Action
 
-  use Action
   use Meadow.Pipeline.Actions.Common
 
   require Logger
 
-  @actiondoc "Create an AWS Elemental MediaConvert Job for an audio or video FileSet"
+  def actiondoc, do: "Create an AWS Elemental MediaConvert Job for an audio or video FileSet"
 
-  defp already_complete?(file_set, _) do
+  def already_complete?(file_set, _) do
     ActionStates.ok?(file_set.id, __MODULE__)
   end
 
-  defp process(file_set, attributes, _false) do
+  def process(file_set, attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     source = file_set.core_metadata.location

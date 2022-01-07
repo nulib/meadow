@@ -8,19 +8,15 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
   """
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.{Progress, Rows}
-  alias Meadow.Pipeline
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
 
-  alias Sequins.Pipeline.Action
-
-  use Action
   use Meadow.Pipeline.Actions.Common
 
   require Logger
 
-  @actiondoc "Initialize dispatch for rest of pipeline"
+  def actiondoc, do: "Initialize dispatch for rest of pipeline"
 
-  defp already_complete?(file_set, _) do
+  def already_complete?(file_set, _) do
     count = length(ActionStates.get_states(file_set.id))
 
     case Dispatcher.initial_actions() |> length() do
@@ -32,7 +28,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
     end
   end
 
-  defp process(file_set, attributes, _) do
+  def process(file_set, attributes) do
     Logger.info("Initializing dispatch for FileSet #{file_set.id}")
 
     case Dispatcher.dispatcher_actions(file_set) do

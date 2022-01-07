@@ -9,24 +9,23 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.{Lambda, StructMap}
-  alias Sequins.Pipeline.Action
 
-  use Action
   use Meadow.Pipeline.Actions.Common
 
   require Logger
 
-  @actiondoc "Extract mime type from FileSet"
   @error_message "error in mime-type extraction"
 
-  defp already_complete?(file_set, _) do
+  def actiondoc, do: "Extract mime type from FileSet"
+
+  def already_complete?(file_set, _) do
     file_set
     |> StructMap.deep_struct_to_map()
     |> get_in([:core_metadata, :mime_type])
     |> is_binary()
   end
 
-  defp process(file_set, _attributes, _) do
+  def process(file_set, _attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     file_set.core_metadata.location

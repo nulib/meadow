@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks, WorkCreator}
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
 
   import ExUnit.CaptureLog
