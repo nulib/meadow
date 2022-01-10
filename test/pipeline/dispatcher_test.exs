@@ -255,5 +255,16 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
       refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
       refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
     end
+
+    test "dispatches to FileSetComplete after TranscodeComplete even if skip_transcode? is true",
+         %{file_set: file_set} do
+      assert capture_log(fn ->
+               Dispatcher.process(%{file_set_id: file_set.id}, %{
+                 process: "TranscodeComplete",
+                 status: "ok"
+               })
+             end) =~
+               "Last action was: Elixir.Meadow.Pipeline.Actions.TranscodeComplete, next action is: Elixir.Meadow.Pipeline.Actions.FileSetComplete for file set id: #{file_set.id}"
+    end
   end
 end
