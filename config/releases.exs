@@ -172,19 +172,19 @@ get_sequins_var = fn key, attribute, default ->
 end
 
 [
-  {IngestFileSet, "INGEST_FILE_SET"},
-  {ExtractMimeType, "EXTRACT_MIME_TYPE"},
-  {InitializeDispatch, "INITIALIZE_DISPATCH"},
-  {Dispatcher, "DISPATCHER"},
-  {GenerateFileSetDigests, "GENERATE_FILE_SET_DIGESTS"},
-  {ExtractExifMetadata, "EXTRACT_EXIF_METADATA"},
-  {CopyFileToPreservation, "COPY_FILE_TO_PRESERVATION"},
-  {CreatePyramidTiff, "CREATE_PYRAMID_TIFF"},
-  {ExtractMediaMetadata, "EXTRACT_MEDIA_METADATA"},
-  {CreateTranscodeJob, "CREATE_TRANSCODE_JOB"},
-  {TranscodeComplete, "TRANSCODE_COMPLETE"},
-  {GeneratePosterImage, "GENERATE_POSTER_IMAGE"},
-  {FileSetComplete, "FILE_SET_COMPLETE"}
+  {Actions.IngestFileSet, "INGEST_FILE_SET"},
+  {Actions.ExtractMimeType, "EXTRACT_MIME_TYPE"},
+  {Actions.InitializeDispatch, "INITIALIZE_DISPATCH"},
+  {Actions.Dispatcher, "DISPATCHER"},
+  {Actions.GenerateFileSetDigests, "GENERATE_FILE_SET_DIGESTS"},
+  {Actions.ExtractExifMetadata, "EXTRACT_EXIF_METADATA"},
+  {Actions.CopyFileToPreservation, "COPY_FILE_TO_PRESERVATION"},
+  {Actions.CreatePyramidTiff, "CREATE_PYRAMID_TIFF"},
+  {Actions.ExtractMediaMetadata, "EXTRACT_MEDIA_METADATA"},
+  {Actions.CreateTranscodeJob, "CREATE_TRANSCODE_JOB"},
+  {Actions.TranscodeComplete, "TRANSCODE_COMPLETE"},
+  {Actions.GeneratePosterImage, "GENERATE_POSTER_IMAGE"},
+  {Actions.FileSetComplete, "FILE_SET_COMPLETE"}
 ]
 |> Enum.each(fn {action, key} ->
   with receive_interval <- 1000,
