@@ -49,7 +49,7 @@
     "openseadragon-react-viewer": "^3.3.1",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
-    "prop-types": "^15.7.2",
+    "prop-types": "^15.8.1",
     "rc-progress": "^3.1.4",
     "react-beautiful-dnd": "^13.1.0",
     "react-csv": "^2.2.1",
