@@ -179,7 +179,7 @@ const ScreensWork = () => {
               <>
                 <ActionHeadline>
                   <PageTitle data-testid="work-page-title">
-                    {data.work.descriptiveMetadata.title || "Untitled"}{" "}
+                    {data.work.descriptiveMetadata.title || ""}{" "}
                   </PageTitle>
                   <WorkHeaderButtons
                     handleCreateSharableBtnClick={handleCreateSharableBtnClick}
