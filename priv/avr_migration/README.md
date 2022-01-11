@@ -13,19 +13,19 @@
 6. Copy the ID of the completed ingest sheet.
 7. Create AVR collections.
    ```elixir
-   iex> AVR.Migration.import_collections()
+   AVR.Migration.import_collections()
    ```
 8. Link ingested works to their collections.
    ```elixir
-   iex> AVR.Migration.map_works_to_collections(ingest_sheet_id)
+   AVR.Migration.map_works_to_collections(ingest_sheet_id)
    ```
 9.  Create FileSet objects and link them to their works.
     ```elixir
-    iex> AVR.Migration.FileSets.import_filesets(Meadow.Config.ingest_bucket(), Path.join([project.folder, "master_files"]))
+    AVR.Migration.FileSets.import_filesets(Meadow.Config.ingest_bucket(), Path.join([project.folder, "master_files"]))
     ```
 10. Migrate preservation and derivative files and attach them to FileSets.
     ```elixir
-    iex> AVR.Migration.FileMover.process_all_file_set_files(project)
+    AVR.Migration.FileMover.process_all_file_set_files(project)
     ```
 11. While that's running, update work metadata from attached MODS.
     ```
@@ -41,4 +41,12 @@
     ```
     AVR.Migration.list_avr_filesets() |> Enum.each(&Meadow.Pipeline.kickoff/1)
     ```
-14. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+14. When all of the FileSets have made it through the pipeline, generate poster images for the videos.
+    ```
+    AVR.Migration.avr_filesets_query()
+    |> where(fragment("core_metadata->>'mime_type' LIKE 'video/%'"))
+    |> Repo.all()
+    |> Task.async_stream(& Meadow.Pipeline.Actions.GeneratePosterImage.send_message(%{file_set_id: &1.id}, %{}))
+    |> Stream.run()
+    ```
+15. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
