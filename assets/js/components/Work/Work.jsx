@@ -6,6 +6,8 @@ import { getManifest } from "@js/services/get-manifest";
 import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import useFileSet from "@js/hooks/useFileSet";
+import { useQuery } from "@apollo/client";
+import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
 
 const osdOptions = {
   showDropdown: true,
@@ -17,7 +19,7 @@ const osdOptions = {
 
 const Work = ({ work }) => {
   const [manifestObj, setManifestObj] = React.useState();
-  const [randomUrlKey, setRandomUrlKey] = React.useState(Date.now());
+  const [manifestKey, setManifestKey] = React.useState();
   const workContextState = useWorkState();
   const workDispatch = useWorkDispatch();
   const [manifestChangeItems, setManifestChangeItems] = React.useState({
@@ -28,6 +30,15 @@ const Work = ({ work }) => {
     work.workType?.id === "IMAGE" &&
     ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
   const { filterFileSets } = useFileSet();
+
+  useQuery(GET_IIIF_MANIFEST_HEADERS, {
+    variables: { workId: work.id },
+    pollInterval: 1000,
+    onCompleted: (data) => {
+      if (data.iiifManifestHeaders.etag)
+        setManifestKey(data.iiifManifestHeaders.etag);
+    },
+  });
 
   React.useEffect(() => {
     workDispatch({ type: "updateWorkType", workTypeId: work.workType.id });
@@ -48,7 +59,6 @@ const Work = ({ work }) => {
           label: data.label,
           canvasCount: data.sequences[0].canvases.length,
         });
-        setRandomUrlKey(Date.now());
       }
       setManifestObj(data);
     }
@@ -82,7 +92,7 @@ const Work = ({ work }) => {
               <OpenSeadragonViewer
                 manifest={manifestObj}
                 options={osdOptions}
-                key={`${work.id}_${randomUrlKey}`}
+                key={manifestKey}
               />
             )}
           </div>
@@ -94,6 +104,7 @@ const Work = ({ work }) => {
           fileSet={workContextState?.activeMediaFileSet}
           fileSets={[...filterFileSets(work.fileSets).access]}
           manifestId={work.manifestUrl}
+          manifestKey={manifestKey}
           workTypeId={work.workType?.id}
         />
       )}

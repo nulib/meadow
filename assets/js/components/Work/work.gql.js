@@ -549,3 +549,14 @@ export const VERIFY_FILE_SETS = gql`
     }
   }
 `;
+
+export const GET_IIIF_MANIFEST_HEADERS = gql`
+  query IiifManifestHeaders($workId: ID!) {
+    iiifManifestHeaders(workId: $workId) {
+      manifestUrl
+      etag
+      lastModified
+      workId
+    }
+  }
+`;
