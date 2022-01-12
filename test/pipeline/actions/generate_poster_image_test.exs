@@ -32,12 +32,14 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       ts = "/" <> Pairtree.generate!(file_set.id) <> "/test.ts"
       m3u8 = "/" <> Pairtree.generate!(file_set.id) <> "/test-1080.m3u8"
+      adaptive = "/" <> Pairtree.generate!(file_set.id) <> "/test.m3u8"
       m3u8_uri = FileSets.streaming_uri_for(file_set.id) <> "test.m3u8"
 
       {:ok, file_set_with_playlist} =
         FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => m3u8_uri}})
 
       upload_object("test-streaming", m3u8, File.read!("test/fixtures/test-1080.m3u8"))
+      upload_object("test-streaming", adaptive, File.read!("test/fixtures/test.m3u8"))
       upload_object("test-streaming", ts, File.read!("test/fixtures/test.ts"))
 
       on_exit(fn ->
@@ -70,12 +72,14 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       ts = "/" <> Pairtree.generate!(file_set.id) <> "/test.ts"
       m3u8 = "/" <> Pairtree.generate!(file_set.id) <> "/test-1080.m3u8"
+      adaptive = "/" <> Pairtree.generate!(file_set.id) <> "/test.m3u8"
       m3u8_uri = FileSets.streaming_uri_for(file_set.id) <> "test.m3u8"
 
       {:ok, file_set_with_playlist} =
         FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => m3u8_uri}})
 
       upload_object("test-streaming", m3u8, File.read!("test/fixtures/test-1080.m3u8"))
+      upload_object("test-streaming", adaptive, File.read!("test/fixtures/test.m3u8"))
       upload_object("test-streaming", ts, File.read!("test/fixtures/test.ts"))
 
       on_exit(fn ->

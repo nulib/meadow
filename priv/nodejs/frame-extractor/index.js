@@ -10,9 +10,8 @@ AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
-    let source = event.source.replace(".m3u8", "-1080.m3u8");
     return await extractFrameFromPlaylist(
-      source,
+      event.source,
       event.destination,
       event.offset
     );
@@ -99,46 +98,42 @@ const extractFrameFromVideo = async (source, destination, offset) => {
   });
 };
 
-const parsePlaylist = (bucket, key, offset) => {
+const loadHighestQuality = async (bucket, key) => {
   const reader = new M3U8FileParser();
-
   try {
-    const readline = require("readline");
-    let location = "";
-    let segmentOffset = "";
-    return new Promise((resolve, reject) => {
-      let playlistStream = s3
-        .getObject({ Bucket: bucket, Key: key })
-        .createReadStream()
-        .on("error", (error) => console.error(error));
-
-      const interface = readline.createInterface({ input: playlistStream });
-      interface.on("line", (line) => {
-        reader.read(line);
-      });
-      interface.on("close", () => {
-        const result = reader.getResult();
-
-        let elapsed = 0.0;
-        for (segment of result.segments) {
-          const duration = segment.inf.duration * 1000;
-
-          if (elapsed + duration > offset) {
-            location = path.parse(key).dir + "/" + segment.url;
-            segmentOffset = offset - elapsed;
-            break;
-          }
-          elapsed += duration;
-        }
-        if (segmentOffset === "") {
-          return reject("Offset out of range");
-        } else {
-          resolve({ location: location, segmentOffset: segmentOffset });
-        }
-      });
-    });
+    const s3Response = await s3.getObject({ Bucket: bucket, Key: key }).promise();
+    reader.read(s3Response.Body.toString('utf-8'));
+    const m3u8 = reader.getResult();
+    if (m3u8.segments[0].url.match(/\.m3u8$/)) {
+      const highSegment = m3u8.segments.sort((a, b) => b.streamInf.bandwidth - a.streamInf.bandwidth)[0];
+      const nextKey = path.join(path.dirname(key), highSegment.url);
+      return await loadHighestQuality(bucket, nextKey);  
+    }
+    return m3u8;
   } finally {
     reader.reset();
+  }
+};
+
+const parsePlaylist = async (bucket, key, offset) => {
+  const m3u8 = await loadHighestQuality(bucket, key);
+
+  let elapsed = 0.0;
+  let segmentOffset = "";
+  for (segment of m3u8.segments) {
+    const duration = segment.inf.duration * 1000;
+
+    if (elapsed + duration > offset) {
+      location = path.parse(key).dir + "/" + segment.url;
+      segmentOffset = offset - elapsed;
+      break;
+    }
+    elapsed += duration;
+  }
+  if (segmentOffset === "") {
+    throw "Offset out of range";
+  } else {
+    return({ location: location, segmentOffset: segmentOffset });
   }
 };
 
