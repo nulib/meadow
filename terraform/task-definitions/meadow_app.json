@@ -166,8 +166,59 @@
       {
         "name": "ALLOWED_ORIGINS",
         "value": "${meadow_urls}"
-      }
-    ],
+      },
+      {
+        "name": "INGEST_FILE_SET_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "EXTRACT_MIME_TYPE_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "INITIALIZE_DISPATCH_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "DISPATCHER_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "GENERATE_FILE_SET_DIGESTS_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "EXTRACT_EXIF_METADATA_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "COPY_FILE_TO_PRESERVATION_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "CREATE_PYRAMID_TIFF_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "EXTRACT_MEDIA_METADATA_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "CREATE_TRANSCODE_JOB_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "TRANSCODE_COMPLETE_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "GENERATE_POSTER_IMAGE_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      },
+      {
+        "name": "FILE_SET_COMPLETE_PROCESSOR_CONCURRENCY",
+        "value": "20"
+      }    ],
     "portMappings": [
       {
         "containerPort": 4000,
