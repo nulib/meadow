@@ -39,14 +39,36 @@
 13. Iterate over `AVR.Migration.list_avr_filesets()` again and send each FileSet through the
     ingest pipeline.
     ```
-    AVR.Migration.list_avr_filesets() |> Enum.each(&Meadow.Pipeline.kickoff/1)
+    AVR.Migration.Pipeline.submit_batch(1000)
     ```
-14. When all of the FileSets have made it through the pipeline, generate poster images for the videos.
+14. Wait for all the FileSets to make it through the pipeline.
+15. Execute the following SQL to correct MIME type misidentification.
+    ```
+    UPDATE file_sets 
+    SET core_metadata = jsonb_set(core_metadata, '{"mime_type"}', '"audio/mp4"')
+    FROM works WHERE file_sets.work_id = works.id 
+    AND file_sets.accession_number LIKE 'avr:%'
+    AND works.work_type->>'id' = 'AUDIO'
+    AND file_sets.core_metadata->>'mime_type' LIKE 'video/%';
+    ```
+16. Generate poster images for the videos.
     ```
     AVR.Migration.avr_filesets_query()
     |> where(fragment("core_metadata->>'mime_type' LIKE 'video/%'"))
+    |> where(fragment("derivatives->>'poster' IS NULL"))
     |> Repo.all()
     |> Task.async_stream(& Meadow.Pipeline.Actions.GeneratePosterImage.send_message(%{file_set_id: &1.id}, %{}))
     |> Stream.run()
     ```
-15. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
+17. Set each video work's representative file set to the first one with a poster, if any.
+    ```
+    AVR.Migration.avr_works_query() |> where(fragment("work_type->>'id' = 'VIDEO'")) |> Repo.all()
+    |> Task.async_stream(fn work ->
+      case Enum.find(work.file_sets, &(&1.derivatives |> Map.get("poster"))) do
+        nil -> work |> Works.update_work(%{representative_file_set_id: nil})
+        %{id: file_set_id} -> work |> Works.update_work(%{representative_file_set_id: file_set_id})
+      end
+    end)
+    |> Stream.run()
+    ```
+18. Do a CSV Metadata Spreadsheet Export of the completed ingest sheet's works.
