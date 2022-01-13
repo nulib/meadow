@@ -74,8 +74,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
 
       tagging =
         file_set.core_metadata.digests
-        |> Enum.map(fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
-        |> Enum.join("&")
+        |> Enum.map_join("&", fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
 
       case AWS.copy_object(
              dest_bucket,
