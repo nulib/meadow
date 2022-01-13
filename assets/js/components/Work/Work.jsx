@@ -38,6 +38,8 @@ const Work = ({ work }) => {
     async function getData() {
       const data = await getManifest(`${work.manifestUrl}?${Date.now()}`);
 
+      if (!data) return;
+
       // Check if watch items in manifest are different.
       // If so, trigger a re-render of OSD viewer
       if (
