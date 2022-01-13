@@ -4,23 +4,27 @@ defmodule AVR.Migration.FileSets do
   AVR -> Meadow migration
   """
 
+  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Repo
 
   import AVR.Migration
   import SweetXml, only: [sigil_x: 2]
 
-  def import_filesets(bucket, prefix) do
-    ExAws.S3.list_objects_v2(bucket, prefix: prefix)
-    |> ExAws.stream!()
-    |> Stream.each(fn %{key: key} ->
-      ExAws.S3.get_object(bucket, key)
-      |> ExAws.request!()
-      |> Map.get(:body)
-      |> Jason.decode!(keys: :atoms)
-      |> import_work_filesets()
-    end)
-    |> Stream.run()
+  def import_filesets(project) do
+    with bucket <- Config.ingest_bucket(),
+         prefix <- Path.join([project.folder, "master_files"]) do
+      ExAws.S3.list_objects_v2(bucket, prefix: prefix)
+      |> ExAws.stream!()
+      |> Stream.each(fn %{key: key} ->
+        ExAws.S3.get_object(bucket, key)
+        |> ExAws.request!()
+        |> Map.get(:body)
+        |> Jason.decode!(keys: :atoms)
+        |> import_work_filesets()
+      end)
+      |> Stream.run()
+    end
   end
 
   defp import_work_filesets([]), do: :noop

@@ -3,11 +3,13 @@ defmodule AVR.Migration do
   Support code for AVR -> Meadow migration
   """
 
+  alias Meadow.Config
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Ingest.Rows
   alias Meadow.Ingest.Schemas.Row
   alias Meadow.Repo
+  alias Meadow.Utils.Stream, as: StreamUtils
 
   import Ecto.Query
 
@@ -64,6 +66,27 @@ defmodule AVR.Migration do
         end)
 
       Repo.transaction(fn -> Stream.run(stream) end, timeout: :infinity)
+    end
+  end
+
+  def set_work_visibility(project) do
+    with bucket <- Config.ingest_bucket(),
+         key <- Path.join([project.folder, "works", "work_visibility.json"]),
+         visibilities <-
+           StreamUtils.stream_from("s3://#{bucket}/#{key}")
+           |> Enum.into([])
+           |> Jason.decode!() do
+      list_avr_works()
+      |> Task.async_stream(fn %{accession_number: "avr:" <> avr_id} = work ->
+        with %{"reading_room" => reading_room, "visibility_id" => visibility_id} <-
+               Map.get(visibilities, avr_id) do
+          Works.update_work(work, %{
+            visibility: %{id: visibility_id, scheme: "visibility"},
+            reading_room: reading_room
+          })
+        end
+      end)
+      |> Stream.run()
     end
   end
 

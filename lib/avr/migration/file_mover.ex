@@ -6,20 +6,33 @@ defmodule AVR.Migration.FileMover do
 
   alias Meadow.Config
   alias Meadow.Data.FileSets
+  alias Meadow.Repo
   alias Meadow.Utils.AWS
   alias Meadow.Utils.Stream, as: StreamUtils
+
+  import Ecto.Query
 
   require Logger
 
   @avr_derivative_bucket "avalon-derivatives-cfx3wj9"
 
   def process_all_file_set_files(project) do
-    AVR.Migration.list_avr_filesets()
-    |> Task.async_stream(&process_file_set_files(&1, project),
-      max_concurrency: Config.concurrency(),
-      timeout: :infinity
-    )
-    |> Stream.run()
+    with pattern <- "s3://#{Config.ingest_bucket()}/%" do
+      from(
+        AVR.Migration.avr_filesets_query(),
+        where:
+          fragment(
+            "core_metadata->>'location' NOT LIKE ? OR derivatives->>'playlist' IS NULL",
+            ^pattern
+          )
+      )
+      |> Repo.all()
+      |> Task.async_stream(&process_file_set_files(&1, project),
+        max_concurrency: Config.concurrency(),
+        timeout: :infinity
+      )
+      |> Stream.run()
+    end
   end
 
   def process_file_set_files(file_set, project) do
@@ -50,7 +63,9 @@ defmodule AVR.Migration.FileMover do
       case maybe_copy(current_location, ingest_location) do
         :exists ->
           Logger.warn("[#{file_set.id}] Destination #{ingest_location} already exists")
+
           file_set
+          |> FileSets.update_file_set(%{core_metadata: %{location: ingest_location}})
 
         :unknown_source ->
           Logger.warn("[#{file_set.id}] Unknown source location: #{current_location}")
