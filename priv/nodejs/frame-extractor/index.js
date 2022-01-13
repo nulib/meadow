@@ -103,28 +103,28 @@ const loadHighestQuality = async (bucket, key) => {
   try {
     const s3Response = await s3.getObject({ Bucket: bucket, Key: key }).promise();
     reader.read(s3Response.Body.toString('utf-8'));
-    const m3u8 = reader.getResult();
-    if (m3u8.segments[0].url.match(/\.m3u8$/)) {
-      const highSegment = m3u8.segments.sort((a, b) => b.streamInf.bandwidth - a.streamInf.bandwidth)[0];
+    const playlist = reader.getResult();
+    if (playlist.segments[0].url.match(/\.m3u8$/)) {
+      const highSegment = playlist.segments.sort((a, b) => b.streamInf.bandwidth - a.streamInf.bandwidth)[0];
       const nextKey = path.join(path.dirname(key), highSegment.url);
       return await loadHighestQuality(bucket, nextKey);  
     }
-    return m3u8;
+    return { playlist, key };
   } finally {
     reader.reset();
   }
 };
 
 const parsePlaylist = async (bucket, key, offset) => {
-  const m3u8 = await loadHighestQuality(bucket, key);
+  const source = await loadHighestQuality(bucket, key);
 
   let elapsed = 0.0;
   let segmentOffset = "";
-  for (segment of m3u8.segments) {
+  for (segment of source.playlist.segments) {
     const duration = segment.inf.duration * 1000;
 
     if (elapsed + duration > offset) {
-      location = path.parse(key).dir + "/" + segment.url;
+      location = path.join(path.dirname(source.key), segment.url);
       segmentOffset = offset - elapsed;
       break;
     }
@@ -162,7 +162,7 @@ const uploadToS3 = (data, destination) => {
 };
 
 const getS3Key = (uri) => {
-  return uri.path.replace(/^\/+/, "");
+  return decodeURI(uri.path.replace(/^\/+/, ""));
 };
 
 module.exports = { handler };
