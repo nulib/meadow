@@ -150,7 +150,7 @@ defmodule Meadow.Data.CSV.Import do
 
   defp decode_field(type, value) do
     if Kernel.function_exported?(type, :from_string, 1),
-      do: apply(type, :from_string, [value]),
+      do: type.from_string(value),
       else: value
   end
 
