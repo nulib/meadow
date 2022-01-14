@@ -1,7 +1,9 @@
 ## :rocket: Production Deployment Checklist
 
 - [ ] Version bump
-- [ ] Terraform changes applied?
+- [ ] Terraform changes required
+  - [ ] Terraform changes already applied?
+  - [ ] Terraform changes to be applied during deploy after merge?
 - [ ] Notable API changes? (GraphQL, db, ingest sheet, etc.)
 - [ ] New/Updated Environment Variables set
 - [ ] Check for data migrations
