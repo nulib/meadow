@@ -1,6 +1,6 @@
 mutation(
   $accession_number: String!
-  $role: FileSetRole!
+  $role: CodedTermInput!
   $coreMetadata: FileSetCoreMetadataInput!
   $work_id: ID!
 ) {
