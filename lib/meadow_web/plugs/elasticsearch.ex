@@ -29,7 +29,7 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
   def process_request(conn, _default) do
     body = extract_body(conn)
     [_base, path] = String.split(conn.request_path, "/elasticsearch")
-    query_string = extract_query_string(conn.query_string)
+    query_string = extract_query_string(conn.query_string) |> URI.encode()
 
     config =
       Config.build(
@@ -37,11 +37,12 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
         Application.get_env(:meadow, Meadow.ElasticsearchCluster)
       )
 
-    method = case conn.method do
-      x when is_atom(x) -> x
-      x when is_binary(x) -> String.to_atom(x)
-      x -> String.to_atom(to_string(x))
-    end
+    method =
+      case conn.method do
+        x when is_atom(x) -> x
+        x when is_binary(x) -> String.to_atom(x)
+        x -> String.to_atom(to_string(x))
+      end
 
     case config |> config[:api].request(method, path <> query_string, body, []) do
       {:ok, response} ->

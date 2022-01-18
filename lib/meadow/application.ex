@@ -5,10 +5,13 @@ defmodule Meadow.Application do
 
   use Application
   alias Meadow.Application.Children
+  alias Meadow.Utils.Elasticsearch.RetryAPI
 
   require Logger
 
   def start(_type, _args) do
+    RetryAPI.configure()
+
     # List all child processes to be supervised
     # Start the Ecto repository
     # Start the endpoint when the application starts

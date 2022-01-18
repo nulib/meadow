@@ -1,4 +1,4 @@
-defmodule Meadow.Utils.ElasticsearchResultStream do
+defmodule Meadow.Utils.Elasticsearch.Scroll do
   @moduledoc """
   Retrieves results from the Meadow Elasticsearch cluster and lazily streams one result
   at a time

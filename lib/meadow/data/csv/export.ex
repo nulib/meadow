@@ -4,7 +4,7 @@ defmodule Meadow.Data.CSV.Export do
   """
 
   alias Meadow.Data.Schemas.{WorkAdministrativeMetadata, WorkDescriptiveMetadata}
-  alias Meadow.Utils.ElasticsearchResultStream
+  alias Meadow.Utils.Elasticsearch.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   import Meadow.Data.CSV.Utils
@@ -95,7 +95,7 @@ defmodule Meadow.Data.CSV.Export do
 
   defp generate_rows(query) do
     query
-    |> ElasticsearchResultStream.results()
+    |> Scroll.results()
     |> Stream.map(&to_row/1)
     |> CSV.dump_to_stream()
   end
