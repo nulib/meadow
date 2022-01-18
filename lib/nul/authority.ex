@@ -42,7 +42,8 @@ defmodule NUL.Authority do
         id: a.id,
         label: a.label,
         qualified_label: fragment("concat_ws(' ', ?, ?)", a.label, a.hint),
-        hint: a.hint
+        hint: a.hint,
+        variants: []
       }
     )
     |> Repo.get(id)
