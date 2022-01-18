@@ -7,7 +7,14 @@ defmodule Meadow.Data.Types.ControlledTermTest do
 
   @controlled_term %{
     id: "http://id.loc.gov/authorities/names/nb2015010626",
-    label: "Border Collie Trust Great Britain"
+    label: "Border Collie Trust Great Britain",
+    variants: [
+      "Border Collie Trust G.B.",
+      "Border Collie Trust GB",
+      "BCT G.B. (Border Collie Trust G.B.)",
+      "BCT GB (Border Collie Trust G.B.)",
+      "BCTGB (Border Collie Trust G.B.)"
+    ]
   }
 
   describe "Meadow.Data.Types.ControlledTerm" do
@@ -35,7 +42,10 @@ defmodule Meadow.Data.Types.ControlledTermTest do
   describe "geonames special case" do
     setup do
       {:ok,
-       %{expected: {:ok, %{id: "https://sws.geonames.org/5347269/", label: "Faculty Glade"}}}}
+       %{
+         expected:
+           {:ok, %{id: "https://sws.geonames.org/5347269/", label: "Faculty Glade", variants: []}}
+       }}
     end
 
     test "URIs are correctly transformed", %{expected: expected} do

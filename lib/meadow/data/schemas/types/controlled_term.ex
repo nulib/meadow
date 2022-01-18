@@ -33,8 +33,8 @@ defmodule Meadow.Data.Types.ControlledTerm do
   defp validate_uri(uri) do
     with id <- munge_uri(uri) do
       case ControlledTerms.fetch(id) do
-        {{:ok, _}, %{label: label}} ->
-          {:ok, %{id: id, label: label}}
+        {{:ok, _}, %{label: label, variants: variants}} ->
+          {:ok, %{id: id, label: label, variants: variants}}
 
         {:error, error} ->
           {:error, message: error}

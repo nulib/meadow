@@ -11,7 +11,7 @@ defmodule Meadow.Data.ControlledTerms do
   require Logger
 
   @type cache_status :: :db | :memory | :miss
-  @type controlled_term :: %{id: binary(), label: binary()}
+  @type controlled_term :: %{id: binary(), label: binary(), variants: binary()}
   @type fetch_result :: {{:ok, cache_status()}, controlled_term()}
 
   @doc """
@@ -24,7 +24,9 @@ defmodule Meadow.Data.ControlledTerms do
       {{:ok, :miss},
         %{
           id: "http://id.loc.gov/authorities/names/n50034776",
-          label: "Carver, George Washington, 1864?-1943"
+          label: "Carver, George Washington, 1864?-1943",
+          variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
+    "Carver, George, 1864?-1943"]
         }}
 
       # Found in DB cache
@@ -32,7 +34,9 @@ defmodule Meadow.Data.ControlledTerms do
       {{:ok, :db},
         %{
           id: "http://id.loc.gov/authorities/names/n50034776",
-          label: "Carver, George Washington, 1864?-1943"
+          label: "Carver, George Washington, 1864?-1943",
+          variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
+    "Carver, George, 1864?-1943"]
         }}
 
       # Found in ETS cache
@@ -40,7 +44,9 @@ defmodule Meadow.Data.ControlledTerms do
       {{:ok, :memory},
         %{
           id: "http://id.loc.gov/authorities/names/n50034776",
-          label: "Carver, George Washington, 1864?-1943"
+          label: "Carver, George Washington, 1864?-1943",
+          variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
+    "Carver, George, 1864?-1943"]
         }}
 
       # Error
@@ -58,7 +64,9 @@ defmodule Meadow.Data.ControlledTerms do
       iex> fetch!("http://id.loc.gov/authorities/names/n50034776")
       %{
         id: "http://id.loc.gov/authorities/names/n50034776",
-        label: "Carver, George Washington, 1864?-1943"
+        label: "Carver, George Washington, 1864?-1943",
+          variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
+    "Carver, George, 1864?-1943"]
       }
 
       # Error
@@ -119,9 +127,9 @@ defmodule Meadow.Data.ControlledTerms do
     end
   end
 
-  def cache!(%{id: id, label: label}) do
+  def cache!(%{id: id, label: label, variants: variants}) do
     %ControlledTermCache{id: id}
-    |> ControlledTermCache.changeset(%{label: label})
+    |> ControlledTermCache.changeset(%{label: label, variants: variants})
     |> Repo.insert(on_conflict: :replace_all, conflict_target: :id)
   end
 
@@ -199,8 +207,8 @@ defmodule Meadow.Data.ControlledTerms do
           other -> other
         end
 
-      %ControlledTermCache{id: id, label: label} ->
-        {{:ok, :db}, %{id: id, label: label}}
+      %ControlledTermCache{id: id, label: label, variants: variants} ->
+        {{:ok, :db}, %{id: id, label: label, variants: variants}}
     end
   end
 
@@ -208,22 +216,22 @@ defmodule Meadow.Data.ControlledTerms do
     Cachex.del!(Meadow.Cache.ControlledTerms, id)
 
     case Authoritex.fetch(id) do
-      {:ok, %{id: id, label: label}} ->
-        try_to_save(id, label)
-        {:ok, %{id: id, label: label}}
+      {:ok, %{id: id, label: label, variants: variants}} ->
+        try_to_save(id, label, variants)
+        {:ok, %{id: id, label: label, variants: variants}}
 
       other ->
         other
     end
   end
 
-  defp try_to_save(id, label) do
+  defp try_to_save(id, label, variants) do
     %ControlledTermCache{id: id}
-    |> ControlledTermCache.changeset(%{label: label})
+    |> ControlledTermCache.changeset(%{label: label, variants: variants})
     |> Repo.insert(on_conflict: :nothing)
   rescue
     e in Postgrex.Error ->
-      Logger.warn("Unable to cache label for #{id}: #{e.postgres.message}")
+      Logger.warn("Unable to cache label and/or variants for #{id}: #{e.postgres.message}")
   end
 
   def extract_unique_terms(data) do
