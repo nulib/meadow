@@ -120,7 +120,7 @@ const WorkTabsPreservation = ({ work }) => {
           descriptiveMetadata ? descriptiveMetadata.title || "" : ""
         } deleted successfully`
       );
-      history.push(`/project/${project.id}/ingest-sheet/${ingestSheet.id}`);
+      history.push(`/search`);
     },
   });
 
