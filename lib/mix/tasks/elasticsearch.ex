@@ -3,12 +3,15 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Setup do
   Build elasticsearch index for the dev environment if it does not exist
   """
   use Mix.Task
+
+  alias Meadow.Utils.Elasticsearch.RetryAPI
   alias Mix.Tasks.Elasticsearch
 
   require Logger
 
   @shortdoc @moduledoc
   def run(_) do
+    RetryAPI.configure()
     Logger.info("Creating Elasticsearch index")
     Elasticsearch.Build.run(~w|meadow --existing --cluster Meadow.ElasticsearchCluster|)
   end
@@ -19,6 +22,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Clear do
   Clear the elasticsearch meadow and shared_links indices
   """
   use Mix.Task
+
   require Logger
 
   @shortdoc @moduledoc

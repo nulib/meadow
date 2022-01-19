@@ -4,7 +4,7 @@ defmodule Meadow.Data.SharedLinks do
   """
 
   alias Meadow.Config
-  alias Meadow.Utils.ElasticsearchResultStream
+  alias Meadow.Utils.Elasticsearch.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   @index "shared_links"
@@ -54,7 +54,7 @@ defmodule Meadow.Data.SharedLinks do
   def generate_many(query, ttl) when is_binary(query) do
     docs =
       query
-      |> ElasticsearchResultStream.results()
+      |> Scroll.results()
       |> Stream.map(fn %{"_source" => work_doc} ->
         case work_doc do
           %{"visibility" => %{"id" => "OPEN"}, "published" => true} ->
