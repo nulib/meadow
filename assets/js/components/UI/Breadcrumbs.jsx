@@ -28,7 +28,7 @@ const Breadcrumbs = ({ items = [], ...props }) => (
 Breadcrumbs.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string.isRequred,
+      label: PropTypes.string.isRequired,
       route: PropTypes.string,
       isActive: PropTypes.bool,
     })
