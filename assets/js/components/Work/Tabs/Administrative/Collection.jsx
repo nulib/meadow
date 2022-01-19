@@ -103,7 +103,7 @@ function WorkTabsAdministrativeCollection({
   if (error)
     return (
       <p className="noticiation is-danger">
-        Error loading collections: {error}
+        Error loading collections: {error.toString()}
       </p>
     );
 
