@@ -36,7 +36,7 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPI do
     code =
       quote do
         use Retry
-
+        alias Meadow.Utils.Elasticsearch.RetryAPI
         require Logger
 
         @behaviour Elasticsearch.API
@@ -65,12 +65,11 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPI do
                 {:error, response}
             end
           after
-            result -> result
+            result ->
+              result |> RetryAPI.maybe_report(%{method: method, url: url, data: data}, __MODULE__)
           else
             error ->
-              Error.report(inspect(error), __MODULE__, [], %{method: method, url: url, data: data})
-
-              error
+              error |> RetryAPI.maybe_report(%{method: method, url: url, data: data}, __MODULE__)
           end
         end
 
@@ -82,4 +81,21 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPI do
       module
     end
   end
+
+  def maybe_report(
+        {:error, {:ok, %HTTPoison.Response{body: %{"error" => %{"reason" => reason}}}}} =
+          response,
+        context,
+        module
+      ) do
+    Error.report(%HTTPoison.Error{reason: reason}, module, [], context)
+    response
+  end
+
+  def maybe_report({:error, reason} = response, context, module) do
+    Error.report(inspect(reason), module, [], context)
+    response
+  end
+
+  def maybe_report(response, _, _), do: response
 end

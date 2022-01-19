@@ -66,6 +66,10 @@ config :meadow,
     url: "http://localhost:3944/"
   }
 
+config :meadow, :elasticsearch_retry,
+  interval: 100,
+  max_retries: 3
+
 config :authoritex, authorities: [Authoritex.Mock, NUL.Authority]
 
 config :ueberauth, Ueberauth,
