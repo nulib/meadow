@@ -179,7 +179,7 @@ const ScreensWork = () => {
               <>
                 <ActionHeadline>
                   <PageTitle data-testid="work-page-title">
-                    {data.work.descriptiveMetadata.title || ""}{" "}
+                    {data.work.descriptiveMetadata.title || ""}
                   </PageTitle>
                   <WorkHeaderButtons
                     handleCreateSharableBtnClick={handleCreateSharableBtnClick}
@@ -242,7 +242,7 @@ const ScreensWork = () => {
       ) : (
         <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
           <WorkProvider>
-            <Work work={data.work} />
+            <Work work={data.work} key={data.work.id} />
           </WorkProvider>
         </ErrorBoundary>
       )}
