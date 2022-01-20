@@ -79,9 +79,9 @@ config :meadow, Meadow.ElasticsearchCluster,
       settings: priv_path.("elasticsearch/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [
+        Meadow.Data.Schemas.Work,
         Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
+        Meadow.Data.Schemas.FileSet
       ],
       bulk_page_size:
         System.get_env("ELASTICSEARCH_BULK_PAGE_SIZE", "200") |> String.to_integer(),

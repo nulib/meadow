@@ -37,6 +37,7 @@ defmodule Meadow.Data.Types.ControlledTerm do
           {:ok, %{id: id, label: label, variants: variants}}
 
         {:error, error} ->
+          Meadow.Error.report(error, __MODULE__, [], %{id: id})
           {:error, message: error}
       end
     end
