@@ -70,3 +70,5 @@ yarn.lock
 
 .DS_Store
 **/*/.DS_Store
+localstack/.terraform
+localstack/terraform.tfstate.d

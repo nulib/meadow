@@ -89,7 +89,7 @@ config :meadow,
   preservation_check_bucket: "dev-preservation-checks",
   pyramid_bucket: "dev-pyramids",
   streaming_bucket: "dev-streaming",
-  streaming_url: "https://devbox.library.northwestern.edu:9001/dev-streaming/",
+  streaming_url: "https://dev-streaming.s3.localhost.localstack.cloud:4566/",
   mediaconvert_client: MediaConvert.Mock,
   multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url:
@@ -97,7 +97,7 @@ config :meadow,
   iiif_manifest_url:
     System.get_env(
       "IIIF_MANIFEST_URL",
-      "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/"
+      "https://dev-pyramids.s3.localhost.localstack.cloud:4566/public/"
     ),
   digital_collections_url:
     System.get_env("DIGITAL_COLLECTIONS_URL", "https://fen.rdc-staging.library.northwestern.edu/"),
@@ -107,7 +107,7 @@ config :meadow,
 
 config :meadow,
   checksum_notification: %{
-    arn: "arn:minio:sqs::checksum:webhook",
+    arn: "arn:aws:lambda:us-east-1:000000000000:function:digest-tag",
     buckets: ["dev-ingest", "dev-uploads"]
   }
 
@@ -115,29 +115,16 @@ config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
 
 unless System.get_env("REAL_AWS_CONFIG", "false") == "true" do
-  config :ex_aws,
-    access_key_id: "fake",
-    secret_access_key: "fake"
-
-  config :ex_aws, :s3,
-    access_key_id: "minio",
-    secret_access_key: "minio123",
-    host: "devbox.library.northwestern.edu",
-    port: 9001,
-    scheme: "https://",
-    region: "us-east-1"
-
-  config :ex_aws, :sqs,
-    host: "localhost",
-    port: 4101,
-    scheme: "http://",
-    region: "us-east-1"
-
-  config :ex_aws, :sns,
-    host: "localhost",
-    port: 4101,
-    scheme: "http://",
-    region: "us-east-1"
+  [:s3, :sns, :sqs]
+  |> Enum.each(fn service ->
+    config :ex_aws, service,
+      access_key_id: "fake",
+      secret_access_key: "fake",
+      host: "localhost.localstack.cloud",
+      port: 4566,
+      scheme: "https://",
+      region: "us-east-1"
+  end)
 end
 
 config :meadow, Meadow.Scheduler,

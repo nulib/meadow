@@ -121,10 +121,6 @@ jobs:
           --health-retries 5
         ports:
           - 5434:5432
-      goaws:
-        image: nulib/goaws
-        ports:
-          - 4102:4100
       ldap:
         image: nulib/ldap-alpine
         ports:
@@ -136,25 +132,30 @@ jobs:
           ELASTICSEARCH_HEAP_SIZE: "256m"
         ports:
           - 9202:9200
-      minio:
-        image: bitnami/minio
+      localstack:
+        image: localstack/localstack
         env:
-          MINIO_ROOT_USER: minio
-          MINIO_ROOT_PASSWORD: minio123
-          MINIO_ACCESS_KEY: minio
-          MINIO_SECRET_KEY: minio123
-          MINIO_NOTIFY_WEBHOOK_ENABLE_checksum: on
-          MINIO_NOTIFY_WEBHOOK_ENDPOINT_checksum: http://minio-checksum:8000/fixity
+          DNS_ADDRESS: 127.0.0.1
+          EDGE_PORT: 4568
+          EDGE_PORT_HTTP: 4568
+          LAMBDA_EXECUTOR: local
+          LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
-          - 9002:9000
-      minio-checksum:
-        image: nulib/minio-checksum
-        env:
-          AWS_ACCESS_KEY_ID: minio
-          AWS_SECRET_ACCESS_KEY: minio123
-          AWS_S3_ENDPOINT: http://minio:9000/
+          - 4568:4568
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: 'nulib/devstack'
+          ref: main
+          path: '.devstack'
+      - uses: hashicorp/setup-terraform@v1
+      - name: Provision Localstack resources
+        run: .devstack/bin/devstack -t provision meadow
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: fake
+          AWS_SECRET_ACCESS_KEY: fake
       - uses: actions/setup-node@v2
         with:
           node-version: "14"

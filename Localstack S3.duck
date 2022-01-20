@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Protocol</key>
+	<string>s3</string>
+	<key>Provider</key>
+	<string>s3-https</string>
+	<key>Nickname</key>
+	<string>Localstack S3</string>
+	<key>UUID</key>
+	<string>f7fedad5-d8cd-4165-a617-b1c3bc3edf8d</string>
+	<key>Hostname</key>
+	<string>localhost.localstack.cloud</string>
+	<key>Port</key>
+	<string>4566</string>
+	<key>Username</key>
+	<string>fake</string>
+	<key>Access Timestamp</key>
+	<string>1643041454095</string>
+	<key>Labels</key>
+	<array>
+	</array>
+</dict>
+</plist>

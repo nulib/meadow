@@ -45,13 +45,13 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url: "http://localhost:8184/iiif/2/",
-  iiif_manifest_url: "http://localhost:9002/minio/test-pyramids/public/",
+  iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/",
   work_archiver_endpoint: ""
 
 config :meadow,
   checksum_notification: %{
-    arn: "arn:minio:sqs::checksum:webhook",
+    arn: "arn:aws:lambda:us-east-1:000000000000:function:digest-tag",
     buckets: ["test-ingest", "test-uploads"]
   },
   required_checksum_tags: ["computed-md5"],
@@ -84,31 +84,17 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
-config :ex_aws,
-  access_key_id: "minio",
-  secret_access_key: "minio123"
-
-config :ex_aws, :s3,
-  host: "localhost",
-  port: 9002,
-  scheme: "http://",
-  region: "us-east-1",
-  access_key_id: "minio",
-  secret_access_key: "minio123"
-
-config :ex_aws, :sqs,
-  host: "localhost",
-  port: 4102,
-  scheme: "http://",
-  region: "us-east-1"
-
-config :ex_aws, :sns,
-  access_key_id: "",
-  secret_access_key: "",
-  host: "localhost",
-  port: 4102,
-  scheme: "http://",
-  region: "us-east-1"
+with aws_config <- [
+       access_key_id: "fake",
+       secret_access_key: "fake",
+       host: "localhost.localstack.cloud",
+       port: 4568,
+       scheme: "http://",
+       region: "us-east-1"
+     ] do
+  config :ex_aws, aws_config
+  [:s3, :sqs, :sns, :lambda] |> Enum.each(&config(:ex_aws, &1, aws_config))
+end
 
 config :exldap, :settings,
   server: "localhost",
