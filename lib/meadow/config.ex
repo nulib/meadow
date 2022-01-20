@@ -19,6 +19,14 @@ defmodule Meadow.Config do
     |> List.first()
   end
 
+  @doc "Retrieve Elasticsearch index settings filename"
+  def elasticsearch_settings do
+    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
+    |> get_in([:indexes, elasticsearch_index(), :settings])
+    |> String.trim_leading("priv/")
+    |> priv_path()
+  end
+
   @doc "Retrieve Elasticsearch URL"
   def elasticsearch_url do
     Application.get_env(:meadow, Meadow.ElasticsearchCluster)

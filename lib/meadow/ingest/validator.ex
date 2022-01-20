@@ -318,7 +318,7 @@ defmodule Meadow.Ingest.Validator do
           else: :ok
 
       duplicate_rows ->
-        with row_list <- duplicate_rows |> Enum.map(&to_string/1) |> Enum.join(", ") do
+        with row_list <- duplicate_rows |> Enum.map_join(", ", &to_string/1) do
           {:error, "file_accession_number", "#{value} is duplicated on rows #{row_list}"}
         end
     end

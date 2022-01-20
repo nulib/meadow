@@ -4,7 +4,7 @@ defmodule Meadow.Data.CSV.Export do
   """
 
   alias Meadow.Data.Schemas.{WorkAdministrativeMetadata, WorkDescriptiveMetadata}
-  alias Meadow.Utils.ElasticsearchResultStream
+  alias Meadow.Utils.Elasticsearch.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   import Meadow.Data.CSV.Utils
@@ -73,13 +73,13 @@ defmodule Meadow.Data.CSV.Export do
 
   def normalize_field(field_path) do
     case field_path |> List.last() do
-      "id" -> field_path |> Enum.map(&Inflex.underscore/1) |> Enum.join("_")
+      "id" -> field_path |> Enum.map_join("_", &Inflex.underscore/1)
       field_name -> Inflex.underscore(field_name)
     end
   end
 
   defp fields_for(module, prefix) do
-    apply(module, :field_names, [])
+    module.field_names()
     |> Enum.map(fn field -> [prefix, Inflex.camelize(field, :lower)] end)
   end
 
@@ -95,7 +95,7 @@ defmodule Meadow.Data.CSV.Export do
 
   defp generate_rows(query) do
     query
-    |> ElasticsearchResultStream.results()
+    |> Scroll.results()
     |> Stream.map(&to_row/1)
     |> CSV.dump_to_stream()
   end

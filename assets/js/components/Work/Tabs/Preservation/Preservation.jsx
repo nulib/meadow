@@ -120,7 +120,7 @@ const WorkTabsPreservation = ({ work }) => {
           descriptiveMetadata ? descriptiveMetadata.title || "" : ""
         } deleted successfully`
       );
-      history.push(`/project/${project.id}/ingest-sheet/${ingestSheet.id}`);
+      history.push(`/search`);
     },
   });
 
@@ -498,6 +498,7 @@ const DialogOverlay = styled(Dialog.Overlay, {
   backgroundColor: "#000a",
   position: "fixed",
   inset: 0,
+  zIndex: 10,
 });
 
 const DialogTrigger = styled(Dialog.Trigger, {
@@ -523,6 +524,7 @@ const DialogContent = styled(Dialog.Content, {
   maxHeight: "85vh",
   padding: "1rem",
   overflowY: "scroll",
+  zIndex: 11,
 });
 
 const DialogClose = styled(Dialog.Close, {

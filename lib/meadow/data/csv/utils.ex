@@ -12,8 +12,7 @@ defmodule Meadow.Data.CSV.Utils do
 
   def combine_multivalued_field(values) do
     values
-    |> Enum.map(&escape_delimiters/1)
-    |> Enum.join(" #{@delimiter} ")
+    |> Enum.map_join(" #{@delimiter} ", &escape_delimiters/1)
   end
 
   def split_multivalued_field(combined) do

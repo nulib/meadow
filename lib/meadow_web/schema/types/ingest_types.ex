@@ -235,7 +235,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :inserted_at, non_null(:datetime)
     field :updated_at, non_null(:datetime)
 
-    field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(Ingest)
+    field :ingest_sheets, list_of(:ingest_sheet), resolve: dataloader(OrderedIngestSheets)
   end
 
   object :ingest_sheet_row do

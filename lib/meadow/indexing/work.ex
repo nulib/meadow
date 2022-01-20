@@ -48,6 +48,11 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
             }
         end,
       sheet: format(work.ingest_sheet),
+      thumbnail:
+        case work.representative_image do
+          nil -> nil
+          url -> url <> "/full/!300,300/0/default.jpg"
+        end,
       visibility: format(work.visibility),
       workType: format(work.work_type)
     }

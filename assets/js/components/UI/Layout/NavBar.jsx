@@ -98,15 +98,13 @@ const UILayoutNavBar = () => {
             aria-label="menu"
             aria-expanded={mobileNavOpen}
             aria-controls="navbarMenu"
-            className={`button navbar-burger burger ${
-              mobileNavOpen ? "is-active" : ""
-            }`}
+            className={`navbar-burger ${mobileNavOpen ? "is-active" : ""}`}
             data-target="navbarMenu"
             onClick={handleMobileMenuClick}
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
           </button>
         </div>
 

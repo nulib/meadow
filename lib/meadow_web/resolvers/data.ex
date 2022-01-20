@@ -191,4 +191,17 @@ defmodule MeadowWeb.Resolvers.Data do
   def verify_file_sets(_, %{work_id: work_id}, _) do
     {:ok, Works.verify_file_sets(work_id)}
   end
+
+  def iiif_manifest_headers(_, %{work_id: work_id}, _) do
+    case Works.iiif_manifest_headers(work_id) do
+      {:ok, headers} ->
+        {:ok, headers}
+
+      {:error, _error} ->
+        {
+          :error,
+          message: "Error retrieving manifest headers"
+        }
+    end
+  end
 end

@@ -44,7 +44,7 @@ const WorkListItem = ({
         <div className="media-content">
           <p className="small-title block">
             <Link to={`/work/${id}`} css={breakWord}>
-              {title ? title : "Untitled"}
+              {title ? title : ""}
             </Link>
           </p>
           <div className="tags">

@@ -3,10 +3,12 @@ defmodule ElasticsearchTest do
   use Meadow.IndexCase
 
   alias Elasticsearch.API.AWS
+  alias Meadow.Data.Indexer
 
   describe "MeadowWeb.Plugs.Elasticsearch" do
     test "only accepts methods: [POST, GET, OPTIONS, HEAD]" do
       %{works: [work | _]} = indexable_data()
+      Indexer.synchronize_index()
 
       conn =
         build_conn()
@@ -31,22 +33,23 @@ defmodule ElasticsearchTest do
 
     test "returns results for _msearch reqeusts" do
       %{works: [work | _]} = indexable_data()
+      Indexer.synchronize_index()
 
       mquery =
-        "{\"preference\":\"q\"}\n
-{\"query\":{\"bool\":{\"must\":[{\"bool\":{\"must\":{\"bool\":{\"should\":[{\"multi_match\":{\"query\":\"p\",\"fields\":[\"title\"],\"type\":\"best_fields\",\"operator\":\"or\",\"fuzziness\":0}},{\"multi_match\":{\"query\":\"#{work.descriptive_metadata.title}\",\"fields\":[\"title\"],\"type\":\"phrase_prefix\",\"operator\":\"or\"}}],\"minimum_should_match\":\"1\"}}}}]}},\"size\":10}"
+        "{\"preference\":\"q\"}\n{\"query\":{\"bool\":{\"must\":[{\"bool\":{\"must\":{\"bool\":{\"should\":[{\"multi_match\":{\"query\":\"p\",\"fields\":[\"title\"],\"type\":\"best_fields\",\"operator\":\"or\",\"fuzziness\":0}},{\"multi_match\":{\"query\":\"#{work.descriptive_metadata.title}\",\"fields\":[\"title\"],\"type\":\"phrase_prefix\",\"operator\":\"or\"}}],\"minimum_should_match\":\"1\"}}}}]}},\"size\":10}\n"
 
       conn =
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/x-ndjson")
-        |> post("/elasticsearch/meadow/_search", mquery)
+        |> post("/elasticsearch/meadow/_msearch", mquery)
 
       assert Jason.decode!(conn.resp_body)["hits"]["total"] > 1
     end
 
     test "returns results for query string requests" do
       %{works: [work | _]} = indexable_data()
+      Indexer.synchronize_index()
 
       conn =
         build_conn()

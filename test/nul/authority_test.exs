@@ -54,7 +54,8 @@ defmodule NUL.AuthorityTest do
               %{
                 label: "Ver Steeg, Clarence L.",
                 qualified_label: "Ver Steeg, Clarence L. (The Legend)",
-                hint: "(The Legend)"
+                hint: "(The Legend)",
+                variants: []
               }} = Authority.fetch(authority_record.id)
     end
 

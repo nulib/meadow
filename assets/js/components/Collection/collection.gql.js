@@ -121,18 +121,18 @@ export const GET_COLLECTIONS = gql`
   query GetCollections {
     collections {
       adminEmail
+      description
       featured
       findingAidUrl
-      published
-      title
-      description
       id
       keywords
-      totalWorks
+      published
       representativeWork {
         id
         representativeImage
       }
+      title
+      totalWorks
       visibility {
         id
         label

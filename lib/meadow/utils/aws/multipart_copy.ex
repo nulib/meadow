@@ -123,7 +123,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   end
 
   defp complete_upload({:error, other}) do
-    Logger.debug("Error encountered. #{other}")
+    Logger.debug("Error encountered. #{inspect(other)}")
     {:error, parse_error(other)}
   end
 
@@ -176,6 +176,16 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
       )
 
     {:ok, %{resp | body: parsed_body}}
+  end
+
+  defp parse_complete_result({:error, error}) do
+    Logger.warn("Error in multipart copy: #{inspect(error)}")
+    {:error, error}
+  end
+
+  defp parse_complete_result(response) do
+    Logger.warn("Unknown response in multipart copy: #{inspect(response)}")
+    {:unknown, response}
   end
 
   defp parse_copy_part_result({:ok, %{body: xml} = resp}) do

@@ -16,20 +16,20 @@ defmodule Meadow.Data.ControlledTermsTest do
   describe "fetch/1" do
     test "cache miss" do
       assert {{:ok, :miss}, term} = ControlledTerms.fetch("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "memory cache hit" do
       assert {{:ok, :miss}, _term} = ControlledTerms.fetch("mock1:result1")
       assert {{:ok, :memory}, term} = ControlledTerms.fetch("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "db cache hit" do
       assert {{:ok, :miss}, _term} = ControlledTerms.fetch("mock1:result1")
       Cachex.clear!(Meadow.Cache.ControlledTerms)
       assert {{:ok, :db}, term} = ControlledTerms.fetch("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "invalid term" do
@@ -40,20 +40,20 @@ defmodule Meadow.Data.ControlledTermsTest do
   describe "fetch!/1" do
     test "cache miss" do
       assert term = ControlledTerms.fetch!("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "memory cache hit" do
       assert _term = ControlledTerms.fetch!("mock1:result1")
       assert term = ControlledTerms.fetch!("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "db cache hit" do
       assert _term = ControlledTerms.fetch!("mock1:result1")
       Cachex.clear!(Meadow.Cache.ControlledTerms)
       assert term = ControlledTerms.fetch!("mock1:result1")
-      assert term == %{id: "mock1:result1", label: "First Result"}
+      assert term == %{id: "mock1:result1", label: "First Result", variants: []}
     end
 
     test "invalid term" do

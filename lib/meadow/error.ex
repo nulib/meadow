@@ -53,12 +53,11 @@ defmodule Meadow.Error.Filter do
   defp filter_cookie(cookie) when is_binary(cookie) do
     cookie
     |> Cookies.decode()
-    |> Enum.map(fn {name, value} ->
+    |> Enum.map_join("; ", fn {name, value} ->
       if Enum.any?(@redact, &Regex.match?(&1, name)),
         do: "#{name}=#{@redacted}",
         else: "#{name}=#{value}"
     end)
-    |> Enum.join("; ")
   end
 
   defp filter_cookie(cookie), do: cookie

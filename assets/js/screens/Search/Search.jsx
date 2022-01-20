@@ -46,13 +46,19 @@ const ScreensSearch = () => {
   const dispatch = useBatchDispatch();
   const { loadDataLayer } = useGTM();
 
+  /** 
+   * This helper function doesn't appear to be doing it's job any more
+   * of allowing a single click to go back into a saved Search.  But
+   * since we're pinning to a previous version of ReactiveSearch, maybe
+   * this has some value into the future.
+   * 
   React.useEffect(() => {
     loadDataLayer({ pageTitle: "Search" });
 
     function handlePopState(e) {
       // If ReactiveSearch pushed a state onto the history stack
       // take user directly to the previous screen.
-      if (e.state.state) {
+      if (e.state?.state) {
         window.history.go(-1);
       }
     }
@@ -61,6 +67,7 @@ const ScreensSearch = () => {
 
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+   */
 
   const handleEditAllItems = async () => {
     const parsedAggregations = await getParsedAggregations(filteredQuery);

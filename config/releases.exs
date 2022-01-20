@@ -163,72 +163,43 @@ config :meadow, :lambda,
   mime_type: {:lambda, "meadow-mime-type"},
   tiff: {:lambda, "meadow-pyramid-tiff"}
 
-config :sequins, Actions.GenerateFileSetDigests,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
+get_sequins_var = fn key, attribute, default ->
+  [key, attribute]
+  |> Enum.join("_")
+  |> String.upcase()
+  |> System.get_env(default)
+  |> String.to_integer()
+end
 
-config :sequins, Actions.ExtractExifMetadata,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
-
-config :sequins, Actions.ExtractMediaMetadata,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
-
-config :sequins, Actions.ExtractMimeType,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 120
-  ]
-
-config :sequins, Actions.CreatePyramidTiff,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
-
-config :sequins, Actions.CreateTranscodeJob,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
-
-config :sequins, Actions.TranscodeComplete,
-  queue_config: [
-    producer_concurrency: 10,
-    receive_interval: 1000,
-    wait_time_seconds: 1,
-    max_number_of_messages: 10,
-    processor_concurrency: 100,
-    visibility_timeout: 360
-  ]
+[
+  {Actions.IngestFileSet, "INGEST_FILE_SET"},
+  {Actions.ExtractMimeType, "EXTRACT_MIME_TYPE"},
+  {Actions.InitializeDispatch, "INITIALIZE_DISPATCH"},
+  {Actions.Dispatcher, "DISPATCHER"},
+  {Actions.GenerateFileSetDigests, "GENERATE_FILE_SET_DIGESTS"},
+  {Actions.ExtractExifMetadata, "EXTRACT_EXIF_METADATA"},
+  {Actions.CopyFileToPreservation, "COPY_FILE_TO_PRESERVATION"},
+  {Actions.CreatePyramidTiff, "CREATE_PYRAMID_TIFF"},
+  {Actions.ExtractMediaMetadata, "EXTRACT_MEDIA_METADATA"},
+  {Actions.CreateTranscodeJob, "CREATE_TRANSCODE_JOB"},
+  {Actions.TranscodeComplete, "TRANSCODE_COMPLETE"},
+  {Actions.GeneratePosterImage, "GENERATE_POSTER_IMAGE"},
+  {Actions.FileSetComplete, "FILE_SET_COMPLETE"}
+]
+|> Enum.each(fn {action, key} ->
+  with receive_interval <- 1000,
+       wait_time_seconds <- 1,
+       max_number_of_messages <- 10 do
+    config :sequins, action,
+      queue_config: [
+        producer_concurrency: 1,
+        receive_interval: receive_interval,
+        wait_time_seconds: wait_time_seconds,
+        max_number_of_messages: max_number_of_messages,
+        processor_concurrency: get_sequins_var.(key, :processor_concurrency, "10"),
+        visibility_timeout: get_sequins_var.(key, :visibility_timeout, "300"),
+        max_demand: get_sequins_var.(key, :max_demand, "10"),
+        min_demand: get_sequins_var.(key, :min_demand, "5")
+      ]
+  end
+end)

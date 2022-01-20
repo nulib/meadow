@@ -53,7 +53,7 @@ const ScreensWork = () => {
 
   const { data, loading, error } = useQuery(GET_WORK, {
     variables: { id },
-    onError() {
+    onError(error) {
       history.push("/404", {
         message:
           "There was an error retrieving the work, or the work id does not exist.",
@@ -179,7 +179,7 @@ const ScreensWork = () => {
               <>
                 <ActionHeadline>
                   <PageTitle data-testid="work-page-title">
-                    {data.work.descriptiveMetadata.title || "Untitled"}{" "}
+                    {data.work.descriptiveMetadata.title || ""}{" "}
                   </PageTitle>
                   <WorkHeaderButtons
                     handleCreateSharableBtnClick={handleCreateSharableBtnClick}

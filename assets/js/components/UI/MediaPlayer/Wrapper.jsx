@@ -4,7 +4,12 @@ import MediaPlayerPosterSelector from "@js/components/UI/MediaPlayer/PosterSelec
 import ReactMediaPlayer from "@nulib/react-media-player";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
-const MediaPlayerWrapper = ({ fileSets, manifestId, canvasReady = false }) => {
+const MediaPlayerWrapper = ({
+  fileSets,
+  manifestId,
+  manifestKey,
+  canvasReady = false,
+}) => {
   const workState = useWorkState();
   const dispatch = useWorkDispatch();
 
@@ -30,8 +35,9 @@ const MediaPlayerWrapper = ({ fileSets, manifestId, canvasReady = false }) => {
       data-testid="media-player-wrapper"
     >
       <ReactMediaPlayer
-        manifestId={manifestId}
         canvasIdCallback={handleCanvasIdCallback}
+        key={manifestKey}
+        manifestId={`${manifestId}?t=${Date.now()}`}
       />
       {isCanvasReady && workTypeId !== "AUDIO" && activeMediaFileSet?.id && (
         <MediaPlayerPosterSelector />

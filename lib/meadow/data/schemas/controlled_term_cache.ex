@@ -8,13 +8,14 @@ defmodule Meadow.Data.Schemas.ControlledTermCache do
 
   schema "controlled_term_cache" do
     field :label, :string
+    field :variants, {:array, :string}, default: []
     timestamps()
   end
 
   @doc false
   def changeset(entry, attrs) do
     entry
-    |> cast(attrs, [:id, :label])
+    |> cast(attrs, [:id, :label, :variants])
     |> validate_required([:id, :label])
   end
 end

@@ -283,6 +283,20 @@ defmodule Meadow.Data.IndexerTest do
       end
     end
 
+    test "work encodes thumbnail field", %{work: subject} do
+      [_header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+      assert is_nil(doc |> get_in(["thumbnail"]))
+
+      file_set = subject.file_sets |> Enum.at(1)
+      derivatives = FileSets.add_derivative(file_set, :poster, FileSets.poster_uri_for(file_set))
+      {:ok, file_set} = FileSets.update_file_set(file_set, %{derivatives: derivatives})
+      {:ok, subject} = Works.set_representative_image(subject, file_set)
+
+      Indexer.synchronize_index()
+      [_header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+      assert doc |> get_in(["thumbnail"]) == "http://localhost:8184/iiif/2/posters/#{file_set.id}/full/!300,300/0/default.jpg"
+    end
+
     test "work encode of copy fields", %{work: subject} do
       {:ok, subject} =
         subject
