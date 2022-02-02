@@ -187,9 +187,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :citation, list_of(:string)
     field :date_created, list_of(:edtf_date_entry)
     field :license, :coded_term
-    field :notes, list_of(:note_entry)
     field :rights_statement, :coded_term
-    field :related_url, list_of(:related_url_entry)
     import_fields(:uncontrolled_descriptive_fields)
     import_fields(:controlled_fields)
   end
