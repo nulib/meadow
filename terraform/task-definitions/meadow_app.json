@@ -244,6 +244,13 @@
         "awslogs-stream-prefix": "app"
       }
     },
+    "ulimits": [
+      {
+        "name": "nofile",
+        "softLimit": 65536,
+        "hardLimit": 65536
+      }
+    ],
     "volumesFrom": []
   }
 ]
