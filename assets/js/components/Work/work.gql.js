@@ -461,7 +461,7 @@ export const UPDATE_WORK = gql`
 export const INGEST_FILE_SET = gql`
   mutation IngestFileSet(
     $accession_number: String!
-    $role: FileSetRole!
+    $role: CodedTermInput!
     $coreMetadata: FileSetCoreMetadataInput!
     $workId: ID!
   ) {
