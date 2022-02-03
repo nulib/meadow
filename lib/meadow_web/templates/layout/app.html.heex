@@ -23,7 +23,7 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <%= @inner_content %>
-    <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/vendors~app.bundle.js") %>"></script>
-    <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.bundle.js") %>"></script>
+    <script type="text/javascript" src={Routes.static_path(@conn, "/js/vendors~app.bundle.js")}></script>
+    <script type="text/javascript" src={Routes.static_path(@conn, "/js/app.bundle.js")}></script>
   </body>
 </html>
