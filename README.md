@@ -78,15 +78,12 @@ The task `mix meadow.ldap.setup [seed_file ...]` will seed the LDAP database usi
 - Start test devstack: `devstack -t up meadow`
 - run `mix test`
 
-### Amazon s3/Minio
+### Accessing S3 Buckets in Development
 
-See your local "s3" buckets.
+[Localstack](https://localstack.cloud), which we use to emulate Amazon S3 (and other services) in the development environment, does not have a full-featured S3 web UI, so it's necessary to use a utility like the [LocalStack AWS Command Line Interface](https://github.com/localstack/awscli-local) or [Cyberduck](https://cyberduck.io). There is a [Cyberduck Shortcut](Localstack%20S3.duck) in the root of this repository that will configure the app the connect to the S3 dev instance.
 
-- Dev: `https://devbox.library.northwestern.edu:9001/`
-- Test: `https://devbox.library.northwestern.edu:9002/`
+*Note*: You may receive “incomplete transfer” warnings when uploading files through Cyberduck. This appears to be a bug in Cyberduck, and can be safely ignored. If you click the refresh icon in the main window after upload, you should see the uploaded files.
 
-**Login**: minio
-**Password**: minio123
 
 ### GraphQL API
 

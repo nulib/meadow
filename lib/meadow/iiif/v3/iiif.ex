@@ -20,7 +20,7 @@ defmodule Meadow.IIIF.V3 do
 
   Examples:
     iex> manifest_id("37ad25ec-7eff-45d0-b759-eca65c9d560f")
-    "http://localhost:9002/minio/test-pyramids/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json"
+    "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json"
   """
   def manifest_id(work_id) do
     Config.iiif_manifest_url() <> "iiif3/" <> Pairtree.manifest_path(work_id)
@@ -69,7 +69,7 @@ defmodule Meadow.IIIF.V3 do
 
   Examples:
     iex> annotation_id("37ad25ec-7eff-45d0-b759-eca65c9d560f", "030ac101-58cc-4e1e-8a13-ad6d95a6adbe",1,2)
-    "http://localhost:9002/minio/test-pyramids/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe/annotation_page/1/annotation/2"
+    "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe/annotation_page/1/annotation/2"
   """
   def annotation_id(work_id, file_set_id, page_number, annotation_number) do
     "#{manifest_id(work_id)}/canvas/#{file_set_id}/annotation_page/#{page_number}/annotation/#{annotation_number}"
@@ -80,7 +80,7 @@ defmodule Meadow.IIIF.V3 do
 
   Examples:
     iex> annotation_page_id("37ad25ec-7eff-45d0-b759-eca65c9d560f", "030ac101-58cc-4e1e-8a13-ad6d95a6adbe",1)
-    "http://localhost:9002/minio/test-pyramids/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe/annotation_page/1"
+    "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe/annotation_page/1"
   """
   def annotation_page_id(work_id, file_set_id, page_number) do
     "#{manifest_id(work_id)}/canvas/#{file_set_id}/annotation_page/#{page_number}"
@@ -91,7 +91,7 @@ defmodule Meadow.IIIF.V3 do
 
   Examples:
     iex> canvas_id("37ad25ec-7eff-45d0-b759-eca65c9d560f", "030ac101-58cc-4e1e-8a13-ad6d95a6adbe")
-    "http://localhost:9002/minio/test-pyramids/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe"
+    "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/iiif3/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json/canvas/030ac101-58cc-4e1e-8a13-ad6d95a6adbe"
   """
   def canvas_id(work_id, file_set_id) do
     "#{manifest_id(work_id)}/canvas/#{file_set_id}"

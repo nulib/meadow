@@ -6,8 +6,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
 
-  @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
-  @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
+  @md5 "85062e8c916f55ae0c514cb0732cfb1f"
   @ingest_bucket Meadow.Config.ingest_bucket()
   @preservation_bucket Meadow.Config.preservation_bucket()
   @key "copy_file_to_preservation_test/test.tif"
@@ -23,8 +22,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         role: %{id: "A", scheme: "FILE_SET_ROLE"},
         core_metadata: %{
           digests: %{
-            "sha256" => @sha256,
-            "sha1" => @sha1
+            "md5" => @md5
           },
           location: "s3://#{@ingest_bucket}/#{@key}",
           mime_type: "image/tiff",
@@ -56,9 +54,13 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       with {:ok, %{headers: headers}} <-
              ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
         assert headers |> Enum.member?({"Content-Type", "image/tiff"})
-        assert headers |> Enum.member?({"x-amz-meta-sha1", @sha1})
-        assert headers |> Enum.member?({"x-amz-meta-sha256", @sha256})
-        assert headers |> Enum.member?({"x-amz-tagging-count", "2"})
+        assert headers |> Enum.member?({"x-amz-meta-md5", @md5})
+      end
+
+      with {:ok, %{body: %{tags: tags}}} <-
+             ExAws.S3.get_object_tagging(@preservation_bucket, preservation_key)
+             |> ExAws.request() do
+        assert Enum.member?(tags, %{key: "computed-md5", value: @md5})
       end
 
       on_exit(fn ->
