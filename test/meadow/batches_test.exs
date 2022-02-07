@@ -5,6 +5,7 @@ defmodule Meadow.BatchesTest do
   alias Ecto.Adapters.SQL
   alias Meadow.Batches
   alias Meadow.Data.{Indexer, Works}
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
   alias Meadow.TestSupport.MetadataGenerator
 
@@ -385,6 +386,38 @@ defmodule Meadow.BatchesTest do
 
       assert {:ok, batch} = Batches.create_batch(attrs)
       assert {:ok, _result} = Batches.process_batch(batch)
+
+      Works.list_works()
+      |> Enum.each(fn work ->
+        assert work.visibility.id == "OPEN"
+      end)
+    end
+
+    test "process_batch/1 succeeds even if index is out of sync" do
+      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      type = "update"
+      user = "user123"
+
+      from(Work, limit: 1) |> Repo.one() |> Repo.delete()
+
+      replace = %{
+        visibility: %{id: "OPEN", scheme: "VISIBILITY"}
+      }
+
+      attrs = %{
+        query: query,
+        type: type,
+        user: user,
+        replace: Jason.encode!(replace)
+      }
+
+      assert Works.list_works() |> length() == 2
+
+      assert {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
+
+      batch = Batches.get_batch!(batch.id)
+      assert batch.works_updated == 2
 
       Works.list_works()
       |> Enum.each(fn work ->
