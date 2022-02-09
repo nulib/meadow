@@ -48,7 +48,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
     assert capture_log(fn ->
              GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
-           end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} – already complete"
+           end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} - already complete"
   end
 
   describe "overwrite flag" do

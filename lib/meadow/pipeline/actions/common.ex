@@ -44,7 +44,7 @@ defmodule Meadow.Pipeline.Actions.Common do
 
       defp precheck(file_set, %{overwrite: "false"} = attrs) do
         if already_complete?(file_set, attrs) do
-          "Marking #{__MODULE__} for #{file_set.id} as already complete without overwriting"
+          "Marking #{__MODULE__} for #{file_set.id} as already complete without overwriting"
           |> Logger.warn()
 
           ActionStates.set_state!(file_set, __MODULE__, "ok")
@@ -54,7 +54,7 @@ defmodule Meadow.Pipeline.Actions.Common do
       defp precheck(_, _), do: :noop
 
       defp process(%{id: file_set_id}, _, true) do
-        Logger.warn("Skipping #{__MODULE__} for #{file_set_id} – already complete")
+        Logger.warn("Skipping #{__MODULE__} for #{file_set_id} - already complete")
         :ok
       end
 

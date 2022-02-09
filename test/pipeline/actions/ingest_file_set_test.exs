@@ -13,7 +13,7 @@ defmodule Meadow.Pipeline.Actions.IngestFileSetTest do
 
       assert capture_log(fn ->
                IngestFileSet.process(%{file_set_id: object.id}, %{})
-             end) =~ "Skipping #{IngestFileSet} for #{object.id} – already complete"
+             end) =~ "Skipping #{IngestFileSet} for #{object.id} - already complete"
     end
   end
 

@@ -12,6 +12,6 @@ defmodule Meadow.Pipeline.Actions.FileSetCompleteTest do
 
     assert capture_log(fn ->
              FileSetComplete.process(%{file_set_id: object.id}, %{})
-           end) =~ "Skipping #{FileSetComplete} for #{object.id} – already complete"
+           end) =~ "Skipping #{FileSetComplete} for #{object.id} - already complete"
   end
 end

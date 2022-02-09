@@ -49,7 +49,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       assert capture_log(fn ->
                CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} - already complete"
 
       with {:ok, %{headers: headers}} <-
              ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
@@ -107,17 +107,21 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
       |> ExAws.request!()
 
-      with file_set <- FileSets.get_file_set!(tags[:file_set_id]),
-           preservation_url <- "s3://#{@preservation_bucket}/#{tags.preservation_key}" do
-        FileSets.update_file_set(file_set, %{core_metadata: %{location: preservation_url}})
-      end
+      ExAws.S3.put_object(@ingest_bucket, "ingest-object", @content)
+      |> ExAws.request!()
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.preservation_key)
+        delete_object(@ingest_bucket, "ingest-object")
       end)
     end
 
     test "overwrite", %{file_set_id: file_set_id, preservation_key: preservation_key} do
+      with file_set <- FileSets.get_file_set!(file_set_id),
+           ingest_url <- "s3://#{@ingest_bucket}/ingest-object" do
+        FileSets.update_file_set(file_set, %{core_metadata: %{location: ingest_url}})
+      end
+
       log =
         capture_log(fn ->
           assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
@@ -129,6 +133,11 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     end
 
     test "retain", %{file_set_id: file_set_id, preservation_key: preservation_key} do
+      with file_set <- FileSets.get_file_set!(file_set_id),
+           preservation_url <- "s3://#{@preservation_bucket}/#{preservation_key}" do
+        FileSets.update_file_set(file_set, %{core_metadata: %{location: preservation_url}})
+      end
+
       log =
         capture_log(fn ->
           assert(

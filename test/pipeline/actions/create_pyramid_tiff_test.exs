@@ -61,7 +61,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
 
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
@@ -94,7 +94,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
       assert capture_log(fn ->
                CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
 
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
