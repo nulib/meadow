@@ -133,13 +133,13 @@ defmodule Meadow.FileSetDeleteListenerTest do
         end)
 
       [
-        "[warn]  Cleaning up assets for file set #{extra_file_set.id}",
-        "[warn]  Removing streaming files from #{@streaming_location}/",
-        "[warn]  Removing poster derivative at #{@poster_location}",
-        "[warn]  Removing pyramid_tiff derivative at #{@pyramid_location}",
-        "[warn]  Leaving #{@preservation_location} intact: 1 additional reference"
+        "Cleaning up assets for file set #{extra_file_set.id}",
+        "Removing streaming files from #{@streaming_location}/",
+        "Removing poster derivative at #{@poster_location}",
+        "Removing pyramid_tiff derivative at #{@pyramid_location}",
+        "Leaving #{@preservation_location} intact: 1 additional reference"
       ]
-      |> Enum.each(fn line -> assert String.contains?(log, line) end)
+      |> Enum.each(fn line -> assert String.match?(log, ~r/\[warn(ing)?\]\s+#{line}/) end)
 
       log =
         capture_log(fn ->
@@ -150,13 +150,13 @@ defmodule Meadow.FileSetDeleteListenerTest do
         end)
 
       [
-        "[warn]  Cleaning up assets for file set #{file_set.id}",
-        "[warn]  Removing streaming files from #{@streaming_location}/",
-        "[warn]  Removing poster derivative at #{@poster_location}",
-        "[warn]  Removing pyramid_tiff derivative at #{@pyramid_location}",
-        "[warn]  Removing preservation file at #{@preservation_location}"
+        "Cleaning up assets for file set #{file_set.id}",
+        "Removing streaming files from #{@streaming_location}/",
+        "Removing poster derivative at #{@poster_location}",
+        "Removing pyramid_tiff derivative at #{@pyramid_location}",
+        "Removing preservation file at #{@preservation_location}"
       ]
-      |> Enum.each(fn line -> assert String.contains?(log, line) end)
+      |> Enum.each(fn line -> assert String.match?(log, ~r/\[warn(ing)?\]\s+#{line}/) end)
     end
   end
 end

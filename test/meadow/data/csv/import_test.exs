@@ -11,7 +11,7 @@ defmodule Meadow.Data.CSV.ImportTest do
       {:ok,
        %{
          subject:
-           File.stream!("test/fixtures/csv/work_fixture_update.csv")
+           File.stream!("test/fixtures/csv/sheets/valid.csv")
            |> Import.read_csv()
        }}
     end
@@ -31,7 +31,7 @@ defmodule Meadow.Data.CSV.ImportTest do
 
   test "decode boolean values" do
     booleans =
-      File.stream!("test/fixtures/csv/boolean_values.csv")
+      File.stream!("test/fixtures/csv/sheets/boolean_values.csv")
       |> Import.read_csv()
       |> Import.stream()
       |> Enum.map(& &1.published)

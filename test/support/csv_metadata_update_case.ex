@@ -34,9 +34,10 @@ defmodule Meadow.CSVMetadataUpdateCase do
   end
 
   defp add_ids_to_csv(works, file) do
-    [query | [headers | rows]] =
+    {headers, rows} =
       File.read!(file)
       |> String.split(~r/[\r\n]+/)
+      |> Enum.split_while(fn row -> not Regex.match?(~r/\$ID\$/, row) end)
 
     rows =
       rows
@@ -49,6 +50,6 @@ defmodule Meadow.CSVMetadataUpdateCase do
         end
       end)
 
-    Enum.join([query | [headers | rows]], "\r\n")
+    Enum.join(headers ++ rows, "\r\n")
   end
 end

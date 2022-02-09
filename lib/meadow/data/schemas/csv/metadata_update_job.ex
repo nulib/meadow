@@ -20,6 +20,7 @@ defmodule Meadow.Data.Schemas.CSV.MetadataUpdateJob do
     field(:status, :string)
     field(:started_at, :utc_datetime_usec)
     field(:user, :string)
+    field(:retries, :integer, default: 0)
     timestamps()
   end
 

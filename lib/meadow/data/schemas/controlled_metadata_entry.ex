@@ -26,18 +26,17 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
   end
 
   def from_string(value) do
-    case value do
-      "GEOGRAPHICAL:" <> uri ->
-        %{role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}, term: %{id: uri}}
+    with [qualifier | [term | []]] <- String.split(value, ":", parts: 2) do
+      cond do
+        URI.parse(term) |> Map.get(:scheme) |> is_nil() ->
+          %{term: %{id: value}}
 
-      "TOPICAL:" <> uri ->
-        %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: uri}}
+        String.length(qualifier) == 3 ->
+          %{role: %{id: qualifier, scheme: "marc_relator"}, term: %{id: term}}
 
-      <<prefix::binary-size(3), ":", uri::binary>> ->
-        %{role: %{id: prefix, scheme: "marc_relator"}, term: %{id: uri}}
-
-      uri ->
-        %{term: %{id: uri}}
+        true ->
+          %{role: %{id: qualifier, scheme: "subject_role"}, term: %{id: term}}
+      end
     end
   end
 end

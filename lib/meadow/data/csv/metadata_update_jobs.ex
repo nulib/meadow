@@ -197,36 +197,56 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   """
   def reset_stalled(seconds) do
     with timeout <- DateTime.utc_now() |> DateTime.add(-seconds, :second) do
-      {pending_count, _} = reset_stalled("validating", "pending", timeout)
-      {valid_count, _} = reset_stalled("processing", "valid", timeout)
-
-      {:ok, pending_count + valid_count}
+      {:ok, {pending_canceled, pending_count}} = reset_stalled("validating", "pending", timeout)
+      {:ok, {valid_canceled, valid_count}} = reset_stalled("processing", "valid", timeout)
+      {:ok, pending_canceled + valid_canceled, pending_count + valid_count}
     end
   end
 
   defp reset_stalled(stuck_status, reset_status, timeout) do
     {:ok, result} =
       Repo.transaction(fn ->
-        ids_to_reset =
-          from(job in MetadataUpdateJob,
-            where: job.status == ^stuck_status and job.updated_at <= ^timeout,
-            lock: "FOR UPDATE SKIP LOCKED",
-            select: [:id]
-          )
-          |> Repo.all()
-          |> Enum.map(fn %{id: id} -> id end)
-
-        from(job in MetadataUpdateJob, where: job.id in ^ids_to_reset)
-        |> Repo.update_all(
-          set: [
-            active: false,
-            status: reset_status,
-            updated_at: DateTime.utc_now()
-          ]
-        )
+        with {cancel_count, _} <- cancel_after_retries(stuck_status, timeout),
+             {reset_count, _} <- change_stalled_status(stuck_status, reset_status, timeout) do
+          {:ok, {cancel_count, reset_count}}
+        end
       end)
 
     result
+  end
+
+  defp change_stalled_status(stuck_status, reset_status, timeout) do
+    ids_to_reset =
+      from(job in MetadataUpdateJob,
+        where: job.status == ^stuck_status and job.updated_at <= ^timeout,
+        lock: "FOR UPDATE SKIP LOCKED",
+        select: job.id
+      )
+      |> Repo.all()
+
+    from(job in MetadataUpdateJob, where: job.id in ^ids_to_reset)
+    |> Repo.update_all(
+      set: [
+        active: false,
+        status: reset_status,
+        updated_at: DateTime.utc_now()
+      ],
+      inc: [retries: 1]
+    )
+  end
+
+  defp cancel_after_retries(status, timeout, retries \\ 3) do
+    from(
+      job in MetadataUpdateJob,
+      where: job.status == ^status and job.updated_at <= ^timeout and job.retries >= ^retries
+    )
+    |> Repo.update_all(
+      set: [
+        active: false,
+        status: "error"
+      ],
+      push: [errors: %{status: "Stuck in #{status} after #{retries} retries"}]
+    )
   end
 
   defp errors_with_row(errors, row) do
@@ -250,6 +270,10 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       errors = (missing ++ extra) |> Enum.into(%{})
       {import_stream, errors |> errors_with_row(1)}
     end
+  end
+
+  defp validate_headers([] = import_stream) do
+    {import_stream, errors_with_row(%{headers: ["could not identify header row"]}, 1)}
   end
 
   defp validate_terms({import_stream, errors}) when errors == [] do

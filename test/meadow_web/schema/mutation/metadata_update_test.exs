@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
   load_gql(MeadowWeb.Schema, "test/gql/MetadataUpdate.gql")
 
   describe "missing file" do
-    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
 
     test "should return an error" do
       result =
@@ -25,7 +25,7 @@ defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
   end
 
   describe "valid update" do
-    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
 
     test "should be a valid mutation", %{source_url: source_url} do
       result =
