@@ -3,8 +3,6 @@ defmodule MeadowWeb.Schema.Query.IngestSheetWorkCount do
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
-  alias Meadow.Ingest.Rows
-
   load_gql(MeadowWeb.Schema, "test/gql/IngestSheetWorkCount.gql")
 
   test "ingestSheetWorkCount query returns total works in an ingest sheet", %{ingest_sheet: sheet} do
