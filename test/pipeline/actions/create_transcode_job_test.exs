@@ -33,7 +33,7 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
 
       assert capture_log(fn ->
                CreateTranscodeJob.process(%{file_set_id: object.id}, %{})
-             end) =~ "Skipping #{CreateTranscodeJob} for #{object.id} – already complete"
+             end) =~ "Skipping #{CreateTranscodeJob} for #{object.id} - already complete"
     end
   end
 

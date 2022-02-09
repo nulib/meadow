@@ -148,6 +148,19 @@ defmodule Meadow.Ingest.SheetsTest do
 
       assert Sheets.work_count(ingest_sheet) == 30
     end
+
+    test "file_set_count/1" do
+      project = project_fixture()
+      ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
+      work_1 = work_with_file_sets_fixture(Faker.random_between(1, 5), %{ingest_sheet_id: ingest_sheet.id})
+      work_2 = work_with_file_sets_fixture(Faker.random_between(1, 3), %{ingest_sheet_id: ingest_sheet.id})
+
+      assert Sheets.file_set_count(ingest_sheet) == length(work_1.file_sets) + length(work_2.file_sets)
+
+      Works.delete_work(work_1)
+
+      assert Sheets.file_set_count(ingest_sheet) == length(work_2.file_sets)
+    end
   end
 
   describe "update_completed_sheets/0" do

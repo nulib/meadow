@@ -3,9 +3,7 @@ defmodule Meadow.Ingest.Sheets do
   API for Ingest Sheets
   """
   import Ecto.Query, warn: false
-  alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{ActionState, FileSet, Work}
   alias Meadow.Data.Works
   alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
   alias Meadow.Repo
@@ -370,11 +368,11 @@ defmodule Meadow.Ingest.Sheets do
   def file_set_count(%Sheet{} = ingest_sheet), do: file_set_count(ingest_sheet.id)
 
   def file_set_count(sheet_id) do
-    from(r in Row,
-      where: r.sheet_id == ^sheet_id,
-      select: count(r.sheet_id)
+    from(w in Work,
+      left_join: f in assoc(w, :file_sets),
+      where: w.ingest_sheet_id == ^sheet_id
     )
-    |> Repo.one()
+    |> Repo.aggregate(:count)
   end
 
   def ingest_errors(%Sheet{} = ingest_sheet), do: ingest_errors(ingest_sheet.id)
