@@ -236,6 +236,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   defp cancel_after_retries(status, timeout, retries \\ 3) do
+    error = %{row: 0, errors: %{status: ["Stuck in #{status} after #{retries} retries"]}}
+
     from(
       job in MetadataUpdateJob,
       where: job.status == ^status and job.updated_at <= ^timeout and job.retries >= ^retries
@@ -243,9 +245,10 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     |> Repo.update_all(
       set: [
         active: false,
-        status: "error"
+        status: "error",
+        updated_at: DateTime.utc_now()
       ],
-      push: [errors: %{status: "Stuck in #{status} after #{retries} retries"}]
+      push: [errors: error]
     )
   end
 
