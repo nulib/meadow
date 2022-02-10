@@ -30,15 +30,15 @@ defmodule Meadow.Utils.LambdaTest do
         end)
 
       assert log |> String.contains?("[info]  This is a log message with level `log`")
-      assert log |> String.contains?("[warn]  This is a log message with level `warn`")
+      assert log |> String.match?(~r"\[warn(ing)?\]\s+This is a log message with level `warn`")
       assert log |> String.contains?("[error] This is a log message with level `error`")
       assert log |> String.contains?("[info]  This is a log message with level `info`")
       assert log |> String.contains?("[debug] This is a log message with level `debug`")
       refute log |> String.contains?("[debug] ping")
 
       assert log
-             |> String.contains?(
-               "[warn]  Unknown message received: This is an unknown message type"
+             |> String.match?(
+               ~r"\[warn(ing)?\]\s+Unknown message received: This is an unknown message type"
              )
     end
 
@@ -71,7 +71,7 @@ defmodule Meadow.Utils.LambdaTest do
           assert {:ok, nil} == Lambda.invoke(config, %{test: "undef"})
         end)
 
-      assert log |> String.contains?("[warn]  Received undefined")
+      assert log |> String.match?(~r"\[warn(ing)?\]\s+Received undefined")
     end
 
     test "timeout", %{config: config} do

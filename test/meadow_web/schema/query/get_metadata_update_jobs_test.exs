@@ -9,9 +9,9 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobsTest do
     prewarm_controlled_term_cache()
 
     [
-      "test/fixtures/csv/work_fixture_update.csv",
-      "test/fixtures/csv/work_fixture_update_bad_headers.csv",
-      "test/fixtures/csv/work_fixture_update_invalid.csv"
+      "test/fixtures/csv/sheets/valid.csv",
+      "test/fixtures/csv/sheets/bad_headers.csv",
+      "test/fixtures/csv/sheets/invalid.csv"
     ]
     |> Enum.each(fn file ->
       MetadataUpdateJobs.create_job(%{

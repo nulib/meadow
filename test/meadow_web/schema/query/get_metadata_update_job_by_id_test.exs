@@ -20,7 +20,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   end
 
   describe "valid data" do
-    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
 
     test "should be a valid query", %{job: job} do
       result =
@@ -36,7 +36,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   end
 
   describe "invalid data" do
-    @describetag source: "test/fixtures/csv/work_fixture_update_invalid.csv"
+    @describetag source: "test/fixtures/csv/sheets/invalid.csv"
 
     test "should report errors", %{job: job} do
       MetadataUpdateJobs.apply_job(job)

@@ -50,7 +50,8 @@ defmodule Mix.Tasks.Assets.Install do
   def run(_) do
     Path.wildcard("**/package-lock.json")
     |> Enum.reject(fn path ->
-      String.starts_with?(path, "_build") && String.contains?(path, "node_modules")
+      String.starts_with?(path, "_build") || String.contains?(path, "node_modules") ||
+        path == "package-lock.json"
     end)
     |> Enum.map(&Path.dirname/1)
     |> Enum.each(fn path ->
