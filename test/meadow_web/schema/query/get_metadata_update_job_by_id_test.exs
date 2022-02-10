@@ -86,6 +86,14 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    ],
                    "row" => 18
                  },
+                 %{
+                   "errors" => [%{"field" => "reading_room", "messages" => ["tire is invalid"]}],
+                   "row" => 24
+                 },
+                 %{
+                   "errors" => [%{"field" => "published", "messages" => ["flase is invalid"]}],
+                   "row" => 26
+                 },
                  %{"errors" => [%{"field" => "id", "messages" => ["is required"]}], "row" => 28},
                  %{
                    "errors" => [

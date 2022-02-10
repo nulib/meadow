@@ -119,7 +119,10 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         assert MetadataUpdateJobs.reset_stalled(360) == {:ok, 1, 0}
         assert %{status: status, errors: errors} = MetadataUpdateJob |> Repo.one()
         assert status == "error"
-        assert [%{"status" => "Stuck in validating after 3 retries"} | []] = errors
+
+        assert errors == [
+                 %{"errors" => %{"status" => ["Stuck in validating after 3 retries"]}, "row" => 0}
+               ]
       end
     end
 
@@ -243,6 +246,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                  row: 14
                },
                %{errors: %{"id" => "0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"}, row: 18},
+               %{errors: %{"reading_room" => "tire is invalid"}, row: 24},
+               %{errors: %{"published" => "flase is invalid"}, row: 26},
                %{errors: %{"id" => "is required"}, row: 28},
                %{errors: %{"accession_number" => "MISMATCHED_ACCESSION does not match"}, row: 37}
              ]
