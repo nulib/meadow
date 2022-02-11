@@ -223,6 +223,26 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
     end
   end
 
+  describe "bad subjects" do
+    @describetag source: "test/fixtures/csv/sheets/bad_subjects.csv"
+
+    test "apply_job/1", %{create_result: result} do
+      assert {:ok, job} = result
+      assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
+      refute MetadataUpdateJobs.get_job(job.id) |> Map.get(:active)
+
+      assert errors == [
+               %{
+                 errors: %{
+                   "GEOGRAPHICAL:bad subject" => "is from an unknown authority",
+                   "unqualified bad subject" => "is from an unknown authority"
+                 },
+                 row: 0
+               }
+             ]
+    end
+  end
+
   describe "invalid data" do
     @describetag source: "test/fixtures/csv/sheets/invalid.csv"
 
@@ -232,6 +252,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
       refute MetadataUpdateJobs.get_job(job.id) |> Map.get(:active)
 
       assert errors == [
+               %{errors: %{"notes" => ["cannot have a blank id"]}, row: 10},
                %{
                  errors: %{
                    "contributor#3" => ["nop is an invalid coded term for scheme MARC_RELATOR"]
@@ -246,6 +267,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                  row: 14
                },
                %{errors: %{"id" => "0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"}, row: 18},
+               %{errors: %{"subject#3" => ["can't be blank"]}, row: 21},
                %{errors: %{"reading_room" => "tire is invalid"}, row: 24},
                %{errors: %{"published" => "flase is invalid"}, row: 26},
                %{errors: %{"id" => "is required"}, row: 28},

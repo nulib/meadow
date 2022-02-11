@@ -57,4 +57,29 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntryTest do
       refute changeset.valid?
     end
   end
+
+  describe "from_string/1" do
+    test "qualified subject" do
+      assert "GEOGRAPHICAL:http://id.loc.gov/authorities/subjects/sh2002006395"
+             |> ControlledMetadataEntry.from_string() == %{
+               role: %{id: "GEOGRAPHICAL", scheme: "subject_role"},
+               term: %{id: "http://id.loc.gov/authorities/subjects/sh2002006395"}
+             }
+    end
+
+    test "unqualified subject" do
+      assert "http://id.loc.gov/authorities/subjects/sh2002006395"
+             |> ControlledMetadataEntry.from_string() == %{
+               term: %{id: "http://id.loc.gov/authorities/subjects/sh2002006395"}
+             }
+    end
+
+    test "marc relator" do
+      assert "pbl:http://id.loc.gov/authorities/names/n79091588"
+             |> ControlledMetadataEntry.from_string() == %{
+               role: %{id: "pbl", scheme: "marc_relator"},
+               term: %{id: "http://id.loc.gov/authorities/names/n79091588"}
+             }
+    end
+  end
 end

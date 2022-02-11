@@ -21,8 +21,17 @@ defmodule Meadow.Data.Schemas.RelatedURLEntry do
 
   def from_string(""), do: nil
 
-  def from_string(value) do
-    [role_id | [url | []]] = value |> String.split(~r/:/, parts: 2)
-    %{label: %{id: role_id, scheme: "related_url"}, url: url}
+  def from_string(value) when is_binary(value) do
+    String.split(value, ":", parts: 2)
+    |> from_string_result()
   end
+
+  defp from_string_result([role_id | [url | []]] = value) do
+    case URI.parse(url) do
+      %{scheme: nil} -> %{url: Enum.join(value, ":")}
+      _ -> %{label: %{id: role_id, scheme: "related_url"}, url: url}
+    end
+  end
+
+  defp from_string_result(value), do: %{url: Enum.join(value, ":")}
 end
