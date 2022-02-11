@@ -25,18 +25,23 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> validate_required([:term, :role])
   end
 
-  def from_string(value) do
-    with [qualifier | [term | []]] <- String.split(value, ":", parts: 2) do
-      cond do
-        URI.parse(term) |> Map.get(:scheme) |> is_nil() ->
-          %{term: %{id: value}}
+  def from_string(value) when is_binary(value) do
+    String.split(value, ":", parts: 2)
+    |> from_string_result()
+  end
 
-        String.length(qualifier) == 3 ->
-          %{role: %{id: qualifier, scheme: "marc_relator"}, term: %{id: term}}
+  # An unqualified string is just a bare term
+  defp from_string_result([term | []]), do: %{term: %{id: term}}
 
-        true ->
-          %{role: %{id: qualifier, scheme: "subject_role"}, term: %{id: term}}
-      end
+  # A 3-character qualifier indicates a MARC Relator code
+  defp from_string_result([<<qualifier::binary-size(3)>> | [term]]),
+    do: %{role: %{id: qualifier, scheme: "marc_relator"}, term: %{id: term}}
+
+  # If the term can't be parsed as a URI, assume the qualifier was actually part of the term
+  defp from_string_result([qualifier | [term | []]] = value) do
+    case URI.parse(term) do
+      %{scheme: nil} -> %{term: %{id: Enum.join(value, ":")}}
+      _ -> %{role: %{id: qualifier, scheme: "subject_role"}, term: %{id: term}}
     end
   end
 end

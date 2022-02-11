@@ -54,6 +54,10 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
       with errors <- get_in(query_data, [:data, "csvMetadataUpdateJob", "errors"]) do
         assert errors == [
                  %{
+                   "errors" => [%{"field" => "notes", "messages" => ["cannot have a blank id"]}],
+                   "row" => 10
+                 },
+                 %{
                    "errors" => [
                      %{
                        "field" => "contributor#3",
@@ -85,6 +89,10 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                      }
                    ],
                    "row" => 18
+                 },
+                 %{
+                   "errors" => [%{"field" => "subject#3", "messages" => ["can't be blank"]}],
+                   "row" => 21
                  },
                  %{
                    "errors" => [%{"field" => "reading_room", "messages" => ["tire is invalid"]}],

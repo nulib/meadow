@@ -22,7 +22,12 @@ defmodule Meadow.Data.Schemas.NoteEntry do
   def from_string(""), do: nil
 
   def from_string(value) do
-    [note_type_id | [note | []]] = value |> String.split(~r/:/, parts: 2)
-    %{type: %{id: note_type_id, scheme: "note_type"}, note: note}
+    case value |> String.split(~r/:/, parts: 2) do
+      [note_type_id | [note | []]] ->
+        %{type: %{id: note_type_id, scheme: "note_type"}, note: note}
+
+      [note] ->
+        %{type: %{id: "", scheme: "note_type"}, note: note}
+    end
   end
 end
