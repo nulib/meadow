@@ -294,7 +294,9 @@ defmodule Meadow.Data.IndexerTest do
 
       Indexer.synchronize_index()
       [_header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
-      assert doc |> get_in(["thumbnail"]) == "http://localhost:8184/iiif/2/posters/#{file_set.id}/full/!300,300/0/default.jpg"
+
+      assert doc |> get_in(["thumbnail"]) ==
+               "http://localhost:8184/iiif/2/posters/#{file_set.id}/full/!300,300/0/default.jpg"
     end
 
     test "work encode of copy fields", %{work: subject} do

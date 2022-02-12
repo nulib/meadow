@@ -1,6 +1,7 @@
 defmodule MeadowWeb.ExportControllerTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
-  use Meadow.DataCase, async: true
+
   alias Meadow.Data.Indexer
 
   @query ~s({"query":{"term":{"model.name.keyword": "Work"}}})

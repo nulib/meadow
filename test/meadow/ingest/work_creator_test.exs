@@ -1,4 +1,5 @@
 defmodule Meadow.Ingest.WorkCreatorTest do
+  use Meadow.DataCase, async: false
   use Meadow.IngestCase, async: false
   use Meadow.S3Case
   alias Ecto.Adapters.SQL.Sandbox

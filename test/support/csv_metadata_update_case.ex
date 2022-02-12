@@ -8,8 +8,6 @@ defmodule Meadow.CSVMetadataUpdateCase do
   import Meadow.TestHelpers
 
   setup tags do
-    :ok = sandbox_mode(tags)
-
     prewarm_controlled_term_cache()
 
     with bucket <- Config.upload_bucket(),
@@ -28,7 +26,6 @@ defmodule Meadow.CSVMetadataUpdateCase do
 
   using do
     quote do
-      use Meadow.DataCase
       use Meadow.S3Case
     end
   end

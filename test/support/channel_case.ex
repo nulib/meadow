@@ -14,7 +14,6 @@ defmodule MeadowWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
-  import Meadow.TestHelpers
 
   using do
     quote do
@@ -24,10 +23,5 @@ defmodule MeadowWeb.ChannelCase do
       # The default endpoint for testing
       @endpoint MeadowWeb.Endpoint
     end
-  end
-
-  setup tags do
-    :ok = sandbox_mode(tags)
-    :ok
   end
 end

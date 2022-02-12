@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Query.RolesTest do
   use Meadow.Constants
 
-    use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/GetRoles.gql")

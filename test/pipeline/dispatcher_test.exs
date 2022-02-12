@@ -1,6 +1,6 @@
 defmodule Meadow.Pipeline.Actions.DispatcherTest do
-  use Meadow.S3Case
   use Meadow.DataCase
+  use Meadow.S3Case
 
   alias Meadow.Config
 

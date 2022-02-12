@@ -1,21 +1,23 @@
 defmodule MeadowWeb.Schema.Query.ProjectsTest do
   defmodule All do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
-    set_gql MeadowWeb.Schema, """
+    set_gql(MeadowWeb.Schema, """
     query {
       projects{
         id
         title
       }
     }
-    """
+    """)
 
     test "projects query returns all projects" do
       projects_fixture()
 
       assert {:ok, %{data: query_data}} = query_gql(context: gql_context())
+
       assert [
                %{"title" => "Project 3"},
                %{"title" => "Project 2"},
@@ -25,22 +27,26 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
   end
 
   defmodule Limit do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
-    set_gql MeadowWeb.Schema, """
+    set_gql(MeadowWeb.Schema, """
     query($limit: Int) {
       projects(limit: $limit){
         id
         title
       }
     }
-    """
+    """)
+
     @tag variables: %{"limit" => "2"}
     test "projects query limits the number of projects returned" do
       projects_fixture()
 
-      assert {:ok, %{data: query_data}} = query_gql(variables: %{"limit" => 2}, context: gql_context())
+      assert {:ok, %{data: query_data}} =
+               query_gql(variables: %{"limit" => 2}, context: gql_context())
+
       assert [
                %{"title" => "Project 3"},
                %{"title" => "Project 2"}
@@ -49,22 +55,22 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
   end
 
   defmodule Order do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
-    set_gql MeadowWeb.Schema, """
+    set_gql(MeadowWeb.Schema, """
     query($order: SortOrder!) {
       projects(order: $order){
         id
         title
       }
     }
-    """
+    """)
 
     setup tags do
       projects_fixture()
-      {:ok,
-       %{result: query_gql(variables: tags[:variables], context: gql_context())}}
+      {:ok, %{result: query_gql(variables: tags[:variables], context: gql_context())}}
     end
 
     @tag variables: %{"order" => "ASC"}

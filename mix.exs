@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "5.1.2"
+  @app_version "5.1.3"
 
   def project do
     [
@@ -57,7 +57,7 @@ defmodule Meadow.MixProject do
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5.0"},
-      {:ecto_sql, "~> 3.0"},
+      {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
       {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},

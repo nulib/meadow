@@ -1,5 +1,4 @@
 defmodule Meadow.BatchDriverTest do
-  use ExUnit.Case
   use Meadow.DataCase
   use Meadow.IndexCase
 

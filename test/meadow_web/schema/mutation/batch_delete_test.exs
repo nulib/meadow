@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.BatchDeleteTest do
-  use MeadowWeb.ConnCase, async: true
   use Meadow.DataCase
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
   alias Meadow.Data.Indexer
 

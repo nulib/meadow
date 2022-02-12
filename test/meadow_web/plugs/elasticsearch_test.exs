@@ -1,4 +1,5 @@
 defmodule ElasticsearchTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: false
   use Meadow.IndexCase
 

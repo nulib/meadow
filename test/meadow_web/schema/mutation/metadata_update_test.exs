@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.MetadataUpdateTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Meadow.CSVMetadataUpdateCase
   use Wormwood.GQLCase
