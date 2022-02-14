@@ -26,8 +26,7 @@ defmodule Meadow.IngestCase do
     end
   end
 
-  setup tags do
-    :ok = sandbox_mode(tags)
+  setup do
     sheet = ingest_sheet_rows_fixture(@fixture)
 
     sheet

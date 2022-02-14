@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.IngestErrorsTest do
+  use Meadow.DataCase
   use Meadow.IngestCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase

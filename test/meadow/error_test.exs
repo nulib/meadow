@@ -1,6 +1,8 @@
 defmodule Meadow.ErrorTest do
   use Honeybadger.Case
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
+
   use Meadow.Utils.Logging
 
   alias Meadow.Config

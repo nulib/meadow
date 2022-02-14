@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.SheetTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   @query """

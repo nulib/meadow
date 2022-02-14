@@ -1,6 +1,6 @@
 defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
-  use Meadow.S3Case
   use Meadow.DataCase
+  use Meadow.S3Case
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.GenerateFileSetDigests

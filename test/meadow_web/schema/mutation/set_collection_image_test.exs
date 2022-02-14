@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
   alias Meadow.Data.Collections

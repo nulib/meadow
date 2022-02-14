@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
+  use Meadow.DataCase
   use Meadow.IngestCase
   use MeadowWeb.SubscriptionCase, async: true
   alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks}

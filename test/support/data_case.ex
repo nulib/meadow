@@ -13,7 +13,7 @@ defmodule Meadow.DataCase do
   """
 
   use ExUnit.CaseTemplate
-  import Meadow.TestHelpers
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -28,7 +28,11 @@ defmodule Meadow.DataCase do
   end
 
   setup tags do
-    :ok = sandbox_mode(tags)
+    with shared <- not Map.get(tags, :async, true),
+         pid <- Sandbox.start_owner!(Meadow.Repo, shared: shared) do
+      on_exit(fn -> Sandbox.stop_owner(pid) end)
+    end
+
     :ok
   end
 

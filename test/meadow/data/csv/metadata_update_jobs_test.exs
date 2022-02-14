@@ -1,4 +1,5 @@
 defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
+  use Meadow.DataCase
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
   alias Meadow.Data.{CSV.MetadataUpdateJobs, Indexer, Works}

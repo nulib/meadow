@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.BatchesTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 

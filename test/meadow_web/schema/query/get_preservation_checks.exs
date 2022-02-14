@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.PreservationChecksTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
