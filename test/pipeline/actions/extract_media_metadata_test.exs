@@ -80,7 +80,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
 
       assert capture_log(fn ->
                ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
     end
   end
 
@@ -99,7 +99,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
 
       assert capture_log(fn ->
                ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
     end
   end
 

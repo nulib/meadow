@@ -40,7 +40,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
 
       assert capture_log(fn ->
                ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
     end
 
     @tag fixture_file: @bad_tiff, file_set_role_id: "P"
@@ -65,7 +65,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
 
       assert capture_log(fn ->
                ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
     end
 
     @tag fixture_file: @framemd5_file, file_set_role_id: "S"

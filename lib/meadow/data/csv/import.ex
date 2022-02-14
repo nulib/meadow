@@ -15,7 +15,7 @@ defmodule Meadow.Data.CSV.Import do
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
   @coded_fields ~w(library_unit license preservation_level rights_statement status visibility work_type)a
 
-  defstruct query: nil, headers: nil, stream: nil
+  defstruct headers: nil, stream: nil
 
   @doc """
   Reads a stream of CSV data and returns an importable struct
@@ -35,14 +35,18 @@ defmodule Meadow.Data.CSV.Import do
   def read_csv(source) do
     with csv_stream <-
            source |> StreamUtil.by_line() |> CSV.parse_stream(skip_headers: false),
-         [[query | _] | [headers | []]] <- Enum.take(csv_stream, 2) do
+         [headers | stream] <- Enum.drop_while(csv_stream, &(not header_row?(&1))) do
       %__MODULE__{
-        query: query,
         headers: Enum.map(headers, &String.to_atom/1),
-        stream: Stream.drop(csv_stream, 2)
+        stream: stream
       }
     end
   end
+
+  defp header_row?(headers),
+    do:
+      length(headers) == length(fields()) and
+        Enum.all?(headers, &Regex.match?(~r/[a-z_]+/, &1))
 
   @doc """
   Streams rows from a struct and returns a stream of structured work metadata maps

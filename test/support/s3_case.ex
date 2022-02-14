@@ -139,6 +139,19 @@ defmodule Meadow.S3Case do
     :ok
   end
 
+  def add_tagging_header(op, content) do
+    with digest <-
+           :crypto.hash_init(:md5)
+           |> :crypto.hash_update(content)
+           |> :crypto.hash_final()
+           |> Base.encode16()
+           |> String.downcase(),
+         tagging <- "computed-md5=#{digest}&computed-md5-last-modified=#{System.system_time()}",
+         headers <- Map.get(op, :headers, %{}) do
+      Map.put(op, :headers, Map.put(headers, "x-amz-tagging", tagging))
+    end
+  end
+
   def show_cleanup_warnings do
     require Logger
 

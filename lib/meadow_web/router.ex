@@ -4,6 +4,7 @@ defmodule MeadowWeb.Router do
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
+    plug Plug.Logger
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
@@ -12,6 +13,7 @@ defmodule MeadowWeb.Router do
   end
 
   pipeline :secure_browser do
+    plug Plug.Logger
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash

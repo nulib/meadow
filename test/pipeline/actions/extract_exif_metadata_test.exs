@@ -111,7 +111,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
 
@@ -129,7 +129,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       assert capture_log(fn ->
                ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} – already complete"
+             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
 

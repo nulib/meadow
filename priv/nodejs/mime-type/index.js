@@ -4,6 +4,13 @@ const MimeTypes = require("mime-types");
 const { makeTokenizer } = require("@tokenizer/s3");
 const path = require("path");
 
+if (process.env.LOCALSTACK_HOSTNAME) {
+  AWS.config.update({
+    endpoint: `http://${process.env.LOCALSTACK_HOSTNAME}:4566/`,
+    s3ForcePathStyle: true
+  });
+}
+
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {

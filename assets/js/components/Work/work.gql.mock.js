@@ -30,7 +30,7 @@ export const mockWork = {
     visibility: mockVisibility,
   },
   collection: {
-    id: "1287312378238293126321308",
+    id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
     title: "Collection 1232432 Name",
   },
   descriptiveMetadata: {

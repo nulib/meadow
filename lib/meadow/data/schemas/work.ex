@@ -76,6 +76,7 @@ defmodule Meadow.Data.Schemas.Work do
      [
        :collection_id,
        :ingest_sheet_id,
+       :published,
        :reading_room,
        :representative_file_set_id,
        :visibility,

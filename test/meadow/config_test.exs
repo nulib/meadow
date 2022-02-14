@@ -68,9 +68,9 @@ defmodule Meadow.ConfigTest do
 
     with env <- Config.aws_environment() do
       assert env |> get_val.('AWS_REGION') == 'us-east-1'
-      assert env |> get_val.('AWS_SECRET_ACCESS_KEY') == 'minio123'
-      assert env |> get_val.('AWS_ACCESS_KEY_ID') == 'minio'
-      assert env |> get_val.('AWS_S3_ENDPOINT') |> Enum.slice(0..16) == 'http://localhost:'
+      assert env |> get_val.('AWS_SECRET_ACCESS_KEY') == 'fake'
+      assert env |> get_val.('AWS_ACCESS_KEY_ID') == 'fake'
+      assert env |> get_val.('AWS_S3_ENDPOINT') |> Enum.slice(0..15) == 'http://localhost'
     end
   end
 
@@ -96,7 +96,8 @@ defmodule Meadow.ConfigTest do
     end
 
     test "iiif_manifest_url/0" do
-      assert Config.iiif_manifest_url() == "http://localhost:9002/minio/test-pyramids/public/"
+      assert Config.iiif_manifest_url() ==
+               "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/"
     end
 
     test "trailing slashes/0" do

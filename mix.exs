@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "5.1.1"
+  @app_version "5.1.2"
 
   def project do
     [
@@ -44,7 +44,7 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.6.3"},
+      {:absinthe, "~> 1.7.0"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.19.0", only: :test},
@@ -76,9 +76,10 @@ defmodule Meadow.MixProject do
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.1.0"},
-      {:phoenix, "~> 1.5.1"},
-      {:phoenix_html, "~> 2.13"},
-      {:phoenix_live_dashboard, "~> 0.1"},
+      {:phoenix, "~> 1.6.0"},
+      {:phoenix_html, "~> 3.0"},
+      {:phoenix_live_view, "~> 0.16.4"},
+      {:phoenix_live_dashboard, "~> 0.5"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.1"},
@@ -91,7 +92,8 @@ defmodule Meadow.MixProject do
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.6.0"},
       {:sweet_xml, "~> 0.6"},
-      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_poller, "~> 0.5"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 0.2.4"},
       {:wait_for_it, "~> 1.3.0"},

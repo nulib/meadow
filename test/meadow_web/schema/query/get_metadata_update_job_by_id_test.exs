@@ -20,7 +20,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   end
 
   describe "valid data" do
-    @describetag source: "test/fixtures/csv/work_fixture_update.csv"
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
 
     test "should be a valid query", %{job: job} do
       result =
@@ -36,7 +36,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   end
 
   describe "invalid data" do
-    @describetag source: "test/fixtures/csv/work_fixture_update_invalid.csv"
+    @describetag source: "test/fixtures/csv/sheets/invalid.csv"
 
     test "should report errors", %{job: job} do
       MetadataUpdateJobs.apply_job(job)
@@ -53,6 +53,10 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
 
       with errors <- get_in(query_data, [:data, "csvMetadataUpdateJob", "errors"]) do
         assert errors == [
+                 %{
+                   "errors" => [%{"field" => "notes", "messages" => ["cannot have a blank id"]}],
+                   "row" => 10
+                 },
                  %{
                    "errors" => [
                      %{
@@ -85,6 +89,18 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                      }
                    ],
                    "row" => 18
+                 },
+                 %{
+                   "errors" => [%{"field" => "subject#3", "messages" => ["can't be blank"]}],
+                   "row" => 21
+                 },
+                 %{
+                   "errors" => [%{"field" => "reading_room", "messages" => ["tire is invalid"]}],
+                   "row" => 24
+                 },
+                 %{
+                   "errors" => [%{"field" => "published", "messages" => ["flase is invalid"]}],
+                   "row" => 26
                  },
                  %{"errors" => [%{"field" => "id", "messages" => ["is required"]}], "row" => 28},
                  %{

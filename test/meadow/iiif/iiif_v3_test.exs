@@ -28,7 +28,7 @@ defmodule Meadow.IIIF.V3.Test do
 
       with {:ok, result} <- ExAws.S3.head_object(@pyramid_bucket, destination) |> ExAws.request() do
         assert result.status_code == 200
-        assert result.headers |> Enum.member?({"Content-Type", "application/json"})
+        assert result.headers |> Enum.member?({"content-type", "application/json"})
       end
     end
   end

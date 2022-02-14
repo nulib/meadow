@@ -428,16 +428,26 @@ defmodule Meadow.Batches do
     work_ids
   end
 
+  defp validate_work_ids(work_ids) do
+    from(w in Work, where: w.id in ^work_ids, select: w.id) |> Repo.all()
+  end
+
   # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
 
   defp process_updates(
-         {:ok, %{"hits" => %{"hits" => [], "total" => total}}},
+         {:ok, %{"hits" => %{"hits" => []}}},
          _delete,
          _add,
          _replace,
          batch_id
        ) do
-    update_batch(batch_id, %{works_updated: total})
+    with {:ok, batch_uuid} <- Ecto.UUID.dump(batch_id),
+         total <-
+           from(wb in "works_batches", where: wb.batch_id == ^batch_uuid)
+           |> Repo.aggregate(:count) do
+      update_batch(batch_id, %{works_updated: total})
+    end
+
     {:ok, :noop}
   end
 
@@ -452,6 +462,7 @@ defmodule Meadow.Batches do
 
     current_hits
     |> Enum.map(&Map.get(&1, "_id"))
+    |> validate_work_ids()
     |> apply_controlled_field_changes(delete, add)
     |> apply_uncontrolled_field_changes(add, replace)
     |> apply_batch_association(batch_id)

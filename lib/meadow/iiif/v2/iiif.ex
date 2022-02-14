@@ -20,7 +20,7 @@ defmodule Meadow.IIIF.V2 do
 
   Examples:
     iex> manifest_id("37ad25ec-7eff-45d0-b759-eca65c9d560f")
-    "http://localhost:9002/minio/test-pyramids/public/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json"
+    "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/37/ad/25/ec/-7/ef/f-/45/d0/-b/75/9-/ec/a6/5c/9d/56/0f-manifest.json"
   """
   def manifest_id(work_id) do
     Config.iiif_manifest_url() <> Pairtree.manifest_path(work_id)

@@ -52,11 +52,11 @@ defmodule Mix.Tasks.Meadow.Buckets.Create do
   defp configure_bucket_notifications(%{arn: notification_arn, buckets: buckets}) do
     notification_configuration = """
       <NotificationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-        <QueueConfiguration>
+        <CloudFunctionConfiguration>
           <Event>s3:ObjectCreated:Put</Event>
           <Event>s3:ObjectCreated:CompleteMultipartUpload</Event>
-          <Queue>#{notification_arn}</Queue>
-        </QueueConfiguration>
+          <CloudFunction>#{notification_arn}</CloudFunction>
+        </CloudFunctionConfiguration>
       </NotificationConfiguration>
     """
 

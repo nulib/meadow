@@ -20,7 +20,7 @@ defmodule Meadow.CSVMetadataUpdateDriver do
   """
   def drive_update_job(state) do
     MetadataUpdateJobs.reset_stalled(@timeout)
-    |> log_reset()
+    |> log_reset_stalled()
 
     case MetadataUpdateJobs.next_job() do
       nil ->
@@ -37,8 +37,22 @@ defmodule Meadow.CSVMetadataUpdateDriver do
     {:noreply, state}
   end
 
-  defp log_reset({:ok, 0}), do: :noop
+  defp log_reset_stalled({:ok, cancel_count, reset_count}) do
+    log_cancel(cancel_count)
+    log_reset(reset_count)
+  end
 
-  defp log_reset({:ok, count}),
-    do: Logger.info("Resetting #{count} stalled #{Inflex.inflect("update job", count)}")
+  defp log_cancel(0), do: :noop
+
+  defp log_cancel(count) do
+    "Canceling #{count} #{Inflex.inflect("update job", count)} jobs for exceeding max retries"
+    |> Logger.info()
+  end
+
+  defp log_reset(0), do: :noop
+
+  defp log_reset(count) do
+    "Resetting #{count} stalled #{Inflex.inflect("update job", count)}"
+    |> Logger.info()
+  end
 end

@@ -31,7 +31,6 @@ defmodule MeadowWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
-  plug Plug.Logger
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
