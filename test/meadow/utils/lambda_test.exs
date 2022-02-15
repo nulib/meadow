@@ -61,6 +61,15 @@ defmodule Meadow.Utils.LambdaTest do
       assert result == File.read!("test/fixtures/lambda/lipsum.txt")
     end
 
+    test "running under nodejs v14.x", %{config: config} do
+      log =
+        capture_log(fn ->
+          assert {:ok, true} == Lambda.invoke(config, %{test: "version"})
+        end)
+
+      assert log |> String.match?(~r"\[info\]\s+NodeJS v14\.\d+\.\d+")
+    end
+
     test "null response", %{config: config} do
       assert {:ok, nil} == Lambda.invoke(config, %{test: "null"})
     end
