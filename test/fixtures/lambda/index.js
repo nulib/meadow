@@ -23,6 +23,9 @@ const testHandler = async (event, _context, _callback) => {
     case "sleep": 
       sleep(event.duration);
       return null;
+    case "version":
+      console.info(`NodeJS ${process.version}`);
+      return true;
     default:
       console.debug("ping");
       console.log("This is a log message with level `log`");
