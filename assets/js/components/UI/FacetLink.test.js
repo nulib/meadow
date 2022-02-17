@@ -13,7 +13,7 @@ describe("UIFacetLink component", () => {
   it("renders faceted label as a link", () => {
     render(<UIFacetLink facetComponentId="Genre" item={item} />);
     expect(screen.getByTestId("facet-link"));
-    expect(document.querySelector("button")).toHaveTextContent(item.term.label);
+    expect(document.querySelector("a")).toHaveTextContent(item.term.label);
   });
 
   it("renders faceted label plus role if the facet item contains a role", () => {

@@ -3,11 +3,9 @@ import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
-import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import UIFormReadingRoom from "@js/components/UI/Form/ReadingRoom";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
-import { Button } from "@nulib/design-system";
 
 function WorkAdministrativeTabsGeneral({
   administrativeMetadata,
@@ -38,17 +36,15 @@ function WorkAdministrativeTabsGeneral({
             defaultValue={libraryUnit ? libraryUnit.id : ""}
           />
         ) : libraryUnit ? (
-          <Button
-            isText
+          <a
             data-testid="library-unit-link"
             className="break-word"
             onClick={() =>
               handleFacetLinkClick("LibraryUnit", libraryUnit.label)
             }
-            css={{ padding: "0", textTransform: "none !important" }}
           >
-            <span>{libraryUnit.label}</span>
-          </Button>
+            {libraryUnit.label}
+          </a>
         ) : (
           <p>None selected</p>
         )}
@@ -73,8 +69,7 @@ function WorkAdministrativeTabsGeneral({
             defaultValue={preservationLevel ? preservationLevel.id : ""}
           />
         ) : preservationLevel ? (
-          <Button
-            isText
+          <a
             data-testid="preservation-level-link"
             className="break-word"
             onClick={() =>
@@ -83,10 +78,9 @@ function WorkAdministrativeTabsGeneral({
                 preservationLevel.label
               )
             }
-            css={{ padding: "0", textTransform: "none !important" }}
           >
-            <span>{preservationLevel.label}</span>
-          </Button>
+            {preservationLevel.label}
+          </a>
         ) : (
           <p>None selected</p>
         )}
@@ -104,8 +98,7 @@ function WorkAdministrativeTabsGeneral({
             defaultValue={status ? status.id : ""}
           />
         ) : status ? (
-          <Button
-            isText
+          <a
             data-testid="status-link"
             className="break-word"
             onClick={() =>
@@ -114,10 +107,9 @@ function WorkAdministrativeTabsGeneral({
                 status.label
               )
             }
-            css={{ padding: "0", textTransform: "none !important" }}
           >
-            <span>{status.label}</span>
-          </Button>
+            {status.label}
+          </a>
         ) : (
           <p>None selected</p>
         )}
@@ -136,15 +128,13 @@ function WorkAdministrativeTabsGeneral({
             defaultValue={visibility ? visibility.id : ""}
           />
         ) : visibility ? (
-          <Button
-            isText
+          <a
             data-testid="visibility-link"
             className="break-word"
             onClick={() => handleFacetLinkClick("Visibility", visibility.label)}
-            css={{ padding: "0", textTransform: "none !important" }}
           >
-            <span>{visibility.label}</span>
-          </Button>
+            {visibility.label}
+          </a>
         ) : (
           <p>None selected</p>
         )}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useMutation } from "@apollo/client";
 import useIsEditing from "@js/hooks/useIsEditing";
@@ -169,33 +169,29 @@ const WorkTabsAdministrative = ({ work }) => {
 
               <UIFormField label="Ingest Project">
                 {project ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="view-project-works"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("IngestProject", project.title)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    <span>{project.title}</span>
-                  </Button>
+                    {project.title}
+                  </a>
                 ) : null}
               </UIFormField>
 
               <UIFormField label="Ingest Sheet">
                 {project && ingestSheet ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="view-ingest-sheet-works"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("IngestSheet", ingestSheet.title)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    <span>{ingestSheet.title}</span>
-                  </Button>
+                    {ingestSheet.title}
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -210,17 +206,15 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectCycle}
                   />
                 ) : projectCycle ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-cycle-link"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("ProjectCycle", projectCycle)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    <span>{projectCycle}</span>
-                  </Button>
+                    {projectCycle}
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -235,17 +229,15 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectName}
                   />
                 ) : projectName.length > 0 ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-name-link"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("ProjectName", projectName)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
                     <span>{projectName}</span>
-                  </Button>
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -260,8 +252,7 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectDesc}
                   />
                 ) : projectDesc.length > 0 ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-description-link"
                     className="break-word"
                     onClick={() =>
@@ -270,10 +261,9 @@ const WorkTabsAdministrative = ({ work }) => {
                         projectDesc || null
                       )
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    <span>{projectDesc}</span>
-                  </Button>
+                    {projectDesc}
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -288,17 +278,15 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectManager}
                   />
                 ) : projectManager.length > 0 ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-manager-link"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("ProjectManager", projectManager)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
-                    <span>{projectManager}</span>
-                  </Button>
+                    {projectManager}
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -313,17 +301,15 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectProposer}
                   />
                 ) : projectProposer.length > 0 ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-proposer-link"
                     className="break-word"
                     onClick={() =>
                       handleFacetLinkClick("ProjectProposer", projectProposer)
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
                     <span>{projectProposer}</span>
-                  </Button>
+                  </a>
                 ) : null}
               </UIFormField>
 
@@ -338,8 +324,7 @@ const WorkTabsAdministrative = ({ work }) => {
                     defaultValue={projectTaskNumber}
                   />
                 ) : projectTaskNumber.length > 0 ? (
-                  <Button
-                    isText
+                  <a
                     data-testid="project-task-number-link"
                     className="break-word"
                     onClick={() =>
@@ -348,10 +333,9 @@ const WorkTabsAdministrative = ({ work }) => {
                         projectTaskNumber
                       )
                     }
-                    css={{ padding: "0", textTransform: "none !important" }}
                   >
                     <span>{projectTaskNumber}</span>
-                  </Button>
+                  </a>
                 ) : null}
               </UIFormField>
 
