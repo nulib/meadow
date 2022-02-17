@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import MediaPlayerPosterSelector from "@js/components/UI/MediaPlayer/PosterSelector";
-import ReactMediaPlayer from "@nulib/react-media-player";
+import CloverIIIF from "@samvera/clover-iiif";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 const MediaPlayerWrapper = ({
@@ -34,7 +34,7 @@ const MediaPlayerWrapper = ({
       className="container react-media-player"
       data-testid="media-player-wrapper"
     >
-      <ReactMediaPlayer
+      <CloverIIIF
         canvasIdCallback={handleCanvasIdCallback}
         key={manifestKey}
         manifestId={`${manifestId}?t=${Date.now()}`}
