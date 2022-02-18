@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
-import { Button } from "@nulib/design-system";
 
 function UIFacetLink({ facetComponentId, item }) {
   const history = useHistory();
@@ -24,15 +23,9 @@ function UIFacetLink({ facetComponentId, item }) {
   };
 
   return (
-    <Button
-      isText
-      data-testid="facet-link"
-      className="break-word"
-      onClick={handleClick}
-      css={{ padding: "0", textTransform: "none !important" }}
-    >
-      <span>{facetValue}</span>
-    </Button>
+    <a data-testid="facet-link" className="break-word" onClick={handleClick}>
+      {facetValue}
+    </a>
   );
 }
 
