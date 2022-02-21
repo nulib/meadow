@@ -43,9 +43,15 @@ function MediaPlayerPosterSelector() {
   });
 
   const handleSave = () => {
-    const el = document.getElementById("react-media-player");
-    const posterOffset = parseInt(el.currentTime * 1000);
+    const el = document.getElementById("clover-iiif-video");
+    if (!el?.currentTime) {
+      return toastWrapper(
+        "is-danger",
+        "Error saving poster image. Current time is undefined on video element."
+      );
+    }
 
+    const posterOffset = parseInt(el.currentTime * 1000);
     updateFileSet({
       variables: {
         id: workState.activeMediaFileSet.id,
