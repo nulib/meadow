@@ -1,7 +1,6 @@
 import React from "react";
 import { DataSearch } from "@appbaseio/reactivesearch";
-import { ELASTICSEARCH_FIELDS_TO_SEARCH } from "../../services/elasticsearch";
-import { RESULT_SENSOR, SEARCH_SENSOR } from "../../services/reactive-search";
+import { RESULT_SENSOR, SEARCH_SENSOR } from "@js/services/reactive-search";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 import useSearchTerm from "@js/hooks/useSearchTerm";
 import { IconSearch } from "@js/components/Icon";
@@ -20,12 +19,43 @@ const UISearchBar = () => {
     return "";
   };
 
+  const dataField = [
+    {
+      field: "title",
+      weight: 5,
+    },
+    {
+      field: "descriptiveMetadata.description",
+      weight: 3,
+    },
+    {
+      field: "collection.title",
+      weight: 2,
+    },
+    {
+      field: "subject",
+      weight: 2,
+    },
+    {
+      field: "contributor",
+      weight: 2,
+    },
+    {
+      field: "full_text",
+      weight: 1,
+    },
+    {
+      field: "accessionNumber",
+      weight: 1,
+    },
+  ];
+
   return (
     <div data-testid="reactive-search-wrapper">
       <DataSearch
         componentId={SEARCH_SENSOR}
         autosuggest={false}
-        dataField={ELASTICSEARCH_FIELDS_TO_SEARCH}
+        dataField={dataField}
         debounce={500}
         defaultValue={prepDefaultValue()}
         fieldWeights={[5, 2, 2]} // These weights correspond to the index positions of ELASTICSEARCH_FIELDS_TO_SEARCH
