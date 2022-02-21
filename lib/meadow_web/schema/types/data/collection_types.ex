@@ -75,7 +75,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
     @desc "Set the representative Work for a Collection"
     field :set_collection_image, :collection do
       arg(:collection_id, non_null(:id))
-      arg(:work_id, non_null(:id))
+      arg(:work_id, :id)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Manager")
       resolve(&Resolvers.Data.Collections.set_collection_image/3)

@@ -89,5 +89,33 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
 
       assert result.data["setCollectionImage"]
     end
+
+    test "representative image can be cleared by setting to null" do
+      collection = collection_fixture()
+      work = work_with_file_sets_fixture(1, %{collection_id: collection.id})
+
+      {:ok, collection} =
+        Collections.update_collection(collection, %{representative_work_id: work.id})
+
+      refute collection
+             |> Map.get(:representative_work_id)
+             |> is_nil()
+
+      {:ok, result} =
+        query_gql(
+          variables: %{
+            "collection_id" => collection.id,
+            "work_id" => nil
+          },
+          context: %{current_user: %{role: "Manager"}}
+        )
+
+      assert result.data["setCollectionImage"]
+
+      assert collection.id
+             |> Collections.get_collection!()
+             |> Map.get(:representative_work_id)
+             |> is_nil()
+    end
   end
 end
