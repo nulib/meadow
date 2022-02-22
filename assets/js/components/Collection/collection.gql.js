@@ -57,7 +57,7 @@ export const CREATE_COLLECTION = gql`
 `;
 
 export const SET_COLLECTION_IMAGE = gql`
-  mutation SetCollectionImage($collectionId: ID!, $workId: ID!) {
+  mutation SetCollectionImage($collectionId: ID!, $workId: ID) {
     setCollectionImage(collectionId: $collectionId, workId: $workId) {
       id
       representativeWork {
