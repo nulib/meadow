@@ -8,12 +8,25 @@ yum install -y amazon-cloudwatch-agent autoconf curl dirmngr fop gawk git gpg ht
                wxGTK3-devel wxBase3 
 yum groupinstall -y 'Development Tools' 'C Development Tools and Libraries'
 
+ARCH=$(uname -p)
+case $ARCH in
+  x86_64)
+    AWS_ARCH=64bit
+    ;;
+  x86)
+    AWS_ARCH=32bit
+    ;;
+  *)
+    AWS_ARCH=$ARCH
+    ;;
+esac
+
 cd /tmp
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 ./aws/install
 rm -rf ./aws
-curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm"
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_$AWS_ARCH/session-manager-plugin.rpm" -o "session-manager-plugin.rpm"
 yum install -y session-manager-plugin.rpm
 rm -f session-manager-plugin.rpm
 aws configure set region us-east-1
@@ -23,7 +36,7 @@ cd -
 mkdir -p /var/log/meadow
 chown ec2-user:ec2-user /var/log/meadow
 
-mkdir /etc/amazon-cloudwatch-agent
+mkdir -p /etc/amazon-cloudwatch-agent
 cat > /etc/amazon-cloudwatch-agent/config.json <<'__EOF__'
 {
   "agent": {
@@ -48,7 +61,7 @@ cat > /etc/amazon-cloudwatch-agent/config.json <<'__EOF__'
 }
 __EOF__
 
-cat >> /etc/logrotate.d/meadow <<'__EOF__'
+cat > /etc/logrotate.d/meadow <<'__EOF__'
 /var/log/meadow/meadow.log {
     missingok
     notifempty
@@ -80,7 +93,7 @@ for u in ${ec2_instance_users}; do
 done
 
 # Install asdf
-git clone https://github.com/asdf-vm/asdf.git $HOME/.asdf --branch v0.8.0
+git clone https://github.com/asdf-vm/asdf.git $HOME/.asdf --branch v0.9.0
 . $HOME/.asdf/asdf.sh
 
 # Install erlang, Elixir, and NodeJS
@@ -116,8 +129,7 @@ __END__
 
 . $HOME/.meadowrc
 cd $HOME/meadow
-mix local.hex --force
-mix local.rebar --force
+mix do local.hex --force, local.rebar --force
 mix do deps.get, deps.compile, compile, assets.install
 
 # Create the iex-remote script

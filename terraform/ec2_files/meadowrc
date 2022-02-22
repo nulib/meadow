@@ -9,6 +9,7 @@ export AWS_REGION=us-east-1
 export MEADOW_HOSTNAME="${host_name}"
 export MEADOW_PROCESSES="none"
 export REAL_AWS_CONFIG="true"
+export HONEYBADGER_ENVIRONMENT="${environment}-ec2"
 
 cd ~/meadow
 git fetch -pa origin
