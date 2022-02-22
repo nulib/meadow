@@ -160,7 +160,7 @@ resource "aws_lb" "meadow_load_balancer" {
   internal           = false
   load_balancer_type = "application"
 
-  subnets         = data.aws_subnet_ids.public_subnets.ids
+  subnets         = data.aws_subnets.public_subnets.ids
   security_groups = [aws_security_group.meadow_load_balancer.id]
   tags    = var.tags
 }
