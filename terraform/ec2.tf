@@ -130,7 +130,7 @@ resource "aws_instance" "this_ec2_instance" {
   ami                           = data.aws_ami.amazon_linux.id
   instance_type                 = "t4g.medium"
   iam_instance_profile          = aws_iam_instance_profile.meadow_instance_profile.id
-  subnet_id                     = element(tolist(data.aws_subnet_ids.public_subnets.ids), 0)
+  subnet_id                     = element(tolist(data.aws_subnets.public_subnets.ids), 0)
   vpc_security_group_ids        = [aws_security_group.meadow.id, aws_security_group.meadow_ec2.id]
   associate_public_ip_address   = true
   user_data                     = data.template_file.ec2_user_data.rendered

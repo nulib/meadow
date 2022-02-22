@@ -7,7 +7,7 @@ locals {
     agentless_sso_key          = var.agentless_sso_key
     digital_collections_bucket = var.digital_collections_bucket
     digital_collections_url    = var.digital_collections_url
-    database_url               = "ecto://${module.rds.this_db_instance_username}:${module.rds.this_db_instance_password}@${module.rds.this_db_instance_endpoint}/${module.rds.this_db_instance_username}"
+    database_url               = "ecto://${module.rds.db_instance_username}:${module.rds.db_instance_password}@${module.rds.db_instance_endpoint}/${module.rds.db_instance_username}"
     docker_tag                 = terraform.workspace
     elasticsearch_key          = aws_iam_access_key.meadow_elasticsearch_access_key.id
     elasticsearch_secret       = aws_iam_access_key.meadow_elasticsearch_access_key.secret
@@ -79,7 +79,7 @@ resource "aws_ecs_service" "meadow_all" {
   }
 
   network_configuration {
-    subnets          = data.aws_subnet_ids.private_subnets.ids
+    subnets          = data.aws_subnets.private_subnets.ids
     security_groups  = [aws_security_group.meadow.id]
     assign_public_ip = false
   }
