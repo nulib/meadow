@@ -244,6 +244,12 @@ export const METADATA_FIELDS: MetadataFields = {
     name: "technique",
     metadataClass: "descriptive",
   },
+  TERMS_OF_USE: {
+    inputEl: "textarea",
+    label: "Terms of Use",
+    name: "termsOfUse",
+    metadataClass: "descriptive",
+  },
   TITLE: { name: "title", label: "Title", metadataClass: "descriptive" },
   VISIBILITY: {
     name: "visibility",
@@ -299,6 +305,7 @@ const {
   SUBJECT_ROLE,
   TABLE_OF_CONTENTS,
   TECHNIQUE,
+  TERMS_OF_USE,
   TITLE,
   VISIBILITY,
 } = METADATA_FIELDS;
@@ -341,6 +348,7 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   SOURCE,
   STATUS,
   TABLE_OF_CONTENTS,
+  TERMS_OF_USE,
   VISIBILITY,
 ];
 

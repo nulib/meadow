@@ -1,13 +1,14 @@
-import React from "react";
-import { screen } from "@testing-library/react";
 import {
   renderWithRouterApollo,
   withReactHookForm,
-} from "../../../services/testing-helpers";
+} from "@js/services/testing-helpers";
+
 import BatchEditAboutRightsMetadata from "./RightsMetadata";
-import { RIGHTS_METADATA } from "../../../services/metadata";
 import { CodeListProvider } from "@js/context/code-list-context";
+import { RIGHTS_METADATA } from "@js/services/metadata";
+import React from "react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { screen } from "@testing-library/react";
 
 describe("BatchEditAboutRightsMetadata component", () => {
   beforeEach(() => {
@@ -18,7 +19,7 @@ describe("BatchEditAboutRightsMetadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 
@@ -31,5 +32,9 @@ describe("BatchEditAboutRightsMetadata component", () => {
       expect(screen.getByTestId(item.name));
     }
     expect(screen.getByTestId("license-select"));
+  });
+
+  it("renders Terms of Use field", async () => {
+    expect(screen.getByTestId("terms-of-use"));
   });
 });

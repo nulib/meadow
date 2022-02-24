@@ -6,6 +6,7 @@ import UIFormField from "@js/components/UI/Form/Field";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import UIFormInput from "@js/components/UI/Form/Input";
+import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
 
@@ -57,10 +58,10 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
         </UIFormField>
       </div>
 
-      <div className="column is-half" data-testid="input-terms-of-use">
+      <div className="column is-half" data-testid="terms-of-use">
         <UIFormField label="Terms of Use">
           {isEditing ? (
-            <UIFormInput
+            <UIFormTextarea
               isReactHookForm
               label="Terms of Use"
               name="termsOfUse"
