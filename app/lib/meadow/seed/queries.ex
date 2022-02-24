@@ -20,6 +20,8 @@ defmodule Meadow.Seed.Queries do
     from(a in NUL.Schemas.AuthorityRecord, select: a)
   end
 
+  def ingest_sheet_projects([]), do: from(Project, limit: 0)
+
   def ingest_sheet_projects(ingest_sheet_ids) do
     from(s in Sheet,
       join: p in Project,
@@ -30,6 +32,8 @@ defmodule Meadow.Seed.Queries do
     )
   end
 
+  def ingest_sheets([]), do: from(Sheet, limit: 0)
+
   def ingest_sheets(ingest_sheet_ids) do
     from(s in Sheet,
       where: s.id in ^ingest_sheet_ids,
@@ -38,6 +42,8 @@ defmodule Meadow.Seed.Queries do
     )
   end
 
+  def ingest_sheet_rows([]), do: from(Row, limit: 0)
+
   def ingest_sheet_rows(ingest_sheet_ids) do
     from(r in Row,
       where: r.sheet_id in ^ingest_sheet_ids,
@@ -45,6 +51,8 @@ defmodule Meadow.Seed.Queries do
       select: r
     )
   end
+
+  def ingest_sheet_progress([]), do: from(Progress, limit: 0)
 
   def ingest_sheet_progress(ingest_sheet_ids) do
     from(r in Row,
@@ -56,6 +64,8 @@ defmodule Meadow.Seed.Queries do
     )
   end
 
+  def ingest_sheet_works([]), do: from(Work, limit: 0)
+
   def ingest_sheet_works(ingest_sheet_ids) do
     from(w in Work,
       where: w.ingest_sheet_id in ^ingest_sheet_ids,
@@ -63,6 +73,8 @@ defmodule Meadow.Seed.Queries do
       select: w
     )
   end
+
+  def ingest_sheet_file_sets([]), do: from(FileSet, limit: 0)
 
   def ingest_sheet_file_sets(ingest_sheet_ids) do
     from(w in Work,
@@ -73,6 +85,8 @@ defmodule Meadow.Seed.Queries do
       select: fs
     )
   end
+
+  def ingest_sheet_action_states([]), do: from(ActionState, limit: 0)
 
   def ingest_sheet_action_states(ingest_sheet_ids) do
     from(w in Work,
@@ -86,6 +100,8 @@ defmodule Meadow.Seed.Queries do
     )
   end
 
+  def standalone_works([]), do: from(Work, limit: 0)
+
   def standalone_works(work_ids) do
     from(w in Work,
       where: w.id in ^work_ids,
@@ -94,6 +110,8 @@ defmodule Meadow.Seed.Queries do
     )
   end
 
+  def standalone_file_sets([]), do: from(FileSet, limit: 0)
+
   def standalone_file_sets(work_ids) do
     from(fs in FileSet,
       where: fs.work_id in ^work_ids,
@@ -101,6 +119,8 @@ defmodule Meadow.Seed.Queries do
       select: fs
     )
   end
+
+  def standalone_action_states([]), do: from(ActionState, limit: 0)
 
   def standalone_action_states(work_ids) do
     from(w in Work,

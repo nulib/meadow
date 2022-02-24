@@ -137,15 +137,18 @@ defmodule Meadow.Seed.Import do
     fix_file_set_preservation_locations()
     enable_triggers()
 
-    Repo.transaction(fn ->
-      from(w in Work, select: %{id: w.id})
-      |> Repo.stream()
-      |> Stream.each(fn %{id: work_id} ->
-        Logger.info("Writing manifest for #{work_id}")
-        IIIF.V2.write_manifest(work_id)
-      end)
-      |> Stream.run()
-    end)
+    Repo.transaction(
+      fn ->
+        from(w in Work, select: %{id: w.id})
+        |> Repo.stream()
+        |> Stream.each(fn %{id: work_id} ->
+          Logger.info("Writing manifest for #{work_id}")
+          IIIF.V2.write_manifest(work_id)
+        end)
+        |> Stream.run()
+      end,
+      timeout: :infinity
+    )
 
     Logger.info("Synchronizing index")
     Indexer.synchronize_index()
