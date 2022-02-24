@@ -381,6 +381,8 @@ resource "aws_iam_policy" "allow_transcode" {
 resource "aws_media_convert_queue" "transcode_queue" {
   name   = var.stack_name
   status = "ACTIVE"
+
+  tags = var.tags
 }
 
 data "aws_acm_certificate" "wildcard_cert" {
