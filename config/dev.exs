@@ -164,7 +164,7 @@ config :ueberauth, Ueberauth,
          base_url: System.get_env("SETTINGS__NUSSO__BASE_URL"),
          callback_path: "/auth/nusso/callback",
          consumer_key: System.get_env("SETTINGS__NUSSO__CONSUMER_KEY"),
-         include_attributes: true,
+         include_attributes: false,
          ssl_port: 3001
        ]}
   ]

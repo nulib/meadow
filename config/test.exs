@@ -80,7 +80,7 @@ config :ueberauth, Ueberauth,
          base_url: "https://northwestern-dev.apigee.net/agentless-websso/",
          callback_path: "/auth/nusso/callback",
          consumer_key: "test-sso-key",
-         include_attributes: true
+         include_attributes: false
        ]}
   ]
 
