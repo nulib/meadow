@@ -34,6 +34,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
        "Offset #{poster_offset} out of range for video duration #{duration_in_milliseconds}"}
     else
       destination = FileSets.poster_uri_for(file_set)
+      iiif_cloudfront_distribution_id = Config.iiif_cloudfront_distribution_id()
 
       case generate_poster(location, destination, poster_offset) do
         {:ok, destination} ->
@@ -42,7 +43,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
             FileSets.update_file_set(file_set, %{derivatives: derivatives})
           end)
 
-          :ok
+          invalidate_cache(file_set, iiif_cloudfront_distribution_id)
 
         {:error, error} ->
           Logger.error("Error from lambda: #{destination}")
@@ -67,5 +68,49 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
       },
       @timeout
     )
+  end
+
+  defp invalidate_cache(file_set, nil) do
+    Logger.info(
+      "Skipping poster cache invalidation for file set: #{file_set.id}. No distribution id found."
+    )
+
+    :ok
+  end
+
+  defp invalidate_cache(file_set, distribution_id) do
+    version = Config.iiif_cloudfront_version()
+    caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
+    path = "/iiif/2/posters/#{file_set.id}/*"
+
+    data = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/#{version}/">
+       <CallerReference>#{caller_reference}</CallerReference>
+       <Paths>
+          <Items>
+             <Path>#{path}</Path>
+          </Items>
+          <Quantity>1</Quantity>
+       </Paths>
+    </InvalidationBatch>
+    """
+
+    operation = %ExAws.Operation.RestQuery{
+      action: :create_invalidation,
+      body: data,
+      http_method: :post,
+      path: "/#{version}/distribution/#{distribution_id}/invalidation",
+      service: :cloudfront
+    }
+
+    case operation |> ExAws.request() do
+      {:ok, status_code: status_code} when status_code in 200..299 ->
+        :ok
+
+      _ ->
+        Logger.error("Unable to clear poster cache for #{path}")
+        :ok
+    end
   end
 end
