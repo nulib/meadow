@@ -98,24 +98,17 @@ function WorkTabsPreservationFileSetDropzone({
       )}
 
       {currentFile && uploadProgress === 100 && (
-        <Notification isSuccess>
-          <h4>
-            <strong>File uploaded successfully</strong>
-          </h4>
-          <ul className="block">{acceptedFileItems}</ul>
-          <Button
-            css={{
-              padding: "5px",
-              textDecoration: "underline",
-              textTransform: "unset",
-              color: "White",
-            }}
-            isText
-            onClick={handleRemoveFile}
-          >
-            Remove file
-          </Button>
-        </Notification>
+        <>
+          <Notification isSuccess>
+            <h4>
+              <strong>File uploaded successfully</strong>
+            </h4>
+            <ul className="block">{acceptedFileItems}</ul>
+          </Notification>
+          <p className="has-text-right">
+            <a onClick={handleRemoveFile}>Remove file</a>
+          </p>
+        </>
       )}
 
       {currentFile && uploadProgress < 100 && (
