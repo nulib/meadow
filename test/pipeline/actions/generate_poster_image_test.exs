@@ -5,6 +5,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
 
+  import ExUnit.CaptureLog
+
   @mediainfo %{
     "mediainfo" => %{
       "tool" => "mediainfo",
@@ -58,6 +60,18 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
         FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
           FileSets.poster_uri_for(file_set)
       )
+    end
+
+    test "poster cache invalidation", %{file_set: file_set} do
+      log =
+        capture_log(fn ->
+          assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+        end)
+
+      assert log
+             |> String.contains?(
+               "Skipping poster cache invalidation for file set: #{file_set.id}. No distribution id found."
+             )
     end
   end
 
