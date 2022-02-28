@@ -172,7 +172,7 @@ function WorkTabsPreservationFileSetModal({
     });
 
     request.open("put", presignedUrl);
-    request.setRequestHeader("Content-Type", "multipart/form-data");
+    request.setRequestHeader("Content-Type", "application/octet-stream");
     request.send(currentFile);
     setStateXhr(request);
   };
