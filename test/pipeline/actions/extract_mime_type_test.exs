@@ -10,6 +10,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
   @bad_tiff "not_a_tiff.tif"
   @json_file "details.json"
   @framemd5_file "supplemental_file.framemd5"
+  @good_xml "good_xml.xml"
+  @bad_xml "bad_xml.xml"
+  @no_declaration_xml "no_declaration.xml"
 
   setup tags do
     key = Path.join("extract_mime_type_test", tags[:fixture_file])
@@ -69,12 +72,70 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     end
 
     @tag fixture_file: @framemd5_file, file_set_role_id: "S"
-    test "supplemntal file falls back to application/octet-stream", %{file_set_id: file_set_id} do
+    test "supplemental file falls back to application/octet-stream", %{file_set_id: file_set_id} do
       ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 
       file_set = FileSets.get_file_set!(file_set_id)
       assert(file_set.core_metadata.mime_type == "application/octet-stream")
+    end
+
+    @tag fixture_file: @good_xml, file_set_role_id: "S"
+    test "well-formed XML with declaration", %{file_set_id: file_set_id} do
+      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "application/xml")
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
+    end
+
+    @tag fixture_file: @no_declaration_xml, file_set_role_id: "S"
+    test "well-formed XML without declaration", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+        end)
+
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      assert log
+             |> String.contains?(
+               "Confirming extract_mime_type_test/#{@no_declaration_xml} is well-formed XML"
+             )
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "application/xml")
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
+    end
+
+    @tag fixture_file: @bad_xml, file_set_role_id: "S"
+    test "corrupt XML", %{file_set_id: file_set_id} do
+      log =
+        capture_log(fn ->
+          assert(
+            ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) ==
+              {:error, "error in mime-type extraction"}
+          )
+        end)
+
+      assert(ActionStates.error?(file_set_id, ExtractMimeType))
+
+      assert log |> String.contains?("InvalidXml:")
+      assert log |> String.contains?("appears to be application/xml but is not valid XML")
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type |> is_nil)
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
     end
   end
 end
