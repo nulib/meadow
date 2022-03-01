@@ -79,7 +79,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   end
 
   defp invalidate_cache(file_set, distribution_id) do
-    version = Config.iiif_cloudfront_version()
+    version = "2020-05-31"
     caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
     path = "/iiif/2/posters/#{file_set.id}/*"
 

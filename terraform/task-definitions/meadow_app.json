@@ -64,10 +64,6 @@
         "value": "${iiif_cloudfront_distribution_id}"
       },
       {
-        "name": "IIIF_CLOUDFRONT_VERSION",
-        "value": "${iiif_cloudfront_version}"
-      },
-      {
         "name": "IIIF_MANIFEST_URL",
         "value": "${iiif_manifest_url}"
       },

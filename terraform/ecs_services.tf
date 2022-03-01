@@ -20,7 +20,6 @@ locals {
     honeybadger_api_key             = var.honeybadger_api_key
     host_name                       = aws_route53_record.app_hostname.fqdn
     iiif_cloudfront_distribution_id = var.iiif_cloudfront_distribution_id
-    iiif_cloudfront_version         = var.iiif_cloudfront_version
     iiif_manifest_url               = var.iiif_manifest_url
     iiif_server_url                 = var.iiif_server_url
     ingest_bucket                   = aws_s3_bucket.meadow_ingest.bucket
