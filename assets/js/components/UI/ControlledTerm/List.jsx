@@ -11,42 +11,43 @@ const UIControlledTermList = ({ items = [], title }) => {
 
   return (
     <div className="content mb-4">
-      <ul data-testid="controlled-term-list" className="ml-0">
+      <ul data-testid="controlled-term-list">
         {items.map((item) => (
           <li
             key={`${item.term.id}-${item.role ? item.role.id : ""}`}
             data-testid="controlled-term-list-row"
-            className="is-flex is-flex-direction-column is-align-items-flex-start"
           >
-            <UITooltip>
-              <div className="tooltip-header">
-                {componentId ? (
-                  <UIFacetLink facetComponentId={componentId} item={item} />
-                ) : (
-                  item.term.label
-                )}
-              </div>
-              <div className="tooltip-content">
-                {item.term.id && (
-                  <a
-                    href={item.term.id}
-                    target="_blank"
-                    className="button is-text is-small"
-                    style={{
-                      textTransform: "none",
-                      backgroundColor: "#4e2a84",
-                      color: "white",
-                    }}
-                    data-testid="external-link"
-                  >
-                    <span className="icon" title={item.term.id}>
-                      <IconExternalLink />
-                    </span>
-                    <span>{item.term.id}</span>
-                  </a>
-                )}
-              </div>
-            </UITooltip>
+            <div className="is-flex is-flex-direction-column is-align-items-flex-start">
+              <UITooltip>
+                <div className="tooltip-header">
+                  {componentId ? (
+                    <UIFacetLink facetComponentId={componentId} item={item} />
+                  ) : (
+                    item.term.label
+                  )}
+                </div>
+                <div className="tooltip-content">
+                  {item.term.id && (
+                    <a
+                      href={item.term.id}
+                      target="_blank"
+                      className="button is-text is-small"
+                      style={{
+                        textTransform: "none",
+                        backgroundColor: "#4e2a84",
+                        color: "white",
+                      }}
+                      data-testid="external-link"
+                    >
+                      <span className="icon" title={item.term.id}>
+                        <IconExternalLink />
+                      </span>
+                      <span>{item.term.id}</span>
+                    </a>
+                  )}
+                </div>
+              </UITooltip>
+            </div>
           </li>
         ))}
       </ul>

@@ -80,21 +80,20 @@ config :ueberauth, Ueberauth,
          base_url: "https://northwestern-dev.apigee.net/agentless-websso/",
          callback_path: "/auth/nusso/callback",
          consumer_key: "test-sso-key",
-         include_attributes: true
+         include_attributes: false
        ]}
   ]
 
-with aws_config <- [
-       access_key_id: "fake",
-       secret_access_key: "fake",
-       host: "localhost.localstack.cloud",
-       port: 4568,
-       scheme: "http://",
-       region: "us-east-1"
-     ] do
-  config :ex_aws, aws_config
-  [:s3, :sqs, :sns, :lambda] |> Enum.each(&config(:ex_aws, &1, aws_config))
-end
+[:mediaconvert, :s3, :sns, :sqs]
+|> Enum.each(fn service ->
+  config :ex_aws, service,
+    scheme: "http://",
+    host: "localhost.localstack.cloud",
+    port: 4568,
+    access_key_id: "fake",
+    secret_access_key: "fake",
+    region: "us-east-1"
+end)
 
 config :exldap, :settings,
   server: "localhost",

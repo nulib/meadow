@@ -1,7 +1,7 @@
 defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
-  use Meadow.S3Case
   use Meadow.DataCase
   use Meadow.IngestCase
+  use Meadow.S3Case
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.{Progress, Rows}

@@ -60,18 +60,18 @@ function WorkTabsPreservationFileSetModal({
     setAcceptedFileTypes(mimeTypes);
   }, [watchRole]);
 
-  const [getPresignedUrl, { urlError, urlLoading, urlData }] = useLazyQuery(
-    GET_PRESIGNED_URL,
-    {
-      fetchPolicy: "no-cache",
-      onCompleted: (data) => {
-        uploadFile(data.presignedUrl.url);
-      },
-      onError(error) {
-        console.error(`error`, error);
-      },
-    }
-  );
+  const [
+    getPresignedUrl,
+    { error: urlError, loading: urlLoading, data: urlData },
+  ] = useLazyQuery(GET_PRESIGNED_URL, {
+    fetchPolicy: "no-cache",
+    onCompleted: (data) => {
+      uploadFile(data.presignedUrl.url);
+    },
+    onError(error) {
+      console.error(`error`, error);
+    },
+  });
 
   const [ingestFileSet, { loading, error, data }] = useMutation(
     INGEST_FILE_SET,
@@ -86,6 +86,7 @@ function WorkTabsPreservationFileSetModal({
       },
       onError(error) {
         console.error(`error:`, error);
+        resetForm();
         // bug with this error not clearing/resetting
         // https://github.com/apollographql/apollo-feature-requests/issues/170
       },
@@ -171,7 +172,7 @@ function WorkTabsPreservationFileSetModal({
     });
 
     request.open("put", presignedUrl);
-    request.setRequestHeader("Content-Type", "multipart/form-data");
+    request.setRequestHeader("Content-Type", "application/octet-stream");
     request.send(currentFile);
     setStateXhr(request);
   };
@@ -226,7 +227,7 @@ function WorkTabsPreservationFileSetModal({
                 </UIFormField>
 
                 {watchRole && (
-                  <div className="block">
+                  <div className="block mt-5">
                     <WorkTabsPreservationFileSetDropzone
                       currentFile={currentFile}
                       acceptedFileTypes={acceptedFileTypes}

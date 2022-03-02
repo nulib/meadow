@@ -17,7 +17,7 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["amzn2-ami-hvm-*-arm64-gp2"]
   }
 }
 
@@ -105,8 +105,8 @@ data "template_file" "ec2_user_data" {
   template = file("ec2_files/startup.sh")
   vars = {
     erlang_version        = "24.2"
-    elixir_version        = "1.12.1"
-    nodejs_version        = "14.17.5"
+    elixir_version        = "1.13.3-otp-24"
+    nodejs_version        = "14.19.0"
     dev_local_exs         = file("ec2_files/dev.local.exs"),
     ec2_instance_users    = join(" ", var.ec2_instance_users),
     meadow_rc             = data.template_file.ec2_meadow_config.rendered
@@ -119,6 +119,7 @@ data "template_file" "ec2_meadow_config" {
   vars = merge(
     local.container_config,
     {
+      environment               = var.environment == "s" ? "staging" : "production"
       meadow_ec2_hostname       = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
       meadow_hostname           = aws_route53_record.app_hostname.fqdn
     }
@@ -127,9 +128,9 @@ data "template_file" "ec2_meadow_config" {
 
 resource "aws_instance" "this_ec2_instance" {
   ami                           = data.aws_ami.amazon_linux.id
-  instance_type                 = "t3.small"
+  instance_type                 = "t4g.medium"
   iam_instance_profile          = aws_iam_instance_profile.meadow_instance_profile.id
-  subnet_id                     = element(tolist(data.aws_subnet_ids.public_subnets.ids), 0)
+  subnet_id                     = element(tolist(data.aws_subnets.public_subnets.ids), 0)
   vpc_security_group_ids        = [aws_security_group.meadow.id, aws_security_group.meadow_ec2.id]
   associate_public_ip_address   = true
   user_data                     = data.template_file.ec2_user_data.rendered

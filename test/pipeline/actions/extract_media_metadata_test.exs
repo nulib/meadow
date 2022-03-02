@@ -1,6 +1,6 @@
 defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
-  use Meadow.S3Case
   use Meadow.DataCase
+  use Meadow.S3Case
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.ExtractMediaMetadata
 

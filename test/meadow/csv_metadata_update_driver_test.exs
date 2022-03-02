@@ -1,4 +1,5 @@
 defmodule Meadow.CSVMetadataUpdateDriverTest do
+  use Meadow.DataCase
   use Meadow.CSVMetadataUpdateCase
 
   alias Meadow.CSVMetadataUpdateDriver

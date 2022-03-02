@@ -1,5 +1,4 @@
 defmodule Meadow.Data.PreservationChecksTest do
-  use ExUnit.Case
   use Meadow.DataCase
   use Meadow.S3Case
 

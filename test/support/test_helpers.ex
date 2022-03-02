@@ -3,8 +3,6 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
-  alias Ecto.Adapters.SQL.Sandbox
-
   alias Meadow.Accounts.{Ldap, User}
   alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
   alias Meadow.Data.Works
@@ -231,21 +229,6 @@ defmodule Meadow.TestHelpers do
         role: "Administrator"
       }
     })
-  end
-
-  def sandbox_mode(tags) do
-    result =
-      case Sandbox.checkout(Meadow.Repo) do
-        :ok -> :ok
-        {:already, :owner} -> :ok
-        other -> other
-      end
-
-    unless tags[:async] do
-      Sandbox.mode(Meadow.Repo, {:shared, self()})
-    end
-
-    result
   end
 
   def delete_entry(dn) do

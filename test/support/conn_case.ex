@@ -14,13 +14,13 @@ defmodule MeadowWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
-  import Meadow.TestHelpers
 
   using do
     quote do
-      # Import conveniences for testing with connections
       alias Meadow.Accounts.Schemas.User
       alias MeadowWeb.Router.Helpers, as: Routes
+
+      # Import conveniences for testing with connections
       import Meadow.TestHelpers
       import Phoenix.ConnTest
       import Plug.Conn
@@ -42,8 +42,7 @@ defmodule MeadowWeb.ConnCase do
     end
   end
 
-  setup tags do
-    :ok = sandbox_mode(tags)
+  setup do
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

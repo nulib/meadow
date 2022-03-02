@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Schema.Query.WorksTest do
   defmodule All do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
@@ -24,6 +25,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
   end
 
   defmodule Limit do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
@@ -52,6 +54,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
   end
 
   defmodule TitleMatch do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
 
@@ -88,6 +91,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
   end
 
   defmodule RepresentativeImage do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
     alias Meadow.Data.Works

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { toastWrapper, sortItemsArray } from "@js/services/helpers";
-import { Button, Notification } from "@nulib/design-system";
+import { Notification } from "@nulib/design-system";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
@@ -133,13 +133,13 @@ function WorkTabsAdministrativeCollection({
         ) : (
           <p>
             {collection ? (
-              <Button
-                className="button is-text"
+              <a
                 onClick={() => handleViewAllWorksClick(collection.title)}
                 data-testid="view-collection-works-button"
+                className="break-word"
               >
                 {collection.title}
-              </Button>
+              </a>
             ) : (
               "Not part of a collection"
             )}

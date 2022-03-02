@@ -12,15 +12,6 @@ const client = new Elasticsearch.Client({
   //log: 'trace'
 });
 
-// ES Index fields we tell ReactiveSearch to search against
-export const ELASTICSEARCH_FIELDS_TO_SEARCH = [
-  "all_titles",
-  "descriptiveMetadata.description",
-  "collection.title",
-  "full_text",
-  "accessionNumber",
-];
-
 export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
     terms: {

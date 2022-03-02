@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.ActionStatesTest do
+  use Meadow.DataCase
   use Meadow.IngestCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase

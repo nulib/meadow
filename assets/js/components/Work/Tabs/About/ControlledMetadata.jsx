@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import UIControlledTermList from "../../../UI/ControlledTerm/List";
 import UIFormField from "../../../UI/Form/Field";
-import UIError from "../../../UI/Error";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";
 import { useCodeLists } from "@js/context/code-list-context";

@@ -2,6 +2,12 @@ terraform {
   backend "s3" {
     key = "meadow.tfstate"
   }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
 }
 
 provider "aws" {
@@ -9,23 +15,25 @@ provider "aws" {
 }
 
 module "rds" {
-  source                    = "terraform-aws-modules/rds/aws"
-  version                   = "2.5.0"
-  allocated_storage         = var.db_size
-  backup_window             = "04:00-05:00"
-  engine                    = "postgres"
-  engine_version            = "11.12"
-  final_snapshot_identifier = "meadow-final"
-  identifier                = "${var.stack_name}-db"
-  instance_class            = "db.t3.medium"
-  maintenance_window        = "Sun:01:00-Sun:02:00"
-  password                  = random_string.db_password.result
-  port                      = "5432"
-  username                  = "postgres"
-  subnet_ids                = data.aws_subnet_ids.private_subnets.ids
-  family                    = "postgres11"
-  vpc_security_group_ids    = [aws_security_group.meadow_db.id]
-  deletion_protection       = true
+  source                              = "terraform-aws-modules/rds/aws"
+  version                             = "4.1.2"
+  allocated_storage                   = var.db_size
+  backup_window                       = "04:00-05:00"
+  engine                              = "postgres"
+  engine_version                      = "11.12"
+  final_snapshot_identifier_prefix    = "meadow-final"
+  identifier                          = "${var.stack_name}-db"
+  instance_class                      = "db.t3.medium"
+  maintenance_window                  = "Sun:01:00-Sun:02:00"
+  password                            = random_string.db_password.result
+  port                                = "5432"
+  username                            = "postgres"
+  subnet_ids                          = data.aws_subnets.private_subnets.ids
+  family                              = "postgres11"
+  vpc_security_group_ids              = [aws_security_group.meadow_db.id]
+  deletion_protection                 = true
+  storage_encrypted                   = false
+  create_db_subnet_group              = true
 
   parameters = [
     {
@@ -50,7 +58,6 @@ resource "random_string" "db_password" {
 
 resource "aws_s3_bucket" "meadow_ingest" {
   bucket = "${var.stack_name}-${var.environment}-ingest"
-  acl    = "private"
   tags   = var.tags
 }
 
@@ -64,9 +71,11 @@ locals {
 }
 resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
-  acl    = "private"
   tags   = var.tags
+}
 
+resource "aws_s3_bucket_cors_configuration" "meadow_uploads" {
+  bucket = aws_s3_bucket.meadow_uploads.id
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT"]
@@ -77,38 +86,45 @@ resource "aws_s3_bucket" "meadow_uploads" {
 }
 
 resource "aws_s3_bucket" "meadow_preservation" {
-  bucket = "${var.stack_name}-${var.environment}-preservation"
-  acl    = "private"
+  bucket    = "${var.stack_name}-${var.environment}-preservation"
+  tags      = var.tags
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "meadow_preservation" {
+  bucket = aws_s3_bucket.meadow_preservation.id
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  lifecycle_rule {
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation" {
+  bucket = aws_s3_bucket.meadow_preservation.id
+
+  rule {
     id      = "retain-on-delete"
-    enabled = true
+    status  = "Enabled"
 
     noncurrent_version_expiration {
-      days = var.deleted_object_expiration
+      noncurrent_days = var.deleted_object_expiration
     }
     expiration {
       expired_object_delete_marker = true
     }
   }
-
-  tags = var.tags
 }
 
 resource "aws_s3_bucket" "meadow_preservation_checks" {
   bucket = "${var.stack_name}-${var.environment}-preservation-checks"
-  acl    = "private"
   tags   = var.tags
 }
 
 resource "aws_s3_bucket" "meadow_streaming" {
   bucket = "${var.stack_name}-${var.environment}-streaming"
-  acl    = "private"
   tags   = var.tags
+}
+
+resource "aws_s3_bucket_cors_configuration" "meadow_streaming" {
+  bucket = aws_s3_bucket.meadow_streaming.id
 
   cors_rule {
     allowed_headers = ["Authorization", "Access-Control-Allow-Origin", "Range", "*"]
@@ -265,16 +281,24 @@ data "aws_vpc" "this_vpc" {
   id = var.vpc_id
 }
 
-data "aws_subnet_ids" "public_subnets" {
-  vpc_id = data.aws_vpc.this_vpc.id
+data "aws_subnets" "public_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.this_vpc.id]
+  }
+
   filter {
     name   = "tag:SubnetType"
     values = ["public"]
   }
 }
 
-data "aws_subnet_ids" "private_subnets" {
-  vpc_id = data.aws_vpc.this_vpc.id
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.this_vpc.id]
+  }
+
   filter {
     name   = "tag:SubnetType"
     values = ["private"]
@@ -357,6 +381,8 @@ resource "aws_iam_policy" "allow_transcode" {
 resource "aws_media_convert_queue" "transcode_queue" {
   name   = var.stack_name
   status = "ACTIVE"
+
+  tags = var.tags
 }
 
 data "aws_acm_certificate" "wildcard_cert" {
@@ -520,4 +546,98 @@ resource "aws_route53_record" "meadow_streaming_cloudfront" {
   type    = "CNAME"
   ttl     = "900"
   records = [aws_cloudfront_distribution.meadow_streaming.domain_name]
+}
+
+provider "aws" {
+  alias  = "west"
+  region = "us-west-1"
+}
+
+resource "aws_iam_role" "replication_role" {
+  # Only create the role in production env
+  count = var.environment == "p" ? 1 : 0
+  name  = "${var.stack_name}-replication-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "${var.stack_name}-replication-policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect   = "Allow"
+          Action   = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
+          Resource = ["${aws_s3_bucket.meadow_preservation.arn}"]
+        },
+        {
+          Effect   = "Allow"
+          Action   = ["s3:GetObjectVersionForReplication", "s3:GetObjectVersionAcl", "s3:GetObjectVersionTagging"]
+          Resource = ["${aws_s3_bucket.meadow_preservation.arn}/*"]
+        },
+        {
+          Effect   = "Allow"
+          Action   = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
+          Resource = ["${aws_s3_bucket.meadow_preservation_replica[count.index].arn}/*"]
+        }
+      ]
+    })
+  }
+}
+
+resource "aws_s3_bucket" "meadow_preservation_replica" {
+  count    = var.environment == "p" ? 1 : 0
+  provider = aws.west
+  bucket   = "${var.stack_name}-${var.environment}-preservation-replica"
+
+  tags = var.tags
+}
+
+resource "aws_s3_bucket_versioning" "meadow_preservation_replica" {
+  count       = var.environment == "p" ? 1 : 0
+  provider    = aws.west
+  bucket      = aws_s3_bucket.meadow_preservation_replica[count.index].id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_replication_configuration" "east_to_west" {
+  count       = var.environment == "p" ? 1 : 0
+  role        = aws_iam_role.replication_role[count.index].arn
+  bucket      = aws_s3_bucket.meadow_preservation.id
+
+  rule {
+    id     = "preservation-replica"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    delete_marker_replication {
+      status = "Enabled"
+    }
+
+    destination {
+      bucket        = aws_s3_bucket.meadow_preservation_replica[count.index].arn
+      storage_class = "DEEP_ARCHIVE"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
 }

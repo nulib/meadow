@@ -1,4 +1,5 @@
 defmodule Meadow.Ingest.WorkRedriverTest do
+  use Meadow.DataCase
   use Meadow.IngestCase
   alias Meadow.Ingest.{Progress, Rows, WorkRedriver}
   alias Meadow.Ingest.Schemas.Progress, as: ProgressSchema

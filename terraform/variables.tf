@@ -125,6 +125,10 @@ variable "elasticsearch_url" {
   type = string
 }
 
+variable "iiif_cloudfront_distribution_id" {
+  type = string
+}
+
 variable "iiif_server_url" {
   type = string
 }

@@ -1,6 +1,6 @@
 #import "./CollectionFields.frag.gql"
 
-mutation($collection_id: ID!, $work_id: ID!) {
+mutation($collection_id: ID!, $work_id: ID) {
   setCollectionImage(collection_id: $collection_id, work_id: $work_id) {
     ...CollectionFields
     works {

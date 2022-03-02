@@ -68,11 +68,26 @@ defmodule MeadowWeb.Resolvers.Data.Collections do
     end
   end
 
-  def set_collection_image(_, %{collection_id: collection_id, work_id: work_id}, _) do
+  def set_collection_image(_, %{collection_id: collection_id, work_id: work_id}, _)
+      when not is_nil(work_id) do
     collection = Collections.get_collection!(collection_id)
     work = Works.get_work!(work_id)
 
     case Collections.set_representative_image(collection, work) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not update collection",
+         details: ChangesetErrors.humanize_errors(changeset)}
+
+      {:ok, collection} ->
+        {:ok, collection}
+    end
+  end
+
+  def set_collection_image(_, %{collection_id: collection_id}, _) do
+    collection = Collections.get_collection!(collection_id)
+
+    case Collections.set_representative_image(collection, nil) do
       {:error, changeset} ->
         {:error,
          message: "Could not update collection",

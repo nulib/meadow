@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Query.FileSetsTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   @query """

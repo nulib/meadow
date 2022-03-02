@@ -1,5 +1,6 @@
 defmodule MeadowWeb.Schema.Query.DescribeFieldsTest do
   defmodule All do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
     load_gql(MeadowWeb.Schema, "test/gql/DescribeFields.gql")
@@ -11,6 +12,7 @@ defmodule MeadowWeb.Schema.Query.DescribeFieldsTest do
   end
 
   defmodule ByID do
+    use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
     use Wormwood.GQLCase
     load_gql(MeadowWeb.Schema, "test/gql/DescribeField.gql")

@@ -99,6 +99,7 @@ config :meadow,
   },
   environment: :prod,
   digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL"),
+  iiif_cloudfront_distribution_id: get_required_var.("IIIF_CLOUDFRONT_DISTRIBUTION_ID"),
   iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL"),
   iiif_server_url: get_required_var.("IIIF_SERVER_URL"),
   ingest_bucket: get_required_var.("INGEST_BUCKET"),
@@ -146,7 +147,7 @@ config :ueberauth, Ueberauth,
          base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
          callback_path: "/auth/nusso/callback",
          consumer_key: get_required_var.("AGENTLESS_SSO_KEY"),
-         include_attributes: true
+         include_attributes: false
        ]}
   ]
 

@@ -23,6 +23,15 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 }
 
 data "aws_iam_policy_document" "meadow_role_permissions" {
+
+  statement {
+    sid    = "cloudfront"
+    effect = "Allow"
+    actions = [
+      "cloudfront:CreateInvalidation"
+    ]
+    resources = ["*"]
+  }
   statement {
     sid    = "lambda"
     effect = "Allow"
@@ -32,7 +41,7 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     ]
     resources = ["*"]
   }
-  
+
   statement {
     sid    = "sns"
     effect = "Allow"
@@ -69,9 +78,9 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
 }
 
 resource "aws_security_group" "meadow_load_balancer" {
-  name          = "${var.stack_name}-lb"
-  description   = "Meadow Load Balancer Security Group"
-  vpc_id        = var.vpc_id
+  name        = "${var.stack_name}-lb"
+  description = "Meadow Load Balancer Security Group"
+  vpc_id      = var.vpc_id
 
   egress {
     from_port   = 0
@@ -81,19 +90,19 @@ resource "aws_security_group" "meadow_load_balancer" {
   }
 
   ingress {
-    description   = "HTTP in"
-    from_port     = 80
-    to_port       = 80
-    protocol      = "tcp"
-    cidr_blocks   = ["0.0.0.0/0"]
+    description = "HTTP in"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description   = "HTTPS in"
-    from_port     = 443
-    to_port       = 443
-    protocol      = "tcp"
-    cidr_blocks   = ["0.0.0.0/0"]
+    description = "HTTPS in"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -142,12 +151,12 @@ resource "aws_cloudwatch_log_group" "meadow_logs" {
   tags = var.tags
 }
 resource "aws_lb_target_group" "meadow_target" {
-  port                    = 4000
-  deregistration_delay    = 30
-  target_type             = "ip"
-  protocol                = "HTTP"
-  vpc_id                  = data.aws_vpc.this_vpc.id
-  tags                    = var.tags
+  port                 = 4000
+  deregistration_delay = 30
+  target_type          = "ip"
+  protocol             = "HTTP"
+  vpc_id               = data.aws_vpc.this_vpc.id
+  tags                 = var.tags
 
   stickiness {
     enabled = false
@@ -160,9 +169,9 @@ resource "aws_lb" "meadow_load_balancer" {
   internal           = false
   load_balancer_type = "application"
 
-  subnets         = data.aws_subnet_ids.public_subnets.ids
+  subnets         = data.aws_subnets.public_subnets.ids
   security_groups = [aws_security_group.meadow_load_balancer.id]
-  tags    = var.tags
+  tags            = var.tags
 }
 
 resource "aws_lb_listener" "meadow_lb_listener_http" {

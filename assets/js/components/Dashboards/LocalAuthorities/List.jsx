@@ -61,28 +61,24 @@ export default function DashboardsLocalAuthoritiesList() {
     { error: deleteAuthorityError, loading: deleteAuthorityLoading },
   ] = useMutation(DELETE_NUL_AUTHORITY_RECORD, {
     update(cache, { data: { deleteNulAuthorityRecord } }) {
-      try {
-        const { nulAuthorityRecords } = client.readQuery({
-          query: GET_NUL_AUTHORITY_RECORDS,
-        });
-        const newData = {
-          nulAuthorityRecords: nulAuthorityRecords.filter(
-            (record) => record.id !== deleteNulAuthorityRecord.id
-          ),
-        };
-        client.writeQuery({
-          query: GET_NUL_AUTHORITY_RECORDS,
-          data: newData,
-        });
-        toastWrapper(
-          "is-success",
-          `${deleteNulAuthorityRecord.label} deleted successfully`
-        );
-        filterValues();
-      } catch (e) {
-        console.error(e);
-        toastWrapper("is-danger", `Error deleting NUL local authority: ${e}`);
-      }
+      cache.modify({
+        fields: {
+          nulAuthorityRecords(existingNulAuthorityRefs = [], { readField }) {
+            const newData = existingNulAuthorityRefs.filter(
+              (ref) => deleteNulAuthorityRecord.id !== readField("id", ref)
+            );
+            return [...newData];
+          },
+        },
+      });
+    },
+    onError({ graphQLErrors, networkError }) {
+      console.error("graphQLErrors", graphQLErrors);
+      console.error("networkError", networkError);
+      toastWrapper(
+        "is-danger",
+        `Error in deleteNulAuthorityRecord GraphQL mutation`
+      );
     },
   });
 

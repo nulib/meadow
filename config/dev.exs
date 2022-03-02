@@ -115,14 +115,14 @@ config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
 
 unless System.get_env("REAL_AWS_CONFIG", "false") == "true" do
-  [:s3, :sns, :sqs]
+  [:mediaconvert, :s3, :sns, :sqs]
   |> Enum.each(fn service ->
     config :ex_aws, service,
-      access_key_id: "fake",
-      secret_access_key: "fake",
+      scheme: "https://",
       host: "localhost.localstack.cloud",
       port: 4566,
-      scheme: "https://",
+      access_key_id: "fake",
+      secret_access_key: "fake",
       region: "us-east-1"
   end)
 end
@@ -164,7 +164,7 @@ config :ueberauth, Ueberauth,
          base_url: System.get_env("SETTINGS__NUSSO__BASE_URL"),
          callback_path: "/auth/nusso/callback",
          consumer_key: System.get_env("SETTINGS__NUSSO__CONSUMER_KEY"),
-         include_attributes: true,
+         include_attributes: false,
          ssl_port: 3001
        ]}
   ]

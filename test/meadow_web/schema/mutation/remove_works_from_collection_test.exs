@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.RemoveWorksFromCollectionTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, acync: true
   use Wormwood.GQLCase
 
