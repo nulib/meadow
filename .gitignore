@@ -63,9 +63,6 @@ yarn.lock
 # Ide files
 /.vscode
 
-# Ignore tool versions file
-.tool-versions
-
 /assets/yarn-error.log
 
 .DS_Store

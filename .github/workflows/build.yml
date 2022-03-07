@@ -8,11 +8,14 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
@@ -62,11 +65,14 @@ jobs:
     needs: dependencies
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -156,11 +162,14 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_ACCESS_KEY_ID: fake
           AWS_SECRET_ACCESS_KEY: fake
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
