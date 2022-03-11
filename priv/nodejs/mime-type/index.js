@@ -3,7 +3,9 @@ const FileType = require("file-type");
 const MimeTypes = require("mime-types");
 const { makeTokenizer } = require("@tokenizer/s3");
 const path = require("path");
-const { XMLValidator } = require("fast-xml-parser");
+
+MimeTypes.types['md5'] = 'text/plain';
+MimeTypes.types['framemd5'] = 'text/plain';
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
@@ -37,51 +39,19 @@ const lookupMimeType = async (event) => {
   );
   const key = event.key;
   const ext = path.extname(key).replace(/^\./, "");
-  const mime = MimeTypes.lookup(key);
-  if (FileType.mimeTypes.has(mime)) {
-    if (await validateKnownType(mime, event)) {
-      return { ext, mime }
-    } else {
-      return undefined;
-    }
+  let mime = MimeTypes.lookup(key);
+  if (mime && (! mime.match(/xml$/)) && FileType.mimeTypes.has(mime)) {
+    console.warn(
+      `${path.basename(
+        key
+      )} appears to be ${mime} but magic number doesn't match.`
+    );
+    return undefined;
   } else if (mime) {
     return { ext, mime };
   } else {
     console.warn(`Cannot determine MIME type of ${path.basename(key)}.`);
     return "null";
-  }
-};
-
-const validateKnownType = async (mimeType, event) => {
-  const filename = path.basename(event.key);
-
-  if (thinksItsXml(mimeType)) {
-    const result = await validateXml(event);
-    if (! result) {
-      console.warn(`${filename} appears to be ${mimeType} but is not valid XML`);
-    }
-    return result;
-  } else {
-    console.warn(
-      `${filename} appears to be ${mimeType} but magic number doesn't match.`
-    );
-    return undefined;  
-  }
-};
-
-const thinksItsXml = (mimeType) => !!mimeType.match(/[/+]xml$/);
-
-const validateXml = async (event) => {
-  console.warn(`Confirming ${event.key} is well-formed XML`);
-  const s3 = new AWS.S3();
-  const response = await s3.getObject({Bucket: event.bucket, Key: event.key}).promise();
-  const xml = response.Body.toString();
-  const result = XMLValidator.validate(response.Body.toString());
-  if (result.err) {
-    console.warn(`${result.err.code}: ${result.err.msg}`);
-    return false;
-  } else {
-    return true;
   }
 };
 
