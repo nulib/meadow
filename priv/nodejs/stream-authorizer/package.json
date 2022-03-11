@@ -1,0 +1,18 @@
+{
+  "name": "stream-authorizer",
+  "version": "1.0.0",
+  "description": "Authorization for A/V streams delivered via Cloudfront",
+  "main": "index.js",
+  "author": "Brendan Quinn",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "lodash.isobject": "^3.0.2",
+    "lodash.isstring": "^4.0.1"
+  },
+  "scripts": {
+    "locally": "node --trace-warnings ./locally.js"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.1090.0"
+  }
+}

@@ -50,6 +50,8 @@ npm-debug.log
 
 /terraform/.terraform/
 /terraform/**/_build/
+/terraform/**/build/
+/terraform/**/package/
 /terraform/**/*.plan
 
 /tmp/
