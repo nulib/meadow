@@ -91,6 +91,14 @@ module "exif_function" {
   stack_name  = var.stack_name
   memory_size = 512
   timeout     = 10
+  layers      = [
+    "arn:aws:lambda:us-east-1:652718333417:layer:perl-5_30-layer:1",
+    aws_lambda_layer_version.exiftool.arn
+  ]
+
+  environment = {
+    EXIFTOOL = "/opt/bin/exiftool"
+  }
 
   tags = merge(
     var.tags,
