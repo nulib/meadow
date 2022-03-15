@@ -4,7 +4,7 @@ defmodule Meadow.Data.IndexWorker do
   """
   alias Meadow.Data.Indexer
   alias Meadow.IntervalTask
-  use IntervalTask, default_interval: 120_000, function: :synchronize
+  use IntervalTask, default_interval: 1_000, function: :synchronize
 
   @impl IntervalTask
   def initial_state(_args), do: %{override: true}
