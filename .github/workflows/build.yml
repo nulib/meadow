@@ -8,11 +8,14 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
@@ -21,18 +24,18 @@ jobs:
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v3-
+            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v4-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v3-
+            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v4-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
@@ -62,27 +65,30 @@ jobs:
     needs: dependencies
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v3-
+            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v4-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v3-
+            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v4-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
@@ -146,9 +152,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
         with:
-          repository: 'nulib/devstack'
+          repository: "nulib/devstack"
           ref: main
-          path: '.devstack'
+          path: ".devstack"
       - uses: hashicorp/setup-terraform@v1
       - name: Provision Localstack resources
         run: .devstack/bin/devstack -t provision meadow
@@ -156,11 +162,14 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_ACCESS_KEY_ID: fake
           AWS_SECRET_ACCESS_KEY: fake
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: asdf-vm/actions/setup@v1
+      - name: Install NodeJS
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
+            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
+          done
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "24"
@@ -180,18 +189,18 @@ jobs:
         uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v3-
+            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-hex-v4-
       - name: Cache Elixir build
         uses: actions/cache@v2
         with:
           path: _build
-          key: ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-v3-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v3-
+            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-build-v4-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:

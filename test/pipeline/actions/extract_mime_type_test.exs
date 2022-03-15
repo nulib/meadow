@@ -10,6 +10,10 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
   @bad_tiff "not_a_tiff.tif"
   @json_file "details.json"
   @framemd5_file "supplemental_file.framemd5"
+  @matroska "sample.mkv"
+  @good_xml "good_xml.xml"
+  @no_declaration_xml "no_declaration.xml"
+  @random_file "random.blergh"
 
   setup tags do
     key = Path.join("extract_mime_type_test", tags[:fixture_file])
@@ -69,12 +73,60 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     end
 
     @tag fixture_file: @framemd5_file, file_set_role_id: "S"
-    test "supplemntal file falls back to application/octet-stream", %{file_set_id: file_set_id} do
+    test "MIME extractor recognizes framemd5 file", %{file_set_id: file_set_id} do
+      ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "text/plain")
+    end
+
+    @tag fixture_file: @random_file, file_set_role_id: "S"
+    test "supplemental file falls back to application/octet-stream", %{file_set_id: file_set_id} do
       ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 
       file_set = FileSets.get_file_set!(file_set_id)
       assert(file_set.core_metadata.mime_type == "application/octet-stream")
+    end
+
+    @tag fixture_file: @matroska, file_set_role_id: "P"
+    test "Matroska (MKV) preservation file", %{file_set_id: file_set_id} do
+      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "video/x-matroska")
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
+    end
+
+    @tag fixture_file: @good_xml, file_set_role_id: "S"
+    test "well-formed XML with declaration", %{file_set_id: file_set_id} do
+      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "application/xml")
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
+    end
+
+    @tag fixture_file: @no_declaration_xml, file_set_role_id: "S"
+    test "well-formed XML without declaration", %{file_set_id: file_set_id} do
+      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(ActionStates.ok?(file_set_id, ExtractMimeType))
+
+      file_set = FileSets.get_file_set!(file_set_id)
+      assert(file_set.core_metadata.mime_type == "application/xml")
+
+      assert capture_log(fn ->
+               ExtractMimeType.process(%{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMimeType} for #{file_set_id} - already complete"
     end
   end
 end

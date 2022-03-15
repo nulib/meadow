@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "5.2.0"
+  @app_version "5.2.1"
 
   def project do
     [
@@ -62,8 +62,7 @@ defmodule Meadow.MixProject do
       {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},
       {:ex_aws, "~> 2.2.0"},
-      {:ex_aws_s3,
-       git: "https://github.com/bmquinn/ex_aws_s3.git", branch: "main", override: true},
+      {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},

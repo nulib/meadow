@@ -50,6 +50,8 @@ npm-debug.log
 
 /terraform/.terraform/
 /terraform/**/_build/
+/terraform/**/build/
+/terraform/**/package/
 /terraform/**/*.plan
 
 /tmp/
@@ -62,9 +64,6 @@ yarn.lock
 
 # Ide files
 /.vscode
-
-# Ignore tool versions file
-.tool-versions
 
 /assets/yarn-error.log
 

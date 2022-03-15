@@ -4,24 +4,27 @@ const MimeTypes = require("mime-types");
 const { makeTokenizer } = require("@tokenizer/s3");
 const path = require("path");
 
+MimeTypes.types['md5'] = 'text/plain';
+MimeTypes.types['framemd5'] = 'text/plain';
+
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
-  return await extractMimeType(event.bucket, event.key);
+  return await extractMimeType(event);
 };
 
-const extractMimeType = async (bucket, key) => {
+const extractMimeType = async (event) => {
   try {
     const s3 = new AWS.S3();
 
     const s3Tokenizer = await makeTokenizer(s3, {
-      Bucket: bucket,
-      Key: key,
+      Bucket: event.bucket,
+      Key: event.key,
     });
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
     const fileType =
-      (await FileType.fromTokenizer(s3Tokenizer)) || lookupMimeType(key);
+      (await FileType.fromTokenizer(s3Tokenizer)) || (await lookupMimeType(event));
     console.log(JSON.stringify(fileType));
     return fileType;
   } catch (e) {
@@ -30,20 +33,22 @@ const extractMimeType = async (bucket, key) => {
   }
 };
 
-const lookupMimeType = (key) => {
+const lookupMimeType = async (event) => {
   console.warn(
     "Failed to extract MIME type from content. Falling back to file extension."
   );
-  const mimeType = MimeTypes.lookup(key);
-  if (FileType.mimeTypes.has(mimeType)) {
+  const key = event.key;
+  const ext = path.extname(key).replace(/^\./, "");
+  let mime = MimeTypes.lookup(key);
+  if (mime && (! mime.match(/xml$/)) && FileType.mimeTypes.has(mime)) {
     console.warn(
       `${path.basename(
         key
-      )} appears to be ${mimeType} but magic number doesn't match.`
+      )} appears to be ${mime} but magic number doesn't match.`
     );
     return undefined;
-  } else if (mimeType) {
-    return { ext: path.extname(key).replace(/^\./, ""), mime: mimeType };
+  } else if (mime) {
+    return { ext, mime };
   } else {
     console.warn(`Cannot determine MIME type of ${path.basename(key)}.`);
     return "null";

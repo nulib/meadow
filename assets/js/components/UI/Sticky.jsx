@@ -8,7 +8,7 @@ const UISticky = ({ children, ...restProps }) => {
       position: "-webkit-sticky",
       position: "sticky",
       top: headerHeight,
-      zIndex: 1000,
+      zIndex: 100,
     },
   };
 

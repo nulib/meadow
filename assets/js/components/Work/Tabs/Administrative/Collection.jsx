@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { toastWrapper, sortItemsArray } from "@js/services/helpers";
-import { Notification } from "@nulib/design-system";
 import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
@@ -11,7 +10,6 @@ import {
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { IconAlert } from "@js/components/Icon";
 
 function WorkTabsAdministrativeCollection({
   collection,
@@ -19,8 +17,6 @@ function WorkTabsAdministrativeCollection({
   isEditing,
   workId,
 }) {
-  const [isHelperMessageVisible, setIsHelperMessageVisible] =
-    React.useState(false);
   const [isCollectionImage, setIsCollectionImage] = React.useState(false);
   const { data: collectionsData, loading, error } = useQuery(GET_COLLECTIONS);
 
@@ -30,7 +26,6 @@ function WorkTabsAdministrativeCollection({
   const [setCollectionImage] = useMutation(SET_COLLECTION_IMAGE, {
     onCompleted({ setCollectionImage }) {
       toastWrapper("is-success", "Collection image has been updated");
-      setIsCollectionImage(true);
     },
     onError({ graphQLErrors, networkError }) {
       let errorStrings = [];
@@ -58,9 +53,7 @@ function WorkTabsAdministrativeCollection({
     fetchPolicy: "network-only",
     variables: { id: collection ? collection.id : "" },
     onCompleted({ collection: { representativeWork } }) {
-      setIsCollectionImage(
-        representativeWork && representativeWork.id === workId ? true : false
-      );
+      setIsCollectionImage(representativeWork?.id === workId ? true : false);
     },
     onError({ graphQLErrors, networkError }) {
       console.error("graphQLErrors", graphQLErrors);
@@ -86,17 +79,15 @@ function WorkTabsAdministrativeCollection({
     }
   }, [collection]);
 
-  /**
-   * Handle toggle Featured Collection Image on/off
-   */
-  const handleToggleCollectionImage = () => {
-    if (!isCollectionImage) {
-      setCollectionImage({
-        variables: { collectionId: collection.id, workId },
-      });
-    } else {
-      setIsHelperMessageVisible(true);
-    }
+  const handleCollectionImageToggleChange = () => {
+    // NOTE we update the state value of the toggle after we fire the mutation
+    setCollectionImage({
+      variables: {
+        collectionId: collection.id,
+        workId: isCollectionImage ? null : workId,
+      },
+    });
+    setIsCollectionImage(!isCollectionImage);
   };
 
   if (loading) return null;
@@ -156,20 +147,11 @@ function WorkTabsAdministrativeCollection({
               name={`featured-image-toggle`}
               className="switch"
               checked={isCollectionImage}
-              onChange={handleToggleCollectionImage}
+              onChange={handleCollectionImageToggleChange}
               data-testid="featured-image-toggle"
             />
             <label htmlFor={`featured-image-toggle`}>Collection image</label>
           </div>
-          {isHelperMessageVisible && (
-            <Notification isWarning className="is-flex is-align-items-center">
-              <IconAlert />
-              <span className="ml-3">
-                To select a new featured image for the Collection, please
-                navigate to the new Work.
-              </span>
-            </Notification>
-          )}
         </AuthDisplayAuthorized>
       )}
     </div>

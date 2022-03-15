@@ -15,25 +15,25 @@ provider "aws" {
 }
 
 module "rds" {
-  source                              = "terraform-aws-modules/rds/aws"
-  version                             = "4.1.2"
-  allocated_storage                   = var.db_size
-  backup_window                       = "04:00-05:00"
-  engine                              = "postgres"
-  engine_version                      = "11.12"
-  final_snapshot_identifier_prefix    = "meadow-final"
-  identifier                          = "${var.stack_name}-db"
-  instance_class                      = "db.t3.medium"
-  maintenance_window                  = "Sun:01:00-Sun:02:00"
-  password                            = random_string.db_password.result
-  port                                = "5432"
-  username                            = "postgres"
-  subnet_ids                          = data.aws_subnets.private_subnets.ids
-  family                              = "postgres11"
-  vpc_security_group_ids              = [aws_security_group.meadow_db.id]
-  deletion_protection                 = true
-  storage_encrypted                   = false
-  create_db_subnet_group              = true
+  source                           = "terraform-aws-modules/rds/aws"
+  version                          = "4.1.2"
+  allocated_storage                = var.db_size
+  backup_window                    = "04:00-05:00"
+  engine                           = "postgres"
+  engine_version                   = "11.12"
+  final_snapshot_identifier_prefix = "meadow-final"
+  identifier                       = "${var.stack_name}-db"
+  instance_class                   = "db.t3.medium"
+  maintenance_window               = "Sun:01:00-Sun:02:00"
+  password                         = random_string.db_password.result
+  port                             = "5432"
+  username                         = "postgres"
+  subnet_ids                       = data.aws_subnets.private_subnets.ids
+  family                           = "postgres11"
+  vpc_security_group_ids           = [aws_security_group.meadow_db.id]
+  deletion_protection              = true
+  storage_encrypted                = false
+  create_db_subnet_group           = true
 
   parameters = [
     {
@@ -86,8 +86,8 @@ resource "aws_s3_bucket_cors_configuration" "meadow_uploads" {
 }
 
 resource "aws_s3_bucket" "meadow_preservation" {
-  bucket    = "${var.stack_name}-${var.environment}-preservation"
-  tags      = var.tags
+  bucket = "${var.stack_name}-${var.environment}-preservation"
+  tags   = var.tags
 }
 
 resource "aws_s3_bucket_versioning" "meadow_preservation" {
@@ -101,8 +101,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation" {
   bucket = aws_s3_bucket.meadow_preservation.id
 
   rule {
-    id      = "retain-on-delete"
-    status  = "Enabled"
+    id     = "retain-on-delete"
+    status = "Enabled"
 
     noncurrent_version_expiration {
       noncurrent_days = var.deleted_object_expiration
@@ -121,6 +121,25 @@ resource "aws_s3_bucket" "meadow_preservation_checks" {
 resource "aws_s3_bucket" "meadow_streaming" {
   bucket = "${var.stack_name}-${var.environment}-streaming"
   tags   = var.tags
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_streaming" {
+  bucket = "${var.stack_name}-${var.environment}-streaming"
+
+  rule {
+    id = "intelligent_tiering"
+
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    transition {
+      days          = 0
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }
 }
 
 resource "aws_s3_bucket_cors_configuration" "meadow_streaming" {
@@ -417,65 +436,6 @@ data "aws_iam_policy_document" "meadow_streaming_bucket_policy" {
   }
 }
 
-resource "aws_wafv2_regex_pattern_set" "meadow_streaming" {
-  name        = "${var.stack_name}-streaming-allowed-referer-patterns"
-  description = "Pattern set to match to Meadow and DC domains"
-  scope       = "CLOUDFRONT"
-  regular_expression {
-    regex_string = "(devbox|digitalcollections|meadow|dc)\\.(rdc(-staging)?\\.)?library\\.northwestern\\.edu(:3001)?"
-  }
-  tags = var.tags
-
-}
-
-resource "aws_wafv2_web_acl" "meadow_streaming" {
-  name        = "${var.stack_name}-streaming-web-acl"
-  description = "Only allow requests for video from Meadow or DC."
-  scope       = "CLOUDFRONT"
-
-  default_action {
-    block {}
-  }
-
-  rule {
-    name     = "meadow-referer-match-rule"
-    priority = 0
-
-    action {
-      allow {}
-    }
-
-    statement {
-      regex_pattern_set_reference_statement {
-        arn = aws_wafv2_regex_pattern_set.meadow_streaming.arn
-        field_to_match {
-          single_header {
-            name = "referer"
-          }
-        }
-        text_transformation {
-          priority = 1
-          type     = "NONE"
-        }
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = false
-      metric_name                = "${var.stack_name}-video-streaming-rule-metric"
-      sampled_requests_enabled   = false
-    }
-  }
-
-  tags = var.tags
-
-  visibility_config {
-    cloudwatch_metrics_enabled = false
-    metric_name                = "${var.stack_name}-video-streaming-web-acl-metric"
-    sampled_requests_enabled   = false
-  }
-}
-
 resource "aws_s3_bucket_policy" "allow_cloudfront_streaming_access" {
   bucket = aws_s3_bucket.meadow_streaming.id
   policy = data.aws_iam_policy_document.meadow_streaming_bucket_policy.json
@@ -502,7 +462,6 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
   retain_on_delete = true
   aliases          = ["${var.stack_name}-streaming.${var.dns_zone}"]
   price_class      = "PriceClass_100"
-  web_acl_id       = aws_wafv2_web_acl.meadow_streaming.arn
 
   origin {
     domain_name = aws_s3_bucket.meadow_streaming.bucket_domain_name
@@ -522,9 +481,9 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
     cache_policy_id          = data.aws_cloudfront_cache_policy.caching_optimized.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3_origin.id
 
-    function_association {
-      event_type   = "viewer-response"
-      function_arn = aws_cloudfront_function.meadow_streaming_cors.arn
+    lambda_function_association {
+      event_type = "viewer-request"
+      lambda_arn = aws_lambda_function.stream_authorizer.qualified_arn
     }
   }
 
@@ -540,6 +499,7 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
     ssl_support_method             = "sni-only"
   }
 }
+
 resource "aws_route53_record" "meadow_streaming_cloudfront" {
   zone_id = data.aws_route53_zone.app_zone.zone_id
   name    = "${var.stack_name}-streaming"
@@ -606,18 +566,18 @@ resource "aws_s3_bucket" "meadow_preservation_replica" {
 }
 
 resource "aws_s3_bucket_versioning" "meadow_preservation_replica" {
-  count       = var.environment == "p" ? 1 : 0
-  provider    = aws.west
-  bucket      = aws_s3_bucket.meadow_preservation_replica[count.index].id
+  count    = var.environment == "p" ? 1 : 0
+  provider = aws.west
+  bucket   = aws_s3_bucket.meadow_preservation_replica[count.index].id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_replication_configuration" "east_to_west" {
-  count       = var.environment == "p" ? 1 : 0
-  role        = aws_iam_role.replication_role[count.index].arn
-  bucket      = aws_s3_bucket.meadow_preservation.id
+  count  = var.environment == "p" ? 1 : 0
+  role   = aws_iam_role.replication_role[count.index].arn
+  bucket = aws_s3_bucket.meadow_preservation.id
 
   rule {
     id     = "preservation-replica"
