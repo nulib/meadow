@@ -20,7 +20,7 @@
     "@apollo/react-testing": "^4.0.0",
     "@appbaseio/reactivesearch": "3.23.1",
     "@emotion/react": "^11.8.2",
-    "@fortawesome/fontawesome-svg-core": "^1.3.0",
+    "@fortawesome/fontawesome-svg-core": "^6.1.0",
     "@fortawesome/free-brands-svg-icons": "^6.1.0",
     "@fortawesome/free-solid-svg-icons": "^6.1.0",
     "@fortawesome/react-fontawesome": "^0.1.17",
