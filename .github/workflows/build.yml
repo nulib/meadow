@@ -185,6 +185,8 @@ jobs:
           curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
           sudo cp $(find . -type f -executable) /usr/local/bin/ && \
           echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
+      - name: Install exiftool
+        run: brew install exiftool
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:

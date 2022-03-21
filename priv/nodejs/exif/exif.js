@@ -1,95 +1,88 @@
 const AWS = require("aws-sdk");
-const exifr = require("exifr");
 const URI = require("uri-js");
 const s3 = new AWS.S3();
+const { spawn } = require('child_process');
+
+const includeTags = [
+  "Artist",
+  "BitsPerSample",
+  "CellLength",
+  "CellWidth",
+  "ColorMap",
+  "Compression",
+  "Copyright",
+  "DateTime",
+  "ExtraSamples",
+  "FillOrder",
+  "FreeByteCounts",
+  "FreeOffsets",
+  "GrayResponseCurve",
+  "GrayResponseUnit",
+  "HostComputer",
+  "ImageDescription",
+  "ImageHeight",
+  "ImageLength",
+  "ImageWidth",
+  "Make",
+  "MaxSampleValue",
+  "MinSampleValue",
+  "Model",
+  "NewSubfileType",
+  "Orientation",
+  "PhotometricInterpretation",
+  "PlanarConfiguration",
+  "ResolutionUnit",
+  "SamplesPerPixel",
+  "Software",
+  "SubfileType",
+  "Threshholding",
+  "XResolution",
+  "YResolution",
+];
+
+const exifToolPath = process.env.EXIFTOOL || 'exiftool';
+const exifToolParams = ['-fast', '-j', '-d', '%Y-%m-%dT%H:%M:%S%z'];
 
 AWS.config.update({httpOptions: {timeout: 600000}});
 
-const chunkReader = (input, offset, length) => {
-  return new Promise((resolve, _reject) => {
-    let params = {...input};
+const version = async () => {
+  const exifTool = spawn(exifToolPath, ['-ver'], {stdio: ['ignore', 'pipe', process.stderr]});
+  return await readOutput(exifTool);
+};
 
-    if (typeof offset === 'number') {
-      let end = length ? offset + length - 1 : undefined;
-      params.Range = `bytes=${[offset, end].join('-')}`;
-    }
+const extract = async (source) => {
+  console.log(`Retrieving ${source}`);
 
-    s3.getObject(params, (err, data) => {
-      if (err) {
-        console.error(err);
-        resolve(undefined);
-      } else {
-        resolve(data.Body);
-      }
-    });
-  });
-}
+  const uri = URI.parse(source);
+  const s3Location = { 
+    Bucket: uri.host, 
+    Key: uri.path.replace(/^\/+/, "")
+  };
 
-const extractExif = (source, options) => {
+  const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat(['-']);
+  const inputStream = s3.getObject(s3Location).createReadStream();
+  const exifTool = spawn(exifToolPath, args, {stdio: ['pipe', 'pipe', process.stderr]});
+  inputStream.pipe(exifTool.stdin).on('error', (_error) => undefined);
+  let output = await readOutput(exifTool);
+
+  try {
+    output = JSON.parse(output);
+    if (Array.isArray(output) && output.length == 1) output = output[0];
+  } catch (_err) {
+    console.warn("Output is not JSON. Returning raw data.");
+  }
+  return output;
+};
+
+const readOutput = (child) => {
   return new Promise((resolve, reject) => {
-    console.log(`Retrieving ${source}`);
-
-    const defaultOptions = {
-      makerNote: false,
-      pick: [
-        "Artist",
-        "BitsPerSample",
-        "CellLength",
-        "CellWidth",
-        "ColorMap",
-        "Compression",
-        "Copyright",
-        "DateTime",
-        "ExtraSamples",
-        "FillOrder",
-        "FreeByteCounts",
-        "FreeOffsets",
-        "GrayResponseCurve",
-        "GrayResponseUnit",
-        "HostComputer",
-        "ImageDescription",
-        "ImageHeight",
-        "ImageLength",
-        "ImageWidth",
-        "Make",
-        "MaxSampleValue",
-        "MinSampleValue",
-        "Model",
-        "NewSubfileType",
-        "Orientation",
-        "PhotometricInterpretation",
-        "PlanarConfiguration",
-        "ResolutionUnit",
-        "SamplesPerPixel",
-        "Software",
-        "SubfileType",
-        "Threshholding",
-        "XResolution",
-        "YResolution",
-      ],
-    };
-
-    const forcedOptions = {
-      jfif: true,
-      icc: true,
-      iptc: true,
-      xmp: true,
-      interop: true,
-      chunkSize: 1024 * 1024,
-      externalReader: chunkReader
-    };
-    
-    const uri = URI.parse(source);
-    const s3Location = { 
-      Bucket: uri.host, 
-      Key: uri.path.replace(/^\/+/, "")
-    };
-
-    options = Object.assign(options || defaultOptions, forcedOptions);
-    exifr.parse(s3Location, options)
-      .then(exif => resolve(exif))
-      .catch(err => reject(err));
+    let buffer = '';
+    child.on('error', (error) => reject(error));
+    child.stdout
+      .on('data', (data) => buffer += data)
+      .on('end', () => buffer = buffer.trimEnd())
+      .on('close', () => resolve(buffer));
   });
-}
+};
 
-module.exports = { extractExif };
+module.exports = { extract, version };

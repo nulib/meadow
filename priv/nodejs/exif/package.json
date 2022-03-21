@@ -6,7 +6,6 @@
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "exifr": "nulib/exifr#external-reader-dist",
     "uri-js": "^4.4.1"
   },
   "devDependencies": {
