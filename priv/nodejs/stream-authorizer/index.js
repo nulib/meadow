@@ -6,7 +6,7 @@ const handler = async (event, _context) => {
   console.log("Initiating stream authorization");
   const request = event.Records[0].cf.request;
   const path = decodeURI(request.uri.replace(/%2f/gi, ""));
-  const id = path.split("/").slice(0, -1).join("");
+  const id = path.split("/").slice(0, 19).join("");
   console.log("Streaming resource ID", id);
   const referer = request?.headers?.referer?.[0]?.value;
   if (referer && new RegExp(allowedReferers).test(referer)) {
@@ -27,7 +27,7 @@ const handler = async (event, _context) => {
     statusDescription: "Forbidden",
     body: "Forbidden",
   };
-  console.log(`Stream unauthorized for $${id}, returning forbidden response`);
+  console.log(`Stream unauthorized for $${id}, returning Forbidden response`);
   return response;
 };
 
