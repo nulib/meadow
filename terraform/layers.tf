@@ -1,11 +1,3 @@
-resource "aws_lambda_layer_version" "exiftool" {
-  s3_bucket           = "nul-public"
-  s3_key              = "exiftool_lambda_layer.zip"
-  layer_name          = "exiftool"
-  compatible_runtimes = ["nodejs14.x"]
-  description         = "exiftool runtime for nodejs lambdas"
-}
-
 resource "aws_lambda_layer_version" "ffmpeg" {
   s3_bucket           = "nul-public"
   s3_key              = "ffmpeg.zip"
