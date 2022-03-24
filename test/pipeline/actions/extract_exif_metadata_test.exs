@@ -16,10 +16,10 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
   @no_exif_fixture %{bucket: @bucket, key: @no_exif_key, content: File.read!(@no_exif_content)}
   @exif %{
     "Artist" => "Artist Name",
-    "BitsPerSample" => "8 8 8",
-    "Compression" => "Uncompressed",
+    "BitsPerSample" => %{"0" => 8, "1" => 8, "2" => 8},
+    "Compression" => 1,
     "Copyright" => "In Copyright",
-    "FillOrder" => "Normal",
+    "FillOrder" => 1,
     "ImageDescription" =>
       "inu-wint-58.6, 8/20/07, 11:16 AM,  8C, 9990x9750 (0+3570), 125%, bent 6 b/w adj,  1/30 s, R43.0, G4.4, B12.6",
     "ImageHeight" => 1024,
@@ -27,12 +27,11 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
     "Make" => "Better Light",
     "Model" => "Model Super8K",
     "Orientation" => "Horizontal (normal)",
-    "PhotometricInterpretation" => "RGB",
-    "PlanarConfiguration" => "Chunky",
+    "PhotometricInterpretation" => 2,
+    "PlanarConfiguration" => 1,
     "ResolutionUnit" => "inches",
     "SamplesPerPixel" => 3,
     "Software" => "Adobe Photoshop CC 2015.5 (Windows)",
-    "SourceFile" => "-",
     "XResolution" => 72,
     "YResolution" => 72
   }
@@ -53,7 +52,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
            Software
            XResolution
            YResolution)
-  @tool_name "exiftool"
+  @tool_name "exifr"
 
   setup do
     exif_file_set =
@@ -124,18 +123,8 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      case file_set.extracted_metadata do
-        nil ->
-          assert true
-
-        %{"exif" => nil} ->
-          assert true
-
-        %{"exif" => %{"value" => map}} ->
-          assert_lists_equal(Map.keys(map), ~w(BitsPerSample ImageHeight ImageWidth))
-
-        _ ->
-          assert false
+      with extracted <- file_set.extracted_metadata do
+        assert is_nil(extracted) || is_nil(Map.get(extracted, "exif"))
       end
 
       assert capture_log(fn ->
