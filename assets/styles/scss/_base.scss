@@ -109,7 +109,6 @@ table {
 }
 
 .small-title {
-  //@include small-title;
   font-size: 1.1rem;
 }
 
@@ -127,6 +126,8 @@ table {
 
 //Select option font-family override for cross-browser consistency
 .select {
+  max-width: 500px;
+  text-overflow: ellipsis;
   option {
     font-family: BlinkMacSystemFont, -apple-system, Arial, sans-serif;
   }
