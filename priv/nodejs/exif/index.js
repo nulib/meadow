@@ -1,14 +1,15 @@
 const exif = require("./exif");
 
 const handler = async (event, _context, _callback) => {
-  const result = await exif.extractExif(event.source, event.options)
+  const result = await exif.extract(event.source);
   if (result === null || result === undefined) {
     return null;
   }
+  delete result.SourceFile;
   
   return {
-    tool: "exifr",
-    tool_version: require("exifr/package.json").version,
+    tool: "exiftool",
+    tool_version: await exif.version(),
     value: result
   };
 };
