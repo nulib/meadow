@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AuthProvider } from "../components/Auth/Auth";
+import ScreensColorExperiment from "./Search/ColorExperiment";
 import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
 import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
 import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
@@ -44,6 +45,11 @@ export default class Root extends React.Component {
               <ScrollToTop />
               <Switch>
                 <Route exact path="/login" component={Login} />
+                <PrivateRoute
+                  exact
+                  path="/search/color-experiment"
+                  component={ScreensColorExperiment}
+                />
                 <PrivateRoute
                   exact
                   path="/dashboards/preservation-checks"

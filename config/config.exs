@@ -56,6 +56,7 @@ config :meadow, Meadow.ElasticsearchCluster,
 
 # Configures lambda scripts
 config :meadow, :lambda,
+  color: {:local, {"nodejs/color/index.js", "handler"}},
   digester: {:local, {"nodejs/digester/index.js", "handler"}},
   edtf: {:local, {"nodejs/edtf/index.js", "handler"}},
   exif: {:local, {"nodejs/exif/index.js", "handler"}},

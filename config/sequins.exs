@@ -5,6 +5,7 @@ alias Meadow.Pipeline.Actions.{
   CreatePyramidTiff,
   CreateTranscodeJob,
   Dispatcher,
+  ExtractDominantColor,
   ExtractMediaMetadata,
   ExtractMimeType,
   FileSetComplete,
@@ -30,6 +31,7 @@ config :sequins, Meadow.Pipeline,
     ExtractExifMetadata,
     CopyFileToPreservation,
     CreatePyramidTiff,
+    ExtractDominantColor,
     ExtractMediaMetadata,
     CreateTranscodeJob,
     TranscodeComplete,
@@ -98,6 +100,17 @@ config :sequins, CreatePyramidTiff,
     CreatePyramidTiff: [status: :retry]
   ]
 
+config :sequins, ExtractDominantColor,
+  queue_config: [
+    receive_interval: 1000,
+    wait_time_seconds: 1,
+    processor_concurrency: 1,
+    visibility_timeout: 300
+  ],
+  notify_on: [
+    ExtractDominantColor: [status: :retry]
+  ]
+
 config :sequins, CreateTranscodeJob,
   queue_config: [
     receive_interval: 1000,
@@ -139,5 +152,6 @@ config :sequins, Dispatcher,
     ExtractExifMetadata: [status: :ok],
     ExtractMediaMetadata: [status: :ok],
     CreatePyramidTiff: [status: :ok],
+    ExtractDominantColor: [status: :ok],
     TranscodeComplete: [status: :ok]
   ]

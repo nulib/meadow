@@ -55,6 +55,8 @@
     "prop-types": "^15.8.1",
     "rc-progress": "^3.2.4",
     "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
+    "react-colorful": "^5.5.1",
     "react-csv": "^2.2.2",
     "react-dropzone": "^12.0.4",
     "react-error-boundary": "^3.1.4",

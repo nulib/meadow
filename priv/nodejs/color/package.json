@@ -1,0 +1,16 @@
+{
+  "name": "color-lambda",
+  "version": "0.1.0",
+  "description": "Extract domiant colors from a file",
+  "main": "index.js",
+  "author": "kdid",
+  "license": "Apache2",
+  "dependencies": {
+    "color-convert": "^2.0.1",
+    "sharp": "^0.27.0",
+    "uri-js": "^4.4.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.808.0"
+  }
+}

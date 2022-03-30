@@ -45,6 +45,9 @@
           "analyzer": "full_analyzer",
           "search_analyzer": "stopword_analyzer",
           "search_quote_analyzer": "full_analyzer"
+        },
+        "color": {
+          "type": "nested"
         }
       },
       "dynamic_templates": [

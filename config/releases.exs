@@ -157,6 +157,7 @@ config :hackney,
 # Configure Lambda-based actions
 
 config :meadow, :lambda,
+  color: {:lambda, "meadow-color"},
   digester: {:lambda, "meadow-digester"},
   exif: {:lambda, "meadow-exif"},
   frame_extractor: {:lambda, "meadow-frame-extractor"},
@@ -181,6 +182,7 @@ end
   {Actions.ExtractExifMetadata, "EXTRACT_EXIF_METADATA"},
   {Actions.CopyFileToPreservation, "COPY_FILE_TO_PRESERVATION"},
   {Actions.CreatePyramidTiff, "CREATE_PYRAMID_TIFF"},
+  {Actions.ExtractDominantColor, "EXTRACT_DOMINANT_COLOR"},
   {Actions.ExtractMediaMetadata, "EXTRACT_MEDIA_METADATA"},
   {Actions.CreateTranscodeJob, "CREATE_TRANSCODE_JOB"},
   {Actions.TranscodeComplete, "TRANSCODE_COMPLETE"},

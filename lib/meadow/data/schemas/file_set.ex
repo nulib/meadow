@@ -25,6 +25,7 @@ defmodule Meadow.Data.Schemas.FileSet do
     field :position, :any, virtual: true
     field :derivatives, :map
     field :poster_offset, :integer
+    field :dominant_color, :map
 
     embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
     embeds_one :structural_metadata, FileSetStructuralMetadata, on_replace: :delete
@@ -40,7 +41,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   defp changeset_params do
     {[:accession_number, :role],
-     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset]}
+     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset, :dominant_color]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do

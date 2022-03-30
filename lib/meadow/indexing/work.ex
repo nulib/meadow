@@ -15,6 +15,14 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
     %{
       accessionNumber: work.accession_number,
       collection: format(work.collection),
+      color:
+        case work.representative_file_set do
+          nil ->
+            %{}
+
+          file_set ->
+            file_set.dominant_color
+        end,
       createDate: work.inserted_at,
       batches: work.batches |> Enum.map(& &1.id),
       metadataUpdateJobs: work.metadata_update_jobs |> Enum.map(& &1.id),
