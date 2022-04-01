@@ -11,6 +11,11 @@ variable "environment" {
   default = {}
 }
 
+variable "ephemeral_storage" {
+  type    = number
+  default = 512
+}
+
 variable "handler" {
   type    = string
   default = "index.handler"
