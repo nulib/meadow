@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "../../UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
 import UIFormBatchFieldArray from "../../UI/Form/BatchFieldArray";
 import { IDENTIFIER_METADATA } from "../../../services/metadata";
 import UIFormRelatedURL from "../../UI/Form/RelatedURL";
@@ -21,15 +22,30 @@ const BatchEditAboutIdentifiersMetadata = ({ ...restProps }) => {
         </div>
       ))}
       <div className="column is-full" data-testid="relatedUrl">
-        <UIFormField label="Related URL">
-          <UIFormRelatedURL
-            codeLists={
-              codeLists.relatedUrlData ? codeLists.relatedUrlData.codeList : []
-            }
-            label="Related URL"
-            name="relatedUrl"
-          />
-        </UIFormField>
+        <fieldset data-testid="batch-field-array">
+          <legend data-testid="legend">Related URL</legend>
+          <UIFormField label="Related URL">
+            <UIFormRelatedURL
+              codeLists={
+                codeLists.relatedUrlData
+                  ? codeLists.relatedUrlData.codeList
+                  : []
+              }
+              label="Related URL"
+              name="relatedUrl"
+            />
+            <UIFormSelect
+              isReactHookForm
+              name="relatedUrl--editType"
+              data-testid="select-edit-type"
+              options={[
+                { id: "append", label: "Append values" },
+                { id: "replace", label: "Replace existing values" },
+                { id: "delete", label: "Delete all values" },
+              ]}
+            ></UIFormSelect>
+          </UIFormField>
+        </fieldset>
       </div>
     </div>
   );

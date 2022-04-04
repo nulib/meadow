@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import UIFormField from "@js/components/UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
 import UIFormBatchFieldArray from "@js/components/UI/Form/BatchFieldArray";
 import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 import UIFormNote from "@js/components/UI/Form/Note";
@@ -21,15 +22,28 @@ const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
         </div>
       ))}
       <div className="column is-full" data-testid="notes">
-        <UIFormField label="Notes">
-          <UIFormNote
-            codeLists={
-              codeLists.notesData ? codeLists.notesData.codeList : []
-            }
-            label="Notes"
-            name="notes"
-          />
-        </UIFormField>
+        <fieldset data-testid="batch-field-array">
+          <legend data-testid="legend">Notes</legend>
+          <UIFormField label="Notes">
+            <UIFormNote
+              codeLists={
+                codeLists.notesData ? codeLists.notesData.codeList : []
+              }
+              label="Notes"
+              name="notes"
+            />
+            <UIFormSelect
+              isReactHookForm
+              name="notes--editType"
+              data-testid="select-edit-type"
+              options={[
+                { id: "append", label: "Append values" },
+                { id: "replace", label: "Replace existing values" },
+                { id: "delete", label: "Delete all values" },
+              ]}
+            ></UIFormSelect>
+          </UIFormField>
+        </fieldset>
       </div>
     </div>
   );
