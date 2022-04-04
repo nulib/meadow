@@ -32,11 +32,9 @@ resource "aws_lambda_function" "this_lambda_function" {
   tags          = var.tags
   layers        = var.layers
 
-#  Uncomment when AWS Provider v4.8.0 is available
-#
-#  ephemeral_storage {
-#    size = var.ephemeral_storage
-#  }
+  ephemeral_storage {
+    size = var.ephemeral_storage
+  }
 
   dynamic "environment" {
     for_each = length(var.environment) > 0 ? [1] : []
