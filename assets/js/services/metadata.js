@@ -623,7 +623,11 @@ export function prepRelatedUrl(items = []) {
  * @returns {Object}
  */
 export function deleteKeyFromObject(item) {
-  if (typeof item !== "object" || Array.isArray(item)) {
+  if (
+    typeof item !== "object" ||
+    Array.isArray(item) ||
+    item.hasOwnProperty("url")
+  ) {
     return item;
   }
   let itemObj = { ...item };
