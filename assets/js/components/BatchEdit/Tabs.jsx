@@ -72,26 +72,53 @@ export default function BatchEditTabs() {
     // updated.
 
     let currentFormValues = methods.getValues();
-    console.log(`currentFormValues`, currentFormValues);
     let addItems = { administrative: {}, descriptive: {} };
     let deleteReadyItems = {};
     let replaceItems = { administrative: {}, descriptive: {} };
     let multiValues = {};
 
-    // Process Descriptive metadata items
-    if (currentFormValues.notes?.length > 0) {
-      replaceItems.descriptive.notes = prepNotes(currentFormValues.notes);
-    }
-    if (currentFormValues.relatedUrl?.length > 0) {
-      replaceItems.descriptive.relatedUrl = prepRelatedUrl(
-        currentFormValues.relatedUrl
-      );
-    }
+    /**
+     * Array of data for `notes` and `relatedUrl`
+     */
+    const preppedDataFields = [
+      { name: "notes", data: prepNotes(currentFormValues.notes) },
+      {
+        name: "relatedUrl",
+        data: prepRelatedUrl(currentFormValues.relatedUrl),
+      },
+    ];
+
+    /**
+     * Process each prepped data field,
+     */
+    preppedDataFields.forEach((field) => {
+      const { name, data } = field;
+      const editType = currentFormValues[`${name}--editType`];
+
+      switch (editType) {
+        case "append":
+          addItems.descriptive[name] = data;
+          break;
+        case "delete":
+          replaceItems.descriptive[name] = [];
+          break;
+        case "replace":
+          if (data?.length > 0) replaceItems.descriptive[name] = data;
+          break;
+        default:
+          console.error(`No known editType of: ${editType}.`);
+      }
+    });
+
+    console.log(`addItems.descriptive`, addItems.descriptive);
+    console.log(`replaceItems.descriptive`, replaceItems.descriptive);
+
     if (currentFormValues.rightsStatement) {
       replaceItems.descriptive.rightsStatement = JSON.parse(
         currentFormValues.rightsStatement
       );
     }
+
     ["title"].forEach((item) => {
       if (currentFormValues[item]) {
         replaceItems.descriptive[item] = currentFormValues[item];
