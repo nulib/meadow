@@ -169,6 +169,32 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
+try do
+  File.stream!("config/grafana.env")
+  |> Stream.map(&String.trim_trailing/1)
+  |> Enum.each(fn line ->
+    line
+    |> String.split("=", parts: 2)
+    |> Enum.reduce(fn value, key ->
+      System.put_env(key, value)
+    end)
+  end)
+rescue
+  _ -> IO.puts("no grafana.env file found!")
+end
+
+config :meadow, Meadow.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: [
+    host: "http://localhost:3009",
+    auth_token: System.get_env("GRAFANA_API_KEY"),
+    upload_dashboards_on_start: true,
+    folder_name: "Meadow Dashboards",
+    annotate_app_lifecycle: true
+  ]
+
 config :meadow, :sitemaps,
   gzip: false,
   store: Sitemapper.FileStore,

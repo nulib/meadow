@@ -18,6 +18,7 @@ defmodule Meadow.Application do
     # Starts a worker by calling: Meadow.Worker.start_link(arg)
     # {Meadow.Worker, arg},
     base_children = [
+      Meadow.PromEx,
       EDTF,
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.ElasticsearchCluster,
