@@ -48,7 +48,7 @@ npm-debug.log
 
 *.tfvars
 
-/terraform/.terraform/
+/terraform/**/.terraform/
 /terraform/**/_build/
 /terraform/**/build/
 /terraform/**/package/
