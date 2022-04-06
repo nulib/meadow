@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.8"
+    }
+  }
+}
+
 variable "localstack_endpoint" {
   type = string
   default = "http://localhost:4566"
@@ -11,7 +20,7 @@ provider "aws" {
   access_key                    = "fake"
   secret_key                    = "fake"
   region                        = "us-east-1"
-  s3_force_path_style           = true
+  s3_use_path_style             = true
   skip_credentials_validation   = true
   skip_metadata_api_check       = true
   skip_requesting_account_id    = true
