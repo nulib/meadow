@@ -47,6 +47,7 @@ npm-debug.log
 /.elixir_ls/
 
 *.tfvars
+*.tfstate*
 
 /terraform/**/.terraform/
 /terraform/**/_build/
