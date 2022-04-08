@@ -21,8 +21,8 @@ config :meadow, MeadowWeb.Endpoint,
   https: [
     port: 3001,
     cipher_suite: :strong,
-    certfile: "/usr/local/etc/devbox_ssl/devbox.library.full.pem",
-    keyfile: "/usr/local/etc/devbox_ssl/devbox.library.key.pem"
+    certfile: "/usr/local/etc/devbox_ssl/dev.rdc.wildcard.full.pem",
+    keyfile: "/usr/local/etc/devbox_ssl/dev.rdc.wildcard.key.pem"
   ],
   debug_errors: false,
   code_reloader: true,
@@ -46,7 +46,11 @@ config :meadow, MeadowWeb.Endpoint,
   ]
 
 config :meadow, Meadow.ElasticsearchCluster,
-  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9201")
+  url:
+    System.get_env(
+      "ELASTICSEARCH_URL",
+      "http://elasticsearch.dev.rdc.library.northwestern.edu:9201"
+    )
 
 # ## SSL Support
 #
@@ -79,8 +83,8 @@ config :meadow,
     default_shoulder: System.get_env("EZID_SHOULDER", "ark:/12345/nu1"),
     user: System.get_env("EZID_USER", "ark_user"),
     password: System.get_env("EZID_PASSWORD", "ark_password"),
-    target_url: "https://devbox.library.northwestern.edu:3333/items/",
-    url: System.get_env("EZID_URL", "http://localhost:3943")
+    target_url: "https://dc.dev.rdc.library.northwestern.edu:3333/items/",
+    url: System.get_env("EZID_URL", "http://ezid.dev.rdc.library.northwestern.edu:3943")
   },
   ingest_bucket: "dev-ingest",
   upload_bucket: "dev-uploads",
@@ -93,14 +97,17 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url:
-    System.get_env("IIIF_SERVER_URL", "https://devbox.library.northwestern.edu:8183/iiif/2/"),
+    System.get_env(
+      "IIIF_SERVER_URL",
+      "https://iiif.dev.rdc.library.northwestern.edu:8183/iiif/2/"
+    ),
   iiif_manifest_url:
     System.get_env(
       "IIIF_MANIFEST_URL",
       "https://dev-pyramids.s3.localhost.localstack.cloud:4566/public/"
     ),
   digital_collections_url:
-    System.get_env("DIGITAL_COLLECTIONS_URL", "https://fen.rdc-staging.library.northwestern.edu/"),
+    System.get_env("DIGITAL_COLLECTIONS_URL", "https://dc.dev.rdc.library.northwestern.edu:3333/"),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
   work_archiver_endpoint: ""
@@ -172,5 +179,5 @@ config :ueberauth, Ueberauth,
 config :meadow, :sitemaps,
   gzip: false,
   store: Sitemapper.FileStore,
-  sitemap_url: "https://devbox.library.northwestern.edu:3333/",
+  sitemap_url: "https://dc.dev.rdc.library.northwestern.edu:3333/",
   store_config: [path: "priv/static"]
