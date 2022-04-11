@@ -84,7 +84,7 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
-[:mediaconvert, :s3, :sns, :sqs]
+[:mediaconvert, :s3, :sns, :sqs, :ssm]
 |> Enum.each(fn service ->
   config :ex_aws, service,
     scheme: "http://",

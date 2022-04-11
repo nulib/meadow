@@ -122,7 +122,7 @@ config :elastix,
   custom_headers: {Meadow.Utils.AWS, :add_aws_signature, ["us-east-1", "fake", "fake"]}
 
 unless System.get_env("REAL_AWS_CONFIG", "false") == "true" do
-  [:mediaconvert, :s3, :sns, :sqs]
+  [:mediaconvert, :s3, :sns, :sqs, :ssm]
   |> Enum.each(fn service ->
     config :ex_aws, service,
       scheme: "https://",

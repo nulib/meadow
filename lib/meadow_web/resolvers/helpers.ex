@@ -27,6 +27,11 @@ defmodule MeadowWeb.Resolvers.Helpers do
   end
 
   def work_archiver_endpoint(_, _args, _) do
-    {:ok, %{url: Config.work_archiver_endpoint()}}
+    with endpoint <-
+           ExAws.SSM.get_parameter("/work-archiver/endpoint", with_decryption: true)
+           |> ExAws.request!()
+           |> get_in(["Parameter", "Value"]) do
+      {:ok, %{url: endpoint}}
+    end
   end
 end
