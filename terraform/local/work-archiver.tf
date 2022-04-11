@@ -1,6 +1,6 @@
 module "work-archiver" {
-  # source = "git::https://github.com/nulib/work-archiver.git//work-archiver?ref=2618-cloud-dev-env"
-  source = "../../../work-archiver/work-archiver"
+  source = "git::https://github.com/nulib/work-archiver.git//work-archiver?ref=2618-cloud-dev-env"
+  # source = "../../../work-archiver/work-archiver"
 
   elasticsearch_endpoint          = "http://elasticsearch:9200"
   email_access_policy_arn         = aws_iam_policy.email_access.arn
