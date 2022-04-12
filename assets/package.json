@@ -90,7 +90,7 @@
     "css-loader": "^5.2.7",
     "file-loader": "^6.2.0",
     "jest": "^27.5.1",
-    "jest-localstorage-mock": "^2.4.19",
+    "jest-localstorage-mock": "^2.4.21",
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
