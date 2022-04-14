@@ -24,10 +24,10 @@ export function formatSimpleISODate(date) {
 }
 
 export function isUrlValid(url) {
-  return url.match(URL_PATTERN_MATCH) &&
+  return (
+    url.match(URL_PATTERN_MATCH) &&
     URL_PATTERN_START.some((validStart) => url.startsWith(validStart))
-    ? true
-    : false;
+  );
 }
 
 export function isEDTFValid(edtfString) {
