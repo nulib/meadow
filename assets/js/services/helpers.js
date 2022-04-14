@@ -1,6 +1,6 @@
 import moment from "moment";
 import { toast } from "bulma-toast";
-import { URL_PATTERN_MATCH } from "./global-vars";
+import { URL_PATTERN_MATCH, URL_PATTERN_START } from "./global-vars";
 import edtf from "edtf";
 
 /**
@@ -24,7 +24,10 @@ export function formatSimpleISODate(date) {
 }
 
 export function isUrlValid(url) {
-  return url.match(URL_PATTERN_MATCH) ? true : false;
+  return url.match(URL_PATTERN_MATCH) &&
+    URL_PATTERN_START.some((validStart) => url.startsWith(validStart))
+    ? true
+    : false;
 }
 
 export function isEDTFValid(edtfString) {
