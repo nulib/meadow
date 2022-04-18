@@ -10,10 +10,12 @@ defmodule Meadow.IndexCase do
   alias Meadow.Ingest.Schemas.{Project, Sheet}
   alias Meadow.Repo
 
+  @meadow_index Meadow.Config.elasticsearch_index()
+
   setup tags do
-    Elasticsearch.Index.clean_starting_with(Cluster, "meadow", 0)
-    Elasticsearch.delete(Cluster, "/meadow")
-    Elasticsearch.Index.hot_swap(Cluster, "meadow")
+    Elasticsearch.Index.clean_starting_with(Cluster, "#{@meadow_index}", 0)
+    Elasticsearch.delete(Cluster, "/#{@meadow_index}")
+    Elasticsearch.Index.hot_swap(Cluster, "#{@meadow_index}")
 
     on_exit(fn ->
       if tags[:unboxed] do
@@ -29,14 +31,16 @@ defmodule Meadow.IndexCase do
 
   using do
     quote do
-      import Meadow.TestHelpers
+      import Meadow.{IndexCase, TestHelpers}
+
+      @meadow_index unquote(@meadow_index)
 
       def indexed_doc_count do
-        Elasticsearch.get!(Cluster, "/meadow/_count") |> get_in(["count"])
+        Elasticsearch.get!(Cluster, "/#{@meadow_index}/_count") |> get_in(["count"])
       end
 
       def indexed_doc(id) do
-        Elasticsearch.get!(Cluster, "/meadow/_doc/#{id}") |> get_in(["_source"])
+        Elasticsearch.get!(Cluster, "/#{@meadow_index}/_doc/#{id}") |> get_in(["_source"])
       end
 
       def decode_njson(data) do

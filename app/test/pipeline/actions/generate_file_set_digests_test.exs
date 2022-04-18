@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
   import ExUnit.CaptureLog
   import WaitForIt
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}

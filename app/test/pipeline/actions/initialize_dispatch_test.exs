@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
   alias Meadow.Pipeline.Actions.{Dispatcher, ExtractMimeType, IngestFileSet, InitializeDispatch}
   alias Meadow.Utils.MapList
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
 

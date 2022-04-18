@@ -99,7 +99,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 0} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)
 
       assert object_exists?(@preservation_check_bucket, @report_filename)
@@ -119,7 +119,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         }
       })
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
 
       assert object_exists?(@preservation_check_bucket, @report_filename)
@@ -139,7 +139,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         }
       })
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
 
       assert object_exists?(@preservation_check_bucket, @report_filename)
@@ -150,7 +150,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     } do
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
 
       assert object_exists?(@preservation_check_bucket, @report_filename)
@@ -165,7 +165,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 1} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
     end
 
@@ -178,7 +178,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
       CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 0} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)
     end
 
@@ -194,7 +194,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
         core_metadata: %{digests: %{"md5" => @md5, "sha256" => @sha1}}
       })
 
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 2} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 2} =
                PreservationCheckWriter.generate_report(@report_filename)
     end
   end
@@ -227,7 +227,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     test "does not record an error if video access file set pyramids are missing", %{
       file_set: _file_set
     } do
-      assert {:ok, "s3://test-preservation-checks/pres_check.csv", 0} =
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)
     end
   end

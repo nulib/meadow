@@ -7,11 +7,11 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
 
   describe "file set exists" do
     setup do
-      upload_object("test-ingest", "small.m4v", File.read!("test/fixtures/small.m4v"))
+      upload_object(@ingest_bucket, "small.m4v", File.read!("test/fixtures/small.m4v"))
 
       on_exit(fn ->
-        delete_object("test-ingest", "small.m4v")
-        empty_bucket("test-streaming")
+        delete_object(@ingest_bucket, "small.m4v")
+        empty_bucket(@streaming_bucket)
       end)
 
       :ok
@@ -23,7 +23,7 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             mime_type: "video/mov",
-            location: "s3://test-ingest/small.m4v",
+            location: "s3://#{@ingest_bucket}/small.m4v",
             original_filename: "small.m4v"
           }
         )

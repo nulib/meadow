@@ -13,7 +13,7 @@ defmodule Meadow.Data.Indexer do
   require Logger
 
   def hot_swap do
-    case Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, :meadow) do
+    case Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, index()) do
       {:error, errors} when is_list(errors) ->
         Enum.each(errors, fn error ->
           Logger.warn(error.message)
@@ -88,7 +88,7 @@ defmodule Meadow.Data.Indexer do
     end
   end
 
-  defp index, do: Config.elasticsearch_index()
+  def index, do: Config.elasticsearch_index()
 
   defp upload_batch(wait_interval) when is_integer(wait_interval), do: :timer.sleep(wait_interval)
 

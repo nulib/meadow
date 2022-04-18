@@ -6,6 +6,8 @@ defmodule ElasticsearchTest do
   alias Elasticsearch.API.AWS
   alias Meadow.Data.Indexer
 
+  @total_hits_path ~w(hits total value)
+
   describe "MeadowWeb.Plugs.Elasticsearch" do
     test "only accepts methods: [POST, GET, OPTIONS, HEAD]" do
       %{works: [work | _]} = indexable_data()
@@ -14,7 +16,7 @@ defmodule ElasticsearchTest do
       conn =
         build_conn()
         |> auth_user(user_fixture())
-        |> delete("/elasticsearch/meadow/_doc/#{work.id}")
+        |> delete("/elasticsearch/#{@meadow_index}/_doc/#{work.id}")
 
       assert conn.status == 400
     end
@@ -25,7 +27,7 @@ defmodule ElasticsearchTest do
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
         |> post(
-          "/elasticsearch/meadow/_search",
+          "/elasticsearch/#{@meadow_index}/_search",
           Jason.encode!(%{"query" => %{"match_all" => %{}}})
         )
 
@@ -43,9 +45,9 @@ defmodule ElasticsearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/x-ndjson")
-        |> post("/elasticsearch/meadow/_msearch", mquery)
+        |> post("/elasticsearch/#{@meadow_index}/_msearch", mquery)
 
-      assert Jason.decode!(conn.resp_body)["hits"]["total"] > 1
+      assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 1
     end
 
     test "returns results for query string requests" do
@@ -56,9 +58,9 @@ defmodule ElasticsearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
-        |> get("/elasticsearch/meadow/_search?q=#{work.descriptive_metadata.title}")
+        |> get("/elasticsearch/#{@meadow_index}/_search?q=#{work.descriptive_metadata.title}")
 
-      assert Jason.decode!(conn.resp_body)["hits"]["total"] > 0
+      assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 0
     end
 
     test "sign AWS request" do

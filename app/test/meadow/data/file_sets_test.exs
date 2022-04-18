@@ -1,5 +1,6 @@
 defmodule Meadow.Data.FileSetsTest do
   use Meadow.DataCase
+  use Meadow.S3Case
 
   alias Meadow.Config
   alias Meadow.Data.FileSets
@@ -238,7 +239,7 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
 
       with url <- file_set |> FileSets.poster_uri_for() do
-        assert url |> String.starts_with?("s3://test-pyramids/posters/")
+        assert url |> String.starts_with?("s3://#{@pyramid_bucket}/posters/")
         assert url |> String.ends_with?("-poster.tif")
       end
     end
@@ -247,7 +248,7 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
 
       with url <- FileSets.preservation_location(file_set) do
-        assert url |> String.starts_with?("s3://test-preservation/")
+        assert url |> String.starts_with?("s3://#{@preservation_bucket}/")
         assert url |> String.ends_with?(Pairtree.preservation_path(file_set.id))
       end
     end

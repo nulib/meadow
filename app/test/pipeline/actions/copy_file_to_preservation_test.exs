@@ -7,8 +7,6 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   import ExUnit.CaptureLog
 
   @md5 "85062e8c916f55ae0c514cb0732cfb1f"
-  @ingest_bucket Meadow.Config.ingest_bucket()
-  @preservation_bucket Meadow.Config.preservation_bucket()
   @key "copy_file_to_preservation_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}

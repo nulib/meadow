@@ -1,5 +1,7 @@
 defmodule Meadow.ConfigTest do
   use ExUnit.Case
+  use Meadow.BucketNames
+
   alias Elixir.Config.Reader, as: ConfigReader
   alias Meadow.Config
   import Assertions
@@ -9,23 +11,23 @@ defmodule Meadow.ConfigTest do
   end
 
   test "ingest_bucket/0" do
-    assert Config.ingest_bucket() == "test-ingest"
+    assert Config.ingest_bucket() == @ingest_bucket
   end
 
   test "preservation_bucket/0" do
-    assert Config.preservation_bucket() == "test-preservation"
+    assert Config.preservation_bucket() == @preservation_bucket
   end
 
   test "upload_bucket/0" do
-    assert Config.upload_bucket() == "test-uploads"
+    assert Config.upload_bucket() == @upload_bucket
   end
 
   test "pyramid_bucket/0" do
-    assert Config.pyramid_bucket() == "test-pyramids"
+    assert Config.pyramid_bucket() == @pyramid_bucket
   end
 
   test "preservation_check_bucket/0" do
-    assert Config.preservation_check_bucket() == "test-preservation-checks"
+    assert Config.preservation_check_bucket() == @preservation_check_bucket
   end
 
   test "lambda_config/1" do
@@ -38,12 +40,12 @@ defmodule Meadow.ConfigTest do
 
   test "buckets/0" do
     [
-      "test-ingest",
-      "test-preservation",
-      "test-uploads",
-      "test-pyramids",
-      "test-preservation-checks",
-      "test-streaming"
+      @ingest_bucket,
+      @preservation_bucket,
+      @upload_bucket,
+      @pyramid_bucket,
+      @preservation_check_bucket,
+      @streaming_bucket
     ]
     |> assert_lists_equal(Config.buckets())
   end
@@ -58,19 +60,16 @@ defmodule Meadow.ConfigTest do
   end
 
   test "aws_environment/0" do
-    get_val = fn env, key ->
-      env
-      |> Enum.find_value(fn
-        {^key, v} -> v
-        _ -> nil
-      end)
-    end
+    with env <- Config.aws_environment() |> Enum.into(%{}) do
+      assert env |> Map.has_key?('ASDF_NODEJS_VERSION')
+      assert env |> Map.has_key?('TMPDIR')
 
-    with env <- Config.aws_environment() do
-      assert env |> get_val.('AWS_REGION') == 'us-east-1'
-      assert env |> get_val.('AWS_SECRET_ACCESS_KEY') == 'fake'
-      assert env |> get_val.('AWS_ACCESS_KEY_ID') == 'fake'
-      assert env |> get_val.('AWS_S3_ENDPOINT') |> Enum.slice(0..15) == 'http://localhost'
+      if Application.get_env(:ex_aws, :s3) do
+        assert env |> Map.get('AWS_REGION') == 'us-east-1'
+        assert env |> Map.get('AWS_SECRET_ACCESS_KEY') == 'fake'
+        assert env |> Map.get('AWS_ACCESS_KEY_ID') == 'fake'
+        assert env |> Map.get('AWS_S3_ENDPOINT') |> Enum.slice(0..15) == 'http://localhost'
+      end
     end
   end
 
@@ -89,15 +88,6 @@ defmodule Meadow.ConfigTest do
         Application.put_env(:meadow, :iiif_server_url, prior_values.server)
         Application.put_env(:meadow, :iiif_manifest_url, prior_values.manifest)
       end)
-    end
-
-    test "iiif_server_url/0" do
-      assert Config.iiif_server_url() == "http://localhost:8184/iiif/2/"
-    end
-
-    test "iiif_manifest_url/0" do
-      assert Config.iiif_manifest_url() ==
-               "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/"
     end
 
     test "trailing slashes/0" do

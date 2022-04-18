@@ -49,7 +49,7 @@ defmodule Meadow.MixProject do
       {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.19.0", only: :test},
       {:authoritex, "~> 0.9.0"},
-      {:briefly, "~> 0.3.0", only: :test},
+      {:briefly, "~> 0.3.0"},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.6.1", only: [:dev, :test], runtime: false},
@@ -64,12 +64,15 @@ defmodule Meadow.MixProject do
       {:ex_aws, "~> 2.2.0"},
       {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
+      {:ex_aws_ssm, "~> 2.1"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
+      {:hush, "~> 0.5"},
+      {:hush_aws_secrets_manager, "~> 0.1"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
       {:logger_file_backend, "~> 0.0.11"},
@@ -112,18 +115,8 @@ defmodule Meadow.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "meadow.setup": [
         "assets.install",
-        "meadow.pipeline.setup",
-        "meadow.buckets.create",
         "ecto.setup",
         "meadow.elasticsearch.setup"
-      ],
-      test: [
-        "meadow.pipeline.setup",
-        "meadow.buckets.create",
-        "meadow.ldap.teardown test/fixtures/ldap_seed.ldif",
-        "meadow.ldap.setup test/fixtures/ldap_seed.ldif",
-        "ecto.setup",
-        "test"
       ]
     ]
   end
@@ -137,7 +130,8 @@ defmodule Meadow.MixProject do
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],
-        steps: [&build_assets/1, :assemble]
+        steps: [&build_assets/1, :assemble],
+        config_providers: [{Hush.ConfigProvider, nil}]
       ]
     ]
   end

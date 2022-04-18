@@ -13,8 +13,10 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
   end
 
   defp first(query) do
-    Meadow.ElasticsearchCluster
-    |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
+    with index <- Meadow.Config.elasticsearch_index() do
+      Meadow.ElasticsearchCluster
+      |> Elasticsearch.post("/#{index}/_search?scroll=10m", query)
+    end
   end
 
   defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => hits}}})

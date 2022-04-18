@@ -7,7 +7,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
   import Assertions
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @exif_key "extract_exif_metadata_test/exif.tif"
   @exif_content "test/fixtures/coffee.tif"
   @exif_fixture %{bucket: @bucket, key: @exif_key, content: File.read!(@exif_content)}

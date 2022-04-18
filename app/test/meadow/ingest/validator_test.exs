@@ -9,8 +9,6 @@ defmodule Meadow.Ingest.ValidatorTest do
   import WaitForIt
 
   @sheet_path "/validator_test/"
-  @uploads_bucket Config.upload_bucket()
-  @ingest_bucket Config.ingest_bucket()
   @image_fixture "test/fixtures/coffee.tif"
   @json_fixture "test/fixtures/details.json"
   @video_fixture "test/fixtures/small.m4v"
@@ -27,11 +25,11 @@ defmodule Meadow.Ingest.ValidatorTest do
       ingest_sheet_fixture(%{
         title: to_string(context.test),
         project_id: project.id,
-        filename: "s3://" <> @uploads_bucket <> @sheet_path <> context.sheet
+        filename: "s3://" <> @upload_bucket <> @sheet_path <> context.sheet
       })
 
     file_fixtures = [
-      {@uploads_bucket, @sheet_path <> context.sheet,
+      {@upload_bucket, @sheet_path <> context.sheet,
        File.read!("test/fixtures/#{context.sheet}")},
       {@ingest_bucket, "#{project.folder}/coffee.tif", File.read!(@image_fixture)},
       {@ingest_bucket, "#{project.folder}/details.json", File.read!(@json_fixture)},
@@ -41,12 +39,15 @@ defmodule Meadow.Ingest.ValidatorTest do
     ]
 
     file_fixtures
-    |> Task.async_stream(fn {bucket, key, content} ->
-      upload_object(bucket, key, content)
+    |> Task.async_stream(
+      fn {bucket, key, content} ->
+        upload_object(bucket, key, content)
 
-      AWS.check_object_tags!(bucket, key, Config.required_checksum_tags())
-      |> wait(timeout: Config.checksum_wait_timeout(), frequency: 250)
-    end)
+        AWS.check_object_tags!(bucket, key, Config.required_checksum_tags())
+        |> wait(timeout: Config.checksum_wait_timeout(), frequency: 250)
+      end,
+      timeout: Config.checksum_wait_timeout()
+    )
     |> Stream.run()
 
     on_exit(fn ->
@@ -84,7 +85,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
   @tag sheet: "missing_ingest_sheet.csv"
   test "fails an ingest sheet the csv is missing", context do
-    delete_object(@uploads_bucket, @sheet_path <> "missing_ingest_sheet.csv")
+    delete_object(@upload_bucket, @sheet_path <> "missing_ingest_sheet.csv")
     assert(Validator.result(context.sheet.id) == "fail")
     ingest_sheet = Validator.validate(context.sheet.id)
 

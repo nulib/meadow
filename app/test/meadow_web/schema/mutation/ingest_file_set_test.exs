@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestFileSet.gql")
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @key "create_file_set_test/file.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}

@@ -36,7 +36,10 @@ const handler = async (event, _context) => {
     Bucket: uri.host,
     Key: uri.path.replace(/^\/+/, ""),
   };
+
   const s3 = new AWS.S3();
+  // Interact with S3 to resolve credentials before trying to generate signed URL
+  await s3.headBucket({Bucket: uri.host}).promise();
   const url = s3.getSignedUrl("getObject", s3Location);
 
   return await extractMediainfoMetadata(url);

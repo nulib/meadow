@@ -5,7 +5,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
   alias Meadow.Pipeline.Actions.ExtractMimeType
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @good_tiff "coffee.tif"
   @bad_tiff "not_a_tiff.tif"
   @json_file "details.json"

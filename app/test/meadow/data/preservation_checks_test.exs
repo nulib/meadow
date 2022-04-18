@@ -4,12 +4,9 @@ defmodule Meadow.Data.PreservationChecksTest do
 
   import ExUnit.CaptureLog
 
-  alias Meadow.Config
   alias Meadow.Data.PreservationChecks
   alias Meadow.Utils.Pairtree
 
-  @preservation_bucket Config.preservation_bucket()
-  @preservation_check_bucket Config.preservation_check_bucket()
   @sha1 "29b05ca3286e06d1031feb6cef7f623d3efd6986"
   @sha256 "412ca147684a67883226c644ee46b38460b787ec34e5b240983992af4a8c0a90"
 

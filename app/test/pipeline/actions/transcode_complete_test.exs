@@ -1,5 +1,7 @@
 defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
   use Meadow.DataCase
+  use Meadow.S3Case
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.TranscodeComplete
 
@@ -10,6 +12,8 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
       message =
         Path.join("test/fixtures", file)
         |> File.read!()
+        |> String.replace(~r/PRESERVATION_BUCKET/, @preservation_bucket)
+        |> String.replace(~r/STREAMING_BUCKET/, @streaming_bucket)
         |> Jason.decode!(keys: :atoms)
         |> AtomicMap.convert(safe: false)
         |> put_in([:detail, :user_metadata, :file_set_id], file_set.id)
@@ -35,7 +39,7 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
 
       assert FileSets.get_file_set(file_set.id)
              |> Map.get(:derivatives)
-             |> Map.get("playlist") == "s3://test-streaming/event-test/small.m3u8"
+             |> Map.get("playlist") == "s3://#{@streaming_bucket}/event-test/small.m3u8"
     end
   end
 end

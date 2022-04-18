@@ -1,15 +1,6 @@
 import Config
 
-# Configure your database
-config :meadow, Meadow.Repo,
-  username: "docker",
-  password: "d0ck3r",
-  database: "meadow_test",
-  hostname: "localhost",
-  port: System.get_env("DB_PORT", "5434"),
-  pool: Ecto.Adapters.SQL.Sandbox,
-  queue_target: 5000,
-  pool_size: 50
+prefix = [System.get_env("DEV_PREFIX"), Mix.env()] |> Enum.reject(&is_nil/1) |> Enum.join("-")
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -18,9 +9,8 @@ config :meadow, MeadowWeb.Endpoint,
   server: false
 
 config :meadow, Meadow.ElasticsearchCluster,
-  url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9202"),
   indexes: %{
-    meadow: %{
+    :"#{prefix}-meadow" => %{
       settings: "priv/elasticsearch/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
@@ -35,19 +25,11 @@ config :meadow, Meadow.ElasticsearchCluster,
 
 config :meadow,
   index_interval: 1234,
-  ingest_bucket: "test-ingest",
-  upload_bucket: "test-uploads",
-  preservation_bucket: "test-preservation",
-  preservation_check_bucket: "test-preservation-checks",
-  pyramid_bucket: "test-pyramids",
-  streaming_bucket: "test-streaming",
-  streaming_url: "https://test-streaming-url/",
   mediaconvert_client: MediaConvert.Mock,
-  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
+  streaming_url: "https://test-streaming-url/",
   iiif_server_url: "http://localhost:8184/iiif/2/",
   iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/",
-  digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/",
-  work_archiver_endpoint: ""
+  digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
 
 # Configures lambda scripts
 config :meadow, :lambda,
@@ -64,7 +46,7 @@ config :meadow,
     buckets: ["test-ingest", "test-uploads"]
   },
   required_checksum_tags: ["computed-md5"],
-  checksum_wait_timeout: 5_000
+  checksum_wait_timeout: 15_000
 
 config :meadow,
   ark: %{
@@ -93,23 +75,29 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
-[:mediaconvert, :s3, :sns, :sqs]
-|> Enum.each(fn service ->
-  config :ex_aws, service,
-    scheme: "http://",
-    host: "localhost.localstack.cloud",
-    port: 4568,
-    access_key_id: "fake",
-    secret_access_key: "fake",
-    region: "us-east-1"
-end)
+config :meadow, Meadow.Repo,
+  show_sensitive_data_on_connection_error: true,
+  timeout: 60_000,
+  connect_timeout: 60_000,
+  handshake_timeout: 60_000,
+  pool: Ecto.Adapters.SQL.Sandbox,
+  queue_target: 5000,
+  pool_size: 50
 
-config :exldap, :settings,
-  server: "localhost",
-  base: "DC=library,DC=northwestern,DC=edu",
-  port: 391,
-  user_dn: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu",
-  password: "d0ck3rAdm1n!"
+if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
+  [:mediaconvert, :s3, :secretsmanager, :sns, :sqs]
+  |> Enum.each(fn service ->
+    config :ex_aws, service,
+      scheme: "http://",
+      host: "localhost.localstack.cloud",
+      port: 4568,
+      access_key_id: "fake",
+      secret_access_key: "fake",
+      region: "us-east-1"
+  end)
+end
+
+config :exldap, :settings, base: "OU=test,DC=library,DC=northwestern,DC=edu"
 
 # Print only warnings and errors during test
 config :logger, level: :info
@@ -127,4 +115,4 @@ config :meadow, :sitemaps,
   gzip: true,
   store: Sitemapper.S3Store,
   sitemap_url: "http://localhost:3333/",
-  store_config: [bucket: "test-uploads"]
+  store_config: [bucket: "#{prefix}-uploads", path: ""]

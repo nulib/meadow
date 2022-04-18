@@ -16,7 +16,7 @@
     "jobId": "1622074446914-kze5ap",
     "status": "ERROR",
     "errorCode": 1401,
-    "errorMessage": "Unable to open input file [s3://test-preservation/test/bad_input.mp4]: [Failed probe/open: [Can't read input stream: [Failed to read data: Access denied to s3://test-preservation/test/bad_input.mp4]]]",
+    "errorMessage": "Unable to open input file [s3://PRESERVATION_BUCKET/test/bad_input.mp4]: [Failed probe/open: [Can't read input stream: [Failed to read data: Access denied to s3://PRESERVATION_BUCKET/test/bad_input.mp4]]]",
     "userMetadata": {
       "file_set_id": "66116b0f-8fd5-4d44-9508-7540abcd6239",
       "context": "Test"

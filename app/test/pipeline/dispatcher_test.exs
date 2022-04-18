@@ -2,8 +2,6 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
-  alias Meadow.Config
-
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
@@ -22,8 +20,7 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
 
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
-  @streaming_bucket Config.streaming_bucket()
+  @bucket @ingest_bucket
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
 

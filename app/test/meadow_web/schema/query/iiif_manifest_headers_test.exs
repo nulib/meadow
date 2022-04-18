@@ -4,11 +4,8 @@ defmodule MeadowWeb.Schema.Query.IiifManifestHeadersTest do
   use Wormwood.GQLCase
   use Meadow.S3Case
 
-  alias Meadow.Config
   alias Meadow.IIIF
   alias Meadow.Utils.Pairtree
-
-  @pyramid_bucket Config.pyramid_bucket()
 
   load_gql(MeadowWeb.Schema, "test/gql/IiifManifestHeadersQuery.gql")
 

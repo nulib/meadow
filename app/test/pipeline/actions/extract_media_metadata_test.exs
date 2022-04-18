@@ -6,7 +6,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
 
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @media_key "extract_media_metadata_test/small.m4v"
   @media_content "test/fixtures/small.m4v"
   @media_fixture %{bucket: @bucket, key: @media_key, content: File.read!(@media_content)}

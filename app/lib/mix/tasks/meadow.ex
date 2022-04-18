@@ -82,18 +82,21 @@ defmodule Mix.Tasks.Meadow.Reset do
   """
   use Mix.Task
   require Logger
-  alias Mix.Tasks.Ecto
-  alias Mix.Tasks.Meadow.{Elasticsearch, Pipeline, Seed}
 
   @shortdoc @moduledoc
   def run(_) do
     Code.compiler_options(ignore_module_conflict: true)
-    Pipeline.Purge.run([])
-    Ecto.Rollback.run(["--all"])
-    Ecto.Migrate.run([])
-    Pipeline.Setup.run([])
-    Elasticsearch.Clear.run([])
-    Seed.run([])
+    Mix.Task.run("app.config")
+
+    if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
+      Mix.Task.run("pipeline.purge")
+      Mix.Task.run("pipeline.setup")
+    end
+
+    Mix.Task.run("ecto.rollback", ["--all"])
+    Mix.Task.run("ecto.migrate")
+    Mix.Task.run("meadow.elasticsearch.clear")
+    Mix.Task.run("meadow.seed")
   end
 end
 

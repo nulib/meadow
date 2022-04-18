@@ -80,6 +80,11 @@ module.exports = (env, options) => ({
         process.env.HONEYBADGER_REVISION
       ),
       __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
+      __ELASTICSEARCH_INDEX__: JSON.stringify(
+        [process.env.DEV_PREFIX, process.env.DEV_ENV, "meadow"]
+          .filter((e) => e)
+          .join("-")
+      ),
     }),
     new Webpack.SourceMapDevToolPlugin({
       filename: "[name].js.map",

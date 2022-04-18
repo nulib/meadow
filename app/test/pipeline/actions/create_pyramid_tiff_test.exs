@@ -7,8 +7,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
   alias Meadow.Utils.Pairtree
   import ExUnit.CaptureLog
 
-  @ingest_bucket Meadow.Config.ingest_bucket()
-  @pyramid_bucket Meadow.Config.pyramid_bucket()
   @key "create_pyramid_tiff_test/coffee.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
@@ -75,7 +73,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff) == false)
 
-      refute(object_exists?("test-pyramids", dest))
+      refute(object_exists?(@pyramid_bucket, dest))
 
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
