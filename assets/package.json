@@ -46,7 +46,7 @@
     "hls.js": "^1.1.5",
     "inflection": "^1.13.2",
     "js-cookie": "^3.0.1",
-    "moment": "^2.29.2",
+    "moment": "^2.29.3",
     "node-webvtt": "^1.9.3",
     "openseadragon": "^2.4.2",
     "openseadragon-react-viewer": "^3.5.0",
