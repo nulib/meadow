@@ -25,7 +25,8 @@ const ScreensLogin = () => {
         <div className="container has-text-centered">
           <Notification isWarning className="is-size-5">
             <UIIconText icon={<IconAlert />}>
-              You must be logged in to access Meadow
+              Northwestern University Staff access only. Please login to access
+              Meadow.
             </UIIconText>
           </Notification>
         </div>
