@@ -53,7 +53,7 @@ resource "aws_iam_role_policy_attachment" "stream_authorizer_basic_execution_rol
 }
 
 locals {
-  source_sha = sha1(join("", [for f in fileset(path.module, "../priv/nodejs/stream-authorizer/*.{js,json}") : sha1(file(f))]))
+  source_sha = sha1(join("", [for f in fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}") : sha1(file(f))]))
 }
 
 resource "null_resource" "node_modules" {
@@ -68,7 +68,7 @@ resource "null_resource" "node_modules" {
 }
 
 resource "template_dir" "function_source" {
-  source_dir      = "${path.module}/../priv/nodejs/stream-authorizer/"
+  source_dir      = "${path.module}/../../lambdas/stream-authorizer/"
   destination_dir = "${path.module}/build"
 
   vars = {

@@ -16,7 +16,8 @@
 
 ## Initial setup:
 
-- From the `meadow` project root, install Elixir dependencies with `mix deps.get`
+- From the `meadow` project root, `cd app`.
+- Install Elixir dependencies with `mix deps.get`
 - Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
   - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
     - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`

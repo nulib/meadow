@@ -48,14 +48,16 @@ defmodule Mix.Tasks.Assets.Install do
 
   @shortdoc @moduledoc
   def run(_) do
-    Path.wildcard("**/package-lock.json")
-    |> Enum.reject(fn path ->
-      String.starts_with?(path, "_build") || String.contains?(path, "node_modules") ||
-        path == "package-lock.json"
-    end)
-    |> Enum.map(&Path.dirname/1)
-    |> Enum.each(fn path ->
-      Mix.Tasks.Assets.IO.run("npm install", path)
+    File.cd!("..", fn ->
+      Path.wildcard("**/package-lock.json")
+      |> Enum.reject(fn path ->
+        String.contains?(path, "/_build/") || String.contains?(path, "/node_modules/") ||
+          path == "package-lock.json"
+      end)
+      |> Enum.map(&Path.dirname/1)
+      |> Enum.each(fn path ->
+        Mix.Tasks.Assets.IO.run("npm install --no-fund", path)
+      end)
     end)
   end
 end

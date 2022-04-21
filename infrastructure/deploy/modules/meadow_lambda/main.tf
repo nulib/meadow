@@ -1,6 +1,6 @@
 locals {
   dest_path   = "${path.module}/_build"
-  source_path = "${path.module}/../../../priv/nodejs"
+  source_path = "${path.module}/../../../../lambdas"
 }
 
 data "archive_file" "source" {
