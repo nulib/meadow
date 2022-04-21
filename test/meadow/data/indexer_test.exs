@@ -271,7 +271,7 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["model", "application"]) == "Meadow"
       assert doc |> get_in(["model", "name"]) == "Work"
       assert doc |> get_in(["fileSets"]) |> length == 2
-      assert doc |> get_in(["fileSets"]) |> List.first() |> map_size() == 5
+      assert doc |> get_in(["fileSets"]) |> List.first() |> map_size() == 10
 
       with metadata <- subject.descriptive_metadata do
         assert doc |> get_in(["descriptiveMetadata", "title"]) ==
