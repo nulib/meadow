@@ -48,7 +48,7 @@
     "js-cookie": "^3.0.1",
     "moment": "^2.29.3",
     "node-webvtt": "^1.9.3",
-    "openseadragon": "^2.4.2",
+    "openseadragon": "^3.0.0",
     "openseadragon-react-viewer": "^3.6.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
