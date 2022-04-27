@@ -11,11 +11,9 @@ defmodule Meadow.Data.PipelineTest do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Pipeline
   alias Meadow.Pipeline.Actions.Dispatcher
-  alias Meadow.Utils.AWS
 
   import Assertions
   import ExUnit.CaptureLog
-  import WaitForIt
 
   @tiff_fixture File.read!("test/fixtures/coffee.tif")
   @tiff_bucket Config.ingest_bucket()
@@ -77,24 +75,12 @@ defmodule Meadow.Data.PipelineTest do
     @describetag s3: [@s3_fixture]
 
     setup do
-      wait(
-        AWS.check_object_tags!(
-          @tiff_bucket,
-          @tiff_key,
-          Config.required_checksum_tags()
-        ),
-        timeout: Config.checksum_wait_timeout(),
-        frequency: 250
-      )
-
-      ExAws.S3.delete_object_tagging(@tiff_bucket, @tiff_key)
-      |> ExAws.request!()
-
-      old_timeout = Application.get_env(:meadow, :checksum_wait_timeout)
+      old_config = Application.get_all_env(:meadow)
       Application.put_env(:meadow, :checksum_wait_timeout, 1_000)
+      Application.put_env(:meadow, :required_checksum_tags, ["this-tag-never-happens"])
 
       on_exit(fn ->
-        Application.put_env(:meadow, :checksum_wait_timeout, old_timeout)
+        Application.put_all_env(meadow: old_config)
       end)
 
       :ok

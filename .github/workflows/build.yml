@@ -233,6 +233,7 @@ jobs:
           BRANCH: ${{ github.ref }}
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+        working-directory: app
       - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
