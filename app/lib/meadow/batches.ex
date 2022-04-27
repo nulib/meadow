@@ -468,7 +468,7 @@ defmodule Meadow.Batches do
     |> apply_batch_association(batch_id)
     |> load_works()
 
-    total = Map.get(hits, "total")
+    total = get_in(hits, ["total", "value"])
 
     Logger.debug(
       "Indexing for batch update scroll_id: #{scroll_id}, hits: #{length(current_hits)}, total: #{total}"
@@ -484,7 +484,8 @@ defmodule Meadow.Batches do
 
   defp process_updates(query, delete, add, replace, batch_id) do
     query =
-      Jason.decode!(query)
+      query
+      |> Jason.decode!()
       |> Map.put("_source", "")
       |> Jason.encode!()
 
@@ -498,7 +499,10 @@ defmodule Meadow.Batches do
 
   # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
 
-  defp process_deletes({:ok, %{"hits" => %{"hits" => [], "total" => total}}}, batch_id) do
+  defp process_deletes(
+         {:ok, %{"hits" => %{"hits" => [], "total" => %{"value" => total}}}},
+         batch_id
+       ) do
     update_batch(batch_id, %{works_updated: total})
     {:ok, :noop}
   end
