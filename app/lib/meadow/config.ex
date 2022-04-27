@@ -81,8 +81,7 @@ defmodule Meadow.Config do
   def lambda_config(config_key) do
     case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do
       nil -> {:error, :unknown}
-      {:lambda, lambda} -> {:lambda, lambda}
-      {:local, {script, handler}} -> {:local, {priv_path(script), handler}}
+      result -> result
     end
   end
 

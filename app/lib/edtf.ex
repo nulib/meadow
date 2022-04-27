@@ -75,15 +75,15 @@ defmodule EDTF do
   def init(_args) do
     Logger.info("Starting EDTF Parser")
 
-    case Lambda.init(Config.lambda_config(:edtf)) do
+    case script_config() |> Lambda.init() do
       {_, port} -> {:ok, port}
       other -> other
     end
   end
 
   def handle_call({command, data}, _from, port) do
-    {:reply,
-     Lambda.invoke(Config.lambda_config(:edtf), %{function: command, value: data}, @timeout),
-     port}
+    {:reply, script_config() |> Lambda.invoke(%{function: command, value: data}, @timeout), port}
   end
+
+  defp script_config, do: {:local, {Config.priv_path("nodejs/edtf/index.js"), "handler"}}
 end

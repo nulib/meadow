@@ -1,26 +1,26 @@
 # The directory Mix will write compiled artifacts to.
-/_build/
+/app/_build/
 
 # If you run "mix test --cover", coverage assets end up here.
-/cover/
+/app/cover/
 
 # The directory Mix downloads your dependencies sources to.
-/deps/
+/app/deps/
 
 # Local config files
-/config/*.local.exs
+/app/config/*.local.exs
 
 # Where 3rd-party dependencies like ExDoc output generated docs.
-/doc/*
-!/doc/architecture
-!/doc/architecture/*
-!/doc/diagrams
-!/doc/diagrams/*
-!/doc/wireframes
-!/doc/wireframes/*
+/app/doc/*
+!/app/doc/architecture
+!/app/doc/architecture/*
+!/app/doc/diagrams
+!/app/doc/diagrams/*
+!/app/doc/wireframes
+!/app/doc/wireframes/*
 
 # Ignore .fetch files in case you like to edit your project deps locally.
-/.fetch
+/app/.fetch
 
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
@@ -35,39 +35,36 @@ meadow-*.tar
 npm-debug.log
 
 # The directory NPM downloads your dependencies sources to.
-/assets/coverage/
+/app/assets/coverage/
 
 # Since we are building assets from assets/,
 # we ignore priv/static. You may want to comment
 # this depending on your deployment strategy.
-/priv/static/
-/priv/cert/
-/priv/seed_data/
+/app/priv/static/
+/app/priv/cert/
+/app/priv/seed_data/
 
-/.elixir_ls/
+.elixir_ls
 
 *.tfvars
 
-/terraform/.terraform/
-/terraform/**/_build/
-/terraform/**/build/
-/terraform/**/package/
-/terraform/**/*.plan
+/infrastructure/**/.terraform/
+/infrastructure/**/_build/
+/infrastructure/**/build/
+/infrastructure/**/package/
+/infrastructure/**/*.plan
 
-/tmp/
+/app/tmp/
 
 # Accounts for a package on the front-end to enable autocomplete for Jest in VSCode
 node_modules
 yarn.lock
-/package.json
-/priv/nodejs/*/node_modules/.yarn-integrity
+/app/package.json
+/app/priv/nodejs/*/node_modules/.yarn-integrity
+/app/assets/yarn-error.log
 
 # Ide files
-/.vscode
-
-/assets/yarn-error.log
+.vscode
 
 .DS_Store
 **/*/.DS_Store
-localstack/.terraform
-localstack/terraform.tfstate.d

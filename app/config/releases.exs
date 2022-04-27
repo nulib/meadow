@@ -154,16 +154,6 @@ config :ueberauth, Ueberauth,
 config :hackney,
   max_connections: System.get_env("HACKNEY_MAX_CONNECTIONS", "1000") |> String.to_integer()
 
-# Configure Lambda-based actions
-
-config :meadow, :lambda,
-  digester: {:lambda, "meadow-digester"},
-  exif: {:lambda, "meadow-exif"},
-  frame_extractor: {:lambda, "meadow-frame-extractor"},
-  mediainfo: {:lambda, "meadow-mediainfo"},
-  mime_type: {:lambda, "meadow-mime-type"},
-  tiff: {:lambda, "meadow-pyramid-tiff"}
-
 get_sequins_var = fn key, attribute, default ->
   [key, attribute]
   |> Enum.join("_")

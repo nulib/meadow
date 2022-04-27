@@ -29,8 +29,8 @@ defmodule Meadow.ConfigTest do
   end
 
   test "lambda_config/1" do
-    assert {:local, {script, handler}} = Config.lambda_config(:edtf)
-    assert script =~ ~r(priv/nodejs/edtf/index.js$)
+    assert {:local, {script, handler}} = Config.lambda_config(:exif)
+    assert script =~ ~r(lambdas/exif/index.js$)
     assert handler == "handler"
 
     assert Config.lambda_config(:missing) == {:error, :unknown}

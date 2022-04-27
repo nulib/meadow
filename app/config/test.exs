@@ -49,6 +49,15 @@ config :meadow,
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/",
   work_archiver_endpoint: ""
 
+# Configures lambda scripts
+config :meadow, :lambda,
+  digester: {:local, {Path.expand("../lambdas/digester/index.js"), "handler"}},
+  exif: {:local, {Path.expand("../lambdas/exif/index.js"), "handler"}},
+  frame_extractor: {:local, {Path.expand("../lambdas/frame-extractor/index.js"), "handler"}},
+  mediainfo: {:local, {Path.expand("../lambdas/mediainfo/index.js"), "handler"}},
+  mime_type: {:local, {Path.expand("../lambdas/mime-type/index.js"), "handler"}},
+  tiff: {:local, {Path.expand("../lambdas/pyramid-tiff/index.js"), "handler"}}
+
 config :meadow,
   checksum_notification: %{
     arn: "arn:aws:lambda:us-east-1:000000000000:function:digest-tag",
