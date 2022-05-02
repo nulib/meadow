@@ -29,7 +29,7 @@ defmodule ElasticsearchTest do
           Jason.encode!(%{"query" => %{"match_all" => %{}}})
         )
 
-      assert Jason.decode!(conn.resp_body)["hits"]["total"] == indexed_doc_count()
+      assert Jason.decode!(conn.resp_body)["hits"]["total"]["value"] == indexed_doc_count()
     end
 
     test "returns results for _msearch reqeusts" do

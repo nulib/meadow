@@ -9,7 +9,7 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPITest do
 
   import ExUnit.CaptureLog
 
-  @too_many_fields_error ~r/Limit of total fields \[1500\] in index \[meadow-\d+\] has been exceeded/
+  @too_many_fields_error ~r/Limit of total fields \[1500\] has been exceeded/
 
   def current_api do
     Application.get_env(:meadow, Cluster) |> Keyword.get(:api)

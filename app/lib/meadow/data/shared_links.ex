@@ -162,7 +162,7 @@ defmodule Meadow.Data.SharedLinks do
     case Elastix.Search.count(elasticsearch_url(), @index, [@type_name], %{
            query: %{match_all: %{}}
          }) do
-      {:ok, %{body: %{"error" => %{"reason" => "no such index"}}}} -> 0
+      {:ok, %{body: %{"error" => %{"type" => "index_not_found_exception"}}}} -> 0
       {:ok, %{body: %{"count" => count}}} -> count
       {:ok, %{body: body}} -> {:error, body}
     end
