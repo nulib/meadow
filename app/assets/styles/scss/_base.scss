@@ -1,0 +1,139 @@
+button,
+.button {
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+table {
+  caption {
+    @extend .has-text-grey;
+    @extend .is-italic;
+    @extend .is-size-6;
+  }
+  &.is-fixed {
+    table-layout: fixed;
+  }
+}
+
+.break-word {
+  overflow-wrap: break-word;
+}
+
+h1,
+.content h1 {
+  font-weight: 400;
+}
+h3,
+.content h3 {
+  font-family: $CamptonBold;
+  font-weight: 400;
+}
+
+dt {
+  font-weight: bold;
+}
+
+dl.spaced {
+  dd {
+    padding-bottom: 1rem;
+  }
+}
+
+fieldset {
+  border: 1px dashed $rich-black-20;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  legend {
+    font-weight: bold;
+  }
+
+  &.add {
+    border-color: $success;
+  }
+
+  &.remove {
+    border-color: $danger;
+  }
+}
+
+strong {
+  color: inherit;
+  font-family: "Akkurat Pro Bold";
+}
+
+footer {
+  .logo {
+    max-width: 250px;
+  }
+}
+
+table {
+  caption {
+    @extend .has-text-grey;
+    @extend .is-italic;
+    @extend .is-size-6;
+  }
+  &.is-fixed {
+    table-layout: fixed;
+  }
+}
+
+#root {
+  background-color: $white-ter;
+}
+
+.action-headline {
+  h1.title {
+    @include from($desktop) {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.break-word {
+  overflow-wrap: break-word;
+}
+.buttons-end {
+  @extend .field;
+  @extend .has-addons;
+  justify-content: flex-end;
+}
+
+.is-campton-bold {
+  font-family: $CamptonBold;
+}
+
+.is-bold {
+  font-family: $AkkuratProBold;
+}
+
+.small-title {
+  font-size: 1.1rem;
+}
+
+.navbar {
+  border-bottom: 1px solid $rich-black-10;
+}
+
+// TODO: Find a better way to override these overrides via Bulma variables
+.message.is-success .message-body {
+  color: $success;
+}
+.tag:not(body).is-success.is-light {
+  color: $success;
+}
+
+//Select option font-family override for cross-browser consistency
+.select {
+  max-width: 500px;
+  text-overflow: ellipsis;
+  option {
+    font-family: BlinkMacSystemFont, -apple-system, Arial, sans-serif;
+  }
+}
+
+.title,
+.content .title {
+  font-size: $size-1;
+}

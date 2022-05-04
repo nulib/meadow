@@ -23,41 +23,36 @@ jobs:
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
-          path: deps
-          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+          path: |
+            app/deps
+            app/_build
+          key: ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v4-
-      - name: Cache Elixir build
-        uses: actions/cache@v2
-        with:
-          path: _build
-          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v4-
+            ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v5-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
           path: |
-            assets/node_modules
-            priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            app/assets/node_modules
+            app/priv/nodejs/*/node_modules
+            lambdas/*/node_modules
+          key: ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
-            ${{ runner.os }}-npm-
+            ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-npm-v5-
       - name: Install Elixir dependencies
         run: mix do deps.get, deps.compile
+        working-directory: app
       - name: Install JS dependencies
-        run: npm install
-        working-directory: assets
+        run: npm install --no-fund
+        working-directory: app/assets
       - name: Install Lambda dependencies
         run: |
-          for pkg in $(find priv/nodejs -maxdepth 2 -name package-lock.json)
+          for pkg in $(find app/priv/nodejs -maxdepth 2 -name package-lock.json) $(find lambdas -maxdepth 2 -name package-lock.json)
           do
             cd $(dirname $pkg)
-            npm install
+            npm install --no-fund
             cd -
           done
   js-test:
@@ -76,39 +71,33 @@ jobs:
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
-          path: deps
-          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+          path: |
+            app/deps
+            app/_build
+          key: ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v4-
-      - name: Cache Elixir build
-        uses: actions/cache@v2
-        with:
-          path: _build
-          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v4-
+            ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v5-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
           path: |
-            assets/node_modules
-            priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            app/assets/node_modules
+            app/priv/nodejs/*/node_modules
+            lambdas/*/node_modules
+          key: ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
-            ${{ runner.os }}-npm-
+            ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-npm-v5-
       - name: JS Static Analysis
         run: npm run-script prettier
-        working-directory: assets
+        working-directory: app/assets
       - name: JS Tests
         run: npm run-script ci:silent -- -w 1
-        working-directory: assets
+        working-directory: app/assets
       - name: Test Webpack Build
         run: npm run-script deploy
-        working-directory: assets
+        working-directory: app/assets
   elixir-test:
     runs-on: ubuntu-latest
     needs: dependencies
@@ -132,10 +121,14 @@ jobs:
         ports:
           - 391:389
           - 638:636
-      elasticsearch:
-        image: bitnami/elasticsearch:6
+      opensearch:
+        image: opensearchproject/opensearch:1.3.1
         env:
-          ELASTICSEARCH_HEAP_SIZE: "256m"
+          bootstrap.memory_lock: true
+          OPENSEARCH_JAVA_OPTS: "-Xms256m -Xmx256m"
+          DISABLE_INSTALL_DEMO_CONFIG: true
+          DISABLE_SECURITY_PLUGIN: true
+          discovery.type: single-node
         ports:
           - 9202:9200
       localstack:
@@ -196,38 +189,35 @@ jobs:
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
-          path: deps
-          key: ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
+          path: |
+            app/deps
+            app/_build
+          key: ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-hex-v4-
-      - name: Cache Elixir build
-        uses: actions/cache@v2
-        with:
-          path: _build
-          key: ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-v4-${{ hashFiles('mix.lock') }}
-            ${{ runner.os }}-build-v4-
+            ${{ runner.os }}-hex-v5-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v5-
       - name: Cache JS dependencies
         uses: actions/cache@v2
         with:
           path: |
-            assets/node_modules
-            priv/nodejs/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
+            app/assets/node_modules
+            app/priv/nodejs/*/node_modules
+            lambdas/*/node_modules
+          key: ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-${{ hashFiles ('priv/nodejs/*/package-lock.json') }}
-            ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}-
-            ${{ runner.os }}-npm-
+            ${{ runner.os }}-npm-v5-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-npm-v5-
       - name: Elixir Static Analysis
         run: mix credo
+        working-directory: app
       - name: Elixir Tests
         run: mix test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: app
       - name: Test DB Rollback
         run: mix ecto.rollback --all
+        working-directory: app
   publish:
     needs:
       - elixir-test
@@ -247,6 +237,7 @@ jobs:
           BRANCH: ${{ github.ref }}
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+        working-directory: app
       - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -262,6 +253,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - uses: docker/build-push-action@v2
         with:
+          context: ./app
           push: true
           tags: nulib/meadow:${{ env.DEPLOY_ENV }}
           build-args: |
