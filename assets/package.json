@@ -41,7 +41,7 @@
     "elasticsearch": "^16.7.3",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
-    "graphql": "^16.4.0",
+    "graphql": "^16.5.0",
     "graphql-tag": "^2.12.6",
     "hls.js": "^1.1.5",
     "inflection": "^1.13.2",
