@@ -56,6 +56,7 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
 };
 
 export const allWorksQuery = {
+  track_total_hits: true,
   query: {
     bool: {
       must: [
