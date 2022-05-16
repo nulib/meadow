@@ -181,6 +181,8 @@ defmodule Meadow.Utils.AWS do
 
   defp extract_aws_error(%{status_code: status_code}), do: {to_string(status_code), %{}}
 
+  defp extract_aws_error(other), do: {"unknown error: #{inspect(other)}", %{}}
+
   defp map_children([]), do: []
   defp map_children([child | children]), do: [map_child(child) | map_children(children)]
 
