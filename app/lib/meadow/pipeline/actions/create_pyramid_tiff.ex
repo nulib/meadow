@@ -5,19 +5,18 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Repo
   alias Meadow.Utils.Lambda
-  alias Sequins.Pipeline.Action
-  use Action
   use Meadow.Pipeline.Actions.Common
 
-  @actiondoc "Create pyramid TIFF from source image"
   @timeout 240_000
 
-  defp already_complete?(file_set, _) do
+  def actiondoc, do: "Create pyramid TIFF from source image"
+
+  def already_complete?(file_set, _) do
     FileSets.pyramid_uri_for(file_set.id)
     |> Meadow.Utils.Stream.exists?()
   end
 
-  defp process(file_set, _, _) do
+  def process(file_set, _) do
     source = file_set.core_metadata.location
     target = FileSets.pyramid_uri_for(file_set.id)
 

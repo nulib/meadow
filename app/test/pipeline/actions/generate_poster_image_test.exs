@@ -1,6 +1,8 @@
 defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.FileSets
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
@@ -40,20 +42,22 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       {:ok, file_set_with_playlist} =
         FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => m3u8_uri}})
 
-      upload_object("test-streaming", m3u8, File.read!("test/fixtures/test-1080.m3u8"))
-      upload_object("test-streaming", adaptive, File.read!("test/fixtures/test.m3u8"))
-      upload_object("test-streaming", ts, File.read!("test/fixtures/test.ts"))
+      upload_object(@streaming_bucket, m3u8, File.read!("test/fixtures/test-1080.m3u8"))
+      upload_object(@streaming_bucket, adaptive, File.read!("test/fixtures/test.m3u8"))
+      upload_object(@streaming_bucket, ts, File.read!("test/fixtures/test.ts"))
 
       on_exit(fn ->
-        empty_bucket("test-pyramids")
-        empty_bucket("test-streaming")
+        empty_bucket(@pyramid_bucket)
+        empty_bucket(@streaming_bucket)
       end)
 
       {:ok, file_set: file_set_with_playlist}
     end
 
-    test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+    test "process/2", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
+
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
@@ -62,15 +66,16 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       )
     end
 
-    test "poster cache invalidation", %{file_set: file_set} do
+    test "poster cache invalidation", %{file_set: %{id: file_set_id}} do
       log =
         capture_log(fn ->
-          assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
         end)
 
       assert log
              |> String.contains?(
-               "Skipping poster cache invalidation for file set: #{file_set.id}. No distribution id found."
+               "Skipping poster cache invalidation for file set: #{file_set_id}. No distribution id found."
              )
     end
   end
@@ -92,23 +97,21 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       {:ok, file_set_with_playlist} =
         FileSets.update_file_set(file_set, %{derivatives: %{"playlist" => m3u8_uri}})
 
-      upload_object("test-streaming", m3u8, File.read!("test/fixtures/test-1080.m3u8"))
-      upload_object("test-streaming", adaptive, File.read!("test/fixtures/test.m3u8"))
-      upload_object("test-streaming", ts, File.read!("test/fixtures/test.ts"))
+      upload_object(@streaming_bucket, m3u8, File.read!("test/fixtures/test-1080.m3u8"))
+      upload_object(@streaming_bucket, adaptive, File.read!("test/fixtures/test.m3u8"))
+      upload_object(@streaming_bucket, ts, File.read!("test/fixtures/test.ts"))
 
       on_exit(fn ->
-        empty_bucket("test-pyramids")
-        empty_bucket("test-streaming")
+        empty_bucket(@pyramid_bucket)
+        empty_bucket(@streaming_bucket)
       end)
 
       {:ok, file_set: file_set_with_playlist}
     end
 
-    test "process/2 with offset out of range", %{file_set: file_set} do
-      assert(
-        {:error, "Offset out of range"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{})
-      )
+    test "process/2 with offset out of range", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:error, _, %{error: "Offset out of range"}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
 
@@ -123,26 +126,28 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             mime_type: "video/mov",
-            location: "s3://test-ingest/small.m4v",
+            location: "s3://#{@ingest_bucket}/small.m4v",
             original_filename: "small.m4v"
           },
           extracted_metadata: @mediainfo,
-          derivatives: %{"playlist" => "s3://test-streaming/small.m4v"},
+          derivatives: %{"playlist" => "s3://#{@streaming_bucket}/small.m4v"},
           poster_offset: 100
         )
 
-      upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
+      upload_object(@streaming_bucket, "small.m4v", File.read!("test/fixtures/small.m4v"))
 
       on_exit(fn ->
-        empty_bucket("test-pyramids")
-        empty_bucket("test-streaming")
+        empty_bucket(@pyramid_bucket)
+        empty_bucket(@streaming_bucket)
       end)
 
       {:ok, file_set: file_set}
     end
 
-    test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+    test "process/2", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
+
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
@@ -159,29 +164,27 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             mime_type: "video/mov",
-            location: "s3://test-ingest/small.m4v",
+            location: "s3://#{@ingest_bucket}/small.m4v",
             original_filename: "small.m4v"
           },
           extracted_metadata: @mediainfo,
-          derivatives: %{"playlist" => "s3://test-streaming/small.m4v"},
+          derivatives: %{"playlist" => "s3://#{@streaming_bucket}/small.m4v"},
           poster_offset: 2_000_000
         )
 
-      upload_object("test-streaming", "small.m4v", File.read!("test/fixtures/small.m4v"))
+      upload_object(@streaming_bucket, "small.m4v", File.read!("test/fixtures/small.m4v"))
 
       on_exit(fn ->
-        empty_bucket("test-pyramids")
-        empty_bucket("test-streaming")
+        empty_bucket(@pyramid_bucket)
+        empty_bucket(@streaming_bucket)
       end)
 
       {:ok, file_set: file_set}
     end
 
     test "process/2 with offset out of range", %{file_set: file_set} do
-      assert(
-        {:error, "Offset 2000000 out of range for video duration 1000999.0"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{})
-      )
+      assert {:error, _, %{error: "Offset 2000000 out of range for video duration 1000999.0"}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set.id}, %{})
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
       assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])

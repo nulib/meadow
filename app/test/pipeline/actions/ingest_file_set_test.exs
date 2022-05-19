@@ -1,28 +1,41 @@
 defmodule Meadow.Pipeline.Actions.IngestFileSetTest do
+  use Meadow.S3Case
   use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.IngestFileSet
+
   import ExUnit.CaptureLog
 
   describe "file set exists" do
     test "process/2" do
-      object = file_set_fixture()
+      %{id: file_set_id} = file_set_fixture()
 
-      assert(IngestFileSet.process(%{file_set_id: object.id}, %{}) == :ok)
-      assert(ActionStates.ok?(object.id, IngestFileSet))
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{})
+
+      assert(ActionStates.ok?(file_set_id, IngestFileSet))
 
       assert capture_log(fn ->
-               IngestFileSet.process(%{file_set_id: object.id}, %{})
-             end) =~ "Skipping #{IngestFileSet} for #{object.id} - already complete"
+               send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{IngestFileSet} for #{file_set_id} - already complete"
     end
   end
 
   describe "file set does not exist" do
     test "process/2" do
       nonexistent_file_set_id = Ecto.UUID.generate()
+
       assert capture_log(fn ->
-        assert({:error, _reason} = IngestFileSet.process(%{file_set_id: nonexistent_file_set_id}, %{}))
-      end) =~ "Marking #{IngestFileSet} for #{nonexistent_file_set_id} as error because the file set was not found"
+               assert {:error, _reason} =
+                        send_test_message(
+                          IngestFileSet,
+                          %{file_set_id: nonexistent_file_set_id},
+                          %{}
+                        )
+             end) =~
+               "Marking #{IngestFileSet} for #{nonexistent_file_set_id} as error because the file set was not found"
     end
   end
 end

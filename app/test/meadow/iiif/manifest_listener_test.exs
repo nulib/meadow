@@ -4,11 +4,8 @@ defmodule Meadow.IIIF.V2.ManifestListenerTest do
 
   import ExUnit.CaptureLog
 
-  alias Meadow.Config
   alias Meadow.IIIF.ManifestListener
   alias Meadow.Utils.Pairtree
-
-  @pyramid_bucket Config.pyramid_bucket()
 
   describe "handle_notification/4" do
     test "writes a 2.x manifest to S3 when it receives a Postgres INSERT/UPDATE notification for an IMAGE work" do

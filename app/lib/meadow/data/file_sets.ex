@@ -148,7 +148,7 @@ defmodule Meadow.Data.FileSets do
 
   defp post_process(%{changes: %{poster_offset: poster_offset}} = changeset)
        when is_integer(poster_offset) do
-    Task.async(fn -> GeneratePosterImage.process(%{file_set_id: changeset.data.id}, %{}) end)
+    Task.async(fn -> changeset.data.id |> get_file_set!() |> GeneratePosterImage.process(%{}) end)
   end
 
   defp post_process(_), do: :noop

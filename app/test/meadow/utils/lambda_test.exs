@@ -113,7 +113,7 @@ defmodule Meadow.Utils.LambdaTest do
       assert capture_log(fn ->
                assert {:error, nil} =
                         Lambda.init({:local, {"path/to/nonexistent/script.js", "handler"}})
-             end) =~ ~r"Failed to spawn path/to/nonexistent/script.js: No such file"
+             end) =~ ~r"Failed to spawn /(.+/)?path/to/nonexistent/script.js: No such file"
     end
   end
 

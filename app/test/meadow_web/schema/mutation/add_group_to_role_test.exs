@@ -8,7 +8,7 @@ defmodule MeadowWeb.Schema.Mutation.AddGroupToRoleTest do
 
   describe "add group to role" do
     setup do
-      group_id = "CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu"
+      group_id = "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
       role_id = meadow_dn("Editors")
 
       on_exit(fn ->
@@ -33,7 +33,7 @@ defmodule MeadowWeb.Schema.Mutation.AddGroupToRoleTest do
 
   describe "add existing group to role" do
     setup do
-      group_id = "CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu"
+      group_id = "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
       role_id = meadow_dn("Users")
       {:ok, %{group_id: group_id, role_id: role_id}}
     end

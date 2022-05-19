@@ -6,13 +6,12 @@
 import Config
 
 alias Meadow.Pipeline.Actions
+alias Hush.Provider.{AwsSecretsManager, SystemEnvironment}
 
-get_required_var = fn var ->
-  case System.get_env("__COMPILE_CHECK__") do
-    nil -> System.get_env(var) || raise "environment variable #{var} is missing."
-    _ -> "COMPILE_CHECK"
-  end
-end
+if Hush.release_mode?(), do: [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
+
+secrets_path = System.get_env("SECRETS_PATH", "config")
+meadow_secrets = [secrets_path, "meadow"] |> Enum.reject(&is_nil/1) |> Enum.join("/")
 
 priv_path = fn path ->
   case :code.priv_dir(:meadow) do
@@ -25,27 +24,22 @@ config :elastix,
   custom_headers:
     {Meadow.Utils.AWS, :add_aws_signature,
      [
-       get_required_var.("AWS_REGION"),
-       get_required_var.("ELASTICSEARCH_KEY"),
-       get_required_var.("ELASTICSEARCH_SECRET")
+       {:hush, SystemEnvironment, "AWS_REGION"},
+       {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "access_key_id"]},
+       {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "secret_access_key"]}
      ]}
 
 config :exldap, :settings,
-  server: get_required_var.("LDAP_SERVER"),
-  base: "DC=library,DC=northwestern,DC=edu",
   port: 636,
-  ssl: true,
-  user_dn: get_required_var.("LDAP_BIND_DN"),
-  password: get_required_var.("LDAP_BIND_PASSWORD")
+  ssl: true
 
 config :meadow, Meadow.Repo,
-  url: get_required_var.("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("DB_POOL_SIZE", "10")),
-  queue_target: String.to_integer(System.get_env("DB_QUEUE_TARGET", "50")),
-  queue_interval: String.to_integer(System.get_env("DB_QUEUE_INTERVAL", "1000"))
+  pool_size: {:hush, SystemEnvironment, "DB_POOL_SIZE", cast: :integer, default: 10},
+  queue_target: {:hush, SystemEnvironment, "DB_QUEUE_TARGET", cast: :integer, default: 50},
+  queue_interval: {:hush, SystemEnvironment, "DB_QUEUE_INTERVAL", cast: :integer, default: 1000}
 
-host = System.get_env("MEADOW_HOSTNAME", "example.com")
-port = String.to_integer(System.get_env("PORT", "4000"))
+host = {:hush, SystemEnvironment, "MEADOW_HOSTNAME", default: "example.com"}
+port = {:hush, SystemEnvironment, "PORT", cast: :integer, default: 4000}
 
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
@@ -56,19 +50,18 @@ config :meadow, MeadowWeb.Endpoint,
       idle_timeout: :infinity
     ]
   ],
-  check_origin: System.get_env("ALLOWED_ORIGINS", "") |> String.split(~r/,\s*/),
-  secret_key_base: get_required_var.("SECRET_KEY_BASE"),
-  live_view: [signing_salt: get_required_var.("SECRET_KEY_BASE")]
+  check_origin: {:hush, SystemEnvironment, "ALLOWED_ORIGINS", split: ~r/,\s*/, default: ""},
+  secret_key_base: {:hush, SystemEnvironment, "SECRET_KEY_BASE"},
+  live_view: [signing_salt: {:hush, SystemEnvironment, "SECRET_KEY_BASE"}]
 
 config :meadow, Meadow.ElasticsearchCluster,
-  url: get_required_var.("ELASTICSEARCH_URL"),
   api: Elasticsearch.API.AWS,
   default_options: [
     aws: [
       service: "es",
-      region: get_required_var.("AWS_REGION"),
-      access_key: get_required_var.("ELASTICSEARCH_KEY"),
-      secret: get_required_var.("ELASTICSEARCH_SECRET")
+      region: {:hush, SystemEnvironment, "AWS_REGION"},
+      access_key: {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "access_key_id"]},
+      secret: {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "secret_access_key"]}
     ],
     timeout: 20_000,
     recv_timeout: 90_000
@@ -83,47 +76,41 @@ config :meadow, Meadow.ElasticsearchCluster,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
       ],
-      bulk_page_size:
-        System.get_env("ELASTICSEARCH_BULK_PAGE_SIZE", "200") |> String.to_integer(),
-      bulk_wait_interval:
-        System.get_env("ELASTICSEARCH_BULK_WAIT_INTERVAL", "2000") |> String.to_integer()
+      bulk_page_size: 200,
+      bulk_wait_interval: 2000
     }
   }
 
 config :meadow,
-  ark: %{
-    default_shoulder: get_required_var.("EZID_SHOULDER"),
-    user: get_required_var.("EZID_USER"),
-    password: get_required_var.("EZID_PASSWORD"),
-    target_url: get_required_var.("EZID_TARGET_BASE_URL")
-  },
   environment: :prod,
-  digital_collections_url: get_required_var.("DIGITAL_COLLECTIONS_URL"),
-  iiif_cloudfront_distribution_id: get_required_var.("IIIF_CLOUDFRONT_DISTRIBUTION_ID"),
-  iiif_manifest_url: get_required_var.("IIIF_MANIFEST_URL"),
-  iiif_server_url: get_required_var.("IIIF_SERVER_URL"),
-  ingest_bucket: get_required_var.("INGEST_BUCKET"),
   mediaconvert_client: MediaConvert,
-  mediaconvert_queue: get_required_var.("MEDIACONVERT_QUEUE"),
-  mediaconvert_role: get_required_var.("MEDIACONVERT_ROLE"),
-  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "50"),
-  pipeline_delay: System.get_env("PIPELINE_DELAY", "120000"),
-  preservation_bucket: get_required_var.("PRESERVATION_BUCKET"),
-  preservation_check_bucket: get_required_var.("PRESERVATION_CHECK_BUCKET"),
-  progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
-  pyramid_bucket: get_required_var.("PYRAMID_BUCKET"),
-  pyramid_tiff_working_dir: System.get_env("PYRAMID_TIFF_WORKING_DIR"),
+  mediaconvert_queue: {:hush, AwsSecretsManager, meadow_secrets, dig: ["mediaconvert", "queue"]},
+  mediaconvert_role:
+    {:hush, AwsSecretsManager, meadow_secrets, dig: ["mediaconvert", "role_arn"]},
+  multipart_upload_concurrency:
+    {:hush, SystemEnvironment, "MULTIPART_UPLOAD_CONCURRENCY", default: "50"},
+  pipeline_delay: {:hush, SystemEnvironment, "PIPELINE_DELAY", default: "120000"},
+  progress_ping_interval: {:hush, SystemEnvironment, "PROGRESS_PING_INTERVAL", default: "1000"},
   sitemaps: [
     gzip: true,
     store: Sitemapper.S3Store,
-    store_config: [bucket: get_required_var.("SITEMAP_BUCKET")],
-    sitemap_url: get_required_var.("DIGITAL_COLLECTIONS_URL")
+    store_config: [
+      bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "sitemap"]}
+    ],
+    sitemap_url: {:hush, AwsSecretsManager, meadow_secrets, dig: ["dc", "base_url"]}
   ],
-  streaming_bucket: get_required_var.("STREAMING_BUCKET"),
-  streaming_url: get_required_var.("STREAMING_URL"),
-  upload_bucket: get_required_var.("UPLOAD_BUCKET"),
-  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
-  work_archiver_endpoint: get_required_var.("WORK_ARCHIVER_ENDPOINT")
+  validation_ping_interval:
+    {:hush, SystemEnvironment, "VALIDATION_PING_INTERVAL", default: "1000"}
+
+config :meadow,
+  ingest_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "ingest"]},
+  preservation_bucket:
+    {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "preservation"]},
+  pyramid_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "pyramid"]},
+  upload_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "upload"]},
+  preservation_check_bucket:
+    {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "preservation_check"]},
+  streaming_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "streaming"]}
 
 config :logger, level: :info
 
@@ -144,23 +131,19 @@ config :ueberauth, Ueberauth,
     nusso:
       {Ueberauth.Strategy.NuSSO,
        [
-         base_url: "https://northwestern-prod.apigee.net/agentless-websso/",
+         base_url:
+           {:hush, AwsSecretsManager, meadow_secrets,
+            dig: ["nusso", "base_url"],
+            default: "https://northwestern-prod.apigee.net/agentless-websso/"},
          callback_path: "/auth/nusso/callback",
-         consumer_key: get_required_var.("AGENTLESS_SSO_KEY"),
+         consumer_key: {:hush, AwsSecretsManager, meadow_secrets, dig: ["nusso", "api_key"]},
          include_attributes: false
        ]}
   ]
 
 config :hackney,
-  max_connections: System.get_env("HACKNEY_MAX_CONNECTIONS", "1000") |> String.to_integer()
-
-get_sequins_var = fn key, attribute, default ->
-  [key, attribute]
-  |> Enum.join("_")
-  |> String.upcase()
-  |> System.get_env(default)
-  |> String.to_integer()
-end
+  max_connections:
+    {:hush, SystemEnvironment, "HACKNEY_MAX_CONNECTIONS", cast: :integer, default: "1000"}
 
 [
   {Actions.IngestFileSet, "INGEST_FILE_SET"},
@@ -187,10 +170,12 @@ end
         receive_interval: receive_interval,
         wait_time_seconds: wait_time_seconds,
         max_number_of_messages: max_number_of_messages,
-        processor_concurrency: get_sequins_var.(key, :processor_concurrency, "10"),
-        visibility_timeout: get_sequins_var.(key, :visibility_timeout, "300"),
-        max_demand: get_sequins_var.(key, :max_demand, "10"),
-        min_demand: get_sequins_var.(key, :min_demand, "5")
+        processor_concurrency:
+          {:hush, SystemEnvironment, "#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10},
+        visibility_timeout:
+          {:hush, SystemEnvironment, "#{key}_VISIBILITY_TIMEOUT", cast: :integer, default: 300},
+        max_demand: {:hush, SystemEnvironment, "#{key}_MAX_DEMAND", cast: :integer, default: 10},
+        min_demand: {:hush, SystemEnvironment, "#{key}_MIN_DEMAND", cast: :integer, default: 5}
       ]
   end
 end)

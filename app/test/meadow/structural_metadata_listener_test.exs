@@ -1,11 +1,9 @@
 defmodule Meadow.StructuralMetadataListenerTest do
   use Meadow.DataCase
   use Meadow.S3Case
-  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.StructuralMetadataListener
 
-  @pyramid_bucket Config.pyramid_bucket()
   @vtt """
   WEBVTT
 

@@ -4,6 +4,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Setup do
   """
   use Mix.Task
 
+  alias Meadow.Data.Indexer
   alias Meadow.Utils.Elasticsearch.RetryAPI
   alias Mix.Tasks.Elasticsearch
 
@@ -13,7 +14,11 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Setup do
   def run(_) do
     RetryAPI.configure()
     Logger.info("Creating Elasticsearch index")
-    Elasticsearch.Build.run(~w|meadow --existing --cluster Meadow.ElasticsearchCluster|)
+    Mix.Task.run("app.config")
+
+    Elasticsearch.Build.run(
+      ~w|#{Indexer.index()} --existing --cluster Meadow.ElasticsearchCluster|
+    )
   end
 end
 
@@ -22,21 +27,23 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Clear do
   Clear the elasticsearch meadow and shared_links indices
   """
   use Mix.Task
-
+  alias Meadow.Data.Indexer
   require Logger
 
   @shortdoc @moduledoc
   def run(_) do
-    [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)
+    Mix.Task.run("app.config")
 
-    with url <- Application.get_env(:meadow, Meadow.ElasticsearchCluster) |> Keyword.get(:url) do
+    with url <- Application.get_env(:meadow, Meadow.ElasticsearchCluster) |> Keyword.get(:url),
+         meadow_index <- Indexer.index() |> to_string(),
+         shared_links_index <- Application.get_env(:meadow, :shared_links_index) do
       Logger.info("Clearing data from meadow index")
-      Elastix.Document.delete_matching(url, "meadow", %{query: %{match_all: %{}}})
+      Elastix.Document.delete_matching(url, meadow_index, %{query: %{match_all: %{}}})
 
       Logger.info("Clearing data from shared_links index")
 
-      Elastix.Document.delete_matching(url, "shared_links", %{
-        query: %{match: %{"target_index.keyword": "meadow"}}
+      Elastix.Document.delete_matching(url, shared_links_index, %{
+        query: %{match: %{"target_index.keyword": meadow_index}}
       })
     end
   end

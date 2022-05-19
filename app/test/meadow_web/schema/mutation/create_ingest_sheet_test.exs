@@ -1,13 +1,11 @@
 defmodule MeadowWeb.Schema.Mutation.CreateSheet do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
   use Meadow.S3Case
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateIngestSheet.gql")
 
-  @uploads_bucket Meadow.Config.upload_bucket()
-  @ingest_bucket Meadow.Config.ingest_bucket()
   @sheet_key "/create_sheet_test/ingest_sheet.csv"
   @sheet_fixture "test/fixtures/ingest_sheet.csv"
   @image_fixture "test/fixtures/coffee.tif"
@@ -16,7 +14,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
     project = project_fixture(%{id: "47b69292-604f-4ce3-b25f-65869d9ff562d"})
 
     upload_object(
-      @uploads_bucket,
+      @upload_bucket,
       @sheet_key,
       File.read!(@sheet_fixture)
     )
@@ -28,7 +26,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
     )
 
     on_exit(fn ->
-      delete_object(@uploads_bucket, @sheet_key)
+      delete_object(@upload_bucket, @sheet_key)
       delete_object(@ingest_bucket, "#{project.folder}/coffee.tif")
     end)
 

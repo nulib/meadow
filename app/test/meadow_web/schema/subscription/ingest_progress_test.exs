@@ -4,7 +4,8 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   use MeadowWeb.SubscriptionCase, async: true
   alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks}
   alias Meadow.Pipeline
-  alias Meadow.Pipeline.Actions.{Dispatcher, GenerateFileSetDigests}
+  alias Meadow.Pipeline.Actions.GenerateFileSetDigests
+  alias Meadow.Pipeline.Dispatcher
 
   @work_count 2
   @file_set_count 8

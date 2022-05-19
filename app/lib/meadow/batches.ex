@@ -493,7 +493,7 @@ defmodule Meadow.Batches do
     Logger.debug("query #{inspect(query)}")
 
     Meadow.ElasticsearchCluster
-    |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
+    |> Elasticsearch.post("/#{Indexer.index()}/_search?scroll=10m", query)
     |> process_updates(delete, add, replace, batch_id)
   end
 
@@ -532,7 +532,7 @@ defmodule Meadow.Batches do
     Logger.debug("query #{inspect(query)}")
 
     Meadow.ElasticsearchCluster
-    |> Elasticsearch.post("/meadow/_search?scroll=10m", query)
+    |> Elasticsearch.post("/#{Indexer.index()}/_search?scroll=10m", query)
     |> process_deletes(batch_id)
   end
 

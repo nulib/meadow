@@ -10,13 +10,13 @@ defmodule Meadow.Data.PipelineTest do
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Pipeline
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
 
   import Assertions
   import ExUnit.CaptureLog
 
   @tiff_fixture File.read!("test/fixtures/coffee.tif")
-  @tiff_bucket Config.ingest_bucket()
+  @tiff_bucket @ingest_bucket
   @tiff_key "pipeline-test/coffee.tif"
   @tiff_location "s3://#{@tiff_bucket}/#{@tiff_key}"
 

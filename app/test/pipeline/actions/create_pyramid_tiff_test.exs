@@ -1,14 +1,15 @@
 defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.CreatePyramidTiff
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
+
   import ExUnit.CaptureLog
 
-  @ingest_bucket Meadow.Config.ingest_bucket()
-  @pyramid_bucket Meadow.Config.pyramid_bucket()
   @key "create_pyramid_tiff_test/coffee.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
@@ -46,7 +47,9 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
   @tag s3: [@fixture]
   describe "success" do
     test "process/2", %{file_set_id: file_set_id, pairtree: dest} do
-      assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
+
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
       assert(object_exists?(@pyramid_bucket, dest))
 
@@ -60,7 +63,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       end
 
       assert capture_log(fn ->
-               CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
 
       on_exit(fn ->
@@ -71,11 +74,12 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
 
   describe "file_set with invalid location fails" do
     test "process/2", %{invalid_file_set_id: file_set_id, invalid_pairtree: dest} do
-      assert({:error, _} = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+      assert {:error, _, %{error: "Invalid location: invalid"}} =
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.ok?(file_set_id, CreatePyramidTiff) == false)
 
-      refute(object_exists?("test-pyramids", dest))
+      refute(object_exists?(@pyramid_bucket, dest))
 
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
@@ -86,14 +90,18 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       invalid_file_set_id: file_set_id,
       invalid_pairtree: dest
     } do
-      assert({:error, _} = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+      assert {:error, _, %{error: "Invalid location: invalid"}} =
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.error?(file_set_id, CreatePyramidTiff) == true)
 
-      assert(:ok = CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}))
+      assert(
+        {:ok, %{id: ^file_set_id}, _} =
+          send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
+      )
 
       assert capture_log(fn ->
-               CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
 
       on_exit(fn ->
@@ -106,7 +114,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
     @describetag s3: [@fixture]
 
     setup %{file_set_id: file_set_id, pairtree: dest} do
-      CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
       ActionStates.get_states(file_set_id) |> Enum.each(&Repo.delete!/1)
 
       on_exit(fn ->
@@ -119,7 +127,9 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
     test "overwrite", %{file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
+
           assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
         end)
 
@@ -129,10 +139,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
     test "retain", %{file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(
-            CreatePyramidTiff.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
-              :ok
-          )
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{
+                     overwrite: "false"
+                   })
 
           assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
         end)

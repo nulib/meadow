@@ -19,6 +19,11 @@ defmodule Meadow.Config do
     |> List.first()
   end
 
+  @doc "Retrieve shared links index name"
+  def shared_links_index do
+    Application.get_env(:meadow, :shared_links_index)
+  end
+
   @doc "Retrieve Elasticsearch index settings filename"
   def elasticsearch_settings do
     Application.get_env(:meadow, Meadow.ElasticsearchCluster)

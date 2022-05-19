@@ -1,15 +1,12 @@
 defmodule Meadow.IIIF.V3.Test do
   use Meadow.DataCase
   use Meadow.S3Case
-  alias Meadow.Config
   alias Meadow.IIIF
   alias Meadow.Utils.Pairtree
 
   import ExUnit.DocTest
 
   doctest Meadow.IIIF.V3, import: true
-
-  @pyramid_bucket Config.pyramid_bucket()
 
   describe "write_manifest/1" do
     setup do
@@ -28,7 +25,13 @@ defmodule Meadow.IIIF.V3.Test do
 
       with {:ok, result} <- ExAws.S3.head_object(@pyramid_bucket, destination) |> ExAws.request() do
         assert result.status_code == 200
-        assert result.headers |> Enum.member?({"content-type", "application/json"})
+
+        assert result.headers
+               |> Enum.find(fn
+                 {"Content-Type", "application/json"} -> true
+                 {"content-type", "application/json"} -> true
+                 _ -> false
+               end)
       end
     end
   end

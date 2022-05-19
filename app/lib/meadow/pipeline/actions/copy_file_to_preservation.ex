@@ -9,15 +9,13 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
   """
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.AWS
-  alias Sequins.Pipeline.Action
-  use Action
   use Meadow.Pipeline.Actions.Common
   require Logger
   import SweetXml, only: [sigil_x: 2]
 
-  @actiondoc "Copy File to Preservation"
+  def actiondoc, do: "Copy File to Preservation"
 
-  defp already_complete?(file_set, %{overwrite: "false"}) do
+  def already_complete?(file_set, %{overwrite: "false"}) do
     with dest_location <- FileSets.preservation_location(file_set) do
       if file_set.core_metadata.location == dest_location,
         do: Meadow.Utils.Stream.exists?(dest_location),
@@ -25,13 +23,13 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservation do
     end
   end
 
-  defp already_complete?(file_set, _) do
+  def already_complete?(file_set, _) do
     file_set
     |> FileSets.preservation_location()
     |> Meadow.Utils.Stream.exists?()
   end
 
-  defp process(file_set, attributes, _) do
+  def process(file_set, attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     case copy_file_to_preservation(file_set, attributes) do

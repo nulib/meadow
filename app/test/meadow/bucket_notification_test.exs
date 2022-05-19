@@ -7,11 +7,11 @@ defmodule Meadow.BucketNotificationTest do
   @md5 "d65cdbadce081581e7de64a5a44b4617"
 
   describe "notifications" do
-    @tag s3: [%{bucket: "test-ingest", key: @test_object, content: @test_content}]
+    @tag s3: [%{bucket: @ingest_bucket, key: @test_object, content: @test_content}]
     test "object uploaded to ingest bucket gets checksum tagged" do
-      assert_async(timeout: 2000, sleep_time: 150) do
+      assert_async(timeout: 10_000, sleep_time: 500) do
         with %{body: %{tags: tags}} <-
-               ExAws.S3.get_object_tagging("test-ingest", @test_object) |> ExAws.request!() do
+               ExAws.S3.get_object_tagging(@ingest_bucket, @test_object) |> ExAws.request!() do
           assert tags |> length() >= 2
           assert Enum.find(tags, &(&1.key == "computed-md5")) |> Map.get(:value) == @md5
 
@@ -22,11 +22,11 @@ defmodule Meadow.BucketNotificationTest do
       end
     end
 
-    @tag s3: [%{bucket: "test-uploads", key: @test_object, content: @test_content}]
+    @tag s3: [%{bucket: @upload_bucket, key: @test_object, content: @test_content}]
     test "object uploaded to uploads bucket gets checksum tagged" do
-      assert_async(timeout: 2000, sleep_time: 150) do
+      assert_async(timeout: 10_000, sleep_time: 500) do
         with %{body: %{tags: tags}} <-
-               ExAws.S3.get_object_tagging("test-uploads", @test_object) |> ExAws.request!() do
+               ExAws.S3.get_object_tagging(@upload_bucket, @test_object) |> ExAws.request!() do
           assert tags |> length() >= 2
           assert Enum.find(tags, &(&1.key == "computed-md5")) |> Map.get(:value) == @md5
 

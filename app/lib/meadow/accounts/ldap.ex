@@ -11,7 +11,6 @@ defmodule Meadow.Accounts.Ldap do
   @connect_timeout 1500
   @retries 3
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
-  @meadow_base "OU=Meadow,DC=library,DC=northwestern,DC=edu"
 
   def connection(force_new \\ false) do
     if force_new, do: Meadow.Cache |> Cachex.del(:ldap_address)
@@ -57,12 +56,12 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "List all group names and DNs under the @meadow_base DN"
+  @doc "List all group names and DNs under the Meadow base DN"
   def list_groups do
     list_groups_func = fn ->
       connection()
       |> Exldap.search_with_filter(
-        @meadow_base,
+        base_dn(),
         Exldap.equalityMatch("objectClass", "group")
       )
     end
@@ -110,7 +109,7 @@ defmodule Meadow.Accounts.Ldap do
     list_user_groups_func = fn ->
       case connection()
            |> Exldap.search_with_filter(
-             @meadow_base,
+             base_dn(),
              Exldap.with_and([
                Exldap.equalityMatch("objectClass", "group"),
                Exldap.extensibleMatch(user_dn,
@@ -135,11 +134,11 @@ defmodule Meadow.Accounts.Ldap do
     end
   end
 
-  @doc "Create a group under the @meadow_base DN"
+  @doc "Create a group under the Meadow base DN"
   def create_group(group_cn) do
     create_group_func = fn ->
       with {:ok, connection} <- Exldap.connect(),
-           group_dn <- "CN=#{group_cn},#{@meadow_base}" do
+           group_dn <- "CN=#{group_cn},#{base_dn()}" do
         attributes =
           map_to_attributes(%{
             objectClass: ["group", "top"],
@@ -200,6 +199,12 @@ defmodule Meadow.Accounts.Ldap do
         value |> ensure_list() |> Enum.map(fn v -> v |> to_string() |> to_charlist() end)
       }
     end)
+  end
+
+  defp base_dn do
+    with ldap_base <- Application.get_env(:exldap, :settings) |> Keyword.get(:base) do
+      ["OU=Meadow", ",", ldap_base] |> IO.iodata_to_binary()
+    end
   end
 
   defp connection_address(config) do

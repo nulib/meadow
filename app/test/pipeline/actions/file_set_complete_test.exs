@@ -1,17 +1,22 @@
 defmodule Meadow.Pipeline.Actions.FileSetCompleteTest do
   use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.FileSetComplete
+
   import ExUnit.CaptureLog
 
   test "process/2" do
-    object = file_set_fixture()
+    %{id: file_set_id} = file_set_fixture()
 
-    assert(FileSetComplete.process(%{file_set_id: object.id}, %{}) == :ok)
-    assert(ActionStates.ok?(object.id, FileSetComplete))
+    assert {:ok, %{id: ^file_set_id}, %{}} =
+             send_test_message(FileSetComplete, %{file_set_id: file_set_id}, %{})
+
+    assert(ActionStates.ok?(file_set_id, FileSetComplete))
 
     assert capture_log(fn ->
-             FileSetComplete.process(%{file_set_id: object.id}, %{})
-           end) =~ "Skipping #{FileSetComplete} for #{object.id} - already complete"
+             send_test_message(FileSetComplete, %{file_set_id: file_set_id}, %{})
+           end) =~ "Skipping #{FileSetComplete} for #{file_set_id} - already complete"
   end
 end

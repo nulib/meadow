@@ -6,18 +6,17 @@ defmodule Mix.Tasks.Meadow.NulAuthoritiesTest do
 
   alias NUL.AuthorityRecords
 
-  @uploads_bucket Meadow.Config.upload_bucket()
   @filename "nul_authorities.csv"
 
   setup do
     upload_object(
-      @uploads_bucket,
+      @upload_bucket,
       "nul_authorities.csv",
       File.read!("test/fixtures/" <> @filename)
     )
 
     on_exit(fn ->
-      delete_object(@uploads_bucket, @filename)
+      delete_object(@upload_bucket, @filename)
     end)
   end
 
@@ -26,7 +25,7 @@ defmodule Mix.Tasks.Meadow.NulAuthoritiesTest do
       log_output = capture_log(fn -> Mix.Task.run("nul_authorities.import", [@filename]) end)
 
       assert log_output =~
-               "[info]  Looking for CSV in bucket: test-uploads, key: nul_authorities.csv"
+               "[info]  Looking for CSV in bucket: #{@upload_bucket}, key: nul_authorities.csv"
 
       assert log_output =~ "[info]  Done"
 
@@ -43,12 +42,12 @@ defmodule Mix.Tasks.Meadow.NulAuthoritiesTest do
       log_output = capture_log(fn -> Mix.Task.run("nul_authorities.export", []) end)
 
       assert log_output =~
-               "[info]  Done. Look for your export in bucket: test-uploads, key: nul_authorities_export.csv"
+               "[info]  Done. Look for your export in bucket: #{@upload_bucket}, key: nul_authorities_export.csv"
 
-      assert(object_exists?(@uploads_bucket, "nul_authorities_export.csv"))
+      assert(object_exists?(@upload_bucket, "nul_authorities_export.csv"))
 
       on_exit(fn ->
-        delete_object(@uploads_bucket, "nul_authorities_export.csv")
+        delete_object(@upload_bucket, "nul_authorities_export.csv")
       end)
     end
   end

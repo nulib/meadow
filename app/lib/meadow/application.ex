@@ -12,26 +12,35 @@ defmodule Meadow.Application do
   def start(_type, _args) do
     RetryAPI.configure()
 
-    # List all child processes to be supervised
-    # Start the Ecto repository
-    # Start the endpoint when the application starts
-    # Starts a worker by calling: Meadow.Worker.start_link(arg)
-    # {Meadow.Worker, arg},
+    result =
+      Supervisor.start_link(
+        [
+          {DynamicSupervisor, max_restarts: 4096, strategy: :one_for_one, name: Meadow.Supervisor}
+        ],
+        max_restarts: 4096,
+        strategy: :one_for_one,
+        name: Meadow.TopSupervisor
+      )
+
+    unless System.get_env("MEADOW_NO_REPO") do
+      DynamicSupervisor.start_child(Meadow.Supervisor, Meadow.Repo)
+      Meadow.Repo.wait_for_connection()
+    end
+
     base_children = [
       EDTF,
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.ElasticsearchCluster,
-      Meadow.Repo,
       Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]
 
     children = base_children ++ Children.specs()
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [max_restarts: 4096, strategy: :one_for_one, name: Meadow.Supervisor]
-    Supervisor.start_link(children, opts)
+    children
+    |> Enum.each(&DynamicSupervisor.start_child(Meadow.Supervisor, &1))
+
+    result
   end
 
   # Tell Phoenix to update the endpoint configuration
