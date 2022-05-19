@@ -203,9 +203,8 @@ config :authoritex,
 
 config :honeybadger,
   api_key: {:hush, SystemEnvironment, "HONEYBADGER_API_KEY", default: "DO_NOT_REPORT"},
-  environment_name:
-    {:hush, SystemEnvironment, "HONEYBADGER_ENVIRONMENT", default: to_string(Mix.env())},
-  revision: {:hush, SystemEnvironment, "HONEYBADGER_REVISION", default: ""},
+  environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
+  revision: System.get_env("HONEYBADGER_REVISION", ""),
   repos: [Meadow.Repo],
   breadcrumbs_enabled: true,
   filter: Meadow.Error.Filter,
@@ -230,6 +229,7 @@ config :hush,
   transformers: [
     CustomTransformer.Dig,
     CustomTransformer.Default,
+    CustomTransformer.Split,
     Hush.Transformer.Apply,
     CustomTransformer.Cast,
     Hush.Transformer.ToFile

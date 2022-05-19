@@ -11,8 +11,8 @@ defmodule Meadow.Utils.Hush.Transformer.Split do
   @impl true
   @spec transform(config :: any(), value :: any()) :: {:ok, any()} | {:error, String.t()}
   def transform({boundary, opts}, value) when is_binary(value),
-    do: value |> String.split(boundary, opts)
+    do: {:ok, value |> String.split(boundary, opts)}
 
-  def transform(boundary, value) when is_binary(value), do: value |> String.split(boundary)
-  def transform(_, value), do: value
+  def transform(boundary, value) when is_binary(value), do: {:ok, value |> String.split(boundary)}
+  def transform(_, value), do: {:ok, value}
 end

@@ -235,6 +235,12 @@ jobs:
           fi
         env:
           BRANCH: ${{ github.ref }}
+      - name: Configure AWS
+        run: .github/scripts/configure_aws.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          SECRETS: ${{ toJSON(secrets) }}
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
         working-directory: app
@@ -250,6 +256,7 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - uses: satackey/action-docker-layer-caching@v0.0.11
       - uses: docker/build-push-action@v2
         with:
           context: ./app
@@ -297,6 +304,7 @@ jobs:
         run: .github/scripts/configure_aws.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
           SECRETS: ${{ toJSON(secrets) }}
       - name: Update ECS Service
         run: .github/scripts/update_ecs_service.sh

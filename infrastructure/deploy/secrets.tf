@@ -64,12 +64,12 @@ locals {
     }
 
     pipeline = {
-      digester        = module.digester_function.lambda_function_qualified_arn
-      exif            = module.exif_function.lambda_function_qualified_arn
-      frame_extractor = module.frame_extractor_function.lambda_function_qualified_arn
-      mediainfo       = module.mediainfo_function.lambda_function_qualified_arn
-      mime_type       = module.mime_type_function.lambda_function_qualified_arn
-      tiff            = module.pyramid_tiff_function.lambda_function_qualified_arn
+      digester        = module.digester_function.lambda_function_arn
+      exif            = module.exif_function.lambda_function_arn
+      frame_extractor = module.frame_extractor_function.lambda_function_arn
+      mediainfo       = module.mediainfo_function.lambda_function_arn
+      mime_type       = module.mime_type_function.lambda_function_arn
+      tiff            = module.pyramid_tiff_function.lambda_function_arn
     }
 
     streaming = {
