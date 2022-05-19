@@ -1,6 +1,8 @@
 defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.ExtractExifMetadata
 
@@ -98,7 +100,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
   @tag s3: [@exif_fixture]
   describe "success with EXIF metadata" do
     test "process/2", %{exif_file_set_id: file_set_id} do
-      assert(ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
@@ -111,7 +115,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       end
 
       assert capture_log(fn ->
-               ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
@@ -119,7 +123,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
   @tag s3: [@no_exif_fixture]
   describe "success without EXIF metadata" do
     test "process/2", %{no_exif_file_set_id: file_set_id} do
-      assert(ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
@@ -139,14 +145,15 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       end
 
       assert capture_log(fn ->
-               ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
 
   describe "file_set with invalid location fails" do
     test "process/2", %{invalid_file_set_id: file_set_id} do
-      assert({:error, _} = ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{}))
+      assert {:error, _, %{error: "Invalid location: invalid"}} =
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata) == false)
     end
@@ -156,7 +163,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
     @describetag s3: [@exif_fixture]
 
     setup %{exif_file_set_id: file_set_id} do
-      ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{})
+      send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
       ActionStates.get_states(file_set_id) |> Enum.each(&Repo.delete!/1)
 
       :ok
@@ -165,7 +172,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
     test "overwrite", %{exif_file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+
           assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
         end)
 
@@ -175,10 +184,10 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
     test "retain", %{exif_file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(
-            ExtractExifMetadata.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
-              :ok
-          )
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{
+                     overwrite: "false"
+                   })
 
           assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
         end)

@@ -1,4 +1,4 @@
-defmodule Meadow.Pipeline.Actions.Dispatcher do
+defmodule Meadow.Pipeline.Dispatcher do
   @moduledoc """
   Action responsible for dispatching processing to
   the next action in the pipeline
@@ -8,9 +8,7 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
 
   """
   alias Meadow.Config
-  alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.Pairtree
-  alias Sequins.Pipeline.Action
 
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
@@ -26,10 +24,9 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
     TranscodeComplete
   }
 
-  use Action
-  require Logger
+  alias Meadow.Data.FileSets
 
-  @actiondoc "Disatch pipeline actions specific to role + mime_type"
+  require Logger
 
   @initial_actions [
     IngestFileSet,
@@ -99,16 +96,6 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
                |> List.flatten()
                |> Enum.uniq()
 
-  def process(data, attributes) do
-    Logger.info("Dispatching #{data.file_set_id}")
-    file_set = FileSets.get_file_set(data.file_set_id)
-
-    dispatch_next_action(file_set, attributes)
-    :ok
-  end
-
-  def process(data, attributes, _), do: process(data, attributes)
-
   def initial_actions, do: @initial_actions
 
   def all_progress_actions, do: @all_actions
@@ -170,44 +157,56 @@ defmodule Meadow.Pipeline.Actions.Dispatcher do
     |> then(&(&1 > 0))
   end
 
-  defp dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
+  def process(%{file_set_id: file_set_id}, attributes \\ %{}) do
+    FileSets.get_file_set(file_set_id)
+    |> dispatch_next_action(attributes)
+  end
+
+  def dispatch_next_action(file_set, %{process: action, status: "ok"} = attributes),
     do: dispatch_next_action(file_set, action, attributes)
 
-  defp dispatch_next_action(file_set, %{process: "Dispatcher", status: "retry"} = attributes),
-    do: dispatch_next_action(file_set, ActionStates.get_latest_state(file_set.id), attributes)
+  def dispatch_next_action(file_set, %{process: action, status: "retry"} = attributes),
+    do: action.send_message(%{file_set_id: file_set.id}, attributes)
 
-  defp dispatch_next_action(file_set, attributes) do
+  def dispatch_next_action(file_set, attributes) do
     Logger.warn("Unexpected dispatch state for #{file_set.id}, #{attributes}")
     :noop
   end
 
-  defp dispatch_next_action(file_set, last_action, attributes) do
+  def dispatch_next_action(file_set, last_action, attributes) do
     last = Module.safe_concat(Meadow.Pipeline.Actions, last_action)
 
-    next_action =
-      next_action(
-        last,
-        dispatcher_actions(file_set)
-      )
+    case next_action(last, dispatcher_actions(file_set)) do
+      nil ->
+        :noop
 
-    Logger.info(
-      "Last action was: #{last}, next action is: #{next_action} for file set id: #{file_set.id}"
-    )
+      TranscodeComplete ->
+        # Never dispatch directly to TranscodeComplete
+        :noop
 
-    next_action.send_message(%{file_set_id: file_set.id}, attributes)
+      next_action ->
+        "Last action was: #{last}, next action is: #{next_action} for file set id: #{file_set.id}"
+        |> Logger.info()
+
+        next_action.send_message(%{file_set_id: file_set.id}, attributes)
+    end
   end
 
-  defp next_action(TranscodeComplete, _), do: FileSetComplete
+  def next_action(CreateTranscodeJob, _), do: nil
 
-  defp next_action(last_action, action_queue) do
-    index = action_queue |> Enum.find_index(&(&1 == last_action))
+  def next_action(TranscodeComplete, _), do: FileSetComplete
 
-    case index do
-      nil ->
-        Enum.at(action_queue, 0)
+  def next_action(last_action, dispatch_queue) do
+    with action_queue <- @initial_actions ++ dispatch_queue do
+      index = action_queue |> Enum.find_index(&(&1 == last_action))
 
-      number ->
-        Enum.at(action_queue, number + 1)
+      case index do
+        nil ->
+          Enum.at(action_queue, 0)
+
+        number ->
+          Enum.at(action_queue, number + 1)
+      end
     end
   end
 end

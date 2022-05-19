@@ -2,17 +2,27 @@ defmodule Meadow.Pipeline do
   @moduledoc """
   Defines the supervision tree for the ingest pipeline
   """
-  use Sequins.Pipeline
-
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Utils.AWS
 
   require Logger
 
   import WaitForIt
+
+  def actions do
+    Application.get_env(:meadow, Meadow.Pipeline)
+    |> Keyword.get(:actions)
+  end
+
+  def children do
+    actions()
+    |> Enum.map(fn action ->
+      {action, Application.get_env(:meadow, action, [])}
+    end)
+  end
 
   def ingest_file_set(attrs \\ %{}) do
     case FileSets.create_file_set(attrs) do

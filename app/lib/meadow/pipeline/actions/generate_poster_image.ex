@@ -6,23 +6,20 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
   alias Meadow.Utils.Lambda
-  alias Sequins.Pipeline.Action
-  use Action
-  use Meadow.Pipeline.Actions.Common
 
-  @actiondoc "Generate poster image for a FileSet"
+  use Meadow.Pipeline.Actions.Common
 
   @timeout 30_000
 
-  defp already_complete?(_, _), do: false
+  def actiondoc, do: "Generate poster image for a FileSet"
 
-  defp process(
-         %FileSet{poster_offset: poster_offset, derivatives: %{"playlist" => location}} =
-           file_set,
-         _,
-         _
-       )
-       when is_binary(location) and is_integer(poster_offset) do
+  def already_complete?(_, _), do: false
+
+  def process(
+        %FileSet{poster_offset: poster_offset, derivatives: %{"playlist" => location}} = file_set,
+        _
+      )
+      when is_binary(location) and is_integer(poster_offset) do
     Logger.info(
       "Generating poster image for FileSet #{file_set.id}, with playlist: #{location} and offset: #{poster_offset}"
     )
@@ -52,7 +49,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     end
   end
 
-  defp process(%FileSet{} = file_set, _, _) do
+  def process(%FileSet{} = file_set, _) do
     Logger.error("FileSet #{file_set.id} has no value for playlist or poster_offset")
 
     {:error, "FileSet #{file_set.id} has no value for playlist or poster_offset"}

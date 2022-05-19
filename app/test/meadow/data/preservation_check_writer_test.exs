@@ -1,5 +1,6 @@
 defmodule Meadow.Data.PreservationCheckWriterTest do
   use Meadow.DataCase
+  use Meadow.PipelineCase
   use Meadow.S3Case
 
   alias Meadow.Data.{FileSets, PreservationCheckWriter}
@@ -96,8 +97,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
-      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_2.id}, %{})
 
       assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)
@@ -109,8 +110,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
-      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_2.id}, %{})
 
       FileSets.update_file_set(file_set_2, %{
         core_metadata: %{
@@ -130,8 +131,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
       file_set_1: file_set_1,
       file_set_2: file_set_2
     } do
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
-      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_2.id}, %{})
 
       FileSets.update_file_set(file_set_2, %{
         core_metadata: %{
@@ -148,7 +149,7 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     test "records an error if pyramid file not found in expected location", %{
       file_set_1: file_set_1
     } do
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
 
       assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
@@ -162,8 +163,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     } do
       FileSets.update_file_set(file_set_1, %{core_metadata: %{digests: nil}})
 
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
-      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_2.id}, %{})
 
       assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 1} =
                PreservationCheckWriter.generate_report(@report_filename)
@@ -175,8 +176,8 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
     } do
       FileSets.update_file_set(file_set_1, %{core_metadata: %{digests: %{"md5" => @md5}}})
 
-      CreatePyramidTiff.process(%{file_set_id: file_set_1.id}, %{})
-      CreatePyramidTiff.process(%{file_set_id: file_set_2.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_1.id}, %{})
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_2.id}, %{})
 
       assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
                PreservationCheckWriter.generate_report(@report_filename)

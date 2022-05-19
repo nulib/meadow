@@ -1,12 +1,12 @@
-defmodule Meadow.Pipeline.Actions.DispatcherTest do
-  use Meadow.DataCase
+defmodule Meadow.Pipeline.DispatcherTest do
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
 
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
     CreatePyramidTiff,
     CreateTranscodeJob,
-    Dispatcher,
     ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
@@ -15,6 +15,8 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
     InitializeDispatch,
     TranscodeComplete
   }
+
+  alias Meadow.Pipeline.Dispatcher
 
   alias Meadow.Utils.Pairtree
 
@@ -41,9 +43,20 @@ defmodule Meadow.Pipeline.Actions.DispatcherTest do
   describe "process/2" do
     @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@content)}]
     test "Dispatches the next action for a file set", %{file_set_id: file_set_id} do
-      assert(IngestFileSet.process(%{file_set_id: file_set_id}, %{}) == :ok)
-      assert(ExtractMimeType.process(%{file_set_id: file_set_id}, %{}) == :ok)
-      assert(InitializeDispatch.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, _} =
+          send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{})
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, _} =
+          send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{})
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, _} =
+          send_test_message(InitializeDispatch, %{file_set_id: file_set_id}, %{})
+      )
 
       assert capture_log(fn ->
                Dispatcher.process(%{file_set_id: file_set_id}, %{

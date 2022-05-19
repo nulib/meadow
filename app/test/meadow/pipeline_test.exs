@@ -10,7 +10,7 @@ defmodule Meadow.Data.PipelineTest do
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Pipeline
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
 
   import Assertions
   import ExUnit.CaptureLog

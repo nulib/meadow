@@ -1,6 +1,8 @@
 defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.FileSets
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
@@ -52,8 +54,10 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       {:ok, file_set: file_set_with_playlist}
     end
 
-    test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+    test "process/2", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
+
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
@@ -62,15 +66,16 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       )
     end
 
-    test "poster cache invalidation", %{file_set: file_set} do
+    test "poster cache invalidation", %{file_set: %{id: file_set_id}} do
       log =
         capture_log(fn ->
-          assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
         end)
 
       assert log
              |> String.contains?(
-               "Skipping poster cache invalidation for file set: #{file_set.id}. No distribution id found."
+               "Skipping poster cache invalidation for file set: #{file_set_id}. No distribution id found."
              )
     end
   end
@@ -104,11 +109,9 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       {:ok, file_set: file_set_with_playlist}
     end
 
-    test "process/2 with offset out of range", %{file_set: file_set} do
-      assert(
-        {:error, "Offset out of range"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{})
-      )
+    test "process/2 with offset out of range", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:error, _, %{error: "Offset out of range"}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
 
@@ -141,8 +144,10 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       {:ok, file_set: file_set}
     end
 
-    test "process/2", %{file_set: file_set} do
-      assert(GeneratePosterImage.process(%{file_set_id: file_set.id}, %{}) == :ok)
+    test "process/2", %{file_set: %{id: file_set_id} = file_set} do
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set_id}, %{})
+
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
@@ -178,10 +183,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
     end
 
     test "process/2 with offset out of range", %{file_set: file_set} do
-      assert(
-        {:error, "Offset 2000000 out of range for video duration 1000999.0"} =
-          GeneratePosterImage.process(%{file_set_id: file_set.id}, %{})
-      )
+      assert {:error, _, %{error: "Offset 2000000 out of range for video duration 1000999.0"}} =
+               send_test_message(GeneratePosterImage, %{file_set_id: file_set.id}, %{})
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
       assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])

@@ -1,8 +1,11 @@
 defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.ActionStates
   alias Meadow.Pipeline.Actions.CreateTranscodeJob
+
   import ExUnit.CaptureLog
 
   describe "file set exists" do
@@ -18,7 +21,7 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
     end
 
     test "process/2" do
-      object =
+      %{id: file_set_id} =
         file_set_fixture(
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
@@ -28,12 +31,14 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
           }
         )
 
-      assert(CreateTranscodeJob.process(%{file_set_id: object.id}, %{}) == :ok)
-      assert(ActionStates.ok?(object.id, CreateTranscodeJob))
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(CreateTranscodeJob, %{file_set_id: file_set_id}, %{})
+
+      assert(ActionStates.ok?(file_set_id, CreateTranscodeJob))
 
       assert capture_log(fn ->
-               CreateTranscodeJob.process(%{file_set_id: object.id}, %{})
-             end) =~ "Skipping #{CreateTranscodeJob} for #{object.id} - already complete"
+               send_test_message(CreateTranscodeJob, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{CreateTranscodeJob} for #{file_set_id} - already complete"
     end
   end
 
@@ -42,10 +47,12 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
       nonexistent_file_set_id = Ecto.UUID.generate()
 
       assert capture_log(fn ->
-               assert(
-                 {:error, _reason} =
-                   CreateTranscodeJob.process(%{file_set_id: nonexistent_file_set_id}, %{})
-               )
+               assert {:error, _reason} =
+                        send_test_message(
+                          CreateTranscodeJob,
+                          %{file_set_id: nonexistent_file_set_id},
+                          %{}
+                        )
              end) =~
                "Marking #{CreateTranscodeJob} for #{nonexistent_file_set_id} as error because the file set was not found"
     end
@@ -55,7 +62,7 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
     test "process/2" do
       mock_error_file_input = "s3://input-error/small.m4v"
 
-      object =
+      %{id: file_set_id} =
         file_set_fixture(
           role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
@@ -66,10 +73,8 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJobTest do
         )
 
       assert capture_log(fn ->
-               assert(
-                 {:error, "Fake error response"} =
-                   CreateTranscodeJob.process(%{file_set_id: object.id}, %{})
-               )
+               assert {:error, _, %{error: "Fake error response"}} =
+                        send_test_message(CreateTranscodeJob, %{file_set_id: file_set_id}, %{})
              end) =~
                "Error creating MediaConvert Job"
     end

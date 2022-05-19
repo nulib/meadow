@@ -7,7 +7,7 @@ defmodule Meadow.Ingest.Progress do
   alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.IntervalTask
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
 
   import Ecto.Query

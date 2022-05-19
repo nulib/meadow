@@ -1,6 +1,7 @@
 defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.TranscodeComplete
@@ -23,7 +24,9 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
 
     @tag message_file: "transcode/error.json"
     test "error", %{file_set: file_set, message: message} do
-      assert {:error, error, %{context: "Test"}} = TranscodeComplete.process(message, %{})
+      assert {:error, _, %{context: "Test", error: error}} =
+               send_test_message(TranscodeComplete, message, %{})
+
       assert error |> String.contains?("Failed to read data")
 
       with state <- ActionStates.get_latest_state(file_set.id, TranscodeComplete) do
@@ -34,7 +37,7 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
 
     @tag message_file: "transcode/complete.json"
     test "complete", %{file_set: file_set, message: message} do
-      assert {:ok, _, %{context: "Test"}} = TranscodeComplete.process(message, %{})
+      assert {:ok, _, %{context: "Test"}} = send_test_message(TranscodeComplete, message, %{})
       assert ActionStates.ok?(file_set.id, TranscodeComplete)
 
       assert FileSets.get_file_set(file_set.id)

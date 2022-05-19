@@ -11,18 +11,6 @@ resource "aws_sqs_queue" "sequins_queue" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "sns-notifications-1"
-        Effect    = "Allow"
-        Principal = { "AWS" : "*" }
-        Action    = "SQS:SendMessage"
-        Resource  = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.stack_name}-${each.key}"
-        Condition = {
-          ArnLike = {
-            "aws:SourceArn" = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.id}:*"
-          }
-        }
-      },
-      {
         Sid       = "eventbridge-notifications-1"
         Effect    = "Allow"
         Principal = { "AWS" : "*" }
@@ -36,11 +24,6 @@ resource "aws_sqs_queue" "sequins_queue" {
       }
     ]
   })
-}
-
-resource "aws_sns_topic" "sequins_topic" {
-  for_each = toset(local.actions)
-  name     = "${var.stack_name}-${each.key}"
 }
 
 resource "aws_cloudwatch_event_rule" "mediaconvert_state_change" {
