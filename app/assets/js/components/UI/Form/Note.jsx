@@ -29,16 +29,19 @@ const UIFormNote = ({
 
   return (
     <div data-testid="note-wrapper">
+      {errors[name] && (
+        <p className="help is-danger">
+          An issue has occured within <strong>Note</strong>. Verify entries for
+          Note.
+        </p>
+      )}
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
 
           return (
-            <li
-              key={item.useFieldArrayId}
-              data-testid={`note-list-item`}
-            >
+            <li key={item.useFieldArrayId} data-testid={`note-list-item`}>
               <fieldset>
                 <legend
                   className="has-text-grey has-text-weight-light"
@@ -88,7 +91,7 @@ const UIFormNote = ({
                             : ""
                         }`}
                         {...register(`${itemName}.note`, {
-                          required: "Note is required"
+                          required: "Note is required",
                         })}
                         defaultValue=""
                         data-testid={`note-input`}
