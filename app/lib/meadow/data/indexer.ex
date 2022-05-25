@@ -167,9 +167,5 @@ defmodule Meadow.Data.Indexer do
     |> get_in([:indexes, index()])
   end
 
-  defp json_encode(val) do
-    with mod <- config() |> get_in([:json_library]) do
-      mod.encode!(val)
-    end
-  end
+  defp json_encode(val), do: Ecto.Jason.encode!(val)
 end
