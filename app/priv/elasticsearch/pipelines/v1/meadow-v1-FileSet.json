@@ -1,0 +1,124 @@
+{
+  "description": "Meadow V1 File Set Pipeline",
+  "processors": [
+    {
+      "rename": {
+        "field": "original.accession_number",
+        "target_field": "accessionNumber"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.inserted_at",
+        "target_field": "createDate"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.core_metadata.description",
+        "target_field": "description"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.core_metadata.digests",
+        "target_field": "digests"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.extracted_metadata",
+        "target_field": "extractedMetadata"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.id",
+        "target_field": "id"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.core_metadata.label",
+        "target_field": "label"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.core_metadata.mime_type",
+        "target_field": "mime_type"
+      }
+    },
+    {
+      "set": {
+        "field": "model.application",
+        "value": "Meadow"
+      }
+    },
+    {
+      "set": {
+        "field": "model.name",
+        "value": "FileSet"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.updated_at",
+        "target_field": "modifiedDate"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.poster_offset",
+        "target_field": "posterOffset"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.rank",
+        "target_field": "rank"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.representative_image_url",
+        "target_field": "representativeImageUrl"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.role",
+        "target_field": "role"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.streaming_url",
+        "target_field": "streamingUrl"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.work.visibility",
+        "target_field": "visibility"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.structural_metadata.value",
+        "target_field": "webvtt"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.work_id",
+        "target_field": "workId"
+      }
+    },
+    {
+      "remove": {
+        "field": "original"
+      }
+    }
+  ]
+}
