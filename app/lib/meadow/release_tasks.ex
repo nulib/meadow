@@ -37,6 +37,7 @@ defmodule Meadow.ReleaseTasks do
     if reindex? do
       Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
       RetryAPI.configure()
+      Mix.Task.run("meadow.elasticsearch.ingest_pipelines.create")
       Indexer.hot_swap()
     end
   after
