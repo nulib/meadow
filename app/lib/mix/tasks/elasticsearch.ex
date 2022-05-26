@@ -74,16 +74,12 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.IngestPipelines.Create do
     |> Path.join("**/*" <> extension)
     |> Path.wildcard()
     |> Enum.each(fn path ->
-      name =
-        ["meadow" | path |> Path.relative_to(base_dir) |> Path.split()]
-        |> Enum.join("-")
-        |> Path.basename(extension)
-
-      create(name, path, url, extension)
+      create(Path.basename(path, extension), path, extension)
+      |> put(url)
     end)
   end
 
-  defp create(name, path, url, ".painless") do
+  defp create(name, path, ".painless") do
     Logger.info("Creating script #{name}")
 
     {"_scripts/#{name}",
@@ -94,20 +90,18 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.IngestPipelines.Create do
        }
      }
      |> Jason.encode!()}
-    |> put(url)
   end
 
-  defp create(name, path, url, ".json") do
+  defp create(name, path, ".json") do
     Logger.info("Creating pipeline #{name}")
 
     {"_ingest/pipeline/#{name}", File.read!(path)}
-    |> put(url)
   end
 
-  defp put({path, body}, url),
-    do:
-      URI.parse(url)
-      |> URI.merge(path)
-      |> URI.to_string()
-      |> Elastix.HTTP.put!(body, "content-type": "application/json")
+  defp put({path, body}, url) do
+    URI.parse(url)
+    |> URI.merge(path)
+    |> URI.to_string()
+    |> Elastix.HTTP.put!(body, "content-type": "application/json")
+  end
 end
