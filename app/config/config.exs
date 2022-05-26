@@ -46,7 +46,25 @@ config :meadow, MeadowWeb.Endpoint,
   pubsub_server: Meadow.PubSub,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
-# Configures the ElasticsearchCluster
+config :meadow, Meadow.Indexer,
+  url:
+    {:hush, AwsSecretsManager, meadow_secrets,
+     dig: ["index", "index_endpoint"], default: "http://localhost:9201"},
+  indexes: [
+    %{
+      name: :"#{prefix}-meadow",
+      settings: "priv/elasticsearch/meadow.json",
+      version: 1,
+      current: true
+    }
+  ],
+  default_options: [
+    timeout: 20_000,
+    recv_timeout: 30_000
+  ],
+  bulk_page_size: 200,
+  bulk_wait_interval: 500
+
 config :meadow, Meadow.ElasticsearchCluster,
   url:
     {:hush, AwsSecretsManager, meadow_secrets,

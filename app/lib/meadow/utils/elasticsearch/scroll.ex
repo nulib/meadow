@@ -4,6 +4,8 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
   at a time
   """
 
+  alias Meadow.Utils.Elasticsearch
+
   def results(query) when is_binary(query) do
     Stream.resource(
       fn -> first(query) end,
@@ -13,9 +15,8 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
   end
 
   defp first(query) do
-    with index <- Meadow.Config.elasticsearch_index() do
-      Meadow.ElasticsearchCluster
-      |> Elasticsearch.post("/#{index}/_search?scroll=10m", query)
+    with index <- Meadow.Config.current_index() do
+      Elasticsearch.post!("/#{index}/_search?scroll=10m", query)
     end
   end
 
@@ -23,8 +24,7 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
        when is_list(hits) and length(hits) > 0 do
     {
       hits,
-      Elasticsearch.post(
-        Meadow.ElasticsearchCluster,
+      Elasticsearch.post!(
         "/_search/scroll",
         Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
       )

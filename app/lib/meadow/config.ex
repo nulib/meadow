@@ -11,6 +11,12 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
+  def current_index do
+    Application.get_env(:meadow, Meadow.Indexer)
+    |> Keyword.get(:indexes)
+    |> Enum.find(fn config -> Map.get(config, :current, false) end)
+  end
+
   @doc "Retrieve Elasticsearch index name"
   def elasticsearch_index do
     Application.get_env(:meadow, Meadow.ElasticsearchCluster)
