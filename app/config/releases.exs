@@ -91,6 +91,7 @@ config :meadow,
     {:hush, SystemEnvironment, "MULTIPART_UPLOAD_CONCURRENCY", default: "50"},
   pipeline_delay: {:hush, SystemEnvironment, "PIPELINE_DELAY", default: "120000"},
   progress_ping_interval: {:hush, SystemEnvironment, "PROGRESS_PING_INTERVAL", default: "1000"},
+  shared_links_index: "shared_links",
   sitemaps: [
     gzip: true,
     store: Sitemapper.S3Store,
