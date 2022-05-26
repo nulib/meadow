@@ -1,0 +1,26 @@
+def field = params.field;
+
+ctx.fileSets = ctx.original.file_sets
+  .stream()
+  .map(fs -> {
+    def result = [:];
+    result.accessionNumber = fs.accession_number;
+    result.createDate = fs.inserted_at;
+    result.description = fs.core_metadata.description;
+    result.digests = fs.core_metadata.digests;
+    result.extractedMetadata = fs.extracted_metadata;
+    result.id = fs.id;
+    result.label = fs.core_metadata.label;
+    result.mime_type = fs.core_metadata.mime_type;
+    result.modifiedDate = fs.updated_at;
+    result.posterOffset = fs.poster_offset;
+    result.rank = fs.rank;
+    result.representativeImageUrl = fs.representative_image_url;
+    result.role = fs.role;
+    result.streamingUrl = fs.streaming_url;
+    result.visibility = ctx.visibility;
+    result.webvtt = fs?.structural_metadata?.value;
+    result.workId = ctx.id;
+    return result;
+  })
+  .collect(Collectors.toList());

@@ -1,0 +1,300 @@
+{
+  "description": "Meadow V1 Work Pipeline",
+  "processors": [
+    {
+      "rename": {
+        "field": "original.accession_number",
+        "target_field": "accessionNumber"
+      }
+    },
+    {
+      "foreach": {
+        "field": "original.batches",
+        "processor": {
+          "append": {
+            "field": "batches",
+            "value": "{{{_ingest._value.id}}}"
+          }
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.collection.id",
+        "target_field": "collection.id",
+        "on_failure": [
+          {
+            "set": {
+              "field": "collection",
+              "value": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.collection.title",
+        "target_field": "collection.title",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.inserted_at",
+        "target_field": "createDate"
+      }
+    },
+    {
+      "foreach": {
+        "field": "original.metadata_update_jobs",
+        "processor": {
+          "append": {
+            "field": "metadataUpdateJobs",
+            "value": "{{{_ingest._value.id}}}"
+          }
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.id",
+        "target_field": "id"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.iiif_manifest",
+        "target_field": "iiifManifest",
+        "ignore_missing": true
+      }
+    },
+    {
+      "set": {
+        "field": "model.application",
+        "value": "Meadow"
+      }
+    },
+    {
+      "set": {
+        "field": "model.name",
+        "value": "Work"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.updated_at",
+        "target_field": "modifiedDate"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.project.id",
+        "target_field": "project.id",
+        "on_failure": [
+          {
+            "set": {
+              "field": "project",
+              "value": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.project.title",
+        "target_field": "project.title",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.published",
+        "target_field": "published"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.representative_file_set_id",
+        "target_field": "representativeFileSet.fileSetId"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.representative_image",
+        "target_field": "representativeFileSet.url"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.ingest_sheet.id",
+        "target_field": "sheet.id",
+        "on_failure": [
+          {
+            "set": {
+              "field": "sheet",
+              "value": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.ingest_sheet.title",
+        "target_field": "sheet.title",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.thumbnail",
+        "target_field": "thumbnail",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.visibility.id",
+        "target_field": "visibility.id"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.visibility.label",
+        "target_field": "visibility.label"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.work_type.id",
+        "target_field": "workType.id"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.work_type.label",
+        "target_field": "workType.label"
+      }
+    },
+    {
+      "pipeline": {
+        "name": "meadow-v1-WorkAdministrativeMetadata"
+      }
+    },
+    {
+      "pipeline": {
+        "name": "meadow-v1-WorkDescriptiveMetadata"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-WorkFileSets"
+      }
+    },
+    {
+      "remove": {
+        "field": "original"
+      }
+    },
+    {
+      "set": {
+        "field": "title",
+        "value": "{{descriptiveMetadata.title}}"
+      }
+    },
+    {
+      "set": {
+        "field": "alternateTitle",
+        "value": []
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.alternateTitle",
+        "processor": {
+          "append": {
+            "field": "alternateTitle",
+            "value": ["{{_ingest._value}}"]
+          }
+        }
+      }
+    },
+    {
+      "set": {
+        "field": "description",
+        "value": []
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.description",
+        "processor": {
+          "append": {
+            "field": "description",
+            "value": ["{{_ingest._value}}"]
+          }
+        }
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.creator",
+        "processor": {
+          "append": {
+            "field": "creator",
+            "value": "{{_ingest._value.term.label}}"
+          }
+        }
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.contributor",
+        "processor": {
+          "append": {
+            "field": "contributor",
+            "value": "{{_ingest._value.term.label}}"
+          }
+        }
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.dateCreated",
+        "processor": {
+          "append": {
+            "field": "dateCreated",
+            "value": "{{_ingest._value.humanized}}"
+          }
+        }
+      }
+    },
+    {
+      "foreach": {
+        "field": "descriptiveMetadata.subject",
+        "processor": {
+          "append": {
+            "field": "subject",
+            "value": "{{_ingest._value.term.label}}"
+          }
+        }
+      }
+    },
+    {
+      "set": {
+        "field": "collectionTitle",
+        "value": "{{collection.title}}",
+        "on_failure": [
+          {
+            "set": {
+              "field": "collectionTitle",
+              "value": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

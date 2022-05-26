@@ -1,0 +1,353 @@
+{
+  "description": "Meadow V1 Work Descriptive Metadata Pipeline",
+  "processors": [
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.abstract",
+        "target_field": "descriptiveMetadata.abstract"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.alternate_title",
+        "target_field": "descriptiveMetadata.alternateTitle"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.ark",
+        "target_field": "descriptiveMetadata.ark"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.box_name",
+        "target_field": "descriptiveMetadata.boxName"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.box_number",
+        "target_field": "descriptiveMetadata.boxNumber"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.caption",
+        "target_field": "descriptiveMetadata.caption"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.catalog_key",
+        "target_field": "descriptiveMetadata.catalogKey"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.citation",
+        "target_field": "descriptiveMetadata.citation"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.contributor",
+        "target_field": "descriptiveMetadata.contributor"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "contributor"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.creator",
+        "target_field": "descriptiveMetadata.creator"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "creator"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.cultural_context",
+        "target_field": "descriptiveMetadata.culturalContext"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.date_created",
+        "target_field": "descriptiveMetadata.dateCreated"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.description",
+        "target_field": "descriptiveMetadata.description"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.folder_name",
+        "target_field": "descriptiveMetadata.folderName"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.folder_number",
+        "target_field": "descriptiveMetadata.folderNumber"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.genre",
+        "target_field": "descriptiveMetadata.genre"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "genre"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.identifier",
+        "target_field": "descriptiveMetadata.identifier"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.keywords",
+        "target_field": "descriptiveMetadata.keywords"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.language",
+        "target_field": "descriptiveMetadata.language"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "language"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.legacy_identifier",
+        "target_field": "descriptiveMetadata.legacyIdentifier"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.license.id",
+        "target_field": "descriptiveMetadata.license.id",
+        "on_failure": [
+          {
+            "set": {
+              "field": "descriptiveMetadata.license",
+              "value": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.license.label",
+        "target_field": "descriptiveMetadata.license.label",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.license.scheme",
+        "target_field": "descriptiveMetadata.license.scheme",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.location",
+        "target_field": "descriptiveMetadata.location"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "location"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.notes",
+        "target_field": "descriptiveMetadata.notes"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.physical_description_material",
+        "target_field": "descriptiveMetadata.physicalDescriptionMaterial"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.physical_description_size",
+        "target_field": "descriptiveMetadata.physicalDescriptionSize"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.provenance",
+        "target_field": "descriptiveMetadata.provenance"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.publisher",
+        "target_field": "descriptiveMetadata.publisher"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.related_material",
+        "target_field": "descriptiveMetadata.relatedMaterial"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.related_url",
+        "target_field": "descriptiveMetadata.relatedUrl"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.rights_holder",
+        "target_field": "descriptiveMetadata.rightsHolder"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.rights_statement.id",
+        "target_field": "descriptiveMetadata.rightsStatement.id",
+        "on_failure": [
+          {
+            "set": {
+              "field": "descriptiveMetadata.rightsStatement",
+              "value": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.rights_statement.label",
+        "target_field": "descriptiveMetadata.rightsStatement.label",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.rights_statement.scheme",
+        "target_field": "descriptiveMetadata.rightsStatement.scheme",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.scope_and_contents",
+        "target_field": "descriptiveMetadata.scopeAndContents"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.series",
+        "target_field": "descriptiveMetadata.series"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.source",
+        "target_field": "descriptiveMetadata.source"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.style_period",
+        "target_field": "descriptiveMetadata.stylePeriod"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "stylePeriod"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.subject",
+        "target_field": "descriptiveMetadata.subject"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "subject"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.table_of_contents",
+        "target_field": "descriptiveMetadata.tableOfContents"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.technique",
+        "target_field": "descriptiveMetadata.technique"
+      }
+    },
+    {
+      "script": {
+        "id": "meadow-v1-ControlledTerm",
+        "params": {
+          "field": "technique"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.terms_of_use",
+        "target_field": "descriptiveMetadata.termsOfUse"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptive_metadata.title",
+        "target_field": "descriptiveMetadata.title"
+      }
+    }
+  ]
+}

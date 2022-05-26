@@ -1,0 +1,14 @@
+def field = params.field;
+
+ctx.descriptiveMetadata[field] = ctx.descriptiveMetadata[field]
+  .stream()
+  .map(entry -> {
+    def facetRole = "";
+    entry.displayFacet = entry.term.label;
+    if (entry.role != null) {
+      facetRole = entry.role.id;
+    }
+    entry.facet = [entry.term.id, facetRole, entry.term.label].join("|");
+    return entry;
+  })
+  .collect(Collectors.toList());

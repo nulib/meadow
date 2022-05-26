@@ -1,0 +1,59 @@
+{
+  "description": "Meadow V1 Work Administrative Metadata Pipeline",
+  "processors": [
+    {
+      "rename": {
+        "field": "original.administrative_metadata.library_unit",
+        "target_field": "administrativeMetadata.libraryUnit"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.preservation_level",
+        "target_field": "administrativeMetadata.preservationLevel"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_cycle",
+        "target_field": "administrativeMetadata.projectCycle"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_desc",
+        "target_field": "administrativeMetadata.projectDesc"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_manager",
+        "target_field": "administrativeMetadata.projectManager"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_name",
+        "target_field": "administrativeMetadata.projectName"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_proposer",
+        "target_field": "administrativeMetadata.projectProposer"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.project_task_number",
+        "target_field": "administrativeMetadata.projectTaskNumber"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.administrative_metadata.status",
+        "target_field": "administrativeMetadata.status"
+      }
+    }
+  ]
+}

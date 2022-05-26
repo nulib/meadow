@@ -3,19 +3,12 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
   def routing(_), do: false
 
   def encode(collection) do
-    representative_image =
-      case collection.representative_work do
-        nil ->
-          %{}
-
-        work ->
-          %{
-            workId: work.id,
-            url: work.representative_image
-          }
-      end
-
     collection
-    |> Map.put(:representative_image, representative_image)
+    |> Map.put(:representative_image, representative_image(collection))
   end
+
+  defp representative_image(%{represenative_work: %{id: id, representative_image: url}}),
+    do: %{workId: id, url: url}
+
+  defp representative_image(_), do: %{}
 end
