@@ -1,4 +1,8 @@
 defmodule Ecto.Jason do
+  @moduledoc """
+  JSON encoder for Ecto structs
+  """
+
   def encode(value) do
     value
     |> prepare()

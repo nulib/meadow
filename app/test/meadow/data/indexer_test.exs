@@ -8,7 +8,6 @@ defmodule Meadow.Data.IndexerTest do
   alias Meadow.Data.{CodedTerms, Collections, FileSets, Indexer, Schemas, Works}
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.{Config, Repo}
-  alias Mix.Tasks.Elasticsearch.Build, as: BuildTask
 
   describe "indexing" do
     setup do
@@ -385,24 +384,6 @@ defmodule Meadow.Data.IndexerTest do
         end
 
       assert doc |> get_in(["representativeImageUrl"]) == poster_url
-    end
-  end
-
-  describe "mix task" do
-    setup do
-      {:ok, indexable_data()}
-    end
-
-    test "mix elasticsearch.build", %{count: count} do
-      with index <- Config.elasticsearch_index() do
-        assert indexed_doc_count() == 0
-
-        [to_string(index), "--cluster", "Meadow.ElasticsearchCluster"]
-        |> BuildTask.run()
-
-        Elasticsearch.Index.refresh(Meadow.ElasticsearchCluster, index)
-        assert indexed_doc_count() == count
-      end
     end
   end
 

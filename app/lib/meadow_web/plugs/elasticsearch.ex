@@ -4,7 +4,7 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
   """
   import Plug.Conn
 
-  alias Elasticsearch.Cluster.Config
+  alias Meadow.SearchIndex
 
   @behaviour Plug
   @accepted_methods ["POST", "GET", "OPTIONS", "HEAD"]
@@ -31,12 +31,6 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
     [_base, path] = String.split(conn.request_path, "/elasticsearch")
     query_string = extract_query_string(conn.query_string) |> URI.encode()
 
-    config =
-      Config.build(
-        nil,
-        Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-      )
-
     method =
       case conn.method do
         x when is_atom(x) -> x
@@ -44,7 +38,7 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
         x -> String.to_atom(to_string(x))
       end
 
-    case config |> config[:api].request(method, path <> query_string, body, []) do
+    case SearchIndex.request(method, path <> query_string, body, []) do
       {:ok, response} ->
         conn
         |> put_resp_content_type("application/json")
@@ -58,9 +52,6 @@ defmodule MeadowWeb.Plugs.Elasticsearch do
         |> put_resp_content_type("application/json")
         |> resp(500, Jason.encode!(reason))
         |> send_resp()
-
-      other ->
-        other
     end
   end
 

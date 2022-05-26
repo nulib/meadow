@@ -1,6 +1,5 @@
-defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
+defimpl Meadow.SearchIndex.Document, for: Meadow.Data.Schemas.Collection do
   def id(collection), do: collection.id
-  def routing(_), do: false
 
   def encode(collection) do
     collection

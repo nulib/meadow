@@ -1,9 +1,9 @@
-defmodule Meadow.Utils.Elasticsearch.ScrollTest do
+defmodule Meadow.SearchIndex.ScrollTest do
   use Meadow.DataCase
   use Meadow.IndexCase
 
   alias Meadow.Data.Indexer
-  alias Meadow.Utils.Elasticsearch.Scroll
+  alias Meadow.SearchIndex.Scroll
 
   @query ~s'{"query":{"term":{"model.name.keyword":{"value":"Work"}}}}'
 

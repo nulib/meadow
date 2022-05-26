@@ -1,10 +1,10 @@
-defmodule Meadow.Utils.Elasticsearch.Scroll do
+defmodule Meadow.SearchIndex.Scroll do
   @moduledoc """
   Retrieves results from the Meadow Elasticsearch cluster and lazily streams one result
   at a time
   """
 
-  alias Meadow.Utils.Elasticsearch
+  alias Meadow.SearchIndex
 
   def results(query) when is_binary(query) do
     Stream.resource(
@@ -16,7 +16,7 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
 
   defp first(query) do
     with index <- Meadow.Config.current_index() do
-      Elasticsearch.post!("/#{index}/_search?scroll=10m", query)
+      SearchIndex.post!("/#{index}/_search?scroll=10m", query)
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Meadow.Utils.Elasticsearch.Scroll do
        when is_list(hits) and length(hits) > 0 do
     {
       hits,
-      Elasticsearch.post!(
+      SearchIndex.post!(
         "/_search/scroll",
         Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
       )

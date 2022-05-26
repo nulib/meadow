@@ -61,7 +61,6 @@ defmodule Meadow.MixProject do
       {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
-      {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.8.0"},
       {:ex_aws, "~> 2.2.0"},
       {:ex_aws_s3, "~> 2.3"},

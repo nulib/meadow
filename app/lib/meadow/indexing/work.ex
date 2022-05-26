@@ -1,15 +1,14 @@
-defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
+defimpl Meadow.SearchIndex.Document, for: Meadow.Data.Schemas.Work do
   alias Meadow.IIIF
 
   def id(work), do: work.id
-  def routing(_), do: false
 
   def encode(work) do
     work
     |> Map.put(:iiif_manifest, manifest_id(work))
     |> Map.put(:thumbnail, thumbnail(work))
     |> Map.get_and_update(:file_sets, fn file_sets ->
-      {file_sets, Enum.map(file_sets, &Elasticsearch.Document.encode/1)}
+      {file_sets, Enum.map(file_sets, &Meadow.SearchIndex.Document.encode/1)}
     end)
     |> then(fn {_, result} -> result end)
   end

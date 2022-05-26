@@ -1,6 +1,6 @@
-defmodule Meadow.ElasticsearchDiffStore do
+defmodule Meadow.SearchIndex.DiffStore do
   @moduledoc """
-  Fetches records that are out of sync with Elasticsearch as tracked
+  Fetches records that are out of sync with the search index as tracked
   by the IndexTime table
   """
   alias Meadow.Data.Schemas

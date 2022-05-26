@@ -4,7 +4,7 @@ defmodule Meadow.Data.SharedLinks do
   """
 
   alias Meadow.Config
-  alias Meadow.Utils.Elasticsearch.Scroll
+  alias Meadow.SearchIndex.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   @public_expiration "Never"
@@ -174,10 +174,14 @@ defmodule Meadow.Data.SharedLinks do
       1
   """
   def count do
-    case Elastix.Search.count(Config.elasticsearch_url(),
-           Config.shared_links_index(), [@type_name], %{
-           query: %{match_all: %{}}
-         }) do
+    case Elastix.Search.count(
+           Config.elasticsearch_url(),
+           Config.shared_links_index(),
+           [@type_name],
+           %{
+             query: %{match_all: %{}}
+           }
+         ) do
       {:ok, %{body: %{"error" => %{"type" => "index_not_found_exception"}}}} -> 0
       {:ok, %{body: %{"count" => count}}} -> count
       {:ok, %{body: body}} -> {:error, body}

@@ -10,7 +10,7 @@ defmodule Meadow.IndexCase do
   alias Meadow.Ingest.Schemas.{Project, Sheet}
   alias Meadow.Repo
 
-  @meadow_index Meadow.Config.elasticsearch_index()
+  @meadow_index Meadow.Config.current_index()
 
   setup tags do
     Elasticsearch.Index.clean_starting_with(Cluster, "#{@meadow_index}", 0)

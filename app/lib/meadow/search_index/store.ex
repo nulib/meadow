@@ -1,14 +1,11 @@
-defmodule Meadow.ElasticsearchStore do
+defmodule Meadow.SearchIndex.Store do
   @moduledoc """
-  Fetches data to upload to Elasticsearch
+  Fetches data to upload to the search index
   """
-  @behaviour Elasticsearch.Store
-
   alias Meadow.Data.Schemas
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Repo
 
-  @impl true
   def stream(Schemas.Work = schema) do
     schema
     |> Repo.stream()
@@ -20,7 +17,6 @@ defmodule Meadow.ElasticsearchStore do
     end)
   end
 
-  @impl true
   def stream(Schemas.FileSet = schema) do
     schema
     |> Repo.stream()
@@ -30,7 +26,6 @@ defmodule Meadow.ElasticsearchStore do
     end)
   end
 
-  @impl true
   def stream(Schemas.Collection = schema) do
     schema
     |> Repo.stream()
@@ -42,13 +37,11 @@ defmodule Meadow.ElasticsearchStore do
     end)
   end
 
-  @impl true
   def stream(schema) do
     schema
     |> Repo.stream()
   end
 
-  @impl true
   def transaction(fun) do
     {:ok, result} = Repo.transaction(fun, timeout: :infinity)
     result

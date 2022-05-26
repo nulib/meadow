@@ -8,20 +8,9 @@ config :meadow, MeadowWeb.Endpoint,
   http: [port: 4002],
   server: false
 
-config :meadow, Meadow.ElasticsearchCluster,
-  indexes: %{
-    :"#{prefix}-meadow" => %{
-      settings: "priv/elasticsearch/meadow.json",
-      store: Meadow.ElasticsearchStore,
-      sources: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 3,
-      bulk_wait_interval: 2
-    }
-  }
+config :meadow, Meadow.SearchIndex,
+  bulk_page_size: 3,
+  bulk_wait_interval: 2
 
 config :meadow,
   index_interval: 1234,

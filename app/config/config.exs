@@ -46,13 +46,13 @@ config :meadow, MeadowWeb.Endpoint,
   pubsub_server: Meadow.PubSub,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
-config :meadow, Meadow.Indexer,
+config :meadow, Meadow.SearchIndex,
   url:
     {:hush, AwsSecretsManager, meadow_secrets,
      dig: ["index", "index_endpoint"], default: "http://localhost:9201"},
   indexes: [
     %{
-      name: :"#{prefix}-meadow",
+      name: [prefix, "meadow"] |> Enum.join("-"),
       settings: "priv/elasticsearch/meadow.json",
       version: 1,
       current: true
@@ -63,31 +63,8 @@ config :meadow, Meadow.Indexer,
     recv_timeout: 30_000
   ],
   bulk_page_size: 200,
-  bulk_wait_interval: 500
-
-config :meadow, Meadow.ElasticsearchCluster,
-  url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["index", "index_endpoint"], default: "http://localhost:9201"},
-  api: Elasticsearch.API.HTTP,
-  default_options: [
-    timeout: 20_000,
-    recv_timeout: 30_000
-  ],
-  json_library: Jason,
-  indexes: %{
-    :"#{prefix}-meadow" => %{
-      settings: "priv/elasticsearch/meadow.json",
-      store: Meadow.ElasticsearchStore,
-      sources: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500
-    }
-  }
+  bulk_wait_interval: 500,
+  json_encoder: Ecto.Jason
 
 config :meadow,
   ark: %{

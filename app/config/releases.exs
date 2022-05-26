@@ -54,8 +54,7 @@ config :meadow, MeadowWeb.Endpoint,
   secret_key_base: {:hush, SystemEnvironment, "SECRET_KEY_BASE"},
   live_view: [signing_salt: {:hush, SystemEnvironment, "SECRET_KEY_BASE"}]
 
-config :meadow, Meadow.ElasticsearchCluster,
-  api: Elasticsearch.API.AWS,
+config :meadow, Meadow.SearchIndex,
   default_options: [
     aws: [
       service: "es",
@@ -66,20 +65,14 @@ config :meadow, Meadow.ElasticsearchCluster,
     timeout: 20_000,
     recv_timeout: 90_000
   ],
-  json_library: Jason,
-  indexes: %{
-    meadow: %{
+  indexes: [
+    %{
+      name: "meadow",
       settings: priv_path.("elasticsearch/meadow.json"),
-      store: Meadow.ElasticsearchStore,
-      sources: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 2000
+      version: 1,
+      current: true
     }
-  }
+  ]
 
 config :meadow,
   environment: :prod,

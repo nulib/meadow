@@ -1,9 +1,8 @@
-defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
+defimpl Meadow.SearchIndex.Document, for: Meadow.Data.Schemas.FileSet do
   alias Meadow.Data.FileSets
   alias Meadow.Utils.ExtractedMetadata
 
   def id(file_set), do: file_set.id
-  def routing(_), do: false
 
   def encode(file_set) do
     file_set
