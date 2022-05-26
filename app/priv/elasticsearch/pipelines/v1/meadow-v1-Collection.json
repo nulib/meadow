@@ -1,0 +1,114 @@
+{
+  "description": "Meadow V1 Collection Pipeline",
+  "processors": [{
+      "rename": {
+        "field": "original.admin_email",
+        "target_field": "adminEmail"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.inserted_at",
+        "target_field": "createDate"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.description",
+        "target_field": "description"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.featured",
+        "target_field": "featured"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.finding_aid_url",
+        "target_field": "findingAidUrl"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.id",
+        "target_field": "id"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.keywords",
+        "target_field": "keywords"
+      }
+    },
+    {
+      "set": {
+        "field": "model.application",
+        "value": "Meadow"
+      }
+    },
+    {
+      "set": {
+        "field": "model.name",
+        "value": "Collection"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.updated_at",
+        "target_field": "modifiedDate"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.published",
+        "target_field": "published"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.representative_work.representative_image",
+        "target_field": "representativeImage.url",
+        "on_failure": [{
+          "set": {
+            "field": "representativeImage",
+            "value": {}
+          }
+        }]
+      }
+    },
+    {
+      "rename": {
+        "field": "original.representative_work.id",
+        "target_field": "representativeImage.workId",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.title",
+        "target_field": "title"
+      }
+    },
+    {
+      "set": {
+        "if": "java.util.Objects.isNull(ctx.original.visibility)",
+        "field": "visibility",
+        "value": {}
+      }
+    },
+    {
+      "rename": {
+        "if": "java.util.Objects.nonNull(ctx.original.visibility)",
+        "field": "original.visibility",
+        "target_field": "visibility"
+      }
+    },
+    {
+      "remove": {
+        "field": "original"
+      }
+    }
+  ]
+}
