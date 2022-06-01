@@ -11,7 +11,7 @@ config :meadow, MeadowWeb.Endpoint,
 config :meadow, Meadow.ElasticsearchCluster,
   indexes: %{
     :"#{prefix}-meadow" => %{
-      settings: "priv/elasticsearch/meadow.json",
+      settings: "priv/elasticsearch/v1/settings/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
         Meadow.Data.Schemas.Collection,

@@ -68,8 +68,8 @@ config :meadow, Meadow.ElasticsearchCluster,
   ],
   json_library: Jason,
   indexes: %{
-    meadow: %{
-      settings: priv_path.("elasticsearch/meadow.json"),
+    :meadow => %{
+      settings: priv_path.("elasticsearch/v1/settings/meadow.json"),
       store: Meadow.ElasticsearchStore,
       sources: [
         Meadow.Data.Schemas.Collection,
@@ -78,11 +78,36 @@ config :meadow, Meadow.ElasticsearchCluster,
       ],
       bulk_page_size: 200,
       bulk_wait_interval: 2000
+    },
+    :"dc-v2-work" => %{
+      settings: priv_path.("elasticsearch/v2/settings/work.json"),
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "v1-to-v2-work"
+    },
+    :"dc-v2-file-set" => %{
+      settings: priv_path.("elasticsearch/v2/settings/file_set.json"),
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "v1-to-v2-file-set"
+    },
+    :"dc-v2-collection" => %{
+      settings: priv_path.("elasticsearch/v2/settings/collection.json"),
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "v1-to-v2-collection"
     }
   }
 
 config :meadow,
   environment: :prod,
+  environment_prefix: nil,
   mediaconvert_client: MediaConvert,
   mediaconvert_queue: {:hush, AwsSecretsManager, meadow_secrets, dig: ["mediaconvert", "queue"]},
   mediaconvert_role:
