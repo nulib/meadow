@@ -1,5 +1,6 @@
 export const METADATA_FIELDS = {
   ABSTRACT: {
+    inputEl: "textarea",
     name: "abstract",
     label: "Abstract",
     metadataClass: "descriptive",
@@ -21,7 +22,12 @@ export const METADATA_FIELDS = {
     label: "Box Number",
     metadataClass: "descriptive",
   },
-  CAPTION: { name: "caption", label: "Caption", metadataClass: "descriptive" },
+  CAPTION: {
+    inputEl: "textarea",
+    name: "caption",
+    label: "Caption",
+    metadataClass: "descriptive",
+  },
   CATALOG_KEY: {
     name: "catalogKey",
     label: "Catalog Key",
@@ -41,6 +47,7 @@ export const METADATA_FIELDS = {
   },
   CREATOR: { name: "creator", label: "Creator", metadataClass: "descriptive" },
   CULTURAL_CONTEXT: {
+    inputEl: "textarea",
     name: "culturalContext",
     label: "Cultural Context",
     metadataClass: "descriptive",
@@ -99,7 +106,12 @@ export const METADATA_FIELDS = {
     label: "Location",
     metadataClass: "descriptive",
   },
-  NOTES: { name: "notes", label: "Notes", metadataClass: "descriptive" },
+  NOTES: {
+    inputEl: "textarea",
+    name: "notes",
+    label: "Notes",
+    metadataClass: "descriptive",
+  },
   PHYSICAL_DESCRIPTION_MATERIAL: {
     name: "physicalDescriptionMaterial",
     label: "Physical Description Material",
@@ -146,6 +158,7 @@ export const METADATA_FIELDS = {
     metadataClass: "administrative",
   },
   PROVENANCE: {
+    inputEl: "textarea",
     name: "provenance",
     label: "Provenance",
     metadataClass: "descriptive",
@@ -207,6 +220,7 @@ export const METADATA_FIELDS = {
     scheme: "SUBJECT_ROLE",
   },
   TABLE_OF_CONTENTS: {
+    inputEl: "textarea",
     name: "tableOfContents",
     label: "Table of Contents",
     metadataClass: "descriptive",

@@ -80,10 +80,11 @@ const UIFormNote = ({
                   <div data-testid="note-form-item">
                     <div className="field">
                       <label className="label">Note</label>
-                      <input
-                        type="text"
+                      <textarea
                         name={`${itemName}.note`}
-                        className={`input ${
+                        rows={2}
+                        cols={3}
+                        className={`textarea ${
                           errors[name] &&
                           errors[name][index] &&
                           errors[name][index].note

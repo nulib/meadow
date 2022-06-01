@@ -60,6 +60,7 @@ function FieldArrayRow({
           isText
           onClick={() => handleRemoveClick(index)}
           data-testid="button-delete-field-array-row"
+          className="pl-1"
         >
           <IconDelete />
         </Button>

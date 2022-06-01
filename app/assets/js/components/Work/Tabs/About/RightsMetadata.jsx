@@ -20,7 +20,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
       {RIGHTS_METADATA.map((item) => (
         <div className="column is-half" key={item.name} data-testid={item.name}>
           {isEditing ? (
-            <UIFormFieldArray required name={item.name} label={item.label} />
+            <UIFormFieldArray 
+              required 
+              name={item.name} 
+              label={item.label}
+              isTextarea={item.inputEl && item.inputEl === 'textarea'} 
+              />
           ) : (
             <UIFormFieldArrayDisplay
               values={descriptiveMetadata[item.name]}
