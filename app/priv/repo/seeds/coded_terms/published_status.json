@@ -1,0 +1,14 @@
+[
+  {
+    "id": "PUBLISHED",
+    "label": "Published"
+  },
+  {
+    "id": "UNPUBLISHED",
+    "label": "Unpublished"
+  },
+  {
+    "id": "EMBARGOED",
+    "label": "Embargoed"
+  }
+]

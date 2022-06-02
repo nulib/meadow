@@ -25,8 +25,10 @@ defmodule Meadow.Data.Schemas.Work do
   @timestamps_opts [type: :utc_datetime_usec]
   schema "works" do
     field(:accession_number, :string)
-    field(:published, :boolean, default: false)
-    field(:reading_room, :boolean, default: false)
+
+    field(:published, Types.CodedTerm,
+      default: %{id: "UNPUBLISHED", scheme: "published_status", label: "Unpublished"}
+    )
 
     field(:visibility, Types.CodedTerm,
       default: %{id: "RESTRICTED", scheme: "visibility", label: "Private"}

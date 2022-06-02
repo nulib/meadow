@@ -58,8 +58,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:accession_number, non_null(:string))
       arg(:work_type, :coded_term_input)
       arg(:visibility, :coded_term_input)
-      arg(:published, :boolean)
-      arg(:reading_room, :boolean)
+      arg(:published, :coded_term_input)
       arg(:file_sets, list_of(:file_set_input))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
@@ -119,8 +118,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :descriptive_metadata, :work_descriptive_metadata
     field :work_type, :coded_term
     field :visibility, :coded_term
-    field :published, :boolean
-    field :reading_room, :boolean
+    field :published, :coded_term
 
     field :manifest_url, :string do
       resolve(fn work, _, _ ->
@@ -245,8 +243,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field :administrative_metadata, :work_administrative_metadata_input
     field :descriptive_metadata, :work_descriptive_metadata_input
     field :visibility, :coded_term_input
-    field :published, :boolean
-    field :reading_room, :boolean
+    field :published, :coded_term_input
     field :collection_id, :id
   end
 

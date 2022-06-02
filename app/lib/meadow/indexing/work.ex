@@ -1,5 +1,6 @@
 defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
   alias Meadow.Data.FileSets
+
   alias Elasticsearch.Document.Meadow.Data.Schemas.WorkAdministrativeMetadata,
     as: AdministrativeMetadataDocument
 
@@ -41,7 +42,6 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
       modifiedDate: work.updated_at,
       project: format(work.project),
       published: work.published,
-      readingRoom: work.reading_room,
       representativeFileSet:
         case work.representative_file_set_id do
           nil ->
