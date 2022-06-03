@@ -20,7 +20,7 @@ defmodule Meadow.Pipeline do
   def children do
     actions()
     |> Enum.map(fn action ->
-      {action, Application.get_env(:meadow, action, [])}
+      {action, Application.get_env(:meadow, __MODULE__, []) |> Keyword.get(action, [])}
     end)
   end
 

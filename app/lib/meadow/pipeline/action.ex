@@ -183,7 +183,7 @@ defmodule Meadow.Pipeline.Action do
 
   @doc "Retrieve an action's configuration"
   def configuration(action) do
-    Application.get_env(:meadow, action)
+    Application.get_env(:meadow, Meadow.Pipeline, []) |> Keyword.get(action, [])
   end
 
   @doc "Retrieve an action's queue URL"

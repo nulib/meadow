@@ -1,9 +1,7 @@
 import Config
+import Env
 
 alias Hush.Provider.AwsSecretsManager
-
-secrets_path = System.get_env("SECRETS_PATH", "config")
-meadow_secrets = [secrets_path, "meadow"] |> Enum.reject(&is_nil/1) |> Enum.join("/")
 
 File.mkdir_p!("priv/cert")
 
@@ -19,11 +17,12 @@ config :meadow, MeadowWeb.Endpoint,
     port: 3001,
     cipher_suite: :strong,
     certfile:
-      {:hush, AwsSecretsManager, "#{secrets_path}/wildcard_ssl",
-       apply: &{:ok, Map.get(&1, "certificate")}, to_file: "priv/cert/cert.pem"},
+      aws_secret("wildcard_ssl",
+        apply: &{:ok, Map.get(&1, "certificate")},
+        to_file: "priv/cert/cert.pem"
+      ),
     keyfile:
-      {:hush, AwsSecretsManager, "#{secrets_path}/wildcard_ssl",
-       apply: &{:ok, Map.get(&1, "key")}, to_file: "priv/cert/key.pem"}
+      aws_secret("wildcard_ssl", apply: &{:ok, Map.get(&1, "key")}, to_file: "priv/cert/key.pem")
   ],
   debug_errors: false,
   code_reloader: true,
@@ -99,9 +98,9 @@ config :ueberauth, Ueberauth,
     nusso:
       {Ueberauth.Strategy.NuSSO,
        [
-         base_url: {:hush, AwsSecretsManager, meadow_secrets, dig: ["nusso", "base_url"]},
+         base_url: aws_secret("meadow", dig: ["nusso", "base_url"]),
          callback_path: "/auth/nusso/callback",
-         consumer_key: {:hush, AwsSecretsManager, meadow_secrets, dig: ["nusso", "api_key"]},
+         consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
          include_attributes: false,
          ssl_port: 3001
        ]}
