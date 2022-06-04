@@ -27,7 +27,7 @@ defmodule Meadow.Data.Schemas.Work do
     field(:accession_number, :string)
 
     field(:published, Types.CodedTerm,
-      default: %{id: "UNPUBLISHED", scheme: "published_status", label: "Unpublished"}
+      default: %{id: "UNPUBLISHED", scheme: "published", label: "Unpublished"}
     )
 
     field(:visibility, Types.CodedTerm,
@@ -79,7 +79,6 @@ defmodule Meadow.Data.Schemas.Work do
        :collection_id,
        :ingest_sheet_id,
        :published,
-       :reading_room,
        :representative_file_set_id,
        :visibility,
        :work_type
@@ -111,7 +110,6 @@ defmodule Meadow.Data.Schemas.Work do
       :collection_id,
       :ingest_sheet_id,
       :published,
-      :reading_room,
       :representative_file_set_id,
       :visibility
     ]

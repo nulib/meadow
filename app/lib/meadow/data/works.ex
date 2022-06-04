@@ -538,7 +538,10 @@ defmodule Meadow.Data.Works do
     end
   end
 
-  defp ark_update_status(_current_status, %{visibility: %{id: visibility_id}, published: true})
+  defp ark_update_status(_current_status, %{
+         visibility: %{id: visibility_id},
+         published: %{id: "PUBLISHED"}
+       })
        when visibility_id in ["OPEN", "AUTHENTICATED"],
        do: "public"
 
@@ -548,12 +551,20 @@ defmodule Meadow.Data.Works do
   defp ark_update_status(current_status, %{visibility: %{id: "RESTRICTED"}, published: _}),
     do: current_status
 
-  defp ark_update_status("public", %{visibility: %{id: visibility_id}, published: false})
-       when visibility_id in ["OPEN", "AUTHENTICATED"],
+  defp ark_update_status("public", %{
+         visibility: %{id: visibility_id},
+         published: %{id: published_id}
+       })
+       when visibility_id in ["OPEN", "AUTHENTICATED"] and
+              published_id in ["UNPUBLISHED", "EMBARGOED"],
        do: "unavailable"
 
-  defp ark_update_status(current_status, %{visibility: %{id: visibility_id}, published: false})
-       when visibility_id in ["OPEN", "AUTHENTICATED"],
+  defp ark_update_status(current_status, %{
+         visibility: %{id: visibility_id},
+         published: %{id: published_id}
+       })
+       when visibility_id in ["OPEN", "AUTHENTICATED"] and
+              published_id in ["UNPUBLISHED", "EMBARGOED"],
        do: current_status
 
   defp ark_update_status("public", _),

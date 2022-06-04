@@ -96,11 +96,12 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "row" => 21
                  },
                  %{
-                   "errors" => [%{"field" => "reading_room", "messages" => ["tire is invalid"]}],
-                   "row" => 24
-                 },
-                 %{
-                   "errors" => [%{"field" => "published", "messages" => ["flase is invalid"]}],
+                   "errors" => [
+                     %{
+                       "field" => "published",
+                       "messages" => ["UNPLUBISHED is an invalid coded term for scheme PUBLISHED"]
+                     }
+                   ],
                    "row" => 26
                  },
                  %{"errors" => [%{"field" => "id", "messages" => ["is required"]}], "row" => 28},

@@ -15,7 +15,6 @@ defmodule Meadow.Data.CSV.Export do
     ["accessionNumber"],
     ["collection", "id"],
     ["published"],
-    ["readingRoom"],
     ["visibility"]
   ]
 

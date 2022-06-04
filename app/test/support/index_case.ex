@@ -72,7 +72,7 @@ defmodule Meadow.IndexCase do
             work_fixture(%{
               descriptive_metadata: %{title: "Test Work #{i}"},
               collection_id: collection.id,
-              published: false
+              published: %{id: "UNPUBLISHED", scheme: "published"}
             })
           end)
           |> Works.add_representative_image()

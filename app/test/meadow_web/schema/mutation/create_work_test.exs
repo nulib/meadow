@@ -12,7 +12,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
         query_gql(
           variables: %{
             "accessionNumber" => "12345.abc",
-            "published" => false,
+            "published" => %{"id" => "UNPUBLISHED", "scheme" => "PUBLISHED"},
             "descriptiveMetadata" => %{
               "title" => "Something",
               "contributor" => [
@@ -62,7 +62,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
         query_gql(
           variables: %{
             "accessionNumber" => "12345.abc",
-            "published" => false,
+            "published" => %{"id" => "UNPUBLISHED", "scheme" => "PUBLISHED"},
             "descriptiveMetadata" => %{},
             "administrativeMetadata" => %{},
             "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},
@@ -79,7 +79,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
         query_gql(
           variables: %{
             "accessionNumber" => "12345.abc",
-            "published" => false,
+            "published" => %{"id" => "UNPUBLISHED", "scheme" => "PUBLISHED"},
             "descriptiveMetadata" => %{},
             "administrativeMetadata" => %{},
             "workType" => %{"id" => "IMAGE", "scheme" => "WORK_TYPE"},

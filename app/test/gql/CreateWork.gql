@@ -5,7 +5,7 @@
 
 mutation(
   $accessionNumber: String!
-  $published: Boolean!
+  $published: CodedTermInput!
   $descriptiveMetadata: WorkDescriptiveMetadataInput!
   $administrativeMetadata: WorkAdministrativeMetadataInput!
   $visibility: CodedTermInput!

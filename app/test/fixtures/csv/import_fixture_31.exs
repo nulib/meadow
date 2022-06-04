@@ -129,7 +129,6 @@
     table_of_contents: ["Season One", "There Is No Season Two"],
     series: ["The Adventures of Brisco County, Jr."]
   },
-  published: true,
-  reading_room: false,
+  published: %{id: "PUBLISHED", scheme: "published"},
   visibility: %{id: "AUTHENTICATED", scheme: "visibility"}
 }

@@ -122,7 +122,7 @@ defmodule Meadow.Ingest.WorkCreator do
           }
         end),
       ingest_sheet_id: ingest_sheet.id,
-      published: false,
+      published: %{id: "UNPUBLISHED", scheme: "published"},
       visibility: %{id: "RESTRICTED", scheme: "visibility"},
       work_type: %{id: work_row |> Row.field_value(:work_type), scheme: "work_type"}
     }

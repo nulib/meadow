@@ -37,7 +37,7 @@
   project_proposer: "Socrates Poole | Lord Bowler",
   project_task_number: "1899.827",
   provenance: "Television",
-  published: "false",
+  published: "UNPUBLISHED",
   publisher: "Boam/Cuse Productions | Warner Bros. Television",
   related_material: "Related Material",
   related_url: "RELATED_INFORMATION:https://www.imdb.com/title/tt0105932/",

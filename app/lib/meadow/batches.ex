@@ -88,10 +88,10 @@ defmodule Meadow.Batches do
 
     Enum.reduce(criteria, query, fn
       {:limit, limit}, query ->
-        from b in query, limit: ^limit
+        from(b in query, limit: ^limit)
 
       {:order, order}, query ->
-        from b in query, order_by: [{^order, :id}]
+        from(b in query, order_by: [{^order, :id}])
     end)
     |> Repo.all()
   end
@@ -312,13 +312,11 @@ defmodule Meadow.Batches do
 
     visibility = Map.get(replace, :visibility, :not_present)
     published = Map.get(replace, :published, :not_present)
-    reading_room = Map.get(replace, :reading_room, :not_present)
 
     with collection_id <- add |> Map.merge(replace) |> Map.get(:collection_id, :not_present) do
       update_collection(work_ids, collection_id)
       |> update_top_level_field(:visibility, visibility)
       |> update_top_level_field(:published, published)
-      |> update_top_level_field(:reading_room, reading_room)
       |> merge_uncontrolled_fields(add, :append)
       |> merge_uncontrolled_fields(replace, :replace)
     end

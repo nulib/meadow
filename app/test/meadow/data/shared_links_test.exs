@@ -84,7 +84,7 @@ defmodule Meadow.Data.SharedLinksTest do
       # Make sure there's at least one work that should have a public link
       assert works
              |> Enum.find(fn
-               %{visibility: %{id: "OPEN"}, published: true} -> true
+               %{visibility: %{id: "OPEN"}, published: %{id: "PUBLISHED"}} -> true
                _ -> false
              end)
 
@@ -96,7 +96,7 @@ defmodule Meadow.Data.SharedLinksTest do
           assert map["accession_number"] == work.accession_number
 
           case work do
-            %{visibility: %{id: "OPEN"}, published: true} ->
+            %{visibility: %{id: "OPEN"}, published: %{id: "PUBLISHED"}} ->
               assert map["shared_link"] =~ ~r"/items/"
               assert map["expires"] == "Never"
 

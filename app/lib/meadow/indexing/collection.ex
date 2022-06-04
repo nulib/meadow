@@ -13,7 +13,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
       keywords: collection.keywords,
       model: %{application: "Meadow", name: "Collection"},
       modifiedDate: collection.updated_at,
-      published: collection.published,
+      published: format(%{scheme: "published", value: collection.published}),
       representativeImage:
         case collection.representative_work do
           nil ->
@@ -29,6 +29,12 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
       visibility: format(collection.visibility)
     }
   end
+
+  defp format(%{scheme: "published", value: true}),
+    do: %{id: "PUBLISHED", label: "Published", scheme: "published"}
+
+  defp format(%{scheme: "published", value: false}),
+    do: %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"}
 
   defp format(%{id: id, name: name}), do: %{id: id, name: name}
   defp format(%{id: id, title: title}), do: %{id: id, title: title}

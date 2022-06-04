@@ -4086,7 +4086,7 @@
       caption: ["Caption"]
     },
     id: "d4bfad17-1c81-4a4a-aa9d-29aca65fa93e",
-    published: false,
+    published: %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"},
     visibility: %{
       id: "AUTHENTICATED",
       label: "Institution",
@@ -4185,7 +4185,11 @@
       caption: []
     },
     id: "dc20eb57-2333-4e57-9067-72c91a3fa7fe",
-    published: true,
+    published: %{
+      id: "PUBLISHED",
+      label: "Published",
+      scheme: "published"
+    },
     visibility: %{
       id: "OPEN",
       label: "Public",
@@ -4301,7 +4305,7 @@
       caption: []
     },
     id: "0bb6bd72-b349-4855-8ea6-0500dc752ff7",
-    published: false,
+    published: %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"},
     visibility: %{
       id: "OPEN",
       label: "Public",

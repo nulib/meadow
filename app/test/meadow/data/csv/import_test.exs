@@ -28,30 +28,4 @@ defmodule Meadow.Data.CSV.ImportTest do
              |> Map.delete(:accession_number) == @sample_record
     end
   end
-
-  test "decode boolean values" do
-    booleans =
-      File.stream!("test/fixtures/csv/sheets/boolean_values.csv")
-      |> Import.read_csv()
-      |> Import.stream()
-      |> Enum.map(& &1.published)
-
-    assert booleans == [
-             true,
-             true,
-             true,
-             true,
-             true,
-             true,
-             true,
-             true,
-             false,
-             false,
-             false,
-             false,
-             false,
-             false,
-             "unknown"
-           ]
-  end
 end

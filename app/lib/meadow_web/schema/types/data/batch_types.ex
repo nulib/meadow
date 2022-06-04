@@ -81,7 +81,6 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
     field :collection_id, :id
     field :visibility, :coded_term_input
     field :published, :boolean
-    field :reading_room, :boolean
     field :descriptive_metadata, :batch_replace_descriptive_metadata_input
     field :administrative_metadata, :batch_replace_administrative_metadata_input
   end

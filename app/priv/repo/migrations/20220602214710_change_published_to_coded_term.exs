@@ -1,9 +1,9 @@
 defmodule Meadow.Repo.Migrations.ChangePublishedToCodedTerm do
   use Ecto.Migration
 
-  @published %{id: "PUBLISHED", label: "Published", scheme: "published_status"}
-  @unpublished %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published_status"}
-  @embargoed %{id: "EMBARGOED", label: "Embargoed", scheme: "published_status"}
+  @published %{id: "PUBLISHED", label: "Published", scheme: "published"}
+  @unpublished %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"}
+  @embargoed %{id: "EMBARGOED", label: "Embargoed", scheme: "published"}
 
   def up do
     rename table("works"), :published, to: :published_bool

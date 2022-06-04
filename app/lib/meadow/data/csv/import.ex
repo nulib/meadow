@@ -13,7 +13,7 @@ defmodule Meadow.Data.CSV.Import do
   require Logger
 
   @empty_work_map %{administrative_metadata: %{}, descriptive_metadata: %{}}
-  @coded_fields ~w(library_unit license preservation_level rights_statement status visibility work_type)a
+  @coded_fields ~w(library_unit license preservation_level published rights_statement status visibility work_type)a
 
   defstruct headers: nil, stream: nil
 
@@ -59,8 +59,7 @@ defmodule Meadow.Data.CSV.Import do
         collection_id: nil,
         descriptive_metadata: %{...},
         id: "acaba4aa-91bc-431c-af60-766498a9dacf",
-        published: "false",
-        reading_room: "false",
+        published: %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"},
         visibility: nil
       },
       %{
@@ -69,8 +68,7 @@ defmodule Meadow.Data.CSV.Import do
         collection_id: nil,
         descriptive_metadata: %{...},
         id: "f005bda1-3ad1-4997-8633-9e12d4c64239",
-        published: "false",
-        reading_room: "false",
+        published: %{id: "UNPUBLISHED", label: "Unpublished", scheme: "published"},
         visibility: nil
       }
     ]

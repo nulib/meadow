@@ -124,7 +124,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     value(:marc_relator, as: "marc_relator", description: "MARC Relator")
     value(:note_type, as: "note_type", description: "Note Type")
     value(:preservation_level, as: "preservation_level", description: "Preservation Level")
-    value(:published_status, as: "published_status", description: "Published Status")
+    value(:published, as: "published", description: "Published Status")
     value(:rights_statement, as: "rights_statement", description: "Rights Statement")
     value(:related_url, as: "related_url", description: "Related URL")
     value(:subject_role, as: "subject_role", description: "Subject Role")

@@ -11,6 +11,7 @@ defmodule Meadow.Data.CodedTermsTest do
     "marc_relator",
     "note_type",
     "preservation_level",
+    "published",
     "related_url",
     "rights_statement",
     "status",

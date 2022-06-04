@@ -56,7 +56,7 @@ defmodule Meadow.Data.SharedLinks do
       |> Scroll.results()
       |> Stream.map(fn %{"_source" => work_doc} ->
         case work_doc do
-          %{"visibility" => %{"id" => "OPEN"}, "published" => true} ->
+          %{"visibility" => %{"id" => "OPEN"}, "published" => %{"id" => "PUBLISHED"}} ->
             {shared_link_row(work_doc, work_doc["id"], @public_expiration, "items"), nil}
 
           _ ->
@@ -174,10 +174,14 @@ defmodule Meadow.Data.SharedLinks do
       1
   """
   def count do
-    case Elastix.Search.count(Config.elasticsearch_url(),
-           Config.shared_links_index(), [@type_name], %{
-           query: %{match_all: %{}}
-         }) do
+    case Elastix.Search.count(
+           Config.elasticsearch_url(),
+           Config.shared_links_index(),
+           [@type_name],
+           %{
+             query: %{match_all: %{}}
+           }
+         ) do
       {:ok, %{body: %{"error" => %{"type" => "index_not_found_exception"}}}} -> 0
       {:ok, %{body: %{"count" => count}}} -> count
       {:ok, %{body: body}} -> {:error, body}
