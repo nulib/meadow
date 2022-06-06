@@ -386,6 +386,20 @@ defmodule Meadow.Data.IndexerTest do
 
       assert doc |> get_in(["representativeImageUrl"]) == poster_url
     end
+
+    test "file set encoding with bad EXIF data (empty string)", %{file_set: subject} do
+      {:ok, subject} =
+        subject
+        |> FileSets.update_file_set(%{
+          extracted_metadata: %{exif: ""}
+        })
+
+      subject = FileSets.get_file_set_with_work_and_sheet!(subject.id)
+
+      [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+      assert header |> get_in(["index", "_id"]) == subject.id
+      assert doc |> get_in(["extractedMetadata"]) == %{"exif" => %{}}
+    end
   end
 
   describe "mix task" do
