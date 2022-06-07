@@ -54,6 +54,8 @@ config :meadow, MeadowWeb.Endpoint,
   secret_key_base: {:hush, SystemEnvironment, "SECRET_KEY_BASE"},
   live_view: [signing_salt: {:hush, SystemEnvironment, "SECRET_KEY_BASE"}]
 
+config :meadow, Meadow.SearchIndex, primary_index: :meadow
+
 config :meadow, Meadow.ElasticsearchCluster,
   api: Elasticsearch.API.AWS,
   default_options: [
