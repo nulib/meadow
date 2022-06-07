@@ -18,7 +18,8 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :meadow,
   ecto_repos: [Meadow.Repo],
-  environment: Mix.env()
+  environment: Mix.env(),
+  environment_prefix: prefix
 
 config :meadow, Meadow.Repo,
   migration_primary_key: [
@@ -59,7 +60,7 @@ config :meadow, Meadow.ElasticsearchCluster,
   json_library: Jason,
   indexes: %{
     :"#{prefix}-meadow" => %{
-      settings: "priv/elasticsearch/meadow.json",
+      settings: "priv/elasticsearch/v1/settings/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
         Meadow.Data.Schemas.Collection,
@@ -68,6 +69,30 @@ config :meadow, Meadow.ElasticsearchCluster,
       ],
       bulk_page_size: 200,
       bulk_wait_interval: 500
+    },
+    :"#{prefix}-dc-v2-work" => %{
+      settings: "priv/elasticsearch/v2/settings/work.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "#{prefix}-v1-to-v2-work"
+    },
+    :"#{prefix}-dc-v2-file-set" => %{
+      settings: "priv/elasticsearch/v2/settings/file_set.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "#{prefix}-v1-to-v2-file-set"
+    },
+    :"#{prefix}-dc-v2-collection" => %{
+      settings: "priv/elasticsearch/v2/settings/collection.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: "#{prefix}-v1-to-v2-collection"
     }
   }
 

@@ -1,0 +1,108 @@
+{
+  "description": "Digital Collections API V1-to-V2 File Set Pipeline",
+  "processors": [
+    {
+      "set": {
+        "field": "api_model",
+        "value": "FileSet"
+      }
+    },
+    {
+      "rename": {
+        "field": "accessionNumber",
+        "target_field": "accession_number"
+      }
+    },
+    {
+      "rename": {
+        "field": "createDate",
+        "target_field": "create_date"
+      }
+    },
+    {
+      "remove": {
+        "field": "digests"
+      }
+    },
+    {
+      "rename": {
+        "field": "extractedMetadata",
+        "target_field": "extracted_metadata"
+      }
+    },
+    {
+      "rename": {
+        "field": "modifiedDate",
+        "target_field": "modified_date"
+      }
+    },
+    {
+      "rename": {
+        "field": "representativeImageUrl",
+        "target_field": "representative_image_url"
+      }
+    },
+    {
+      "remove": {
+        "field": "model"
+      }
+    },
+    {
+      "rename": {
+        "field": "posterOffset",
+        "target_field": "poster_offset"
+      }
+    },
+    {
+      "set": {
+        "field": "role_copy",
+        "value": "{{role.label}}"
+      }
+    },
+    {
+      "remove": {
+        "field": "role"
+      }
+    },
+    {
+      "rename": {
+        "field": "role_copy",
+        "target_field": "role"
+      }
+    },
+    {
+      "rename": {
+        "field": "streamingUrl",
+        "target_field": "streaming_url"
+      }
+    },
+    {
+      "set": {
+        "field": "visibility_copy",
+        "value": "{{visibility.label}}"
+      }
+    },
+    {
+      "remove": {
+        "field": "visibility"
+      }
+    },
+    {
+      "rename": {
+        "field": "visibility_copy",
+        "target_field": "visibility"
+      }
+    },
+    {
+      "remove": {
+        "field": "webvtt"
+      }
+    },
+    {
+      "rename": {
+        "field": "workId",
+        "target_field": "work_id"
+      }
+    }
+  ]
+}
