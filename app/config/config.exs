@@ -47,6 +47,9 @@ config :meadow, MeadowWeb.Endpoint,
   pubsub_server: Meadow.PubSub,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
+# Search index configuration
+config :meadow, Meadow.SearchIndex, primary_index: :"#{prefix}-meadow"
+
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
   url:
