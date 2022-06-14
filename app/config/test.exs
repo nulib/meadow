@@ -1,6 +1,5 @@
 import Config
-
-prefix = [System.get_env("DEV_PREFIX"), Mix.env()] |> Enum.reject(&is_nil/1) |> Enum.join("-")
+import Env
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -10,7 +9,7 @@ config :meadow, MeadowWeb.Endpoint,
 
 config :meadow, Meadow.ElasticsearchCluster,
   indexes: %{
-    :"#{prefix}-meadow" => %{
+    atom_prefix("meadow") => %{
       settings: "priv/elasticsearch/v1/settings/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
@@ -20,6 +19,30 @@ config :meadow, Meadow.ElasticsearchCluster,
       ],
       bulk_page_size: 3,
       bulk_wait_interval: 2
+    },
+    atom_prefix("dc-v2-work") => %{
+      settings: "priv/elasticsearch/v2/settings/work.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 3,
+      bulk_wait_interval: 2,
+      default_pipeline: prefix("v1-to-v2-work")
+    },
+    atom_prefix("dc-v2-file-set") => %{
+      settings: "priv/elasticsearch/v2/settings/file_set.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 3,
+      bulk_wait_interval: 2,
+      default_pipeline: prefix("v1-to-v2-file-set")
+    },
+    atom_prefix("dc-v2-collection") => %{
+      settings: "priv/elasticsearch/v2/settings/collection.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 3,
+      bulk_wait_interval: 2,
+      default_pipeline: prefix("v1-to-v2-collection")
     }
   }
 
@@ -115,4 +138,4 @@ config :meadow, :sitemaps,
   gzip: true,
   store: Sitemapper.S3Store,
   sitemap_url: "http://localhost:3333/",
-  store_config: [bucket: "#{prefix}-uploads", path: ""]
+  store_config: [bucket: prefix("uploads"), path: ""]

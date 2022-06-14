@@ -4,14 +4,12 @@
 # recommended and you have to remember to add this
 # file to your .gitignore.
 import Config
+import Env
 
 alias Meadow.Pipeline.Actions
-alias Hush.Provider.{AwsSecretsManager, SystemEnvironment}
 
-if Hush.release_mode?(), do: [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
-
-secrets_path = System.get_env("SECRETS_PATH", "config")
-meadow_secrets = [secrets_path, "meadow"] |> Enum.reject(&is_nil/1) |> Enum.join("/")
+if function_exported?(:Hush, :release_mode?, 0) and Hush.release_mode?(),
+  do: [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
 
 priv_path = fn path ->
   case :code.priv_dir(:meadow) do
@@ -24,9 +22,9 @@ config :elastix,
   custom_headers:
     {Meadow.Utils.AWS, :add_aws_signature,
      [
-       {:hush, SystemEnvironment, "AWS_REGION"},
-       {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "access_key_id"]},
-       {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "secret_access_key"]}
+       environment_secret("AWS_REGION"),
+       aws_secret("meadow", dig: ["index", "access_key_id"]),
+       aws_secret("meadow", dig: ["index", "secret_access_key"])
      ]}
 
 config :exldap, :settings,
@@ -34,12 +32,12 @@ config :exldap, :settings,
   ssl: true
 
 config :meadow, Meadow.Repo,
-  pool_size: {:hush, SystemEnvironment, "DB_POOL_SIZE", cast: :integer, default: 10},
-  queue_target: {:hush, SystemEnvironment, "DB_QUEUE_TARGET", cast: :integer, default: 50},
-  queue_interval: {:hush, SystemEnvironment, "DB_QUEUE_INTERVAL", cast: :integer, default: 1000}
+  pool_size: environment_secret("DB_POOL_SIZE", cast: :integer, default: 10),
+  queue_target: environment_secret("DB_QUEUE_TARGET", cast: :integer, default: 50),
+  queue_interval: environment_secret("DB_QUEUE_INTERVAL", cast: :integer, default: 1000)
 
-host = {:hush, SystemEnvironment, "MEADOW_HOSTNAME", default: "example.com"}
-port = {:hush, SystemEnvironment, "PORT", cast: :integer, default: 4000}
+host = environment_secret("MEADOW_HOSTNAME", default: "example.com")
+port = environment_secret("PORT", cast: :integer, default: 4000)
 
 config :meadow, MeadowWeb.Endpoint,
   url: [host: host, port: port],
@@ -50,9 +48,9 @@ config :meadow, MeadowWeb.Endpoint,
       idle_timeout: :infinity
     ]
   ],
-  check_origin: {:hush, SystemEnvironment, "ALLOWED_ORIGINS", split: ~r/,\s*/, default: ""},
-  secret_key_base: {:hush, SystemEnvironment, "SECRET_KEY_BASE"},
-  live_view: [signing_salt: {:hush, SystemEnvironment, "SECRET_KEY_BASE"}]
+  check_origin: environment_secret("ALLOWED_ORIGINS", split: ~r/,\s*/, default: ""),
+  secret_key_base: environment_secret("SECRET_KEY_BASE"),
+  live_view: [signing_salt: environment_secret("SECRET_KEY_BASE")]
 
 config :meadow, Meadow.SearchIndex, primary_index: :meadow
 
@@ -61,9 +59,9 @@ config :meadow, Meadow.ElasticsearchCluster,
   default_options: [
     aws: [
       service: "es",
-      region: {:hush, SystemEnvironment, "AWS_REGION"},
-      access_key: {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "access_key_id"]},
-      secret: {:hush, AwsSecretsManager, meadow_secrets, dig: ["index", "secret_access_key"]}
+      region: environment_secret("AWS_REGION"),
+      access_key: aws_secret("meadow", dig: ["index", "access_key_id"]),
+      secret: aws_secret("meadow", dig: ["index", "secret_access_key"])
     ],
     timeout: 20_000,
     recv_timeout: 90_000
@@ -111,34 +109,29 @@ config :meadow,
   environment: :prod,
   environment_prefix: nil,
   mediaconvert_client: MediaConvert,
-  mediaconvert_queue: {:hush, AwsSecretsManager, meadow_secrets, dig: ["mediaconvert", "queue"]},
-  mediaconvert_role:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["mediaconvert", "role_arn"]},
-  multipart_upload_concurrency:
-    {:hush, SystemEnvironment, "MULTIPART_UPLOAD_CONCURRENCY", default: "50"},
-  pipeline_delay: {:hush, SystemEnvironment, "PIPELINE_DELAY", default: "120000"},
-  progress_ping_interval: {:hush, SystemEnvironment, "PROGRESS_PING_INTERVAL", default: "1000"},
-  shared_links_index: "shared_links",
+  mediaconvert_queue: aws_secret("meadow", dig: ["mediaconvert", "queue"]),
+  mediaconvert_role: aws_secret("meadow", dig: ["mediaconvert", "role_arn"]),
+  multipart_upload_concurrency: environment_secret("MULTIPART_UPLOAD_CONCURRENCY", default: "50"),
+  pipeline_delay: environment_secret("PIPELINE_DELAY", default: "120000"),
+  progress_ping_interval: environment_secret("PROGRESS_PING_INTERVAL", default: "1000"),
+  shared_links_index: "shared-links",
   sitemaps: [
     gzip: true,
     store: Sitemapper.S3Store,
     store_config: [
-      bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "sitemap"]}
+      bucket: aws_secret("meadow", dig: ["buckets", "sitemap"])
     ],
-    sitemap_url: {:hush, AwsSecretsManager, meadow_secrets, dig: ["dc", "base_url"]}
+    sitemap_url: aws_secret("meadow", dig: ["dc", "base_url"])
   ],
-  validation_ping_interval:
-    {:hush, SystemEnvironment, "VALIDATION_PING_INTERVAL", default: "1000"}
+  validation_ping_interval: environment_secret("VALIDATION_PING_INTERVAL", default: "1000")
 
 config :meadow,
-  ingest_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "ingest"]},
-  preservation_bucket:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "preservation"]},
-  pyramid_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "pyramid"]},
-  upload_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "upload"]},
-  preservation_check_bucket:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "preservation_check"]},
-  streaming_bucket: {:hush, AwsSecretsManager, meadow_secrets, dig: ["buckets", "streaming"]}
+  ingest_bucket: aws_secret("meadow", dig: ["buckets", "ingest"]),
+  preservation_bucket: aws_secret("meadow", dig: ["buckets", "preservation"]),
+  pyramid_bucket: aws_secret("meadow", dig: ["buckets", "pyramid"]),
+  upload_bucket: aws_secret("meadow", dig: ["buckets", "upload"]),
+  preservation_check_bucket: aws_secret("meadow", dig: ["buckets", "preservation_check"]),
+  streaming_bucket: aws_secret("meadow", dig: ["buckets", "streaming"])
 
 config :logger, level: :info
 
@@ -150,28 +143,24 @@ config :meadow, Meadow.Scheduler,
     {"0 2 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
   ]
 
-config :sequins,
-  prefix: "meadow",
-  supervisor_opts: [max_restarts: 2048]
-
 config :ueberauth, Ueberauth,
   providers: [
     nusso:
       {Ueberauth.Strategy.NuSSO,
        [
          base_url:
-           {:hush, AwsSecretsManager, meadow_secrets,
-            dig: ["nusso", "base_url"],
-            default: "https://northwestern-prod.apigee.net/agentless-websso/"},
+           aws_secret("meadow",
+             dig: ["nusso", "base_url"],
+             default: "https://northwestern-prod.apigee.net/agentless-websso/"
+           ),
          callback_path: "/auth/nusso/callback",
-         consumer_key: {:hush, AwsSecretsManager, meadow_secrets, dig: ["nusso", "api_key"]},
+         consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
          include_attributes: false
        ]}
   ]
 
 config :hackney,
-  max_connections:
-    {:hush, SystemEnvironment, "HACKNEY_MAX_CONNECTIONS", cast: :integer, default: "1000"}
+  max_connections: environment_secret("HACKNEY_MAX_CONNECTIONS", cast: :integer, default: "1000")
 
 [
   {Actions.IngestFileSet, "INGEST_FILE_SET"},
@@ -192,18 +181,22 @@ config :hackney,
   with receive_interval <- 1000,
        wait_time_seconds <- 1,
        max_number_of_messages <- 10 do
-    config :sequins, action,
-      queue_config: [
-        producer_concurrency: 1,
-        receive_interval: receive_interval,
-        wait_time_seconds: wait_time_seconds,
-        max_number_of_messages: max_number_of_messages,
-        processor_concurrency:
-          {:hush, SystemEnvironment, "#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10},
-        visibility_timeout:
-          {:hush, SystemEnvironment, "#{key}_VISIBILITY_TIMEOUT", cast: :integer, default: 300},
-        max_demand: {:hush, SystemEnvironment, "#{key}_MAX_DEMAND", cast: :integer, default: 10},
-        min_demand: {:hush, SystemEnvironment, "#{key}_MIN_DEMAND", cast: :integer, default: 5}
-      ]
+    config :meadow,
+           Meadow.Pipeline,
+           [
+             {action,
+              queue_config: [
+                producer_concurrency: 1,
+                receive_interval: receive_interval,
+                wait_time_seconds: wait_time_seconds,
+                max_number_of_messages: max_number_of_messages,
+                processor_concurrency:
+                  environment_secret("#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10),
+                visibility_timeout:
+                  environment_secret("#{key}_VISIBILITY_TIMEOUT", cast: :integer, default: 300),
+                max_demand: environment_secret("#{key}_MAX_DEMAND", cast: :integer, default: 10),
+                min_demand: environment_secret("#{key}_MIN_DEMAND", cast: :integer, default: 5)
+              ]}
+           ]
   end
 end)

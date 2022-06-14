@@ -6,12 +6,8 @@
 
 # General application configuration
 import Config
+import Env
 
-prefix = [System.get_env("DEV_PREFIX"), Mix.env()] |> Enum.reject(&is_nil/1) |> Enum.join("-")
-secrets_path = System.get_env("SECRETS_PATH", "config")
-meadow_secrets = [secrets_path, "meadow"] |> Enum.reject(&is_nil/1) |> Enum.join("/")
-
-alias Hush.Provider.{AwsSecretsManager, SystemEnvironment}
 alias Meadow.Utils.Hush.Transformer, as: CustomTransformer
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
@@ -19,7 +15,7 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :meadow,
   ecto_repos: [Meadow.Repo],
   environment: Mix.env(),
-  environment_prefix: prefix
+  environment_prefix: prefix()
 
 config :meadow, Meadow.Repo,
   migration_primary_key: [
@@ -30,14 +26,11 @@ config :meadow, Meadow.Repo,
     default: {:fragment, "uuid_generate_v4()"}
   ],
   migration_timestamps: [type: :utc_datetime_usec],
-  username: {:hush, AwsSecretsManager, meadow_secrets, dig: ["db", "user"], default: "docker"},
-  password:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["db", "password"], default: "d0ck3r"},
-  database:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["db", "database"], default: "#{prefix}-meadow"},
-  hostname: {:hush, AwsSecretsManager, meadow_secrets, dig: ["db", "host"], default: "localhost"},
-  port: {:hush, AwsSecretsManager, meadow_secrets, dig: ["db", "port"], default: 5432}
+  username: aws_secret("meadow", dig: ["db", "user"], default: "docker"),
+  password: aws_secret("meadow", dig: ["db", "password"], default: "d0ck3r"),
+  database: aws_secret("meadow", dig: ["db", "database"], default: prefix("meadow")),
+  hostname: aws_secret("meadow", dig: ["db", "host"], default: "localhost"),
+  port: aws_secret("meadow", dig: ["db", "port"], default: 5432)
 
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,
@@ -48,13 +41,15 @@ config :meadow, MeadowWeb.Endpoint,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
 # Search index configuration
-config :meadow, Meadow.SearchIndex, primary_index: :"#{prefix}-meadow"
+config :meadow, Meadow.SearchIndex, primary_index: atom_prefix("meadow")
 
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
   url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["index", "index_endpoint"], default: "http://localhost:9201"},
+    aws_secret("meadow",
+      dig: ["index", "index_endpoint"],
+      default: "http://localhost:9201"
+    ),
   api: Elasticsearch.API.HTTP,
   default_options: [
     timeout: 20_000,
@@ -62,7 +57,7 @@ config :meadow, Meadow.ElasticsearchCluster,
   ],
   json_library: Jason,
   indexes: %{
-    :"#{prefix}-meadow" => %{
+    atom_prefix("meadow") => %{
       settings: "priv/elasticsearch/v1/settings/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
@@ -73,97 +68,95 @@ config :meadow, Meadow.ElasticsearchCluster,
       bulk_page_size: 200,
       bulk_wait_interval: 500
     },
-    :"#{prefix}-dc-v2-work" => %{
+    atom_prefix("dc-v2-work") => %{
       settings: "priv/elasticsearch/v2/settings/work.json",
       store: Meadow.ElasticsearchEmptyStore,
       sources: [:nothing],
       bulk_page_size: 200,
       bulk_wait_interval: 500,
-      default_pipeline: "#{prefix}-v1-to-v2-work"
+      default_pipeline: prefix("v1-to-v2-work")
     },
-    :"#{prefix}-dc-v2-file-set" => %{
+    atom_prefix("dc-v2-file-set") => %{
       settings: "priv/elasticsearch/v2/settings/file_set.json",
       store: Meadow.ElasticsearchEmptyStore,
       sources: [:nothing],
       bulk_page_size: 200,
       bulk_wait_interval: 500,
-      default_pipeline: "#{prefix}-v1-to-v2-file-set"
+      default_pipeline: prefix("v1-to-v2-file-set")
     },
-    :"#{prefix}-dc-v2-collection" => %{
+    atom_prefix("dc-v2-collection") => %{
       settings: "priv/elasticsearch/v2/settings/collection.json",
       store: Meadow.ElasticsearchEmptyStore,
       sources: [:nothing],
       bulk_page_size: 200,
       bulk_wait_interval: 500,
-      default_pipeline: "#{prefix}-v1-to-v2-collection"
+      default_pipeline: prefix("v1-to-v2-collection")
     }
   }
 
 config :meadow,
   ark: %{
-    default_shoulder:
-      {:hush, AwsSecretsManager, meadow_secrets,
-       dig: ["ezid", "shoulder"], default: "ark:/12345/nu1"},
-    user: {:hush, AwsSecretsManager, meadow_secrets, dig: ["ezid", "user"], default: "ark_user"},
-    password:
-      {:hush, AwsSecretsManager, meadow_secrets,
-       dig: ["ezid", "password"], default: "ark_password"},
+    default_shoulder: aws_secret("meadow", dig: ["ezid", "shoulder"], default: "ark:/12345/nu1"),
+    user: aws_secret("meadow", dig: ["ezid", "user"], default: "ark_user"),
+    password: aws_secret("meadow", dig: ["ezid", "password"], default: "ark_password"),
     target_url:
-      {:hush, AwsSecretsManager, meadow_secrets,
-       dig: ["ezid", "target_base_url"],
-       default: "https://devbox.library.northwestern.edu:3333/items/"},
-    url:
-      {:hush, AwsSecretsManager, meadow_secrets,
-       dig: ["ezid", "url"], default: "http://localhost:3943"}
+      aws_secret("meadow",
+        dig: ["ezid", "target_base_url"],
+        default: "https://devbox.library.northwestern.edu:3333/items/"
+      ),
+    url: aws_secret("meadow", dig: ["ezid", "url"], default: "http://localhost:3943")
   },
-  ingest_bucket: "#{prefix}-ingest",
-  upload_bucket: "#{prefix}-uploads",
+  ingest_bucket: prefix("ingest"),
+  upload_bucket: prefix("uploads"),
   pipeline_delay: :timer.seconds(5),
-  preservation_bucket: "#{prefix}-preservation",
-  preservation_check_bucket: "#{prefix}-preservation-checks",
-  pyramid_bucket: "#{prefix}-pyramids",
-  streaming_bucket: "#{prefix}-streaming",
+  preservation_bucket: prefix("preservation"),
+  preservation_check_bucket: prefix("preservation-checks"),
+  pyramid_bucket: prefix("pyramids"),
+  streaming_bucket: prefix("streaming"),
   streaming_url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["streaming", "base_url"], default: "https://#{prefix}-streaming.s3.amazonaws.com/"},
+    aws_secret("meadow",
+      dig: ["streaming", "base_url"],
+      default: "https://#{prefix()}-streaming.s3.amazonaws.com/"
+    ),
   mediaconvert_client: MediaConvert.Mock,
   multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
   iiif_server_url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["iiif", "base_url"],
-     default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/#{prefix}"},
+    aws_secret("meadow",
+      dig: ["iiif", "base_url"],
+      default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/#{prefix()}"
+    ),
   iiif_manifest_url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["iiif", "manifest_url"], default: "https://#{prefix}-pyramids.s3.amazonaws.com/public/"},
-  iiif_distribution_id:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["iiif", "distribution_id"], default: nil},
+    aws_secret("meadow",
+      dig: ["iiif", "manifest_url"],
+      default: "https://#{prefix()}-pyramids.s3.amazonaws.com/public/"
+    ),
+  iiif_distribution_id: aws_secret("meadow", dig: ["iiif", "distribution_id"], default: nil),
   digital_collections_url:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["dc", "base_url"], default: "https://fen.rdc-staging.library.northwestern.edu/"},
+    aws_secret("meadow",
+      dig: ["dc", "base_url"],
+      default: "https://fen.rdc-staging.library.northwestern.edu/"
+    ),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
-  shared_links_index: "#{prefix}-shared-links",
+  shared_links_index: prefix("shared-links"),
   pyramid_tiff_working_dir: System.tmp_dir!(),
-  work_archiver_endpoint:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["work_archiver", "endpoint"], default: ""}
+  work_archiver_endpoint: aws_secret("meadow", dig: ["work_archiver", "endpoint"], default: "")
 
 config :exldap, :settings,
-  server: {:hush, AwsSecretsManager, meadow_secrets, dig: ["ldap", "host"], default: "localhost"},
+  server: aws_secret("meadow", dig: ["ldap", "host"], default: "localhost"),
   base:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["ldap", "base"], default: "DC=library,DC=northwestern,DC=edu"},
-  port:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["ldap", "port"], cast: :integer, default: 390},
+    aws_secret("meadow",
+      dig: ["ldap", "base"],
+      default: "DC=library,DC=northwestern,DC=edu"
+    ),
+  port: aws_secret("meadow", dig: ["ldap", "port"], cast: :integer, default: 390),
   user_dn:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["ldap", "user_dn"],
-     default: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"},
-  password:
-    {:hush, AwsSecretsManager, meadow_secrets, dig: ["ldap", "password"], default: "d0ck3rAdm1n!"},
-  ssl:
-    {:hush, AwsSecretsManager, meadow_secrets,
-     dig: ["ldap", "ssl"], cast: :boolean, default: false}
+    aws_secret("meadow",
+      dig: ["ldap", "user_dn"],
+      default: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"
+    ),
+  password: aws_secret("meadow", dig: ["ldap", "password"], default: "d0ck3rAdm1n!"),
+  ssl: aws_secret("meadow", dig: ["ldap", "ssl"], cast: :boolean, default: false)
 
 config :meadow,
   transcoding_presets: %{
@@ -185,9 +178,7 @@ config :meadow,
 
 # Configure Lambda-based actions
 lambda_from_ssm = fn lambda, function ->
-  {:lambda,
-   {:hush, AwsSecretsManager, meadow_secrets,
-    dig: ["pipeline", lambda], default: "#{function}:$LATEST"}}
+  {:lambda, aws_secret("meadow", dig: ["pipeline", lambda], default: "#{function}:$LATEST")}
 end
 
 config :meadow, :lambda,
@@ -230,7 +221,7 @@ config :authoritex,
   ]
 
 config :honeybadger,
-  api_key: {:hush, SystemEnvironment, "HONEYBADGER_API_KEY", default: "DO_NOT_REPORT"},
+  api_key: environment_secret("HONEYBADGER_API_KEY", default: "DO_NOT_REPORT"),
   environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
   revision: System.get_env("HONEYBADGER_REVISION", ""),
   repos: [Meadow.Repo],
