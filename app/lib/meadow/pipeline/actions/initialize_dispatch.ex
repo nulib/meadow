@@ -29,9 +29,11 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
   end
 
   def process(file_set, attributes) do
-    Logger.info("Initializing dispatch for FileSet #{file_set.id}")
+    Logger.info(
+      "Initializing dispatch for FileSet #{file_set.id} with attributes #{inspect(attributes)}"
+    )
 
-    case Dispatcher.dispatcher_actions(file_set) do
+    case Dispatcher.dispatcher_actions(file_set, attributes) do
       nil ->
         err = "Invalid mime-type and file set role combination"
         ActionStates.set_state!(file_set, __MODULE__, "error", err)

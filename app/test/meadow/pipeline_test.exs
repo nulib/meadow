@@ -52,7 +52,7 @@ defmodule Meadow.Data.PipelineTest do
 
       {:ok, file_set} = FileSets.create_file_set(preservation_attrs)
 
-      Pipeline.kickoff(file_set, %{role: file_set.role.id})
+      Pipeline.kickoff(file_set, %{role: file_set.role.id, task: :sideload})
 
       assert ActionStates.get_states(file_set.id) |> length() ==
                Dispatcher.initial_actions() |> length()

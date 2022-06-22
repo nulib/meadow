@@ -3,6 +3,7 @@ defmodule Mix.Tasks.Meadow.Sideload do
   Task for "sideloading" files via csv that skip transcoding pipeline actions.
   """
 
+  alias Meadow.Data.FileSets
   alias Meadow.Pipeline
   alias Meadow.Utils.ChangesetErrors
   alias Meadow.Utils.Stream, as: StreamUtil
@@ -24,8 +25,9 @@ defmodule Mix.Tasks.Meadow.Sideload do
 
     csv
     |> stream()
-    |> Stream.each(&load/1)
-    |> Stream.run()
+    |> Stream.map(&load/1)
+    |> Enum.into([])
+    |> IO.inspect()
   end
 
   defp stream(source) do
@@ -33,56 +35,57 @@ defmodule Mix.Tasks.Meadow.Sideload do
     |> StreamUtil.stream_from()
     |> StreamUtil.by_line()
     |> NimbleCSV.RFC4180.parse_stream()
+    |> Stream.reject(fn x -> x == [""] end)
     |> Stream.map(fn [
-                       work_type,
-                       work_accession_number,
-                       file_accession_number,
-                       filename,
-                       description,
-                       role,
-                       label,
-                       work_image,
-                       structure
+                       _collection_title,
+                       _meadow_url,
+                       work_id,
+                       _work_accession,
+                       _work_title,
+                       file_set_id,
+                       file_set_accession,
+                       file_set_role,
+                       file_set_original_filename,
+                       file_set_label,
+                       file_set_description,
+                       file_path
                      ] ->
       %{
-        work_type: work_type,
-        work_accession_number: work_accession_number,
-        accession_number: file_accession_number,
+        work_id: work_id,
+        accession_number: file_set_accession,
+        file_set_id: file_set_id,
         core_metadata: %{
-          description: description,
-          label: label,
-          location: location(source, filename),
-          original_filename: Path.basename(filename)
+          description: file_set_description,
+          label: file_set_label,
+          location: location(source, file_path),
+          original_filename: file_set_original_filename
         },
-        role: %{id: role, scheme: "FILE_SET_ROLE"},
-        work_image: work_image,
-        structure: structure
+        role: %{id: file_set_role, scheme: "FILE_SET_ROLE"}
       }
-      |> then(fn data ->
-        work =
-          Meadow.Repo.get_by(Meadow.Data.Schemas.Work,
-            accession_number: data.work_accession_number
-          )
-
-        if work, do: Map.put(data, :work_id, work.id), else: data
-      end)
     end)
   end
 
-  defp load(%{role: %{id: "S"}, work_id: _} = attrs) do
-    case Pipeline.ingest_file_set(attrs) do
-      {:error, changeset} ->
-        IO.inspect(
-          "Error sideloading #{attrs.accession_number}: #{inspect(ChangesetErrors.humanize_errors(changeset))}"
-        )
-
-      {:ok, file_set} ->
-        IO.inspect({:ok, file_set})
+  defp load(%{role: %{id: "A"}} = attrs) do
+    with {:ok, file_set} <- FileSets.get_file_set(attrs.file_set_id),
+         {:ok, file_set} <- FileSets.update_file_set(file_set, attrs) do
+      Pipeline.kickoff(file_set, %{role: file_set.role.id, task: :sideload})
+      Map.put(attrs, :kickoff, :success)
+    else
+      _ -> Map.put(attrs, :kickoff, :failure)
     end
   end
 
-  defp load(_supplemental) do
-    Logger.warn("Attempted to sideload a non-\"S\" file")
+  defp load(attrs) do
+    case FileSets.create_file_set(attrs) do
+      {:ok, file_set} ->
+        Pipeline.kickoff(file_set, %{role: file_set.role.id})
+        Map.put(attrs, :kickoff, :success)
+
+      {:error, changeset} ->
+        error = inspect(ChangesetErrors.humanize_errors(changeset))
+        Logger.warn("Error sideloading #{attrs.accession_number}: #{error}")
+        Map.put(attrs, :kickoff, :failure)
+    end
   end
 
   defp location(source, filename) do

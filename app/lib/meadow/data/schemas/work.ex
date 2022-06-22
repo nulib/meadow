@@ -100,6 +100,24 @@ defmodule Meadow.Data.Schemas.Work do
     end
   end
 
+  def changeset_with_id(work, attrs) do
+    with {required_params, optional_params} <- changeset_params() do
+      required_params = [:id | required_params]
+
+      work
+      |> cast(attrs, required_params ++ optional_params)
+      |> prepare_embed(:administrative_metadata)
+      |> prepare_embed(:descriptive_metadata)
+      |> cast_embed(:administrative_metadata)
+      |> cast_embed(:descriptive_metadata)
+      |> cast_assoc(:file_sets)
+      |> assoc_constraint(:collection)
+      |> assoc_constraint(:representative_file_set)
+      |> validate_required(required_params)
+      |> unique_constraint(:accession_number)
+    end
+  end
+
   def update_timestamp(work, timestamp \\ NaiveDateTime.utc_now()) do
     cast(work, %{updated_at: timestamp}, [:updated_at])
   end

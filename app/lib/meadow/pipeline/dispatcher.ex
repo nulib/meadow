@@ -100,6 +100,18 @@ defmodule Meadow.Pipeline.Dispatcher do
 
   def all_progress_actions, do: @all_actions
 
+  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}}, %{
+        task: :sideload
+      }),
+      do: @preservation_audio_actions
+
+  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}}, %{
+        task: :sideload
+      }),
+      do: @preservation_video_actions
+
+  def dispatcher_actions(file_set, _), do: dispatcher_actions(file_set)
+
   def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _}}),
     do: @access_image_actions
 
