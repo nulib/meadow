@@ -66,9 +66,9 @@ defmodule Mix.Tasks.Meadow.Sideload do
   end
 
   defp load(%{role: %{id: "A"}} = attrs) do
-    with {:ok, file_set} <- FileSets.get_file_set(attrs.file_set_id),
-         {:ok, file_set} <- FileSets.update_file_set(file_set, attrs) do
-      Pipeline.kickoff(file_set, %{role: file_set.role.id, task: :sideload})
+    with file_set <- FileSets.get_file_set(attrs.file_set_id),
+         {:ok, updated_file_set} <- FileSets.update_file_set(file_set, attrs) do
+      Pipeline.kickoff(updated_file_set, %{role: updated_file_set.role.id, task: :sideload})
       Map.put(attrs, :kickoff, :success)
     else
       _ -> Map.put(attrs, :kickoff, :failure)
