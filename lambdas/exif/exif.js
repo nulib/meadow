@@ -79,18 +79,22 @@ const download = (source) => {
 
 const extract = async (source) => {
   const tempFile = await download(source);
-  const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat([tempFile.path]);
-  const exifTool = spawn(exifToolPath, args, {stdio: ['ignore', 'pipe', process.stderr]});
-  let output = await readOutput(exifTool);
-
   try {
-    output = JSON.parse(output);
-    if (Array.isArray(output) && output.length == 1) output = output[0];
-  } catch (_err) {
-    console.warn("Output is not JSON. Returning raw data.");
+    const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat([tempFile.path]);
+    const exifTool = spawn(exifToolPath, args, {stdio: ['ignore', 'pipe', process.stderr]});
+    let output = await readOutput(exifTool);
+  
+    try {
+      output = JSON.parse(output);
+      if (Array.isArray(output) && output.length == 1) output = output[0];
+    } catch (_err) {
+      console.warn("Output is not JSON. Returning raw data.");
+    }
+    delete output.SourceFile;
+    return output;        
+  } finally {
+    tempFile.cleanup();
   }
-  delete output.SourceFile;
-  return output;  
 };
 
 const readOutput = (child) => {
