@@ -7,6 +7,7 @@ defmodule Mix.Tasks.Meadow.Sideload do
   alias Meadow.Pipeline
   alias Meadow.Utils.ChangesetErrors
   alias Meadow.Utils.Stream, as: StreamUtil
+  alias NimbleCSV.RFC4180, as: CSV
 
   use Mix.Task
   require Logger
@@ -23,18 +24,22 @@ defmodule Mix.Tasks.Meadow.Sideload do
       exit(:shutdown)
     end
 
+    Logger.info("Beginning to sideload #{csv}")
+
     csv
     |> stream()
     |> Stream.map(&load/1)
-    |> Enum.into([])
-    |> IO.inspect()
+    |> generate_report()
+    |> upload_report()
+
+    Logger.info("Completed sideloading #{csv}")
   end
 
   defp stream(source) do
     source
     |> StreamUtil.stream_from()
     |> StreamUtil.by_line()
-    |> NimbleCSV.RFC4180.parse_stream()
+    |> CSV.parse_stream()
     |> Stream.reject(fn x -> x == [""] end)
     |> Stream.map(fn [
                        _collection_title,
@@ -57,7 +62,7 @@ defmodule Mix.Tasks.Meadow.Sideload do
         core_metadata: %{
           description: file_set_description,
           label: file_set_label,
-          location: location(source, file_path),
+          location: preservation_uri(source, file_path),
           original_filename: file_set_original_filename
         },
         role: %{id: file_set_role, scheme: "FILE_SET_ROLE"}
@@ -88,10 +93,31 @@ defmodule Mix.Tasks.Meadow.Sideload do
     end
   end
 
-  defp location(source, filename) do
+  defp preservation_uri(source, filename) do
     with uri <- URI.parse(source) do
       Map.put(uri, :path, Path.dirname(uri.path) <> "/" <> filename)
     end
     |> URI.to_string()
+  end
+
+  defp generate_report(data) do
+    Enum.reduce(data, [], fn x, acc ->
+      [
+        Map.take(x, ~W|file_set_id work_id kickoff|a)
+        |> Map.values()
+        | acc
+      ]
+    end)
+    |> CSV.dump_to_stream()
+    |> Enum.join("")
+  end
+
+  defp upload_report(report) do
+    ExAws.S3.put_object(
+      Meadow.Config.ingest_bucket(),
+      "report_#{DateTime.to_unix(DateTime.utc_now())}.csv",
+      report
+    )
+    |> ExAws.request!()
   end
 end
