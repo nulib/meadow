@@ -167,7 +167,7 @@ defmodule Mix.Tasks.Meadow.Sideload do
       if output == [] do
         IO.inspect("ALL GOOD!")
       else
-        IO.inspect(output)
+        Scribe.print(output, style: Scribe.Style.GithubMarkdown)
       end
 
       Logger.info("Completed dryrun for sideload #{csv}")
