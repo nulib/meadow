@@ -61,7 +61,8 @@ const download = (source) => {
       Bucket: uri.host, 
       Key: uri.path.replace(/^\/+/, "")
     };
-    tmp.file().then((outputFile) => {
+    
+    tmp.file({ template: '/tmp/exif-XXXXXX' }).then((outputFile) => {
       console.log(`Retrieving ${source} to ${outputFile.path}`);
 
       const inputStream = s3.getObject(s3Location).createReadStream()
@@ -79,32 +80,32 @@ const download = (source) => {
 
 const extract = async (source) => {
   const tempFile = await download(source);
+  const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat([tempFile.path]);
+  const exifTool = spawn(exifToolPath, args, {stdio: ['ignore', 'pipe', process.stderr]});
+  let output = await readOutput(exifTool);
+
   try {
-    const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat([tempFile.path]);
-    const exifTool = spawn(exifToolPath, args, {stdio: ['ignore', 'pipe', process.stderr]});
-    let output = await readOutput(exifTool);
-  
-    try {
-      output = JSON.parse(output);
-      if (Array.isArray(output) && output.length == 1) output = output[0];
-    } catch (_err) {
-      console.warn("Output is not JSON. Returning raw data.");
-    }
-    delete output.SourceFile;
-    return output;        
-  } finally {
-    tempFile.cleanup();
+    output = JSON.parse(output);
+    if (Array.isArray(output) && output.length == 1) output = output[0];
+  } catch (_err) {
+    console.warn("Output is not JSON. Returning raw data.");
   }
+  delete output.SourceFile;
+  return output;        
 };
 
 const readOutput = (child) => {
   return new Promise((resolve, reject) => {
     let buffer = '';
-    child.on('error', (error) => reject(error));
+    let errored = false;
+    child.on('error', (error) => {
+      reject(error);
+      errored = true;
+    });
+    child.on('exit', () => { if (!errored) resolve(buffer) });
     child.stdout
       .on('data', (data) => buffer += data)
-      .on('end', () => buffer = buffer.trimEnd())
-      .on('close', () => resolve(buffer));
+      .on('end', () => buffer = buffer.trimEnd());
   });
 };
 
