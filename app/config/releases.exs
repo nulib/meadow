@@ -8,8 +8,7 @@ import Env
 
 alias Meadow.Pipeline.Actions
 
-if function_exported?(:Hush, :release_mode?, 0) and Hush.release_mode?(),
-  do: [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
+[:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
 
 priv_path = fn path ->
   case :code.priv_dir(:meadow) do
