@@ -1,4 +1,4 @@
-if !function_exported?(:Env, :prefix, 0) do
+if !function_exported?(:Env, :__info__, 1) do
   defmodule Env do
     @moduledoc """
     Configuration helpers for Meadow Dev, Staging, and Prod

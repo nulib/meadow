@@ -1,4 +1,4 @@
-Code.require_file("config/env.exs")
+Code.require_file("lib/env.ex")
 
 defmodule Meadow.MixProject do
   use Mix.Project
