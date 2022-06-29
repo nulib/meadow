@@ -53,6 +53,7 @@ defmodule Meadow.MixProject do
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 0.9.0"},
       {:briefly, "~> 0.3.0"},
+      {:broadway_dashboard, "~> 0.2.0"},
       {:broadway_sqs, "~> 0.7.0"},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},

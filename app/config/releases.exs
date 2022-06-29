@@ -184,17 +184,21 @@ config :hackney,
            Meadow.Pipeline,
            [
              {action,
-              queue_config: [
-                producer_concurrency: 1,
+              producer: [
                 receive_interval: receive_interval,
                 wait_time_seconds: wait_time_seconds,
                 max_number_of_messages: max_number_of_messages,
-                processor_concurrency:
-                  environment_secret("#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10),
                 visibility_timeout:
-                  environment_secret("#{key}_VISIBILITY_TIMEOUT", cast: :integer, default: 300),
-                max_demand: environment_secret("#{key}_MAX_DEMAND", cast: :integer, default: 10),
-                min_demand: environment_secret("#{key}_MIN_DEMAND", cast: :integer, default: 5)
+                  environment_secret("#{key}_VISIBILITY_TIMEOUT", cast: :integer, default: 300)
+              ],
+              processors: [
+                default: [
+                  concurrency:
+                    environment_secret("#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10),
+                  max_demand:
+                    environment_secret("#{key}_MAX_DEMAND", cast: :integer, default: 10),
+                  min_demand: environment_secret("#{key}_MIN_DEMAND", cast: :integer, default: 5)
+                ]
               ]}
            ]
   end
