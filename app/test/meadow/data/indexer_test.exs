@@ -378,13 +378,27 @@ defmodule Meadow.Data.IndexerTest do
       assert doc |> get_in(["streamingUrl"]) == Path.join(Config.streaming_url(), "bar.m3u8")
 
       poster_url =
-        with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
+        with uri <- URI.parse(Config.iiif_server_url()) do
           uri
           |> URI.merge("posters/#{subject.id}")
           |> URI.to_string()
         end
 
       assert doc |> get_in(["representativeImageUrl"]) == poster_url
+    end
+
+    test "file set encoding with bad EXIF data (empty string)", %{file_set: subject} do
+      {:ok, subject} =
+        subject
+        |> FileSets.update_file_set(%{
+          extracted_metadata: %{exif: ""}
+        })
+
+      subject = FileSets.get_file_set_with_work_and_sheet!(subject.id)
+
+      [header, doc] = subject |> Indexer.encode!(:index) |> decode_njson()
+      assert header |> get_in(["index", "_id"]) == subject.id
+      assert doc |> get_in(["extractedMetadata"]) == %{"exif" => %{}}
     end
   end
 
@@ -394,13 +408,15 @@ defmodule Meadow.Data.IndexerTest do
     end
 
     test "mix elasticsearch.build", %{count: count} do
-      assert indexed_doc_count() == 0
+      with index <- Config.elasticsearch_index() do
+        assert indexed_doc_count() == 0
 
-      ~w[meadow --cluster Meadow.ElasticsearchCluster]
-      |> BuildTask.run()
+        [to_string(index), "--cluster", "Meadow.ElasticsearchCluster"]
+        |> BuildTask.run()
 
-      Elasticsearch.Index.refresh(Meadow.ElasticsearchCluster, "meadow")
-      assert indexed_doc_count() == count
+        Elasticsearch.Index.refresh(Meadow.ElasticsearchCluster, index)
+        assert indexed_doc_count() == count
+      end
     end
   end
 

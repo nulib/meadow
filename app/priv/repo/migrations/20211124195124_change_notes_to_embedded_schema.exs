@@ -28,6 +28,7 @@ defmodule Meadow.Repo.Migrations.ChangeNotesToEmbeddedSchema do
 
   defp transform_notes(transformer) do
     execute "ALTER TABLE works DISABLE TRIGGER USER"
+
     Repo.transaction(fn ->
       from(
         w in "works",
@@ -39,13 +40,17 @@ defmodule Meadow.Repo.Migrations.ChangeNotesToEmbeddedSchema do
       )
       |> Repo.stream()
       |> Stream.each(fn %{id: work_id, descriptive_metadata: descriptive_metadata} ->
-        new_notes = descriptive_metadata["notes"] |> transformer.() |> IO.inspect()
+        new_notes = descriptive_metadata["notes"] |> transformer.()
         new_descriptive_metadata = Map.put(descriptive_metadata, "notes", new_notes)
+
         from(w in "works", where: w.id == ^work_id)
-        |> Repo.update_all(set: [descriptive_metadata: new_descriptive_metadata, updated_at: DateTime.utc_now()])
+        |> Repo.update_all(
+          set: [descriptive_metadata: new_descriptive_metadata, updated_at: DateTime.utc_now()]
+        )
       end)
       |> Stream.run()
     end)
+
     execute "ALTER TABLE works ENABLE TRIGGER USER"
   end
 end

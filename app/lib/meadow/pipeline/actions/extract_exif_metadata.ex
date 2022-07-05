@@ -9,17 +9,16 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.{Lambda, StructMap}
-  alias Sequins.Pipeline.Action
 
-  use Action
   use Meadow.Pipeline.Actions.Common
 
   require Logger
 
-  @actiondoc "Extract EXIF metadata from FileSet"
   @timeout 120_000
 
-  defp already_complete?(file_set, _) do
+  def actiondoc, do: "Extract EXIF metadata from FileSet"
+
+  def already_complete?(file_set, _) do
     with existing_metadata <-
            file_set
            |> StructMap.deep_struct_to_map()
@@ -28,7 +27,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
     end
   end
 
-  defp process(file_set, _attributes, _) do
+  def process(file_set, _attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     file_set.core_metadata.location

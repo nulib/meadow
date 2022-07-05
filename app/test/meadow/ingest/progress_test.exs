@@ -5,7 +5,7 @@ defmodule Meadow.Ingest.ProgressTest do
   alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Ingest.Schemas.Progress, as: ProgressSchema
   alias Meadow.Pipeline.Actions
-  alias Meadow.Pipeline.Actions.Dispatcher
+  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
 
   @bad_sheet_id "deadface-c0de-feed-cafe-addedbadbeef"

@@ -1,0 +1,7 @@
+{
+  "settings": {
+    "index": {
+      "max_result_window": "50000"
+    }
+  }
+}

@@ -3,42 +3,51 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
   Action to handle job state change messages from MediaConvert
   """
 
+  alias Broadway.Message
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Ingest.{Progress, Rows}
+  alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Pipeline.Action
 
-  use Sequins.Pipeline.Action
+  use Meadow.Pipeline.Actions.Common
   use Meadow.Utils.Logging
 
   require Logger
 
-  @impl true
-  def process(%{detail_type: "MediaConvert Job State Change"} = message, _attributes) do
-    with {data, attributes} <- parse(message) do
-      process(data, attributes)
-    end
-  end
+  @event_type "MediaConvert Job State Change"
 
-  def process(%{file_set_id: file_set_id} = data, attributes) do
-    with_log_metadata module: __MODULE__, id: data.file_set_id do
-      with {status, response} <-
-             file_set_id |> FileSets.get_file_set() |> process_mediaconvert_response(data) do
-        update_progress(attributes, status)
-        {status, response, attributes}
+  def actiondoc, do: "Process completed media transcode"
+
+  def prepare_file_set_id(%Message{data: {%{detail_type: @event_type}, _}} = message) do
+    Message.update_data(message, fn {event, _} ->
+      with file_set_id <- event |> get_in([:detail, :user_metadata, :file_set_id]) do
+        {%{file_set_id: file_set_id},
+         event
+         |> get_in([:detail, :user_metadata])
+         |> Map.delete(:file_set_id)
+         |> Map.merge(%{
+           file_set_id: file_set_id,
+           detail: %{
+             status: event |> get_in([:detail, :status]),
+             error: event |> get_in([:detail, :error_message]),
+             playlist: event |> extract_playlist()
+           }
+         })}
       end
+    end)
+  end
+
+  def process(%FileSet{} = file_set, attributes) do
+    with result <- file_set |> process_mediaconvert_response(attributes) do
+      case result do
+        {status, _} -> Action.update_progress(__MODULE__, status, file_set, attributes)
+        status -> Action.update_progress(__MODULE__, status, file_set, attributes)
+      end
+
+      result
     end
   end
 
-  defp parse(message) do
-    {%{
-       file_set_id: message |> get_in([:detail, :user_metadata, :file_set_id]),
-       status: message |> get_in([:detail, :status]),
-       error: message |> get_in([:detail, :error_message]),
-       playlist: message |> extract_playlist()
-     },
-     message
-     |> get_in([:detail, :user_metadata])
-     |> Map.delete(:file_set_id)}
-  end
+  def already_complete?(_, _), do: false
 
   defp extract_playlist(message) do
     case message |> get_in([:detail, :output_group_details]) do
@@ -58,22 +67,17 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
     {:error, "FileSet #{file_set_id} not found"}
   end
 
-  defp process_mediaconvert_response(file_set, %{status: "COMPLETE", playlist: playlist}) do
+  defp process_mediaconvert_response(file_set, %{
+         detail: %{status: "COMPLETE", playlist: playlist}
+       }) do
     derivatives = FileSets.add_derivative(file_set, :playlist, playlist)
     FileSets.update_file_set(file_set, %{derivatives: derivatives})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
-    {:ok, %{file_set_id: file_set.id}}
+    :ok
   end
 
-  defp process_mediaconvert_response(file_set, %{status: "ERROR", error: error}) do
+  defp process_mediaconvert_response(file_set, %{detail: %{status: "ERROR", error: error}}) do
     ActionStates.set_state!(file_set, __MODULE__, "error", error)
     {:error, error}
   end
-
-  defp update_progress(%{ingest_sheet: sheet_id, ingest_sheet_row: row_num}, status) do
-    Rows.get_row(sheet_id, row_num)
-    |> Progress.update_entry(__MODULE__, to_string(status))
-  end
-
-  defp update_progress(_, _), do: :noop
 end

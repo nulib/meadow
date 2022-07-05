@@ -62,7 +62,9 @@ defmodule Meadow.AccountsTest do
 
     test "group members" do
       assert_lists_equal(
-        Accounts.group_members("CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu")
+        Accounts.group_members(
+          "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
+        )
         |> entry_names(),
         test_users("TestAdmins")
       )

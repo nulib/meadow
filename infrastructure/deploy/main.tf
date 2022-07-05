@@ -97,15 +97,76 @@ resource "aws_s3_bucket_versioning" "meadow_preservation" {
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation" {
+# Staging Preservation Bucket
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_staging" {
+  count  = var.environment == "s" ? 1 : 0
   bucket = aws_s3_bucket.meadow_preservation.id
+
+  rule {
+    id     = "reduced-reduncancy"
+
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    transition {
+      days          = 30
+      storage_class = "ONEZONE_IA"
+    }
+  }
 
   rule {
     id     = "retain-on-delete"
     status = "Enabled"
 
     noncurrent_version_expiration {
-      noncurrent_days = var.deleted_object_expiration
+      noncurrent_days = 1
+    }
+    expiration {
+      expired_object_delete_marker = true
+    }
+  }
+}
+
+resource "aws_s3_bucket_intelligent_tiering_configuration" "meadow_preservation_production" {
+  count  = var.environment == "p" ? 1 : 0
+  bucket = aws_s3_bucket.meadow_preservation.id
+  name   = "intelligent-archive"
+
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
+  }
+}
+
+# Production Preservation Bucket
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production" {
+  count  = var.environment == "p" ? 1 : 0
+  bucket = aws_s3_bucket.meadow_preservation.id
+
+  rule {
+    id = "intelligent-tiering"
+
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    transition {
+      days          = 0
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }
+
+  rule {
+    id     = "retain-on-delete"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 365
     }
     expiration {
       expired_object_delete_marker = true

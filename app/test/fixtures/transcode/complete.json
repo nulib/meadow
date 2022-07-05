@@ -34,8 +34,8 @@
           }
         ],
         "playlistFilePaths": [
-          "s3://test-streaming/event-test/small.mpd",
-          "s3://test-streaming/event-test/small.m3u8"
+          "s3://STREAMING_BUCKET/event-test/small.mpd",
+          "s3://STREAMING_BUCKET/event-test/small.m3u8"
         ],
         "type": "CMAF_GROUP"
       }

@@ -13,10 +13,10 @@ defmodule Meadow.FileSetDeleteListenerTest do
   @poster_key "posters/#{@pairtree}-poster.tif"
   @preservation_key "#{@pairtree}/preservation-file"
   @pyramid_key "#{@pairtree}-pyramid.tif"
-  @poster_location "s3://test-pyramids/#{@poster_key}"
-  @preservation_location "s3://test-preservation/#{@preservation_key}"
-  @pyramid_location "s3://test-pyramids/#{@pyramid_key}"
-  @streaming_location "s3://test-streaming/#{@pairtree}"
+  @poster_location "s3://#{@pyramid_bucket}/#{@poster_key}"
+  @preservation_location "s3://#{@preservation_bucket}/#{@preservation_key}"
+  @pyramid_location "s3://#{@pyramid_bucket}/#{@pyramid_key}"
+  @streaming_location "s3://#{@streaming_bucket}/#{@pairtree}"
   @timeout 5000
 
   def file_set_notification_fixture(index) do
@@ -44,27 +44,27 @@ defmodule Meadow.FileSetDeleteListenerTest do
   describe "clean_up!/1" do
     @describetag s3: [
                    %{
-                     bucket: "test-preservation",
+                     bucket: @preservation_bucket,
                      key: @preservation_key,
                      content: File.read!("test/fixtures/coffee.tif")
                    },
                    %{
-                     bucket: "test-pyramids",
+                     bucket: @pyramid_bucket,
                      key: @pyramid_key,
                      content: File.read!("test/fixtures/coffee.tif")
                    },
                    %{
-                     bucket: "test-pyramids",
+                     bucket: @pyramid_bucket,
                      key: @poster_key,
                      content: File.read!("test/fixtures/coffee.tif")
                    },
                    %{
-                     bucket: "test-streaming",
+                     bucket: @streaming_bucket,
                      key: "#{@pairtree}/playlist.m3u8",
                      content: "#EXTM3U\n"
                    },
                    %{
-                     bucket: "test-streaming",
+                     bucket: @streaming_bucket,
                      key: "#{@pairtree}/stream_file.m4v",
                      content: File.read!("test/fixtures/small.m4v")
                    }
@@ -80,10 +80,10 @@ defmodule Meadow.FileSetDeleteListenerTest do
       with file_set_id <- file_set.id do
         Repo.delete(file_set)
         assert_receive {"cleaned", ^file_set_id}, @timeout
-        refute object_exists?("test-pyramids", @pyramid_key)
-        refute object_exists?("test-pyramids", @poster_key)
-        refute object_exists?("test-streaming", "#{@pairtree}/playlist.m3u8")
-        refute object_exists?("test-streaming", "#{@pairtree}/stream_file.m4v")
+        refute object_exists?(@pyramid_bucket, @pyramid_key)
+        refute object_exists?(@pyramid_bucket, @poster_key)
+        refute object_exists?(@streaming_bucket, "#{@pairtree}/playlist.m3u8")
+        refute object_exists?(@streaming_bucket, "#{@pairtree}/stream_file.m4v")
       end
     end
 
@@ -91,7 +91,7 @@ defmodule Meadow.FileSetDeleteListenerTest do
       with file_set_id <- file_set.id do
         Repo.delete(file_set)
         assert_receive {"cleaned", ^file_set_id}, @timeout
-        refute object_exists?("test-preservation", @preservation_key)
+        refute object_exists?(@preservation_bucket, @preservation_key)
       end
     end
 
@@ -103,14 +103,14 @@ defmodule Meadow.FileSetDeleteListenerTest do
         with file_set_id <- file_set.id do
           Repo.delete(file_set)
           assert_receive {"cleaned", ^file_set_id}, @timeout
-          assert object_exists?("test-preservation", @preservation_key)
+          assert object_exists?(@preservation_bucket, @preservation_key)
         end
       end)
 
       with file_set_id <- last_file_set.id do
         Repo.delete(last_file_set)
         assert_receive {"cleaned", ^file_set_id}, @timeout
-        refute object_exists?("test-preservation", @preservation_key)
+        refute object_exists?(@preservation_bucket, @preservation_key)
       end
     end
 
@@ -118,7 +118,7 @@ defmodule Meadow.FileSetDeleteListenerTest do
       file_sets = [file_set | Enum.map(2..10, &file_set_notification_fixture/1)]
       SQL.query!(Repo, "DELETE FROM file_sets")
       Enum.each(file_sets, fn %{id: id} -> assert_receive {"cleaned", ^id}, @timeout end)
-      refute object_exists?("test-preservation", @preservation_key)
+      refute object_exists?(@preservation_bucket, @preservation_key)
     end
 
     test "logging", %{file_set: file_set} do

@@ -7,9 +7,10 @@ defmodule Meadow.S3Case do
   to the test containing a list of %{bucket, key, content} structs:
 
       defmodule Meadow.FileCheckerTest do
-        use Meadow.S3Case
+        use Meadow.BucketNames
+  $2use Meadow.S3Case
 
-        @bucket "test-ingest"
+        @bucket @ingest_bucket
         @key "file_checker_test/path/to/file.tif"
         @content "test/fixtures/file.tif"
         @fixture %{
@@ -42,6 +43,8 @@ defmodule Meadow.S3Case do
 
   using do
     quote do
+      use Meadow.BucketNames
+
       defp object_exists?(uri) do
         %{path: key, host: bucket} = URI.parse(uri)
         object_exists?(bucket, key)
@@ -162,8 +165,10 @@ defmodule Meadow.S3Case do
       |> Enum.map(& &1.name)
 
     with buckets <- Meadow.Config.buckets() do
-      (all_buckets -- buckets)
-      |> Enum.each(&Logger.warn("Unexpected bucket left behind: #{&1}"))
+      unless System.get_env("AWS_DEV_ENVIRONMENT") do
+        (all_buckets -- buckets)
+        |> Enum.each(&Logger.warn("Unexpected bucket left behind: #{&1}"))
+      end
 
       buckets
       |> Enum.each(fn bucket ->

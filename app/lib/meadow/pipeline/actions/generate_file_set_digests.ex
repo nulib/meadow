@@ -8,16 +8,14 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   """
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Utils.StructMap
-  alias Sequins.Pipeline.Action
 
-  use Action
   use Meadow.Pipeline.Actions.Common
 
   require Logger
 
-  @actiondoc "Generate Digests for FileSet"
+  def actiondoc, do: "Generate Digests for FileSet"
 
-  defp already_complete?(file_set, _) do
+  def already_complete?(file_set, _) do
     case file_set
          |> StructMap.deep_struct_to_map()
          |> get_in([:core_metadata, :digests]) do
@@ -31,7 +29,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     end
   end
 
-  defp process(file_set, _attributes, _) do
+  def process(file_set, _attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     try do

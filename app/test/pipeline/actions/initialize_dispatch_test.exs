@@ -1,14 +1,16 @@
 defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
+  use Meadow.S3Case
   use Meadow.DataCase
   use Meadow.IngestCase
-  use Meadow.S3Case
+  use Meadow.PipelineCase
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.{Progress, Rows}
-  alias Meadow.Pipeline.Actions.{Dispatcher, ExtractMimeType, IngestFileSet, InitializeDispatch}
+  alias Meadow.Pipeline.Dispatcher
+  alias Meadow.Pipeline.Actions.{ExtractMimeType, IngestFileSet, InitializeDispatch}
   alias Meadow.Utils.MapList
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
 
@@ -31,12 +33,23 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
 
     @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@content)}]
     test "initializes correct action_states entries for access image file set", %{
-      file_set: file_set
+      file_set: %{id: file_set_id} = file_set
     } do
-      assert(IngestFileSet.process(%{file_set_id: file_set.id}, %{}) == :ok)
-      assert(ExtractMimeType.process(%{file_set_id: file_set.id}, %{}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{})
+      )
 
-      assert(InitializeDispatch.process(%{file_set_id: file_set.id}, %{}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{})
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(InitializeDispatch, %{file_set_id: file_set_id}, %{})
+      )
+
       assert(ActionStates.ok?(file_set.id, InitializeDispatch))
 
       file_set = FileSets.get_file_set(file_set.id)
@@ -76,7 +89,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
     @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@content)}]
     test "sets unused progress entries for a file set to :ok", %{
       row: row,
-      file_set: file_set
+      file_set: %{id: file_set_id}
     } do
       Progress.initialize_entry(row, true)
       assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
@@ -84,10 +97,20 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
       assert Progress.get_entry(row, Meadow.Pipeline.Actions.CreatePyramidTiff)
              |> Map.get(:status) == "pending"
 
-      assert(IngestFileSet.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) == :ok)
-      assert(ExtractMimeType.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{context: "Sheet"})
+      )
 
-      assert(InitializeDispatch.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{context: "Sheet"})
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(InitializeDispatch, %{file_set_id: file_set_id}, %{context: "Sheet"})
+      )
 
       assert Progress.get_entry(row, Meadow.Pipeline.Actions.CreatePyramidTiff)
              |> Map.get(:status) == "ok"
@@ -123,7 +146,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
     @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@content)}]
     test "errors remaining actions and progress entries", %{
       row: row,
-      file_set: file_set
+      file_set: %{id: file_set_id} = file_set
     } do
       Progress.initialize_entry(row, true)
       assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
@@ -131,15 +154,22 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
       assert Progress.get_entry(row, Meadow.Pipeline.Actions.CreatePyramidTiff)
              |> Map.get(:status) == "pending"
 
-      assert(IngestFileSet.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) == :ok)
-      assert(ExtractMimeType.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{context: "Sheet"})
+      )
 
-      {:ok, file_set} =
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{context: "Sheet"})
+      )
+
+      {:ok, %{id: ^file_set_id}} =
         FileSets.update_file_set(file_set, %{core_metadata: %{mime_type: "appliation/json"}})
 
       assert(
-        InitializeDispatch.process(%{file_set_id: file_set.id}, %{context: "Sheet"}) ==
-          {:error, "Invalid mime-type and file set role combination"}
+        {:error, _, %{error: "Invalid mime-type and file set role combination"}} =
+          send_test_message(InitializeDispatch, %{file_set_id: file_set_id}, %{context: "Sheet"})
       )
     end
   end

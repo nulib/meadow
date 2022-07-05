@@ -1,4 +1,5 @@
 import Config
+alias Hush.Provider.SystemEnvironment
 
 ### YOU PROBABLY WANT TO USE RELEASES.EXS INSTEAD ###
 
@@ -12,7 +13,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :meadow, MeadowWeb.Endpoint,
-  url: [host: System.get_env("MEADOW_HOSTNAME", "example.com"), port: 80],
+  url: [host: {:hush, SystemEnvironment, "MEADOW_HOSTNAME", default: "example.com"}, port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

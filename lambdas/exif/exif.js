@@ -61,7 +61,8 @@ const download = (source) => {
       Bucket: uri.host, 
       Key: uri.path.replace(/^\/+/, "")
     };
-    tmp.file().then((outputFile) => {
+    
+    tmp.file({ template: '/tmp/exif-XXXXXX' }).then((outputFile) => {
       console.log(`Retrieving ${source} to ${outputFile.path}`);
 
       const inputStream = s3.getObject(s3Location).createReadStream()
@@ -90,17 +91,21 @@ const extract = async (source) => {
     console.warn("Output is not JSON. Returning raw data.");
   }
   delete output.SourceFile;
-  return output;  
+  return output;        
 };
 
 const readOutput = (child) => {
   return new Promise((resolve, reject) => {
     let buffer = '';
-    child.on('error', (error) => reject(error));
+    let errored = false;
+    child.on('error', (error) => {
+      reject(error);
+      errored = true;
+    });
+    child.on('exit', () => { if (!errored) resolve(buffer) });
     child.stdout
       .on('data', (data) => buffer += data)
-      .on('end', () => buffer = buffer.trimEnd())
-      .on('close', () => resolve(buffer));
+      .on('end', () => buffer = buffer.trimEnd());
   });
 };
 

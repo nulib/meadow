@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Query.GetGroupMembersTest do
 
   test "should return group members" do
     user_dn = test_users_dn(random_user("TestAdmins"))
-    group_dn = "CN=TestAdmins,OU=Departments,DC=library,DC=northwestern,DC=edu"
+    group_dn = "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
 
     result =
       query_gql(

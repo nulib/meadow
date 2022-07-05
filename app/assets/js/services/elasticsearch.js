@@ -4,7 +4,7 @@ const host = slashes.concat(window.location.hostname);
 const port = window.location.port;
 
 export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/elasticsearch`;
-export const ELASTICSEARCH_INDEX_NAME = "meadow";
+export const ELASTICSEARCH_INDEX_NAME = __ELASTICSEARCH_INDEX__;
 
 const Elasticsearch = require("elasticsearch");
 const client = new Elasticsearch.Client({

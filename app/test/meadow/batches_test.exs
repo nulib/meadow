@@ -132,12 +132,12 @@ defmodule Meadow.BatchesTest do
 
       {:ok, batch} = Batches.create_batch(attrs)
       assert {:ok, _result} = Batches.process_batch(batch)
+      assert Works.list_works() |> length() == 0
       assert Batches.list_batches() |> length() == 1
       batch = Batches.get_batch!(batch.id)
       assert batch.status == "complete"
       assert batch.active == false
       assert batch.works_updated == 3
-      assert Works.list_works() |> length() == 0
     end
 
     test "process_batch/1 does not start a batch if another batch is running" do

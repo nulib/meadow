@@ -56,9 +56,9 @@ const UIFormFieldArray = ({
       </ul>
 
       <UIFormFieldArrayAddButton
-        btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
-        handleAddClick={handleAddClick}
-      />
+          btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
+          handleAddClick={handleAddClick}
+        />
     </fieldset>
   );
 };

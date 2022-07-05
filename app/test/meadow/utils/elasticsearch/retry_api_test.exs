@@ -2,6 +2,7 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPITest do
   use Honeybadger.Case
   use Meadow.DataCase
 
+  alias Meadow.Data.Indexer
   alias Meadow.Data.Schemas.Work
   alias Meadow.ElasticsearchCluster, as: Cluster
   alias Meadow.Repo
@@ -68,7 +69,7 @@ defmodule Meadow.Utils.Elasticsearch.RetryAPITest do
           response =
             Elasticsearch.post(
               Meadow.ElasticsearchCluster,
-              "/meadow/_doc/#{index_doc["id"]}",
+              "/#{Indexer.index()}/_doc/#{index_doc["id"]}",
               index_doc
             )
 

@@ -11,12 +11,15 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
-  @doc "Retrieve Elasticsearch index name"
+  @doc "Retrieve primary (meadow) Elasticsearch index name"
   def elasticsearch_index do
-    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-    |> Keyword.get(:indexes)
-    |> Map.keys()
-    |> List.first()
+    Application.get_env(:meadow, Meadow.SearchIndex)
+    |> Keyword.get(:primary_index)
+  end
+
+  @doc "Retrieve shared links index name"
+  def shared_links_index do
+    Application.get_env(:meadow, :shared_links_index)
   end
 
   @doc "Retrieve Elasticsearch index settings filename"

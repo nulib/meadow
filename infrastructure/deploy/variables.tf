@@ -35,11 +35,6 @@ variable "digital_collections_url" {
   type = string
 }
 
-variable "deleted_object_expiration" {
-  type    = number
-  default = 180
-}
-
 variable "fixity_function" {
   type = string
 }

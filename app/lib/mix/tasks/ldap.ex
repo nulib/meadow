@@ -13,6 +13,8 @@ defmodule Mix.Tasks.Meadow.Ldap do
 
     @shortdoc @moduledoc
     def run(seed_files) do
+      Mix.Task.run("app.config")
+
       unless length(seed_files) != 0 do
         Mix.raise("Error: No seed file specified.")
       end
@@ -35,6 +37,8 @@ defmodule Mix.Tasks.Meadow.Ldap do
 
     @shortdoc @moduledoc
     def run(seed_files) do
+      Mix.Task.run("app.config")
+
       unless length(seed_files) != 0 do
         Mix.raise("Error: No seed file specified.")
       end

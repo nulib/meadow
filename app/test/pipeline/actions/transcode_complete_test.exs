@@ -1,5 +1,8 @@
 defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
+  use Meadow.S3Case
   use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.TranscodeComplete
 
@@ -10,6 +13,8 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
       message =
         Path.join("test/fixtures", file)
         |> File.read!()
+        |> String.replace(~r/PRESERVATION_BUCKET/, @preservation_bucket)
+        |> String.replace(~r/STREAMING_BUCKET/, @streaming_bucket)
         |> Jason.decode!(keys: :atoms)
         |> AtomicMap.convert(safe: false)
         |> put_in([:detail, :user_metadata, :file_set_id], file_set.id)
@@ -19,7 +24,9 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
 
     @tag message_file: "transcode/error.json"
     test "error", %{file_set: file_set, message: message} do
-      assert {:error, error, %{context: "Test"}} = TranscodeComplete.process(message, %{})
+      assert {:error, _, %{context: "Test", error: error}} =
+               send_test_message(TranscodeComplete, message, %{})
+
       assert error |> String.contains?("Failed to read data")
 
       with state <- ActionStates.get_latest_state(file_set.id, TranscodeComplete) do
@@ -30,12 +37,12 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
 
     @tag message_file: "transcode/complete.json"
     test "complete", %{file_set: file_set, message: message} do
-      assert {:ok, _, %{context: "Test"}} = TranscodeComplete.process(message, %{})
+      assert {:ok, _, %{context: "Test"}} = send_test_message(TranscodeComplete, message, %{})
       assert ActionStates.ok?(file_set.id, TranscodeComplete)
 
       assert FileSets.get_file_set(file_set.id)
              |> Map.get(:derivatives)
-             |> Map.get("playlist") == "s3://test-streaming/event-test/small.m3u8"
+             |> Map.get("playlist") == "s3://#{@streaming_bucket}/event-test/small.m3u8"
     end
   end
 end

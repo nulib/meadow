@@ -6,14 +6,17 @@
 
 # General application configuration
 import Config
+import Env
+
+alias Meadow.Utils.Hush.Transformer, as: CustomTransformer
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :meadow,
   ecto_repos: [Meadow.Repo],
-  environment: Mix.env()
+  environment: Mix.env(),
+  environment_prefix: prefix()
 
-# Shared database config
 config :meadow, Meadow.Repo,
   migration_primary_key: [
     name: :id,
@@ -22,7 +25,12 @@ config :meadow, Meadow.Repo,
     read_after_writes: true,
     default: {:fragment, "uuid_generate_v4()"}
   ],
-  migration_timestamps: [type: :utc_datetime_usec]
+  migration_timestamps: [type: :utc_datetime_usec],
+  username: aws_secret("meadow", dig: ["db", "user"], default: "docker"),
+  password: aws_secret("meadow", dig: ["db", "password"], default: "d0ck3r"),
+  database: aws_secret("meadow", dig: ["db", "database"], default: prefix("meadow")),
+  hostname: aws_secret("meadow", dig: ["db", "host"], default: "localhost"),
+  port: aws_secret("meadow", dig: ["db", "port"], default: 5432)
 
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,
@@ -32,8 +40,16 @@ config :meadow, MeadowWeb.Endpoint,
   pubsub_server: Meadow.PubSub,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
+# Search index configuration
+config :meadow, Meadow.SearchIndex, primary_index: atom_prefix("meadow")
+
 # Configures the ElasticsearchCluster
 config :meadow, Meadow.ElasticsearchCluster,
+  url:
+    aws_secret("meadow",
+      dig: ["index", "index_endpoint"],
+      default: "http://localhost:9201"
+    ),
   api: Elasticsearch.API.HTTP,
   default_options: [
     timeout: 20_000,
@@ -41,8 +57,8 @@ config :meadow, Meadow.ElasticsearchCluster,
   ],
   json_library: Jason,
   indexes: %{
-    meadow: %{
-      settings: "priv/elasticsearch/meadow.json",
+    atom_prefix("meadow") => %{
+      settings: "priv/elasticsearch/v1/settings/meadow.json",
       store: Meadow.ElasticsearchStore,
       sources: [
         Meadow.Data.Schemas.Collection,
@@ -51,17 +67,96 @@ config :meadow, Meadow.ElasticsearchCluster,
       ],
       bulk_page_size: 200,
       bulk_wait_interval: 500
+    },
+    atom_prefix("dc-v2-work") => %{
+      settings: "priv/elasticsearch/v2/settings/work.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: prefix("v1-to-v2-work")
+    },
+    atom_prefix("dc-v2-file-set") => %{
+      settings: "priv/elasticsearch/v2/settings/file_set.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: prefix("v1-to-v2-file-set")
+    },
+    atom_prefix("dc-v2-collection") => %{
+      settings: "priv/elasticsearch/v2/settings/collection.json",
+      store: Meadow.ElasticsearchEmptyStore,
+      sources: [:nothing],
+      bulk_page_size: 200,
+      bulk_wait_interval: 500,
+      default_pipeline: prefix("v1-to-v2-collection")
     }
   }
 
-# Configure Lambda-based actions
-config :meadow, :lambda,
-  digester: {:lambda, "meadow-digester"},
-  exif: {:lambda, "meadow-exif"},
-  frame_extractor: {:lambda, "meadow-frame-extractor"},
-  mediainfo: {:lambda, "meadow-mediainfo"},
-  mime_type: {:lambda, "meadow-mime-type"},
-  tiff: {:lambda, "meadow-pyramid-tiff"}
+config :meadow,
+  ark: %{
+    default_shoulder: aws_secret("meadow", dig: ["ezid", "shoulder"], default: "ark:/12345/nu1"),
+    user: aws_secret("meadow", dig: ["ezid", "user"], default: "ark_user"),
+    password: aws_secret("meadow", dig: ["ezid", "password"], default: "ark_password"),
+    target_url:
+      aws_secret("meadow",
+        dig: ["ezid", "target_base_url"],
+        default: "https://devbox.library.northwestern.edu:3333/items/"
+      ),
+    url: aws_secret("meadow", dig: ["ezid", "url"], default: "http://localhost:3943")
+  },
+  ingest_bucket: prefix("ingest"),
+  upload_bucket: prefix("uploads"),
+  pipeline_delay: :timer.seconds(5),
+  preservation_bucket: prefix("preservation"),
+  preservation_check_bucket: prefix("preservation-checks"),
+  pyramid_bucket: prefix("pyramids"),
+  streaming_bucket: prefix("streaming"),
+  streaming_url:
+    aws_secret("meadow",
+      dig: ["streaming", "base_url"],
+      default: "https://#{prefix()}-streaming.s3.amazonaws.com/"
+    ),
+  mediaconvert_client: MediaConvert.Mock,
+  multipart_upload_concurrency: System.get_env("MULTIPART_UPLOAD_CONCURRENCY", "10"),
+  iiif_server_url:
+    aws_secret("meadow",
+      dig: ["iiif", "base_url"],
+      default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/#{prefix()}"
+    ),
+  iiif_manifest_url:
+    aws_secret("meadow",
+      dig: ["iiif", "manifest_url"],
+      default: "https://#{prefix()}-pyramids.s3.amazonaws.com/public/"
+    ),
+  iiif_distribution_id: aws_secret("meadow", dig: ["iiif", "distribution_id"], default: nil),
+  digital_collections_url:
+    aws_secret("meadow",
+      dig: ["dc", "base_url"],
+      default: "https://fen.rdc-staging.library.northwestern.edu/"
+    ),
+  progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
+  validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
+  shared_links_index: prefix("shared-links"),
+  pyramid_tiff_working_dir: System.tmp_dir!(),
+  work_archiver_endpoint: aws_secret("meadow", dig: ["work_archiver", "endpoint"], default: "")
+
+config :exldap, :settings,
+  server: aws_secret("meadow", dig: ["ldap", "host"], default: "localhost"),
+  base:
+    aws_secret("meadow",
+      dig: ["ldap", "base"],
+      default: "DC=library,DC=northwestern,DC=edu"
+    ),
+  port: aws_secret("meadow", dig: ["ldap", "port"], cast: :integer, default: 390),
+  user_dn:
+    aws_secret("meadow",
+      dig: ["ldap", "user_dn"],
+      default: "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"
+    ),
+  password: aws_secret("meadow", dig: ["ldap", "password"], default: "d0ck3rAdm1n!"),
+  ssl: aws_secret("meadow", dig: ["ldap", "ssl"], cast: :boolean, default: false)
 
 config :meadow,
   transcoding_presets: %{
@@ -81,15 +176,18 @@ config :meadow,
   required_checksum_tags: ["computed-md5"],
   checksum_wait_timeout: 3_600_000
 
-# Configures the pyramid TIFF processor
-with val <- System.get_env("PYRAMID_PROCESSOR") do
-  unless is_nil(val), do: config(:meadow, pyramid_processor: val)
+# Configure Lambda-based actions
+lambda_from_ssm = fn lambda, function ->
+  {:lambda, aws_secret("meadow", dig: ["pipeline", lambda], default: "#{function}:$LATEST")}
 end
 
-# Configures the ETDF parser
-with val <- System.get_env("EDTF") do
-  unless is_nil(val), do: config(:meadow, edtf: val)
-end
+config :meadow, :lambda,
+  digester: lambda_from_ssm.("digester", "digester"),
+  exif: lambda_from_ssm.("exif", "exif"),
+  frame_extractor: lambda_from_ssm.("frame_extractor", "frame-extractor"),
+  mediainfo: lambda_from_ssm.("mediainfo", "mediainfo"),
+  mime_type: lambda_from_ssm.("mime_type", "mime-type"),
+  tiff: lambda_from_ssm.("tiff", "pyramid-tiff")
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -123,34 +221,18 @@ config :authoritex,
   ]
 
 config :honeybadger,
-  api_key: System.get_env("HONEYBADGER_API_KEY", "DO_NOT_REPORT"),
+  api_key: environment_secret("HONEYBADGER_API_KEY", default: "DO_NOT_REPORT"),
   environment_name: System.get_env("HONEYBADGER_ENVIRONMENT", to_string(Mix.env())),
-  revision: System.get_env("HONEYBADGER_REVISION", nil),
+  revision: System.get_env("HONEYBADGER_REVISION", ""),
   repos: [Meadow.Repo],
   breadcrumbs_enabled: true,
   filter: Meadow.Error.Filter,
   exclude_envs: [:dev, :test]
 
-aws_env =
-  System.get_env(
-    "AWS_PROFILE",
-    System.get_env("AWS_DEFAULT_PROFILE", "default")
-  )
-
-aws_region =
-  System.get_env(
-    "AWS_REGION",
-    System.get_env("AWS_DEFAULT_REGION", "us-east-1")
-  )
-
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, aws_env, 30}, :instance_role],
-  secret_access_key: [
-    {:system, "AWS_SECRET_ACCESS_KEY"},
-    {:awscli, aws_env, 30},
-    :instance_role
-  ],
-  region: aws_region
+  access_key_id: [:instance_role],
+  secret_access_key: [:instance_role],
+  region: System.get_env("AWS_REGION", "us-east-1")
 
 config :httpoison_retry, wait: 50
 
@@ -161,11 +243,23 @@ config :mime, :types, %{
   "audio/x-flac" => ["flac"]
 }
 
-import_config "sequins.exs"
+config :hush,
+  transformers_override: true,
+  transformers: [
+    CustomTransformer.Dig,
+    CustomTransformer.Default,
+    CustomTransformer.Split,
+    Hush.Transformer.Apply,
+    CustomTransformer.Cast,
+    Hush.Transformer.ToFile
+  ]
+
+import_config "pipeline.exs"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+
+import_config("#{Mix.env()}.exs")
 
 if File.exists?("config/#{Mix.env()}.local.exs"),
   do: import_config("#{Mix.env()}.local.exs")

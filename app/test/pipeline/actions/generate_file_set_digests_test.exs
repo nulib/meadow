@@ -1,14 +1,17 @@
 defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.GenerateFileSetDigests
   alias Meadow.Utils.AWS
+
   import ExUnit.CaptureLog
   import WaitForIt
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @key "generate_file_set_digests_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @bucket, key: @key, content: File.read!(@content)}
@@ -40,14 +43,18 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
   @tag s3: [@fixture]
   test "process/2", %{file_set_id: file_set_id} do
-    assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
+    assert(
+      {:ok, %{id: ^file_set_id}, %{}} =
+        send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
+    )
+
     assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
     assert(file_set.core_metadata.digests == %{"md5" => @md5})
 
     assert capture_log(fn ->
-             GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{})
+             send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
            end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} - already complete"
   end
 
@@ -64,7 +71,9 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     test "overwrite", %{file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
+
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
           assert(file_set.core_metadata.digests == %{"md5" => @md5})
@@ -76,10 +85,10 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     test "retain", %{file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(
-            GenerateFileSetDigests.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
-              :ok
-          )
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{
+                     overwrite: "false"
+                   })
 
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)

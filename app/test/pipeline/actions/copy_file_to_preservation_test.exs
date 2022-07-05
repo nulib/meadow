@@ -1,14 +1,15 @@
 defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.CopyFileToPreservation
   alias Meadow.Utils.Pairtree
+
   import ExUnit.CaptureLog
 
   @md5 "85062e8c916f55ae0c514cb0732cfb1f"
-  @ingest_bucket Meadow.Config.ingest_bucket()
-  @preservation_bucket Meadow.Config.preservation_bucket()
   @key "copy_file_to_preservation_test/test.tif"
   @content "test/fixtures/coffee.tif"
   @fixture %{bucket: @ingest_bucket, key: @key, content: File.read!(@content)}
@@ -36,19 +37,21 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
   describe "success" do
     @describetag s3: [@fixture]
     test "process/2", %{file_set_id: file_set_id, preservation_key: preservation_key} do
-      assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
+      )
+
       assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      assert(
-        file_set.core_metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}"
-      )
+      assert file_set.core_metadata.location =~ "s3://#{@preservation_bucket}/#{preservation_key}"
 
       assert(object_exists?(@preservation_bucket, preservation_key))
 
       assert capture_log(fn ->
-               CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} - already complete"
 
       with {:ok, %{headers: headers}} <-
@@ -88,8 +91,10 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
       log =
         capture_log(fn ->
           assert(
-            %{file_set_id: file_set_id}
-            |> CopyFileToPreservation.process(%{overwrite: "false"}) == :ok
+            {:ok, %{id: ^file_set_id}, %{}} =
+              send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{
+                overwrite: "false"
+              })
           )
 
           assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
@@ -124,7 +129,11 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       log =
         capture_log(fn ->
-          assert(CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert(
+            {:ok, %{id: ^file_set_id}, %{}} =
+              send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
+          )
+
           assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
           assert(object_exists?(@preservation_bucket, preservation_key))
         end)
@@ -140,10 +149,10 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       log =
         capture_log(fn ->
-          assert(
-            CopyFileToPreservation.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
-              :ok
-          )
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{
+                     overwrite: "false"
+                   })
 
           assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
           assert(object_exists?(@preservation_bucket, preservation_key))

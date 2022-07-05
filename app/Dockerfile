@@ -6,7 +6,8 @@ LABEL edu.northwestern.library.app=meadow \
 ENV MIX_ENV=prod
 COPY ./mix.exs /app/mix.exs
 COPY ./mix.lock /app/mix.lock
-COPY ./config /app/config
+COPY ./config/config.exs ./config/prod.exs ./config/pipeline.exs /app/config/
+COPY ./lib/env.ex /app/lib/
 WORKDIR /app
 RUN mix deps.get --only prod \
     && mix deps.compile

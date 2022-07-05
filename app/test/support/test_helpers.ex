@@ -240,8 +240,8 @@ defmodule Meadow.TestHelpers do
   def entry_names([]), do: []
   def entry_names(%Ldap.Entry{} = entry), do: entry.name
   def entry_names([entry | entries]), do: [entry_names(entry) | entry_names(entries)]
-  def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,DC=library,DC=northwestern,DC=edu"
-  def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,DC=library,DC=northwestern,DC=edu"
+  def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu"
+  def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,OU=test,DC=library,DC=northwestern,DC=edu"
 
   defp uniqify_ingest_sheet_rows(csv) do
     with prefix <- test_id() do

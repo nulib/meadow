@@ -1,13 +1,14 @@
 .elixir_ls
 .git
 _build
-assets/node_modules
+assets/coverage
+**/node_modules
 config/dev*.exs
+config/runtime.exs
 config/test*.exs
 deps
 doc
 Dockerfile
-Jenkinsfile
 priv/cert
 priv/seed_data
 priv/static

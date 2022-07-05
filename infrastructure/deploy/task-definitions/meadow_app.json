@@ -1,7 +1,7 @@
 [
   {
     "name": "meadow",
-    "image": "nulib/meadow:${docker_tag}",
+    "image": "${docker_repository}:${docker_tag}",
     "cpu": ${cpu_reservation},
     "memoryReservation": ${memory_reservation},
     "mountPoints": [],
@@ -16,84 +16,8 @@
         "value": "${secret_key_base}"
       },
       {
-        "name": "DIGITAL_COLLECTIONS_URL",
-        "value": "${digital_collections_url}"
-      },
-      {
-        "name": "DATABASE_URL",
-        "value": "${database_url}"
-      },
-      {
         "name": "HONEYBADGER_API_KEY",
         "value": "${honeybadger_api_key}"
-      },
-      {
-        "name": "ELASTICSEARCH_KEY",
-        "value": "${elasticsearch_key}"
-      },
-      {
-        "name": "ELASTICSEARCH_SECRET",
-        "value": "${elasticsearch_secret}"
-      },
-      {
-        "name": "ELASTICSEARCH_URL",
-        "value": "${elasticsearch_url}"
-      },
-      {
-        "name": "EZID_PASSWORD",
-        "value": "${ezid_password}"
-      },
-      {
-        "name": "EZID_SHOULDER",
-        "value": "${ezid_shoulder}"
-      },
-      {
-        "name": "EZID_TARGET_BASE_URL",
-        "value": "${ezid_target_base_url}"
-      },
-      {
-        "name": "EZID_USER",
-        "value": "${ezid_user}"
-      },
-      {
-        "name": "GEONAMES_USERNAME",
-        "value": "${geonames_username}"
-      },
-      {
-        "name": "IIIF_CLOUDFRONT_DISTRIBUTION_ID",
-        "value": "${iiif_cloudfront_distribution_id}"
-      },
-      {
-        "name": "IIIF_MANIFEST_URL",
-        "value": "${iiif_manifest_url}"
-      },
-      {
-        "name": "IIIF_SERVER_URL",
-        "value": "${iiif_server_url}"
-      },
-      {
-        "name": "INGEST_BUCKET",
-        "value": "${ingest_bucket}"
-      },
-      {
-        "name": "LDAP_BASE_DN",
-        "value": "${ldap_base_dn}"
-      },
-      {
-        "name": "LDAP_BIND_DN",
-        "value": "${ldap_bind_dn}"
-      },
-      {
-        "name": "LDAP_BIND_PASSWORD",
-        "value": "${ldap_bind_password}"
-      },
-      {
-        "name": "LDAP_PORT",
-        "value": "${ldap_port}"
-      },
-      {
-        "name": "LDAP_SERVER",
-        "value": "${ldap_server}"
       },
       {
         "name": "MEADOW_HOSTNAME",
@@ -112,26 +36,6 @@
         "value": "${db_queue_interval}"
       },
       {
-        "name": "MEDIACONVERT_QUEUE",
-        "value": "${mediaconvert_queue}"
-      },
-      {
-        "name": "MEDIACONVERT_ROLE",
-        "value": "${mediaconvert_role}"
-      },
-      {
-        "name": "PRESERVATION_BUCKET",
-        "value": "${preservation_bucket}"
-      },
-      {
-        "name": "PRESERVATION_CHECK_BUCKET",
-        "value": "${preservation_check_bucket}"
-      },
-      {
-        "name": "PYRAMID_BUCKET",
-        "value": "${pyramid_bucket}"
-      },
-      {
         "name": "PYRAMID_TIFF_WORKING_DIR",
         "value": "/working"
       },
@@ -142,30 +46,6 @@
       {
         "name": "RELEASE_DISTRIBUTION",
         "value": "name"
-      },
-      {
-        "name": "STREAMING_BUCKET",
-        "value": "${streaming_bucket}"
-      },
-      {
-        "name": "STREAMING_URL",
-        "value": "${streaming_url}"
-      },
-      {
-        "name": "UPLOAD_BUCKET",
-        "value": "${upload_bucket}"
-      },
-      {
-        "name": "WORK_ARCHIVER_ENDPOINT",
-        "value": "${work_archiver_endpoint}"
-      },
-      {
-        "name": "AGENTLESS_SSO_KEY",
-        "value": "${agentless_sso_key}"
-      },
-      {
-        "name": "SITEMAP_BUCKET",
-        "value": "${digital_collections_bucket}"
       },
       {
         "name": "ALLOWED_ORIGINS",

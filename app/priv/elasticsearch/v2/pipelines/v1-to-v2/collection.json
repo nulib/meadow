@@ -1,0 +1,69 @@
+{
+    "description": "Digital Collections API V1-to-V2 Collection Pipeline",
+    "processors": [
+      {
+        "rename": {
+          "field": "adminEmail",
+          "target_field": "admin_email"
+        }
+      },
+      {
+        "set": {
+          "field": "api_link",
+          "value": "[PLACEHOLDER]/{{id}}"
+        }
+      },
+      {
+        "set": {
+          "field": "api_model",
+          "value": "Collection"
+        }
+      },
+      {
+        "rename": {
+          "field": "createDate",
+          "target_field": "create_date"
+        }
+      },
+      {
+        "rename": {
+          "field": "findingAidUrl",
+          "target_field": "finding_aid_url"
+        }
+      },
+      {
+        "rename": {
+          "field": "modifiedDate",
+          "target_field": "modified_date"
+        }
+      },
+      {
+        "rename": {
+          "field": "representativeImage",
+          "target_field": "representative_image"
+        }
+      },
+      {
+        "remove": {
+          "field": "model"
+        }
+      },
+      {
+        "set": {
+          "field": "visibility_copy",
+          "value": "{{visibility.label}}"
+        }
+      },
+      {
+        "remove": {
+          "field": "visibility"
+        }
+      },
+      {
+        "rename": {
+          "field": "visibility_copy",
+          "target_field": "visibility"
+        }
+      }
+    ]
+  }

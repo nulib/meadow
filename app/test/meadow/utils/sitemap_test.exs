@@ -5,7 +5,7 @@ defmodule Meadow.Utils.SitemapTest do
 
   import ExUnit.CaptureLog
 
-  @bucket "test-uploads"
+  @bucket @upload_bucket
   @expected_files ["sitemap.xml.gz", "sitemap-00001.xml.gz"]
 
   describe "generate/0" do

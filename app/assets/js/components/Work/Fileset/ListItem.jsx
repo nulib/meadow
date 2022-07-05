@@ -101,7 +101,10 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {workContextState.workTypeId !== "AUDIO" && (
+              {!(
+                workContextState.workTypeId === "AUDIO" &&
+                fileSet.role.id === "A"
+              ) && (
                 <AuthDisplayAuthorized>
                   <div className="field">
                     <input

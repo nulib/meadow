@@ -1,12 +1,14 @@
 defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
-  use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.DataCase
+  use Meadow.PipelineCase
+
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Pipeline.Actions.ExtractMediaMetadata
 
   import ExUnit.CaptureLog
 
-  @bucket "test-ingest"
+  @bucket @ingest_bucket
   @media_key "extract_media_metadata_test/small.m4v"
   @media_content "test/fixtures/small.m4v"
   @media_fixture %{bucket: @bucket, key: @media_key, content: File.read!(@media_content)}
@@ -56,7 +58,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
   @tag s3: [@media_fixture]
   describe "success with metadata" do
     test "process/2", %{media_file_set_id: file_set_id} do
-      assert(ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
+
       assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
@@ -79,14 +83,16 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
       end
 
       assert capture_log(fn ->
-               ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
     end
   end
 
   describe "missing file" do
     test "process/2", %{missing_media_file_set_id: file_set_id} do
-      assert {:error, message} = ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
+      assert {:error, _, %{error: message}} =
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
+
       assert message |> String.contains?("404 Not Found")
 
       assert ActionStates.error?(file_set_id, ExtractMediaMetadata)
@@ -98,14 +104,15 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
       end
 
       assert capture_log(fn ->
-               ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
              end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
     end
   end
 
   describe "file_set with invalid location fails" do
     test "process/2", %{invalid_file_set_id: file_set_id} do
-      assert({:error, _} = ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{}))
+      assert {:error, _, %{error: "Invalid location: invalid"}} =
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata) == false)
     end
@@ -115,7 +122,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
     @describetag s3: [@media_fixture]
 
     setup %{media_file_set_id: file_set_id} do
-      ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{})
+      send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
       ActionStates.get_states(file_set_id) |> Enum.each(&Repo.delete!/1)
 
       :ok
@@ -124,7 +131,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
     test "overwrite", %{media_file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{}) == :ok)
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
+
           assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
         end)
 
@@ -134,10 +143,10 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
     test "retain", %{media_file_set_id: file_set_id} do
       log =
         capture_log(fn ->
-          assert(
-            ExtractMediaMetadata.process(%{file_set_id: file_set_id}, %{overwrite: "false"}) ==
-              :ok
-          )
+          assert {:ok, %{id: ^file_set_id}, %{}} =
+                   send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{
+                     overwrite: "false"
+                   })
 
           assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
         end)

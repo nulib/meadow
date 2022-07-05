@@ -17,6 +17,7 @@ it("should validate URL pattern", () => {
   expect(isUrlValid("htttp://northwestern.edu")).toBe(false);
   expect(isUrlValid("ww.northwestern.edu")).toBe(false);
   expect(isUrlValid("northwestern.edu")).toBe(false);
+  expect(isUrlValid("northwestern https://www.northwestern.edu")).toBe(false);
 
   expect(isUrlValid("www.google.cc")).toBe(true);
   expect(isUrlValid("www.google.co.uk")).toBe(true);

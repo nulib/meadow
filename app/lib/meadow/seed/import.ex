@@ -94,7 +94,7 @@ defmodule Meadow.Seed.Import do
     @import_tables
     |> Enum.each(fn {_name, schema} ->
       with table_name <- schema.__schema__(:source) do
-        SQL.query!(Repo, "ALTER TABLE #{table_name} DISABLE TRIGGER ALL")
+        SQL.query!(Repo, "ALTER TABLE #{table_name} DISABLE TRIGGER USER")
       end
     end)
   end
@@ -105,7 +105,7 @@ defmodule Meadow.Seed.Import do
     @import_tables
     |> Enum.each(fn {_name, schema} ->
       with table_name <- schema.__schema__(:source) do
-        SQL.query!(Repo, "ALTER TABLE #{table_name} ENABLE TRIGGER ALL")
+        SQL.query!(Repo, "ALTER TABLE #{table_name} ENABLE TRIGGER USER")
       end
     end)
   end

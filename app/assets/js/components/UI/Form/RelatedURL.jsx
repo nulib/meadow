@@ -30,6 +30,12 @@ const UIFormRelatedURL = ({
 
   return (
     <div data-testid="related-url-wrapper">
+      {errors[name] && (
+        <p className="help is-danger">
+          An issue has occured within <strong>Related URL</strong>. Verify
+          entries for Related URL.
+        </p>
+      )}
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries

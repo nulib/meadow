@@ -18,7 +18,12 @@ const BatchEditAboutUncontrolledMetadata = ({ ...restProps }) => {
     >
       {UNCONTROLLED_METADATA.map((item) => (
         <div key={item.name} className="column is-half" data-testid={item.name}>
-          <UIFormBatchFieldArray required name={item.name} label={item.label} />
+          <UIFormBatchFieldArray
+            required 
+            name={item.name} 
+            label={item.label}
+            isTextarea={item.inputEl && item.inputEl === 'textarea'} 
+            />
         </div>
       ))}
       <div className="column is-full" data-testid="notes">

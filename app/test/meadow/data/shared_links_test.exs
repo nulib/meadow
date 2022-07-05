@@ -1,15 +1,19 @@
 defmodule Meadow.Data.SharedLinksTest do
   use Meadow.DataCase
   use Meadow.IndexCase
+  alias Meadow.Config
   alias Meadow.Data.{Indexer, SharedLinks, Works}
 
   @query %{query: %{match_all: %{}}}
 
   describe "single shared links" do
     setup do
-      index_url = Application.get_env(:meadow, Meadow.ElasticsearchCluster) |> Keyword.get(:url)
-      Elastix.Index.delete(index_url, "shared_links")
-      on_exit(fn -> Elastix.Index.delete(index_url, "shared_links") end)
+      with index_url <- Config.elasticsearch_url(),
+           index <- Config.shared_links_index() do
+        Elastix.Index.delete(index_url, index)
+        Elastix.Index.create(index_url, index, %{})
+        on_exit(fn -> Elastix.Index.delete(index_url, index) end)
+      end
 
       :ok
     end

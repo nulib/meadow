@@ -6,49 +6,40 @@
 
 ## Prerequisites
 
-- Install Erlang and Elixir
-  - asdf is a good tool to use for that: [https://asdf-vm.com/](https://asdf-vm.com/)
-- Install Node.js (you can use `nvm` (`brew install nvm`) or `asdf` to install node)
-- Install libffi `brew install libffi`
-- Install ffmpeg `brew install ffmpeg`
-- Install mediainfo `brew install mediainfo`
-- Make sure you've completed the [Developer Setup](http://docs.rdc.library.northwestern.edu/2._Developer_Guides/Environment_and_Tools/Developer-Tools---Dev-Environment-Setup/#setup)
+- [NUL's AWS Cloud Developer Environment](https://github.com/nulib/aws-developer-environment) setup
 
-## Initial setup:
+## Initial startup:
 
 - From the `meadow` project root, `cd app`.
 - Install Elixir dependencies with `mix deps.get`
-- Run `devstack up meadow` to start the [devstack](https://github.com/nulib/devstack) environment:
-  - The [Kibana](https://www.elastic.co/kibana) utility is not part of the stack by default
-    - If you need Kibana, you can start it with the stack by running `devstack up meadow kibana`, or separately using `devstack up -d kibana`
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
-- Setup/seed the LDAP ([see below](###seeding-the-ldap-server) for instructions)
-  - You can run both the general setup and the LDAP setup at the same time with `mix do meadow.setup, meadow.ldap.setup /path/to/seed/file/filename.ldif`
 - Install Node.js dependencies with `mix assets.install`
   - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
-- `cd` back to the `meadow` project folder and start the Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
+- run `sg open all 3001`
+- Start the Phoenix server with `mix phx.server` (or `iex -S mix phx.server` if you want to an interactive shell).
 
-Now you can visit [`https://devbox.library.northwestern.edu:3001/`](https://devbox.library.northwestern.edu:3001/) from your browser.
-
-## Running the application
-
-Start the Phoenix with `mix phx.server` or `iex -S mix phx.server` if you want to an interactive shell.
-
-_Note:_ after a `devstack down`, you may have to run `mix meadow.pipeline.setup` before starting the server.
+Now you can visit [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/`](https://[YOURENV].dev.rdc.library.northwestern.edu:3001/) from your browser.
 
 ## Stopping the application
 
 You can stop the Phoneix server with `Ctrl + C` twice
 
-You can stop devstack by running `devstack down`. You local data (from the database, ldap, etc) will persist after devstack shuts down.
+## Clearing and resetting data
 
-If you need to clear your data and reset the entire development environment, run `devstack down -v`
+If you need to clear your data and reset the entire development environment, from `meadow/app` run:
 
-After initial setup, you don't need to run `mix meadow.setup` and `mix meadow.ldap.setup [seed_file ...]` again unless you've run `devstack down -v`.
+```
+mix ecto.reset
+mix meadow.elasticsearch.clear
+mix meadow.pipeline.purge
+clean-s3 dev -y
 
-If changes have been made to devstack itself, you may need to run `devstack pull` and/or `devstack update`
-
-Read more about [Devstack](https://github.com/nulib/devstack) commands here.
+...then
+mix deps.get
+mix meadow.setup
+mix assets.install
+mix phx.server
+```
 
 ### Dependencies
 
@@ -64,40 +55,22 @@ If you just want to run the migrations but leave the data intact, you can just d
 
 If you would like to interact directly with the database
 
-- you can use pgAdmin to view the database and tables, run `devstack up pgadmin` and view it in the browser at: [`http://localhost:5051/`](http://localhost:5051/)
-- Alternatively, you can dowload a tool like [PSequel](http://www.psequel.com/)
-
-### Seeding the LDAP server
-
-The task `mix meadow.ldap.setup [seed_file ...]` will seed the LDAP database using one or more LDIF files. `mix meadow.ldap.teardown [seed_file ...]` will remove any entries referenced in the seed files.
-
-- Seed files containing a reasonable sample of users and groups for development are available from the NUL dev team.
-- A seed file for testing is included in the project and is loaded automatically as part of the `mix test` task.
-
 ### Run the Elixir test suite
 
 - Start test devstack: `devstack -t up meadow`
 - run `mix test`
 
-### Accessing S3 Buckets in Development
-
-[Localstack](https://localstack.cloud), which we use to emulate Amazon S3 (and other services) in the development environment, does not have a full-featured S3 web UI, so it's necessary to use a utility like the [LocalStack AWS Command Line Interface](https://github.com/localstack/awscli-local) or [Cyberduck](https://cyberduck.io). There is a [Cyberduck Shortcut](Localstack%20S3.duck) in the root of this repository that will configure the app the connect to the S3 dev instance.
-
-*Note*: You may receive “incomplete transfer” warnings when uploading files through Cyberduck. This appears to be a bug in Cyberduck, and can be safely ignored. If you click the refresh icon in the main window after upload, you should see the uploaded files.
-
-
 ### GraphQL API
 
-You can visit the GraphiQL interface at: [`https://devbox.library.northwestern.edu:3001/api/graphiql`](https://devbox.library.northwestern.edu:3001/api/graphiql)
+You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001//api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
 
-### IIIF Server
+### Opensearch Dashboard
 
-In dev mode, the IIIF Server is available at: `http://localhost:8183/iiif/2`
+- To start: `es-proxy start`
+- To stop: `es-proxy stop`
+- See the console output for the url to the dashboard
 
-### Elasticsearch + Kibana
-
-- In dev mode, Elasticsearch is available at: `http://localhost:9201`
-- In dev mode, Kibana (if started) is available at: `http://localhost:5602/`
+### Reindexing data
 
 To force an Elasticsearch re-index, and not wait for the 2-minute cycle to kick in when updating a Meadow item:
 
@@ -113,10 +86,6 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all!
 ```
 
-### LDAP
-
-The development LDAP is available at `localhost` port `390`
-
 ### Terraform
 
 Meadow's Terraform code is stored in this repo. To run Terraform commands, you'll need to do the [configuration setup](https://github.com/nulib/repodev_planning_and_docs/blob/a36472895ae5c851f4f36b6f598dc5f666cea672/docs/2._Developer_Guides/Meadow/Terraform-Setup-on-Meadow.md)
@@ -126,6 +95,7 @@ Meadow's Terraform code is stored in this repo. To run Terraform commands, you'l
 Meadow runs in Development, Staging and Production environments. To help distinguish environments (and avoid potential errors), Staging and Development environments support alternate, background colors.
 
 #### Production
+
 - A wrapper CSS class of `is-production-environment` wraps the `main` HTML element (in case anyone wants to target a selector for any reason).
 
 #### Staging
