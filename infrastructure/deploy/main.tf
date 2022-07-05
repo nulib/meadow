@@ -130,6 +130,17 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_staging" {
   }
 }
 
+resource "aws_s3_bucket_intelligent_tiering_configuration" "meadow_preservation_production" {
+  count  = var.environment == "p" ? 1 : 0
+  bucket = aws_s3_bucket.meadow_preservation.id
+  name   = "intelligent-archive"
+
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
+  }
+}
+
 # Production Preservation Bucket
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production" {
   count  = var.environment == "p" ? 1 : 0
@@ -147,21 +158,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production
     transition {
       days          = 0
       storage_class = "INTELLIGENT_TIERING"
-    }
-  }
-
-  rule {
-    id = "deep-glacier"
-
-    status = "Enabled"
-
-    filter {
-      prefix = ""
-    }
-
-    transition {
-      days          = 180
-      storage_class = "DEEP_ARCHIVE"
     }
   }
 
