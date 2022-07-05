@@ -272,6 +272,7 @@ jobs:
         run: .github/scripts/upload_source_maps.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
           MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
           HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
           HONEYBADGER_REVISION: ${{ github.sha }}
