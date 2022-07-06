@@ -113,7 +113,7 @@ config :meadow,
   multipart_upload_concurrency: environment_secret("MULTIPART_UPLOAD_CONCURRENCY", default: "50"),
   pipeline_delay: environment_secret("PIPELINE_DELAY", default: "120000"),
   progress_ping_interval: environment_secret("PROGRESS_PING_INTERVAL", default: "1000"),
-  shared_links_index: "shared-links",
+  shared_links_index: "shared_links",
   sitemaps: [
     gzip: true,
     store: Sitemapper.S3Store,
