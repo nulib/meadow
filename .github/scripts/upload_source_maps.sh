@@ -1,5 +1,6 @@
 #!/bin/bash
 
+docker pull $MEADOW_IMAGE
 container_id=$(docker create ${MEADOW_IMAGE})
 docker cp ${container_id}:/app/lib/meadow-${MEADOW_VERSION}/priv/static/js ${container_id}
 for source in app vendors~app; do
