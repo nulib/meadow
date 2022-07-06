@@ -138,7 +138,7 @@ config :meadow,
     ),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
-  shared_links_index: prefix("shared-links"),
+  shared_links_index: prefix("shared_links"),
   pyramid_tiff_working_dir: System.tmp_dir!(),
   work_archiver_endpoint: aws_secret("meadow", dig: ["work_archiver", "endpoint"], default: "")
 
