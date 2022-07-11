@@ -1,22 +1,4 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { useMutation, useQuery } from "@apollo/client";
-import {
-  DELETE_FILESET,
-  DELETE_WORK,
-  VERIFY_FILE_SETS,
-} from "@js/components/Work/work.gql";
-import UIModalDelete from "@js/components/UI/Modal/Delete";
-import { useHistory } from "react-router-dom";
-import { Button, Icon, Notification, Popover } from "@nulib/design-system";
-import { sortFileSets, toastWrapper } from "@js/services/helpers";
-import UISkeleton from "@js/components/UI/Skeleton";
-import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
-import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
-import { formatDate } from "@js/services/helpers";
-import { useClipboard } from "use-clipboard-copy";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
   IconAdd,
   IconArrowDown,
@@ -29,26 +11,48 @@ import {
   IconTrashCan,
   IconView,
 } from "@js/components/Icon";
-import * as Dialog from "@radix-ui/react-dialog";
+import { Button, Icon, Notification } from "@nulib/design-system";
+import {
+  DELETE_FILESET,
+  DELETE_WORK,
+  VERIFY_FILE_SETS,
+} from "@js/components/Work/work.gql";
+import React, { useState } from "react";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import PropTypes from "prop-types";
+import UISkeleton from "@js/components/UI/Skeleton";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
+import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
+import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
+import { useMutation, useQuery } from "@apollo/client";
+import { sortFileSets, toastWrapper } from "@js/services/helpers";
+import classNames from "classnames";
+import { formatDate } from "@js/services/helpers";
 import { styled } from "@stitches/react";
+import { useClipboard } from "use-clipboard-copy";
+import { useHistory } from "react-router-dom";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
 
   const history = useHistory();
+  const [isActionsOpen, setIsActionsOpen] = React.useState(false);
   const [isAddFilesetModalVisible, setIsAddFilesetModalVisible] =
     React.useState(false);
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
+  const actionItemClasses = `dropdown-item is-flex is-align-items-center`;
 
-  const [techContainer, setTechContainer] = React.useState(null);
+  const handleActionsToggle = () => {
+    setIsActionsOpen(!isActionsOpen);
+  };
 
   // These 2 state variables keep track of whether a modal is open,
   // and also additional data which the dependent modals rely upon
   const [technicalMetadata, setTechnicalMetadata] = React.useState({
-    fileSet: {}
+    fileSet: {},
   });
   const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
     fileset: {},
@@ -253,46 +257,40 @@ const WorkTabsPreservation = ({ work }) => {
                         <Verified id={fileset.id} />
                       </td>
                       <td className="has-text-right">
-                        <div>
-                          <Popover>
-                            <Popover.Trigger>
-                              <Button as="span" data-testid="fileset-actions">
-                                <span style={{ marginRight: "0.5rem" }}>
-                                  Actions
-                                </span>
-                                <IconArrowDown aria-hidden="true" />
-                              </Button>
-                            </Popover.Trigger>
-                            <Popover.Content
-                              css={{
-                                display: "flex",
-                                flexDirection: "column",
-                                maxWidth: "unset",
-                              }}
+                        <div
+                          className={classNames("dropdown", "is-right", {
+                            "is-active": isActionsOpen,
+                          })}
+                        >
+                          <div className="dropdown-trigger">
+                            <button
+                              type="button"
+                              className="button"
+                              aria-haspopup="true"
+                              aria-controls="dropdown-menu"
+                              onClick={handleActionsToggle}
                             >
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
+                              <span>Actions</span>
+                              <IconArrowDown className="icon" />
+                            </button>
+                          </div>
+                          <div
+                            className="dropdown-menu"
+                            id="dropdown-menu"
+                            role="menu"
+                          >
+                            <div className="dropdown-content">
+                              <a
+                                className={actionItemClasses}
                                 onClick={() => clipboard.copy(fileset.id)}
                               >
                                 <IconCopyToClipboard />
                                 <span style={{ marginLeft: "0.5rem" }}>
                                   Copy id to clipboard
                                 </span>
-                              </Button>
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
+                              </a>
+                              <a
+                                className={actionItemClasses}
                                 onClick={() => {
                                   let digests = {
                                     ...fileset.coreMetadata.digests,
@@ -307,15 +305,9 @@ const WorkTabsPreservation = ({ work }) => {
                                 <span style={{ marginLeft: "0.5rem" }}>
                                   Copy checksums to clipboard
                                 </span>
-                              </Button>
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
+                              </a>
+                              <a
+                                className={actionItemClasses}
                                 onClick={() =>
                                   clipboard.copy(fileset.coreMetadata.location)
                                 }
@@ -324,62 +316,47 @@ const WorkTabsPreservation = ({ work }) => {
                                 <span style={{ marginLeft: "0.5rem" }}>
                                   Copy preservation location to clipboard
                                 </span>
-                              </Button>
-
-                              <Dialog.Root>
-                                <DialogTrigger>
-                                  <Button
-                                    as="span"
-                                    isLowercase
-                                    isText
-                                    css={{
-                                      marginBottom: "1rem",
-                                      padding: "0",
-                                      justifyContent: "left",
-                                    }}
-                                    onClick={() =>
-                                      handleTechnicalMetaClick(fileset)
-                                    }
-                                  >
-                                    <IconView />
-                                    <span
-                                      style={{
-                                        marginLeft: "0.5rem",
-                                      }}
+                              </a>
+                              <div>
+                                <Dialog.Root>
+                                  <DialogTrigger asChild>
+                                    <a
+                                      className={actionItemClasses}
+                                      onClick={() =>
+                                        handleTechnicalMetaClick(fileset)
+                                      }
                                     >
-                                      View technical metadata
-                                    </span>
-                                  </Button>
-                                </DialogTrigger>
-                                <Dialog.Portal container={techContainer}>
-                                <DialogOverlay />
-                                <DialogContent>
-                                  <DialogClose>
-                                    <Icon isSmall aria-label="Close">
-                                      <Icon.Close />
-                                    </Icon>
-                                  </DialogClose>
-                                  <DialogTitle>Technical Metadata</DialogTitle>
-                                  <WorkTabsPreservationTechnical
-                                    fileSet={technicalMetadata.fileSet}
-                                    isVisible={true}
-                                  />
-                                </DialogContent>
-                                </Dialog.Portal>
-                                
-                              </Dialog.Root>
-
+                                      <IconView />
+                                      <span
+                                        style={{
+                                          marginLeft: "0.5rem",
+                                        }}
+                                      >
+                                        View technical metadata
+                                      </span>
+                                    </a>
+                                  </DialogTrigger>
+                                  <DialogOverlay />
+                                  <DialogContent>
+                                    <DialogClose>
+                                      <Icon isSmall aria-label="Close">
+                                        <Icon.Close />
+                                      </Icon>
+                                    </DialogClose>
+                                    <DialogTitle css={{ textAlign: "left" }}>
+                                      Technical Metadata
+                                    </DialogTitle>
+                                    <WorkTabsPreservationTechnical
+                                      fileSet={technicalMetadata.fileSet}
+                                    />
+                                  </DialogContent>
+                                </Dialog.Root>
+                              </div>
                               <AuthDisplayAuthorized>
                                 <Dialog.Root>
-                                  <DialogTrigger>
-                                    <Button
-                                      as="span"
-                                      isLowercase
-                                      isText
-                                      css={{
-                                        padding: "0",
-                                        justifyContent: "left",
-                                      }}
+                                  <DialogTrigger asChild>
+                                    <a
+                                      className={actionItemClasses}
                                       onClick={() =>
                                         handleDeleteFilesetClick(fileset)
                                       }
@@ -388,10 +365,10 @@ const WorkTabsPreservation = ({ work }) => {
                                       <span style={{ marginLeft: "0.5rem" }}>
                                         Delete fileset
                                       </span>
-                                    </Button>
+                                    </a>
                                   </DialogTrigger>
                                   <DialogOverlay />
-                                  <DialogContent>
+                                  <DialogContent css={{ textAlign: "left" }}>
                                     <DialogClose>
                                       <Icon isSmall aria-label="Close">
                                         <Icon.Close />
@@ -430,8 +407,8 @@ const WorkTabsPreservation = ({ work }) => {
                                   </DialogContent>
                                 </Dialog.Root>
                               </AuthDisplayAuthorized>
-                            </Popover.Content>
-                          </Popover>
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -494,7 +471,6 @@ const WorkTabsPreservation = ({ work }) => {
         workId={work.id}
         workTypeId={work.workType?.id}
       />
-      <div ref={setTechContainer} />
     </div>
   );
 };
@@ -507,9 +483,6 @@ const DialogOverlay = styled(Dialog.Overlay, {
 });
 
 const DialogTrigger = styled(Dialog.Trigger, {
-  display: "inline-flex",
-  padding: "0",
-  margin: "0",
   cursor: "pointer",
   border: "none",
   background: "none",

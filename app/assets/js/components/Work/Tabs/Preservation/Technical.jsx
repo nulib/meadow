@@ -35,7 +35,10 @@ function WorkTabsPreservationTechnical({ fileSet = {} }) {
   const techMetadata = getTechnicalMetadata(fileSet);
 
   return (
-    <div style={{ marginTop: "0.5rem", zIndex: 1000 }} data-testid="technical-metadata">
+    <div
+      style={{ marginTop: "0.5rem", textAlign: "left" }}
+      data-testid="technical-metadata"
+    >
       {!techMetadata && (
         <p data-testid="no-data-notification">
           No technical metadata exists for this File Set
