@@ -43,11 +43,12 @@ const WorkTabsPreservation = ({ work }) => {
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
 
+  const [techContainer, setTechContainer] = React.useState(null);
+
   // These 2 state variables keep track of whether a modal is open,
   // and also additional data which the dependent modals rely upon
   const [technicalMetadata, setTechnicalMetadata] = React.useState({
-    fileSet: {},
-    isVisible: false,
+    fileSet: {}
   });
   const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
     fileset: {},
@@ -188,7 +189,7 @@ const WorkTabsPreservation = ({ work }) => {
   };
 
   const handleTechnicalMetaClick = (fileSet = {}) => {
-    setTechnicalMetadata({ fileSet: { ...fileSet }, isVisible: true });
+    setTechnicalMetadata({ fileSet: { ...fileSet } });
   };
 
   return (
@@ -350,6 +351,7 @@ const WorkTabsPreservation = ({ work }) => {
                                     </span>
                                   </Button>
                                 </DialogTrigger>
+                                <Dialog.Portal container={techContainer}>
                                 <DialogOverlay />
                                 <DialogContent>
                                   <DialogClose>
@@ -363,6 +365,8 @@ const WorkTabsPreservation = ({ work }) => {
                                     isVisible={true}
                                   />
                                 </DialogContent>
+                                </Dialog.Portal>
+                                
                               </Dialog.Root>
 
                               <AuthDisplayAuthorized>
@@ -490,6 +494,7 @@ const WorkTabsPreservation = ({ work }) => {
         workId={work.id}
         workTypeId={work.workType?.id}
       />
+      <div ref={setTechContainer} />
     </div>
   );
 };
