@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import SearchActionRow from "./ActionRow";
 import userEvent from "@testing-library/user-event";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
@@ -50,11 +50,13 @@ describe("SearchActionRow component", () => {
       expect(screen.getByTestId("button-edit-items")).toBeDisabled();
     });
 
-    it("renders all buttons when select all button is clicked", () => {
-      // Open the modal
-      userEvent.click(screen.getByTestId("button-select-all"));
+    it("renders all buttons when select all button is clicked", async () => {
+      const user = userEvent.setup();
 
-      userEvent.click(screen.getByTestId("button-batch-all-edit"));
+      // Open the modal
+      await user.click(screen.getByTestId("button-select-all"));
+
+      await user.click(screen.getByTestId("button-batch-all-edit"));
       expect(props.handleEditAllItems).toHaveBeenCalled();
 
       expect(screen.getByTestId("button-csv-all-export"));
@@ -76,19 +78,21 @@ describe("SearchActionRow component", () => {
       expect(screen.getByTestId("button-deselect-all")).not.toBeDisabled();
     });
 
-    it("calls the deselect all callback function when button clicked", () => {
-      userEvent.click(screen.getByTestId("button-deselect-all"));
+    it("calls the deselect all callback function when button clicked", async () => {
+      const user = userEvent.setup();
+      await user.click(screen.getByTestId("button-deselect-all"));
       expect(props.handleDeselectAll).toHaveBeenCalled();
     });
 
-    it("renders 'batch edit', 'csv export' and 'batch_delete' buttons when select all button is clicked", () => {
+    it("renders 'batch edit', 'csv export' and 'batch_delete' buttons when select all button is clicked", async () => {
+      const user = userEvent.setup();
       // Open the modal
-      userEvent.click(screen.getByTestId("button-edit-items"));
+      await user.click(screen.getByTestId("button-edit-items"));
 
-      userEvent.click(screen.getByTestId("button-batch-items-edit"));
+      await user.click(screen.getByTestId("button-batch-items-edit"));
       expect(props.handleEditItems).toHaveBeenCalled();
 
-      userEvent.click(screen.getByTestId("button-view-and-edit"));
+      await user.click(screen.getByTestId("button-view-and-edit"));
       expect(props.handleViewAndEdit).toHaveBeenCalled();
 
       expect(screen.getByTestId("button-csv-items-export"));

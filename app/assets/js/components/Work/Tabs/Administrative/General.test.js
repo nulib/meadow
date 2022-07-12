@@ -76,13 +76,14 @@ describe("Work Administrative General metadata component", () => {
 
   describe("reading room form input", () => {
     it("displays default value and checks on and off", async () => {
+      const user = userEvent.setup();
       // Set form to "edit" mode
       setUpTests({ ...props, isEditing: true });
 
       const readingRoomEl = await screen.findByTestId("checkbox-reading-room");
       expect(readingRoomEl).toBeChecked();
 
-      userEvent.click(screen.getByTestId("label-reading-room"));
+      await user.click(screen.getByTestId("label-reading-room"));
       expect(screen.getByTestId("checkbox-reading-room")).not.toBeChecked();
     });
   });

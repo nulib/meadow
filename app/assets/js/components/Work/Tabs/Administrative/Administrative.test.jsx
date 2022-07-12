@@ -2,7 +2,7 @@ import React from "react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { mockWork } from "../../work.gql.mock";
 import WorkTabsAdministrative from "./Administrative";
-import { fireEvent, waitFor, screen } from "@testing-library/react";
+import { waitFor, screen } from "@testing-library/react";
 import {
   MOCK_COLLECTION_ID,
   getCollectionMock,
@@ -42,27 +42,30 @@ describe("Work Administrative tab component", () => {
   });
 
   it("switches between edit and non edit mode", async () => {
+    const user = userEvent.setup();
     const editButton = await screen.findByTestId("edit-button");
     expect(editButton);
 
-    userEvent.click(editButton);
+    await user.click(editButton);
 
     expect(await screen.findByTestId("save-button"));
     expect(await screen.findByTestId("cancel-button"));
   });
 
   it("displays form elements only when in edit mode", async () => {
+    const user = userEvent.setup();
     await waitFor(() => {
       expect(screen.queryByTestId("visibility")).toBeFalsy();
       expect(screen.queryByTestId("project-cycle")).toBeFalsy();
     });
 
-    fireEvent.click(screen.queryByTestId("edit-button"));
+    await user.click(screen.queryByTestId("edit-button"));
     expect(screen.queryByTestId("visibility"));
     expect(screen.queryByTestId("project-cycle"));
   });
 
   it("displays correct Project metadata values", async () => {
+    const user = userEvent.setup();
     const description = /New Project Description/i;
     const cycleName = /Project Cycle Name/i;
     await waitFor(() => {
@@ -74,7 +77,7 @@ describe("Work Administrative tab component", () => {
     });
 
     // And ensure the values transfer to the form elements when in edit mode
-    fireEvent.click(screen.getByTestId("edit-button"));
+    await user.click(screen.getByTestId("edit-button"));
     expect(screen.getByDisplayValue(description));
     expect(screen.getByDisplayValue(cycleName));
   });
