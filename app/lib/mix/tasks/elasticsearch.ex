@@ -14,6 +14,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Setup do
   def run(_) do
     RetryAPI.configure()
     Logger.info("Creating Elasticsearch index")
+    System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.config")
 
     indexes =
@@ -42,6 +43,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Pipelines do
   def run(_) do
     RetryAPI.configure()
     Logger.info("Creating Elasticsearch ingest pipelines")
+    System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.config")
 
     Path.wildcard("priv/elasticsearch/*/pipelines/**/*.*")
@@ -151,6 +153,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Teardown do
 
   @shortdoc @moduledoc
   def run(_) do
+    System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.config")
     Logger.info("Tearing down Elasticsearch environment")
 
@@ -253,6 +256,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Clear do
 
   @shortdoc @moduledoc
   def run(_) do
+    System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.config")
 
     with url <- Application.get_env(:meadow, Meadow.ElasticsearchCluster) |> Keyword.get(:url),

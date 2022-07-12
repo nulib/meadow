@@ -11,6 +11,7 @@ defmodule Meadow.ReleaseTasks do
   @modules [
     Meadow.BatchDriver,
     Meadow.Data.IndexWorker,
+    Meadow.Data.ReindexWorker,
     Meadow.Ingest.Progress,
     Meadow.Ingest.WorkCreator,
     Meadow.Ingest.WorkRedriver

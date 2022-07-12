@@ -26,7 +26,8 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Collection do
             }
         end,
       title: collection.title,
-      visibility: format(collection.visibility)
+      visibility: format(collection.visibility),
+      indexed_at: NaiveDateTime.utc_now()
     }
   end
 

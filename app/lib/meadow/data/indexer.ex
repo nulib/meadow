@@ -9,6 +9,7 @@ defmodule Meadow.Data.Indexer do
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
   alias Meadow.ElasticsearchDiffStore, as: Store
+  alias Meadow.Search.Client, as: SearchClient
 
   require Logger
 
@@ -42,8 +43,29 @@ defmodule Meadow.Data.Indexer do
   end
 
   def reindex_all! do
-    IndexTimes.reset_all!()
-    synchronize_index()
+    with now <- NaiveDateTime.utc_now() do
+      IndexTimes.reset_all!()
+      synchronize_index()
+      delete_outdated_documents(now)
+    end
+
+    Logger.info("Reindex complete")
+  end
+
+  defp delete_outdated_documents(time) do
+    query = %{
+      query: %{
+        range: %{
+          indexed_at: %{
+            lt: time
+          }
+        }
+      }
+    }
+
+    for index <- Config.indexes() do
+      SearchClient.delete_by_query(index, query)
+    end
   end
 
   def synchronize_schema(schema) do
@@ -67,14 +89,16 @@ defmodule Meadow.Data.Indexer do
   end
 
   def encode!(id, :deleted) do
-    %{delete: %{_index: index(), _id: id}}
-    |> json_encode()
+    for index <- Config.indexes() do
+      %{delete: %{_index: index, _id: id}}
+    end
+    |> Enum.map_join("\n", &json_encode/1)
   end
 
   def encode!(indexable, _) do
     [
       %{index: %{_index: index(), _id: indexable.id}},
-      indexable |> Elasticsearch.Document.encode()
+      Elasticsearch.Document.encode(indexable)
     ]
     |> Enum.map_join("\n", &json_encode/1)
   end

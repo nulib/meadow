@@ -2,7 +2,7 @@ ctx.file_sets = ctx.original.fileSets
   .stream()
   .map(fs -> {
     def result = [:];
-    result.extracted_metadata = fs.extractedMetadata;
+    // result.extracted_metadata = fs.extractedMetadata;
     result.id = fs.id;
     result.label = fs.label;
     result.mime_type = fs.mime_type;
