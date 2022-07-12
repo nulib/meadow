@@ -19,15 +19,13 @@ describe("Related Url controlled metadata form component", () => {
     // The use case is, if you'd want to test a component independently which contains
     // a React Hook Form element you'd like to test
     it("renders appropriate error messages with invalid url or select values", async () => {
-      const {
-        findByText,
-        getByTestId,
-        reactHookFormMethods,
-      } = renderWithReactHookForm(<UIFormRelatedURL {...props} />, {
-        toPassBack: ["setError"],
-      });
+      const user = userEvent.setup();
+      const { findByText, getByTestId, reactHookFormMethods } =
+        renderWithReactHookForm(<UIFormRelatedURL {...props} />, {
+          toPassBack: ["setError"],
+        });
 
-      userEvent.click(getByTestId("button-add-field-array-row"));
+      await user.click(getByTestId("button-add-field-array-row"));
 
       await waitFor(() => {
         reactHookFormMethods.setError("relatedUrl[0].url", {

@@ -25,11 +25,12 @@ describe("SearchBatchModal component", () => {
     expect(screen.getByTestId("select-all-modal")).toHaveClass("is-active");
   });
 
-  it("calls the close modal callback function", () => {
+  it("calls the close modal callback function", async () => {
+    const user = userEvent.setup();
     props = { ...props, isOpen: true };
     render(<SearchBatchModal {...props} />);
-    userEvent.click(screen.getByTestId("header-close-button"));
-    userEvent.click(screen.getByText("Cancel"));
+    await user.click(screen.getByTestId("header-close-button"));
+    await user.click(screen.getByText("Cancel"));
     expect(props.handleCloseClick).toHaveBeenCalledTimes(2);
   });
 

@@ -2,7 +2,7 @@ import React from "react";
 import BatchEdiModalRemove from "@js/components/BatchEdit/ModalRemove";
 import { render, screen, within } from "@testing-library/react";
 import { BatchProvider } from "@js/context/batch-edit-context";
-import useEvent from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 
 const props = {
   closeModal: jest.fn(),
@@ -67,11 +67,12 @@ describe("BatchEditModalRemove component", () => {
     utils2.getByText("25", { exact: false });
   });
 
-  it("renders a close button", () => {
+  it("renders a close button", async () => {
+    const user = userEvent.setup();
     renderComponent();
     const button = screen.getByTestId("close-button");
     expect(button);
-    useEvent.click(button);
+    await user.click(button);
     expect(props.closeModal).toHaveBeenCalled();
   });
 });

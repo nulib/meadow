@@ -23,14 +23,15 @@ describe("UIDropdown component", () => {
     expect(el.id).toEqual("dropdown1");
   });
 
-  it("renders dropdown content", () => {
+  it("renders dropdown content", async () => {
+    const user = userEvent.setup();
     const dropdownEl = screen.getByTestId("test-dropdown");
     const el = screen.getByTestId("dropdown-content");
 
     expect(el.childElementCount).toEqual(2);
     expect(dropdownEl).not.toHaveClass("is-active");
 
-    userEvent.click(screen.getByTestId("dropdown-trigger-button"));
+    await user.click(screen.getByTestId("dropdown-trigger-button"));
     expect(dropdownEl).toHaveClass("is-active");
   });
 });

@@ -15,10 +15,11 @@ describe("DashboardsLocalAuthoritiesTitleBar component", () => {
     expect(screen.getByTestId("add-button"));
   });
 
-  it("renders the Add modal and displays the modal successfully when clicking the Add button", () => {
+  it("renders the Add modal and displays the modal successfully when clicking the Add button", async () => {
+    const user = userEvent.setup();
     const modalEl = screen.getByTestId("modal-nul-authority-add");
     expect(modalEl).not.toHaveClass("is-active");
-    userEvent.click(screen.getByTestId("add-button"));
+    await user.click(screen.getByTestId("add-button"));
     expect(modalEl).toHaveClass("is-active");
   });
 });

@@ -25,17 +25,18 @@ describe("UIDownloadAll component", () => {
   });
 
   it("toggles modal display", async () => {
+    const user = userEvent.setup();
     const downloadButton = await screen.findByTestId("download-all-button");
     const cancelButton = await screen.findByTestId("cancel-button");
     const modalWrapper = await screen.findByTestId("download-all-modal");
 
-    userEvent.click(downloadButton);
+    await user.click(downloadButton);
     expect(modalWrapper).toHaveClass("is-active");
 
-    userEvent.click(cancelButton);
+    await user.click(cancelButton);
     expect(modalWrapper).not.toHaveClass("is-active");
 
-    userEvent.click(downloadButton);
+    await user.click(downloadButton);
     expect(modalWrapper).toHaveClass("is-active");
   });
 

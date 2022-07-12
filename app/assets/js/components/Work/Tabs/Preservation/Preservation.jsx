@@ -258,6 +258,7 @@ const WorkTabsPreservation = ({ work }) => {
                       </td>
                       <td className="has-text-right">
                         <div
+                          data-testid="fileset-actions"
                           className={classNames("dropdown", "is-right", {
                             "is-active": isActionsOpen,
                           })}

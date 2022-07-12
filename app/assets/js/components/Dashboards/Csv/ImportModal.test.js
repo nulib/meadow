@@ -29,9 +29,11 @@ describe("DashboardsCsvImportModal component", () => {
   });
 
   it("calls callback functions on cancel and submit", async () => {
+    const user = userEvent.setup();
+
     const submitButton = screen.getByTestId("submit-button");
     expect(submitButton).toBeDisabled();
-    userEvent.click(screen.getByTestId("cancel-button"));
+    await user.click(screen.getByTestId("cancel-button"));
     expect(props.handleClose).toHaveBeenCalled();
   });
 });

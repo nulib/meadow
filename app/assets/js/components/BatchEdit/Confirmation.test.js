@@ -200,19 +200,21 @@ describe("BatchEditConfirmation component test", () => {
   });
 
   describe("Submit button", () => {
-    it("is enabled after typing confirmation text, and calls its callback function", () => {
+    it("is enabled after typing confirmation text, and calls its callback function", async () => {
+      const user = userEvent.setup();
+
       renderComponent();
 
       let button = screen.getByTestId("button-submit");
       let textInput = screen.getByTestId("input-confirmation-text");
       expect(button).toBeDisabled();
 
-      userEvent.type(textInput, "I refuse to understand");
+      await user.type(textInput, "I refuse to understand");
       expect(button).toBeDisabled();
 
-      userEvent.clear(textInput);
+      await user.clear(textInput);
 
-      userEvent.type(textInput, "I understand");
+      await user.type(textInput, "I understand");
       expect(button).toBeEnabled();
     });
   });

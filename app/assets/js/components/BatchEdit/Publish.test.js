@@ -26,14 +26,16 @@ describe("BatchEditPublish component", () => {
     expect(screen.getByLabelText("Unpublished"));
   });
 
-  it("allows only one checkbox to be selected", () => {
+  it("allows only one checkbox to be selected", async () => {
+    const user = userEvent.setup();
+
     const publishCheckbox = screen.getByLabelText("Published");
     const unPublishCheckbox = screen.getByLabelText("Unpublished");
-    userEvent.click(publishCheckbox);
-    userEvent.click(unPublishCheckbox);
+    await user.click(publishCheckbox);
+    await user.click(unPublishCheckbox);
     expect(publishCheckbox).not.toBeChecked();
 
-    userEvent.click(publishCheckbox);
+    await user.click(publishCheckbox);
     expect(unPublishCheckbox).not.toBeChecked();
   });
 });

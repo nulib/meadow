@@ -30,19 +30,20 @@ describe("DashboardsLocalAuthoritiesModalAdd component", () => {
   });
 
   it("calls the Cancel and Submit callback functions", async () => {
+    const user = userEvent.setup();
     const expectedFormPostData = {
       label: "foo bar",
       hint: "ima hint",
     };
 
-    userEvent.type(screen.getByLabelText(/label/i), "foo bar");
-    userEvent.type(screen.getByLabelText(/hint/i), "ima hint");
-    userEvent.click(screen.getByTestId("submit-button"));
+    await user.type(screen.getByLabelText(/label/i), "foo bar");
+    await user.type(screen.getByLabelText(/hint/i), "ima hint");
+    await user.click(screen.getByTestId("submit-button"));
     await waitFor(() => {
       expect(submitCallback).toHaveBeenCalledWith(expectedFormPostData);
     });
 
-    userEvent.click(screen.getByTestId("cancel-button"));
+    await user.click(screen.getByTestId("cancel-button"));
     expect(cancelCallback).toHaveBeenCalled();
   });
 });
