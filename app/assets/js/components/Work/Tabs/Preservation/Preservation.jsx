@@ -3,51 +3,44 @@ import {
   IconAdd,
   IconArrowDown,
   IconArrowUp,
-  IconBinaryFile,
-  IconBucket,
   IconCheck,
-  IconCopyToClipboard,
   IconDelete,
-  IconTrashCan,
-  IconView,
 } from "@js/components/Icon";
+import {
+  DialogClose,
+  DialogContent,
+  DialogOverlay,
+  DialogTitle,
+  DialogTrigger,
+} from "@js/components/UI/Dialog/Dialog.styled";
 import { Button, Icon, Notification } from "@nulib/design-system";
 import {
   DELETE_FILESET,
   DELETE_WORK,
   VERIFY_FILE_SETS,
 } from "@js/components/Work/work.gql";
+import PreservationActionsCol from "@js/components/Work/Tabs/Preservation/ActionsCol";
 import React, { useState } from "react";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import PropTypes from "prop-types";
 import UISkeleton from "@js/components/UI/Skeleton";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
-import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
 import { useMutation, useQuery } from "@apollo/client";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
-import classNames from "classnames";
 import { formatDate } from "@js/services/helpers";
-import { styled } from "@stitches/react";
-import { useClipboard } from "use-clipboard-copy";
 import { useHistory } from "react-router-dom";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
 
   const history = useHistory();
-  const [isActionsOpen, setIsActionsOpen] = React.useState(false);
   const [isAddFilesetModalVisible, setIsAddFilesetModalVisible] =
     React.useState(false);
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
-  const actionItemClasses = `dropdown-item is-flex is-align-items-center`;
-
-  const handleActionsToggle = () => {
-    setIsActionsOpen(!isActionsOpen);
-  };
 
   // These 2 state variables keep track of whether a modal is open,
   // and also additional data which the dependent modals rely upon
@@ -57,15 +50,6 @@ const WorkTabsPreservation = ({ work }) => {
   const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
     fileset: {},
     isVisible: false,
-  });
-
-  const clipboard = useClipboard({
-    onSuccess() {
-      toastWrapper("is-success", `Copied successfully.`);
-    },
-    onError() {
-      toastWrapper("is-danger", "Failed to copy.");
-    },
   });
 
   const {
@@ -257,160 +241,17 @@ const WorkTabsPreservation = ({ work }) => {
                         <Verified id={fileset.id} />
                       </td>
                       <td className="has-text-right">
-                        <div
-                          data-testid="fileset-actions"
-                          className={classNames("dropdown", "is-right", {
-                            "is-active": isActionsOpen,
-                          })}
-                        >
-                          <div className="dropdown-trigger">
-                            <button
-                              type="button"
-                              className="button"
-                              aria-haspopup="true"
-                              aria-controls="dropdown-menu"
-                              onClick={handleActionsToggle}
-                            >
-                              <span>Actions</span>
-                              <IconArrowDown className="icon" />
-                            </button>
-                          </div>
-                          <div
-                            className="dropdown-menu"
-                            id="dropdown-menu"
-                            role="menu"
-                          >
-                            <div className="dropdown-content">
-                              <a
-                                className={actionItemClasses}
-                                onClick={() => clipboard.copy(fileset.id)}
-                              >
-                                <IconCopyToClipboard />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy id to clipboard
-                                </span>
-                              </a>
-                              <a
-                                className={actionItemClasses}
-                                onClick={() => {
-                                  let digests = {
-                                    ...fileset.coreMetadata.digests,
-                                  };
-                                  delete digests["__typename"];
-                                  return clipboard.copy(
-                                    JSON.stringify(digests)
-                                  );
-                                }}
-                              >
-                                <IconBinaryFile />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy checksums to clipboard
-                                </span>
-                              </a>
-                              <a
-                                className={actionItemClasses}
-                                onClick={() =>
-                                  clipboard.copy(fileset.coreMetadata.location)
-                                }
-                              >
-                                <IconBucket />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy preservation location to clipboard
-                                </span>
-                              </a>
-                              <div>
-                                <Dialog.Root>
-                                  <DialogTrigger asChild>
-                                    <a
-                                      className={actionItemClasses}
-                                      onClick={() =>
-                                        handleTechnicalMetaClick(fileset)
-                                      }
-                                    >
-                                      <IconView />
-                                      <span
-                                        style={{
-                                          marginLeft: "0.5rem",
-                                        }}
-                                      >
-                                        View technical metadata
-                                      </span>
-                                    </a>
-                                  </DialogTrigger>
-                                  <DialogOverlay />
-                                  <DialogContent>
-                                    <DialogClose>
-                                      <Icon isSmall aria-label="Close">
-                                        <Icon.Close />
-                                      </Icon>
-                                    </DialogClose>
-                                    <DialogTitle css={{ textAlign: "left" }}>
-                                      Technical Metadata
-                                    </DialogTitle>
-                                    <WorkTabsPreservationTechnical
-                                      fileSet={technicalMetadata.fileSet}
-                                    />
-                                  </DialogContent>
-                                </Dialog.Root>
-                              </div>
-                              <AuthDisplayAuthorized>
-                                <Dialog.Root>
-                                  <DialogTrigger asChild>
-                                    <a
-                                      className={actionItemClasses}
-                                      onClick={() =>
-                                        handleDeleteFilesetClick(fileset)
-                                      }
-                                    >
-                                      <IconTrashCan />
-                                      <span style={{ marginLeft: "0.5rem" }}>
-                                        Delete fileset
-                                      </span>
-                                    </a>
-                                  </DialogTrigger>
-                                  <DialogOverlay />
-                                  <DialogContent css={{ textAlign: "left" }}>
-                                    <DialogClose>
-                                      <Icon isSmall aria-label="Close">
-                                        <Icon.Close />
-                                      </Icon>
-                                    </DialogClose>
-                                    <DialogTitle>
-                                      Delete
-                                      {`Fileset: ${
-                                        deleteFilesetModal.fileset.coreMetadata
-                                          ? deleteFilesetModal.fileset
-                                              .coreMetadata.label
-                                          : ""
-                                      }`}
-                                    </DialogTitle>
-                                    {work && (
-                                      <div
-                                        style={{ marginTop: "0.5rem" }}
-                                        data-testid="delete-fileset-modal"
-                                      >
-                                        <p className="text-gray-600">
-                                          This action cannot be undone.
-                                        </p>
-                                        <div className="buttons is-right">
-                                          <Dialog.Close className="button is-text">
-                                            Cancel
-                                          </Dialog.Close>
-                                          <button
-                                            className="button is-danger"
-                                            onClick={handleConfirmDeleteFileset}
-                                          >
-                                            Delete
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </DialogContent>
-                                </Dialog.Root>
-                              </AuthDisplayAuthorized>
-                            </div>
-                          </div>
-                        </div>
+                        <PreservationActionsCol
+                          deleteFilesetModal={deleteFilesetModal}
+                          fileset={fileset}
+                          handleConfirmDeleteFileset={
+                            handleConfirmDeleteFileset
+                          }
+                          handleDeleteFilesetClick={handleDeleteFilesetClick}
+                          handleTechnicalMetaClick={handleTechnicalMetaClick}
+                          technicalMetadata={technicalMetadata}
+                          work={work}
+                        />
                       </td>
                     </tr>
                   );
@@ -475,48 +316,6 @@ const WorkTabsPreservation = ({ work }) => {
     </div>
   );
 };
-
-const DialogOverlay = styled(Dialog.Overlay, {
-  backgroundColor: "#000a",
-  position: "fixed",
-  inset: 0,
-  zIndex: 10,
-});
-
-const DialogTrigger = styled(Dialog.Trigger, {
-  cursor: "pointer",
-  border: "none",
-  background: "none",
-  textTransform: "unset",
-});
-
-const DialogContent = styled(Dialog.Content, {
-  backgroundColor: "white",
-  borderRadius: "3px",
-  boxShadow: "5px 5px 13px #0002",
-  position: "fixed",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90vw",
-  maxWidth: "700px",
-  maxHeight: "85vh",
-  padding: "1rem",
-  overflowY: "scroll",
-  zIndex: 11,
-});
-
-const DialogClose = styled(Dialog.Close, {
-  position: "absolute",
-  background: "none",
-  border: "none",
-  right: "1rem",
-  cursor: "pointer",
-});
-
-const DialogTitle = styled(Dialog.Title, {
-  fontWeight: "700",
-});
 
 WorkTabsPreservation.propTypes = {
   work: PropTypes.object,
