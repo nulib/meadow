@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
         |> Enum.into(%{
           ingest_sheets: 0,
           works: 0,
-          bucket: Meadow.Config.upload_bucket(),
+          bucket: System.get_env("SHARED_BUCKET"),
           prefix: nil,
           skip_assets: false,
           threads: 1
@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
       |> Export.export_assets(parsed_opts.bucket, parsed_opts.prefix, parsed_opts.threads)
     end
   rescue
-    exception -> Logger.error(exception.message)
+    exception -> Logger.error(exception)
   end
 
   def missing?(value), do: is_nil(value) or value == ""

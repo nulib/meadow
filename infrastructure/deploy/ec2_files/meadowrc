@@ -10,6 +10,7 @@ export MEADOW_HOSTNAME="${host_name}"
 export MEADOW_PROCESSES="none"
 export REAL_AWS_CONFIG="true"
 export HONEYBADGER_ENVIRONMENT="${environment}-ec2"
+export SHARED_BUCKET="${shared_bucket}"
 
 cd ~/meadow
 git fetch -pa origin

@@ -156,6 +156,10 @@ variable "ffmpeg_layer_sha256" {
   type = string
 }
 
+variable "shared_bucket" {
+  type = string
+}
+
 variable "work_archiver_endpoint" {
   type = string
 }
