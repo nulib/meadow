@@ -25,14 +25,15 @@ describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
     expect(await screen.findByTestId("fileset-dnd-wrapper"));
   });
 
-  it("renders save and cancel buttons", () => {
+  it("renders save and cancel buttons", async () => {
+    const user = userEvent.setup();
     const saveBtn = screen.getByTestId("button-reorder-save");
     const cancelBtn = screen.getByTestId("button-reorder-cancel");
 
-    userEvent.click(saveBtn);
+    await user.click(saveBtn);
     expect(mockHandleSaveFn).toHaveBeenCalled();
 
-    userEvent.click(cancelBtn);
+    await user.click(cancelBtn);
     expect(mockHandleCancelFn).toHaveBeenCalled();
   });
 

@@ -23,8 +23,9 @@ describe("UIDropdownItem component", () => {
       expect(screen.getByText("Option 1"));
     });
 
-    it("handles click event", () => {
-      userEvent.click(screen.getByTestId("test-dropdown-item"));
+    it("handles click event", async () => {
+      const user = userEvent.setup();
+      await user.click(screen.getByTestId("test-dropdown-item"));
       expect(mockHandleClick).toHaveBeenCalled();
     });
   });

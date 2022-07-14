@@ -2,10 +2,10 @@ import "../styles/app.scss";
 import "phoenix_html";
 import isUndefined from "lodash.isundefined";
 import React from "react";
-import ReactDOM from "react-dom";
 import Root from "./screens/Root";
 import Honeybadger from "@honeybadger-io/js";
 import ErrorBoundary from "@honeybadger-io/react";
+import { createRoot } from 'react-dom/client';
 
 // GraphQL-specific
 import { ApolloProvider } from "@apollo/client";
@@ -24,11 +24,12 @@ const honeybadger = Honeybadger.configure(config).setContext({
   tags: "frontend",
 });
 
-ReactDOM.render(
-  <ErrorBoundary honeybadger={honeybadger}>
-    <ApolloProvider client={client}>
-      <Root />
-    </ApolloProvider>
-  </ErrorBoundary>,
-  document.getElementById("react-app")
-);
+const container = document.getElementById("react-app");
+const root = createRoot(container);
+root.render(<ErrorBoundary honeybadger={honeybadger}>
+  <ApolloProvider client={client}>
+    <Root />
+  </ApolloProvider>
+</ErrorBoundary>)
+
+

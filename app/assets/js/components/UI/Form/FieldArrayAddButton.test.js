@@ -18,14 +18,15 @@ describe("UIFormFieldArrayAddButton component", () => {
     );
   });
 
-  it("calls the add callback function", () => {
+  it("calls the add callback function", async () => {
+    const user = userEvent.setup();
     render(
       <UIFormFieldArrayAddButton
         btnLabel="Add another"
         handleAddClick={addFn}
       />
     );
-    userEvent.click(screen.getByTestId("button-add-field-array-row"));
+    await user.click(screen.getByTestId("button-add-field-array-row"));
     expect(addFn).toHaveBeenCalled();
   });
 });

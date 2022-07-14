@@ -30,17 +30,19 @@ describe("BatchEditAboutDescriptiveMetadata component", () => {
   });
 
   it("filters for a project by title", async () => {
+    const user = userEvent.setup();
     const el = await screen.findByTestId("input-project-filter");
     expect(el);
     expect(screen.getAllByTestId("project-title-row")).toHaveLength(2);
     //filter for project title
-    userEvent.type(el, "Second");
+    await user.type(el, "Second");
     expect(screen.getAllByTestId("project-title-row")).toHaveLength(1);
   });
 
   it("opens delete modal", async () => {
+    const user = userEvent.setup();
     expect(await screen.findAllByTestId("delete-button-row")).toHaveLength(2);
-    userEvent.click(screen.getAllByTestId("delete-button-row")[0]);
+    await user.click(screen.getAllByTestId("delete-button-row")[0]);
     expect(screen.getAllByTestId("delete-modal")).toHaveLength(1);
   });
 });

@@ -32,7 +32,8 @@ describe("ProjectForm component", () => {
   });
 
   it("displays input error when empty form is submitted", async () => {
-    userEvent.click(screen.getByTestId("submit-button"));
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId("submit-button"));
     expect(await screen.findByTestId("input-errors"));
   });
 

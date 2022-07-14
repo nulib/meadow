@@ -58,6 +58,7 @@ describe("DashboardsLocalAuthoritiesList component searching", () => {
     // To mock this query, the passed in value must match the return value,
     // otherwise Apollo complains its missing a mocked instance of the query
     const dynamicMock = authoritiesSearchMock("f");
+    const user = userEvent.setup();
 
     renderWithRouterApollo(<DashboardsLocalAuthoritiesList />, {
       mocks: [getNulAuthorityRecordsMock, dynamicMock],
@@ -65,7 +66,7 @@ describe("DashboardsLocalAuthoritiesList component searching", () => {
 
     const el = await screen.findByPlaceholderText("Search");
     expect(await screen.findAllByTestId("nul-authorities-row")).toHaveLength(2);
-    userEvent.type(el, "f");
+    await user.type(el, "f");
     expect(await screen.findAllByText("Fast food restaurants"));
   });
 });

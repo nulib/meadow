@@ -68,11 +68,12 @@ describe("WorkTabsAdministrativeCollection component", () => {
     });
 
     it("displays selected Collection link and handles being clicked", async () => {
+      const user = userEvent.setup();
       const collectionLinkEl = await screen.findByTestId(
         "view-collection-works-button"
       );
       expect(collectionLinkEl).toHaveTextContent("Great collection");
-      userEvent.click(collectionLinkEl);
+      await user.click(collectionLinkEl);
       expect(mockHandleViewAllWorksFn).toHaveBeenCalled();
     });
 

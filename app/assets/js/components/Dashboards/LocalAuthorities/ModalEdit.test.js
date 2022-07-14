@@ -33,14 +33,17 @@ describe("DashboardsLocalAuthoritiesModalEdit component", () => {
     expect(screen.getByTestId("cancel-button"));
   });
 
-  it("renders a disabled Submit button if no elements have been interacted with", () => {
+  it("renders a disabled Submit button if no elements have been interacted with", async () => {
+    const user = userEvent.setup();
+
     const submitButtonEl = screen.getByTestId("submit-button");
     expect(submitButtonEl).toBeDisabled();
-    userEvent.type(screen.getByLabelText(/label/i), "something");
+    await user.type(screen.getByLabelText(/label/i), "something");
     expect(submitButtonEl).not.toBeDisabled();
   });
 
   it("calls the Cancel and Submit callback functions", async () => {
+    const user = userEvent.setup();
     const expectedFormPostData = {
       label: "foo bar",
       hint: "ima hint",
@@ -48,17 +51,17 @@ describe("DashboardsLocalAuthoritiesModalEdit component", () => {
     const labelEl = screen.getByLabelText(/label/i);
     const hintEl = screen.getByLabelText(/hint/i);
 
-    userEvent.clear(labelEl);
-    userEvent.clear(hintEl);
+    await user.clear(labelEl);
+    await user.clear(hintEl);
 
-    userEvent.type(labelEl, "foo bar");
-    userEvent.type(hintEl, "ima hint");
-    userEvent.click(screen.getByTestId("submit-button"));
+    await user.type(labelEl, "foo bar");
+    await user.type(hintEl, "ima hint");
+    await user.click(screen.getByTestId("submit-button"));
     await waitFor(() => {
       expect(submitCallback).toHaveBeenCalledWith(expectedFormPostData);
     });
 
-    userEvent.click(screen.getByTestId("cancel-button"));
+    await user.click(screen.getByTestId("cancel-button"));
     expect(cancelCallback).toHaveBeenCalled();
   });
 });

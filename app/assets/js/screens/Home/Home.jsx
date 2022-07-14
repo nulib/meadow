@@ -51,7 +51,6 @@ const ScreensHome = () => {
 
       <section className="section">
         <div className="container">
-          <h2>YO YO</h2>
           <div className="columns">
             <div className="column is-two-thirds">
               <ChartsRepositoryGrowth

@@ -2,6 +2,63 @@
   "settings": {
     "index": {
       "max_result_window": "50000"
+    },
+    "analysis": {
+      "analyzer": {
+        "full_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "stopword_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "english_stop"
+          ]
+        }
+      },
+      "filter": {
+        "english_stop": {
+          "type": "stop",
+          "stopwords": "_english_"
+        }
+      }
     }
+  },
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "text_fields": {
+          "match": "^description$|^label$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "text",
+            "analyzer": "full_analyzer",
+            "search_analyzer": "stopword_analyzer",
+            "search_quote_analyzer": "full_analyzer"
+          }
+        }
+      },
+      {
+        "strings": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
   }
 }

@@ -1,36 +1,35 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { useMutation, useQuery } from "@apollo/client";
+import * as Dialog from "@radix-ui/react-dialog";
+import {
+  IconAdd,
+  IconArrowDown,
+  IconArrowUp,
+  IconCheck,
+  IconDelete,
+} from "@js/components/Icon";
+import {
+  DialogClose,
+  DialogContent,
+  DialogOverlay,
+  DialogTitle,
+  DialogTrigger,
+} from "@js/components/UI/Dialog/Dialog.styled";
+import { Button, Icon, Notification } from "@nulib/design-system";
 import {
   DELETE_FILESET,
   DELETE_WORK,
   VERIFY_FILE_SETS,
 } from "@js/components/Work/work.gql";
-import UIModalDelete from "@js/components/UI/Modal/Delete";
-import { useHistory } from "react-router-dom";
-import { Button, Icon, Notification, Popover } from "@nulib/design-system";
-import { sortFileSets, toastWrapper } from "@js/services/helpers";
+import PreservationActionsCol from "@js/components/Work/Tabs/Preservation/ActionsCol";
+import React, { useState } from "react";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import PropTypes from "prop-types";
 import UISkeleton from "@js/components/UI/Skeleton";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
-import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
+import { useMutation, useQuery } from "@apollo/client";
+import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import { formatDate } from "@js/services/helpers";
-import { useClipboard } from "use-clipboard-copy";
-import {
-  IconAdd,
-  IconArrowDown,
-  IconArrowUp,
-  IconBinaryFile,
-  IconBucket,
-  IconCheck,
-  IconCopyToClipboard,
-  IconDelete,
-  IconTrashCan,
-  IconView,
-} from "@js/components/Icon";
-import * as Dialog from "@radix-ui/react-dialog";
-import { styled } from "@stitches/react";
+import { useHistory } from "react-router-dom";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -47,20 +46,10 @@ const WorkTabsPreservation = ({ work }) => {
   // and also additional data which the dependent modals rely upon
   const [technicalMetadata, setTechnicalMetadata] = React.useState({
     fileSet: {},
-    isVisible: false,
   });
   const [deleteFilesetModal, setDeleteFilesetModal] = React.useState({
     fileset: {},
     isVisible: false,
-  });
-
-  const clipboard = useClipboard({
-    onSuccess() {
-      toastWrapper("is-success", `Copied successfully.`);
-    },
-    onError() {
-      toastWrapper("is-danger", "Failed to copy.");
-    },
   });
 
   const {
@@ -188,7 +177,7 @@ const WorkTabsPreservation = ({ work }) => {
   };
 
   const handleTechnicalMetaClick = (fileSet = {}) => {
-    setTechnicalMetadata({ fileSet: { ...fileSet }, isVisible: true });
+    setTechnicalMetadata({ fileSet: { ...fileSet } });
   };
 
   return (
@@ -252,183 +241,17 @@ const WorkTabsPreservation = ({ work }) => {
                         <Verified id={fileset.id} />
                       </td>
                       <td className="has-text-right">
-                        <div>
-                          <Popover>
-                            <Popover.Trigger>
-                              <Button as="span" data-testid="fileset-actions">
-                                <span style={{ marginRight: "0.5rem" }}>
-                                  Actions
-                                </span>
-                                <IconArrowDown aria-hidden="true" />
-                              </Button>
-                            </Popover.Trigger>
-                            <Popover.Content
-                              css={{
-                                display: "flex",
-                                flexDirection: "column",
-                                maxWidth: "unset",
-                              }}
-                            >
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
-                                onClick={() => clipboard.copy(fileset.id)}
-                              >
-                                <IconCopyToClipboard />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy id to clipboard
-                                </span>
-                              </Button>
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
-                                onClick={() => {
-                                  let digests = {
-                                    ...fileset.coreMetadata.digests,
-                                  };
-                                  delete digests["__typename"];
-                                  return clipboard.copy(
-                                    JSON.stringify(digests)
-                                  );
-                                }}
-                              >
-                                <IconBinaryFile />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy checksums to clipboard
-                                </span>
-                              </Button>
-                              <Button
-                                isLowercase
-                                isText
-                                css={{
-                                  marginBottom: "1rem",
-                                  padding: "0",
-                                  justifyContent: "left",
-                                }}
-                                onClick={() =>
-                                  clipboard.copy(fileset.coreMetadata.location)
-                                }
-                              >
-                                <IconBucket />
-                                <span style={{ marginLeft: "0.5rem" }}>
-                                  Copy preservation location to clipboard
-                                </span>
-                              </Button>
-
-                              <Dialog.Root>
-                                <DialogTrigger>
-                                  <Button
-                                    as="span"
-                                    isLowercase
-                                    isText
-                                    css={{
-                                      marginBottom: "1rem",
-                                      padding: "0",
-                                      justifyContent: "left",
-                                    }}
-                                    onClick={() =>
-                                      handleTechnicalMetaClick(fileset)
-                                    }
-                                  >
-                                    <IconView />
-                                    <span
-                                      style={{
-                                        marginLeft: "0.5rem",
-                                      }}
-                                    >
-                                      View technical metadata
-                                    </span>
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogOverlay />
-                                <DialogContent>
-                                  <DialogClose>
-                                    <Icon isSmall aria-label="Close">
-                                      <Icon.Close />
-                                    </Icon>
-                                  </DialogClose>
-                                  <DialogTitle>Technical Metadata</DialogTitle>
-                                  <WorkTabsPreservationTechnical
-                                    fileSet={technicalMetadata.fileSet}
-                                    isVisible={true}
-                                  />
-                                </DialogContent>
-                              </Dialog.Root>
-
-                              <AuthDisplayAuthorized>
-                                <Dialog.Root>
-                                  <DialogTrigger>
-                                    <Button
-                                      as="span"
-                                      isLowercase
-                                      isText
-                                      css={{
-                                        padding: "0",
-                                        justifyContent: "left",
-                                      }}
-                                      onClick={() =>
-                                        handleDeleteFilesetClick(fileset)
-                                      }
-                                    >
-                                      <IconTrashCan />
-                                      <span style={{ marginLeft: "0.5rem" }}>
-                                        Delete fileset
-                                      </span>
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogOverlay />
-                                  <DialogContent>
-                                    <DialogClose>
-                                      <Icon isSmall aria-label="Close">
-                                        <Icon.Close />
-                                      </Icon>
-                                    </DialogClose>
-                                    <DialogTitle>
-                                      Delete
-                                      {`Fileset: ${
-                                        deleteFilesetModal.fileset.coreMetadata
-                                          ? deleteFilesetModal.fileset
-                                              .coreMetadata.label
-                                          : ""
-                                      }`}
-                                    </DialogTitle>
-                                    {work && (
-                                      <div
-                                        style={{ marginTop: "0.5rem" }}
-                                        data-testid="delete-fileset-modal"
-                                      >
-                                        <p className="text-gray-600">
-                                          This action cannot be undone.
-                                        </p>
-                                        <div className="buttons is-right">
-                                          <Dialog.Close className="button is-text">
-                                            Cancel
-                                          </Dialog.Close>
-                                          <button
-                                            className="button is-danger"
-                                            onClick={handleConfirmDeleteFileset}
-                                          >
-                                            Delete
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </DialogContent>
-                                </Dialog.Root>
-                              </AuthDisplayAuthorized>
-                            </Popover.Content>
-                          </Popover>
-                        </div>
+                        <PreservationActionsCol
+                          deleteFilesetModal={deleteFilesetModal}
+                          fileset={fileset}
+                          handleConfirmDeleteFileset={
+                            handleConfirmDeleteFileset
+                          }
+                          handleDeleteFilesetClick={handleDeleteFilesetClick}
+                          handleTechnicalMetaClick={handleTechnicalMetaClick}
+                          technicalMetadata={technicalMetadata}
+                          work={work}
+                        />
                       </td>
                     </tr>
                   );
@@ -493,51 +316,6 @@ const WorkTabsPreservation = ({ work }) => {
     </div>
   );
 };
-
-const DialogOverlay = styled(Dialog.Overlay, {
-  backgroundColor: "#000a",
-  position: "fixed",
-  inset: 0,
-  zIndex: 10,
-});
-
-const DialogTrigger = styled(Dialog.Trigger, {
-  display: "inline-flex",
-  padding: "0",
-  margin: "0",
-  cursor: "pointer",
-  border: "none",
-  background: "none",
-  textTransform: "unset",
-});
-
-const DialogContent = styled(Dialog.Content, {
-  backgroundColor: "white",
-  borderRadius: "3px",
-  boxShadow: "5px 5px 13px #0002",
-  position: "fixed",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90vw",
-  maxWidth: "700px",
-  maxHeight: "85vh",
-  padding: "1rem",
-  overflowY: "scroll",
-  zIndex: 11,
-});
-
-const DialogClose = styled(Dialog.Close, {
-  position: "absolute",
-  background: "none",
-  border: "none",
-  right: "1rem",
-  cursor: "pointer",
-});
-
-const DialogTitle = styled(Dialog.Title, {
-  fontWeight: "700",
-});
 
 WorkTabsPreservation.propTypes = {
   work: PropTypes.object,

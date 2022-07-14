@@ -9,12 +9,8 @@ import { getPresignedUrlForFileSetMock } from "@js/components/IngestSheet/ingest
 import { mockWork } from "@js/components/Work/work.gql.mock.js";
 import { screen } from "@testing-library/react";
 import { getCurrentUserMock } from "@js/components/Auth/auth.gql.mock";
-import userEvent from "@testing-library/user-event";
 import { CodeListProvider } from "@js/context/code-list-context";
-import {
-  allCodeListMocks,
-  codeListFileSetRoleMock,
-} from "@js/components/Work/controlledVocabulary.gql.mock";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 let isModalOpen = true;
 
