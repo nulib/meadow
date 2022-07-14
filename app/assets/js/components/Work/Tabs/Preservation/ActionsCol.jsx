@@ -32,11 +32,26 @@ const PreservationActionsCol = ({
   work,
 }) => {
   const [isActionsOpen, setIsActionsOpen] = React.useState(false);
+  const dropdownRef = React.useRef(null);
   const actionItemClasses = `dropdown-item is-flex is-align-items-center`;
 
   const handleActionsToggle = () => {
     setIsActionsOpen(!isActionsOpen);
   };
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        isActionsOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      )
+        setIsActionsOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isActionsOpen, dropdownRef]);
 
   const clipboard = useClipboard({
     onSuccess() {
@@ -66,7 +81,12 @@ const PreservationActionsCol = ({
           <IconArrowDown className="icon" />
         </button>
       </div>
-      <div className="dropdown-menu" id="dropdown-menu" role="menu">
+      <div
+        className="dropdown-menu"
+        id="dropdown-menu"
+        role="menu"
+        ref={dropdownRef}
+      >
         <div className="dropdown-content">
           <a
             className={actionItemClasses}
