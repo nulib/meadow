@@ -121,7 +121,8 @@ data "template_file" "ec2_meadow_config" {
     {
       environment               = var.environment == "s" ? "staging" : "production"
       meadow_ec2_hostname       = "${var.stack_name}-console.${data.aws_route53_zone.app_zone.name}",
-      meadow_hostname           = aws_route53_record.app_hostname.fqdn
+      meadow_hostname           = aws_route53_record.app_hostname.fqdn,
+      shared_bucket             = var.shared_bucket
     }
   )
 }
