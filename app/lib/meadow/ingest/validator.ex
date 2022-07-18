@@ -391,6 +391,8 @@ defmodule Meadow.Ingest.Validator do
   defp mime_type_accepted?(_, "S", _), do: true
   defp mime_type_accepted?("IMAGE", role, "image/" <> _rest) when role in ["A", "P"], do: true
   defp mime_type_accepted?("VIDEO", "A", "video/x-matroska"), do: false
+  defp mime_type_accepted?("VIDEO", "A", "video/x-vob"), do: false
+  defp mime_type_accepted?("VIDEO", "A", "video/x-mts"), do: false
   defp mime_type_accepted?("VIDEO", role, "video/" <> _rest) when role in ["A", "P"], do: true
   defp mime_type_accepted?("AUDIO", "A", "audio/x-aiff"), do: false
   defp mime_type_accepted?("AUDIO", "A", "audio/x-flac"), do: false

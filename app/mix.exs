@@ -21,7 +21,8 @@ defmodule Meadow.MixProject do
         "coveralls.circle": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        credo: :test
       ],
       releases: releases()
     ]
