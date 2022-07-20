@@ -1,5 +1,8 @@
 defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
   alias Meadow.Data.FileSets
+
+  alias Elasticsearch.Document.Meadow.Data.Schemas.FileSet, as: FileSetDocument
+
   alias Elasticsearch.Document.Meadow.Data.Schemas.WorkAdministrativeMetadata,
     as: AdministrativeMetadataDocument
 
@@ -7,7 +10,6 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
     as: DescriptiveMetadataDocument
 
   alias Meadow.IIIF
-  alias Meadow.Utils.ExtractedMetadata
 
   def id(work), do: work.id
   def routing(_), do: false
@@ -24,7 +26,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
         |> Enum.map(fn file_set ->
           %{
             id: file_set.id,
-            extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata),
+            extractedMetadata: FileSetDocument.extracted_metadata(file_set.extracted_metadata),
             label: file_set.core_metadata.label,
             mime_type: file_set.core_metadata.mime_type,
             posterOffset: file_set.poster_offset,
