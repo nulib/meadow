@@ -7,14 +7,21 @@ defmodule Meadow.Data.PreservationCheckWriter do
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
+  alias Meadow.Utils.StructMap
   alias NimbleCSV.RFC4180, as: CSV
 
   @headers [
+    "work_accession_number",
     "work_id",
     "work_title",
+    "ingest_project",
+    "ingest_sheet",
+    "collection_title",
+    "file_set_accession_number",
     "file_set_id",
     "file_set_label",
     "file_set_role",
+    "original_filename",
     "sha256",
     "sha1",
     "md5",
@@ -95,13 +102,28 @@ defmodule Meadow.Data.PreservationCheckWriter do
       Repo.preload(chunk, Work.required_index_preloads())
     end)
     |> Stream.flat_map(fn work ->
-      work.file_sets
-      |> Stream.map(fn file_set ->
-        [work.id, work.descriptive_metadata.title] ++
-          file_set_row_data(file_set, cache_key, work.work_type.id)
-      end)
+      with work_fields <- work_row_data(work) do
+        work.file_sets
+        |> Stream.map(fn file_set ->
+          work_fields ++
+            file_set_row_data(file_set, cache_key, work.work_type.id)
+        end)
+      end
     end)
     |> CSV.dump_to_stream()
+  end
+
+  defp work_row_data(work) do
+    with work <- StructMap.deep_struct_to_map(work) do
+      [
+        work.accession_number,
+        work.id,
+        work |> get_in([:descriptive_metadata, :title]),
+        work |> get_in([:project, :title]),
+        work |> get_in([:ingest_sheet, :title]),
+        work |> get_in([:collection, :title])
+      ]
+    end
   end
 
   defp file_set_row_data(file_set, cache_key, work_type_id) do
@@ -109,9 +131,11 @@ defmodule Meadow.Data.PreservationCheckWriter do
       record_invalid_file_set(result, cache_key)
 
       [
+        file_set.accession_number,
         file_set.id,
         file_set.core_metadata.label,
         file_set.role.id,
+        file_set.core_metadata.original_filename,
         get_if_map(result.digests, "sha256"),
         get_if_map(result.digests, "sha1"),
         get_if_map(result.digests, "md5"),
@@ -160,8 +184,6 @@ defmodule Meadow.Data.PreservationCheckWriter do
       end
     end
   end
-
-  defp record_invalid_file_set(_, _cache_key), do: :noop
 
   defp record_invalid_file_set(cache_key) do
     Cachex.incr(Meadow.Cache.PreservationChecks, cache_key)
