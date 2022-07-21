@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "6.0.5"
+  @app_version "6.0.6"
 
   def project do
     [
@@ -21,7 +21,8 @@ defmodule Meadow.MixProject do
         "coveralls.circle": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        credo: :test
       ],
       releases: releases()
     ]

@@ -11,7 +11,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
       createDate: file_set.inserted_at,
       description: file_set.core_metadata.description,
       digests: file_set.core_metadata.digests,
-      extractedMetadata: ExtractedMetadata.transform(file_set.extracted_metadata),
+      extractedMetadata: extracted_metadata(file_set.extracted_metadata),
       id: file_set.id,
       label: file_set.core_metadata.label,
       mime_type: file_set.core_metadata.mime_type,
@@ -24,9 +24,13 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
       streamingUrl: FileSets.distribution_streaming_uri_for(file_set),
       visibility: format(file_set.work.visibility),
       webvtt: file_set.structural_metadata.value,
-      workId: file_set.work.id,
+      workId: file_set.work.id
     }
   end
+
+  def extracted_metadata(%{"exif" => _} = value), do: ExtractedMetadata.transform(value)
+  def extracted_metadata(%{"mediainfo" => _}), do: nil
+  def extracted_metadata(value), do: value
 
   defp format(%{id: id, name: name}), do: %{id: id, name: name}
   defp format(%{id: id, title: title}), do: %{id: id, title: title}

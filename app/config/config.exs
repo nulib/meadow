@@ -237,6 +237,8 @@ config :ex_aws,
 config :httpoison_retry, wait: 50
 
 config :mime, :types, %{
+  "video/x-mts" => ["mts"],
+  "video/x-vob" => ["vob"],
   "video/x-m4v" => ["m4v"],
   "video/x-matroska" => ["mkv"],
   "audio/x-aiff" => ["aif", "aiff", "aifc"],
