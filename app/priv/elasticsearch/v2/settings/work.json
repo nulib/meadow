@@ -8,25 +8,14 @@
         "full_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding"]
         },
         "stopword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding",
-            "english_stop"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding", "english_stop"]
         }
       },
       "filter": {
@@ -56,21 +45,22 @@
       },
       "all_ids": {
         "type": "keyword"
+      },
+      "indexed_at": {
+        "type": "date"
       }
     },
     "dynamic_templates": [
       {
         "text_fields": {
-          "match": "^abstract$|^alternate_title$|^caption$|^collection.title$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^notes$|^table_of_contents$|^title$",
+          "match": "^abstract$|^alternate_title$|^caption$|^collection.title$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^notes.text$|^table_of_contents$|^title$",
           "match_pattern": "regex",
           "mapping": {
             "type": "text",
             "analyzer": "full_analyzer",
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer",
-            "copy_to": [
-              "all_text"
-            ]
+            "copy_to": ["all_text"]
           }
         }
       },
@@ -80,9 +70,7 @@
           "match_pattern": "regex",
           "mapping": {
             "type": "keyword",
-            "copy_to": [
-              "all_ids"
-            ]
+            "copy_to": ["all_ids"]
           }
         }
       },
@@ -123,9 +111,7 @@
           "match_mapping_type": "string",
           "mapping": {
             "type": "keyword",
-            "copy_to": [
-              "all_text"
-            ]
+            "copy_to": ["all_text"]
           }
         }
       }

@@ -4,6 +4,7 @@ defmodule Meadow.IndexCase do
   """
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
+  alias Meadow.Config
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
   alias Meadow.ElasticsearchCluster, as: Cluster
@@ -11,11 +12,14 @@ defmodule Meadow.IndexCase do
   alias Meadow.Repo
 
   @meadow_index Meadow.Config.elasticsearch_index()
+  @indexes Meadow.Config.indexes()
 
   setup tags do
-    Elasticsearch.Index.clean_starting_with(Cluster, "#{@meadow_index}", 0)
-    Elasticsearch.delete(Cluster, "/#{@meadow_index}")
-    Elasticsearch.Index.hot_swap(Cluster, "#{@meadow_index}")
+    for index <- @indexes do
+      Elasticsearch.Index.clean_starting_with(Cluster, index, 0)
+      Elasticsearch.delete(Cluster, "/#{index}")
+      Elasticsearch.Index.hot_swap(Cluster, index)
+    end
 
     on_exit(fn ->
       if tags[:unboxed] do
@@ -35,12 +39,18 @@ defmodule Meadow.IndexCase do
 
       @meadow_index unquote(@meadow_index)
 
-      def indexed_doc_count do
-        Elasticsearch.get!(Cluster, "/#{@meadow_index}/_count") |> get_in(["count"])
+      def indexed_doc_count, do: indexed_doc_count(@meadow_index)
+
+      def indexed_doc_count(index) do
+        Elasticsearch.get!(Cluster, "/#{index}/_count") |> get_in(["count"])
       end
 
       def indexed_doc(id) do
         Elasticsearch.get!(Cluster, "/#{@meadow_index}/_doc/#{id}") |> get_in(["_source"])
+      end
+
+      def indexed_doc(index, id) do
+        Elasticsearch.get!(Cluster, "/#{index}/_doc/#{id}") |> get_in(["_source"])
       end
 
       def decode_njson(data) do
@@ -89,6 +99,17 @@ defmodule Meadow.IndexCase do
           works: Works.list_works(),
           file_sets: file_sets
         }
+      end
+
+      def all_synchronized?(schemas) do
+        with counts <- Enum.map(schemas, &{&1, Repo.aggregate(&1, :count)}),
+             total <- Enum.reduce(counts, 0, fn {_, n}, acc -> acc + n end) do
+          indexed_doc_count(@meadow_index) == total &&
+            counts
+            |> Enum.all?(fn {schema, count} ->
+              indexed_doc_count(Config.v2_index(schema)) == count
+            end)
+        end
       end
     end
   end

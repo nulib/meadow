@@ -8,25 +8,14 @@
         "full_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding"]
         },
         "stopword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding",
-            "english_stop"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding", "english_stop"]
         }
       },
       "filter": {
@@ -38,6 +27,11 @@
     }
   },
   "mappings": {
+    "properties": {
+      "indexed_at": {
+        "type": "date"
+      }
+    },
     "dynamic_templates": [
       {
         "text_fields": {

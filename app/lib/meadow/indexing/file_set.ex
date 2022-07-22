@@ -24,7 +24,8 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.FileSet do
       streamingUrl: FileSets.distribution_streaming_uri_for(file_set),
       visibility: format(file_set.work.visibility),
       webvtt: file_set.structural_metadata.value,
-      workId: file_set.work.id
+      workId: file_set.work.id,
+      indexed_at: NaiveDateTime.utc_now()
     }
   end
 
