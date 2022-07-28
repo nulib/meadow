@@ -75,22 +75,22 @@ defmodule Meadow.Utils.AWS do
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
   defp generate_aws_signature(request, region, access_key, secret) do
-    signed_request =
-      Sigaws.sign_req(
-        request.url,
-        method: request.method |> to_string() |> String.upcase(),
-        headers: request.headers,
-        body: request.body,
-        service: "es",
-        region: region,
-        access_key: access_key,
-        secret: secret
-      )
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
-    case signed_request do
-      {:ok, headers, _} -> headers |> Enum.into([])
-      other -> other
-    end
+    %{host: host} = URI.parse(request.url)
+
+    :aws_signature.sign_v4(
+      access_key,
+      secret,
+      region,
+      "es",
+      {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}},
+      request.method |> to_string() |> String.upcase(),
+      request.url,
+      [{"Host", host}],
+      request.body,
+      []
+    )
   end
 
   defp check_bucket(bucket) do
