@@ -52,6 +52,7 @@ function MediaPlayerPosterSelector() {
     }
 
     const posterOffset = parseInt(el.currentTime * 1000);
+
     updateFileSet({
       variables: {
         id: workState.activeMediaFileSet.id,

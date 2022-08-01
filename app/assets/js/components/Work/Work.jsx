@@ -19,7 +19,6 @@ const osdOptions = {
 
 const Work = ({ work }) => {
   const [manifestObj, setManifestObj] = React.useState();
-  const [manifestKey, setManifestKey] = React.useState("abc");
   const workContextState = useWorkState();
   const workDispatch = useWorkDispatch();
 
@@ -28,14 +27,17 @@ const Work = ({ work }) => {
     ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
   const { filterFileSets } = useFileSet();
 
-  useQuery(GET_IIIF_MANIFEST_HEADERS, {
+  const {
+    data: dataManifestHeaders,
+    error: errorManifestHeaders,
+    loading: loadingManifestHeaders,
+  } = useQuery(GET_IIIF_MANIFEST_HEADERS, {
     variables: { workId: work.id },
-    pollInterval: 1000,
-    onCompleted: (data) => {
-      if (data.iiifManifestHeaders.etag)
-        setManifestKey(data.iiifManifestHeaders.etag);
-    },
+    pollInterval: 2000,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const etag = dataManifestHeaders?.iiifManifestHeaders?.etag;
 
   React.useEffect(() => {
     workDispatch({ type: "updateWorkType", workTypeId: work.workType.id });
@@ -77,7 +79,7 @@ const Work = ({ work }) => {
               <OpenSeadragonViewer
                 manifest={manifestObj}
                 options={osdOptions}
-                key={manifestKey}
+                key={etag}
               />
             )}
           </div>
@@ -89,7 +91,7 @@ const Work = ({ work }) => {
           fileSet={workContextState?.activeMediaFileSet}
           fileSets={[...filterFileSets(work.fileSets).access]}
           manifestId={work.manifestUrl}
-          manifestKey={manifestKey}
+          manifestKey={etag}
           workTypeId={work.workType?.id}
         />
       )}
