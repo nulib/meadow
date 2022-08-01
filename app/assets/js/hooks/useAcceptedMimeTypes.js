@@ -73,38 +73,6 @@ export default function useAcceptedMimeTypes() {
         }
         break;
       case "P":
-        switch (workTypeId) {
-          case "IMAGE":
-            if (!isImage) {
-              isValid = false;
-              code = "invalid-image";
-              message =
-                "Image work types Preservation fileset roles must be image mime type";
-            }
-            break;
-          case "AUDIO":
-            if (!isAudio) {
-              isValid = false;
-              code = "invalid-audio";
-              message =
-                "Audio work types Preservation fileset roles must be audio mime type";
-            }
-            break;
-          case "VIDEO":
-            if (!isVideo) {
-              isValid = false;
-              code = "invalid-video";
-              message =
-                "Video work types Preservation fileset roles must be video mime type";
-            }
-            break;
-          default:
-            console.error(`Invalid work type id: ${workTypeId}`);
-            isValid = false;
-            code = "invalid-work-type";
-            message = "Work type is invalid";
-            break;
-        }
         break;
       default:
         console.error(`Invalid file set role: ${fileSetRole}`);
