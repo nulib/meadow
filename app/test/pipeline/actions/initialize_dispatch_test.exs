@@ -132,7 +132,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
       file_set =
         file_set_fixture(%{
           accession_number: row.file_set_accession_number,
-          role: %{id: "P", scheme: "FILE_SET_ROLE"},
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
           core_metadata: %{
             location: "s3://#{@bucket}/#{@key}",
             original_filename: "test.tif"
