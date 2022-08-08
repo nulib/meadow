@@ -139,6 +139,9 @@ defmodule Meadow.Pipeline.Dispatcher do
   def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}),
     do: @preservation_video_actions
 
+  def dispatcher_actions(%{role: %{id: "P"}}),
+    do: @preservation_actions
+
   def dispatcher_actions(%{role: %{id: "S"}}),
     do: @preservation_actions
 
