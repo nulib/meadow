@@ -139,7 +139,7 @@ module "mime_type_function" {
   description = "Function to extract the mime-type from an S3 object"
   role        = aws_iam_role.lambda_role.arn
   stack_name  = var.stack_name
-  memory_size = 512
+  memory_size = 256
   timeout     = 120
 
   tags = merge(
