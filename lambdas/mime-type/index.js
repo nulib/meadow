@@ -1,7 +1,6 @@
 const AWS = require("aws-sdk");
 const FileType = require("file-type");
 const MimeTypes = require("mime-types");
-const { makeTokenizer } = require("@tokenizer/s3");
 const path = require("path");
 
 MimeTypes.types['md5'] = 'text/plain';
@@ -17,15 +16,15 @@ const extractMimeType = async (event) => {
   try {
     const s3 = new AWS.S3();
 
-    const s3Tokenizer = await makeTokenizer(s3, {
+    const s3Stream = s3.getObject({
       Bucket: event.bucket,
       Key: event.key,
-    });
+    }).createReadStream();
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
     const fileType =
-      (await FileType.fromTokenizer(s3Tokenizer)) || (await lookupMimeType(event));
-    console.log(JSON.stringify(fileType));
+      (await FileType.fromStream(s3Stream)) || (await lookupMimeType(event));
+    console.log('identified file as', JSON.stringify(fileType));
     return fileType;
   } catch (e) {
     console.error("Error extracting mime-type");
