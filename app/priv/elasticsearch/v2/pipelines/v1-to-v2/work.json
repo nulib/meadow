@@ -438,6 +438,20 @@
       }
     },
     {
+      "rename": {
+        "field": "original.indexed_at",
+        "target_field": "indexed_at",
+        "on_failure": [
+          {
+            "set": {
+              "field": "indexed_at",
+              "value": "1970-01-01"
+            }
+          }
+        ]
+      }
+    },
+    {
       "remove": {
         "field": "original"
       }

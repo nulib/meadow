@@ -3,6 +3,7 @@ name: meadow
 on: [push]
 jobs:
   dependencies:
+    if: ${{ ! (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/')) }}
     runs-on: ubuntu-latest
     env:
       MIX_ENV: test
@@ -222,9 +223,6 @@ jobs:
         run: mix ecto.rollback --all
         working-directory: app
   publish:
-    needs:
-      - elixir-test
-      - js-test
     if: ${{ (!github.event.pull_request) && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/deploy/') || startsWith(github.ref, 'refs/heads/build/')) }}
     runs-on: ubuntu-latest
     steps:

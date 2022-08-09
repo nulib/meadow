@@ -67,28 +67,14 @@ describe("useAcceptedMimeTypes hook", () => {
   describe("Preservation role", () => {
     const { isFileValid } = useAcceptedMimeTypes();
 
-    it("returns the correct mime types for Image work type", () => {
-      const result = isFileValid("P", "IMAGE", "image/tiff");
-      const resultBad = isFileValid("P", "IMAGE", "audio/tiff");
-      expect(result.isValid).toBeTruthy();
-      expect(resultBad.isValid).toBeFalsy();
-      expect(resultBad.code).toEqual("invalid-image");
-    });
+    it("accepts all file types", () => {
+      const results = [
+        isFileValid("P", "VIDEO", "video/x-mts"),
+        isFileValid("P", "IMAGE", "application/octet-stream"),
+        isFileValid("P", "AUDIO", "video/mp4"),
+      ];
 
-    it("returns the correct mime types for Audio work type", () => {
-      const result = isFileValid("P", "AUDIO", "audio/flac");
-      const resultBad = isFileValid("P", "AUDIO", "video/mp4");
-      expect(result.isValid).toBeTruthy();
-      expect(resultBad.isValid).toBeFalsy();
-      expect(resultBad.code).toEqual("invalid-audio");
-    });
-
-    it("returns the correct mime types for Video work type", () => {
-      const result = isFileValid("P", "VIDEO", "video/mp4");
-      const resultBad = isFileValid("P", "VIDEO", "audio/mp4");
-      expect(result.isValid).toBeTruthy();
-      expect(resultBad.isValid).toBeFalsy();
-      expect(resultBad.code).toEqual("invalid-video");
+      expect(results.every((result) => result.isValid)).toBeTruthy();
     });
   });
 });

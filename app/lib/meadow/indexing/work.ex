@@ -62,7 +62,8 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
           url -> url <> "/full/!300,300/0/default.jpg"
         end,
       visibility: format(work.visibility),
-      workType: format(work.work_type)
+      workType: format(work.work_type),
+      indexed_at: NaiveDateTime.utc_now()
     }
     |> Map.merge(AdministrativeMetadataDocument.encode(work.administrative_metadata))
     |> Map.merge(DescriptiveMetadataDocument.encode(work.descriptive_metadata))
