@@ -97,7 +97,10 @@ defmodule Mix.Tasks.Meadow.Sideload do
       case FileSets.create_file_set(attrs) do
         {:ok, file_set} ->
           Pipeline.kickoff(file_set, %{role: file_set.role.id})
-          Map.put(attrs, :kickoff, :success)
+
+          attrs
+          |> Map.put(:file_set_id, file_set.id)
+          |> Map.put(:kickoff, :success)
 
         {:error, changeset} ->
           error = inspect(ChangesetErrors.humanize_errors(changeset))
@@ -109,7 +112,7 @@ defmodule Mix.Tasks.Meadow.Sideload do
     defp generate_report(data) do
       Enum.reduce(data, [], fn x, acc ->
         [
-          Map.take(x, ~W|file_set_id work_id kickoff|a)
+          Map.take(x, ~W|kickoff work_id accession_number file_set_id|a)
           |> Map.values()
           | acc
         ]
@@ -217,8 +220,8 @@ defmodule Mix.Tasks.Meadow.Sideload do
 
         _ ->
           case FileSets.get_file_set(file_set_id) do
-            {:ok, _} -> Map.put(row, :file_set_check, :present)
-            _ -> Map.put(row, :file_set_check, :missing)
+            nil -> Map.put(row, :file_set_check, :missing)
+            _file_set -> Map.put(row, :file_set_check, :present)
           end
       end
     end
@@ -230,8 +233,8 @@ defmodule Mix.Tasks.Meadow.Sideload do
 
         _ ->
           case Works.get_work(work_id) do
-            {:ok, _} -> Map.put(row, :work_check, :present)
-            _ -> Map.put(row, :work_check, :missing)
+            nil -> Map.put(row, :work_check, :missing)
+            _work -> Map.put(row, :work_check, :present)
           end
       end
     end
