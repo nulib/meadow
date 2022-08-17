@@ -32,50 +32,64 @@ defmodule Meadow.IIIF.V2.GeneratorTest do
           }
         })
 
-      json = """
-      {
-        \"label\": \"#{work.descriptive_metadata.title}\",
-        \"sequences\": [
-          {
-            \"canvases\": [
-              {
-                \"height\": \"480\",
-                \"images\": [
-                  {
-                    \"motivation\": \"sc:painting\",
-                    \"on\": \"#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}\",
-                    \"resource\": {
-                      \"description\": \"bar\",
-                      \"label\": \"This is the label\",
-                      \"service\": {
-                        \"profile\": \"http://iiif.io/api/image/2/level2.json\",
-                        \"@context\": \"http://iiif.io/api/image/2/context.json\",
-                        \"@id\": \"#{IIIF.V2.image_service_id(file_set.id)}\"
-                      },
-                      \"@id\": \"#{IIIF.V2.image_id(file_set.id)}\",
-                      \"@type\": \"dctypes:Image\"
-                    },
-                    \"@type\": \"oa:Annotation\"
-                  }
-                ],
-                \"label\": \"This is the label\",
-                \"width\": \"640\",
-                \"@id\": \"#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}\",
-                \"@type\": \"sc:Canvas\"
-              }
-            ],
-            \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-            \"@id\": \"/sequence/normal\",
-            \"@type\": \"sc:Sequence\"
-          }
-        ],
-        \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-        \"@id\": \"#{IIIF.V2.manifest_id(work.id)}\",
-        \"@type\": \"sc:Manifest\"
-      }\
-      """
+      manifest = Generator.create_manifest(work)
+      assert {:ok, subject} = Jason.decode(manifest, keys: :atoms)
 
-      assert Generator.create_manifest(work) == json
+      manifest_id = IIIF.V2.manifest_id(work.id)
+      label = work.descriptive_metadata.title
+      canvas_id = "#{IIIF.V2.manifest_id(work.id)}/canvas/#{file_set.id}"
+      image_service_id = IIIF.V2.image_service_id(file_set.id)
+      image_id = IIIF.V2.image_id(file_set.id)
+
+      assert %{
+               "@context": "http://iiif.io/api/presentation/2/context.json",
+               "@id": ^manifest_id,
+               "@type": "sc:Manifest",
+               label: ^label,
+               metadata: [
+                 %{
+                   label: %{en: ["LastModified"]},
+                   value: %{en: [manifest_last_modified]}
+                 }
+               ],
+               sequences: [
+                 %{
+                   "@context": "http://iiif.io/api/presentation/2/context.json",
+                   "@id": "/sequence/normal",
+                   "@type": "sc:Sequence",
+                   canvases: [
+                     %{
+                       "@id": ^canvas_id,
+                       "@type": "sc:Canvas",
+                       height: "480",
+                       images: [
+                         %{
+                           "@type": "oa:Annotation",
+                           motivation: "sc:painting",
+                           on: ^canvas_id,
+                           resource: %{
+                             "@id": ^image_id,
+                             "@type": "dctypes:Image",
+                             description: "bar",
+                             label: "This is the label",
+                             service: %{
+                               "@context": "http://iiif.io/api/image/2/context.json",
+                               "@id": ^image_service_id,
+                               profile: "http://iiif.io/api/image/2/level2.json"
+                             }
+                           }
+                         }
+                       ],
+                       label: "This is the label",
+                       width: "640"
+                     }
+                   ]
+                 }
+               ]
+             } = subject
+
+      assert {:ok, timestamp, _} = manifest_last_modified |> DateTime.from_iso8601()
+      assert timestamp |> DateTime.diff(DateTime.utc_now(), :second) < 2
     end
   end
 
@@ -84,25 +98,38 @@ defmodule Meadow.IIIF.V2.GeneratorTest do
       collection = collection_fixture()
       work = work_fixture(%{collection_id: collection.id})
 
-      json = """
-      {
-        \"label\": \"#{collection.description}\",
-        \"manifests\": [
-          {
-            \"label\": \"Test title\",
-            \"sequences\": [],
-            \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-            \"@id\": \"#{IIIF.V2.manifest_id(work.id)}\",
-            \"@type\": \"sc:Manifest\"
-          }
-        ],
-        \"@context\": \"http://iiif.io/api/presentation/2/context.json\",
-        \"@id\": \"#{collection.id}\",
-        \"@type\": \"sc:Collection\"
-      }\
-      """
+      manifest = Generator.create_collection(collection)
+      assert {:ok, subject} = Jason.decode(manifest, keys: :atoms)
 
-      assert Generator.create_collection(collection) == json
+      manifest_id = collection.id
+      collection_label = collection.description
+      work_manifest_id = IIIF.V2.manifest_id(work.id)
+      work_label = work.descriptive_metadata.title
+
+      assert %{
+               label: ^collection_label,
+               manifests: [
+                 %{
+                   label: ^work_label,
+                   sequences: [],
+                   "@context": "http://iiif.io/api/presentation/2/context.json",
+                   "@id": ^work_manifest_id,
+                   "@type": "sc:Manifest"
+                 }
+               ],
+               "@context": "http://iiif.io/api/presentation/2/context.json",
+               "@id": ^manifest_id,
+               "@type": "sc:Collection",
+               metadata: [
+                 %{
+                   label: %{en: ["LastModified"]},
+                   value: %{en: [manifest_last_modified]}
+                 }
+               ]
+             } = subject
+
+      assert {:ok, timestamp, _} = manifest_last_modified |> DateTime.from_iso8601()
+      assert timestamp |> DateTime.diff(DateTime.utc_now(), :second) < 2
     end
   end
 end

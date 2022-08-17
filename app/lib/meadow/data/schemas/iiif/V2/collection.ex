@@ -7,6 +7,9 @@ defimpl Meadow.IIIF.V2.Resource, for: Meadow.Data.Schemas.Collection do
     %Collection{
       id: collection.id,
       label: collection.description,
+      metadata: [
+        IIIF.V2.property("LastModified", DateTime.utc_now() |> DateTime.to_iso8601())
+      ],
       manifests:
         Enum.map(collection.works, fn work ->
           %Manifest{

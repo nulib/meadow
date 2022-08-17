@@ -7,6 +7,9 @@ defimpl Meadow.IIIF.V2.Resource, for: Meadow.Data.Schemas.Work do
       id: IIIF.V2.manifest_id(work.id),
       label: work.descriptive_metadata.title,
       description: work.descriptive_metadata.description,
+      metadata: [
+        IIIF.V2.property("LastModified", DateTime.utc_now() |> DateTime.to_iso8601())
+      ],
       sequences: [
         %Sequence{
           canvases:
