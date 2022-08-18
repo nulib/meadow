@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.{Lambda, StructMap}
+  alias Meadow.Utils.{Lambda, MIME, StructMap}
 
   use Meadow.Pipeline.Actions.Common
 
@@ -29,23 +29,20 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     file_set.core_metadata.location
-    |> extract_mime_type(file_set.role.id)
+    |> extract_mime_type()
     |> handle_result(file_set)
   end
 
-  defp extract_mime_type("s3://" <> _ = source, role) do
+  defp extract_mime_type("s3://" <> _ = source) do
     Logger.info("Extracting mime type")
     %{host: bucket, path: "/" <> key} = URI.parse(source)
 
     case Lambda.invoke(
            Config.lambda_config(:mime_type),
-           %{bucket: bucket, key: key}
+           %{bucket: bucket, key: key, fallback: MIME.from_path(key)}
          ) do
       {:ok, %{"ext" => _, "mime" => mime_type}} ->
         {:ok, mime_type}
-
-      {:ok, "null"} ->
-        check_fallback_mime_type(role)
 
       {:ok, _other} ->
         {:error, "Unknown response from MIME extractor"}
@@ -55,13 +52,10 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeType do
     end
   end
 
-  defp extract_mime_type(source, _role) do
+  defp extract_mime_type(source) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end
-
-  defp check_fallback_mime_type("S"), do: {:ok, "application/octet-stream"}
-  defp check_fallback_mime_type(_), do: {:error, "Unknown response from MIME extractor"}
 
   def handle_result({:ok, nil}, file_set) do
     ActionStates.set_state!(file_set, __MODULE__, "ok")
