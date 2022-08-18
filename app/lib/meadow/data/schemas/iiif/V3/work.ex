@@ -19,6 +19,9 @@ defimpl Meadow.IIIF.V3.Resource, for: Meadow.Data.Schemas.Work do
       id: IIIF.V3.manifest_id(work.id),
       label: manifest_label(work),
       summary: summary(work.descriptive_metadata.description),
+      metadata: [
+        IIIF.V3.property("LastModified", DateTime.utc_now() |> DateTime.to_iso8601())
+      ],
       rights: rights_statement(work.descriptive_metadata.rights_statement),
       requiredStatement: %LabelValue{
         label: %Label{en: ["Attribution"]},

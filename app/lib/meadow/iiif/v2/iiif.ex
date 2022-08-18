@@ -54,6 +54,18 @@ defmodule Meadow.IIIF.V2 do
     end
   end
 
+  @doc """
+  Generate property
+
+  Examples:
+    iex> property("LastModified", ~U[2022-08-17 15:10:38.486346Z])
+    %{label: %{en: ["LastModified"]}, value: %{en: [~U[2022-08-17 15:10:38.486346Z]]}}
+  """
+  def property(label, value) do
+    value = if is_list(value), do: value, else: [value]
+    %{label: %{en: [label]}, value: %{en: value}}
+  end
+
   def resource_type("AUDIO"), do: "Sound"
   def resource_type(work_type), do: work_type
 
