@@ -64,7 +64,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
         end)
 
       assert log =~ ~r/Received undefined response from lambda/
-      assert log =~ ~r"not_a_tiff.tif appears to be image/tiff but magic number doesn't match."
+
+      assert log =~
+               ~r"not_a_tiff.tif attempting to fall back to image/tiff but magic number doesn't match."
     end
 
     @tag fixture_file: @json_file, file_set_role_id: "P"
@@ -92,7 +94,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
     end
 
     @tag fixture_file: @random_file, file_set_role_id: "S"
-    test "supplemental file falls back to application/octet-stream", %{file_set_id: file_set_id} do
+    test "unknown file type falls back to application/octet-stream", %{file_set_id: file_set_id} do
       send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{})
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 

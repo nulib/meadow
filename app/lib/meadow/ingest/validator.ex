@@ -8,7 +8,7 @@ defmodule Meadow.Ingest.Validator do
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
   alias Meadow.Repo
-  alias Meadow.Utils.{AWS, MapList, Truth}
+  alias Meadow.Utils.{AWS, MapList, MIME, Truth}
   alias NimbleCSV.RFC4180, as: CSV
   import Ecto.Query
 
