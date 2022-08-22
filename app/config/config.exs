@@ -236,13 +236,19 @@ config :ex_aws,
 
 config :httpoison_retry, wait: 50
 
-config :mime, :types, %{
-  "video/x-mts" => ["mts"],
-  "video/x-vob" => ["vob"],
-  "video/x-m4v" => ["m4v"],
-  "video/x-matroska" => ["mkv"],
-  "audio/x-aiff" => ["aif", "aiff", "aifc"],
-  "audio/x-flac" => ["flac"]
+config :meadow, :extra_mime_types, %{
+  "aif" => "audio/x-aiff",
+  "aifc" => "audio/x-aiff",
+  "aiff" => "audio/x-aiff",
+  "flac" => "audio/x-flac",
+  "framemd5" => "text/plain",
+  "m4v" => "video/x-m4v",
+  "md5" => "text/plain",
+  "mkv" => "video/x-matroska",
+  "mts" => "video/x-mts",
+  "vob" => "video/x-vob",
+  # package defaults to "text/xml"
+  "xml" => "application/xml"
 }
 
 config :hush,

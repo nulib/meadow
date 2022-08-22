@@ -28,9 +28,11 @@ defmodule Meadow.IIIF.V3.Generator do
     |> Jason.encode!(pretty: true)
   end
 
+  defp to_json(manifest) when is_struct(manifest),
+    do: manifest |> Map.from_struct() |> to_json()
+
   defp to_json(manifest) do
     manifest
-    |> Map.from_struct()
     |> Enum.map(&set_property/1)
     |> Enum.filter(&filter_property/1)
     |> Enum.into(%{})

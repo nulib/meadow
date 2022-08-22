@@ -8,6 +8,7 @@ defmodule IIIF.V2.Presentation.Collection do
   @descriptive_and_rights context: @default_context,
                           label: nil,
                           description: nil,
+                          metadata: [],
                           thumbnail: nil,
                           attribution: nil,
                           license: nil,

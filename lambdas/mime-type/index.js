@@ -1,11 +1,6 @@
 const AWS = require("aws-sdk");
 const FileType = require("file-type");
-const MimeTypes = require("mime-types");
-const { makeTokenizer } = require("@tokenizer/s3");
 const path = require("path");
-
-MimeTypes.types['md5'] = 'text/plain';
-MimeTypes.types['framemd5'] = 'text/plain';
 
 AWS.config.update({ httpOptions: { timeout: 600000 } });
 
@@ -17,42 +12,41 @@ const extractMimeType = async (event) => {
   try {
     const s3 = new AWS.S3();
 
-    const s3Tokenizer = await makeTokenizer(s3, {
+    const s3Stream = s3.getObject({
       Bucket: event.bucket,
       Key: event.key,
-    });
+    }).createReadStream();
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
-    const fileType =
-      (await FileType.fromTokenizer(s3Tokenizer)) || (await lookupMimeType(event));
-    console.log(JSON.stringify(fileType));
-    return fileType;
+    const fileType = await FileType.fromStream(s3Stream) || fallback(event);
+    if (fileType) {
+      console.log('identified file as', JSON.stringify(fileType));
+      return { ...fileType, verified: true };  
+    }
+    return undefined;
   } catch (e) {
     console.error("Error extracting mime-type");
     return Promise.reject(e);
   }
 };
 
-const lookupMimeType = async (event) => {
-  console.warn(
-    "Failed to extract MIME type from content. Falling back to file extension."
-  );
-  const key = event.key;
-  const ext = path.extname(key).replace(/^\./, "");
-  let mime = MimeTypes.lookup(key);
+const fallback = (event) => {
+  const ext = path.extname(event.key).replace(/^\./, "");
+  const mime = event.fallback;
+
+  if (mime === undefined) 
+    return { ext, mime: "application/octet-stream", verified: false }
+
   if (mime && (! mime.match(/xml$/)) && FileType.mimeTypes.has(mime)) {
-    console.warn(
-      `${path.basename(
-        key
-      )} appears to be ${mime} but magic number doesn't match.`
-    );
+    console.warn(`${path.basename(event.key)} attempting to fall back to ${mime} but magic number doesn't match.`);
     return undefined;
-  } else if (mime) {
-    return { ext, mime };
-  } else {
-    console.warn(`Cannot determine MIME type of ${path.basename(key)}.`);
-    return "null";
   }
-};
+
+  return {
+    ext: path.extname(event.key).replace(/^\./, ""),
+    mime: mime,
+    verified: false
+  }
+}
 
 module.exports = { handler };

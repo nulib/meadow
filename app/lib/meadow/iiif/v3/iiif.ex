@@ -97,6 +97,18 @@ defmodule Meadow.IIIF.V3 do
     "#{manifest_id(work_id)}/canvas/#{file_set_id}"
   end
 
+  @doc """
+  Generate property
+
+  Examples:
+    iex> property("LastModified", ~U[2022-08-17 15:10:38.486346Z])
+    %{label: %{en: ["LastModified"]}, value: %{en: [~U[2022-08-17 15:10:38.486346Z]]}}
+  """
+  def property(label, value) do
+    value = if is_list(value), do: value, else: [value]
+    %{label: %{en: [label]}, value: %{en: value}}
+  end
+
   defp write_to_s3(manifest, key) do
     ExAws.S3.put_object(
       Meadow.Config.pyramid_bucket(),
