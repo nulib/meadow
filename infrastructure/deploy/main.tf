@@ -51,6 +51,15 @@ module "rds" {
   tags = var.tags
 }
 
+locals {
+  cors_urls = flatten([
+    for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : [
+      "http://${hostname}",
+      "https://${hostname}"
+    ]
+  ])
+}
+
 resource "random_string" "db_password" {
   length  = "16"
   special = "false"
@@ -61,17 +70,35 @@ resource "aws_s3_bucket" "meadow_ingest" {
   tags   = var.tags
 }
 
-locals {
-  cors_urls = flatten([
-    for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : [
-      "http://${hostname}",
-      "https://${hostname}"
-    ]
-  ])
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_ingest" {
+  bucket = aws_s3_bucket.meadow_ingest.id
+
+  rule {
+    id     = "30-day-expiration"
+    status = "Enabled"
+
+    expiration {
+      days = 30
+    }
+  }
 }
+
 resource "aws_s3_bucket" "meadow_uploads" {
   bucket = "${var.stack_name}-${var.environment}-uploads"
   tags   = var.tags
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_uploads" {
+  bucket = aws_s3_bucket.meadow_uploads.id
+
+  rule {
+    id     = "30-day-expiration"
+    status = "Enabled"
+
+    expiration {
+      days = 30
+    }
+  }
 }
 
 resource "aws_s3_bucket_cors_configuration" "meadow_uploads" {
