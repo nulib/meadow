@@ -8,6 +8,12 @@
       }
     },
     {
+      "set": {
+        "field": "api_link",
+        "value": "$base_url$/file-sets/{{id}}"
+      }
+    },
+    {
       "rename": {
         "field": "accessionNumber",
         "target_field": "accession_number"

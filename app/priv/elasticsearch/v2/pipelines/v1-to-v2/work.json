@@ -33,7 +33,7 @@
     {
       "set": {
         "field": "api_link",
-        "value": "[PLACEHOLDER]/{{original.id}}"
+        "value": "$base_url$/works/{{original.id}}"
       }
     },
     {

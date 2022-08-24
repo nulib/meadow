@@ -54,7 +54,8 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Pipelines do
   end
 
   defp create(path, ".json") do
-    [filename | [pipeline_prefix | _]] = Path.split(path) |> Enum.reverse()
+    [filename | [pipeline_prefix | ["pipelines" | [version | _]]]] =
+      Path.split(path) |> Enum.reverse()
 
     environment_prefix =
       [Application.get_env(:meadow, :environment_prefix), pipeline_prefix]
@@ -68,6 +69,7 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Pipelines do
 
     body =
       File.read!(path)
+      |> interpolate_api_variables(version)
       |> String.replace(pipeline_prefix, environment_prefix)
 
     url =
@@ -141,6 +143,17 @@ defmodule Mix.Tasks.Meadow.Elasticsearch.Pipelines do
       |> URI.to_string()
 
     Elastix.HTTP.put(url, body, [{"Content-Type", "application/json"}], [])
+  end
+
+  defp interpolate_api_variables(content, version) when is_binary(version),
+    do: interpolate_api_variables(content, String.to_existing_atom(version))
+
+  defp interpolate_api_variables(content, version) do
+    Application.get_env(:meadow, :dc_api)
+    |> Keyword.get(version, [])
+    |> Enum.reduce(content, fn {variable, value}, result ->
+      result |> String.replace("$#{variable}$", value)
+    end)
   end
 end
 
