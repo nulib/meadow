@@ -53,7 +53,7 @@
     "dynamic_templates": [
       {
         "text_fields": {
-          "match": "^abstract$|^alternate_title$|^caption$|^collection.title$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^notes.text$|^table_of_contents$|^title$",
+          "match": "^abstract$|^alternate_title$|^caption$|^collection.title$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^file_sets.original_filename$|^notes.text$|^table_of_contents$|^title$",
           "match_pattern": "regex",
           "mapping": {
             "type": "text",

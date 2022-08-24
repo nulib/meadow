@@ -6,6 +6,7 @@ ctx.file_sets = ctx.original.fileSets
     result.id = fs.id;
     result.label = fs.label;
     result.mime_type = fs.mime_type;
+    result.original_filename = fs.original_filename;
     result.poster_offset = fs.posterOffset;
     result.rank = fs.rank;
     result.representative_image_url = fs.representativeImageUrl;

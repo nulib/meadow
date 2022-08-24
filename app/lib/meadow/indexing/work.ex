@@ -29,6 +29,7 @@ defimpl Elasticsearch.Document, for: Meadow.Data.Schemas.Work do
             extractedMetadata: FileSetDocument.extracted_metadata(file_set.extracted_metadata),
             label: file_set.core_metadata.label,
             mime_type: file_set.core_metadata.mime_type,
+            original_filename: file_set.core_metadata.original_filename,
             posterOffset: file_set.poster_offset,
             rank: file_set.rank,
             representativeImageUrl: FileSets.representative_image_url_for(file_set),
