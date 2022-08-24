@@ -163,3 +163,7 @@ variable "shared_bucket" {
 variable "work_archiver_endpoint" {
   type = string
 }
+
+variable "dc_api_v2_base" {
+  type = string
+}
