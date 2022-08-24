@@ -598,7 +598,7 @@ resource "aws_route53_record" "meadow_streaming_cloudfront" {
 
 provider "aws" {
   alias  = "west"
-  region = "us-west-1"
+  region = var.replication_region
 }
 
 resource "aws_iam_role" "replication_role" {
@@ -648,7 +648,7 @@ resource "aws_iam_role" "replication_role" {
 resource "aws_s3_bucket" "meadow_preservation_replica" {
   count    = var.environment == "p" ? 1 : 0
   provider = aws.west
-  bucket   = "${var.stack_name}-${var.environment}-preservation-replica"
+  bucket   = "${var.stack_name}-${var.environment}-preservation-replica-${var.replication_region}"
 
   tags = var.tags
 }

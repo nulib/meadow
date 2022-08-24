@@ -156,6 +156,11 @@ variable "ffmpeg_layer_sha256" {
   type = string
 }
 
+variable "replication_region" {
+  type    = string
+  default = "us-west-2"
+}
+
 variable "shared_bucket" {
   type = string
 }
