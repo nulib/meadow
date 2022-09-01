@@ -37,6 +37,12 @@
       }
     },
     {
+      "set": {
+        "field": "thumbnail",
+        "value": "$base_url$/works/{{original.id}}/thumbnail"
+      }
+    },
+    {
       "rename": {
         "field": "original.descriptiveMetadata.ark",
         "target_field": "ark"
@@ -425,12 +431,6 @@
       "rename": {
         "field": "original.descriptiveMetadata.termsOfUse",
         "target_field": "terms_of_use"
-      }
-    },
-    {
-      "rename": {
-        "field": "original.thumbnail",
-        "target_field": "thumbnail"
       }
     },
     {

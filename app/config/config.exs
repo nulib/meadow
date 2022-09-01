@@ -253,9 +253,7 @@ config :meadow, :extra_mime_types, %{
 
 config :meadow,
   dc_api: [
-    v2: [
-      base_url: aws_secret("meadow", dig: ["dc_api", "v2"], default: "http://localhost:3000")
-    ]
+    v2: aws_secret("meadow", dig: ["dc_api", "v2"], default: "http://localhost:3000")
   ]
 
 config :hush,
