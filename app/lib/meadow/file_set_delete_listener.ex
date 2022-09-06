@@ -29,10 +29,11 @@ defmodule Meadow.FilesetDeleteListener do
 
   @impl GenServer
   def init(initial_state) do
-    Logger.info("#{__MODULE__}: Listening for delete notifications on 'file_sets'")
-    Meadow.Repo.listen(@message)
-
-    {:ok, initial_state}
+    with repo <- Keyword.get(initial_state, :repo, Meadow.Repo) do
+      Logger.info("#{__MODULE__}: Listening for delete notifications on 'file_sets'")
+      repo.listen(@message)
+      {:ok, Keyword.put(initial_state, :ingest_bucket, Meadow.Config.ingest_bucket())}
+    end
   end
 
   def handle_info({:notification, _pid, _ref, @message, payload}, state) do
@@ -90,13 +91,19 @@ defmodule Meadow.FilesetDeleteListener do
   defp clean_derivative!(_, _), do: :ok
 
   defp clean_preservation_file!(file_set_data, state) do
-    with location <- file_set_data.location,
-         repo <- Keyword.get(state, :repo, Meadow.Repo) do
+    clean_preservation_file!(file_set_data, state, in_ingest_bucket(file_set_data, state))
+    file_set_data
+  end
+
+  defp clean_preservation_file!(%{location: location}, _state, true) do
+    Logger.warn("Leaving #{location} intact in the ingest bucket")
+  end
+
+  defp clean_preservation_file!(%{id: id, location: location}, state, _) do
+    with repo <- Keyword.get(state, :repo, Meadow.Repo) do
       refs =
         from(f in FileSet,
-          where:
-            fragment("core_metadata ->> 'location' = ?", ^location) and
-              f.id != ^file_set_data.id
+          where: fragment("core_metadata ->> 'location' = ?", ^location) and f.id != ^id
         )
         |> repo.aggregate(:count)
 
@@ -108,8 +115,10 @@ defmodule Meadow.FilesetDeleteListener do
         Logger.warn("Leaving #{location} intact: #{refs} additional #{references}")
       end
     end
+  end
 
-    file_set_data
+  defp in_ingest_bucket(%{location: location}, state) do
+    URI.parse(location) |> Map.get(:host) == Keyword.get(state, :ingest_bucket)
   end
 
   defp delete_s3_uri(uri, recursive \\ false)

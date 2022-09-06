@@ -9,6 +9,8 @@ defmodule Meadow.FileSetDeleteListenerTest do
   import Ecto.Changeset
   import ExUnit.CaptureLog
 
+  @ingest_key "waiting/to/ingest.tif"
+  @ingest_location "s3://#{@ingest_bucket}/#{@ingest_key}"
   @pairtree "44/87/89/28/-c/4d/e-/40/76/-b/61/3-/15/35/66/5f/fa/e2"
   @poster_key "posters/#{@pairtree}-poster.tif"
   @preservation_key "#{@pairtree}/preservation-file"
@@ -43,6 +45,11 @@ defmodule Meadow.FileSetDeleteListenerTest do
 
   describe "clean_up!/1" do
     @describetag s3: [
+                   %{
+                     bucket: @ingest_bucket,
+                     key: @ingest_key,
+                     content: File.read!("test/fixtures/coffee.tif")
+                   },
                    %{
                      bucket: @preservation_bucket,
                      key: @preservation_key,
@@ -111,6 +118,18 @@ defmodule Meadow.FileSetDeleteListenerTest do
         Repo.delete(last_file_set)
         assert_receive {"cleaned", ^file_set_id}, @timeout
         refute object_exists?(@preservation_bucket, @preservation_key)
+      end
+    end
+
+    test "file retained if it's in the ingest bucket", %{file_set: file_set} do
+      with %{id: file_set_id} <- file_set do
+        file_set
+        |> FileSet.update_changeset(%{core_metadata: %{location: @ingest_location}})
+        |> Repo.update!()
+        |> Repo.delete()
+
+        assert_receive {"cleaned", ^file_set_id}, @timeout
+        assert object_exists?(@ingest_bucket, @ingest_key)
       end
     end
 

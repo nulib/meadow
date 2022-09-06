@@ -14,6 +14,8 @@ defmodule Meadow.UnsandboxedDataCase do
   defmodule Repo do
     @moduledoc false
     use Ecto.Repo, adapter: Ecto.Adapters.Postgres, otp_app: :meadow
+
+    def listen(event_name), do: Meadow.Repo.listen(event_name)
   end
 
   setup_all do
