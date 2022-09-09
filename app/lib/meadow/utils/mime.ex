@@ -39,7 +39,9 @@ defmodule Meadow.Utils.MIME do
   "application/octet-stream"
   """
   def type(ext) do
-    Application.get_env(:meadow, :extra_mime_types)
-    |> Map.get(to_string(ext), MimeTypes.type(ext))
+    with normalized_ext <- ext |> to_string() |> String.downcase() do
+      Application.get_env(:meadow, :extra_mime_types)
+      |> Map.get(normalized_ext, MimeTypes.type(normalized_ext))
+    end
   end
 end
