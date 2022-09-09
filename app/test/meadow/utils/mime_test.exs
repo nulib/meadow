@@ -19,4 +19,8 @@ defmodule Meadow.Utils.MIMETest do
     assert MIME.from_path("/path/to/unknown.blorb") == "application/octet-stream"
     assert MIME.type("blorb") == "application/octet-stream"
   end
+
+  test "is case insensitive" do
+    assert MIME.from_path("/path/to/image.jpg") == MIME.from_path("/path/to/image.JPG")
+  end
 end
