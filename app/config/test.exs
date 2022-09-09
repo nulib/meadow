@@ -107,6 +107,13 @@ config :meadow, Meadow.Repo,
   queue_target: 5000,
   pool_size: 50
 
+config :meadow,
+  dc_api: [
+    v2: %{
+      "base_url" => "http://dcapi-test.northwestern.edu"
+    }
+  ]
+
 if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
   [:mediaconvert, :s3, :secretsmanager, :sns, :sqs]
   |> Enum.each(fn service ->
