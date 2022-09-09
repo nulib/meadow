@@ -33,13 +33,25 @@
     {
       "set": {
         "field": "api_link",
-        "value": "[PLACEHOLDER]/{{original.id}}"
+        "value": "$base_url$/works/{{original.id}}"
+      }
+    },
+    {
+      "set": {
+        "field": "thumbnail",
+        "value": "$base_url$/works/{{original.id}}/thumbnail"
       }
     },
     {
       "rename": {
         "field": "original.descriptiveMetadata.ark",
         "target_field": "ark"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.batches",
+        "target_field": "batch_ids"
       }
     },
     {
@@ -82,7 +94,8 @@
               "id": "{{_ingest._value.term.id}}",
               "label": "{{_ingest._value.term.label}}",
               "role": "{{_ingest._value.role.label}}",
-              "label_with_role": "{{_ingest._value.term.label}} ({{_ingest._value.role.label}})"
+              "label_with_role": "{{_ingest._value.term.label}} ({{_ingest._value.role.label}})",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -102,7 +115,8 @@
             "field": "creator",
             "value": {
               "id": "{{_ingest._value.term.id}}",
-              "label": "{{_ingest._value.term.label}}"
+              "label": "{{_ingest._value.term.label}}",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -111,6 +125,18 @@
     {
       "script": {
         "id": "v1-to-v2-work-file-sets"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptiveMetadata.dateCreated",
+        "target_field": "date_created"
+      }
+    },
+    {
+      "rename": {
+        "field": "original.descriptiveMetadata.description",
+        "target_field": "description"
       }
     },
     {
@@ -133,7 +159,8 @@
             "field": "genre",
             "value": {
               "id": "{{_ingest._value.term.id}}",
-              "label": "{{_ingest._value.term.label}}"
+              "label": "{{_ingest._value.term.label}}",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -199,6 +226,12 @@
       "remove": {
         "field": "license.scheme",
         "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "original.metadataUpdateJobs",
+        "target_field": "csv_metadata_update_jobs"
       }
     },
     {
@@ -351,7 +384,8 @@
               "id": "{{_ingest._value.term.id}}",
               "label": "{{_ingest._value.term.label}}",
               "role": "{{_ingest._value.role.label}}",
-              "label_with_role": "{{_ingest._value.term.label}} ({{_ingest._value.role.label}})"
+              "label_with_role": "{{_ingest._value.term.label}} ({{_ingest._value.role.label}})",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -365,7 +399,8 @@
             "field": "style_period",
             "value": {
               "id": "{{_ingest._value.term.id}}",
-              "label": "{{_ingest._value.term.label}}"
+              "label": "{{_ingest._value.term.label}}",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -385,7 +420,8 @@
             "field": "technique",
             "value": {
               "id": "{{_ingest._value.term.id}}",
-              "label": "{{_ingest._value.term.label}}"
+              "label": "{{_ingest._value.term.label}}",
+              "facet": "{{_ingest._value.facet}}"
             }
           }
         }
@@ -395,12 +431,6 @@
       "rename": {
         "field": "original.descriptiveMetadata.termsOfUse",
         "target_field": "terms_of_use"
-      }
-    },
-    {
-      "rename": {
-        "field": "original.thumbnail",
-        "target_field": "thumbnail"
       }
     },
     {

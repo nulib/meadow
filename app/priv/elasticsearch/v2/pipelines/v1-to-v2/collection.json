@@ -10,7 +10,7 @@
     {
       "set": {
         "field": "api_link",
-        "value": "[PLACEHOLDER]/{{id}}"
+        "value": "$base_url$/collections/{{id}}"
       }
     },
     {

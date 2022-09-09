@@ -251,6 +251,11 @@ config :meadow, :extra_mime_types, %{
   "xml" => "application/xml"
 }
 
+config :meadow,
+  dc_api: [
+    v2: aws_secret("meadow", dig: ["dc_api", "v2"], default: "http://localhost:3000")
+  ]
+
 config :hush,
   transformers_override: true,
   transformers: [

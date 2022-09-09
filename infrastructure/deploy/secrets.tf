@@ -22,6 +22,12 @@ locals {
       base_url = var.digital_collections_url
     }
 
+    dc_api = {
+      v2 = {
+        base_url = var.dc_api_v2_base
+      }
+    }
+
     ezid  = {
       password        = var.ezid_password
       shoulder        = var.ezid_shoulder
