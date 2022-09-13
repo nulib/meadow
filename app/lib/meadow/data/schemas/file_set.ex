@@ -18,29 +18,31 @@ defmodule Meadow.Data.Schemas.FileSet do
   @foreign_key_type Ecto.UUID
   @timestamps_opts [type: :utc_datetime_usec]
   schema "file_sets" do
-    field :accession_number
-    field :extracted_metadata, :map
-    field :role, Types.CodedTerm
-    field :rank, :integer
-    field :position, :any, virtual: true
-    field :derivatives, :map
-    field :poster_offset, :integer
+    field(:accession_number)
+    field(:extracted_metadata, :map)
+    field(:role, Types.CodedTerm)
+    field(:rank, :integer)
+    field(:position, :any, virtual: true)
+    field(:derivatives, :map)
+    field(:poster_offset, :integer)
+    field(:dominant_color, :map)
 
-    embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
-    embeds_one :structural_metadata, FileSetStructuralMetadata, on_replace: :delete
+    embeds_one(:core_metadata, FileSetCoreMetadata, on_replace: :update)
+    embeds_one(:structural_metadata, FileSetStructuralMetadata, on_replace: :delete)
     timestamps()
 
-    belongs_to :work, Work
+    belongs_to(:work, Work)
 
-    has_many :action_states, ActionState,
+    has_many(:action_states, ActionState,
       references: :id,
       foreign_key: :object_id,
       on_delete: :delete_all
+    )
   end
 
   defp changeset_params do
     {[:accession_number, :role],
-     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset]}
+     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset, :dominant_color]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do

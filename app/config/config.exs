@@ -182,6 +182,7 @@ lambda_from_ssm = fn lambda, function ->
 end
 
 config :meadow, :lambda,
+  color: {:local, {Path.expand("../lambdas/color/index.js"), "handler"}},
   digester: lambda_from_ssm.("digester", "digester"),
   exif: lambda_from_ssm.("exif", "exif"),
   frame_extractor: lambda_from_ssm.("frame_extractor", "frame-extractor"),
