@@ -12,18 +12,20 @@ const extractMimeType = async (event) => {
   try {
     const s3 = new AWS.S3();
 
-    const s3Stream = s3.getObject({
+    const { Body: firstK } = await s3.getObject({
       Bucket: event.bucket,
       Key: event.key,
-    }).createReadStream();
+      Range: "bytes=0-1023"
+    }).promise();
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
-    const fileType = await FileType.fromStream(s3Stream) || fallback(event);
+    const fileType = await FileType.fromBuffer(firstK);
     if (fileType) {
       console.log('identified file as', JSON.stringify(fileType));
       return { ...fileType, verified: true };  
+    } else {
+      return fallback(event);
     }
-    return undefined;
   } catch (e) {
     console.error("Error extracting mime-type");
     return Promise.reject(e);
