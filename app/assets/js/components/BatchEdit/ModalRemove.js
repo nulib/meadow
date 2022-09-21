@@ -106,7 +106,7 @@ export default function BatchEditAboutModalRemove({
           <footer>
             <div className="buttons is-right">
               <Button isLight onClick={closeModal} data-testid="close-button">
-                {items.length > 0 && <>Save &amp; </>} Close
+                {items.length > 0 && `Save &amp; `} Close
               </Button>
             </div>
           </footer>
