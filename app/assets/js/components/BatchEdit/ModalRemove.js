@@ -48,11 +48,7 @@ export default function BatchEditAboutModalRemove({
       : [];
 
   useEffect(() => {
-    if (items.length > 0) {
-      setCandidateList(setupCandidateList(items));
-    } else {
-      setCandidateList([]);
-    }
+    setCandidateList(items.length > 0 ? setupCandidateList(items) : []);
   }, [items]);
 
   function handleCheckboxChange({ key }) {
@@ -106,7 +102,7 @@ export default function BatchEditAboutModalRemove({
           <footer>
             <div className="buttons is-right">
               <Button isLight onClick={closeModal} data-testid="close-button">
-                {items.length > 0 && `Save &amp; `} Close
+                {items.length > 0 && `Save & `} Close
               </Button>
             </div>
           </footer>
