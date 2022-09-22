@@ -16,6 +16,8 @@ const modalContent = css`
 `;
 
 function setupCandidateList(items) {
+  if (items.length == 0) return [];
+
   const newList = items.map((item) => {
     const { label, role, term } = splitFacetKey(item.key);
     return {
@@ -48,9 +50,7 @@ export default function BatchEditAboutModalRemove({
       : [];
 
   useEffect(() => {
-    if (items.length > 0) {
-      setCandidateList(setupCandidateList(items));
-    }
+    setCandidateList(setupCandidateList(items));
   }, [items]);
 
   function handleCheckboxChange({ key }) {
@@ -74,7 +74,9 @@ export default function BatchEditAboutModalRemove({
               {currentRemoveField.label}
             </h3>
             <h4 className="subtitle">
-              Select values to remove from all batch Works
+              {items.length > 0
+                ? `Select values to remove from all batch Works`
+                : `Selected batch Works do not have ${currentRemoveField.label} values`}
             </h4>
           </header>
           <div className="my-4">
@@ -102,7 +104,7 @@ export default function BatchEditAboutModalRemove({
           <footer>
             <div className="buttons is-right">
               <Button isLight onClick={closeModal} data-testid="close-button">
-                Save &amp; close
+                {items.length > 0 && `Save & `} Close
               </Button>
             </div>
           </footer>
