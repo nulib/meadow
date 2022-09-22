@@ -16,6 +16,8 @@ const modalContent = css`
 `;
 
 function setupCandidateList(items) {
+  if (items.length == 0) return [];
+
   const newList = items.map((item) => {
     const { label, role, term } = splitFacetKey(item.key);
     return {
@@ -48,7 +50,7 @@ export default function BatchEditAboutModalRemove({
       : [];
 
   useEffect(() => {
-    setCandidateList(items.length > 0 ? setupCandidateList(items) : []);
+    setCandidateList(setupCandidateList(items));
   }, [items]);
 
   function handleCheckboxChange({ key }) {
