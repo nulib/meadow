@@ -84,7 +84,7 @@ defmodule Meadow.BatchesTest do
         })
       ]
 
-      Indexer.reindex_all!()
+      Indexer.reindex_all()
       {:ok, %{works: works}}
     end
 

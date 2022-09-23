@@ -2,7 +2,7 @@ Hush.resolve!()
 Meadow.Repo.wait_for_connection()
 
 Mix.Task.run("ecto.setup")
-Mix.Task.run("meadow.elasticsearch.setup")
+Mix.Task.run("meadow.search.setup")
 
 unless System.get_env("AWS_DEV_ENVIRONMENT") do
   Mix.Task.run("meadow.pipeline.setup")

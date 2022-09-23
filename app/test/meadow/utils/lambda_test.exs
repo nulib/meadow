@@ -2,6 +2,7 @@ defmodule Meadow.Utils.LambdaTest do
   use ExUnit.Case
   alias Meadow.Utils.Lambda
   import ExUnit.CaptureLog
+  import Meadow.TestHelpers
   require Logger
 
   setup do
@@ -29,16 +30,17 @@ defmodule Meadow.Utils.LambdaTest do
                     }}
         end)
 
-      assert log |> String.contains?("[info]  This is a log message with level `log`")
-      assert log |> String.match?(~r"\[warn(ing)?\]\s+This is a log message with level `warn`")
-      assert log |> String.contains?("[error] This is a log message with level `error`")
-      assert log |> String.contains?("[info]  This is a log message with level `info`")
-      assert log |> String.contains?("[debug] This is a log message with level `debug`")
-      refute log |> String.contains?("[debug] ping")
+      assert log |> logged?(:info, "This is a log message with level `log`")
+      assert log |> logged?(:warn, "This is a log message with level `warn`")
+      assert log |> logged?(:error, "This is a log message with level `error`")
+      assert log |> logged?(:info, "This is a log message with level `info`")
+      assert log |> logged?(:debug, "This is a log message with level `debug`")
+      refute log |> logged?(:debug, "ping")
 
       assert log
-             |> String.match?(
-               ~r"\[warn(ing)?\]\s+Unknown message received: This is an unknown message type"
+             |> logged?(
+               :warn,
+               ~r/Unknown message received: This is an unknown message type/
              )
     end
 
@@ -47,7 +49,7 @@ defmodule Meadow.Utils.LambdaTest do
                assert Lambda.invoke(config, %{test: "die"}) ==
                         {:error, "Dying because the caller told me to"}
              end)
-             |> String.contains?("[error] Dying because the caller told me to")
+             |> logged?(:error, "Dying because the caller told me to")
     end
 
     test "exit", %{config: config} do
@@ -67,7 +69,7 @@ defmodule Meadow.Utils.LambdaTest do
           assert {:ok, true} == Lambda.invoke(config, %{test: "version"})
         end)
 
-      assert log |> String.match?(~r"\[info\]\s+NodeJS v14\.\d+\.\d+")
+      assert log |> logged?(:info, ~r/NodeJS v14\.\d+\.\d+/)
     end
 
     test "null response", %{config: config} do
@@ -80,7 +82,7 @@ defmodule Meadow.Utils.LambdaTest do
           assert {:ok, nil} == Lambda.invoke(config, %{test: "undef"})
         end)
 
-      assert log |> String.match?(~r"\[warn(ing)?\]\s+Received undefined")
+      assert log |> logged?(:warn, "Received undefined")
     end
 
     test "timeout", %{config: config} do

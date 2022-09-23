@@ -4,7 +4,7 @@ defmodule Meadow.Data.CSV.Export do
   """
 
   alias Meadow.Data.Schemas.{WorkAdministrativeMetadata, WorkDescriptiveMetadata}
-  alias Meadow.Utils.Elasticsearch.Scroll
+  alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   import Meadow.Data.CSV.Utils

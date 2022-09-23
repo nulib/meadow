@@ -1,199 +1,115 @@
 defmodule Meadow.Data.Indexer do
   @moduledoc """
-  Indexes individual structs into Elasticsearch, preloading if necessary.
+  Indexes individual structs into our search indexes, preloading if necessary.
   """
   use Meadow.Utils.Logging
 
-  alias Meadow.Config
-  alias Meadow.Data.IndexTimes
+  alias Meadow.Repo
+  alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
-  alias Meadow.ElasticsearchCluster, as: Cluster
-  alias Meadow.ElasticsearchDiffStore, as: Store
+  alias Meadow.Search.Bulk
   alias Meadow.Search.Client, as: SearchClient
+  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.Document, as: SearchDocument
+  alias Meadow.Search.Index, as: SearchIndex
 
   require Logger
 
-  def hot_swap do
-    case Elasticsearch.Index.hot_swap(Meadow.ElasticsearchCluster, index()) do
-      {:error, errors} when is_list(errors) ->
-        Enum.each(errors, fn error ->
-          Logger.warn(error.message)
-          Meadow.Error.report(error, Elasticsearch.Index, [])
-        end)
+  import Ecto.Query
 
-        {:error, errors}
+  def reindex_all do
+    SearchConfig.index_versions()
+    |> Enum.each(&reindex_all/1)
+  end
 
-      {:error, error} ->
-        Logger.warn(error.message)
-        Meadow.Error.report(error, Elasticsearch.Index, [])
-        {:error, error}
+  def reindex_all(1) do
+    SearchClient.hot_swap(Work, 1, fn index ->
+      [FileSet, Work, Collection]
+      |> Enum.each(fn schema ->
+        synchronize_schema(schema, 1, index, :all)
+      end)
+    end)
+  end
 
-      other ->
-        other
-    end
+  def reindex_all(version) do
+    [FileSet, Work, Collection]
+    |> Enum.each(fn schema ->
+      SearchClient.hot_swap(schema, version, fn index ->
+        synchronize_schema(schema, version, index, :all)
+      end)
+    end)
   end
 
   def synchronize_index do
-    with_log_metadata module: __MODULE__ do
-      [:deleted, FileSet, Work, Collection]
-      |> Enum.each(&synchronize_schema/1)
+    SearchConfig.index_versions()
+    |> Enum.each(&synchronize_index/1)
+  end
 
-      Elasticsearch.Index.refresh(Cluster, to_string(index()))
+  def synchronize_index(version) do
+    [FileSet, Work, Collection]
+    |> Enum.each(&synchronize_schema(&1, version))
+  end
+
+  def synchronize_schema(schema, 1) do
+    with index <- SearchConfig.alias_for(schema, 1),
+         {:ok, since} <- SearchClient.most_recent(schema, 1) do
+      synchronize_schema(schema, 1, index, since)
     end
   end
 
-  def reindex_all! do
-    with now <- NaiveDateTime.utc_now() do
-      IndexTimes.reset_all!()
-      synchronize_index()
-      delete_outdated_documents(now)
-    end
-
-    Logger.info("Reindex complete")
-  end
-
-  defp delete_outdated_documents(time) do
-    query = %{
-      query: %{
-        range: %{
-          indexed_at: %{
-            lt: time
-          }
-        }
-      }
-    }
-
-    for index <- Config.indexes() do
-      SearchClient.delete_by_query(index, query)
+  def synchronize_schema(schema, version) do
+    with index <- SearchConfig.alias_for(schema, version),
+         {:ok, since} <- SearchClient.most_recent(index) do
+      synchronize_schema(schema, version, index, since)
     end
   end
 
-  def synchronize_schema(schema) do
-    case schema |> synchronize_chunk() do
-      :ok -> synchronize_schema(schema)
-      :halt -> :ok
-    end
+  def synchronize_schema(schema, version, index, :all) do
+    preloads = schema.required_index_preloads()
+
+    from(schema)
+    |> stream(preloads)
+    |> maybe_add_representative_image(schema)
+    |> synchronize_schema(version, index)
   end
 
-  defp synchronize_chunk(schema) do
-    case schema |> Store.retrieve() do
-      [] ->
-        :halt
+  def synchronize_schema(schema, version, index, since) do
+    preloads = schema.required_index_preloads()
 
-      records ->
-        records
-        |> Stream.map(&encode!(&1, schema))
-        |> upload()
-        |> Stream.run()
-    end
-  end
-
-  def encode!(id, :deleted) do
-    for index <- Config.indexes() do
-      %{delete: %{_index: index, _id: id}}
-    end
-    |> Enum.map_join("\n", &json_encode/1)
-  end
-
-  def encode!(indexable, _) do
-    [
-      %{index: %{_index: index(), _id: indexable.id}},
-      Elasticsearch.Document.encode(indexable)
-    ]
-    |> Enum.map_join("\n", &json_encode/1)
-  end
-
-  def upload(stream) do
-    with config <- index_config() do
-      stream
-      |> Stream.chunk_every(config[:bulk_page_size])
-      |> Stream.intersperse(config[:bulk_wait_interval])
-      |> Stream.each(&upload_batch/1)
-    end
-  end
-
-  def index, do: Config.elasticsearch_index()
-
-  defp upload_batch(wait_interval) when is_integer(wait_interval), do: :timer.sleep(wait_interval)
-
-  defp upload_batch(docs) do
-    bulk_document = docs |> Enum.join("\n")
-
-    Elasticsearch.put(
-      Cluster,
-      "/#{index()}/_doc/_bulk",
-      "#{bulk_document}\n"
+    from(s in schema,
+      where: s.updated_at >= ^since or s.reindex_at >= ^since
     )
-    |> after_upload_batch(bulk_document)
+    |> stream(preloads)
+    |> maybe_add_representative_image(schema)
+    |> synchronize_schema(version, index)
   end
 
-  defp after_upload_batch({:ok, %{"errors" => true, "items" => items} = results}, bulk_document) do
-    Enum.filter(items, &(&1 |> Map.values() |> List.first() |> Map.has_key?("error")))
-    |> Enum.each(fn error ->
-      with [%{"error" => %{"reason" => reason, "type" => type}} | _] <- Map.values(error),
-           message <- "(#{type}) #{reason}" do
-        Logger.warn(message)
+  def synchronize_schema(stream, version, index) do
+    Repo.transaction(
+      fn ->
+        stream
+        |> Stream.map(&SearchDocument.encode(&1, version))
+        |> Bulk.upload(index)
 
-        Meadow.Error.report(
-          %Meadow.IndexerError{message: message},
-          __MODULE__,
-          [],
-          %{document_size: bulk_document |> byte_size() |> to_string()}
-        )
-      end
-    end)
-
-    after_upload_batch({:ok, Map.put(results, "errors", false)}, bulk_document)
+        SearchIndex.refresh(index)
+        :ok
+      end,
+      timeout: :infinity
+    )
   end
 
-  defp after_upload_batch({:ok, results}, _) do
-    results
-    |> Map.get("items")
-    |> Enum.reduce({[], []}, fn
-      %{"index" => %{"_id" => id}}, {index_ids, delete_ids} -> {[id | index_ids], delete_ids}
-      %{"delete" => %{"_id" => id}}, {index_ids, delete_ids} -> {index_ids, [id | delete_ids]}
-    end)
-    |> set_index_time()
+  def stream(query, preloads) do
+    from(query)
+    |> Repo.stream()
+    |> Stream.chunk_every(10)
+    |> Stream.flat_map(&Repo.preload(&1, preloads))
   end
 
-  defp after_upload_batch({:error, error}, bulk_document) do
-    message =
-      [
-        "Uploading ",
-        bulk_document |> byte_size() |> to_string(),
-        "-byte bulk document to Elasticsearch failed because: ",
-        error |> inspect()
-      ]
-      |> IO.iodata_to_binary()
+  def maybe_add_representative_image(stream, Collection),
+    do: Stream.map(stream, &Collections.add_representative_image/1)
 
-    Logger.warn(message)
-    Meadow.Error.report(error, __MODULE__, [])
+  def maybe_add_representative_image(stream, Work),
+    do: Stream.map(stream, &Works.add_representative_image/1)
 
-    {0, 0}
-  end
-
-  defp set_index_time({index_ids, delete_ids}) do
-    IndexTimes.change(index_ids, delete_ids) |> log_update_count()
-    {index_ids, delete_ids}
-  end
-
-  defp log_update_count({add_ids, update_ids, delete_ids}) do
-    "Index updates: +#{length(add_ids)} ~#{length(update_ids)} -#{length(delete_ids)}"
-    |> Logger.info()
-  end
-
-  defp config do
-    Application.get_env(:meadow, Cluster)
-  end
-
-  defp index_config do
-    config()
-    |> get_in([:indexes, index()])
-  end
-
-  defp json_encode(val) do
-    with mod <- config() |> get_in([:json_library]) do
-      mod.encode!(val)
-    end
-  end
+  def maybe_add_representative_image(stream, _), do: stream
 end

@@ -6,17 +6,6 @@ defmodule Meadow.ConfigTest do
   alias Meadow.Config
   import Assertions
 
-  test "v2_index/1" do
-    assert Config.v2_index(Meadow.Data.Schemas.FileSet) =~ "file-set"
-    assert Config.v2_index(FileSet) =~ "file-set"
-    assert Config.v2_index("FileSet") =~ "file-set"
-  end
-
-  test "search_model_from_schema/1" do
-    assert Config.search_model_from_schema(Meadow.Data.Schemas.FileSet) == "FileSet"
-    assert Config.search_model_from_schema(FileSet) == "FileSet"
-  end
-
   test "index_interval/0" do
     assert Config.index_interval() == 1234
   end

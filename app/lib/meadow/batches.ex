@@ -7,9 +7,12 @@ defmodule Meadow.Batches do
   alias Meadow.Data.{Indexer, Works}
   alias Meadow.Data.Schemas.{Batch, Work}
   alias Meadow.Repo
+  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.HTTP
 
   require Logger
 
+  @batch_index SearchConfig.alias_for(Work, 1)
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
 
   @doc """
@@ -88,10 +91,10 @@ defmodule Meadow.Batches do
 
     Enum.reduce(criteria, query, fn
       {:limit, limit}, query ->
-        from b in query, limit: ^limit
+        from(b in query, limit: ^limit)
 
       {:order, order}, query ->
-        from b in query, order_by: [{^order, :id}]
+        from(b in query, order_by: [{^order, :id}])
     end)
     |> Repo.all()
   end
@@ -432,10 +435,10 @@ defmodule Meadow.Batches do
     from(w in Work, where: w.id in ^work_ids, select: w.id) |> Repo.all()
   end
 
-  # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
+  # Scroll over the search results and apply changes to each page of work IDs.
 
   defp process_updates(
-         {:ok, %{"hits" => %{"hits" => []}}},
+         %{"hits" => %{"hits" => []}},
          _delete,
          _add,
          _replace,
@@ -452,7 +455,7 @@ defmodule Meadow.Batches do
   end
 
   defp process_updates(
-         {:ok, %{"_scroll_id" => scroll_id, "hits" => hits}},
+         %{"_scroll_id" => scroll_id, "hits" => hits},
          delete,
          add,
          replace,
@@ -474,11 +477,8 @@ defmodule Meadow.Batches do
       "Indexing for batch update scroll_id: #{scroll_id}, hits: #{length(current_hits)}, total: #{total}"
     )
 
-    Meadow.ElasticsearchCluster
-    |> Elasticsearch.post(
-      "/_search/scroll",
-      Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
-    )
+    HTTP.post!("/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
+    |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
 
@@ -492,33 +492,30 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch update")
     Logger.debug("query #{inspect(query)}")
 
-    Meadow.ElasticsearchCluster
-    |> Elasticsearch.post("/#{Indexer.index()}/_search?scroll=10m", query)
+    HTTP.post!([@batch_index, "_search?scroll=10m"], query)
+    |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
 
   # Iterate over the Elasticsearch scroll and apply changes to each page of work IDs.
 
   defp process_deletes(
-         {:ok, %{"hits" => %{"hits" => [], "total" => %{"value" => total}}}},
+         %{"hits" => %{"hits" => [], "total" => %{"value" => total}}},
          batch_id
        ) do
     update_batch(batch_id, %{works_updated: total})
     {:ok, :noop}
   end
 
-  defp process_deletes({:ok, %{"_scroll_id" => scroll_id, "hits" => hits}}, batch_id) do
+  defp process_deletes(%{"_scroll_id" => scroll_id, "hits" => hits}, batch_id) do
     current_hits = Map.get(hits, "hits")
 
     current_hits
     |> Enum.map(&Map.get(&1, "_id"))
     |> delete_works()
 
-    Meadow.ElasticsearchCluster
-    |> Elasticsearch.post(
-      "/_search/scroll",
-      Jason.encode!(%{scroll: "1m", scroll_id: scroll_id})
-    )
+    HTTP.post!("/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
+    |> Map.get(:body)
     |> process_deletes(batch_id)
   end
 
@@ -531,8 +528,8 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch delete")
     Logger.debug("query #{inspect(query)}")
 
-    Meadow.ElasticsearchCluster
-    |> Elasticsearch.post("/#{Indexer.index()}/_search?scroll=10m", query)
+    HTTP.post!([@batch_index, "_search?scroll=10m"], query)
+    |> Map.get(:body)
     |> process_deletes(batch_id)
   end
 

@@ -34,6 +34,7 @@ defmodule Meadow.Data.Schemas.Work do
 
     field(:work_type, Types.CodedTerm)
 
+    field(:reindex_at, :utc_datetime_usec)
     timestamps()
 
     embeds_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)

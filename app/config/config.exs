@@ -40,59 +40,50 @@ config :meadow, MeadowWeb.Endpoint,
   pubsub_server: Meadow.PubSub,
   live_view: [signing_salt: "C7BC/yBsTCe/PaJ9g0krwlQrNZZV2r3jSjeuGCeIu9mfNE+4bPcNPHiINQtIQk/B"]
 
-# Search index configuration
-config :meadow, Meadow.SearchIndex, primary_index: atom_prefix("meadow")
-
-# Configures the ElasticsearchCluster
-config :meadow, Meadow.ElasticsearchCluster,
+# Configures the Search cluster
+config :meadow, Meadow.Search.Cluster,
   url:
     aws_secret("meadow",
-      dig: ["index", "index_endpoint"],
+      dig: ["search", "cluster_endpoint"],
       default: "http://localhost:9201"
     ),
-  api: Elasticsearch.API.HTTP,
+  indexes: [
+    %{
+      name: prefix("meadow"),
+      settings: "priv/search/v1/settings/meadow.json",
+      version: 1,
+      schemas: [
+        Meadow.Data.Schemas.Collection,
+        Meadow.Data.Schemas.FileSet,
+        Meadow.Data.Schemas.Work
+      ]
+    },
+    %{
+      name: prefix("dc-v2-work"),
+      settings: "priv/search/v2/settings/work.json",
+      version: 2,
+      schemas: [Meadow.Data.Schemas.Work]
+    },
+    %{
+      name: prefix("dc-v2-file-set"),
+      settings: "priv/search/v2/settings/file_set.json",
+      version: 2,
+      schemas: [Meadow.Data.Schemas.FileSet]
+    },
+    %{
+      name: prefix("dc-v2-collection"),
+      settings: "priv/search/v2/settings/collection.json",
+      version: 2,
+      schemas: [Meadow.Data.Schemas.Collection]
+    }
+  ],
   default_options: [
     timeout: 20_000,
     recv_timeout: 30_000
   ],
-  json_library: Jason,
-  indexes: %{
-    atom_prefix("meadow") => %{
-      settings: "priv/elasticsearch/v1/settings/meadow.json",
-      store: Meadow.ElasticsearchStore,
-      sources: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500
-    },
-    atom_prefix("dc-v2-work") => %{
-      settings: "priv/elasticsearch/v2/settings/work.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: prefix("v1-to-v2-work")
-    },
-    atom_prefix("dc-v2-file-set") => %{
-      settings: "priv/elasticsearch/v2/settings/file_set.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: prefix("v1-to-v2-file-set")
-    },
-    atom_prefix("dc-v2-collection") => %{
-      settings: "priv/elasticsearch/v2/settings/collection.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: prefix("v1-to-v2-collection")
-    }
-  }
+  bulk_page_size: 200,
+  bulk_wait_interval: 500,
+  json_encoder: Ecto.Jason
 
 config :meadow,
   ark: %{
@@ -191,7 +182,7 @@ config :meadow, :lambda,
 
 # Configures Elixir's Logger
 config :logger, :console,
-  format: "$time $metadata[$level] $levelpad$message\n",
+  format: "$time $metadata[$level] $message\n",
   metadata: [:request_id, :module, :id]
 
 # Use Jason for JSON parsing in Phoenix

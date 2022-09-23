@@ -25,7 +25,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
       }
     })
 
-    Indexer.reindex_all!()
+    Indexer.reindex_all()
     :ok
   end
 

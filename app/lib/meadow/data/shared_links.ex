@@ -4,7 +4,8 @@ defmodule Meadow.Data.SharedLinks do
   """
 
   alias Meadow.Config
-  alias Meadow.Utils.Elasticsearch.Scroll
+  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
   @public_expiration "Never"
@@ -30,14 +31,14 @@ defmodule Meadow.Data.SharedLinks do
          document <- shared_link_document(link) do
       result =
         Elastix.Document.index(
-          Config.elasticsearch_url(),
+          SearchConfig.cluster_url(),
           Config.shared_links_index(),
           @type_name,
           document.shared_link_id,
           document
         )
 
-      Elastix.Index.refresh(Config.elasticsearch_url(), Config.shared_links_index())
+      Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
 
       case result do
         {:ok, %{status_code: 200}} -> {:ok, link}
@@ -81,7 +82,7 @@ defmodule Meadow.Data.SharedLinks do
         csv_result(docs)
 
       {:ok, %{status_code: status}} when status in 200..204 ->
-        Elastix.Index.refresh(Config.elasticsearch_url(), Config.shared_links_index())
+        Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
         csv_result(docs)
 
       {:ok, %{body: body}} ->
@@ -105,7 +106,7 @@ defmodule Meadow.Data.SharedLinks do
   defp create_shared_link_docs([]), do: :noop
 
   defp create_shared_link_docs(payload) do
-    Elastix.Bulk.post(Config.elasticsearch_url(), payload,
+    Elastix.Bulk.post(SearchConfig.cluster_url(), payload,
       index: Config.shared_links_index(),
       type: @type_name
     )
@@ -122,13 +123,13 @@ defmodule Meadow.Data.SharedLinks do
   def revoke(id) do
     result =
       Elastix.Document.delete(
-        Config.elasticsearch_url(),
+        SearchConfig.cluster_url(),
         Config.shared_links_index(),
         @type_name,
         id
       )
 
-    Elastix.Index.refresh(Config.elasticsearch_url(), Config.shared_links_index())
+    Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
 
     case result do
       {:ok, %{status_code: 200}} -> :ok
@@ -151,12 +152,12 @@ defmodule Meadow.Data.SharedLinks do
 
     result =
       Elastix.Document.delete_matching(
-        Config.elasticsearch_url(),
+        SearchConfig.cluster_url(),
         Config.shared_links_index(),
         query
       )
 
-    Elastix.Index.refresh(Config.elasticsearch_url(), Config.shared_links_index())
+    Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
 
     case result do
       {:ok, %{status_code: 200, body: %{"deleted" => count}}} -> {:ok, count}
@@ -174,10 +175,14 @@ defmodule Meadow.Data.SharedLinks do
       1
   """
   def count do
-    case Elastix.Search.count(Config.elasticsearch_url(),
-           Config.shared_links_index(), [@type_name], %{
-           query: %{match_all: %{}}
-         }) do
+    case Elastix.Search.count(
+           SearchConfig.cluster_url(),
+           Config.shared_links_index(),
+           [@type_name],
+           %{
+             query: %{match_all: %{}}
+           }
+         ) do
       {:ok, %{body: %{"error" => %{"type" => "index_not_found_exception"}}}} -> 0
       {:ok, %{body: %{"count" => count}}} -> count
       {:ok, %{body: body}} -> {:error, body}
