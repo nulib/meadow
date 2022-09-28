@@ -41,6 +41,24 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_log_access" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+module "color_function" {
+  depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
+  source      = "./modules/meadow_lambda"
+  name        = "color"
+  description = "Function to extract dominant colors from images"
+  role        = aws_iam_role.lambda_role.arn
+  stack_name  = var.stack_name
+  memory_size = 1024
+  timeout     = 240
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "MeadowColor"
+    },
+  )
+}
+
 module "digester_function" {
   depends_on  = [aws_iam_role_policy_attachment.lambda_bucket_access]
   source      = "./modules/meadow_lambda"
@@ -83,15 +101,15 @@ module "pyramid_tiff_function" {
 }
 
 module "exif_function" {
-  depends_on          = [aws_iam_role_policy_attachment.lambda_bucket_access]
-  source              = "./modules/meadow_lambda"
-  name                = "exif"
-  description         = "Function to extract EXIF metadata from an S3 object"
-  role                = aws_iam_role.lambda_role.arn
-  stack_name          = var.stack_name
-  ephemeral_storage   = 8192
-  memory_size         = 768
-  timeout             = 120
+  depends_on        = [aws_iam_role_policy_attachment.lambda_bucket_access]
+  source            = "./modules/meadow_lambda"
+  name              = "exif"
+  description       = "Function to extract EXIF metadata from an S3 object"
+  role              = aws_iam_role.lambda_role.arn
+  stack_name        = var.stack_name
+  ephemeral_storage = 8192
+  memory_size       = 768
+  timeout           = 120
   layers = [
     "arn:aws:lambda:us-east-1:652718333417:layer:perl-5_30-layer:1",
     aws_lambda_layer_version.exiftool.arn

@@ -61,25 +61,25 @@ defmodule Meadow.Data.Works do
 
     Enum.reduce(criteria, query, fn
       {:collection, collection}, query ->
-        from w in query, where: w.collection_id == ^collection.id
+        from(w in query, where: w.collection_id == ^collection.id)
 
       {:collection_id, collection_id}, query ->
-        from w in query, where: w.collection_id == ^collection_id
+        from(w in query, where: w.collection_id == ^collection_id)
 
       {:limit, limit}, query ->
-        from w in query, limit: ^limit
+        from(w in query, limit: ^limit)
 
       {:filter, filters}, query ->
         filter_with(filters, query)
 
       {:order, order}, query ->
-        from p in query, order_by: [{^order, :id}]
+        from(p in query, order_by: [{^order, :id}])
 
       {:visibility, visibility}, query ->
-        from w in query, where: fragment("visibility -> 'id' = ?", ^visibility)
+        from(w in query, where: fragment("visibility -> 'id' = ?", ^visibility))
 
       {:work_type, work_type}, query ->
-        from w in query, where: fragment("work_type -> 'id' = ?", ^work_type)
+        from(w in query, where: fragment("work_type -> 'id' = ?", ^work_type))
     end)
   end
 
@@ -88,8 +88,9 @@ defmodule Meadow.Data.Works do
       {:matching, term}, query ->
         map = %{"title" => term}
 
-        from q in query,
+        from(q in query,
           where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+        )
     end)
   end
 
@@ -142,11 +143,12 @@ defmodule Meadow.Data.Works do
     map = %{"id" => "A"}
 
     Repo.all(
-      from f in FileSet,
+      from(f in FileSet,
         where: f.work_id == ^work_id,
         where: fragment("role @> ?::jsonb", ^map),
         order_by: :rank,
         limit: 1
+      )
     )
   end
 
@@ -203,7 +205,7 @@ defmodule Meadow.Data.Works do
   true
   """
   def accession_exists?(accession_number) do
-    Repo.exists?(from w in Work, where: w.accession_number == ^accession_number)
+    Repo.exists?(from(w in Work, where: w.accession_number == ^accession_number))
   end
 
   @doc """
@@ -596,11 +598,17 @@ defmodule Meadow.Data.Works do
   def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set) do
     work
     |> Repo.preload(:representative_file_set)
-    |> Work.update_changeset()
+    |> Work.update_changeset(add_color_info(file_set))
     |> put_assoc(:representative_file_set, file_set)
     |> Repo.update()
     |> add_representative_image()
   end
+
+  defp add_color_info(%FileSet{id: _id, dominant_color: color}) do
+    %{dominant_color: color}
+  end
+
+  defp add_color_info(file_set), do: %{}
 
   def set_representative_image(%Work{} = work, nil) do
     work
@@ -695,12 +703,13 @@ defmodule Meadow.Data.Works do
   Set :updated_at
   """
   def merge_updated_at(query) do
-    from query,
+    from(query,
       update: [
         set: [
           {:updated_at, ^DateTime.utc_now()}
         ]
       ]
+    )
   end
 
   @doc """

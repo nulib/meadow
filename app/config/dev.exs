@@ -48,6 +48,7 @@ config :meadow, MeadowWeb.Endpoint,
 if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
   # Configures lambda scripts
   config :meadow, :lambda,
+    color: {:local, {Path.expand("../lambdas/color/index.js"), "handler"}},
     digester: {:local, {Path.expand("../lambdas/digester/index.js"), "handler"}},
     exif: {:local, {Path.expand("../lambdas/exif/index.js"), "handler"}},
     frame_extractor: {:local, {Path.expand("../lambdas/frame-extractor/index.js"), "handler"}},

@@ -30,14 +30,13 @@ If you need to clear your data and reset the entire development environment, fro
 
 ```
 mix ecto.reset
-mix meadow.elasticsearch.clear
+mix meadow.elasticsearch.teardown
 mix meadow.pipeline.purge
 clean-s3 dev -y
 
 ...then
 mix deps.get
 mix meadow.setup
-mix assets.install
 mix phx.server
 ```
 

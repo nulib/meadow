@@ -11,6 +11,7 @@ alias Meadow.Pipeline.Actions.{
   CopyFileToPreservation,
   CreatePyramidTiff,
   CreateTranscodeJob,
+  ExtractDominantColor,
   ExtractMediaMetadata,
   ExtractMimeType,
   FileSetComplete,
@@ -32,6 +33,7 @@ config :meadow, Meadow.Pipeline, [
      ExtractExifMetadata,
      CopyFileToPreservation,
      CreatePyramidTiff,
+     ExtractDominantColor,
      ExtractMediaMetadata,
      CreateTranscodeJob,
      TranscodeComplete,
@@ -86,6 +88,13 @@ config :meadow, Meadow.Pipeline, [
   {CreatePyramidTiff,
    producer: [
      queue_name: "#{prefix}-create-pyramid-tiff",
+     wait_time_seconds: 1,
+     visibility_timeout: 300
+   ],
+   processors: [default: [concurrency: 1]]},
+  {ExtractDominantColor,
+   producer: [
+     queue_name: "#{prefix}-extract-dominant-color",
      wait_time_seconds: 1,
      visibility_timeout: 300
    ],

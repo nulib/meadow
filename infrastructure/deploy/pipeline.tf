@@ -1,6 +1,6 @@
 locals {
   actions = ["ingest-file-set", "extract-mime-type", "generate-file-set-digests",
-    "extract-exif-metadata", "copy-file-to-preservation", "create-pyramid-tiff",
+    "extract-exif-metadata", "copy-file-to-preservation", "create-pyramid-tiff", "extract-dominant-color",
   "create-transcode-job", "generate-poster-image", "transcode-complete", "file-set-complete"]
 }
 

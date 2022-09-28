@@ -13,14 +13,25 @@
         "full_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": ["html_strip"],
-          "filter": ["lowercase", "asciifolding"]
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
         },
         "stopword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": ["html_strip"],
-          "filter": ["lowercase", "asciifolding", "english_stop"]
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "english_stop"
+          ]
         }
       },
       "filter": {
@@ -51,14 +62,18 @@
         "facets": {
           "match": ".*Facet|^facet",
           "match_pattern": "regex",
-          "mapping": { "type": "keyword" }
+          "mapping": {
+            "type": "keyword"
+          }
         }
       },
       {
         "latlong": {
           "match": ".*Geo|^geo",
           "match_pattern": "regex",
-          "mapping": { "type": "geo_point" }
+          "mapping": {
+            "type": "geo_point"
+          }
         }
       },
       {
@@ -66,14 +81,26 @@
           "path_match": "*.id",
           "mapping": {
             "type": "keyword",
-            "copy_to": ["all_controlled_terms"]
+            "copy_to": [
+              "all_controlled_terms"
+            ]
           }
         }
       },
       {
         "uris": {
           "path_match": "*.uri",
-          "mapping": { "type": "keyword" }
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      },
+      {
+        "color": {
+          "path_match": "color",
+          "mapping": {
+            "type": "nested"
+          }
         }
       },
       {
@@ -86,9 +113,14 @@
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer",
             "fields": {
-              "keyword": { "type": "keyword" }
+              "keyword": {
+                "type": "keyword"
+              }
             },
-            "copy_to": ["full_text", "all_titles"]
+            "copy_to": [
+              "full_text",
+              "all_titles"
+            ]
           }
         }
       },
@@ -102,9 +134,14 @@
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer",
             "fields": {
-              "keyword": { "type": "keyword" }
+              "keyword": {
+                "type": "keyword"
+              }
             },
-            "copy_to": ["full_text", "all_controlled_labels"]
+            "copy_to": [
+              "full_text",
+              "all_controlled_labels"
+            ]
           }
         }
       },
@@ -118,9 +155,13 @@
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer",
             "fields": {
-              "keyword": { "type": "keyword" }
+              "keyword": {
+                "type": "keyword"
+              }
             },
-            "copy_to": ["full_text"]
+            "copy_to": [
+              "full_text"
+            ]
           }
         }
       },
@@ -138,7 +179,9 @@
                 "ignore_above": 512
               }
             },
-            "copy_to": ["full_text"]
+            "copy_to": [
+              "full_text"
+            ]
           }
         }
       }

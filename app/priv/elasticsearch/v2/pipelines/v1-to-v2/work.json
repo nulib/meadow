@@ -85,6 +85,12 @@
       }
     },
     {
+      "rename": {
+        "field": "original.color",
+        "target_field": "color"
+      }
+    },
+    {
       "foreach": {
         "field": "original.descriptiveMetadata.contributor",
         "processor": {

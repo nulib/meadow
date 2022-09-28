@@ -14,6 +14,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     CopyFileToPreservation,
     CreatePyramidTiff,
     CreateTranscodeJob,
+    ExtractDominantColor,
     ExtractExifMetadata,
     ExtractMediaMetadata,
     ExtractMimeType,
@@ -39,6 +40,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     ExtractExifMetadata,
     CopyFileToPreservation,
     CreatePyramidTiff,
+    ExtractDominantColor,
     FileSetComplete
   ]
 
