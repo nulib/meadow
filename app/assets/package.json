@@ -63,7 +63,7 @@
     "react-hook-form": "^7.33.1",
     "react-icons": "^4.4.0",
     "react-json-pretty": "^2.2.0",
-    "recharts": "^2.1.10",
+    "recharts": "^2.1.14",
     "use-clipboard-copy": "^0.2.0"
   },
   "devDependencies": {
