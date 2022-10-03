@@ -5,13 +5,10 @@ defmodule Meadow.Application do
 
   use Application
   alias Meadow.Application.Children
-  alias Meadow.Utils.Elasticsearch.RetryAPI
 
   require Logger
 
   def start(_type, _args) do
-    RetryAPI.configure()
-
     result =
       Supervisor.start_link(
         [
@@ -30,7 +27,6 @@ defmodule Meadow.Application do
     base_children = [
       EDTF,
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
-      Meadow.ElasticsearchCluster,
       Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ]

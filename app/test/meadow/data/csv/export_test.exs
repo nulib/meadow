@@ -27,8 +27,11 @@ defmodule Meadow.Data.CSV.ExportTest do
   test "export_works/0", %{collection: collection} do
     result = Export.generate_csv(@query)
     [query | [csv | []]] = String.split(result, ~r/[\r\n]+/, parts: 2)
+
     [header | data] = CSV.parse_string(csv, skip_headers: false)
+
     sample_row = Enum.find(data, &Enum.member?(&1, @sample_record[:accession_number]))
+
     sample_record = Enum.zip(header, sample_row) |> Enum.into(%{})
 
     generated_ids = data |> Enum.map(&List.first/1)

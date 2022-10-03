@@ -1,30 +1,29 @@
 defmodule Meadow.IndexCase do
   @moduledoc """
-  This module resets the Elasticsearch index between tests.
+  This module resets the search cluster between tests.
   """
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Config
   alias Meadow.Data.{Collections, Works}
-  alias Meadow.Data.Schemas.{Collection, FileSet, IndexTime, Work}
-  alias Meadow.ElasticsearchCluster, as: Cluster
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Ingest.Schemas.{Project, Sheet}
   alias Meadow.Repo
-
-  @meadow_index Meadow.Config.elasticsearch_index()
-  @indexes Meadow.Config.indexes()
+  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.{HTTP, Index}
 
   setup tags do
-    for index <- @indexes do
-      Elasticsearch.Index.clean_starting_with(Cluster, index, 0)
-      Elasticsearch.delete(Cluster, "/#{index}")
-      Elasticsearch.Index.hot_swap(Cluster, index)
+    for %{name: alias, schemas: [schema | _], version: version} <- SearchConfig.index_configs() do
+      Index.create_from_schema(schema, version)
+      Index.clean(alias, 1)
     end
+
+    Index.clean(Config.shared_links_index(), 0)
 
     on_exit(fn ->
       if tags[:unboxed] do
         Sandbox.unboxed_run(Repo, fn ->
-          [IndexTime, FileSet, Sheet, Project, Work, Collection]
+          [FileSet, Sheet, Project, Work, Collection]
           |> Enum.each(fn schema -> Repo.delete_all(schema) end)
         end)
       end
@@ -35,22 +34,19 @@ defmodule Meadow.IndexCase do
 
   using do
     quote do
+      alias Meadow.Search.Client, as: SearchClient
       import Meadow.{IndexCase, TestHelpers}
 
-      @meadow_index unquote(@meadow_index)
+      def indexed_doc_count(schema, version), do: SearchClient.indexed_doc_count(schema, version)
+      def indexed_doc_count(index), do: SearchClient.indexed_doc_count(index)
 
-      def indexed_doc_count, do: indexed_doc_count(@meadow_index)
-
-      def indexed_doc_count(index) do
-        Elasticsearch.get!(Cluster, "/#{index}/_count") |> get_in(["count"])
-      end
-
-      def indexed_doc(id) do
-        Elasticsearch.get!(Cluster, "/#{@meadow_index}/_doc/#{id}") |> get_in(["_source"])
+      def indexed_doc(schema, version, id) do
+        SearchConfig.alias_for(schema, version)
+        |> indexed_doc(id)
       end
 
       def indexed_doc(index, id) do
-        Elasticsearch.get!(Cluster, "/#{index}/_doc/#{id}") |> get_in(["_source"])
+        HTTP.get!("/#{index}/_doc/#{id}") |> Map.from_struct() |> get_in([:body, "_source"])
       end
 
       def decode_njson(data) do
@@ -76,16 +72,16 @@ defmodule Meadow.IndexCase do
       def indexable_data do
         collection = collection_fixture() |> Collections.add_representative_image()
 
-        works =
-          1..5
-          |> Enum.map(fn i ->
-            work_fixture(%{
-              descriptive_metadata: %{title: "Test Work #{i}"},
-              collection_id: collection.id,
-              published: false
-            })
-          end)
-          |> Works.add_representative_image()
+        1..5
+        |> Enum.each(fn i ->
+          work_fixture(%{
+            descriptive_metadata: %{title: "Test Work #{i}"},
+            collection_id: collection.id,
+            published: false
+          })
+        end)
+
+        works = Works.list_works()
 
         file_sets =
           works
@@ -94,22 +90,30 @@ defmodule Meadow.IndexCase do
           end)
 
         %{
-          count: length(works) + length(file_sets) + 1,
+          work_count: length(works),
+          file_set_count: length(file_sets),
+          collection_count: 1,
+          total_count: length(works) + length(file_sets) + 1,
           collection: collection,
-          works: Works.list_works(),
+          works: works,
           file_sets: file_sets
         }
       end
 
-      def all_synchronized?(schemas) do
-        with counts <- Enum.map(schemas, &{&1, Repo.aggregate(&1, :count)}),
-             total <- Enum.reduce(counts, 0, fn {_, n}, acc -> acc + n end) do
-          indexed_doc_count(@meadow_index) == total &&
-            counts
-            |> Enum.all?(fn {schema, count} ->
-              indexed_doc_count(Config.v2_index(schema)) == count
-            end)
-        end
+      def assert_all_empty do
+        %{total_count: 0, work_count: 0, file_set_count: 0, collection_count: 0}
+        |> assert_doc_counts_match()
+      end
+
+      def assert_doc_counts_match(expected) do
+        context = %{
+          total_count: indexed_doc_count(Work, 1),
+          work_count: indexed_doc_count(Work, 2),
+          file_set_count: indexed_doc_count(FileSet, 2),
+          collection_count: indexed_doc_count(Collection, 2)
+        }
+
+        Enum.each(context, fn {key, value} -> assert {:ok, Map.get(expected, key)} == value end)
       end
     end
   end

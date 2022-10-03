@@ -23,6 +23,7 @@ defmodule Meadow.Data.Schemas.Collection do
 
     field(:published, :boolean, default: false)
     field(:visibility, Types.CodedTerm)
+    field(:reindex_at, :utc_datetime_usec)
 
     timestamps()
 
@@ -50,4 +51,6 @@ defmodule Meadow.Data.Schemas.Collection do
     |> validate_required([:title])
     |> unique_constraint(:title)
   end
+
+  def required_index_preloads, do: [:representative_work]
 end

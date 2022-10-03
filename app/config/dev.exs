@@ -73,6 +73,9 @@ if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
   end)
 end
 
+config :meadow,
+  index_interval: 30_000
+
 config :meadow, Meadow.Scheduler,
   overlap: false,
   timezone: "America/Chicago",
@@ -83,7 +86,7 @@ config :meadow, Meadow.Scheduler,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
-  format: "$metadata[$level] $levelpad$message\n",
+  format: "$metadata[$level] $message\n",
   metadata: [:module, :id]
 
 # Set a higher stacktrace during development. Avoid configuring such

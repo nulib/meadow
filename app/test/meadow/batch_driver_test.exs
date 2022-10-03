@@ -15,7 +15,7 @@ defmodule Meadow.BatchDriverTest do
     work_fixture()
     work_fixture()
     work_fixture()
-    Indexer.reindex_all!()
+    Indexer.reindex_all()
     {:ok, %{worker: worker}}
   end
 

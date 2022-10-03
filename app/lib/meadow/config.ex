@@ -11,69 +11,9 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
-  @doc "Retrieve primary (meadow) Elasticsearch index name"
-  def elasticsearch_index do
-    Application.get_env(:meadow, Meadow.SearchIndex)
-    |> Keyword.get(:primary_index)
-  end
-
-  def indexes do
-    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-    |> Keyword.get(:indexes)
-    |> Map.keys()
-  end
-
-  def v1_index, do: elasticsearch_index() |> to_string()
-
-  def v2_index(model) when is_atom(model) do
-    model
-    |> search_model_from_schema()
-    |> v2_index()
-  end
-
-  def v2_index(model) do
-    model_regex = model |> kebab_case() |> Regex.compile!()
-
-    indexes()
-    |> Enum.map(&to_string/1)
-    |> Enum.find(&(&1 =~ model_regex))
-  end
-
-  # def v2_pipeline(model), do: "#{Env.prefix()}-v1-to-v2-#{kebab_case(model)}"
-  def v2_pipeline(index_name) when is_binary(index_name) do
-    index_name
-    |> String.to_existing_atom()
-    |> v2_pipeline()
-  end
-
-  def v2_pipeline(index_name) do
-    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-    |> Keyword.get(:indexes)
-    |> get_in([index_name, :default_pipeline])
-  end
-
-  def search_model_from_schema(schema),
-    do: schema |> to_string() |> String.split(".") |> List.last()
-
-  defp kebab_case(model), do: model |> Macro.underscore() |> String.replace("_", "-")
-
   @doc "Retrieve shared links index name"
   def shared_links_index do
     Application.get_env(:meadow, :shared_links_index)
-  end
-
-  @doc "Retrieve Elasticsearch index settings filename"
-  def elasticsearch_settings do
-    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-    |> get_in([:indexes, elasticsearch_index(), :settings])
-    |> String.trim_leading("priv/")
-    |> priv_path()
-  end
-
-  @doc "Retrieve Elasticsearch URL"
-  def elasticsearch_url do
-    Application.get_env(:meadow, Meadow.ElasticsearchCluster)
-    |> Keyword.get(:url)
   end
 
   @doc "Retrieve the configured indexing interval"

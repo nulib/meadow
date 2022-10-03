@@ -22,8 +22,8 @@ config :elastix,
     {Meadow.Utils.AWS, :add_aws_signature,
      [
        environment_secret("AWS_REGION"),
-       aws_secret("meadow", dig: ["index", "access_key_id"]),
-       aws_secret("meadow", dig: ["index", "secret_access_key"])
+       aws_secret("meadow", dig: ["search", "access_key_id"]),
+       aws_secret("meadow", dig: ["search", "secret_access_key"])
      ]}
 
 config :exldap, :settings,
@@ -51,58 +51,50 @@ config :meadow, MeadowWeb.Endpoint,
   secret_key_base: environment_secret("SECRET_KEY_BASE"),
   live_view: [signing_salt: environment_secret("SECRET_KEY_BASE")]
 
-config :meadow, Meadow.SearchIndex, primary_index: :meadow
-
-config :meadow, Meadow.ElasticsearchCluster,
-  api: Elasticsearch.API.AWS,
+config :meadow, Meadow.Search.Cluster,
   default_options: [
     aws: [
       service: "es",
       region: environment_secret("AWS_REGION"),
-      access_key: aws_secret("meadow", dig: ["index", "access_key_id"]),
-      secret: aws_secret("meadow", dig: ["index", "secret_access_key"])
+      access_key: aws_secret("meadow", dig: ["search", "access_key_id"]),
+      secret: aws_secret("meadow", dig: ["search", "secret_access_key"])
     ],
     timeout: 20_000,
     recv_timeout: 90_000
   ],
+  bulk_page_size: 200,
+  bulk_wait_interval: 500,
   json_library: Jason,
-  indexes: %{
-    :meadow => %{
-      settings: priv_path.("elasticsearch/v1/settings/meadow.json"),
-      store: Meadow.ElasticsearchStore,
-      sources: [
+  indexes: [
+    %{
+      name: prefix("meadow"),
+      settings: priv_path.("search/v1/settings/meadow.json"),
+      version: 1,
+      schemas: [
         Meadow.Data.Schemas.Collection,
         Meadow.Data.Schemas.FileSet,
         Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 200,
-      bulk_wait_interval: 2000
+      ]
     },
-    :"dc-v2-work" => %{
-      settings: priv_path.("elasticsearch/v2/settings/work.json"),
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: "v1-to-v2-work"
+    %{
+      name: prefix("dc-v2-work"),
+      settings: priv_path.("search/v2/settings/work.json"),
+      version: 2,
+      schemas: [Meadow.Data.Schemas.Work]
     },
-    :"dc-v2-file-set" => %{
-      settings: priv_path.("elasticsearch/v2/settings/file_set.json"),
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: "v1-to-v2-file-set"
+    %{
+      name: prefix("dc-v2-file-set"),
+      settings: priv_path.("search/v2/settings/file_set.json"),
+      version: 2,
+      schemas: [Meadow.Data.Schemas.FileSet]
     },
-    :"dc-v2-collection" => %{
-      settings: priv_path.("elasticsearch/v2/settings/collection.json"),
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 200,
-      bulk_wait_interval: 500,
-      default_pipeline: "v1-to-v2-collection"
+    %{
+      name: prefix("dc-v2-collection"),
+      settings: priv_path.("search/v2/settings/collection.json"),
+      version: 2,
+      schemas: [Meadow.Data.Schemas.Collection]
     }
-  }
+  ]
 
 config :meadow,
   environment: :prod,

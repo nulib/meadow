@@ -23,7 +23,7 @@ defmodule MeadowWeb.Router do
     plug MeadowWeb.Plugs.RequireLogin
   end
 
-  pipeline :elasticsearch do
+  pipeline :search do
     plug :accepts, ["json"]
 
     plug MeadowWeb.Plugs.SetCurrentUser
@@ -39,10 +39,10 @@ defmodule MeadowWeb.Router do
       additional_pages: [broadway: {BroadwayDashboard, pipelines: Meadow.Pipeline.actions()}]
   end
 
-  scope "/elasticsearch" do
-    pipe_through :elasticsearch
+  scope "/search" do
+    pipe_through :search
 
-    forward "/", MeadowWeb.Plugs.Elasticsearch
+    forward "/", MeadowWeb.Plugs.Search
   end
 
   pipeline :api do

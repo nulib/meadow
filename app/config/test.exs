@@ -7,44 +7,14 @@ config :meadow, MeadowWeb.Endpoint,
   http: [port: 4002],
   server: false
 
-config :meadow, Meadow.ElasticsearchCluster,
-  indexes: %{
-    atom_prefix("meadow") => %{
-      settings: "priv/elasticsearch/v1/settings/meadow.json",
-      store: Meadow.ElasticsearchStore,
-      sources: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ],
-      bulk_page_size: 3,
-      bulk_wait_interval: 2
-    },
-    atom_prefix("dc-v2-work") => %{
-      settings: "priv/elasticsearch/v2/settings/work.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 3,
-      bulk_wait_interval: 2,
-      default_pipeline: prefix("v1-to-v2-work")
-    },
-    atom_prefix("dc-v2-file-set") => %{
-      settings: "priv/elasticsearch/v2/settings/file_set.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 3,
-      bulk_wait_interval: 2,
-      default_pipeline: prefix("v1-to-v2-file-set")
-    },
-    atom_prefix("dc-v2-collection") => %{
-      settings: "priv/elasticsearch/v2/settings/collection.json",
-      store: Meadow.ElasticsearchEmptyStore,
-      sources: [:nothing],
-      bulk_page_size: 3,
-      bulk_wait_interval: 2,
-      default_pipeline: prefix("v1-to-v2-collection")
-    }
-  }
+config :meadow, Meadow.Search.Cluster,
+  url:
+    aws_secret("meadow",
+      dig: ["search", "cluster_endpoint"],
+      default: "http://localhost:9202"
+    ),
+  bulk_page_size: 3,
+  bulk_wait_interval: 2
 
 config :meadow,
   index_interval: 1234,

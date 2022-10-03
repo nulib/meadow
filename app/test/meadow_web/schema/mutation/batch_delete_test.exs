@@ -9,7 +9,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchDeleteTest do
   setup do
     work_fixture()
 
-    Indexer.reindex_all!()
+    Indexer.reindex_all()
     :ok
   end
 

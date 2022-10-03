@@ -243,6 +243,29 @@ defmodule Meadow.TestHelpers do
   def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu"
   def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,OU=test,DC=library,DC=northwestern,DC=edu"
 
+  def logged?(string, :warn, pattern),
+    do: logged?(string, ~r/^warn(ing)?$/, pattern)
+
+  def logged?(string, level, pattern) when is_atom(level),
+    do: logged?(string, Regex.compile!("^#{level}$"), pattern)
+
+  def logged?(string, level, pattern) when is_binary(pattern),
+    do: logged?(string, level, Regex.compile!(pattern))
+
+  def logged?(string, level, pattern) do
+    with lines <- String.split(string, ~r/\r?\n/) do
+      Enum.any?(lines, fn line ->
+        case Regex.named_captures(~r/\[(?<level>\w+?)\]\s+(?<message>.+)/, line) do
+          %{"level" => found_level, "message" => found_message} ->
+            String.match?(found_level, level) && String.match?(found_message, pattern)
+
+          _ ->
+            false
+        end
+      end)
+    end
+  end
+
   defp uniqify_ingest_sheet_rows(csv) do
     with prefix <- test_id() do
       [headers | rows] = CSV.parse_string(csv, skip_headers: false)

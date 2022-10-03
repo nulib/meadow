@@ -11,12 +11,17 @@ defmodule Meadow.Application.Children do
     %{
       "batch_driver" => Meadow.BatchDriver,
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
-      "index_worker" => {Meadow.Data.IndexWorker, interval: Config.index_interval()},
-      "reindex_worker" => {Meadow.Data.ReindexWorker, interval: Config.index_interval()},
+      "index_worker" => [
+        {Meadow.Data.IndexWorker,
+         interval: Config.index_interval(), version: 1, name: Meadow.Data.IndexWorker.V1},
+        {Meadow.Data.IndexWorker,
+         interval: Config.index_interval(), version: 2, name: Meadow.Data.IndexWorker.V2}
+      ],
       "database_listeners" => [
         Meadow.ARKListener,
         Meadow.FilesetDeleteListener,
         Meadow.IIIF.ManifestListener,
+        Meadow.IndexDeleteListener,
         Meadow.StructuralMetadataListener
       ],
       "scheduler" => Meadow.Scheduler,

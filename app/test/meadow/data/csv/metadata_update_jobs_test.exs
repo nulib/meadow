@@ -2,9 +2,10 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.DataCase
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
-  alias Meadow.Data.{CSV.MetadataUpdateJobs, Indexer, Works}
+  alias Meadow.Data.{CSV.MetadataUpdateJobs, Works}
   alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
   alias Meadow.Repo
+  alias Meadow.Search.Document
 
   setup %{source_url: source_url} do
     with filename <- Path.basename(source_url) do
@@ -77,13 +78,12 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
 
         assert Enum.member?(work.metadata_update_jobs |> Enum.map(& &1.id), job.id)
 
-        [_header, doc] =
+        doc =
           work
           |> Repo.preload(Work.required_index_preloads())
-          |> Indexer.encode!(:index)
-          |> decode_njson()
+          |> Document.encode(1)
 
-        assert doc |> get_in(["metadataUpdateJobs"]) == [job.id]
+        assert doc.metadataUpdateJobs == [job.id]
       end
     end
 
