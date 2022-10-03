@@ -67,7 +67,7 @@ config :meadow, Meadow.Search.Cluster,
   json_library: Jason,
   indexes: [
     %{
-      name: prefix("meadow"),
+      name: "meadow",
       settings: priv_path.("search/v1/settings/meadow.json"),
       version: 1,
       schemas: [
@@ -77,19 +77,19 @@ config :meadow, Meadow.Search.Cluster,
       ]
     },
     %{
-      name: prefix("dc-v2-work"),
+      name: "dc-v2-work",
       settings: priv_path.("search/v2/settings/work.json"),
       version: 2,
       schemas: [Meadow.Data.Schemas.Work]
     },
     %{
-      name: prefix("dc-v2-file-set"),
+      name: "dc-v2-file-set",
       settings: priv_path.("search/v2/settings/file_set.json"),
       version: 2,
       schemas: [Meadow.Data.Schemas.FileSet]
     },
     %{
-      name: prefix("dc-v2-collection"),
+      name: "dc-v2-collection",
       settings: priv_path.("search/v2/settings/collection.json"),
       version: 2,
       schemas: [Meadow.Data.Schemas.Collection]
