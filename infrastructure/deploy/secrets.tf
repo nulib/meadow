@@ -46,7 +46,7 @@ locals {
       manifest_url    = var.iiif_manifest_url
     }
 
-    index = {
+    search = {
       cluster_endpoint    = var.elasticsearch_url
       access_key_id     = aws_iam_access_key.meadow_elasticsearch_access_key.id
       secret_access_key = aws_iam_access_key.meadow_elasticsearch_access_key.secret
