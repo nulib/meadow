@@ -57,7 +57,7 @@ const UIFormControlledTermArray = ({
                       {item.term?.label || item.label} <br />
                       {getTermId(item)}
                       <br />
-                      {`${item.role?.label || item.roleId}`}
+                      {item.role?.label ? item.role?.label : <>&nbsp;</>}
                     </p>
                     <input
                       type="hidden"
