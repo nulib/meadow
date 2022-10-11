@@ -46,6 +46,19 @@
       "all_ids": {
         "type": "keyword"
       },
+      "collection.title": {
+        "type": "text",
+        "analyzer": "full_analyzer",
+        "search_analyzer": "stopword_analyzer",
+        "search_quote_analyzer": "full_analyzer",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        },
+        "copy_to": ["all_text"]
+      },
       "indexed_at": {
         "type": "date_nanos"
       }
@@ -53,7 +66,7 @@
     "dynamic_templates": [
       {
         "text_fields": {
-          "match": "^abstract$|^alternate_title$|^caption$|^collection.title$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^file_sets.original_filename$|^notes.text$|^table_of_contents$|^title$",
+          "match": "^abstract$|^alternate_title$|^caption$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^file_sets.original_filename$|^notes.text$|^table_of_contents$|^title$",
           "match_pattern": "regex",
           "mapping": {
             "type": "text",
