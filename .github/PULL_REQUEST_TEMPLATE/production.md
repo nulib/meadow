@@ -1,27 +1,38 @@
-## :rocket: Production Deployment Checklist
+# :open_book: Changelog
 
-- [ ] Version bump
-- [ ] Terraform changes required
-  - [ ] Terraform changes already applied?
-  - [ ] Terraform changes to be applied during deploy after merge?
-- [ ] Notable API changes? (GraphQL, db, ingest sheet, etc.)
-- [ ] New/Updated Environment Variables set
-- [ ] Check for data migrations
-- [ ] Check for database schema changes
-- [ ] Reindex required?
-- [ ] New external dependencies (include any sychronization instructions)
-- [ ] Release tagged?
-- [ ] Service manager notified with release information including changelog
+- list changes
+- list changes
 
-## :rotating_light: Production data changes
+# Version bump required by the PR
 
-:warning: These items assuming this deploy applies data migrations that will affect many rows:
+See [Semantic Versioning 2.0.0](https://semver.org/) for help discerning which is required.
 
-- [ ] Determine which triggers or notifications need to be disabled if any
-- [ ] Manual database snapshot required?
-- [ ] Manual Elasticsearch snapshot required?
+- [ ] Patch
+- [ ] Minor
+- [ ] Major
 
-## :open_book: Changelog
+# :rocket: Deployment Notes
 
-- first item
-- second item
+- Backward compatible API changes
+  - [ ] Database Schema changes
+  - [ ] GraphQL API
+  - [ ] Elasticsearch API
+  - [ ] Ingest Sheet
+  - [ ] CSV metadata export/update API
+  - [ ] Shared Links export API
+- Backwards-incompatible API changes
+  - [ ] Database Schema changes
+  - [ ] GraphQL API
+  - [ ] Elasticsearch API
+  - [ ] Ingest Sheet
+  - [ ] CSV metadata export/update API
+  - [ ] Shared Links export API
+- [ ] Requires data migration
+- [ ] Requires database triggers disabled during deployment/migration
+- [ ] Requires reindex
+- [ ] Terraform changes
+  - [ ] Adds/requires new or changed Terraform variables
+- [ ] Pipeline configuration changes (requires `mix meadow.pipeline.setup` run)
+- [ ] Requires new variable added to `miscellany`
+- [ ] Specific deployment synchronization instructions with other apps/API's
+- [ ] Other specific instructions/tasks
