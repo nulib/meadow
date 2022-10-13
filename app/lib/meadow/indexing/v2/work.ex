@@ -80,7 +80,8 @@ defmodule Meadow.Indexing.V2.Work do
     %{
       id: field.term.id,
       label: field.term.label,
-      facet: "#{field.term.id}||#{field.term.label}"
+      facet: "#{field.term.id}||#{field.term.label}",
+      variants: field.term.variants
     }
   end
 
@@ -90,7 +91,8 @@ defmodule Meadow.Indexing.V2.Work do
       label: field.term.label,
       role: field.role.label,
       label_with_role: "#{field.term.label} (#{field.role.label})",
-      facet: "#{field.term.id}|#{field.role.id}|#{field.term.label} (#{field.role.label})"
+      facet: "#{field.term.id}|#{field.role.id}|#{field.term.label} (#{field.role.label})",
+      variants: field.term.variants
     }
   end
 
