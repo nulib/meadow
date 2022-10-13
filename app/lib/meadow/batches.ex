@@ -12,7 +12,6 @@ defmodule Meadow.Batches do
 
   require Logger
 
-  @batch_index SearchConfig.alias_for(Work, 1)
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
 
   @doc """
@@ -492,7 +491,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch update")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([@batch_index, "_search?scroll=10m"], query)
+    HTTP.post!([SearchConfig.alias_for(Work, 1), "_search?scroll=10m"], query)
     |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
@@ -528,7 +527,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch delete")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([@batch_index, "_search?scroll=10m"], query)
+    HTTP.post!([SearchConfig.alias_for(Work, 1), "_search?scroll=10m"], query)
     |> Map.get(:body)
     |> process_deletes(batch_id)
   end
