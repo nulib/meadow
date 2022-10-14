@@ -94,6 +94,28 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       assert doc |> get_in([:date_created]) == dates
     end
 
+    test "work encodes controlled term variants", %{work: subject} do
+      {:ok, subject} =
+        subject
+        |> Works.update_work(%{
+          descriptive_metadata: %{
+            subject: [
+              %{
+                role: %{id: "TOPICAL", scheme: "subject_role"},
+                term: %{id: "http://id.loc.gov/authorities/names/nb2015010626"}
+              }
+            ]
+          }
+        })
+
+      Indexer.synchronize_index()
+      doc = subject |> Document.encode(2)
+
+      assert doc
+             |> get_in([:subject, Access.at(0), :variants])
+             |> Enum.member?("BCT G.B. (Border Collie Trust G.B.)")
+    end
+
     test "file set encoding", %{file_set: subject} do
       derivatives = FileSets.add_derivative(subject, :poster, FileSets.poster_uri_for(subject))
 
