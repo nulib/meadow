@@ -3,7 +3,7 @@ const slashes = protocol.concat("//");
 const host = slashes.concat(window.location.hostname);
 const port = window.location.port;
 
-export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/elasticsearch`;
+export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/search`;
 export const ELASTICSEARCH_INDEX_NAME = __ELASTICSEARCH_INDEX__;
 
 const Elasticsearch = require("elasticsearch");
@@ -16,41 +16,49 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
     terms: {
       field: "descriptiveMetadata.contributor.facet",
+      size: 1000,
     },
   },
   creator: {
     terms: {
       field: "descriptiveMetadata.creator.facet",
+      size: 1000,
     },
   },
   genre: {
     terms: {
       field: "descriptiveMetadata.genre.facet",
+      size: 1000,
     },
   },
   language: {
     terms: {
       field: "descriptiveMetadata.language.facet",
+      size: 1000,
     },
   },
   location: {
     terms: {
       field: "descriptiveMetadata.location.facet",
+      size: 1000,
     },
   },
   stylePeriod: {
     terms: {
       field: "descriptiveMetadata.stylePeriod.facet",
+      size: 1000,
     },
   },
   subject: {
     terms: {
       field: "descriptiveMetadata.subject.facet",
+      size: 1000,
     },
   },
   technique: {
     terms: {
       field: "descriptiveMetadata.technique.facet",
+      size: 1000,
     },
   },
 };

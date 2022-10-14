@@ -25,6 +25,7 @@ defmodule Meadow.Data.Schemas.FileSet do
     field :position, :any, virtual: true
     field :derivatives, :map
     field :poster_offset, :integer
+    field(:reindex_at, :utc_datetime_usec)
 
     embeds_one :core_metadata, FileSetCoreMetadata, on_replace: :update
     embeds_one :structural_metadata, FileSetStructuralMetadata, on_replace: :delete
@@ -72,6 +73,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
     end
   end
+
+  def required_index_preloads, do: [:work]
 
   defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
     Logger.warn("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")

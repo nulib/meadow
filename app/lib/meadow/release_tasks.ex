@@ -5,7 +5,6 @@ defmodule Meadow.ReleaseTasks do
 
   alias Meadow.Config
   alias Meadow.Data.Indexer
-  alias Meadow.Utils.Elasticsearch.RetryAPI
 
   @app :meadow
   @modules [
@@ -36,9 +35,8 @@ defmodule Meadow.ReleaseTasks do
     seed("seeds.exs")
 
     if reindex? do
-      Logger.info("Hot swapping Elasticsearch index #{Config.elasticsearch_index()}")
-      RetryAPI.configure()
-      Indexer.hot_swap()
+      Logger.info("Hot swapping all search indices")
+      Indexer.reindex_all()
     end
   after
     resume!()

@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "6.1.4"
+  @app_version "7.0.0"
 
   def project do
     [
@@ -11,7 +11,7 @@ defmodule Meadow.MixProject do
       version: @app_version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix | Mix.compilers()],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -66,7 +66,6 @@ defmodule Meadow.MixProject do
       {:ecto_ranked, "~> 0.5.0"},
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
-      {:elasticsearch, "~> 1.0.0"},
       {:ets, "~> 0.9.0"},
       {:ex_aws, "~> 2.3.0"},
       {:ex_aws_s3, "~> 2.3"},
@@ -122,7 +121,7 @@ defmodule Meadow.MixProject do
       "meadow.setup": [
         "assets.install",
         "ecto.setup",
-        "meadow.elasticsearch.setup"
+        "meadow.search.setup"
       ]
     ]
   end

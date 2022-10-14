@@ -24,10 +24,13 @@ defmodule Mix.Tasks.Meadow.NulAuthoritiesTest do
     test "import task" do
       log_output = capture_log(fn -> Mix.Task.run("nul_authorities.import", [@filename]) end)
 
-      assert log_output =~
-               "[info]  Looking for CSV in bucket: #{@upload_bucket}, key: nul_authorities.csv"
+      assert log_output
+             |> logged?(
+               :info,
+               "Looking for CSV in bucket: #{@upload_bucket}, key: nul_authorities.csv"
+             )
 
-      assert log_output =~ "[info]  Done"
+      assert log_output |> logged?(:info, "Done")
 
       assert length(AuthorityRecords.list_authority_records()) == 14
     end
@@ -41,8 +44,11 @@ defmodule Mix.Tasks.Meadow.NulAuthoritiesTest do
 
       log_output = capture_log(fn -> Mix.Task.run("nul_authorities.export", []) end)
 
-      assert log_output =~
-               "[info]  Done. Look for your export in bucket: #{@upload_bucket}, key: nul_authorities_export.csv"
+      assert log_output
+             |> logged?(
+               :info,
+               "Done. Look for your export in bucket: #{@upload_bucket}, key: nul_authorities_export.csv"
+             )
 
       assert(object_exists?(@upload_bucket, "nul_authorities_export.csv"))
 

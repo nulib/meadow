@@ -8,6 +8,8 @@ defmodule Meadow.Error do
   """
   alias Meadow.Config
 
+  require Logger
+
   @doc """
   Report an exception to Honeybadger
   """
@@ -19,6 +21,14 @@ defmodule Meadow.Error do
         |> add_default_metadata(module),
       stacktrace: stacktrace
     )
+  end
+
+  @doc """
+  Report an exception to Honeybadger
+  """
+  def log_and_report(message, exception, module, stacktrace, additional_context \\ %{}) do
+    Logger.error("#{message}, Error: #{inspect(exception)}")
+    report(exception, module, stacktrace, additional_context)
   end
 
   @doc """

@@ -1,0 +1,155 @@
+{
+  "settings": {
+    "index": {
+      "max_result_window": "50000"
+    },
+    "analysis": {
+      "analyzer": {
+        "full_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "stopword_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "english_stop"
+          ]
+        }
+      },
+      "filter": {
+        "english_stop": {
+          "type": "stop",
+          "stopwords": "_english_"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "all_text": {
+        "type": "text",
+        "analyzer": "full_analyzer",
+        "search_analyzer": "stopword_analyzer",
+        "search_quote_analyzer": "full_analyzer"
+      },
+      "all_controlled_labels": {
+        "type": "text",
+        "analyzer": "full_analyzer",
+        "search_analyzer": "stopword_analyzer",
+        "search_quote_analyzer": "full_analyzer"
+      },
+      "all_controlled_terms": {
+        "type": "keyword"
+      },
+      "all_ids": {
+        "type": "keyword"
+      },
+      "indexed_at": {
+        "type": "date_nanos"
+      }
+    },
+    "dynamic_templates": [
+      {
+        "text_fields": {
+          "match": "^abstract$|^alternate_title$|^caption$|^cultural_context$|^description$|^file_sets.label$|^file_sets.description$|^file_sets.original_filename$|^notes.text$|^table_of_contents$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "text",
+            "analyzer": "full_analyzer",
+            "search_analyzer": "stopword_analyzer",
+            "search_quote_analyzer": "full_analyzer",
+            "copy_to": [
+              "all_text"
+            ]
+          }
+        }
+      },
+      {
+        "ids": {
+          "match": "^accession_number$|^batch_ids$|^csv_metadata_update_job_ids$|^collection.id$|^id$|^identifier$|^legacy_identifier$|^ark$|catalog_key",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": [
+              "all_ids"
+            ]
+          }
+        }
+      },
+      {
+        "latlong": {
+          "match": ".*Geo|^geo",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "geo_point"
+          }
+        }
+      },
+      {
+        "labels": {
+          "path_match": "^contributor.label$|^creator.label$|^language.label$|^location.label$|^genre.label$|^style_period.label$|^technique.label$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": [
+              "all_text",
+              "all_controlled_terms",
+              "all_controlled_labels"
+            ]
+          }
+        }
+      },
+      {
+        "text_plus_keyword": {
+          "path_match": "^title$|^collection.title$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            },
+            "copy_to": [
+              "all_text"
+            ]
+          }
+        }
+      },
+      {
+        "extracted_metadata_strings": {
+          "path_match": "file_sets.extracted_metadata.*",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      },
+      {
+        "strings": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": [
+              "all_text"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

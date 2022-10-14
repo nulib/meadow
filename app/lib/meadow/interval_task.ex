@@ -57,13 +57,14 @@ defmodule Meadow.IntervalTask do
       end
 
       def start_link(args \\ []) do
-        GenServer.start_link(__MODULE__, args, name: __MODULE__)
+        args = Keyword.put_new(args, :name, __MODULE__)
+        GenServer.start_link(__MODULE__, args, name: Keyword.get(args, :name))
       end
 
       def init(args) do
         interval = Keyword.get(args, :interval, unquote(default_interval))
 
-        "IntervalTask: Invoking #{__MODULE__}.#{unquote(function)} every #{interval}ms"
+        "IntervalTask: Invoking #{Keyword.get(args, :name)}.#{unquote(function)} every #{interval}ms"
         |> Logger.info()
 
         state =
