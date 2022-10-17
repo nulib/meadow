@@ -30,14 +30,13 @@ If you need to clear your data and reset the entire development environment, fro
 
 ```
 mix ecto.reset
-mix meadow.elasticsearch.clear
+mix meadow.search.clear
 mix meadow.pipeline.purge
 clean-s3 dev -y
 
 ...then
 mix deps.get
 mix meadow.setup
-mix assets.install
 mix phx.server
 ```
 
@@ -57,7 +56,6 @@ If you would like to interact directly with the database
 
 ### Run the Elixir test suite
 
-- Start test devstack: `devstack -t up meadow`
 - run `mix test`
 
 ### GraphQL API
@@ -83,7 +81,7 @@ iex -S mix
 And force a re-index:
 
 ```
-Meadow.Data.Indexer.reindex_all!
+Meadow.Data.Indexer.reindex_all()
 ```
 
 ### Terraform
