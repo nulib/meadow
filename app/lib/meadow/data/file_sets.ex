@@ -83,7 +83,7 @@ defmodule Meadow.Data.FileSets do
   true
   """
   def accession_exists?(accession_number) do
-    Repo.exists?(from f in FileSet, where: f.accession_number == ^accession_number)
+    Repo.exists?(from(f in FileSet, where: f.accession_number == ^accession_number))
   end
 
   @doc """
@@ -319,13 +319,15 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the path for a structural metadata file (vtt) for a file set
   """
-  def public_vtt_url_for(id) do
+  def public_vtt_url_for(%{structural_metadata: %{type: "webvtt", value: _value}} = file_set) do
     with uri <- URI.parse(Config.iiif_manifest_url()) do
       uri
-      |> URI.merge("vtt/" <> Pairtree.generate!(id) <> "/" <> id <> ".vtt")
+      |> URI.merge("vtt/" <> Pairtree.generate!(file_set.id) <> "/" <> file_set.id <> ".vtt")
       |> URI.to_string()
     end
   end
+
+  def public_vtt_url_for(_), do: nil
 
   def duration_in_milliseconds(%FileSet{extracted_metadata: %{"mediainfo" => mediainfo}}) do
     case mediainfo do
@@ -338,6 +340,19 @@ defmodule Meadow.Data.FileSets do
   end
 
   def duration_in_milliseconds(_), do: nil
+
+  def duration_in_seconds(file_set) do
+    case duration_in_milliseconds(file_set) do
+      nil ->
+        nil
+
+      0 ->
+        nil
+
+      milliseconds ->
+        milliseconds / 1000
+    end
+  end
 
   defp parse_duration_string(value) when is_binary(value) do
     case Float.parse(value) do
