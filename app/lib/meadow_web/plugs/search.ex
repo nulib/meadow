@@ -28,7 +28,7 @@ defmodule MeadowWeb.Plugs.Search do
 
   def process_request(conn, _default) do
     body = extract_body(conn)
-    [_base, path] = String.split(conn.request_path, "/search")
+    [_base, path] = String.split(conn.request_path, "/_search", parts: 2)
     query_string = extract_query_string(conn.query_string) |> URI.encode()
 
     method =

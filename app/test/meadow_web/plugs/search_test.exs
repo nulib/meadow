@@ -18,7 +18,7 @@ defmodule SearchTest do
       conn =
         build_conn()
         |> auth_user(user_fixture())
-        |> delete("/search/#{@v1_index}/_doc/#{work.id}")
+        |> delete("/_search/#{@v1_index}/_doc/#{work.id}")
 
       assert conn.status == 400
     end
@@ -29,7 +29,7 @@ defmodule SearchTest do
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
         |> post(
-          "/search/#{@v1_index}/_search",
+          "/_search/#{@v1_index}/_search",
           Jason.encode!(%{"query" => %{"match_all" => %{}}})
         )
 
@@ -49,7 +49,7 @@ defmodule SearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/x-ndjson")
-        |> post("/search/#{@v1_index}/_msearch", mquery)
+        |> post("/_search/#{@v1_index}/_msearch", mquery)
 
       assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 1
     end
@@ -62,7 +62,7 @@ defmodule SearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
-        |> get("/search/#{@v1_index}/_search?q=#{work.descriptive_metadata.title}")
+        |> get("/_search/#{@v1_index}/_search?q=#{work.descriptive_metadata.title}")
 
       assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 0
     end
