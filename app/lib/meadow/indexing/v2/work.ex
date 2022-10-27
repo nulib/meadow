@@ -161,7 +161,7 @@ defmodule Meadow.Indexing.V2.Work do
   defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: Map.delete(field, :scheme)
   defp format(_), do: %{}
 
-  defp manifest_id(work), do: "#{api_url()}/#{work.id}?as=iiif"
+  defp manifest_id(work), do: "#{api_url()}/works/#{work.id}?as=iiif"
 
   def representative_file_set(nil), do: %{}
 
