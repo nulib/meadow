@@ -18,12 +18,15 @@ defmodule Meadow.Indexing.V2.Collection do
       modified_date: collection.updated_at,
       published: collection.published,
       representative_image: representative_image(collection.representative_work),
+      thumbnail: thumbnail_url(collection),
       title: collection.title,
       visibility: encode_label(collection.visibility)
     }
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
+
+  def thumbnail_url(collection), do: "#{api_url}/collections/#{collection.id}/thumbnail"
 
   def representative_image(nil), do: %{}
 
