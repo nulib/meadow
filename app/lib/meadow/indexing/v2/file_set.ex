@@ -20,6 +20,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       label: file_set.core_metadata.label,
       modified_date: file_set.updated_at,
       poster_offset: file_set.poster_offset,
+      published: file_set.work.published,
       rank: file_set.rank,
       representative_image_url: FileSets.representative_image_url_for(file_set),
       role: file_set.role.label,
