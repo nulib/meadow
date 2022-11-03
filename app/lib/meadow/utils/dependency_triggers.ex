@@ -61,7 +61,7 @@ defmodule Meadow.Utils.DependencyTriggers do
               UPDATE #{parent}
               SET reindex_at = NOW()
               WHERE id = ANY (
-                SELECT DISTINCT new_table.id FROM new_table JOIN old_table ON new_table.id = old_table.id
+                SELECT DISTINCT new_table.#{Inflex.singularize(parent)}_id FROM new_table JOIN old_table ON new_table.id = old_table.id
                 AND (#{condition})
               );
             END IF;

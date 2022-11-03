@@ -26,7 +26,7 @@ defmodule Meadow.Indexing.V2.Collection do
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
 
-  def thumbnail_url(collection), do: "#{api_url}/collections/#{collection.id}/thumbnail"
+  def thumbnail_url(collection), do: "#{api_url()}/collections/#{collection.id}/thumbnail"
 
   def representative_image(nil), do: %{}
 
