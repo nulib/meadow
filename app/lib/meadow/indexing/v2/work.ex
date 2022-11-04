@@ -138,22 +138,24 @@ defmodule Meadow.Indexing.V2.Work do
   end
 
   def file_sets(work) do
-    Enum.map(work.file_sets, fn file_set ->
-      %{
-        id: file_set.id,
-        duration: FileSets.duration_in_seconds(file_set),
-        height: FileSets.height(file_set),
-        label: file_set.core_metadata.label,
-        mime_type: file_set.core_metadata.mime_type,
-        original_filename: file_set.core_metadata.original_filename,
-        poster_offset: file_set.poster_offset,
-        rank: file_set.rank,
-        representative_image_url: FileSets.representative_image_url_for(file_set),
-        role: file_set.role.label,
-        streaming_url: FileSets.distribution_streaming_uri_for(file_set),
-        webvtt: FileSets.public_vtt_url_for(file_set),
-        width: FileSets.width(file_set)
-      }
+    Enum.flat_map(["A", "P", "S", "X"], fn role ->
+      Enum.map(Meadow.Data.ranked_file_sets_for_work(work.id, role), fn file_set ->
+        %{
+          id: file_set.id,
+          duration: FileSets.duration_in_seconds(file_set),
+          height: FileSets.height(file_set),
+          label: file_set.core_metadata.label,
+          mime_type: file_set.core_metadata.mime_type,
+          original_filename: file_set.core_metadata.original_filename,
+          poster_offset: file_set.poster_offset,
+          rank: file_set.rank,
+          representative_image_url: FileSets.representative_image_url_for(file_set),
+          role: file_set.role.label,
+          streaming_url: FileSets.distribution_streaming_uri_for(file_set),
+          webvtt: FileSets.public_vtt_url_for(file_set),
+          width: FileSets.width(file_set)
+        }
+      end)
     end)
   end
 
