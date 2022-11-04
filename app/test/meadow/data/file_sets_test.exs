@@ -301,6 +301,31 @@ defmodule Meadow.Data.FileSetsTest do
 
       assert is_nil(FileSets.duration_in_milliseconds(file_set))
     end
+
+    test "aspect_ratio/1 calculated via extracted metadata" do
+      file_set =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata: %{
+            "exif" => %{"value" => %{"ImageWidth" => 249, "ImageHeight" => 103}}
+          }
+        )
+
+      assert FileSets.aspect_ratio(file_set) == 2.41747
+
+      file_set_without_extracted_metadata = file_set_fixture()
+      assert is_nil(FileSets.aspect_ratio(file_set_without_extracted_metadata))
+
+      file_set_with_only_height =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          extracted_metadata: %{
+            "exif" => %{"value" => %{"ImageWidth" => 249}}
+          }
+        )
+
+      assert is_nil(FileSets.aspect_ratio(file_set_with_only_height))
+    end
   end
 
   describe "distribution_streaming_uri_for/1" do
