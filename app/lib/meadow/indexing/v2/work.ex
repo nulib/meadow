@@ -169,8 +169,18 @@ defmodule Meadow.Indexing.V2.Work do
 
   def representative_file_set(work) do
     %{
+      aspect_ratio: aspect_ratio(work.representative_file_set_id),
       id: work.representative_file_set_id,
       url: work.representative_image
     }
+  end
+
+  defp aspect_ratio(nil), do: nil
+
+  defp aspect_ratio(representative_file_set_id) do
+    case FileSets.get_file_set(representative_file_set_id) do
+      nil -> nil
+      file_set -> FileSets.aspect_ratio(file_set)
+    end
   end
 end

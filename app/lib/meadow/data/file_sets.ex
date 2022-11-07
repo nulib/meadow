@@ -411,6 +411,13 @@ defmodule Meadow.Data.FileSets do
 
   def width(_), do: nil
 
+  def aspect_ratio(file_set) do
+    width = width(file_set)
+    height = height(file_set)
+
+    if width && height, do: Float.floor(width / height, 5), else: nil
+  end
+
   def access?(%{role: %{id: "A"}}), do: true
   def access?(_), do: false
   def preservation?(%{role: %{id: "P"}}), do: true
