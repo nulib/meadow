@@ -138,7 +138,7 @@ defimpl Meadow.IIIF.V3.Resource, for: Meadow.Data.Schemas.Work do
             id: IIIF.V3.annotation_id(work.id, file_set.id, "1", "2"),
             motivation: "supplementing",
             body: %Content{
-              id: FileSets.public_vtt_url_for(file_set.id),
+              id: FileSets.public_vtt_url_for(file_set),
               type: "Text",
               format: "text/vtt",
               label: %Label{

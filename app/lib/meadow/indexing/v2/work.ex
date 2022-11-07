@@ -20,11 +20,12 @@ defmodule Meadow.Indexing.V2.Work do
       box_number: work.descriptive_metadata.box_number,
       caption: work.descriptive_metadata.caption,
       catalog_key: work.descriptive_metadata.catalog_key,
-      collection: format(work.collection),
+      collection: collection(work.collection),
       contributor: encode_field(work.descriptive_metadata.contributor),
       create_date: work.inserted_at,
       creator: encode_field(work.descriptive_metadata.creator),
       csv_metadata_update_jobs: work.metadata_update_jobs |> Enum.map(& &1.id),
+      cultural_context: work.descriptive_metadata.cultural_context,
       date_created: encode_field(work.descriptive_metadata.date_created),
       description: work.descriptive_metadata.description,
       file_sets: file_sets(work),
@@ -35,15 +36,20 @@ defmodule Meadow.Indexing.V2.Work do
       identifier: work.descriptive_metadata.identifier,
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),
+      ingest_sheet: format(work.ingest_sheet),
+      ingest_project: format(work.project),
       keywords: work.descriptive_metadata.keywords,
+      language: encode_field(work.descriptive_metadata.language),
       legacy_identifier: work.descriptive_metadata.legacy_identifier,
       library_unit: encode_label(work.administrative_metadata.library_unit),
       license: work.descriptive_metadata.license,
+      location: encode_field(work.descriptive_metadata.location),
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
       physical_description_material: work.descriptive_metadata.physical_description_material,
       physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
+      project: encode_project(work.administrative_metadata),
       provenance: work.descriptive_metadata.provenance,
       published: work.published,
       publisher: work.descriptive_metadata.publisher,
@@ -69,6 +75,12 @@ defmodule Meadow.Indexing.V2.Work do
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
+
+  def collection(%{id: id, title: title, description: description}) do
+    %{id: id, title: title, description: description}
+  end
+
+  def collection(_), do: %{}
 
   def encode_label(%{label: label}), do: label
   def encode_label(_), do: nil
@@ -96,25 +108,54 @@ defmodule Meadow.Indexing.V2.Work do
     }
   end
 
-  def encode_field(%NoteEntry{} = field), do: Map.from_struct(field)
-  def encode_field(%RelatedURLEntry{} = field), do: Map.from_struct(field)
+  def encode_field(%NoteEntry{} = field) do
+    %{
+      note: field.note,
+      type: field.type.label
+    }
+  end
+
+  def encode_field(%RelatedURLEntry{} = field) do
+    %{
+      url: field.url,
+      label: field.label.label
+    }
+  end
+
   def encode_field(%{humanized: humanized}), do: humanized
 
   def encode_field(field), do: field
 
+  def encode_project(admin_metadata) do
+    %{
+      cycle: admin_metadata.project_cycle,
+      desc: List.first(admin_metadata.project_desc),
+      manager: List.first(admin_metadata.project_manager),
+      name: List.first(admin_metadata.project_name),
+      proposer: List.first(admin_metadata.project_proposer),
+      task_number: List.first(admin_metadata.project_task_number)
+    }
+  end
+
   def file_sets(work) do
-    Enum.map(work.file_sets, fn file_set ->
-      %{
-        id: file_set.id,
-        label: file_set.core_metadata.label,
-        mime_type: file_set.core_metadata.mime_type,
-        original_filename: file_set.core_metadata.original_filename,
-        poster_offset: file_set.poster_offset,
-        rank: file_set.rank,
-        representative_image_url: FileSets.representative_image_url_for(file_set),
-        role: file_set.role.label,
-        streaming_url: FileSets.distribution_streaming_uri_for(file_set)
-      }
+    Enum.flat_map(["A", "P", "S", "X"], fn role ->
+      Enum.map(Meadow.Data.ranked_file_sets_for_work(work.id, role), fn file_set ->
+        %{
+          id: file_set.id,
+          duration: FileSets.duration_in_seconds(file_set),
+          height: FileSets.height(file_set),
+          label: file_set.core_metadata.label,
+          mime_type: file_set.core_metadata.mime_type,
+          original_filename: file_set.core_metadata.original_filename,
+          poster_offset: file_set.poster_offset,
+          rank: file_set.rank,
+          representative_image_url: FileSets.representative_image_url_for(file_set),
+          role: file_set.role.label,
+          streaming_url: FileSets.distribution_streaming_uri_for(file_set),
+          webvtt: FileSets.public_vtt_url_for(file_set),
+          width: FileSets.width(file_set)
+        }
+      end)
     end)
   end
 
@@ -122,8 +163,7 @@ defmodule Meadow.Indexing.V2.Work do
   defp format(%{id: _id, label: _label, scheme: _scheme} = field), do: Map.delete(field, :scheme)
   defp format(_), do: %{}
 
-  defp manifest_id(%{work_type: %{id: "IMAGE"}} = work), do: IIIF.V2.manifest_id(work.id)
-  defp manifest_id(work), do: IIIF.V3.manifest_id(work.id)
+  defp manifest_id(work), do: "#{api_url()}/works/#{work.id}?as=iiif"
 
   def representative_file_set(nil), do: %{}
 

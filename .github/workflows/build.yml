@@ -183,8 +183,8 @@ jobs:
         run: |
           mkdir -p ${{ runner.temp }}/exiftool && \
           cd ${{ runner.temp }}/exiftool && \
-          curl -L -s https://exiftool.org/Image-ExifTool-12.40.tar.gz | tar xz && \
-          cd Image-ExifTool-12.40 && \
+          curl -L -s https://exiftool.org/Image-ExifTool-12.49.tar.gz | tar xz && \
+          cd Image-ExifTool-12.49 && \
           perl Makefile.PL && \
           sudo make install
       - name: Cache Elixir dependencies
@@ -261,7 +261,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags:  ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
           build-args: |
             HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
             HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
