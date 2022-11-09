@@ -140,9 +140,11 @@ defmodule Meadow.Data.WorksTest do
        image_url: Meadow.Config.iiif_server_url() <> file_set.id}
     end
 
-    test "no representative image assigned", %{work: work} do
+    test "placeholder representative image assigned", %{work: work} do
       {:ok, work} = Works.set_representative_image(work, nil)
-      assert(is_nil(work.representative_image))
+
+      assert(Works.get_work!(work.id) |> Map.get(:representative_image)) =~
+        "00000000-0000-0000-0000-000000000001"
     end
 
     test "list_works/0", %{image_url: image_url} do
@@ -203,22 +205,26 @@ defmodule Meadow.Data.WorksTest do
       assert "Not a work" |> Works.add_representative_image() == "Not a work"
     end
 
-    test "deleting a file set nilifies the representative image", %{
+    test "deleting a file set resets the representative image to a placeholder", %{
       image_id: image_id,
       image_url: image_url,
       work: work
     } do
       assert(Works.get_work!(work.id) |> Map.get(:representative_image) == image_url)
       FileSets.get_file_set!(image_id) |> FileSets.delete_file_set()
-      assert(is_nil(Works.get_work!(work.id) |> Map.get(:representative_image)))
+
+      assert(Works.get_work!(work.id) |> Map.get(:representative_image)) =~
+        "00000000-0000-0000-0000-000000000001"
     end
 
-    test "set_representative_image/2 with a preservation file does not set the representative image" do
+    test "set_representative_image/2 with a preservation file sets a placeholder representative image" do
       work = work_with_file_sets_fixture(1, %{}, %{role: %{id: "P", scheme: "FILE_SET_ROLE"}})
       file_set = work.file_sets |> Enum.at(1)
 
       {:ok, %Work{} = work} = Works.set_representative_image(work, file_set)
-      assert(is_nil(Works.get_work!(work.id) |> Map.get(:representative_image)))
+
+      assert(Works.get_work!(work.id) |> Map.get(:representative_image)) =~
+        "00000000-0000-0000-0000-000000000001"
     end
   end
 
@@ -230,7 +236,9 @@ defmodule Meadow.Data.WorksTest do
         })
 
       work = Work |> Repo.get!(work.id) |> Works.add_representative_image()
-      assert is_nil(work.representative_image)
+
+      assert(Works.get_work!(work.id) |> Map.get(:representative_image)) =~
+        "00000000-0000-0000-0000-000000000002"
     end
 
     test "set_representative_image/1 for video works sets the representative image to the poster url" do

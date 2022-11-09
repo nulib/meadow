@@ -46,7 +46,9 @@ defmodule Meadow.Indexing.V1.EncodingTest do
 
     test "work encodes thumbnail field", %{work: subject} do
       doc = subject |> Document.encode(1)
-      assert is_nil(doc |> get_in([:thumbnail]))
+
+      assert doc |> get_in([:thumbnail]) =~
+               "00000000-0000-0000-0000-000000000001/full/!300,300/0/default.jpg"
 
       file_set = subject.file_sets |> Enum.at(1)
       derivatives = FileSets.add_derivative(file_set, :poster, FileSets.poster_uri_for(file_set))

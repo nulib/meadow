@@ -672,7 +672,7 @@ defmodule Meadow.Data.Works do
 
     case work.representative_file_set do
       nil ->
-        Map.put(work, :representative_image, nil)
+        Map.put(work, :representative_image, placeholder_url(work))
 
       file_set ->
         work
@@ -690,6 +690,20 @@ defmodule Meadow.Data.Works do
     do: {:ok, add_representative_image(object)}
 
   def add_representative_image(x), do: x
+
+  defp placeholder_url(%Work{work_type: %{id: id}}) when id in ["AUDIO", "VIDEO"],
+    do:
+      FileSets.representative_image_url_for(%FileSet{
+        derivatives: %{"pyramid_tiff" => nil},
+        id: "00000000-0000-0000-0000-000000000002"
+      })
+
+  defp placeholder_url(_),
+    do:
+      FileSets.representative_image_url_for(%FileSet{
+        derivatives: %{"pyramid_tiff" => nil},
+        id: "00000000-0000-0000-0000-000000000001"
+      })
 
   @doc """
   Set :updated_at

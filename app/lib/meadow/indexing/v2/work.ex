@@ -175,11 +175,11 @@ defmodule Meadow.Indexing.V2.Work do
     }
   end
 
-  defp aspect_ratio(nil), do: nil
+  defp aspect_ratio(nil), do: 1.0
 
   defp aspect_ratio(representative_file_set_id) do
     case FileSets.get_file_set(representative_file_set_id) do
-      nil -> nil
+      nil -> 1.0
       file_set -> FileSets.aspect_ratio(file_set)
     end
   end
