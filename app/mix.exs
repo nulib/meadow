@@ -121,7 +121,8 @@ defmodule Meadow.MixProject do
       "meadow.setup": [
         "assets.install",
         "ecto.setup",
-        "meadow.search.setup"
+        "meadow.search.setup",
+        "meadow.buckets.seed"
       ]
     ]
   end
