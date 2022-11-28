@@ -44,7 +44,8 @@ config :meadow, MeadowWeb.Endpoint,
     :inet6,
     port: port,
     protocol_options: [
-      idle_timeout: :infinity
+      idle_timeout: :infinity,
+      max_header_value_length: 8192
     ]
   ],
   check_origin: environment_secret("ALLOWED_ORIGINS", split: ~r/,\s*/, default: ""),
