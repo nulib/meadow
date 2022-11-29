@@ -77,6 +77,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_ingest" {
     id     = "30-day-expiration"
     status = "Enabled"
 
+    filter {
+      object_size_greater_than = 1
+    }
+
     expiration {
       days = 30
     }
