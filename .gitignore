@@ -44,6 +44,10 @@ npm-debug.log
 /app/priv/cert/
 /app/priv/seed_data/
 
+/lambdas/.aws-sam
+/lambdas/layers
+/lambdas/**/*.log
+
 .elixir_ls
 
 *.tfvars
