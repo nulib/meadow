@@ -43,7 +43,7 @@ RUN mix release --overwrite
 FROM node:14-alpine
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
-RUN apk update && apk --no-cache --update add curl jq ncurses-libs openssl-dev
+RUN apk update && apk --no-cache --update add curl jq libcrypto1.1 ncurses-libs openssl-dev
 ENV LANG=en_US.UTF-8
 EXPOSE 4000 4369 24601
 COPY --from=release /app/_build/prod/rel/meadow /app
