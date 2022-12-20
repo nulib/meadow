@@ -20,7 +20,7 @@ module "rds" {
   allocated_storage                = var.db_size
   backup_window                    = "04:00-05:00"
   engine                           = "postgres"
-  engine_version                   = "11.13"
+  engine_version                   = "11.16"
   final_snapshot_identifier_prefix = "meadow-final"
   identifier                       = "${var.stack_name}-db"
   instance_class                   = "db.t3.medium"
