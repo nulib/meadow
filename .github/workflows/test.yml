@@ -43,9 +43,6 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - name: Start service containers in background
-        run: docker compose up -d &
-        working-directory: ./infrastructure/localstack
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions
@@ -54,27 +51,13 @@ jobs:
             app/assets/package-lock.json
             app/priv/nodejs/*/package-lock.json
             lambdas/*/package-lock.json
+      - name: Start service containers in background
+        run: make localstack-start &
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "27"
           elixir-version: "1.18.2"
       - uses: hashicorp/setup-terraform@v3
-      - name: Install FFMPEG
-        run: |
-          mkdir -p ${{ runner.temp }}/ffmpeg && \
-          cd ${{ runner.temp }}/ffmpeg && \
-          curl https://s3.amazonaws.com/nul-repo-deploy/ffmpeg-release-64bit-static.tar.xz | tar xJ && \
-          sudo cp $(find . -type f -executable) /usr/local/bin/ && \
-          echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
-      - name: Install ExifTool
-        run: |
-          EXIFTOOL_VERSION=$(curl -s https://exiftool.org/ver.txt)
-          mkdir -p ${{ runner.temp }}/exiftool && \
-          cd ${{ runner.temp }}/exiftool && \
-          curl -L -s https://exiftool.org/Image-ExifTool-${EXIFTOOL_VERSION}.tar.gz | tar xz && \
-          cd Image-ExifTool-${EXIFTOOL_VERSION} && \
-          perl Makefile.PL && \
-          sudo make install
       - name: Cache Elixir dependencies and build
         uses: actions/cache@v4
         with:
@@ -90,33 +73,23 @@ jobs:
         working-directory: app
         env:
           MIX_ENV: test
-      - name: Install Lambda dependencies
-        run: |
-          for pkg in $(find app/priv/nodejs -maxdepth 2 -name package-lock.json) $(find lambdas -maxdepth 2 -name package-lock.json)
-          do
-            cd $(dirname $pkg)
-            npm ci --no-fund
-            cd -
-          done
-      - name: Wait for services to be ready
-        run: timeout 60 bash -c 'while ! ./all-healthy.sh; do sleep 2; done'
-        working-directory: ./infrastructure/localstack
-      - name: Set SECRET_KEY_BASE
-        run: echo "SECRET_KEY_BASE=$(openssl rand -hex 32)" >> $GITHUB_ENV
-      - name: Provision Localstack using Terraform
-        run: |
-          terraform init
-          terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=https://localhost.localstack.cloud:4566
-        working-directory: ./infrastructure/localstack
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
+      - name: Wait for services to be ready
+        run: timeout 120 bash -c 'while ! ./all-healthy.sh; do sleep 2; done'
+        working-directory: ./infrastructure/localstack
+      - name: Set SECRET_KEY_BASE
+        run: echo "SECRET_KEY_BASE=$(openssl rand -hex 32)" >> $GITHUB_ENV
+      - name: Provision Localstack using Terraform
+        run: make localstack-provision
       - name: Elixir Tests
         run: mix test || mix test --seed $(cat ${MEADOW_TEST_SAVE_SEED}) --failed
         env:
           AWS_LOCALSTACK: true
+          USE_SAM_LAMBDAS: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MEADOW_TEST_SAVE_SEED: ${{ runner.temp }}/MEADOW_TEST_SEED
         working-directory: app

@@ -31,9 +31,7 @@ RUN npm ci --force
 COPY ./priv/nodejs /app/priv/nodejs
 WORKDIR /app/priv/nodejs
 RUN for flag in $(find . -name .docker-npm); do \
-      cd $(dirname ${flag}); \
-      npm ci; \
-      cd -; \
+      (cd $(dirname ${flag}) && npm ci); \
     done
 WORKDIR /app
 ARG HONEYBADGER_API_KEY=
