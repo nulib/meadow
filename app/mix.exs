@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "7.1.0"
+  @app_version "7.1.1"
 
   def project do
     [
@@ -121,7 +121,8 @@ defmodule Meadow.MixProject do
       "meadow.setup": [
         "assets.install",
         "ecto.setup",
-        "meadow.search.setup"
+        "meadow.search.setup",
+        "meadow.buckets.seed"
       ]
     ]
   end
