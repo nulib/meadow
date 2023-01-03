@@ -19,8 +19,8 @@ jobs:
           done
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "24"
-          elixir-version: "1.12.1"
+          otp-version: "25"
+          elixir-version: "1.14.2"
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -166,8 +166,8 @@ jobs:
           done
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "24"
-          elixir-version: "1.12.1"
+          otp-version: "25"
+          elixir-version: "1.14.2"
       - name: Install LDAP utils
         run: |
           sudo apt-get update -qq

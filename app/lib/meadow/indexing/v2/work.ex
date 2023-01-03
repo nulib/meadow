@@ -5,7 +5,6 @@ defmodule Meadow.Indexing.V2.Work do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
-  alias Meadow.IIIF
 
   def encode(work) do
     %{
