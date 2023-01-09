@@ -548,6 +548,10 @@ data "aws_cloudfront_origin_request_policy" "cors_s3_origin" {
   name = "Managed-CORS-S3Origin"
 }
 
+data "aws_cloudfront_response_headers_policy" "cors_with_preflight" {
+  name = "Managed-CORS-With-Preflight"
+}
+
 resource "aws_cloudfront_distribution" "meadow_streaming" {
   enabled          = true
   is_ipv6_enabled  = true
@@ -570,8 +574,9 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
     target_origin_id       = "${var.stack_name}-origin"
     viewer_protocol_policy = "allow-all"
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_optimized.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3_origin.id
+    cache_policy_id             = data.aws_cloudfront_cache_policy.caching_optimized.id
+    origin_request_policy_id    = data.aws_cloudfront_origin_request_policy.cors_s3_origin.id
+    response_headers_policy_id  = data.aws_cloudfront_response_headers_policy.cors_with_preflight.id
 
     lambda_function_association {
       event_type = "viewer-request"
