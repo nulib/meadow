@@ -8,25 +8,14 @@
         "full_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding"]
         },
         "stopword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
-          "char_filter": [
-            "html_strip"
-          ],
-          "filter": [
-            "lowercase",
-            "asciifolding",
-            "english_stop"
-          ]
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "asciifolding", "english_stop"]
         }
       },
       "filter": {
@@ -59,6 +48,12 @@
       },
       "indexed_at": {
         "type": "date_nanos"
+      },
+      "create_date": {
+        "type": "date_nanos"
+      },
+      "modified_date": {
+        "type": "date_nanos"
       }
     },
     "dynamic_templates": [
@@ -71,9 +66,7 @@
             "analyzer": "full_analyzer",
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer",
-            "copy_to": [
-              "all_text"
-            ]
+            "copy_to": ["all_text"]
           }
         }
       },
@@ -83,9 +76,7 @@
           "match_pattern": "regex",
           "mapping": {
             "type": "keyword",
-            "copy_to": [
-              "all_ids"
-            ]
+            "copy_to": ["all_ids"]
           }
         }
       },
@@ -124,9 +115,7 @@
                 "ignore_above": 256
               }
             },
-            "copy_to": [
-              "all_text"
-            ]
+            "copy_to": ["all_text"]
           }
         }
       },
@@ -144,9 +133,7 @@
           "match_mapping_type": "string",
           "mapping": {
             "type": "keyword",
-            "copy_to": [
-              "all_text"
-            ]
+            "copy_to": ["all_text"]
           }
         }
       }
