@@ -172,3 +172,11 @@ variable "work_archiver_endpoint" {
 variable "dc_api_v2_base" {
   type = string
 }
+
+variable "streaming_config" {
+  type    = map(string)
+  default = {
+    alias             = ""
+    certificate_arn   = ""
+  }
+}
