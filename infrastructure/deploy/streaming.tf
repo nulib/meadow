@@ -5,6 +5,7 @@ data "aws_acm_certificate" "wildcard_cert" {
 
 locals {
   streaming_cert = coalesce(var.streaming_config.certificate_arn, data.aws_acm_certificate.wildcard_cert.arn)
+  streaming_host = coalesce(var.streaming_config.alias, aws_route53_record.meadow_streaming_cloudfront.fqdn)
 }
 
 resource "aws_cloudfront_origin_access_identity" "meadow_streaming_access_identity" {
