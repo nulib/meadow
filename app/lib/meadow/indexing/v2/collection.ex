@@ -8,6 +8,7 @@ defmodule Meadow.Indexing.V2.Collection do
       admin_email: collection.admin_email,
       api_link: Path.join([api_url(), "collections", collection.id]),
       api_model: "Collection",
+      canonical_link: Path.join([dc_url(), "collections", collection.id]),
       create_date: collection.inserted_at,
       description: collection.description,
       featured: collection.featured,
@@ -25,6 +26,7 @@ defmodule Meadow.Indexing.V2.Collection do
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
+  def dc_url, do: Application.get_env(:meadow, :digital_collections_url)
 
   def thumbnail_url(collection), do: "#{api_url()}/collections/#{collection.id}/thumbnail"
 

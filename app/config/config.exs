@@ -125,7 +125,7 @@ config :meadow,
   digital_collections_url:
     aws_secret("meadow",
       dig: ["dc", "base_url"],
-      default: "https://fen.rdc-staging.library.northwestern.edu/"
+      default: "https://dc.rdc-staging.library.northwestern.edu/"
     ),
   progress_ping_interval: System.get_env("PROGRESS_PING_INTERVAL", "1000"),
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
