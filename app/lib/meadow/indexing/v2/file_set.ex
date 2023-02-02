@@ -28,6 +28,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       visibility: file_set.work.visibility.label,
       work_id: file_set.work_id
     }
+    |> Meadow.Utils.Map.nillify_empty()
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
