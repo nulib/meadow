@@ -68,3 +68,5 @@ yarn.lock
 
 .DS_Store
 **/*/.DS_Store
+
+lambdas/stream-authorizer/environment.json

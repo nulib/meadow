@@ -53,35 +53,43 @@ resource "aws_iam_role_policy_attachment" "stream_authorizer_basic_execution_rol
 }
 
 locals {
-  source_sha = sha1(join("", [for f in fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}") : sha1(file(f))]))
+  auth_source_path        = "${path.module}/../../lambdas/stream-authorizer"
+  auth_allowed_referers   = var.trusted_referers
+  auth_dc_api             = var.dc_api_v2_base
+  auth_source_sha         = sha1(
+    join(
+      "", 
+      concat([for f in fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}") : sha1(file(f))], [sha1(local.auth_allowed_referers), sha1(local.auth_dc_api)])
+    )
+  )
 }
 
 resource "null_resource" "node_modules" {
   triggers = {
-    source = local.source_sha
+    source              = local.auth_source_sha
+    allowed_referers    = local.auth_allowed_referers
+    dc_api              = local.auth_dc_api
   }
 
   provisioner "local-exec" {
     command     = "npm install --only=prod --no-bin-links"
-    working_dir = template_dir.function_source.destination_dir
+    working_dir = local.auth_source_path
   }
 }
 
-resource "template_dir" "function_source" {
-  source_dir      = "${path.module}/../../lambdas/stream-authorizer/"
-  destination_dir = "${path.module}/build"
-
-  vars = {
-    allowed_referers = "(devbox|digitalcollections|meadow|dc)\\.(rdc(-staging)?\\.)?library\\.northwestern\\.edu"
-    elastic_search   = var.elasticsearch_url
-  }
+resource "local_file" "stream_authorizer_configuration" {
+  content  = jsonencode({
+    allowedFrom   = local.auth_allowed_referers
+    dcApiEndpoint = local.auth_dc_api
+  })
+  filename = "${local.auth_source_path}/environment.json"
 }
 
 data "archive_file" "stream_authorizer_lambda" {
   depends_on  = [null_resource.node_modules]
   type        = "zip"
-  source_dir  = template_dir.function_source.destination_dir
-  output_path = "${path.module}/package/${local.source_sha}.zip"
+  source_dir  = local.auth_source_path
+  output_path = "${path.module}/package/${local.auth_source_sha}.zip"
 }
 
 resource "aws_lambda_function" "stream_authorizer" {

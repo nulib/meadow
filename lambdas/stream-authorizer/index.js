@@ -1,34 +1,66 @@
-const AWS = require("aws-sdk");
 const authorize = require("./authorize");
-const allowedReferers = process?.env?.ALLOWED_REFERERS || "${allowed_referers}";
 
-const handler = async (event, _context) => {
+function getEventHeader(request, header) {
+  return request?.headers?.[header]?.[0]?.value;
+}
+
+function addAccessControlHeaders(request, response) {
+  const origin = getEventHeader(request, "origin") || "*";
+  if (!response.headers) response.headers = {};
+  response.headers["access-control-allow-origin"] = [
+    { key: "Access-Control-Allow-Origin", value: origin },
+  ];
+  response.headers["access-control-allow-headers"] = [
+    { key: "Access-Control-Allow-Headers", value: "authorization, cookie" },
+  ];
+  response.headers["access-control-allow-credentials"] = [
+    { key: "Access-Control-Allow-Credentials", value: "true" },
+  ];
+  return response;
+}
+
+async function viewerRequestHandler(event) {
   console.log("Initiating stream authorization");
   const request = event.Records[0].cf.request;
-  const path = decodeURI(request.uri.replace(/%2f/gi, ""));
-  const id = path.split("/").slice(0, 19).join("");
-  console.log("Streaming resource ID", id);
-  const referer = request?.headers?.referer?.[0]?.value;
-  if (referer && new RegExp(allowedReferers).test(referer)) {
-    console.log("Stream authorized: originated from an authorized referer");
-    return request;
-  }
-  const isOpen = await authorize(id);
 
-  if (isOpen) {
-    console.log(
-      `Stream authorized: found $${id} with open visibility in Elasticsearch`
-    );
-    return request;
-  }
+  const path = decodeURIComponent(request.uri);
+  const uuidRe =
+    /(?<uuid>[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})/;
+  const id = uuidRe.exec(path.split("/").join(""))?.groups?.uuid;
+
+  console.log("Streaming resource ID", id);
+  const referer = getEventHeader(request, "referer");
+  const cookie = getEventHeader(request, "cookie");
+  const allowed = await authorize(id, referer, cookie);
+
+  if (allowed) return request;
 
   const response = {
     status: "403",
     statusDescription: "Forbidden",
     body: "Forbidden",
   };
-  console.log(`Stream unauthorized for $${id}, returning Forbidden response`);
   return response;
-};
+}
 
-module.exports = { handler };
+async function viewerResponseHandler(event) {
+  const { request, response } = event.Records[0].cf;
+  return addAccessControlHeaders(request, response);
+}
+
+async function handler(event) {
+  const { eventType } = event.Records[0].cf.config;
+
+  switch (eventType) {
+    case "viewer-request":
+      return await viewerRequestHandler(event);
+    case "viewer-response":
+      return await viewerResponseHandler(event);
+    default:
+      return event.Records[0].cf.request;
+  }
+}
+
+module.exports = {
+  handler,
+};
