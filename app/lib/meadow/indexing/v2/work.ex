@@ -72,6 +72,7 @@ defmodule Meadow.Indexing.V2.Work do
       visibility: encode_label(work.visibility),
       work_type: encode_label(work.work_type)
     }
+    |> Meadow.Utils.Map.nillify_empty()
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])

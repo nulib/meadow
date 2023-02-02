@@ -23,6 +23,7 @@ defmodule Meadow.Indexing.V2.Collection do
       title: collection.title,
       visibility: encode_label(collection.visibility)
     }
+    |> Meadow.Utils.Map.nillify_empty()
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
