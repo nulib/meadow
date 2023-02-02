@@ -104,9 +104,11 @@ defmodule Meadow.Data.CollectionsTest do
       {:ok, collection: collection, work: work, image_url: work.representative_image}
     end
 
-    test "no representative image assigned", %{collection: collection} do
+    test "a placeholder image is assigned without a representative work", %{
+      collection: collection
+    } do
       {:ok, collection} = Collections.set_representative_image(collection, nil)
-      assert(is_nil(collection.representative_image))
+      assert(collection.representative_image)
     end
 
     test "list_works/0", %{image_url: image_url} do
@@ -156,7 +158,7 @@ defmodule Meadow.Data.CollectionsTest do
       assert "Not a collection" |> Collections.add_representative_image() == "Not a collection"
     end
 
-    test "deleting a work nilifies the representative image", %{
+    test "deleting a work sets the placeholder representative image", %{
       collection: collection,
       image_url: image_url,
       work: work
@@ -167,7 +169,7 @@ defmodule Meadow.Data.CollectionsTest do
 
       work |> Works.delete_work()
 
-      assert(is_nil(Collections.get_collection!(collection.id) |> Map.get(:representative_image)))
+      assert(Collections.get_collection!(collection.id) |> Map.get(:representative_image))
     end
   end
 end
