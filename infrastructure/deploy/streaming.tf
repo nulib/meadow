@@ -89,6 +89,11 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
       event_type = "viewer-request"
       lambda_arn = aws_lambda_function.stream_authorizer.qualified_arn
     }
+
+    lambda_function_association {
+      event_type = "viewer-response"
+      lambda_arn = aws_lambda_function.stream_authorizer.qualified_arn
+    }
   }
 
   restrictions {

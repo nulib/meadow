@@ -180,3 +180,8 @@ variable "streaming_config" {
     certificate_arn   = ""
   }
 }
+
+variable "trusted_referers" {
+  type    = string
+  default = ""
+}
