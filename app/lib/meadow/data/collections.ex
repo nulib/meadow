@@ -5,8 +5,8 @@ defmodule Meadow.Data.Collections do
 
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias Meadow.Data.Schemas.{Collection, Work}
-  alias Meadow.Data.Works
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Data.{FileSets, Works}
   alias Meadow.Repo
 
   require Logger
@@ -108,7 +108,14 @@ defmodule Meadow.Data.Collections do
 
     case collection.representative_work do
       nil ->
-        Map.put(collection, :representative_image, nil)
+        Map.put(
+          collection,
+          :representative_image,
+          FileSets.representative_image_url_for(%FileSet{
+            derivatives: %{"pyramid_tiff" => nil},
+            id: "00000000-0000-0000-0000-000000000001"
+          })
+        )
 
       work ->
         with updated_work <- work |> Works.add_representative_image() do

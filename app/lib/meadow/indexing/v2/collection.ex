@@ -18,7 +18,7 @@ defmodule Meadow.Indexing.V2.Collection do
       keywords: collection.keywords,
       modified_date: collection.updated_at,
       published: collection.published,
-      representative_image: representative_image(collection.representative_work),
+      representative_image: representative_image(collection),
       thumbnail: thumbnail_url(collection),
       title: collection.title,
       visibility: encode_label(collection.visibility)
@@ -31,12 +31,10 @@ defmodule Meadow.Indexing.V2.Collection do
 
   def thumbnail_url(collection), do: "#{api_url()}/collections/#{collection.id}/thumbnail"
 
-  def representative_image(nil), do: %{}
-
-  def representative_image(work) do
+  def representative_image(collection) do
     %{
-      work_id: work.id,
-      url: work.representative_image
+      work_id: collection.representative_work_id,
+      url: collection.representative_image
     }
   end
 
