@@ -17,6 +17,7 @@ defmodule Meadow.Indexing.V2.Work do
       batch_ids: work.batches |> Enum.map(& &1.id),
       box_name: work.descriptive_metadata.box_name,
       box_number: work.descriptive_metadata.box_number,
+      canonical_link: Path.join([dc_url(), "items", work.id]),
       caption: work.descriptive_metadata.caption,
       catalog_key: work.descriptive_metadata.catalog_key,
       collection: collection(work.collection),
@@ -28,8 +29,8 @@ defmodule Meadow.Indexing.V2.Work do
       date_created: encode_field(work.descriptive_metadata.date_created),
       description: work.descriptive_metadata.description,
       file_sets: file_sets(work),
-      folder_names: work.descriptive_metadata.folder_name,
-      folder_numbers: work.descriptive_metadata.folder_number,
+      folder_name: work.descriptive_metadata.folder_name,
+      folder_number: work.descriptive_metadata.folder_number,
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
       identifier: work.descriptive_metadata.identifier,
@@ -41,7 +42,7 @@ defmodule Meadow.Indexing.V2.Work do
       language: encode_field(work.descriptive_metadata.language),
       legacy_identifier: work.descriptive_metadata.legacy_identifier,
       library_unit: encode_label(work.administrative_metadata.library_unit),
-      license: work.descriptive_metadata.license,
+      license: format(work.descriptive_metadata.license),
       location: encode_field(work.descriptive_metadata.location),
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
@@ -71,9 +72,11 @@ defmodule Meadow.Indexing.V2.Work do
       visibility: encode_label(work.visibility),
       work_type: encode_label(work.work_type)
     }
+    |> Meadow.Utils.Map.nillify_empty()
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
+  def dc_url, do: Application.get_env(:meadow, :digital_collections_url)
 
   def collection(%{id: id, title: title, description: description}) do
     %{id: id, title: title, description: description}
