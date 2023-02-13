@@ -103,6 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: dependencies
     env:
+      EXIFTOOL_VERSION: 12.56
       MIX_ENV: test
     services:
       db:
@@ -183,10 +184,12 @@ jobs:
         run: |
           mkdir -p ${{ runner.temp }}/exiftool && \
           cd ${{ runner.temp }}/exiftool && \
-          curl -L -s https://exiftool.org/Image-ExifTool-12.49.tar.gz | tar xz && \
-          cd Image-ExifTool-12.49 && \
+          curl -L -s https://exiftool.org/Image-ExifTool-${EXIFTOOL_VERSION}.tar.gz | tar xz && \
+          cd Image-ExifTool-${EXIFTOOL_VERSION} && \
           perl Makefile.PL && \
           sudo make install
+        env:
+          EXIFTOOL_VERSION: ${{ env.EXIFTOOL_VERSION }}
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
