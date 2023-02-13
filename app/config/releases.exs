@@ -197,3 +197,5 @@ config :hackney,
            ]
   end
 end)
+
+config :authoritex, geonames_username: aws_secret("meadow", dig: ["geonames", "username"])
