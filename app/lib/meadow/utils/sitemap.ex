@@ -21,6 +21,12 @@ defmodule Meadow.Utils.Sitemap do
           |> Stream.flat_map(&persist(&1, config))
           |> maybe_ping(config, ping)
           |> Stream.run()
+
+          if Keyword.get(config, :gzip, false) do
+            {"sitemap.xml", generate_index(config)}
+            |> persist(config)
+            |> Stream.run()
+          end
         end,
         timeout: :infinity
       )
@@ -91,6 +97,20 @@ defmodule Meadow.Utils.Sitemap do
     |> URI.parse()
     |> URI.merge(path)
     |> URI.to_string()
+  end
+
+  defp generate_index(config) do
+    with date <- Date.utc_today() |> to_string(),
+         gz_url <-
+           config[:sitemap_url] |> URI.parse() |> URI.merge("sitemap.xml.gz") |> URI.to_string() do
+      XmlBuilder.element(:urlset, %{xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}, [
+        XmlBuilder.element(:url, [
+          XmlBuilder.element(:loc, gz_url),
+          XmlBuilder.element(:lastmod, date)
+        ])
+      ])
+      |> XmlBuilder.generate()
+    end
   end
 
   # Rich content methods for when the Sitemap package

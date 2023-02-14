@@ -111,7 +111,8 @@ config :meadow,
     gzip: true,
     store: Sitemapper.S3Store,
     store_config: [
-      bucket: aws_secret("meadow", dig: ["buckets", "sitemap"])
+      bucket: aws_secret("meadow", dig: ["buckets", "sitemap"]),
+      path: "/"
     ],
     sitemap_url: aws_secret("meadow", dig: ["dc", "base_url"])
   ],
@@ -196,3 +197,5 @@ config :hackney,
            ]
   end
 end)
+
+config :authoritex, geonames_username: aws_secret("meadow", dig: ["geonames", "username"])
