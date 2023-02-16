@@ -144,6 +144,7 @@ defmodule Meadow.Indexing.V2.Work do
       Enum.map(Meadow.Data.ranked_file_sets_for_work(work.id, role), fn file_set ->
         %{
           id: file_set.id,
+          accession_number: file_set.accession_number,
           duration: FileSets.duration_in_seconds(file_set),
           height: FileSets.height(file_set),
           label: file_set.core_metadata.label,
