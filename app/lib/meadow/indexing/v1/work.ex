@@ -19,6 +19,7 @@ defmodule Meadow.Indexing.V1.Work do
         |> Enum.map(fn file_set ->
           %{
             id: file_set.id,
+            description: file_set.core_metadata.description,
             extractedMetadata: V1.FileSet.extracted_metadata(file_set.extracted_metadata),
             label: file_set.core_metadata.label,
             mime_type: file_set.core_metadata.mime_type,

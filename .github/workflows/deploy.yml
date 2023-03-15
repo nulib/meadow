@@ -1,0 +1,111 @@
+---
+name: Build & Deploy Meadow
+on:
+  push:
+    branches:
+      - "main"
+      - "deploy/**"
+      - "build/**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: ${{ ! github.event.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set DEPLOY_ENV from Branch Name
+        run: |
+          if [[ $BRANCH == 'refs/heads/main' ]]; then
+            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Configure AWS
+        run: .github/scripts/configure_aws.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          SECRETS: ${{ toJSON(secrets) }}
+      - name: Extract MEADOW_VERSION from mix.exs
+        run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+        working-directory: app
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
+      - name: Tag Meadow Release
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          git config --global user.email "$(git log --pretty=format:"%ae" | head -1)"
+          git config --global user.name "$(git log --pretty=format:"%an" | head -1)"
+          git tag -a v${MEADOW_VERSION} -m "Release ${MEADOW_VERSION}"
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - uses: docker/build-push-action@v2
+        with:
+          context: ./app
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
+          build-args: |
+            HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
+            HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+            HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
+            HONEYBADGER_REVISION=${{ github.sha }}
+            MEADOW_VERSION=${{ env.MEADOW_VERSION }}
+      - name: Upload Source Maps to Honeybadger
+        run: .github/scripts/upload_source_maps.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
+          MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
+          HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
+          HONEYBADGER_REVISION: ${{ github.sha }}
+      - name: Set GitHub Deploy Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.REPO_PRIVATE_KEY }}
+      - name: Push Release Tag
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          git push origin v${MEADOW_VERSION}
+  deploy:
+    needs: build
+    if: ${{ ! startsWith(github.ref, 'refs/heads/build/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set DEPLOY_ENV from Branch Name
+        run: |
+          if [[ $BRANCH == 'refs/heads/main' ]]; then
+            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+          fi
+        env:
+          BRANCH: ${{ github.ref }}
+      - name: Configure AWS
+        run: .github/scripts/configure_aws.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          SECRETS: ${{ toJSON(secrets) }}
+      - name: Update ECS Service
+        run: .github/scripts/update_ecs_service.sh
+        env:
+          ECS_CLUSTER: meadow
+          ECS_CONTAINER: meadow
+          ECS_SERVICE: meadow
+          ECS_TASK: meadow-all
+          PRIOR_HEAD: ${{ github.event.before }}
+      - name: Notify Honeybadger
+        run: .github/scripts/honeybadger_deploy_notification.sh
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          HONEYBADGER_API_KEY: ${{ secrets.HONEYBADGER_API_KEY }}
+          HONEYBADGER_REVISION: ${{ github.sha }}

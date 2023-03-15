@@ -13,6 +13,7 @@ import { sortItemsArray } from "@js/services/helpers";
 
 const modalContent = css`
   width: 75%;
+  margin-top: 140px
 `;
 
 function setupCandidateList(items) {
@@ -63,7 +64,7 @@ export default function BatchEditAboutModalRemove({
 
   return (
     <div
-      className={`modal ${isRemoveModalOpen ? "is-active" : ""}`}
+      className={`modal batch-update-modal ${isRemoveModalOpen ? "is-active" : ""}`}
       data-testid="modal-remove"
     >
       <div className="modal-background"></div>
