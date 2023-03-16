@@ -138,7 +138,7 @@ jobs:
         ports:
           - 9202:9200
       localstack:
-        image: localstack/localstack
+        image: localstack/localstack-pro
         env:
           DNS_ADDRESS: 127.0.0.1
           EDGE_PORT: 4568
@@ -149,18 +149,13 @@ jobs:
           - 4568:4568
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
-        with:
-          repository: "nulib/devstack"
-          ref: main
-          path: ".devstack"
-      - uses: hashicorp/setup-terraform@v1
-      - name: Provision Localstack resources
-        run: .devstack/bin/devstack -t provision meadow
+      - name: Provision Localstack using Cloud Pod
+        run: |
+          pip install localstack
+          curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
+          localstack pod load file://$PWD/localstack.pod
         env:
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: fake
-          AWS_SECRET_ACCESS_KEY: fake
+          EDGE_PORT: 4568
       - uses: asdf-vm/actions/setup@v1
       - name: Install NodeJS
         run: |
