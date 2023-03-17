@@ -122,7 +122,10 @@ jobs:
           LAMBDA_EXECUTOR: local
           LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
+          - 4510-4559:4510-4559
           - 4566:4566
+          - 4571:4571
+          - 12121:12121
     steps:
       - uses: actions/checkout@v2
       - name: Provision Localstack using Cloud Pod
@@ -130,6 +133,12 @@ jobs:
           pip install localstack
           curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
           localstack pod load file://$PWD/localstack.pod
+      - name: Verify Localstack resources
+        run: |
+          aws --endpoint http://localhost:4566 rds describe-db-instances --no-cli-pager
+          aws --endpoint http://localhost:4566 opensearch describe-domains --domain-names meadow-index --no-cli-pager
+          aws --endpoint http://localhost:4566 s3api list-buckets
+          aws --endpoint http://localhost:4566 s3api get-bucket-notification-configuration --bucket test-ingest
       - uses: asdf-vm/actions/setup@v1
       - name: Install NodeJS
         run: |
