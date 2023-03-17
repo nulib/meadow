@@ -21,7 +21,7 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   streaming_url: "https://test-streaming-url/",
   iiif_server_url: "http://localhost:8184/iiif/2/",
-  iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4568/public/",
+  iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
 
 # Configures lambda scripts
@@ -90,7 +90,7 @@ if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
     config :ex_aws, service,
       scheme: "http://",
       host: "localhost.localstack.cloud",
-      port: 4568,
+      port: 4566,
       access_key_id: "fake",
       secret_access_key: "fake",
       region: "us-east-1"
