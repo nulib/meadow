@@ -75,7 +75,7 @@ config :meadow, Meadow.Repo,
   handshake_timeout: 60_000,
   pool: Ecto.Adapters.SQL.Sandbox,
   queue_target: 5000,
-  pool_size: 50
+  pool_size: 25
 
 config :meadow,
   dc_api: [
