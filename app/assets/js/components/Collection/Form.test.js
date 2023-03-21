@@ -1,14 +1,15 @@
-import React from "react";
-import CollectionForm from "./Form";
 import {
   renderWithRouterApollo,
   withReactHookForm,
 } from "../../services/testing-helpers";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
+
+import { CodeListProvider } from "@js/context/code-list-context";
+import CollectionForm from "./Form";
+import React from "react";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { collectionMock } from "./collection.gql.mock";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
-import { CodeListProvider } from "@js/context/code-list-context";
-import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 jest.mock("@js/hooks/useIsAuthorized");
@@ -19,7 +20,9 @@ useIsAuthorized.mockReturnValue({
 
 describe("Collection Form component", () => {
   beforeEach(() => {
-    const Wrapped = withReactHookForm(CollectionForm);
+    const Wrapped = withReactHookForm(CollectionForm, {
+      collection: undefined,
+    });
     renderWithRouterApollo(
       <CodeListProvider>
         <Wrapped />
@@ -51,7 +54,11 @@ describe("Collection Form component", () => {
     expect(await screen.findByTestId("textarea-description")).toHaveValue("");
     expect(await screen.findByTestId("input-finding-aid-url")).toHaveValue("");
     expect(await screen.findByTestId("input-admin-email")).toHaveValue("");
-    expect(await screen.findByTestId("input-keywords")).toHaveValue("");
+
+    const keywordsWrapperEl = screen.getByTestId("input-keywords");
+    const keywordInputEl =
+      within(keywordsWrapperEl).queryAllByTestId("field-array-row");
+    expect(keywordInputEl).toHaveLength(0);
   });
 });
 
@@ -78,13 +85,15 @@ it("renders existing collection values in the form when editing a form", async (
   expect(await screen.findByTestId("input-finding-aid-url")).toHaveValue(
     "https://northwestern.edu"
   );
-
   expect(await screen.findByTestId("input-admin-email")).toHaveValue(
     "admin@nu.com"
   );
-  expect(await screen.findByTestId("input-keywords")).toHaveValue(
-    "yo,foo,bar,work,hey"
-  );
+
+  for (let i = 0; i < collectionMock.keywords.length; i++) {
+    expect(
+      screen.getByDisplayValue(collectionMock.keywords[i])
+    ).toBeInTheDocument();
+  }
 });
 
 //TODO: How to test this form with route changes, using useHistory() hook

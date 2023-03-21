@@ -1,27 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/client";
 import {
   CREATE_COLLECTION,
-  UPDATE_COLLECTION,
   GET_COLLECTIONS,
+  UPDATE_COLLECTION,
 } from "./collection.gql.js";
-import Error from "../UI/Error";
-import { toastWrapper } from "../../services/helpers";
-import { useForm, FormProvider } from "react-hook-form";
-import UIFormField from "../UI/Form/Field.jsx";
-import UIFormInput from "../UI/Form/Input.jsx";
-import UIFormTextarea from "../UI/Form/Textarea.jsx";
-import UIFormSelect from "../UI/Form/Select.jsx";
-import { Button } from "@nulib/design-system";
+import { FormProvider, useForm } from "react-hook-form";
+
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { useCodeLists } from "@js/context/code-list-context";
+import { Button } from "@nulib/design-system";
+import Error from "../UI/Error";
+import React from "react";
+import UIFormField from "../UI/Form/Field.jsx";
+import UIFormFieldArray from "../UI/Form/FieldArray.jsx";
+import UIFormInput from "../UI/Form/Input.jsx";
+import UIFormSelect from "../UI/Form/Select.jsx";
+import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UISkeleton from "@js/components/UI/Skeleton";
+import { convertFieldArrayValToHookFormVal } from "@js/services/metadata.js";
+import { toastWrapper } from "../../services/helpers";
+import { useCodeLists } from "@js/context/code-list-context";
+import { useHistory } from "react-router-dom";
+import { useMutation } from "@apollo/client";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();
   const codeLists = useCodeLists();
-  const methods = useForm();
+
+  const defKeys = collection?.keywords.map((value) =>
+    convertFieldArrayValToHookFormVal(value)
+  );
+
+  const methods = useForm({
+    defaultValues: {
+      ...(defKeys && {
+        keywords: defKeys,
+      }),
+    },
+  });
+
   const [createCollection, { loading, error, data }] = useMutation(
     CREATE_COLLECTION,
     {
@@ -63,11 +78,16 @@ const CollectionForm = ({ collection }) => {
 
   const onSubmit = (data) => {
     let currentFormValues = methods.getValues();
+    const keywordArr = currentFormValues.keywords.map(
+      (keyword) => keyword.metadataItem
+    );
+
     let collectionUpdate = {
       ...currentFormValues,
       visibility: currentFormValues.visibility
         ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
         : {},
+      keywords: keywordArr,
     };
 
     if (!collection) {
@@ -126,7 +146,7 @@ const CollectionForm = ({ collection }) => {
                 name="description"
                 label="Description"
                 defaultValue={collection ? collection.description : ""}
-                rows="3"
+                rows="6"
                 data-testid="textarea-description"
               />
             </UIFormField>
@@ -152,16 +172,12 @@ const CollectionForm = ({ collection }) => {
               />
             </UIFormField>
 
-            <UIFormField label="Keywords">
-              <UIFormInput
-                isReactHookForm
-                name="keywords"
-                defaultValue={collection ? collection.keywords : ""}
-                label="Keywords"
-                data-testid="input-keywords"
-              />
-              <p className="help">multiple, separated, by, commas</p>
-            </UIFormField>
+            <UIFormFieldArray
+              required
+              name={"keywords"}
+              label={"Keywords"}
+              data-testid="input-keywords"
+            />
           </div>
 
           <div className="column is-one-third">
@@ -188,7 +204,7 @@ const CollectionForm = ({ collection }) => {
               </UIFormField>
             )}
 
-            <div className="field" className="my-5">
+            <div className="field my-5">
               <div className="control">
                 <input
                   type="checkbox"

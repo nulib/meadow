@@ -1,15 +1,15 @@
-import React from "react";
 import {
   renderWithRouterApollo,
   withReactHookForm,
 } from "@js/services/testing-helpers";
+
+import { CodeListProvider } from "@js/context/code-list-context";
+import React from "react";
+import { UNCONTROLLED_METADATA } from "@js/services/metadata";
+import WorkTabsAboutUncontrolledMetadata from "./UncontrolledMetadata";
+import { allCodeListMocks } from "../../controlledVocabulary.gql.mock";
 import { mockWork } from "@js/components/Work/work.gql.mock";
 import { screen } from "@testing-library/react";
-import WorkTabsAboutUncontrolledMetadata from "./UncontrolledMetadata";
-import { waitFor } from "@testing-library/react";
-import { UNCONTROLLED_METADATA } from "@js/services/metadata";
-import { allCodeListMocks } from "../../controlledVocabulary.gql.mock";
-import { CodeListProvider } from "@js/context/code-list-context";
 
 describe("Work About tab Uncontrolled Metadata component", () => {
   beforeEach(() => {
