@@ -45,6 +45,7 @@ const includeTags = [
 
 const exifToolPath = process.env.EXIFTOOL || 'exiftool';
 const exifToolParams = ['-fast', '-j', '-d', '%Y-%m-%dT%H:%M:%S%z'];
+const tmpDir = process.env.TMPDIR || '/tmp'
 
 AWS.config.update({httpOptions: {timeout: 600000}});
 
@@ -62,7 +63,7 @@ const download = (source) => {
       Key: uri.path.replace(/^\/+/, "")
     };
     
-    tmp.file({ template: '/tmp/exif-XXXXXX' }).then((outputFile) => {
+    tmp.file({ template: path.join(tmpDir, 'exif-XXXXXX' )}).then((outputFile) => {
       console.log(`Retrieving ${source} to ${outputFile.path}`);
 
       const inputStream = s3.getObject(s3Location).createReadStream()

@@ -113,8 +113,8 @@ jobs:
       ldap:
         image: ghcr.io/nulib/ldap-alpine
         ports:
-          - 391:389
-          - 638:636
+          - 389:389
+          - 636:636
       localstack:
         image: localstack/localstack-pro
         env:
@@ -122,6 +122,7 @@ jobs:
           LAMBDA_EXECUTOR: local
           LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
+          - 443:443
           - 4510-4559:4510-4559
           - 4566:4566
           - 4571:4571
@@ -133,6 +134,9 @@ jobs:
           pip install localstack
           curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
           localstack pod load file://$PWD/localstack.pod
+        env:
+          AWS_ACCESS_KEY_ID: fake
+          AWS_SECRET_ACCESS_KEY: fake          
       - uses: asdf-vm/actions/setup@v1
       - name: Install NodeJS
         run: |
@@ -194,7 +198,7 @@ jobs:
         run: mix credo
         working-directory: app
       - name: Elixir Tests
-        run: mix test
+        run: mix do ecto.create, test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: app
