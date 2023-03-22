@@ -1,9 +1,9 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
+import UIFormFieldArrayAddButton from "@js/components/UI/Form/FieldArrayAddButton";
+import UIFormFieldArrayRow from "@js/components/UI/Form/FieldArrayRow";
 import { useFieldArray } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import UIFormFieldArrayRow from "@js/components/UI/Form/FieldArrayRow";
-import UIFormFieldArrayAddButton from "@js/components/UI/Form/FieldArrayAddButton";
 
 const UIFormFieldArray = ({
   name,
@@ -56,9 +56,9 @@ const UIFormFieldArray = ({
       </ul>
 
       <UIFormFieldArrayAddButton
-          btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
-          handleAddClick={handleAddClick}
-        />
+        btnLabel={`Add ${fields.length > 0 ? "another" : ""}`}
+        handleAddClick={handleAddClick}
+      />
     </fieldset>
   );
 };
