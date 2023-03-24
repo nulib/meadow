@@ -1,5 +1,4 @@
 import "../styles/app.scss";
-import "phoenix_html";
 import isUndefined from "lodash.isundefined";
 import React from "react";
 import Root from "./screens/Root";
