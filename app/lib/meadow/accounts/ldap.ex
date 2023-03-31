@@ -30,13 +30,19 @@ defmodule Meadow.Accounts.Ldap do
   @doc "Find a user entry by its common name (NetID)"
   def find_user(cn) do
     find_user_func = fn ->
-      connection()
-      |> Exldap.search_with_filter(
-        Exldap.with_and([
-          Exldap.equalityMatch("cn", cn),
-          Exldap.equalityMatch("objectClass", "user")
-        ])
-      )
+      case connection() do
+        {:error, error} ->
+          {:error, to_string(error)}
+
+        conn ->
+          conn
+          |> Exldap.search_with_filter(
+            Exldap.with_and([
+              Exldap.equalityMatch("cn", cn),
+              Exldap.equalityMatch("objectClass", "user")
+            ])
+          )
+      end
     end
 
     case with_retry(find_user_func) do

@@ -118,8 +118,8 @@ jobs:
       localstack:
         image: localstack/localstack-pro
         env:
-          DNS_ADDRESS: 127.0.0.1
-          LAMBDA_EXECUTOR: local
+          DOCKER_HOST: unix:///var/run/docker.sock
+          GATEWAY_LISTEN: 0.0.0.0:443;0.0.0.0:4566
           LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
           - 443:443
@@ -131,7 +131,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Provision Localstack using Cloud Pod
         run: |
-          pip install localstack
+          pip install localstack==1.4.0
           curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
           localstack pod load file://$PWD/localstack.pod
         env:

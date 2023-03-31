@@ -21,6 +21,7 @@ defmodule Meadow.Accounts.User do
     case status do
       :ok -> Logger.debug("User #{username} found in cache")
       :commit -> Logger.debug("User #{username} found in LDAP and added to cache")
+      :error -> Logger.error("Error trying to retrieve user #{username}: #{result}")
       :ignore -> Logger.warn("User #{username} not found")
     end
 
