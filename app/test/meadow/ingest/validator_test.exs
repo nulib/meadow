@@ -59,161 +59,168 @@ defmodule Meadow.Ingest.ValidatorTest do
     {:ok, %{sheet: sheet, project: project}}
   end
 
-  @tag sheet: "ingest_sheet.csv"
-  test "validates an ingest sheet", context do
-    assert(Validator.result(context.sheet.id) == "pass")
-    ingest_sheet = Validator.validate(context.sheet.id)
-    assert(ingest_sheet.file_errors == [])
+  describe "Ingest Sheet Validator" do
+    @describetag :validator
 
-    assert(ingest_sheet.status == "valid")
-  end
+    @tag sheet: "ingest_sheet.csv"
+    test "validates an ingest sheet", context do
+      assert(Validator.result(context.sheet.id) == "pass")
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.file_errors == [])
 
-  @tag sheet: "ingest_sheet_wrong_headers.csv"
-  test "fails an ingest sheet when the headers are wrong", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "valid")
+    end
 
-    assert(
-      ingest_sheet.file_errors == [
-        "Required header missing: file_accession_number",
-        "Invalid header: not_the_accession_number"
-      ]
-    )
+    @tag sheet: "ingest_sheet_wrong_headers.csv"
+    test "fails an ingest sheet when the headers are wrong", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-    assert(ingest_sheet.status == "file_fail")
-  end
+      assert(
+        ingest_sheet.file_errors == [
+          "Required header missing: file_accession_number",
+          "Invalid header: not_the_accession_number"
+        ]
+      )
 
-  @tag sheet: "missing_ingest_sheet.csv"
-  test "fails an ingest sheet the csv is missing", context do
-    delete_object(@upload_bucket, @sheet_path <> "missing_ingest_sheet.csv")
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "file_fail")
+    end
 
-    assert(ingest_sheet.status == "file_fail")
-  end
+    @tag sheet: "missing_ingest_sheet.csv"
+    test "fails an ingest sheet the csv is missing", context do
+      delete_object(@upload_bucket, @sheet_path <> "missing_ingest_sheet.csv")
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_missing_field.csv"
-  test "fails an ingest sheet when a field is missing", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "file_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_missing_field.csv"
+    test "fails an ingest sheet when a field is missing", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_missing_file.csv"
-  test "fails an ingest sheet when a file is missing", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_missing_file.csv"
+    test "fails an ingest sheet when a file is missing", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_incorrect_role.csv"
-  test "fails when ingest sheet has invalid content for role", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_incorrect_role.csv"
+    test "fails when ingest sheet has invalid content for role", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_accession_exists.csv"
-  test "fails when accession_number already exists", context do
-    file_set_fixture(%{accession_number: "6777"})
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_accession_exists.csv"
+    test "fails when accession_number already exists", context do
+      file_set_fixture(%{accession_number: "6777"})
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_work_accession_exists.csv"
-  test "fails when work_accession_number already exists", context do
-    work_fixture(%{accession_number: "6779"})
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_work_accession_exists.csv"
+    test "fails when work_accession_number already exists", context do
+      work_fixture(%{accession_number: "6779"})
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_duplicate_accession.csv"
-  test "fails with duplicate accession_number", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id) |> Repo.preload(:ingest_sheet_rows)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
+    @tag sheet: "ingest_sheet_duplicate_accession.csv"
+    test "fails with duplicate accession_number", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id) |> Repo.preload(:ingest_sheet_rows)
 
-    ingest_sheet
-    |> Map.get(:ingest_sheet_rows)
-    |> Enum.each(fn
-      %{file_set_accession_number: "Donohue_001_02", errors: [error]} ->
-        assert error.message == "file_accession_number: Donohue_001_02 is duplicated on rows 2, 3"
+      assert(ingest_sheet.status == "row_fail")
 
-      %{file_set_accession_number: "Donohue_002_01", errors: [error]} ->
-        assert error.message ==
-                 "file_accession_number: Donohue_002_01 is duplicated on rows 5, 6, 7"
+      ingest_sheet
+      |> Map.get(:ingest_sheet_rows)
+      |> Enum.each(fn
+        %{file_set_accession_number: "Donohue_001_02", errors: [error]} ->
+          assert error.message ==
+                   "file_accession_number: Donohue_001_02 is duplicated on rows 2, 3"
 
-      row ->
-        assert row.errors == []
-    end)
-  end
+        %{file_set_accession_number: "Donohue_002_01", errors: [error]} ->
+          assert error.message ==
+                   "file_accession_number: Donohue_002_01 is duplicated on rows 5, 6, 7"
 
-  @tag sheet: "ingest_sheet_missing_work_type.csv"
-  test "fails with missing work type", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+        row ->
+          assert row.errors == []
+      end)
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_missing_work_type.csv"
+    test "fails with missing work type", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_invalid_work_image.csv"
-  test "fails when specified work_image has an invalid role", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_invalid_work_image.csv"
+    test "fails when specified work_image has an invalid role", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_missing_webvtt.csv"
-  test "fails when the webvtt structure file is missing", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_missing_webvtt.csv"
+    test "fails when the webvtt structure file is missing", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_invalid_webvtt.csv"
-  test "fails when the webvtt structure file is invalid", context do
-    assert(Validator.result(context.sheet.id) == "fail")
-    ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    assert(ingest_sheet.status == "row_fail")
-  end
+    @tag sheet: "ingest_sheet_invalid_webvtt.csv"
+    test "fails when the webvtt structure file is invalid", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
 
-  @tag sheet: "ingest_sheet_wrong_mime_type.csv"
-  test "fails when the a file set has an invalid mime type", context do
-    assert(Validator.result(context.sheet.id) == "fail")
+      assert(ingest_sheet.status == "row_fail")
+    end
 
-    ingest_sheet = Validator.validate(context.sheet.id)
-    assert(ingest_sheet.status == "row_fail")
+    @tag sheet: "ingest_sheet_wrong_mime_type.csv"
+    test "fails when the a file set has an invalid mime type", context do
+      assert(Validator.result(context.sheet.id) == "fail")
 
-    assert [%{count: 1, state: "fail"}, %{count: 8, state: "pass"}] =
-             Sheets.list_ingest_sheet_row_counts(ingest_sheet.id)
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
 
-    %{
-      errors: [
-        %Meadow.Ingest.Schemas.Row.Error{
-          field: "filename",
-          message: message
-        }
-      ]
-    } = Rows.get_row(ingest_sheet.id, 9)
+      assert [%{count: 1, state: "fail"}, %{count: 8, state: "pass"}] =
+               Sheets.list_ingest_sheet_row_counts(ingest_sheet.id)
 
-    assert String.contains?(message, [
-             "Mime-type:",
-             "not accepted for work type: AUDIO and file set role: A"
-           ])
+      %{
+        errors: [
+          %Meadow.Ingest.Schemas.Row.Error{
+            field: "filename",
+            message: message
+          }
+        ]
+      } = Rows.get_row(ingest_sheet.id, 9)
+
+      assert String.contains?(message, [
+               "Mime-type:",
+               "not accepted for work type: AUDIO and file set role: A"
+             ])
+    end
   end
 
   describe "File set missing object tags" do
+    @describetag :validator
+
     setup %{project: project} do
       wait(
         AWS.check_object_tags!(

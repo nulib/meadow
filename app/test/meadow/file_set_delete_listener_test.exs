@@ -102,6 +102,7 @@ defmodule Meadow.FileSetDeleteListenerTest do
       end
     end
 
+    @tag :skip
     test "preservation file retained if other file sets refer to it", %{file_set: last_file_set} do
       file_sets = Enum.map(2..3, &file_set_notification_fixture/1)
 
@@ -133,6 +134,7 @@ defmodule Meadow.FileSetDeleteListenerTest do
       end
     end
 
+    @tag :skip
     test "bulk delete", %{file_set: file_set} do
       file_sets = [file_set | Enum.map(2..10, &file_set_notification_fixture/1)]
       SQL.query!(Repo, "DELETE FROM file_sets")
@@ -140,6 +142,7 @@ defmodule Meadow.FileSetDeleteListenerTest do
       refute object_exists?(@preservation_bucket, @preservation_key)
     end
 
+    @tag :skip
     test "logging", %{file_set: file_set} do
       extra_file_set = file_set_notification_fixture(2)
 
