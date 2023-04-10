@@ -12,6 +12,6 @@
     "file-type": "^16.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.0"
+    "aws-sdk": "^2.1354"
   }
 }
