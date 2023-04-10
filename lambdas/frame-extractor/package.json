@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "private": true,
   "devDependencies": {
-    "aws-sdk": "^2.946.0"
+    "aws-sdk": "^2.1354.0"
   },
   "dependencies": {
     "concat-stream": "^2.0.0",
