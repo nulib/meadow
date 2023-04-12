@@ -33,6 +33,8 @@ defmodule Meadow.Data.Types.EDTFDate do
   defp humanize(%{"edtf" => edtf, "humanized" => humanized}),
     do: {:ok, %{edtf: edtf, humanized: humanized}}
 
+  defp humanize(%{"edtf" => edtf}), do: humanize(edtf)
+
   defp humanize(%{edtf: edtf}), do: humanize(edtf)
 
   defp humanize(edtf) when is_binary(edtf) do
