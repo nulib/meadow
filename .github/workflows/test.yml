@@ -59,7 +59,9 @@ jobs:
         run: mix do deps.get, compile
         working-directory: app
       - name: Install JS dependencies
-        run: npm install --no-fund
+        run: |
+          npm install --no-fund
+          npm list
         working-directory: app/assets
       - name: Install Lambda dependencies
         run: |
@@ -90,6 +92,16 @@ jobs:
             app/_build
           key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
+            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v6-
+      - name: Cache Elixir build
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/_build
+          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache JS dependencies

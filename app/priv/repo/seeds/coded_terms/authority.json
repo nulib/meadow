@@ -52,6 +52,14 @@
     "label": "Getty Vocabularies"
   },
   {
+    "id": "homosaurus",
+    "label": "Homosaurus International LGBTQ+ Linked Data Vocabulary"
+  },
+  {
+    "id": "lcgft",
+    "label": "Library of Congress Genre/Form Terms"
+  },
+  {
     "id": "lclang",
     "label": "Library of Congress MARC List for Languages"
   },
