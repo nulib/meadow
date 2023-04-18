@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import UIFormInput from "@js/components/UI/Form/Input";
-import UIFormField from "@js/components/UI/Form/Field";
-import { toastWrapper } from "@js/services/helpers";
-import { BATCH_UPDATE } from "@js/components/BatchEdit/batch-edit.gql";
-import { useMutation } from "@apollo/client";
-import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
-import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
-import { useHistory } from "react-router-dom";
 import { Button, Notification } from "@nulib/design-system";
 import {
   IconAdd,
-  IconReplace,
   IconAlert,
+  IconReplace,
   IconTrashCan,
 } from "@js/components/Icon";
-import UIIconText from "@js/components/UI/IconText";
-import { useCodeLists } from "@js/context/code-list-context";
-
+import React, { useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+
+import { BATCH_UPDATE } from "@js/components/BatchEdit/batch-edit.gql";
+import BatchEditConfirmationTable from "@js/components/BatchEdit/ConfirmationTable";
+import PropTypes from "prop-types";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormInput from "@js/components/UI/Form/Input";
+import UIIconText from "@js/components/UI/IconText";
+import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
+import { toastWrapper } from "@js/services/helpers";
+import { useCodeLists } from "@js/context/code-list-context";
+import { useHistory } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+
 const verifyInputWrapper = css`
   width: 100%;
   max-width: 400px;
@@ -210,7 +211,9 @@ const BatchEditConfirmation = ({
                       ? "Publish works"
                       : "Unpublish works",
                   }),
-                  readingRoom: batchReplaces.readingRoom,
+                  ...(batchReplaces.readingRoom && {
+                    readingRoom: batchReplaces.readingRoom,
+                  }),
                 }}
                 type="replace"
               />
