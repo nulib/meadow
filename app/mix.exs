@@ -52,7 +52,7 @@ defmodule Meadow.MixProject do
       {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.19.0", only: :test},
       {:atomic_map, "~> 0.8"},
-      {:authoritex, "~> 1.0.0"},
+      {:authoritex, "~> 1.0.1"},
       {:aws_signature, "~> 0.3.1"},
       {:briefly, "~> 0.3.0"},
       {:broadway_dashboard, "~> 0.2.0"},
