@@ -4,7 +4,10 @@ const host = slashes.concat(window.location.hostname);
 const port = window.location.port;
 
 export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/_search`;
-export const ELASTICSEARCH_INDEX_NAME = "adam-dev-dc-v2-work";
+export const ELASTICSEARCH_WORK_INDEX = __ELASTICSEARCH_WORK_INDEX__;
+export const ELASTICSEARCH_COLLECTION_INDEX =
+  __ELASTICSEARCH_COLLECTION_INDEX__;
+export const ELASTICSEARCH_FILE_SET_INDEX = __ELASTICSEARCH_FILE_SET_INDEX__;
 
 const Elasticsearch = require("elasticsearch");
 const client = new Elasticsearch.Client({
@@ -90,11 +93,10 @@ export async function elasticsearchDirectCount(body) {
  * @param {object} body
  * @returns {object} Pass through Elasticsearch response
  */
-export async function elasticsearchDirectSearch(body) {
-  console.log("ELASTICSEARCH_INDEX_NAME", ELASTICSEARCH_INDEX_NAME);
+export async function elasticsearchDirectSearch(body, index) {
   try {
     let response = await client.search({
-      index: ELASTICSEARCH_INDEX_NAME,
+      index: index || ELASTICSEARCH_WORK_INDEX,
       body: body,
     });
     return response;
