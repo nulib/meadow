@@ -1,9 +1,10 @@
-import React from "react";
-import { DataSearch } from "@appbaseio/reactivesearch";
 import { RESULT_SENSOR, SEARCH_SENSOR } from "@js/services/reactive-search";
-import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
-import useSearchTerm from "@js/hooks/useSearchTerm";
+
+import { DataSearch } from "@appbaseio/reactivesearch";
 import { IconSearch } from "@js/components/Icon";
+import React from "react";
+import useSearchTerm from "@js/hooks/useSearchTerm";
+import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
 
 const UISearchBar = () => {
   const queryParts = userPreviousQueryParts();
@@ -25,7 +26,7 @@ const UISearchBar = () => {
       weight: 5,
     },
     {
-      field: "descriptiveMetadata.description",
+      field: "description",
       weight: 3,
     },
     {
@@ -45,7 +46,7 @@ const UISearchBar = () => {
       weight: 1,
     },
     {
-      field: "accessionNumber",
+      field: "accession_number",
       weight: 1,
     },
   ];

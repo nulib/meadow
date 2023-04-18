@@ -33,7 +33,9 @@ defmodule Meadow.Search.Index do
   @doc """
   Delete an index
   """
-  def delete(index), do: Elastix.Index.delete(SearchConfig.cluster_url(), index)
+  def delete(index) do
+    Elastix.Index.delete(SearchConfig.cluster_url(), index)
+  end
 
   @doc """
   Return a map of all indexes and their metadata starting with the optional binary prefix

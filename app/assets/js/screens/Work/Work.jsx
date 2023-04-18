@@ -1,23 +1,3 @@
-import React, { useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import {
-  CREATE_SHARED_LINK,
-  GET_WORK,
-  UPDATE_WORK,
-} from "@js/components/Work/work.gql.js";
-import { useHistory, useParams } from "react-router-dom";
-import Layout from "../Layout";
-import UISkeleton from "@js/components/UI/Skeleton";
-import Work from "@js/components/Work/Work";
-import { toastWrapper } from "@js/services/helpers";
-import WorkTagsList from "@js/components/Work/TagsList";
-import WorkHeaderButtons from "@js/components/Work/HeaderButtons";
-import WorkSharedLinkNotification from "@js/components/Work/SharedLinkNotification";
-import WorkPublicLinkNotification from "@js/components/Work/PublicLinkNotification";
-import WorkMultiEditBar from "@js/components/Work/MultiEditBar";
-import { useBatchState } from "@js/context/batch-edit-context";
-import { ErrorBoundary } from "react-error-boundary";
-import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import {
   ActionHeadline,
   Breadcrumbs,
@@ -26,9 +6,30 @@ import {
   PageTitle,
   Skeleton,
 } from "@js/components/UI/UI";
-import useGTM from "@js/hooks/useGTM";
+import {
+  CREATE_SHARED_LINK,
+  GET_WORK,
+  UPDATE_WORK,
+} from "@js/components/Work/work.gql.js";
+import React, { useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+
+import { ErrorBoundary } from "react-error-boundary";
 import { Helmet } from "react-helmet";
+import Layout from "../Layout";
+import UISkeleton from "@js/components/UI/Skeleton";
+import Work from "@js/components/Work/Work";
+import WorkHeaderButtons from "@js/components/Work/HeaderButtons";
+import WorkMultiEditBar from "@js/components/Work/MultiEditBar";
 import { WorkProvider } from "@js/context/work-context";
+import WorkPublicLinkNotification from "@js/components/Work/PublicLinkNotification";
+import WorkSharedLinkNotification from "@js/components/Work/SharedLinkNotification";
+import WorkTagsList from "@js/components/Work/TagsList";
+import { toastWrapper } from "@js/services/helpers";
+import { useBatchState } from "@js/context/batch-edit-context";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import useGTM from "@js/hooks/useGTM";
 
 function getTitle(data) {
   if (!data) return "";

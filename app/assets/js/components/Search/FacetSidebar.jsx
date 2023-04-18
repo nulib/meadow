@@ -1,15 +1,15 @@
-import React from "react";
-import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
 import {
-  FACET_SENSORS,
-  //FACET_RANGE_SENSORS,
   FACET_PROJECT_SENSORS,
+  FACET_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
+import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
+
+import React from "react";
+import { allWorksQuery } from "@js/services/elasticsearch";
 import { useLocation } from "react-router-dom";
 import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
-import { allWorksQuery } from "@js/services/elasticsearch";
 
 /**
  * Organize the facetable metadata into groups
@@ -18,6 +18,7 @@ const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
 const facetProjectSensors = FACET_PROJECT_SENSORS.map(
   (sensor) => sensor.componentId
 );
+
 // const facetRangeSensors = FACET_RANGE_SENSORS.map(
 //   (sensor) => sensor.componentId
 // );

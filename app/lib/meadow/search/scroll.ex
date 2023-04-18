@@ -4,13 +4,7 @@ defmodule Meadow.Search.Scroll do
   at a time
   """
 
-  alias Meadow.Data.Schemas.Work
-  alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
-
-  def results(query) when is_binary(query) do
-    results(query, SearchConfig.alias_for(Work, 1))
-  end
 
   def results(query, index) when is_binary(query) do
     Stream.resource(

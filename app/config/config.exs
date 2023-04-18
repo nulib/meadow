@@ -49,16 +49,6 @@ config :meadow, Meadow.Search.Cluster,
     ),
   indexes: [
     %{
-      name: prefix("meadow"),
-      settings: "priv/search/v1/settings/meadow.json",
-      version: 1,
-      schemas: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ]
-    },
-    %{
       name: prefix("dc-v2-work"),
       settings: "priv/search/v2/settings/work.json",
       version: 2,

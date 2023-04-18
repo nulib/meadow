@@ -15,4 +15,8 @@ ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true])
 Faker.start()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
 Authoritex.Mock.init()
-ExUnit.after_suite(fn _ -> Meadow.S3Case.show_cleanup_warnings() end)
+
+ExUnit.after_suite(fn _ ->
+  Meadow.S3Case.show_cleanup_warnings()
+  Mix.Task.run("meadow.search.teardown")
+end)

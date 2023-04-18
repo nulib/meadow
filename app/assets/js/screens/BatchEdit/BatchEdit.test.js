@@ -1,11 +1,12 @@
+import { screen, waitFor } from "@testing-library/react";
+
+import { BatchProvider } from "../../context/batch-edit-context";
 import React from "react";
-import { waitFor, screen } from "@testing-library/react";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
 import ScreensBatchEdit from "./BatchEdit";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { getCollectionsMock } from "../../components/Collection/collection.gql.mock";
-import { BatchProvider } from "../../context/batch-edit-context";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import { renderWithRouterApollo } from "../../services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 jest.mock("@js/hooks/useIsAuthorized");

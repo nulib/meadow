@@ -1,13 +1,14 @@
-import React from "react";
-import { OpenSeadragonViewer } from "openseadragon-react-viewer";
-import WorkTabs from "./Tabs/Tabs";
-import PropTypes from "prop-types";
-import { getManifest } from "@js/services/get-manifest";
-import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+
+import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
+import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
+import { OpenSeadragonViewer } from "openseadragon-react-viewer";
+import PropTypes from "prop-types";
+import React from "react";
+import WorkTabs from "./Tabs/Tabs";
+import { getManifest } from "@js/services/get-manifest";
 import useFileSet from "@js/hooks/useFileSet";
 import { useQuery } from "@apollo/client";
-import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
 
 const osdOptions = {
   showDropdown: true,

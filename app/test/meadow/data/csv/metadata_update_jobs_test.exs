@@ -81,9 +81,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         doc =
           work
           |> Repo.preload(Work.required_index_preloads())
-          |> Document.encode(1)
+          |> Document.encode(2)
 
-        assert doc.metadataUpdateJobs == [job.id]
+        assert doc.csv_metadata_update_jobs == [job.id]
       end
     end
 

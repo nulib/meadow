@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
-import MediaPlayerPosterSelector from "@js/components/UI/MediaPlayer/PosterSelector";
-import CloverIIIF from "@samvera/clover-iiif";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+
+import CloverIIIF from "@samvera/clover-iiif";
+import MediaPlayerPosterSelector from "@js/components/UI/MediaPlayer/PosterSelector";
+import PropTypes from "prop-types";
 
 const MediaPlayerWrapper = ({
   fileSets,

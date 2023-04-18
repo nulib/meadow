@@ -1,15 +1,16 @@
-import React from "react";
 import {
-  BarChart,
   Bar,
-  Cell,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
+  Cell,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
+
+import React from "react";
 
 export default function ChartsVisibility({ data = [] }) {
   return (

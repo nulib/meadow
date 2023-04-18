@@ -18,30 +18,30 @@ defmodule Meadow.Search.ClientTest do
       {:ok, data}
     end
 
-    test "delete_by_query/2", %{total_count: count} do
-      target = SearchConfig.alias_for(Work, 1)
+    test "delete_by_query/2", %{work_count: count} do
+      target = SearchConfig.alias_for(Work, 2)
+
       query = %{query: %{match_all: %{}}}
 
       assert capture_log(fn ->
-               assert {:ok, ^count} = indexed_doc_count(target)
-               assert {:ok, ^count} = Client.delete_by_query(target, query)
+               {:ok, ^count} = Client.indexed_doc_count(target)
+               {:ok, ^count} = Client.delete_by_query(target, query)
              end) =~ "Deleting #{count} documents from #{target}"
     end
 
-    test "indexed_doc_count/1" do
-      assert {:ok, 16} = Client.indexed_doc_count(SearchConfig.alias_for(Work, 1))
-      assert {:ok, 5} = Client.indexed_doc_count(SearchConfig.alias_for(Work, 2))
+    test "indexed_doc_count/1", %{work_count: count} do
+      assert {:ok, ^count} = Client.indexed_doc_count(SearchConfig.alias_for(Work, 2))
       assert {:error, reason} = Client.indexed_doc_count("BAD_INDEX")
       assert reason =~ "BAD_INDEX"
     end
 
     test "search/2" do
-      with target <- SearchConfig.alias_for(Work, 1),
+      with target <- SearchConfig.alias_for(Work, 2),
            query <- %{query: %{match_all: %{}}} do
         assert {:ok, _docs} = Client.search(target, query)
       end
 
-      with target <- [SearchConfig.alias_for(Work, 1), SearchConfig.alias_for(Work, 2)],
+      with target <- [SearchConfig.alias_for(Work, 2), SearchConfig.alias_for(Collection, 2)],
            query <- %{query: %{match_all: %{}}} do
         assert {:ok, _docs} = Client.search(target, query)
       end
@@ -52,8 +52,8 @@ defmodule Meadow.Search.ClientTest do
 
   describe "hot_swap/3" do
     test "by schema/version" do
-      with expected_prefix <- SearchConfig.alias_for(Work, 1) <> "-" do
-        Client.hot_swap(Work, 1, fn index ->
+      with expected_prefix <- SearchConfig.alias_for(Work, 2) <> "-" do
+        Client.hot_swap(Work, 2, fn index ->
           assert String.starts_with?(index, expected_prefix)
           :ok
         end)
@@ -72,7 +72,7 @@ defmodule Meadow.Search.ClientTest do
     test "handles error in indexing function" do
       log =
         capture_log(fn ->
-          Client.hot_swap(Work, 1, fn index ->
+          Client.hot_swap(Work, 2, fn index ->
             {:error, "Whoa, reindexing #{index} blew up"}
           end)
         end)
@@ -83,7 +83,7 @@ defmodule Meadow.Search.ClientTest do
   end
 
   test "most_recent/2" do
-    assert {:ok, :all} = Client.most_recent(Collection, 1)
+    assert {:ok, _} = Client.most_recent(Collection, 2)
 
     now = NaiveDateTime.utc_now()
 

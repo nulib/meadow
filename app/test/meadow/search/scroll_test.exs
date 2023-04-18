@@ -3,9 +3,12 @@ defmodule Meadow.Search.ScrollTest do
   use Meadow.IndexCase
 
   alias Meadow.Data.Indexer
+  alias Meadow.Data.Schemas.Work
+  alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Scroll
 
-  @query ~s'{"query":{"term":{"model.name.keyword":{"value":"Work"}}}}'
+  @v2_work_index SearchConfig.alias_for(Work, 2)
+  @query ~s'{"query":{"match_all":{}}}'
 
   describe "results/1" do
     setup do
@@ -17,7 +20,8 @@ defmodule Meadow.Search.ScrollTest do
     end
 
     test "produces a stream" do
-      assert Scroll.results(@query) |> Enum.into([]) |> length() == 50
+      assert {:ok, count} = indexed_doc_count(@v2_work_index)
+      assert Scroll.results(@query, @v2_work_index) |> Enum.into([]) |> length() == count
     end
   end
 end

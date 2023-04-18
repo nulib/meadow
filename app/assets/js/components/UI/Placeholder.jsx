@@ -1,5 +1,5 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 
 function UIPlaceholder({ workTypeId }) {
   let path = <></>;
@@ -76,7 +76,7 @@ const videoPath = (
 );
 
 UIPlaceholder.propTypes = {
-  workType: PropTypes.string,
+  workTypeId: PropTypes.string,
 };
 
 export default UIPlaceholder;

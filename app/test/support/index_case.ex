@@ -10,13 +10,16 @@ defmodule Meadow.IndexCase do
   alias Meadow.Ingest.Schemas.{Project, Sheet}
   alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
-  alias Meadow.Search.{HTTP, Index}
+  alias Meadow.Search.{Alias, HTTP, Index}
 
   setup tags do
-    for %{name: alias, schemas: [schema | _], version: version} <- SearchConfig.index_configs() do
-      Index.create_from_schema(schema, version)
-      Index.clean(alias, 1)
-    end
+    result =
+      SearchConfig.index_configs()
+      |> Enum.map(fn %{name: alias, schemas: [schema | _], version: version} ->
+        {:ok, {alias, index}} = Index.create_from_schema(schema, version)
+        Alias.update(alias, index)
+        {alias, index}
+      end)
 
     Index.clean(Config.shared_links_index(), 0)
 
@@ -27,6 +30,11 @@ defmodule Meadow.IndexCase do
           |> Enum.each(fn schema -> Repo.delete_all(schema) end)
         end)
       end
+
+      Enum.each(result, fn {alias, index} ->
+        Alias.remove(alias, [index])
+        Index.delete(index)
+      end)
     end)
 
     :ok
@@ -106,8 +114,20 @@ defmodule Meadow.IndexCase do
       end
 
       def assert_doc_counts_match(expected) do
+        counts = [
+          indexed_doc_count(Work, 2),
+          indexed_doc_count(FileSet, 2),
+          indexed_doc_count(Collection, 2)
+        ]
+
+        total_count =
+          {:ok,
+           counts
+           |> Enum.map(&elem(&1, 1))
+           |> Enum.reduce(0, &(&1 + &2))}
+
         context = %{
-          total_count: indexed_doc_count(Work, 1),
+          total_count: total_count,
           work_count: indexed_doc_count(Work, 2),
           file_set_count: indexed_doc_count(FileSet, 2),
           collection_count: indexed_doc_count(Collection, 2)
