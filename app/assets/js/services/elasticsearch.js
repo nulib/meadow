@@ -4,7 +4,7 @@ const host = slashes.concat(window.location.hostname);
 const port = window.location.port;
 
 export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/_search`;
-export const ELASTICSEARCH_INDEX_NAME = __ELASTICSEARCH_INDEX__;
+export const ELASTICSEARCH_INDEX_NAME = "adam-dev-dc-v2-work";
 
 const Elasticsearch = require("elasticsearch");
 const client = new Elasticsearch.Client({
@@ -15,49 +15,49 @@ const client = new Elasticsearch.Client({
 export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
     terms: {
-      field: "descriptiveMetadata.contributor.facet",
+      field: "contributor.facet",
       size: 1000,
     },
   },
   creator: {
     terms: {
-      field: "descriptiveMetadata.creator.facet",
+      field: "creator.facet",
       size: 1000,
     },
   },
   genre: {
     terms: {
-      field: "descriptiveMetadata.genre.facet",
+      field: "genre.facet",
       size: 1000,
     },
   },
   language: {
     terms: {
-      field: "descriptiveMetadata.language.facet",
+      field: "language.facet",
       size: 1000,
     },
   },
   location: {
     terms: {
-      field: "descriptiveMetadata.location.facet",
+      field: "location.facet",
       size: 1000,
     },
   },
   stylePeriod: {
     terms: {
-      field: "descriptiveMetadata.stylePeriod.facet",
+      field: "style_period.facet",
       size: 1000,
     },
   },
   subject: {
     terms: {
-      field: "descriptiveMetadata.subject.facet",
+      field: "subject.facet",
       size: 1000,
     },
   },
   technique: {
     terms: {
-      field: "descriptiveMetadata.technique.facet",
+      field: "technique.facet",
       size: 1000,
     },
   },
@@ -65,17 +65,6 @@ export const ELASTICSEARCH_AGGREGATION_FIELDS = {
 
 export const allWorksQuery = {
   track_total_hits: true,
-  query: {
-    bool: {
-      must: [
-        {
-          match: {
-            "model.name": "Work",
-          },
-        },
-      ],
-    },
-  },
 };
 
 /**
@@ -102,6 +91,7 @@ export async function elasticsearchDirectCount(body) {
  * @returns {object} Pass through Elasticsearch response
  */
 export async function elasticsearchDirectSearch(body) {
+  console.log("ELASTICSEARCH_INDEX_NAME", ELASTICSEARCH_INDEX_NAME);
   try {
     let response = await client.search({
       index: ELASTICSEARCH_INDEX_NAME,

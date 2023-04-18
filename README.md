@@ -60,7 +60,7 @@ If you would like to interact directly with the database
 
 ### GraphQL API
 
-You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001//api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
+You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
 
 ### Opensearch Dashboard
 

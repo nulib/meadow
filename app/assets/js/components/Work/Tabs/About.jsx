@@ -113,6 +113,7 @@ const WorkTabsAbout = ({ work }) => {
     // including fields that are either outdated or which no values were ever registered
     // with React Hook Form's register().   So, we'll use getValues() to get the real data
     // updated.
+    console.log("data", data);
     let currentFormValues = methods.getValues();
 
     const { title = "" } = currentFormValues;
