@@ -1,8 +1,9 @@
-import React from "react";
 import {
   elasticsearchDirectCount,
   elasticsearchDirectSearch,
 } from "@js/services/elasticsearch";
+
+import React from "react";
 
 /**
  * Elasticsearch queries
@@ -118,15 +119,15 @@ export default function useRepositoryStats() {
     worksPublished: 0,
   });
 
-  const collectionsQuery = elasticsearchDirectCount(
-    query([
-      {
-        match: {
-          "model.name.keyword": "Collection",
+  const collectionsQuery = elasticsearchDirectCount({
+    query: {
+      term: {
+        api_model: {
+          value: "Collection",
         },
       },
-    ])
-  );
+    },
+  });
   const worksQuery = elasticsearchDirectCount(query([matchWork]));
   const fileSetsQuery = elasticsearchDirectCount(query([matchFileSet]));
   const worksPublishedQuery = elasticsearchDirectCount(
@@ -220,6 +221,7 @@ export default function useRepositoryStats() {
 
     async function fn() {
       const resultArray = await Promise.all(promises);
+      console.log("resultArray", resultArray);
 
       setStats({
         collections: resultArray[0].count,
