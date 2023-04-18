@@ -80,8 +80,18 @@ module.exports = (env, options) => ({
         process.env.HONEYBADGER_REVISION
       ),
       __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION),
-      __ELASTICSEARCH_INDEX__: JSON.stringify(
-        [process.env.DEV_PREFIX, process.env.DEV_ENV, "meadow"]
+      __ELASTICSEARCH_WORK_INDEX__: JSON.stringify(
+        [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2-work"]
+          .filter((e) => e)
+          .join("-")
+      ),
+      __ELASTICSEARCH_COLLECTION_INDEX__: JSON.stringify(
+        [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2-collection"]
+          .filter((e) => e)
+          .join("-")
+      ),
+      __ELASTICSEARCH_FILE_SET_INDEX__: JSON.stringify(
+        [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2-file-set"]
           .filter((e) => e)
           .join("-")
       ),
