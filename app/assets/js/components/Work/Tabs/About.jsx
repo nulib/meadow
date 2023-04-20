@@ -1,35 +1,36 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import { toastWrapper } from "../../../services/helpers";
-import { useForm, FormProvider } from "react-hook-form";
-import { useMutation } from "@apollo/client";
-import useIsEditing from "../../../hooks/useIsEditing";
-import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
-import UIAccordion from "../../UI/Accordion";
-import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
-import WorkTabsAboutControlledMetadata from "./About/ControlledMetadata";
-import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
-import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
-import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
-import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import {
-  convertFieldArrayValToHookFormVal,
-  prepControlledTermInput,
-  prepFieldArrayItemsForPost,
-  prepEDTFforPost,
-  prepNotes,
-  prepRelatedUrl,
   CONTROLLED_METADATA,
   IDENTIFIER_METADATA,
   PHYSICAL_METADATA,
   RIGHTS_METADATA,
   UNCONTROLLED_METADATA,
+  convertFieldArrayValToHookFormVal,
   deleteKeyFromObject,
+  prepControlledTermInput,
+  prepEDTFforPost,
+  prepFieldArrayItemsForPost,
+  prepNotes,
+  prepRelatedUrl,
 } from "@js/services/metadata";
-import UIError from "../../UI/Error";
-import { IconEdit } from "@js/components/Icon";
-import { Button } from "@nulib/design-system";
+import { FormProvider, useForm } from "react-hook-form";
+import { GET_WORK, UPDATE_WORK } from "../work.gql.js";
+import React, { useEffect, useState } from "react";
 import { Skeleton, TabsStickyHeader } from "@js/components/UI/UI";
+
+import { Button } from "@nulib/design-system";
+import { IconEdit } from "@js/components/Icon";
+import PropTypes from "prop-types";
+import UIAccordion from "../../UI/Accordion";
+import UIError from "../../UI/Error";
+import WorkTabsAboutControlledMetadata from "./About/ControlledMetadata";
+import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
+import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
+import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
+import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
+import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
+import { toastWrapper } from "../../../services/helpers";
+import useIsEditing from "../../../hooks/useIsEditing";
+import { useMutation } from "@apollo/client";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;

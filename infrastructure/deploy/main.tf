@@ -35,6 +35,9 @@ module "rds" {
   storage_encrypted                = false
   create_db_subnet_group           = true
 
+  performance_insights_enabled            = true
+  performance_insights_retention_period   = 7
+
   parameters = [
     {
       name         = "client_encoding",
@@ -43,7 +46,7 @@ module "rds" {
     },
     {
       name         = "max_locks_per_transaction",
-      value        = 256,
+      value        = 1024,
       apply_method = "pending-reboot"
     }
   ]

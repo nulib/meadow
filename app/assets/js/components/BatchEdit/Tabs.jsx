@@ -1,28 +1,29 @@
-import React, { useState } from "react";
-import BatchEditAbout from "./About/About";
-import BatchEditAdministrative from "./Administrative/Administrative";
-import { CodeListProvider } from "@js/context/code-list-context";
-import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
-import BatchEditAboutModalRemove from "@js/components/BatchEdit/ModalRemove";
-import {
-  useBatchDispatch,
-  useBatchState,
-} from "@js/context/batch-edit-context";
-import { useForm, FormProvider } from "react-hook-form";
+import { Button, Notification } from "@nulib/design-system";
 import {
   CONTROLLED_METADATA,
+  PROJECT_METADATA,
   getBatchMultiValueDataFromForm,
   parseMultiValues,
   prepControlledTermInput,
   prepFacetKey,
   prepNotes,
   prepRelatedUrl,
-  PROJECT_METADATA,
 } from "@js/services/metadata";
-import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import { Button, Notification } from "@nulib/design-system";
-import UIIconText from "../UI/IconText";
+import { FormProvider, useForm } from "react-hook-form";
+import React, { useState } from "react";
+import {
+  useBatchDispatch,
+  useBatchState,
+} from "@js/context/batch-edit-context";
+
+import BatchEditAbout from "./About/About";
+import BatchEditAboutModalRemove from "@js/components/BatchEdit/ModalRemove";
+import BatchEditAdministrative from "./Administrative/Administrative";
+import BatchEditConfirmation from "@js/components/BatchEdit/Confirmation";
+import { CodeListProvider } from "@js/context/code-list-context";
 import { IconAlert } from "@js/components/Icon";
+import UIIconText from "../UI/IconText";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 
 export default function BatchEditTabs() {
   const [activeTab, setActiveTab] = useState("tab-about");
@@ -110,14 +111,12 @@ export default function BatchEditTabs() {
       }
     });
 
-    console.log(`addItems.descriptive`, addItems.descriptive);
-    console.log(`replaceItems.descriptive`, replaceItems.descriptive);
-
-    if (currentFormValues.rightsStatement) {
-      replaceItems.descriptive.rightsStatement = JSON.parse(
-        currentFormValues.rightsStatement
-      );
-    }
+    /** Handle single-value About metadata dropdown items (whose <select> value is stringified and must be parsed to get the value) */
+    ["license", "rightsStatement"].forEach((item) => {
+      if (currentFormValues[item]) {
+        replaceItems.descriptive[item] = JSON.parse(currentFormValues[item]);
+      }
+    });
 
     ["title"].forEach((item) => {
       if (currentFormValues[item]) {

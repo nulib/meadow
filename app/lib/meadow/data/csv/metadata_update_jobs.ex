@@ -5,7 +5,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
 
   alias Ecto.{Changeset, Multi}
   alias Meadow.Data.ControlledTerms
-  alias Meadow.Data.CSV.Import
+  alias Meadow.Data.CSV.{BulkImport, Import}
   alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
   alias Meadow.Repo
   alias Meadow.Utils.ChangesetErrors
@@ -75,7 +75,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       |> validate_rows()
 
     if Enum.empty?(errors),
-      do: {:ok, length(changesets)},
+      do: {:ok, changesets},
       else: {:error, errors}
   end
 
@@ -93,7 +93,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       with_locked_job(job, fn ->
         case validate_source(job.source) do
           {:ok, rows} ->
-            update_job(job, %{status: "valid", rows: rows})
+            update_job(job, %{status: "valid", rows: length(rows)})
 
           {:error, errors} ->
             update_job(job, %{status: "invalid", errors: errors})
@@ -110,12 +110,16 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   def apply_job(%MetadataUpdateJob{source: source, status: "valid"} = job) do
     job = update_job(job, %{status: "processing", started_at: DateTime.utc_now()})
 
-    multi =
+    stream =
       StreamUtil.stream_from(source)
       |> Import.read_csv()
       |> Import.stream()
-      |> Enum.chunk_every(@chunk_size)
-      |> Enum.reduce(Multi.new(), &apply_batch_of_works(&1, &2, job))
+
+    multi =
+      Multi.new()
+      |> Multi.run("import", fn repo, _ ->
+        BulkImport.import_stream(stream, job.id, repo)
+      end)
       |> Multi.update(job.id, MetadataUpdateJob.changeset(job, %{status: "complete"}))
 
     case with_locked_job(job, multi) do
@@ -152,32 +156,6 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       end,
       timeout: :infinity
     )
-  end
-
-  defp apply_batch_of_works(rows, multi, job) do
-    with work_ids <- rows |> Enum.map(&Map.get(&1, :id)) do
-      from(w in Work, where: w.id in ^work_ids, lock: "FOR UPDATE NOWAIT")
-      |> Repo.all()
-      |> Enum.reduce(multi, fn work, multi ->
-        with row <- rows |> Enum.find(&(&1.id == work.id)) do
-          multi
-          |> Multi.update("update_#{row.id}", Work.update_changeset(work, row))
-          |> Multi.insert_all("link_#{row.id}", "works_metadata_update_jobs", [
-            %{
-              metadata_update_job_id: dump_uuid(job.id),
-              work_id: dump_uuid(work.id)
-            }
-          ])
-        end
-      end)
-    end
-  end
-
-  defp dump_uuid(uuid) do
-    case Ecto.UUID.dump(uuid) do
-      {:ok, result} -> result
-      other -> other
-    end
   end
 
   def next_job do

@@ -117,7 +117,10 @@ defmodule Mix.Tasks.Meadow.Seed do
     run(names)
   end
 
-  def run(name), do: ReleaseTasks.seed(name)
+  def run(name) do
+    Mix.Task.run("app.config")
+    ReleaseTasks.seed(name)
+  end
 end
 
 defmodule Mix.Tasks.Meadow.Processes do

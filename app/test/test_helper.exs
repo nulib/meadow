@@ -11,7 +11,7 @@ unless System.get_env("AWS_DEV_ENVIRONMENT") do
   Mix.Task.run("meadow.ldap.setup", ["test/fixtures/ldap_seed.ldif"])
 end
 
-ExUnit.start(capture_log: true, exclude: [:skip, manual: true])
+ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true])
 Faker.start()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
 Authoritex.Mock.init()
