@@ -70,8 +70,10 @@ defmodule Meadow.Data.CSV.BulkImport do
       stream
       |> Stream.map(fn entry ->
         entry
-        |> Map.put(:inserted_at, timestamp)
-        |> Map.put(:updated_at, timestamp)
+        |> put_in([:inserted_at], timestamp)
+        |> put_in([:updated_at], timestamp)
+        |> update_in([:descriptive_metadata, :id], &(&1 || Ecto.UUID.generate()))
+        |> update_in([:administrative_metadata, :id], &(&1 || Ecto.UUID.generate()))
       end)
       |> Stream.chunk_every(@chunk_size)
       |> Stream.map(&stream_chunk_of_rows/1)
