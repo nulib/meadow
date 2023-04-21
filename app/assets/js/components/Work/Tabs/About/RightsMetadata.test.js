@@ -1,16 +1,17 @@
-import React from "react";
 import {
   renderWithRouterApollo,
   withReactHookForm,
 } from "@js/services/testing-helpers";
-import { mockWork } from "@js/components/Work/work.gql.mock";
-import WorkTabsAboutRightsMetadata from "./RightsMetadata";
-import { RIGHTS_METADATA } from "@js/services/metadata";
-import { screen } from "@testing-library/react";
-import { CodeListProvider } from "@js/context/code-list-context";
-import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
-describe("Work About tab Idenfiers Metadata component", () => {
+import { CodeListProvider } from "@js/context/code-list-context";
+import { RIGHTS_METADATA } from "@js/services/metadata";
+import React from "react";
+import WorkTabsAboutRightsMetadata from "./RightsMetadata";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { mockWork } from "@js/components/Work/work.gql.mock";
+import { screen } from "@testing-library/react";
+
+describe.only("Work About tab Idenfiers Metadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(WorkTabsAboutRightsMetadata, {
       isEditing: true,
@@ -28,18 +29,18 @@ describe("Work About tab Idenfiers Metadata component", () => {
 
   it("renders expected rights metadata fields", async () => {
     for (let item of RIGHTS_METADATA) {
-      expect(await screen.findByTestId(item.name));
+      expect(await screen.findByTestId(item.name)).toBeInTheDocument();
     }
   });
 
   it("renders rights metadata component", async () => {
-    expect(await screen.findByTestId("rights-metadata"));
+    expect(await screen.findByTestId("rights-metadata")).toBeInTheDocument();
   });
 
   it("renders license field", async () => {
-    expect(await screen.findByTestId("license"));
+    expect(await screen.findByTestId("license")).toBeInTheDocument();
   });
   it("renders terms of use field", async () => {
-    expect(await screen.findByTestId("input-terms-of-use"));
+    expect(await screen.findByTestId("input-terms-of-use")).toBeInTheDocument();
   });
 });
