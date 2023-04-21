@@ -83,7 +83,7 @@ defmodule Meadow.MixProject do
       {:jason, "~> 1.0"},
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
-      {:nimble_csv, "~> 1.1.0"},
+      {:nimble_csv, "~> 1.2.0"},
       {:phoenix, "~> 1.6.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_view, "~> 0.16.4"},
