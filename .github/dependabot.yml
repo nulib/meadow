@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/assets"
+    directory: "/app/assets"
     schedule:
       interval: daily
       time: "11:00"
@@ -22,7 +22,17 @@ updates:
       - dependency-name: "faker"
       - dependency-name: "react-router-dom"
   - package-ecosystem: npm
-    directory: "/priv/nodejs/*"
+    directory: "/app/priv/nodejs/*"
+    schedule:
+      interval: daily
+      time: "11:00"
+    labels:
+      - "dependencies"
+      - "automerge"
+    open-pull-requests-limit: 10
+    target-branch: dependencies
+  - package-ecosystem: npm
+    directory: "/lambdas/*"
     schedule:
       interval: daily
       time: "11:00"
@@ -32,7 +42,7 @@ updates:
     open-pull-requests-limit: 10
     target-branch: dependencies
   - package-ecosystem: mix
-    directory: "/"
+    directory: "/app"
     schedule:
       interval: daily
       time: "11:00"
