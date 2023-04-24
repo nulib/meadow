@@ -71,7 +71,6 @@ function prepFormData(work) {
     })),
     notes: descriptiveMetadata.notes,
     relatedUrl: descriptiveMetadata.relatedUrl,
-    license: descriptiveMetadata.license,
     ...resetValues,
     ...controlledTermResetValues,
   };
@@ -117,6 +116,7 @@ const WorkTabsAbout = ({ work }) => {
     let currentFormValues = methods.getValues();
 
     const { title = "" } = currentFormValues;
+
     let workUpdateInput = {
       descriptiveMetadata: {
         alternateTitle: prepFieldArrayItemsForPost(
@@ -125,7 +125,10 @@ const WorkTabsAbout = ({ work }) => {
         dateCreated: prepEDTFforPost(currentFormValues.dateCreated),
         description: prepFieldArrayItemsForPost(currentFormValues.description),
         license: data.license
-          ? deleteKeyFromObject(JSON.parse(data.license))
+          ? {
+              id: data.license,
+              scheme: "LICENSE",
+            }
           : {},
         notes: prepNotes(currentFormValues.notes),
         relatedUrl: prepRelatedUrl(currentFormValues.relatedUrl),

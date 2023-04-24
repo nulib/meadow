@@ -1,15 +1,12 @@
-import React from "react";
 import PropTypes from "prop-types";
+import { RIGHTS_METADATA } from "@js/services/metadata";
+import React from "react";
+import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
+import UIFormField from "@js/components/UI/Form/Field";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
-import {
-  RIGHTS_METADATA,
-  getCodedTermSelectOptions,
-} from "@js/services/metadata";
-import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormSelect from "@js/components/UI/Form/Select";
-import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
 
 const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
@@ -20,12 +17,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
       {RIGHTS_METADATA.map((item) => (
         <div className="column is-half" key={item.name} data-testid={item.name}>
           {isEditing ? (
-            <UIFormFieldArray 
-              required 
-              name={item.name} 
+            <UIFormFieldArray
+              required
+              name={item.name}
               label={item.label}
-              isTextarea={item.inputEl && item.inputEl === 'textarea'} 
-              />
+              isTextarea={item.inputEl && item.inputEl === "textarea"}
+            />
           ) : (
             <UIFormFieldArrayDisplay
               values={descriptiveMetadata[item.name]}
@@ -35,22 +32,18 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
         </div>
       ))}
 
-      <div className="column is-half" data-testid="license">
+      <div className="column is-half">
         {/* License */}
         <UIFormField label="License">
           {isEditing ? (
             <UIFormSelect
-              name="license"
               isReactHookForm
-              showHelper={true}
+              name="license"
               label="License"
+              showHelper={true}
+              data-testid="license"
               options={
-                codeLists.licenseData
-                  ? getCodedTermSelectOptions(
-                      codeLists.licenseData.codeList,
-                      "LICENSE"
-                    )
-                  : []
+                codeLists.licenseData ? codeLists.licenseData.codeList : []
               }
               defaultValue={
                 descriptiveMetadata.license
