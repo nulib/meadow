@@ -1,23 +1,23 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
-import { ReactiveList } from "@appbaseio/reactivesearch";
-import WorkListItem from "@js/components/Work/ListItem";
-import WorkCardItem from "@js/components/Work/CardItem";
-import UISkeleton from "@js/components/UI/Skeleton";
-import SearchSelectable from "@js/components/Search/Selectable";
 import {
-  //TODO: Leave this in as we might want to display this info in another type of range component
-  FACET_RANGE_SENSORS,
   FACET_PROJECT_SENSORS,
+  FACET_RANGE_SENSORS,
   FACET_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   RESULT_SENSOR,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
-import { prepWorkItemForDisplay } from "@js/services/helpers";
-import { allWorksQuery } from "@js/services/elasticsearch";
+
+import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
+import PropTypes from "prop-types";
 import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
+import React from "react";
+import { ReactiveList } from "@appbaseio/reactivesearch";
+import SearchSelectable from "@js/components/Search/Selectable";
+import UISkeleton from "@js/components/UI/Skeleton";
+import WorkCardItem from "@js/components/Work/CardItem";
+import WorkListItem from "@js/components/Work/ListItem";
+import { allWorksQuery } from "@js/services/elasticsearch";
+import { prepWorkItemForDisplay } from "@js/services/helpers";
 
 const SearchResults = ({
   handleOnDataChange,
@@ -68,6 +68,7 @@ const SearchResults = ({
               ],
             }}
             renderItem={(res) => {
+              console.log("res", res);
               if (isListView) {
                 return (
                   <div key={res._id} className="box">

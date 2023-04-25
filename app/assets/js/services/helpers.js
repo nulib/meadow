@@ -1,7 +1,8 @@
+import { URL_PATTERN_MATCH, URL_PATTERN_START } from "./global-vars";
+
+import edtf from "edtf";
 import moment from "moment";
 import { toast } from "bulma-toast";
-import { URL_PATTERN_MATCH, URL_PATTERN_START } from "./global-vars";
-import edtf from "edtf";
 
 /**
  * Escape double quotes (which may interfere with Search queries)
@@ -77,17 +78,15 @@ export function prepWorkItemForDisplay(res) {
   return {
     id: res._id,
     collectionName: res.collection ? res.collection.title : "",
-    title: res.descriptiveMetadata ? res.descriptiveMetadata.title : "No title",
-    updatedAt: res.modifiedDate || res.updatedAt,
-    representativeImage:
-      res.representativeFileSet ||
-      (res.representativeImage ? res.representativeImage : ""),
-    manifestUrl: res.iiifManifest,
+    title: res.title || "No title",
+    updatedAt: res.modified_date,
+    representativeImage: res.thumbnail,
+    manifestUrl: res.iiif_manifest,
     published: res.published,
     visibility: res.visibility,
-    fileSets: res.fileSets ? res.fileSets.length : 0,
-    accessionNumber: res.accessionNumber,
-    workType: res.workType,
+    fileSets: res.file_sets.length,
+    accessionNumber: res.accession_number,
+    workType: res.work_type,
   };
 }
 
@@ -113,8 +112,8 @@ export function setVisibilityClass(visibility = "") {
  */
 export function sortFileSets({ order = "asc", fileSets = [] }) {
   const orderedFileSets = [...fileSets].sort((a, b) => {
-    const aName = a.coreMetadata.originalFilename;
-    const bName = b.coreMetadata.originalFilename;
+    const aName = a.original_filename;
+    const bName = b.original_filename;
 
     if (aName === bName) return 0;
 

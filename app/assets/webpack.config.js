@@ -62,6 +62,11 @@ module.exports = (env, options) => ({
         // Info: https://blog.logrocket.com/how-to-use-svgs-in-react/
         use: ["@svgr/webpack"],
       },
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
     ],
   },
   plugins: [
@@ -102,7 +107,7 @@ module.exports = (env, options) => ({
   ],
   devtool: false,
   resolve: {
-    extensions: ["*", ".mjs", ".js", ".jsx", ".json"],
+    extensions: ["*", ".mjs", ".js", ".jsx", ".json", ".tsx", ".ts"],
     // When testing npm components locally, tell Meadow to only
     // use it's React, not the npm module's React
     alias: {
