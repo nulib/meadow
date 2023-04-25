@@ -11,6 +11,7 @@ defmodule Meadow.Ingest.WorkRedriverTest do
 
   setup %{ingest_sheet: sheet} do
     worker = start_supervised!({WorkRedriver, @args})
+    on_exit(fn -> send(worker, :pause) end)
 
     with rows <- Rows.list_ingest_sheet_rows(sheet: sheet) do
       rows
