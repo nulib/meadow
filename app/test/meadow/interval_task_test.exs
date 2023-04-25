@@ -22,7 +22,8 @@ defmodule Meadow.IntervalTaskTest do
   @test_interval 50
 
   setup do
-    start_supervised!({IntervalSender, interval: @test_interval, receiver: self()})
+    pid = start_supervised!({IntervalSender, interval: @test_interval, receiver: self()})
+    on_exit(fn -> send(pid, :pause) end)
     :ok
   end
 

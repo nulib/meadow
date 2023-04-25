@@ -11,11 +11,13 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   @file_set_count 8
   @action_count length(Dispatcher.all_progress_actions())
   @pct_factor 100 / (@file_set_count * @action_count - 1 + @work_count)
+  @reply_timeout 5000
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
 
   setup %{socket: socket, ingest_sheet: sheet} do
-    start_supervised!({Progress, [interval: 100]})
+    pid = start_supervised!({Progress, [interval: 100]})
+    on_exit(fn -> send(pid, :pause) end)
     {:ok, sheet} = Sheets.update_ingest_sheet_status(sheet, "approved")
     groups = SheetsToWorks.initialize_progress(sheet)
 
@@ -27,11 +29,11 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
   end
 
   test "initiate subscription", %{ref: ref} do
-    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}, @reply_timeout
   end
 
   test "receive data", %{ref: ref, ingest_sheet: sheet, work_rows: [first_row | _]} do
-    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}, @reply_timeout
 
     Progress.update_entry(first_row, "CreateWork", "ok")
     Progress.update_entry(first_row, GenerateFileSetDigests, "ok")
@@ -52,7 +54,7 @@ defmodule MeadowWeb.Schema.Subscription.IngestProgressTest do
     work_rows: work_rows,
     file_set_rows: file_set_rows
   } do
-    assert_reply ref, :ok, %{subscriptionId: _subscription_id}
+    assert_reply ref, :ok, %{subscriptionId: _subscription_id}, @reply_timeout
 
     work_rows
     |> Enum.each(fn row ->
