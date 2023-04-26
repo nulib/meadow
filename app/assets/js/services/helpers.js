@@ -78,15 +78,17 @@ export function prepWorkItemForDisplay(res) {
   return {
     id: res._id,
     collectionName: res.collection ? res.collection.title : "",
-    title: res.title || "No title",
-    updatedAt: res.modified_date,
-    representativeImage: res.thumbnail,
-    manifestUrl: res.iiif_manifest,
+    title: res.descriptiveMetadata ? res.descriptiveMetadata.title : "No title",
+    updatedAt: res.modifiedDate || res.updatedAt,
+    representativeImage:
+      res.representativeFileSet ||
+      (res.representativeImage ? res.representativeImage : ""),
+    manifestUrl: res.iiifManifest,
     published: res.published,
     visibility: res.visibility,
-    fileSets: res.file_sets.length,
-    accessionNumber: res.accession_number,
-    workType: res.work_type,
+    fileSets: res.fileSets ? res.fileSets.length : 0,
+    accessionNumber: res.accessionNumber,
+    workType: res.workType,
   };
 }
 
@@ -112,8 +114,8 @@ export function setVisibilityClass(visibility = "") {
  */
 export function sortFileSets({ order = "asc", fileSets = [] }) {
   const orderedFileSets = [...fileSets].sort((a, b) => {
-    const aName = a.original_filename;
-    const bName = b.original_filename;
+    const aName = a.coreMetadata.originalFilename;
+    const bName = b.coreMetadata.originalFilename;
 
     if (aName === bName) return 0;
 

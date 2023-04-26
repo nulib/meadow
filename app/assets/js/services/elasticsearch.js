@@ -75,10 +75,14 @@ export const allWorksQuery = {
  * @param {object} body
  * @returns {object} Pass through Elasticsearch response
  */
-export async function elasticsearchDirectCount(body) {
+export async function elasticsearchDirectCount(
+  body,
+  index = ELASTICSEARCH_WORK_INDEX
+) {
+  console.log("body", body);
   try {
     let response = await client.count({
-      index: ELASTICSEARCH_INDEX_NAME,
+      index,
       body: body,
     });
     return response;
@@ -93,10 +97,13 @@ export async function elasticsearchDirectCount(body) {
  * @param {object} body
  * @returns {object} Pass through Elasticsearch response
  */
-export async function elasticsearchDirectSearch(body, index) {
+export async function elasticsearchDirectSearch(
+  body,
+  index = ELASTICSEARCH_WORK_INDEX
+) {
   try {
     let response = await client.search({
-      index: index || ELASTICSEARCH_WORK_INDEX,
+      index,
       body: body,
     });
     return response;

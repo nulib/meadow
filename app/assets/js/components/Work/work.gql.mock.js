@@ -8,6 +8,8 @@ import {
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
 
+import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
+
 export const MOCK_WORK_ID = "ABC123";
 
 export const mockWork = {
@@ -238,7 +240,6 @@ export const mockWork = {
 };
 
 const mockWork2 = {
-  id: MOCK_WORK_ID,
   accessionNumber: "Donohue_002b",
   administrativeMetadata: {
     libraryUnit: null,
@@ -253,28 +254,13 @@ const mockWork2 = {
   },
   collection: null,
   descriptiveMetadata: {
-    ark: "ark123",
-    source: [],
-    title: "Work title here",
-    scopeAndContents: [],
-    notes: [],
-    folderName: [],
-    license: {
-      id: "http://creativecommons.org/publicdomain/mark/1.0/",
-      label: "Public Domain Mark 1.0",
-    },
-    rightsHolder: [],
-    genre: [
-      {
-        term: {
-          id: "http://vocab.getty.edu/aat/300417848",
-          label: "Dralon (R)",
-        },
-      },
-    ],
-    catalogKey: [],
-    legacyIdentifier: [],
+    abstract: ["New Abstract Test", "New Abstract Again"],
     alternateTitle: [],
+    ark: "ark123",
+    boxName: [],
+    boxNumber: [],
+    caption: [],
+    catalogKey: [],
     contributor: [
       {
         role: {
@@ -288,17 +274,6 @@ const mockWork2 = {
         },
       },
     ],
-    caption: [],
-    boxName: [],
-    physicalDescriptionMaterial: [],
-    rightsStatement: {
-      id: "http://rightsstatements.org/vocab/InC/1.0/",
-      label: "In Copyright",
-    },
-    series: [],
-    tableOfContents: [],
-    location: [],
-    identifier: [],
     creator: [
       {
         term: {
@@ -307,74 +282,110 @@ const mockWork2 = {
         },
       },
     ],
+    description: ["Work description here"],
+    folderName: [],
+    folderNumber: [],
+    genre: [
+      {
+        term: {
+          id: "http://vocab.getty.edu/aat/300417848",
+          label: "Dralon (R)",
+        },
+      },
+    ],
+    identifier: [],
+    keywords: [],
+    language: [],
+    legacyIdentifier: [],
+    license: {
+      id: "http://creativecommons.org/publicdomain/mark/1.0/",
+      label: "Public Domain Mark 1.0",
+    },
+    location: [],
+    notes: [],
+    physicalDescriptionMaterial: [],
+    physicalDescriptionSize: [],
+    provenance: [],
+    publisher: [],
     relatedMaterial: [],
     relatedUrl: [],
-    provenance: [],
-    folderNumber: [],
-    keywords: [],
-    description: ["Work description here"],
-    language: [],
+    rightsHolder: [],
+    rightsStatement: {
+      id: "http://rightsstatements.org/vocab/InC/1.0/",
+      label: "In Copyright",
+    },
+    scopeAndContents: [],
+    series: [],
+    source: [],
     stylePeriod: [],
-    publisher: [],
-    technique: [],
-    abstract: ["New Abstract Test", "New Abstract Again"],
-    physicalDescriptionSize: [],
-    boxNumber: [],
     subject: [],
+    tableOfContents: [],
+    technique: [],
+    title: "Work title here",
   },
   fileSets: [
     {
       accessionNumber: "Donohue_002_03b",
-      id: "0afa26f5-78e0-4ccb-b96f-052034dbbe27",
       coreMetadata: {
         description: "Photo, two children praying",
+        digests: {
+          sha256:
+            "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
+        },
         label: "painting7.JPG",
         location:
           "s3://dev-preservation/0a/fa/26/f5/6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
         mimeType: "image",
         originalFilename: "painting7.JPG",
-        digests: {
-          sha256:
-            "6b94a88f3a357a1fabec803412ebfaa8972c8f8784e25b723898035b3863f303",
-        },
       },
-      role: { id: "A", label: "Access" },
+      id: "0afa26f5-78e0-4ccb-b96f-052034dbbe27",
       insertedAt: "2020-07-12T10:01:01",
+      role: {
+        id: "A",
+        label: "Access",
+      },
       updatedAt: "2020-07-18T09:01:01",
     },
     {
       accessionNumber: "Donohue_002_01b",
-      id: "38620e42-7c71-4364-8123-8106db5fd31c",
       coreMetadata: {
         description: "Photo, man with two children",
-        label: "painting5.JPG",
-        location:
-          "s3://dev-preservation/38/62/0e/42/a2fe39ca86723eaecb9a6e2557c3daf4698e2e5d4b124c81ad557b5854376a5b",
-        originalFilename: "painting5.JPG",
         digests: {
           sha256:
             "a2fe39ca86723eaecb9a6e2557c3daf4698e2e5d4b124c81ad557b5854376a5b",
         },
+        label: "painting5.JPG",
+        location:
+          "s3://dev-preservation/38/62/0e/42/a2fe39ca86723eaecb9a6e2557c3daf4698e2e5d4b124c81ad557b5854376a5b",
+        originalFilename: "painting5.JPG",
       },
-      role: { id: "A", label: "Access" },
+      id: "38620e42-7c71-4364-8123-8106db5fd31c",
+      role: {
+        id: "A",
+        label: "Access",
+      },
     },
     {
       accessionNumber: "Donohue_002_02b",
-      id: "251a0c80-4dbe-48c5-a77b-bcf8c403591d",
       coreMetadata: {
         description: "Verso",
-        label: "painting6.JPG",
-        location:
-          "s3://dev-preservation/25/1a/0c/80/7c69abf311b0da097edc8c54d30e27b41b8fcbca7b5e962c86b8604c5072cfb6",
-        originalFilename: "painting6.JPG",
         digests: {
           sha256:
             "7c69abf311b0da097edc8c54d30e27b41b8fcbca7b5e962c86b8604c5072cfb6",
         },
+        label: "painting6.JPG",
+        location:
+          "s3://dev-preservation/25/1a/0c/80/7c69abf311b0da097edc8c54d30e27b41b8fcbca7b5e962c86b8604c5072cfb6",
+        originalFilename: "painting6.JPG",
       },
-      role: { id: "A", label: "Access" },
+      id: "251a0c80-4dbe-48c5-a77b-bcf8c403591d",
+      role: {
+        id: "A",
+        label: "Access",
+      },
     },
   ],
+  id: MOCK_WORK_ID,
   ingestSheet: {
     id: "4651c546-d017-4322-911d-69e113070046",
     title: "Ima sheet",
@@ -531,6 +542,25 @@ export const workArchiverEndpointMock = {
     data: {
       workArchiverEndpoint: {
         url: "http://mockendpoint.com/",
+      },
+    },
+  },
+};
+
+export const getIIIFManifestHeaders = {
+  request: {
+    query: GET_IIIF_MANIFEST_HEADERS,
+    variables: {
+      workId: MOCK_WORK_ID,
+    },
+  },
+  result: {
+    data: {
+      iiifManifestHeaders: {
+        manifestUrl: "",
+        etag: "",
+        lastModified: "",
+        workId: MOCK_WORK_ID,
       },
     },
   },

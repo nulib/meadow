@@ -1,41 +1,11 @@
 import {
+  ELASTICSEARCH_COLLECTION_INDEX,
   elasticsearchDirectCount,
   elasticsearchDirectSearch,
 } from "@js/services/elasticsearch";
 
+import { ELASTICSEARCH_FILE_SET_INDEX } from "../services/elasticsearch";
 import React from "react";
-
-/**
- * Elasticsearch queries
- */
-const matchWork = {
-  match: {
-    "model.name": "Work",
-  },
-};
-
-const matchFileSet = {
-  match: {
-    "model.name": "FileSet",
-  },
-};
-
-function query(matchItemsArray = []) {
-  return {
-    query: {
-      bool: {
-        must: [
-          {
-            match: {
-              "model.application": "Meadow",
-            },
-          },
-          ...matchItemsArray,
-        ],
-      },
-    },
-  };
-}
 
 /**
  * Data prep functions
@@ -119,46 +89,39 @@ export default function useRepositoryStats() {
     worksPublished: 0,
   });
 
-  const collectionsQuery = elasticsearchDirectCount({
+  const collectionsQuery = elasticsearchDirectCount(
+    {},
+    ELASTICSEARCH_COLLECTION_INDEX
+  );
+  const worksQuery = elasticsearchDirectCount({});
+  const fileSetsQuery = elasticsearchDirectCount(
+    {},
+    ELASTICSEARCH_FILE_SET_INDEX
+  );
+  const worksPublishedQuery = elasticsearchDirectCount({
     query: {
-      term: {
-        api_model: {
-          value: "Collection",
-        },
+      match: {
+        published: true,
       },
     },
   });
-  const worksQuery = elasticsearchDirectCount(query([matchWork]));
-  const fileSetsQuery = elasticsearchDirectCount(query([matchFileSet]));
-  const worksPublishedQuery = elasticsearchDirectCount(
-    query([
-      matchWork,
-      {
-        match: {
-          published: true,
-        },
-      },
-    ])
-  );
   // NOTE: This only returns projects which contain a work
   const projectsQuery = elasticsearchDirectSearch({
-    ...query([matchWork]),
     size: 0,
     aggs: {
       projects: {
         terms: {
-          field: "project.id",
+          field: "project.name",
         },
       },
     },
   });
   const visibilityQuery = elasticsearchDirectSearch({
-    ...query([matchWork]),
     size: 0,
     aggs: {
       visibilities: {
         terms: {
-          field: "visibility.id",
+          field: "visibility",
         },
         aggs: {
           published: {
@@ -171,12 +134,11 @@ export default function useRepositoryStats() {
     },
   });
   const worksCreatedByWeek = elasticsearchDirectSearch({
-    ...query([matchWork]),
     size: 0,
     aggs: {
       works_created_by_week: {
         date_histogram: {
-          field: "createDate",
+          field: "create_date",
           interval: "week",
         },
       },
@@ -184,12 +146,11 @@ export default function useRepositoryStats() {
   });
   // This grabs max 3 Collections from works updated in past quarter
   const collectionsRecentlyUpdated = elasticsearchDirectSearch({
-    ...query([matchWork]),
     size: 0,
     aggs: {
       works_recently_updated: {
         date_histogram: {
-          field: "modifiedDate",
+          field: "modified_date",
           interval: "quarter",
         },
         aggs: {
@@ -221,7 +182,6 @@ export default function useRepositoryStats() {
 
     async function fn() {
       const resultArray = await Promise.all(promises);
-      console.log("resultArray", resultArray);
 
       setStats({
         collections: resultArray[0].count,

@@ -33,7 +33,7 @@ import useGTM from "@js/hooks/useGTM";
 
 function getTitle(data) {
   if (!data) return "";
-  return data.work?.title || "";
+  return data.work?.descriptiveMetadata?.title || "";
 }
 
 const ScreensWork = () => {
@@ -62,20 +62,26 @@ const ScreensWork = () => {
     },
     onCompleted({ work }) {
       const creators =
-        work.creator.length > 0 ? work.creator.map((c) => c.label) : [];
+        work.descriptiveMetadata.creator.length > 0
+          ? work.descriptiveMetadata.creator.map((c) => c.term?.label)
+          : [];
       const contributors =
-        work.contributor.length > 0 ? work.contributor.map((c) => c.label) : [];
+        work.descriptiveMetadata.contributor.length > 0
+          ? work.descriptiveMetadata.contributor.map((c) => c.term?.label)
+          : [];
       const subjects =
-        work.subject.length > 0 ? work.subject.map((s) => s.label) : [];
+        work.descriptiveMetadata.subject.length > 0
+          ? work.descriptiveMetadata.subject.map((s) => s.term?.label)
+          : [];
       loadDataLayer({
-        adminset: work.library_unit || "",
+        adminset: work.administrativeMetadata.libraryUnit?.label,
         collections: [work.collection?.title],
         creatorsContributors: [...creators, ...contributors],
         isPublished: work.published,
         pageTitle: `${getTitle(work)} - Work Details`,
-        rightsStatement: work.rights_statement,
+        rightsStatement: work.descriptiveMetadata.rightsStatement?.label,
         subjects,
-        visibility: work.visibility,
+        visibility: work.visibility?.label,
       });
     },
   });
@@ -99,7 +105,7 @@ const ScreensWork = () => {
   const handleCreateSharableBtnClick = () => {
     const isPublished = data.work.published;
     const isPublic = data.work.visibility
-      ? data.work.visibility === "OPEN"
+      ? data.work.visibility.id === "OPEN"
       : false;
 
     if (isPublished && isPublic) {
@@ -174,7 +180,7 @@ const ScreensWork = () => {
               <>
                 <ActionHeadline>
                   <PageTitle data-testid="work-page-title">
-                    {data.work.title || ""}
+                    {data.work.descriptiveMetadata.title || ""}
                   </PageTitle>
                   <WorkHeaderButtons
                     handleCreateSharableBtnClick={handleCreateSharableBtnClick}
@@ -202,11 +208,11 @@ const ScreensWork = () => {
                     <dt data-testid="work-header-id">Id</dt>
                     <dd>{data.work.id}</dd>
                     <dt data-testid="work-header-ark">Ark</dt>
-                    <dd>{data.work.ark || ""}</dd>
+                    <dd>{data.work.descriptiveMetadata.ark || ""}</dd>
                     <dt data-testid="work-header-accession-number">
                       Accession number
                     </dt>
-                    <dd>{data.work.accession_number || ""}</dd>
+                    <dd>{data.work.accessionNumber || ""}</dd>
                     {data.work.collection?.title && (
                       <>
                         <dt>Collection</dt>
