@@ -27,7 +27,7 @@ defmodule Meadow.BatchDriverTest do
       capture_log(fn ->
         assert Logger.enabled?(self())
 
-        query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+        query = ~s'{"query":{"match_all":{}}}'
         user = "user123"
         type = "update"
 

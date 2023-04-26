@@ -13,8 +13,6 @@ defmodule Meadow.Application.Children do
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "index_worker" => [
         {Meadow.Data.IndexWorker,
-         interval: Config.index_interval(), version: 1, name: Meadow.Data.IndexWorker.V1},
-        {Meadow.Data.IndexWorker,
          interval: Config.index_interval(), version: 2, name: Meadow.Data.IndexWorker.V2}
       ],
       "database_listeners" => [
