@@ -37,7 +37,7 @@
     "bulma-toast": "^2.4.1",
     "classnames": "^2.3.1",
     "downshift": "^6.1.7",
-    "edtf": "^3.1.0",
+    "edtf": "^4.4.1",
     "elasticsearch": "^16.7.3",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
