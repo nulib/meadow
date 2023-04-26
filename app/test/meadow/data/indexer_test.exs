@@ -36,16 +36,16 @@ defmodule Meadow.Data.IndexerTest do
         %{collection: collection, works: [work | _]} = indexable_data()
 
         Indexer.synchronize_index()
-        assert indexed_doc(Collection, 1, collection.id) |> get_in(["title"]) == collection.title
+        assert indexed_doc(Collection, 2, collection.id) |> get_in(["title"]) == collection.title
 
-        assert indexed_doc(Work, 1, work.id) |> get_in(["collection", "title"]) ==
+        assert indexed_doc(Work, 2, work.id) |> get_in(["collection", "title"]) ==
                  collection.title
 
         {:ok, collection} = collection |> Collections.update_collection(%{title: "New Title"})
 
         Indexer.synchronize_index()
-        assert indexed_doc(Collection, 1, collection.id) |> get_in(["title"]) == "New Title"
-        assert indexed_doc(Work, 1, work.id) |> get_in(["collection", "title"]) == "New Title"
+        assert indexed_doc(Collection, 2, collection.id) |> get_in(["title"]) == "New Title"
+        assert indexed_doc(Work, 2, work.id) |> get_in(["collection", "title"]) == "New Title"
       end)
     end
 
@@ -57,8 +57,8 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(Collection, 1, collection.id)
-               |> get_in(["representativeImage", "workId"]) ==
+        assert indexed_doc(Collection, 2, collection.id)
+               |> get_in(["representative_image", "work_id"]) ==
                  work.id
 
         file_set = file_set_fixture(%{work_id: work.id})
@@ -67,11 +67,11 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(Work, 1, work.id)
-               |> get_in(["representativeFileSet", "fileSetId"]) == file_set.id
+        assert indexed_doc(Work, 2, work.id)
+               |> get_in(["representative_file_set", "id"]) == file_set.id
 
-        assert indexed_doc(Collection, 1, collection.id)
-               |> get_in(["representativeImage", "url"]) == work.representative_image
+        assert indexed_doc(Collection, 2, collection.id)
+               |> get_in(["representative_image", "url"]) == work.representative_image
       end)
     end
 
@@ -81,8 +81,8 @@ defmodule Meadow.Data.IndexerTest do
         %{works: [work | _], file_sets: [file_set | _]} = indexable_data()
 
         Indexer.synchronize_index()
-        assert indexed_doc(Work, 1, work.id) |> get_in(["visibility", "id"]) == "OPEN"
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["visibility", "id"]) == "OPEN"
+        assert indexed_doc(Work, 2, work.id) |> get_in(["visibility"]) == "Public"
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["visibility"]) == "Public"
 
         {:ok, work} =
           work
@@ -92,17 +92,9 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(Work, 1, work.id) |> get_in(["visibility"]) == %{
-                 "id" => "RESTRICTED",
-                 "label" => "Private",
-                 "scheme" => "visibility"
-               }
+        assert indexed_doc(Work, 2, work.id) |> get_in(["visibility"]) == "Private"
 
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["visibility"]) == %{
-                 "id" => "RESTRICTED",
-                 "label" => "Private",
-                 "scheme" => "visibility"
-               }
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["visibility"]) == "Private"
       end)
     end
 
@@ -112,11 +104,15 @@ defmodule Meadow.Data.IndexerTest do
         {project, ingest_sheet, work} = project_sheet_and_work()
         Indexer.synchronize_index()
 
-        with doc <- indexed_doc(Work, 1, work.id) do
-          assert doc |> get_in(["collection"]) == %{}
-          assert doc |> get_in(["project"]) == %{"id" => project.id, "title" => project.title}
+        with doc <- indexed_doc(Work, 2, work.id) do
+          assert doc |> get_in(["collection"]) == nil
 
-          assert doc |> get_in(["sheet"]) == %{
+          assert doc |> get_in(["ingest_project"]) == %{
+                   "id" => project.id,
+                   "title" => project.title
+                 }
+
+          assert doc |> get_in(["ingest_sheet"]) == %{
                    "id" => ingest_sheet.id,
                    "title" => ingest_sheet.title
                  }
@@ -130,8 +126,8 @@ defmodule Meadow.Data.IndexerTest do
         {_project, ingest_sheet, work} = project_sheet_and_work()
         Indexer.synchronize_index()
 
-        with doc <- indexed_doc(Work, 1, work.id) do
-          assert doc |> get_in(["sheet"]) == %{
+        with doc <- indexed_doc(Work, 2, work.id) do
+          assert doc |> get_in(["ingest_sheet"]) == %{
                    "id" => ingest_sheet.id,
                    "title" => ingest_sheet.title
                  }
@@ -140,8 +136,8 @@ defmodule Meadow.Data.IndexerTest do
         ingest_sheet |> Sheets.update_ingest_sheet(%{title: "New Title"})
         Indexer.synchronize_index()
 
-        with doc <- indexed_doc(Work, 1, work.id) do
-          assert doc |> get_in(["sheet"]) == %{
+        with doc <- indexed_doc(Work, 2, work.id) do
+          assert doc |> get_in(["ingest_sheet"]) == %{
                    "id" => ingest_sheet.id,
                    "title" => "New Title"
                  }
@@ -155,8 +151,8 @@ defmodule Meadow.Data.IndexerTest do
         {project, _ingest_sheet, work} = project_sheet_and_work()
         Indexer.synchronize_index()
 
-        with doc <- indexed_doc(Work, 1, work.id) do
-          assert doc |> get_in(["project"]) == %{
+        with doc <- indexed_doc(Work, 2, work.id) do
+          assert doc |> get_in(["ingest_project"]) == %{
                    "id" => project.id,
                    "title" => project.title
                  }
@@ -165,8 +161,8 @@ defmodule Meadow.Data.IndexerTest do
         project |> Projects.update_project(%{title: "New Title"})
         Indexer.synchronize_index()
 
-        with doc <- indexed_doc(Work, 1, work.id) do
-          assert doc |> get_in(["project"]) == %{
+        with doc <- indexed_doc(Work, 2, work.id) do
+          assert doc |> get_in(["ingest_project"]) == %{
                    "id" => project.id,
                    "title" => "New Title"
                  }
@@ -183,7 +179,7 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["label"]) ==
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["label"]) ==
                  nil
 
         {:ok, file_set} =
@@ -195,12 +191,12 @@ defmodule Meadow.Data.IndexerTest do
         work_updated_timestamp = Works.get_work!(file_set.work_id).updated_at
 
         Indexer.synchronize_index()
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["label"]) == "New Label"
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["label"]) == "New Label"
 
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["description"]) ==
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["description"]) ==
                  "New Description"
 
-        assert indexed_doc(FileSet, 1, file_set.work_id) |> get_in(["modifiedDate"]) >
+        assert indexed_doc(FileSet, 2, file_set.work_id) |> get_in(["modified_date"]) >
                  work_updated_timestamp
       end)
     end
@@ -212,7 +208,7 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["representativeImageUrl"]) ==
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["representative_image_url"]) ==
                  nil
 
         {:ok, file_set} =
@@ -226,14 +222,14 @@ defmodule Meadow.Data.IndexerTest do
 
         Indexer.synchronize_index()
 
-        assert indexed_doc(FileSet, 1, file_set.id) |> get_in(["representativeImageUrl"]) ==
+        assert indexed_doc(FileSet, 2, file_set.id) |> get_in(["representative_image_url"]) ==
                  "#{Config.iiif_server_url()}posters/#{file_set.id}"
 
-        assert indexed_doc(FileSet, 1, file_set.work_id) |> get_in(["modifiedDate"]) >
+        assert indexed_doc(FileSet, 2, file_set.work_id) |> get_in(["modified_date"]) >
                  work.updated_at
 
-        assert indexed_doc(FileSet, 1, file_set.work_id)
-               |> get_in(["representativeFileSet", "url"]) ==
+        assert indexed_doc(FileSet, 2, file_set.work_id)
+               |> get_in(["representative_file_set", "url"]) ==
                  "#{Config.iiif_server_url()}posters/#{file_set.id}"
       end)
     end

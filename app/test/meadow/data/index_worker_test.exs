@@ -3,12 +3,12 @@ defmodule Meadow.Data.IndexWorkerTest do
   alias Meadow.Data.IndexWorker
 
   setup do
-    worker = start_supervised!({IndexWorker, version: 1})
+    worker = start_supervised!({IndexWorker, version: 2})
     %{worker: worker}
   end
 
   test "handle_info/2" do
-    assert {:noreply, %{interval: 5678, version: 1}} ==
-             IndexWorker.synchronize(%{interval: 5678, version: 1})
+    assert {:noreply, %{interval: 5678, version: 2}} ==
+             IndexWorker.synchronize(%{interval: 5678, version: 2})
   end
 end

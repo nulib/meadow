@@ -8,7 +8,7 @@ defmodule SearchTest do
   alias Meadow.Search.Config, as: SearchConfig
 
   @total_hits_path ~w(hits total value)
-  @v1_index SearchConfig.alias_for(Work, 1)
+  @v2_work_index SearchConfig.alias_for(Work, 2)
 
   describe "MeadowWeb.Plugs.Search" do
     test "only accepts methods: [POST, GET, OPTIONS, HEAD]" do
@@ -18,7 +18,7 @@ defmodule SearchTest do
       conn =
         build_conn()
         |> auth_user(user_fixture())
-        |> delete("/_search/#{@v1_index}/_doc/#{work.id}")
+        |> delete("/_search/#{@v2_work_index}/_doc/#{work.id}")
 
       assert conn.status == 400
     end
@@ -29,12 +29,12 @@ defmodule SearchTest do
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
         |> post(
-          "/_search/#{@v1_index}/_search",
+          "/_search/#{@v2_work_index}/_search",
           Jason.encode!(%{"query" => %{"match_all" => %{}}})
         )
 
       with total_hits <- Jason.decode!(conn.resp_body) |> get_in(["hits", "total", "value"]) do
-        assert {:ok, ^total_hits} = indexed_doc_count(@v1_index)
+        assert {:ok, ^total_hits} = indexed_doc_count(@v2_work_index)
       end
     end
 
@@ -49,7 +49,7 @@ defmodule SearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/x-ndjson")
-        |> post("/_search/#{@v1_index}/_msearch", mquery)
+        |> post("/_search/#{@v2_work_index}/_msearch", mquery)
 
       assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 1
     end
@@ -62,7 +62,7 @@ defmodule SearchTest do
         build_conn()
         |> auth_user(user_fixture())
         |> put_req_header("content-type", "application/json")
-        |> get("/_search/#{@v1_index}/_search?q=#{work.descriptive_metadata.title}")
+        |> get("/_search/#{@v2_work_index}/_search?q=#{work.descriptive_metadata.title}")
 
       assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 0
     end

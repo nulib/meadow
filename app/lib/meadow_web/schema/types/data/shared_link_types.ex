@@ -8,7 +8,7 @@ defmodule MeadowWeb.Schema.Data.SharedLinkTypes do
   alias MeadowWeb.Schema.Middleware
 
   object :shared_link_mutations do
-    @desc "Create a temporary shared link (resolves to Fen) for a work"
+    @desc "Create a temporary shared link (resolves to DC) for a work"
     field :create_shared_link, :shared_link do
       arg(:work_id, non_null(:id))
       middleware(Middleware.Authenticate)
@@ -17,8 +17,8 @@ defmodule MeadowWeb.Schema.Data.SharedLinkTypes do
   end
 
   object :shared_link do
-    field :shared_link_id, non_null(:id)
-    field :work_id, non_null(:id)
-    field :expires, non_null(:datetime)
+    field(:shared_link_id, non_null(:id))
+    field(:work_id, non_null(:id))
+    field(:expires, non_null(:datetime))
   end
 end

@@ -3,7 +3,8 @@ defmodule Meadow.Data.CSV.Export do
   Generates a CSV representation of works matching an Elasticsearch query
   """
 
-  alias Meadow.Data.Schemas.{WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
@@ -40,7 +41,7 @@ defmodule Meadow.Data.CSV.Export do
       fn
         nil -> {:halt, nil}
         :header -> {generate_header(query), :rows}
-        :rows -> {generate_rows(works_only_query(query)), nil}
+        :rows -> {generate_rows(query), nil}
       end,
       fn _ -> :ok end
     )
@@ -48,22 +49,6 @@ defmodule Meadow.Data.CSV.Export do
   end
 
   def stream_csv(query), do: Jason.encode!(query) |> stream_csv()
-
-  defp works_only_query(query) do
-    with actual_query <- Jason.decode!(query) |> Map.get("query") do
-      %{
-        query: %{
-          bool: %{
-            must: [
-              %{terms: %{"model.name.keyword" => @exportable_types}},
-              actual_query
-            ]
-          }
-        }
-      }
-      |> Jason.encode!()
-    end
-  end
 
   def fields do
     @top_level_fields ++
@@ -95,7 +80,7 @@ defmodule Meadow.Data.CSV.Export do
 
   defp generate_rows(query) do
     query
-    |> Scroll.results()
+    |> Scroll.results(SearchConfig.alias_for(Work, 2))
     |> Stream.map(&to_row/1)
     |> CSV.dump_to_stream()
   end

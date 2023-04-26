@@ -86,18 +86,6 @@ defmodule Meadow.Search.Client do
     end
   end
 
-  def most_recent(schema, 1) do
-    with index <- SearchConfig.alias_for(schema, 1),
-         index_model <- SearchConfig.model_for(schema),
-         query <- %{
-           query: %{term: %{"model.name.keyword" => %{value: index_model}}},
-           size: 1,
-           sort: [%{indexed_at: %{order: "desc"}}]
-         } do
-      retrieve_most_recent(index, query)
-    end
-  end
-
   def most_recent(schema, version) do
     SearchConfig.alias_for(schema, version)
     |> most_recent()
