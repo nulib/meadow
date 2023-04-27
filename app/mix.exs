@@ -55,7 +55,7 @@ defmodule Meadow.MixProject do
       {:authoritex, "~> 1.0.2"},
       {:aws_signature, "~> 0.3.1"},
       {:briefly, "~> 0.4.1"},
-      {:broadway_dashboard, "~> 0.2.0"},
+      {:broadway_dashboard, "~> 0.3.0"},
       {:broadway_sqs, "~> 0.7.0"},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
