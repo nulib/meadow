@@ -252,21 +252,10 @@ defmodule Meadow.Ingest.Validator do
     if String.trim(value) == "" do
       :ok
     else
-      case Meadow.Config.ingest_bucket()
-           |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
-           |> ExAws.request() do
-        {:ok, %{body: vtt}} ->
-          if String.match?(vtt, ~r/^WEBVTT/),
-            do: :ok,
-            else: {:error, "structure", "#{value} is not a valid WebVTT file"}
-
-        {:error, {:http_error, 404, _}} ->
-          {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
-
-        {:error, other} ->
-          {:error, "structure",
-           "The following error occurred validating #{value}: #{inspect(other)}"}
-      end
+      Meadow.Config.ingest_bucket()
+      |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
+      |> ExAws.request()
+      |> validate_structure_value(value)
     end
   end
 
@@ -364,6 +353,21 @@ defmodule Meadow.Ingest.Validator do
 
   defp validate_value(_row, {_field_name, _value}, _context),
     do: :ok
+
+  defp validate_structure_value({:ok, %{body: vtt}}, value) do
+    if(String.match?(vtt, ~r/^WEBVTT/),
+      do: :ok,
+      else: {:error, "structure", "#{value} is not a valid WebVTT file"}
+    )
+  end
+
+  defp validate_structure_value({:error, {:http_error, 404, _}}, value) do
+    {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
+  end
+
+  defp validate_structure_value({:error, other}, value) do
+    {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
+  end
 
   defp validate_row(%Row{state: "pending"} = row, context) do
     reducer = fn %Row.Field{header: field_name, value: value}, acc ->
