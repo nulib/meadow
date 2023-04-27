@@ -21,10 +21,16 @@ defmodule Meadow.Data.IndexerTest do
       assert_doc_counts_match(context)
     end
 
-    test "reindex_all/0", context do
+    test "reindex_all", context do
       Indexer.synchronize_index()
       assert_doc_counts_match(context)
       Indexer.reindex_all()
+      assert_doc_counts_match(context)
+      Indexer.reindex_all(2)
+      assert_doc_counts_match(context)
+      Indexer.reindex_all(2, Work)
+      assert_doc_counts_match(context)
+      Indexer.reindex_all(2, [FileSet, Collection])
       assert_doc_counts_match(context)
     end
   end
