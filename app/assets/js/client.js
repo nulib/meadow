@@ -1,16 +1,21 @@
-import fetch from "node-fetch";
+import * as AbsintheSocket from "@absinthe/socket";
+
 import {
   ApolloClient,
   ApolloLink,
-  InMemoryCache,
   HttpLink,
+  InMemoryCache,
 } from "@apollo/client";
-import { setContext } from "@apollo/client/link/context";
-import { hasSubscription } from "@jumpn/utils-graphql";
-import * as AbsintheSocket from "@absinthe/socket";
-import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
+import { resolvers, typeDefs } from "./client-local";
+
 import { Socket as PhoenixSocket } from "phoenix";
-import { typeDefs, resolvers } from "./client-local";
+import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
+import { hasSubscription } from "@jumpn/utils-graphql";
+import { setContext } from "@apollo/client/link/context";
+
+// Need to import it this way since upgrading to node-fetch v3
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 // Create an HTTP link that fetches GraphQL results over an HTTP
 // connection from the Phoenix app's GraphQL API endpoint URL.
@@ -42,7 +47,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       ControlledValue: {
-        keyFields: ["id", "hint"]
+        keyFields: ["id", "hint"],
       },
       FileSet: {
         fields: {
