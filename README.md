@@ -22,7 +22,7 @@ Now you can visit [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/`](h
 
 ## Stopping the application
 
-You can stop the Phoneix server with `Ctrl + C` twice
+You can stop the Phoenix server with `Ctrl + C` twice
 
 ## Clearing and resetting data
 
@@ -60,13 +60,17 @@ If you would like to interact directly with the database
 
 ### GraphQL API
 
-You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001//api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
+You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
 
 ### Opensearch Dashboard
 
 - To start: `es-proxy start`
 - To stop: `es-proxy stop`
 - See the console output for the url to the dashboard
+
+### Digital Collections API
+
+In order to see data and thumbnails from your current environment, you'll need to run the DC API alongside Meadow. Follow the instructions for [Running the API locally](https://github.com/nulib/dc-api-v2#running-the-api-locally) and [Running the API locally via our AWS dev domain](Running the API locally via our AWS dev domain) to get it running.
 
 ### Reindexing data
 
