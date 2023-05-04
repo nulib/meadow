@@ -81,10 +81,6 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
         assert general |> Map.get("Description") ==
                  "Description of Video Metadata Extraction Test"
       end
-
-      assert capture_log(fn ->
-               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
     end
   end
 
@@ -115,6 +111,35 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
                send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata) == false)
+    end
+  end
+
+  describe "force flag" do
+    @describetag s3: [@media_fixture]
+
+    setup %{media_file_set_id: file_set_id} do
+      send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
+
+      :ok
+    end
+
+    test "skip if not forced", %{media_file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
+
+      assert capture_log(fn ->
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractMediaMetadata} for #{file_set_id} - already complete"
+    end
+
+    test "re-run if forced", %{media_file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
+
+      assert capture_log(fn ->
+               send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{
+                 force: "true"
+               })
+             end) =~
+               "Forcing #{ExtractMediaMetadata} for #{file_set_id} even though it's already complete"
     end
   end
 

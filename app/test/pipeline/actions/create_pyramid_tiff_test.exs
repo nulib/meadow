@@ -62,10 +62,6 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
         assert metadata.width == "1024"
       end
 
-      assert capture_log(fn ->
-               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
-
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
       end)
@@ -107,6 +103,39 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiffTest do
       on_exit(fn ->
         delete_object(@pyramid_bucket, dest)
       end)
+    end
+  end
+
+  describe "force flag" do
+    @describetag s3: [@fixture]
+
+    setup %{file_set_id: file_set_id, pairtree: dest} do
+      send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
+
+      on_exit(fn ->
+        delete_object(@pyramid_bucket, dest)
+      end)
+
+      :ok
+    end
+
+    test "skip if not forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
+
+      assert capture_log(fn ->
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{CreatePyramidTiff} for #{file_set_id} - already complete"
+    end
+
+    test "re-run if forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, CreatePyramidTiff))
+
+      assert capture_log(fn ->
+               send_test_message(CreatePyramidTiff, %{file_set_id: file_set_id}, %{
+                 force: "true"
+               })
+             end) =~
+               "Forcing #{CreatePyramidTiff} for #{file_set_id} even though it's already complete"
     end
   end
 
