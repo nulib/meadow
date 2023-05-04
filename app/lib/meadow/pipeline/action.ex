@@ -244,6 +244,11 @@ defmodule Meadow.Pipeline.Action do
     end
   end
 
+  defp process(action, %{id: file_set_id} = data, %{force: "true"} = attrs, true) do
+    Logger.warn("Forcing #{action} for #{file_set_id} even though it's already complete")
+    process(action, data, attrs, false)
+  end
+
   defp process(action, %{id: file_set_id}, _, true),
     do: Logger.warn("Skipping #{action} for #{file_set_id} - already complete")
 
