@@ -52,10 +52,35 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
     file_set = FileSets.get_file_set!(file_set_id)
     assert(file_set.core_metadata.digests == %{"md5" => @md5})
+  end
 
-    assert capture_log(fn ->
-             send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
-           end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} - already complete"
+  describe "force flag" do
+    @describetag s3: [@fixture]
+
+    setup %{file_set_id: file_set_id} do
+      send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
+
+      :ok
+    end
+
+    test "skip if not forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
+
+      assert capture_log(fn ->
+               send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{GenerateFileSetDigests} for #{file_set_id} - already complete"
+    end
+
+    test "re-run if forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
+
+      assert capture_log(fn ->
+               send_test_message(GenerateFileSetDigests, %{file_set_id: file_set_id}, %{
+                 force: "true"
+               })
+             end) =~
+               "Forcing #{GenerateFileSetDigests} for #{file_set_id} even though it's already complete"
+    end
   end
 
   describe "overwrite flag" do

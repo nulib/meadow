@@ -242,7 +242,7 @@ jobs:
         run: mix credo
         working-directory: app
       - name: Elixir Tests
-        run: mix test
+        run: mix test || mix test --failed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: app

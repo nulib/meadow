@@ -26,6 +26,7 @@ defmodule Meadow.Indexing.V2.Work do
       creator: encode_field(work.descriptive_metadata.creator),
       csv_metadata_update_jobs: work.metadata_update_jobs |> Enum.map(& &1.id),
       cultural_context: work.descriptive_metadata.cultural_context,
+      date_created_edtf: encode_edtf(work.descriptive_metadata.date_created),
       date_created: encode_field(work.descriptive_metadata.date_created),
       description: work.descriptive_metadata.description,
       file_sets: file_sets(work),
@@ -127,6 +128,10 @@ defmodule Meadow.Indexing.V2.Work do
   def encode_field(%{humanized: humanized}), do: humanized
 
   def encode_field(field), do: field
+
+  def encode_edtf(value) when is_list(value), do: Enum.map(value, &encode_edtf/1)
+  def encode_edtf(%{edtf: edtf}), do: edtf
+  def encode_edtf(value), do: value
 
   def encode_project(admin_metadata) do
     %{

@@ -32,11 +32,18 @@ defmodule Meadow.Data.Indexer do
   end
 
   def reindex_all(version) do
-    [FileSet, Work, Collection]
-    |> Enum.each(fn schema ->
-      SearchClient.hot_swap(schema, version, fn index ->
-        synchronize_schema(schema, version, index, :all)
-      end)
+    reindex_all(version, [FileSet, Work, Collection])
+  end
+
+  def reindex_all(version, schemas) when is_list(schemas) do
+    schemas
+    |> Enum.uniq()
+    |> Enum.each(&reindex_all(version, &1))
+  end
+
+  def reindex_all(version, schema) do
+    SearchClient.hot_swap(schema, version, fn index ->
+      synchronize_schema(schema, version, index, :all)
     end)
   end
 

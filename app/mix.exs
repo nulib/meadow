@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "7.2.0"
+  @app_version "7.2.1"
 
   def project do
     [
@@ -54,12 +54,12 @@ defmodule Meadow.MixProject do
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 1.0.2"},
       {:aws_signature, "~> 0.3.1"},
-      {:briefly, "~> 0.3.0"},
-      {:broadway_dashboard, "~> 0.2.0"},
+      {:briefly, "~> 0.4.1"},
+      {:broadway_dashboard, "~> 0.3.0"},
       {:broadway_sqs, "~> 0.7.0"},
       {:cachex, "~> 3.2"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.6.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_psql_extras, "~> 0.2"},
@@ -67,7 +67,7 @@ defmodule Meadow.MixProject do
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
       {:ets, "~> 0.9.0"},
-      {:ex_aws, "~> 2.3.0"},
+      {:ex_aws, "~> 2.4.2"},
       {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
       {:ex_aws_ssm, "~> 2.1"},
@@ -83,7 +83,7 @@ defmodule Meadow.MixProject do
       {:jason, "~> 1.0"},
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
-      {:nimble_csv, "~> 1.1.0"},
+      {:nimble_csv, "~> 1.2.0"},
       {:phoenix, "~> 1.6.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_view, "~> 0.16.4"},
@@ -95,9 +95,9 @@ defmodule Meadow.MixProject do
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:quantum, "~> 3.0"},
-      {:retry, "~> 0.16.0"},
+      {:retry, "~> 0.18.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
-      {:sitemapper, "~> 0.6.0"},
+      {:sitemapper, "~> 0.7.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 0.5"},

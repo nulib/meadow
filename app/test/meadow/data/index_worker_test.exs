@@ -4,6 +4,7 @@ defmodule Meadow.Data.IndexWorkerTest do
 
   setup do
     worker = start_supervised!({IndexWorker, version: 1})
+    on_exit(fn -> send(worker, :pause) end)
     %{worker: worker}
   end
 

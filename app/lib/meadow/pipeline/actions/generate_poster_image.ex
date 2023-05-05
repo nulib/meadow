@@ -31,21 +31,9 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
        "Offset #{poster_offset} out of range for video duration #{duration_in_milliseconds}"}
     else
       destination = FileSets.poster_uri_for(file_set)
-      iiif_cloudfront_distribution_id = Config.iiif_cloudfront_distribution_id()
 
-      case generate_poster(location, destination, poster_offset) do
-        {:ok, destination} ->
-          Repo.transaction(fn ->
-            derivatives = FileSets.add_derivative(file_set, :poster, destination)
-            FileSets.update_file_set(file_set, %{derivatives: derivatives})
-          end)
-
-          invalidate_cache(file_set, iiif_cloudfront_distribution_id)
-
-        {:error, error} ->
-          Logger.error("Error from lambda: #{destination}")
-          {:error, error}
-      end
+      generate_poster(location, destination, poster_offset)
+      |> handle_generate_poster_result(file_set, destination)
     end
   end
 
@@ -53,6 +41,21 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     Logger.error("FileSet #{file_set.id} has no value for playlist or poster_offset")
 
     {:error, "FileSet #{file_set.id} has no value for playlist or poster_offset"}
+  end
+
+  defp handle_generate_poster_result({:ok, destination}, file_set, _original_destination) do
+    Repo.transaction(fn ->
+      derivatives = FileSets.add_derivative(file_set, :poster, destination)
+      FileSets.update_file_set(file_set, %{derivatives: derivatives})
+    end)
+
+    iiif_cloudfront_distribution_id = Config.iiif_cloudfront_distribution_id()
+    invalidate_cache(file_set, iiif_cloudfront_distribution_id)
+  end
+
+  defp handle_generate_poster_result({:error, error}, _file_set, destination) do
+    Logger.error("Error from lambda: #{destination}")
+    {:error, error}
   end
 
   defp generate_poster(location, destination, offset) do

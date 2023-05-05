@@ -109,6 +109,11 @@ config :ueberauth, Ueberauth,
        ]}
   ]
 
+if prefix = System.get_env("DEV_PREFIX") do
+  config :meadow,
+    dc_api: [v2: %{"base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002"}]
+end
+
 config :meadow, :sitemaps,
   gzip: false,
   store: Sitemapper.FileStore,

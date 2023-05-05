@@ -113,10 +113,6 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
         assert Map.get(subject, "tool_version")
         assert_maps_equal(Map.get(subject, "value"), @exif, @keys)
       end
-
-      assert capture_log(fn ->
-               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
 
@@ -143,10 +139,6 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
         _ ->
           assert false
       end
-
-      assert capture_log(fn ->
-               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
     end
   end
 
@@ -156,6 +148,35 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
                send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
 
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata) == false)
+    end
+  end
+
+  describe "force flag" do
+    @describetag s3: [@exif_fixture]
+
+    setup %{exif_file_set_id: file_set_id} do
+      send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+
+      :ok
+    end
+
+    test "skip if not forced", %{exif_file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
+
+      assert capture_log(fn ->
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{ExtractExifMetadata} for #{file_set_id} - already complete"
+    end
+
+    test "re-run if forced", %{exif_file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
+
+      assert capture_log(fn ->
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{
+                 force: "true"
+               })
+             end) =~
+               "Forcing #{ExtractExifMetadata} for #{file_set_id} even though it's already complete"
     end
   end
 

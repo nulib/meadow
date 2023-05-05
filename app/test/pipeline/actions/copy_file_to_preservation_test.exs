@@ -50,10 +50,6 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       assert(object_exists?(@preservation_bucket, preservation_key))
 
-      assert capture_log(fn ->
-               send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
-             end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} - already complete"
-
       with {:ok, %{headers: headers}} <-
              ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
         assert headers |> Enum.member?({"Content-Type", "image/tiff"})
@@ -102,6 +98,39 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
         end)
 
       refute log =~ ~r/already complete without overwriting/
+    end
+  end
+
+  describe "force flag" do
+    @describetag s3: [@fixture]
+
+    setup %{file_set_id: file_set_id, preservation_key: preservation_key} do
+      send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
+
+      on_exit(fn ->
+        delete_object(@preservation_bucket, preservation_key)
+      end)
+
+      :ok
+    end
+
+    test "skip if not forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+
+      assert capture_log(fn ->
+               send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{})
+             end) =~ "Skipping #{CopyFileToPreservation} for #{file_set_id} - already complete"
+    end
+
+    test "re-run if forced", %{file_set_id: file_set_id} do
+      assert(ActionStates.ok?(file_set_id, CopyFileToPreservation))
+
+      assert capture_log(fn ->
+               send_test_message(CopyFileToPreservation, %{file_set_id: file_set_id}, %{
+                 force: "true"
+               })
+             end) =~
+               "Forcing #{CopyFileToPreservation} for #{file_set_id} even though it's already complete"
     end
   end
 
