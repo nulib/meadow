@@ -183,7 +183,7 @@ config :meadow, :lambda,
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id, :module, :id]
+  metadata: [:request_id, :lambda, :module, :id]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
