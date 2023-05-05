@@ -43,7 +43,7 @@
     "file-saver": "^2.0.5",
     "graphql": "^16.5.0",
     "graphql-tag": "^2.12.6",
-    "hls.js": "^1.1.5",
+    "hls.js": "^1.4.1",
     "inflection": "^2.0.1",
     "jest-environment-jsdom": "^29.5.0",
     "js-cookie": "^3.0.5",
