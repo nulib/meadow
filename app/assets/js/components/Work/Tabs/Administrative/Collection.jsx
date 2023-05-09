@@ -1,15 +1,16 @@
-import React from "react";
-import PropTypes from "prop-types";
-import UIFormField from "@js/components/UI/Form/Field";
-import UIFormSelect from "@js/components/UI/Form/Select";
-import { toastWrapper, sortItemsArray } from "@js/services/helpers";
-import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
   GET_COLLECTIONS,
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
+import { sortItemsArray, toastWrapper } from "@js/services/helpers";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import PropTypes from "prop-types";
+import React from "react";
+import UIFormField from "@js/components/UI/Form/Field";
+import UIFormSelect from "@js/components/UI/Form/Select";
 
 function WorkTabsAdministrativeCollection({
   collection,

@@ -1,16 +1,17 @@
+import { Button, Tag } from "@nulib/design-system";
 import React, { useContext } from "react";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
+import { IconPlay } from "@js/components/Icon";
 import PropTypes from "prop-types";
+import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormTextarea from "@js/components/UI/Form/Textarea";
-import UIFormField from "@js/components/UI/Form/Field";
 import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionButtons/Access";
 import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
-import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import useFileSet from "@js/hooks/useFileSet";
-import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-import { Button, Tag } from "@nulib/design-system";
-import { IconPlay } from "@js/components/Icon";
 
 function WorkFilesetListItem({
   fileSet,
@@ -111,7 +112,7 @@ function WorkFilesetListItem({
                       id={`checkbox-work-switch-${id}`}
                       type="checkbox"
                       name={`checkbox-work-switch-${id}`}
-                      className="switch"
+                      className="switch is-info"
                       checked={workImageFilesetId === id}
                       onChange={() => handleWorkImageChange(id)}
                       data-testid="work-image-selector"

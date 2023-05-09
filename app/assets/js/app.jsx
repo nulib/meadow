@@ -1,14 +1,14 @@
 import "../styles/app.scss";
-import isUndefined from "lodash.isundefined";
-import React from "react";
-import Root from "./screens/Root";
-import Honeybadger from "@honeybadger-io/js";
-import ErrorBoundary from "@honeybadger-io/react";
-import { createRoot } from 'react-dom/client';
 
 // GraphQL-specific
 import { ApolloProvider } from "@apollo/client";
+import ErrorBoundary from "@honeybadger-io/react";
+import Honeybadger from "@honeybadger-io/js";
+import React from "react";
+import Root from "./screens/Root";
 import client from "./client";
+import { createRoot } from "react-dom/client";
+import isUndefined from "lodash.isundefined";
 
 const ifDefined = (value, fallback) => (isUndefined(value) ? fallback : value);
 
@@ -25,10 +25,10 @@ const honeybadger = Honeybadger.configure(config).setContext({
 
 const container = document.getElementById("react-app");
 const root = createRoot(container);
-root.render(<ErrorBoundary honeybadger={honeybadger}>
-  <ApolloProvider client={client}>
-    <Root />
-  </ApolloProvider>
-</ErrorBoundary>)
-
-
+root.render(
+  <ErrorBoundary honeybadger={honeybadger}>
+    <ApolloProvider client={client}>
+      <Root />
+    </ApolloProvider>
+  </ErrorBoundary>
+);

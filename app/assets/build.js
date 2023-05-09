@@ -29,7 +29,7 @@ const define = {
 
 const loader = {
   ".js": "jsx",
-  ".png": "file"
+  ".png": "file",
 };
 
 const importMapper = (loc) => {
@@ -54,12 +54,12 @@ const plugins = [
   copy({
     assets: {
       from: "./static/**/*",
-      to: ".." // relative to `outdir` below
+      to: "..", // relative to `outdir` below
     },
-    watch: true
+    watch: true,
   }),
-  sassPlugin({ cssImports: true, importMapper }), 
-  svgr()
+  sassPlugin({ cssImports: true, importMapper }),
+  svgr(),
 ];
 
 let opts = {
