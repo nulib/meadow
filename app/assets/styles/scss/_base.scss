@@ -137,3 +137,9 @@ table {
 .content .title {
   font-size: $size-1;
 }
+
+// Bulma switch override
+.switch[type="checkbox"]:checked + label::before,
+.switch[type="checkbox"]:checked + label:before {
+  background: $primary;
+}
