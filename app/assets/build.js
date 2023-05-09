@@ -1,3 +1,4 @@
+const { copy } = require("esbuild-plugin-copy");
 const esbuild = require("esbuild");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -28,6 +29,7 @@ const define = {
 
 const loader = {
   ".js": "jsx",
+  ".png": "file"
 };
 
 const importMapper = (loc) => {
@@ -48,7 +50,17 @@ const importMapper = (loc) => {
   return result;
 };
 
-const plugins = [sassPlugin({ cssImports: true, importMapper }), svgr()];
+const plugins = [
+  copy({
+    assets: {
+      from: "./static/**/*",
+      to: ".." // relative to `outdir` below
+    },
+    watch: true
+  }),
+  sassPlugin({ cssImports: true, importMapper }), 
+  svgr()
+];
 
 let opts = {
   entryPoints: ["js/app.jsx"],
