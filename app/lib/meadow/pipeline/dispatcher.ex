@@ -100,6 +100,17 @@ defmodule Meadow.Pipeline.Dispatcher do
 
   def all_progress_actions, do: @all_actions
 
+  def dispatcher_actions(file_set, attributes) do
+    case attributes do
+      %{custom_actions: custom_actions} ->
+        custom_actions
+        |> Enum.map(&Module.safe_concat(Meadow.Pipeline.Actions, &1))
+
+      _ ->
+        dispatcher_actions(file_set)
+    end
+  end
+
   def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _}}),
     do: @access_image_actions
 
@@ -179,7 +190,7 @@ defmodule Meadow.Pipeline.Dispatcher do
   def dispatch_next_action(file_set, last_action, attributes) do
     last = Module.safe_concat(Meadow.Pipeline.Actions, last_action)
 
-    case next_action(last, dispatcher_actions(file_set)) do
+    case next_action(last, dispatcher_actions(file_set, attributes)) do
       nil ->
         :noop
 
