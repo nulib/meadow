@@ -121,7 +121,7 @@ jobs:
       - name: JS Tests
         run: npm run-script ci:silent -- -w 1
         working-directory: app/assets
-      - name: Test Webpack Build
+      - name: Test ESBuild
         run: npm run-script deploy
         working-directory: app/assets
   elixir-test:

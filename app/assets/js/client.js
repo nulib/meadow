@@ -7,8 +7,12 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { hasSubscription } from "@jumpn/utils-graphql";
-import * as AbsintheSocket from "@absinthe/socket";
-import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
+// The following packages don't work well with esbuild when imported; the workaround
+// is to require them https://github.com/absinthe-graphql/absinthe-socket/issues/59
+// import * as AbsintheSocket from "@absinthe/socket";
+// import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
+const AbsintheSocket = require("@absinthe/socket");
+const { createAbsintheSocketLink } = require("@absinthe/socket-apollo-link");
 import { Socket as PhoenixSocket } from "phoenix";
 import { typeDefs, resolvers } from "./client-local";
 

@@ -223,7 +223,7 @@ const CollectionForm = ({ collection }) => {
                 id="published"
                 type="checkbox"
                 {...methods.register("published")}
-                className="switch"
+                className="switch is-info"
                 data-testid="checkbox-published"
                 defaultChecked={collection ? collection.published : false}
               />

@@ -1,8 +1,9 @@
-import React from "react";
 import {
   elasticsearchDirectCount,
   elasticsearchDirectSearch,
 } from "@js/services/elasticsearch";
+
+import React from "react";
 
 /**
  * Elasticsearch queries

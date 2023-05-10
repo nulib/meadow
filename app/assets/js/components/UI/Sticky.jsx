@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
+
 import PropTypes from "prop-types";
 
 const UISticky = ({ children, ...restProps }) => {
   const [headerHeight, setHeaderHeight] = useState();
   const styles = {
     headerStyle: {
-      position: "-webkit-sticky",
       position: "sticky",
       top: headerHeight,
       zIndex: 100,

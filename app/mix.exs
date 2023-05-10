@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "7.2.2"
+  @app_version "7.2.3"
 
   def project do
     [
@@ -11,7 +11,7 @@ defmodule Meadow.MixProject do
       version: @app_version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix | Mix.compilers()],
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -24,7 +24,8 @@ defmodule Meadow.MixProject do
         "coveralls.html": :test,
         credo: :test
       ],
-      releases: releases()
+      releases: releases(),
+      xref: [exclude: [Phoenix.View]]
     ]
   end
 
@@ -84,13 +85,14 @@ defmodule Meadow.MixProject do
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.2.0"},
-      {:phoenix, "~> 1.6.0"},
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_html, "~> 3.0"},
-      {:phoenix_live_view, "~> 0.16.4"},
-      {:phoenix_live_dashboard, "~> 0.5"},
+      {:phoenix_live_view, "~> 0.18.18"},
+      {:phoenix_live_dashboard, "~> 0.7.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.1"},
+      {:phoenix_view, "~> 2.0.2"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},

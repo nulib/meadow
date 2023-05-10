@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+
 import { ActionHeadline } from "@js/components/UI/UI";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import PropTypes from "prop-types";
 
 const UITabsStickyHeader = ({ title, children, ...restProps }) => {
   const [headerHeight, setHeaderHeight] = useState();
   const styles = {
     headerStyle: {
-      position: "-webkit-sticky",
       position: "sticky",
       top: headerHeight,
       zIndex: 10,
