@@ -6,27 +6,7 @@ const port = window.location.port;
 export const ELASTICSEARCH_PROXY_ENDPOINT = `${host}:${port}/_search`;
 export const ELASTICSEARCH_INDEX_NAME = __ELASTICSEARCH_INDEX__;
 
-const Elasticsearch = require("elasticsearch");
-
-// The Elasticsearch Client v16.7.3 is deprecated and does not build
-// correctly under esbuild unless you pass a custom Logger class in
-// the `log` option. Upgrading to the new ES client should help.
-// https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/index.html
-class NullLogger {
-  constructor() {}
-
-  debug() {}
-  error() {}
-  info() {}
-  log() {}
-  trace() {}
-  warn() {}
-}
-
-const client = new Elasticsearch.Client({
-  host: ELASTICSEARCH_PROXY_ENDPOINT,
-  log: NullLogger,
-});
+const fetch = require("node-fetch");
 
 export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
@@ -94,6 +74,12 @@ export const allWorksQuery = {
   },
 };
 
+function elasticsearchUrl(leaf) {
+  return [ELASTICSEARCH_PROXY_ENDPOINT, ELASTICSEARCH_INDEX_NAME, leaf].join(
+    "/"
+  );
+}
+
 /**
  * Make a direct "count" request to Elasticsearch
  * @param {object} body
@@ -101,11 +87,13 @@ export const allWorksQuery = {
  */
 export async function elasticsearchDirectCount(body) {
   try {
-    let response = await client.count({
-      index: ELASTICSEARCH_INDEX_NAME,
-      body: body,
+    let response = await fetch(elasticsearchUrl("_count"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
-    return response;
+
+    return await response.json();
   } catch (err) {
     console.log("elasticsearchDirectCount error", err);
     return Promise.resolve(null);
@@ -119,11 +107,13 @@ export async function elasticsearchDirectCount(body) {
  */
 export async function elasticsearchDirectSearch(body) {
   try {
-    let response = await client.search({
-      index: ELASTICSEARCH_INDEX_NAME,
-      body: body,
+    let response = await fetch(elasticsearchUrl("_search"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
-    return response;
+
+    return await response.json();
   } catch (err) {
     console.log("elasticsearchDirectSearch error", err);
     return Promise.resolve(null);
