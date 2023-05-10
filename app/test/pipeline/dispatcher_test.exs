@@ -231,6 +231,25 @@ defmodule Meadow.Pipeline.DispatcherTest do
 
       assert Dispatcher.dispatcher_actions(file_set) == nil
     end
+
+    test "custom list of actions" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "image/tiff",
+            location: "s3://blahblah",
+            original_filename: "test.tif"
+          }
+        })
+
+      actions = ["ExtractExifMetadata", "CopyFileToPreservation"]
+      queue = [ExtractExifMetadata, CopyFileToPreservation]
+
+      assert Dispatcher.dispatcher_actions(file_set, %{custom_actions: actions}) == queue
+      assert Dispatcher.next_action(ExtractExifMetadata, queue) == CopyFileToPreservation
+      assert Dispatcher.next_action(CopyFileToPreservation, queue) |> is_nil()
+    end
   end
 
   describe "playlist exists" do
