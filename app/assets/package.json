@@ -38,7 +38,6 @@
     "classnames": "^2.3.1",
     "downshift": "^6.1.12",
     "edtf": "^4.4.1",
-    "elasticsearch": "^16.7.3",
     "esbuild-plugin-svgr": "^1.1.0",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
