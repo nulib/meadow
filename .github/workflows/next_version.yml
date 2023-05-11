@@ -1,0 +1,43 @@
+---
+name: Increment Version & Create Draft PR
+on:
+  workflow_dispatch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  pull-requests: write
+jobs:
+  increment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: deploy/staging
+      - name: Set GitHub Deploy Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.REPO_PRIVATE_KEY }}
+      - name: Bump Version
+        id: increment
+        run: |
+          perl -pi -e 's/(@app_version "\d+\.\d+\.)(\d+)(")/$1 . ($2+1) . $3/e' app/mix.exs
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/mix.exs
+          git commit -m "Bump version to $(sed -rn 's/^\s*@app_version\s+"(.+)"$/\1/p' app/mix.exs)"
+          git push origin deploy/staging
+      - name: Read PR Template
+        id: template
+        uses: jaywcjlove/github-action-read-file@main
+        with:
+          path: .github/PULL_REQUEST_TEMPLATE/production.md
+      - name: Create New Production PR
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: deploy/staging
+          destination_branch: main
+          pr_title: Deploy vX.X.X to production
+          pr_body: |
+            ${{ steps.template.outputs.content }}
+          pr_draft: true

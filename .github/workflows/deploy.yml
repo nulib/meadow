@@ -9,6 +9,8 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+permissions:
+  actions: write
 jobs:
   build:
     if: ${{ ! github.event.pull_request }}
@@ -72,6 +74,17 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           git push origin v${MEADOW_VERSION}
+      - name: Dispatch New Production PR
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'next_version.yml',
+              ref: 'deploy/staging',
+            })
   deploy:
     needs: build
     if: ${{ ! startsWith(github.ref, 'refs/heads/build/') }}
