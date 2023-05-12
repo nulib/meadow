@@ -79,7 +79,7 @@
     "@honeybadger-io/webpack": "^5.1.7",
     "@nulib/prettier-config": "^1.2.0",
     "@svgr/webpack": "^5.5.0",
-    "@testing-library/dom": "^9.2.0",
+    "@testing-library/dom": "^9.3.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.2.1",
