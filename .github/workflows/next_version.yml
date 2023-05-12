@@ -37,6 +37,7 @@ jobs:
         with:
           source_branch: deploy/staging
           destination_branch: main
+          pr_label: "release"
           pr_title: Deploy vX.X.X to production
           pr_body: |
             ${{ steps.template.outputs.content }}
