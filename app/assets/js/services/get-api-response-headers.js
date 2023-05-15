@@ -9,7 +9,7 @@ export async function getApiResponseHeaders(uri, token) {
   } catch (error) {
     console.error(
       "There was an error fetching the etag from the API response headers.",
-      error
+      error,
     );
   }
 }

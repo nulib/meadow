@@ -27,12 +27,12 @@ RUN mix deps.get --only prod \
 COPY ./assets/package.json /app/assets/package.json
 COPY ./assets/package-lock.json /app/assets/package-lock.json
 WORKDIR /app/assets
-RUN npm install
+RUN npm ci --force
 COPY ./priv/nodejs /app/priv/nodejs
 WORKDIR /app/priv/nodejs
 RUN for flag in $(find . -name .docker-npm); do \
       cd $(dirname ${flag}); \
-      npm install; \
+      npm ci; \
       cd -; \
     done
 WORKDIR /app

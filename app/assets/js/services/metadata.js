@@ -397,12 +397,12 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
   let returnObj = { add: {}, replace: {} };
   const formDataKeys = Object.keys(currentFormValues);
   const metadataNames = UNCONTROLLED_MULTI_VALUE_METADATA.map(
-    (umvm) => umvm.name
+    (umvm) => umvm.name,
   );
 
   // Filter form values by multi value entries only
   const formMultiOnly = formDataKeys.filter(
-    (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1
+    (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1,
   );
 
   for (const key of formMultiOnly) {
@@ -443,7 +443,7 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
 
 export function getMetadataLabel(name) {
   let foundItem = Object.keys(METADATA_FIELDS).filter(
-    (key) => METADATA_FIELDS[key].name === name
+    (key) => METADATA_FIELDS[key].name === name,
   );
   return METADATA_FIELDS[foundItem[0]].label;
 }
@@ -455,7 +455,7 @@ export function findScheme(termToFind) {
 
 export function hasRole(name) {
   const controlledTermItem = DESCRIPTIVE_METADATA.controlledTerms.find(
-    (obj) => obj.name === name
+    (obj) => obj.name === name,
   );
   return controlledTermItem.hasRole;
 }
@@ -468,7 +468,7 @@ export function hasRole(name) {
  */
 export function parseMultiValues(
   multiValues = {},
-  metadataClass = "descriptive"
+  metadataClass = "descriptive",
 ) {
   let { add = {}, replace = {} } = multiValues;
   let returnObj = {
@@ -508,7 +508,7 @@ export function parseMultiValues(
 export function prepControlledTermInput(
   controlledTerm = {},
   formItems = [],
-  includeLabel = false
+  includeLabel = false,
 ) {
   // First, filter out any controlled term fieldsets which come through without
   // a valid controlled term id selected
@@ -665,7 +665,7 @@ export function removeLabelsFromBatchEditPostData(
   batchReplaces,
   hasAdds,
   hasDeletes,
-  hasReplaces
+  hasReplaces,
 ) {
   let returnObj = {
     add: { descriptiveMetadata: {}, administrativeMetadata: {} },

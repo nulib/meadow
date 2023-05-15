@@ -27,7 +27,7 @@ export function formatSimpleISODate(date) {
 export function isUrlValid(url) {
   return Boolean(
     url.match(URL_PATTERN_MATCH) &&
-      URL_PATTERN_START.some((validStart) => url.startsWith(validStart))
+      URL_PATTERN_START.some((validStart) => url.startsWith(validStart)),
   );
 }
 
@@ -130,7 +130,7 @@ export function sortFileSets({ order = "asc", fileSets = [] }) {
 
 export function toastWrapper(
   type = "is-info",
-  message = "Whoops, You forgot to include a message!"
+  message = "Whoops, You forgot to include a message!",
 ) {
   return toast({
     message,
