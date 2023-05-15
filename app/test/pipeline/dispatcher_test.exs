@@ -243,7 +243,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      actions = ["ExtractExifMetadata", "CopyFileToPreservation"]
+      actions = "ExtractExifMetadata | CopyFileToPreservation"
       queue = [ExtractExifMetadata, CopyFileToPreservation]
 
       assert Dispatcher.dispatcher_actions(file_set, %{custom_actions: actions}) == queue
