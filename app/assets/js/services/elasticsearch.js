@@ -77,7 +77,7 @@ function elasticsearchUrl(leaf) {
  */
 export async function elasticsearchDirectCount(
   body,
-  index = ELASTICSEARCH_WORK_INDEX
+  index = ELASTICSEARCH_WORK_INDEX,
 ) {
   try {
     let response = await fetch(elasticsearchUrl(`${index}/_count`), {
@@ -100,7 +100,7 @@ export async function elasticsearchDirectCount(
  */
 export async function elasticsearchDirectSearch(
   body,
-  index = ELASTICSEARCH_WORK_INDEX
+  index = ELASTICSEARCH_WORK_INDEX,
 ) {
   try {
     let response = await fetch(elasticsearchUrl(`${index}/_search`), {

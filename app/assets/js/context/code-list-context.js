@@ -166,7 +166,7 @@ function CodeListProvider({ children }) {
             rightsStatementLoading ||
             statusLoading ||
             subjectRoleLoading ||
-            visibilityLoading
+            visibilityLoading,
         ),
       }}
     >
