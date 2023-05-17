@@ -55,7 +55,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
     extracted_metadata =
       case file_set.extracted_metadata do
         nil -> %{exif: exif_metadata}
-        map -> Map.put(map, :exif, exif_metadata)
+        map -> map |> Map.delete("exif") |> Map.put(:exif, exif_metadata)
       end
 
     FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
