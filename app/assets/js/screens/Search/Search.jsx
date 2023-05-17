@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import Layout from "../Layout";
-import { SelectedFilters } from "@appbaseio/reactivesearch";
-import SearchBar from "@js/components/UI/SearchBar";
-import SearchResults from "@js/components/Search/Results";
-import SearchFacetSidebar from "@js/components/Search/FacetSidebar";
-import { useHistory, useLocation } from "react-router-dom";
-import SearchActionRow from "@js/components/Search/ActionRow";
 import {
-  parseESAggregationResults,
-  elasticsearchDirectSearch,
   ELASTICSEARCH_AGGREGATION_FIELDS,
+  elasticsearchDirectSearch,
+  parseESAggregationResults,
 } from "@js/services/elasticsearch";
-import { useBatchDispatch } from "@js/context/batch-edit-context";
-import { ErrorBoundary } from "react-error-boundary";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import {
   FallbackErrorComponent,
   PageTitle,
   ResultsDisplaySwitcher,
 } from "@js/components/UI/UI";
+import React, { useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
+
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { ErrorBoundary } from "react-error-boundary";
+import Layout from "../Layout";
+import SearchActionRow from "@js/components/Search/ActionRow";
+import SearchBar from "@js/components/UI/SearchBar";
+import SearchFacetSidebar from "@js/components/Search/FacetSidebar";
+import SearchResults from "@js/components/Search/Results";
+import { SelectedFilters } from "@appbaseio/reactivesearch";
+import { buildSelectedItemsQuery } from "@js/services/reactive-search";
+import { useBatchDispatch } from "@js/context/batch-edit-context";
 import useGTM from "@js/hooks/useGTM";
 
 async function getParsedAggregations(query) {
@@ -46,12 +47,12 @@ const ScreensSearch = () => {
   const dispatch = useBatchDispatch();
   const { loadDataLayer } = useGTM();
 
-  /** 
+  /**
    * This helper function doesn't appear to be doing it's job any more
    * of allowing a single click to go back into a saved Search.  But
    * since we're pinning to a previous version of ReactiveSearch, maybe
    * this has some value into the future.
-   * 
+   *
   React.useEffect(() => {
     loadDataLayer({ pageTitle: "Search" });
 
@@ -86,6 +87,8 @@ const ScreensSearch = () => {
   // Handle user selected search result items by constructing an Elasticsearch query
   const handleEditItems = async () => {
     const myQuery = buildSelectedItemsQuery(selectedItems);
+
+
     const parsedAggregations = await getParsedAggregations(myQuery);
 
     // Update the global Batch Edit Context

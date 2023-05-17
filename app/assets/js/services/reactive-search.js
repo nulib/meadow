@@ -34,19 +34,8 @@ function renderAggregationFacetLabel(label, count) {
  */
 export function buildSelectedItemsQuery(selectedItems = []) {
   return {
-    bool: {
-      must: [
-        {
-          match: {
-            "model.name": "Work",
-          },
-        },
-        {
-          query_string: {
-            query: ` id.keyword:(${selectedItems.join(" OR ")})`,
-          },
-        },
-      ],
+    query_string: {
+      query: ` id:(${selectedItems.join(" OR ")})`,
     },
   };
 }
@@ -90,21 +79,21 @@ export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "BoxName",
-    dataField: "descriptiveMetadata.boxName.keyword",
+    dataField: "box_name",
     showSearch: true,
     title: "Box Name",
   },
   {
     ...defaultListItemValues,
     componentId: "BoxNumber",
-    dataField: "descriptiveMetadata.boxNumber.keyword",
+    dataField: "box_number",
     showSearch: false,
     title: "Box Number",
   },
   {
     ...defaultListItemValues,
     componentId: "Contributor",
-    dataField: "descriptiveMetadata.contributor.displayFacet",
+    dataField: "contributor.label_with_role",
     showSearch: true,
     title: "Contributor",
   },
@@ -119,53 +108,53 @@ export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "Creator",
-    dataField: "descriptiveMetadata.creator.displayFacet",
+    dataField: "creator.label",
     showSearch: true,
     title: "Creator",
   },
   {
     ...defaultListItemValues,
     componentId: "FolderName",
-    dataField: "descriptiveMetadata.folderName.keyword",
+    dataField: "folder_name",
     showSearch: true,
     title: "Folder Name",
   },
   {
     ...defaultListItemValues,
     componentId: "FolderNumber",
-    dataField: "descriptiveMetadata.folderNumber.keyword",
+    dataField: "folder_number",
     showSearch: false,
     title: "Folder Number",
   },
   {
     ...defaultListItemValues,
     componentId: "Genre",
-    dataField: "descriptiveMetadata.genre.displayFacet",
+    dataField: "genre.label",
     showSearch: true,
     title: "Genre",
   },
   {
     ...defaultListItemValues,
     componentId: "Language",
-    dataField: "descriptiveMetadata.language.displayFacet",
+    dataField: "language.label",
     title: "Language",
   },
   {
     ...defaultListItemValues,
     componentId: "LibraryUnit",
-    dataField: "administrativeMetadata.libraryUnit.label.keyword",
+    dataField: "library_unit",
     title: "Library Unit",
   },
   {
     ...defaultListItemValues,
     componentId: "License",
-    dataField: "descriptiveMetadata.license.label.keyword",
+    dataField: "license.label",
     title: "License",
   },
   {
     ...defaultListItemValues,
     componentId: "Location",
-    dataField: "descriptiveMetadata.location.displayFacet",
+    dataField: "location.label",
     showSearch: true,
     title: "Location",
   },
@@ -180,7 +169,7 @@ export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "ReadingRoom",
-    dataField: "readingRoom",
+    dataField: "reading_room",
     renderItem: renderBooleanFacetLabel,
     title: "Reading Room",
     transformData: transformBooleanData,
@@ -188,47 +177,47 @@ export const FACET_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "RightsStatement",
-    dataField: "descriptiveMetadata.rightsStatement.label.keyword",
+    dataField: "rights_statement.label",
     title: "Rights Statement",
   },
   {
     ...defaultListItemValues,
     componentId: "Series",
-    dataField: "descriptiveMetadata.series.keyword",
+    dataField: "series",
     showSearch: false,
     title: "Series",
   },
   {
     ...defaultListItemValues,
     componentId: "Subject",
-    dataField: "descriptiveMetadata.subject.displayFacet",
+    dataField: "subject.label",
     showSearch: true,
     title: "Subject",
   },
   {
     ...defaultListItemValues,
     componentId: "StylePeriod",
-    dataField: "descriptiveMetadata.stylePeriod.displayFacet",
+    dataField: "style_period.label",
     showSearch: true,
     title: "Style Period",
   },
   {
     ...defaultListItemValues,
     componentId: "Technique",
-    dataField: "descriptiveMetadata.technique.displayFacet",
+    dataField: "technique.label",
     showSearch: true,
     title: "Technique",
   },
   {
     ...defaultListItemValues,
     componentId: "Visibility",
-    dataField: "visibility.label.keyword",
+    dataField: "visibility",
     title: "Visibility",
   },
   {
     ...defaultListItemValues,
     componentId: "WorkType",
-    dataField: "workType.label.keyword",
+    dataField: "work_type",
     title: "Work Type",
   },
 ];
@@ -287,46 +276,46 @@ export const FACET_PROJECT_SENSORS = [
   {
     ...defaultListItemValues,
     componentId: "IngestProject",
-    dataField: "project.title.keyword",
+    dataField: "ingest_project.title",
     showSearch: true,
     title: "Ingest Project",
   },
   {
     ...defaultListItemValues,
     componentId: "IngestSheet",
-    dataField: "sheet.title.keyword",
+    dataField: "ingest_sheet.title",
     showSearch: true,
     title: "Ingest Sheet",
   },
   {
     ...defaultListItemValues,
     componentId: "ProjectName",
-    dataField: "administrativeMetadata.projectName.keyword",
+    dataField: "project.name",
     showSearch: true,
     title: "Project Name",
   },
   {
     ...defaultListItemValues,
     componentId: "ProjectCycle",
-    dataField: "administrativeMetadata.projectCycle.keyword",
+    dataField: "project.cycle",
     title: "Project Cycle",
   },
   {
     ...defaultListItemValues,
     componentId: "ProjectManager",
-    dataField: "administrativeMetadata.projectManager.keyword",
+    dataField: "project.manager",
     title: "Project Manager",
   },
   {
     ...defaultListItemValues,
     componentId: "ProjectProposer",
-    dataField: "administrativeMetadata.projectProposer.keyword",
+    dataField: "project.proposer",
     title: "Project Proposer",
   },
   {
     ...defaultListItemValues,
     componentId: "ProjectTaskNumber",
-    dataField: "administrativeMetadata.projectTaskNumber.keyword",
+    dataField: "project.task_number",
     showSearch: true,
     title: "Project Task Number",
   },
@@ -351,7 +340,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeImageHeight",
-    dataField: "fileSets.extractedMetadata.exif.value.imageHeight",
+    dataField: "file_sets.height",
     defaultValue: { start: 0, end: 3000 },
     range: { start: 0, end: 3000 },
     rangeLabels: { start: "0px", end: "3000px" },
@@ -360,7 +349,7 @@ export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,
     componentId: "RangeImageWidth",
-    dataField: "fileSets.extractedMetadata.exif.value.imageWidth",
+    dataField: "file_sets.width",
     defaultValue: { start: 0, end: 3000 },
     range: { start: 0, end: 3000 },
     rangeLabels: { start: "0px", end: "3000px" },

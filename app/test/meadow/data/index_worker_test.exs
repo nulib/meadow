@@ -9,7 +9,7 @@ defmodule Meadow.Data.IndexWorkerTest do
   end
 
   test "handle_info/2" do
-    assert {:noreply, %{interval: 5678, version: 1}} ==
-             IndexWorker.synchronize(%{interval: 5678, version: 1})
+    assert {:noreply, %{interval: 5678, version: 2}} ==
+             IndexWorker.synchronize(%{interval: 5678, version: 2})
   end
 end

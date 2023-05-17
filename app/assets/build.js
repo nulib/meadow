@@ -1,13 +1,25 @@
+#!/usr/bin/env node
+
+const aliasGlob = require("./build/esbuild-plugin-alias-glob");
 const { copy } = require("esbuild-plugin-copy");
 const esbuild = require("esbuild");
-const fs = require("node:fs");
 const path = require("node:path");
+const sassMapper = require("./build/sass-mapper");
 const { sassPlugin } = require("esbuild-sass-plugin");
 const svgr = require("esbuild-plugin-svgr");
 
 const args = process.argv.slice(2);
 const watch = args.includes("--watch");
 const deploy = args.includes("--deploy");
+
+const cwd = process.cwd();
+
+const elasticsearchIndex = (suffix) =>
+  JSON.stringify(
+    [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2", suffix]
+      .filter((e) => e)
+      .join("-")
+  );
 
 const define = {
   __HONEYBADGER_API_KEY__: JSON.stringify(
@@ -20,34 +32,14 @@ const define = {
     process.env.HONEYBADGER_REVISION || ""
   ),
   __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION || ""),
-  __ELASTICSEARCH_INDEX__: JSON.stringify(
-    [process.env.DEV_PREFIX, process.env.DEV_ENV, "meadow"]
-      .filter((e) => e)
-      .join("-")
-  ),
+  __ELASTICSEARCH_WORK_INDEX__: elasticsearchIndex("work"),
+  __ELASTICSEARCH_COLLECTION_INDEX__: elasticsearchIndex("collection"),
+  __ELASTICSEARCH_FILE_SET_INDEX__: elasticsearchIndex("file-set"),
 };
 
 const loader = {
   ".js": "jsx",
   ".png": "file",
-};
-
-const importMapper = (loc) => {
-  const relativePathResolver = new RegExp(
-    "^(?<prefix>.+?/)(node_modules/.+/)(?<path>node_modules/.+$)"
-  );
-  let result = loc.replace(relativePathResolver, "$<prefix>$<path>");
-
-  if (result.startsWith("@")) {
-    result = path.join(process.cwd(), "node_modules", result);
-  }
-
-  if (fs.existsSync(path.join(result, "package.json"))) {
-    const spec = JSON.parse(fs.readFileSync(path.join(result, "package.json")));
-    result = path.join(result, spec.sass || spec.main);
-  }
-
-  return result;
 };
 
 const plugins = [
@@ -58,7 +50,12 @@ const plugins = [
     },
     watch: true,
   }),
-  sassPlugin({ cssImports: true, importMapper }),
+  aliasGlob({
+    "@js": {
+      to: path.resolve(cwd, "./js"),
+    },
+  }),
+  sassPlugin({ cssImports: true, importMapper: sassMapper }),
   svgr(),
 ];
 
@@ -72,6 +69,7 @@ let opts = {
   define,
   loader,
   plugins,
+  resolveExtensions: [".mjs", ".js", ".jsx", ".json", ".tsx", ".ts"],
 };
 
 async function watchMode(opts) {

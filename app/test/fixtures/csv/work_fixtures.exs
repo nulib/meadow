@@ -3949,10 +3949,10 @@
       },
       preservation_level: %{id: "2", label: "Level 2", scheme: "preservation_level"},
       project_cycle: "Redevelopment",
-      project_desc: ["Description of Project", "Another Description of Project"],
+      project_desc: ["Description of Project"],
       project_manager: ["Brisco County, Jr."],
       project_name: ["The Coming Thing"],
-      project_proposer: ["Socrates Poole", "Lord Bowler"],
+      project_proposer: ["Socrates Poole"],
       project_task_number: ["1899.827"],
       status: %{id: "NOT STARTED", label: "Started", scheme: "status"}
     },

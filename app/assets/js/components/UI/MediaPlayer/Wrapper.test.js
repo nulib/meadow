@@ -1,10 +1,11 @@
-import React from "react";
 import { screen, waitFor } from "@testing-library/react";
+
 import MediaPlayerWrapper from "./Wrapper";
+import React from "react";
 import { WorkProvider } from "@js/context/work-context";
 import { mockFileSets } from "@js/mock-data/filesets";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 jest.mock("@js/hooks/useIsAuthorized");
@@ -20,7 +21,7 @@ const initialState = {
     isOpen: false,
     webVttString: "",
   },
-  workTypeId: "VIDEO",
+  workType: "VIDEO",
 };
 
 describe("MediaPlayerWrapper component", () => {

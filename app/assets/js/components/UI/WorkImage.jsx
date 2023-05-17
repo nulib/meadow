@@ -1,5 +1,5 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 import UIPlaceholder from "./Placeholder";
 
 function UIWorkImage({ imageUrl = "", size = 128, workTypeId }) {

@@ -1,3 +1,342 @@
+export const elasticSearchCountResponse = {
+  count: 33,
+  _shards: {
+    total: 11,
+    successful: 11,
+    skipped: 0,
+    failed: 0,
+  },
+};
+
+export const indexWork = {
+  _id: "bc226092-eed6-41cf-bc37-45a81cac0e76",
+  _index: "adam-dev-dc-v2-work-1678389396906",
+  _score: 1,
+  _type: "_doc",
+  abstract: [],
+  accession_number: "Donohue_001",
+  alternate_title: [],
+  api_link:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/bc226092-eed6-41cf-bc37-45a81cac0e76",
+  api_model: "Work",
+  ark: "ark:/99999/fk463004889",
+  batch_ids: [],
+  box_name: [],
+  box_number: [],
+  canonical_link:
+    "https://dc.rdc-staging.library.northwestern.edu/items/bc226092-eed6-41cf-bc37-45a81cac0e76",
+  caption: [],
+  catalog_key: [],
+  collection: null,
+  contributor: [],
+  create_date: "2023-05-04T20:31:26.706235Z",
+  creator: [],
+  csv_metadata_update_jobs: [],
+  cultural_context: [],
+  date_created: [],
+  description: [],
+  file_sets: [
+    {
+      accession_number: "Donohue_001_01",
+      description: "Letter, page 1, Dear Sir, recto",
+      duration: null,
+      height: 1024,
+      id: "cdd0fb5f-d982-4503-8dd9-bedc44b5cd81",
+      label: "The label",
+      mime_type: "image/tiff",
+      original_filename: "coffee.tif",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url:
+        "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/cdd0fb5f-d982-4503-8dd9-bedc44b5cd81",
+      role: "Access",
+      streaming_url: null,
+      webvtt: null,
+      width: 1024,
+    },
+    {
+      accession_number: "Donohue_001_03",
+      description: "Letter, page 2, If these papers, recto",
+      duration: null,
+      height: 1024,
+      id: "d52625ab-af91-4768-a922-d09442a86be1",
+      label: "The label",
+      mime_type: "image/tiff",
+      original_filename: "coffee.tif",
+      poster_offset: null,
+      rank: 1073741824,
+      representative_image_url:
+        "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/d52625ab-af91-4768-a922-d09442a86be1",
+      role: "Access",
+      streaming_url: null,
+      webvtt: null,
+      width: 1024,
+    },
+    {
+      accession_number: "Donohue_001_02",
+      description: "Letter, page 1, Dear Sir, verso, blank",
+      duration: null,
+      height: 1024,
+      id: "0bdec4c7-27bd-4b01-b0e6-25468654eab3",
+      label: "The label",
+      mime_type: "image/tiff",
+      original_filename: "coffee.tif",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url: null,
+      role: "Preservation",
+      streaming_url: null,
+      webvtt: null,
+      width: 1024,
+    },
+    {
+      accession_number: "Donohue_001_04",
+      description: "Letter, page 2, If these papers, verso, blank",
+      duration: null,
+      height: 1024,
+      id: "fd249080-5c09-4c94-8507-8c686b2d9f87",
+      label: "The label",
+      mime_type: "image/tiff",
+      original_filename: "coffee.tif",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url:
+        "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/fd249080-5c09-4c94-8507-8c686b2d9f87",
+      role: "Auxiliary",
+      streaming_url: null,
+      webvtt: null,
+      width: 1024,
+    },
+  ],
+  folder_name: [],
+  folder_number: [],
+  genre: [],
+  highlight: {},
+  id: "bc226092-eed6-41cf-bc37-45a81cac0e76",
+  identifier: [],
+  iiif_manifest:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/bc226092-eed6-41cf-bc37-45a81cac0e76?as=iiif",
+  indexed_at: "2023-05-04T20:32:23.052785",
+  ingest_project: {
+    id: "26901609-3913-41d0-ad3b-203e114ba7ce",
+    title: "asdfasdf",
+  },
+  ingest_sheet: {
+    id: "7a1caa2b-dc17-4233-8d20-2e359048b499",
+    title: "ingest_sheet.csv",
+  },
+  keywords: [],
+  language: [],
+  legacy_identifier: [],
+  library_unit: null,
+  license: null,
+  location: [],
+  modified_date: "2023-05-04T20:31:26.849389Z",
+  notes: [],
+  physical_description_material: [],
+  physical_description_size: [],
+  preservation_level: null,
+  project: {
+    cycle: null,
+    desc: null,
+    manager: null,
+    name: null,
+    proposer: null,
+    task_number: null,
+  },
+  provenance: [],
+  published: true,
+  publisher: [],
+  related_material: [],
+  related_url: [],
+  representative_file_set: {
+    aspect_ratio: 1,
+    id: "d52625ab-af91-4768-a922-d09442a86be1",
+    url: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/d52625ab-af91-4768-a922-d09442a86be1",
+  },
+  rights_holder: [],
+  rights_statement: null,
+  scope_and_contents: [],
+  series: [],
+  source: [],
+  status: null,
+  style_period: [],
+  subject: [],
+  table_of_contents: [],
+  technique: [],
+  terms_of_use: null,
+  thumbnail:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/bc226092-eed6-41cf-bc37-45a81cac0e76/thumbnail",
+  title: null,
+  visibility: "Private",
+  work_type: "Image",
+};
+
+export const indexWork2 = {
+  _id: "4863c3cc-d72a-41dd-941a-6ba239f5aec2",
+  _index: "adam-dev-dc-v2-work-1678389396906",
+  _score: 1,
+  _type: "_doc",
+  abstract: [],
+  accession_number: "Donohue_002",
+  alternate_title: [],
+  api_link:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/4863c3cc-d72a-41dd-941a-6ba239f5aec2",
+  api_model: "Work",
+  ark: "ark:/99999/fk457052059",
+  batch_ids: [],
+  box_name: [],
+  box_number: [],
+  canonical_link:
+    "https://dc.rdc-staging.library.northwestern.edu/items/4863c3cc-d72a-41dd-941a-6ba239f5aec2",
+  caption: [],
+  catalog_key: [],
+  collection: null,
+  contributor: [],
+  create_date: "2023-05-04T20:31:27.045235Z",
+  creator: [],
+  csv_metadata_update_jobs: [],
+  cultural_context: [],
+  date_created: [],
+  description: [],
+  file_sets: [
+    {
+      accession_number: "Donohue_002_01",
+      description: "Photo, man with two children",
+      duration: 5.599,
+      height: 320,
+      id: "120da9c2-abb3-4492-a62c-e4f0beb2bb6f",
+      label: "The label",
+      mime_type: "video/x-m4v",
+      original_filename: "small.m4v",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url: null,
+      role: "Access",
+      streaming_url:
+        "https://adam-dev-streaming.s3.amazonaws.com/12/0d/a9/c2/-a/bb/3-/44/92/-a/62/c-/e4/f0/be/b2/bb/6f/120da9c2-abb3-4492-a62c-e4f0beb2bb6f.m4v",
+      webvtt:
+        "https://adam-dev-pyramids.s3.amazonaws.com/public/vtt/12/0d/a9/c2/-a/bb/3-/44/92/-a/62/c-/e4/f0/be/b2/bb/6f/120da9c2-abb3-4492-a62c-e4f0beb2bb6f.vtt",
+      width: 560,
+    },
+    {
+      accession_number: "Donohue_002_02",
+      description: "Small Video",
+      duration: 5.599,
+      height: 320,
+      id: "7587be5e-3c9d-4c83-ab10-2b2d19da1e22",
+      label: "The label",
+      mime_type: "video/x-m4v",
+      original_filename: "small.m4v",
+      poster_offset: null,
+      rank: 1073741824,
+      representative_image_url: null,
+      role: "Access",
+      streaming_url:
+        "https://adam-dev-streaming.s3.amazonaws.com/75/87/be/5e/-3/c9/d-/4c/83/-a/b1/0-/2b/2d/19/da/1e/22/7587be5e-3c9d-4c83-ab10-2b2d19da1e22.m4v",
+      webvtt: null,
+      width: 560,
+    },
+    {
+      accession_number: "Donohue_002_04",
+      description: "Supplemental information",
+      duration: null,
+      height: null,
+      id: "62cbf973-d1c2-469d-82a3-824a665ae110",
+      label: "Supplement",
+      mime_type: "application/json",
+      original_filename: "details.json",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url: null,
+      role: "Supplemental",
+      streaming_url: null,
+      webvtt: null,
+      width: null,
+    },
+    {
+      accession_number: "Donohue_002_03",
+      description: "Photo, two children praying",
+      duration: null,
+      height: 1024,
+      id: "69df7f24-440a-44ae-ac26-d930d43a7cee",
+      label: "The label",
+      mime_type: "image/tiff",
+      original_filename: "coffee.tif",
+      poster_offset: null,
+      rank: 0,
+      representative_image_url:
+        "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/69df7f24-440a-44ae-ac26-d930d43a7cee",
+      role: "Auxiliary",
+      streaming_url: null,
+      webvtt: null,
+      width: 1024,
+    },
+  ],
+  folder_name: [],
+  folder_number: [],
+  genre: [],
+  highlight: {},
+  id: "4863c3cc-d72a-41dd-941a-6ba239f5aec2",
+  identifier: [],
+  iiif_manifest:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/4863c3cc-d72a-41dd-941a-6ba239f5aec2?as=iiif",
+  indexed_at: "2023-05-04T20:32:23.064682",
+  ingest_project: {
+    id: "26901609-3913-41d0-ad3b-203e114ba7ce",
+    title: "asdfasdf",
+  },
+  ingest_sheet: {
+    id: "7a1caa2b-dc17-4233-8d20-2e359048b499",
+    title: "ingest_sheet.csv",
+  },
+  keywords: [],
+  language: [],
+  legacy_identifier: [],
+  library_unit: null,
+  license: null,
+  location: [],
+  modified_date: "2023-05-04T20:31:27.159047Z",
+  notes: [],
+  physical_description_material: [],
+  physical_description_size: [],
+  preservation_level: null,
+  project: {
+    cycle: null,
+    desc: null,
+    manager: null,
+    name: null,
+    proposer: null,
+    task_number: null,
+  },
+  provenance: [],
+  published: false,
+  publisher: [],
+  related_material: [],
+  related_url: [],
+  representative_file_set: {
+    aspect_ratio: 1,
+    id: null,
+    url: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/adam-dev/00000000-0000-0000-0000-000000000002",
+  },
+  rights_holder: [],
+  rights_statement: null,
+  scope_and_contents: [],
+  series: [],
+  source: [],
+  status: null,
+  style_period: [],
+  subject: [],
+  table_of_contents: [],
+  technique: [],
+  terms_of_use: null,
+  thumbnail:
+    "https://dcapi.rdc-staging.library.northwestern.edu/works/4863c3cc-d72a-41dd-941a-6ba239f5aec2/thumbnail",
+  title: null,
+  visibility: "Private",
+  work_type: "Video",
+};
+
 export const elasticSearchResponse = {
   _shards: {
     failed: 0,
@@ -8,796 +347,18 @@ export const elasticSearchResponse = {
   hits: {
     hits: [
       {
-        _id: "7465d7fb-5e66-4cc5-bd5b-6b913c508856",
-        _index: "meadow-1597438000026988",
-        _score: 3.428854,
-        _source: {
-          accessionNumber: "Voyager:2586736",
-          administrativeMetadata: {
-            libraryUnit: null,
-            preservationLevel: null,
-            projectCycle: null,
-            projectDesc: [],
-            projectManager: [],
-            projectName: [],
-            projectProposer: [],
-            projectTaskNumber: [],
-            status: null,
-          },
-          collection: {},
-          createDate: "2020-08-04T18:06:57.486892Z",
-          descriptiveMetadata: {
-            source: [],
-            title:
-              "Et molestiae dolor ut ad quaerat blanditiis occaecati minima?",
-            scopeAndContents: [],
-            notes: [],
-            folderName: [],
-            license: null,
-            rightsHolder: [],
-            genre: [
-              {
-                displayFacet: "art genres",
-                facet: "http://vocab.getty.edu/aat/300056462||art genres|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300056462",
-                  label: "art genres",
-                },
-              },
-              {
-                displayFacet: "genre pictures",
-                facet: "http://vocab.getty.edu/aat/300139140||genre pictures|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300139140",
-                  label: "genre pictures",
-                },
-              },
-            ],
-            catalogKey: [],
-            legacyIdentifier: [],
-            alternateTitle: [],
-            contributor: [
-              {
-                displayFacet: "Mandela, Nelson, 1918-2013 (Marbler)",
-                facet:
-                  "http://id.loc.gov/authorities/names/n85153068|mrb|Mandela, Nelson, 1918-2013 (Marbler)",
-                role: {
-                  id: "mrb",
-                  label: "Marbler",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/names/n85153068",
-                  label: "Mandela, Nelson, 1918-2013",
-                },
-              },
-              {
-                displayFacet: "United States (Architect)",
-                facet:
-                  "http://id.worldcat.org/fast/1204155|arc|United States (Architect)",
-                role: {
-                  id: "arc",
-                  label: "Architect",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.worldcat.org/fast/1204155",
-                  label: "United States",
-                },
-              },
-            ],
-            caption: [],
-            boxName: [],
-            physicalDescriptionMaterial: [],
-            rightsStatement: null,
-            series: [],
-            tableOfContents: [],
-            location: [
-              {
-                displayFacet: "Belize City",
-                facet: "https://sws.geonames.org/3582677||Belize City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/3582677",
-                  label: "Belize City",
-                },
-              },
-              {
-                displayFacet: "Panama City",
-                facet: "https://sws.geonames.org/3703443||Panama City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/3703443",
-                  label: "Panama City",
-                },
-              },
-              {
-                displayFacet: "Ajman",
-                facet: "https://sws.geonames.org/292932||Ajman|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/292932",
-                  label: "Ajman",
-                },
-              },
-              {
-                displayFacet: "Guatemala City",
-                facet: "https://sws.geonames.org/3598132||Guatemala City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/3598132",
-                  label: "Guatemala City",
-                },
-              },
-            ],
-            identifier: [],
-            creator: [
-              {
-                displayFacet: "Claudel, Camille",
-                facet:
-                  "http://vocab.getty.edu/ulan/500102192||Claudel, Camille|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/ulan/500102192",
-                  label: "Claudel, Camille",
-                },
-              },
-              {
-                displayFacet: "Kahlo, Frida",
-                facet: "http://vocab.getty.edu/ulan/500030701||Kahlo, Frida|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/ulan/500030701",
-                  label: "Kahlo, Frida",
-                },
-              },
-              {
-                displayFacet: "Aberdare, Henry Bruce, 2nd Baron",
-                facet:
-                  "http://vocab.getty.edu/ulan/500445403||Aberdare, Henry Bruce, 2nd Baron|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/ulan/500445403",
-                  label: "Aberdare, Henry Bruce, 2nd Baron",
-                },
-              },
-            ],
-            relatedMaterial: [],
-            ark: null,
-            relatedUrl: [],
-            provenance: [],
-            folderNumber: [],
-            keywords: [],
-            description: [""],
-            language: [
-              {
-                displayFacet: "Lingala",
-                facet: "http://id.loc.gov/vocabulary/languages/lin||Lingala|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/lin",
-                  label: "Lingala",
-                },
-              },
-              {
-                displayFacet: "Divehi",
-                facet: "http://id.loc.gov/vocabulary/languages/div||Divehi|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/div",
-                  label: "Divehi",
-                },
-              },
-              {
-                displayFacet: "Bugis",
-                facet: "http://id.loc.gov/vocabulary/languages/bug||Bugis|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/bug",
-                  label: "Bugis",
-                },
-              },
-              {
-                displayFacet: "Nias",
-                facet: "http://id.loc.gov/vocabulary/languages/nia||Nias|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/nia",
-                  label: "Nias",
-                },
-              },
-            ],
-            stylePeriod: [
-              {
-                displayFacet: "Glasgow style",
-                facet: "http://vocab.getty.edu/aat/300375728||Glasgow style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300375728",
-                  label: "Glasgow style",
-                },
-              },
-              {
-                displayFacet: "Yachting Style",
-                facet: "http://vocab.getty.edu/aat/300375737||Yachting Style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300375737",
-                  label: "Yachting Style",
-                },
-              },
-              {
-                displayFacet: "White Style",
-                facet: "http://vocab.getty.edu/aat/300312140||White Style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300312140",
-                  label: "White Style",
-                },
-              },
-              {
-                displayFacet: "Style Guimard",
-                facet: "http://vocab.getty.edu/aat/300378903||Style Guimard|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300378903",
-                  label: "Style Guimard",
-                },
-              },
-            ],
-            publisher: [],
-            technique: [
-              {
-                displayFacet: "Six's Technique",
-                facet: "http://vocab.getty.edu/aat/300265034||Six's Technique|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300265034",
-                  label: "Six's Technique",
-                },
-              },
-              {
-                displayFacet: "Levallois technique",
-                facet:
-                  "http://vocab.getty.edu/aat/300400619||Levallois technique|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300400619",
-                  label: "Levallois technique",
-                },
-              },
-            ],
-            abstract: [],
-            citation: [],
-            physicalDescriptionSize: [],
-            boxNumber: [],
-            subject: [
-              {
-                displayFacet: "Library catalogs and users (Geographical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85076671|GEOGRAPHICAL|Library catalogs and users (Geographical)",
-                role: {
-                  id: "GEOGRAPHICAL",
-                  label: "Geographical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85076671",
-                  label: "Library catalogs and users",
-                },
-              },
-              {
-                displayFacet: "Library pages (Geographical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85076710|GEOGRAPHICAL|Library pages (Geographical)",
-                role: {
-                  id: "GEOGRAPHICAL",
-                  label: "Geographical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85076710",
-                  label: "Library pages",
-                },
-              },
-            ],
-            termsOfUse: null,
-          },
-          fileSets: [
-            {
-              accessionNumber: "Voyager:2586736_FILE_0",
-              id: "1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
-              label: "inu-dil-e4456fe4-711a-4bcf-974e-debf6aad70c2.jpg",
-            },
-          ],
-          id: "7465d7fb-5e66-4cc5-bd5b-6b913c508856",
-          iiifManifest:
-            "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/74/65/d7/fb/-5/e6/6-/4c/c5/-b/d5/b-/6b/91/3c/50/88/56-manifest.json",
-          model: {
-            application: "Meadow",
-            name: "Image",
-          },
-          modifiedDate: "2020-08-13T14:16:53.100008Z",
-          project: {
-            id: "5245c9cc-5a32-453e-b862-e83726c046be",
-            title: "Seed Data Project",
-          },
-          published: false,
-          representativeFileSet: {
-            fileSetId: "1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
-            url: "https://devbox.library.northwestern.edu:8183/iiif/2/1ce2a17f-b275-4cc1-adfb-e05d884ad0c7",
-          },
-          sheet: {
-            id: "c8b870c0-84c2-47f6-b8c4-23566b7dea52",
-            title: "wwii_posters.csv",
-          },
-          visibility: {
-            id: "RESTRICTED",
-            label: "Private",
-            scheme: "visibility",
-          },
-          workType: {
-            id: "IMAGE",
-            label: "Image",
-            scheme: "work_type",
-          },
-        },
+        _index: "adam-dev-dc-v2-collection-1678389397185",
         _type: "_doc",
+        _id: "192e2c43-2b3a-421a-8b15-f145c97113b8",
+        _score: 1.0,
+        _source: { ...indexWork },
       },
       {
-        _id: "bd7c21c1-590a-4edb-a0ac-54e6932b51ed",
-        _index: "meadow-1597438000026988",
-        _score: 3.1108823,
-        _source: {
-          accessionNumber: "BFMF_B21_F04_037",
-          administrativeMetadata: {
-            libraryUnit: null,
-            preservationLevel: null,
-            projectCycle: null,
-            projectDesc: [],
-            projectManager: [],
-            projectName: [],
-            projectProposer: [],
-            projectTaskNumber: [],
-            status: null,
-          },
-          collection: {},
-          createDate: "2020-08-04T18:25:04.716518Z",
-          descriptiveMetadata: {
-            source: [],
-            title: "Fugit eaque voluptatibus impedit est at sit.",
-            scopeAndContents: [],
-            notes: [],
-            folderName: [],
-            license: null,
-            rightsHolder: [],
-            genre: [
-              {
-                displayFacet: "document genres",
-                facet: "http://vocab.getty.edu/aat/300026031||document genres|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300026031",
-                  label: "document genres",
-                },
-              },
-              {
-                displayFacet: "genre painters",
-                facet: "http://vocab.getty.edu/aat/300266117||genre painters|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300266117",
-                  label: "genre painters",
-                },
-              },
-            ],
-            catalogKey: [],
-            legacyIdentifier: [],
-            alternateTitle: [],
-            contributor: [
-              {
-                displayFacet: "Mandela, Nelson, 1918-2013 (Storyteller)",
-                facet:
-                  "http://id.loc.gov/authorities/names/n85153068|stl|Mandela, Nelson, 1918-2013 (Storyteller)",
-                role: {
-                  id: "stl",
-                  label: "Storyteller",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/names/n85153068",
-                  label: "Mandela, Nelson, 1918-2013",
-                },
-              },
-              {
-                displayFacet:
-                  "Ranganathan, S. R. (Shiyali Ramamrita), 1892-1972 (Publisher)",
-                facet:
-                  "http://id.loc.gov/authorities/names/n50053919|pbl|Ranganathan, S. R. (Shiyali Ramamrita), 1892-1972 (Publisher)",
-                role: {
-                  id: "pbl",
-                  label: "Publisher",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/names/n50053919",
-                  label: "Ranganathan, S. R. (Shiyali Ramamrita), 1892-1972",
-                },
-              },
-              {
-                displayFacet: "Dewey, Melvil, 1851-1931 (Storyteller)",
-                facet:
-                  "http://id.loc.gov/authorities/names/n79091588|stl|Dewey, Melvil, 1851-1931 (Storyteller)",
-                role: {
-                  id: "stl",
-                  label: "Storyteller",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/names/n79091588",
-                  label: "Dewey, Melvil, 1851-1931",
-                },
-              },
-              {
-                displayFacet: "Mandela, Nelson, 1918-2013 (Marbler)",
-                facet:
-                  "http://id.loc.gov/authorities/names/n85153068|mrb|Mandela, Nelson, 1918-2013 (Marbler)",
-                role: {
-                  id: "mrb",
-                  label: "Marbler",
-                  scheme: "marc_relator",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/names/n85153068",
-                  label: "Mandela, Nelson, 1918-2013",
-                },
-              },
-            ],
-            caption: [],
-            boxName: [],
-            physicalDescriptionMaterial: [],
-            rightsStatement: null,
-            series: [],
-            tableOfContents: [],
-            location: [
-              {
-                displayFacet: "Benin City",
-                facet: "https://sws.geonames.org/2347283||Benin City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/2347283",
-                  label: "Benin City",
-                },
-              },
-              {
-                displayFacet: "Ajman",
-                facet: "https://sws.geonames.org/292932||Ajman|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/292932",
-                  label: "Ajman",
-                },
-              },
-              {
-                displayFacet: "Mexico City",
-                facet: "https://sws.geonames.org/3530597||Mexico City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/3530597",
-                  label: "Mexico City",
-                },
-              },
-              {
-                displayFacet: "Panama City",
-                facet: "https://sws.geonames.org/3703443||Panama City|",
-                role: null,
-                term: {
-                  id: "https://sws.geonames.org/3703443",
-                  label: "Panama City",
-                },
-              },
-            ],
-            identifier: [],
-            creator: [
-              {
-                displayFacet: "Kahlo, Frida",
-                facet: "http://vocab.getty.edu/ulan/500030701||Kahlo, Frida|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/ulan/500030701",
-                  label: "Kahlo, Frida",
-                },
-              },
-              {
-                displayFacet: "Muybridge, Eadweard",
-                facet:
-                  "http://vocab.getty.edu/ulan/500115207||Muybridge, Eadweard|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/ulan/500115207",
-                  label: "Muybridge, Eadweard",
-                },
-              },
-            ],
-            relatedMaterial: [],
-            ark: null,
-            relatedUrl: [],
-            provenance: [],
-            folderNumber: [],
-            keywords: [],
-            description: [],
-            language: [
-              {
-                displayFacet: "Korean",
-                facet: "http://id.loc.gov/vocabulary/languages/kor||Korean|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/kor",
-                  label: "Korean",
-                },
-              },
-              {
-                displayFacet: "Nias",
-                facet: "http://id.loc.gov/vocabulary/languages/nia||Nias|",
-                role: null,
-                term: {
-                  id: "http://id.loc.gov/vocabulary/languages/nia",
-                  label: "Nias",
-                },
-              },
-            ],
-            stylePeriod: [
-              {
-                displayFacet: "Quaint Style",
-                facet: "http://vocab.getty.edu/aat/300378910||Quaint Style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300378910",
-                  label: "Quaint Style",
-                },
-              },
-              {
-                displayFacet: "Style Guimard",
-                facet: "http://vocab.getty.edu/aat/300378903||Style Guimard|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300378903",
-                  label: "Style Guimard",
-                },
-              },
-              {
-                displayFacet: "Glasgow style",
-                facet: "http://vocab.getty.edu/aat/300375728||Glasgow style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300375728",
-                  label: "Glasgow style",
-                },
-              },
-              {
-                displayFacet: "Modern Style (Art Nouveau )",
-                facet:
-                  "http://vocab.getty.edu/aat/300375743||Modern Style (Art Nouveau )|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300375743",
-                  label: "Modern Style (Art Nouveau )",
-                },
-              },
-              {
-                displayFacet: "White Style",
-                facet: "http://vocab.getty.edu/aat/300312140||White Style|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300312140",
-                  label: "White Style",
-                },
-              },
-            ],
-            publisher: [],
-            technique: [
-              {
-                displayFacet: "Levallois technique",
-                facet:
-                  "http://vocab.getty.edu/aat/300400619||Levallois technique|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300400619",
-                  label: "Levallois technique",
-                },
-              },
-              {
-                displayFacet: "sarga (technique)",
-                facet:
-                  "http://vocab.getty.edu/aat/300410254||sarga (technique)|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300410254",
-                  label: "sarga (technique)",
-                },
-              },
-              {
-                displayFacet: "Six's Technique",
-                facet: "http://vocab.getty.edu/aat/300265034||Six's Technique|",
-                role: null,
-                term: {
-                  id: "http://vocab.getty.edu/aat/300265034",
-                  label: "Six's Technique",
-                },
-              },
-            ],
-            abstract: [],
-            citation: [],
-            physicalDescriptionSize: [],
-            boxNumber: [],
-            subject: [
-              {
-                displayFacet: "Library catalogs and users (Geographical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85076671|GEOGRAPHICAL|Library catalogs and users (Geographical)",
-                role: {
-                  id: "GEOGRAPHICAL",
-                  label: "Geographical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85076671",
-                  label: "Library catalogs and users",
-                },
-              },
-              {
-                displayFacet: "Library cooperation (Geographical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85076678|GEOGRAPHICAL|Library cooperation (Geographical)",
-                role: {
-                  id: "GEOGRAPHICAL",
-                  label: "Geographical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85076678",
-                  label: "Library cooperation",
-                },
-              },
-              {
-                displayFacet:
-                  "John Cotton Dana Library Public Relations Award (Geographical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85070610|GEOGRAPHICAL|John Cotton Dana Library Public Relations Award (Geographical)",
-                role: {
-                  id: "GEOGRAPHICAL",
-                  label: "Geographical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85070610",
-                  label: "John Cotton Dana Library Public Relations Award",
-                },
-              },
-              {
-                displayFacet: "Library pages (Topical)",
-                facet:
-                  "http://id.loc.gov/authorities/subjects/sh85076710|TOPICAL|Library pages (Topical)",
-                role: {
-                  id: "TOPICAL",
-                  label: "Topical",
-                  scheme: "subject_role",
-                },
-                term: {
-                  id: "http://id.loc.gov/authorities/subjects/sh85076710",
-                  label: "Library pages",
-                },
-              },
-            ],
-            termsOfUse: null,
-          },
-          fileSets: [
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_10",
-              id: "8ca8b91c-756e-4538-b60f-036d66f1b897",
-              label: "BFMF_B21_F04_037_p014.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_0",
-              id: "e064fb2d-20c3-4fff-8773-f4e1aeae0162",
-              label: "BFMF_B21_F04_037_p008.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_8",
-              id: "7ba5595e-0905-4252-aa03-5d99d329ed6d",
-              label: "BFMF_B21_F04_037_p006.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_11",
-              id: "69857a28-7abb-4bfb-b145-eb7d25148d64",
-              label: "BFMF_B21_F04_037_p002.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_12",
-              id: "30aa4ef2-4179-4f77-a87b-fdb34a95cbac",
-              label: "BFMF_B21_F04_037_p011.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_1",
-              id: "dfe7465a-fbbc-47c9-8bba-9f8564b48797",
-              label: "BFMF_B21_F04_037_p004.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_9",
-              id: "a4c2050e-3bdf-42d8-937f-10d9b62e453a",
-              label: "BFMF_B21_F04_037_p001.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_3",
-              id: "19c38218-059b-4724-b3f2-d5f16537c1d5",
-              label: "BFMF_B21_F04_037_p009.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_13",
-              id: "21484f56-6ba6-40d8-8a2a-c0f51a6ae085",
-              label: "BFMF_B21_F04_037_p007.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_7",
-              id: "ec55148f-49ef-438b-97c0-21e31602ffbb",
-              label: "BFMF_B21_F04_037_p003.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_2",
-              id: "6c84a029-c5b0-4af8-b664-5a118b603314",
-              label: "BFMF_B21_F04_037_p010.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_5",
-              id: "cfc69948-3008-49fa-9678-65719d5d4386",
-              label: "BFMF_B21_F04_037_p005.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_6",
-              id: "df91fdc3-d178-412b-91af-f8d59ae4f93f",
-              label: "BFMF_B21_F04_037_p012.jpg",
-            },
-            {
-              accessionNumber: "BFMF_B21_F04_037_FILE_4",
-              id: "999d30e0-d98c-4c24-b991-f3f75299cab1",
-              label: "BFMF_B21_F04_037_p013.jpg",
-            },
-          ],
-          id: "bd7c21c1-590a-4edb-a0ac-54e6932b51ed",
-          iiifManifest:
-            "https://devbox.library.northwestern.edu:9001/dev-pyramids/public/bd/7c/21/c1/-5/90/a-/4e/db/-a/0a/c-/54/e6/93/2b/51/ed-manifest.json",
-          model: {
-            application: "Meadow",
-            name: "Image",
-          },
-          modifiedDate: "2020-08-04T18:44:38.132574Z",
-          project: {
-            id: "5245c9cc-5a32-453e-b862-e83726c046be",
-            title: "Seed Data Project",
-          },
-          published: false,
-          representativeFileSet: {
-            fileSetId: "e064fb2d-20c3-4fff-8773-f4e1aeae0162",
-            url: "https://devbox.library.northwestern.edu:8183/iiif/2/e064fb2d-20c3-4fff-8773-f4e1aeae0162",
-          },
-          sheet: {
-            id: "f731ee5e-a92d-46a4-8fd1-65db645d13bc",
-            title: "berkeley.csv",
-          },
-          visibility: {
-            id: "RESTRICTED",
-            label: "Private",
-            scheme: "visibility",
-          },
-          workType: {
-            id: "IMAGE",
-            label: "Image",
-            scheme: "work_type",
-          },
-        },
+        _index: "adam-dev-dc-v2-collection-1678389397185",
         _type: "_doc",
+        _id: "192e2c43-2b3a-421a-8b15-f145c97113b8",
+        _score: 1.0,
+        _source: { ...indexWork2 },
       },
     ],
     max_score: 3.428854,
@@ -805,14 +366,4 @@ export const elasticSearchResponse = {
   },
   timed_out: false,
   took: 4,
-};
-
-export const elasticSearchCountResponse = {
-  count: 33,
-  _shards: {
-    total: 11,
-    successful: 11,
-    skipped: 0,
-    failed: 0,
-  },
 };

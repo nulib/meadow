@@ -1,26 +1,27 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import { getImageUrl } from "@js/services/helpers";
-import UIWorkImage from "@js/components/UI/WorkImage";
-import { Tag } from "@nulib/design-system";
-import UIVisibilityTag from "@js/components/UI/VisibilityTag";
-
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import React from "react";
+import { Tag } from "@nulib/design-system";
+import UIVisibilityTag from "@js/components/UI/VisibilityTag";
+import UIWorkImage from "@js/components/UI/WorkImage";
+import { getIIIFImageUrl } from "@js/services/helpers";
+
 const breakWord = css`
   word-break: break-all;
 `;
 
 const WorkCardItem = ({
-  id,
-  representativeImage,
-  title,
-  workType = { id: "", label: "", scheme: "" },
-  visibility = { id: "", label: "", scheme: "" },
-  published,
   accessionNumber,
   collectionName,
+  id,
+  published,
+  representativeImage,
+  title,
+  visibility,
+  workTypeId,
 }) => {
   return (
     <div className="card" data-testid="ui-workcard">
@@ -28,18 +29,18 @@ const WorkCardItem = ({
         <figure className="image is-3by3">
           <Link to={`/work/${id}`}>
             <UIWorkImage
-              imageUrl={getImageUrl(representativeImage)}
+              imageUrl={getIIIFImageUrl(representativeImage)}
               size={500}
-              workTypeId={workType.id}
+              workTypeId={workTypeId}
             />
           </Link>
         </figure>
       </div>
       <div className="card-content content">
         <div className="tags">
-          {workType.id && (
+          {workTypeId && (
             <Tag isInfo data-testid="tag-work-type">
-              {workType.label}
+              {workTypeId}
             </Tag>
           )}
           {published ? (
@@ -49,7 +50,7 @@ const WorkCardItem = ({
           ) : (
             <Tag>Not Published</Tag>
           )}
-          {visibility.id && (
+          {visibility && (
             <UIVisibilityTag
               visibility={visibility}
               data-testid="tag-visibility"

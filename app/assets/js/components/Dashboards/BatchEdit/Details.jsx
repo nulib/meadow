@@ -1,13 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
 import { GET_BATCH } from "@js/components/Dashboards/dashboards.gql";
+import { IconImages } from "@js/components/Icon";
 import JSONPretty from "react-json-pretty";
+import { Link } from "react-router-dom";
+import { Notification } from "@nulib/design-system";
+import PropTypes from "prop-types";
+import React from "react";
 import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { Link } from "react-router-dom";
-import { IconImages } from "@js/components/Icon";
-import { Notification } from "@nulib/design-system";
+import { useQuery } from "@apollo/client";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {
@@ -75,7 +75,7 @@ function DashboardsBatchEditDetails({ id }) {
           className="button is-primary"
           to={{
             pathname: "/search",
-            state: { passedInSearchTerm: `batches:\"${id}\"` },
+            state: { passedInSearchTerm: `batch_ids:\"${id}\"` },
           }}
         >
           <IconImages />

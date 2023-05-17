@@ -1,9 +1,11 @@
+import { render, screen } from "@testing-library/react";
+
 import React from "react";
-import { screen, render } from "@testing-library/react";
 import UIWorkImage from "./WorkImage";
 import { getImageUrl } from "@js/services/helpers";
 
 const imageUrl = getImageUrl("www.northwestern.edu");
+
 describe("UIWorkImage component", () => {
   it("renders UIWorkImage placeholder", () => {
     render(<UIWorkImage imageUrl="" workType="Image" />);

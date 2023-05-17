@@ -1,23 +1,24 @@
-import React from "react";
-import {
-  useApolloClient,
-  useMutation,
-  useQuery,
-  useLazyQuery,
-} from "@apollo/client";
+import { Button, Notification } from "@nulib/design-system";
 import {
   DELETE_NUL_AUTHORITY_RECORD,
   GET_NUL_AUTHORITY_RECORDS,
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
-import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
-import { Button, Notification } from "@nulib/design-system";
-import { Link, useHistory } from "react-router-dom";
-import { toastWrapper } from "@js/services/helpers";
-import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
-import UIFormInput from "@js/components/UI/Form/Input";
-import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
 import { IconEdit, IconImages, IconTrashCan } from "@js/components/Icon";
+import { Link, useHistory } from "react-router-dom";
+import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
+import {
+  useApolloClient,
+  useLazyQuery,
+  useMutation,
+  useQuery,
+} from "@apollo/client";
+
+import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
+import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
+import React from "react";
+import UIFormInput from "@js/components/UI/Form/Input";
+import { toastWrapper } from "@js/services/helpers";
 
 const colHeaders = ["Label", "Hint"];
 
@@ -167,9 +168,9 @@ export default function DashboardsLocalAuthoritiesList() {
     setSearchValue(e.target.value);
   };
 
-  const handleViewClick = (id) => {
+  const handleViewClick = (value) => {
     history.push("/search", {
-      passedInSearchTerm: `all_controlled_terms:\"${id}\"`,
+      passedInSearchTerm: `all_controlled_terms:\"${value}\"`,
     });
   };
 
@@ -221,7 +222,7 @@ export default function DashboardsLocalAuthoritiesList() {
                         <IconEdit />
                       </Button>
                       <Button
-                        onClick={() => handleViewClick(id)}
+                        onClick={() => handleViewClick(label)}
                         isLight
                         data-testid="button-to-search"
                         title="View works containing this record"

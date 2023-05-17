@@ -1,7 +1,8 @@
+import { URL_PATTERN_MATCH, URL_PATTERN_START } from "./global-vars";
+
+import edtf from "edtf";
 import moment from "moment";
 import { toast } from "bulma-toast";
-import { URL_PATTERN_MATCH, URL_PATTERN_START } from "./global-vars";
-import edtf from "edtf";
 
 /**
  * Escape double quotes (which may interfere with Search queries)
@@ -24,8 +25,6 @@ export function formatSimpleISODate(date) {
 }
 
 export function isUrlValid(url) {
-  // console.log(url);
-  // console.log(`url.match(URL_PATTERN_MATCH)`, url.match(URL_PATTERN_MATCH));
   return Boolean(
     url.match(URL_PATTERN_MATCH) &&
       URL_PATTERN_START.some((validStart) => url.startsWith(validStart))
@@ -63,6 +62,12 @@ export function getImageUrl(representativeImage) {
   return representativeImage || "";
 }
 
+export function getIIIFImageUrl(representativeImage) {
+  if (!representativeImage || typeof representativeImage !== "string")
+    return "";
+  return `${representativeImage}/square/500,500/0/default.jpg`;
+}
+
 export const TEMP_USER_FRIENDLY_STATUS = {
   UPLOADED: "Validation in progress...",
   ROW_FAIL: "Validation Errors",
@@ -77,17 +82,15 @@ export function prepWorkItemForDisplay(res) {
   return {
     id: res._id,
     collectionName: res.collection ? res.collection.title : "",
-    title: res.descriptiveMetadata ? res.descriptiveMetadata.title : "No title",
-    updatedAt: res.modifiedDate || res.updatedAt,
-    representativeImage:
-      res.representativeFileSet ||
-      (res.representativeImage ? res.representativeImage : ""),
-    manifestUrl: res.iiifManifest,
+    title: res.title || "No title",
+    updatedAt: res.modified_date,
+    representativeImage: res.representative_file_set?.url || "",
+    manifestUrl: res.iiif_manifest,
     published: res.published,
     visibility: res.visibility,
-    fileSets: res.fileSets ? res.fileSets.length : 0,
-    accessionNumber: res.accessionNumber,
-    workType: res.workType,
+    fileSets: res.file_sets ? res.file_sets.length : 0,
+    accessionNumber: res.accession_number,
+    workTypeId: res.work_type.toUpperCase(),
   };
 }
 
