@@ -215,5 +215,24 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       assert log =~ ~r/already complete without overwriting/
     end
+
+    test "key collision", %{exif_file_set_id: file_set_id} do
+      with file_set <- FileSets.get_file_set!(file_set_id) do
+        extracted_metadata = put_in(file_set.extracted_metadata, ["exif", "value"], "bogus")
+        FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
+      end
+
+      with %{extracted_metadata: subject} <- FileSets.get_file_set!(file_set_id) do
+        assert get_in(subject, ["exif", "value"]) == "bogus"
+      end
+
+      assert {:ok, %{id: ^file_set_id}, %{}} =
+               send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
+
+      FileSets.get_file_set!(file_set_id)
+      |> Map.get(:extracted_metadata)
+      |> get_in(["exif", "value"])
+      |> assert_maps_equal(@exif, @keys)
+    end
   end
 end
