@@ -104,6 +104,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     case attributes do
       %{custom_actions: custom_actions} ->
         custom_actions
+        |> String.split(~r/\s*\|\s*/)
         |> Enum.map(&Module.safe_concat(Meadow.Pipeline.Actions, &1))
 
       _ ->
