@@ -254,7 +254,6 @@ export const GET_WORK = gql`
       }
       published
       representativeImage
-      readingRoom
       updatedAt
       visibility {
         id
@@ -310,7 +309,6 @@ export const GET_WORKS = gql`
         title
       }
       published
-      readingRoom
       representativeImage
       updatedAt
       workType {
@@ -445,7 +443,6 @@ export const UPDATE_WORK = gql`
       }
       insertedAt
       published
-      readingRoom
       workType {
         id
         label

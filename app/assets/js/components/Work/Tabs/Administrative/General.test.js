@@ -1,12 +1,13 @@
-import { screen } from "@testing-library/react";
-import WorkAdministrativeTabsGeneral from "./General";
-import React from "react";
-import { CodeListProvider } from "@js/context/code-list-context";
 import {
   renderWithRouterApollo,
   withReactHookForm,
 } from "@js/services/testing-helpers";
+
+import { CodeListProvider } from "@js/context/code-list-context";
+import React from "react";
+import WorkAdministrativeTabsGeneral from "./General";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const props = {
@@ -32,7 +33,6 @@ const props = {
   },
   isEditing: false,
   published: true,
-  readingRoom: true,
   visibility: {
     id: "RESTRICTED",
     label: "Private",
@@ -72,19 +72,5 @@ describe("Work Administrative General metadata component", () => {
     expect(preservationLevelEl).toHaveTextContent("Level 1");
     expect(statusEl).toHaveTextContent("In Progress");
     expect(visibilityEl).toHaveTextContent("Private");
-  });
-
-  describe("reading room form input", () => {
-    it("displays default value and checks on and off", async () => {
-      const user = userEvent.setup();
-      // Set form to "edit" mode
-      setUpTests({ ...props, isEditing: true });
-
-      const readingRoomEl = await screen.findByTestId("checkbox-reading-room");
-      expect(readingRoomEl).toBeChecked();
-
-      await user.click(screen.getByTestId("label-reading-room"));
-      expect(screen.getByTestId("checkbox-reading-room")).not.toBeChecked();
-    });
   });
 });

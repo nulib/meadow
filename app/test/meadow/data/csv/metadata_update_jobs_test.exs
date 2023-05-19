@@ -269,7 +269,6 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                },
                %{errors: %{"id" => "0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"}, row: 18},
                %{errors: %{"subject#3" => ["can't be blank"]}, row: 21},
-               %{errors: %{"reading_room" => "tire is invalid"}, row: 24},
                %{errors: %{"published" => "flase is invalid"}, row: 26},
                %{errors: %{"id" => "is required"}, row: 28},
                %{errors: %{"accession_number" => "MISMATCHED_ACCESSION does not match"}, row: 37}

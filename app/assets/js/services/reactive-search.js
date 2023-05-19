@@ -168,14 +168,6 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
-    componentId: "ReadingRoom",
-    dataField: "reading_room",
-    renderItem: renderBooleanFacetLabel,
-    title: "Reading Room",
-    transformData: transformBooleanData,
-  },
-  {
-    ...defaultListItemValues,
     componentId: "RightsStatement",
     dataField: "rights_statement.label",
     title: "Rights Statement",
