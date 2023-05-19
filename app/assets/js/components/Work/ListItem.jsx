@@ -7,7 +7,6 @@ import PropTypes from "prop-types";
 import { Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 import UIWorkImage from "../UI/WorkImage";
-import { getIIIFImageUrl } from "@js/services/helpers";
 
 const breakWord = css`
   word-break: break-all;
@@ -29,7 +28,7 @@ const WorkListItem = ({
           <div className="image is-128x128">
             <Link to={`/work/${id}`} title="View work">
               <UIWorkImage
-                imageUrl={getIIIFImageUrl(representativeImage)}
+                imageUrl={representativeImage}
                 size={500}
                 workTypeId={workTypeId}
               />

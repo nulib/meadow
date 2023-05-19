@@ -68,16 +68,6 @@ config :meadow, Meadow.Search.Cluster,
   json_library: Jason,
   indexes: [
     %{
-      name: "meadow",
-      settings: priv_path.("search/v1/settings/meadow.json"),
-      version: 1,
-      schemas: [
-        Meadow.Data.Schemas.Collection,
-        Meadow.Data.Schemas.FileSet,
-        Meadow.Data.Schemas.Work
-      ]
-    },
-    %{
       name: "dc-v2-work",
       settings: priv_path.("search/v2/settings/work.json"),
       version: 2,

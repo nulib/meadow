@@ -11,7 +11,6 @@ defmodule Meadow.Data.SharedLinks do
 
   @public_expiration "Never"
   @type_name "_doc"
-  @v2_work_index SearchConfig.alias_for(Work, 2)
 
   @enforce_keys [:work_id, :expires]
   defstruct shared_link_id: nil, work_id: nil, expires: nil
@@ -56,7 +55,7 @@ defmodule Meadow.Data.SharedLinks do
   def generate_many(query, ttl) when is_binary(query) do
     docs =
       query
-      |> Scroll.results(@v2_work_index)
+      |> Scroll.results(SearchConfig.alias_for(Work, 2))
       |> Stream.map(fn %{"_source" => work_doc} ->
         case work_doc do
           %{"visibility" => "Public", "published" => true} ->

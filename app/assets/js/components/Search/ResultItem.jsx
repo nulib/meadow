@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
+
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import { setVisibilityClass } from "../../services/helpers";
 
 const SearchResultItem = ({ res }) => {
