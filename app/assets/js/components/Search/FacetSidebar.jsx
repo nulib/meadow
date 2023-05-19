@@ -152,9 +152,7 @@ export default function SearchFacetSidebar() {
               and: filterList(sensor.componentId),
             }}
             showMissing={
-              ["Published", "ReadingRoom"].indexOf(sensor.componentId) > -1
-                ? false
-                : true
+              ["Published"].indexOf(sensor.componentId) > -1 ? false : true
             }
           />
         ))}

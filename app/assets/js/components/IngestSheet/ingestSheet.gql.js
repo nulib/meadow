@@ -1,5 +1,5 @@
-import gql from "graphql-tag";
 import IngestSheet from "./IngestSheet";
+import gql from "graphql-tag";
 
 IngestSheet.fragments = {
   parts: gql`
@@ -206,7 +206,6 @@ export const INGEST_SHEET_WORKS = gql`
       manifestUrl
       published
       representativeImage
-      readingRoom
       updatedAt
       workType {
         id

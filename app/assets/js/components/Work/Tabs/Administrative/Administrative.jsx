@@ -1,21 +1,22 @@
-import React from "react";
+import { Button, Notification } from "@nulib/design-system";
+import { FormProvider, useForm } from "react-hook-form";
+import { GET_WORK, UPDATE_WORK } from "@js/components/Work/work.gql.js";
+
+import { IconEdit } from "@js/components/Icon";
+import { PROJECT_METADATA } from "@js/services/metadata";
 import PropTypes from "prop-types";
-import { useMutation } from "@apollo/client";
-import useIsEditing from "@js/hooks/useIsEditing";
-import { toastWrapper } from "@js/services/helpers";
-import { UPDATE_WORK, GET_WORK } from "@js/components/Work/work.gql.js";
-import { useForm, FormProvider } from "react-hook-form";
+import React from "react";
 import UIFormField from "@js/components/UI/Form/Field";
-import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { PROJECT_METADATA } from "@js/services/metadata";
-import { Button, Notification } from "@nulib/design-system";
-import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
+import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsAdministrativeCollection from "@js/components/Work/Tabs/Administrative/Collection";
-import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import WorkTabsAdministrativeGeneral from "@js/components/Work/Tabs/Administrative/General";
 import { formatDate } from "@js/services/helpers";
-import { IconEdit } from "@js/components/Icon";
+import { toastWrapper } from "@js/services/helpers";
+import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
+import useIsEditing from "@js/hooks/useIsEditing";
+import { useMutation } from "@apollo/client";
 import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
 
 const WorkTabsAdministrative = ({ work }) => {
@@ -26,7 +27,6 @@ const WorkTabsAdministrative = ({ work }) => {
     ingestSheet,
     project,
     published,
-    readingRoom,
     visibility,
     insertedAt,
     updatedAt,
@@ -74,7 +74,6 @@ const WorkTabsAdministrative = ({ work }) => {
         projectCycle: currentFormValues.projectCycle,
       },
       collectionId: currentFormValues.collection,
-      readingRoom: currentFormValues.readingRoom,
       visibility: currentFormValues.visibility
         ? { id: currentFormValues.visibility, scheme: "VISIBILITY" }
         : {},
@@ -156,7 +155,6 @@ const WorkTabsAdministrative = ({ work }) => {
                 administrativeMetadata={administrativeMetadata}
                 isEditing={isEditing}
                 published={published}
-                readingRoom={readingRoom}
                 visibility={visibility}
               />
             </div>

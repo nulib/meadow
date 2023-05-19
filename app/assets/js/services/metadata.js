@@ -169,11 +169,6 @@ export const METADATA_FIELDS = {
     label: "Publisher",
     metadataClass: "descriptive",
   },
-  READING_ROOM: {
-    name: "readingRoom",
-    label: "Reading Room",
-    metadataClass: "core",
-  },
   RELATED_MATERIAL: {
     name: "relatedMaterial",
     label: "Related Material",
@@ -273,7 +268,6 @@ const {
   PROVENANCE,
   PUBLISHED,
   PUBLISHER,
-  READING_ROOM,
   RELATED_MATERIAL,
   RELATED_URL,
   RIGHTS_HOLDER,
@@ -724,12 +718,6 @@ export function removeLabelsFromBatchEditPostData(
     const { published } = batchReplaces;
     if (published && (published.publish || published.unpublish)) {
       returnObj.replace.published = published.publish;
-    }
-
-    // Handle Reading Room
-    const { readingRoom } = batchReplaces;
-    if (readingRoom) {
-      returnObj.replace.readingRoom = readingRoom === "set" ? true : false;
     }
   }
 

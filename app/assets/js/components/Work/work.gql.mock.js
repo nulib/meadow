@@ -232,7 +232,6 @@ export const mockWork = {
     title: "Foo",
   },
   published: false,
-  readingRoom: false,
   representativeImage: "http://foobar",
   updatedAt: "2019-12-02T22:22:16",
   visibility: mockVisibility(),
@@ -398,7 +397,6 @@ const mockWork2 = {
     title: "Adam project",
   },
   published: false,
-  readingRoom: false,
   representativeImage:
     "https://devbox.library.northwestern.edu:8183/iiif/2/38620e42-7c71-4364-8123-8106db5fd31c",
   updatedAt: "2020-07-24T15:20:14.119629Z",

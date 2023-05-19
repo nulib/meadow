@@ -187,9 +187,6 @@ export default function BatchEditTabs() {
       ...((batchPublish.publish || batchPublish.unpublish) && {
         published: { ...batchPublish },
       }),
-      ...(currentFormValues.readingRoom && {
-        readingRoom: currentFormValues.readingRoom,
-      }),
       descriptiveMetadata: {
         ...replaceItems.descriptive,
         ...descriptiveMultiValues.replace,

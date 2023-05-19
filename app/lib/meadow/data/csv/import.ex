@@ -60,7 +60,6 @@ defmodule Meadow.Data.CSV.Import do
         descriptive_metadata: %{...},
         id: "acaba4aa-91bc-431c-af60-766498a9dacf",
         published: "false",
-        reading_room: "false",
         visibility: nil
       },
       %{
@@ -70,7 +69,6 @@ defmodule Meadow.Data.CSV.Import do
         descriptive_metadata: %{...},
         id: "f005bda1-3ad1-4997-8633-9e12d4c64239",
         published: "false",
-        reading_room: "false",
         visibility: nil
       }
     ]
