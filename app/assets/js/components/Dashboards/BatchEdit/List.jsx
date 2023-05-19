@@ -1,10 +1,11 @@
-import React from "react";
-import { useQuery } from "@apollo/client";
+import { IconImages, IconView } from "@js/components/Icon";
+
 import { GET_BATCHES } from "@js/components/Dashboards/dashboards.gql";
 import { Link } from "react-router-dom";
-import UIDate from "@js/components/UI/Date";
-import { IconImages, IconView } from "@js/components/Icon";
+import React from "react";
 import { Tag } from "@nulib/design-system";
+import UIDate from "@js/components/UI/Date";
+import { useQuery } from "@apollo/client";
 
 const colHeaders = [
   "Nickname",
@@ -80,7 +81,7 @@ export default function DashboardsBatchEditList() {
                         title="View updated works"
                         to={{
                           pathname: "/search",
-                          state: { passedInSearchTerm: `batches:\"${id}\"` },
+                          state: { passedInSearchTerm: `batch_ids:\"${id}\"` },
                         }}
                       >
                         <IconImages />

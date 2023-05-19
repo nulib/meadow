@@ -3,7 +3,7 @@ defmodule Meadow.Data.IndexWorkerTest do
   alias Meadow.Data.IndexWorker
 
   setup do
-    worker = start_supervised!({IndexWorker, version: 1})
+    worker = start_supervised!({IndexWorker, version: 2})
     on_exit(fn -> send(worker, :pause) end)
     %{worker: worker}
   end

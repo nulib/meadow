@@ -7,7 +7,6 @@ import React from "react";
 import { Tag } from "@nulib/design-system";
 import UIVisibilityTag from "@js/components/UI/VisibilityTag";
 import UIWorkImage from "@js/components/UI/WorkImage";
-import { getIIIFImageUrl } from "@js/services/helpers";
 
 const breakWord = css`
   word-break: break-all;
@@ -29,7 +28,7 @@ const WorkCardItem = ({
         <figure className="image is-3by3">
           <Link to={`/work/${id}`}>
             <UIWorkImage
-              imageUrl={getIIIFImageUrl(representativeImage)}
+              imageUrl={representativeImage}
               size={500}
               workTypeId={workTypeId}
             />

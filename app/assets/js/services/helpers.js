@@ -62,12 +62,6 @@ export function getImageUrl(representativeImage) {
   return representativeImage || "";
 }
 
-export function getIIIFImageUrl(representativeImage) {
-  if (!representativeImage || typeof representativeImage !== "string")
-    return "";
-  return `${representativeImage}/square/500,500/0/default.jpg`;
-}
-
 export const TEMP_USER_FRIENDLY_STATUS = {
   UPLOADED: "Validation in progress...",
   ROW_FAIL: "Validation Errors",
