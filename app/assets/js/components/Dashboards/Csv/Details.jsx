@@ -1,10 +1,10 @@
-import React from "react";
-import PropTypes from "prop-types";
-import UIDate from "@js/components/UI/Date";
 import DashboardsCsvErrors from "@js/components/Dashboards/Csv/Errors";
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
-import { Link } from "react-router-dom";
 import { IconImages } from "@js/components/Icon";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import React from "react";
+import UIDate from "@js/components/UI/Date";
 
 function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
   const {
@@ -66,7 +66,7 @@ function DashboardsCsvDetails({ csvMetadataUpdateJob }) {
           to={{
             pathname: "/search",
             state: {
-              passedInSearchTerm: `metadataUpdateJobs:\"${updateId}\"`,
+              passedInSearchTerm: `csv_metadata_update_jobs:\"${updateId}\"`,
             },
           }}
         >

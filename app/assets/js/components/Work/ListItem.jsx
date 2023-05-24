@@ -1,31 +1,25 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import {
-  setVisibilityClass,
-  formatDate,
-  getImageUrl,
-} from "@js/services/helpers";
-import UIWorkImage from "../UI/WorkImage";
-import { Tag } from "@nulib/design-system";
-import UIVisibilityTag from "@js/components/UI/VisibilityTag";
-
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import { Tag } from "@nulib/design-system";
+import UIVisibilityTag from "@js/components/UI/VisibilityTag";
+import UIWorkImage from "../UI/WorkImage";
+
 const breakWord = css`
   word-break: break-all;
 `;
 
 const WorkListItem = ({
+  accessionNumber,
   id,
+  published,
   representativeImage,
   title,
-  workType = { id: "", label: "", scheme: "" },
-  visibility = { id: "", label: "", scheme: "" },
-  published,
-  accessionNumber,
-  fileSets,
-  updatedAt,
+  visibility,
+  workTypeId,
 }) => {
   return (
     <>
@@ -34,9 +28,9 @@ const WorkListItem = ({
           <div className="image is-128x128">
             <Link to={`/work/${id}`} title="View work">
               <UIWorkImage
-                imageUrl={getImageUrl(representativeImage)}
+                imageUrl={representativeImage}
                 size={500}
-                workTypeId={workType.id}
+                workTypeId={workTypeId}
               />
             </Link>
           </div>
@@ -48,7 +42,7 @@ const WorkListItem = ({
             </Link>
           </p>
           <div className="tags">
-            <Tag isInfo>{workType.label}</Tag>
+            <Tag isInfo>{workTypeId}</Tag>
             {published ? (
               <Tag isSuccess data-testid="result-item-published">
                 Published
@@ -56,7 +50,7 @@ const WorkListItem = ({
             ) : (
               <Tag>Unpublished</Tag>
             )}
-            {visibility.id && (
+            {visibility && (
               <UIVisibilityTag
                 data-testid="tag-visibility"
                 visibility={visibility}

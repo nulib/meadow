@@ -1,19 +1,20 @@
+import { IconAlert, IconArrowLeft } from "@js/components/Icon";
 import React, { useEffect, useState } from "react";
-import Layout from "../Layout";
-import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
-import UIPreviewItems from "@js/components/UI/PreviewItems";
+
 import BatchEditTabs from "@js/components/BatchEdit/Tabs";
-import { Link } from "react-router-dom";
-import { useBatchState } from "@js/context/batch-edit-context";
-import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
-import UISkeleton from "@js/components/UI/Skeleton";
 import { ErrorBoundary } from "react-error-boundary";
+import Layout from "../Layout";
+import { Link } from "react-router-dom";
+import { Notification } from "@nulib/design-system";
+import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";
 import UIIconText from "@js/components/UI/IconText";
-import { IconAlert, IconArrowLeft } from "@js/components/Icon";
+import UIPreviewItems from "@js/components/UI/PreviewItems";
+import UISkeleton from "@js/components/UI/Skeleton";
 import UISticky from "@js/components/UI/Sticky";
+import { elasticsearchDirectSearch } from "@js/services/elasticsearch";
+import { useBatchState } from "@js/context/batch-edit-context";
 import useGTM from "@js/hooks/useGTM";
-import { Notification } from "@nulib/design-system";
 
 const ScreensBatchEdit = () => {
   const batchState = useBatchState();
@@ -33,20 +34,27 @@ const ScreensBatchEdit = () => {
 
     async function getResultItems() {
       let resultItems = [];
-      let results = await elasticsearchDirectSearch({
-        size: 25,
-        ...batchState.filteredQuery,
-      });
+      let results;
 
-      if (results.hits.hits.length > 0) {
-        resultItems = results.hits.hits.map((hit) => {
-          return {
-            id: hit._source.id,
-            representativeImage: hit._source.representativeFileSet,
-            workTypeId: hit._source.workType.id,
-          };
+      try {
+        results = await elasticsearchDirectSearch({
+          size: 25,
+          ...batchState.filteredQuery,
         });
+        if (results?.hits?.hits?.length > 0) {
+          resultItems = results.hits.hits.map((hit) => {
+            const { id, representative_file_set, work_type } = hit._source;
+            return {
+              id: id,
+              representativeImage: representative_file_set,
+              workTypeId: work_type ? work_type.toUpperCase() : "",
+            };
+          });
+        }
+      } catch (error) {
+        console.error("error", error);
       }
+
       setIsLoadingPreviewItems(false);
       setPreviewItems(resultItems);
     }

@@ -1,40 +1,41 @@
-import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { AuthProvider } from "../components/Auth/Auth";
-import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
-import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
-import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
-import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
-import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
-import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
-import ScreensDashboardsAnalytics from "@js/screens/Dashboards/Analytics/Analytics";
-import ScreensProjectList from "./Project/List";
-import ScreensProject from "./Project/Project";
-import Home from "./Home/Home";
-import NotFound from "./404";
-import ScreensIngestSheet from "./IngestSheet/IngestSheet";
-import ScreensWork from "./Work/Work";
-import ScreensSearch from "./Search/Search";
-import ScreensCollectionList from "./Collection/List";
-import ScreensCollection from "./Collection/Collection";
-import ScreensCollectionForm from "./Collection/Form";
-import ScreensBatchEdit from "./BatchEdit/BatchEdit";
-import Login from "./Login";
-import PrivateRoute from "../components/Auth/PrivateRoute";
-import ScrollToTop from "../components/ScrollToTop";
-import { ReactiveBase } from "@appbaseio/reactivesearch";
 import {
   ELASTICSEARCH_PROXY_ENDPOINT,
-  ELASTICSEARCH_INDEX_NAME,
+  ELASTICSEARCH_WORK_INDEX,
 } from "../services/elasticsearch";
-import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
+
+import { AuthProvider } from "../components/Auth/Auth";
 import { BatchProvider } from "../context/batch-edit-context";
+import Home from "./Home/Home";
+import Login from "./Login";
+import NotFound from "./404";
+import PrivateRoute from "../components/Auth/PrivateRoute";
+import { REACTIVE_SEARCH_THEME } from "../services/reactive-search";
+import React from "react";
+import { ReactiveBase } from "@appbaseio/reactivesearch";
+import ScreensBatchEdit from "./BatchEdit/BatchEdit";
+import ScreensCollection from "./Collection/Collection";
+import ScreensCollectionForm from "./Collection/Form";
+import ScreensCollectionList from "./Collection/List";
+import ScreensDashboardsAnalytics from "@js/screens/Dashboards/Analytics/Analytics";
+import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
+import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
+import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
+import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
+import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
+import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
+import ScreensIngestSheet from "./IngestSheet/IngestSheet";
+import ScreensProject from "./Project/Project";
+import ScreensProjectList from "./Project/List";
+import ScreensSearch from "./Search/Search";
+import ScreensWork from "./Work/Work";
+import ScrollToTop from "../components/ScrollToTop";
 
 export default class Root extends React.Component {
   render() {
     return (
       <ReactiveBase
-        app={ELASTICSEARCH_INDEX_NAME}
+        app={ELASTICSEARCH_WORK_INDEX}
         theme={REACTIVE_SEARCH_THEME}
         url={ELASTICSEARCH_PROXY_ENDPOINT}
       >

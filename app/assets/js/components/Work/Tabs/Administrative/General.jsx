@@ -1,16 +1,14 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
-import UIFormReadingRoom from "@js/components/UI/Form/ReadingRoom";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
 
 function WorkAdministrativeTabsGeneral({
   administrativeMetadata,
   isEditing,
-  readingRoom,
   visibility,
 }) {
   const codeLists = useCodeLists();
@@ -139,7 +137,6 @@ function WorkAdministrativeTabsGeneral({
           <p>None selected</p>
         )}
       </UIFormField>
-      <UIFormReadingRoom isEditing={isEditing} value={readingRoom} />
     </div>
   );
 }
@@ -148,7 +145,6 @@ WorkAdministrativeTabsGeneral.propTypes = {
   administrativeMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
-  readingRoom: PropTypes.bool,
   visibility: PropTypes.object,
 };
 

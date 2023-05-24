@@ -122,8 +122,7 @@ const BatchEditConfirmation = ({
     batchReplaces &&
     (Object.keys(batchReplaces.administrativeMetadata).length > 0 ||
       Object.keys(batchReplaces.descriptiveMetadata).length > 0 ||
-      batchReplaces.published ||
-      Boolean(batchReplaces.readingRoom));
+      batchReplaces.published);
 
   const hasCollection =
     batchCollection && Object.keys(batchCollection).length > 0;
@@ -210,9 +209,6 @@ const BatchEditConfirmation = ({
                     published: batchReplaces.published.publish
                       ? "Publish works"
                       : "Unpublish works",
-                  }),
-                  ...(batchReplaces.readingRoom && {
-                    readingRoom: batchReplaces.readingRoom,
                   }),
                 }}
                 type="replace"

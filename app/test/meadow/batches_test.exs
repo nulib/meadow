@@ -89,7 +89,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 runs and completes a batch update" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -118,7 +118,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 runs and completes a batch delete" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "delete"
       user = "user123"
 
@@ -141,7 +141,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 does not start a batch if another batch is running" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -170,7 +170,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 handles uncontrolled fields" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -217,7 +217,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 works if field is missing from existing descriptive_metadata map" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -254,7 +254,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 handles controlled fields" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -302,7 +302,7 @@ defmodule Meadow.BatchesTest do
     test "process_batch/1 updates collection" do
       new_collection = collection_fixture(%{title: "New Collection"})
 
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       replace = %{collection_id: new_collection.id}
       type = "update"
       user = "user123"
@@ -322,7 +322,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 handles administrative metadata" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -367,7 +367,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 handles core metadata" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -394,7 +394,7 @@ defmodule Meadow.BatchesTest do
     end
 
     test "process_batch/1 succeeds even if index is out of sync" do
-      query = ~s'{"query":{"term":{"workType.id": "IMAGE"}}}'
+      query = ~s'{"query":{"match_all":{}}}'
       type = "update"
       user = "user123"
 
@@ -433,7 +433,7 @@ defmodule Meadow.BatchesTest do
         })
 
       attrs = %{
-        query: ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
+        query: ~s'{"query":{"match_all":{}}}',
         replace: replace,
         user: "user123",
         type: "update",

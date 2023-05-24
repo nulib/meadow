@@ -1,13 +1,19 @@
-import React from "react";
-import ScreensWork from "./Work";
-import { Route } from "react-router-dom";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { getWorkMock, MOCK_WORK_ID } from "@js/components/Work/work.gql.mock";
+import {
+  MOCK_WORK_ID,
+  getIIIFManifestHeaders,
+  getWorkMock,
+} from "@js/components/Work/work.gql.mock";
+
 import { BatchProvider } from "@js/context/batch-edit-context";
-import { mockUser } from "@js/components/Auth/auth.gql.mock";
-import useIsAuthorized from "@js/hooks/useIsAuthorized";
-import { screen } from "@testing-library/react";
+import React from "react";
+import { Route } from "react-router-dom";
+import ScreensWork from "./Work";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { screen } from "@testing-library/react";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 // Mock the getManifest call from the child Work component
 jest.mock("@js/services/get-manifest");
@@ -18,7 +24,12 @@ useIsAuthorized.mockReturnValue({
   isAuthorized: () => true,
 });
 
-const mocks = [getWorkMock, ...allCodeListMocks];
+const mocks = [
+  getWorkMock,
+  iiifServerUrlMock,
+  getIIIFManifestHeaders,
+  ...allCodeListMocks,
+];
 
 describe("ScreensWork component", () => {
   beforeEach(() => {
@@ -44,9 +55,8 @@ describe("ScreensWork component", () => {
   });
 
   it("renders work title", async () => {
-    expect(await screen.findByTestId("work-page-title")).toHaveTextContent(
-      "Work title here"
-    );
+    const el = await screen.findByTestId("work-page-title");
+    expect(el).toHaveTextContent("Work title here");
   });
 
   it("renders the correct work header info", async () => {

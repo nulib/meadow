@@ -26,7 +26,6 @@ defmodule Meadow.Data.Schemas.Work do
   schema "works" do
     field(:accession_number, :string)
     field(:published, :boolean, default: false)
-    field(:reading_room, :boolean, default: false)
 
     field(:visibility, Types.CodedTerm,
       default: %{id: "RESTRICTED", scheme: "visibility", label: "Private"}
@@ -78,7 +77,6 @@ defmodule Meadow.Data.Schemas.Work do
        :collection_id,
        :ingest_sheet_id,
        :published,
-       :reading_room,
        :representative_file_set_id,
        :visibility,
        :work_type
@@ -110,7 +108,6 @@ defmodule Meadow.Data.Schemas.Work do
       :collection_id,
       :ingest_sheet_id,
       :published,
-      :reading_room,
       :representative_file_set_id,
       :visibility
     ]

@@ -1,13 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import UISearchBarRow from "@js/components/UI/SearchBarRow";
-import UIFormInput from "@js/components/UI/Form/Input";
-import { useQuery } from "@apollo/client";
-import { GET_CSV_METADATA_UPDATE_JOBS } from "@js/components/Dashboards/dashboards.gql";
-import { formatDate } from "@js/services/helpers";
-import { Link } from "react-router-dom";
 import { IconImages, IconView } from "@js/components/Icon";
+
 import DashboardsCsvStatus from "@js/components/Dashboards/Csv/Status";
+import { GET_CSV_METADATA_UPDATE_JOBS } from "@js/components/Dashboards/dashboards.gql";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import React from "react";
+import UIFormInput from "@js/components/UI/Form/Input";
+import UISearchBarRow from "@js/components/UI/SearchBarRow";
+import { formatDate } from "@js/services/helpers";
+import { useQuery } from "@apollo/client";
 
 const displayFields = [
   {
@@ -125,7 +126,7 @@ function DashboardsCsvList(props) {
                           to={{
                             pathname: "/search",
                             state: {
-                              passedInSearchTerm: `metadataUpdateJobs:\"${id}\"`,
+                              passedInSearchTerm: `csv_metadata_update_jobs:\"${id}\"`,
                             },
                           }}
                         >

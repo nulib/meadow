@@ -6,7 +6,7 @@
   box_number: "1",
   caption: "Caption",
   catalog_key: "Catalog Key",
-  citation: "Citation",
+  citation: "",
   contributor:
     "pbl:http://id.loc.gov/authorities/names/n83175996 | vac:http://id.loc.gov/authorities/names/n85153068 | lil:http://id.loc.gov/authorities/names/n50053919 | aut:http://id.loc.gov/authorities/names/no2011087251 | mrb:http://id.loc.gov/authorities/names/no2011087251 | stl:http://id.loc.gov/authorities/names/n85153068",
   creator:
@@ -31,10 +31,10 @@
   physical_description_size: "12cm",
   preservation_level: "2",
   project_cycle: "Redevelopment",
-  project_desc: "Description of Project | Another Description of Project",
+  project_desc: "Description of Project",
   project_manager: "Brisco County, Jr.",
   project_name: "The Coming Thing",
-  project_proposer: "Socrates Poole | Lord Bowler",
+  project_proposer: "Socrates Poole",
   project_task_number: "1899.827",
   provenance: "Television",
   published: "false",

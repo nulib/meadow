@@ -314,13 +314,11 @@ defmodule Meadow.Batches do
 
     visibility = Map.get(replace, :visibility, :not_present)
     published = Map.get(replace, :published, :not_present)
-    reading_room = Map.get(replace, :reading_room, :not_present)
 
     with collection_id <- add |> Map.merge(replace) |> Map.get(:collection_id, :not_present) do
       update_collection(work_ids, collection_id)
       |> update_top_level_field(:visibility, visibility)
       |> update_top_level_field(:published, published)
-      |> update_top_level_field(:reading_room, reading_room)
       |> merge_uncontrolled_fields(add, :append)
       |> merge_uncontrolled_fields(replace, :replace)
     end
@@ -491,7 +489,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch update")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([SearchConfig.alias_for(Work, 1), "_search?scroll=10m"], query)
+    HTTP.post!([SearchConfig.alias_for(Work, 2), "_search?scroll=10m"], query)
     |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
@@ -527,7 +525,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch delete")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([SearchConfig.alias_for(Work, 1), "_search?scroll=10m"], query)
+    HTTP.post!([SearchConfig.alias_for(Work, 2), "_search?scroll=10m"], query)
     |> Map.get(:body)
     |> process_deletes(batch_id)
   end

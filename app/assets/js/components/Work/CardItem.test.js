@@ -1,12 +1,12 @@
 import React from "react";
 import WorkCardItem from "./CardItem";
-import { renderWithRouter } from "@js/services/testing-helpers";
-import { mockWork } from "./work.gql.mock";
+import { indexWork } from "@js/mock-data/elasticsearch-response";
 import { prepWorkItemForDisplay } from "@js/services/helpers";
+import { renderWithRouter } from "@js/services/testing-helpers";
 
 function setupTests() {
   return renderWithRouter(
-    <WorkCardItem {...prepWorkItemForDisplay(mockWork)} id={mockWork.id} />
+    <WorkCardItem {...prepWorkItemForDisplay(indexWork)} id={indexWork.id} />
   );
 }
 
@@ -32,8 +32,10 @@ describe("Shows Work content", () => {
     expect(findByText("Donohue_001")).toBeTruthy();
   });
 
-  it("Displays Published Flag", () => {
-    const { queryByTestId } = setupTests();
-    expect(queryByTestId("result-item-published")).not.toBeInTheDocument();
+  it("Displays Tags", () => {
+    const { getByText } = setupTests();
+    expect(getByText(/image/i)).toBeInTheDocument();
+    expect(getByText(/published/i)).toBeInTheDocument();
+    expect(getByText(/private/i)).toBeInTheDocument();
   });
 });

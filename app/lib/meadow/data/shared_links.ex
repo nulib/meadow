@@ -4,6 +4,7 @@ defmodule Meadow.Data.SharedLinks do
   """
 
   alias Meadow.Config
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
@@ -54,10 +55,10 @@ defmodule Meadow.Data.SharedLinks do
   def generate_many(query, ttl) when is_binary(query) do
     docs =
       query
-      |> Scroll.results()
+      |> Scroll.results(SearchConfig.alias_for(Work, 2))
       |> Stream.map(fn %{"_source" => work_doc} ->
         case work_doc do
-          %{"visibility" => %{"id" => "OPEN"}, "published" => true} ->
+          %{"visibility" => "Public", "published" => true} ->
             {shared_link_row(work_doc, work_doc["id"], @public_expiration, "items"), nil}
 
           _ ->
@@ -217,9 +218,9 @@ defmodule Meadow.Data.SharedLinks do
         work_doc |> get_in(["id"]),
         base_uri |> URI.merge("#{type}/#{link_id}") |> URI.to_string(),
         expires_string,
-        work_doc |> get_in(["accessionNumber"]),
-        work_doc |> get_in(["descriptiveMetadata", "title"]),
-        (work_doc |> get_in(["descriptiveMetadata", "description"]) || []) |> List.first()
+        work_doc |> get_in(["accession_number"]),
+        work_doc |> get_in(["title"]),
+        (work_doc |> get_in(["description"]) || []) |> List.first()
       ]
     end
   end
