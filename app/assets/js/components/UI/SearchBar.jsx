@@ -30,6 +30,10 @@ const UISearchBar = () => {
       weight: 3,
     },
     {
+      field: "all_ids",
+      weight: 2,
+    },
+    {
       field: "collection.title",
       weight: 2,
     },
@@ -42,7 +46,7 @@ const UISearchBar = () => {
       weight: 2,
     },
     {
-      field: "full_text",
+      field: "all_text",
       weight: 1,
     },
     {
