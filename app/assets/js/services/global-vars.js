@@ -13,17 +13,17 @@ export const REACTIVESEARCH_SORT_OPTIONS = [
   },
   {
     sortBy: "asc",
-    dataField: "modifiedDate",
+    dataField: "modified_date",
     label: "Sort By Modified Date",
   },
   {
     sortBy: "asc",
-    dataField: "descriptiveMetadata.title.keyword",
+    dataField: "title.keyword",
     label: "Sort By Title",
   },
   {
     sortBy: "asc",
-    dataField: "accessionNumber.keyword",
+    dataField: "accession_number",
     label: "Sort By Accession Number",
   },
 ];
