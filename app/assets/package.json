@@ -72,7 +72,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
     "@babel/plugin-transform-async-to-generator": "^7.16.0",
     "@babel/preset-env": "^7.22.2",
-    "@babel/preset-react": "^7.17.12",
+    "@babel/preset-react": "^7.22.3",
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@elastic/elasticsearch-mock": "^2.0.0",
