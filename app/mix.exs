@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "8.0.4"
+  @app_version "8.0.3"
 
   def project do
     [
