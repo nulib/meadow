@@ -1,4 +1,10 @@
+data "aws_cloudformation_stack" "dc_api" {
+  name = var.dcapi_stack_name
+}
+
 locals {
+  api_token_secret = data.aws_cloudformation_stack.dc_api.parameters.ApiTokenSecret
+
   config_secrets = {
     buckets = {
       ingest                = aws_s3_bucket.meadow_ingest.bucket
@@ -24,7 +30,9 @@ locals {
 
     dc_api = {
       v2 = {
-        base_url = var.dc_api_v2_base
+        api_token_secret    = local.api_token_secret
+        api_token_ttl       = 300
+        base_url            = var.dc_api_v2_base
       }
     }
 

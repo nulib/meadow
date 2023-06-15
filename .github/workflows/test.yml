@@ -60,7 +60,7 @@ jobs:
         working-directory: app
       - name: Install JS dependencies
         run: |
-          npm install --no-fund
+          npm ci --no-fund
           npm list
         working-directory: app/assets
       - name: Install Lambda dependencies
@@ -68,7 +68,7 @@ jobs:
           for pkg in $(find app/priv/nodejs -maxdepth 2 -name package-lock.json) $(find lambdas -maxdepth 2 -name package-lock.json)
           do
             cd $(dirname $pkg)
-            npm install --no-fund
+            npm ci --no-fund
             cd -
           done
   js-test:
@@ -137,7 +137,7 @@ jobs:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -159,7 +159,7 @@ jobs:
         ports:
           - 9200:9200
       localstack:
-        image: localstack/localstack-pro
+        image: localstack/localstack-pro:2.1.0
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           GATEWAY_LISTEN: 0.0.0.0:4566
