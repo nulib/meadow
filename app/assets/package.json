@@ -51,7 +51,7 @@
     "node-webvtt": "^1.9.4",
     "openseadragon": "^4.1.0",
     "openseadragon-react-viewer": "^3.6.0",
-    "phoenix": "^1.7.5",
+    "phoenix": "^1.7.6",
     "prop-types": "^15.8.1",
     "rc-progress": "^3.4.2",
     "react-beautiful-dnd": "^13.1.0",
