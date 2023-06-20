@@ -23,8 +23,7 @@ function ChartsGoogleAnalytics(props) {
         className="is-hidden-mobile"
         width="100%"
         height="250"
-        src="https://datastudio.google.com/embed/reporting/203ba83b-85d7-42a5-ae10-afaa85f7dab0/page/FW7"
-        frameBorder="0"
+        src="https://lookerstudio.google.com/embed/reporting/3bbe7b0d-0c8b-407b-9f8a-bf8121788ade/page/FW7"
       />
     </div>
   );
