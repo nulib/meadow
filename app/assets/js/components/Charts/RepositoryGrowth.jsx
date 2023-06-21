@@ -15,7 +15,37 @@ function formatDate(tickItem) {
   return moment(tickItem).format("MMM Do YY");
 }
 
-export default function ChartsRepositoryGrowth({ worksCreatedByWeek = [] }) {
+function mergeChartData(works, fileSets) {
+  let worksIndex = 0;
+  let fileSetsIndex = 0;
+  let result = [];
+
+  while (worksIndex < works.length && fileSetsIndex < fileSets.length) {
+    if (works[worksIndex].timestamp < fileSets[fileSetsIndex].timestamp) {
+      worksIndex++;
+    } else if (
+      works[worksIndex].timestamp > fileSets[fileSetsIndex].timestamp
+    ) {
+      fileSetsIndex++;
+    } else {
+      result.push({
+        ...works[worksIndex],
+        ...fileSets[fileSetsIndex],
+      });
+      worksIndex++;
+      fileSetsIndex++;
+    }
+  }
+
+  return result;
+}
+
+export default function ChartsRepositoryGrowth({
+  worksCreatedByWeek = [],
+  fileSetsCreatedByWeek = [],
+}) {
+  const data = mergeChartData(worksCreatedByWeek, fileSetsCreatedByWeek);
+
   return (
     <div className="box">
       <h3 className="subtitle is-3">Repository Growth</h3>
@@ -24,7 +54,7 @@ export default function ChartsRepositoryGrowth({ worksCreatedByWeek = [] }) {
           <LineChart
             width={500}
             height={300}
-            data={worksCreatedByWeek}
+            data={data}
             margin={{
               top: 5,
               right: 30,
@@ -36,11 +66,19 @@ export default function ChartsRepositoryGrowth({ worksCreatedByWeek = [] }) {
             <XAxis dataKey="timestamp" tickFormatter={formatDate} />
             <YAxis />
             <Tooltip labelFormatter={formatDate} />
-            <Legend formatter={(value) => "Works"} />
+            <Legend />
             <Line
               type="monotone"
               dataKey="works"
+              name="Works"
               stroke="#5091cd"
+              activeDot={{ r: 8 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="fileSets"
+              name="File Sets"
+              stroke="#EF553F"
               activeDot={{ r: 8 }}
             />
           </LineChart>
