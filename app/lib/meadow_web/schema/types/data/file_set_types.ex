@@ -45,6 +45,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       resolve(&Resolvers.Data.update_file_set/3)
     end
 
+    @desc "Replace file set (create new version)"
+    field :replace_file_set, :file_set do
+      arg(:id, non_null(:id))
+      arg(:core_metadata, non_null(:file_set_core_metadata_input))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.replace_file_set/3)
+    end
+
     @desc "Update metadata for a list of fileSets"
     field :update_file_sets, list_of(:file_set) do
       arg(:file_sets, non_null(list_of(:file_set_update)))
@@ -153,9 +162,10 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "`digests` represents the possible digest hashes for a file set."
   object :digests do
-    field :md5, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "md5")} end)
-    field :sha1, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha1")} end)
-    field :sha256, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha256")} end)
+    field(:md5, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "md5")} end))
+    field(:sha1, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha1")} end))
+
+    field(:sha256, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha256")} end))
   end
 
   @desc "`file_set_structural_metadata` represents the structural metadata within a file set object."

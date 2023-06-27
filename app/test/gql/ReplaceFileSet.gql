@@ -1,0 +1,13 @@
+#import "./FileSetFields.frag.gql"
+
+mutation(
+  $id: ID!
+  $coreMetadata: FileSetCoreMetadataInput!
+) {
+  replaceFileSet(
+    id: $id
+    coreMetadata: $coreMetadata
+  ) {
+    ...FileSetFields
+  }
+}
