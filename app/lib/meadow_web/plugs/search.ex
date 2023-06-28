@@ -41,6 +41,7 @@ defmodule MeadowWeb.Plugs.Search do
     case HTTP.request(method, path <> query_string, body, []) do
       {:ok, response} ->
         conn
+        |> assign(:updated_req_body, body)
         |> put_resp_content_type("application/json")
         |> resp(200, Jason.encode!(response.body))
         |> send_resp()
@@ -68,10 +69,39 @@ defmodule MeadowWeb.Plugs.Search do
 
   defp extract_body(%Plug.Conn{body_params: %Plug.Conn.Unfetched{aspect: :body_params}} = conn) do
     {:ok, body, _conn} = read_body(conn)
-    body
+    fix_multiline_json(body, conn)
   end
 
   defp extract_body(conn) do
     conn.body_params
   end
+
+  defp fix_multiline_json(body, conn) do
+    if get_req_header(conn, "content-type") == ["application/x-ndjson"] do
+      body
+      |> String.trim()
+      |> String.split("\n")
+      |> Enum.map_join("\n", fn line ->
+        line
+        |> Jason.decode!()
+        |> add_track_total_hits()
+        |> Jason.encode!()
+      end)
+      |> Kernel.<>("\n")
+    else
+      body
+      |> Jason.decode!()
+      |> add_track_total_hits()
+      |> Jason.encode!()
+    end
+  end
+
+  defp add_track_total_hits(%{"query" => _, "track_total_hits" => _} = line), do: line
+
+  defp add_track_total_hits(%{"query" => _} = line) do
+    line
+    |> Map.put("track_total_hits", true)
+  end
+
+  defp add_track_total_hits(line), do: line
 end

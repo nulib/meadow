@@ -51,6 +51,7 @@ defmodule SearchTest do
         |> put_req_header("content-type", "application/x-ndjson")
         |> post("/_search/#{@v2_work_index}/_msearch", mquery)
 
+      assert String.contains?(conn.assigns |> Map.get(:updated_req_body), "track_total_hits")
       assert Jason.decode!(conn.resp_body) |> get_in(@total_hits_path) > 1
     end
 
