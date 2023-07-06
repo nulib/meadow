@@ -54,6 +54,23 @@ function getWorksCreatedByWeek(buckets) {
   }
 }
 
+function getFileSetsCreatedByWeek(buckets) {
+  try {
+    let fileSetCount = 0;
+    let fileSetsByWeek = buckets.map((obj) => {
+      fileSetCount = fileSetCount + obj.doc_count;
+      return {
+        timestamp: obj.key,
+        fileSets: fileSetCount,
+      };
+    });
+    return fileSetsByWeek;
+  } catch (error) {
+    console.error("Error prepping file sets created by week", error);
+    return [];
+  }
+}
+
 function getVisbilityData(data = []) {
   return data.map((obj) => {
     const publishedBucket = obj.published.buckets.find(
@@ -161,6 +178,20 @@ export default function useRepositoryStats() {
       },
     },
   });
+  const fileSetsCreatedByWeek = elasticsearchDirectSearch(
+    {
+      size: 0,
+      aggs: {
+        file_sets_created_by_week: {
+          date_histogram: {
+            field: "create_date",
+            interval: "week",
+          },
+        },
+      },
+    },
+    ELASTICSEARCH_FILE_SET_INDEX
+  );
 
   React.useEffect(() => {
     const promises = [
@@ -172,6 +203,7 @@ export default function useRepositoryStats() {
       visibilityQuery,
       worksCreatedByWeek,
       collectionsRecentlyUpdated,
+      fileSetsCreatedByWeek,
     ];
 
     async function fn() {
@@ -200,6 +232,11 @@ export default function useRepositoryStats() {
         ...(resultArray[7] && {
           collectionsRecentlyUpdated: getRecentCollections(
             resultArray[7].aggregations.works_recently_updated.buckets
+          ),
+        }),
+        ...(resultArray[8] && {
+          fileSetsCreatedByWeek: getFileSetsCreatedByWeek(
+            resultArray[8].aggregations.file_sets_created_by_week.buckets
           ),
         }),
       });

@@ -55,6 +55,7 @@ const ScreensHome = () => {
             <div className="column is-two-thirds">
               <ChartsRepositoryGrowth
                 worksCreatedByWeek={stats.worksCreatedByWeek}
+                fileSetsCreatedByWeek={stats.fileSetsCreatedByWeek}
               />
             </div>
 
