@@ -80,6 +80,8 @@ config :meadow, Meadow.Repo,
 config :meadow,
   dc_api: [
     v2: %{
+      "api_token_secret" => "TEST_SECRET",
+      "api_token_ttl" => 300,
       "base_url" => "http://dcapi-test.northwestern.edu"
     }
   ]
