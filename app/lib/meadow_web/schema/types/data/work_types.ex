@@ -108,6 +108,15 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_access_file_order/3)
     end
+
+    @desc "Swap file sets from one work to another"
+    field :transfer_file_sets, :work do
+      arg(:from_work_id, non_null(:id))
+      arg(:to_work_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.transfer_file_sets/3)
+    end
   end
 
   @desc "A work object"

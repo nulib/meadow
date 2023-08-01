@@ -26,6 +26,7 @@ import PropTypes from "prop-types";
 import UISkeleton from "@js/components/UI/Skeleton";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
+import WorkTabsPreservationTransferFileSetsModal from "@js/components/Work/Tabs/Preservation/TransferFileSetsModal";
 import { useMutation, useQuery } from "@apollo/client";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import { formatDate } from "@js/services/helpers";
@@ -51,12 +52,18 @@ const WorkTabsPreservation = ({ work }) => {
     fileset: {},
     isVisible: false,
   });
+  const [transferFilesetsModal, setTransferFilesetsModal] = React.useState({
+    fromWorkId: work.id,
+    isVisible: false,
+  });
 
   const {
     data: verifyFileSetsData,
     error: verifyFileSetsError,
     loading: verifyFileSetsLoading,
   } = useQuery(VERIFY_FILE_SETS, { variables: { workId: work.id } });
+
+
 
   /**
    * Delete a Fileset
@@ -178,6 +185,10 @@ const WorkTabsPreservation = ({ work }) => {
 
   const handleTechnicalMetaClick = (fileSet = {}) => {
     setTechnicalMetadata({ fileSet: { ...fileSet } });
+  };
+
+  const handleTransferFileSetsClick = () => {
+    setTransferFilesetsModal({ fromWorkId: work.id, isVisible: true });
   };
 
   return (
@@ -304,8 +315,22 @@ const WorkTabsPreservation = ({ work }) => {
               )}
             </DialogContent>
           </Dialog.Root>
+          <Button
+            as="span"
+            data-testid="button-transfer-file-sets"
+            isPrimary
+            onClick={handleTransferFileSetsClick}
+          >
+            Transfer File Sets to Existing Work
+          </Button>
         </AuthDisplayAuthorized>
       </div>
+
+      <WorkTabsPreservationTransferFileSetsModal
+        closeModal={() => setTransferFilesetsModal({ isVisible: false })}
+        isVisible={transferFilesetsModal.isVisible}
+        fromWorkId={work.id}
+      />
 
       <WorkTabsPreservationFileSetModal
         closeModal={() => setIsAddFilesetModalVisible(false)}

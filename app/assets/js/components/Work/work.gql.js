@@ -500,6 +500,14 @@ export const UPDATE_ACCESS_FILE_ORDER = gql`
   }
 `;
 
+export const TRANSFER_FILE_SETS = gql`
+  mutation TransferFileSets($fromWorkId: ID!, $toWorkId: ID!) {
+    transferFileSets(fromWorkId: $fromWorkId, toWorkId: $toWorkId) {
+      id
+    }
+  }
+`;
+
 export const WORK_ARCHIVER_ENDPOINT = gql`
   query WorkArchiverEndpoint {
     workArchiverEndpoint {

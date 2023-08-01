@@ -5,6 +5,7 @@ defmodule MeadowWeb.Resolvers.Data do
   """
   alias Meadow.Pipeline
   alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Data.Works.TransferFileSets
   alias Meadow.Utils.ChangesetErrors
 
   def works(_, args, _) do
@@ -190,6 +191,13 @@ defmodule MeadowWeb.Resolvers.Data do
 
   def verify_file_sets(_, %{work_id: work_id}, _) do
     {:ok, Works.verify_file_sets(work_id)}
+  end
+
+  def transfer_file_sets(_, %{from_work_id: from_work_id, to_work_id: to_work_id}, _) do
+    case TransferFileSets.transfer(from_work_id, to_work_id) do
+      {:ok, to_work_id} -> {:ok, to_work_id}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def iiif_manifest_headers(_, %{work_id: work_id}, _) do
