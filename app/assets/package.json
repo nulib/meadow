@@ -28,7 +28,7 @@
     "@honeybadger-io/react": "^1.0.1",
     "@nulib/design-system": "^1.5.1",
     "@radix-ui/react-dialog": "^1.0.4",
-    "@samvera/clover-iiif": "1.15.3",
+    "@samvera/clover-iiif": "1.15.4",
     "@samvera/image-downloader": "^1.1.1",
     "bulma": "^0.9.4",
     "bulma-checkradio": "^2.1.3",
