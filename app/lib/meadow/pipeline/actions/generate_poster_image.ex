@@ -81,7 +81,9 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   defp invalidate_cache(file_set, distribution_id) do
     version = "2020-05-31"
     caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
-    path = "/iiif/2/posters/#{file_set.id}/*"
+
+
+    path = URI.parse(Meadow.Config.iiif_server_url()) |> Map.get(:path) |> Kernel.<>("posters/#{file_set.id}/*")
 
     data = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -105,7 +107,10 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     }
 
     case operation |> ExAws.request() do
-      {:ok, status_code: status_code} when status_code in 200..299 ->
+      {:ok, %{status_code: status_code}
+
+
+      } when status_code in 200..299 ->
         :ok
 
       _ ->

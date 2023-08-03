@@ -3,40 +3,10 @@ defmodule MediaConvert.Mock do
   Mock AWS Elemental MediaConvert client
   """
   alias ExAws.S3
-  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Pipeline.Actions.TranscodeComplete
 
   require Logger
-
-  def configure! do
-    with bucket <- Config.streaming_bucket() do
-      S3.put_bucket_policy(
-        bucket,
-        %{
-          "Statement" => [
-            %{
-              "Action" => ["s3:GetBucketLocation", "s3:ListBucket"],
-              "Effect" => "Allow",
-              "Principal" => %{"AWS" => ["*"]},
-              "Resource" => ["arn:aws:s3:::#{bucket}"]
-            },
-            %{
-              "Action" => ["s3:GetObject"],
-              "Effect" => "Allow",
-              "Principal" => %{"AWS" => ["*"]},
-              "Resource" => ["arn:aws:s3:::#{bucket}/*"]
-            }
-          ],
-          "Version" => "2012-10-17"
-        }
-        |> Jason.encode!()
-      )
-      |> ExAws.request!()
-    end
-
-    :ok
-  end
 
   @doc """
   Simulate responses from creating jobs via the MediaConvert HTTP API
@@ -45,8 +15,6 @@ defmodule MediaConvert.Mock do
   the word "error", e.g. %{FileInput: "s3://error/test.mov"} => {:error, "Fake error response"}
   """
   def create_job(template) do
-    configure!()
-
     if String.match?(file_input(template), ~r/input-error/) do
       {:error, "Fake error response"}
     else
