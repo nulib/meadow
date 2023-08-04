@@ -7,6 +7,8 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   alias Meadow.Repo
   alias Meadow.Utils.Lambda
 
+  import Env
+
   use Meadow.Pipeline.Actions.Common
 
   @timeout 30_000
@@ -51,6 +53,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
 
     iiif_cloudfront_distribution_id = Config.iiif_cloudfront_distribution_id()
     invalidate_cache(file_set, iiif_cloudfront_distribution_id)
+    :ok
   end
 
   defp handle_generate_poster_result({:error, error}, _file_set, destination) do
@@ -78,12 +81,19 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
     :ok
   end
 
+
+
   defp invalidate_cache(file_set, distribution_id) do
     version = "2020-05-31"
     caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
 
+    # path = "/iiif/2/posters/#{file_set.id}/*"
 
-    path = URI.parse(Meadow.Config.iiif_server_url()) |> Map.get(:path) |> Kernel.<>("posters/#{file_set.id}/*")
+    path = if System.get_env("DEV_PREFIX") do
+      "/iiif/2/#{prefix()}/posters/#{file_set.id}/*"
+    else
+      "/iiif/2/posters/#{file_set.id}/*"
+    end
 
     data = """
     <?xml version="1.0" encoding="UTF-8"?>
