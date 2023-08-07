@@ -109,7 +109,14 @@ config :ueberauth, Ueberauth,
 
 if prefix = System.get_env("DEV_PREFIX") do
   config :meadow,
-    dc_api: [v2: %{"base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002"}]
+    dc_api: [
+      v2: %{
+        "api_token_secret" =>
+          aws_secret("meadow", dig: ["dc_api", "v2", "api_token_secret"], default: "DEV_SECRET"),
+        "api_token_ttl" => 300,
+        "base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002"
+      }
+    ]
 end
 
 config :meadow, :sitemaps,

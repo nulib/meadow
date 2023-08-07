@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "8.0.5"
+  @app_version "8.1.0"
 
   def project do
     [
@@ -82,6 +82,7 @@ defmodule Meadow.MixProject do
       {:hush_aws_secrets_manager, "~> 0.1"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
+      {:jwt, "~> 0.1.11"},
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.2.0"},

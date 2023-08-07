@@ -22,6 +22,11 @@ variable "db_size" {
   default = 5
 }
 
+variable "dcapi_stack_name" {
+  type    = string
+  default = "dc-api-v2"  
+}
+
 variable "certificate_name" {
   type    = string
   default = "*"

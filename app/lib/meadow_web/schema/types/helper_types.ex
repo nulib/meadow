@@ -28,6 +28,12 @@ defmodule MeadowWeb.Schema.HelperTypes do
       resolve(&Resolvers.Helpers.get_presigned_url/3)
     end
 
+    @desc "Get a signed superuser DC API token"
+    field :dc_api_token, :api_token do
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Helpers.get_dc_api_token/3)
+    end
+
     @desc "Get work archiver endpoint"
     field :work_archiver_endpoint, :url do
       middleware(Middleware.Authenticate)

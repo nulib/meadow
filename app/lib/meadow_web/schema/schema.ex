@@ -62,6 +62,11 @@ defmodule MeadowWeb.Schema do
     value(:desc)
   end
 
+  object :api_token do
+    field :token, non_null(:string)
+    field :expires, non_null(:datetime)
+  end
+
   object :url do
     field :url, non_null(:string)
   end
