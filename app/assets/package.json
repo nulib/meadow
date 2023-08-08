@@ -83,7 +83,7 @@
     "@testing-library/user-event": "^14.2.1",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "coveralls": "^3.1.1",
-    "esbuild": "^0.18.19",
+    "esbuild": "^0.18.20",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-path-alias": "^1.0.7",
     "esbuild-sass-plugin": "^2.10.0",
