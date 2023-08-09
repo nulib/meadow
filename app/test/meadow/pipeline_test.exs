@@ -71,6 +71,27 @@ defmodule Meadow.Data.PipelineTest do
     end
   end
 
+  describe "replacing a file set" do
+    @describetag s3: [@s3_fixture]
+
+    test "replace_the_file_set/1 updates a file_set location" do
+      file_set = file_set_fixture(%{
+        accession_number: "12345",
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
+        mime_type: "image/png",
+        core_metadata: %{
+          description: "yes",
+          location: "s3://old-location",
+          original_filename: "test.png"
+        }
+      })
+
+      attrs = %{core_metadata: %{location: @tiff_location}}
+      assert {:ok, %FileSet{} = updated_file_set} = Pipeline.replace_the_file_set(file_set, attrs)
+      assert updated_file_set.core_metadata.location == @tiff_location
+    end
+  end
+
   describe "checksum timeout" do
     @describetag s3: [@s3_fixture]
 

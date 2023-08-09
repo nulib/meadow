@@ -70,7 +70,7 @@ defmodule Meadow.Config do
 
   @doc "Retrieve the IIIF cloudfront distribution id"
   def iiif_cloudfront_distribution_id do
-    Application.get_env(:meadow, :iiif_cloudfront_distribution_id)
+    Application.get_env(:meadow, :iiif_distribution_id)
   end
 
   @doc "Retrieve the IIIF server endpoint"

@@ -5,7 +5,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Repo
-  alias Meadow.Utils.Lambda
+  alias Meadow.Utils.{AWS, Lambda}
 
   use Meadow.Pipeline.Actions.Common
 
@@ -49,8 +49,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
       FileSets.update_file_set(file_set, %{derivatives: derivatives})
     end)
 
-    iiif_cloudfront_distribution_id = Config.iiif_cloudfront_distribution_id()
-    invalidate_cache(file_set, iiif_cloudfront_distribution_id)
+    AWS.invalidate_cache(file_set, :poster)
   end
 
   defp handle_generate_poster_result({:error, error}, _file_set, destination) do
@@ -68,49 +67,5 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
       },
       @timeout
     )
-  end
-
-  defp invalidate_cache(file_set, nil) do
-    Logger.info(
-      "Skipping poster cache invalidation for file set: #{file_set.id}. No distribution id found."
-    )
-
-    :ok
-  end
-
-  defp invalidate_cache(file_set, distribution_id) do
-    version = "2020-05-31"
-    caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
-    path = "/iiif/2/posters/#{file_set.id}/*"
-
-    data = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/#{version}/">
-       <CallerReference>#{caller_reference}</CallerReference>
-       <Paths>
-          <Items>
-             <Path>#{path}</Path>
-          </Items>
-          <Quantity>1</Quantity>
-       </Paths>
-    </InvalidationBatch>
-    """
-
-    operation = %ExAws.Operation.RestQuery{
-      action: :create_invalidation,
-      body: data,
-      http_method: :post,
-      path: "/#{version}/distribution/#{distribution_id}/invalidation",
-      service: :cloudfront
-    }
-
-    case operation |> ExAws.request() do
-      {:ok, status_code: status_code} when status_code in 200..299 ->
-        :ok
-
-      _ ->
-        Logger.error("Unable to clear poster cache for #{path}")
-        :ok
-    end
   end
 end

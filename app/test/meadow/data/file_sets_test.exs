@@ -128,6 +128,21 @@ defmodule Meadow.Data.FileSetsTest do
              }
     end
 
+    test "replace_file_set/1 with new location updates file_set" do
+      file_set = file_set_fixture()
+
+      replace_attrs = %{
+        id: file_set.id,
+        core_metadata: %{
+          location: "https://example.com",
+          original_filename: "test.tiff"
+        }
+      }
+
+      assert {:ok, %FileSet{} = file_set} = FileSets.replace_file_set(file_set, replace_attrs)
+      assert file_set.core_metadata.location == "https://example.com"
+    end
+
     test "get_file_set!/1 returns a file set by id" do
       file_set = file_set_fixture()
       assert FileSets.get_file_set!(file_set.id) == file_set

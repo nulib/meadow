@@ -112,6 +112,24 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Replaces (versions) a FileSet.
+  """
+  def replace_file_set(%FileSet{} = file_set, attrs) do
+    changeset =
+      FileSet.update_changeset(file_set, attrs)
+      |> validate_poster_offset(file_set)
+
+    response = Repo.update(changeset)
+
+    case response do
+      {:ok, _file_set} -> post_process(changeset)
+      other -> other
+    end
+
+    response
+  end
+
+  @doc """
   Updates a FileSet.
   """
   def update_file_set(%FileSet{} = file_set, attrs) do
