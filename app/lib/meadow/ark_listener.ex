@@ -1,4 +1,4 @@
-defmodule Meadow.ARKListener do
+defmodule Meadow.ArkListener do
   @moduledoc """
   Listens to INSERTS/UPDATES on Postgrex.Notifications topic "works_changed" and writes
   updates ARK metadata
@@ -6,15 +6,18 @@ defmodule Meadow.ARKListener do
 
   use Meadow.DatabaseNotification, tables: [:works]
   use Meadow.Utils.Logging
+  alias Meadow.Arks
   alias Meadow.Data.Works
   require Logger
 
   @impl true
-  def handle_notification(:works, :delete, %{id: _id}, state) do
+  def handle_notification(:works, :delete, %{id: id}, state) do
+    Arks.work_deleted(id)
     {:noreply, state}
   end
 
-  def handle_notification(:works, :insert, %{id: _id}, state) do
+  def handle_notification(:works, :insert, %{id: id}, state) do
+    Works.get_work(id) |> Arks.mint_ark()
     {:noreply, state}
   end
 
@@ -38,7 +41,10 @@ defmodule Meadow.ARKListener do
       "Updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}"
     )
 
-    case Works.update_ark_metatdata(work) do
+    case Arks.update_ark_metatdata(work) do
+      :noop ->
+        :noop
+
       {:ok, _result} ->
         :noop
 

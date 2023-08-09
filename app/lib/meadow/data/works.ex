@@ -5,21 +5,15 @@ defmodule Meadow.Data.Works do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   alias Ecto.Multi
-  alias Meadow.Ark
   alias Meadow.Config
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work}
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
   use Meadow.Data.Works.BatchFunctions
 
   require Logger
-
-  @work_type_resource_type_mapping %{
-    "AUDIO" => "Sound",
-    "VIDEO" => "Audiovisual"
-  }
 
   @doc """
   Returns the list of Works.
@@ -61,25 +55,25 @@ defmodule Meadow.Data.Works do
 
     Enum.reduce(criteria, query, fn
       {:collection, collection}, query ->
-        from w in query, where: w.collection_id == ^collection.id
+        from(w in query, where: w.collection_id == ^collection.id)
 
       {:collection_id, collection_id}, query ->
-        from w in query, where: w.collection_id == ^collection_id
+        from(w in query, where: w.collection_id == ^collection_id)
 
       {:limit, limit}, query ->
-        from w in query, limit: ^limit
+        from(w in query, limit: ^limit)
 
       {:filter, filters}, query ->
         filter_with(filters, query)
 
       {:order, order}, query ->
-        from p in query, order_by: [{^order, :id}]
+        from(p in query, order_by: [{^order, :id}])
 
       {:visibility, visibility}, query ->
-        from w in query, where: fragment("visibility -> 'id' = ?", ^visibility)
+        from(w in query, where: fragment("visibility -> 'id' = ?", ^visibility))
 
       {:work_type, work_type}, query ->
-        from w in query, where: fragment("work_type -> 'id' = ?", ^work_type)
+        from(w in query, where: fragment("work_type -> 'id' = ?", ^work_type))
     end)
   end
 
@@ -88,8 +82,9 @@ defmodule Meadow.Data.Works do
       {:matching, term}, query ->
         map = %{"title" => term}
 
-        from q in query,
+        from(q in query,
           where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+        )
     end)
   end
 
@@ -138,15 +133,31 @@ defmodule Meadow.Data.Works do
     |> add_representative_image()
   end
 
+  @doc """
+  Gets a work by its ARK
+
+  Raises `Ecto.NoResultsError` if the Work does not exist
+  """
+
+  def get_work_by_ark!(ark) do
+    from(w in Work,
+      where: fragment("?.descriptive_metadata->>'ark' = ?", w, ^ark),
+      preload: [:ingest_sheet, :project, descriptive_metadata: :cached_ark]
+    )
+    |> Repo.one!()
+    |> add_representative_image()
+  end
+
   def get_access_files(work_id) do
     map = %{"id" => "A"}
 
     Repo.all(
-      from f in FileSet,
+      from(f in FileSet,
         where: f.work_id == ^work_id,
         where: fragment("role @> ?::jsonb", ^map),
         order_by: :rank,
         limit: 1
+      )
     )
   end
 
@@ -203,7 +214,7 @@ defmodule Meadow.Data.Works do
   true
   """
   def accession_exists?(accession_number) do
-    Repo.exists?(from w in Work, where: w.accession_number == ^accession_number)
+    Repo.exists?(from(w in Work, where: w.accession_number == ^accession_number))
   end
 
   @doc """
@@ -220,14 +231,8 @@ defmodule Meadow.Data.Works do
   """
   def create_work(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
-      {:ok, work} ->
-        case mint_ark(work) do
-          {:ok, work} -> set_default_representative_image(work)
-          _ -> set_default_representative_image(work)
-        end
-
-      other ->
-        other
+      {:ok, work} -> set_default_representative_image(work)
+      other -> other
     end
   end
 
@@ -238,7 +243,6 @@ defmodule Meadow.Data.Works do
     %Work{}
     |> Work.changeset(attrs)
     |> Repo.insert!()
-    |> mint_ark!()
     |> set_default_representative_image!()
   end
 
@@ -265,14 +269,8 @@ defmodule Meadow.Data.Works do
 
   def create_work_all_fields(attrs \\ %{}) do
     case %Work{} |> Work.changeset(attrs) |> Repo.insert() do
-      {:ok, work} ->
-        case mint_ark(work) do
-          {:ok, work} -> set_default_representative_image(work)
-          _ -> set_default_representative_image(work)
-        end
-
-      other ->
-        other
+      {:ok, work} -> set_default_representative_image(work)
+      other -> other
     end
   end
 
@@ -417,150 +415,6 @@ defmodule Meadow.Data.Works do
   def iiif_manifest_key(work_id, work_type) when work_type in ["AUDIO", "VIDEO"] do
     "public/iiif3/" <> Pairtree.manifest_path(work_id)
   end
-
-  @doc """
-  Retrieves the ARK Target URL for a work
-  iex> ark_target_url("f352eb30-ae2f-4b49-81f9-6eb4659a3f47")
-  "https://dc.library.northwestern.edu/items/f352eb30-ae2f-4b49-81f9-6eb4659a3f47"
-
-  iex> ark_target_url(%Work{id:"f352eb30-ae2f-4b49-81f9-6eb4659a3f47"})
-  "https://dc.library.northwestern.edu/items/f352eb30-ae2f-4b49-81f9-6eb4659a3f47"
-
-  """
-  def ark_target_url(%Work{id: id}) do
-    ark_target_url(id)
-  end
-
-  def ark_target_url(work_id) do
-    Map.get(Config.ark_config(), :target_url) <> work_id
-  end
-
-  @doc """
-  Mints an ARK for a work
-  iex> mint_ark(work)
-  {:ok,
-   %Work{
-     ...
-     descriptive_metadata: %WorkDescriptiveMetadata{
-       ...
-       ark: "ark:/99999/fk4newark"
-     }
-   }}
-
-  iex> mint_ark(work_with_existing_ark)
-  {:noop,
-   %Work{...}}
-  """
-  def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work, _)
-      when not is_nil(ark) do
-    {:noop, work}
-  end
-
-  def mint_ark(%Work{} = work) do
-    case work |> initial_ark_attributes() |> Ark.mint() do
-      {:ok, result} ->
-        update_work(work, %{descriptive_metadata: %{ark: result.ark}})
-
-      {:error, error_message} ->
-        Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
-        {:error, error_message}
-    end
-  end
-
-  defp initial_ark_attributes(work) do
-    status = if work.published, do: "public", else: "reserved"
-
-    [
-      creator: scalar_value(work.descriptive_metadata.creator),
-      title: work.descriptive_metadata.title,
-      publisher: scalar_value(work.descriptive_metadata.publisher),
-      publication_year: nil,
-      resource_type: resource_type(work),
-      status: status,
-      target: ark_target_url(work)
-    ]
-  end
-
-  def update_ark_metatdata(%Work{} = work) do
-    case Ark.get(work.descriptive_metadata.ark) do
-      {:error, message} ->
-        {:error, message}
-
-      {:ok, %{status: current_status}} ->
-        new_status = ark_update_status(current_status, work)
-
-        case work |> ark_update_attributes(new_status) |> Ark.put() do
-          {:ok, result} ->
-            Logger.info("Ark successfully updated. #{inspect(result)}")
-
-            {:ok, result}
-
-          {:error, error_message} ->
-            Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
-            {:error, error_message}
-        end
-    end
-  end
-
-  defp ark_update_attributes(work, new_status) do
-    [
-      ark: work.descriptive_metadata.ark,
-      creator: scalar_value(work.descriptive_metadata.creator),
-      title: work.descriptive_metadata.title,
-      publisher: scalar_value(work.descriptive_metadata.publisher),
-      publication_year: nil,
-      resource_type: resource_type(work),
-      status: new_status,
-      target: ark_target_url(work)
-    ]
-  end
-
-  defp resource_type(%{work_type: nil}), do: nil
-
-  defp resource_type(%{work_type: %{id: work_type}}) do
-    case Map.get(@work_type_resource_type_mapping, work_type) do
-      nil -> work_type |> String.downcase() |> Inflex.Camelize.camelize()
-      value -> value
-    end
-  end
-
-  defp scalar_value([%ControlledMetadataEntry{term: %{label: value}} | _]), do: value
-  defp scalar_value([value | _]), do: value
-  defp scalar_value(%{label: value}), do: value
-  defp scalar_value([]), do: nil
-  defp scalar_value(value), do: value
-
-  def mint_ark!(work) do
-    case mint_ark(work) do
-      {:noop, work} -> work
-      {:ok, work} -> work
-      {_, other} -> raise other
-    end
-  end
-
-  defp ark_update_status(_current_status, %{visibility: %{id: visibility_id}, published: true})
-       when visibility_id in ["OPEN", "AUTHENTICATED"],
-       do: "public"
-
-  defp ark_update_status("public", %{visibility: %{id: "RESTRICTED"}, published: _}),
-    do: "unavailable"
-
-  defp ark_update_status(current_status, %{visibility: %{id: "RESTRICTED"}, published: _}),
-    do: current_status
-
-  defp ark_update_status("public", %{visibility: %{id: visibility_id}, published: false})
-       when visibility_id in ["OPEN", "AUTHENTICATED"],
-       do: "unavailable"
-
-  defp ark_update_status(current_status, %{visibility: %{id: visibility_id}, published: false})
-       when visibility_id in ["OPEN", "AUTHENTICATED"],
-       do: current_status
-
-  defp ark_update_status("public", _),
-    do: "unavailable"
-
-  defp ark_update_status(current_status, _),
-    do: current_status
 
   @doc """
   Sets the representative_file_set_id for a work based
@@ -709,12 +563,13 @@ defmodule Meadow.Data.Works do
   Set :updated_at
   """
   def merge_updated_at(query) do
-    from query,
+    from(query,
       update: [
         set: [
           {:updated_at, ^DateTime.utc_now()}
         ]
       ]
+    )
   end
 
   @doc """

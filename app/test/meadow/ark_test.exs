@@ -1,5 +1,5 @@
 defmodule Meadow.ArkTest do
-  use ExUnit.Case, async: false
+  use Meadow.DataCase, async: false
 
   alias Meadow.Ark
   alias Meadow.Utils.ArkClient.MockServer

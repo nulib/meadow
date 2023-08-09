@@ -13,13 +13,13 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   """
 
   use Plug.Router
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   @cache Meadow.Utils.ArkClient.MockServer.Cache
   @valid_resource_types ~w(Audiovisual Collection Dataset Event Image InteractiveResource Model
     PhysicalObject Service Software Sound Text Workflow Other)
-  @valid_statuses ~w(public reserved unavailable)
+  @valid_statuses ["public", "reserved", ~r/unavailable \| (.+)$/]
 
   @schema [
     {"datacite.creator", :optional, :binary},
@@ -49,6 +49,17 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     {:error, "#{target} is not a valid message recipient"}
   end
 
+  def prewarm do
+    Meadow.Data.Schemas.Work
+    |> Meadow.Repo.all()
+    |> Enum.each(fn work ->
+      case work |> Map.get(:descriptive_metadata) do
+        %{ark: ark} when is_binary(ark) -> Meadow.Arks.initial_ark(work) |> Meadow.Ark.put()
+        _ -> :noop
+      end
+    end)
+  end
+
   get "/id/*stem" do
     ark = Enum.join(stem, "/")
 
@@ -67,8 +78,17 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     send_message({:delete, :ark, ark})
     send_message({:delete, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
 
-    with {:ok, true} <- Cachex.del(@cache, ark) do
-      send_resp(conn, 200, "success: #{ark} deleted}")
+    case Cachex.get!(@cache, ark) do
+      nil ->
+        send_resp(conn, 404, "error: bad request - no such identifier")
+
+      data ->
+        if data |> String.match?(~r/_status: reserved/) do
+          Cachex.del!(@cache, ark)
+          send_resp(conn, 200, "success: #{ark} deleted")
+        else
+          send_resp(conn, 400, "error: bad request - only reserved identifiers can be deleted")
+        end
     end
   end
 
@@ -157,7 +177,13 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   end
 
   defp validate(value, :binary), do: is_binary(value)
-  defp validate(value, allowed) when is_list(allowed), do: Enum.member?(allowed, value)
+
+  defp validate(value, allowed) when is_list(allowed) do
+    Enum.any?(allowed, fn
+      %Regex{} = test -> Regex.match?(test, value)
+      test -> test == value
+    end)
+  end
 
   defp validate(value, %Regex{} = validator),
     do: is_binary(value) and Regex.match?(validator, value)
