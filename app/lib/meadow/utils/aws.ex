@@ -84,7 +84,7 @@ defmodule Meadow.Utils.AWS do
   def invalidate_cache(file_set, :pyramid, _), do: perform_invalidation("/iiif/2/#{file_set.id}/*")
   def invalidate_cache(file_set, :poster, :dev), do: perform_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
   def invalidate_cache(file_set, :poster, :test), do: perform_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, _), do: perform_invalidation("/iiif/2/posters#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, _), do: perform_invalidation("/iiif/2/posters/#{file_set.id}/*")
 
   defp perform_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
 
