@@ -1,12 +1,13 @@
-import React from "react";
-import { useDropzone } from "react-dropzone";
-import { formatBytes } from "@js/services/helpers";
-import { IconFile } from "@js/components/Icon";
 import { Button, Notification } from "@nulib/design-system";
-import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
-
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+
+import { IconFile } from "@js/components/Icon";
+import React from "react";
+import { formatBytes } from "@js/services/helpers";
+import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
+import { useDropzone } from "react-dropzone";
+
 const dropZone = css`
   background: #efefef;
   border: 3px dashed #ccc;

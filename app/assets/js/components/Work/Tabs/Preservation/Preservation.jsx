@@ -1,11 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
+
+import { Button, Icon, Notification } from "@nulib/design-system";
 import {
-  IconAdd,
-  IconArrowDown,
-  IconArrowUp,
-  IconCheck,
-  IconDelete,
-} from "@js/components/Icon";
+  DELETE_FILESET,
+  DELETE_WORK,
+  VERIFY_FILE_SETS,
+} from "@js/components/Work/work.gql";
 import {
   DialogClose,
   DialogContent,
@@ -13,22 +13,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@js/components/UI/Dialog/Dialog.styled";
-import { Button, Icon, Notification } from "@nulib/design-system";
 import {
-  DELETE_FILESET,
-  DELETE_WORK,
-  VERIFY_FILE_SETS,
-} from "@js/components/Work/work.gql";
-import PreservationActionsCol from "@js/components/Work/Tabs/Preservation/ActionsCol";
+  IconAdd,
+  IconArrowDown,
+  IconArrowUp,
+  IconCheck,
+  IconDelete,
+  IconReplace,
+} from "@js/components/Icon";
 import React, { useState } from "react";
+import { sortFileSets, toastWrapper } from "@js/services/helpers";
+import { useMutation, useQuery } from "@apollo/client";
+
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import PreservationActionsCol from "@js/components/Work/Tabs/Preservation/ActionsCol";
 import PropTypes from "prop-types";
 import UISkeleton from "@js/components/UI/Skeleton";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsPreservationFileSetModal from "@js/components/Work/Tabs/Preservation/FileSetModal";
+import WorkTabsPreservationReplaceFileSet from "./ReplaceFileSet";
 import WorkTabsPreservationTransferFileSetsModal from "@js/components/Work/Tabs/Preservation/TransferFileSetsModal";
-import { useMutation, useQuery } from "@apollo/client";
-import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import { formatDate } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
 
@@ -43,7 +47,7 @@ const WorkTabsPreservation = ({ work }) => {
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
 
-  // These 2 state variables keep track of whether a modal is open,
+  // Keep track of whether these modals are open,
   // and also additional data which the dependent modals rely upon
   const [technicalMetadata, setTechnicalMetadata] = React.useState({
     fileSet: {},
@@ -56,14 +60,16 @@ const WorkTabsPreservation = ({ work }) => {
     fromWorkId: work.id,
     isVisible: false,
   });
+  const [replaceFilesetModal, setReplaceFilesetModal] = React.useState({
+    fileset: {},
+    isVisible: false,
+  });
 
   const {
     data: verifyFileSetsData,
     error: verifyFileSetsError,
     loading: verifyFileSetsLoading,
   } = useQuery(VERIFY_FILE_SETS, { variables: { workId: work.id } });
-
-
 
   /**
    * Delete a Fileset
@@ -183,6 +189,10 @@ const WorkTabsPreservation = ({ work }) => {
     setOrderedFileSets({ order, fileSets });
   };
 
+  const handleReplaceFilesetClick = (fileset) => {
+    setReplaceFilesetModal({ fileset, isVisible: true });
+  };
+
   const handleTechnicalMetaClick = (fileSet = {}) => {
     setTechnicalMetadata({ fileSet: { ...fileSet } });
   };
@@ -259,6 +269,7 @@ const WorkTabsPreservation = ({ work }) => {
                             handleConfirmDeleteFileset
                           }
                           handleDeleteFilesetClick={handleDeleteFilesetClick}
+                          handleReplaceFilesetClick={handleReplaceFilesetClick}
                           handleTechnicalMetaClick={handleTechnicalMetaClick}
                           technicalMetadata={technicalMetadata}
                           work={work}
@@ -318,10 +329,12 @@ const WorkTabsPreservation = ({ work }) => {
           <Button
             as="span"
             data-testid="button-transfer-file-sets"
-            isPrimary
             onClick={handleTransferFileSetsClick}
           >
-            Transfer File Sets to Existing Work
+            <span className="icon">
+              <IconReplace />
+            </span>
+            <span>Transfer File Sets to Existing Work</span>
           </Button>
         </AuthDisplayAuthorized>
       </div>
@@ -335,6 +348,19 @@ const WorkTabsPreservation = ({ work }) => {
       <WorkTabsPreservationFileSetModal
         closeModal={() => setIsAddFilesetModalVisible(false)}
         isVisible={isAddFilesetModalVisible}
+        workId={work.id}
+        workTypeId={work.workType?.id}
+      />
+
+      <WorkTabsPreservationReplaceFileSet
+        closeModal={() =>
+          setReplaceFilesetModal({
+            fileset: {},
+            isVisible: false,
+          })
+        }
+        fileset={replaceFilesetModal.fileset}
+        isVisible={replaceFilesetModal.isVisible}
         workId={work.id}
         workTypeId={work.workType?.id}
       />
