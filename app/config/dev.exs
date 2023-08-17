@@ -104,6 +104,7 @@ config :ueberauth, Ueberauth,
        [
          base_url: aws_secret("meadow", dig: ["nusso", "base_url"]),
          callback_path: "/auth/nusso/callback",
+         callback_port: 3001,
          consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
          include_attributes: false,
          ssl_port: 3001

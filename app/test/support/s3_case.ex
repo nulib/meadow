@@ -167,7 +167,7 @@ defmodule Meadow.S3Case do
     with buckets <- Meadow.Config.buckets() do
       unless System.get_env("AWS_DEV_ENVIRONMENT") do
         (all_buckets -- buckets)
-        |> Enum.each(&Logger.warn("Unexpected bucket left behind: #{&1}"))
+        |> Enum.each(&Logger.warning("Unexpected bucket left behind: #{&1}"))
       end
 
       buckets
@@ -179,7 +179,7 @@ defmodule Meadow.S3Case do
           |> Enum.map(& &1.key)
 
         objects
-        |> Enum.each(&Logger.warn("Unexpected object left in bucket \"#{bucket}\": #{&1}"))
+        |> Enum.each(&Logger.warning("Unexpected object left in bucket \"#{bucket}\": #{&1}"))
       end)
     end
   end

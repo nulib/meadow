@@ -35,7 +35,7 @@ defmodule Meadow.Repo.Migrations.ReplaceIndexTimesWithReindexAt do
   end
 
   def down do
-    Logger.warn("Dependency trigger migration not reversible.")
+    Logger.warning("Dependency trigger migration not reversible.")
 
     [:works, :file_sets, :collections]
     |> Enum.each(fn table ->

@@ -55,7 +55,7 @@ defmodule Meadow.FilesetDeleteListener do
 
   defp clean_up!(file_set_data, state) do
     with_log_metadata(module: __MODULE__, id: file_set_data.id) do
-      Logger.warn("Cleaning up assets for file set #{file_set_data.id}")
+      Logger.warning("Cleaning up assets for file set #{file_set_data.id}")
 
       file_set_data
       |> clean_derivatives!(state)
@@ -78,13 +78,13 @@ defmodule Meadow.FilesetDeleteListener do
 
   defp clean_derivative!(:playlist, "s3://" <> _ = playlist) do
     with stream_base <- Path.dirname(playlist) <> "/" do
-      Logger.warn("Removing streaming files from #{stream_base}")
+      Logger.warning("Removing streaming files from #{stream_base}")
       delete_s3_uri(stream_base, true)
     end
   end
 
   defp clean_derivative!(type, "s3://" <> _ = uri) do
-    Logger.warn("Removing #{type} derivative at #{uri}")
+    Logger.warning("Removing #{type} derivative at #{uri}")
     delete_s3_uri(uri)
   end
 
@@ -96,7 +96,7 @@ defmodule Meadow.FilesetDeleteListener do
   end
 
   defp clean_preservation_file!(%{location: location}, _state, true) do
-    Logger.warn("Leaving #{location} intact in the ingest bucket")
+    Logger.warning("Leaving #{location} intact in the ingest bucket")
   end
 
   defp clean_preservation_file!(%{id: id, location: location}, state, _) do
@@ -108,11 +108,11 @@ defmodule Meadow.FilesetDeleteListener do
         |> repo.aggregate(:count)
 
       if refs == 0 do
-        Logger.warn("Removing preservation file at #{location}")
+        Logger.warning("Removing preservation file at #{location}")
         delete_s3_uri(location)
       else
         references = Inflex.Pluralize.inflect("reference", refs)
-        Logger.warn("Leaving #{location} intact: #{refs} additional #{references}")
+        Logger.warning("Leaving #{location} intact: #{refs} additional #{references}")
       end
     end
   end

@@ -35,7 +35,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
         :ok
 
       {:error, {:http_error, status, message}} ->
-        Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+        Logger.warning("HTTP error #{status}: #{inspect(message)}. Retrying.")
         :retry
 
       {:error, error} ->
@@ -54,5 +54,4 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end
-
 end

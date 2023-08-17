@@ -141,7 +141,7 @@ defmodule Meadow.DatabaseNotification do
       def handle_info({:ssl_closed, _msg}, state), do: {:noreply, state}
 
       def handle_info({:data, msg}, state) do
-        Logger.warn("#{inspect(msg)}")
+        Logger.warning("#{inspect(msg)}")
         {:noreply, state}
       end
     end

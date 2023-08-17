@@ -168,8 +168,11 @@ defmodule Meadow.Pipeline.Dispatcher do
     end
   end
 
-  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}, _attributes),
-    do: @preservation_video_actions
+  def dispatcher_actions(
+        %{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}},
+        _attributes
+      ),
+      do: @preservation_video_actions
 
   def dispatcher_actions(%{role: %{id: "P"}}, _attributes),
     do: @preservation_actions
@@ -204,7 +207,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     do: action.send_message(%{file_set_id: file_set.id}, attributes)
 
   def dispatch_next_action(file_set, attributes) do
-    Logger.warn("Unexpected dispatch state for #{file_set.id}, #{attributes}")
+    Logger.warning("Unexpected dispatch state for #{file_set.id}, #{attributes}")
     :noop
   end
 

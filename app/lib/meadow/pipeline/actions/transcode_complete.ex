@@ -61,7 +61,7 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
   end
 
   defp process_mediaconvert_response(nil, %{file_set_id: file_set_id}) do
-    Logger.warn(
+    Logger.warning(
       "Marking #{__MODULE__} for #{file_set_id} as error because the file set was not found"
     )
 

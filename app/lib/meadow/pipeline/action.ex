@@ -197,7 +197,7 @@ defmodule Meadow.Pipeline.Action do
 
   @doc "Process a FileSet"
   def process(action, %{file_set_id: file_set_id, file_set: nil} = data, attrs) do
-    Logger.warn(
+    Logger.warning(
       "Marking #{action} for #{file_set_id} as error because the file set was not found"
     )
 
@@ -232,7 +232,7 @@ defmodule Meadow.Pipeline.Action do
     case {Map.get(data, :file_set_id, :missing), Map.get(data, :file_set, :missing)} do
       {:missing, _} ->
         with error <- "#{action} received unknown data: #{inspect({data, attrs})}" do
-          Logger.warn(error)
+          Logger.warning(error)
           {:error, error}
         end
 
@@ -245,12 +245,12 @@ defmodule Meadow.Pipeline.Action do
   end
 
   defp process(action, %{id: file_set_id} = data, %{force: "true"} = attrs, true) do
-    Logger.warn("Forcing #{action} for #{file_set_id} even though it's already complete")
+    Logger.warning("Forcing #{action} for #{file_set_id} even though it's already complete")
     process(action, data, attrs, false)
   end
 
   defp process(action, %{id: file_set_id}, _, true),
-    do: Logger.warn("Skipping #{action} for #{file_set_id} - already complete")
+    do: Logger.warning("Skipping #{action} for #{file_set_id} - already complete")
 
   defp process(action, data, attrs, _), do: action.process(data, attrs)
 
@@ -259,7 +259,7 @@ defmodule Meadow.Pipeline.Action do
   defp precheck(action, file_set, %{overwrite: "false"} = attrs) do
     if action.already_complete?(file_set, attrs) do
       "Marking #{action} for #{file_set.id} as already complete without overwriting"
-      |> Logger.warn()
+      |> Logger.warning()
 
       ActionStates.set_state!(file_set, action, "ok")
     end

@@ -61,7 +61,7 @@ defmodule Meadow.Data.PreservationChecks do
   def start_job do
     with {:ok, count} <- purge_stalled(@timeout) do
       if count > 0 do
-        Logger.warn("Timeout #{count} stalled #{Inflex.inflect("preservation checks", count)}")
+        Logger.warning("Timeout #{count} stalled #{Inflex.inflect("preservation checks", count)}")
       end
     end
 

@@ -332,7 +332,7 @@ defmodule Meadow.Utils.Exif do
   defp passthrough(value) do
     case String.Chars.impl_for(value) do
       nil ->
-        Logger.warn("Cannot transform EXIF value #{inspect(value)} into indexable metadata")
+        Logger.warning("Cannot transform EXIF value #{inspect(value)} into indexable metadata")
         nil
 
       _ ->

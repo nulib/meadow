@@ -231,7 +231,7 @@ defmodule Meadow.Data.ControlledTerms do
     |> Repo.insert(on_conflict: :nothing)
   rescue
     e in Postgrex.Error ->
-      Logger.warn("Unable to cache label and/or variants for #{id}: #{e.postgres.message}")
+      Logger.warning("Unable to cache label and/or variants for #{id}: #{e.postgres.message}")
   end
 
   def extract_unique_terms(data) do
