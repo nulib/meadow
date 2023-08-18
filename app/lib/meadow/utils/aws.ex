@@ -7,6 +7,7 @@ defmodule Meadow.Utils.AWS do
   alias Meadow.Config
   alias Meadow.Error
   alias Meadow.Utils.AWS.MultipartCopy
+  alias Meadow.Utils.Pairtree
 
   import Env
   import SweetXml, only: [sigil_x: 2]
@@ -79,18 +80,22 @@ defmodule Meadow.Utils.AWS do
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
   def invalidate_cache(file_set, invalidation_type), do: invalidate_cache(file_set, invalidation_type, Config.environment())
-  def invalidate_cache(file_set, :pyramid, :dev), do: perform_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, :test), do: perform_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, _), do: perform_invalidation("/iiif/2/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :dev), do: perform_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :test), do: perform_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, _), do: perform_invalidation("/iiif/2/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/2/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
+  def invalidate_cache(_file_set, :streaming, :dev), do: :ok
+  def invalidate_cache(_file_set, :streaming, :test), do: :ok
+  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation(Pairtree.generate(file_set.id))
 
-  defp perform_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
+  defp perform_iiif_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
+  defp perform_streaming_invalidation(path), do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
 
   defp perform_invalidation(path, nil) do
     Logger.info(
-      "Skipping poster cache invalidation for: #{path}. No distribution id found."
+      "Skipping cache invalidation for: #{path}. No distribution id found."
 
       )
 
@@ -127,7 +132,7 @@ defmodule Meadow.Utils.AWS do
         :ok
 
       _ ->
-        Logger.error("Unable to clear poster cache for #{path}")
+        Logger.error("Unable to clear cache for #{path}")
         :ok
     end
   end

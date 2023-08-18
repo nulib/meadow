@@ -60,6 +60,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :streaming_url)
   end
 
+  @doc "Retrieve the environment specific distribution id for streaming"
+  def streaming_cloudfront_distribution_id do
+    Application.get_env(:meadow, :streaming_distribution_id)
+  end
+
   @doc "Retrieve configured lambda scripts"
   def lambda_config(config_key) do
     case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do

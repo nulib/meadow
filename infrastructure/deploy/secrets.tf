@@ -88,6 +88,7 @@ locals {
 
     streaming = {
       base_url = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
+      distribution_id = aws_cloudfront_distribution.meadow_streaming.id
     }
 
     work_archiver = {
