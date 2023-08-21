@@ -121,6 +121,7 @@ config :meadow,
   validation_ping_interval: System.get_env("VALIDATION_PING_INTERVAL", "1000"),
   shared_links_index: prefix("shared_links"),
   pyramid_tiff_working_dir: System.tmp_dir!(),
+  streaming_distribution_id: aws_secret("meadow", dig: ["streaming", "distribution_id"], default: nil),
   work_archiver_endpoint: aws_secret("meadow", dig: ["work_archiver", "endpoint"], default: "")
 
 config :exldap, :settings,

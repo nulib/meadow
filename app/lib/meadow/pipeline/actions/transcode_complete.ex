@@ -7,6 +7,7 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Pipeline.Action
+  alias Meadow.Utils.AWS
 
   use Meadow.Pipeline.Actions.Common
   use Meadow.Utils.Logging
@@ -69,9 +70,12 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
 
   defp process_mediaconvert_response(file_set, %{
          detail: %{status: "COMPLETE", playlist: playlist}
-       }) do
+       } = attributes) do
     derivatives = FileSets.add_derivative(file_set, :playlist, playlist)
     FileSets.update_file_set(file_set, %{derivatives: derivatives})
+    with %{context: "Version"} <- attributes do
+      AWS.invalidate_cache(file_set, :streaming)
+    end
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end
