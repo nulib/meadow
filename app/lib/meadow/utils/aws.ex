@@ -88,7 +88,7 @@ defmodule Meadow.Utils.AWS do
   def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
   def invalidate_cache(_file_set, :streaming, :dev), do: :ok
   def invalidate_cache(_file_set, :streaming, :test), do: :ok
-  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation(Pairtree.generate(file_set.id))
+  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation("/#{Pairtree.generate(file_set.id)}/*")
 
   defp perform_iiif_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
   defp perform_streaming_invalidation(path), do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
@@ -96,9 +96,7 @@ defmodule Meadow.Utils.AWS do
   defp perform_invalidation(path, nil) do
     Logger.info(
       "Skipping cache invalidation for: #{path}. No distribution id found."
-
       )
-
     :ok
   end
 
