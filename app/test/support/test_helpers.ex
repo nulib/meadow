@@ -195,7 +195,7 @@ defmodule Meadow.TestHelpers do
   def file_set_fixture_attrs(attrs \\ %{}) do
     Enum.into(attrs, %{
       accession_number: attrs[:accession_number] || Faker.String.base64(),
-      role: attrs[:role] || %{id: Faker.Util.pick(["A", "P"]), scheme: "FILE_SET_ROLE"},
+      role: attrs[:role] || %{id: Faker.Util.pick(["A", "P", "S", "X"]), scheme: "FILE_SET_ROLE"},
       core_metadata:
         attrs[:core_metadata] ||
           %{

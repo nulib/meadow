@@ -4,6 +4,7 @@ import {
   GET_WORK,
   GET_WORK_TYPES,
   VERIFY_FILE_SETS,
+  TRANSFER_FILE_SETS,
   WORK_ARCHIVER_ENDPOINT,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
@@ -11,6 +12,7 @@ import { mockVisibility, mockWorkType } from "@js/client-local";
 import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
 
 export const MOCK_WORK_ID = "ABC123";
+export const MOCK_WORK_ID_2 = "DEF456";
 
 export const mockWork = {
   id: MOCK_WORK_ID,
@@ -500,6 +502,23 @@ export const deleteFilesetMock = {
     },
   },
 };
+
+export const transferFileSetsMock = {
+  request: {
+    query: TRANSFER_FILE_SETS,
+    variables: {
+      fromWorkId: MOCK_WORK_ID,
+      toWorkId: MOCK_WORK_ID_2
+    },
+  },
+  result: {
+    data: {
+      transferFileSets: {
+        id: MOCK_WORK_ID,
+      },
+    },
+  },
+}
 
 export const verifyFileSetsMock = {
   request: {
