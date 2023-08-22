@@ -266,6 +266,14 @@ defmodule Meadow.TestHelpers do
     end
   end
 
+  def mock_database_notification(listener, table, operation, ids, state \\ %{}) do
+    listener.handle_info(
+      {:notification, self(), self(), "#{table}_changed",
+       Jason.encode!(%{source: "#{table}", operation: operation, ids: ids})},
+      state
+    )
+  end
+
   defp uniqify_ingest_sheet_rows(csv) do
     with prefix <- test_id() do
       [headers | rows] = CSV.parse_string(csv, skip_headers: false)

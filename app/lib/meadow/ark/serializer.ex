@@ -39,11 +39,13 @@ defmodule Meadow.Ark.Serializer do
     Enum.reduce(ark, ["_profile: datacite"], fn
       {_, nil}, acc -> acc
       {:ark, _}, acc -> acc
+      {:work_id, _}, acc -> acc
       entry, acc -> [serialize(entry) | acc]
     end)
     |> Enum.reverse()
     |> Enum.join("\n")
   end
 
-  def serialize({key, value}) when is_atom(key), do: Map.get(@datacite_map, key) <> ": " <> String.replace(value, "%", "%25")
+  def serialize({key, value}) when is_atom(key),
+    do: Map.get(@datacite_map, key) <> ": " <> String.replace(value, "%", "%25")
 end
