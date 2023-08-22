@@ -333,6 +333,20 @@ export const GET_WORK_TYPES = gql`
   }
 `;
 
+export const REPLACE_FILE_SET = gql`
+  mutation ReplaceFileSet($id: ID!, $coreMetadata: FileSetCoreMetadataInput!) {
+    replaceFileSet(id: $id, coreMetadata: $coreMetadata) {
+      id
+      coreMetadata {
+        description
+        label
+        location
+        originalFilename
+      }
+    }
+  }
+`;
+
 export const SET_WORK_IMAGE = gql`
   mutation SetWorkImage($fileSetId: ID!, $workId: ID!) {
     setWorkImage(fileSetId: $fileSetId, workId: $workId) {

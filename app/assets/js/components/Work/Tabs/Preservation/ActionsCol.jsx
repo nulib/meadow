@@ -1,12 +1,5 @@
-import React from "react";
-import {
-  IconArrowDown,
-  IconBinaryFile,
-  IconBucket,
-  IconCopyToClipboard,
-  IconTrashCan,
-  IconView,
-} from "@js/components/Icon";
+import * as Dialog from "@radix-ui/react-dialog";
+
 import {
   DialogClose,
   DialogContent,
@@ -14,12 +7,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@js/components/UI/Dialog/Dialog.styled";
-import { toastWrapper } from "@js/services/helpers";
+import {
+  IconArrowDown,
+  IconBinaryFile,
+  IconBucket,
+  IconCopyToClipboard,
+  IconReplace,
+  IconTrashCan,
+  IconView,
+} from "@js/components/Icon";
+import React, { useState } from "react";
+
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { Icon } from "@nulib/design-system";
-import * as Dialog from "@radix-ui/react-dialog";
+import WorkTabsPreservationReplaceFileSet from "@js/components/Work/Tabs/Preservation/ReplaceFileSet";
 import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
 import classNames from "classnames";
+import { toastWrapper } from "@js/services/helpers";
 import { useClipboard } from "use-clipboard-copy";
 
 const PreservationActionsCol = ({
@@ -28,10 +32,12 @@ const PreservationActionsCol = ({
   handleConfirmDeleteFileset,
   handleDeleteFilesetClick,
   handleTechnicalMetaClick,
+  handleReplaceFilesetClick,
   technicalMetadata,
   work,
 }) => {
   const [isActionsOpen, setIsActionsOpen] = React.useState(false);
+
   const dropdownRef = React.useRef(null);
   const actionItemClasses = `dropdown-item is-flex is-align-items-center`;
 
@@ -152,6 +158,15 @@ const PreservationActionsCol = ({
               </DialogContent>
             </Dialog.Root>
           </div>
+          <AuthDisplayAuthorized>
+            <a
+              className={actionItemClasses}
+              onClick={() => handleReplaceFilesetClick(fileset)}
+            >
+              <IconReplace />
+              <span style={{ marginLeft: "0.5rem" }}>Replace fileset</span>
+            </a>
+          </AuthDisplayAuthorized>
           <AuthDisplayAuthorized>
             <Dialog.Root>
               <DialogTrigger asChild>
