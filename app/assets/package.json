@@ -45,7 +45,7 @@
     "graphql-tag": "^2.12.6",
     "hls.js": "^1.4.8",
     "inflection": "^2.0.1",
-    "jest-environment-jsdom": "^29.6.3",
+    "jest-environment-jsdom": "^29.6.4",
     "js-cookie": "^3.0.5",
     "moment": "^2.29.3",
     "node-webvtt": "^1.9.4",
