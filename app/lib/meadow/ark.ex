@@ -164,7 +164,7 @@ defmodule Meadow.Ark do
   end
 
   def put(%__MODULE__{} = ark) do
-    case Client.put("/id/#{ark.ark}?update_if_exists=yes", Serializer.serialize(ark)) do
+    case Client.post("/id/#{ark.ark}", Serializer.serialize(ark)) do
       {:ok, %{status_code: status}} when status in 200..201 ->
         put_in_cache(ark)
         {:ok, ark}

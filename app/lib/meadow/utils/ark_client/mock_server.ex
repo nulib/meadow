@@ -120,16 +120,18 @@ defmodule Meadow.Utils.ArkClient.MockServer do
     end
   end
 
-  put "/id/*stem" do
+  match "/id/*stem", via: [:post, :put] do
     try do
       ark = Enum.join(stem, "/")
       {:ok, body, _} = Plug.Conn.read_body(conn)
 
       body = anvl_decode(body)
 
-      send_message({:put, :ark, ark})
-      send_message({:put, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
-      send_message({:put, :body, body})
+      with method <- conn.method |> String.downcase() |> String.to_atom() do
+        send_message({method, :ark, ark})
+        send_message({method, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
+        send_message({method, :body, body})
+      end
 
       case verify_metadata(body) do
         :ok ->
