@@ -1,3 +1,5 @@
+Code.put_compiler_option(:ignore_module_conflict, true)
+
 alias Meadow.Repo
 
 alias Meadow.{
