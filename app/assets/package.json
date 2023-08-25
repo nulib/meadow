@@ -53,7 +53,7 @@
     "openseadragon-react-viewer": "^3.6.0",
     "phoenix": "^1.7.6",
     "prop-types": "^15.8.1",
-    "rc-progress": "^3.5.0",
+    "rc-progress": "^3.5.1",
     "react-beautiful-dnd": "^13.1.0",
     "react-csv": "^2.2.2",
     "react-dropzone": "^14.2.1",
