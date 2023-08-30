@@ -22,6 +22,13 @@ defmodule NUL.AuthorityRecords do
     |> Repo.all()
   end
 
+  def with_stream(func) do
+    Repo.transaction(fn ->
+      stream = Repo.stream(AuthorityRecord)
+      func.(stream)
+    end)
+  end
+
   @doc """
   Gets an AuthorityRecord.
 

@@ -2,9 +2,9 @@ defmodule Meadow.Data.CSV.ExportTest do
   use Meadow.DataCase
   use Meadow.IndexCase
 
-  alias NimbleCSV.RFC4180, as: CSV
   alias Meadow.Arks
   alias Meadow.Data.{CSV.Export, Indexer, Works}
+  alias NimbleCSV.RFC4180, as: CSV
 
   import Assertions
 
