@@ -56,6 +56,7 @@ defmodule MeadowWeb.Router do
     pipe_through(:api)
 
     post("/export/:file", MeadowWeb.ExportController, :export)
+    post("/authority_records/:file", MeadowWeb.AuthorityRecordsController, :export)
     post("/create_shared_links/:file", MeadowWeb.SharedLinksController, :export)
 
     forward("/graphql", Absinthe.Plug, schema: MeadowWeb.Schema)

@@ -13,6 +13,7 @@ describe("DashboardsLocalAuthoritiesTitleBar component", () => {
     expect(screen.getByTestId("nul-authorities-title-bar"));
     expect(screen.getByTestId("local-authorities-dashboard-title"));
     expect(screen.getByTestId("add-button"));
+    expect(screen.getByTestId("button-csv-authority-export"));
   });
 
   it("renders the Add modal and displays the modal successfully when clicking the Add button", async () => {

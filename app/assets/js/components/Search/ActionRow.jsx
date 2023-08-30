@@ -1,17 +1,18 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Button } from "@nulib/design-system";
-import SearchBatchModal from "@js/components/Search/BatchModal";
-import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
-import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 import {
-  IconEdit,
   IconCsv,
+  IconEdit,
   IconMinus,
   IconTrashCan,
 } from "@js/components/Icon";
-import SearchFormDownloadWrapper from "@js/components/Search/FormDownloadWrapper";
+
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import BatchDeleteConfirmationModal from "@js/components/Search/BatchDeleteConfirmationModal";
+import { Button } from "@nulib/design-system";
+import FormDownloadWrapper from "@js/components/UI/Form/DownloadWrapper";
+import PropTypes from "prop-types";
+import React from "react";
+import SearchBatchModal from "@js/components/Search/BatchModal";
+import { buildSelectedItemsQuery } from "@js/services/reactive-search";
 const { inflect } = require("inflection");
 
 function ModalButton({ children, icon, label, ...restProps }) {
@@ -124,7 +125,7 @@ export default function SearchActionRow({
                   onClick={handleEditAllItemsClick}
                 />
               </div>
-              <SearchFormDownloadWrapper
+              <FormDownloadWrapper
                 formAction="/api/export/all_items.csv"
                 queryValue={filteredQuery}
               >
@@ -137,8 +138,8 @@ export default function SearchActionRow({
                   data-testid="button-csv-all-export"
                   type="submit"
                 />
-              </SearchFormDownloadWrapper>
-              <SearchFormDownloadWrapper
+              </FormDownloadWrapper>
+              <FormDownloadWrapper
                 formAction="/api/create_shared_links/all_items.csv"
                 queryValue={filteredQuery}
               >
@@ -151,7 +152,7 @@ export default function SearchActionRow({
                   data-testid="button-csv-all-shared-links"
                   type="submit"
                 />
-              </SearchFormDownloadWrapper>
+              </FormDownloadWrapper>
             </>
           </AuthDisplayAuthorized>
 
@@ -200,7 +201,7 @@ export default function SearchActionRow({
                 onClick={handleViewAndEditClick}
               />
             </div>
-            <SearchFormDownloadWrapper
+            <FormDownloadWrapper
               formAction="/api/export/selected_items.csv"
               queryValue={buildSelectedItemsQuery(selectedItems)}
             >
@@ -213,9 +214,9 @@ export default function SearchActionRow({
                 data-testid="button-csv-items-export"
                 type="submit"
               />
-            </SearchFormDownloadWrapper>
+            </FormDownloadWrapper>
 
-            <SearchFormDownloadWrapper
+            <FormDownloadWrapper
               formAction="/api/create_shared_links/selected_items.csv"
               queryValue={buildSelectedItemsQuery(selectedItems)}
             >
@@ -228,7 +229,7 @@ export default function SearchActionRow({
                 data-testid="button-csv-items-shared-links"
                 type="submit"
               />
-            </SearchFormDownloadWrapper>
+            </FormDownloadWrapper>
           </AuthDisplayAuthorized>
           <AuthDisplayAuthorized level="MANAGER">
             <div className="block">
