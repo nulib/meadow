@@ -106,7 +106,7 @@ config :meadow,
       dig: ["iiif", "base_url"],
       default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/#{prefix()}"
     ),
-  iiif_manifest_url:
+  iiif_manifest_url_deprecated:
     aws_secret("meadow",
       dig: ["iiif", "manifest_url"],
       default: "https://#{prefix()}-pyramids.s3.amazonaws.com/public/"

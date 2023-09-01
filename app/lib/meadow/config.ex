@@ -84,9 +84,9 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
-  @doc "Retrieve the IIIF server endpoint"
-  def iiif_manifest_url do
-    Application.get_env(:meadow, :iiif_manifest_url)
+  @doc "Deprecated: Retrieve the IIIF manifest endpoint"
+  def iiif_manifest_url_deprecated do
+    Application.get_env(:meadow, :iiif_manifest_url_deprecated)
     |> ensure_trailing_slash()
   end
 

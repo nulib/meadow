@@ -81,12 +81,12 @@ defmodule Meadow.ConfigTest do
     setup do
       prior_values = %{
         server: Application.get_env(:meadow, :iiif_server_url),
-        manifest: Application.get_env(:meadow, :iiif_manifest_url)
+        manifest: Application.get_env(:meadow, :iiif_manifest_url_deprecated)
       }
 
       on_exit(fn ->
         Application.put_env(:meadow, :iiif_server_url, prior_values.server)
-        Application.put_env(:meadow, :iiif_manifest_url, prior_values.manifest)
+        Application.put_env(:meadow, :iiif_manifest_url_deprecated, prior_values.manifest)
       end)
     end
 
@@ -95,12 +95,12 @@ defmodule Meadow.ConfigTest do
 
       Application.put_env(
         :meadow,
-        :iiif_manifest_url,
+        :iiif_manifest_url_deprecated,
         "http://no-slash-test/minio/test-pyramids/public"
       )
 
       assert Config.iiif_server_url() == "http://no-slash-test/iiif/2/"
-      assert Config.iiif_manifest_url() == "http://no-slash-test/minio/test-pyramids/public/"
+      assert Config.iiif_manifest_url_deprecated() == "http://no-slash-test/minio/test-pyramids/public/"
     end
 
     test "validate release config" do

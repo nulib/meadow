@@ -213,6 +213,18 @@ const ScreensWork = () => {
                       Accession number
                     </dt>
                     <dd>{data.work.accessionNumber || ""}</dd>
+                    <dt data-testid="work-header-iiif-manifest">
+                      IIIF Manifest
+                    </dt>
+                    <dd>
+                      {data.work.manifestUrl ? (
+                        <a href={data.work.manifestUrl} target="_blank">
+                          {data.work.manifestUrl}
+                        </a>
+                      ) : (
+                        ""
+                      )}
+                    </dd>
                     {data.work.collection?.title && (
                       <>
                         <dt>Collection</dt>

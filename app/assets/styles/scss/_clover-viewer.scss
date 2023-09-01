@@ -1,0 +1,16 @@
+.iiif-viewer > .clover-iiif {
+  button,
+  .button {
+    text-transform: unset;
+  }
+
+  aside div[role="tabpanel"] {
+    img {
+      display: none;
+    }
+
+    dl div[data-label="last-modified"] {
+      display: none;
+    }
+  }
+}

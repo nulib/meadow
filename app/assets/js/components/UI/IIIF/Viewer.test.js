@@ -1,7 +1,8 @@
 import { screen, waitFor } from "@testing-library/react";
 
-import MediaPlayerWrapper from "./Wrapper";
+import IIIFViewer from "./Viewer";
 import React from "react";
+import { dcApiTokenMock } from "@js/components/Work/work.gql.mock";
 import { WorkProvider } from "@js/context/work-context";
 import { mockFileSets } from "@js/mock-data/filesets";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
@@ -24,33 +25,64 @@ const initialState = {
   workType: "VIDEO",
 };
 
-describe("MediaPlayerWrapper component", () => {
+const mocks = [dcApiTokenMock];
+
+jest.mock("@js/services/get-api-response-headers");
+jest.mock("@samvera/clover-iiif/viewer", () => {
+  return {
+    __esModule: true,
+    default: (props) => {
+      // Call the canvasCallback with a string when the component is rendered
+      if (props.canvasCallback) {
+        props.canvasCallback(
+          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0"
+        );
+      }
+      return <div></div>;
+    },
+  };
+});
+
+describe("IIIFViewer component", () => {
   it("renders", async () => {
     renderWithRouterApollo(
       <WorkProvider initialState={initialState}>
-        <MediaPlayerWrapper fileSets={[...mockFileSets]} manifestId="ABC123" />
-      </WorkProvider>
+        <IIIFViewer
+          fileSet={mockFileSets[0]}
+          fileSets={[...mockFileSets]}
+          iiifContent="ABC123"
+          workTypeId="IMAGE"
+        />
+      </WorkProvider>,
+      { mocks }
     );
-    expect(await screen.findByTestId("media-player-wrapper"));
+    expect(await screen.findByTestId("iiif-viewer"));
   });
 
   it("renders the poster selector button for a Video work type", async () => {
     renderWithRouterApollo(
       <WorkProvider initialState={initialState}>
-        <MediaPlayerWrapper
+        <IIIFViewer
+          fileSet={mockFileSets[0]}
           fileSets={[...mockFileSets]}
-          manifestId="ABC123"
-          canvasReady={true}
+          iiifContent="ABC123"
+          workTypeId="VIDEO"
         />
-      </WorkProvider>
+      </WorkProvider>,
+      { mocks }
     );
     expect(await screen.findByTestId("set-poster-image-button"));
   });
 
   it("does not render the poster selector button for an Audio work type", async () => {
     renderWithRouterApollo(
-      <WorkProvider initialState={{ ...initialState, workTypeId: "AUDIO" }}>
-        <MediaPlayerWrapper fileSets={[...mockFileSets]} manifestId="ABC123" />
+      <WorkProvider initialState={{ ...initialState }}>
+        <IIIFViewer
+          fileSet={mockFileSets[0]}
+          fileSets={[...mockFileSets]}
+          iiifContent="ABC123"
+          workTypeId="AUDIO"
+        />
       </WorkProvider>
     );
     await waitFor(() => {

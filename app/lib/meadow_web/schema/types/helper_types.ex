@@ -20,6 +20,12 @@ defmodule MeadowWeb.Schema.HelperTypes do
       resolve(&Resolvers.Helpers.digital_collections_url/3)
     end
 
+    @desc "Get DCAPI endpoint"
+    field :dcapi_endpoint, :url do
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Helpers.dcapi_endpoint/3)
+    end
+
     @desc "Get a presigned url to upload a file"
     field :presigned_url, :url do
       arg(:upload_type, non_null(:s3_upload_type))

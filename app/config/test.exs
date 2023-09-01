@@ -21,7 +21,7 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   streaming_url: "https://test-streaming-url/",
   iiif_server_url: "http://localhost:8184/iiif/2/",
-  iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/",
+  iiif_manifest_url_deprecated: "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
 
 # Configures lambda scripts

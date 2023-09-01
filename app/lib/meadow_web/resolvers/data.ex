@@ -213,17 +213,4 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, reason} -> {:error, reason}
     end
   end
-
-  def iiif_manifest_headers(_, %{work_id: work_id}, _) do
-    case Works.iiif_manifest_headers(work_id) do
-      {:ok, headers} ->
-        {:ok, headers}
-
-      {:error, _error} ->
-        {
-          :error,
-          message: "Error retrieving manifest headers"
-        }
-    end
-  end
 end

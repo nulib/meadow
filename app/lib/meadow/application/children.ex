@@ -18,7 +18,6 @@ defmodule Meadow.Application.Children do
       "database_listeners" => [
         Meadow.ArkListener,
         Meadow.FilesetDeleteListener,
-        Meadow.IIIF.ManifestListener,
         Meadow.IndexDeleteListener,
         Meadow.StructuralMetadataListener
       ],
