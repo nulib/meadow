@@ -8,17 +8,21 @@ defmodule Mix.Tasks.Meadow.Pipeline.Setup do
 
   @shortdoc @moduledoc
   def run(_) do
-    [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)
+    if Meadow.Config.environment?(:prod) or System.get_env("AWS_DEV_ENVIRONMENT") do
+      Logger.warn("Not in localstack environment – queue creation skipped")
+    else
+      [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)
 
-    Pipeline.children()
-    |> Enum.each(fn {module, config} ->
-      Logger.info("Creating Queue for #{module}")
+      Pipeline.children()
+      |> Enum.each(fn {module, config} ->
+        Logger.info("Creating Queue for #{module}")
 
-      config
-      |> get_in([:producer, :queue_name])
-      |> ExAws.SQS.create_queue()
-      |> ExAws.request!()
-    end)
+        config
+        |> get_in([:producer, :queue_name])
+        |> ExAws.SQS.create_queue()
+        |> ExAws.request!()
+      end)
+    end
   end
 end
 
