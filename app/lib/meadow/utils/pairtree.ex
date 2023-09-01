@@ -39,48 +39,6 @@ defmodule Meadow.Utils.Pairtree do
     |> with_extension("poster", "tif")
   end
 
-  @doc """
-  Generate a manifest path
-
-  Examples:
-    iex> Meadow.Utils.Pairtree.manifest_path("a13d45b1-69a6-447f-9d42-90b989a2949c")
-    "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
-  """
-  def manifest_path(id) do
-    id
-    |> with_extension("manifest", "json")
-  end
-
-  @doc """
-  Generate an S3 Key for a IIIF manifest
-
-  Examples:
-    iex> Meadow.Utils.Pairtree.manifest_key("a13d45b1-69a6-447f-9d42-90b989a2949c")
-    "public/a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
-  """
-  def manifest_key(id) do
-    "public/" <> with_extension(id, "manifest", "json")
-  end
-
-  @doc """
-  Generate an S3 Key for a IIIF v3.x manifest
-
-  Examples:
-    iex> Meadow.Utils.Pairtree.manifest_v3_key("a13d45b1-69a6-447f-9d42-90b989a2949c")
-    "public/iiif3/a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
-  """
-  def manifest_v3_key(id) do
-    "public/" <> "iiif3/" <> with_extension(id, "manifest", "json")
-  end
-
-  @doc """
-  Generate a Pairtree with ending and extension
-
-  Examples:
-    iex> Meadow.Utils.Pairtree.with_extension("a13d45b1-69a6-447f-9d42-90b989a2949c", "manifest", "json")
-    "a1/3d/45/b1/-6/9a/6-/44/7f/-9/d4/2-/90/b9/89/a2/94/9c-manifest.json"
-  """
-
   def with_extension(id, ending, extension) do
     generate!(id) <> "-" <> ending <> "." <> extension
   end

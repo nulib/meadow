@@ -1,6 +1,7 @@
 import {
   CREATE_WORK,
   DELETE_FILESET,
+  GET_DC_API_TOKEN,
   GET_WORK,
   GET_WORK_TYPES,
   VERIFY_FILE_SETS,
@@ -8,8 +9,6 @@ import {
   WORK_ARCHIVER_ENDPOINT,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
-
-import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
 
 export const MOCK_WORK_ID = "ABC123";
 export const MOCK_WORK_ID_2 = "DEF456";
@@ -508,7 +507,7 @@ export const transferFileSetsMock = {
     query: TRANSFER_FILE_SETS,
     variables: {
       fromWorkId: MOCK_WORK_ID,
-      toWorkId: MOCK_WORK_ID_2
+      toWorkId: MOCK_WORK_ID_2,
     },
   },
   result: {
@@ -518,7 +517,7 @@ export const transferFileSetsMock = {
       },
     },
   },
-}
+};
 
 export const verifyFileSetsMock = {
   request: {
@@ -564,20 +563,15 @@ export const workArchiverEndpointMock = {
   },
 };
 
-export const getIIIFManifestHeaders = {
+export const dcApiTokenMock = {
   request: {
-    query: GET_IIIF_MANIFEST_HEADERS,
-    variables: {
-      workId: MOCK_WORK_ID,
-    },
+    query: GET_DC_API_TOKEN,
   },
   result: {
     data: {
-      iiifManifestHeaders: {
-        manifestUrl: "",
-        etag: "",
-        lastModified: "",
-        workId: MOCK_WORK_ID,
+      dcApiToken: {
+        expires: "2033-08-29T16:50:56.785203Z",
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       },
     },
   },

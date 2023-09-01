@@ -1,7 +1,11 @@
 import React from "react";
 import Work from "./Work";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { mockWork, workArchiverEndpointMock } from "./work.gql.mock";
+import {
+  mockWork,
+  workArchiverEndpointMock,
+  dcApiTokenMock,
+} from "./work.gql.mock";
 import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
 import { screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
@@ -20,6 +24,7 @@ useIsAuthorized.mockReturnValue({
 });
 
 const mocks = [
+  dcApiTokenMock,
   iiifServerUrlMock,
   getCollectionMock,
   getCollectionsMock,
@@ -27,7 +32,20 @@ const mocks = [
   ...allCodeListMocks,
 ];
 
-jest.mock("@js/services/get-manifest");
+jest.mock("@samvera/clover-iiif/viewer", () => {
+  return {
+    __esModule: true,
+    default: (props) => {
+      // Call the canvasCallback with a string when the component is rendered
+      if (props.canvasCallback) {
+        props.canvasCallback(
+          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0"
+        );
+      }
+      return <div></div>;
+    },
+  };
+});
 
 describe("Work component", () => {
   beforeEach(() => {

@@ -7,7 +7,6 @@ defmodule Meadow.Seed.Import do
   alias Meadow.Config
   alias Meadow.Data.{Collections, FileSets, Indexer, Works}
   alias Meadow.Data.Schemas.{ActionState, Collection, ControlledTermCache, FileSet, Work}
-  alias Meadow.IIIF
   alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
   alias Meadow.Repo
   alias Meadow.Seed.Migration
@@ -136,19 +135,6 @@ defmodule Meadow.Seed.Import do
     Logger.info("Fixing file set preservation locations")
     fix_file_set_preservation_locations()
     enable_triggers()
-
-    Repo.transaction(
-      fn ->
-        from(w in Work, select: %{id: w.id})
-        |> Repo.stream()
-        |> Stream.each(fn %{id: work_id} ->
-          Logger.info("Writing manifest for #{work_id}")
-          IIIF.V2.write_manifest(work_id)
-        end)
-        |> Stream.run()
-      end,
-      timeout: :infinity
-    )
 
     Logger.info("Synchronizing index")
     Indexer.synchronize_index()

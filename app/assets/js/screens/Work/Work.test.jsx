@@ -1,6 +1,6 @@
 import {
   MOCK_WORK_ID,
-  getIIIFManifestHeaders,
+  dcApiTokenMock,
   getWorkMock,
 } from "@js/components/Work/work.gql.mock";
 
@@ -15,9 +15,6 @@ import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { screen } from "@testing-library/react";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-// Mock the getManifest call from the child Work component
-jest.mock("@js/services/get-manifest");
-
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
@@ -25,11 +22,26 @@ useIsAuthorized.mockReturnValue({
 });
 
 const mocks = [
+  dcApiTokenMock,
   getWorkMock,
   iiifServerUrlMock,
-  getIIIFManifestHeaders,
   ...allCodeListMocks,
 ];
+
+jest.mock("@samvera/clover-iiif/viewer", () => {
+  return {
+    __esModule: true,
+    default: (props) => {
+      // Call the canvasCallback with a string when the component is rendered
+      if (props.canvasCallback) {
+        props.canvasCallback(
+          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0"
+        );
+      }
+      return <div></div>;
+    },
+  };
+});
 
 describe("ScreensWork component", () => {
   beforeEach(() => {

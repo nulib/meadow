@@ -338,7 +338,7 @@ defmodule Meadow.Data.FileSets do
   Get the path for a structural metadata file (vtt) for a file set
   """
   def public_vtt_url_for(%{structural_metadata: %{type: "webvtt", value: _value}} = file_set) do
-    with uri <- URI.parse(Config.iiif_manifest_url()) do
+    with uri <- URI.parse(Config.iiif_manifest_url_deprecated()) do
       uri
       |> URI.merge("vtt/" <> Pairtree.generate!(file_set.id) <> "/" <> file_set.id <> ".vtt")
       |> URI.to_string()

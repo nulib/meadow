@@ -7,7 +7,7 @@ import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
 import { toastWrapper } from "@js/services/helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-function MediaPlayerPosterSelector() {
+function IIIFViewerPosterSelector() {
   const params = useParams();
   const workId = params.id;
   const workState = useWorkState();
@@ -44,14 +44,8 @@ function MediaPlayerPosterSelector() {
 
   const handleSave = () => {
     const el = document.getElementById("clover-iiif-video");
-    if (!el?.currentTime) {
-      return toastWrapper(
-        "is-danger",
-        "Error saving poster image. Current time is undefined on video element."
-      );
-    }
-
-    const posterOffset = parseInt(el.currentTime * 1000);
+    const currentTime = el?.currentTime ? el.currentTime : 0;
+    const posterOffset = parseInt(currentTime * 1000);
 
     updateFileSet({
       variables: {
@@ -79,4 +73,4 @@ function MediaPlayerPosterSelector() {
   );
 }
 
-export default MediaPlayerPosterSelector;
+export default IIIFViewerPosterSelector;
