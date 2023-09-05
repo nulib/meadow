@@ -1,21 +1,38 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
+
 import { Button } from "@nulib/design-system";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { IconDownload } from "@js/components/Icon";
 import { ImageDownloader } from "@samvera/image-downloader";
-import { useWorkDispatch } from "@js/context/work-context";
+import PropTypes from "prop-types";
+import { toastWrapper } from "@js/services/helpers";
 import useFileSet from "@js/hooks/useFileSet";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { useWorkDispatch } from "@js/context/work-context";
 
-function MediaButtons({ fileSet }) {
+export function MediaButtons({ fileSet }) {
   const { getWebVttString } = useFileSet();
   const { isAuthorized } = useIsAuthorized();
-
   const dispatch = useWorkDispatch();
+  const [downloadStarted, setDownloadStarted] = React.useState(false);
+
+  const handleDownloadMedia = () => {
+    console.log("handleDownloadMedia", handleDownloadMedia);
+    // TODO: Call the download media endpoint here
+
+    toastWrapper(
+      "is-success",
+      `Your media download is being prepared. You will receive an email when it is ready.`
+    );
+
+    setDownloadStarted(true);
+  };
+
+  if (!fileSet) return null;
+
   return (
-    <div className="buttons is-flex is-justify-content-flex-end">
+    <div className="buttons is-grouped is-right">
       {isAuthorized() && (
         <Button
           onClick={() =>
@@ -29,11 +46,15 @@ function MediaButtons({ fileSet }) {
           Edit structure (vtt)
         </Button>
       )}
+      <Button onClick={handleDownloadMedia} disabled={downloadStarted}>
+        <IconDownload />
+        Download
+      </Button>
     </div>
   );
 }
 
-function ImageButtons({ iiifServerUrl, fileSet }) {
+export function ImageButtons({ iiifServerUrl, fileSet }) {
   return (
     <div className="field has-addons is-flex is-justify-content-flex-end">
       <p className="control">
