@@ -21,7 +21,7 @@ config :meadow,
   mediaconvert_client: MediaConvert.Mock,
   streaming_url: "https://test-streaming-url/",
   iiif_server_url: "http://localhost:8184/iiif/2/",
-  iiif_manifest_url: "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/",
+  iiif_manifest_url_deprecated: "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/",
   digital_collections_url: "https://fen.rdc-staging.library.northwestern.edu/"
 
 # Configures lambda scripts
@@ -84,7 +84,8 @@ config :meadow,
       "api_token_ttl" => 300,
       "base_url" => "http://dcapi-test.northwestern.edu"
     }
-  ]
+  ],
+  iiif_distribution_id: nil
 
 if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
   [:mediaconvert, :s3, :secretsmanager, :sns, :sqs]

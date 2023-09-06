@@ -1,5 +1,5 @@
 defmodule Meadow.ArkTest do
-  use ExUnit.Case, async: false
+  use Meadow.DataCase, async: false
 
   alias Meadow.Ark
   alias Meadow.Utils.ArkClient.MockServer
@@ -169,7 +169,7 @@ defmodule Meadow.ArkTest do
       update = Map.put(fixture, :title, "A 100% New Title for This ARK!")
       assert {:ok, update} == Ark.put(update)
       assert {:ok, update} == Ark.get(fixture.ark)
-      assert_received({:put, :credentials, {"mockuser", "mockpassword"}})
+      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
 
       expected =
         [
@@ -181,7 +181,7 @@ defmodule Meadow.ArkTest do
         ]
         |> Enum.join("\n")
 
-      assert_received({:put, :body, ^expected})
+      assert_received({:post, :body, ^expected})
     end
 
     test "invalid ARK" do

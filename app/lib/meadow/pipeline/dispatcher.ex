@@ -100,29 +100,39 @@ defmodule Meadow.Pipeline.Dispatcher do
 
   def all_progress_actions, do: @all_actions
 
-  def dispatcher_actions(file_set, attributes) do
-    case attributes do
-      %{custom_actions: custom_actions} ->
-        custom_actions
-        |> String.split(~r/\s*\|\s*/)
-        |> Enum.map(&Module.safe_concat(Meadow.Pipeline.Actions, &1))
-
-      _ ->
-        dispatcher_actions(file_set)
-    end
+  def dispatcher_actions(_file_set, %{custom_actions: custom_actions}) do
+    custom_actions
+    |> String.split(~r/\s*\|\s*/)
+    |> Enum.map(&Module.safe_concat(Meadow.Pipeline.Actions, &1))
   end
 
-  def dispatcher_actions(%{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _}}),
-    do: @access_image_actions
-
-  def dispatcher_actions(%{role: %{id: "X"}, core_metadata: %{mime_type: "image/" <> _}}),
-    do: @access_image_actions
-
-  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "image/" <> _}}),
-    do: @preservation_image_actions
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _}},
+        _attributes
+      ),
+      do: @access_image_actions
 
   def dispatcher_actions(
-        %{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}} = file_set
+        %{role: %{id: "X"}, core_metadata: %{mime_type: "image/" <> _}},
+        _attributes
+      ),
+      do: @access_image_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "P"}, core_metadata: %{mime_type: "image/" <> _}},
+        _attributes
+      ),
+      do: @preservation_image_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}},
+        %{context: "Version"}
+      ),
+      do: @access_audio_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "audio/" <> _}} = file_set,
+        _attributes
       ) do
     case skip_transcode?(file_set) do
       true ->
@@ -133,11 +143,21 @@ defmodule Meadow.Pipeline.Dispatcher do
     end
   end
 
-  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "audio/" <> _}}),
-    do: @preservation_audio_actions
+  def dispatcher_actions(
+        %{role: %{id: "P"}, core_metadata: %{mime_type: "audio/" <> _}},
+        _attributes
+      ),
+      do: @preservation_audio_actions
 
   def dispatcher_actions(
-        %{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}} = file_set
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}},
+        %{context: "Version"}
+      ),
+      do: @access_video_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}} = file_set,
+        _attributes
       ) do
     case skip_transcode?(file_set) do
       true ->
@@ -148,19 +168,19 @@ defmodule Meadow.Pipeline.Dispatcher do
     end
   end
 
-  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}),
+  def dispatcher_actions(%{role: %{id: "P"}, core_metadata: %{mime_type: "video/" <> _}}, _attributes),
     do: @preservation_video_actions
 
-  def dispatcher_actions(%{role: %{id: "P"}}),
+  def dispatcher_actions(%{role: %{id: "P"}}, _attributes),
     do: @preservation_actions
 
-  def dispatcher_actions(%{role: %{id: "S"}}),
+  def dispatcher_actions(%{role: %{id: "S"}}, _attributes),
     do: @preservation_actions
 
-  def dispatcher_actions(_), do: nil
+  def dispatcher_actions(_, _), do: nil
 
-  def not_my_actions(file_set) do
-    (all_progress_actions() -- @initial_actions) -- dispatcher_actions(file_set)
+  def not_my_actions(file_set, attributes) do
+    (all_progress_actions() -- @initial_actions) -- dispatcher_actions(file_set, attributes)
   end
 
   defp skip_transcode?(file_set) do

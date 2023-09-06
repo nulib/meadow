@@ -54,7 +54,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
 
       file_set = FileSets.get_file_set(file_set.id)
 
-      Enum.each(Dispatcher.dispatcher_actions(file_set), fn action ->
+      Enum.each(Dispatcher.dispatcher_actions(file_set, %{}), fn action ->
         assert %{outcome: "waiting"} = ActionStates.get_latest_state(file_set.id, action)
       end)
     end

@@ -333,6 +333,20 @@ export const GET_WORK_TYPES = gql`
   }
 `;
 
+export const REPLACE_FILE_SET = gql`
+  mutation ReplaceFileSet($id: ID!, $coreMetadata: FileSetCoreMetadataInput!) {
+    replaceFileSet(id: $id, coreMetadata: $coreMetadata) {
+      id
+      coreMetadata {
+        description
+        label
+        location
+        originalFilename
+      }
+    }
+  }
+`;
+
 export const SET_WORK_IMAGE = gql`
   mutation SetWorkImage($fileSetId: ID!, $workId: ID!) {
     setWorkImage(fileSetId: $fileSetId, workId: $workId) {
@@ -500,6 +514,14 @@ export const UPDATE_ACCESS_FILE_ORDER = gql`
   }
 `;
 
+export const TRANSFER_FILE_SETS = gql`
+  mutation TransferFileSets($fromWorkId: ID!, $toWorkId: ID!) {
+    transferFileSets(fromWorkId: $fromWorkId, toWorkId: $toWorkId) {
+      id
+    }
+  }
+`;
+
 export const WORK_ARCHIVER_ENDPOINT = gql`
   query WorkArchiverEndpoint {
     workArchiverEndpoint {
@@ -547,13 +569,11 @@ export const VERIFY_FILE_SETS = gql`
   }
 `;
 
-export const GET_IIIF_MANIFEST_HEADERS = gql`
-  query IiifManifestHeaders($workId: ID!) {
-    iiifManifestHeaders(workId: $workId) {
-      manifestUrl
-      etag
-      lastModified
-      workId
+export const GET_DC_API_TOKEN = gql`
+  query {
+    dcApiToken {
+      expires
+      token
     }
   }
 `;

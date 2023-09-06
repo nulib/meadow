@@ -4,7 +4,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Repo
-  alias Meadow.Utils.Lambda
+  alias Meadow.Utils.{AWS, Lambda}
   use Meadow.Pipeline.Actions.Common
 
   @timeout 240_000
@@ -16,7 +16,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     |> Meadow.Utils.Stream.exists?()
   end
 
-  def process(file_set, _) do
+  def process(file_set, attributes) do
     source = file_set.core_metadata.location
     target = FileSets.pyramid_uri_for(file_set.id)
 
@@ -27,6 +27,10 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
           FileSets.update_file_set(file_set, %{derivatives: derivatives})
           ActionStates.set_state!(file_set, __MODULE__, "ok")
         end)
+
+        with %{context: "Version"} <- attributes do
+          AWS.invalidate_cache(file_set, :pyramid)
+        end
 
         :ok
 
@@ -50,4 +54,5 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end
+
 end

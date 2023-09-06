@@ -28,6 +28,24 @@ defmodule Meadow.Data do
   end
 
   @doc """
+  Query returning a flattened list of FileSets for a Work grouped by rank.
+
+  ## Examples
+
+      iex> ranked_file_sets_for_work("01DT7V79D45B8BQMVS6YDRSF9J")
+      [%Meadow.Data.Schemas.FileSet{rank: -100}, %Meadow.Data.Schemas.FileSet{rank: 0}, %Meadow.Data.Schemas.FileSet{rank: 100}]
+
+      iex> ranked_file_sets_for_work(Ecto.UUID.generate())
+      []
+
+  """
+  def ranked_file_sets_for_work(work_id) do
+    Enum.flat_map(["A", "P", "S", "X"], fn role ->
+      ranked_file_sets_for_work(work_id, role)
+    end)
+  end
+
+  @doc """
   Query returning a list of FileSets for a Work ordered by `:rank`.
 
   ## Examples

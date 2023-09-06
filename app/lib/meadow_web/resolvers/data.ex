@@ -5,6 +5,7 @@ defmodule MeadowWeb.Resolvers.Data do
   """
   alias Meadow.Pipeline
   alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Data.Works.TransferFileSets
   alias Meadow.Utils.ChangesetErrors
 
   def works(_, args, _) do
@@ -140,6 +141,20 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def replace_file_set(_, %{id: id} = params, _) do
+    file_set = FileSets.get_file_set!(id)
+
+    case Pipeline.replace_the_file_set(file_set, Map.delete(params, :id)) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not replace file set",
+         details: ChangesetErrors.humanize_errors(changeset)}
+
+      {:ok, file_set} ->
+        {:ok, file_set}
+    end
+  end
+
   def update_file_set(_, %{id: id} = params, _) do
     file_set = FileSets.get_file_set!(id)
 
@@ -192,16 +207,10 @@ defmodule MeadowWeb.Resolvers.Data do
     {:ok, Works.verify_file_sets(work_id)}
   end
 
-  def iiif_manifest_headers(_, %{work_id: work_id}, _) do
-    case Works.iiif_manifest_headers(work_id) do
-      {:ok, headers} ->
-        {:ok, headers}
-
-      {:error, _error} ->
-        {
-          :error,
-          message: "Error retrieving manifest headers"
-        }
+  def transfer_file_sets(_, %{from_work_id: from_work_id, to_work_id: to_work_id}, _) do
+    case TransferFileSets.transfer(from_work_id, to_work_id) do
+      {:ok, to_work_id} -> {:ok, to_work_id}
+      {:error, reason} -> {:error, reason}
     end
   end
 end

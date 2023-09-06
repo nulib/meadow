@@ -16,9 +16,8 @@ defmodule Meadow.Application.Children do
          interval: Config.index_interval(), version: 2, name: Meadow.Data.IndexWorker.V2}
       ],
       "database_listeners" => [
-        Meadow.ARKListener,
+        Meadow.ArkListener,
         Meadow.FilesetDeleteListener,
-        Meadow.IIIF.ManifestListener,
         Meadow.IndexDeleteListener,
         Meadow.StructuralMetadataListener
       ],

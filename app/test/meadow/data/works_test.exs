@@ -3,6 +3,8 @@ defmodule Meadow.Data.WorksTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
+  import Assertions
+
   alias Meadow.Config
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
@@ -44,18 +46,6 @@ defmodule Meadow.Data.WorksTest do
 
     test "create_work!/1 with invalid data does not create a work" do
       assert_raise(Ecto.InvalidChangesetError, fn -> Works.create_work!(@invalid_attrs) end)
-    end
-
-    test "create_work/1 creates a work with an ark" do
-      with {:ok, work} <- Works.create_work(@valid_attrs) do
-        assert work.descriptive_metadata.ark |> String.match?(~r'^ark:/12345/nu2\d{8}$')
-      end
-    end
-
-    test "create_work!/1 creates a work with an ark" do
-      with work <- Works.create_work!(@valid_attrs) do
-        assert work.descriptive_metadata.ark |> String.match?(~r'^ark:/12345/nu2\d{8}$')
-      end
     end
 
     test "update_work/2 updates a work" do
@@ -125,10 +115,16 @@ defmodule Meadow.Data.WorksTest do
   describe "representative images for image type works" do
     setup do
       work =
-        work_with_file_sets_fixture(3, %{work_type: %{id: "IMAGE", scheme: "work_type"}}, %{
-          role: %{id: "A", scheme: "FILE_SET_ROLE"},
-          derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/1-pyramid.tif"}
-        })
+        work_with_file_sets_fixture(
+          3,
+          %{
+            work_type: %{id: "IMAGE", scheme: "work_type"}
+          },
+          %{
+            role: %{id: "A", scheme: "FILE_SET_ROLE"},
+            derivatives: %{"pyramid_tiff" => "s3://fo/ob/ar/1-pyramid.tif"}
+          }
+        )
 
       file_set = work.file_sets |> Enum.at(1)
 
@@ -164,6 +160,16 @@ defmodule Meadow.Data.WorksTest do
         Works.get_work_by_accession_number!(work.accession_number)
         |> Map.get(:representative_image) == image_url
       )
+    end
+
+    test "get_work_by_ark!/1", %{work: work, image_url: image_url} do
+      with {:ok, work} <-
+             work |> Works.update_work(%{descriptive_metadata: %{ark: "ark:/12345/nu209876543"}}) do
+        assert(
+          Works.get_work_by_ark!(work.descriptive_metadata.ark)
+          |> Map.get(:representative_image) == image_url
+        )
+      end
     end
 
     test "get_works_by_title/1", %{work: work, image_url: image_url} do
@@ -555,25 +561,5 @@ defmodule Meadow.Data.WorksTest do
         assert result.verified == false
       end)
     end
-  end
-
-  describe "mint_ark/1" do
-    setup %{work_type: work_type} do
-      {:ok, work: work_fixture(%{work_type: %{id: work_type, scheme: "work_type"}})}
-    end
-
-    seed_values("coded_terms/work_type")
-    |> Enum.each(fn %{id: work_type} ->
-      @tag work_type: work_type
-      test "mint_ark/1 mints an ark for #{work_type} work type", %{work: work} do
-        assert {:ok, %{descriptive_metadata: %{ark: ark}}} = Works.mint_ark(work)
-        assert is_binary(ark)
-      end
-
-      @tag work_type: work_type
-      test "mint_ark!/1 mints an ark for #{work_type} work type", %{work: work} do
-        assert Works.mint_ark!(work)
-      end
-    end)
   end
 end

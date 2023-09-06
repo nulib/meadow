@@ -112,6 +112,24 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Replaces (versions) a FileSet.
+  """
+  def replace_file_set(%FileSet{} = file_set, attrs) do
+    changeset =
+      FileSet.update_changeset(file_set, attrs)
+      |> validate_poster_offset(file_set)
+
+    response = Repo.update(changeset)
+
+    case response do
+      {:ok, _file_set} -> post_process(changeset)
+      other -> other
+    end
+
+    response
+  end
+
+  @doc """
   Updates a FileSet.
   """
   def update_file_set(%FileSet{} = file_set, attrs) do
@@ -320,7 +338,7 @@ defmodule Meadow.Data.FileSets do
   Get the path for a structural metadata file (vtt) for a file set
   """
   def public_vtt_url_for(%{structural_metadata: %{type: "webvtt", value: _value}} = file_set) do
-    with uri <- URI.parse(Config.iiif_manifest_url()) do
+    with uri <- URI.parse(Config.iiif_manifest_url_deprecated()) do
       uri
       |> URI.merge("vtt/" <> Pairtree.generate!(file_set.id) <> "/" <> file_set.id <> ".vtt")
       |> URI.to_string()

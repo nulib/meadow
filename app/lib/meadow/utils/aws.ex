@@ -4,10 +4,15 @@ defmodule Meadow.Utils.AWS do
   @moduledoc """
   Utility functions for AWS requests and object management
   """
+  alias Meadow.Config
   alias Meadow.Error
   alias Meadow.Utils.AWS.MultipartCopy
+  alias Meadow.Utils.Pairtree
 
+  import Env
   import SweetXml, only: [sigil_x: 2]
+
+  require Logger
 
   @doc """
   Drop-in replacement for ExAws.request/2 that reports errors to Honeybadger
@@ -73,6 +78,62 @@ defmodule Meadow.Utils.AWS do
 
   def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []),
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
+
+  def invalidate_cache(file_set, invalidation_type), do: invalidate_cache(file_set, invalidation_type, Config.environment())
+  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/2/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
+  def invalidate_cache(_file_set, :streaming, :dev), do: :ok
+  def invalidate_cache(_file_set, :streaming, :test), do: :ok
+  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
+
+  defp perform_iiif_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
+  defp perform_streaming_invalidation(path), do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
+
+  defp perform_invalidation(path, nil) do
+    Logger.info(
+      "Skipping cache invalidation for: #{path}. No distribution id found."
+      )
+    :ok
+  end
+
+  defp perform_invalidation(path, distribution_id) do
+    version = "2020-05-31"
+    caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
+
+    data = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/#{version}/">
+        <CallerReference>#{caller_reference}</CallerReference>
+        <Paths>
+          <Items>
+              <Path>#{path}</Path>
+          </Items>
+          <Quantity>1</Quantity>
+        </Paths>
+    </InvalidationBatch>
+    """
+
+    operation = %ExAws.Operation.RestQuery{
+      action: :create_invalidation,
+      body: data,
+      http_method: :post,
+      path: "/#{version}/distribution/#{distribution_id}/invalidation",
+      service: :cloudfront
+    }
+
+    case operation |> ExAws.request() do
+      {:ok, %{status_code: status_code}} when status_code in 200..299 ->
+        :ok
+
+      _ ->
+        Logger.error("Unable to clear cache for #{path}")
+        :ok
+    end
+  end
 
   defp generate_aws_signature(request, region, access_key, secret) do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)

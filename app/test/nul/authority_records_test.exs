@@ -88,4 +88,13 @@ defmodule NUL.AuthorityRecordsTest do
   test "delete_authority_record/1", %{authority_record: authority_record} do
     assert {:ok, _authority_record} = AuthorityRecords.delete_authority_record(authority_record)
   end
+
+  test "with_stream/0" do
+    assert {:ok, 3} = AuthorityRecords.with_stream(fn stream ->
+      stream
+      |> Stream.map(&(&1))
+      |> Enum.to_list()
+      |> length()
+    end)
+  end
 end

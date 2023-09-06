@@ -88,7 +88,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Dispatcher.dispatcher_actions(file_set) == [
+      assert Dispatcher.dispatcher_actions(file_set, %{}) == [
                GenerateFileSetDigests,
                ExtractExifMetadata,
                CopyFileToPreservation,
@@ -107,7 +107,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Dispatcher.dispatcher_actions(file_set) == [
+      assert Dispatcher.dispatcher_actions(file_set, %{}) == [
                GenerateFileSetDigests,
                ExtractExifMetadata,
                CopyFileToPreservation,
@@ -127,7 +127,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Dispatcher.dispatcher_actions(file_set) == [
+      assert Dispatcher.dispatcher_actions(file_set, %{}) == [
                GenerateFileSetDigests,
                ExtractExifMetadata,
                CopyFileToPreservation,
@@ -147,7 +147,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Dispatcher.dispatcher_actions(file_set) == [
+      assert Dispatcher.dispatcher_actions(file_set, %{}) == [
                GenerateFileSetDigests,
                CopyFileToPreservation,
                FileSetComplete
@@ -165,9 +165,9 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), ExtractExifMetadata)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CreateTranscodeJob)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), TranscodeComplete)
     end
 
     test "dispatcher_actions for file set role: P, mime_type: audio/*" do
@@ -181,9 +181,9 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), ExtractExifMetadata)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), TranscodeComplete)
     end
 
     test "dispatcher_actions for file set role: A, mime_type: video/*" do
@@ -197,9 +197,24 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), ExtractExifMetadata)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CreateTranscodeJob)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), TranscodeComplete)
+    end
+
+    test "dispatcher_actions does not skip transcode for file set versioning (role: A, mime_type: video/*)" do
+      file_set =
+        file_set_fixture(%{
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "video/mp4",
+            location: "s3://blahblah",
+            original_filename: "test.m4v"
+          }
+        })
+
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{context: "Version"}), CreateTranscodeJob)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{context: "Version"}), TranscodeComplete)
     end
 
     test "dispatcher_actions for file set role: P, mime_type: video/*" do
@@ -213,9 +228,9 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), ExtractExifMetadata)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), ExtractExifMetadata)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), TranscodeComplete)
     end
 
     test "dispatcher_actions for unknown mime type" do
@@ -229,7 +244,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Dispatcher.dispatcher_actions(file_set) == nil
+      assert Dispatcher.dispatcher_actions(file_set, %{}) == nil
     end
 
     test "custom list of actions" do
@@ -280,9 +295,9 @@ defmodule Meadow.Pipeline.DispatcherTest do
     test "dispatcher_actions for A/V file set where playlist exists skips trancoding steps", %{
       file_set: file_set
     } do
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set), CopyFileToPreservation)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), CreateTranscodeJob)
-      refute Enum.member?(Dispatcher.dispatcher_actions(file_set), TranscodeComplete)
+      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CopyFileToPreservation)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), CreateTranscodeJob)
+      refute Enum.member?(Dispatcher.dispatcher_actions(file_set, %{}), TranscodeComplete)
     end
 
     test "dispatches to FileSetComplete after TranscodeComplete even if skip_transcode? is true",

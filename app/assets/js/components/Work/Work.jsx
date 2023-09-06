@@ -1,58 +1,25 @@
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
-import { GET_IIIF_MANIFEST_HEADERS } from "./work.gql";
-import MediaPlayerWrapper from "@js/components/UI/MediaPlayer/Wrapper";
-import { OpenSeadragonViewer } from "openseadragon-react-viewer";
+import IIIFViewer from "@js/components/UI/IIIF/Viewer";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect } from "react";
 import WorkTabs from "./Tabs/Tabs";
-import { getManifest } from "@js/services/get-manifest";
 import useFileSet from "@js/hooks/useFileSet";
-import { useQuery } from "@apollo/client";
-
-const osdOptions = {
-  showDropdown: true,
-  showThumbnails: true,
-  showToolbar: true,
-  deepLinking: false,
-  height: 800,
-};
 
 const Work = ({ work }) => {
-  const [manifestObj, setManifestObj] = React.useState();
   const workContextState = useWorkState();
   const workDispatch = useWorkDispatch();
+
+  const activeMediaFileSet = workContextState?.activeMediaFileSet
+    ? workContextState?.activeMediaFileSet
+    : work?.fileSets[0];
 
   const isImageWorkType =
     work.workType?.id === "IMAGE" &&
     ["AUDIO", "VIDEO"].indexOf(work.workType?.id) === -1;
   const { filterFileSets } = useFileSet();
 
-  const {
-    data: dataManifestHeaders,
-    error: errorManifestHeaders,
-    loading: loadingManifestHeaders,
-  } = useQuery(GET_IIIF_MANIFEST_HEADERS, {
-    variables: { workId: work.id },
-    pollInterval: 2000,
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const etag = dataManifestHeaders?.iiifManifestHeaders?.etag;
-
-  React.useEffect(() => {
-    workDispatch({ type: "updateWorkType", workTypeId: work.workType.id });
-
-    async function getData() {
-      const data = await getManifest(`${work.manifestUrl}?${Date.now()}`);
-      if (!data) return;
-      setManifestObj(data);
-    }
-
-    isImageWorkType && getData();
-  }, []);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (isImageWorkType) return;
 
     /**
@@ -71,32 +38,28 @@ const Work = ({ work }) => {
     });
   }, [work.fileSets]);
 
+  const isViewerReady = work.manifestUrl && work.fileSets.length > 0;
+
   return (
     <div data-testid="work-component">
-      {isImageWorkType && (
-        <section>
-          <div data-testid="viewer">
-            {manifestObj && (
-              <OpenSeadragonViewer
-                manifest={manifestObj}
-                options={osdOptions}
-                key={etag}
+      <section>
+        <div data-testid="viewer">
+          {isViewerReady ? (
+            <>
+              <IIIFViewer
+                fileSet={activeMediaFileSet}
+                fileSets={[...filterFileSets(work.fileSets).access]}
+                iiifContent={work.manifestUrl}
+                workTypeId={work.workType?.id}
               />
-            )}
-          </div>
-        </section>
-      )}
-
-      {!isImageWorkType && (
-        <MediaPlayerWrapper
-          fileSet={workContextState?.activeMediaFileSet}
-          fileSets={[...filterFileSets(work.fileSets).access]}
-          manifestId={work.manifestUrl}
-          manifestKey={etag}
-          workTypeId={work.workType?.id}
-        />
-      )}
-
+            </>
+          ) : (
+            <p className="has-text-centered has-text-grey is-size-5">
+              No filesets have been associated with this work.
+            </p>
+          )}
+        </div>
+      </section>
       <section className="section">
         <div className="container" data-testid="tabs-wrapper">
           <WorkTabs work={work} />

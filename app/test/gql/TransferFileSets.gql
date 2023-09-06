@@ -1,0 +1,5 @@
+mutation ($fromWorkId: ID!, $toWorkId: ID!) {
+  transferFileSets(fromWorkId: $fromWorkId, toWorkId: $toWorkId) {
+    id
+  }
+}

@@ -57,7 +57,8 @@ if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
     checksum_notification: %{
       arn: "arn:aws:lambda:us-east-1:000000000000:function:digest-tag",
       buckets: ["dev-ingest", "dev-uploads"]
-    }
+    },
+    mediaconvert_client: MediaConvert.Mock
 
   [:mediaconvert, :s3, :secretsmanager, :sns, :sqs]
   |> Enum.each(fn service ->
@@ -72,7 +73,9 @@ if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
 end
 
 config :meadow,
-  index_interval: 30_000
+  index_interval: 30_000,
+  mediaconvert_queue: prefix("transcode"),
+  mediaconvert_role: aws_secret("meadow", dig: ["transcode", "role_arn"])
 
 config :meadow, Meadow.Scheduler,
   overlap: false,

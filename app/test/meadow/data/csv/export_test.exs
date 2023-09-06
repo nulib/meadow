@@ -2,8 +2,9 @@ defmodule Meadow.Data.CSV.ExportTest do
   use Meadow.DataCase
   use Meadow.IndexCase
 
-  alias NimbleCSV.RFC4180, as: CSV
+  alias Meadow.Arks
   alias Meadow.Data.{CSV.Export, Indexer, Works}
+  alias NimbleCSV.RFC4180, as: CSV
 
   import Assertions
 
@@ -16,7 +17,10 @@ defmodule Meadow.Data.CSV.ExportTest do
 
     exs_fixture("test/fixtures/csv/work_fixtures.exs")
     |> Enum.each(fn work_data ->
-      work_data |> Map.put(:collection_id, collection.id) |> Works.create_work!()
+      work_data
+      |> Map.put(:collection_id, collection.id)
+      |> Works.create_work!()
+      |> Arks.mint_ark()
     end)
 
     Indexer.synchronize_index()

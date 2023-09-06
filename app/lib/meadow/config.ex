@@ -60,6 +60,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :streaming_url)
   end
 
+  @doc "Retrieve the environment specific distribution id for streaming"
+  def streaming_cloudfront_distribution_id do
+    Application.get_env(:meadow, :streaming_distribution_id)
+  end
+
   @doc "Retrieve configured lambda scripts"
   def lambda_config(config_key) do
     case Application.get_env(:meadow, :lambda, []) |> Keyword.get(config_key) do
@@ -70,7 +75,7 @@ defmodule Meadow.Config do
 
   @doc "Retrieve the IIIF cloudfront distribution id"
   def iiif_cloudfront_distribution_id do
-    Application.get_env(:meadow, :iiif_cloudfront_distribution_id)
+    Application.get_env(:meadow, :iiif_distribution_id)
   end
 
   @doc "Retrieve the IIIF server endpoint"
@@ -79,9 +84,9 @@ defmodule Meadow.Config do
     |> ensure_trailing_slash()
   end
 
-  @doc "Retrieve the IIIF server endpoint"
-  def iiif_manifest_url do
-    Application.get_env(:meadow, :iiif_manifest_url)
+  @doc "Deprecated: Retrieve the IIIF manifest endpoint"
+  def iiif_manifest_url_deprecated do
+    Application.get_env(:meadow, :iiif_manifest_url_deprecated)
     |> ensure_trailing_slash()
   end
 
