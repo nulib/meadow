@@ -211,6 +211,8 @@ defmodule Meadow.Ark do
     |> Repo.delete_all()
   end
 
+  def get_from_cache(nil), do: nil
+
   def get_from_cache(id) do
     Logger.debug("Retrieving ark #{id} from cache")
 
