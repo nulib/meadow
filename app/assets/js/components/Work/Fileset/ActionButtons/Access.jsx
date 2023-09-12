@@ -46,10 +46,11 @@ export function MediaButtons({ fileSet }) {
           Edit structure (vtt)
         </Button>
       )}
-      <Button onClick={handleDownloadMedia} disabled={downloadStarted}>
+      {/* //TODO: Re-enable once backend is ready to support the link *}
+      {/* <Button onClick={handleDownloadMedia} disabled={downloadStarted}>
         <IconDownload />
         Download
-      </Button>
+      </Button> */}
     </div>
   );
 }
