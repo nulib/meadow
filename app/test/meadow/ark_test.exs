@@ -61,8 +61,8 @@ defmodule Meadow.ArkTest do
         Enum.each(@fields, &assert(result |> Map.get(&1) |> is_nil()))
       end
 
-      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
-      assert_received({:post, :body, "_profile: datacite\n_status: reserved"})
+      assert_received(%{message: {:post, :credentials, {"mockuser", "mockpassword"}}})
+      assert_received(%{message: {:post, :body, "_profile: datacite\n_status: reserved"}})
     end
 
     test "attribute list argument" do
@@ -73,7 +73,7 @@ defmodule Meadow.ArkTest do
         Enum.each(@fields, &assert(Map.get(result, &1) == Keyword.get(source, &1)))
       end
 
-      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
+      assert_received(%{message: {:post, :credentials, {"mockuser", "mockpassword"}}})
 
       expected =
         [
@@ -83,7 +83,7 @@ defmodule Meadow.ArkTest do
         ]
         |> Enum.join("\n")
 
-      assert_received({:post, :body, ^expected})
+      assert_received(%{message: {:post, :body, ^expected}})
     end
 
     test "map argument" do
@@ -94,7 +94,7 @@ defmodule Meadow.ArkTest do
         Enum.each(@fields, &assert(Map.get(result, &1) == Map.get(source, &1)))
       end
 
-      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
+      assert_received(%{message: {:post, :credentials, {"mockuser", "mockpassword"}}})
 
       expected =
         [
@@ -104,7 +104,7 @@ defmodule Meadow.ArkTest do
         ]
         |> Enum.join("\n")
 
-      assert_received({:post, :body, ^expected})
+      assert_received(%{message: {:post, :body, ^expected}})
     end
 
     test "Meadow.Ark argument" do
@@ -115,7 +115,7 @@ defmodule Meadow.ArkTest do
         Enum.each(@fields, &assert(Map.get(result, &1) == Map.get(source, &1)))
       end
 
-      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
+      assert_received(%{message: {:post, :credentials, {"mockuser", "mockpassword"}}})
 
       expected =
         [
@@ -125,7 +125,7 @@ defmodule Meadow.ArkTest do
         ]
         |> Enum.join("\n")
 
-      assert_received({:post, :body, ^expected})
+      assert_received(%{message: {:post, :body, ^expected}})
     end
   end
 
@@ -169,7 +169,7 @@ defmodule Meadow.ArkTest do
       update = Map.put(fixture, :title, "A 100% New Title for This ARK!")
       assert {:ok, update} == Ark.put(update)
       assert {:ok, update} == Ark.get(fixture.ark)
-      assert_received({:post, :credentials, {"mockuser", "mockpassword"}})
+      assert_received(%{message: {:post, :credentials, {"mockuser", "mockpassword"}}})
 
       expected =
         [
@@ -181,7 +181,7 @@ defmodule Meadow.ArkTest do
         ]
         |> Enum.join("\n")
 
-      assert_received({:post, :body, ^expected})
+      assert_received(%{message: {:post, :body, ^expected}})
     end
 
     test "invalid ARK" do

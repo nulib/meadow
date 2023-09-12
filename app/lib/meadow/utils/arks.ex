@@ -72,7 +72,7 @@ defmodule Meadow.Arks do
     work |> initial_ark_attributes() |> Ark.from_attrs()
   end
 
-  def update_ark_metatdata(%Work{} = work) do
+  def update_ark_metadata(%Work{} = work) do
     case existing_ark(work) do
       {:error, message} ->
         {:error, message}
@@ -88,6 +88,21 @@ defmodule Meadow.Arks do
   defp update_existing_ark(_work, ark, ark) do
     Logger.debug("Metadata for #{ark.ark} didn't change. Not sending update.")
     :noop
+  end
+
+  defp update_existing_ark(
+         work,
+         %{status: "reserved"} = old,
+         %{status: "unavailable" <> _} = new
+       ) do
+    Logger.debug(
+      "#{new.ark} transitioning from reserved to unavailable - must go through public."
+    )
+
+    case update_existing_ark(work, old, %Ark{old | status: "public"}) do
+      {:ok, intermediate} -> update_existing_ark(work, intermediate, new)
+      other -> other
+    end
   end
 
   defp update_existing_ark(work, _, ark) do

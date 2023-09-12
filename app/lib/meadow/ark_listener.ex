@@ -41,7 +41,7 @@ defmodule Meadow.ArkListener do
       "Updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}"
     )
 
-    case Arks.update_ark_metatdata(work) do
+    case Arks.update_ark_metadata(work) do
       :noop ->
         :noop
 
