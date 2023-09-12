@@ -207,7 +207,7 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   defp send_message(message) do
     case Cachex.get!(@cache, :send_to) do
       nil -> :noop
-      process -> send(process, message)
+      process -> send(process, %{message: message, at: NaiveDateTime.utc_now()})
     end
   end
 
