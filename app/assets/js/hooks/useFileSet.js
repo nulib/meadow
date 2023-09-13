@@ -35,11 +35,18 @@ export default function useFileSet() {
     return mimeType.includes("video") || mimeType.includes("audio");
   }
 
+  function isVideo(fileSet = {}) {
+    const mimeType = fileSet.coreMetadata?.mimeType?.toLowerCase();
+    if (!mimeType) return;
+    return mimeType.includes("video");
+  }
+
   return {
     filterFileSets,
     getWebVttString,
     isEmpty,
     isImage,
     isMedia,
+    isVideo,
   };
 }
