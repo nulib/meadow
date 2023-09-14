@@ -4,11 +4,13 @@ import {
   GET_DC_API_TOKEN,
   GET_WORK,
   GET_WORK_TYPES,
-  VERIFY_FILE_SETS,
   TRANSFER_FILE_SETS,
+  VERIFY_FILE_SETS,
   WORK_ARCHIVER_ENDPOINT,
 } from "@js/components/Work/work.gql.js";
 import { mockVisibility, mockWorkType } from "@js/client-local";
+
+import { ACTION_STATES } from "./work.gql";
 
 export const MOCK_WORK_ID = "ABC123";
 export const MOCK_WORK_ID_2 = "DEF456";
@@ -573,6 +575,37 @@ export const dcApiTokenMock = {
         expires: "2033-08-29T16:50:56.785203Z",
         token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       },
+    },
+  },
+};
+
+export const actionStatesMock = {
+  request: {
+    query: ACTION_STATES,
+    variables: {
+      objectId: "abc123",
+    },
+  },
+  result: {
+    data: {
+      actionStates: [
+        {
+          action: "Completed Processing FileSet",
+          insertedAt: "2021-03-16T16:22:09.862625Z",
+          notes: null,
+          objectId: "a04e4a28-340f-46cb-aca2-9e7f5713ae84",
+          outcome: "OK",
+          updatedAt: "2021-03-16T16:22:19.644696Z",
+        },
+        {
+          action: "Create pyramid TIFF from source image",
+          insertedAt: "2021-03-16T16:22:09.861998Z",
+          notes: "I am some notes",
+          objectId: "a04e4a28-340f-46cb-aca2-9e7f5713ae84",
+          outcome: "ERROR",
+          updatedAt: "2021-03-16T16:23:17.652523Z",
+        },
+      ],
     },
   },
 };

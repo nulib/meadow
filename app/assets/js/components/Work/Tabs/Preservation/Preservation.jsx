@@ -26,6 +26,7 @@ import { sortFileSets, toastWrapper } from "@js/services/helpers";
 import { useMutation, useQuery } from "@apollo/client";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import FilesetActionStatesModal from "./FilesetActionStatesModal";
 import PreservationActionsCol from "@js/components/Work/Tabs/Preservation/ActionsCol";
 import PropTypes from "prop-types";
 import UISkeleton from "@js/components/UI/Skeleton";
@@ -64,6 +65,11 @@ const WorkTabsPreservation = ({ work }) => {
     fileset: {},
     isVisible: false,
   });
+  const [filesetActionStatesModal, setFilesetActionStatesModal] =
+    React.useState({
+      filesetId: "",
+      isVisible: false,
+    });
 
   const {
     data: verifyFileSetsData,
@@ -197,9 +203,15 @@ const WorkTabsPreservation = ({ work }) => {
     setTechnicalMetadata({ fileSet: { ...fileSet } });
   };
 
+  const handleViewFilesetActionStates = (filesetId) => {
+    setFilesetActionStatesModal({ filesetId, isVisible: true });
+  };
+
   const handleTransferFileSetsClick = () => {
     setTransferFilesetsModal({ fromWorkId: work.id, isVisible: true });
   };
+
+  console.log("filesetActionStatesModal", filesetActionStatesModal);
 
   return (
     <div data-testid="preservation-tab">
@@ -271,6 +283,9 @@ const WorkTabsPreservation = ({ work }) => {
                           handleDeleteFilesetClick={handleDeleteFilesetClick}
                           handleReplaceFilesetClick={handleReplaceFilesetClick}
                           handleTechnicalMetaClick={handleTechnicalMetaClick}
+                          handleViewFilesetActionStates={
+                            handleViewFilesetActionStates
+                          }
                           technicalMetadata={technicalMetadata}
                           work={work}
                         />
@@ -363,6 +378,14 @@ const WorkTabsPreservation = ({ work }) => {
         isVisible={replaceFilesetModal.isVisible}
         workId={work.id}
         workTypeId={work.workType?.id}
+      />
+
+      <FilesetActionStatesModal
+        closeModal={() =>
+          setFilesetActionStatesModal({ filesetId: "", isVisible: false })
+        }
+        id={filesetActionStatesModal.filesetId}
+        isVisible={filesetActionStatesModal.isVisible}
       />
     </div>
   );

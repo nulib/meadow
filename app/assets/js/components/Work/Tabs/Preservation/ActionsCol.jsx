@@ -12,6 +12,7 @@ import {
   IconBinaryFile,
   IconBucket,
   IconCopyToClipboard,
+  IconList,
   IconReplace,
   IconTrashCan,
   IconView,
@@ -20,7 +21,6 @@ import React, { useState } from "react";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { Icon } from "@nulib/design-system";
-import WorkTabsPreservationReplaceFileSet from "@js/components/Work/Tabs/Preservation/ReplaceFileSet";
 import WorkTabsPreservationTechnical from "@js/components/Work/Tabs/Preservation/Technical";
 import classNames from "classnames";
 import { toastWrapper } from "@js/services/helpers";
@@ -33,6 +33,7 @@ const PreservationActionsCol = ({
   handleDeleteFilesetClick,
   handleTechnicalMetaClick,
   handleReplaceFilesetClick,
+  handleViewFilesetActionStates,
   technicalMetadata,
   work,
 }) => {
@@ -157,6 +158,20 @@ const PreservationActionsCol = ({
                 />
               </DialogContent>
             </Dialog.Root>
+          </div>
+          <div>
+            <a
+              className={actionItemClasses}
+              onClick={() => {
+                handleViewFilesetActionStates(fileset.id);
+                setIsActionsOpen(false);
+              }}
+            >
+              <IconList />
+              <span style={{ marginLeft: "0.5rem" }}>
+                View fileset action states
+              </span>
+            </a>
           </div>
           <AuthDisplayAuthorized>
             <a
