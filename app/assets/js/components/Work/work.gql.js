@@ -1,5 +1,18 @@
 import gql from "graphql-tag";
 
+export const ACTION_STATES = gql`
+  query ActionStates($objectId: ID!) {
+    actionStates(objectId: $objectId) {
+      action
+      insertedAt
+      notes
+      objectId
+      outcome
+      updatedAt
+    }
+  }
+`;
+
 export const ADD_WORK_TO_COLLECTION = gql`
   mutation addWorkToCollection($workId: ID!, $collectionId: ID!) {
     addWorkToCollection(workId: $workId, collectionId: $collectionId) {
