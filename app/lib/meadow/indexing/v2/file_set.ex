@@ -18,6 +18,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       id: file_set.id,
       indexed_at: NaiveDateTime.utc_now(),
       label: file_set.core_metadata.label,
+      mime_type: file_set.core_metadata.mime_type,
       modified_date: file_set.updated_at,
       poster_offset: file_set.poster_offset,
       published: file_set.work.published,
