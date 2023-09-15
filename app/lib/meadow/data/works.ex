@@ -583,14 +583,34 @@ defmodule Meadow.Data.Works do
   defp reorder_file_sets({:error, msg}, _), do: {:error, msg}
 
   defp reorder_file_sets({:ok, work}, ordered_ids) do
-    work.file_sets
-    |> Enum.sort_by(&Enum.find_index(ordered_ids, fn id -> &1.id == id end))
-    |> Enum.with_index(1)
-    |> Enum.reduce(Multi.new(), fn {file_set, index}, multi ->
-      Multi.update(multi, :"index_#{index}", FileSet.changeset(file_set, %{position: index}))
-    end)
-    |> Multi.update(:work, work |> Work.update_timestamp())
-    |> Repo.transaction()
+    start_time = :erlang.monotonic_time()
+
+    :telemetry.execute(
+      [:meadow, :data, :works, :reorder_file_sets, :start],
+      %{start_time: start_time},
+      %{work: work, ordered_ids: ordered_ids}
+    )
+
+    result =
+      work.file_sets
+      |> Enum.sort_by(&Enum.find_index(ordered_ids, fn id -> &1.id == id end))
+      |> Enum.with_index(1)
+      |> Enum.reduce(Multi.new(), fn {file_set, index}, multi ->
+        Multi.update(multi, :"index_#{index}", FileSet.changeset(file_set, %{position: index}))
+      end)
+      |> Multi.update(:work, work |> Work.update_timestamp())
+      |> Repo.transaction(timeout: :infinity)
+
+    end_time = :erlang.monotonic_time()
+    duration = end_time - start_time
+
+    :telemetry.execute(
+      [:meadow, :data, :works, :reorder_file_sets, :stop],
+      %{work_id: work.id, duration: duration, file_set_count: length(work.file_sets)},
+      %{result: result}
+    )
+
+    result
   end
 
   def verify_file_sets(work_id) do
