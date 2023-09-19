@@ -41,7 +41,7 @@
     "esbuild-plugin-svgr": "^2.1.0",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
-    "graphql": "^16.8.0",
+    "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
     "hls.js": "^1.4.11",
     "inflection": "^2.0.1",
