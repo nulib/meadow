@@ -1,12 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { useFieldArray } from "react-hook-form";
-import UIFormSelect from "./Select";
-import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
-import { hasRole } from "@js/services/metadata";
-import { useFormContext } from "react-hook-form";
-import { Button } from "@nulib/design-system";
 import { IconAdd, IconTrashCan } from "@js/components/Icon";
+
+import { Button } from "@nulib/design-system";
+import PropTypes from "prop-types";
+import React from "react";
+import UIFormControlledTermArrayItem from "./ControlledTermArrayItem";
+import UIFormSelect from "./Select";
+import { hasRole } from "@js/services/metadata";
+import { useFieldArray } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 const UIFormControlledTermArray = ({
   authorities = [],
@@ -25,6 +26,8 @@ const UIFormControlledTermArray = ({
     keyName: "useFieldArrayId",
   });
 
+  const needsRole = roleDropdownOptions.length > 0;
+
   function getRoleId({ role, roleId }) {
     if (!role && !roleId) return;
     return role ? role.id : roleId;
@@ -35,12 +38,21 @@ const UIFormControlledTermArray = ({
     return term ? term.id : termId;
   }
 
+  function handleAddAnother() {
+    const newField = { termId: "", label: "" };
+    if (needsRole) newField.roleId = "";
+    append(newField);
+  }
+
   return (
     <>
       <ul className="mb-3">
         {fields.map((item, index) => {
           // Metadata item name combined with it's index in the array of multiple entries
           const itemName = `${name}[${index}]`;
+          const isExistingFieldEntry = needsRole
+            ? getRoleId(item) && getTermId(item)
+            : getTermId(item);
 
           return (
             <li key={item.useFieldArrayId}>
@@ -51,7 +63,7 @@ const UIFormControlledTermArray = ({
                 >{`${label} #${index + 1}`}</legend>
 
                 {/* Existing values are NOT editable, so we save form data needed in the POST update, in hidden fields here */}
-                {getTermId(item) && (
+                {isExistingFieldEntry && (
                   <>
                     <p>
                       {item.term?.label || item.label} <br />
@@ -75,14 +87,14 @@ const UIFormControlledTermArray = ({
                 )}
 
                 {/* New form entries */}
-                {!item.termId && !item.term && (
+                {!isExistingFieldEntry && (
                   <>
                     {hasRole(name) && (
                       <div className="field">
                         <label className="label">Role</label>
                         <UIFormSelect
                           hasErrors={
-                            !!(errors[name] && errors[name][index].roleId)
+                            !!(errors[name] && errors[name][index]?.roleId)
                           }
                           isReactHookForm
                           name={`${itemName}.roleId`}
@@ -124,9 +136,7 @@ const UIFormControlledTermArray = ({
 
       <Button
         isLight
-        onClick={() => {
-          append({ termId: "", label: "", roleId: "" });
-        }}
+        onClick={handleAddAnother}
         data-testid="button-add-field-array-row"
       >
         <IconAdd />

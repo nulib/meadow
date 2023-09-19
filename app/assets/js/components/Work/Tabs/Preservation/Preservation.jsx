@@ -211,8 +211,6 @@ const WorkTabsPreservation = ({ work }) => {
     setTransferFilesetsModal({ fromWorkId: work.id, isVisible: true });
   };
 
-  console.log("filesetActionStatesModal", filesetActionStatesModal);
-
   return (
     <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Preservation and Access">
