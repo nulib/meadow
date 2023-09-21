@@ -1,18 +1,20 @@
+import type { FileSet, Work as WorkType } from "@js/__generated__/graphql";
+import React, { useEffect } from "react";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 import IIIFViewer from "@js/components/UI/IIIF/Viewer";
-import PropTypes from "prop-types";
-import React, { useEffect } from "react";
 import WorkTabs from "./Tabs/Tabs";
 import useFileSet from "@js/hooks/useFileSet";
 
-const Work = ({ work }) => {
+const Work = ({ work }: { work: WorkType }) => {
   const workContextState = useWorkState();
   const workDispatch = useWorkDispatch();
 
+  const fileSets = (work.fileSets as FileSet[]) || [];
+
   const activeMediaFileSet = workContextState?.activeMediaFileSet
     ? workContextState?.activeMediaFileSet
-    : work?.fileSets[0];
+    : fileSets && fileSets[0];
 
   const isImageWorkType =
     work.workType?.id === "IMAGE" &&
@@ -27,10 +29,8 @@ const Work = ({ work }) => {
      * If an active file set does exist, then put the latest data from API into the Context state
      */
     let fileSet = !workContextState?.activeMediaFileSet
-      ? filterFileSets(work.fileSets).access[0]
-      : work.fileSets.find(
-          (fs) => fs.id === workContextState.activeMediaFileSet.id
-        );
+      ? filterFileSets(fileSets).access[0]
+      : fileSets.find((fs) => fs.id === workContextState.activeMediaFileSet.id);
 
     workDispatch({
       type: "updateActiveMediaFileSet",
@@ -38,7 +38,7 @@ const Work = ({ work }) => {
     });
   }, [work.fileSets]);
 
-  const isViewerReady = work.manifestUrl && work.fileSets.length > 0;
+  const isViewerReady = work.manifestUrl && fileSets.length > 0;
 
   return (
     <div data-testid="work-component">
@@ -48,7 +48,7 @@ const Work = ({ work }) => {
             <>
               <IIIFViewer
                 fileSet={activeMediaFileSet}
-                fileSets={[...filterFileSets(work.fileSets).access]}
+                fileSets={[...filterFileSets(fileSets).access]}
                 iiifContent={work.manifestUrl}
                 workTypeId={work.workType?.id}
               />
@@ -67,10 +67,6 @@ const Work = ({ work }) => {
       </section>
     </div>
   );
-};
-
-Work.propTypes = {
-  work: PropTypes.object,
 };
 
 export default Work;

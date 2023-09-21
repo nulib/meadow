@@ -91,11 +91,11 @@ describe("prepControlledTermInput()", () => {
     );
     expect(response).toHaveLength(2);
     expect(response[0].term).toEqual("http://vocab.getty.edu/ulan/500276588");
-    expect(response[0].role.id).toEqual("asg");
-    expect(response[0].role.scheme).toEqual("MARC_RELATOR");
+    expect(response[0].role?.id).toEqual("asg");
+    expect(response[0].role?.scheme).toEqual("MARC_RELATOR");
     expect(response[1].term).toEqual("http://vocab.getty.edu/ulan/500029944");
-    expect(response[1].role.id).toEqual("arc");
-    expect(response[1].role.scheme).toEqual("MARC_RELATOR");
+    expect(response[1].role?.id).toEqual("arc");
+    expect(response[1].role?.scheme).toEqual("MARC_RELATOR");
   });
 
   it("filters out any fieldset items which contain an undefined term id", () => {

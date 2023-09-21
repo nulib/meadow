@@ -1,8 +1,10 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import HomeStatsRow from "@js/components/Home/StatsRow";
 
-export const mockStats = [
+import HomeStatsRow from "@js/components/Home/StatsRow";
+import React from "react";
+import type { Stat } from "@js/components/Home/StatsRow";
+
+export const mockStats: Stat[] = [
   {
     heading: "Collections",
     title: 12933,

@@ -19,7 +19,15 @@ import WorkListItem from "@js/components/Work/ListItem";
 import { allWorksQuery } from "@js/services/elasticsearch";
 import { prepWorkItemForDisplay } from "@js/services/helpers";
 
-const SearchResults = ({
+interface SearchResultsProps {
+  handleOnDataChange: (obj: any) => void;
+  handleQueryChange: (obj: any) => void;
+  handleSelectItem: (obj: any) => void;
+  isListView: boolean;
+  selectedItems: string[];
+}
+
+const SearchResults: React.FC<SearchResultsProps> = ({
   handleOnDataChange,
   handleQueryChange,
   handleSelectItem,
@@ -114,14 +122,6 @@ const SearchResults = ({
       </div>
     </React.Fragment>
   );
-};
-
-SearchResults.propTypes = {
-  handleOnDataChange: PropTypes.func,
-  handleQueryChange: PropTypes.func,
-  handleSelectItem: PropTypes.func,
-  isListView: PropTypes.bool,
-  selectedItems: PropTypes.array,
 };
 
 export default SearchResults;

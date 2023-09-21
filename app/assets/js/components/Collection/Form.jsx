@@ -15,7 +15,7 @@ import UIFormInput from "../UI/Form/Input.jsx";
 import UIFormSelect from "../UI/Form/Select.jsx";
 import UIFormTextarea from "../UI/Form/Textarea.jsx";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { convertFieldArrayValToHookFormVal } from "@js/services/metadata.js";
+import { convertFieldArrayValToHookFormVal } from "@js/services/metadata";
 import { toastWrapper } from "../../services/helpers";
 import { useCodeLists } from "@js/context/code-list-context";
 import { useHistory } from "react-router-dom";
