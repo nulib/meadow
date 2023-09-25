@@ -1,5 +1,4 @@
-nodejs 16.14.0 # For webpack and the front end
-nodejs 14.19.0 # For building and running lambdas
+nodejs 18.18.0
 erlang 25.2
 elixir 1.14.2-otp-25
 terraform 1.1.5

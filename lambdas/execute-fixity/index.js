@@ -1,4 +1,4 @@
-var aws = require("aws-sdk");
+var aws = require("aws-shim");
 const stateMachineArn = process.env.stateMachineArn;
 
 const fullyDecode = (str) => decodeURIComponent(str.replace(/\+/g, " "));

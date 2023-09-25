@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const s3 = new AWS.S3();
 const ffmpeg = require("fluent-ffmpeg");
 const concat = require("concat-stream");

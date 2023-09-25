@@ -141,19 +141,11 @@ defmodule Meadow.Config do
     with config <- Application.get_env(:ex_aws, :s3),
          working_dir <- Application.get_env(:meadow, :pyramid_tiff_working_dir) do
       []
-      |> build_environment(lambda_nodejs_version(), "ASDF_NODEJS_VERSION")
       |> build_environment(config[:access_key_id], "AWS_ACCESS_KEY_ID")
       |> build_environment(config[:secret_access_key], "AWS_SECRET_ACCESS_KEY")
       |> build_environment(config[:region], "AWS_REGION")
       |> build_environment(extract_endpoint(config), "AWS_S3_ENDPOINT")
       |> build_environment(working_dir, "TMPDIR")
-    end
-  end
-
-  defp lambda_nodejs_version do
-    with tool_versions <- priv_path("nodejs/.tool-versions") |> File.read!(),
-         [_ | [nodejs_version | _]] <- Regex.run(~r/^nodejs\s+(\d+\.\d+\.\d+)/, tool_versions) do
-      nodejs_version
     end
   end
 

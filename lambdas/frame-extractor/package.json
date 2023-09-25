@@ -4,10 +4,8 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "private": true,
-  "devDependencies": {
-    "aws-sdk": "^2.1354.0"
-  },
   "dependencies": {
+    "aws-shim": "../aws-shim",
     "concat-stream": "^2.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",

@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const URI = require("uri-js");
 const s3 = new AWS.S3();
 const fs = require('fs');

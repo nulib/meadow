@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const crypto = require("crypto");
 
 AWS.config.update({httpOptions: {timeout: 600000}});
