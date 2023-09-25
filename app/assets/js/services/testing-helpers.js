@@ -19,7 +19,7 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
  */
 export function renderWithReactHookForm(
   ui,
-  { defaultValues = {}, toPassBack = [] } = {}
+  { defaultValues = {}, toPassBack = [] } = {},
 ) {
   let reactHookFormMethods = {};
 
@@ -50,7 +50,7 @@ export function renderWithRouter(
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
     state = {},
-  } = {}
+  } = {},
 ) {
   if (Object.keys(state).length > 0) {
     history.push(route, state);
@@ -85,7 +85,7 @@ export function renderWithRouterApollo(
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
     state = {},
-  } = {}
+  } = {},
 ) {
   // This allows us to pass in history state variables in tests,
   // like we do in the real application

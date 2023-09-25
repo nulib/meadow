@@ -18,18 +18,18 @@ const elasticsearchIndex = (suffix) =>
   JSON.stringify(
     [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2", suffix]
       .filter((e) => e)
-      .join("-")
+      .join("-"),
   );
 
 const define = {
   __HONEYBADGER_API_KEY__: JSON.stringify(
-    process.env.HONEYBADGER_API_KEY_FRONTEND || ""
+    process.env.HONEYBADGER_API_KEY_FRONTEND || "",
   ),
   __HONEYBADGER_ENVIRONMENT__: JSON.stringify(
-    process.env.HONEYBADGER_ENVIRONMENT || ""
+    process.env.HONEYBADGER_ENVIRONMENT || "",
   ),
   __HONEYBADGER_REVISION__: JSON.stringify(
-    process.env.HONEYBADGER_REVISION || ""
+    process.env.HONEYBADGER_REVISION || "",
   ),
   __MEADOW_VERSION__: JSON.stringify(process.env.MEADOW_VERSION || ""),
   __ELASTICSEARCH_WORK_INDEX__: elasticsearchIndex("work"),

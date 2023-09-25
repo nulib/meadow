@@ -27,7 +27,7 @@ it("should validate URL pattern", () => {
 
 it("should return representative image URL", () => {
   expect(getImageUrl({ url: "www.northwestern.edu" })).toBe(
-    "www.northwestern.edu"
+    "www.northwestern.edu",
   );
   expect(getImageUrl({})).toBe("");
   expect(getImageUrl("www.northwestern.edu")).toBe("www.northwestern.edu");
