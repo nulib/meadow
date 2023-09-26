@@ -179,12 +179,12 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   end
 
   defp parse_complete_result({:error, error}) do
-    Logger.warn("Error in multipart copy: #{inspect(error)}")
+    Logger.warning("Error in multipart copy: #{inspect(error)}")
     {:error, error}
   end
 
   defp parse_complete_result(response) do
-    Logger.warn("Unknown response in multipart copy: #{inspect(response)}")
+    Logger.warning("Unknown response in multipart copy: #{inspect(response)}")
     {:unknown, response}
   end
 

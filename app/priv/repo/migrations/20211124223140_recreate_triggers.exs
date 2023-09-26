@@ -37,6 +37,6 @@ defmodule Meadow.Repo.Migrations.RecreateTriggers do
   end
 
   def down do
-    Logger.warn("Irreversible Migration")
+    Logger.warning("Irreversible Migration")
   end
 end

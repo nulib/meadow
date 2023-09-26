@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Assets.IO do
     handle_output(port)
   end
 
-  defp log("warning " <> data), do: Logger.warn(data)
+  defp log("warning " <> data), do: Logger.warning(data)
   defp log(data), do: Logger.info(data)
 end
 

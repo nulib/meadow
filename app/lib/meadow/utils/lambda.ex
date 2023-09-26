@@ -136,12 +136,12 @@ defmodule Meadow.Utils.Lambda do
         Logger.log(String.to_atom(level), message)
 
       _ ->
-        Logger.warn("Unknown message received: #{message}")
+        Logger.warning("Unknown message received: #{message}")
     end
   end
 
   defp handle_buffer("[return] undefined") do
-    Logger.warn("Received undefined response from lambda")
+    Logger.warning("Received undefined response from lambda")
     {:ok, nil}
   end
 

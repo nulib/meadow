@@ -29,11 +29,11 @@ defmodule Meadow.Seed.Migration do
   def with_database_version(version, func) do
     if version < latest_version() do
       target_version = target_version(version)
-      Logger.warn("Migrating Repo down to #{version}")
+      Logger.warning("Migrating Repo down to #{version}")
       Ecto.Migrator.run(Repo, :down, to: target_version)
       func.()
       :timer.sleep(2000)
-      Logger.warn("Migrating Repo up to current")
+      Logger.warning("Migrating Repo up to current")
       Ecto.Migrator.run(Repo, :up, all: true)
     else
       func.()

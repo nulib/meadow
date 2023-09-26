@@ -1,5 +1,5 @@
 # Install elixir & npm dependencies
-FROM hexpm/elixir:1.14.2-erlang-25.2-alpine-3.17.0 AS build
+FROM hexpm/elixir:1.15.4-erlang-26.0.2-alpine-3.18.2 AS build
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps

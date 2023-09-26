@@ -72,7 +72,7 @@ defmodule Meadow.Search.HTTP do
 
           response ->
             "Unexpected response from Elastix.HTTP.request/5: #{inspect(response)}, method: #{method}, url: #{url}, body: #{body}"
-            |> Logger.warn()
+            |> Logger.warning()
 
             {:error, response}
         end

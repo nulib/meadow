@@ -64,7 +64,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   end
 
   def handle_result({:error, {:http_error, status, message}}, _file_set) do
-    Logger.warn("HTTP error #{status}: #{inspect(message)}. Retrying.")
+    Logger.warning("HTTP error #{status}: #{inspect(message)}. Retrying.")
     :retry
   end
 

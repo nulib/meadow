@@ -15,6 +15,7 @@ ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true])
 Faker.start()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
 Authoritex.Mock.init()
+System.delete_env("MEADOW_PROCESSES")
 
 ExUnit.after_suite(fn _ ->
   Meadow.S3Case.show_cleanup_warnings()
