@@ -6,7 +6,7 @@
   "author": "mbklein",
   "license": "Apache2",
   "dependencies": {
-    "aws-shim": "../aws-shim",
+    "aws-shim": "file:../aws-shim",
     "concat-stream": "^2.0.0",
     "sharp": "^0.30.6",
     "uri-js": "^4.4.1"

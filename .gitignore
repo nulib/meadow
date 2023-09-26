@@ -51,6 +51,7 @@ npm-debug.log
 /infrastructure/**/.terraform/
 /infrastructure/**/_build/
 /infrastructure/**/build/
+/infrastructure/**/builds/
 /infrastructure/**/package/
 /infrastructure/**/*.plan
 

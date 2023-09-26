@@ -6,6 +6,6 @@
   "author": "mbklein",
   "license": "Apache2",
   "dependencies": {
-    "aws-shim": "../aws-shim"
+    "aws-shim": "file:../aws-shim"
   }
 }
