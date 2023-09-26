@@ -55,7 +55,7 @@ jobs:
         working-directory: app
       - name: Install JS dependencies
         run: |
-          npm ci --no-fund
+          npm ci --force --no-fund
           npm list
         working-directory: app/assets
       - name: Install Lambda dependencies

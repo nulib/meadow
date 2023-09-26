@@ -56,7 +56,7 @@ defmodule Mix.Tasks.Assets.Install do
       end)
       |> Enum.map(&Path.dirname/1)
       |> Enum.each(fn path ->
-        Mix.Tasks.Assets.IO.run("npm install --no-fund", path)
+        Mix.Tasks.Assets.IO.run("npm install --force --no-fund", path)
       end)
     end)
   end
