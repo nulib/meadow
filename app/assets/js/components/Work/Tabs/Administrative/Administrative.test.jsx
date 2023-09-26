@@ -1,19 +1,20 @@
-import React from "react";
-import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { mockWork } from "../../work.gql.mock";
-import WorkTabsAdministrative from "./Administrative";
-import { waitFor, screen } from "@testing-library/react";
 import {
   MOCK_COLLECTION_ID,
   getCollectionMock,
   getCollectionsMock,
 } from "@js/components/Collection/collection.gql.mock";
-import { mockUser } from "@js/components/Auth/auth.gql.mock";
-import userEvent from "@testing-library/user-event";
-import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
+import { screen, waitFor } from "@testing-library/react";
+
 import { CodeListProvider } from "@js/context/code-list-context";
-import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import React from "react";
+import WorkTabsAdministrative from "./Administrative";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { formatDate } from "@js/services/helpers";
+import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import { mockWork } from "../../work.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -69,6 +70,8 @@ describe("Work Administrative tab component", () => {
     const description = /New Project Description/i;
     const cycleName = /Project Cycle Name/i;
     await waitFor(() => {
+      const descriptionEl = screen.getByText(description);
+      expect(descriptionEl.tagName).not.toEqual(/a/i);
       expect(screen.getByText(description));
       expect(screen.getByText(cycleName));
       expect(screen.getByText(/Started/i));

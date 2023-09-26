@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { useForm, useFormContext } from "react-hook-form";
+
 import { AUTHORITIES_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";
-import { useFormContext, useForm } from "react-hook-form";
+import { useLazyQuery } from "@apollo/client";
 
 const UIFormControlledTermArrayItem = ({
   authorities,
@@ -29,7 +30,7 @@ const UIFormControlledTermArrayItem = ({
   );
 
   const inputName = `${[name]}[${index}]`;
-  const hasErrors = errors[name] && errors[name][index].label;
+  const hasErrors = errors[name] && errors[name][index]?.label;
 
   const handleAuthorityChange = (e) => {
     setCurrentAuthority(e.target.value);

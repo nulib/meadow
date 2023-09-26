@@ -45,6 +45,7 @@ const WorkTabsAdministrative = ({ work }) => {
       refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
       awaitRefetchQueries: true,
     });
+
   const {
     projectCycle,
     projectDesc,
@@ -56,6 +57,7 @@ const WorkTabsAdministrative = ({ work }) => {
 
   const onSubmit = (data) => {
     const currentFormValues = methods.getValues();
+
     const workUpdateInput = {
       administrativeMetadata: {
         libraryUnit: currentFormValues.libraryUnit
@@ -245,23 +247,12 @@ const WorkTabsAdministrative = ({ work }) => {
                     data-testid="project-description"
                     isReactHookForm
                     placeholder="Project Description"
-                    name="projectDescription"
+                    name="projectDesc"
                     label="Project Description"
                     defaultValue={projectDesc}
                   />
                 ) : projectDesc.length > 0 ? (
-                  <a
-                    data-testid="project-description-link"
-                    className="break-word"
-                    onClick={() =>
-                      handlePassedInSearchTerm(
-                        "administrativeMetadata.projectDesc",
-                        projectDesc || null
-                      )
-                    }
-                  >
-                    {projectDesc}
-                  </a>
+                  projectDesc[0]
                 ) : null}
               </UIFormField>
 
