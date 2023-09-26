@@ -5,7 +5,5 @@
   "main": "index.js",
   "author": "mbklein",
   "license": "Apache2",
-  "dependencies": {
-    "require-hook": "^0.1.2"
-  }
+  "dependencies": {}
 }

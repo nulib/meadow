@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const concat = require("concat-stream");
 const sharp = require("sharp");
 const URI = require("uri-js");

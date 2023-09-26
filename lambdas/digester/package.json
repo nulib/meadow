@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "mbklein",
   "license": "Apache2",
-  "devDependencies": {
-    "aws-sdk": "^2.1354.0"
+  "dependencies": {
+    "aws-shim": "../aws-shim"
   }
 }

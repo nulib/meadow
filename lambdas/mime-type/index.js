@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const FileType = require("file-type");
 const path = require("path");
 

@@ -104,6 +104,7 @@ config :exldap, :settings, base: "OU=test,DC=library,DC=northwestern,DC=edu"
 
 # Print only warnings and errors during test
 config :logger, level: :info
+config :logger, :console, format: {Meadow.TestLogHandler, :format}
 
 config :ex_unit,
   assert_receive_timeout: 500
@@ -119,3 +120,5 @@ config :meadow, :sitemaps,
   store: Sitemapper.S3Store,
   sitemap_url: "http://localhost:3333/",
   store_config: [bucket: prefix("uploads"), path: ""]
+
+config :elixir, :ansi_enabled, true

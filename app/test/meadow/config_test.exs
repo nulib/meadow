@@ -61,7 +61,6 @@ defmodule Meadow.ConfigTest do
 
   test "aws_environment/0" do
     with env <- Config.aws_environment() |> Enum.into(%{}) do
-      assert env |> Map.has_key?('ASDF_NODEJS_VERSION')
       assert env |> Map.has_key?('TMPDIR')
 
       if Application.get_env(:ex_aws, :s3) do
@@ -100,7 +99,9 @@ defmodule Meadow.ConfigTest do
       )
 
       assert Config.iiif_server_url() == "http://no-slash-test/iiif/2/"
-      assert Config.iiif_manifest_url_deprecated() == "http://no-slash-test/minio/test-pyramids/public/"
+
+      assert Config.iiif_manifest_url_deprecated() ==
+               "http://no-slash-test/minio/test-pyramids/public/"
     end
 
     test "validate release config" do

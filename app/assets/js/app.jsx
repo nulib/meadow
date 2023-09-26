@@ -2,8 +2,7 @@ import "../styles/app.scss";
 
 // GraphQL-specific
 import { ApolloProvider } from "@apollo/client";
-import ErrorBoundary from "@honeybadger-io/react";
-import Honeybadger from "@honeybadger-io/js";
+import { Honeybadger, HoneybadgerErrorBoundary } from "@honeybadger-io/react";
 import React from "react";
 import Root from "./screens/Root";
 import client from "./client";
@@ -26,9 +25,9 @@ const honeybadger = Honeybadger.configure(config).setContext({
 const container = document.getElementById("react-app");
 const root = createRoot(container);
 root.render(
-  <ErrorBoundary honeybadger={honeybadger}>
+  <HoneybadgerErrorBoundary honeybadger={honeybadger}>
     <ApolloProvider client={client}>
       <Root />
     </ApolloProvider>
-  </ErrorBoundary>
+  </HoneybadgerErrorBoundary>
 );

@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const AWS = require("aws-shim");
 const URI = require("uri-js");
 const mediainfoPath = process.env.MEDIAINFO_PATH || "mediainfo";
 const util = require("util");
