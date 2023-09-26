@@ -3,4 +3,4 @@ erlang 25.2
 elixir 1.14.2-otp-25
 terraform 1.1.5
 tflint 0.34.1
-#npm 8.5.0
+#npm 10.1.0

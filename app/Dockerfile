@@ -12,8 +12,8 @@ ENV MIX_ENV=prod
 RUN  apk add --update --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ curl git libstdc++ \
   && mix local.hex --force \
   && mix local.rebar --force
-ENV NODE_VERSION 16.19.1
-ENV NPM_VERSION 8.5.0
+ENV NODE_VERSION 18.18.0
+ENV NPM_VERSION 10.1.0
 ENV ARCH x64
 RUN curl -fsSLO --compressed "https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz"; \
   tar -xJf "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
@@ -39,7 +39,7 @@ WORKDIR /app
 RUN mix release --overwrite
 
 # Create runtime image
-FROM node:14-alpine
+FROM node:18-alpine
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apk update && apk --no-cache --update add curl jq libcrypto3 ncurses-libs openssl-dev

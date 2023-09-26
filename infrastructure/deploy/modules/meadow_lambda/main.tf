@@ -26,7 +26,7 @@ resource "aws_lambda_function" "this_lambda_function" {
   description   = var.description
   handler       = var.handler
   memory_size   = var.memory_size
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs18.x"
   timeout       = var.timeout
   role          = var.role
   tags          = var.tags
