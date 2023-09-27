@@ -11,19 +11,25 @@ defmodule Meadow.Accounts.Ldap do
   @connect_timeout 1500
   @retries 3
   @ldap_matching_rule_in_chain "1.2.840.113556.1.4.1941"
+  # Don't validate LDAP SSL connection because the cert doesn't validate under certifi's CA chain
+  # @sslopts [cacertfile: :certifi.cacertfile(), verify: :verify_peer]
+  @sslopts [verify: :verify_none]
 
   def connection(force_new \\ false) do
     if force_new, do: Meadow.Cache |> Cachex.del(:ldap_address)
 
-    settings =
-      with config <- Application.get_env(:exldap, :settings) do
-        Keyword.put(config, :server, connection_address(config))
-      end
-
-    case {Exldap.connect(settings, @connect_timeout), force_new} do
+    case {connection_settings() |> Exldap.connect(@connect_timeout), force_new} do
       {{:ok, result}, _} -> result
       {_, false} -> connection(true)
       {other, true} -> other
+    end
+  end
+
+  def connection_settings do
+    with config <- Application.get_env(:exldap, :settings) |> address_to_ip() do
+      if Keyword.get(config, :ssl, false),
+        do: Keyword.put(config, :sslopts, @sslopts),
+        else: config
     end
   end
 
@@ -172,7 +178,7 @@ defmodule Meadow.Accounts.Ldap do
 
   @doc "Add a member to a group"
   def add_member(group_dn, member_dn) do
-    with operation <- :eldap.mod_add('member', [to_charlist(member_dn)]) do
+    with operation <- :eldap.mod_add(~c"member", [to_charlist(member_dn)]) do
       case modify_entry(group_dn, operation) do
         {:ok, _} -> :ok
         {:exists, _} -> :exists
@@ -183,7 +189,7 @@ defmodule Meadow.Accounts.Ldap do
 
   @doc "Remove a member from a group"
   def remove_member(group_dn, member_dn) do
-    with operation <- :eldap.mod_delete('member', [to_charlist(member_dn)]) do
+    with operation <- :eldap.mod_delete(~c"member", [to_charlist(member_dn)]) do
       case modify_entry(group_dn, operation) do
         {:ok, _} -> :ok
         other -> other
@@ -206,6 +212,8 @@ defmodule Meadow.Accounts.Ldap do
       ["OU=Meadow", ",", ldap_base] |> IO.iodata_to_binary()
     end
   end
+
+  defp address_to_ip(config), do: Keyword.put(config, :server, connection_address(config))
 
   defp connection_address(config) do
     find_connection = fn tuple ->
