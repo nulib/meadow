@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "aws-shim": "file:../aws-shim",
+    "aws-s3-shim": "file:../aws-s3-shim",
     "concat-stream": "^2.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",

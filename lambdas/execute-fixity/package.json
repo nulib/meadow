@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "nulib",
   "license": "Apache-2.0",
-  "dependencies": {
-    "aws-shim": "file:../aws-shim"
+  "devDependencies": {
+    "@aws-sdk/client-sfn": "^3.421.0"
   }
 }

@@ -1,4 +1,5 @@
-const AWS = require("aws-shim");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { S3ClientShim, GetObjectCommand, HeadBucketCommand } = require("aws-s3-shim");
 const URI = require("uri-js");
 const mediainfoPath = process.env.MEDIAINFO_PATH || "mediainfo";
 const util = require("util");
@@ -25,22 +26,18 @@ async function extractMediainfoMetadata(url) {
     return {
       tool: "mediainfo",
       tool_version: version,
-      value: result,
+      value: result
     };
   }
 }
 
 const handler = async (event, _context) => {
   const uri = URI.parse(event.source);
-  const s3Location = {
-    Bucket: uri.host,
-    Key: uri.path.replace(/^\/+/, ""),
-  };
 
-  const s3 = new AWS.S3();
   // Interact with S3 to resolve credentials before trying to generate signed URL
-  await s3.headBucket({Bucket: uri.host}).promise();
-  const url = s3.getSignedUrl("getObject", s3Location);
+  const s3Client = new S3ClientShim();
+  await s3Client.send(new HeadBucketCommand({ Bucket: uri.host }));
+  const url = await getSignedUrl( s3Client, new GetObjectCommand({ Bucket: uri.host, Key: uri.path.replace(/^\/+/, "") }) );
 
   return await extractMediainfoMetadata(url);
 };
