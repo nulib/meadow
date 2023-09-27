@@ -106,7 +106,7 @@ defmodule Meadow.MixProject do
       {:telemetry_poller, "~> 0.5"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 1.0"},
-      {:wait_for_it, "~> 1.3.0"},
+      {:wait_for_it, "~> 1.4.3"},
       {:wormwood, "~> 0.1.0"}
     ]
   end
