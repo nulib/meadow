@@ -6,7 +6,7 @@
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-shim": "file:../aws-shim",
+    "aws-s3-shim": "file:../aws-s3-shim",
     "tmp-promise": "^3.0.3",
     "uri-js": "^4.4.1"
   }

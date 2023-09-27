@@ -6,7 +6,8 @@
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-shim": "file:../aws-shim",
+    "@aws-sdk/s3-request-presigner": "^3.421.0",
+    "aws-s3-shim": "file:../aws-s3-shim",
     "mediainfo.js": "^0.1.5",
     "uri-js": "^4.4.1"
   }

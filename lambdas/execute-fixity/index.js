@@ -1,4 +1,4 @@
-var aws = require("aws-shim");
+const { SFNClient, StartExecutionCommand } = require("@aws-sdk/client-sfn");
 const stateMachineArn = process.env.stateMachineArn;
 
 const fullyDecode = (str) => decodeURIComponent(str.replace(/\+/g, " "));
@@ -11,26 +11,27 @@ exports.handler = (event, context, callback) => {
       Key: fullyDecode(event.Records[0].s3.object.key),
     }),
   };
-  var stepfunctions = new aws.StepFunctions();
-  stepfunctions.startExecution(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "There was an error",
-        }),
-      };
-      callback(null, response);
-    } else {
+  var stepfunctions = new SFNClient();
+  const cmd = new StartExecutionCommand(params);
+  return new Promise((resolve, _reject) => {
+    stepfunctions.send(cmd)
+    .then((data) => {
       console.log(data);
-      const response = {
+      resolve({
         statusCode: 200,
         body: JSON.stringify({
           message: "Step function worked",
         }),
-      };
-      callback(null, response);
-    }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      resolve({
+        statusCode: 500,
+        body: JSON.stringify({
+          message: "There was an error",
+        }),
+      });
+    });
   });
 };

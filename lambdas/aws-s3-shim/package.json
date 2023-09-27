@@ -6,6 +6,6 @@
   "author": "mbklein",
   "license": "Apache2",
   "devDependencies": {
-    "aws-sdk": "^2.1354.0"
+    "@aws-sdk/client-s3": "^3.421.0"
   }
 }
