@@ -26,7 +26,7 @@ const UIFormControlledTermArrayItem = ({
       onCompleted: (data) => {
         setIsLoading(false);
       },
-    }
+    },
   );
 
   const inputName = `${[name]}[${index}]`;
@@ -126,7 +126,6 @@ function DropDownComboBox({
     getLabelProps,
     getMenuProps,
     getInputProps,
-    getComboboxProps,
     getItemProps,
     highlightedIndex,
     isOpen,
@@ -151,7 +150,7 @@ function DropDownComboBox({
   return (
     <>
       <label {...getLabelProps({ className: "label" })}>Choose an item:</label>
-      <div {...getComboboxProps()}>
+      <div>
         <input
           {...getInputProps({
             className: `input ${hasErrors ? "is-danger" : ""}`,
