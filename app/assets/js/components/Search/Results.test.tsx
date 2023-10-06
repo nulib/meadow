@@ -1,17 +1,28 @@
 import React from "react";
-import { renderWithRouterApollo } from "../../services/testing-helpers";
 import SearchResults from "./Results";
-import { iiifServerUrlMock } from "../IIIF/iiif.gql.mock";
+import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { waitFor } from "@testing-library/react";
 
 // Mock GraphQL queries
 const mocks = [iiifServerUrlMock];
 
+const defaultProps = {
+  handleOnDataChange: jest.fn(),
+  handleQueryChange: jest.fn(),
+  handleSelectItem: jest.fn(),
+  isListView: false,
+  selectedItems: [],
+};
+
 describe("SearchResults component", () => {
   it("renders", async () => {
-    const { getByTestId } = renderWithRouterApollo(<SearchResults />, {
-      mocks: [iiifServerUrlMock],
-    });
+    const { getByTestId } = renderWithRouterApollo(
+      <SearchResults {...defaultProps} />,
+      {
+        mocks,
+      }
+    );
 
     await waitFor(() => {
       expect(getByTestId("search-results-component")).toBeInTheDocument();

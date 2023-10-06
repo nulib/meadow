@@ -1,21 +1,38 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "ESNext",
+    "jsx": "react",
+    "lib": ["esnext", "dom"],
+    "module": "ES2015",
     "moduleResolution": "node",
+    "noEmit": true,
     "noImplicitAny": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "outDir": "./dist/",
     "paths": {
       "@/*": ["*"],
-      "@/js/*": ["js/*"]
+      "@js/*": ["js/*"]
     },
+    "skipLibCheck": true,
     "sourceMap": true,
-    "target": "es5",
-    "typeRoots": ["node_modules/@types", "typings"]
+    "strict": true,
+    "target": "ES6",
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
-  "include": ["js/**/*.ts"]
+  "include": [
+    "js/**/*.ts",
+    "js/**/*.js",
+    "js/**/*.jsx",
+    "js/**/*.tsx",
+    "types/**/*.d.ts",
+    "./jest.setup.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "node_modules/@honeybadger-io/react/honeybadger-react.d.ts"
+  ]
 }

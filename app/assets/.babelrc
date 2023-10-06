@@ -8,13 +8,15 @@
         }
       }
     ],
-    "@babel/preset-react"
-  ],
-  "plugins": [
-    "@babel/plugin-proposal-class-properties",
-    "@babel/plugin-proposal-object-rest-spread",
-    "@babel/plugin-proposal-optional-chaining",
-    "@babel/plugin-transform-async-to-generator",
-    "syntax-dynamic-import"
+    "@babel/preset-react",
+    "@babel/preset-typescript"
   ]
+  // TODO: Disabling as we may not need them anymore
+  // "plugins": [
+  //   "@babel/plugin-proposal-class-properties",
+  //   "@babel/plugin-proposal-object-rest-spread",
+  //   "@babel/plugin-proposal-optional-chaining",
+  //   "@babel/plugin-transform-async-to-generator",
+  //   "syntax-dynamic-import"
+  // ]
 }
