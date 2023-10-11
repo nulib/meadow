@@ -913,6 +913,8 @@ export type RootQueryType = {
   ingestSheetWorkCount?: Maybe<IngestSheetCounts>;
   /** Get works created for an Ingest Sheet */
   ingestSheetWorks?: Maybe<Array<Maybe<Work>>>;
+  /** Get the livebook URL */
+  livebookUrl?: Maybe<Url>;
   /** Get the currently signed-in user */
   me?: Maybe<User>;
   /** Get an NUL AuthorityRecord by ID */
@@ -1169,6 +1171,8 @@ export type User = {
 
 /** Meadow user roles */
 export enum UserRole {
+  /** superuser */
+  SuperUser = "SUPERUSER",
   /** administrator */
   Administrator = "ADMINISTRATOR",
   /** editor */
