@@ -1,5 +1,8 @@
+ARG BUILD_IMAGE
+ARG RUNTIME_IMAGE
+
 # Install elixir & npm dependencies
-FROM hexpm/elixir:1.15.4-erlang-26.0.2-alpine-3.18.2 AS build
+FROM ${BUILD_IMAGE} AS build
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
@@ -9,17 +12,19 @@ ARG HONEYBADGER_ENVIRONMENT=
 ARG HONEYBADGER_REVISION=
 ARG MEADOW_VERSION=
 ENV MIX_ENV=prod
-RUN  apk add --update --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ curl git libstdc++ \
-  && mix local.hex --force \
+RUN  mix local.hex --force \
   && mix local.rebar --force
-ENV NODE_VERSION 18.18.0
+ENV NODE_VERSION 18
 ENV NPM_VERSION 10.1.0
 ENV ARCH x64
-RUN curl -fsSLO --compressed "https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz"; \
-  tar -xJf "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
-  && ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
-  npm install -g npm@$NPM_VERSION; \
-  rm -f "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz";
+RUN apt update -qq \
+ && apt install -y ca-certificates curl git gnupg \
+ && mkdir -p /etc/apt/keyrings \
+ && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+ && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+ && apt update -qq \
+ && apt install -y nodejs \
+ && npm install -g npm@$NPM_VERSION
 COPY . /app
 WORKDIR /app
 RUN mix deps.get --only prod \
@@ -39,12 +44,12 @@ WORKDIR /app
 RUN mix release --overwrite
 
 # Create runtime image
-FROM node:18-alpine
+FROM ${RUNTIME_IMAGE}
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
-RUN apk update && apk --no-cache --update add curl jq libcrypto3 ncurses-libs openssl-dev
+RUN apt update -qq && apt install -y curl jq libssl-dev libncurses5-dev
 ENV LANG=en_US.UTF-8
-EXPOSE 4000 4369 24601
+EXPOSE 4000 4369
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
 ENTRYPOINT ["./bin/meadow"]

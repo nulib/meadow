@@ -22,12 +22,10 @@ locals {
   container_vars = merge(
     var.container_config,
     {
-      cpu_reservation       = var.cpu * 0.9765625,
       db_pool_size          = var.db_pool_size,
       db_queue_interval     = var.db_queue_interval,
       db_queue_target       = var.db_queue_target,
       docker_repository     = data.aws_ecr_repository.meadow.repository_url,
-      memory_reservation    = var.memory * 0.9765625,
       name                  = var.name,
       processes             = var.meadow_processes
     }
