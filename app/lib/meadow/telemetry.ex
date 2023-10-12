@@ -61,4 +61,19 @@ defmodule Meadow.Telemetry do
       Map.put(metadata, :action, action)
     end
   end
+
+  require Logger
+
+  def handle_reorder_file_sets_stop_event(
+        [:meadow, :data, :works, :reorder_file_sets, :stop],
+        %{work_id: work_id, duration: duration, file_set_count: file_set_count},
+        _metadata,
+        _config
+      ) do
+    duration_in_seconds = :erlang.convert_time_unit(3_024_815_045, :native, :second)
+
+    Logger.info(
+      "reorder_file_sets operation for #{work_id} with #{file_set_count} file sets took #{duration_in_seconds} seconds (#{duration} monotonic time units)"
+    )
+  end
 end
