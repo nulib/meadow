@@ -1,11 +1,15 @@
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { FormProvider, useForm } from "react-hook-form";
+
+import { MockedProvider } from "@apollo/client/testing";
 import React from "react";
 import { Router } from "react-router-dom";
-import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
-import { MockedProvider } from "@apollo/client/testing";
+import { render } from "@testing-library/react";
 import { resolvers } from "../client-local";
-import { useForm, FormProvider } from "react-hook-form";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+
+type UI = React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+type ReactChildren = React.ReactNode | React.ReactNodeArray;
 
 /**
  * Testing Library utility function to wrap tested component in React Hook Form
@@ -18,12 +22,12 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
  * so we can manually setErrors on React Hook Form components and test error handling
  */
 export function renderWithReactHookForm(
-  ui,
-  { defaultValues = {}, toPassBack = [] } = {}
+  ui: UI,
+  { defaultValues = {}, toPassBack = [] } = {},
 ) {
   let reactHookFormMethods = {};
 
-  const Wrapper = ({ children }) => {
+  const Wrapper = ({ children }: { children: ReactChildren }) => {
     const methods = useForm({ defaultValues });
     for (let reactHookFormItem of toPassBack) {
       reactHookFormMethods[reactHookFormItem] = methods[reactHookFormItem];
@@ -37,6 +41,14 @@ export function renderWithReactHookForm(
   };
 }
 
+type RenderWithRouterObject = {
+  route?: string;
+  history?: any;
+  state?: {
+    [key: string]: any;
+  };
+};
+
 /**
  * Testing Library utility function to wrap tested component in React Router history
  * @param {ReactElement} ui A React element
@@ -45,18 +57,18 @@ export function renderWithReactHookForm(
  * @param objectParameters.history Override the history object if desired
  */
 export function renderWithRouter(
-  ui,
+  ui: UI,
   {
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
     state = {},
-  } = {}
+  }: RenderWithRouterObject = {},
 ) {
   if (Object.keys(state).length > 0) {
     history.push(route, state);
   }
 
-  const Wrapper = ({ children }) => (
+  const Wrapper = ({ children }: { children: ReactChildren }) => (
     <Router history={history}>{children}</Router>
   );
 
@@ -69,6 +81,15 @@ export function renderWithRouter(
   };
 }
 
+type RenderWithRouterApolloObject = {
+  mocks?: any[];
+  route?: string;
+  history?: any;
+  state?: {
+    [key: string]: any;
+  };
+};
+
 /**
  * Testing Library utility function to wrap tested component in Apollo Client's
  * MockProvider along with React Router
@@ -79,13 +100,13 @@ export function renderWithRouter(
  * @param objectParameters.history Override the history object if desired
  */
 export function renderWithRouterApollo(
-  ui,
+  ui: UI,
   {
     mocks = [],
     route = "/",
     history = createMemoryHistory({ initialEntries: [route] }),
     state = {},
-  } = {}
+  }: RenderWithRouterApolloObject = {},
 ) {
   // This allows us to pass in history state variables in tests,
   // like we do in the real application
@@ -93,7 +114,7 @@ export function renderWithRouterApollo(
     history.push(route, state);
   }
 
-  const Wrapper = ({ children }) => (
+  const Wrapper = ({ children }: { children: ReactChildren }) => (
     <MockedProvider
       mocks={mocks}
       addTypename={false}
@@ -112,8 +133,8 @@ export function renderWithRouterApollo(
   };
 }
 
-export function renderWithApollo(ui, { mocks = [] }) {
-  const Wrapper = ({ children }) => (
+export function renderWithApollo(ui: UI, { mocks = [] }) {
+  const Wrapper = ({ children }: { children: ReactChildren }) => (
     <MockedProvider
       mocks={mocks}
       addTypename={false}
@@ -138,9 +159,14 @@ export function renderWithApollo(ui, { mocks = [] }) {
  * @param {*} restProps any other remaining props
  * @returns {React Component}
  */
-export function withReactBeautifulDND(WrappedComponent, restProps) {
+export function withReactBeautifulDND(
+  WrappedComponent: React.FC,
+  restProps: {
+    [key: string]: any;
+  } = {},
+) {
   return (
-    <DragDropContext>
+    <DragDropContext onDragEnd={() => jest.fn()}>
       <Droppable droppableId="list">
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -158,7 +184,12 @@ export function withReactBeautifulDND(WrappedComponent, restProps) {
  * @param {*} restProps any other remaining props
  * @returns {React Component}
  */
-export function withReactHookForm(WrappedComponent, restProps) {
+export function withReactHookForm(
+  WrappedComponent: React.FC,
+  restProps: {
+    [key: string]: any;
+  },
+) {
   const HOC = () => {
     const methods = useForm();
 

@@ -3,8 +3,6 @@ defmodule Meadow.Data.WorksTest do
   use Meadow.DataCase
   use Meadow.S3Case
 
-  import Assertions
-
   alias Meadow.Config
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}

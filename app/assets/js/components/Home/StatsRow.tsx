@@ -1,8 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { Button, Tag } from "@nulib/design-system";
 
-function LevelItem({ heading, title }) {
+export type Stat = {
+  heading: string;
+  title: string | number;
+};
+
+function LevelItem({ heading, title }: Stat) {
   return (
     <div className="has-text-centered py-3">
       <div>
@@ -13,7 +16,7 @@ function LevelItem({ heading, title }) {
   );
 }
 
-function HomeStatsRow({ stats }) {
+function HomeStatsRow({ stats }: { stats: Stat[] }) {
   return (
     <>
       <div
@@ -31,10 +34,5 @@ function HomeStatsRow({ stats }) {
     </>
   );
 }
-
-HomeStatsRow.propTypes = {
-  heading: PropTypes.string,
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
 
 export default HomeStatsRow;

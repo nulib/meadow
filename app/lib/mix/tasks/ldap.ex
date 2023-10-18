@@ -76,7 +76,7 @@ defmodule Mix.Tasks.Meadow.Ldap do
 
     def run(ldif_file) do
       unless File.exists?(ldif_file) do
-        Logger.warn("ldif file #{ldif_file} not found.")
+        Logger.warning("ldif file #{ldif_file} not found.")
       end
 
       with args <- ldap_args() ++ ["-f", ldif_file] do

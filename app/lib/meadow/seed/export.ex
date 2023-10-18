@@ -139,9 +139,14 @@ defmodule Meadow.Seed.Export do
              metadata_directive: :COPY
            )
            |> ExAws.request() do
-        {:error, {:http_error, status, _}} -> Logger.warn("Failed to copy: HTTP error #{status}")
-        {:error, message} -> Logger.warn("Failed to copy because: #{message}")
-        other -> other
+        {:error, {:http_error, status, _}} ->
+          Logger.warning("Failed to copy: HTTP error #{status}")
+
+        {:error, message} ->
+          Logger.warning("Failed to copy because: #{message}")
+
+        other ->
+          other
       end
     end
   end

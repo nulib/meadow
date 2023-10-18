@@ -36,6 +36,13 @@ defmodule Meadow.Application do
     children
     |> Enum.each(&DynamicSupervisor.start_child(Meadow.Supervisor, &1))
 
+    :telemetry.attach(
+      "reorder-file-sets-stop-handler",
+      [:meadow, :data, :works, :reorder_file_sets, :stop],
+      &Meadow.Telemetry.handle_reorder_file_sets_stop_event/4,
+      nil
+    )
+
     result
   end
 

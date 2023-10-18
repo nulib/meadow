@@ -1,22 +1,30 @@
-const AWS = require("aws-sdk");
+const { S3ClientShim, GetObjectCommand } = require("aws-s3-shim");
 const FileType = require("file-type");
 const path = require("path");
 
-AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
   return await extractMimeType(event);
 };
 
+const readBody = (Body) => {
+  return new Promise((resolve, _reject) => {
+    Body.on("readable", () => {
+      resolve(Body.read());
+    });
+  });
+};
+
 const extractMimeType = async (event) => {
   try {
-    const s3 = new AWS.S3();
-
-    const { Body: firstK } = await s3.getObject({
+    const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+    const cmd = new GetObjectCommand({
       Bucket: event.bucket,
       Key: event.key,
       Range: "bytes=0-1023"
-    }).promise();
+    });
+    const { Body } = await s3Client.send(cmd);
+    const firstK = await readBody(Body);
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
     const fileType = await FileType.fromBuffer(firstK);

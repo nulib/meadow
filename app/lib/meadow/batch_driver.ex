@@ -21,7 +21,7 @@ defmodule Meadow.BatchDriver do
   def drive_batch(state) do
     with {:ok, count} <- Batches.purge_stalled(@timeout) do
       if count > 0 do
-        Logger.warn("Purging #{count} stalled #{Inflex.inflect("batch", count)} from queue")
+        Logger.warning("Purging #{count} stalled #{Inflex.inflect("batch", count)} from queue")
       end
     end
 

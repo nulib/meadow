@@ -1,12 +1,9 @@
-const AWS = require("aws-sdk");
-const s3 = new AWS.S3();
+const { S3ClientShim, GetObjectCommand, PutObjectCommand } = require("aws-s3-shim");
 const ffmpeg = require("fluent-ffmpeg");
 const concat = require("concat-stream");
 const URI = require("uri-js");
 const M3U8FileParser = require("m3u8-file-parser");
 const path = require("path");
-
-AWS.config.update({ httpOptions: { timeout: 600000 } });
 
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
@@ -24,6 +21,14 @@ const handler = async (event, _context, _callback) => {
   }
 };
 
+const streamToString = (stream) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("error", reject);
+    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+  });
+
 const extractFrameFromPlaylist = async (source, destination, offset) => {
   return new Promise((resolve, reject) => {
     let uri = URI.parse(source);
@@ -34,46 +39,47 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
       .then(({ location, segmentOffset }) => {
         const segOffInSeconds = segmentOffset / 1000;
 
-        let readStream = s3
-          .getObject({ Bucket: uri.host, Key: location })
-          .createReadStream()
-          .on("error", (error) => console.error(error));
+        const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+        s3Client
+          .send(new GetObjectCommand({ Bucket: uri.host, Key: location }))
+          .then(({ Body: readStream }) => {
+            readStream.on("error", (error) => console.error(error));
 
-        let ffmpegProcess = new ffmpeg(readStream)
-          .seek(segOffInSeconds)
-          .outputOptions(["-vframes 1"])
-          .toFormat("image2")
-          .on("error", function (err, _stdout, _stderr) {
-            console.error("Cannot process video: " + err.message);
-          })
-          .on("end", function (_stdout, _stderr) {
-            console.log("Transcoding succeeded");
-          });
+            let ffmpegProcess = new ffmpeg(readStream)
+              .seek(segOffInSeconds)
+              .outputOptions(["-vframes 1"])
+              .toFormat("image2")
+              .on("error", function (err, _stdout, _stderr) {
+                console.error("Cannot process video: " + err.message);
+              })
+              .on("end", function (_stdout, _stderr) {
+                console.log("Transcoding succeeded");
+              });
 
-        const uploadStream = concat((data) => {
-          uploadToS3(data, destination)
-            .then((result) => resolve(result))
-            .catch((err) => reject(err));
-        });
+            const uploadStream = concat((data) => {
+              uploadToS3(data, destination)
+                .then((result) => resolve(result))
+                .catch((err) => reject(err));
+            });
 
-        ffmpegProcess.pipe(uploadStream, { end: true });
+            ffmpegProcess.pipe(uploadStream, { end: true });
+        })
+        .catch((err) => reject(err));
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch((err) => reject(err));
   });
 };
 
 const extractFrameFromVideo = async (source, destination, offset) => {
+  let uri = URI.parse(source);
+  let key = getS3Key(uri);
+
+  const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+  const { Body: readStream } = await s3Client.send(new GetObjectCommand({ Bucket: uri.host, Key: key }));
+  readStream.on("error", (error) => console.error(error));
+
   return new Promise((resolve, reject) => {
     try {
-      let uri = URI.parse(source);
-      let key = getS3Key(uri);
-      let readStream = s3
-        .getObject({ Bucket: uri.host, Key: key })
-        .createReadStream()
-        .on("error", (error) => console.error(error));
-
       let ffmpegProcess = new ffmpeg(readStream)
         .seek(offset / 1000.0)
         .outputOptions(["-vframes 1"])
@@ -101,13 +107,17 @@ const extractFrameFromVideo = async (source, destination, offset) => {
 const loadHighestQuality = async (bucket, key) => {
   const reader = new M3U8FileParser();
   try {
-    const s3Response = await s3.getObject({ Bucket: bucket, Key: key }).promise();
-    reader.read(s3Response.Body.toString('utf-8'));
+    const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+    const { Body } = await s3Client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    const m3u8 = await streamToString(Body);
+    reader.read(m3u8);
     const playlist = reader.getResult();
     if (playlist.segments[0].url.match(/\.m3u8$/)) {
-      const highSegment = playlist.segments.sort((a, b) => b.streamInf.bandwidth - a.streamInf.bandwidth)[0];
+      const highSegment = playlist.segments.sort(
+        (a, b) => b.streamInf.bandwidth - a.streamInf.bandwidth
+      )[0];
       const nextKey = path.join(path.dirname(key), highSegment.url);
-      return await loadHighestQuality(bucket, nextKey);  
+      return await loadHighestQuality(bucket, nextKey);
     }
     return { playlist, key };
   } finally {
@@ -133,31 +143,27 @@ const parsePlaylist = async (bucket, key, offset) => {
   if (segmentOffset === "") {
     throw "Offset out of range";
   } else {
-    return({ location: location, segmentOffset: segmentOffset });
+    return { location: location, segmentOffset: segmentOffset };
   }
 };
 
 const uploadToS3 = (data, destination) => {
   const metadata = {
-    "Content-type": "image",
+    "Content-Type": "image"
   };
   return new Promise((resolve, reject) => {
     const poster = URI.parse(destination);
-    s3.upload(
-      {
-        Bucket: poster.host,
-        Key: getS3Key(poster),
-        Body: data,
-        Metadata: metadata,
-      },
-      (err, _data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(destination);
-        }
-      }
-    );
+    const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+    const cmd = new PutObjectCommand({
+      Bucket: poster.host,
+      Key: getS3Key(poster),
+      Body: data,
+      Metadata: metadata
+    });
+    s3Client
+      .send(cmd)
+      .then((_data) => resolve(destination))
+      .catch((err) => reject(err));
   });
 };
 

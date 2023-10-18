@@ -88,6 +88,29 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all()
 ```
 
+### TypeScript/GraphQL Types
+
+Meadow now supports TypeScript and GraphQL types in the React app. To generate types, run the following commands:
+
+```bash
+# Generate a local JSON version of GraphQL schema
+mix graphql.schema.export -o priv/graphql/schema.json
+
+# Generate TypeScript types for the UI
+cd assets
+npm run generate-types
+```
+
+Types will be generated in `meadow/app/assets/js/__generated__`. You can import them into React components like so:
+
+```tsx
+import type { FileSet, Work as WorkType } from "@js/__generated__/graphql";
+
+const SomeComponent = ({ work }: { work: WorkType }) => {
+  // ...
+};
+```
+
 ### Terraform
 
 Meadow's Terraform code is stored in this repo. To run Terraform commands, you'll need to do the [configuration setup](https://github.com/nulib/repodev_planning_and_docs/blob/a36472895ae5c851f4f36b6f598dc5f666cea672/docs/2._Developer_Guides/Meadow/Terraform-Setup-on-Meadow.md)

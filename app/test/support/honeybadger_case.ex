@@ -43,7 +43,7 @@ defmodule Honeybadger.API do
   """
   import Plug.Conn
 
-  alias Plug.Adapters.Cowboy
+  alias Plug.Cowboy
   alias Plug.Conn
 
   def start(pid) do

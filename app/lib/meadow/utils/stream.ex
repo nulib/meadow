@@ -115,7 +115,7 @@ defmodule Meadow.Utils.Stream do
     after
       5_000 ->
         with msg <- "No message received from #{inspect(resp)} in 5 seconds." do
-          Logger.warn(msg)
+          Logger.warning(msg)
           raise Meadow.TimeoutError, message: msg
         end
     end

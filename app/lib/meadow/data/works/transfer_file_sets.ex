@@ -39,7 +39,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:delete_empty_work, fn _repo, _changes -> delete_empty_work(from_work_id) end)
       |> Multi.run(:refetch_to_work, fn _repo, _changes -> fetch_work(to_work_id) end)
 
-    case Repo.transaction(multi) do
+    case Repo.transaction(multi, timeout: :infinity) do
       {:ok, %{refetch_to_work: work}} ->
         {:ok, work}
 

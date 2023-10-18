@@ -27,7 +27,7 @@ defmodule Meadow.Ingest.WorkRedriver do
         |> Repo.update_all(set: [status: "pending", updated_at: DateTime.utc_now()])
 
       if count > 0,
-        do: Logger.warn("Redriving #{count} works processing longer than #{@timeout} seconds")
+        do: Logger.warning("Redriving #{count} works processing longer than #{@timeout} seconds")
     end
 
     {:noreply, state}

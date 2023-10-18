@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Assets.IO do
     handle_output(port)
   end
 
-  defp log("warning " <> data), do: Logger.warn(data)
+  defp log("warning " <> data), do: Logger.warning(data)
   defp log(data), do: Logger.info(data)
 end
 
@@ -56,7 +56,7 @@ defmodule Mix.Tasks.Assets.Install do
       end)
       |> Enum.map(&Path.dirname/1)
       |> Enum.each(fn path ->
-        Mix.Tasks.Assets.IO.run("npm install --no-fund", path)
+        Mix.Tasks.Assets.IO.run("npm install --force --no-fund", path)
       end)
     end)
   end

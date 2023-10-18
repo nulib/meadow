@@ -1,24 +1,5 @@
 #!/usr/bin/env node
 
-// Hook Javscript's `require()` to configure S3 bucket access transparently
-const path = require("path");
-
-if (! process.env.AWS_DEV_ENVIRONMENT) {
-  const requireHook = require("require-hook");
-  requireHook.attach(path.resolve());
-  requireHook.setEvent((result, e) => {
-    if (e && e.require && e.require.match(/aws-sdk(.js)?$/)) {
-      if (process.env["AWS_S3_ENDPOINT"]) {
-        result.config.s3 = {
-          endpoint: process.env["AWS_S3_ENDPOINT"],
-          s3ForcePathStyle: true,
-        };
-      }
-    }
-    return result;
-  });
-}
-
 // Take over the global `console` object to handle communication with
 // the parent process
 const writeln = (message) => process.stdout.write(message.trim() + "\n");

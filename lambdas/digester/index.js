@@ -1,7 +1,5 @@
-const AWS = require("aws-sdk");
+const { S3ClientShim, GetObjectCommand } = require("aws-s3-shim");
 const crypto = require("crypto");
-
-AWS.config.update({httpOptions: {timeout: 600000}});
 
 const handler = async (event, _context, _callback) => {
   return await generateDigest(event.bucket, event.key);
@@ -13,19 +11,21 @@ const generateDigest = (bucket, key) => {
     let sha256 = crypto.createHash("sha256");
     let sha1 = crypto.createHash("sha1");
 
-    let s3Stream = new AWS.S3()
-      .getObject({ Bucket: bucket, Key: key })
-      .createReadStream();
-
-    s3Stream
-      .on("data", (chunk) => {
-        sha256.update(chunk);
-        sha1.update(chunk);
+    const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+    s3Client
+      .send(new GetObjectCommand({ Bucket: bucket, Key: key }))
+      .then(({Body: s3Stream}) => {
+        s3Stream
+          .on("data", (chunk) => {
+            sha256.update(chunk);
+            sha1.update(chunk);
+          })
+          .on("end", () =>
+            resolve({ sha256: sha256.digest("hex"), sha1: sha1.digest("hex") })
+          )
+          .on("error", (err) => reject(err));
       })
-      .on("end", () =>
-        resolve({ sha256: sha256.digest("hex"), sha1: sha1.digest("hex") })
-      )
-      .on("error", (err) => reject(err));
+      .catch((err) => reject(err));
   });
 };
 

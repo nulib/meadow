@@ -30,7 +30,7 @@ export default function useIsAuthorized() {
   function isAuthorized(componentAuthLevel = "EDITOR") {
     const userRoleIndex = userRoleHierarchy.indexOf(data.me.role);
     const componentRoleIndex = userRoleHierarchy.indexOf(
-      componentAuthLevel.toUpperCase()
+      componentAuthLevel.toUpperCase(),
     );
     if (userRoleIndex >= componentRoleIndex) {
       return true;

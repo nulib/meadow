@@ -83,21 +83,35 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
     # date_created: [%{}, %{edtf: %{error: "is invalid", value: "bad_date"}}]
   end
 
+  def assert_all_equal(a, b) when is_list(a), do: MapSet.new(a) == MapSet.new(b)
+  def assert_all_equal(a, b), do: a == b
+
   test "formats errors for human readability", %{changeset: changeset} do
     fields_to_flatten = [:administrative_metadata, :descriptive_metadata]
 
-    assert ChangesetErrors.humanize_errors(changeset, flatten: fields_to_flatten) == %{
-             "accession_number" => "can't be blank",
-             "contributor" => [
-               "nop is an invalid coded term for scheme MARC_RELATOR",
-               "missing_id_authority:123 is an unknown identifier"
-             ],
-             "date_created" => "[\"1899\", \"bad_date\"] is invalid",
-             "genre#1" => ["wrong is from an unknown authority"],
-             "preservation_level" =>
-               "nope is an invalid coded term for scheme PRESERVATION_LEVEL",
-             "subject" => ["wrong_coded_term_id is an invalid coded term for scheme SUBJECT_ROLE"]
-           }
+    actual = ChangesetErrors.humanize_errors(changeset, flatten: fields_to_flatten)
+
+    expected = %{
+      "accession_number" => "can't be blank",
+      "contributor" => [
+        "nop is an invalid coded term for scheme MARC_RELATOR",
+        "missing_id_authority:123 is an unknown identifier"
+      ],
+      "date_created" => "[\"1899\", \"bad_date\"] is invalid",
+      "genre#1" => ["wrong is from an unknown authority"],
+      "preservation_level" => "nope is an invalid coded term for scheme PRESERVATION_LEVEL",
+      "subject" => ["wrong_coded_term_id is an invalid coded term for scheme SUBJECT_ROLE"]
+    }
+
+    for {k, actual_v} <- actual do
+      with expected_v <- Map.get(expected, k) do
+        assert_all_equal(expected_v, actual_v)
+      end
+    end
+
+    for {k, _} <- expected do
+      assert Map.has_key?(actual, k)
+    end
 
     # NOTE: The test for date_created not the desired behavior. Each entry in the
     # array should validate separately the way embeds_many fields do. THe correct

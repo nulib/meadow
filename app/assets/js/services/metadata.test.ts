@@ -52,13 +52,13 @@ describe("getBatchMultiValueDataFromForm()", () => {
     },
   };
   expect(metadata.getBatchMultiValueDataFromForm(appendFormValues)).toEqual(
-    appendExpected
+    appendExpected,
   );
   expect(metadata.getBatchMultiValueDataFromForm(replaceFormValues)).toEqual(
-    replaceExpected
+    replaceExpected,
   );
   expect(metadata.getBatchMultiValueDataFromForm(deleteFormValues)).toEqual(
-    deleteExpected
+    deleteExpected,
   );
 });
 
@@ -87,15 +87,15 @@ describe("prepControlledTermInput()", () => {
   it("preps controlled term with role form data successfully", () => {
     const response = metadata.prepControlledTermInput(
       controlledTerm,
-      formItems
+      formItems,
     );
     expect(response).toHaveLength(2);
     expect(response[0].term).toEqual("http://vocab.getty.edu/ulan/500276588");
-    expect(response[0].role.id).toEqual("asg");
-    expect(response[0].role.scheme).toEqual("MARC_RELATOR");
+    expect(response[0].role?.id).toEqual("asg");
+    expect(response[0].role?.scheme).toEqual("MARC_RELATOR");
     expect(response[1].term).toEqual("http://vocab.getty.edu/ulan/500029944");
-    expect(response[1].role.id).toEqual("arc");
-    expect(response[1].role.scheme).toEqual("MARC_RELATOR");
+    expect(response[1].role?.id).toEqual("arc");
+    expect(response[1].role?.scheme).toEqual("MARC_RELATOR");
   });
 
   it("filters out any fieldset items which contain an undefined term id", () => {
@@ -117,7 +117,7 @@ describe("prepControlledTermInput()", () => {
           termId: "",
           label: "Foot, D. D.",
         },
-      ]
+      ],
     );
 
     expect(response).toHaveLength(1);
@@ -147,7 +147,7 @@ describe("getCodedTermSelectOptions()", () => {
       },
     ];
     expect(
-      metadata.getCodedTermSelectOptions(codeListsData, codedTerm)
+      metadata.getCodedTermSelectOptions(codeListsData, codedTerm),
     ).toEqual(expectedValue);
   });
 
@@ -165,7 +165,7 @@ describe("prepFieldArrayItemsForPost()", () => {
   it("returns an array of string values when items exist", () => {
     let expectedValue = ["Ima value", "Ima second value"];
     expect(metadata.prepFieldArrayItemsForPost(metadataItems)).toEqual(
-      expectedValue
+      expectedValue,
     );
   });
 

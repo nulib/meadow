@@ -78,12 +78,12 @@ defmodule Meadow.Data.Schemas.FileSet do
   def required_index_preloads, do: [:work]
 
   defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
-    Logger.warn("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
+    Logger.warning("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
     params
   end
 
   defp rename_core_metadata(%{metadata: metadata} = params) do
-    Logger.warn("Parameter map has :metadata. Renaming to :core_metadata.")
+    Logger.warning("Parameter map has :metadata. Renaming to :core_metadata.")
     params |> Map.put(:core_metadata, metadata) |> Map.delete(:metadata)
   end
 

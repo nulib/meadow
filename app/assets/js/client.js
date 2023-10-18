@@ -1,20 +1,22 @@
-import fetch from "node-fetch";
 import {
   ApolloClient,
   ApolloLink,
-  InMemoryCache,
   HttpLink,
+  InMemoryCache,
 } from "@apollo/client";
-import { setContext } from "@apollo/client/link/context";
+import { resolvers, typeDefs } from "./client-local";
+
+import { Socket as PhoenixSocket } from "phoenix";
+import fetch from "node-fetch";
 import { hasSubscription } from "@jumpn/utils-graphql";
+import { setContext } from "@apollo/client/link/context";
+
 // The following packages don't work well with esbuild when imported; the workaround
 // is to require them https://github.com/absinthe-graphql/absinthe-socket/issues/59
 // import * as AbsintheSocket from "@absinthe/socket";
 // import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
 const AbsintheSocket = require("@absinthe/socket");
 const { createAbsintheSocketLink } = require("@absinthe/socket-apollo-link");
-import { Socket as PhoenixSocket } from "phoenix";
-import { typeDefs, resolvers } from "./client-local";
 
 // Create an HTTP link that fetches GraphQL results over an HTTP
 // connection from the Phoenix app's GraphQL API endpoint URL.
@@ -46,7 +48,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       ControlledValue: {
-        keyFields: ["id", "hint"]
+        keyFields: ["id", "hint"],
       },
       FileSet: {
         fields: {

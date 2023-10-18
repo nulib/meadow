@@ -1,10 +1,9 @@
-const AWS = require("aws-sdk");
+const { S3ClientShim, GetObjectCommand } = require("aws-s3-shim");
 const URI = require("uri-js");
-const s3 = new AWS.S3();
-const fs = require('fs');
-const path = require('path');
-const tmp = require('tmp-promise');
-const { spawn } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const tmp = require("tmp-promise");
+const { spawn } = require("child_process");
 
 const includeTags = [
   "Artist",
@@ -40,16 +39,16 @@ const includeTags = [
   "SubfileType",
   "Threshholding",
   "XResolution",
-  "YResolution",
+  "YResolution"
 ];
 
-const exifToolPath = process.env.EXIFTOOL || 'exiftool';
-const exifToolParams = ['-fast', '-j', '-d', '%Y-%m-%dT%H:%M:%S%z'];
-
-AWS.config.update({httpOptions: {timeout: 600000}});
+const exifToolPath = process.env.EXIFTOOL || "exiftool";
+const exifToolParams = ["-fast", "-j", "-d", "%Y-%m-%dT%H:%M:%S%z"];
 
 const version = async () => {
-  const exifTool = spawn(exifToolPath, ['-ver'], {stdio: ['ignore', 'pipe', process.stderr]});
+  const exifTool = spawn(exifToolPath, ["-ver"], {
+    stdio: ["ignore", "pipe", process.stderr]
+  });
   return await readOutput(exifTool);
 };
 
@@ -57,31 +56,42 @@ const download = (source) => {
   return new Promise((resolve, reject) => {
     const uri = URI.parse(source);
 
-    const s3Location = { 
-      Bucket: uri.host, 
+    const s3Location = {
+      Bucket: uri.host,
       Key: uri.path.replace(/^\/+/, "")
     };
-    
-    tmp.file({ template: '/tmp/exif-XXXXXX' }).then((outputFile) => {
+
+    tmp.file({ template: "/tmp/exif-XXXXXX" }).then((outputFile) => {
       console.log(`Retrieving ${source} to ${outputFile.path}`);
 
-      const inputStream = s3.getObject(s3Location).createReadStream()
-        .on('error', (error) => reject(error))
-        .on('end', () => outputStream.close())
-        .on('close', () => resolve(outputFile));
-  
-      const outputStream = fs.createWriteStream(null, {fd: outputFile.fd})
-        .on('error', (error) => reject(error));
-    
-      inputStream.pipe(outputStream);  
+      const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+      s3Client
+        .send(new GetObjectCommand(s3Location))
+        .then(({ Body: inputStream }) => {
+          inputStream
+            .on("error", (error) => reject(error))
+            .on("end", () => outputStream.close())
+            .on("close", () => resolve(outputFile));
+
+          const outputStream = fs
+            .createWriteStream(null, { fd: outputFile.fd })
+            .on("error", (error) => reject(error));
+
+          inputStream.pipe(outputStream);
+        })
+        .catch((err) => reject(err));
     });
   });
 };
 
 const extract = async (source) => {
   const tempFile = await download(source);
-  const args = exifToolParams.concat(includeTags.map((tag) => `-${tag}`)).concat([tempFile.path]);
-  const exifTool = spawn(exifToolPath, args, {stdio: ['ignore', 'pipe', process.stderr]});
+  const args = exifToolParams
+    .concat(includeTags.map((tag) => `-${tag}`))
+    .concat([tempFile.path]);
+  const exifTool = spawn(exifToolPath, args, {
+    stdio: ["ignore", "pipe", process.stderr]
+  });
   let output = await readOutput(exifTool);
 
   try {
@@ -91,21 +101,23 @@ const extract = async (source) => {
     console.warn("Output is not JSON. Returning raw data.");
   }
   delete output.SourceFile;
-  return output;        
+  return output;
 };
 
 const readOutput = (child) => {
   return new Promise((resolve, reject) => {
-    let buffer = '';
+    let buffer = "";
     let errored = false;
-    child.on('error', (error) => {
+    child.on("error", (error) => {
       reject(error);
       errored = true;
     });
-    child.on('exit', () => { if (!errored) resolve(buffer) });
+    child.on("exit", () => {
+      if (!errored) resolve(buffer);
+    });
     child.stdout
-      .on('data', (data) => buffer += data)
-      .on('end', () => buffer = buffer.trimEnd());
+      .on("data", (data) => (buffer += data))
+      .on("end", () => (buffer = buffer.trimEnd()));
   });
 };
 

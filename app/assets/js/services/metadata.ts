@@ -1,4 +1,23 @@
-export const METADATA_FIELDS = {
+type MetadataField = {
+  facetComponentId?: string;
+  hasRole?: boolean;
+  inputEl?: string;
+  name: string;
+  label: string;
+  metadataClass?: string;
+  scheme?: string;
+};
+
+type MetadataFields = {
+  [key: string]: MetadataField;
+};
+
+type AddReplaceObj = {
+  add: { [key: string]: any };
+  replace: { [key: string]: any };
+};
+
+export const METADATA_FIELDS: MetadataFields = {
   ABSTRACT: {
     inputEl: "textarea",
     name: "abstract",
@@ -208,7 +227,7 @@ export const METADATA_FIELDS = {
     metadataClass: "descriptive",
   },
   SUBJECT_ROLE: {
-    hasRole,
+    hasRole: true,
     label: "Subject",
     metadataClass: "descriptive",
     name: "subject",
@@ -393,16 +412,18 @@ export const DESCRIPTIVE_METADATA = {
  * @param {Object} currentFormValues React Hook Form getValues() return obj
  * @returns {Object} // 2 children objects "add" and "replace"
  */
-export function getBatchMultiValueDataFromForm(currentFormValues) {
-  let returnObj = { add: {}, replace: {} };
+export function getBatchMultiValueDataFromForm(currentFormValues: {
+  [key: string]: any;
+}) {
+  let returnObj: AddReplaceObj = { add: {}, replace: {} };
   const formDataKeys = Object.keys(currentFormValues);
   const metadataNames = UNCONTROLLED_MULTI_VALUE_METADATA.map(
-    (umvm) => umvm.name
+    (umvm) => umvm.name,
   );
 
   // Filter form values by multi value entries only
   const formMultiOnly = formDataKeys.filter(
-    (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1
+    (formItem) => metadataNames.indexOf(formItem.split("--")[0]) > -1,
   );
 
   for (const key of formMultiOnly) {
@@ -441,23 +462,24 @@ export function getBatchMultiValueDataFromForm(currentFormValues) {
   return returnObj;
 }
 
-export function getMetadataLabel(name) {
+export function getMetadataLabel(name: string) {
   let foundItem = Object.keys(METADATA_FIELDS).filter(
-    (key) => METADATA_FIELDS[key].name === name
+    (key) => METADATA_FIELDS[key].name === name,
   );
   return METADATA_FIELDS[foundItem[0]].label;
 }
 
-export function findScheme(termToFind) {
+export function findScheme(termToFind: MetadataField | undefined) {
+  if (!termToFind) return "";
   let term = CONTROLLED_METADATA.find((ct) => ct.name === termToFind.name);
-  return term.scheme || "";
+  return term?.scheme || "";
 }
 
-export function hasRole(name) {
+export function hasRole(name: string) {
   const controlledTermItem = DESCRIPTIVE_METADATA.controlledTerms.find(
-    (obj) => obj.name === name
+    (obj) => obj.name === name,
   );
-  return controlledTermItem.hasRole;
+  return controlledTermItem?.hasRole;
 }
 
 /**
@@ -468,10 +490,10 @@ export function hasRole(name) {
  */
 export function parseMultiValues(
   multiValues = {},
-  metadataClass = "descriptive"
+  metadataClass = "descriptive",
 ) {
-  let { add = {}, replace = {} } = multiValues;
-  let returnObj = {
+  let { add = {}, replace = {} } = multiValues as AddReplaceObj;
+  let returnObj: AddReplaceObj = {
     add: {},
     replace: {},
   };
@@ -479,8 +501,10 @@ export function parseMultiValues(
     .map((key) => METADATA_FIELDS[key])
     .filter((obj) => obj.metadataClass === metadataClass);
 
-  function grabTheValues(obj) {
-    let o = {};
+  function grabTheValues(obj: { [key: string]: any }) {
+    let o: {
+      [key: string]: any;
+    } = {};
     if (Object.keys(obj).length > 0) {
       for (const name in obj) {
         const metaDataField = metadataItems.find((i) => i.name === name);
@@ -506,9 +530,14 @@ export function parseMultiValues(
  * @returns {Array} // Currently the shape the API wants is [{ term: "ABC", role: { id: "XYZ", scheme: "THE_SCHEME" } }]
  */
 export function prepControlledTermInput(
-  controlledTerm = {},
-  formItems = [],
-  includeLabel = false
+  controlledTerm?: MetadataField,
+  formItems: Array<{
+    authority?: string;
+    label: string;
+    roleId?: string;
+    termId: string;
+  }> = [],
+  includeLabel = false,
 ) {
   // First, filter out any controlled term fieldsets which come through without
   // a valid controlled term id selected
@@ -521,7 +550,11 @@ export function prepControlledTermInput(
     })
     // Next prepare the object in the right shape
     .map(({ termId, roleId, label }) => {
-      let obj = { term: termId };
+      let obj: {
+        label?: string;
+        role?: { id: string; scheme: string };
+        term: string;
+      } = { term: termId };
       if (roleId) {
         obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
       }
@@ -539,7 +572,9 @@ export function prepControlledTermInput(
  * @param {Array} items Array of object entries possible in form
  * @returns {Array} Array of strings
  */
-export function prepFieldArrayItemsForPost(items = []) {
+export function prepFieldArrayItemsForPost(
+  items: Array<{ metadataItem: string }> = [],
+) {
   return items.map(({ metadataItem }) => metadataItem);
 }
 
@@ -549,7 +584,10 @@ export function prepFieldArrayItemsForPost(items = []) {
  * @param {String} codedTerm String representing codedTermScheme
  * @returns {Array} Array of modified object entries
  */
-export function getCodedTermSelectOptions(codeListsData = [], codedTerm = "") {
+export function getCodedTermSelectOptions(
+  codeListsData: Array<{ id: string; label: string }> = [],
+  codedTerm = "",
+) {
   return codeListsData.map((option) => {
     return {
       ...option,
@@ -568,14 +606,21 @@ export function getCodedTermSelectOptions(codeListsData = [], codedTerm = "") {
  * @param {Array} keyItems
  * @returns {Array}
  */
-export function prepFacetKey(controlledTerm = {}, keyItems = []) {
+export function prepFacetKey(
+  controlledTerm: MetadataField,
+  keyItems: Array<string> = [],
+) {
   let arr = keyItems.map((item) => {
     const itemArr = item.split("|");
     const term = itemArr[0];
     const roleId = itemArr[1];
     const label = itemArr[2];
 
-    let obj = { term, label };
+    let obj: {
+      label?: string;
+      role?: { id: string; scheme: string };
+      term?: string;
+    } = { term, label };
     if (roleId) {
       obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
     }
@@ -587,10 +632,13 @@ export function prepFacetKey(controlledTerm = {}, keyItems = []) {
 
 /**
  * Prepares Notes form data for an upcoming GraphQL post
- * @param {Array} items Array of object entries possible in form
- * @returns {Array} of properly shaped values for Notes
  */
-export function prepNotes(items = []) {
+export function prepNotes(
+  items: Array<{
+    note: string;
+    typeId: string;
+  }> = [],
+) {
   try {
     return items.map((item) => ({
       note: item.note,
@@ -607,10 +655,13 @@ export function prepNotes(items = []) {
 
 /**
  * Prepares Related Url form data for an upcoming GraphQL post
- * @param {Array} items Array of object entries possible in form
- * @returns {Array} of properly shaped values for Related Url
  */
-export function prepRelatedUrl(items = []) {
+export function prepRelatedUrl(
+  items: Array<{
+    url: string;
+    labelId: string;
+  }> = [],
+) {
   try {
     return items.map((item) => ({
       url: item.url,
@@ -627,10 +678,8 @@ export function prepRelatedUrl(items = []) {
 
 /**
  * Helper function which removes label from a given object
- * @param {Object} item
- * @returns {Object}
  */
-export function deleteKeyFromObject(item) {
+export function deleteKeyFromObject(item: any) {
   if (
     typeof item !== "object" ||
     Array.isArray(item) ||
@@ -643,7 +692,11 @@ export function deleteKeyFromObject(item) {
   return itemObj;
 }
 
-export function prepEDTFforPost(items = []) {
+export function prepEDTFforPost(
+  items: Array<{
+    metadataItem: string;
+  }> = [],
+) {
   return items.map((item) => {
     return { edtf: item.metadataItem || item };
   });
@@ -651,23 +704,37 @@ export function prepEDTFforPost(items = []) {
 
 /**
  * Remove helper labels from Batch Edit form post data
- * @param {Object} batchAdds
- * @param {Object} batchDeletes
- * @param {Object} batchReplaces
- * @param {Boolean} hasAdds
- * @param {Boolean} hasDeletes
- * @param {Boolean} hasReplaces
- * @returns {Object}
  */
 export function removeLabelsFromBatchEditPostData(
-  batchAdds,
-  batchDeletes,
-  batchReplaces,
-  hasAdds,
-  hasDeletes,
-  hasReplaces
+  batchAdds: {
+    [key: string]: any;
+    descriptiveMetadata: { [key: string]: any };
+    administrativeMetadata: { [key: string]: any };
+  },
+  batchDeletes: {
+    [key: string]: any;
+  },
+  batchReplaces: {
+    [key: string]: any;
+  },
+  hasAdds?: boolean,
+  hasDeletes?: boolean,
+  hasReplaces?: boolean,
 ) {
-  let returnObj = {
+  type ReturnObj = {
+    add: {
+      descriptiveMetadata: { [key: string]: any };
+      administrativeMetadata: { [key: string]: any };
+    };
+    delete: { [key: string]: any };
+    replace: {
+      descriptiveMetadata: { [key: string]: any };
+      administrativeMetadata: { [key: string]: any };
+      published?: boolean;
+    };
+  };
+
+  let returnObj: ReturnObj = {
     add: { descriptiveMetadata: {}, administrativeMetadata: {} },
     delete: {},
     replace: { administrativeMetadata: {}, descriptiveMetadata: {} },
@@ -678,7 +745,7 @@ export function removeLabelsFromBatchEditPostData(
       Object.keys(batchAdds.descriptiveMetadata).forEach((key) => {
         returnObj.add.descriptiveMetadata[key] = batchAdds.descriptiveMetadata[
           key
-        ].map((item) => {
+        ].map((item: any) => {
           if (key === "dateCreated") {
             return { edtf: item };
           }
@@ -688,7 +755,7 @@ export function removeLabelsFromBatchEditPostData(
     batchAdds.administrativeMetadata &&
       Object.keys(batchAdds.administrativeMetadata).forEach((key) => {
         returnObj.add.administrativeMetadata[key] =
-          batchAdds.administrativeMetadata[key].map((item) => {
+          batchAdds.administrativeMetadata[key].map((item: any) => {
             return deleteKeyFromObject(item);
           });
       });
@@ -723,7 +790,7 @@ export function removeLabelsFromBatchEditPostData(
 
   if (hasDeletes) {
     Object.keys(batchDeletes).forEach((key) => {
-      returnObj.delete[key] = batchDeletes[key].map((item) => {
+      returnObj.delete[key] = batchDeletes[key].map((item: any) => {
         return deleteKeyFromObject(item);
       });
     });
@@ -734,10 +801,8 @@ export function removeLabelsFromBatchEditPostData(
 
 /**
  * Helper function which parses the facet key used in Batch Edits
- * @param {String} key
- * @returns {Object}
  */
-export function splitFacetKey(key) {
+export function splitFacetKey(key: string) {
   const arr = key.split("|");
 
   return {
@@ -747,6 +812,6 @@ export function splitFacetKey(key) {
   };
 }
 
-export function convertFieldArrayValToHookFormVal(value) {
+export function convertFieldArrayValToHookFormVal(value: any) {
   return { metadataItem: value };
 }

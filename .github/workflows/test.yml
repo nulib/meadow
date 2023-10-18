@@ -13,18 +13,13 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - uses: asdf-vm/actions/setup@v1
-      - name: Install NodeJS
-        run: |
-          asdf plugin add nodejs
-          asdf install nodejs
-          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
-            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
-          done
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ./.tool-versions
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "25"
-          elixir-version: "1.14.2"
+          otp-version: "26"
+          elixir-version: "1.15.4"
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -60,7 +55,7 @@ jobs:
         working-directory: app
       - name: Install JS dependencies
         run: |
-          npm ci --no-fund
+          npm ci --force --no-fund
           npm list
         working-directory: app/assets
       - name: Install Lambda dependencies
@@ -76,14 +71,9 @@ jobs:
     needs: dependencies
     steps:
       - uses: actions/checkout@v2
-      - uses: asdf-vm/actions/setup@v1
-      - name: Install NodeJS
-        run: |
-          asdf plugin add nodejs
-          asdf install nodejs
-          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
-            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
-          done
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ./.tool-versions
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
@@ -175,18 +165,13 @@ jobs:
           pip install localstack localstack-plugin-persistence
           curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
           localstack pod load file://$PWD/localstack.pod
-      - uses: asdf-vm/actions/setup@v1
-      - name: Install NodeJS
-        run: |
-          asdf plugin add nodejs
-          asdf install nodejs
-          for node_version in $(cat .tool-versions | grep nodejs | awk '{print $2}'); do
-            ASDF_NODEJS_VERSION=$node_version npm install -g npm@$(cat .tool-versions | grep npm | awk '{print $2}')
-          done
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ./.tool-versions
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "25"
-          elixir-version: "1.14.2"
+          otp-version: "26"
+          elixir-version: "1.15.4"
       - name: Install LDAP utils
         run: |
           sudo apt-get update -qq

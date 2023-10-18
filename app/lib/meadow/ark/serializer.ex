@@ -36,7 +36,9 @@ defmodule Meadow.Ark.Serializer do
   def serialize(%Meadow.Ark{} = ark), do: serialize(Map.from_struct(ark))
 
   def serialize(ark) when is_map(ark) do
-    Enum.reduce(ark, ["_profile: datacite"], fn
+    ark
+    |> Enum.sort_by(fn {key, _} -> to_string(key) end)
+    |> Enum.reduce(["_profile: datacite"], fn
       {_, nil}, acc -> acc
       {:ark, _}, acc -> acc
       {:work_id, _}, acc -> acc

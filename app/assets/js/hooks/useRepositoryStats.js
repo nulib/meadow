@@ -74,10 +74,10 @@ function getFileSetsCreatedByWeek(buckets) {
 function getVisbilityData(data = []) {
   return data.map((obj) => {
     const publishedBucket = obj.published.buckets.find(
-      (bucket) => bucket.key_as_string === "true"
+      (bucket) => bucket.key_as_string === "true",
     );
     const unpublishedBucket = obj.published.buckets.find(
-      (bucket) => bucket.key_as_string === "false"
+      (bucket) => bucket.key_as_string === "false",
     );
 
     return {
@@ -102,12 +102,12 @@ export default function useRepositoryStats() {
 
   const collectionsQuery = elasticsearchDirectCount(
     {},
-    ELASTICSEARCH_COLLECTION_INDEX
+    ELASTICSEARCH_COLLECTION_INDEX,
   );
   const worksQuery = elasticsearchDirectCount({});
   const fileSetsQuery = elasticsearchDirectCount(
     {},
-    ELASTICSEARCH_FILE_SET_INDEX
+    ELASTICSEARCH_FILE_SET_INDEX,
   );
   const worksPublishedQuery = elasticsearchDirectCount({
     query: {
@@ -190,7 +190,7 @@ export default function useRepositoryStats() {
         },
       },
     },
-    ELASTICSEARCH_FILE_SET_INDEX
+    ELASTICSEARCH_FILE_SET_INDEX,
   );
 
   React.useEffect(() => {
@@ -216,27 +216,32 @@ export default function useRepositoryStats() {
         worksPublished: resultArray[3].count,
         ...(resultArray[4] && {
           projects: getProjectsCount(
-            resultArray[4].aggregations.projects.buckets
+            resultArray[4].aggregations.projects.buckets,
           ),
         }),
         ...(resultArray[5] && {
           visibility: getVisbilityData(
-            resultArray[5].aggregations.visibilities.buckets
+            resultArray[5].aggregations.visibilities.buckets,
           ),
         }),
         ...(resultArray[6] && {
           worksCreatedByWeek: getWorksCreatedByWeek(
-            resultArray[6].aggregations.works_created_by_week.buckets
+            resultArray[6].aggregations.works_created_by_week.buckets,
           ),
         }),
         ...(resultArray[7] && {
           collectionsRecentlyUpdated: getRecentCollections(
-            resultArray[7].aggregations.works_recently_updated.buckets
+            resultArray[7].aggregations.works_recently_updated.buckets,
           ),
         }),
         ...(resultArray[8] && {
           fileSetsCreatedByWeek: getFileSetsCreatedByWeek(
-            resultArray[8].aggregations.file_sets_created_by_week.buckets
+            resultArray[8].aggregations.file_sets_created_by_week.buckets,
+          ),
+        }),
+        ...(resultArray[8] && {
+          fileSetsCreatedByWeek: getFileSetsCreatedByWeek(
+            resultArray[8].aggregations.file_sets_created_by_week.buckets,
           ),
         }),
       });

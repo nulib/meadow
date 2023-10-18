@@ -15,7 +15,7 @@ defmodule Meadow.IndexCase do
   setup tags do
     result =
       SearchConfig.index_configs()
-      |> Enum.map(fn %{name: alias, schemas: [schema | _], version: version} ->
+      |> Enum.map(fn %{schemas: [schema | _], version: version} ->
         {:ok, {alias, index}} = Index.create_from_schema(schema, version)
         Alias.update(alias, index)
         {alias, index}

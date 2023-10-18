@@ -229,7 +229,7 @@ defmodule Meadow.Ingest.Validator do
           {:ok, sheet}
 
         {:error, sheet} ->
-          Logger.warn("Ingest sheet: #{sheet.id} has failing rows")
+          Logger.warning("Ingest sheet: #{sheet.id} has failing rows")
           Sheets.update_ingest_sheet_status(sheet, "row_fail")
           {:error, sheet}
       end
@@ -436,7 +436,7 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp add_file_errors(sheet, messages) do
-    Logger.warn("Ingest sheet: #{sheet.id} has file errors")
+    Logger.warning("Ingest sheet: #{sheet.id} has file errors")
 
     {:ok, result} =
       sheet
