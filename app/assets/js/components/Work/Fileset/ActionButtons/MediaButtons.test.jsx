@@ -1,10 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { MediaButtons } from "./Access";
 import React from "react";
 import { WorkProvider } from "@js/context/work-context";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
+import { dcApiEndpointMock } from "@js/components/UI/ui.gql.mock";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
+
+const mocks = [dcApiEndpointMock];
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -56,17 +60,18 @@ const initialState = {
     webVttString: "",
   },
   workType: "VIDEO",
+  dcApiToken: "abcZ4323823092mccas999",
 };
 
 describe("MediaButtons", () => {
   it("renders the Edit VTT button and Download Video button for a video mime/type Fileset", () => {
-    render(
+    renderWithRouterApollo(
       <WorkProvider initialState={initialState}>
         <MediaButtons fileSet={mockFileSet} />
-      </WorkProvider>
+      </WorkProvider>,
+      { mocks },
     );
-
-    expect(screen.getByText("Edit structure (vtt)")).toBeInTheDocument();
-    //expect(screen.getByText("Download")).toBeInTheDocument();
+    expect(screen.getByTestId("edit-structure-button")).toBeInTheDocument();
+    expect(screen.getByTestId("download-fileset-button")).toBeInTheDocument();
   });
 });

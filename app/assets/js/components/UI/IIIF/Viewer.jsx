@@ -4,37 +4,23 @@ import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import CloverViewer from "@samvera/clover-iiif/viewer";
 import IIIFViewerPosterSelector from "@js/components/UI/IIIF/PosterSelector";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
-import { GET_DC_API_TOKEN } from "@js/components/Work/work.gql";
 import { getApiResponseHeaders } from "@js/services/get-api-response-headers";
 
 const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
   const workState = useWorkState();
   const dispatch = useWorkDispatch();
 
-  const { activeMediaFileSet } = workState;
+  const { activeMediaFileSet, dcApiToken } = workState;
   const [etag, setEtag] = useState();
-
-  /**
-   * Get the DC API super user token from the API every 5 minutes.
-   */
-  const { data: dataDcApiToken, error: errorDcApiToken } = useQuery(
-    GET_DC_API_TOKEN,
-    { pollInterval: 300000 }
-  );
-
-  const token = dataDcApiToken?.dcApiToken?.token;
-
-  if (errorDcApiToken) console.error(errorDcApiToken);
 
   /**
    * Get the etag from the API response headers every 10 seconds.
    */
   useEffect(() => {
-    if (!token) return;
+    if (!dcApiToken) return;
 
     const fetchEtag = async () => {
-      const response = await getApiResponseHeaders(iiifContent, token);
+      const response = await getApiResponseHeaders(iiifContent, dcApiToken);
       const headers = new Headers(response);
       const etag = headers.get("etag");
       setEtag(etag);
@@ -47,7 +33,7 @@ const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [token, iiifContent]);
+  }, [dcApiToken, iiifContent]);
 
   /**
    * When the Canvas changed in Clover, update the active media file set in Context.
@@ -85,12 +71,12 @@ const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
     },
     requestHeaders: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${dcApiToken}`,
     },
     showIIIFBadge: false,
   };
 
-  if (!token) return <></>;
+  if (!dcApiToken) return <></>;
 
   return (
     <div className="container iiif-viewer" data-testid="iiif-viewer">

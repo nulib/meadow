@@ -80,7 +80,7 @@ xdescribe("Tabs component", () => {
       fireEvent.click(queryByTestId("tab-administrative"));
 
       expect(queryByTestId("tab-administrative-content")).not.toHaveClass(
-        "is-hidden"
+        "is-hidden",
       );
       expect(queryByTestId("tab-about-content")).toHaveClass("is-hidden");
 
@@ -88,11 +88,11 @@ xdescribe("Tabs component", () => {
 
       expect(queryByTestId("tab-about-content")).toHaveClass("is-hidden");
       expect(queryByTestId("tab-administrative-content")).toHaveClass(
-        "is-hidden"
+        "is-hidden",
       );
       expect(queryByTestId("tab-structure-content")).toHaveClass("is-hidden");
       expect(queryByTestId("tab-preservation-content")).not.toHaveClass(
-        "is-hidden"
+        "is-hidden",
       );
     });
   });

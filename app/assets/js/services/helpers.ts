@@ -158,6 +158,7 @@ export function toastWrapper(
     dismissible: true,
     duration: 8000,
     position: "top-center",
+    extraClasses: "meadow-toast-wrapper",
   });
 }
 
