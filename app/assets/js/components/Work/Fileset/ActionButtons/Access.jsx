@@ -29,7 +29,7 @@ export function MediaButtons({ fileSet }) {
   const handleDownloadMedia = async () => {
     setDownloadStarted(true);
 
-    const dcApiFileSet = `${dataDcApiEndpoint?.dcapiEndpoint?.url}/file-set/${fileSet.id}`;
+    const dcApiFileSet = `${dataDcApiEndpoint?.dcapiEndpoint?.url}/file-sets/${fileSet.id}`;
     const uri = `${dcApiFileSet}/download?email=${currentUser?.email}`;
 
     try {
