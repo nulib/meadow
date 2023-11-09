@@ -5,6 +5,7 @@ const WorkDispatchContext = React.createContext();
 
 const defaultState = {
   activeMediaFileSet: null,
+  dcApiToken: null,
   webVttModal: {
     fileSetId: null,
     isOpen: false,
@@ -38,6 +39,12 @@ function workReducer(state, action) {
         workTypeId: action.workTypeId,
       };
     }
+    case "updateDcApiToken": {
+      return {
+        ...state,
+        dcApiToken: action.dcApiToken,
+      };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -46,8 +53,9 @@ function workReducer(state, action) {
 
 function WorkProvider({ initialState = defaultState, children }) {
   const [state, dispatch] = React.useReducer(workReducer, initialState);
+
   return (
-    <WorkStateContext.Provider value={state}>
+    <WorkStateContext.Provider value={{ ...state }}>
       <WorkDispatchContext.Provider value={dispatch}>
         {children}
       </WorkDispatchContext.Provider>
