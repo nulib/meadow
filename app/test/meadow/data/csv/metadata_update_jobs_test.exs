@@ -59,11 +59,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
       assert MetadataUpdateJobs.apply_job(job) ==
                {:error, "Update Job cannot be applied: status is complete."}
 
-      with work <-
-             Enum.at(works, 31)
-             |> Map.get(:id)
-             |> Works.get_work()
-             |> Repo.preload(:metadata_update_jobs) do
+      with original <- Enum.at(works, 31),
+           work <- Works.get_work(original.id) |> Repo.preload(:metadata_update_jobs) do
+        assert work.inserted_at == original.inserted_at
         assert work.published
         assert work.visibility.id == "AUTHENTICATED"
 
