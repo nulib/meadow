@@ -1,0 +1,9 @@
+#!/bin/bash
+
+credentials=$(curl -s http://169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI)
+get() {
+  jq -r ".$1" <<< $credentials
+}
+
+URL=$(sed "s|s3://\([^/]*\)/\(.*\)$|https://\\1.s3.${AWS_REGION}.amazonaws.com/\\2|" <<< $1)
+AWS_ACCESS_KEY_ID=$(get AccessKeyId) AWS_SECRET_ACCESS_KEY=$(get SecretAccessKey) AWS_SESSION_TOKEN=$(get Token) aws-curl $URL
