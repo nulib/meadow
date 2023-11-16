@@ -147,3 +147,7 @@ table {
 .switch[type="checkbox"]:checked + label:before {
   background: $primary;
 }
+
+.meadow-toast-wrapper {
+  display: block !important;
+}
