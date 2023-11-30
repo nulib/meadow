@@ -300,6 +300,17 @@ ou: Meadow
 distinguishedName: OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu
 name: Meadow
 
+dn: CN=SuperUsers,OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu
+changetype: add
+objectClass: group
+objectClass: top
+groupType: 4
+objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=library,DC=northwestern,DC=edu
+cn: SuperUsers
+description: Meadow SuperUsers
+distinguishedName: CN=SuperUsers,OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu
+name: SuperUsers
+
 dn: CN=Administrators,OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu
 changetype: add
 objectClass: group

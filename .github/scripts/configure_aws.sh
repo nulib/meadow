@@ -1,6 +1,9 @@
 #!/bin/bash
 
-environment=$(echo $DEPLOY_ENV | tr a-z A-Z)
+environment=STAGING
+if [[ $DEPLOY_ENV == "production" ]]; then
+  environment=PRODUCTION
+fi
 access_key_id_var=${environment}_AWS_ACCESS_KEY_ID
 access_key_id=$(jq -r ".${access_key_id_var}" <<< $SECRETS)
 secret_key_var=${environment}_AWS_SECRET_ACCESS_KEY

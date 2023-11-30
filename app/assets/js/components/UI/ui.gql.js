@@ -15,3 +15,11 @@ export const GET_DCAPI_ENDPOINT = gql`
     }
   }
 `;
+
+export const LIVEBOOK_URL = gql`
+  query LivebookUrl {
+    livebookUrl {
+      url
+    }
+  }
+`

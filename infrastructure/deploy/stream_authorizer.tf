@@ -56,10 +56,11 @@ locals {
   auth_source_path        = "${path.module}/../../lambdas/stream-authorizer"
   auth_allowed_referers   = var.trusted_referers
   auth_dc_api             = var.dc_api_v2_base
+  source_files            = fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}")
   auth_source_sha         = sha1(
     join(
       "", 
-      concat([for f in fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}") : sha1(file(f))], [sha1(local.auth_allowed_referers), sha1(local.auth_dc_api)])
+      concat([for f in local.source_files : sha1(file(f))], [sha1(local.auth_allowed_referers), sha1(local.auth_dc_api)])
     )
   )
 }
@@ -82,7 +83,7 @@ resource "local_file" "stream_authorizer_configuration" {
     allowedFrom   = local.auth_allowed_referers
     dcApiEndpoint = local.auth_dc_api
   })
-  filename = "${local.auth_source_path}/environment.json"
+  filename = "${local.auth_source_path}/config/environment.json"
 }
 
 data "archive_file" "stream_authorizer_lambda" {

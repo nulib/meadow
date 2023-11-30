@@ -7301,6 +7301,18 @@
             {
               "args": [],
               "deprecationReason": null,
+              "description": "Get the livebook URL",
+              "isDeprecated": false,
+              "name": "livebookUrl",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Url",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
               "description": "Get the currently signed-in user",
               "isDeprecated": false,
               "name": "me",
@@ -8313,6 +8325,12 @@
         {
           "description": "Meadow user roles",
           "enumValues": [
+            {
+              "deprecationReason": null,
+              "description": "superuser",
+              "isDeprecated": false,
+              "name": "SUPERUSER"
+            },
             {
               "deprecationReason": null,
               "description": "administrator",

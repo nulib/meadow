@@ -1,4 +1,5 @@
 import React from "react";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { useMutation } from "@apollo/client";
 import { ASSUME_ROLE } from "@js/components/Role/role.gql.js";
 import { GET_CURRENT_USER_QUERY } from "@js/components/Auth/auth.gql";
@@ -69,6 +70,15 @@ const RoleNavDropdown = () => {
       </div>
       <div className="dropdown-menu" id="dropdown-menu" role="menu">
         <div className="dropdown-content">
+          <AuthDisplayAuthorized level="SUPERUSER">
+            <a
+              href="#"
+              className="dropdown-item"
+              onClick={() => handleRoleChange("ADMINISTRATOR")}
+            >
+              Administrator
+            </a>
+          </AuthDisplayAuthorized>
           <a
             href="#"
             className="dropdown-item"

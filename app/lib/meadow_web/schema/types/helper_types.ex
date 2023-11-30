@@ -45,6 +45,12 @@ defmodule MeadowWeb.Schema.HelperTypes do
       middleware(Middleware.Authenticate)
       resolve(&Resolvers.Helpers.work_archiver_endpoint/3)
     end
+
+    @desc "Get the livebook URL"
+    field :livebook_url, :nullable_url do
+      middleware(Middleware.Authenticate)
+      resolve(&Resolvers.Helpers.get_livebook_url/3)
+    end
   end
 
   enum :s3_upload_type do
