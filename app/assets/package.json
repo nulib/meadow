@@ -105,7 +105,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isundefined": "3.0.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.3.2",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
