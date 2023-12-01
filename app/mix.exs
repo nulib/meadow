@@ -55,7 +55,7 @@ defmodule Meadow.MixProject do
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 1.0.2"},
       {:aws_signature, "~> 0.3.1"},
-      {:briefly, "~> 0.4.1"},
+      {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.3.0"},
       {:broadway_sqs, "~> 0.7.0"},
       {:cachex, "~> 3.2"},
