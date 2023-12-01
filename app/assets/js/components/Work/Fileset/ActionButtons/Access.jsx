@@ -9,24 +9,41 @@ import PropTypes from "prop-types";
 import { toastWrapper } from "@js/services/helpers";
 import useFileSet from "@js/hooks/useFileSet";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
-import { useWorkDispatch } from "@js/context/work-context";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
+import { getApiResponse } from "@js/services/get-api-response";
+import { useQuery } from "@apollo/client";
+import { AuthContext } from "@js/components/Auth/Auth";
+import { GET_DCAPI_ENDPOINT } from "@js/components/UI/ui.gql";
 
 export function MediaButtons({ fileSet }) {
-  const { getWebVttString } = useFileSet();
-  const { isAuthorized } = useIsAuthorized();
-  const dispatch = useWorkDispatch();
   const [downloadStarted, setDownloadStarted] = React.useState(false);
 
-  const handleDownloadMedia = () => {
-    console.log("handleDownloadMedia", handleDownloadMedia);
-    // TODO: Call the download media endpoint here
+  const dispatch = useWorkDispatch();
+  const { dcApiToken } = useWorkState();
+  const currentUser = useContext(AuthContext);
 
-    toastWrapper(
-      "is-success",
-      `Your media download is being prepared. You will receive an email when it is ready.`
-    );
+  const { getWebVttString } = useFileSet();
+  const { isAuthorized } = useIsAuthorized();
+  const { data: dataDcApiEndpoint } = useQuery(GET_DCAPI_ENDPOINT);
 
+  const handleDownloadMedia = async () => {
     setDownloadStarted(true);
+
+    const dcApiFileSet = `${dataDcApiEndpoint?.dcapiEndpoint?.url}/file-sets/${fileSet.id}`;
+    const uri = `${dcApiFileSet}/download?email=${currentUser?.email}`;
+
+    try {
+      const response = await getApiResponse(uri, dcApiToken);
+      if (response?.status !== 200) throw Error(response);
+
+      toastWrapper(
+        "is-success",
+        `Your media for <em>${fileSet.coreMetadata.label}</em> is being prepared for download. You will receive an email at <strong>${currentUser?.email}</strong> when it is ready.`,
+      );
+    } catch (error) {
+      console.error(error);
+      toastWrapper("is-danger", `The download request failed.`);
+    }
   };
 
   if (!fileSet) return null;
@@ -35,6 +52,7 @@ export function MediaButtons({ fileSet }) {
     <div className="buttons is-grouped is-right">
       {isAuthorized() && (
         <Button
+          data-testid="edit-structure-button"
           onClick={() =>
             dispatch({
               type: "toggleWebVttModal",
@@ -46,11 +64,14 @@ export function MediaButtons({ fileSet }) {
           Edit structure (vtt)
         </Button>
       )}
-      {/* //TODO: Re-enable once backend is ready to support the link *}
-      {/* <Button onClick={handleDownloadMedia} disabled={downloadStarted}>
+      <Button
+        data-testid="download-fileset-button"
+        onClick={handleDownloadMedia}
+        disabled={downloadStarted}
+      >
         <IconDownload />
         Download
-      </Button> */}
+      </Button>
     </div>
   );
 }
@@ -87,11 +108,12 @@ const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
   const iiifServerUrl = useContext(IIIFContext);
   const { coreMetadata } = fileSet;
   const isImageType = coreMetadata.mimeType?.includes("image");
+  const isVideoType = coreMetadata.mimeType?.includes("video");
 
   if (isImageType) {
     return <ImageButtons iiifServerUrl={iiifServerUrl} fileSet={fileSet} />;
   }
-  if (!isImageType) {
+  if (isVideoType) {
     return <MediaButtons fileSet={fileSet} />;
   }
 };

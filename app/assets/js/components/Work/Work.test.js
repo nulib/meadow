@@ -6,6 +6,7 @@ import {
   workArchiverEndpointMock,
   dcApiTokenMock,
 } from "./work.gql.mock";
+import { dcApiEndpointMock } from "@js/components/UI/ui.gql.mock";
 import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
 import { screen } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
@@ -17,6 +18,8 @@ import {
 } from "@js/components/Collection/collection.gql.mock";
 import { WorkProvider } from "@js/context/work-context";
 
+jest.mock("@js/services/get-api-response-headers");
+
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
@@ -25,6 +28,7 @@ useIsAuthorized.mockReturnValue({
 
 const mocks = [
   dcApiTokenMock,
+  dcApiEndpointMock,
   iiifServerUrlMock,
   getCollectionMock,
   getCollectionsMock,
@@ -39,7 +43,7 @@ jest.mock("@samvera/clover-iiif/viewer", () => {
       // Call the canvasCallback with a string when the component is rendered
       if (props.canvasCallback) {
         props.canvasCallback(
-          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0"
+          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0",
         );
       }
       return <div></div>;
@@ -53,7 +57,7 @@ describe("Work component", () => {
       <WorkProvider>
         <Work work={mockWork} />
       </WorkProvider>,
-      { mocks }
+      { mocks },
     );
   });
 

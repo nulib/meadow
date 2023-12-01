@@ -67,6 +67,10 @@ defmodule MeadowWeb.Schema do
     field :expires, non_null(:datetime)
   end
 
+  object :nullable_url do
+    field :url, :string
+  end
+
   object :url do
     field :url, non_null(:string)
   end

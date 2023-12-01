@@ -54,6 +54,10 @@ defmodule Meadow.Data.CSV.BulkImport do
       # credo:disable-for-previous-line Credo.Check.Warning.UnusedEnumOperation
 
       repo.query(
+        "UPDATE #{temp_table} SET inserted_at = works.inserted_at FROM works WHERE #{temp_table}.id = works.id"
+      )
+
+      repo.query(
         "UPDATE works SET #{set_clause} FROM #{temp_table} WHERE works.id = #{temp_table}.id"
       )
 

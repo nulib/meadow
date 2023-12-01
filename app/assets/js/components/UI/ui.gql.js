@@ -7,3 +7,19 @@ export const DIGITAL_COLLECTIONS_URL = gql`
     }
   }
 `;
+
+export const GET_DCAPI_ENDPOINT = gql`
+  query {
+    dcapiEndpoint {
+      url
+    }
+  }
+`;
+
+export const LIVEBOOK_URL = gql`
+  query LivebookUrl {
+    livebookUrl {
+      url
+    }
+  }
+`

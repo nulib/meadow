@@ -30,6 +30,7 @@ defmodule Meadow.AccountsTest do
     Accounts.list_roles()
     |> entry_names()
     |> assert_lists_equal([
+      "SuperUsers",
       "Administrators",
       "Managers",
       "Editors",

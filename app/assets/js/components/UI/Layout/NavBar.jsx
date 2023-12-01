@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { AuthContext } from "../../Auth/Auth";
 import client from "../../../client";
 import UISearchBar from "../SearchBar";
+import UILivebookLink from "@js/components/Livebook/Livebook";
 import UILayoutNavDropdown from "@js/components/UI/Layout/NavDropdown";
 import UILayoutNavDropdownHeader from "@js/components/UI/Layout/NavDropdownHeader";
 import UILayoutNavDropdownBody from "@js/components/UI/Layout/NavDropdownBody";
@@ -157,6 +158,15 @@ const UILayoutNavBar = () => {
                     <UILayoutNavDropdownBody
                       isExpanded={activeHoverNav === "Dashboards"}
                     >
+                      <AuthDisplayAuthorized level="SUPERUSER">
+                        <UILayoutNavDropdownItem>
+                          <UILivebookLink>
+                            <IconText icon={<GrMultiple />}>
+                              Livebook
+                            </IconText>
+                          </UILivebookLink>
+                        </UILayoutNavDropdownItem>
+                      </AuthDisplayAuthorized>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/batch-edit">
                           <IconText icon={<GrMultiple />}>
