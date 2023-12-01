@@ -76,7 +76,7 @@
     "@babel/plugin-transform-async-to-generator": "^7.22.5",
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.22.15",
+    "@babel/preset-typescript": "^7.23.3",
     "@babel/runtime": "^7.22.15",
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
