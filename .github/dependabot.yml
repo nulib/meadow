@@ -7,9 +7,8 @@ updates:
       time: "11:00"
     labels:
       - "dependencies"
-      - "automerge"
     open-pull-requests-limit: 10
-    target-branch: dependencies
+    target-branch: deploy/staging
     ignore:
       - dependency-name: "react-hook-form"
       - dependency-name: "node-sass"
@@ -28,9 +27,8 @@ updates:
       time: "11:00"
     labels:
       - "dependencies"
-      - "automerge"
     open-pull-requests-limit: 10
-    target-branch: dependencies
+    target-branch: deploy/staging
   - package-ecosystem: npm
     directory: "/lambdas/*"
     schedule:
@@ -38,9 +36,8 @@ updates:
       time: "11:00"
     labels:
       - "dependencies"
-      - "automerge"
     open-pull-requests-limit: 10
-    target-branch: dependencies
+    target-branch: deploy/staging
   - package-ecosystem: mix
     directory: "/app"
     schedule:
@@ -48,6 +45,5 @@ updates:
       time: "11:00"
     labels:
       - "dependencies"
-      - "automerge"
     open-pull-requests-limit: 10
-    target-branch: dependencies
+    target-branch: deploy/staging

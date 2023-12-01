@@ -60,18 +60,17 @@ defmodule Meadow.Pipeline do
   end
 
   defp wait_for_checksum_tags(%{core_metadata: %{location: location}} = file_set, context \\ %{}) do
-    with %{host: bucket, path: "/" <> key} <- URI.parse(location) do
-      case wait(AWS.check_object_tags!(bucket, key, Config.required_checksum_tags()),
-             timeout: Config.checksum_wait_timeout(),
-             frequency: 1_000
-           ) do
-        {:ok, true} ->
-          kickoff(file_set, Map.merge(context, %{role: file_set.role.id}))
-
-        {:timeout, timeout} ->
-          Logger.error(
-            "Timed out after #{timeout}ms waiting for checksum tags for file set id: #{file_set.id}"
-          )
+    with %{host: bucket, path: "/" <> key} <- URI.parse(location),
+         timeout <- Config.checksum_wait_timeout() do
+      if wait(AWS.check_object_tags!(bucket, key, Config.required_checksum_tags()),
+           timeout: timeout,
+           frequency: 1_000
+         ) do
+        kickoff(file_set, Map.merge(context, %{role: file_set.role.id}))
+      else
+        Logger.error(
+          "Timed out after #{timeout}ms waiting for checksum tags for file set id: #{file_set.id}"
+        )
       end
     end
   end
