@@ -91,7 +91,7 @@
     "@testing-library/react": "^14.1.0",
     "@testing-library/user-event": "^14.5.1",
     "@types/jest": "^29.5.10",
-    "@types/react-beautiful-dnd": "^13.1.4",
+    "@types/react-beautiful-dnd": "^13.1.7",
     "@types/react-router-dom": "^5.3.3",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "coveralls": "^3.1.1",
