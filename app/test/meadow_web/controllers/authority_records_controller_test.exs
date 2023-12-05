@@ -2,6 +2,8 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
   use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
+  alias Meadow.Repo
+  alias NUL.AuthorityRecords
   alias NUL.Schemas.AuthorityRecord
 
   describe "POST /api/authority_records/:filename (failure)" do
@@ -45,6 +47,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
         authority_record_fixture(%{label: "Ver Steeg, Dorothy A."}),
         authority_record_fixture(%{label: "Netsch, Walter A."})
       ]
+
       :ok
     end
 
@@ -57,6 +60,63 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
       assert Plug.Conn.get_resp_header(conn, "content-disposition")
              |> Enum.member?(~s(attachment; filename="nul_authority_records.csv"))
 
+      assert conn.state == :chunked
+      assert response_content_type(conn, :csv)
+      assert response(conn, 200)
+    end
+  end
+
+  describe "POST /api/authority_records/bulk_create" do
+    setup %{fixture: fixture} do
+      upload = %Plug.Upload{
+        content_type: "text/csv",
+        filename: "authority_import.csv",
+        path: fixture
+      }
+
+      {:ok, %{upload: upload}}
+    end
+
+    @tag fixture: "test/fixtures/authority_records/bad_authority_import.csv"
+    test "bad data", %{conn: conn, upload: upload} do
+      conn =
+        conn
+        |> auth_user(user_fixture("TestAdmins"))
+        |> post("/api/authority_records/bulk_create", %{records: upload})
+
+      assert response(conn, 400)
+    end
+
+    @tag fixture: "test/fixtures/authority_records/good_authority_import.csv"
+    test "good data", %{conn: conn, upload: upload} do
+      precount = Meadow.Repo.aggregate(AuthorityRecord, :count)
+
+      conn =
+        conn
+        |> auth_user(user_fixture("TestAdmins"))
+        |> post("/api/authority_records/bulk_create", %{records: upload})
+
+      assert Meadow.Repo.aggregate(AuthorityRecord, :count) == precount + 3
+      assert conn.state == :chunked
+      assert response_content_type(conn, :csv)
+      assert response(conn, 200)
+    end
+
+    @tag fixture: "test/fixtures/authority_records/good_authority_import.csv"
+    test "one duplicate entry", %{conn: conn, upload: upload} do
+      AuthorityRecords.create_authority_record(%{
+        label: "Second Imported Thing",
+        hint: "preexisting entry"
+      })
+
+      precount = Meadow.Repo.aggregate(AuthorityRecord, :count)
+
+      conn =
+        conn
+        |> auth_user(user_fixture("TestAdmins"))
+        |> post("/api/authority_records/bulk_create", %{records: upload})
+
+      assert Meadow.Repo.aggregate(AuthorityRecord, :count) == precount + 2
       assert conn.state == :chunked
       assert response_content_type(conn, :csv)
       assert response(conn, 200)
