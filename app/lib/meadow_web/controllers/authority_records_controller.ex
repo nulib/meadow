@@ -13,7 +13,10 @@ defmodule MeadowWeb.AuthorityRecordsController do
   end
 
   defp do_bulk_create({:error, :bad_format}, conn) do
-    send_resp(conn, 400, "Bad Request")
+    case conn |> get_req_header("referer") do
+      [referer | _] -> redirect(conn, external: referer)
+      _ -> send_resp(conn, 400, inspect(conn))
+    end
   end
 
   defp do_bulk_create({:ok, records}, conn) do
@@ -21,7 +24,7 @@ defmodule MeadowWeb.AuthorityRecordsController do
       records
       |> AuthorityRecords.create_authority_records()
       |> Enum.map(fn {status, %{id: id, label: label, hint: hint}} ->
-        ["info:nul/#{id}", label, hint, status]
+        [id, label, hint, status]
       end)
 
     file = "authority_import_#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
@@ -56,6 +59,9 @@ defmodule MeadowWeb.AuthorityRecordsController do
       _ ->
         {:error, :bad_format}
     end
+  rescue
+    NimbleCSV.ParseError -> {:error, :bad_format}
+    error -> raise error
   end
 
   def export(conn, %{"file" => file} = params) do

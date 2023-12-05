@@ -101,7 +101,7 @@ defmodule NUL.AuthorityRecords do
     records =
       Enum.map(list_of_attrs, fn attrs ->
         Map.merge(attrs, %{
-          id: Ecto.UUID.generate(),
+          id: "info:nul/" <> Ecto.UUID.generate(),
           inserted_at: inserted_at,
           updated_at: inserted_at
         })
