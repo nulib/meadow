@@ -78,13 +78,27 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
     end
 
     @tag fixture: "test/fixtures/authority_records/bad_authority_import.csv"
-    test "bad data", %{conn: conn, upload: upload} do
+    test "bad data, no referer", %{conn: conn, upload: upload} do
       conn =
         conn
         |> auth_user(user_fixture("TestAdmins"))
         |> post("/api/authority_records/bulk_create", %{records: upload})
 
       assert response(conn, 400)
+    end
+
+    @tag fixture: "test/fixtures/authority_records/bad_authority_import.csv"
+    test "bad data, w/referer", %{conn: conn, upload: upload} do
+      referer = "https://example.edu/dashboards/nul-local-authorities"
+
+      conn =
+        conn
+        |> auth_user(user_fixture("TestAdmins"))
+        |> put_req_header("referer", referer)
+        |> post("/api/authority_records/bulk_create", %{records: upload})
+
+      assert response(conn, 302)
+      assert [^referer] = get_resp_header(conn, "location")
     end
 
     @tag fixture: "test/fixtures/authority_records/good_authority_import.csv"

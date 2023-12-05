@@ -1,4 +1,5 @@
 import IconAdd from "@js/components/Icon/Add";
+import IconAddMany from "@js/components/Icon/AddMany";
 import IconAlert from "@js/components/Icon/Alert";
 import IconArrowDown from "@js/components/Icon/ArrowDown";
 import IconArrowLeft from "@js/components/Icon/ArrowLeft";
@@ -35,6 +36,7 @@ import IconUser from "@js/components/Icon/User";
 
 export {
   IconAdd,
+  IconAddMany,
   IconAlert,
   IconArrowDown,
   IconArrowLeft,
