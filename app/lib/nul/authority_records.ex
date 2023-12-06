@@ -99,13 +99,16 @@ defmodule NUL.AuthorityRecords do
     inserted_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
     records =
-      Enum.map(list_of_attrs, fn attrs ->
-        Map.merge(attrs, %{
+      Enum.map(list_of_attrs, fn entry ->
+        %{
           id: "info:nul/" <> Ecto.UUID.generate(),
+          label: String.trim(Map.get(entry, :label, "")),
+          hint: String.trim(Map.get(entry, :hint, "")),
           inserted_at: inserted_at,
           updated_at: inserted_at
-        })
+        }
       end)
+      |> Enum.reject(&(&1.label == ""))
 
     labels = Enum.map(records, & &1.label)
 
