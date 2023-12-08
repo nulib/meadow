@@ -5,10 +5,14 @@ defmodule MeadowWeb.AuthorityRecordsController do
   alias NUL.AuthorityRecords
   import Plug.Conn
 
+  require Logger
+
   plug(:authorize_user)
 
-  def bulk_create(conn, %{"records" => %Plug.Upload{path: path}}) do
-    csv_to_maps(path)
+  def bulk_create(conn, %{"records" => upload}) do
+    Logger.info("Received #{upload.filename} of type #{upload.content_type} for bulk import")
+
+    csv_to_maps(upload.path)
     |> do_bulk_create(conn)
   end
 

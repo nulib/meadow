@@ -31,12 +31,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
     fileList.items.add(file);
     input.files = fileList.files;
   }, []);
-  const accept = {
-    "text/csv": [".csv"],
-    "application/csv": [".csv"],
-    "application/vnd.ms-excel": [".csv"],
-  };
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept, onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <FormProvider {...methods}>
