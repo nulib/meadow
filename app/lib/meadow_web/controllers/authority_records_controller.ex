@@ -51,7 +51,7 @@ defmodule MeadowWeb.AuthorityRecordsController do
 
   defp csv_to_maps(file) do
     [headers | rows] =
-      File.stream!(file, [], :line)
+      File.stream!(file, [:trim_bom], :line)
       |> CSV.parse_stream(skip_headers: false)
       |> Enum.to_list()
 
@@ -60,12 +60,17 @@ defmodule MeadowWeb.AuthorityRecordsController do
         headers = Enum.map(headers, &String.to_atom/1)
         {:ok, Enum.map(rows, fn row -> Enum.zip(headers, row) |> Enum.into(%{}) end)}
 
-      _ ->
+      other ->
+        Logger.error("Bad headers: " <> inspect(other))
         {:error, :bad_format}
     end
   rescue
-    NimbleCSV.ParseError -> {:error, :bad_format}
-    exception -> reraise exception, __STACKTRACE__
+    exception in NimbleCSV.ParseError ->
+      Logger.error("Parsing error: " <> inspect(exception))
+      {:error, :bad_format}
+
+    exception ->
+      reraise exception, __STACKTRACE__
   end
 
   def export(conn, %{"file" => file} = params) do
