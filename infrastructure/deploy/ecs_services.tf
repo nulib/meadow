@@ -1,5 +1,5 @@
 locals {
-  container_ports = tolist([4000, 4369, 24601])
+  container_ports = tolist([4000, 4369, 8080, 24601])
 
   meadow_urls = [for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : "//${hostname}"]
 
@@ -7,6 +7,7 @@ locals {
     docker_tag                      = terraform.workspace
     honeybadger_api_key             = var.honeybadger_api_key
     host_name                       = aws_route53_record.app_hostname.fqdn
+    internal_host_name              = "${var.stack_name}.${data.aws_service_discovery_dns_namespace.internal_dns_zone.name}"
     log_group                       = aws_cloudwatch_log_group.meadow_logs.name
     meadow_urls                     = join(",", local.meadow_urls)
     region                          = var.aws_region
@@ -27,6 +28,27 @@ module "meadow_task_all" {
   tags             = var.tags
 }
 
+data "aws_service_discovery_dns_namespace" "internal_dns_zone" {
+  name = "internal.${var.dns_zone}"
+  type = "DNS_PRIVATE"
+}
+
+resource "aws_service_discovery_service" "meadow" {
+  name = "meadow"
+
+  dns_config {
+    namespace_id = data.aws_service_discovery_dns_namespace.internal_dns_zone.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  tags = var.tags
+}
+
 resource "aws_ecs_service" "meadow_all" {
   name                              = "meadow"
   cluster                           = aws_ecs_cluster.meadow.id
@@ -38,10 +60,20 @@ resource "aws_ecs_service" "meadow_all" {
   depends_on                        = [aws_lb.meadow_load_balancer]
   platform_version                  = "1.4.0"
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.meadow.arn
+  }
+
   load_balancer {
     target_group_arn = aws_lb_target_group.meadow_target.arn
     container_name   = "meadow"
     container_port   = 4000
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.meadow_livebook_target.arn
+    container_name   = "livebook"
+    container_port   = 8080
   }
 
   lifecycle {

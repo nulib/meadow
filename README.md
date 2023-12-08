@@ -1,8 +1,8 @@
 # Meadow
 
-[![Build](https://github.com/nulib/meadow/actions/workflows/build.yml/badge.svg)](https://github.com/nulib/meadow/actions/workflows/build.yml)
+[![Build](https://github.com/nulib/meadow/actions/workflows/test.yml/badge.svg)](https://github.com/nulib/meadow/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/nulib/meadow/badge.svg)](https://coveralls.io/github/nulib/meadow)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=nulib/meadow)](https://dependabot.com)
+<!-- [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=nulib/meadow)](https://dependabot.com) -->
 
 ## Prerequisites
 

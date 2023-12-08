@@ -105,9 +105,17 @@ resource "aws_security_group" "meadow_load_balancer" {
   }
 
   ingress {
-    description = "HTTPS in"
+    description = "HTTPS in (Meadow)"
     from_port   = 443
     to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS in (Livebook)"
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -171,6 +179,27 @@ resource "aws_lb_target_group" "meadow_target" {
   }
 }
 
+resource "aws_lb_target_group" "meadow_livebook_target" {
+  port                 = 8080
+  deregistration_delay = 30
+  target_type          = "ip"
+  protocol             = "HTTP"
+  vpc_id               = data.aws_vpc.this_vpc.id
+  tags                 = var.tags
+
+  health_check {
+    path                = "/"
+    matcher             = "200,403"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  stickiness {
+    enabled = false
+    type    = "lb_cookie"
+  }
+}
+
 resource "aws_lb" "meadow_load_balancer" {
   name               = "${var.stack_name}-lb"
   internal           = false
@@ -207,6 +236,19 @@ resource "aws_lb_listener" "meadow_lb_listener_https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.meadow_target.arn
+  }
+}
+
+resource "aws_lb_listener" "meadow_lb_listener_livebook" {
+  load_balancer_arn = aws_lb.meadow_load_balancer.arn
+  port              = 8080
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.meadow_cert.arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.meadow_livebook_target.arn
   }
 }
 

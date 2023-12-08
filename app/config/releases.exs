@@ -116,6 +116,8 @@ config :meadow,
   preservation_check_bucket: aws_secret("meadow", dig: ["buckets", "preservation_check"]),
   streaming_bucket: aws_secret("meadow", dig: ["buckets", "streaming"])
 
+config :meadow, :livebook, url: environment_secret("LIVEBOOK_URL", default: nil)
+
 config :logger, level: :info
 
 config :meadow, Meadow.Scheduler,
@@ -178,7 +180,10 @@ config :hackney,
               processors: [
                 default: [
                   concurrency:
-                    environment_secret("#{key}_PROCESSOR_CONCURRENCY", cast: :integer, default: 10),
+                    environment_secret("#{key}_PROCESSOR_CONCURRENCY",
+                      cast: :integer,
+                      default: 10
+                    ),
                   max_demand:
                     environment_secret("#{key}_MAX_DEMAND", cast: :integer, default: 10),
                   min_demand: environment_secret("#{key}_MIN_DEMAND", cast: :integer, default: 5)

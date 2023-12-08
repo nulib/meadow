@@ -2,8 +2,7 @@
   {
     "name": "meadow",
     "image": "${docker_repository}:${docker_tag}",
-    "cpu": ${cpu_reservation},
-    "memoryReservation": ${memory_reservation},
+    "cpu": 0,
     "mountPoints": [],
     "essential": true,
     "environment": [
@@ -18,6 +17,10 @@
       {
         "name": "HONEYBADGER_API_KEY",
         "value": "${honeybadger_api_key}"
+      },
+      {
+        "name": "LIVEBOOK_URL",
+        "value": "https://${host_name}:8080"
       },
       {
         "name": "MEADOW_HOSTNAME",
@@ -46,6 +49,10 @@
       {
         "name": "RELEASE_DISTRIBUTION",
         "value": "name"
+      },
+      {
+        "name": "RELEASE_NODE",
+        "value": "meadow@${internal_host_name}"
       },
       {
         "name": "ALLOWED_ORIGINS",
@@ -102,7 +109,8 @@
       {
         "name": "FILE_SET_COMPLETE_PROCESSOR_CONCURRENCY",
         "value": "20"
-      }    ],
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 4000,
@@ -136,5 +144,61 @@
       }
     ],
     "volumesFrom": []
+  },
+  {
+    "name": "livebook",
+    "image": "${docker_repository}:livebook-${docker_tag}",
+    "cpu": 512,
+    "memoryReservation": 512,
+    "portMappings": [
+        {
+            "name": "livebook-8080-tcp",
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp",
+            "appProtocol": "http"
+        },
+        {
+            "name": "livebook-8081-tcp",
+            "containerPort": 8081,
+            "hostPort": 8081,
+            "protocol": "tcp",
+            "appProtocol": "http"
+        }
+    ],
+    "essential": true,
+    "environment": [
+      {
+        "name": "LB_MEADOW_COOKIE",
+        "value": "${secret_key_base}"
+      },
+      {
+        "name": "LB_MEADOW_NODE",
+        "value": "meadow@${internal_host_name}"
+      },
+      {
+        "name": "LIVEBOOK_NODE",
+        "value": "livebook@${internal_host_name}"
+      },
+      {
+        "name": "LIVEBOOK_DISTRIBUTION",
+        "value": "name"
+      },
+      {
+        "name": "LIVEBOOK_COOKIE",
+        "value": "${secret_key_base}"
+      }
+    ],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "readonlyRootFilesystem": false,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "livebook"
+      }
+    }
   }
 ]

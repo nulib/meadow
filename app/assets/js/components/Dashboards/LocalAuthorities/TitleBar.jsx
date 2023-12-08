@@ -3,8 +3,9 @@ import { ActionHeadline, PageTitle } from "@js/components/UI/UI";
 import { Button } from "@nulib/design-system";
 import { CREATE_NUL_AUTHORITY_RECORD } from "@js/components/Dashboards/dashboards.gql";
 import DashboardsLocalAuthoritiesModalAdd from "@js/components/Dashboards/LocalAuthorities/ModalAdd";
+import DashboardsLocalAuthoritiesModalBulkAdd from "@js/components/Dashboards/LocalAuthorities/ModalBulkAdd";
 import FormDownloadWrapper from "@js/components/UI/Form/DownloadWrapper";
-import { IconAdd } from "@js/components/Icon";
+import { IconAdd, IconAddMany } from "@js/components/Icon";
 import { IconCsv } from "@js/components/Icon";
 import NLogo from "@js/components/northwesternN.svg";
 import React from "react";
@@ -14,6 +15,8 @@ import { useMutation } from "@apollo/client";
 
 function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();
+  const [isBulkAddModalOpen, setIsBulkAddModalOpen] = React.useState();
+
   const [createNulAuthorityRecord, { _data, _error, _loading }] = useMutation(
     CREATE_NUL_AUTHORITY_RECORD,
     {
@@ -63,6 +66,15 @@ function DashboardsLocalAuthoritiesTitleBar() {
               <span>Add Local Authority</span>
             </Button>
           </p>
+          <p className="control">
+            <Button
+              onClick={() => setIsBulkAddModalOpen(true)}
+              data-testid="bulk-add-button"
+            >
+              <IconAddMany />
+              <span>Bulk Add</span>
+            </Button>
+          </p>
           <span className="control">
             <FormDownloadWrapper formAction="/api/authority_records/nul_authority_records.csv">
               <Button data-testid="button-csv-authority-export" type="submit">
@@ -78,6 +90,11 @@ function DashboardsLocalAuthoritiesTitleBar() {
         isOpen={isAddModalOpen}
         handleAddLocalAuthority={handleAddLocalAuthority}
         handleClose={() => setIsAddModalOpen(false)}
+      />
+
+      <DashboardsLocalAuthoritiesModalBulkAdd
+        isOpen={isBulkAddModalOpen}
+        handleClose={() => setIsBulkAddModalOpen(false)}
       />
     </React.Fragment>
   );

@@ -10,7 +10,13 @@ import { Notification } from "@nulib/design-system";
  */
 
 // Order of role-based access low to high
-const userRoleHierarchy = ["USER", "EDITOR", "MANAGER", "ADMINISTRATOR"];
+const userRoleHierarchy = [
+  "USER",
+  "EDITOR",
+  "MANAGER",
+  "ADMINISTRATOR",
+  "SUPERUSER",
+];
 
 export default function useIsAuthorized() {
   const { data, loading, error } = useQuery(GET_CURRENT_USER_QUERY);

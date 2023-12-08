@@ -1,6 +1,6 @@
 const isString = require("lodash.isstring");
 const fetch = require("node-fetch");
-const { dcApiEndpoint, allowedFrom } = require("./environment.json");
+const { dcApiEndpoint, allowedFrom } = require("./config/environment.json");
 
 const allowedFromRegexes = ((str) => {
   const configValues = isString(str) ? str.split(";") : [];
