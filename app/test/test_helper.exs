@@ -1,4 +1,3 @@
-Hush.resolve!()
 Meadow.Repo.wait_for_connection()
 
 Mix.Task.run("ecto.setup")

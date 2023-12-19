@@ -1,5 +1,4 @@
 import Config
-import Env
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -8,11 +7,6 @@ config :meadow, MeadowWeb.Endpoint,
   server: false
 
 config :meadow, Meadow.Search.Cluster,
-  url:
-    aws_secret("meadow",
-      dig: ["search", "cluster_endpoint"],
-      default: "http://localhost:9200"
-    ),
   bulk_page_size: 3,
   bulk_wait_interval: 2
 
@@ -114,11 +108,5 @@ config :honeybadger,
   exclude_envs: [:dev, :test],
   api_key: "abc123",
   origin: "http://localhost:4444"
-
-config :meadow, :sitemaps,
-  gzip: true,
-  store: Sitemapper.S3Store,
-  sitemap_url: "http://localhost:3333/",
-  store_config: [bucket: prefix("uploads"), path: ""]
 
 config :elixir, :ansi_enabled, true

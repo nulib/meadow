@@ -1,5 +1,3 @@
-Code.require_file("lib/env.ex")
-
 defmodule Meadow.MixProject do
   use Mix.Project
 
@@ -71,6 +69,7 @@ defmodule Meadow.MixProject do
       {:ex_aws, "~> 2.5.0"},
       {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
+      {:ex_aws_secretsmanager, "~> 2.0"},
       {:ex_aws_ssm, "~> 2.1"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},
@@ -78,8 +77,6 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
-      {:hush, "~> 0.5"},
-      {:hush_aws_secrets_manager, "~> 0.1"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1.11"},
@@ -139,8 +136,7 @@ defmodule Meadow.MixProject do
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],
-        steps: [&build_assets/1, :assemble],
-        config_providers: [{Hush.ConfigProvider, nil}]
+        steps: [&build_assets/1, :assemble]
       ]
     ]
   end

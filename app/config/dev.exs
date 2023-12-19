@@ -1,9 +1,4 @@
 import Config
-import Env
-
-alias Hush.Provider.AwsSecretsManager
-
-File.mkdir_p!("priv/cert")
 
 config :meadow, Meadow.Repo,
   show_sensitive_data_on_connection_error: true,
@@ -13,17 +8,6 @@ config :meadow, Meadow.Repo,
   pool_size: 50
 
 config :meadow, MeadowWeb.Endpoint,
-  https: [
-    port: 3001,
-    cipher_suite: :strong,
-    certfile:
-      aws_secret("wildcard_ssl",
-        apply: &{:ok, Map.get(&1, "certificate")},
-        to_file: "priv/cert/cert.pem"
-      ),
-    keyfile:
-      aws_secret("wildcard_ssl", apply: &{:ok, Map.get(&1, "key")}, to_file: "priv/cert/key.pem")
-  ],
   debug_errors: false,
   code_reloader: true,
   check_origin: false,
@@ -72,10 +56,7 @@ if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
   end)
 end
 
-config :meadow,
-  index_interval: 30_000,
-  mediaconvert_queue: prefix("transcode"),
-  mediaconvert_role: aws_secret("meadow", dig: ["transcode", "role_arn"])
+config :meadow, index_interval: 30_000
 
 config :meadow, Meadow.Scheduler,
   overlap: false,
@@ -96,32 +77,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
-
-config :ueberauth, Ueberauth,
-  providers: [
-    nusso:
-      {Ueberauth.Strategy.NuSSO,
-       [
-         base_url: aws_secret("meadow", dig: ["nusso", "base_url"]),
-         callback_path: "/auth/nusso/callback",
-         callback_port: 3001,
-         consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
-         include_attributes: false,
-         ssl_port: 3001
-       ]}
-  ]
-
-if prefix = System.get_env("DEV_PREFIX") do
-  config :meadow,
-    dc_api: [
-      v2: %{
-        "api_token_secret" =>
-          aws_secret("meadow", dig: ["dc_api", "v2", "api_token_secret"], default: "DEV_SECRET"),
-        "api_token_ttl" => 300,
-        "base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002"
-      }
-    ]
-end
 
 config :meadow, :sitemaps,
   gzip: false,

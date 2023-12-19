@@ -7,7 +7,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
 
-  import Env
+  import Meadow.Runtime
   import ExUnit.CaptureLog
 
   @mediainfo %{

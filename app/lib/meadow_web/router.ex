@@ -1,6 +1,7 @@
 defmodule MeadowWeb.Router do
   use MeadowWeb, :router
   use Honeybadger.Plug, plug_data: MeadowWeb.ErrorMetadata
+  alias Meadow.Runtime.Pipeline
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
@@ -36,7 +37,9 @@ defmodule MeadowWeb.Router do
     live_dashboard("/",
       metrics: Meadow.Telemetry,
       ecto_repos: [Meadow.Repo],
-      additional_pages: [broadway: {BroadwayDashboard, pipelines: Meadow.Pipeline.actions()}]
+      additional_pages: [
+        broadway: {BroadwayDashboard, pipelines: Pipeline.actions()}
+      ]
     )
   end
 

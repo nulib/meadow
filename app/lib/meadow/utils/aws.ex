@@ -9,7 +9,7 @@ defmodule Meadow.Utils.AWS do
   alias Meadow.Utils.AWS.MultipartCopy
   alias Meadow.Utils.Pairtree
 
-  import Env
+  import Meadow.Runtime
   import SweetXml, only: [sigil_x: 2]
 
   require Logger
@@ -79,24 +79,41 @@ defmodule Meadow.Utils.AWS do
   def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []),
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
-  def invalidate_cache(file_set, invalidation_type), do: invalidate_cache(file_set, invalidation_type, Config.environment())
-  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/2/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, invalidation_type),
+    do: invalidate_cache(file_set, invalidation_type, Config.environment())
+
+  def invalidate_cache(file_set, :pyramid, :dev),
+    do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :pyramid, :test),
+    do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :pyramid, _),
+    do: perform_iiif_invalidation("/iiif/2/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, :dev),
+    do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, :test),
+    do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, _),
+    do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
+
   def invalidate_cache(_file_set, :streaming, :dev), do: :ok
   def invalidate_cache(_file_set, :streaming, :test), do: :ok
-  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
 
-  defp perform_iiif_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
-  defp perform_streaming_invalidation(path), do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
+  def invalidate_cache(file_set, :streaming, _),
+    do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
+
+  defp perform_iiif_invalidation(path),
+    do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
+
+  defp perform_streaming_invalidation(path),
+    do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
 
   defp perform_invalidation(path, nil) do
-    Logger.info(
-      "Skipping cache invalidation for: #{path}. No distribution id found."
-      )
+    Logger.info("Skipping cache invalidation for: #{path}. No distribution id found.")
     :ok
   end
 
