@@ -3,6 +3,21 @@ defmodule MeadowWeb.AuthControllerTest do
 
   alias MeadowWeb.Plugs.SetCurrentUser
 
+  test "GET /auth/nusso/login redirects to the SSO server with the correct callback URL" do
+    conn =
+      build_conn()
+      |> Plug.Conn.put_req_header("referer", "/project/list")
+
+    conn = get(conn, "/auth/nusso")
+
+    assert %URI{scheme: "https", port: 3002, path: "/auth/nusso/callback"} =
+             redirected_to(conn, 302)
+             |> URI.query_decoder()
+             |> Enum.into(%{})
+             |> Map.get("goto")
+             |> URI.parse()
+  end
+
   test "GET /auth/nusso/callback redirects to the referring page" do
     conn =
       build_conn()

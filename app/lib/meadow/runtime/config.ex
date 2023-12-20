@@ -119,21 +119,13 @@ defmodule Meadow.Runtime.Config do
       password: secret(:meadow, dig: [:ldap, :password], default: "d0ck3rAdm1n!"),
       ssl: secret(:meadow, dig: [:ldap, :ssl], cast: :boolean, default: false)
 
-    config :ueberauth, Ueberauth,
-      providers: [
-        nusso:
-          {Ueberauth.Strategy.NuSSO,
-           [
-             base_url:
-               secret(:meadow,
-                 dig: [:nusso, :base_url],
-                 default: "https://northwestern-prod.apigee.net/agentless-websso/"
-               ),
-             callback_path: "/auth/nusso/callback",
-             consumer_key: secret(:meadow, dig: [:nusso, :api_key]),
-             include_attributes: false
-           ]}
-      ]
+    config :ueberauth, Ueberauth.Strategy.NuSSO,
+      base_url:
+        secret(:meadow,
+          dig: [:nusso, :base_url],
+          default: "https://northwestern-prod.apigee.net/agentless-websso/"
+        ),
+      consumer_key: secret(:meadow, dig: [:nusso, :api_key])
 
     config :authoritex, geonames_username: secret(:meadow, dig: [:geonames, :username])
   end

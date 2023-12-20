@@ -5,8 +5,8 @@ defmodule MediaConvert.AudioTemplateTest do
   alias MediaConvert.AudioTemplate
 
   @template %{
-    Queue: "arn:aws:mediaconvert:::queues/Default",
-    Role: "arn:aws:iam:::role/service-role/MediaConvert_Default_Role",
+    Queue: "test-transcode-queue",
+    Role: "test-transcode-role",
     Settings: %{
       Inputs: [
         %{

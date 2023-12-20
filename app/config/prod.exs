@@ -65,13 +65,3 @@ config :meadow, MeadowWeb.Endpoint, server: true
 
 # Finally import the config/prod.secret.exs which loads secrets
 # and configuration from environment variables.
-
-config :meadow, Meadow.Scheduler,
-  overlap: false,
-  timezone: "America/Chicago",
-  jobs: [
-    # Runs daily at 2AM Central Time
-    {"0 2 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
-  ]
-
-config :logger, level: :info

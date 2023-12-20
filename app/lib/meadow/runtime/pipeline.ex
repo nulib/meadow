@@ -1,6 +1,7 @@
 defmodule Meadow.Runtime.Pipeline do
   @moduledoc false
 
+  alias Meadow.Pipeline.Actions
   import Config
   import Meadow.Runtime
 

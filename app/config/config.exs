@@ -67,7 +67,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
+config :ueberauth, Ueberauth,
+  providers: [nusso: {Ueberauth.Strategy.NuSSO, [callback_path: "/auth/nusso/callback"]}]
+
+config :ueberauth, Ueberauth.Strategy.NuSSO, include_attributes: false
 
 config :authoritex,
   authorities: [

@@ -4,15 +4,17 @@ defmodule Meadow.Runtime do
   evaluation time is as follows:
 
   1. `config/{dev/test/prod}.local.exs` (runtime)
-  5. `config/{dev/test/prod}.exs` (runtime)
   2. `Meadow.Runtime.Release.configure!/0` (runtime, release only)
   3. `Meadow.Runtime.{Dev/Test/Prod}.configure!/0` (runtime)
   4. `Meadow.Runtime.Config.configure!/0` (runtime)
   5. `config/{dev/test/prod}.exs` (compile-time)
   6. `config/config.exs` (compile-time)
 
-  Note that the environment-specific files in the `config` directory get
-  compiled but then also loaded at runtime.
+  So with the exception of `.local.exs` files, `config/*.exs` gets the lowest
+  priority – anything overwritten by `lib/meadow/runtime/config.ex` will get
+  clobbered every time. Unless you _know_ something needs to be part of the
+  compile-time configuration (e.g., it's referenced in a module `@attribute`
+  or a macro), it's best to put it under `Meadow.Runtime`.
   """
 
   alias Meadow.Utils.Truth
