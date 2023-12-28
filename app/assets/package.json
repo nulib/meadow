@@ -37,7 +37,7 @@
     "bulma-pageloader": "^0.3.0",
     "bulma-switch": "^2.0.0",
     "bulma-toast": "^2.4.3",
-    "classnames": "^2.3.1",
+    "classnames": "^2.5.0",
     "downshift": "^8.2.3",
     "edtf": "^4.5.1",
     "esbuild-plugin-svgr": "^2.1.0",
