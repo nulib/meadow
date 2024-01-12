@@ -27,7 +27,7 @@ function WorkTabsPreservationFileSetDropzone({
     const { isValid, code, message } = isFileValid(
       fileSetRole,
       workTypeId,
-      file.type
+      file.type,
     );
 
     // Dropzone validator: null means valid
