@@ -39,32 +39,52 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
       .then(({ location, segmentOffset }) => {
         const segOffInSeconds = segmentOffset / 1000;
 
+        let dimensions = {};
+
         const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
         s3Client
           .send(new GetObjectCommand({ Bucket: uri.host, Key: location }))
           .then(({ Body: readStream }) => {
             readStream.on("error", (error) => console.error(error));
 
-            let ffmpegProcess = new ffmpeg(readStream)
-              .seek(segOffInSeconds)
-              .outputOptions(["-vframes 1"])
-              .toFormat("image2")
-              .on("error", function (err, _stdout, _stderr) {
-                console.error("Cannot process video: " + err.message);
-              })
-              .on("end", function (_stdout, _stderr) {
-                console.log("Transcoding succeeded");
-              });
+            let ffmpegProcess = ffmpeg(readStream);
 
-            const uploadStream = concat((data) => {
-              uploadToS3(data, destination)
-                .then((result) => resolve(result))
-                .catch((err) => reject(err));
+            ffmpegProcess.ffprobe((err, data) => {
+              if (err) {
+                reject("Error running ffprobe: " + err.message);
+              } else {
+                dimensions.width = data.streams[0].width;
+                dimensions.height = data.streams[0].height;
+
+                s3Client
+                  .send(new GetObjectCommand({ Bucket: uri.host, Key: location }))
+                  .then(({ Body: secondReadStream }) => {
+                    secondReadStream.on("error", (error) => console.error(error));
+
+                    ffmpegProcess = ffmpeg(secondReadStream)
+                      .seek(segOffInSeconds)
+                      .outputOptions(["-vframes 1"])
+                      .toFormat("image2")
+                      .on("error", function (err, _stdout, _stderr) {
+                        console.error("Cannot process video: " + err.message);
+                      })
+                      .on("end", function (_stdout, _stderr) {
+                        console.log("Transcoding succeeded");
+                      });
+
+                    const uploadStream = concat((data) => {
+                      uploadToS3(data, destination, dimensions)
+                        .then((result) => resolve(result))
+                        .catch((err) => reject(err));
+                    });
+
+                    ffmpegProcess.pipe(uploadStream, { end: true });
+                  })
+                  .catch((err) => reject(err));
+              }
             });
-
-            ffmpegProcess.pipe(uploadStream, { end: true });
-        })
-        .catch((err) => reject(err));
+          })
+          .catch((err) => reject(err));
       })
       .catch((err) => reject(err));
   });
@@ -80,24 +100,44 @@ const extractFrameFromVideo = async (source, destination, offset) => {
 
   return new Promise((resolve, reject) => {
     try {
-      let ffmpegProcess = new ffmpeg(readStream)
-        .seek(offset / 1000.0)
-        .outputOptions(["-vframes 1"])
-        .toFormat("image2")
-        .on("error", function (err, _stdout, _stderr) {
-          console.error("Cannot process video: " + err.message);
-        })
-        .on("end", function (_stdout, _stderr) {
-          console.log("Transcoding succeeded !");
-        });
+      let dimensions = {};
+      let ffmpegProcess = new ffmpeg(readStream);
 
-      const uploadStream = concat((data) => {
-        uploadToS3(data, destination)
-          .then((result) => resolve(result))
-          .catch((err) => reject(err));
+      ffmpegProcess.ffprobe((err, data) => {
+        if (err) {
+          reject("Error running ffprobe: " + err.message);
+        } else {
+          dimensions.width = data.streams[0].width;
+          dimensions.height = data.streams[0].height;
+          console.log("Video dimensions: ", dimensions.width, "x", dimensions.height);
+
+          s3Client
+            .send(new GetObjectCommand({ Bucket: uri.host, Key: key }))
+            .then(async ({ Body: secondReadStream }) => {
+              secondReadStream.on("error", (error) => console.error(error));
+
+              ffmpegProcess = new ffmpeg(secondReadStream)
+                .seek(offset / 1000.0)
+                .outputOptions(["-vframes 1"])
+                .toFormat("image2")
+                .on("error", function (err, _stdout, _stderr) {
+                  console.error("Cannot process video: " + err.message);
+                })
+                .on("end", function (_stdout, _stderr) {
+                  console.log("Transcoding succeeded");
+                });
+
+              const uploadStream = concat((data) => {
+                uploadToS3(data, destination, dimensions)
+                  .then((result) => resolve(result))
+                  .catch((err) => reject(err));
+              });
+
+              ffmpegProcess.pipe(uploadStream, { end: true });
+            })
+            .catch((err) => reject(err));
+        }
       });
-
-      ffmpegProcess.pipe(uploadStream, { end: true });
     } catch (err) {
       reject(err);
     }
@@ -147,9 +187,11 @@ const parsePlaylist = async (bucket, key, offset) => {
   }
 };
 
-const uploadToS3 = (data, destination) => {
+const uploadToS3 = (data, destination, dimensions) => {
   const metadata = {
-    "Content-Type": "image"
+    "Content-Type": "image",
+    width: dimensions.width.toString(),
+    height: dimensions.height.toString()
   };
   return new Promise((resolve, reject) => {
     const poster = URI.parse(destination);
