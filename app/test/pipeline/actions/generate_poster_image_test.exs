@@ -61,6 +61,13 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
+      with {:ok, %{headers: headers}} <-
+             ExAws.S3.head_object(@pyramid_bucket, "posters/#{Pairtree.poster_path(file_set.id)}")
+             |> ExAws.request() do
+        assert headers |> Enum.member?({"x-amz-meta-width", "1920"})
+        assert headers |> Enum.member?({"x-amz-meta-height", "1080"})
+      end
+
       assert(
         FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
           FileSets.poster_uri_for(file_set)

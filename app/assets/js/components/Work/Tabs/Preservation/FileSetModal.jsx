@@ -1,22 +1,23 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { Button, Notification } from "@nulib/design-system";
-import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
+import { FormProvider, useForm } from "react-hook-form";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
-import { useLazyQuery, useMutation } from "@apollo/client";
-import { s3Location, toastWrapper } from "@js/services/helpers";
-import { useForm, FormProvider } from "react-hook-form";
-import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
-import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
-import Error from "@js/components/UI/Error";
-import classNames from "classnames";
-import UIFormField from "@js/components/UI/Form/Field.jsx";
-import UIFormSelect from "@js/components/UI/Form/Select.jsx";
-import { useCodeLists } from "@js/context/code-list-context";
-import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
-
+import React, { useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
+import { s3Location, toastWrapper } from "@js/services/helpers";
+import { useLazyQuery, useMutation } from "@apollo/client";
+
+import Error from "@js/components/UI/Error";
+import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
+import PropTypes from "prop-types";
+import UIFormField from "@js/components/UI/Form/Field.jsx";
+import UIFormSelect from "@js/components/UI/Form/Select.jsx";
+import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
+import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
+import classNames from "classnames";
+import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
+import { useCodeLists } from "@js/context/code-list-context";
+
 const modalCss = css`
   z-index: 100;
 `;
@@ -79,7 +80,7 @@ function WorkTabsPreservationFileSetModal({
       onCompleted({ ingestFileSet }) {
         toastWrapper(
           "is-success",
-          `FileSet record id: ${ingestFileSet.id} created successfully and ${ingestFileSet.coreMetadata.original_filename} was submitted to the ingest pipeline.`
+          `FileSet record id: ${ingestFileSet.id} created successfully and ${ingestFileSet.coreMetadata.original_filename} was submitted to the ingest pipeline.`,
         );
         resetForm();
         closeModal();
@@ -97,7 +98,7 @@ function WorkTabsPreservationFileSetModal({
         },
       ],
       awaitRefetchQueries: true,
-    }
+    },
   );
 
   const handleSubmit = (data) => {
@@ -161,7 +162,7 @@ function WorkTabsPreservationFileSetModal({
         setS3UploadLocation(s3Location(presignedUrl));
       } else {
         setUploadError(
-          `Error uploading file to S3. Response status: ${request.status}`
+          `Error uploading file to S3. Response status: ${request.status}`,
         );
         setCurrentFile(null);
       }
@@ -220,7 +221,7 @@ function WorkTabsPreservationFileSetModal({
                     name="fileSetRole"
                     label="Fileset Role"
                     options={codeLists?.fileSetRoleData?.codeList}
-                    required
+                    required={!Boolean(watchRole)}
                     showHelper
                     disabled={Boolean(s3UploadLocation)}
                   />
