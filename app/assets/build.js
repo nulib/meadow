@@ -88,8 +88,8 @@ async function buildMode(opts) {
 const promise = watch
   ? watchMode(opts)
   : deploy
-  ? deployMode(opts)
-  : buildMode(opts);
+    ? deployMode(opts)
+    : buildMode(opts);
 
 let callback = (_result) => true;
 if (watch) {
