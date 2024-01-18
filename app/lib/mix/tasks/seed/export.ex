@@ -4,8 +4,8 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
 
   ## Command line options
 
-    * `--ingest_sheets` - how many ingest sheets (with associated data) to export (default: `0`)
-    * `--works` - how many non-ingest-sheet works (with associated data) to export (default: `0`)
+    * `--ingest_sheets` - CSV file with ingest sheet IDs to export in the first column (default: `nil`)
+    * `--works` - CSV file with standalone work IDs to export in the first column (default: `nil`)
     * `--bucket` - target S3 bucket (default: the configured Meadow uploads bucket)
     * `--prefix` - (required) S3 prefix for exported assets
     * `--skip-assets` - output data only, no preservation or pyramid files (default: `false`)
@@ -15,12 +15,13 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
   use Mix.Task
 
   alias Meadow.Seed.Export
+  alias NimbleCSV.RFC4180, as: CSV
 
   require Logger
 
   @opts [
-    ingest_sheets: :integer,
-    works: :integer,
+    ingest_sheets: :string,
+    works: :string,
     bucket: :string,
     prefix: :string,
     skip_assets: :boolean,
@@ -38,14 +39,16 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
       with {opts, _} <- OptionParser.parse!(args, strict: @opts) do
         opts
         |> Enum.into(%{
-          ingest_sheets: 0,
-          works: 0,
+          ingest_sheets: nil,
+          works: nil,
           bucket: System.get_env("SHARED_BUCKET"),
           prefix: nil,
           skip_assets: false,
           threads: 1
         })
       end
+      |> Map.update(:ingest_sheets, nil, &ids_from_csv/1)
+      |> Map.update(:works, nil, &ids_from_csv/1)
 
     if missing?(parsed_opts.bucket), do: raise(ArgumentError, "Bucket is required")
     if missing?(parsed_opts.prefix), do: raise(ArgumentError, "Prefix is required")
@@ -56,7 +59,7 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
     Logger.info("Exporting collections and nul_authorities")
     Export.export_common(parsed_opts.bucket, parsed_opts.prefix)
 
-    Logger.info("Exporting #{parsed_opts.ingest_sheets} ingest sheets")
+    Logger.info("Exporting #{length(parsed_opts.ingest_sheets)} ingest sheets")
 
     sheet_ids =
       Export.export_ingest_sheets(
@@ -70,7 +73,7 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
       |> Export.export_assets(parsed_opts.bucket, parsed_opts.prefix, parsed_opts.threads)
     end
 
-    Logger.info("Exporting #{parsed_opts.works} works")
+    Logger.info("Exporting #{length(parsed_opts.works)} works")
 
     work_ids =
       Export.export_standalone_works(parsed_opts.works, parsed_opts.bucket, parsed_opts.prefix)
@@ -84,4 +87,13 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
   end
 
   def missing?(value), do: is_nil(value) or value == ""
+
+  defp ids_from_csv(filename) when is_binary(filename) and byte_size(filename) > 0 do
+    File.stream!(filename, [:trim_bom], :line)
+    |> CSV.parse_stream(skip_headers: false)
+    |> Stream.map(fn [id | _] -> id end)
+    |> Enum.to_list()
+  end
+
+  defp ids_from_csv(_), do: []
 end

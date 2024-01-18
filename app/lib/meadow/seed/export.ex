@@ -6,7 +6,6 @@ defmodule Meadow.Seed.Export do
   alias Ecto.Adapters.SQL
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Repo
   alias Meadow.Seed.{Migration, Queries}
 
@@ -18,7 +17,6 @@ defmodule Meadow.Seed.Export do
   @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
     ingest_sheet_works ingest_sheet_file_sets ingest_sheet_action_states)a
   @standalone_exports ~w(standalone_works standalone_file_sets standalone_action_states)a
-  @ingest_sheet_end_states ["file_fail", "row_fail", "completed"]
 
   def export_manifest(bucket, prefix) do
     manifest = %{last_migration_version: Migration.latest_version()} |> Jason.encode!()
@@ -35,18 +33,14 @@ defmodule Meadow.Seed.Export do
 
   def export_ingest_sheets(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
-  def export_ingest_sheets(limit, bucket, prefix) do
-    from(s in Sheet, where: s.status in ^@ingest_sheet_end_states)
-    |> random_ids(limit)
-    |> export(@ingest_sheet_exports, bucket, prefix)
+  def export_ingest_sheets(ids, bucket, prefix) do
+    export(ids, @ingest_sheet_exports, bucket, prefix)
   end
 
   def export_standalone_works(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
-  def export_standalone_works(limit, bucket, prefix) do
-    from(w in Work, where: is_nil(w.ingest_sheet_id))
-    |> random_ids(limit)
-    |> export(@standalone_exports, bucket, prefix)
+  def export_standalone_works(ids, bucket, prefix) do
+    export(ids, @standalone_exports, bucket, prefix)
   end
 
   defp export(ids \\ [], file_list, bucket, prefix) do
@@ -60,13 +54,6 @@ defmodule Meadow.Seed.Export do
     end)
 
     ids
-  end
-
-  defp random_ids(_, 0), do: [Ecto.UUID.generate()]
-
-  defp random_ids(queryable, limit) do
-    from(q in queryable, order_by: fragment("RANDOM()"), select: q.id, limit: ^limit)
-    |> Repo.all()
   end
 
   def ingest_sheet_assets(ingest_sheet_ids) do
