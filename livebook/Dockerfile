@@ -1,4 +1,4 @@
-FROM ghcr.io/livebook-dev/livebook:edge
+FROM ghcr.io/livebook-dev/livebook
 ENV LIVEBOOK_IDENTITY_PROVIDER=custom:MeadowLivebookAuth
 ENV LIVEBOOK_DISTRIBUTION=sname
 ENV LIVEBOOK_IP=0.0.0.0

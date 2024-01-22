@@ -88,6 +88,22 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all()
 ```
 
+### Doing development on the Meadow Pipeline lambdas
+
+In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use your local files instead of the deployed lambdas. Example below (you don't have to override them all. Just the ones you need).
+
+Edit `config/dev.local.exs` to get the lambdas to use the local copy through the port:`
+
+```elixir
+  config :meadow, :lambda,
+    digester: {:local, {Path.expand("../lambdas/digester/index.js"), "handler"}},
+    exif: {:local, {Path.expand("../lambdas/exif/index.js"), "handler"}},
+    frame_extractor: {:local, {Path.expand("../lambdas/frame-extractor/index.js"), "handler"}},
+    mediainfo: {:local, {Path.expand("../lambdas/mediainfo/index.js"), "handler"}},
+    mime_type: {:local, {Path.expand("../lambdas/mime-type/index.js"), "handler"}},
+    tiff: {:local, {Path.expand("../lambdas/pyramid-tiff/index.js"), "handler"}}
+```
+
 ### TypeScript/GraphQL Types
 
 Meadow now supports TypeScript and GraphQL types in the React app. To generate types, run the following commands:

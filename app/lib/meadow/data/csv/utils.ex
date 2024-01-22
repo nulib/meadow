@@ -20,10 +20,10 @@ defmodule Meadow.Data.CSV.Utils do
     |> String.split(@split_regex)
     |> Enum.map(&String.trim/1)
     |> Enum.map(&unescape_delimiters/1)
-    |> Enum.reject(&is_empty/1)
+    |> Enum.reject(&empty?/1)
   end
 
-  defp is_empty(string), do: is_nil(string) || string == ""
+  defp empty?(string), do: is_nil(string) || string == ""
   defp escape_delimiters(string), do: String.replace(string, @delimiter, @escaped_delimiter)
   defp unescape_delimiters(string), do: String.replace(string, @escaped_delimiter, @delimiter)
 end
