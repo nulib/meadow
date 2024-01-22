@@ -15,21 +15,35 @@ const Work = ({ work }: { work: WorkType }) => {
   /**
    * Get the DC API super user token from the API every 5 minutes.
    */
-  const { data: dataDcApiToken, error: errorDcApiToken } = useQuery(
-    GET_DC_API_TOKEN,
-    { pollInterval: 300000 },
-  );
+  const {
+    data: dataDcApiToken,
+    error: errorDcApiToken,
+    refetch: refetchDcApiToken,
+  } = useQuery(GET_DC_API_TOKEN);
 
-  const dcApiToken = dataDcApiToken?.dcApiToken?.token;
+  const { token, expires } = dataDcApiToken?.dcApiToken || {};
 
-  useEffect(
-    () =>
+  useEffect(() => {
+    if (token) {
       workDispatch({
         type: "updateDcApiToken",
-        dcApiToken,
-      }),
-    [dcApiToken],
-  );
+        dcApiToken: token,
+      });
+    }
+
+    const handleTokenUpdate = setInterval(() => {
+      const timePadding = 60000; // 1 minute
+      const currentDate = new Date();
+      const expiresDate = new Date(expires);
+      const expireDifference = expiresDate.getTime() - currentDate.getTime();
+      
+      if (expireDifference < timePadding) {
+        refetchDcApiToken();
+      }
+    }, 500);
+
+    return () => clearInterval(handleTokenUpdate);
+  }, [token]);
 
   if (errorDcApiToken) console.error(errorDcApiToken);
 
@@ -70,14 +84,12 @@ const Work = ({ work }: { work: WorkType }) => {
       <section>
         <div data-testid="viewer">
           {isViewerReady ? (
-            <>
-              <IIIFViewer
-                fileSet={activeMediaFileSet}
-                fileSets={[...filterFileSets(fileSets).access]}
-                iiifContent={work.manifestUrl}
-                workTypeId={work.workType?.id}
-              />
-            </>
+            <IIIFViewer
+              fileSet={activeMediaFileSet}
+              fileSets={[...filterFileSets(fileSets).access]}
+              iiifContent={work.manifestUrl}
+              workTypeId={work.workType?.id}
+            />
           ) : (
             <p className="has-text-centered has-text-grey is-size-5">
               No filesets have been associated with this work.
