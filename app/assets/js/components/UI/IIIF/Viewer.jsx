@@ -40,9 +40,12 @@ const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
    */
   const handleCanvasIdCallback = (canvasId) => {
     if (canvasId) {
+      const canvasIndex = canvasId.split("/").pop();
+      if (fileSets[canvasIndex]?.id === activeMediaFileSet?.id) return;
+
       dispatch({
         type: "updateActiveMediaFileSet",
-        fileSet: fileSets[canvasId.split("/").pop()],
+        fileSet: fileSets[canvasIndex],
       });
     }
     return;
