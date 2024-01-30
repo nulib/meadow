@@ -118,7 +118,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: dependencies
     env:
-      EXIFTOOL_VERSION: 12.74
       MIX_ENV: test
     services:
       db:
@@ -185,14 +184,13 @@ jobs:
           echo "FFMPEG VERSION: $(ffmpeg -version | sed -n "s/ffmpeg version \([-0-9.]*\).*/\1/p;")"
       - name: Install ExifTool
         run: |
+          EXIFTOOL_VERSION=$(curl -s https://exiftool.org/ver.txt)
           mkdir -p ${{ runner.temp }}/exiftool && \
           cd ${{ runner.temp }}/exiftool && \
           curl -L -s https://exiftool.org/Image-ExifTool-${EXIFTOOL_VERSION}.tar.gz | tar xz && \
           cd Image-ExifTool-${EXIFTOOL_VERSION} && \
           perl Makefile.PL && \
           sudo make install
-        env:
-          EXIFTOOL_VERSION: ${{ env.EXIFTOOL_VERSION }}
       - name: Cache Elixir dependencies
         uses: actions/cache@v2
         with:
