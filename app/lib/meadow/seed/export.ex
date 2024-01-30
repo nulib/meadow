@@ -238,18 +238,18 @@ defmodule Meadow.Seed.Export do
 
   defp missing?(value), do: is_nil(value) or value == ""
 
+  defp get_ids(nil), do: []
+  defp get_ids(""), do: []
   defp get_ids("s3://" <> _ = url), do: ids_from_csv(url)
   defp get_ids("file://" <> _ = url), do: ids_from_csv(url)
   defp get_ids("http://" <> _ = url), do: ids_from_csv(url)
   defp get_ids("https://" <> _ = url), do: ids_from_csv(url)
   defp get_ids(url), do: ids_from_csv("file://" <> url)
 
-  defp ids_from_csv(url) when is_binary(url) and byte_size(url) > 0 do
+  defp ids_from_csv(url) do
     Meadow.Utils.Stream.stream_from(url)
     |> CSV.parse_stream(skip_headers: false)
     |> Stream.map(fn [id | _] -> id end)
     |> Enum.to_list()
   end
-
-  defp ids_from_csv(_), do: []
 end
