@@ -1,5 +1,5 @@
 data "aws_acm_certificate" "wildcard_cert" {
-  domain        = "*.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
+  domain        = "${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
   most_recent   = true
 }
 

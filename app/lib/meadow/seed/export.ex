@@ -8,6 +8,7 @@ defmodule Meadow.Seed.Export do
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
   alias Meadow.Seed.{Migration, Queries}
+  alias NimbleCSV.RFC4180, as: CSV
 
   import Ecto.Query
 
@@ -17,6 +18,67 @@ defmodule Meadow.Seed.Export do
   @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
     ingest_sheet_works ingest_sheet_file_sets ingest_sheet_action_states)a
   @standalone_exports ~w(standalone_works standalone_file_sets standalone_action_states)a
+
+  @doc """
+  Export images and data from Meadow to an S3 bucket
+
+  ## Arguments:
+
+  - `opts`:
+    - `ingest_sheets` - CSV file with ingest sheet IDs to export in the first column (default: `nil`)
+    - `works` - CSV file with standalone work IDs to export in the first column (default: `nil`)
+    - `bucket` - target S3 bucket (default: the configured Meadow uploads bucket)
+    - `prefix` - (required) S3 prefix for exported assets
+    - `skip-assets` - output data only, no preservation or pyramid files (default: `false`)
+    - `threads` - how many uploads to perform at once (default: `1`)
+  """
+  def export(opts) do
+    opts =
+      opts
+      |> Enum.into(%{
+        ingest_sheets: nil,
+        works: nil,
+        bucket: System.get_env("SHARED_BUCKET"),
+        prefix: nil,
+        skip_assets: false,
+        threads: 1
+      })
+      |> Map.update(:ingest_sheets, nil, &get_ids/1)
+      |> Map.update(:works, nil, &get_ids/1)
+
+    if missing?(opts.bucket), do: raise(ArgumentError, "Bucket is required")
+    if missing?(opts.prefix), do: raise(ArgumentError, "Prefix is required")
+
+    Logger.info("Exporting database configuration manifest")
+    export_manifest(opts.bucket, opts.prefix)
+
+    Logger.info("Exporting collections and nul_authorities")
+    export_common(opts.bucket, opts.prefix)
+
+    Logger.info("Exporting #{length(opts.ingest_sheets)} ingest sheets")
+
+    sheet_ids =
+      export_ingest_sheets(
+        opts.ingest_sheets,
+        opts.bucket,
+        opts.prefix
+      )
+
+    unless opts.skip_assets do
+      ingest_sheet_assets(sheet_ids)
+      |> export_assets(opts.bucket, opts.prefix, opts.threads)
+    end
+
+    Logger.info("Exporting #{length(opts.works)} works")
+
+    work_ids =
+      export_standalone_works(opts.works, opts.bucket, opts.prefix)
+
+    unless opts.skip_assets do
+      work_assets(work_ids)
+      |> export_assets(opts.bucket, opts.prefix, opts.threads)
+    end
+  end
 
   def export_manifest(bucket, prefix) do
     manifest = %{last_migration_version: Migration.latest_version()} |> Jason.encode!()
@@ -28,22 +90,22 @@ defmodule Meadow.Seed.Export do
   def export_common(_, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_common(bucket, prefix) do
-    export(@common_exports, bucket, prefix)
+    do_export(@common_exports, bucket, prefix)
   end
 
   def export_ingest_sheets(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_ingest_sheets(ids, bucket, prefix) do
-    export(ids, @ingest_sheet_exports, bucket, prefix)
+    do_export(ids, @ingest_sheet_exports, bucket, prefix)
   end
 
   def export_standalone_works(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_standalone_works(ids, bucket, prefix) do
-    export(ids, @standalone_exports, bucket, prefix)
+    do_export(ids, @standalone_exports, bucket, prefix)
   end
 
-  defp export(ids \\ [], file_list, bucket, prefix) do
+  defp do_export(ids \\ [], file_list, bucket, prefix) do
     file_list
     |> Enum.each(fn name ->
       Logger.info("Writing #{name}")
@@ -173,4 +235,21 @@ defmodule Meadow.Seed.Export do
   end
 
   defp param_to_sql(param), do: param
+
+  defp missing?(value), do: is_nil(value) or value == ""
+
+  defp get_ids("s3://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("file://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("http://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("https://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids(url), do: ids_from_csv("file://" <> url)
+
+  defp ids_from_csv(url) when is_binary(url) and byte_size(url) > 0 do
+    Meadow.Utils.Stream.stream_from(url)
+    |> CSV.parse_stream(skip_headers: false)
+    |> Stream.map(fn [id | _] -> id end)
+    |> Enum.to_list()
+  end
+
+  defp ids_from_csv(_), do: []
 end
