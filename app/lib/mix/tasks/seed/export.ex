@@ -15,7 +15,6 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
   use Mix.Task
 
   alias Meadow.Seed.Export
-  alias NimbleCSV.RFC4180, as: CSV
 
   require Logger
 
@@ -35,65 +34,10 @@ defmodule Mix.Tasks.Meadow.Seed.Export do
 
     Logger.configure(level: :info)
 
-    parsed_opts =
-      with {opts, _} <- OptionParser.parse!(args, strict: @opts) do
-        opts
-        |> Enum.into(%{
-          ingest_sheets: nil,
-          works: nil,
-          bucket: System.get_env("SHARED_BUCKET"),
-          prefix: nil,
-          skip_assets: false,
-          threads: 1
-        })
-      end
-      |> Map.update(:ingest_sheets, nil, &ids_from_csv/1)
-      |> Map.update(:works, nil, &ids_from_csv/1)
-
-    if missing?(parsed_opts.bucket), do: raise(ArgumentError, "Bucket is required")
-    if missing?(parsed_opts.prefix), do: raise(ArgumentError, "Prefix is required")
-
-    Logger.info("Exporting database configuration manifest")
-    Export.export_manifest(parsed_opts.bucket, parsed_opts.prefix)
-
-    Logger.info("Exporting collections and nul_authorities")
-    Export.export_common(parsed_opts.bucket, parsed_opts.prefix)
-
-    Logger.info("Exporting #{length(parsed_opts.ingest_sheets)} ingest sheets")
-
-    sheet_ids =
-      Export.export_ingest_sheets(
-        parsed_opts.ingest_sheets,
-        parsed_opts.bucket,
-        parsed_opts.prefix
-      )
-
-    unless parsed_opts.skip_assets do
-      Export.ingest_sheet_assets(sheet_ids)
-      |> Export.export_assets(parsed_opts.bucket, parsed_opts.prefix, parsed_opts.threads)
-    end
-
-    Logger.info("Exporting #{length(parsed_opts.works)} works")
-
-    work_ids =
-      Export.export_standalone_works(parsed_opts.works, parsed_opts.bucket, parsed_opts.prefix)
-
-    unless parsed_opts.skip_assets do
-      Export.work_assets(work_ids)
-      |> Export.export_assets(parsed_opts.bucket, parsed_opts.prefix, parsed_opts.threads)
+    with {opts, _} <- OptionParser.parse!(args, strict: @opts) do
+      Export.export(opts)
     end
   rescue
     exception -> Logger.error(exception)
   end
-
-  def missing?(value), do: is_nil(value) or value == ""
-
-  defp ids_from_csv(filename) when is_binary(filename) and byte_size(filename) > 0 do
-    File.stream!(filename, [:trim_bom], :line)
-    |> CSV.parse_stream(skip_headers: false)
-    |> Stream.map(fn [id | _] -> id end)
-    |> Enum.to_list()
-  end
-
-  defp ids_from_csv(_), do: []
 end
