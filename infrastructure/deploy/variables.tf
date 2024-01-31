@@ -3,6 +3,11 @@ variable "additional_hostnames" {
   default = []
 }
 
+variable "canonical_hostname" {
+  type    = string
+  default = ""
+}
+
 variable "agentless_sso_key" {
   type = string
 }
