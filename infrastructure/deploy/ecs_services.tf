@@ -2,11 +2,11 @@ locals {
   container_ports = tolist([4000, 4369, 8080, 24601])
 
   meadow_urls = [for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : "//${hostname}"]
-
+  canonical_hostname = coalesce(var.canonical_hostname, aws_route53_record.app_hostname.fqdn)
   container_config = {
     docker_tag                      = terraform.workspace
     honeybadger_api_key             = var.honeybadger_api_key
-    host_name                       = aws_route53_record.app_hostname.fqdn
+    host_name                       = local.canonical_hostname
     internal_host_name              = "${var.stack_name}.${data.aws_service_discovery_dns_namespace.internal_dns_zone.name}"
     log_group                       = aws_cloudwatch_log_group.meadow_logs.name
     meadow_urls                     = join(",", local.meadow_urls)
