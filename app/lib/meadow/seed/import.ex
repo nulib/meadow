@@ -39,17 +39,41 @@ defmodule Meadow.Seed.Import do
     Work => ~w(representative_file_set_id)
   }
 
-  def import_assets("s3://" <> _ = prefix, threads) do
+  @doc """
+  Import images and data from Meadow from an S3 bucket or a directory on disk.
+
+  ## Arguments
+
+  - `opts`:
+    - `prefix` - (required) the location of the export, either:
+      - an `s3://` URI pointing to an export directory hosted in S3
+      - a `file://` URI pointing to an export directory on the local disk
+      - a non-URI path to an export directory on the local disk
+    - `threads` - (optional) how many uploads to perform at once (default: `1`)
+  """
+  def import(opts) do
+    ensure_all_clear()
+
+    opts = opts |> Enum.into(%{prefix: nil, threads: 1})
+
+    prefix =
+      normalize_prefix(opts.prefix)
+
+    import_assets(prefix, opts.threads)
+    import_data(prefix)
+  end
+
+  defp import_assets("s3://" <> _ = prefix, threads) do
     import_assets(prefix, "preservation", Meadow.Config.preservation_bucket(), threads)
     import_assets(prefix, "pyramid", Meadow.Config.pyramid_bucket(), threads)
   end
 
-  def import_assets("file://" <> _ = prefix, threads) do
+  defp import_assets("file://" <> _ = prefix, threads) do
     import_assets(prefix, "preservation", Meadow.Config.preservation_bucket(), threads)
     import_assets(prefix, "pyramid", Meadow.Config.pyramid_bucket(), threads)
   end
 
-  def import_assets(prefix, _), do: raise(ArgumentError, "Unknown prefix: #{inspect(prefix)}")
+  defp import_assets(prefix, _), do: raise(ArgumentError, "Unknown prefix: #{inspect(prefix)}")
 
   defp import_assets(_, _, _, threads) when threads < 1,
     do: raise(ArgumentError, "Threads must be >= 1")
@@ -87,7 +111,7 @@ defmodule Meadow.Seed.Import do
     StreamUtil.copy(source, dest)
   end
 
-  def disable_triggers do
+  defp disable_triggers do
     Logger.info("Disabling triggers")
 
     @import_tables
@@ -98,7 +122,7 @@ defmodule Meadow.Seed.Import do
     end)
   end
 
-  def enable_triggers do
+  defp enable_triggers do
     Logger.info("Enabling triggers")
 
     @import_tables
@@ -109,7 +133,7 @@ defmodule Meadow.Seed.Import do
     end)
   end
 
-  def import(prefix) do
+  defp import_data(prefix) do
     manifest =
       StreamUtil.stream_from(Path.join(prefix, "manifest.json"))
       |> Enum.into("")
@@ -140,7 +164,7 @@ defmodule Meadow.Seed.Import do
     Indexer.synchronize_index()
   end
 
-  def load(schema, source) do
+  defp load(schema, source) do
     with table_name <- schema.__schema__(:source),
          data <- StreamUtil.stream_from(source) |> StreamUtil.by_line(),
          [header_row] <- data |> Enum.take(1),
@@ -151,7 +175,7 @@ defmodule Meadow.Seed.Import do
     end
   end
 
-  def ensure_representative_images do
+  defp ensure_representative_images do
     Repo.transaction(
       fn ->
         [Work, Collection] |> Enum.each(&ensure_representative_images/1)
@@ -179,7 +203,7 @@ defmodule Meadow.Seed.Import do
     |> Stream.run()
   end
 
-  def fix_file_set_preservation_locations do
+  defp fix_file_set_preservation_locations do
     Repo.transaction(
       fn ->
         FileSet
@@ -240,4 +264,21 @@ defmodule Meadow.Seed.Import do
       Enum.reduce(indexes, row, &List.replace_at(&2, &1, nil))
     end)
   end
+
+  defp ensure_all_clear do
+    unless [ActionState, Collection, FileSet, Work, Progress, Project, Row, Sheet]
+           |> Enum.all?(&(Repo.aggregate(&1, :count) == 0)),
+           do: raise(ArgumentError, "Import can only be run on an empty database.")
+  end
+
+  defp normalize_prefix("s3://" <> _ = prefix), do: prefix
+  defp normalize_prefix("file://" <> path), do: normalize_prefix(path)
+
+  defp normalize_prefix(prefix) when is_binary(prefix) do
+    if File.dir?(prefix),
+      do: "file://#{Path.expand(prefix)}",
+      else: raise(ArgumentError, "#{prefix} is not a directory")
+  end
+
+  defp normalize_prefix(_), do: raise(ArgumentError, "Prefix is required")
 end

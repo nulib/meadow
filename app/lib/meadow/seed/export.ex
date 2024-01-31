@@ -8,6 +8,7 @@ defmodule Meadow.Seed.Export do
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
   alias Meadow.Seed.{Migration, Queries}
+  alias NimbleCSV.RFC4180, as: CSV
 
   import Ecto.Query
 
@@ -17,6 +18,84 @@ defmodule Meadow.Seed.Export do
   @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
     ingest_sheet_works ingest_sheet_file_sets ingest_sheet_action_states)a
   @standalone_exports ~w(standalone_works standalone_file_sets standalone_action_states)a
+
+  @doc """
+  Export images and data from Meadow to an S3 bucket
+
+  ## Arguments:
+
+  - `opts`:
+    - `ingest_sheets` - CSV file with ingest sheet IDs to export in the first column (default: `nil`)
+    - `works` - CSV file with standalone work IDs to export in the first column (default: `nil`)
+    - `bucket` - target S3 bucket (default: the configured Meadow uploads bucket)
+    - `prefix` - (required) S3 prefix for exported assets
+    - `skip-assets` - output data only, no preservation or pyramid files (default: `false`)
+    - `threads` - how many uploads to perform at once (default: `1`)
+  """
+  def export(opts) do
+    opts =
+      opts
+      |> Enum.into(%{
+        ingest_sheets: nil,
+        works: nil,
+        bucket: System.get_env("SHARED_BUCKET"),
+        prefix: nil,
+        skip_assets: false,
+        threads: 1
+      })
+      |> Map.update(:ingest_sheets, nil, &get_ids/1)
+      |> Map.update(:works, nil, &get_ids/1)
+
+    if missing?(opts.bucket), do: raise(ArgumentError, "Bucket is required")
+    if missing?(opts.prefix), do: raise(ArgumentError, "Prefix is required")
+
+    Logger.info("Exporting database configuration manifest")
+    export_manifest(opts.bucket, opts.prefix)
+
+    Logger.info("Exporting collections and nul_authorities")
+    export_common(opts.bucket, opts.prefix)
+
+    Logger.info("Exporting #{length(opts.ingest_sheets)} ingest sheets")
+
+    sheet_ids =
+      export_ingest_sheets(
+        opts.ingest_sheets,
+        opts.bucket,
+        opts.prefix
+      )
+
+    exported_assets =
+      ingest_sheet_assets(sheet_ids, opts.skip_assets)
+      |> export_assets(opts.bucket, opts.prefix, opts.threads)
+
+    Logger.info("Exporting #{length(opts.works)} works")
+
+    work_ids =
+      export_standalone_works(opts.works, opts.bucket, opts.prefix)
+
+    exported_assets =
+      [
+        exported_assets
+        | work_assets(work_ids, opts.skip_assets)
+          |> export_assets(opts.bucket, opts.prefix, opts.threads)
+      ]
+      |> List.flatten()
+
+    exported_csv =
+      [{"source_bucket", "source_key", "dest_bucket", "dest_key", "status"} | exported_assets]
+      |> Enum.map(&Tuple.to_list/1)
+      |> CSV.dump_to_iodata()
+      |> IO.iodata_to_binary()
+
+    ExAws.S3.put_object(
+      opts.bucket,
+      Path.join([opts.prefix, "exported_assets.csv"]),
+      exported_csv
+    )
+    |> ExAws.request!()
+
+    {:ok, %{sheet_ids: sheet_ids, work_ids: work_ids, exported_assets: exported_assets}}
+  end
 
   def export_manifest(bucket, prefix) do
     manifest = %{last_migration_version: Migration.latest_version()} |> Jason.encode!()
@@ -28,22 +107,22 @@ defmodule Meadow.Seed.Export do
   def export_common(_, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_common(bucket, prefix) do
-    export(@common_exports, bucket, prefix)
+    do_export(@common_exports, bucket, prefix)
   end
 
   def export_ingest_sheets(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_ingest_sheets(ids, bucket, prefix) do
-    export(ids, @ingest_sheet_exports, bucket, prefix)
+    do_export(ids, @ingest_sheet_exports, bucket, prefix)
   end
 
   def export_standalone_works(_, _, nil), do: raise(ArgumentError, "Export requires a prefix")
 
   def export_standalone_works(ids, bucket, prefix) do
-    export(ids, @standalone_exports, bucket, prefix)
+    do_export(ids, @standalone_exports, bucket, prefix)
   end
 
-  defp export(ids \\ [], file_list, bucket, prefix) do
+  defp do_export(ids \\ [], file_list, bucket, prefix) do
     file_list
     |> Enum.each(fn name ->
       Logger.info("Writing #{name}")
@@ -56,7 +135,9 @@ defmodule Meadow.Seed.Export do
     ids
   end
 
-  def ingest_sheet_assets(ingest_sheet_ids) do
+  def ingest_sheet_assets(_, true), do: []
+
+  def ingest_sheet_assets(ingest_sheet_ids, _) do
     from(w in Work,
       join: fs in FileSet,
       on: fs.work_id == w.id,
@@ -72,7 +153,9 @@ defmodule Meadow.Seed.Export do
     end)
   end
 
-  def work_assets(work_ids) do
+  def work_assets(_, true), do: []
+
+  def work_assets(work_ids, _) do
     from(fs in FileSet,
       where: fs.work_id in ^work_ids,
       select: %{
@@ -91,16 +174,17 @@ defmodule Meadow.Seed.Export do
 
   def export_assets(assets, bucket, prefix, 1) do
     assets
-    |> Enum.each(&upload_asset_sync(&1, bucket, prefix))
+    |> Enum.map(&upload_asset_sync(&1, bucket, prefix))
   end
 
   def export_assets(assets, bucket, prefix, threads) do
     assets
     |> Enum.chunk_every(threads)
-    |> Enum.each(fn chunk ->
+    |> Enum.map(fn chunk ->
       Enum.map(chunk, &upload_asset_async(&1, bucket, prefix))
       |> Task.await_many(30_000)
     end)
+    |> List.flatten()
   end
 
   defp upload_asset_async(asset, bucket, prefix) do
@@ -109,32 +193,44 @@ defmodule Meadow.Seed.Export do
 
   defp upload_asset_sync(asset, bucket, prefix) do
     with %{preservation_file: preservation_file, pyramid_file: pyramid_file} <- asset do
-      copy_asset(preservation_file, bucket, Path.join([prefix, "preservation"]))
-      copy_asset(pyramid_file, bucket, Path.join([prefix, "pyramid"]))
+      [
+        copy_asset(preservation_file, bucket, Path.join([prefix, "preservation"])),
+        copy_asset(pyramid_file, bucket, Path.join([prefix, "pyramid"]))
+      ]
     end
   end
 
   defp copy_asset(source, bucket, prefix) do
     Logger.info("Copying #{source} to s3://#{bucket}/#{prefix}/")
 
-    with %URI{host: source_bucket, path: "/" <> source_key} <- URI.parse(source) do
-      case ExAws.S3.put_object_copy(
-             bucket,
-             Path.join([prefix, source_key]),
-             source_bucket,
-             source_key,
-             metadata_directive: :COPY
-           )
-           |> ExAws.request() do
-        {:error, {:http_error, status, _}} ->
-          Logger.warning("Failed to copy: HTTP error #{status}")
+    with %URI{host: source_bucket, path: "/" <> source_key} <- URI.parse(source),
+         key <- Path.join([prefix, source_key]) do
+      status =
+        case ExAws.S3.put_object_copy(
+               bucket,
+               key,
+               source_bucket,
+               source_key,
+               metadata_directive: :COPY
+             )
+             |> ExAws.request() do
+          {:error, {:http_error, status, _}} ->
+            Logger.warning("Failed to copy: HTTP error #{status}")
+            status
 
-        {:error, message} ->
-          Logger.warning("Failed to copy because: #{message}")
+          {:error, message} ->
+            Logger.warning("Failed to copy because: #{message}")
+            500
 
-        other ->
-          other
-      end
+          {:ok, %{status_code: status}} ->
+            status
+
+          other ->
+            Logger.warning("Unexpected response: #{inspect(other)}")
+            500
+        end
+
+      {source_bucket, source_key, bucket, key, status}
     end
   end
 
@@ -173,4 +269,21 @@ defmodule Meadow.Seed.Export do
   end
 
   defp param_to_sql(param), do: param
+
+  defp missing?(value), do: is_nil(value) or value == ""
+
+  defp get_ids(nil), do: []
+  defp get_ids(""), do: []
+  defp get_ids("s3://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("file://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("http://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids("https://" <> _ = url), do: ids_from_csv(url)
+  defp get_ids(url), do: ids_from_csv("file://" <> url)
+
+  defp ids_from_csv(url) do
+    Meadow.Utils.Stream.stream_from(url)
+    |> CSV.parse_stream(skip_headers: false)
+    |> Stream.map(fn [id | _] -> id end)
+    |> Enum.to_list()
+  end
 end
