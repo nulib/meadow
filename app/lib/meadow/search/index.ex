@@ -26,7 +26,7 @@ defmodule Meadow.Search.Index do
         :noop
 
       pipeline ->
-        create_vector_pipeline(pipeline, SearchConfig.embedding_model_id(), "title")
+        create_vector_pipeline(pipeline, SearchConfig.embedding_model_id(), "embedding_text")
     end
 
     with timestamp <- DateTime.utc_now() |> DateTime.to_unix(:millisecond),
@@ -52,6 +52,11 @@ defmodule Meadow.Search.Index do
             "field_map" => %{
               source_field => target_field
             }
+          }
+        },
+        %{
+          "remove" => %{
+            "field" => source_field
           }
         }
       ]

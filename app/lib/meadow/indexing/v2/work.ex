@@ -74,6 +74,43 @@ defmodule Meadow.Indexing.V2.Work do
       work_type: encode_label(work.work_type)
     }
     |> Meadow.Utils.Map.nillify_empty()
+    |> prepare_embedding_field()
+  end
+
+  @embedding_keys [
+    "abstract",
+    "alternate_title",
+    "caption",
+    "catalog_key",
+    "collection",
+    "contributor",
+    "creator",
+    "date_created",
+    "description",
+    "genre",
+    "keywords",
+    "language",
+    "location",
+    "physical_description_material",
+    "physical_description_size",
+    "publisher",
+    "scope_and_contents",
+    "source",
+    "subject",
+    "style_period",
+    "table_of_contents",
+    "title",
+    "technique"
+  ]
+
+  defp prepare_embedding_field(map) do
+    value =
+      map
+      |> Enum.filter(fn {k, _} -> k in @embedding_keys end)
+      |> Enum.into(%{})
+      |> Jason.encode!()
+
+    Map.put(map, "embedding_text", value)
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
