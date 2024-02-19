@@ -78,40 +78,55 @@ defmodule Meadow.Indexing.V2.Work do
   end
 
   @embedding_keys [
-    "abstract",
-    "alternate_title",
-    "caption",
-    "catalog_key",
-    "collection",
-    "contributor",
-    "creator",
-    "date_created",
-    "description",
-    "genre",
-    "keywords",
-    "language",
-    "location",
-    "physical_description_material",
-    "physical_description_size",
-    "publisher",
-    "scope_and_contents",
-    "source",
-    "subject",
-    "style_period",
-    "table_of_contents",
-    "title",
-    "technique"
+    :abstract,
+    :alternate_title,
+    :caption,
+    :collection,
+    :contributor,
+    :creator,
+    :date_created,
+    :description,
+    :genre,
+    # :keywords,
+    :language,
+    :location,
+    :physical_description_material,
+    :physical_description_size,
+    :publisher,
+    :scope_and_contents,
+    :source,
+    :subject,
+    :style_period,
+    :table_of_contents,
+    :title,
+    :technique
   ]
 
   defp prepare_embedding_field(map) do
     value =
-      map
-      |> Enum.filter(fn {k, _} -> k in @embedding_keys end)
-      |> Enum.into(%{})
-      |> Jason.encode!()
+      @embedding_keys
+      |> Enum.reduce([], fn field_name, acc ->
+        v = prepare_embedding_value(Map.get(map, field_name))
+        [v | acc]
+      end)
+      |> List.flatten()
+      |> Enum.reject(fn v ->
+        is_nil(v) or byte_size(v) == 0
+      end)
+      |> Enum.join("\n")
 
-    Map.put(map, "embedding_text", value)
+    Map.put(map, :embedding_text, value)
   end
+
+  defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
+
+  defp prepare_embedding_value([]), do: []
+
+  defp prepare_embedding_value([v | list]),
+    do: [prepare_embedding_value(v) | prepare_embedding_value(list)]
+
+  defp prepare_embedding_value(v) when is_binary(v), do: v
+  defp prepare_embedding_value(_), do: nil
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
   def dc_url, do: Application.get_env(:meadow, :digital_collections_url)
