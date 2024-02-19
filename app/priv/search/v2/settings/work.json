@@ -1,7 +1,8 @@
 {
   "settings": {
     "index": {
-      "max_result_window": "50000"
+      "max_result_window": "50000",
+      "knn": true
     },
     "analysis": {
       "analyzer": {
@@ -46,10 +47,20 @@
       "all_ids": {
         "type": "keyword"
       },
-      "indexed_at": {
+      "create_date": {
         "type": "date_nanos"
       },
-      "create_date": {
+      "embedding": {
+        "type": "knn_vector",
+        "dimension": 384,
+        "data_type": "byte",
+        "method": {
+          "name": "hnsw",
+          "space_type": "cosinesimil",
+          "engine": "lucene"
+        }
+      },
+      "indexed_at": {
         "type": "date_nanos"
       },
       "modified_date": {

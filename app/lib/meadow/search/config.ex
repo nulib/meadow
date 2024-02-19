@@ -28,9 +28,22 @@ defmodule Meadow.Search.Config do
 
   def settings_for(schema, version) do
     case config_for(schema, version) do
-      %{settings: settings} -> File.read!(settings) |> Jason.decode!()
-      _ -> nil
+      %{settings: settings, pipeline: pipeline} ->
+        File.read!(settings)
+        |> Jason.decode!()
+        |> put_in(["settings", "default_pipeline"], pipeline)
+
+      %{settings: settings} ->
+        File.read!(settings) |> Jason.decode!()
+
+      _ ->
+        nil
     end
+  end
+
+  def embedding_model_id do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:embedding_model_id)
   end
 
   def index_versions do
