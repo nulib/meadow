@@ -75,7 +75,10 @@ config :meadow, Meadow.Search.Cluster,
   bulk_page_size: 200,
   bulk_wait_interval: 500,
   json_encoder: Ecto.Jason,
-  embedding_model_id: "test"
+  embedding_model_id: aws_secret("meadow",
+    dig: ["search", "embedding_model_id"],
+    default: nil
+  )
 
 config :meadow,
   ark: %{
