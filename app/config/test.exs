@@ -14,7 +14,8 @@ config :meadow, Meadow.Search.Cluster,
       default: "http://localhost:9200"
     ),
   bulk_page_size: 3,
-  bulk_wait_interval: 2
+  bulk_wait_interval: 2,
+  embedding_model_id: nil
 
 config :meadow,
   index_interval: 1234,

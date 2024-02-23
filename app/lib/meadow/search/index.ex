@@ -21,6 +21,14 @@ defmodule Meadow.Search.Index do
   Returns `{:ok, {alias, index}}`
   """
   def create(alias, settings \\ %{}) when is_binary(alias) and is_map(settings) do
+    case get_in(settings, ["settings", "default_pipeline"]) do
+      nil ->
+        :noop
+
+      pipeline ->
+        create_vector_pipeline(pipeline, SearchConfig.embedding_model_id(), "embedding_text")
+    end
+
     with timestamp <- DateTime.utc_now() |> DateTime.to_unix(:millisecond),
          new_index <- [alias, to_string(timestamp)] |> Enum.join("-") do
       case Elastix.Index.create(SearchConfig.cluster_url(), new_index, settings) do
@@ -28,6 +36,33 @@ defmodule Meadow.Search.Index do
         other -> other
       end
     end
+  end
+
+  @doc """
+  Create a vector pipeline, takes a name, model id, source field, and a target field
+  Returns {:ok, {}}
+  """
+  def create_vector_pipeline(name, model_id, source_field, target_field \\ "embedding") do
+    pipeline = %{
+      "description" => "Vector pipeline for #{name}",
+      "processors" => [
+        %{
+          "text_embedding" => %{
+            "model_id" => model_id,
+            "field_map" => %{
+              source_field => target_field
+            }
+          }
+        },
+        %{
+          "remove" => %{
+            "field" => source_field
+          }
+        }
+      ]
+    }
+
+    HTTP.put(["_ingest", "pipeline", name], pipeline)
   end
 
   @doc """

@@ -45,6 +45,10 @@ variable "digital_collections_url" {
   type = string
 }
 
+variable "embedding_model_id" {
+  type = string
+}
+
 variable "fixity_function" {
   type = string
 }

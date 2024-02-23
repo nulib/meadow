@@ -107,10 +107,7 @@ defmodule Meadow.Data.SharedLinks do
   defp create_shared_link_docs([]), do: :noop
 
   defp create_shared_link_docs(payload) do
-    Elastix.Bulk.post(SearchConfig.cluster_url(), payload,
-      index: Config.shared_links_index(),
-      type: @type_name
-    )
+    Elastix.Bulk.post(SearchConfig.cluster_url(), payload, index: Config.shared_links_index())
   end
 
   @doc """
@@ -179,7 +176,7 @@ defmodule Meadow.Data.SharedLinks do
     case Elastix.Search.count(
            SearchConfig.cluster_url(),
            Config.shared_links_index(),
-           [@type_name],
+           [],
            %{
              query: %{match_all: %{}}
            }

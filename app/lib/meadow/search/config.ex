@@ -3,6 +3,8 @@ defmodule Meadow.Search.Config do
   Convenience methods for retrieving search-specific configuration
   """
 
+  require Logger
+
   def index_configs do
     Application.get_env(:meadow, Meadow.Search.Cluster)
     |> Keyword.get(:indexes)
@@ -27,10 +29,27 @@ defmodule Meadow.Search.Config do
   end
 
   def settings_for(schema, version) do
-    case config_for(schema, version) do
-      %{settings: settings} -> File.read!(settings) |> Jason.decode!()
-      _ -> nil
+    case {config_for(schema, version), embedding_model_id()} do
+      {%{settings: settings, pipeline: pipeline}, nil} ->
+        Logger.warning("No embedding model id found in config, skipping pipeline: #{pipeline}")
+        File.read!(settings) |> Jason.decode!()
+
+      {%{settings: settings, pipeline: pipeline}, _embedding_model_id} ->
+        File.read!(settings)
+        |> Jason.decode!()
+        |> put_in(["settings", "default_pipeline"], pipeline)
+
+      {%{settings: settings}, _} ->
+        File.read!(settings) |> Jason.decode!()
+
+      _ ->
+        nil
     end
+  end
+
+  def embedding_model_id do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:embedding_model_id)
   end
 
   def index_versions do
