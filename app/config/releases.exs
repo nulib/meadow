@@ -71,7 +71,8 @@ config :meadow, Meadow.Search.Cluster,
       name: "dc-v2-work",
       settings: priv_path.("search/v2/settings/work.json"),
       version: 2,
-      schemas: [Meadow.Data.Schemas.Work]
+      schemas: [Meadow.Data.Schemas.Work],
+      pipeline: prefix("dc-v2-work-pipeline")
     },
     %{
       name: "dc-v2-file-set",
