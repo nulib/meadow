@@ -8,10 +8,9 @@ defmodule Meadow.Utils.Sitemap do
   require Logger
 
   @doc """
-  Generate a sitemap, upload it to the configured bucket, and optionally ping
-  Google and Bing to tell them an update is available
+  Generate a sitemap, upload it to the configured bucket
   """
-  def generate(ping \\ false) do
+  def generate() do
     with config <- config() do
       Repo.transaction(
         fn ->
@@ -19,7 +18,6 @@ defmodule Meadow.Utils.Sitemap do
           |> Sitemapper.generate(config)
           |> Stream.map(fn {filename, data} -> {filename, IO.iodata_to_binary(data)} end)
           |> Stream.flat_map(&persist(&1, config))
-          |> maybe_ping(config, ping)
           |> Stream.run()
 
           if Keyword.get(config, :gzip, false) do
@@ -32,9 +30,6 @@ defmodule Meadow.Utils.Sitemap do
       )
     end
   end
-
-  defp maybe_ping(stream, _, false), do: stream
-  defp maybe_ping(stream, config, true), do: Sitemapper.ping(stream, config)
 
   defp persist({filename, content}, config) do
     log_persist(filename, byte_size(content), Enum.into(config, %{}))
