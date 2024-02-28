@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Sitemap.Generate do
   require Logger
 
   @shortdoc @moduledoc
-  def run(args) do
+  def run(_args) do
     System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.start")
 
