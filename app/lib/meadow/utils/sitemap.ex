@@ -10,7 +10,7 @@ defmodule Meadow.Utils.Sitemap do
   @doc """
   Generate a sitemap, upload it to the configured bucket
   """
-  def generate() do
+  def generate do
     with config <- config() do
       Repo.transaction(
         fn ->
