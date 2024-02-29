@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.1.3"
+  @app_version "9.2.0"
 
   def project do
     [
@@ -100,7 +100,7 @@ defmodule Meadow.MixProject do
       {:quantum, "~> 3.0"},
       {:retry, "~> 0.18.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
-      {:sitemapper, "~> 0.7.0"},
+      {:sitemapper, "~> 0.8.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 0.5"},

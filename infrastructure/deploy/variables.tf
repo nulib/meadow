@@ -3,6 +3,11 @@ variable "additional_hostnames" {
   default = []
 }
 
+variable "canonical_hostname" {
+  type    = string
+  default = ""
+}
+
 variable "agentless_sso_key" {
   type = string
 }
@@ -37,6 +42,10 @@ variable "digital_collections_bucket" {
 }
 
 variable "digital_collections_url" {
+  type = string
+}
+
+variable "embedding_model_id" {
   type = string
 }
 

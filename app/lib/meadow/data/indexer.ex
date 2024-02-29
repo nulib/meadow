@@ -35,8 +35,23 @@ defmodule Meadow.Data.Indexer do
   def reindex_all(version, schema) do
     SearchClient.hot_swap(schema, version, fn index ->
       synchronize_schema(schema, version, index, :all)
+      |> check_synchronize_result(schema, index)
     end)
   end
+
+  def check_synchronize_result(:ok, schema, index) do
+    expected = Repo.aggregate(schema, :count)
+    actual = SearchClient.indexed_doc_count(index)
+
+    if actual < expected * 0.9 do
+      error = Meadow.IndexerError.exception("Indexed #{actual} docs; expected #{expected}")
+      {:incomplete, error}
+    else
+      :ok
+    end
+  end
+
+  def check_synchronize_result(other, _, _), do: other
 
   def synchronize_index do
     SearchConfig.index_versions()

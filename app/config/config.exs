@@ -52,7 +52,8 @@ config :meadow, Meadow.Search.Cluster,
       name: prefix("dc-v2-work"),
       settings: "priv/search/v2/settings/work.json",
       version: 2,
-      schemas: [Meadow.Data.Schemas.Work]
+      schemas: [Meadow.Data.Schemas.Work],
+      pipeline: prefix("dc-v2-work-pipeline")
     },
     %{
       name: prefix("dc-v2-file-set"),
@@ -73,7 +74,11 @@ config :meadow, Meadow.Search.Cluster,
   ],
   bulk_page_size: 200,
   bulk_wait_interval: 500,
-  json_encoder: Ecto.Jason
+  json_encoder: Ecto.Jason,
+  embedding_model_id: aws_secret("meadow",
+    dig: ["search", "embedding_model_id"],
+    default: nil
+  )
 
 config :meadow,
   ark: %{
