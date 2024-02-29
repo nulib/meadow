@@ -51,12 +51,14 @@ defmodule Meadow.Search.Index do
             "model_id" => model_id,
             "field_map" => %{
               source_field => target_field
-            }
+            },
+            "ignore_failure" => true
           }
         },
         %{
           "remove" => %{
-            "field" => source_field
+            "field" => source_field,
+            "ignore_failure" => true
           }
         }
       ]
