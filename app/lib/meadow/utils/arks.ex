@@ -50,7 +50,7 @@ defmodule Meadow.Arks do
   {:noop,
    %Work{...}}
   """
-  def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work, _)
+  def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work)
       when not is_nil(ark) do
     {:noop, work}
   end
