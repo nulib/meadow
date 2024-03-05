@@ -43,6 +43,8 @@ defmodule Meadow.Search.Index do
   Returns {:ok, {}}
   """
   def create_vector_pipeline(name, model_id, source_field, target_field \\ "embedding") do
+    model_name = embedding_model_name(model_id)
+
     pipeline = %{
       "description" => "Vector pipeline for #{name}",
       "processors" => [
@@ -51,18 +53,34 @@ defmodule Meadow.Search.Index do
             "model_id" => model_id,
             "field_map" => %{
               source_field => target_field
-            }
+            },
+            "ignore_failure" => true
+          }
+        },
+        %{
+          "set" => %{
+            "field" => "embedding_model",
+            "value" => model_name,
+            "if" => "ctx?.#{target_field} != null"
           }
         },
         %{
           "remove" => %{
-            "field" => source_field
+            "field" => source_field,
+            "ignore_failure" => true
           }
         }
       ]
     }
 
     HTTP.put(["_ingest", "pipeline", name], pipeline)
+  end
+
+  defp embedding_model_name(model_id) do
+    case Meadow.Search.HTTP.get(["_plugins", "_ml", "models", model_id]) do
+      {:ok, %{status_code: 200, body: %{"name" => name}}} -> name
+      _ -> nil
+    end
   end
 
   @doc """
