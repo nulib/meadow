@@ -2,6 +2,7 @@ defmodule Meadow.ArksTest do
   use Meadow.DataCase
 
   alias Meadow.{Ark, Arks}
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Utils.ArkClient.MockServer
 
@@ -23,6 +24,12 @@ defmodule Meadow.ArksTest do
         assert Arks.mint_ark!(work)
       end
     end)
+
+    @tag work_type: "IMAGE"
+    test "mint_ark/1 does not mint a new ark for a work that already has an ark", %{work: work} do
+      assert {:ok, %Work{descriptive_metadata: %{ark: ark}} = work} = Arks.mint_ark(work)
+      assert {:noop, %Work{descriptive_metadata: %{ark: ^ark}}} = Arks.mint_ark(work)
+    end
   end
 
   describe "update_ark_metadata/1" do
