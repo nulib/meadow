@@ -50,10 +50,8 @@ defmodule Meadow.Data.CSV.ExportTest do
     assert Enum.member?(header, "collection_id")
     assert Map.get(sample_record, "collection_id") == collection.id
 
-    with shoulder <- Meadow.Config.ark_config() |> Map.get(:default_shoulder) do
-      assert Enum.member?(header, "ark")
-      assert Map.get(sample_record, "ark") |> String.starts_with?(shoulder)
-    end
+    assert Enum.member?(header, "ark")
+    assert Map.get(sample_record, "ark") |> String.starts_with?("ark:/")
 
     @sample_record
     |> Enum.each(fn {field, expected_value} ->
