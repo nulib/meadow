@@ -23,12 +23,25 @@ defmodule MeadowLivebookAuth do
   @spec authenticate(GenServer.server(), Plug.Conn.t(), keyword()) ::
           {Plug.Conn.t(), map() | nil}
   def authenticate(server, conn, _) do
-    with [_ | [host | _]] <- Node.self() |> to_string() |> String.split("@"),
-         url <- "http://#{host}:4000/api/graphql" do
+    with url <- get_meadow_url() do
       set_state(server, :auth_url, url)
       {conn, meadow_auth(url, conn)}
     end
   end
+
+  defp get_meadow_url do
+    with base <- System.get_env("MEADOW_URL") |> get_meadow_url() do
+      Path.join(base, "api/graphql")
+    end
+  end
+
+  defp get_meadow_url(nil) do
+    with [_ | [host | _]] <- Node.self() |> to_string() |> String.split("@") do
+      "http://#{host}:4000/"
+    end
+  end
+
+  defp get_meadow_url(url), do: url
 
   defp meadow_auth(nil, _), do: nil
 
