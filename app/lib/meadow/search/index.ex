@@ -57,8 +57,19 @@ defmodule Meadow.Search.Index do
           "filter_query" => %{
             "description" => "Restricts requests to publicly visible documents",
             "query" => %{
-              "terms" => %{
-                "visibility" => ["public", "authenticated"]
+              "bool" => %{
+                "must" => [
+                  %{
+                    "terms" => %{
+                      "visibility" => ["Public", "Institution"]
+                    }
+                  },
+                  %{
+                    "term" => %{
+                      "published" => true
+                    }
+                  }
+                ]
               }
             }
           }
