@@ -6,12 +6,17 @@ if !function_exported?(:Env, :prefix, 0) do
     alias Hush.Provider.{AwsSecretsManager, SystemEnvironment}
 
     def prefix do
-      with env <- if(function_exported?(Mix, :env, 0), do: Mix.env(), else: nil) do
-        [System.get_env("DEV_PREFIX"), env] |> Enum.reject(&is_nil/1) |> Enum.join("-")
-      end
+      env =
+        cond do
+          System.get_env("RELEASE_NAME") -> nil
+          function_exported?(Mix, :env, 0) -> Mix.env()
+          true -> nil
+        end
+
+      [System.get_env("DEV_PREFIX"), env] |> Enum.reject(&is_nil/1) |> Enum.join("-")
     end
 
-    def prefix(val), do: [prefix(), to_string(val)] |> Enum.reject(&is_nil/1) |> Enum.join("-")
+    def prefix(val), do: [prefix(), to_string(val)] |> reject_empty() |> Enum.join("-")
     def atom_prefix(val), do: prefix(val) |> String.to_atom()
 
     def aws_secret(name, opts \\ []),
@@ -23,5 +28,7 @@ if !function_exported?(:Env, :prefix, 0) do
     defp hush_secret(provider, name, opts), do: {:hush, provider, name, opts}
 
     defp secrets_path, do: System.get_env("SECRETS_PATH", "config")
+
+    defp reject_empty(list), do: Enum.reject(list, &(is_nil(&1) or &1 == ""))
   end
 end
