@@ -62,6 +62,12 @@ If you would like to interact directly with the database
 
 You can visit the GraphiQL interface at: [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql`](https:/[YOURENV].dev.rdc.library.northwestern.edu:3001/api/graphiql)
 
+### Livebook Integration
+
+To start meadow with superuser Livebook integration, run: `MEADOW_ROOT/bin/meadow-livebook [iex arguments]`
+
+For example, from Meadow's root directory: `./bin/meadow-livebook phx.server`
+
 ### Opensearch Dashboard
 
 - To start: `es-proxy start`
