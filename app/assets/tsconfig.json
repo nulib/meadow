@@ -15,13 +15,13 @@
     "noUnusedParameters": false,
     "paths": {
       "@/*": ["*"],
-      "@js/*": ["js/*"],
+      "@js/*": ["js/*"]
     },
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "ES6",
-    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "include": [
     "js/**/*.ts",
@@ -29,10 +29,10 @@
     "js/**/*.jsx",
     "js/**/*.tsx",
     "types/**/*.d.ts",
-    "./jest.setup.ts",
+    "./jest.setup.ts"
   ],
   "exclude": [
     "node_modules",
-    "node_modules/@honeybadger-io/react/honeybadger-react.d.ts",
-  ],
+    "node_modules/@honeybadger-io/react/honeybadger-react.d.ts"
+  ]
 }
