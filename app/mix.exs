@@ -102,7 +102,7 @@ defmodule Meadow.MixProject do
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.8.0"},
       {:sweet_xml, "~> 0.6"},
-      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 0.5"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 1.0"},
