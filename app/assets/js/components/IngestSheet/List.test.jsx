@@ -1,7 +1,7 @@
-import React from "react";
-import { render, cleanup } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
+
 import IngestSheetList from "./List";
-import "@testing-library/jest-dom/extend-expect";
+import React from "react";
 import { renderWithRouter } from "../../services/testing-helpers";
 
 const projectId = "abcdefg123";
@@ -10,7 +10,7 @@ afterEach(cleanup);
 
 xtest("IngestSheetList component renders", () => {
   const { container } = renderWithRouter(
-    <IngestSheetList projectId={projectId} />
+    <IngestSheetList projectId={projectId} />,
   );
   expect(container).toBeTruthy();
 });
