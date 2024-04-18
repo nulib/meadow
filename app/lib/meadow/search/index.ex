@@ -136,7 +136,7 @@ defmodule Meadow.Search.Index do
   end
 
   defp embedding_model_name(model_id) do
-    case Meadow.Search.HTTP.get(["_plugins", "_ml", "models", model_id]) do
+    case HTTP.get(["_plugins", "_ml", "models", model_id]) do
       {:ok, %{status_code: 200, body: %{"name" => name}}} -> name
       _ -> nil
     end

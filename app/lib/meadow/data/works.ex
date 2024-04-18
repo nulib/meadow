@@ -406,6 +406,13 @@ defmodule Meadow.Data.Works do
       }),
       do: {:ok, work}
 
+  def set_representative_image(work, %FileSet{
+        id: _id,
+        role: %{id: "X"},
+        derivatives: %{"copy" => _copy}
+      }),
+      do: {:ok, work}
+
   def set_representative_image(%Work{} = work, file_set_id) when is_binary(file_set_id) do
     set_representative_image(work, FileSets.get_file_set!(file_set_id))
   end
