@@ -54,11 +54,19 @@ defmodule Meadow.Search.Client do
       {:ok, _} ->
         SearchAlias.update(alias, index)
 
+      {:incomplete, reason} ->
+        Error.log_and_report(
+          "Incomplete hot swap on #{alias}. Alias left unchanged.",
+          reason,
+          __MODULE__,
+          []
+        )
+
       {:error, reason} ->
         SearchIndex.delete(index)
 
         Error.log_and_report(
-          "Problem performing hot swap",
+          "Problem performing hot swap on #{alias}",
           reason,
           __MODULE__,
           []

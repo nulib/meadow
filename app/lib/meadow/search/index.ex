@@ -26,7 +26,9 @@ defmodule Meadow.Search.Index do
         :noop
 
       pipeline ->
-        create_vector_pipeline(pipeline, SearchConfig.embedding_model_id(), "embedding_text")
+        pipeline
+        |> create_ingest_pipeline(SearchConfig.embedding_model_id(), "embedding_text")
+        |> create_search_pipeline()
     end
 
     with timestamp <- DateTime.utc_now() |> DateTime.to_unix(:millisecond),
@@ -39,30 +41,105 @@ defmodule Meadow.Search.Index do
   end
 
   @doc """
-  Create a vector pipeline, takes a name, model id, source field, and a target field
-  Returns {:ok, {}}
+  Create a search pipeline, takes a name, normalization_technique, combination_technique, and a weight field
+  Returns name
   """
-  def create_vector_pipeline(name, model_id, source_field, target_field \\ "embedding") do
+  def create_search_pipeline(
+        name,
+        normalization_technique \\ "l2",
+        combination_technique \\ "arithmetic_mean",
+        weights \\ [0.7, 0.3]
+      ) do
     pipeline = %{
-      "description" => "Vector pipeline for #{name}",
+      "description" => "Search pipeline for #{name}",
+      "request_processors" => [
+        %{
+          "filter_query" => %{
+            "description" => "Restricts requests to publicly visible documents",
+            "query" => %{
+              "bool" => %{
+                "must" => [
+                  %{
+                    "terms" => %{
+                      "visibility" => ["Public", "Institution"]
+                    }
+                  },
+                  %{
+                    "term" => %{
+                      "published" => true
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "phase_results_processors" => [
+        %{
+          "normalization-processor" => %{
+            "normalization" => %{
+              "technique" => normalization_technique
+            },
+            "combination" => %{
+              "technique" => combination_technique,
+              "parameters" => %{
+                "weights" => weights
+              }
+            }
+          }
+        }
+      ]
+    }
+
+    HTTP.put(["_search", "pipeline", name], pipeline)
+    name
+  end
+
+  @doc """
+  Create a ingest pipeline, takes a name, model id, source field, and a target field
+  Returns name
+  """
+  def create_ingest_pipeline(name, model_id, source_field, target_field \\ "embedding") do
+    model_name = embedding_model_name(model_id)
+
+    pipeline = %{
+      "description" => "Ingest pipeline for #{name}",
       "processors" => [
         %{
           "text_embedding" => %{
             "model_id" => model_id,
             "field_map" => %{
               source_field => target_field
-            }
+            },
+            "ignore_failure" => true
+          }
+        },
+        %{
+          "set" => %{
+            "field" => "embedding_model",
+            "value" => model_name,
+            "if" => "ctx?.#{target_field} != null"
           }
         },
         %{
           "remove" => %{
-            "field" => source_field
+            "field" => source_field,
+            "ignore_failure" => true
           }
         }
       ]
     }
 
     HTTP.put(["_ingest", "pipeline", name], pipeline)
+    name
+  end
+
+  defp embedding_model_name(model_id) do
+    case Meadow.Search.HTTP.get(["_plugins", "_ml", "models", model_id]) do
+      {:ok, %{status_code: 200, body: %{"name" => name}}} -> name
+      _ -> nil
+    end
   end
 
   @doc """

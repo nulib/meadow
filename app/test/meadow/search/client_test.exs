@@ -80,6 +80,18 @@ defmodule Meadow.Search.ClientTest do
       assert log =~ ~r/Problem performing hot swap/
       assert log =~ ~r/Whoa, reindexing .+ blew up/
     end
+
+    test "doesn't swap alias if hot swap is incomplete" do
+      log =
+        capture_log(fn ->
+          Client.hot_swap(Work, 2, fn _index ->
+            {:incomplete, "Some documents are missing"}
+          end)
+        end)
+
+      assert log =~ ~r/Incomplete hot swap/
+      assert log =~ ~r/Some documents are missing/
+    end
   end
 
   test "most_recent/2" do
