@@ -52,14 +52,18 @@ defmodule Meadow.Arks do
   """
   def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work)
       when not is_nil(ark) do
+    Logger.warn("Not minting ARK for work #{work.id} because it already has one: #{ark}")
     {:noop, work}
   end
 
   def mint_ark(nil), do: {:noop, nil}
 
   def mint_ark(%Work{} = work) do
+    Logger.info("Minting ARK for work #{work.id}")
+
     case work |> initial_ark() |> Ark.mint() do
       {:ok, result} ->
+        Logger.info("Minted ARK #{result.ark} for work #{work.id}")
         Works.update_work(work, %{descriptive_metadata: %{ark: result.ark}})
 
       {:error, error_message} ->
@@ -106,6 +110,8 @@ defmodule Meadow.Arks do
   end
 
   defp update_existing_ark(work, _, ark) do
+    Logger.info("Updating ARK #{ark.ark} for work #{work.id}")
+
     case Ark.put(ark) do
       {:ok, result} ->
         Logger.info("Ark successfully updated. #{inspect(result)}")

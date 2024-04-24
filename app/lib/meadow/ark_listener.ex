@@ -12,17 +12,25 @@ defmodule Meadow.ArkListener do
 
   @impl true
   def handle_notification(:works, :delete, %{id: id}, state) do
-    Arks.work_deleted(id)
-    {:noreply, state}
+    with_log_metadata module: __MODULE__, id: id do
+      Logger.info("Received DELETE notification for ARK on work #{id}")
+      Arks.work_deleted(id)
+      {:noreply, state}
+    end
   end
 
   def handle_notification(:works, :insert, %{id: id}, state) do
-    Works.get_work(id) |> Arks.mint_ark()
-    {:noreply, state}
+    with_log_metadata module: __MODULE__, id: id do
+      Logger.info("Received INSERT notification for ARK on work #{id}")
+      Works.get_work(id) |> Arks.mint_ark()
+      {:noreply, state}
+    end
   end
 
-  def handle_notification(:works, _op, %{id: id}, state) do
+  def handle_notification(:works, op, %{id: id}, state) do
     with_log_metadata module: __MODULE__, id: id do
+      Logger.info("Received #{String.upcase(to_string(op))} notification for ARK on work #{id}")
+
       case Works.get_work!(id) do
         nil -> :noop
         work -> update_ark_metadata(work)
