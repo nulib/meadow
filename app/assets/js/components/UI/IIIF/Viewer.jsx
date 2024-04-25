@@ -67,6 +67,9 @@ const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
 
   const options = {
     canvasHeight: 480,
+    informationPanel: {
+      open: false,
+    },
     openSeadragon: {
       gestureSettingsMouse: {
         scrollToZoom: false,

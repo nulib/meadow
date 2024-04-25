@@ -3,8 +3,8 @@
     "jsx": "react", // Allow command-click open components in a new file in VSCode
     "baseUrl": ".",
     "paths": {
-      "@js/*": ["js/*"],
-    },
+      "@js/*": ["js/*"]
+    }
   },
-  "exclude": ["node_modules", "static"],
+  "exclude": ["node_modules", "static"]
 }
