@@ -53,7 +53,7 @@
     "node-webvtt": "^1.9.4",
     "phoenix": "^1.7.11",
     "prop-types": "^15.8.1",
-    "rc-progress": "^3.5.1",
+    "rc-progress": "^4.0.0",
     "react-beautiful-dnd": "^13.1.0",
     "react-csv": "^2.2.2",
     "react-device-detect": "^2.2.3",
