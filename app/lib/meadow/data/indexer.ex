@@ -18,8 +18,12 @@ defmodule Meadow.Data.Indexer do
   import Ecto.Query
 
   def reindex_all do
-    SearchConfig.index_versions()
-    |> Enum.each(&reindex_all/1)
+    with versions <- SearchConfig.index_versions() do
+      case Enum.all?(versions, &reindex_all/1) do
+        true -> :ok
+        _error -> {:error, "Reindex all failed"}
+      end
+    end
   end
 
   def reindex_all(version) do
@@ -29,7 +33,7 @@ defmodule Meadow.Data.Indexer do
   def reindex_all(version, schemas) when is_list(schemas) do
     schemas
     |> Enum.uniq()
-    |> Enum.each(&reindex_all(version, &1))
+    |> Enum.map(&reindex_all(version, &1))
   end
 
   def reindex_all(version, schema) do
@@ -55,12 +59,16 @@ defmodule Meadow.Data.Indexer do
 
   def synchronize_index do
     SearchConfig.index_versions()
-    |> Enum.each(&synchronize_index/1)
+    |> Enum.flat_map(&synchronize_index/1)
+    |> Enum.reduce(:ok, fn
+      result, acc when result == :ok -> acc
+      _result, _acc -> :error
+    end)
   end
 
   def synchronize_index(version) do
     [FileSet, Work, Collection]
-    |> Enum.each(&synchronize_schema(&1, version))
+    |> Enum.map(&synchronize_schema(&1, version))
   end
 
   def synchronize_schema(schema, version) do
@@ -91,14 +99,13 @@ defmodule Meadow.Data.Indexer do
   end
 
   def synchronize_schema(stream, version, index) do
-    Repo.transaction(
+    Repo.transact(
       fn ->
         stream
         |> Stream.map(&SearchDocument.encode(&1, version))
         |> Bulk.upload(index)
 
         SearchIndex.refresh(index)
-        :ok
       end,
       timeout: :infinity
     )
