@@ -75,7 +75,7 @@
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
-    "@babel/runtime": "^7.24.4",
+    "@babel/runtime": "^7.24.5",
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@elastic/elasticsearch-mock": "^2.0.0",
