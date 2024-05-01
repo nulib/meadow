@@ -12,19 +12,25 @@ export default function useAcceptedMimeTypes() {
     }
 
     const mimeParts = mimeType.split("/");
+    const acceptedAltFormats = [
+      "application/pdf",
+      "application/zip",
+      "application/zip-compressed",
+    ];
     const isImage = mimeParts[0] === "image";
     const isAudio = mimeParts[0] === "audio";
     const isVideo = mimeParts[0] === "video";
+    const isAltFormat = acceptedAltFormats.includes(mimeType);
     let code = "";
     let message = "";
     let isValid = true;
 
     switch (fileSetRole) {
       case "X":
-        if (!isImage) {
+        if (!isImage && !isAltFormat) {
           isValid = false;
           code = "invalid-image";
-          message = "Auxiliary files can only be image mime types";
+          message = "Auxiliary files can only be image, pdf, or zip mime types";
         }
         break;
 

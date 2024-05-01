@@ -173,6 +173,44 @@ defmodule Meadow.Data.FileSetsTest do
   end
 
   describe "utilities" do
+    test "download_uri_for/1 for an Auxilary file" do
+      file_set = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+
+      with url <- file_set |> FileSets.download_uri_for() do
+        assert url |> String.ends_with?("file-sets/#{file_set.id}/download")
+      end
+    end
+
+    test "download_uri_for/1 for an Access file" do
+      file_set = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
+
+      with url <- file_set |> FileSets.download_uri_for() do
+        assert url |> String.ends_with?("file-sets/#{file_set.id}/download")
+      end
+    end
+
+    test "download_uri_for/1 for other file (not image, pdf or zip) is null" do
+      file_set = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
+      assert is_nil(FileSets.download_uri_for(file_set))
+    end
+
+    test "derivative_key/1 for a FileSet" do
+      file_set = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+
+      with key <- FileSets.derivative_key(file_set) do
+        assert key == "derivatives/#{Pairtree.derivative_path(file_set.id)}"
+      end
+    end
+
+    test "derivative_location/1 for a FileSet" do
+      file_set = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+
+      with url <- FileSets.derivative_location(file_set) do
+        assert url |> String.starts_with?("s3://#{@pyramid_bucket}/")
+        assert url |> String.ends_with?(Pairtree.derivative_path(file_set.id))
+      end
+    end
+
     test "representative_image_url_for/1 for a video with a poster" do
       file_set = file_set_fixture(%{derivatives: %{"poster" => "poster.tiff"}})
 

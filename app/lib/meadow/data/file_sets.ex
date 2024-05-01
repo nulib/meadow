@@ -200,6 +200,38 @@ defmodule Meadow.Data.FileSets do
 
   defp add_derivative_to_map(map, type, value), do: Map.put(map, to_string(type), value)
 
+  def derivative_location(file_set) do
+    dest_bucket = Config.pyramid_bucket()
+
+    dest_key =
+      Path.join([
+        "/",
+        "derivatives",
+        Pairtree.derivative_path(file_set.id)
+      ])
+
+    %URI{scheme: "s3", host: dest_bucket, path: dest_key} |> URI.to_string()
+  end
+
+  def derivative_key(file_set) do
+      Path.join([
+        "derivatives",
+        Pairtree.derivative_path(file_set.id)
+      ])
+  end
+
+  def download_uri_for(%FileSet{id: id, role: %{id: "X"}}), do: download_uri(id)
+  def download_uri_for(%FileSet{id: id, role: %{id: "A"}}), do: download_uri(id)
+  def download_uri_for(_), do: nil
+
+  defp download_uri(id) do
+    with uri <- URI.parse(Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])) do
+      uri
+      |> URI.merge("file-sets/" <> id <> "/download")
+      |> URI.to_string()
+  end
+end
+
   defp multi_update(file_set_updates) do
     file_set_updates
     |> Enum.with_index(1)

@@ -14,6 +14,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       create_date: file_set.inserted_at,
       digests: file_set.core_metadata.digests,
       description: file_set.core_metadata.description,
+      download_url: FileSets.download_uri_for(file_set),
       extracted_metadata: extracted_metadata(file_set.extracted_metadata),
       id: file_set.id,
       indexed_at: NaiveDateTime.utc_now(),
