@@ -22,7 +22,7 @@ function WorkFilesetListItem({
   const iiifServerUrl = useContext(IIIFContext);
   const { id, coreMetadata } = fileSet;
   const dispatch = useWorkDispatch();
-  const { isMedia } = useFileSet();
+  const {isImage, isMedia, isPDF, isZip } = useFileSet();
   const workContextState = useWorkState();
 
   // Helper for media type file sets
@@ -41,12 +41,30 @@ function WorkFilesetListItem({
     if (!imgState.errored) {
       setImgState({
         errored: true,
-        src: isMedia(fileSet)
-          ? "/images/video-placeholder2.png"
-          : "/images/placeholder.png",
+        src: placeholderImage(fileSet),
       });
     }
   };
+
+  const placeholderImage = (fileSet) =>  {
+    if (isMedia(fileSet)) {
+      return "/images/video-placeholder2.png";
+    } else if (isPDF(fileSet)) {  
+      return "/images/placeholder-pdf.png";
+    } else if (isZip(fileSet)) {  
+      return "/images/placeholder-zip.png";
+    } else {
+      return "/images/placeholder.png";
+    }
+  }
+
+  const showWorkImageToggle = () => {
+    if (fileSet.role.id === "A" && workContextState.workTypeId === "AUDIO") {
+      return false;
+    } else {
+      return isImage(fileSet);
+    }
+  }
 
   return (
     <article className="box" data-testid="fileset-item">
@@ -102,9 +120,8 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {!(
-                workContextState.workTypeId === "AUDIO" &&
-                fileSet.role.id === "A"
+              {(
+                showWorkImageToggle()
               ) && (
                 <AuthDisplayAuthorized>
                   <div className="field">

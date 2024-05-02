@@ -9,6 +9,7 @@ prefix =
 
 alias Meadow.Pipeline.Actions.{
   CopyFileToPreservation,
+  CreateDerivativeCopy,
   CreatePyramidTiff,
   CreateTranscodeJob,
   ExtractMediaMetadata,
@@ -31,6 +32,7 @@ config :meadow, Meadow.Pipeline, [
      GenerateFileSetDigests,
      ExtractExifMetadata,
      CopyFileToPreservation,
+     CreateDerivativeCopy,
      CreatePyramidTiff,
      ExtractMediaMetadata,
      CreateTranscodeJob,
@@ -86,6 +88,13 @@ config :meadow, Meadow.Pipeline, [
   {CreatePyramidTiff,
    producer: [
      queue_name: "#{prefix}-create-pyramid-tiff",
+     wait_time_seconds: 1,
+     visibility_timeout: 300
+   ],
+   processors: [default: [concurrency: 1]]},
+   {CreateDerivativeCopy,
+   producer: [
+     queue_name: "#{prefix}-create-derivative-copy",
      wait_time_seconds: 1,
      visibility_timeout: 300
    ],

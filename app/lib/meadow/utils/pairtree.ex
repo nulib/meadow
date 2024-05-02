@@ -4,6 +4,18 @@ defmodule Meadow.Utils.Pairtree do
   """
 
   @doc """
+  Generates a derivative path
+
+  ## Examples
+
+    iex> Pairtree.derivative_path("6bdd9d3a-6507-41f9-84b2-71d49713cf6f")
+    "6b/dd/9d/3a/6bdd9d3a-6507-41f9-84b2-71d49713cf6f"
+  """
+  def derivative_path(uuid) do
+    generate!(uuid, 4) <> "/" <> uuid
+  end
+
+  @doc """
   Generates a preservation path
 
   ## Examples

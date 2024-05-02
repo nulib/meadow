@@ -12,6 +12,7 @@ defmodule Meadow.Pipeline.Dispatcher do
 
   alias Meadow.Pipeline.Actions.{
     CopyFileToPreservation,
+    CreateDerivativeCopy,
     CreatePyramidTiff,
     CreateTranscodeJob,
     ExtractExifMetadata,
@@ -48,6 +49,14 @@ defmodule Meadow.Pipeline.Dispatcher do
     ExtractMediaMetadata,
     CreateTranscodeJob,
     TranscodeComplete,
+    FileSetComplete
+  ]
+
+  @auxiliary_derivative_actions [
+    GenerateFileSetDigests,
+    ExtractExifMetadata,
+    CopyFileToPreservation,
+    CreateDerivativeCopy,
     FileSetComplete
   ]
 
@@ -117,6 +126,24 @@ defmodule Meadow.Pipeline.Dispatcher do
         _attributes
       ),
       do: @access_image_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "X"}, core_metadata: %{mime_type: "application/pdf"}},
+        _attributes
+      ),
+      do: @auxiliary_derivative_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "X"}, core_metadata: %{mime_type: "application/zip"}},
+        _attributes
+      ),
+      do: @auxiliary_derivative_actions
+
+  def dispatcher_actions(
+        %{role: %{id: "X"}, core_metadata: %{mime_type: "application/zip" <> _}},
+        _attributes
+      ),
+      do: @auxiliary_derivative_actions
 
   def dispatcher_actions(
         %{role: %{id: "P"}, core_metadata: %{mime_type: "image/" <> _}},

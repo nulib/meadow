@@ -391,6 +391,9 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp mime_type_accepted?(_, "X", "image/" <> _rest), do: true
+  defp mime_type_accepted?(_, "X", "application/pdf"), do: true
+  defp mime_type_accepted?(_, "X", "application/zip"), do: true
+  defp mime_type_accepted?(_, "X", "application/zip" <> _rest), do: true
 
   defp mime_type_accepted?(_, "P", _), do: true
   defp mime_type_accepted?(_, "S", _), do: true
