@@ -8,7 +8,6 @@ import { Button } from "@nulib/design-system";
 import { IconDownload } from "@js/components/Icon";
 import { toastWrapper } from "@js/services/helpers";
 import { useWorkState } from "@js/context/work-context";
-import { AuthContext } from "@js/components/Auth/Auth";
 import { GET_DCAPI_ENDPOINT } from "@js/components/UI/ui.gql";
 import { getApiResponse } from "@js/services/get-api-response";
 import { useQuery } from "@apollo/client";
@@ -18,12 +17,11 @@ const WorkFilesetActionButtonsAuxiliary = ({ fileSet }) => {
   const url = `${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL}`;
   const { altFileFormat, isImage, isAltFormat } = useFileSet();
   const { dcApiToken } = useWorkState();
-  const currentUser = useContext(AuthContext);
   const { data: dataDcApiEndpoint } = useQuery(GET_DCAPI_ENDPOINT);
 
   const handleDownloadFile = async () => {
     const dcApiFileSet = `${dataDcApiEndpoint?.dcapiEndpoint?.url}/file-sets/${fileSet.id}`;
-    const uri = `${dcApiFileSet}/download?email=${currentUser?.email}`;
+    const uri = `${dcApiFileSet}/download`;
 
     try {
       const response = await getApiResponse(uri, dcApiToken);
