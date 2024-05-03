@@ -214,10 +214,10 @@ defmodule Meadow.Data.FileSets do
   end
 
   def derivative_key(file_set) do
-      Path.join([
-        "derivatives",
-        Pairtree.derivative_path(file_set.id)
-      ])
+    Path.join([
+      "derivatives",
+      Pairtree.derivative_path(file_set.id)
+    ])
   end
 
   def download_uri_for(%FileSet{id: id, role: %{id: "X"}}), do: download_uri(id)
@@ -225,12 +225,9 @@ defmodule Meadow.Data.FileSets do
   def download_uri_for(_), do: nil
 
   defp download_uri(id) do
-    with uri <- URI.parse(Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])) do
-      uri
-      |> URI.merge("file-sets/" <> id <> "/download")
-      |> URI.to_string()
+    api_url = Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
+    "#{api_url}/file-sets/#{id}/download"
   end
-end
 
   defp multi_update(file_set_updates) do
     file_set_updates
