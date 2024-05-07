@@ -265,8 +265,19 @@ data "aws_s3_bucket" "pyramid_bucket" {
   bucket = var.pyramid_bucket
 }
 
+resource "aws_s3_bucket_cors_configuration" "pyramid_bucket" {
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"]
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_s3_bucket_versioning" "pyramid_bucket" {
-  bucket = aws_s3_bucket.pyramid_bucket.id
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
   versioning_configuration {
     status = "Enabled"
   }
@@ -274,7 +285,7 @@ resource "aws_s3_bucket_versioning" "pyramid_bucket" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_pyramids" {
   depends_on = [aws_s3_bucket_versioning.pyramid_bucket]
-  bucket = aws_s3_bucket.pyramid_bucket.id
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
 
   rule {
     id = "expire_old_versions"
