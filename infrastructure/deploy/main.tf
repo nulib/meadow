@@ -239,7 +239,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_streaming" {
     }
     
     noncurrent_version_expiration {
-      noncurrent_days = 30
+      noncurrent_days = 90
     }
 
     transition {
@@ -280,7 +280,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_pyramids" {
     id = "expire_old_versions"
 
     noncurrent_version_expiration {
-      noncurrent_days = 30
+      noncurrent_days = 90
     }
 
     status = "Enabled"
