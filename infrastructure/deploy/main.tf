@@ -218,7 +218,15 @@ resource "aws_s3_bucket" "meadow_streaming" {
   tags   = var.tags
 }
 
+resource "aws_s3_bucket_versioning" "meadow_streaming" {
+  bucket = aws_s3_bucket.meadow_streaming.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_streaming" {
+  depends_on = [aws_s3_bucket_versioning.meadow_streaming]
   bucket = "${var.stack_name}-${var.environment}-streaming"
 
   rule {
@@ -228,6 +236,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_streaming" {
 
     filter {
       prefix = ""
+    }
+    
+    noncurrent_version_expiration {
+      noncurrent_days = 90
     }
 
     transition {
@@ -251,6 +263,39 @@ resource "aws_s3_bucket_cors_configuration" "meadow_streaming" {
 
 data "aws_s3_bucket" "pyramid_bucket" {
   bucket = var.pyramid_bucket
+}
+
+resource "aws_s3_bucket_cors_configuration" "pyramid_bucket" {
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"]
+    max_age_seconds = 3000
+  }
+}
+
+resource "aws_s3_bucket_versioning" "pyramid_bucket" {
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "meadow_pyramids" {
+  depends_on = [aws_s3_bucket_versioning.pyramid_bucket]
+  bucket = data.aws_s3_bucket.pyramid_bucket.id
+
+  rule {
+    id = "expire_old_versions"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+
+    status = "Enabled"
+  }
 }
 
 data "aws_s3_bucket" "digital_collections_bucket" {
