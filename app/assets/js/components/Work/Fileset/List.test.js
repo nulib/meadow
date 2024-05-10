@@ -1,14 +1,15 @@
-import React from "react";
-import WorkFilesetList from "@js/components/Work/Fileset/List";
-import { screen, waitFor } from "@testing-library/react";
-import { mockFileSets } from "@js/mock-data/filesets";
 import {
   renderWithRouterApollo,
   withReactBeautifulDND,
 } from "@js/services/testing-helpers";
+import { screen, waitFor } from "@testing-library/react";
+
+import React from "react";
+import WorkFilesetList from "@js/components/Work/Fileset/List";
+import { WorkProvider } from "@js/context/work-context";
+import { mockFileSets } from "@js/mock-data/filesets";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
-import { WorkProvider } from "@js/context/work-context";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -25,7 +26,7 @@ describe("WorkFilesetList component", () => {
           isReordering: true,
         })}
       </WorkProvider>,
-      {}
+      {},
     );
     await waitFor(() => {
       expect(screen.getByTestId("fileset-draggable-list"));
@@ -39,7 +40,7 @@ describe("WorkFilesetList component", () => {
           fileSets: { access: mockFileSets, auxiliary: [] },
         })}
       </WorkProvider>,
-      {}
+      {},
     );
     await waitFor(() => {
       expect(screen.getByTestId("fileset-list"));
@@ -53,10 +54,10 @@ describe("WorkFilesetList component", () => {
           fileSets: { access: mockFileSets, auxiliary: [] },
         })}
       </WorkProvider>,
-      {}
+      {},
     );
     await waitFor(() => {
-      expect(screen.getAllByTestId("fileset-item")).toHaveLength(3);
+      expect(screen.getAllByTestId("fileset-item")).toHaveLength(4);
     });
   });
 });

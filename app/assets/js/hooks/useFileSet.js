@@ -19,6 +19,10 @@ export default function useFileSet() {
     return webVtt;
   }
 
+  function hasRepresentativeImage(fileSet = {}) {
+    return !!fileSet.representativeImageUrl;
+  }
+
   function isEmpty(fileSet = {}) {
     return !fileSet || Object.keys(fileSet).length === 0;
   }
@@ -78,6 +82,7 @@ export default function useFileSet() {
     altFileFormat,
     filterFileSets,
     getWebVttString,
+    hasRepresentativeImage,
     isAltFormat,
     isEmpty,
     isImage,
