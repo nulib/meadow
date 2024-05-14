@@ -23,7 +23,7 @@ describe.only("Work About tab Idenfiers Metadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 
@@ -41,6 +41,6 @@ describe.only("Work About tab Idenfiers Metadata component", () => {
     expect(await screen.findByTestId("license")).toBeInTheDocument();
   });
   it("renders terms of use field", async () => {
-    expect(await screen.findByTestId("input-terms-of-use")).toBeInTheDocument();
+    expect(await screen.findByTestId("terms-of-use"));
   });
 });
