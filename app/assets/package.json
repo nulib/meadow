@@ -38,7 +38,7 @@
     "bulma-switch": "^2.0.0",
     "bulma-toast": "^2.4.4",
     "classnames": "^2.5.1",
-    "downshift": "^9.0.4",
+    "downshift": "^9.0.6",
     "edtf": "^4.6.0",
     "esbuild-plugin-svgr": "^2.1.0",
     "faker": "^5.5.3",
