@@ -118,7 +118,8 @@ export default function BatchEditTabs() {
       }
     });
 
-    ["title"].forEach((item) => {
+    /** Single value fields */
+    ["title", "termsOfUse"].forEach((item) => {
       if (currentFormValues[item]) {
         replaceItems.descriptive[item] = currentFormValues[item];
       }
@@ -146,14 +147,14 @@ export default function BatchEditTabs() {
         addItems.descriptive[term.name] = prepControlledTermInput(
           term,
           currentFormValues[term.name],
-          true
+          true,
         );
       }
       // Include only active removals
       if (batchState.removeItems && batchState.removeItems[term.name]) {
         deleteReadyItems[term.name] = prepFacetKey(
           term,
-          batchState.removeItems[term.name]
+          batchState.removeItems[term.name],
         );
       }
     }
@@ -164,7 +165,7 @@ export default function BatchEditTabs() {
     // Now we need to split this up between Descriptive and Administrative
     let administrativeMultiValues = parseMultiValues(
       multiValues,
-      "administrative"
+      "administrative",
     );
     let descriptiveMultiValues = parseMultiValues(multiValues, "descriptive");
 

@@ -48,7 +48,7 @@ function prepFormData(work) {
   ]) {
     for (let obj of group) {
       resetValues[obj.name] = descriptiveMetadata[obj.name].map((value) =>
-        convertFieldArrayValToHookFormVal(value)
+        convertFieldArrayValToHookFormVal(value),
       );
     }
   }
@@ -111,8 +111,7 @@ const WorkTabsAbout = ({ work }) => {
   const onSubmit = (data) => {
     // "data" here returns everything (which was set above in the useEffect()),
     // including fields that are either outdated or which no values were ever registered
-    // with React Hook Form's register().   So, we'll use getValues() to get the real data
-    // updated.
+    // with React Hook Form's register().   So, we'll use getValues() to get the most accurate data.
 
     let currentFormValues = methods.getValues();
 
@@ -121,7 +120,7 @@ const WorkTabsAbout = ({ work }) => {
     let workUpdateInput = {
       descriptiveMetadata: {
         alternateTitle: prepFieldArrayItemsForPost(
-          currentFormValues.alternateTitle
+          currentFormValues.alternateTitle,
         ),
         dateCreated: prepEDTFforPost(currentFormValues.dateCreated),
         description: prepFieldArrayItemsForPost(currentFormValues.description),
@@ -161,7 +160,7 @@ const WorkTabsAbout = ({ work }) => {
     for (let term of CONTROLLED_METADATA) {
       workUpdateInput.descriptiveMetadata[term.name] = prepControlledTermInput(
         term,
-        currentFormValues[term.name]
+        currentFormValues[term.name],
       );
     }
 
