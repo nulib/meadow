@@ -1,11 +1,9 @@
-import { Button, Tag } from "@nulib/design-system";
-import React, { useContext } from "react";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
-import { IconPlay } from "@js/components/Icon";
 import PropTypes from "prop-types";
+import React from "react";
+import { Tag } from "@nulib/design-system";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormTextarea from "@js/components/UI/Form/Textarea";
@@ -19,10 +17,9 @@ function WorkFilesetListItem({
   isEditing,
   workImageFilesetId,
 }) {
-  const iiifServerUrl = useContext(IIIFContext);
   const { id, coreMetadata } = fileSet;
-  const dispatch = useWorkDispatch();
-  const {isImage, isMedia, isPDF, isZip } = useFileSet();
+  const { hasRepresentativeImage, isImage, isMedia, isPDF, isZip } =
+    useFileSet();
   const workContextState = useWorkState();
 
   // Helper for media type file sets
@@ -46,25 +43,25 @@ function WorkFilesetListItem({
     }
   };
 
-  const placeholderImage = (fileSet) =>  {
+  const placeholderImage = (fileSet) => {
     if (isMedia(fileSet)) {
       return "/images/video-placeholder2.png";
-    } else if (isPDF(fileSet)) {  
+    } else if (isPDF(fileSet)) {
       return "/images/placeholder-pdf.png";
-    } else if (isZip(fileSet)) {  
+    } else if (isZip(fileSet)) {
       return "/images/placeholder-zip.png";
     } else {
       return "/images/placeholder.png";
     }
-  }
+  };
 
   const showWorkImageToggle = () => {
     if (fileSet.role.id === "A" && workContextState.workTypeId === "AUDIO") {
       return false;
     } else {
-      return isImage(fileSet);
+      return isImage(fileSet) || hasRepresentativeImage(fileSet);
     }
-  }
+  };
 
   return (
     <article className="box" data-testid="fileset-item">
@@ -120,9 +117,7 @@ function WorkFilesetListItem({
         <div className="column is-5 has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {(
-                showWorkImageToggle()
-              ) && (
+              {showWorkImageToggle() && (
                 <AuthDisplayAuthorized>
                   <div className="field">
                     <input
@@ -146,9 +141,6 @@ function WorkFilesetListItem({
               )}
               {fileSet.role.id === "X" && (
                 <WorkFilesetActionButtonsAuxillary fileSet={fileSet} />
-              )}
-              {fileSet.role.id === "S" && (
-                <WorkFilesetActionButtonsSupplemental fileSet={fileSet} />
               )}
             </>
           )}
