@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.3.5"
+  @app_version "9.3.7"
 
   def project do
     [
@@ -53,7 +53,7 @@ defmodule Meadow.MixProject do
       {:absinthe_phoenix, "~> 2.0.0"},
       {:assertions, "~> 0.19.0", only: :test},
       {:atomic_map, "~> 0.8"},
-      {:authoritex, "~> 1.1.0"},
+      {:authoritex, "~> 1.1.1"},
       {:aws_signature, "~> 0.3.1"},
       {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.3.0"},
