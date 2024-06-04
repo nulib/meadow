@@ -64,8 +64,10 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       with {:ok, %{headers: headers}} <-
              ExAws.S3.head_object(@pyramid_bucket, "posters/#{Pairtree.poster_path(file_set.id)}")
              |> ExAws.request() do
+        assert headers |> Enum.member?({"Content-Type", "image/tiff"})
         assert headers |> Enum.member?({"x-amz-meta-width", "1920"})
         assert headers |> Enum.member?({"x-amz-meta-height", "1080"})
+        assert headers |> Enum.member?({"x-amz-meta-pages", "1"})
       end
 
       assert(
