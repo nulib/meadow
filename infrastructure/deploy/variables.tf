@@ -195,6 +195,11 @@ variable "streaming_config" {
   }
 }
 
+variable "preservation_check_schedule" {
+  type    = string
+  default = "0 2 * * *"
+}
+
 variable "trusted_referers" {
   type    = string
   default = ""

@@ -87,6 +87,10 @@ locals {
       tiff            = module.pipeline_lambda["tiff"].lambda_function_arn
     }
 
+    scheduler = {
+      preservation_check = var.preservation_check_schedule
+    }
+    
     streaming = {
       base_url = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
       distribution_id = aws_cloudfront_distribution.meadow_streaming.id
