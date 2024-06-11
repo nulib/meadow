@@ -189,9 +189,9 @@ const parsePlaylist = async (bucket, key, offset) => {
 
 const uploadToS3 = (data, destination, dimensions) => {
   const metadata = {
-    "Content-Type": "image",
     width: dimensions.width.toString(),
-    height: dimensions.height.toString()
+    height: dimensions.height.toString(),
+    pages: "1"
   };
   return new Promise((resolve, reject) => {
     const poster = URI.parse(destination);
@@ -200,6 +200,7 @@ const uploadToS3 = (data, destination, dimensions) => {
       Bucket: poster.host,
       Key: getS3Key(poster),
       Body: data,
+      ContentType: "image/tiff",
       Metadata: metadata
     });
     s3Client
