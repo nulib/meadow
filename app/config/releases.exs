@@ -125,8 +125,11 @@ config :meadow, Meadow.Scheduler,
   overlap: false,
   timezone: "America/Chicago",
   jobs: [
-    # Runs daily at 2AM Central Time
-    {"0 2 * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
+    # Runs daily at the configured time (default: 2AM Central)
+    {
+      aws_secret("meadow", dig: ["scheduler", "preservation_check"], default: "0 2 * * *"),
+      {Meadow.Data.PreservationChecks, :start_job, []}
+    }
   ]
 
 config :ueberauth, Ueberauth,
