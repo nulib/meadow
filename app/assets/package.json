@@ -26,7 +26,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@honeybadger-io/js": "^6.8.3",
+    "@honeybadger-io/js": "^6.9.2",
     "@honeybadger-io/react": "^6.1.7",
     "@nulib/design-system": "^1.5.1",
     "@radix-ui/react-dialog": "^1.1.1",
