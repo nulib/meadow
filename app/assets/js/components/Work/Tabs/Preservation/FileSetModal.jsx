@@ -23,19 +23,6 @@ const modalCss = css`
   z-index: 100;
 `;
 
-const sectionHeaderCss = css`
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
-
-const sectionCss = css`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
 function WorkTabsPreservationFileSetModal({
   closeModal,
   isVisible,
@@ -252,8 +239,8 @@ function WorkTabsPreservationFileSetModal({
 
                 {watchRole && (
                   <>
-                    <div css={sectionCss}>
-                      <h3 css={sectionHeaderCss}>Option 1: Drag and Drop File</h3>
+                    <div class="box">
+                      <h3>Option 1: Drag and Drop File</h3>
                       <WorkTabsPreservationFileSetDropzone
                         currentFile={currentFile}
                         acceptedFileTypes={acceptedFileTypes}
@@ -266,8 +253,8 @@ function WorkTabsPreservationFileSetModal({
                       />
                     </div>
 
-                    <div css={sectionCss}>
-                      <h3 css={sectionHeaderCss}>Option 2: Choose from S3 Ingest Bucket</h3>
+                    <div class="box">
+                      <h3>Option 2: Choose from S3 Ingest Bucket</h3>
                       <S3ObjectPicker
                         onFileSelect={handleSelectS3Object}
                         fileSetRole={watchRole}

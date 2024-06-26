@@ -27,19 +27,6 @@ import UIIconText from "../../../UI/IconText";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
 import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
 
-const sectionHeaderCss = css`
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
-
-const sectionCss = css`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
 function WorkTabsPreservationReplaceFileSet({
   closeModal,
   fileset,
@@ -226,8 +213,8 @@ function WorkTabsPreservationReplaceFileSet({
                     )}
                     {error && <Error error={error} />}
 
-                    <div css={sectionCss}>
-                      <h3 css={sectionHeaderCss}>Option 1: Drag and Drop File</h3>
+                    <div class="box">
+                      <h3>Option 1: Drag and Drop File</h3>
                       <WorkTabsPreservationFileSetDropzone
                         currentFile={currentFile}
                         fileSetRole={fileset?.role?.id}
@@ -239,8 +226,8 @@ function WorkTabsPreservationReplaceFileSet({
                       />
                     </div>
 
-                    <div css={sectionCss}>
-                      <h3 css={sectionHeaderCss}>Option 2: Choose from S3 Ingest Bucket</h3>
+                    <div class="box">
+                      <h3>Option 2: Choose from S3 Ingest Bucket</h3>
                       <S3ObjectPicker
                         onFileSelect={handleSelectS3Object}
                         fileSetRole={fileset?.role?.id}

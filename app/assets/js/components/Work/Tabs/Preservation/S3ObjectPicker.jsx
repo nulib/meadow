@@ -45,11 +45,11 @@ const S3ObjectPicker = ({ onFileSelect, fileSetRole, workTypeId, defaultPrefix =
     refetch({ prefix: defaultPrefix });
   };
 
-  const handlePrefixChange = (e) => {
+  const handlePrefixChange = async (e) => {
     const inputValue = e.target.value;
     const newPrefix = inputValue.startsWith(defaultPrefix) ? inputValue : defaultPrefix + inputValue;
     setPrefix(newPrefix);
-    refetch({ prefix: newPrefix });
+    await refetch({ prefix: newPrefix });
   };
 
   const handleRefresh = async () => {
