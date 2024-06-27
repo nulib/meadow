@@ -360,6 +360,18 @@ export const REPLACE_FILE_SET = gql`
   }
 `;
 
+export const LIST_INGEST_BUCKET_OBJECTS = gql`
+  query ListIngestBucketObjects($prefix: String) {
+    ListIngestBucketObjects(prefix: $prefix) {
+      key
+      storageClass
+      size
+      lastModified
+      mimeType
+    }
+  }
+`
+
 export const SET_WORK_IMAGE = gql`
   mutation SetWorkImage($fileSetId: ID!, $workId: ID!) {
     setWorkImage(fileSetId: $fileSetId, workId: $workId) {
