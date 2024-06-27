@@ -8,7 +8,7 @@ import {
 import { Button, Icon, Notification } from "@nulib/design-system";
 import { FormProvider, useForm } from "react-hook-form";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
 import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
@@ -36,7 +36,7 @@ function WorkTabsPreservationFileSetModal({
   const [s3UploadLocation, setS3UploadLocation] = useState();
   const [uploadError, setUploadError] = useState();
   const [stateXhr, setStateXhr] = useState(null);
-  const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
+  const [acceptedFileTypes, setAcceptedFileTypes] = useState("");
   const [uploadMethod, setUploadMethod] = useState(null);
 
   const codeLists = useCodeLists();
@@ -45,6 +45,7 @@ function WorkTabsPreservationFileSetModal({
     accessionNumber: "",
     label: "",
     description: "",
+    fileSetRole: "",
   };
 
   const methods = useForm({
@@ -63,14 +64,14 @@ function WorkTabsPreservationFileSetModal({
     setUploadMethod('s3');
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!watchRole) return;
     const mimeTypes = useAcceptedMimeTypes({
       fileSetRole: watchRole,
       workTypeId,
     });
     setAcceptedFileTypes(mimeTypes);
-  }, [watchRole]);
+  }, [watchRole, workTypeId]);
 
   const [
     getPresignedUrl,
@@ -127,19 +128,25 @@ function WorkTabsPreservationFileSetModal({
     ingestFileSet(mutationInput);
   };
 
+  const resetForm = () => {
+    methods.reset(defaultValues);
+    setCurrentFile(null);
+    setS3UploadLocation(null);
+    setUploadProgress(0);
+    setUploadError(null);
+    setUploadMethod(null);
+    setAcceptedFileTypes("");
+  };
+
   const handleCancel = () => {
     if (stateXhr != null) stateXhr.abort();
     resetForm();
     closeModal();
   };
 
-  const resetForm = () => {
-    methods.reset();
-    setCurrentFile(null);
-    setS3UploadLocation(null);
-    setUploadProgress(0);
-    setUploadError(null);
-    setUploadMethod(null);
+  const handleCloseModal = () => {
+    resetForm();
+    closeModal();
   };
 
   const handleSetFile = (file) => {
@@ -191,7 +198,7 @@ function WorkTabsPreservationFileSetModal({
   };
 
   return (
-    <Dialog.Root open={isVisible} onOpenChange={closeModal}>
+    <Dialog.Root open={isVisible} onOpenChange={handleCloseModal}>
       <Dialog.Portal>
         <DialogOverlay />
         <DialogContent data-testid="add-file-set">

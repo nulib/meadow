@@ -22,19 +22,20 @@ const fileRowCss = css`
   cursor: pointer;
 `;
 
-// a nice gentle blue
 const selectedRowCss = css`
   background-color: #f0f8ff !important;
 `;
 
 const colHeaders = ["File Key", "Size", "Mime Type"];
 
-const { isFileValid } = useAcceptedMimeTypes();
-
 const S3ObjectPicker = ({ onFileSelect, fileSetRole, workTypeId, defaultPrefix = "" }) => {
   const [prefix, setPrefix] = useState(defaultPrefix);
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, _setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const { isFileValid } = useAcceptedMimeTypes();
 
   const { loading: queryLoading, error: queryError, data, refetch } = useQuery(LIST_INGEST_BUCKET_OBJECTS, {
     variables: { prefix }
@@ -59,6 +60,25 @@ const S3ObjectPicker = ({ onFileSelect, fileSetRole, workTypeId, defaultPrefix =
   const handleFileClick = (fileSet) => {
     setSelectedFile(fileSet.key);
     onFileSelect(fileSet);
+    // Reset upload progress and isUploading state when selecting an S3 object
+    setUploadProgress(0);
+    setIsUploading(false);
+  };
+
+  const handleDragAndDrop = (file) => {
+    // Simulating file upload process
+    setIsUploading(true);
+    setUploadProgress(0);
+    const interval = setInterval(() => {
+      setUploadProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          return 100;
+        }
+        return prevProgress + 10;
+      });
+    }, 500);
   };
 
   if (queryLoading) return <FaSpinner className="spinner" />;
@@ -66,6 +86,15 @@ const S3ObjectPicker = ({ onFileSelect, fileSetRole, workTypeId, defaultPrefix =
 
   return (
     <div className="file-picker">
+      <div className="drag-drop-area" onDrop={handleDragAndDrop}>
+        {/* Drag and drop area */}
+        <p>Drag 'n' drop a file here, or click to select file</p>
+        {isUploading && (
+          <div className="progress-bar">
+            <div className="progress" style={{ width: `${uploadProgress}%` }}></div>
+          </div>
+        )}
+      </div>
       <UIFormInput
         placeholder="Enter prefix"
         name="prefixSearch"
