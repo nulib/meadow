@@ -52,29 +52,6 @@ defmodule Meadow.Search.Index do
       ) do
     pipeline = %{
       "description" => "Search pipeline for #{name}",
-      "request_processors" => [
-        %{
-          "filter_query" => %{
-            "description" => "Restricts requests to publicly visible documents",
-            "query" => %{
-              "bool" => %{
-                "must" => [
-                  %{
-                    "terms" => %{
-                      "visibility" => ["Public", "Institution"]
-                    }
-                  },
-                  %{
-                    "term" => %{
-                      "published" => true
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        }
-      ],
       "phase_results_processors" => [
         %{
           "normalization-processor" => %{

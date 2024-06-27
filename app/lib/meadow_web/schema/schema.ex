@@ -21,6 +21,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.FileSetTypes)
   import_types(__MODULE__.Data.FieldTypes)
   import_types(__MODULE__.Data.PreservationCheckTypes)
+  import_types(__MODULE__.Data.S3Types)
   import_types(__MODULE__.Data.SharedLinkTypes)
   import_types(__MODULE__.HelperTypes)
   import_types(__MODULE__.Data.CSVMetadataUpdateTypes)
@@ -38,6 +39,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:csv_metadata_update_queries)
     import_fields(:nul_authority_queries)
     import_fields(:preservation_check_queries)
+    import_fields(:s3_queries)
     import_fields(:work_queries)
   end
 

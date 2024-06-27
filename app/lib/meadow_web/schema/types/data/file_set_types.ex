@@ -165,7 +165,9 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:md5, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "md5")} end))
     field(:sha1, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha1")} end))
 
-    field(:sha256, :string, do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha256")} end))
+    field(:sha256, :string,
+      do: resolve(fn digests, _, _ -> {:ok, Map.get(digests, "sha256")} end)
+    )
   end
 
   @desc "`file_set_structural_metadata` represents the structural metadata within a file set object."

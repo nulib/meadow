@@ -1,5 +1,5 @@
-import { MediaButtons } from "./Access";
 import React from "react";
+import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionButtons/Access";
 import { WorkProvider } from "@js/context/work-context";
 import { dcApiEndpointMock } from "@js/components/UI/ui.gql.mock";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
@@ -62,15 +62,63 @@ const initialState = {
   dcApiToken: "abcZ4323823092mccas999",
 };
 
-describe("MediaButtons", () => {
-  it("renders the Edit VTT button and Download Video button for a video mime/type Fileset", () => {
+describe("WorkFilesetActionButtonsAccess", () => {
+  it("renders a download button for a Video Work Fileset", () => {
     renderWithRouterApollo(
-      <WorkProvider initialState={initialState}>
-        <MediaButtons fileSet={mockFileSet} />
+      <WorkProvider
+        initialState={{
+          ...initialState,
+          workType: "VIDEO",
+        }}
+      >
+        <WorkFilesetActionButtonsAccess fileSet={mockFileSet} />
       </WorkProvider>,
       { mocks },
     );
-    expect(screen.getByTestId("edit-structure-button")).toBeInTheDocument();
     expect(screen.getByTestId("download-fileset-button")).toBeInTheDocument();
+  });
+
+  it("renders a download button for an Audio Work Fileset", () => {
+    const audioFileSet = {
+      ...mockFileSet,
+      coreMetadata: {
+        ...mockFileSet.coreMetadata,
+        mimeType: "audio/mp3",
+      },
+    };
+    renderWithRouterApollo(
+      <WorkProvider
+        initialState={{
+          ...initialState,
+          workType: "AUDIO",
+        }}
+      >
+        <WorkFilesetActionButtonsAccess fileSet={audioFileSet} />
+      </WorkProvider>,
+      { mocks },
+    );
+    expect(screen.getByTestId("download-fileset-button")).toBeInTheDocument();
+  });
+
+  it("renders a download button for an Image Work Fileset", () => {
+    const imageFileSet = {
+      ...mockFileSet,
+      coreMetadata: {
+        ...mockFileSet.coreMetadata,
+        mimeType: "image/jpeg",
+      },
+    };
+    renderWithRouterApollo(
+      <WorkProvider
+        initialState={{
+          ...initialState,
+          workType: "IMAGE",
+        }}
+      >
+        <WorkFilesetActionButtonsAccess fileSet={imageFileSet} />
+      </WorkProvider>,
+      { mocks },
+    );
+    expect(screen.getByTestId("download-image-fileset")).toBeInTheDocument();
   });
 });

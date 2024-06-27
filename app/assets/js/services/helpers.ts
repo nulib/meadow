@@ -174,3 +174,8 @@ export function formatBytes(bytes: number, decimals: number) {
     i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
+
+export function getFileNameFromS3Uri(s3Uri: string) {
+  const segments = s3Uri.split("/");
+  return segments[segments.length - 1];
+}

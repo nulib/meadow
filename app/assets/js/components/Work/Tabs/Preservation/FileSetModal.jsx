@@ -4,7 +4,7 @@ import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import React, { useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-import { s3Location, toastWrapper } from "@js/services/helpers";
+import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
 import { useLazyQuery, useMutation } from "@apollo/client";
 
 import Error from "@js/components/UI/Error";
@@ -17,6 +17,7 @@ import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservati
 import classNames from "classnames";
 import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 import { useCodeLists } from "@js/context/code-list-context";
+import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
 
 const modalCss = css`
   z-index: 100;
@@ -34,6 +35,7 @@ function WorkTabsPreservationFileSetModal({
   const [uploadError, setUploadError] = useState();
   const [stateXhr, setStateXhr] = useState(null);
   const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
+  const [uploadMethod, setUploadMethod] = useState(null);
 
   const codeLists = useCodeLists();
 
@@ -48,9 +50,16 @@ function WorkTabsPreservationFileSetModal({
     shouldUnregister: false,
   });
 
-  // Watch form select element fileSetRole for changes, to determine what types
-  // of files are allowed to upload
   const watchRole = methods.watch("fileSetRole");
+
+  const handleSelectS3Object = (s3Object) => {
+    setCurrentFile({
+      location: s3Object.key,
+      name: getFileNameFromS3Uri(s3Object.key),
+    });
+    setS3UploadLocation(s3Object.key);
+    setUploadMethod('s3');
+  };
 
   React.useEffect(() => {
     if (!watchRole) return;
@@ -88,8 +97,6 @@ function WorkTabsPreservationFileSetModal({
       onError(error) {
         console.error(`error:`, error);
         resetForm();
-        // bug with this error not clearing/resetting
-        // https://github.com/apollographql/apollo-feature-requests/issues/170
       },
       refetchQueries: [
         {
@@ -102,7 +109,7 @@ function WorkTabsPreservationFileSetModal({
   );
 
   const handleSubmit = (data) => {
-    ingestFileSet({
+    const mutationInput = {
       variables: {
         accession_number: data.accessionNumber,
         workId,
@@ -113,8 +120,9 @@ function WorkTabsPreservationFileSetModal({
           original_filename: currentFile.name,
           location: s3UploadLocation,
         },
-      },
-    });
+      }
+    }
+    ingestFileSet(mutationInput);
   };
 
   const handleCancel = () => {
@@ -129,10 +137,12 @@ function WorkTabsPreservationFileSetModal({
     setS3UploadLocation(null);
     setUploadProgress(0);
     setUploadError(null);
+    setUploadMethod(null);
   };
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
+    setUploadMethod('dragdrop');
     if (file) {
       getPresignedUrl({
         variables: {
@@ -228,17 +238,31 @@ function WorkTabsPreservationFileSetModal({
                 </UIFormField>
 
                 {watchRole && (
-                  <div className="block mt-5">
-                    <WorkTabsPreservationFileSetDropzone
-                      currentFile={currentFile}
-                      acceptedFileTypes={acceptedFileTypes}
-                      fileSetRole={watchRole}
-                      handleRemoveFile={resetForm}
-                      handleSetFile={handleSetFile}
-                      uploadProgress={uploadProgress}
-                      workTypeId={workTypeId}
-                    />
-                  </div>
+                  <>
+                    <div class="box">
+                      <h3>Option 1: Drag and Drop File</h3>
+                      <WorkTabsPreservationFileSetDropzone
+                        currentFile={currentFile}
+                        acceptedFileTypes={acceptedFileTypes}
+                        fileSetRole={watchRole}
+                        handleRemoveFile={resetForm}
+                        handleSetFile={handleSetFile}
+                        uploadProgress={uploadProgress}
+                        workTypeId={workTypeId}
+                        disabled={uploadMethod === 's3'}
+                      />
+                    </div>
+
+                    <div class="box">
+                      <h3>Option 2: Choose from S3 Ingest Bucket</h3>
+                      <S3ObjectPicker
+                        onFileSelect={handleSelectS3Object}
+                        fileSetRole={watchRole}
+                        workTypeId={workTypeId}
+                        disabled={uploadMethod === 'dragdrop'}
+                      />
+                    </div>
+                  </>
                 )}
 
                 {s3UploadLocation && (

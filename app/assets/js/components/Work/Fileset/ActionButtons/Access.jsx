@@ -1,19 +1,19 @@
 import React, { useContext } from "react";
+import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
+import { AuthContext } from "@js/components/Auth/Auth";
 import { Button } from "@nulib/design-system";
+import { GET_DCAPI_ENDPOINT } from "@js/components/UI/ui.gql";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { IconDownload } from "@js/components/Icon";
 import { ImageDownloader } from "@samvera/image-downloader";
 import PropTypes from "prop-types";
+import { getApiResponse } from "@js/services/get-api-response";
 import { toastWrapper } from "@js/services/helpers";
 import useFileSet from "@js/hooks/useFileSet";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
-import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-import { getApiResponse } from "@js/services/get-api-response";
 import { useQuery } from "@apollo/client";
-import { AuthContext } from "@js/components/Auth/Auth";
-import { GET_DCAPI_ENDPOINT } from "@js/components/UI/ui.gql";
 
 export function MediaButtons({ fileSet }) {
   const [downloadStarted, setDownloadStarted] = React.useState(false);
@@ -78,7 +78,10 @@ export function MediaButtons({ fileSet }) {
 
 export function ImageButtons({ iiifServerUrl, fileSet }) {
   return (
-    <div className="field has-addons is-flex is-justify-content-flex-end">
+    <div
+      data-testid="download-image-fileset"
+      className="field has-addons is-flex is-justify-content-flex-end"
+    >
       <p className="control">
         <a
           href={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL_TIFF}`}
@@ -106,14 +109,12 @@ export function ImageButtons({ iiifServerUrl, fileSet }) {
 
 const WorkFilesetActionButtonsAccess = ({ fileSet }) => {
   const iiifServerUrl = useContext(IIIFContext);
-  const { coreMetadata } = fileSet;
-  const isImageType = coreMetadata.mimeType?.includes("image");
-  const isVideoType = coreMetadata.mimeType?.includes("video");
+  const { isImage, isMedia } = useFileSet();
 
-  if (isImageType) {
+  if (isImage(fileSet)) {
     return <ImageButtons iiifServerUrl={iiifServerUrl} fileSet={fileSet} />;
   }
-  if (isVideoType) {
+  if (isMedia(fileSet)) {
     return <MediaButtons fileSet={fileSet} />;
   }
 };
