@@ -1,4 +1,11 @@
-import { Button, Notification } from "@nulib/design-system";
+import * as Dialog from "@radix-ui/react-dialog";
+import {
+  DialogClose,
+  DialogContent,
+  DialogOverlay,
+  DialogTitle
+} from "@js/components/UI/Dialog/Dialog.styled";
+import { Button, Icon, Notification } from "@nulib/design-system";
 import { FormProvider, useForm } from "react-hook-form";
 import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import React, { useState } from "react";
@@ -14,14 +21,9 @@ import UIFormField from "@js/components/UI/Form/Field.jsx";
 import UIFormSelect from "@js/components/UI/Form/Select.jsx";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
 import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
-import classNames from "classnames";
 import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 import { useCodeLists } from "@js/context/code-list-context";
 import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
-
-const modalCss = css`
-  z-index: 100;
-`;
 
 function WorkTabsPreservationFileSetModal({
   closeModal,
@@ -189,113 +191,109 @@ function WorkTabsPreservationFileSetModal({
   };
 
   return (
-    <div
-      className={classNames("modal", {
-        "is-active": isVisible,
-      })}
-      css={modalCss}
-    >
-      <div className="modal-background"></div>
+    <Dialog.Root open={isVisible} onOpenChange={closeModal}>
+      <Dialog.Portal>
+        <DialogOverlay />
+        <DialogContent data-testid="add-file-set">
+          <DialogClose>
+            <Icon isSmall aria-label="Close">
+              <Icon.Close />
+            </Icon>
+          </DialogClose>
+          <DialogTitle css={{ textAlign: "left" }}>
+            Add Fileset to Work
+          </DialogTitle>
 
-      {urlError ? (
-        <div className="modal-card">
-          <section className="modal-card-body">
-            <Notification isDanger>Error retrieving presigned url</Notification>
-          </section>
-        </div>
-      ) : (
-        <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(handleSubmit)}
-            data-testid="fileset-form"
-          >
-            <div className="modal-card">
-              <header className="modal-card-head">
-                <p className="modal-card-title">Add Fileset to Work</p>
-                <button
-                  type="button"
-                  className="delete"
-                  aria-label="close"
-                  onClick={handleCancel}
-                ></button>
-              </header>
-              <section className="modal-card-body">
-                {uploadError && (
-                  <Notification isDanger>{uploadError}</Notification>
-                )}
-                {error && <Error error={error} />}
-
-                <UIFormField label="Fileset Role">
-                  <UIFormSelect
-                    isReactHookForm
-                    name="fileSetRole"
-                    label="Fileset Role"
-                    options={codeLists?.fileSetRoleData?.codeList}
-                    required={!Boolean(watchRole)}
-                    showHelper
-                    disabled={Boolean(s3UploadLocation)}
-                  />
-                </UIFormField>
-
-                {watchRole && (
-                  <>
-                    <div class="box">
-                      <h3>Option 1: Drag and Drop File</h3>
-                      <WorkTabsPreservationFileSetDropzone
-                        currentFile={currentFile}
-                        acceptedFileTypes={acceptedFileTypes}
-                        fileSetRole={watchRole}
-                        handleRemoveFile={resetForm}
-                        handleSetFile={handleSetFile}
-                        uploadProgress={uploadProgress}
-                        workTypeId={workTypeId}
-                        disabled={uploadMethod === 's3'}
-                      />
-                    </div>
-
-                    <div class="box">
-                      <h3>Option 2: Choose from S3 Ingest Bucket</h3>
-                      <S3ObjectPicker
-                        onFileSelect={handleSelectS3Object}
-                        fileSetRole={watchRole}
-                        workTypeId={workTypeId}
-                        disabled={uploadMethod === 'dragdrop'}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {s3UploadLocation && (
-                  <WorkTabsPreservationFileSetForm
-                    s3UploadLocation={s3UploadLocation}
-                  />
-                )}
+          {urlError ? (
+            <div>
+              <section>
+                <Notification isDanger>Error retrieving presigned url</Notification>
               </section>
-
-              <footer className="modal-card-foot is-justify-content-flex-end">
-                {s3UploadLocation && (
-                  <>
-                    <Button
-                      isText
-                      type="button"
-                      onClick={() => {
-                        handleCancel();
-                      }}
-                      data-testid="cancel-button"
-                    >
-                      Cancel
-                    </Button>
-                    <Button isPrimary type="submit" data-testid="submit-button">
-                      Ingest fileset
-                    </Button>
-                  </>
-                )}
-              </footer>
             </div>
-          </form>
-        </FormProvider>
-      )}
-    </div>
+          ) : (
+            <FormProvider {...methods}>
+              <form
+                onSubmit={methods.handleSubmit(handleSubmit)}
+                data-testid="fileset-form"
+              >
+                <div>
+                  <section className="modal-card-body">
+                    {uploadError && (
+                      <Notification isDanger>{uploadError}</Notification>
+                    )}
+                    {error && <Error error={error} />}
+
+                    <UIFormField label="Fileset Role">
+                      <UIFormSelect
+                        isReactHookForm
+                        name="fileSetRole"
+                        label="Fileset Role"
+                        options={codeLists?.fileSetRoleData?.codeList}
+                        required={!Boolean(watchRole)}
+                        showHelper
+                        disabled={Boolean(s3UploadLocation)}
+                      />
+                    </UIFormField>
+
+                    {watchRole && (
+                      <>
+                        <div className="box">
+                          <h3>Option 1: Drag and Drop File</h3>
+                          <WorkTabsPreservationFileSetDropzone
+                            currentFile={currentFile}
+                            acceptedFileTypes={acceptedFileTypes}
+                            fileSetRole={watchRole}
+                            handleRemoveFile={resetForm}
+                            handleSetFile={handleSetFile}
+                            uploadProgress={uploadProgress}
+                            workTypeId={workTypeId}
+                            disabled={uploadMethod === 's3'}
+                          />
+                        </div>
+
+                        <div className="box">
+                          <h3>Option 2: Choose from S3 Ingest Bucket</h3>
+                          <S3ObjectPicker
+                            onFileSelect={handleSelectS3Object}
+                            fileSetRole={watchRole}
+                            workTypeId={workTypeId}
+                            disabled={uploadMethod === 'dragdrop'}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {s3UploadLocation && (
+                      <WorkTabsPreservationFileSetForm
+                        s3UploadLocation={s3UploadLocation}
+                      />
+                    )}
+                  </section>
+
+                  <footer className="modal-card-foot is-justify-content-flex-end">
+                    {s3UploadLocation && (
+                      <>
+                        <Button
+                          isText
+                          type="button"
+                          onClick={handleCancel}
+                          data-testid="cancel-button"
+                        >
+                          Cancel
+                        </Button>
+                        <Button isPrimary type="submit" data-testid="submit-button">
+                          Ingest fileset
+                        </Button>
+                      </>
+                    )}
+                  </footer>
+                </div>
+              </form>
+            </FormProvider>
+          )}
+        </DialogContent>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
