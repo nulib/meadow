@@ -102,18 +102,27 @@ function WorkTabsPreservationReplaceFileSet({
     });
   };
 
-  const handleCancel = () => {
-    if (stateXhr != null) stateXhr.abort();
-    resetForm();
-    closeModal();
-  };
-
   const resetForm = () => {
     setCurrentFile(null);
     setS3UploadLocation(null);
     setUploadProgress(0);
     setUploadError(null);
     setUploadMethod(null);
+    methods.reset({
+      label: fileset?.coreMetadata?.label || "",
+      description: fileset?.coreMetadata?.description || "",
+    });
+  };
+
+  const handleCancel = () => {
+    if (stateXhr != null) stateXhr.abort();
+    resetForm();
+    closeModal();
+  };
+
+  const handleCloseModal = () => {
+    resetForm();
+    closeModal();
   };
 
   const handleSelectS3Object = (s3Object) => {
@@ -174,7 +183,7 @@ function WorkTabsPreservationReplaceFileSet({
   };
 
   return (
-    <Dialog.Root open={isVisible} onOpenChange={closeModal}>
+    <Dialog.Root open={isVisible} onOpenChange={handleCloseModal}>
       <Dialog.Portal>
         <DialogOverlay />
         <DialogContent data-testid="replace-file-sets">
@@ -213,7 +222,7 @@ function WorkTabsPreservationReplaceFileSet({
                     )}
                     {error && <Error error={error} />}
 
-                    <div class="box">
+                    <div className="box">
                       <h3>Option 1: Drag and Drop File</h3>
                       <WorkTabsPreservationFileSetDropzone
                         currentFile={currentFile}
@@ -226,7 +235,7 @@ function WorkTabsPreservationReplaceFileSet({
                       />
                     </div>
 
-                    <div class="box">
+                    <div className="box">
                       <h3>Option 2: Choose from S3 Ingest Bucket</h3>
                       <S3ObjectPicker
                         onFileSelect={handleSelectS3Object}
