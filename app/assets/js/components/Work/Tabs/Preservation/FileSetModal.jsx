@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import {
   DialogClose,
   DialogContent,
+  DialogFooter,
   DialogOverlay,
   DialogTitle
 } from "@js/components/UI/Dialog/Dialog.styled";
@@ -224,7 +225,7 @@ function WorkTabsPreservationFileSetModal({
                 data-testid="fileset-form"
               >
                 <div>
-                  <section className="modal-card-body">
+                  <section>
                     {uploadError && (
                       <Notification isDanger>{uploadError}</Notification>
                     )}
@@ -277,7 +278,7 @@ function WorkTabsPreservationFileSetModal({
                     )}
                   </section>
 
-                  <footer className="modal-card-foot is-justify-content-flex-end">
+                  <DialogFooter>
                     {s3UploadLocation && (
                       <>
                         <Button
@@ -288,12 +289,17 @@ function WorkTabsPreservationFileSetModal({
                         >
                           Cancel
                         </Button>
-                        <Button isPrimary type="submit" data-testid="submit-button">
+                        <Button
+                          disabled={!s3UploadLocation}
+                          isPrimary
+                          type="submit"
+                          data-testid="submit-button"
+                        >
                           Ingest fileset
                         </Button>
                       </>
                     )}
-                  </footer>
+                  </DialogFooter>
                 </div>
               </form>
             </FormProvider>

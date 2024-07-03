@@ -43,10 +43,20 @@ const DialogTitle = styled(Dialog.Title, {
   fontWeight: "700",
 });
 
+const DialogFooter = styled(Dialog.Footer, {
+  display: "flex",
+  justifyContent: "flex-end",
+  padding: "1rem",
+  borderTop: "1px solid #e5e7eb",
+  marginTop: "auto", // Pushes the footer to the bottom of the dialog
+});
+
+
 export {
   DialogClose,
   DialogContent,
   DialogOverlay,
   DialogTitle,
   DialogTrigger,
+  DialogFooter
 };
