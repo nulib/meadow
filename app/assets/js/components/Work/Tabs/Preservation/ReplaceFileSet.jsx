@@ -1,10 +1,21 @@
-import { Button, Notification } from "@nulib/design-system";
+import * as Dialog from "@radix-ui/react-dialog";
+import {
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogOverlay,
+  DialogTitle
+} from "@js/components/UI/Dialog/Dialog.styled";
+import { Button, Icon, Notification } from "@nulib/design-system";
 import { FormProvider, useForm } from "react-hook-form";
-import { GET_WORK, REPLACE_FILE_SET } from "@js/components/Work/work.gql.js";
+import {
+  GET_WORK,
+  REPLACE_FILE_SET,
+} from "@js/components/Work/work.gql.js";
 import React, { useEffect, useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-import { s3Location, toastWrapper } from "@js/services/helpers";
+import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
 import { useLazyQuery, useMutation } from "@apollo/client";
 
 import Error from "@js/components/UI/Error";
@@ -15,11 +26,7 @@ import UIFormField from "@js/components/UI/Form/Field.jsx";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
 import UIIconText from "../../../UI/IconText";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
-import classNames from "classnames";
-
-const modalCss = css`
-  z-index: 100;
-`;
+import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
 
 function WorkTabsPreservationReplaceFileSet({
   closeModal,
@@ -33,20 +40,10 @@ function WorkTabsPreservationReplaceFileSet({
   const [s3UploadLocation, setS3UploadLocation] = useState();
   const [uploadError, setUploadError] = useState();
   const [stateXhr, setStateXhr] = useState(null);
-  const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
-
-  useEffect(() => {
-    if (!fileset.id) return;
-
-    // Dynamically set some default form values since
-    // the active fileset to replace may change by what user selects in the UI
-    methods.setValue("label", fileset?.coreMetadata?.label || "");
-    methods.setValue("description", fileset?.coreMetadata?.description || "");
-  }, [fileset?.id]);
+  const [uploadMethod, setUploadMethod] = useState(null);
 
   const methods = useForm();
 
-  // Get the presigned URL for the file upload
   const [
     getPresignedUrl,
     { error: urlError, loading: urlLoading, data: urlData },
@@ -56,11 +53,10 @@ function WorkTabsPreservationReplaceFileSet({
       uploadFile(data.presignedUrl.url);
     },
     onError(error) {
-      console.error(`error`, error);
+      console.error("error", error);
     },
   });
 
-  // Set up and handle the GraphQL mutation to replace the fileset
   const [replaceFileSet, { loading, error, data }] = useMutation(
     REPLACE_FILE_SET,
     {
@@ -73,10 +69,8 @@ function WorkTabsPreservationReplaceFileSet({
         closeModal();
       },
       onError(error) {
-        console.error(`error:`, error);
+        console.error("error:", error);
         resetForm();
-        // bug with this error not clearing/resetting
-        // https://github.com/apollographql/apollo-feature-requests/issues/170
       },
       refetchQueries: [
         {
@@ -88,7 +82,13 @@ function WorkTabsPreservationReplaceFileSet({
     }
   );
 
-  // React Hook Form form submit handler function which calls the GraphQL mutation
+  useEffect(() => {
+    if (fileset.id) {
+      methods.setValue("label", fileset?.coreMetadata?.label || "");
+      methods.setValue("description", fileset?.coreMetadata?.description || "");
+    }
+  }, [fileset.id]);
+
   const handleSubmit = (data) => {
     replaceFileSet({
       variables: {
@@ -96,10 +96,22 @@ function WorkTabsPreservationReplaceFileSet({
         coreMetadata: {
           description: data.description,
           label: data.label,
-          original_filename: currentFile.name,
+          original_filename: currentFile?.name,
           location: s3UploadLocation,
         },
       },
+    });
+  };
+
+  const resetForm = () => {
+    setCurrentFile(null);
+    setS3UploadLocation(null);
+    setUploadProgress(0);
+    setUploadError(null);
+    setUploadMethod(null);
+    methods.reset({
+      label: fileset?.coreMetadata?.label || "",
+      description: fileset?.coreMetadata?.description || "",
     });
   };
 
@@ -109,15 +121,23 @@ function WorkTabsPreservationReplaceFileSet({
     closeModal();
   };
 
-  const resetForm = () => {
-    setCurrentFile(null);
-    setS3UploadLocation(null);
-    setUploadProgress(0);
-    setUploadError(null);
+  const handleCloseModal = () => {
+    resetForm();
+    closeModal();
+  };
+
+  const handleSelectS3Object = (s3Object) => {
+    setCurrentFile({
+      location: s3Object.key,
+      name: getFileNameFromS3Uri(s3Object.key),
+    });
+    setS3UploadLocation(s3Object.key);
+    setUploadMethod('s3');
   };
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
+    setUploadMethod('dragdrop');
     if (file) {
       getPresignedUrl({
         variables: {
@@ -164,64 +184,69 @@ function WorkTabsPreservationReplaceFileSet({
   };
 
   return (
-    <div
-      className={classNames("modal", {
-        "is-active": isVisible,
-      })}
-      css={modalCss}
-      data-testid="replace-fileset-modal"
-    >
-      <div className="modal-background"></div>
+    <Dialog.Root open={isVisible} onOpenChange={handleCloseModal}>
+      <Dialog.Portal>
+        <DialogOverlay />
+        <DialogContent data-testid="replace-file-sets">
+          <DialogClose>
+            <Icon isSmall aria-label="Close">
+              <Icon.Close />
+            </Icon>
+          </DialogClose>
+          <DialogTitle css={{ textAlign: "left" }}>
+            Replace Fileset
+          </DialogTitle>
 
-      {urlError && (
-        <div className="modal-card">
-          <section className="modal-card-body">
-            <Notification isDanger>Error retrieving presigned url</Notification>
-          </section>
-        </div>
-      )}
+          {urlError && (
+            <div>
+              <section>
+                <Notification isDanger>Error retrieving presigned url</Notification>
+              </section>
+            </div>
+          )}
 
-      {!urlError && (
-        <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(handleSubmit)}
-            data-testid="replace-fileset-form"
-          >
-            <div className="modal-card">
-              <header className="modal-card-head">
-                <p className="modal-card-title">Replace Fileset</p>
-                <button
-                  type="button"
-                  className="delete"
-                  aria-label="close"
-                  onClick={handleCancel}
-                ></button>
-              </header>
-              <section className="modal-card-body">
-                <Notification isWarning>
-                  <UIIconText icon={<IconAlert />}>
-                    Replacing a fileset cannot be undone
-                  </UIIconText>
-                </Notification>
-                {uploadError && (
-                  <Notification isDanger>{uploadError}</Notification>
-                )}
-                {error && <Error error={error} />}
+          {!urlError && (
+            <FormProvider {...methods}>
+              <form
+                onSubmit={methods.handleSubmit(handleSubmit)}
+                data-testid="replace-fileset-form"
+              >
+                <div>
+                  <section className="modal-card-body">
+                    <Notification isWarning>
+                      <UIIconText icon={<IconAlert />}>
+                        Replacing a fileset cannot be undone
+                      </UIIconText>
+                    </Notification>
+                    {uploadError && (
+                      <Notification isDanger>{uploadError}</Notification>
+                    )}
+                    {error && <Error error={error} />}
 
-                <div className="block mt-5">
-                  <WorkTabsPreservationFileSetDropzone
-                    currentFile={currentFile}
-                    acceptedFileTypes={acceptedFileTypes}
-                    fileSetRole={fileset?.role?.id}
-                    handleRemoveFile={resetForm}
-                    handleSetFile={handleSetFile}
-                    uploadProgress={uploadProgress}
-                    workTypeId={workTypeId}
-                  />
-                </div>
+                    <div className="box">
+                      <h3>Option 1: Drag and Drop File</h3>
+                      <WorkTabsPreservationFileSetDropzone
+                        currentFile={currentFile}
+                        fileSetRole={fileset?.role?.id}
+                        handleRemoveFile={resetForm}
+                        handleSetFile={handleSetFile}
+                        uploadProgress={uploadProgress}
+                        workTypeId={workTypeId}
+                        disabled={uploadMethod === 's3'}
+                      />
+                    </div>
 
-                {s3UploadLocation && (
-                  <>
+                    <div className="box">
+                      <h3>Option 2: Choose from S3 Ingest Bucket</h3>
+                      <S3ObjectPicker
+                        onFileSelect={handleSelectS3Object}
+                        fileSetRole={fileset?.role?.id}
+                        workTypeId={workTypeId}
+                        defaultPrefix={"file_sets/"}
+                        disabled={uploadMethod === 'dragdrop'}
+                      />
+                    </div>
+
                     <UIFormField label="Label">
                       <UIFormInput
                         isReactHookForm
@@ -243,34 +268,37 @@ function WorkTabsPreservationReplaceFileSet({
                         placeholder="Description of the Fileset"
                       />
                     </UIFormField>
-                  </>
-                )}
-              </section>
+                  </section>
 
-              <footer className="modal-card-foot is-justify-content-flex-end">
-                {s3UploadLocation && (
-                  <>
-                    <Button
-                      isText
-                      type="button"
-                      onClick={() => {
-                        handleCancel();
-                      }}
-                      data-testid="cancel-button"
-                    >
-                      Cancel
-                    </Button>
-                    <Button isPrimary type="submit" data-testid="submit-button">
-                      Upload File
-                    </Button>
-                  </>
-                )}
-              </footer>
-            </div>
-          </form>
-        </FormProvider>
-      )}
-    </div>
+                  <DialogFooter>
+                    {s3UploadLocation && (
+                      <>
+                        <Button
+                          isText
+                          type="button"
+                          onClick={handleCancel}
+                          data-testid="cancel-button"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          isPrimary
+                          disabled={!s3UploadLocation}
+                          type="submit"
+                          data-testid="submit-button"
+                        >
+                          Upload File
+                        </Button>
+                      </>
+                    )}
+                  </DialogFooter>
+                </div>
+              </form>
+            </FormProvider>
+          )}
+        </DialogContent>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 

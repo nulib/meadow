@@ -48,33 +48,10 @@ defmodule Meadow.Search.Index do
         name,
         normalization_technique \\ "l2",
         combination_technique \\ "arithmetic_mean",
-        weights \\ [0.7, 0.3]
+        weights \\ [0.25, 0.75]
       ) do
     pipeline = %{
       "description" => "Search pipeline for #{name}",
-      "request_processors" => [
-        %{
-          "filter_query" => %{
-            "description" => "Restricts requests to publicly visible documents",
-            "query" => %{
-              "bool" => %{
-                "must" => [
-                  %{
-                    "terms" => %{
-                      "visibility" => ["Public", "Institution"]
-                    }
-                  },
-                  %{
-                    "term" => %{
-                      "published" => true
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        }
-      ],
       "phase_results_processors" => [
         %{
           "normalization-processor" => %{

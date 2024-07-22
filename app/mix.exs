@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.3.9"
+  @app_version "9.4.0"
 
   def project do
     [
@@ -51,7 +51,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.7.0"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
-      {:assertions, "~> 0.19.0", only: :test},
+      {:assertions, "~> 0.20.1", only: :test},
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 1.1.1"},
       {:aws_signature, "~> 0.3.1"},
@@ -105,7 +105,7 @@ defmodule Meadow.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 0.5"},
       {:tzdata, "~> 1.1.0"},
-      {:ueberauth_nusso, "~> 1.0"},
+      {:ueberauth_nusso, "~> 1.1.0"},
       {:wait_for_it, "~> 2.1.2"},
       {:wormwood, "~> 0.1.0"}
     ]
