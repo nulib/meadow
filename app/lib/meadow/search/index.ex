@@ -48,7 +48,7 @@ defmodule Meadow.Search.Index do
         name,
         normalization_technique \\ "l2",
         combination_technique \\ "arithmetic_mean",
-        weights \\ [0.7, 0.3]
+        weights \\ [0.25, 0.75]
       ) do
     pipeline = %{
       "description" => "Search pipeline for #{name}",
