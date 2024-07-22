@@ -6,6 +6,7 @@ defmodule MeadowWeb.Resolvers.Data do
   alias Meadow.Pipeline
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Works.TransferFileSets
+  alias Meadow.Utils.AWS.S3, as: S3Utils
   alias Meadow.Utils.ChangesetErrors
 
   def works(_, args, _) do
@@ -135,6 +136,28 @@ defmodule MeadowWeb.Resolvers.Data do
           message: "Could not delete file_set",
           details: ChangesetErrors.humanize_errors(changeset)
         }
+
+      {:ok, file_set} ->
+        {:ok, file_set}
+    end
+  end
+
+  def list_ingest_bucket_objects(_, %{prefix: prefix}, _) do
+    {:ok, S3Utils.list_ingest_bucket_objects(prefix: prefix)}
+  end
+
+  def list_ingest_bucket_objects(_, _, _) do
+    {:ok, S3Utils.list_ingest_bucket_objects()}
+  end
+
+  def replace_file_set(_, %{id: id} = params, _) do
+    file_set = FileSets.get_file_set!(id)
+
+    case Pipeline.replace_the_file_set(file_set, Map.delete(params, :id)) do
+      {:error, changeset} ->
+        {:error,
+         message: "Could not replace file set",
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:ok, file_set} ->
         {:ok, file_set}

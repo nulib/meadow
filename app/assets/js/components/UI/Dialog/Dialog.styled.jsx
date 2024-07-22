@@ -5,7 +5,7 @@ const DialogOverlay = styled(Dialog.Overlay, {
   backgroundColor: "#000a",
   position: "fixed",
   inset: 0,
-  zIndex: 10,
+  zIndex: 9998,
 });
 
 const DialogTrigger = styled(Dialog.Trigger, {
@@ -28,7 +28,7 @@ const DialogContent = styled(Dialog.Content, {
   maxHeight: "85vh",
   padding: "1rem",
   overflowY: "scroll",
-  zIndex: 11,
+  zIndex: 9999,
 });
 
 const DialogClose = styled(Dialog.Close, {
