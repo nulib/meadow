@@ -61,7 +61,7 @@ defmodule MeadowLivebookAuth do
   defp meadow_auth(url, conn) do
     with meadow_cookie <-
            conn |> Plug.Conn.fetch_cookies() |> Map.get(:cookies) |> Map.get("_meadow_key") do
-      Req.get(url,
+      Req.post(url,
         body: @query,
         headers: ["Content-Type": "application/graphql", Cookie: "_meadow_key=#{meadow_cookie}"]
       )
