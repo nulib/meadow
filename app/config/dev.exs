@@ -124,6 +124,7 @@ if prefix = System.get_env("DEV_PREFIX") do
 end
 
 config :meadow, :sitemaps,
+  base_url: "https://dc.library.northwestern.edu/",
   gzip: false,
   store: Sitemapper.FileStore,
   sitemap_url: "https://devbox.library.northwestern.edu:3333/",

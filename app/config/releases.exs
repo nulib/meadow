@@ -105,7 +105,9 @@ config :meadow,
       bucket: aws_secret("meadow", dig: ["buckets", "sitemap"]),
       path: "/"
     ],
-    sitemap_url: aws_secret("meadow", dig: ["dc", "base_url"])
+    base_url: aws_secret("meadow", dig: ["dc", "base_url"]),
+    sitemap_url:
+      aws_secret("meadow", dig: ["dc", "base_url"], apply: &{:ok, Path.join(&1, "api/sitemap")})
   ],
   validation_ping_interval: environment_secret("VALIDATION_PING_INTERVAL", default: "1000")
 
@@ -125,7 +127,12 @@ config :meadow, Meadow.Scheduler,
   overlap: false,
   timezone: "America/Chicago",
   jobs: [
-    # Runs daily at the configured time (default: 2AM Central)
+    # Sitemap generation runs daily at the configured time (default: 1AM Central)
+    {
+      aws_secret("meadow", dig: ["scheduler", "sitemap"], default: "0 1 * * *"),
+      {Meadow.Utils.Sitemap, :generate, []}
+    },
+    # Preservation check runs daily at the configured time (default: 2AM Central)
     {
       aws_secret("meadow", dig: ["scheduler", "preservation_check"], default: "0 2 * * *"),
       {Meadow.Data.PreservationChecks, :start_job, []}
