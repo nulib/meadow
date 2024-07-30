@@ -119,6 +119,7 @@ config :honeybadger,
 config :meadow, :sitemaps,
   gzip: true,
   store: Sitemapper.S3Store,
+  base_url: "http://localhost:3333/",
   sitemap_url: "http://localhost:3333/",
   store_config: [bucket: prefix("uploads"), path: ""]
 
