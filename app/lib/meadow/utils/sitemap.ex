@@ -2,8 +2,11 @@ defmodule Meadow.Utils.Sitemap do
   @moduledoc """
   Generate and upload Digital Collection sitemaps
   """
-  alias Meadow.Data.{Collections, Works}
+  alias Meadow.Data.Collections
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
+
+  import Ecto.Query
 
   require Logger
 
@@ -74,7 +77,7 @@ defmodule Meadow.Utils.Sitemap do
   end
 
   defp work_urls do
-    Works.work_query(visibility: "OPEN", work_type: "IMAGE")
+    from(w in Work, where: w.visibility["id"] == ^"OPEN" and w.published)
     |> Repo.stream()
     |> Stream.map(fn %{id: id, updated_at: updated_at} ->
       %Sitemapper.URL{
@@ -88,7 +91,7 @@ defmodule Meadow.Utils.Sitemap do
 
   defp expand_url(path) do
     config()
-    |> Keyword.get(:sitemap_url)
+    |> Keyword.get(:base_url)
     |> URI.parse()
     |> URI.merge(path)
     |> URI.to_string()

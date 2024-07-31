@@ -23,9 +23,22 @@ defmodule MeadowLivebookAuth do
   @spec authenticate(GenServer.server(), Plug.Conn.t(), keyword()) ::
           {Plug.Conn.t(), map() | nil}
   def authenticate(server, conn, _) do
-    with url <- get_meadow_url() do
-      set_state(server, :auth_url, url)
-      {conn, meadow_auth(url, conn)}
+    with url <- find_meadow_url(server),
+         user <- meadow_auth(url, conn) do
+      {conn, user}
+    end
+  end
+
+  defp find_meadow_url(server) do
+    case get_state(server) do
+      %{auth_url: auth_url} ->
+        auth_url
+
+      _ ->
+        with url <- get_meadow_url() do
+          set_state(server, :auth_url, url)
+          url
+        end
     end
   end
 
@@ -48,7 +61,7 @@ defmodule MeadowLivebookAuth do
   defp meadow_auth(url, conn) do
     with meadow_cookie <-
            conn |> Plug.Conn.fetch_cookies() |> Map.get(:cookies) |> Map.get("_meadow_key") do
-      Req.get(url,
+      Req.post(url,
         body: @query,
         headers: ["Content-Type": "application/graphql", Cookie: "_meadow_key=#{meadow_cookie}"]
       )
