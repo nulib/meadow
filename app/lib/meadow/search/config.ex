@@ -6,8 +6,6 @@ defmodule Meadow.Search.Config do
 
   require Logger
 
-  @default_embedding_dimensions 384
-
   def index_configs do
     Application.get_env(:meadow, Meadow.Search.Cluster)
     |> Keyword.get(:indexes)
@@ -59,40 +57,23 @@ defmodule Meadow.Search.Config do
   def add_embedding_dimension(
         %{"mappings" => %{"properties" => %{"embedding" => %{"dimension" => _}}}} = settings
       ) do
-    settings
-    |> put_in(
-      ["mappings", "properties", "embedding", "dimension"],
-      embedding_model_dimensions(embedding_model_id())
-    )
-  end
-
-  def add_embedding_dimension(settings), do: settings
-
-  def embedding_model_dimensions(nil) do
-    Logger.warning(
-      "No embedding model id found in config, using default of #{@default_embedding_dimensions} dimensions"
-    )
-
-    @default_embedding_dimensions
-  end
-
-  def embedding_model_dimensions(model_id) do
-    case ["_plugins", "_ml", "_predict", "text_embedding", model_id]
-         |> HTTP.post!(%{text_docs: ["How many dimensions?"]}, [], recv_timeout: 30_000)
-         |> Map.get(:body)
-         |> get_in(["inference_results", Access.at(0), "output", Access.at(0), "data"]) do
-      nil ->
-        Logger.warning(
-          "Unable to determine model dimensions, using default of #{@default_embedding_dimensions}"
-        )
-
-        @default_embedding_dimensions
-
-      embedding ->
-        dims = length(embedding)
-        Logger.info("Model #{model_id} generates a #{dims}-dimension embedding")
-        dims
+    case embedding_model_dimensions() do
+      nil -> settings
+      _ -> insert_embedding_dimension(settings)
     end
+  end
+
+  def insert_embedding_dimension(settings),
+    do:
+      put_in(
+        settings,
+        ["mappings", "properties", "embedding", "dimension"],
+        embedding_model_dimensions()
+      )
+
+  def embedding_model_dimensions do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:embedding_dimensions)
   end
 
   def index_versions do
