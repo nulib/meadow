@@ -7,21 +7,21 @@ locals {
 
   config_secrets = {
     buckets = {
-      ingest                = aws_s3_bucket.meadow_ingest.bucket
-      preservation          = aws_s3_bucket.meadow_preservation.bucket
-      pyramid               = var.pyramid_bucket
-      upload                = aws_s3_bucket.meadow_uploads.bucket
-      preservation_check    = aws_s3_bucket.meadow_preservation_checks.bucket
-      sitemap               = var.digital_collections_bucket
-      streaming             = aws_s3_bucket.meadow_streaming.bucket
+      ingest             = aws_s3_bucket.meadow_ingest.bucket
+      preservation       = aws_s3_bucket.meadow_preservation.bucket
+      pyramid            = var.pyramid_bucket
+      upload             = aws_s3_bucket.meadow_uploads.bucket
+      preservation_check = aws_s3_bucket.meadow_preservation_checks.bucket
+      sitemap            = var.digital_collections_bucket
+      streaming          = aws_s3_bucket.meadow_streaming.bucket
     }
 
-    db   = {
-      host            = module.rds.db_instance_address
-      port            = module.rds.db_instance_port
-      user            = module.rds.db_instance_username
-      password        = module.rds.db_instance_password
-      database        = module.rds.db_instance_username
+    db = {
+      host     = module.rds.db_instance_address
+      port     = module.rds.db_instance_port
+      user     = module.rds.db_instance_username
+      password = module.rds.db_instance_password
+      database = module.rds.db_instance_username
     }
 
     dc = {
@@ -30,13 +30,13 @@ locals {
 
     dc_api = {
       v2 = {
-        api_token_secret    = local.api_token_secret
-        api_token_ttl       = 300
-        base_url            = var.dc_api_v2_base
+        api_token_secret = local.api_token_secret
+        api_token_ttl    = 300
+        base_url         = var.dc_api_v2_base
       }
     }
 
-    ezid  = {
+    ezid = {
       password        = var.ezid_password
       shoulder        = var.ezid_shoulder
       target_base_url = var.ezid_target_base_url
@@ -45,7 +45,7 @@ locals {
     }
 
     geonames = {
-      username        = var.geonames_username
+      username = var.geonames_username
     }
 
     iiif = {
@@ -55,27 +55,28 @@ locals {
     }
 
     search = {
-      cluster_endpoint    = var.elasticsearch_url
-      access_key_id       = aws_iam_access_key.meadow_elasticsearch_access_key.id
-      secret_access_key   = aws_iam_access_key.meadow_elasticsearch_access_key.secret
-      embedding_model_id  = var.embedding_model_id
+      cluster_endpoint     = var.elasticsearch_url
+      access_key_id        = aws_iam_access_key.meadow_elasticsearch_access_key.id
+      secret_access_key    = aws_iam_access_key.meadow_elasticsearch_access_key.secret
+      embedding_model_id   = var.embedding_model_id
+      embedding_dimensions = var.embedding_dimensions
     }
 
     ldap = {
-      host        = var.ldap_server
-      port        = var.ldap_port
-      base        = var.ldap_base_dn
-      user_dn     = var.ldap_bind_dn
-      password    = var.ldap_bind_password
+      host     = var.ldap_server
+      port     = var.ldap_port
+      base     = var.ldap_base_dn
+      user_dn  = var.ldap_bind_dn
+      password = var.ldap_bind_password
     }
 
     mediaconvert = {
-      queue       = aws_media_convert_queue.transcode_queue.arn
-      role_arn    = aws_iam_role.transcode_role.arn
+      queue    = aws_media_convert_queue.transcode_queue.arn
+      role_arn = aws_iam_role.transcode_role.arn
     }
 
     nusso = {
-      api_key   = var.agentless_sso_key
+      api_key = var.agentless_sso_key
     }
 
     pipeline = {
@@ -90,9 +91,9 @@ locals {
     scheduler = {
       preservation_check = var.preservation_check_schedule
     }
-    
+
     streaming = {
-      base_url = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
+      base_url        = "https://${aws_route53_record.meadow_streaming_cloudfront.fqdn}/"
       distribution_id = aws_cloudfront_distribution.meadow_streaming.id
     }
 
@@ -103,11 +104,11 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name    = "config/meadow"
+  name        = "config/meadow"
   description = "Meadow configuration secrets"
 }
 
 resource "aws_secretsmanager_secret_version" "config_secrets" {
-  secret_id = aws_secretsmanager_secret.config_secrets.id
+  secret_id     = aws_secretsmanager_secret.config_secrets.id
   secret_string = jsonencode(local.config_secrets)
 }

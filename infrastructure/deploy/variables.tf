@@ -49,6 +49,10 @@ variable "embedding_model_id" {
   type = string
 }
 
+variable "embedding_dimensions" {
+  type = number
+}
+
 variable "fixity_function" {
   type = string
 }
