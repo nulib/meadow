@@ -2,6 +2,7 @@ defmodule Meadow.Search.Config do
   @moduledoc """
   Convenience methods for retrieving search-specific configuration
   """
+  alias Meadow.Search.HTTP
 
   require Logger
 
@@ -38,6 +39,7 @@ defmodule Meadow.Search.Config do
         File.read!(settings)
         |> Jason.decode!()
         |> put_in(["settings", "default_pipeline"], pipeline)
+        |> add_embedding_dimension()
 
       {%{settings: settings}, _} ->
         File.read!(settings) |> Jason.decode!()
@@ -50,6 +52,28 @@ defmodule Meadow.Search.Config do
   def embedding_model_id do
     Application.get_env(:meadow, Meadow.Search.Cluster)
     |> Keyword.get(:embedding_model_id)
+  end
+
+  def add_embedding_dimension(
+        %{"mappings" => %{"properties" => %{"embedding" => %{"dimension" => _}}}} = settings
+      ) do
+    case embedding_model_dimensions() do
+      nil -> settings
+      _ -> insert_embedding_dimension(settings)
+    end
+  end
+
+  def insert_embedding_dimension(settings),
+    do:
+      put_in(
+        settings,
+        ["mappings", "properties", "embedding", "dimension"],
+        embedding_model_dimensions()
+      )
+
+  def embedding_model_dimensions do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:embedding_dimensions)
   end
 
   def index_versions do
