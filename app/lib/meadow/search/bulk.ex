@@ -6,6 +6,10 @@ defmodule Meadow.Search.Bulk do
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
 
+  require Logger
+
+  @retries 3
+
   def delete(ids, index) do
     ids
     |> Stream.map(&Jason.encode!(%{delete: %{_id: &1}}))
@@ -35,7 +39,36 @@ defmodule Meadow.Search.Bulk do
     do: :timer.sleep(wait_interval)
 
   defp upload_batch(docs, index) do
-    bulk_document = docs |> Enum.join("\n")
+    bulk_document = Enum.join(docs, "\n")
+
+    case with_retry(fn -> upload_bulk_document(index, bulk_document) end) do
+      {:ok, _response} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Bulk upload failed after #{@retries} retries. Error: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
+  defp upload_bulk_document(index, bulk_document) do
     HTTP.post("/#{index}/_bulk", bulk_document <> "\n")
+  end
+
+  defp with_retry(func, remaining_tries \\ @retries, last_response \\ nil)
+
+  defp with_retry(_, 0, last_response), do: last_response
+
+  defp with_retry(func, remaining_tries, _) do
+    with response <- func.() do
+      case response do
+        {:error, _} ->
+          Logger.warn("Bulk upload failed. Retrying. Attempts left: #{remaining_tries - 1}")
+          with_retry(func, remaining_tries - 1, response)
+
+        other ->
+          other
+      end
+    end
   end
 end
