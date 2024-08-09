@@ -64,7 +64,7 @@ defmodule Meadow.MixProject do
       {:dataloader, "~> 1.0.6"},
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_psql_extras, "~> 0.2"},
-      {:ecto_ranked, "~> 0.5.0"},
+      {:ecto_ranked, "~> 0.6.0"},
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
       {:ets, "~> 0.9.0"},
