@@ -143,6 +143,9 @@
                 "ignore_above": 256
               }
             },
+            "analyzer": "full_analyzer",
+            "search_analyzer": "stopword_analyzer",
+            "search_quote_analyzer": "full_analyzer",
             "copy_to": [
               "all_text"
             ]
