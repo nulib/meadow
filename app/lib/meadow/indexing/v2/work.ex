@@ -113,9 +113,12 @@ defmodule Meadow.Indexing.V2.Work do
       |> Enum.reject(fn v ->
         is_nil(v) or byte_size(v) == 0
       end)
-      |> Enum.join("\n")
+      |> Meadow.ML.Inference.get_embeddings()
+      |> Enum.map(fn embedding ->
+        %{vector: embedding}
+      end)
 
-    Map.put(map, :embedding_text, value)
+    Map.put(map, :embedding, value)
   end
 
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)

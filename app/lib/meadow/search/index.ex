@@ -27,7 +27,6 @@ defmodule Meadow.Search.Index do
 
       pipeline ->
         pipeline
-        |> create_ingest_pipeline(SearchConfig.embedding_model_id(), "embedding_text")
         |> create_search_pipeline()
     end
 
@@ -71,55 +70,6 @@ defmodule Meadow.Search.Index do
 
     HTTP.put(["_search", "pipeline", name], pipeline)
     name
-  end
-
-  @doc """
-  Create a ingest pipeline, takes a name, model id, source field, and a target field
-  Returns name
-  """
-  def create_ingest_pipeline(name, model_id, source_field, target_field \\ "embedding") do
-    model_name = embedding_model_name(model_id)
-
-    pipeline = %{
-      "description" => "Ingest pipeline for #{name}",
-      "processors" => [
-        %{
-          "text_embedding" => %{
-            "model_id" => model_id,
-            "field_map" => %{
-              source_field => target_field
-            },
-            "ignore_failure" => true
-          }
-        },
-        %{
-          "set" => %{
-            "field" => "embedding_model",
-            "value" => model_name,
-            "if" => "ctx?.#{target_field} != null"
-          }
-        },
-        %{
-          "remove" => %{
-            "field" => source_field,
-            "ignore_failure" => true
-          }
-        }
-      ]
-    }
-
-    HTTP.put(["_ingest", "pipeline", name], pipeline)
-    name
-  end
-
-  defp embedding_model_name(model_id) do
-    case HTTP.get(["_plugins", "_ml", "models", model_id]) do
-      {:ok, %{status_code: 200, body: %{"name" => name}}} ->
-        Regex.replace(~r[^.+/huggingface/], name, "")
-
-      _ ->
-        nil
-    end
   end
 
   @doc """

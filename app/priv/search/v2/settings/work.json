@@ -62,12 +62,17 @@
         "type": "date_nanos"
       },
       "embedding": {
-        "type": "knn_vector",
-        "dimension": 768,
-        "method": {
-          "name": "hnsw",
-          "space_type": "cosinesimil",
-          "engine": "lucene"
+        "type": "nested",
+        "properties": {
+          "vector": {
+            "type": "knn_vector",
+            "dimension": 1024,
+            "method": {
+              "name": "hnsw",
+              "space_type": "cosinesimil",
+              "engine": "lucene"
+            }
+          }
         }
       },
       "embedding_model": {

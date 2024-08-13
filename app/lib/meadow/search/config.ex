@@ -55,7 +55,13 @@ defmodule Meadow.Search.Config do
   end
 
   def add_embedding_dimension(
-        %{"mappings" => %{"properties" => %{"embedding" => %{"dimension" => _}}}} = settings
+        %{
+          "mappings" => %{
+            "properties" => %{
+              "embedding" => %{"properties" => %{"vector" => %{"dimension" => _}}}
+            }
+          }
+        } = settings
       ) do
     case embedding_model_dimensions() do
       nil -> settings
@@ -67,7 +73,7 @@ defmodule Meadow.Search.Config do
     do:
       put_in(
         settings,
-        ["mappings", "properties", "embedding", "dimension"],
+        ["mappings", "properties", "embedding", "properties", "vector", "dimension"],
         embedding_model_dimensions()
       )
 
