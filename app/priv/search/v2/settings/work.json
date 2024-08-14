@@ -63,7 +63,7 @@
       },
       "embedding": {
         "type": "knn_vector",
-        "dimension": 384,
+        "dimension": 768,
         "method": {
           "name": "hnsw",
           "space_type": "cosinesimil",
@@ -143,6 +143,9 @@
                 "ignore_above": 256
               }
             },
+            "analyzer": "full_analyzer",
+            "search_analyzer": "stopword_analyzer",
+            "search_quote_analyzer": "full_analyzer",
             "copy_to": [
               "all_text"
             ]

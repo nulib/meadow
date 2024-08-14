@@ -100,7 +100,7 @@ defmodule Meadow.Utils.Sitemap do
   defp generate_index(config) do
     with date <- Date.utc_today() |> to_string(),
          gz_url <-
-           config[:sitemap_url] |> URI.parse() |> URI.merge("sitemap.xml.gz") |> URI.to_string() do
+           config[:sitemap_url] |> Path.join("sitemap.xml.gz") do
       XmlBuilder.element(:urlset, %{xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}, [
         XmlBuilder.element(:url, [
           XmlBuilder.element(:loc, gz_url),
