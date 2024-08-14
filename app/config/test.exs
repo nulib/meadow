@@ -57,17 +57,11 @@ config :meadow, :elasticsearch_retry,
 
 config :authoritex, authorities: [Authoritex.Mock, NUL.Authority]
 
-config :ueberauth, Ueberauth,
-  providers: [
-    nusso:
-      {Ueberauth.Strategy.NuSSO,
-       [
-         base_url: "https://northwestern-dev.apigee.net/agentless-websso/",
-         callback_path: "/auth/nusso/callback",
-         consumer_key: "test-sso-key",
-         include_attributes: false
-       ]}
-  ]
+config :ueberauth, Ueberauth.Strategy.NuSSO,
+  base_url: "https://northwestern-dev.apigee.net/agentless-websso/",
+  callback_path: "/auth/nusso/callback",
+  consumer_key: "test-sso-key",
+  include_attributes: false
 
 config :meadow, Meadow.Repo,
   show_sensitive_data_on_connection_error: true,

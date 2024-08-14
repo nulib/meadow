@@ -97,19 +97,13 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :ueberauth, Ueberauth,
-  providers: [
-    nusso:
-      {Ueberauth.Strategy.NuSSO,
-       [
-         base_url: aws_secret("meadow", dig: ["nusso", "base_url"]),
-         callback_path: "/auth/nusso/callback",
-         callback_port: 3001,
-         consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
-         include_attributes: false,
-         ssl_port: 3001
-       ]}
-  ]
+config :ueberauth, Ueberauth.Strategy.NuSSO,
+  base_url: aws_secret("meadow", dig: ["nusso", "base_url"]),
+  callback_path: "/auth/nusso/callback",
+  callback_port: 3001,
+  consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
+  include_attributes: false,
+  ssl_port: 3001
 
 if prefix = System.get_env("DEV_PREFIX") do
   config :meadow,

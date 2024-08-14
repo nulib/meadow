@@ -139,21 +139,15 @@ config :meadow, Meadow.Scheduler,
     }
   ]
 
-config :ueberauth, Ueberauth,
-  providers: [
-    nusso:
-      {Ueberauth.Strategy.NuSSO,
-       [
-         base_url:
-           aws_secret("meadow",
-             dig: ["nusso", "base_url"],
-             default: "https://northwestern-prod.apigee.net/agentless-websso/"
-           ),
-         callback_path: "/auth/nusso/callback",
-         consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
-         include_attributes: false
-       ]}
-  ]
+config :ueberauth, Ueberauth.Strategy.NuSSO,
+  base_url:
+    aws_secret("meadow",
+      dig: ["nusso", "base_url"],
+      default: "https://northwestern-prod.apigee.net/agentless-websso/"
+    ),
+  callback_path: "/auth/nusso/callback",
+  consumer_key: aws_secret("meadow", dig: ["nusso", "api_key"]),
+  include_attributes: false
 
 config :hackney,
   max_connections: environment_secret("HACKNEY_MAX_CONNECTIONS", cast: :integer, default: "1000")
