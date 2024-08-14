@@ -78,28 +78,26 @@ defmodule Meadow.Indexing.V2.Work do
   end
 
   @embedding_keys [
-    :abstract,
+    :title,
+    :description,
+    :collection,
     :alternate_title,
     :caption,
-    :collection,
+    :table_of_contents,
+    :abstract,
     :contributor,
     :creator,
     :date_created,
-    :description,
     :genre,
-    # :keywords,
-    :language,
-    :location,
-    :physical_description_material,
-    :physical_description_size,
-    :publisher,
-    :scope_and_contents,
-    :source,
     :subject,
     :style_period,
-    :table_of_contents,
-    :title,
-    :technique
+    :language,
+    :location,
+    :publisher,
+    :scope_and_contents,
+    :technique,
+    :physical_description_material,
+    :physical_description_size,
   ]
 
   defp prepare_embedding_field(map) do
@@ -115,10 +113,12 @@ defmodule Meadow.Indexing.V2.Work do
       end)
       |> Enum.join("\n")
 
-    Map.put(map, :embedding_text, value)
+    Map.put(map, :embedding_text_length, String.length(value))
+    |> Map.put(:embedding_text, String.slice(value, 0, 2048))
   end
 
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
+  defp prepare_embedding_value(%{title: v}), do: prepare_embedding_value(v)
 
   defp prepare_embedding_value([]), do: []
 
