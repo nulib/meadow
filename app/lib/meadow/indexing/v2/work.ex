@@ -5,6 +5,7 @@ defmodule Meadow.Indexing.V2.Work do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+  alias Meadow.Search.Config
 
   def encode(work) do
     %{
@@ -77,34 +78,9 @@ defmodule Meadow.Indexing.V2.Work do
     |> prepare_embedding_field()
   end
 
-  @embedding_keys [
-    :abstract,
-    :alternate_title,
-    :caption,
-    :collection,
-    :contributor,
-    :creator,
-    :date_created,
-    :description,
-    :genre,
-    # :keywords,
-    :language,
-    :location,
-    :physical_description_material,
-    :physical_description_size,
-    :publisher,
-    :scope_and_contents,
-    :source,
-    :subject,
-    :style_period,
-    :table_of_contents,
-    :title,
-    :technique
-  ]
-
   defp prepare_embedding_field(map) do
     value =
-      @embedding_keys
+      Config.embedding_text_fields()
       |> Enum.reduce([], fn field_name, acc ->
         v = prepare_embedding_value(Map.get(map, field_name))
         [v | acc]
@@ -115,10 +91,12 @@ defmodule Meadow.Indexing.V2.Work do
       end)
       |> Enum.join("\n")
 
-    Map.put(map, :embedding_text, value)
+    Map.put(map, :embedding_text_length, String.length(value))
+    |> Map.put(:embedding_text, String.slice(value, 0, 2048))
   end
 
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
+  defp prepare_embedding_value(%{title: v}), do: prepare_embedding_value(v)
 
   defp prepare_embedding_value([]), do: []
 

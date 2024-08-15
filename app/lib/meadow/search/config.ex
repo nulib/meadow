@@ -76,6 +76,11 @@ defmodule Meadow.Search.Config do
     |> Keyword.get(:embedding_dimensions)
   end
 
+  def embedding_text_fields do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:embedding_text_fields)
+  end
+
   def index_versions do
     index_configs()
     |> Enum.map(& &1.version)
