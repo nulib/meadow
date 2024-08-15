@@ -5,6 +5,7 @@ defmodule Meadow.Indexing.V2.Work do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+  alias Meadow.Search.Config
 
   def encode(work) do
     %{
@@ -77,32 +78,9 @@ defmodule Meadow.Indexing.V2.Work do
     |> prepare_embedding_field()
   end
 
-  @embedding_keys [
-    :title,
-    :description,
-    :collection,
-    :alternate_title,
-    :caption,
-    :table_of_contents,
-    :abstract,
-    :contributor,
-    :creator,
-    :date_created,
-    :genre,
-    :subject,
-    :style_period,
-    :language,
-    :location,
-    :publisher,
-    :scope_and_contents,
-    :technique,
-    :physical_description_material,
-    :physical_description_size,
-  ]
-
   defp prepare_embedding_field(map) do
     value =
-      @embedding_keys
+      Config.embedding_text_fields()
       |> Enum.reduce([], fn field_name, acc ->
         v = prepare_embedding_value(Map.get(map, field_name))
         [v | acc]
