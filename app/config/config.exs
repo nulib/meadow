@@ -81,7 +81,29 @@ config :meadow, Meadow.Search.Cluster,
       default: nil
     ),
   embedding_dimensions:
-    aws_secret("meadow", dig: ["search", "embedding_dimensions"], default: nil)
+    aws_secret("meadow", dig: ["search", "embedding_dimensions"], default: nil),
+  embedding_text_fields: [
+    :title,
+    :description,
+    :collection,
+    # :alternate_title,
+    # :caption,
+    # :table_of_contents,
+    # :abstract,
+    # :contributor,
+    # :creator,
+    # :date_created,
+    # :genre,
+    # :subject,
+    # :style_period,
+    # :language,
+    # :location,
+    # :publisher,
+    # :scope_and_contents,
+    # :technique,
+    # :physical_description_material,
+    # :physical_description_size,
+  ]
 
 config :meadow,
   ark: %{
