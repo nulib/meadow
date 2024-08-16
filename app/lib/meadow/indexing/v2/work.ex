@@ -89,6 +89,7 @@ defmodule Meadow.Indexing.V2.Work do
       |> Enum.reject(fn v ->
         is_nil(v) or byte_size(v) == 0
       end)
+      |> Enum.reverse()
       |> Enum.join("\n")
 
     Map.put(map, :embedding_text_length, String.length(value))
