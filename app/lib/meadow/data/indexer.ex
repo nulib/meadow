@@ -23,7 +23,7 @@ defmodule Meadow.Data.Indexer do
   end
 
   def reindex_all(version) do
-    reindex_all(version, [FileSet, Work, Collection])
+    reindex_all(version, [Collection, Work, FileSet])
   end
 
   def reindex_all(version, schemas) when is_list(schemas) do
