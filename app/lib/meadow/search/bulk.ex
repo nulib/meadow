@@ -3,6 +3,9 @@ defmodule Meadow.Search.Bulk do
   Bulk indexing operations for search
   """
 
+  use Meadow.Utils.Logging
+  require Logger
+
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
 
@@ -35,7 +38,24 @@ defmodule Meadow.Search.Bulk do
     do: :timer.sleep(wait_interval)
 
   defp upload_batch(docs, index) do
-    bulk_document = docs |> Enum.join("\n")
-    HTTP.post("/#{index}/_bulk", bulk_document <> "\n")
+    with_log_metadata module: __MODULE__, index: index do
+      bulk_document = docs |> Enum.join("\n")
+      
+      Logger.info("Uploading batch of #{Enum.count(docs)} documents to #{index}")
+      
+      case HTTP.post("/#{index}/_bulk", bulk_document <> "\n") do
+        {:ok, %{status_code: status} = response} ->
+          Logger.info("Bulk upload status: #{status}")
+          {:ok, response}
+
+        {:retry, response} ->
+          Logger.warn("Bulk upload retrying")
+          {:retry, response}
+
+        {:error, error} ->
+          Logger.error("Bulk upload failed: #{inspect(error)}")
+          {:error, error}
+      end
+    end
   end
 end
