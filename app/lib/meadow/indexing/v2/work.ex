@@ -92,7 +92,7 @@ defmodule Meadow.Indexing.V2.Work do
       |> Enum.join("\n")
 
     Map.put(map, :embedding_text_length, String.length(value))
-    |> Map.put(:embedding_text, String.slice(value, 0, 2048))
+    |> Map.put(:embedding_text, String.slice(value, 0, 2047))
   end
 
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
