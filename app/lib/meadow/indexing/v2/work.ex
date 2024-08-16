@@ -82,13 +82,15 @@ defmodule Meadow.Indexing.V2.Work do
     value =
       Config.embedding_text_fields()
       |> Enum.reduce([], fn field_name, acc ->
+        label = to_string(field_name)
         v = prepare_embedding_value(Map.get(map, field_name))
-        [v | acc]
+        [[label, concatenate(v)] | acc]
       end)
-      |> List.flatten()
-      |> Enum.reject(fn v ->
+      #      |> List.flatten()
+      |> Enum.reject(fn [_, v] ->
         is_nil(v) or byte_size(v) == 0
       end)
+      |> Enum.map(&Enum.join(&1, ": "))
       |> Enum.reverse()
       |> Enum.join("\n")
 
@@ -96,6 +98,10 @@ defmodule Meadow.Indexing.V2.Work do
     |> Map.put(:embedding_text, String.slice(value, 0, 2047))
   end
 
+  defp concatenate(v) when is_list(v), do: Enum.join(v, "; ")
+  defp concatenate(v), do: v
+
+  defp prepare_embedding_value(%{label_with_role: v}), do: prepare_embedding_value(v)
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
   defp prepare_embedding_value(%{title: v}), do: prepare_embedding_value(v)
 
