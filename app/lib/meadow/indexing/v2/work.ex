@@ -82,20 +82,26 @@ defmodule Meadow.Indexing.V2.Work do
     value =
       Config.embedding_text_fields()
       |> Enum.reduce([], fn field_name, acc ->
+        label = to_string(field_name)
         v = prepare_embedding_value(Map.get(map, field_name))
-        [v | acc]
+        [[label, concatenate(v)] | acc]
       end)
-      |> List.flatten()
-      |> Enum.reject(fn v ->
+      #      |> List.flatten()
+      |> Enum.reject(fn [_, v] ->
         is_nil(v) or byte_size(v) == 0
       end)
+      |> Enum.map(&Enum.join(&1, ": "))
       |> Enum.reverse()
       |> Enum.join("\n")
 
     Map.put(map, :embedding_text_length, String.length(value))
-    |> Map.put(:embedding_text, String.slice(value, 0, 2047))
+    |> Map.put(:embedding_text, truncate(value, 2048))
   end
 
+  defp concatenate(v) when is_list(v), do: Enum.join(v, "; ")
+  defp concatenate(v), do: v
+
+  defp prepare_embedding_value(%{label_with_role: v}), do: prepare_embedding_value(v)
   defp prepare_embedding_value(%{label: v}), do: prepare_embedding_value(v)
   defp prepare_embedding_value(%{title: v}), do: prepare_embedding_value(v)
 
@@ -223,5 +229,22 @@ defmodule Meadow.Indexing.V2.Work do
       nil -> 1.0
       file_set -> FileSets.aspect_ratio(file_set)
     end
+  end
+
+  def truncate(string, byte_limit) do
+    graphemes = String.graphemes(string)
+
+    {result, _} =
+      Enum.reduce_while(graphemes, {"", 0}, fn grapheme, {acc, acc_byte_size} ->
+        grapheme_byte_size = byte_size(grapheme)
+
+        if acc_byte_size + grapheme_byte_size > byte_limit do
+          {:halt, {acc, acc_byte_size}}
+        else
+          {:cont, {acc <> grapheme, acc_byte_size + grapheme_byte_size}}
+        end
+      end)
+
+    result
   end
 end
