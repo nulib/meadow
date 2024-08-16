@@ -58,8 +58,8 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
           build-args: |
-            BUILD_IMAGE=hexpm/elixir:1.15.7-erlang-26.0.2-debian-bullseye-20231009
-            RUNTIME_IMAGE=node:18-bullseye-slim
+            BUILD_IMAGE=hexpm/elixir:1.17.1-erlang-27.0-debian-bookworm-20240612-slim
+            RUNTIME_IMAGE=node:20-bookworm-slim
             HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
             HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
             HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
