@@ -95,7 +95,7 @@ defmodule Meadow.Indexing.V2.Work do
       |> Enum.join("\n")
 
     Map.put(map, :embedding_text_length, String.length(value))
-    |> Map.put(:embedding_text, String.slice(value, 0, 2047))
+    |> Map.put(:embedding_text, truncate(value, 2048))
   end
 
   defp concatenate(v) when is_list(v), do: Enum.join(v, "; ")
@@ -229,5 +229,22 @@ defmodule Meadow.Indexing.V2.Work do
       nil -> 1.0
       file_set -> FileSets.aspect_ratio(file_set)
     end
+  end
+
+  def truncate(string, byte_limit) do
+    graphemes = String.graphemes(string)
+
+    {result, _} =
+      Enum.reduce_while(graphemes, {"", 0}, fn grapheme, {acc, acc_byte_size} ->
+        grapheme_byte_size = byte_size(grapheme)
+
+        if acc_byte_size + grapheme_byte_size > byte_limit do
+          {:halt, {acc, acc_byte_size}}
+        else
+          {:cont, {acc <> grapheme, acc_byte_size + grapheme_byte_size}}
+        end
+      end)
+
+    result
   end
 end
