@@ -26,6 +26,7 @@ locals {
       db_queue_interval     = var.db_queue_interval,
       db_queue_target       = var.db_queue_target,
       docker_repository     = data.aws_ecr_repository.meadow.repository_url,
+      livebook_bucket       = var.livebook_shared_bucket,
       name                  = var.name,
       processes             = var.meadow_processes
     }

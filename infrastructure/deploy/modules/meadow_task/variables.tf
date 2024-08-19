@@ -21,6 +21,11 @@ variable "db_queue_interval" {
   default = 1000
 }
 
+variable "livebook_shared_bucket" {
+  type    = string
+  default = ""
+}
+
 variable "meadow_processes" {
   type    = string
   default = "all"
