@@ -19,6 +19,13 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&MeadowWeb.Resolvers.Ingest.projects/3)
     end
 
+    @desc "Search for projects by title"
+    field :projects_search, list_of(:project) do
+      arg(:query, non_null(:string))
+      middleware(Middleware.Authenticate)
+      resolve(&MeadowWeb.Resolvers.Ingest.search_projects/3)
+    end
+
     @desc "Get a project by its id"
     field :project, :project do
       arg(:id, non_null(:id))

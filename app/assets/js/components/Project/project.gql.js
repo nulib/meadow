@@ -60,6 +60,20 @@ export const GET_PROJECTS = gql`
   }
 `;
 
+export const PROJECTS_SEARCH = gql`
+  query ProjectsSearch($query: String!) {
+    projectsSearch(query: $query) {
+      id
+      title
+      folder
+      updatedAt
+      ingestSheets {
+        id
+      }
+    }
+  }
+`;
+
 export const INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION = gql`
   subscription IngestSheetUpdatesForProject($projectId: ID!) {
     ingestSheetUpdatesForProject(projectId: $projectId) {

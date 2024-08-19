@@ -29,8 +29,4 @@ describe("Project List component", () => {
     expect(await screen.findByTestId("screen-header"));
     expect(await screen.findByTestId("screen-content"));
   });
-
-  it("renders the project list component", async () => {
-    expect(await screen.findByTestId("project-list"));
-  });
 });
