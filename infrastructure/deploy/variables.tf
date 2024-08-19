@@ -208,3 +208,8 @@ variable "trusted_referers" {
   type    = string
   default = ""
 }
+
+variable "livebook_shared_bucket" {
+  type    = string
+  default = ""
+}

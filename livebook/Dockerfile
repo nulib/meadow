@@ -7,4 +7,5 @@ ENV LIVEBOOK_IDENTITY_PROVIDER=custom:MeadowLivebookAuth
 ENV LIVEBOOK_IP=0.0.0.0
 ENV LIVEBOOK_TOKEN_ENABLED=false
 RUN mkdir -p ${LIVEBOOK_DATA_PATH}/books
-ADD ./meadow_livebook_auth.exs /app/user/extensions/meadow_livebook_auth.exs
+RUN git clone https://github.com/nulib/meadow_kino.git /meadow_kino
+ADD ./extensions/* /app/user/extensions/

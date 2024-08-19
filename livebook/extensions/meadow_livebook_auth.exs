@@ -23,6 +23,9 @@ defmodule MeadowLivebookAuth do
   @spec authenticate(GenServer.server(), Plug.Conn.t(), keyword()) ::
           {Plug.Conn.t(), map() | nil}
   def authenticate(server, conn, _) do
+    System.get_env("MEADOW_LIVEBOOK_BUCKET")
+    |> attach_storage()
+
     with url <- find_meadow_url(server),
          user <- meadow_auth(url, conn) do
       {conn, user}
@@ -89,5 +92,39 @@ defmodule MeadowLivebookAuth do
       nil -> %{key => value}
       map -> Map.put(map, key, value)
     end)
+  end
+
+  defp attach_storage(bucket) when is_binary(bucket) and byte_size(bucket) > 0 do
+    url = "https://s3.amazonaws.com/#{bucket}"
+
+    Livebook.Hubs.get_file_systems()
+    |> Enum.any?(fn
+      %Livebook.FileSystem.S3{bucket_url: ^url} -> true
+      _ -> false
+    end)
+    |> attach_s3_storage(url)
+  end
+
+  defp attach_storage(_), do: :noop
+
+  defp attach_s3_storage(true, _), do: :noop
+
+  defp attach_s3_storage(false, url) do
+    hash = :crypto.hash(:sha256, url)
+    encrypted_hash = "s3-" <> Base.url_encode64(hash, padding: false)
+
+    [hub | _] = Livebook.Hubs.get_hubs()
+
+    file_system = %Livebook.FileSystem.S3{
+      id: encrypted_hash,
+      bucket_url: url,
+      external_id: nil,
+      region: Livebook.FileSystem.S3.region_from_url(url),
+      access_key_id: nil,
+      secret_access_key: nil,
+      hub_id: "personal-hub"
+    }
+
+    Livebook.Hubs.create_file_system(hub, file_system)
   end
 end

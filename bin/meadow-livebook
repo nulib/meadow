@@ -15,11 +15,13 @@ echo -n "   Starting Livebook..."
 docker buildx build -t nulib/meadow:livebook $ROOT/livebook > /dev/null 2>&1
 LIVEBOOK_CONTAINER=$(docker run --rm -d --network host \
   -v ${HOME}/.meadow_livebooks:/data/books \
+  -v ${HOME}/environment/meadow_kino:/meadow_kino \
   -e LB_MEADOW_COOKIE=${COOKIE} \
   -e LB_MEADOW_NODE=meadow@${HOST} \
   -e LIVEBOOK_NODE=livebook@${HOST} \
   -e LIVEBOOK_DISTRIBUTION=name \
   -e LIVEBOOK_COOKIE=${COOKIE} \
+  -e MEADOW_LIVEBOOK_BUCKET=${MEADOW_LIVEBOOK_BUCKET} \
   -e MEADOW_URL=https://${MEADOW_HOSTNAME}:3001/ \
   nulib/meadow:livebook)
 https-proxy start 8082 8080 > /dev/null 2>&1
