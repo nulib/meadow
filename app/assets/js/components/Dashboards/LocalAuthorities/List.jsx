@@ -8,7 +8,6 @@ import { IconEdit, IconImages, IconTrashCan } from "@js/components/Icon";
 import { Link, useHistory } from "react-router-dom";
 import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
 import {
-  useApolloClient,
   useLazyQuery,
   useMutation,
   useQuery,
@@ -23,7 +22,6 @@ import { toastWrapper } from "@js/services/helpers";
 const colHeaders = ["Label", "Hint"];
 
 export default function DashboardsLocalAuthoritiesList() {
-  const client = useApolloClient();
   const history = useHistory();
   const [currentAuthority, setCurrentAuthority] = React.useState();
   const [filteredAuthorities, setFilteredAuthorities] = React.useState([]);
@@ -78,7 +76,7 @@ export default function DashboardsLocalAuthoritiesList() {
       console.error("networkError", networkError);
       toastWrapper(
         "is-danger",
-        `Error in deleteNulAuthorityRecord GraphQL mutation`
+        `Error deleting authority record.`
       );
     },
   });
@@ -114,7 +112,7 @@ export default function DashboardsLocalAuthoritiesList() {
       console.error("networkError", networkError);
       toastWrapper(
         "is-danger",
-        `Error searching NUL local authorities through GraphQL LazyQuery`
+        `Error searching NUL local authorities.`
       );
     },
   });

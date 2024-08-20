@@ -2,6 +2,7 @@ import {
   GET_PROJECTS,
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,
+  PROJECTS_SEARCH,
 } from "./project.gql.js";
 
 export const MOCK_PROJECT_TITLE = "Mock project title";
@@ -100,4 +101,20 @@ export const getProjectsMock = {
       projects: mockProjects,
     },
   },
+};
+
+export const projectsSearchMock = (searchTerm) => {
+  return {
+    request: {
+      query: PROJECTS_SEARCH,
+      variables: {
+        query: searchTerm,
+      },
+    },
+    result: {
+      data: {
+        projectsSearch: mockProjects,
+      },
+    },
+  }
 };

@@ -83,4 +83,18 @@ defmodule Meadow.Ingest.Projects do
   def change_project(%Project{} = sheet) do
     Project.changeset(sheet, %{})
   end
+
+  @doc """
+  Search projects by title.
+
+  Returns a list of projects matching the given `query`.
+  """
+  def search(query, max_results \\ 100) do
+    from(p in Project,
+      where: ilike(p.title, ^"%#{query}%"),
+      limit: ^max_results,
+      order_by: [{:desc, :updated_at}]
+    )
+    |> Repo.all()
+  end
 end

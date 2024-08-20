@@ -14,6 +14,12 @@ defmodule Meadow.Ingest.ProjectsTest do
       assert Projects.list_projects() == [project]
     end
 
+    test "projects_search/0 returns list of matched projects" do
+      project = project_fixture(@valid_attrs)
+      assert Projects.search("some title") == [project]
+      assert Projects.search("nothing") == []
+    end
+
     test "get_project!/1 returns the project with given id" do
       project = project_fixture(@valid_attrs)
       assert Projects.get_project!(project.id) == project

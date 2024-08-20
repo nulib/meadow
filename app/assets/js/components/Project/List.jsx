@@ -1,174 +1,254 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useMutation, useApolloClient } from "@apollo/client";
-import { DELETE_PROJECT, GET_PROJECTS } from "./project.gql.js";
-import UIModalDelete from "../UI/Modal/Delete";
+import { Button, Notification } from "@nulib/design-system";
+import React, { useState } from "react";
+import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import {
+  DELETE_PROJECT,
+  GET_PROJECTS,
+  PROJECTS_SEARCH,
+  UPDATE_PROJECT,
+} from "./project.gql.js";
+import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
 import { formatDate, toastWrapper } from "@js/services/helpers";
 import UIFormInput from "@js/components/UI/Form/Input";
-import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import ProjectForm from "@js/components/Project/Form";
-import UISearchBarRow from "@js/components/UI/SearchBarRow";
+import ProjectsModalEdit from "@js/components/Project/ModalEdit";
 import { IconEdit, IconTrashCan } from "@js/components/Icon";
+import { Link } from "react-router-dom";
 
-const ProjectList = ({ projects }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [activeProject, setActiveProject] = useState();
-  const [activeModal, setActiveModal] = useState();
-  const [projectList, setProjectList] = useState();
-  const client = useApolloClient();
-  const [deleteProject, { data }] = useMutation(DELETE_PROJECT, {
-    update(cache, { data: { deleteProject } }) {
-      const { projects } = client.readQuery({ query: GET_PROJECTS });
-      const index = projects.findIndex(
-        (project) => project.id === deleteProject.id
-      );
-      projects.splice(index, 1);
-      client.writeQuery({
-        query: GET_PROJECTS,
-        data: { projects },
-      });
-      toastWrapper("is-success", `Project deleted successfully`);
+const colHeaders = [
+  "Project",
+  "S3 Bucket Folder",
+  "Ingest Sheets",
+  "Last Updated",
+  "Actions",
+];
+
+const ProjectList = () => {
+  const [currentProject, setCurrentProject] = useState();
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [modalsState, setModalsState] = useState({
+    delete: {
+      isOpen: false,
+    },
+    update: {
+      isOpen: false,
     },
   });
 
-  useEffect(() => {
-    projects && projects.length > 0
-      ? setProjectList(projects)
-      : setProjectList([]);
-  }, [projects]);
+  const { loading, error, data } = useQuery(GET_PROJECTS, {
+    pollInterval: 1000,
+  });
 
-  const onOpenModal = (e, project) => {
-    setActiveModal(project);
-    setModalOpen(true);
-  };
-
-  const onEditProject = (project) => {
-    setActiveProject(project);
-    setShowForm(!showForm);
-  };
-
-  const onCloseModal = () => {
-    setActiveModal(null);
-    setModalOpen(false);
-    setActiveProject(null);
-  };
-
-  const handleDeleteClick = () => {
-    setModalOpen(false);
-    if (activeModal.ingestSheets.length > 0) {
-      toastWrapper(
-        "is-danger",
-        `Project has existing ingest sheets.  You must delete these before deleting project: ${activeModal.title} `
-      );
-      return setActiveModal(null);
+  function filterValues() {
+    if (!data) return;
+    if (searchValue) {
+      projectsSearch({
+        variables: {
+          query: searchValue,
+        },
+      });
+    } else {
+      setFilteredProjects([...data.projects]);
     }
-    deleteProject({ variables: { projectId: activeModal.id } });
-    setActiveModal(null);
-  };
+  }
 
-  const handleFilterChange = (e) => {
-    const filterValue = e.target.value.toUpperCase();
+  const [
+    deleteProject,
+    { error: deleteProjectError, loading: deleteProjectLoading },
+  ] = useMutation(DELETE_PROJECT, {
+    update(cache, { data: { deleteProject } }) {
+      cache.modify({
+        fields: {
+          projects(existingProjects = [], { readField }) {
+            const newData = existingProjects.filter(
+              (projectRef) => deleteProject.id !== readField("id", projectRef),
+            );
+            return [...newData];
+          },
+        },
+      });
+    },
+    onError({ graphQLErrors, networkError }) {
+      console.error("graphQLErrors", graphQLErrors);
+      console.error("networkError", networkError);
+      toastWrapper("is-danger", `Error deleting project.`);
+    },
+  });
 
-    if (!filterValue) {
-      return setProjectList(projects);
-    }
-    const filteredList = projectList.filter((project) => {
-      return project.title.toUpperCase().indexOf(filterValue) > -1;
+  const [updateProject, { error: updateError, loading: updateLoading }] =
+    useMutation(UPDATE_PROJECT, {
+      onCompleted({ updateProject }) {
+        toastWrapper("is-success", `Project: ${updateProject.title} updated`);
+        setCurrentProject(null);
+        filterValues();
+      },
     });
-    setProjectList(filteredList);
+
+  const [
+    projectsSearch,
+    {
+      error: errorProjectsSearch,
+      loading: loadingProjectsSearch,
+      data: dataProjectsSearch,
+    },
+  ] = useLazyQuery(PROJECTS_SEARCH, {
+    fetchPolicy: "network-only",
+    onCompleted: (data) => {
+      setFilteredProjects([...data.projectsSearch]);
+    },
+    onError({ graphQLErrors, networkError }) {
+      console.error("graphQLErrors", graphQLErrors);
+      console.error("networkError", networkError);
+      toastWrapper("is-danger", `Error searching projects.`);
+    },
+  });
+
+  React.useEffect(() => {
+    if (!data) return;
+    filterValues();
+  }, [data, searchValue]);
+
+  if (loading || deleteProjectLoading || updateLoading) return null;
+  if (error) return <Notification isDanger>{error.toString()}</Notification>;
+  if (deleteProjectError)
+    return (
+      <Notification isDanger>{deleteProjectError.toString()}</Notification>
+    );
+  if (updateError)
+    return <Notification isDanger>{updateError.toString()}</Notification>;
+
+  const handleConfirmDelete = () => {
+    deleteProject({ variables: { projectId: currentProject.id } });
+    setCurrentProject(null);
+    setModalsState({ ...modalsState, delete: { isOpen: false } });
+  };
+
+  const handleDeleteClick = (project) => {
+    setCurrentProject({ ...project });
+    setModalsState({
+      ...modalsState,
+      delete: { isOpen: true },
+    });
+  };
+
+  const handleUpdate = (formData) => {
+    updateProject({
+      variables: {
+        projectTitle: formData.title,
+        projectId: currentProject.id,
+      },
+    });
+  };
+
+  const handleUpdateButtonClick = (project) => {
+    setCurrentProject({ ...project });
+    setModalsState({
+      ...modalsState,
+      update: { isOpen: true },
+    });
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
   };
 
   return (
-    <>
-      <UISearchBarRow isCentered>
+    <React.Fragment>
+      <SearchBarRow isCentered>
         <UIFormInput
-          placeholder="Search projects"
-          name="projectsSearch"
-          label="Filter projects"
-          onChange={handleFilterChange}
-          data-testid="input-project-filter"
+          placeholder="Search"
+          name="nulSearch"
+          label="NUL search"
+          onChange={handleSearchChange}
+          value={searchValue}
         />
-      </UISearchBarRow>
+      </SearchBarRow>
 
       <div className="table-container">
         <table
+          className="table is-striped is-fullwidth"
           data-testid="project-list"
-          className="table is-striped is-hoverable is-fullwidth"
         >
-          <caption>All Projects</caption>
           <thead>
             <tr>
-              <th>Project</th>
-              <th>s3 Bucket Folder</th>
-              <th className="text-right has-text-right"># Ingest Sheets</th>
-              <th className="has-text-right">Last Updated</th>
-              <AuthDisplayAuthorized>
-                <th className="has-text-right">Actions</th>
-              </AuthDisplayAuthorized>
+              {colHeaders.map((col) => (
+                <th key={col}>{col}</th>
+              ))}
             </tr>
           </thead>
-          <tbody>
-            {projectList &&
-              projectList.map((project) => {
-                const { id, folder, title, updatedAt, ingestSheets } = project;
-                return (
-                  <tr key={id}>
-                    <td>
-                      <Link
-                        to={`/project/${id}`}
-                        data-testid="project-title-row"
-                      >
-                        {title}
-                      </Link>
-                    </td>
-                    <td>{folder}</td>
-                    <td className="has-text-right">{ingestSheets.length}</td>
-                    <td className="has-text-right">{formatDate(updatedAt)}</td>
-                    <AuthDisplayAuthorized>
-                      <td>
-                        <div className="buttons-end">
-                          <p className="control">
-                            <Button
-                              isLight
-                              onClick={(e) => onEditProject(project)}
-                            >
-                              <IconEdit />
-                            </Button>
-                          </p>
-                          <p className="control">
-                            <Button
-                              isLight
-                              data-testid="delete-button-row"
-                              onClick={(e) => onOpenModal(e, project)}
-                            >
-                              <IconTrashCan />
-                            </Button>
-                          </p>
-                        </div>
-                      </td>
-                    </AuthDisplayAuthorized>
-                  </tr>
-                );
-              })}
+          <tbody data-testid="projects-table-body">
+            {filteredProjects.map((project) => {
+              const { id, folder, title, updatedAt, ingestSheets } = project;
+
+              return (
+                <tr key={id} data-testid="projects-row">
+                  <td>
+                    <Link to={`/project/${id}`} data-testid="project-title-row">
+                      {title}
+                    </Link>
+                  </td>
+                  <td>{folder}</td>
+                  <td>{ingestSheets.length}</td>
+                  <td>{formatDate(updatedAt)}</td>
+                  <td className="has-text-right is-right mb-0">
+                    <div className="field is-grouped">
+                      <AuthDisplayAuthorized>
+                        <Button
+                          isLight
+                          data-testid="edit-button"
+                          title="Edit Project"
+                          className="is-small"
+                          onClick={() => handleUpdateButtonClick(project)}
+                        >
+                          <IconEdit />
+                        </Button>
+                        <Button
+                          isLight
+                          data-testid="delete-button"
+                          className="is-small"
+                          onClick={() => handleDeleteClick(project)}
+                        >
+                          <IconTrashCan />
+                        </Button>
+                      </AuthDisplayAuthorized>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <ProjectForm
-        showForm={showForm}
-        setShowForm={setShowForm}
-        project={activeProject}
-        formType="edit"
+      <ModalDelete
+        isOpen={modalsState.delete.isOpen}
+        handleClose={() =>
+          setModalsState({
+            ...modalsState,
+            delete: {
+              isOpen: false,
+            },
+          })
+        }
+        handleConfirm={handleConfirmDelete}
+        thingToDeleteLabel={currentProject ? currentProject.title : ""}
       />
-      <UIModalDelete
-        isOpen={modalOpen}
-        handleClose={onCloseModal}
-        handleConfirm={handleDeleteClick}
-        thingToDeleteLabel={`Project ${activeModal ? activeModal.title : ""}`}
+
+      <ProjectsModalEdit
+        currentProject={currentProject}
+        isOpen={modalsState.update.isOpen}
+        handleClose={() =>
+          setModalsState({
+            ...modalsState,
+            update: {
+              isOpen: false,
+            },
+          })
+        }
+        handleUpdate={handleUpdate}
       />
-    </>
+    </React.Fragment>
   );
 };
 
