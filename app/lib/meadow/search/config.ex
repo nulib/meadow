@@ -2,8 +2,6 @@ defmodule Meadow.Search.Config do
   @moduledoc """
   Convenience methods for retrieving search-specific configuration
   """
-  alias Meadow.Search.HTTP
-
   require Logger
 
   def index_configs do

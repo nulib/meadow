@@ -52,7 +52,7 @@ defmodule Meadow.Arks do
   """
   def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work)
       when not is_nil(ark) do
-    Logger.warn("Not minting ARK for work #{work.id} because it already has one: #{ark}")
+    Logger.warning("Not minting ARK for work #{work.id} because it already has one: #{ark}")
     {:noop, work}
   end
 
