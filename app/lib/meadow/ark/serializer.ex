@@ -48,6 +48,17 @@ defmodule Meadow.Ark.Serializer do
     |> Enum.join("\n")
   end
 
-  def serialize({key, value}) when is_atom(key),
-    do: Map.get(@datacite_map, key) <> ": " <> String.replace(value, "%", "%25")
+  def serialize({key, value}) when is_atom(key) do
+    escapable =
+      case key do
+        :target -> "%\r\n"
+        _ -> ":%\r\n"
+      end
+
+    [
+      Map.get(@datacite_map, key),
+      URI.encode(value, fn c -> not String.contains?(escapable, <<c>>) end)
+    ]
+    |> Enum.join(": ")
+  end
 end
