@@ -77,11 +77,7 @@ const ScreensProjectList = () => {
             {!loading && !error && (
               <div data-testid="screen-content">
                 <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-                  <ProjectList
-                    projects={projects}
-                    loading={loading}
-                    error={error}
-                  />
+                  <ProjectList />
                 </ErrorBoundary>
               </div>
             )}

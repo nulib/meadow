@@ -16,16 +16,17 @@ locals {
 }
 
 module "meadow_task_all" {
-  source           = "./modules/meadow_task"
-  container_config = local.container_config
-  cpu              = 2048
-  db_pool_size     = 100
-  meadow_processes = "all"
-  memory           = 4096
-  name             = "all"
-  role_arn         = aws_iam_role.meadow_role.arn
-  stack_name       = var.stack_name
-  tags             = var.tags
+  source                    = "./modules/meadow_task"
+  container_config          = local.container_config
+  cpu                       = 2048
+  db_pool_size              = 100
+  livebook_shared_bucket    = var.livebook_shared_bucket
+  meadow_processes          = "all"
+  memory                    = 4096
+  name                      = "all"
+  role_arn                  = aws_iam_role.meadow_role.arn
+  stack_name                = var.stack_name
+  tags                      = var.tags
 }
 
 data "aws_service_discovery_dns_namespace" "internal_dns_zone" {

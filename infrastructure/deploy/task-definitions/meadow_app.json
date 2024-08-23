@@ -187,6 +187,10 @@
       {
         "name": "LIVEBOOK_COOKIE",
         "value": "${secret_key_base}"
+      },
+      {
+        "name": "MEADOW_LIVEBOOK_BUCKET",
+        "value": "${livebook_bucket}"
       }
     ],
     "mountPoints": [],

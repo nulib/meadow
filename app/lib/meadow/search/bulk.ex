@@ -40,16 +40,16 @@ defmodule Meadow.Search.Bulk do
   defp upload_batch(docs, index) do
     with_log_metadata module: __MODULE__, index: index do
       bulk_document = docs |> Enum.join("\n")
-      
+
       Logger.info("Uploading batch of #{Enum.count(docs)} documents to #{index}")
-      
+
       case HTTP.post("/#{index}/_bulk", bulk_document <> "\n") do
         {:ok, %{status_code: status} = response} ->
           Logger.info("Bulk upload status: #{status}")
           {:ok, response}
 
         {:retry, response} ->
-          Logger.warn("Bulk upload retrying")
+          Logger.warning("Bulk upload retrying")
           {:retry, response}
 
         {:error, error} ->

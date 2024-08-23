@@ -164,20 +164,6 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def replace_file_set(_, %{id: id} = params, _) do
-    file_set = FileSets.get_file_set!(id)
-
-    case Pipeline.replace_the_file_set(file_set, Map.delete(params, :id)) do
-      {:error, changeset} ->
-        {:error,
-         message: "Could not replace file set",
-         details: ChangesetErrors.humanize_errors(changeset)}
-
-      {:ok, file_set} ->
-        {:ok, file_set}
-    end
-  end
-
   def update_file_set(_, %{id: id} = params, _) do
     file_set = FileSets.get_file_set!(id)
 

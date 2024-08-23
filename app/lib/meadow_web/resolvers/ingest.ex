@@ -61,6 +61,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
     end
   end
 
+  def search_projects(_, %{query: query}, _) do
+    {:ok, Projects.search(query)}
+  end
+
   def ingest_sheet(_, %{id: id}, _) do
     {:ok, Sheets.get_ingest_sheet!(id)}
   end
