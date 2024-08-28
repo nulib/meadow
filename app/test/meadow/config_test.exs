@@ -90,7 +90,7 @@ defmodule Meadow.ConfigTest do
     end
 
     test "trailing slashes/0" do
-      Application.put_env(:meadow, :iiif_server_url, "http://no-slash-test/iiif/2")
+      Application.put_env(:meadow, :iiif_server_url, "http://no-slash-test/iiif/3")
 
       Application.put_env(
         :meadow,
@@ -98,7 +98,7 @@ defmodule Meadow.ConfigTest do
         "http://no-slash-test/minio/test-pyramids/public"
       )
 
-      assert Config.iiif_server_url() == "http://no-slash-test/iiif/2/"
+      assert Config.iiif_server_url() == "http://no-slash-test/iiif/3/"
 
       assert Config.iiif_manifest_url_deprecated() ==
                "http://no-slash-test/minio/test-pyramids/public/"

@@ -134,7 +134,7 @@ config :meadow,
   iiif_server_url:
     aws_secret("meadow",
       dig: ["iiif", "base_url"],
-      default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/#{prefix()}"
+      default: "https://iiif.dev.rdc.library.northwestern.edu/iiif/3/#{prefix()}"
     ),
   iiif_manifest_url_deprecated:
     aws_secret("meadow",

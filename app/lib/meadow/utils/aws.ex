@@ -80,12 +80,12 @@ defmodule Meadow.Utils.AWS do
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
   def invalidate_cache(file_set, invalidation_type), do: invalidate_cache(file_set, invalidation_type, Config.environment())
-  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/2/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/2/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/2/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
+  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/3/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/3/posters/#{file_set.id}/*")
   def invalidate_cache(_file_set, :streaming, :dev), do: :ok
   def invalidate_cache(_file_set, :streaming, :test), do: :ok
   def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
