@@ -216,7 +216,7 @@ defmodule Meadow.Data.FileSetsTest do
 
       with uri <- file_set |> FileSets.representative_image_url_for() |> URI.parse() do
         assert uri.host == "localhost"
-        assert uri.path == "/iiif/2/posters/#{file_set.id}"
+        assert uri.path == "/iiif/3/posters/#{file_set.id}"
       end
     end
 
@@ -230,7 +230,7 @@ defmodule Meadow.Data.FileSetsTest do
 
       with uri <- file_set |> FileSets.representative_image_url_for() |> URI.parse() do
         assert uri.host == "localhost"
-        assert uri.path == "/iiif/2/#{file_set.id}"
+        assert uri.path == "/iiif/3/#{file_set.id}"
       end
     end
 

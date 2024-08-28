@@ -85,7 +85,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       assert log
              |> String.contains?(
-               "Skipping cache invalidation for: /iiif/2/#{prefix()}/posters/#{file_set_id}/*. No distribution id found."
+               "Skipping cache invalidation for: /iiif/3/#{prefix()}/posters/#{file_set_id}/*. No distribution id found."
              )
     end
   end
