@@ -109,6 +109,15 @@
         }
       },
       {
+        "edtf_date": {
+          "match": "^date_created_edtf$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      },
+      {
         "latlong": {
           "match": ".*Geo|^geo",
           "match_pattern": "regex",
