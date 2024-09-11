@@ -262,6 +262,7 @@ function WorkTabsPreservationFileSetModal({
                         <div className="box">
                           <h3>Option 2: Choose from S3 Ingest Bucket</h3>
                           <S3ObjectPicker
+                            onFiles={console.log} 
                             onFileSelect={handleSelectS3Object}
                             fileSetRole={watchRole}
                             workTypeId={workTypeId}

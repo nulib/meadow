@@ -1,143 +1,91 @@
-import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
-import { Button } from "@nulib/design-system";
+import React, { useEffect, useRef, useState } from "react";
+import S3ObjectProvider from './S3ObjectProvider';
+import { styled } from '@stitches/react';
+
 import {
-  LIST_INGEST_BUCKET_OBJECTS,
-} from "@js/components/Work/work.gql.js";
-import React, { useState } from "react";
-/** @jsx jsx */
-import { css, jsx } from "@emotion/react";
-import { useQuery } from "@apollo/client";
-import { FaSpinner } from "react-icons/fa";
-import { formatBytes } from "@js/services/helpers";
+  ChonkyActions,
+  FileBrowser,
+  FileList,
+  FileNavbar,
+  FileToolbar,
+} from "chonky";
+import { ChonkyIconFA } from "chonky-icon-fontawesome";
 
-import Error from "@js/components/UI/Error";
-import UIFormInput from "@js/components/UI/Form/Input.jsx";
+const StyledFilePicker = styled('div', {
+  "& .chonky-toolbarRight": {
+    display: "none"
+  }
+});
 
-const tableContainerCss = css`
-  max-height: 30vh;
-  overflow-y: auto;
-`;
-
-const fileRowCss = css`
-  cursor: pointer;
-`;
-
-const selectedRowCss = css`
-  background-color: #f0f8ff !important;
-`;
-
-const colHeaders = ["File Key", "Size", "Mime Type"];
-
-const S3ObjectPicker = ({ onFileSelect, fileSetRole, workTypeId, defaultPrefix = "" }) => {
+const S3ObjectPicker = ({
+  onFileSelect,
+  fileSetRole,
+  workTypeId,
+  defaultPrefix = "",
+}) => {
   const [prefix, setPrefix] = useState(defaultPrefix);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [error, _setError] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const { isFileValid } = useAcceptedMimeTypes();
+  const fileBrowserRef = useRef(null);
+  const providerRef = useRef(null);
 
-  const { loading: queryLoading, error: queryError, data, refetch } = useQuery(LIST_INGEST_BUCKET_OBJECTS, {
-    variables: { prefix }
-  });
+  useEffect(() => {
+    const fileSet = providerRef?.current?.findFileSetByUri(selectedFile);
+    fileSet && onFileSelect && onFileSelect(fileSet);
+  }, [selectedFile]);
 
-  const handleClear = () => {
-    setPrefix(defaultPrefix);
-    refetch({ prefix: defaultPrefix });
-  };
-
-  const handlePrefixChange = async (e) => {
-    const inputValue = e.target.value;
-    const newPrefix = inputValue.startsWith(defaultPrefix) ? inputValue : defaultPrefix + inputValue;
-    setPrefix(newPrefix);
-    await refetch({ prefix: newPrefix });
-  };
-
-  const handleRefresh = async () => {
-    await refetch({ prefix: prefix });
-  };
-
-  const handleFileClick = (fileSet) => {
-    setSelectedFile(fileSet.key);
-    onFileSelect(fileSet);
-    // Reset upload progress and isUploading state when selecting an S3 object
-    setUploadProgress(0);
-    setIsUploading(false);
-  };
-
-  const handleDragAndDrop = (file) => {
-    // Simulating file upload process
-    setIsUploading(true);
-    setUploadProgress(0);
-    const interval = setInterval(() => {
-      setUploadProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          return 100;
+  const handleFileAction = (action) => {
+    switch (action.id) {
+      case ChonkyActions.OpenFiles.id:
+        const { targetFile } = action.payload;
+        if (targetFile.isDir) {
+          setPrefix(action.payload.targetFile.id);
         }
-        return prevProgress + 10;
-      });
-    }, 500);
-  };
+        break;
 
-  if (queryLoading) return <FaSpinner className="spinner" />;
-  if (queryError) return <Error error={queryError} />;
+      case ChonkyActions.ChangeSelection.id:
+        if (
+          action.payload.selection.size == 0 &&
+          files.find(({ id }) => selectedFile == id)
+        ) {
+          fileBrowserRef.current.setFileSelection(new Set([selectedFile]));
+          return;
+        }
+
+        const selectedFiles = [...action.payload.selection];
+        const clicked = selectedFiles[selectedFiles.length - 1];
+
+        if (selectedFiles.length > 1) {
+          // Reject multiselect
+          fileBrowserRef.current.setFileSelection(new Set([clicked]));
+        } else if (
+          clicked &&
+          clicked.match(/^s3:/) &&
+          selectedFile != clicked
+        ) {
+          setSelectedFile(clicked);
+        }
+        break;
+    }
+  };
 
   return (
-    <div className="file-picker">
-      <div className="drag-drop-area" onDrop={handleDragAndDrop}>
-        {/* Drag and drop area */}
-        <p>Drag 'n' drop a file here, or click to select file</p>
-        {isUploading && (
-          <div className="progress-bar">
-            <div className="progress" style={{ width: `${uploadProgress}%` }}></div>
-          </div>
-        )}
-      </div>
-      <UIFormInput
-        placeholder="Enter prefix"
-        name="prefixSearch"
-        label="Prefix Search"
-        onChange={handlePrefixChange}
-        value={prefix}
-      />
-      <div className="buttons mt-2">
-        <Button onClick={handleClear}>Clear</Button>
-        <Button onClick={handleRefresh}>Refresh</Button>
-      </div>
+    <StyledFilePicker className="file-picker" data-testid="file-picker">
       {error && <div className="error">{error}</div>}
-      {data && data.ListIngestBucketObjects && (
-        <div className="table-container" css={tableContainerCss}>
-          <table className="table is-striped is-fullwidth">
-            <thead>
-              <tr>
-                {colHeaders.map((col) => (
-                  <th key={col}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.ListIngestBucketObjects.filter(file => {
-                const { isValid } = isFileValid(fileSetRole, workTypeId, file.mimeType);
-                return isValid;
-              }).map((fileSet, index) => (
-                <tr
-                  key={index}
-                  onClick={() => handleFileClick(fileSet)}
-                  className={selectedFile === fileSet.key ? "selected" : ""}
-                  css={[fileRowCss, selectedFile === fileSet.key && selectedRowCss]}
-                >
-                  <td>{fileSet.key}</td>
-                  <td>{formatBytes(fileSet.size)}</td>
-                  <td>{fileSet.mimeType}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+      <S3ObjectProvider fileSetRole={fileSetRole} workTypeId={workTypeId} prefix={prefix} ref={providerRef}>
+        <FileBrowser          
+          ref={fileBrowserRef}
+          defaultFileViewActionId={ChonkyActions.EnableListView.id}
+          onFileAction={handleFileAction}
+          iconComponent={ChonkyIconFA}
+        >
+          <FileNavbar />
+          <FileToolbar />
+          <FileList/>
+        </FileBrowser>
+      </S3ObjectProvider>
+    </StyledFilePicker>
   );
 };
 

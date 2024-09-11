@@ -83,6 +83,19 @@ export const DELETE_WORK = gql`
   }
 `;
 
+export const GET_S3_BROWSING_CREDENTIALS = gql`
+  query IngestBucketCredentialsQuery {
+    getIngestBucketCredentials {
+      bucket
+      accessKeyId
+      secretAccessKey
+      sessionToken
+      expiration
+      region
+    }
+  }
+`;
+
 export const GET_WORK = gql`
   query WorkQuery($id: ID!) {
     work(id: $id) {
@@ -363,11 +376,15 @@ export const REPLACE_FILE_SET = gql`
 export const LIST_INGEST_BUCKET_OBJECTS = gql`
   query ListIngestBucketObjects($prefix: String) {
     ListIngestBucketObjects(prefix: $prefix) {
-      key
-      storageClass
-      size
-      lastModified
-      mimeType
+      folders
+      objects {
+        uri
+        key
+        storageClass
+        size
+        lastModified
+        mimeType
+      }
     }
   }
 `
