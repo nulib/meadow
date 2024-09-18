@@ -11,11 +11,15 @@ defmodule MeadowWeb.Schema.Query.S3ObjectsTest do
   @query """
   query ($prefix: String) {
     ListIngestBucketObjects(prefix: $prefix) {
-      key
-      storageClass
-      size
-      lastModified
-      mimeType
+      objects {
+        uri
+        key
+        storageClass
+        size
+        lastModified
+        mimeType
+      }
+      folders
     }
   }
   """
@@ -40,7 +44,7 @@ defmodule MeadowWeb.Schema.Query.S3ObjectsTest do
     file_fixtures: _file_fixtures
   } do
     conn = build_conn() |> auth_user(user_fixture())
-    variables = %{"prefix" => "coffee"}
+    variables = %{"prefix" => "coffee/"}
 
     response =
       conn
@@ -49,25 +53,22 @@ defmodule MeadowWeb.Schema.Query.S3ObjectsTest do
 
     assert %{
              "data" => %{
-               "ListIngestBucketObjects" => [s3_object]
+               "ListIngestBucketObjects" => %{
+                 "objects" => [s3_object | []],
+                 "folders" => []
+               }
              }
            } = response
 
-    assert s3_object["key"] == "s3://#{@ingest_bucket}/coffee/coffee.tif"
+    assert s3_object["uri"] == "s3://#{@ingest_bucket}/coffee/coffee.tif"
+    assert s3_object["key"] == "coffee/coffee.tif"
     assert s3_object["mimeType"] == "application/octet-stream"
     assert s3_object["size"] == "3179982"
     assert s3_object["storageClass"] == "STANDARD"
     assert_valid_iso8601_datetime(s3_object["lastModified"])
-
-    refute Enum.any?(
-             response["data"]["ListIngestBucketObjects"],
-             &(&1["key"] == "s3://#{@ingest_bucket}/details.json")
-           )
   end
 
-  test "ListIngestBucketObjects query returns all objects in the ingest bucket", %{
-    file_fixtures: file_fixtures
-  } do
+  test "ListIngestBucketObjects query returns objects and folders" do
     conn = build_conn() |> auth_user(user_fixture())
 
     response =
@@ -75,12 +76,21 @@ defmodule MeadowWeb.Schema.Query.S3ObjectsTest do
       |> get("/api/graphql", query: @query)
       |> json_response(200)
 
-    s3_objects = response["data"]["ListIngestBucketObjects"]
+    assert %{
+             "data" => %{
+               "ListIngestBucketObjects" => %{
+                 "objects" => [s3_object | []],
+                 "folders" => ["coffee"]
+               }
+             }
+           } = response
 
-    assert Enum.all?(file_fixtures, fn {bucket, key, _} ->
-             expected_key = "s3://#{bucket}/#{key}"
-             Enum.any?(s3_objects, &(&1["key"] == expected_key))
-           end)
+    assert s3_object["uri"] == "s3://#{@ingest_bucket}/details.json"
+    assert s3_object["key"] == "details.json"
+    assert s3_object["mimeType"] == "application/octet-stream"
+    assert s3_object["size"] == "91"
+    assert s3_object["storageClass"] == "STANDARD"
+    assert_valid_iso8601_datetime(s3_object["lastModified"])
   end
 
   defp setup_fixtures(fixtures) do

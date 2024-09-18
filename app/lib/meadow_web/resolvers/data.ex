@@ -143,6 +143,13 @@ defmodule MeadowWeb.Resolvers.Data do
   end
 
   def list_ingest_bucket_objects(_, %{prefix: prefix}, _) do
+    prefix =
+      cond do
+        Enum.member?(["", "/"], prefix) -> ""
+        String.ends_with?(prefix, "/") -> prefix
+        true -> prefix <> "/"
+      end
+
     {:ok, S3Utils.list_ingest_bucket_objects(prefix: prefix)}
   end
 

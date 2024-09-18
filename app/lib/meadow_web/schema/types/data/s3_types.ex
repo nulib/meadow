@@ -10,7 +10,7 @@ defmodule MeadowWeb.Schema.Data.S3Types do
 
   object :s3_queries do
     @desc "List ingest bucket objects"
-    field :list_ingest_bucket_objects, list_of(:s3_object) do
+    field :list_ingest_bucket_objects, :s3_listing do
       arg(:prefix, :string)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
@@ -18,7 +18,13 @@ defmodule MeadowWeb.Schema.Data.S3Types do
     end
   end
 
+  object :s3_listing do
+    field(:folders, list_of(:string))
+    field(:objects, list_of(:s3_object))
+  end
+
   object :s3_object do
+    field(:uri, :string)
     field(:owner, :s3_owner)
     field(:size, :string)
     field(:key, :string)
