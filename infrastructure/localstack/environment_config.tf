@@ -1,51 +1,112 @@
 locals {
-  project       = "meadow"
-  port_offset   = 0 # terraform.workspace == "test" ? 2 : 1
+  secrets = {
+    "config/meadow" = {
+      buckets = {
+        ingest                = "test-ingest"
+        preservation          = "test-preservation"
+        preservation_check    = "test-preservation-checks"
+        pyramid               = "test-pyramids"
+        sitemap               = "test-sitemaps"
+        streaming             = "test-streaming"
+        upload                = "test-upload"
+      }
 
-  computed_secrets = {
-    db   = {
-      host        = "localhost"
-      port        = 5432 + local.port_offset
-      user        = "docker"
-      password    = "d0ck3r"
+      db = {
+        database    = "postgres"
+        host        = "localhost"
+        port        = 5432
+        user        = "docker"
+        password    = "d0ck3r"
+      }
+
+      dc = {
+        base_url = "https://dc.dev.library.northwestern.edu/"
+      }
+
+      dc_api = {
+        v2 = {
+          api_token_secret    = "TEST_SECRET"
+          api_token_ttl       = 300
+          base_url            = "http://dcapi-test.northwestern.edu"
+        }
+        iiif_distribution_id = null
+      }
+
+      geonames = {
+        username = "nul_rdc"
+      }
+
+      iiif = {
+        base_url          = "http://localhost:8184/iiif/3/"
+        distribution_id   = null
+        manifest_url      = "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/"
+      }
+
+      mediaconvert = {
+        queue       = "arn:aws:mediaconvert:::queues/Default"
+        role_arn    = "arn:aws:iam:::role/service-role/MediaConvert_Default_Role"
+      }
+
+      streaming = {
+        base_url          = "https://test-streaming-url/"
+        distribution_id   = "Z7Q9N4L3X8P5J2"
+      }
+
+      work_archiver = {
+        endpoint = null
+      }
+
     }
 
-    index = {
-      index_endpoint    = "http://localhost:${9200 + local.port_offset}"
-      kibana_endpoint   = "http://localhost:${5601 + local.port_offset}"
+    "infrastructure/ezid" = {
+      password          = "mockpassword"
+      shoulder          = "ark:/12345/nu1"
+      target_base_url   = "https://devbox.library.northwestern.edu:3333/items/"
+      url               = "http://localhost:3944"
+      user              = "mockuser"
     }
-    ldap = {
-      host       = "localhost"
-      base       = "DC=library,DC=northwestern,DC=edu"
-      port       = 389 + local.port_offset
-      user_dn    = "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"
-      password   = "d0ck3rAdm1n!"
-      ssl        = "false"
+
+    "infrastructure/iiif" = {
+      base = "http://localhost/"
+      v2   = "http://localhost/iiif/2"
+      v3   = "http://localhost/iiif/3"
+    }
+
+    "infrastructure/index" = {
+      endpoint = "http://localhost:9200"
+    }
+
+    # "infrastructure/inference" = {
+    #   endpoints = {
+    #     endpoint = "https://bedrock-runtime.us-east-1.amazonaws.com/model/cohere.embed-multilingual-v3/invoke"
+    #     name = "cohere.embed-multilingual-v3"
+    #   }
+
+    # }
+
+    "infrastructure/ldap" = {
+        base        = "OU=test,DC=library,DC=northwestern,DC=edu"
+        host        = "localhost"
+        port        = 389
+        user_dn     = "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"
+        password    = "d0ck3rAdm1n!"
+        ssl         = false
+    }
+
+    "infrastructure/nusso" = {
+      api_key   = "test-sso-key"
+      base_url  = "https://northwestern-dev.apigee.net/agentless-websso/"
     }
   }
-
-  config_secrets = merge(var.config_secrets, local.computed_secrets)
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name    = "config/meadow"
-  description = "Meadow configuration secrets"
-}
-
-resource "aws_secretsmanager_secret" "ssl_certificate" {
-  name = "config/wildcard_ssl"
-  description = "Wildcard SSL certificate and private key"
+  for_each = local.secrets
+  name     = each.key
 }
 
 resource "aws_secretsmanager_secret_version" "config_secrets" {
-  secret_id = aws_secretsmanager_secret.config_secrets.id
-  secret_string = jsonencode(local.config_secrets)
-}
-
-resource "aws_secretsmanager_secret_version" "ssl_certificate" {
-  secret_id       = aws_secretsmanager_secret.ssl_certificate.id
-  secret_string   = jsonencode({
-    certificate = file(var.ssl_certificate_file)
-    key         = file(var.ssl_key_file)
-  })
+  for_each = local.secrets
+  secret_id = aws_secretsmanager_secret.config_secrets[each.key].id
+  secret_string = jsonencode(each.value)
 }

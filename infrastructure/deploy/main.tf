@@ -14,6 +14,25 @@ provider "aws" {
   region = var.aws_region
 }
 
+locals {
+#  environment   = module.core.outputs.stack.environment
+  namespace     = module.core.outputs.stack.namespace
+  prefix        = module.core.outputs.stack.prefix
+  tags          = merge(
+    module.core.outputs.stack.tags, 
+    {
+      Component   = "meadow",
+      Git         = "github.com/nulib/meadow"
+      Project     = "Meadow"
+    }
+  )
+}
+
+module "core" {
+  source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
+  component = "core"
+}
+
 module "rds" {
   source                           = "terraform-aws-modules/rds/aws"
   version                          = "4.1.2"

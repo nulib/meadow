@@ -126,7 +126,7 @@ jobs:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd "pg_isready -U docker"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -221,6 +221,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
             ${{ runner.os }}-npm-v6-
+      - name: Set SECRET_KEY_BASE
+        run: echo "SECRET_KEY_BASE=$(openssl rand -hex 32)" >> $GITHUB_ENV
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
