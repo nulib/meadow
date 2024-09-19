@@ -36,30 +36,13 @@ locals {
       }
     }
 
-    ezid = {
-      password        = var.ezid_password
-      shoulder        = var.ezid_shoulder
-      target_base_url = var.ezid_target_base_url
-      url             = "https://ezid.cdlib.org/"
-      user            = var.ezid_user
-    }
-
     geonames = {
       username = var.geonames_username
     }
 
-    iiif = {
-      base_url        = var.iiif_server_url
-      distribution_id = var.iiif_cloudfront_distribution_id
-      manifest_url    = var.iiif_manifest_url
-    }
-
-    search = {
-      cluster_endpoint     = var.elasticsearch_url
-      access_key_id        = aws_iam_access_key.meadow_elasticsearch_access_key.id
-      secret_access_key    = aws_iam_access_key.meadow_elasticsearch_access_key.secret
-      embedding_model_id   = var.embedding_model_id
-      embedding_dimensions = var.embedding_dimensions
+    honeybadger = {
+      api_key     = var.honeybadger_api_key
+      environment = module.core.outputs.stack.prefix
     }
 
     ldap = {
@@ -73,10 +56,6 @@ locals {
     mediaconvert = {
       queue    = aws_media_convert_queue.transcode_queue.arn
       role_arn = aws_iam_role.transcode_role.arn
-    }
-
-    nusso = {
-      api_key = var.agentless_sso_key
     }
 
     pipeline = {
@@ -104,7 +83,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name        = "config/meadow"
+  name        = "${local.prefix}/config/meadow"
   description = "Meadow configuration secrets"
 }
 

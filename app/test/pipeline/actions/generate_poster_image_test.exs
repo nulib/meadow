@@ -3,11 +3,11 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
   use Meadow.DataCase
   use Meadow.PipelineCase
 
+  alias Meadow.Config.Secrets
   alias Meadow.Data.FileSets
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Utils.Pairtree
 
-  import Env
   import ExUnit.CaptureLog
 
   @mediainfo %{
@@ -85,7 +85,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       assert log
              |> String.contains?(
-               "Skipping cache invalidation for: /iiif/3/#{prefix()}/posters/#{file_set_id}/*. No distribution id found."
+               "Skipping cache invalidation for: /iiif/3/#{Secrets.prefix()}/posters/#{file_set_id}/*. No distribution id found."
              )
     end
   end
