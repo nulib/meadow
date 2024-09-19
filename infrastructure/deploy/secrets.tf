@@ -104,7 +104,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name        = "config/meadow"
+  name        = "${local.prefix}/meadow"
   description = "Meadow configuration secrets"
 }
 
