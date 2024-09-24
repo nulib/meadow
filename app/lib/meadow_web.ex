@@ -22,7 +22,7 @@ defmodule MeadowWeb do
       use Phoenix.Controller, namespace: MeadowWeb
 
       import Plug.Conn
-      import MeadowWeb.Gettext
+      use Gettext, backend: MeadowWeb.GetText
       alias MeadowWeb.Router.Helpers, as: Routes
     end
   end
@@ -40,7 +40,7 @@ defmodule MeadowWeb do
       use Phoenix.HTML
 
       import MeadowWeb.ErrorHelpers
-      import MeadowWeb.Gettext
+      use Gettext, backend: MeadowWeb.GetText
       alias MeadowWeb.Router.Helpers, as: Routes
     end
   end
@@ -56,7 +56,7 @@ defmodule MeadowWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import MeadowWeb.Gettext
+      use Gettext, backend: MeadowWeb.GetText
     end
   end
 

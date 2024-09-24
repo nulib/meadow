@@ -108,6 +108,11 @@ defmodule Meadow.Config do
     |> Enum.reject(&is_nil/1)
   end
 
+  @doc "Retrieve an assumable role for delegating scoped permissions"
+  def delegation_role do
+    Application.get_env(:meadow, :delegation_role)
+  end
+
   @doc "Retrieve the runtime environment"
   def environment do
     Application.get_env(:meadow, :environment, :dev)
