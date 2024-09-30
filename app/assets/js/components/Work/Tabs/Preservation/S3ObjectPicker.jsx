@@ -47,7 +47,7 @@ const S3ObjectPicker = ({
       case ChonkyActions.ChangeSelection.id:
         if (
           action.payload.selection.size == 0 &&
-          files.find(({ id }) => selectedFile == id)
+          files?.find(({ id }) => selectedFile == id)
         ) {
           fileBrowserRef.current.setFileSelection(new Set([selectedFile]));
           return;
