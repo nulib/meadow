@@ -37,9 +37,11 @@ defmodule Meadow.Data.Types.EDTFDate do
 
   defp humanize(%{edtf: edtf}), do: humanize(edtf)
 
+  defp humanize(""), do: {:error, message: "cannot be blank"}
+
   defp humanize(edtf) when is_binary(edtf) do
     case EDTF.humanize(edtf) do
-      {:error, error} -> {:error, message: error}
+      {:error, _} -> :error
       result -> {:ok, %{edtf: edtf, humanized: result}}
     end
   end
