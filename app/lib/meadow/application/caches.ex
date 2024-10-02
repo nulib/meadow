@@ -30,6 +30,12 @@ defmodule Meadow.Application.Caches do
         Meadow.Cache.Users,
         expiration: Cachex.Spec.expiration(default: :timer.minutes(20)),
         stats: true
+      ),
+      cache_spec(
+        :aws_credentials_cache,
+        Meadow.Cache.AWS.Credentials,
+        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        stats: true
       )
     ]
   end
