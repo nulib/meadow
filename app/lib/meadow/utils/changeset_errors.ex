@@ -13,13 +13,13 @@ defmodule Meadow.Utils.ChangesetErrors do
   end
 
   defp format_errors_with_values(%{params: params}, field, error) do
-    with input <- params |> Map.get(to_string(field)) do
+    with input <- params |> Map.get(to_string(field)) |> IO.inspect(label: "input") do
       %{value: format_value(input), error: format_error(error)}
     end
   end
 
   defp format_value(%{id: value}), do: value
-  defp format_value(%{edtf: value}), do: value
+  defp format_value(%{edtf: value}), do: value |> inspect(label: "value")
   defp format_value(nil), do: nil
   defp format_value(value) when is_binary(value), do: value
   defp format_value(value), do: inspect(value)
