@@ -58,7 +58,7 @@ defmodule Meadow.MixProject do
       {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.3.0"},
       {:broadway_sqs, "~> 0.7.0"},
-      {:cachex, "~> 3.2"},
+      {:cachex, "~> 4.0"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
