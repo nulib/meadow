@@ -9,7 +9,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSets do
       add(:extracted_metadata, :map, default: %{})
       add(:structural_metadata, :map, default: %{})
       add(:derivatives, :map, default: %{})
-      add(:work_id, references(:works, null: false, on_delete: :delete_all))
+      add(:work_id, references(:works, on_delete: :delete_all))
       add(:rank, :integer)
       add(:poster_offset, :integer)
 

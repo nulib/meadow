@@ -119,6 +119,7 @@ defmodule Meadow.Data.CSV.Import do
   defp add_scheme(value, _), do: value
 
   defp decode_field({:array, _}, nil), do: []
+  defp decode_field({type, {schema, spec}}, value), do: decode_field({type, schema, spec}, value)
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil), do: []
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil), do: nil
   defp decode_field(_, nil), do: nil

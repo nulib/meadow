@@ -3,7 +3,7 @@ Code.require_file("lib/env.ex")
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.4.11"
+  @app_version "9.4.12"
 
   def project do
     [
@@ -58,13 +58,13 @@ defmodule Meadow.MixProject do
       {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.3.0"},
       {:broadway_sqs, "~> 0.7.0"},
-      {:cachex, "~> 3.2"},
+      {:cachex, "~> 4.0"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 1.0.6"},
       {:ecto_enum, "~> 1.4.0"},
       {:ecto_psql_extras, "~> 0.2"},
-      {:ecto_ranked, "~> 0.5.0"},
+      {:ecto_ranked, "~> 0.5"},
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
       {:elastix, "~> 0.10.0"},
       {:ets, "~> 0.9.0"},
