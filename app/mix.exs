@@ -64,6 +64,7 @@ defmodule Meadow.MixProject do
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5"},
       {:ecto_sql, "~> 3.0 and >= 3.4.4"},
+      {:edtf, "~> 1.0"},
       {:elastix, "~> 0.10.0"},
       {:ets, "~> 0.9.0"},
       {:ex_aws, "~> 2.5.0"},

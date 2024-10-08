@@ -66,7 +66,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         assert work.visibility.id == "AUTHENTICATED"
 
         assert work.descriptive_metadata.date_created == [
-                 %{edtf: "~1899", humanized: "circa 1899?"}
+                 %{edtf: "~1899", humanized: "circa 1899"}
                ]
 
         assert work.administrative_metadata.project_proposer == [
