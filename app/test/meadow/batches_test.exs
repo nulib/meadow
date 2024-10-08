@@ -177,7 +177,7 @@ defmodule Meadow.BatchesTest do
       add = %{
         descriptive_metadata: %{
           box_name: ["His Airness"],
-          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968"}]
+          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "%1968"}]
         }
       }
 
@@ -211,7 +211,7 @@ defmodule Meadow.BatchesTest do
         assert work.descriptive_metadata.date_created == [
                  %{edtf: "1009", humanized: "1009"},
                  %{edtf: "100X", humanized: "1000s"},
-                 %{edtf: "~1968", humanized: "circa 1968?"}
+                 %{edtf: "%1968", humanized: "circa 1968?"}
                ]
       end)
     end
@@ -225,7 +225,7 @@ defmodule Meadow.BatchesTest do
         descriptive_metadata: %{
           box_name: ["His Airness"],
           cultural_context: ["Some Context", "Some More Context"],
-          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968"}]
+          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "%1968"}]
         }
       }
 

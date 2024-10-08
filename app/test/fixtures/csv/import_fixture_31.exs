@@ -90,7 +90,7 @@
       %{term: %{id: "http://id.loc.gov/vocabulary/languages/lin"}},
       %{term: %{id: "http://id.loc.gov/vocabulary/languages/cha"}}
     ],
-    date_created: [%{edtf: "~1899"}],
+    date_created: [%{edtf: "%1899"}],
     legacy_identifier: ["827", "BCDE.2"],
     location: [
       %{term: %{id: "https://sws.geonames.org/2347283/"}},

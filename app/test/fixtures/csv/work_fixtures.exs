@@ -3967,7 +3967,7 @@
         %{role: nil, term: %{id: "http://vocab.getty.edu/ulan/500102192"}},
         %{role: nil, term: %{id: "http://vocab.getty.edu/ulan/500029268"}}
       ],
-      date_created: [%{"edtf" => "~1899", "humanized" => "circa 1899?"}],
+      date_created: [%{"edtf" => "%1899", "humanized" => "circa 1899?"}],
       contributor: [
         %{
           role: %{id: "pbl", scheme: "marc_relator"},

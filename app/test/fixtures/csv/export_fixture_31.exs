@@ -12,7 +12,7 @@
   creator:
     "http://vocab.getty.edu/ulan/500030701 | http://vocab.getty.edu/ulan/500445403 | http://vocab.getty.edu/ulan/500102192 | http://vocab.getty.edu/ulan/500029268",
   cultural_context: "Context 1 | Context 2",
-  date_created: "~1899",
+  date_created: "%1899",
   description: "Three | Descriptions | With a \\| pipe in the third",
   folder_name: "Folder 2",
   folder_number: "2",
