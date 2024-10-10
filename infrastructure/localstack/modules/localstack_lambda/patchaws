@@ -1,0 +1,22 @@
+#!/bin/bash
+
+ASDF_NODEJS_VERSION=$(asdf list nodejs | grep ' 14.' | sort -r | head -1 | xargs)
+
+if [ -f node_modules/aws-sdk/lib/_aws.js ]; then
+  exit 0
+fi
+
+npm install --only prod
+
+mv node_modules/aws-sdk/lib/aws.js node_modules/aws-sdk/lib/_aws.js
+
+cat > node_modules/aws-sdk/lib/aws.js <<'EOF'
+const AWS = require('./_aws');
+
+AWS.config.update({
+  endpoint: `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT}/`,
+  s3ForcePathStyle: true
+});
+
+module.exports = AWS;
+EOF
