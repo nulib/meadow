@@ -6,6 +6,6 @@
   "author": "kdid",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.833.0"
+    "aws-sdk": "^2.1691.0"
   }
 }
