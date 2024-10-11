@@ -39,9 +39,9 @@ const S3ObjectProvider = forwardRef(
     useImperativeHandle(ref, () => ({
       findFileSetByUri: (value) => {
         const objects = data?.ListIngestBucketObjects?.objects;
-        if (!objects) return null;
+        const found = objects?.find(({ uri }) => uri == value);
+        if (!found) return null;
 
-        const found = objects.find(({ uri }) => uri == value);
         return { ...found, key: found.uri, uri: undefined };
       },
     }));

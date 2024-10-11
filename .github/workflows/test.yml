@@ -148,22 +148,22 @@ jobs:
         ports:
           - 9200:9200
       localstack:
-        image: localstack/localstack-pro:2.1.0
+        image: localstack/localstack
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           GATEWAY_LISTEN: 0.0.0.0:4566
-          LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
           - 4566:4566
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
     steps:
       - uses: actions/checkout@v2
-      - name: Provision Localstack using Cloud Pod
+      - uses: hashicorp/setup-terraform@v3
+      - name: Provision Localstack using Terraform
         run: |
-          pip install localstack==2.1.0
-          curl -O https://nul-public.s3.amazonaws.com/meadow/test/localstack.pod
-          localstack pod load file://$PWD/localstack.pod
+          terraform init
+          terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=https://localhost.localstack.cloud:4566
+        working-directory: ./infrastructure/localstack
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions

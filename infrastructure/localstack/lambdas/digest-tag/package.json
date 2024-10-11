@@ -1,0 +1,11 @@
+{
+  "name": "digest-tag",
+  "version": "0.1.0",
+  "description": "Tag S3 objects with MD5",
+  "main": "index.js",
+  "author": "kdid",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "aws-sdk": "^2.1691.0"
+  }
+}
