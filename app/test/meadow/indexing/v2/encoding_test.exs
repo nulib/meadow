@@ -53,7 +53,7 @@ defmodule Meadow.Indexing.V2.EncodingTest do
           descriptive_metadata: %{
             alternate_title: ["Alt Title 1", "Alt Title 2"],
             creator: [%{term: %{id: "mock1:result1"}}],
-            date_created: [%{edtf: "~1899"}],
+            date_created: [%{edtf: "%1899"}],
             contributor: [
               %{role: %{id: "aut", scheme: "marc_relator"}, term: %{id: "mock1:result1"}}
             ],
