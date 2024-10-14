@@ -4,11 +4,14 @@ defmodule Meadow.Data.IndexerTest do
   # use Meadow.AuthorityCase
   use Meadow.DataCase
   use Meadow.IndexCase
+  alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{Collections, FileSets, Indexer, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.{Config, Repo}
+
+  import ExUnit.CaptureLog
 
   describe "indexing" do
     setup do
@@ -19,6 +22,26 @@ defmodule Meadow.Data.IndexerTest do
       assert_all_empty()
       Indexer.synchronize_index()
       assert_doc_counts_match(context)
+    end
+
+    test "error_handling", context do
+      assert_all_empty()
+      %{file_sets: [file_set | _]} = context
+
+      SQL.query!(
+        Repo,
+        "UPDATE file_sets SET core_metadata = NULL WHERE id = $1",
+        [Ecto.UUID.dump!(file_set.id)]
+      )
+
+      logged = capture_log(fn -> Indexer.synchronize_index() end)
+      assert {:ok, file_set_count} = indexed_doc_count(FileSet, 2)
+      assert file_set_count == length(context.file_sets) - 1
+
+      assert String.contains?(
+               logged,
+               "id=#{file_set.id} [error] Index encoding failed due to: ** (KeyError)"
+             )
     end
 
     test "reindex_all", context do

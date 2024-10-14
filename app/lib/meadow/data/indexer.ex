@@ -94,7 +94,8 @@ defmodule Meadow.Data.Indexer do
     Repo.transaction(
       fn ->
         stream
-        |> Stream.map(&SearchDocument.encode(&1, version))
+        |> Stream.map(&encode_document(&1, version))
+        |> Stream.reject(&(&1 == :skip))
         |> Bulk.upload(index)
 
         SearchIndex.refresh(index)
@@ -102,6 +103,20 @@ defmodule Meadow.Data.Indexer do
       end,
       timeout: :infinity
     )
+  end
+
+  defp encode_document(nil, _), do: :skip
+
+  defp encode_document(item, version) do
+    SearchDocument.encode(item, version)
+  rescue
+    e ->
+      with_log_metadata module: __MODULE__, id: item.id do
+        ("Index encoding failed due to: " <> Exception.format_banner(:error, e, []))
+        |> Logger.error()
+      end
+
+      :skip
   end
 
   def stream(query, preloads) do
