@@ -6,12 +6,13 @@ defmodule Meadow.Config.Runtime do
   alias Meadow.Config.Pipeline
 
   @config_map %{
-    meadow: "config/meadow",
-    inference: "infrastructure/inference",
-    index: "infrastructure/index",
-    ldap: "infrastructure/ldap",
-    iiif: "infrastructure/iiif",
+    ezid: "infrastructure/ezid",
     honeybadger: "infrastructure/honeybadger",
+    iiif: "infrastructure/iiif",
+    index: "infrastructure/index",
+    inference: "infrastructure/inference",
+    ldap: "infrastructure/ldap",
+    meadow: "config/meadow",
     nusso: "infrastructure/nusso",
     wildcard_ssl: "config/wildcard_ssl"
   }

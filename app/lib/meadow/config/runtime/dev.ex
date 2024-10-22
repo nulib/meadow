@@ -5,12 +5,17 @@ defmodule Meadow.Config.Runtime.Dev do
 
   import Meadow.Config.Runtime
 
+  defp fetch_cert do
+    cert_path = :code.priv_dir(:meadow) |> Path.join("cert")
+    File.mkdir_p!(cert_path)
+    Path.join(cert_path, "cert.pem") |> File.write!(get_secret(:wildcard_ssl, ["certificate"]))
+    Path.join(cert_path, "key.pem") |> File.write!(get_secret(:wildcard_ssl, ["key"]))
+  end
+
   def configure! do
     import Config
 
-    File.mkdir_p!("priv/cert")
-    File.write!("priv/cert/cert.pem", get_secret(:wildcard_ssl, ["certificate"]))
-    File.write!("priv/cert/key.pem", get_secret(:wildcard_ssl, ["key"]))
+    fetch_cert()
 
     config :meadow, Meadow.Repo,
       show_sensitive_data_on_connection_error: true,

@@ -1,0 +1,38 @@
+---
+services:
+  db:
+    image: ghcr.io/nulib/postgres:10-alpine
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: d0ck3r
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+  ldap:
+    image: ghcr.io/nulib/ldap-alpine
+    ports:
+      - 389:389
+      - 636:636
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    environment:
+      bootstrap.memory_lock: true
+      OPENSEARCH_JAVA_OPTS: "-Xms256m -Xmx256m"
+      DISABLE_INSTALL_DEMO_CONFIG: true
+      DISABLE_SECURITY_PLUGIN: true
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+  localstack:
+    image: localstack/localstack
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      GATEWAY_LISTEN: 0.0.0.0:4566
+    ports:
+      - 4566:4566
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

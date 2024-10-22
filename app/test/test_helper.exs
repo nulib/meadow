@@ -1,4 +1,38 @@
-Hush.resolve!()
+alias Meadow.Config.Runtime
+
+case :ets.info(:secret_cache, :name) do
+  :secret_cache -> :ets.delete_all_objects(:secret_cache)
+  :undefined -> :ets.new(:secret_cache, [:set, :protected, :named_table])
+end
+
+cluster_config =
+  Application.get_env(:meadow, Meadow.Search.Cluster)
+  |> Keyword.merge(
+    url:
+      Runtime.get_secret(
+        :meadow,
+        ["search", "cluster_endpoint"],
+        "http://localhost:9200"
+      ),
+    bulk_page_size: 3,
+    bulk_wait_interval: 2,
+    embedding_model_id: nil
+  )
+
+Application.put_env(:meadow, Meadow.Search.Cluster, cluster_config)
+
+sitemap_config =
+  Application.get_env(:meadow, :sitemaps)
+  |> Keyword.merge(
+    gzip: true,
+    store: Sitemapper.S3Store,
+    base_url: "http://localhost:3333/",
+    sitemap_url: "http://localhost:3333/",
+    store_config: [bucket: Runtime.prefix("uploads"), path: ""]
+  )
+
+Application.put_env(:meadow, :sitemaps, sitemap_config)
+
 Meadow.Repo.wait_for_connection()
 
 Mix.Task.run("ecto.setup")

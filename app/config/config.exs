@@ -22,12 +22,7 @@ config :meadow, Meadow.Repo,
     read_after_writes: true,
     default: {:fragment, "uuid_generate_v4()"}
   ],
-  migration_timestamps: [type: :utc_datetime_usec],
-  username: "docker",
-  password: "d0ck3r",
-  database: "meadow",
-  hostname: "localhost",
-  port: 5432
+  migration_timestamps: [type: :utc_datetime_usec]
 
 # Configures the endpoint
 config :meadow, MeadowWeb.Endpoint,
@@ -114,11 +109,6 @@ config :authoritex,
     Authoritex.LOC.SubjectHeadings,
     NUL.Authority
   ]
-
-config :ex_aws,
-  access_key_id: [:instance_role],
-  secret_access_key: [:instance_role],
-  region: System.get_env("AWS_REGION", "us-east-1")
 
 config :httpoison_retry, wait: 50
 
