@@ -128,7 +128,7 @@ const WorkTabsStructure = ({ work }) => {
         name="work-structure-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
-        <UITabsStickyHeader title="Structure of Filesets">
+        <UITabsStickyHeader title="Access & Auxiliary Filesets">
           {!isEditing && (
             <Button
               isPrimary
