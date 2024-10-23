@@ -101,7 +101,7 @@ function WorkAdministrativeTabsGeneral({
             className="break-word"
             onClick={() =>
               handlePassedInSearchTerm(
-                "administrativeMetadata.status.label",
+                "status",
                 status.label
               )
             }

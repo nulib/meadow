@@ -188,6 +188,13 @@ export const FACET_SENSORS = [
   },
   {
     ...defaultListItemValues,
+    componentId: "Status",
+    dataField: "status",
+    showSearch: true,
+    title: "Status",
+  },
+  {
+    ...defaultListItemValues,
     componentId: "StylePeriod",
     dataField: "style_period.label",
     showSearch: true,

@@ -48,7 +48,7 @@ const WorkTabs = ({ work }) => {
                 data-testid="tab-structure"
                 onClick={handleTabClick}
               >
-                Structure
+                Access files
               </a>
             </li>
             <AuthDisplayAuthorized>
