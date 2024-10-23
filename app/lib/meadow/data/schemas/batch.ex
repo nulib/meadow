@@ -25,6 +25,8 @@ defmodule Meadow.Data.Schemas.Batch do
     field :replace, :string
     field :error, :string
     field :active, :boolean, default: false
+    field :expected_deletes, :integer
+    field :actual_deletes, :integer, default: 0
 
     many_to_many(
       :works,
@@ -51,7 +53,9 @@ defmodule Meadow.Data.Schemas.Batch do
       :delete,
       :replace,
       :error,
-      :active
+      :active,
+      :expected_deletes,
+      :actual_deletes
     ])
     |> validate_required([:query, :type, :user])
     |> unique_constraint(:active)
