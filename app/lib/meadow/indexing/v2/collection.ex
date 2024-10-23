@@ -14,6 +14,7 @@ defmodule Meadow.Indexing.V2.Collection do
       featured: collection.featured,
       finding_aid_url: collection.finding_aid_url,
       id: collection.id,
+      iiif_collection: iiif_collection_id(collection),
       indexed_at: NaiveDateTime.utc_now(),
       keywords: collection.keywords,
       modified_date: collection.updated_at,
@@ -40,4 +41,6 @@ defmodule Meadow.Indexing.V2.Collection do
 
   def encode_label(%{label: label}), do: label
   def encode_label(_), do: nil
+
+  defp iiif_collection_id(collection), do: "#{api_url()}/collections/#{collection.id}?as=iiif"
 end
