@@ -15,6 +15,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
   const [parseErrors, setParseErrors] = React.useState();
   const workState = useWorkState();
   const [webVttValue, setWebVttValue] = React.useState("");
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
   const params = useParams();
   const workId = params.id;
 
@@ -34,7 +35,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
       if (graphQLErrors?.length > 0) {
         errorStrings = graphQLErrors.map(
           ({ message, details }) =>
-            `${message}: ${details && details.title ? details.title : ""}`
+            `${message}: ${details && details.title ? details.title : ""}`,
         );
       }
       toastWrapper("is-danger", errorStrings.join(" \n "));
@@ -65,6 +66,7 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
     dispatch({ type: "toggleWebVttModal", fileSetId: null });
     setParseErrors(null);
     setWebVttValue("");
+    setConfirmDelete(false);
   };
 
   const handleSubmit = (structuralMetadata) => {
@@ -74,6 +76,12 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
         structuralMetadata,
       },
     });
+  };
+
+  const handleDelete = () => {
+    setConfirmDelete(true);
+    setParseErrors("Are you sure you want to delete this WebVTT structure?");
+    setWebVttValue("");
   };
 
   return (
@@ -95,6 +103,12 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
         </header>
 
         <section className="modal-card-body">
+          {confirmDelete && (
+            <Notification isDanger>
+              Are you sure you want to delete this WebVTT structure?
+            </Notification>
+          )}
+
           {webVttValue?.trim().length > 0 &&
             (parseErrors ? (
               <Notification isDanger>{parseErrors.message}</Notification>
@@ -107,15 +121,18 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
             placeholder="Enter WebVTT text here"
             ref={textAreaRef}
             rows="10"
-            style={{ whiteSpace: "pre-wrap" }}
+            style={{
+              whiteSpace: "pre-wrap",
+              display: confirmDelete ? "none" : "block",
+            }}
             value={webVttValue}
           />
         </section>
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {webVttValue?.trim().length > 0 && (
+          {webVttValue?.trim().length > 0 && !confirmDelete && (
             <Button
               isText
-              onClick={() => handleSubmit({})}
+              onClick={() => handleDelete()}
               css={{ backgroundColor: "transparent" }}
             >
               Delete WebVTT
@@ -123,18 +140,24 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
           )}
           <div className="is-flex is-justify-content-flex-end is-flex-grow-1">
             <Button onClick={handleClose}>Cancel</Button>
-            <Button
-              isPrimary
-              onClick={() =>
-                handleSubmit({
-                  type: "WEBVTT",
-                  value: webVttValue,
-                })
-              }
-              disabled={parseErrors}
-            >
-              Submit
-            </Button>
+            {confirmDelete ? (
+              <Button isPrimary onClick={() => handleSubmit({})}>
+                Yes, delete
+              </Button>
+            ) : (
+              <Button
+                isPrimary
+                onClick={() =>
+                  handleSubmit({
+                    type: "WEBVTT",
+                    value: webVttValue,
+                  })
+                }
+                disabled={parseErrors}
+              >
+                Submit
+              </Button>
+            )}
           </div>
         </footer>
       </div>
