@@ -60,7 +60,7 @@
     "react-beautiful-dnd": "^13.1.0",
     "react-csv": "^2.2.2",
     "react-device-detect": "^2.2.3",
-    "react-dropzone": "^14.2.9",
+    "react-dropzone": "^14.3.5",
     "react-error-boundary": "^4.1.2",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.33.1",
