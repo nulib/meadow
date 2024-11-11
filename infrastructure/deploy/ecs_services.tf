@@ -12,6 +12,7 @@ locals {
     meadow_urls                     = join(",", local.meadow_urls)
     region                          = var.aws_region
     secret_key_base                 = random_string.secret_key_base.result
+    secrets_path                    = local.prefix
   }
 }
 

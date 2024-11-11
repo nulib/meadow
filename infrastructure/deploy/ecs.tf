@@ -46,7 +46,10 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     sid       = "secretsmanager"
     effect    = "Allow"
     actions   = ["secretsmanager:Get*"]
-    resources = ["arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.id}:secret:config/meadow-*"]
+    resources = [
+      "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.id}:secret:config/meadow-*",
+      "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.id}:secret:${local.prefix}/*"
+    ]
   }
 
   statement {

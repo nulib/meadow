@@ -33,7 +33,7 @@ defmodule Meadow.Config.Runtime do
       port: get_secret(:ldap, ["port"]),
       user_dn: get_secret(:ldap, ["user_dn"]),
       password: get_secret(:ldap, ["password"]),
-      ssl: get_secret(:ldap, ["ssl"]) == "true"
+      ssl: get_secret(:ldap, ["ssl"], "true") == "true"
 
     config :hackney,
       max_connections: environment_int("HACKNEY_MAX_CONNECTIONS", 1000)
