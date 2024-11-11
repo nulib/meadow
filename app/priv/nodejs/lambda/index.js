@@ -7,7 +7,16 @@ const portlog = (level, ...args) =>
   writeln([`[${level}]`, ...args].filter((e) => e != null).join(" "));
 
 ["log", "debug", "info", "warn", "error"].forEach((level) => {
-  let outLevel = level == "log" ? "info" : level;
+  let outLevel;
+
+  if (level == "log") {
+    outLevel = "info";
+  } else if (level == "warn") {
+    outLevel = "warning";
+  } else {
+    outLevel = level;
+  }
+
   global.console[level] = (...args) => portlog(outLevel, ...args);
 });
 

@@ -52,10 +52,15 @@ resource "aws_iam_role_policy_attachment" "stream_authorizer_basic_execution_rol
   policy_arn = data.aws_iam_policy.basic_lambda_execution.arn
 }
 
+data "aws_secretsmanager_secret_version" "dcapi_config" {
+  secret_id = "${local.prefix}/config/dcapi"
+}
+
 locals {
+  dcapi_config            = jsondecode(data.aws_secretsmanager_secret_version.dcapi_config.secret_string)
   auth_source_path        = "${path.module}/../../lambdas/stream-authorizer"
   auth_allowed_referers   = var.trusted_referers
-  auth_dc_api             = var.dc_api_v2_base
+  auth_dc_api             = local.dcapi_config.base_url
   source_files            = fileset(path.module, "../../lambdas/stream-authorizer/*.{js,json}")
   auth_source_sha         = sha1(
     join(

@@ -5,11 +5,11 @@ defmodule Meadow.Utils.AWS do
   Utility functions for AWS requests and object management
   """
   alias Meadow.Config
+  alias Meadow.Config.Secrets
   alias Meadow.Error
   alias Meadow.Utils.AWS.MultipartCopy
   alias Meadow.Utils.Pairtree
 
-  import Env
   import SweetXml, only: [sigil_x: 2]
 
   require Logger
@@ -61,8 +61,8 @@ defmodule Meadow.Utils.AWS do
     |> request()
   end
 
-  def add_aws_signature(request, region, access_key, secret) do
-    request.headers ++ generate_aws_signature(request, region, access_key, secret)
+  def add_aws_signature(request) do
+    request.headers ++ generate_aws_signature(request)
   end
 
   def check_object_tags!(bucket, key, required_tags) do
@@ -79,24 +79,41 @@ defmodule Meadow.Utils.AWS do
   def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []),
     do: MultipartCopy.copy_object(dest_bucket, dest_object, src_bucket, src_object, opts)
 
-  def invalidate_cache(file_set, invalidation_type), do: invalidate_cache(file_set, invalidation_type, Config.environment())
-  def invalidate_cache(file_set, :pyramid, :dev), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, :test), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
-  def invalidate_cache(file_set, :pyramid, _), do: perform_iiif_invalidation("/iiif/3/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :dev), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, :test), do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
-  def invalidate_cache(file_set, :poster, _), do: perform_iiif_invalidation("/iiif/3/posters/#{file_set.id}/*")
+  def invalidate_cache(file_set, invalidation_type),
+    do: invalidate_cache(file_set, invalidation_type, Config.environment())
+
+  def invalidate_cache(file_set, :pyramid, :dev),
+    do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :pyramid, :test),
+    do: perform_iiif_invalidation("/iiif/3/#{prefix()}/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :pyramid, _),
+    do: perform_iiif_invalidation("/iiif/3/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, :dev),
+    do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, :test),
+    do: perform_iiif_invalidation("/iiif/3/#{prefix()}/posters/#{file_set.id}/*")
+
+  def invalidate_cache(file_set, :poster, _),
+    do: perform_iiif_invalidation("/iiif/3/posters/#{file_set.id}/*")
+
   def invalidate_cache(_file_set, :streaming, :dev), do: :ok
   def invalidate_cache(_file_set, :streaming, :test), do: :ok
-  def invalidate_cache(file_set, :streaming, _), do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
 
-  defp perform_iiif_invalidation(path), do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
-  defp perform_streaming_invalidation(path), do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
+  def invalidate_cache(file_set, :streaming, _),
+    do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
+
+  defp perform_iiif_invalidation(path),
+    do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
+
+  defp perform_streaming_invalidation(path),
+    do: perform_invalidation(path, Config.streaming_cloudfront_distribution_id())
 
   defp perform_invalidation(path, nil) do
-    Logger.info(
-      "Skipping cache invalidation for: #{path}. No distribution id found."
-      )
+    Logger.info("Skipping cache invalidation for: #{path}. No distribution id found.")
     :ok
   end
 
@@ -135,20 +152,28 @@ defmodule Meadow.Utils.AWS do
     end
   end
 
-  defp generate_aws_signature(request, region, access_key, secret) do
+  defp generate_aws_signature(request) do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
     %{host: host} = URI.parse(request.url)
 
+    config = ExAws.Config.new(:es)
+
+    headers =
+      case Map.get(config, :security_token) do
+        nil -> [{"Host", host}]
+        security_token -> [{"Host", host}, {"X-Amz-Security-Token", security_token}]
+      end
+
     :aws_signature.sign_v4(
-      access_key,
-      secret,
-      region,
+      config.access_key_id,
+      config.secret_access_key,
+      config.region,
       "es",
       {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}},
       request.method |> to_string() |> String.upcase(),
       request.url,
-      [{"Host", host}],
+      headers,
       request.body,
       []
     )
@@ -256,4 +281,6 @@ defmodule Meadow.Utils.AWS do
         nil
     end
   end
+
+  defp prefix, do: Secrets.prefix()
 end

@@ -1,4 +1,26 @@
-Hush.resolve!()
+alias Meadow.Config.Secrets
+
+case :ets.info(:secret_cache, :name) do
+  :secret_cache -> :ets.delete_all_objects(:secret_cache)
+  :undefined -> :ets.new(:secret_cache, [:set, :protected, :named_table])
+end
+
+cluster_config =
+  Application.get_env(:meadow, Meadow.Search.Cluster)
+  |> Keyword.merge(
+    url:
+      Secrets.get_secret(
+        :meadow,
+        ["search", "cluster_endpoint"],
+        "http://localhost:9200"
+      ),
+    bulk_page_size: 3,
+    bulk_wait_interval: 2,
+    embedding_model_id: nil
+  )
+
+Application.put_env(:meadow, Meadow.Search.Cluster, cluster_config)
+
 Meadow.Repo.wait_for_connection()
 
 Mix.Task.run("ecto.setup")

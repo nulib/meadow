@@ -1,6 +1,6 @@
 nodejs 18.18.0
 erlang 26.0.2
 elixir 1.15.4-otp-26
-terraform 1.1.5
+terraform 1.7.4
 tflint 0.34.1
 #npm 10.1.0

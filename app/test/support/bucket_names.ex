@@ -13,7 +13,7 @@ defmodule Meadow.BucketNames do
         @ingest_bucket prefixed.("ingest")
         @preservation_bucket prefixed.("preservation")
         @preservation_check_bucket prefixed.("preservation-checks")
-        @upload_bucket prefixed.("uploads")
+        @upload_bucket prefixed.("upload")
         @pyramid_bucket prefixed.("pyramids")
         @streaming_bucket prefixed.("streaming")
       end
