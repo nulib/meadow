@@ -43,6 +43,13 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
   }
 
   statement {
+    sid       = "opensearchhttp"
+    effect    = "Allow"
+    actions   = ["es:ESHttp*"]
+    resources = ["*"]
+  }
+
+  statement {
     sid       = "secretsmanager"
     effect    = "Allow"
     actions   = ["secretsmanager:Get*"]
