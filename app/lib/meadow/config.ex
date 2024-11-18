@@ -28,7 +28,10 @@ defmodule Meadow.Config do
 
   @doc "Retrieve the configured multipart upload concurrency value"
   def multipart_upload_concurrency do
-    Application.get_env(:meadow, :multipart_upload_concurrency) |> String.to_integer()
+    case Application.get_env(:meadow, :multipart_upload_concurrency) do
+      n when is_binary(n) -> String.to_integer(n)
+      n -> n
+    end
   end
 
   @doc "Retrieve the configured preservation bucket"
