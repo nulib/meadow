@@ -87,12 +87,17 @@ defmodule Meadow.Config.Secrets do
         true -> nil
       end
 
-    [System.get_env("DEV_PREFIX"), env] |> Enum.reject(&is_nil/1) |> Enum.join("-")
+    [System.get_env("DEV_PREFIX"), env]
+    |> reject_empty()
+    |> join_non_empty()
   end
 
   def prefix(val), do: [prefix(), to_string(val)] |> reject_empty() |> Enum.join("-")
-  #  defp atom_prefix(val), do: prefix(val) |> String.to_atom()
+
   defp reject_empty(list), do: Enum.reject(list, &(is_nil(&1) or &1 == ""))
+
+  defp join_non_empty([]), do: nil
+  defp join_non_empty(list), do: Enum.join(list, "-")
 
   def environment_int(key, default) do
     case System.get_env(key) do

@@ -17,6 +17,7 @@ defmodule Meadow.Config.Pipeline do
     prefix =
       case prefix do
         nil -> "meadow"
+        "" -> "meadow"
         val -> val
       end
 
