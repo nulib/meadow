@@ -12,11 +12,5 @@ defmodule Meadow.Config.Runtime.Prod do
       url: [host: System.get_env("MEADOW_HOSTNAME", "example.com"), port: 80],
       cache_static_manifest: "priv/static/cache_manifest.json",
       server: true
-
-    config :logger,
-      compile_time_purge_matching: [
-        [level_lower_than: :info]
-      ],
-      level: :info
   end
 end
