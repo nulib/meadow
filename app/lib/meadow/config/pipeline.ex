@@ -3,6 +3,7 @@ defmodule Meadow.Config.Pipeline do
   Configure Meadow Pipelines
   """
   require Logger
+  alias Meadow.Config.Secrets
 
   defp get_config_value(action, var, default) do
     key = Module.split(action) |> List.last() |> Inflex.underscore() |> String.upcase()
@@ -14,16 +15,23 @@ defmodule Meadow.Config.Pipeline do
     end
   end
 
-  def configure!(prefix) do
-    Logger.info("Configuring Meadow.Pipeline for #{inspect(prefix)}")
+  def configure! do
+    Application.get_env(:meadow, Meadow.Pipeline)
+    |> Keyword.get(:configured, false)
+    |> configure!()
+  end
 
+  def configure!(true), do: Logger.warn("Pipeline already configured. Skipping.")
+
+  def configure!(_) do
     prefix =
-      case prefix do
+      case Secrets.prefix() do
         nil -> "meadow"
         "" -> "meadow"
         val -> val
       end
 
+    Logger.info("Configuring Meadow.Pipeline for #{inspect(prefix)}")
     config = Application.get_env(:meadow, Meadow.Pipeline)
 
     config =
@@ -56,6 +64,7 @@ defmodule Meadow.Config.Pipeline do
           ]
         )
       end)
+      |> Keyword.put(:configured, true)
 
     Logger.info(config)
     Application.put_env(:meadow, Meadow.Pipeline, config)

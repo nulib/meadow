@@ -3,8 +3,6 @@ defmodule Meadow.Config.Runtime do
   Load and apply Meadow's runtime configuration
   """
 
-  alias Meadow.Config.Pipeline
-
   import Meadow.Config.Secrets
 
   require Logger
@@ -302,8 +300,6 @@ defmodule Meadow.Config.Runtime do
       Logger.info("Configuring #{mod} environment")
       Module.concat(__MODULE__, mod).configure!()
     end
-
-    Pipeline.configure!(prefix())
 
     if :code.is_loaded(Mix) do
       file = Path.join(File.cwd!(), "config/#{Mix.env()}.local.exs")

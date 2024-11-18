@@ -112,7 +112,7 @@ defmodule Meadow.Application.Children do
   defp mock_ark_server(port) do
     plug = ArkClient.MockServer
 
-    case :gen_tcp.connect('localhost', port, [], 50) do
+    case :gen_tcp.connect(~c"localhost", port, [], 50) do
       {:ok, _} ->
         "Skipping launch of #{inspect(plug)}. Port #{port} already in use."
         |> Logger.info()
