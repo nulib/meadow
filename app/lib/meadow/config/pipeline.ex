@@ -2,6 +2,7 @@ defmodule Meadow.Config.Pipeline do
   @moduledoc """
   Configure Meadow Pipelines
   """
+  require Logger
 
   defp get_config_value(action, var, default) do
     key = Module.split(action) |> List.last() |> Inflex.underscore() |> String.upcase()
@@ -14,6 +15,8 @@ defmodule Meadow.Config.Pipeline do
   end
 
   def configure!(prefix) do
+    Logger.info("Configuring Meadow.Pipeline for #{inspect(prefix)}")
+
     prefix =
       case prefix do
         nil -> "meadow"
@@ -27,6 +30,8 @@ defmodule Meadow.Config.Pipeline do
       config
       |> Keyword.get(:actions)
       |> Enum.reduce(config, fn action, acc ->
+        Logger.info("Configuring #{action}")
+
         queue_name =
           [
             prefix

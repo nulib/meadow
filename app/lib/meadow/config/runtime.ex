@@ -7,6 +7,8 @@ defmodule Meadow.Config.Runtime do
 
   import Meadow.Config.Secrets
 
+  require Logger
+
   # TODO: UPDATE ALL get_secret(:meadow, ["dc",...]) to use DC secrets
 
   def configure! do
@@ -22,10 +24,15 @@ defmodule Meadow.Config.Runtime do
         "https://dc.rdc-staging.library.northwestern.edu"
       )
 
+    Logger.info("Configuring authoritex")
     config :authoritex, geonames_username: get_secret(:meadow, ["geonames", "username"])
+
+    Logger.info("Configuring elastix")
 
     config :elastix,
       custom_headers: {Meadow.Utils.AWS, :add_aws_signature, []}
+
+    Logger.info("Configuring exldap")
 
     config :exldap, :settings,
       server: get_secret(:ldap, ["host"]),
@@ -35,8 +42,12 @@ defmodule Meadow.Config.Runtime do
       password: get_secret(:ldap, ["password"]),
       ssl: get_secret(:ldap, ["ssl"], "true") == "true"
 
+    Logger.info("Configuring hackney")
+
     config :hackney,
       max_connections: environment_int("HACKNEY_MAX_CONNECTIONS", 1000)
+
+    Logger.info("Configuring honeybadger")
 
     config :honeybadger,
       api_key: get_secret(:meadow, ["honeybadger", "api_key"], "DO_NOT_REPORT"),
@@ -47,6 +58,8 @@ defmodule Meadow.Config.Runtime do
       breadcrumbs_enabled: true,
       filter: Meadow.Error.Filter,
       exclude_envs: [:dev, :test]
+
+    Logger.info("Configuring Meadow.Repo")
 
     config :meadow, Meadow.Repo,
       username: get_secret(:meadow, ["db", "user"]),
@@ -69,6 +82,8 @@ defmodule Meadow.Config.Runtime do
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
     port = environment_int("PORT", 4000)
 
+    Logger.info("Configuring MeadowWeb.Endpoint")
+
     config :meadow, MeadowWeb.Endpoint,
       url: [host: host, port: port],
       http: [
@@ -84,6 +99,8 @@ defmodule Meadow.Config.Runtime do
       live_view: [signing_salt: System.get_env("SECRET_KEY_BASE")],
       render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
       pubsub_server: Meadow.PubSub
+
+    Logger.info("Configuring Meadow.Search.Cluster")
 
     config :meadow, Meadow.Search.Cluster,
       url: get_secret(:index, ["endpoint"]),
@@ -140,6 +157,8 @@ defmodule Meadow.Config.Runtime do
         :abstract
       ]
 
+    Logger.info("Configuring EZID")
+
     config :meadow,
       ark: %{
         default_shoulder: get_secret(:ezid, ["shoulder"], "ark:/12345/nu1"),
@@ -153,6 +172,8 @@ defmodule Meadow.Config.Runtime do
           ),
         url: get_secret(:ezid, ["url"], "http://localhost:3943")
       }
+
+    Logger.info("Configuring general meadow properties")
 
     config :meadow,
       # TODO: REPLACE WITH DC API SECRET
@@ -224,7 +245,10 @@ defmodule Meadow.Config.Runtime do
       # TODO: UPDATE TO READ FROM API'S SECRETS
       work_archiver_endpoint: get_secret(:meadow, ["work_archiver", "endpoint"], "")
 
+    Logger.info("Configuring meadow S3 buckets")
     config :meadow, buckets()
+
+    Logger.info("Configuring meadow lambdas")
 
     config :meadow, :lambda,
       digester: {:lambda, get_secret(:meadow, ["pipeline", "digester"], "digester:$LATEST")},
@@ -236,6 +260,8 @@ defmodule Meadow.Config.Runtime do
       tiff: {:lambda, get_secret(:meadow, ["pipeline", "tiff"], "pyramid-tiff:$LATEST")}
 
     config :meadow, :livebook, url: System.get_env("LIVEBOOK_URL")
+
+    Logger.info("Configuring Meadow.Scheduler")
 
     config :meadow, Meadow.Scheduler,
       overlap: false,
@@ -252,6 +278,8 @@ defmodule Meadow.Config.Runtime do
           {Meadow.Data.PreservationChecks, :start_job, []}
         }
       ]
+
+    Logger.info("Configuring ueberauth for NU SSO")
 
     config :ueberauth, Ueberauth,
       providers: [
@@ -270,15 +298,20 @@ defmodule Meadow.Config.Runtime do
            ]}
       ]
 
-    Pipeline.configure!(prefix())
-
     with mod <- environment() |> to_string() |> String.capitalize() do
+      Logger.info("Configuring #{mod} environment")
       Module.concat(__MODULE__, mod).configure!()
     end
 
+    Pipeline.configure!(prefix())
+
     if :code.is_loaded(Mix) do
       file = Path.join(File.cwd!(), "config/#{Mix.env()}.local.exs")
-      if File.exists?(file), do: Code.eval_file(file)
+
+      if File.exists?(file) do
+        Logger.info("Loading config from #{Mix.env()}.local.exs")
+        Code.eval_file(file)
+      end
     end
 
     :ok
