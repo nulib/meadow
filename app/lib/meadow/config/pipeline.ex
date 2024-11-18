@@ -66,10 +66,6 @@ defmodule Meadow.Config.Pipeline do
       end)
       |> Keyword.put(:configured, true)
 
-    Logger.info(config)
     Application.put_env(:meadow, Meadow.Pipeline, config)
-
-    Application.get_env(:meadow, Meadow.Pipeline)
-    |> Logger.info()
   end
 end
