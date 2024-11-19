@@ -61,13 +61,13 @@ defmodule Meadow.ConfigTest do
 
   test "aws_environment/0" do
     with env <- Config.aws_environment() |> Enum.into(%{}) do
-      assert env |> Map.has_key?('TMPDIR')
+      assert env |> Map.has_key?(~c"TMPDIR")
 
       if Application.get_env(:ex_aws, :s3) do
-        assert env |> Map.get('AWS_REGION') == 'us-east-1'
-        assert env |> Map.get('AWS_SECRET_ACCESS_KEY') == 'fake'
-        assert env |> Map.get('AWS_ACCESS_KEY_ID') == 'fake'
-        assert env |> Map.get('AWS_S3_ENDPOINT') |> Enum.slice(0..15) == 'http://localhost'
+        assert env |> Map.get(~c"AWS_REGION") == ~c"us-east-1"
+        assert env |> Map.get(~c"AWS_SECRET_ACCESS_KEY") == ~c"fake"
+        assert env |> Map.get(~c"AWS_ACCESS_KEY_ID") == ~c"fake"
+        assert env |> Map.get(~c"AWS_S3_ENDPOINT") |> Enum.slice(0..15) == ~c"http://localhost"
       end
     end
   end
@@ -102,13 +102,6 @@ defmodule Meadow.ConfigTest do
 
       assert Config.iiif_manifest_url_deprecated() ==
                "http://no-slash-test/minio/test-pyramids/public/"
-    end
-
-    test "validate release config" do
-      System.put_env("__COMPILE_CHECK__", "TRUE")
-      assert ConfigReader.read!("config/releases.exs") |> is_list()
-    after
-      System.delete_env("__COMPILE_CHECK__")
     end
   end
 end

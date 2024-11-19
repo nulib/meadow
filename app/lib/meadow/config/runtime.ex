@@ -318,8 +318,8 @@ defmodule Meadow.Config.Runtime do
       ingest_bucket: get_secret(:meadow, ["buckets", "ingest"], prefix("ingest")),
       preservation_bucket:
         get_secret(:meadow, ["buckets", "preservation"], prefix("preservation")),
-      pyramid_bucket: get_secret(:meadow, ["buckets", "pyramid"], prefix("pyramid")),
-      upload_bucket: get_secret(:meadow, ["buckets", "upload"], prefix("upload")),
+      pyramid_bucket: get_secret(:meadow, ["buckets", "pyramid"], prefix("pyramids")),
+      upload_bucket: get_secret(:meadow, ["buckets", "upload"], prefix("uploads")),
       preservation_check_bucket:
         get_secret(:meadow, ["buckets", "preservation_check"], prefix("preservation-checks")),
       streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming"))

@@ -21,7 +21,7 @@ defmodule Meadow.Config.Pipeline do
     |> configure!()
   end
 
-  def configure!(true), do: Logger.warn("Pipeline already configured. Skipping.")
+  def configure!(true), do: Logger.warning("Pipeline already configured. Skipping.")
 
   def configure!(_) do
     prefix =
