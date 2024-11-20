@@ -1,4 +1,6 @@
 locals {
+  dc_base = trimsuffix(var.digital_collections_url, "/")
+
   config_secrets = {
     buckets = {
       ingest             = aws_s3_bucket.meadow_ingest.bucket
@@ -20,6 +22,10 @@ locals {
 
     dc = {
       base_url = var.digital_collections_url
+    }
+
+    ezid = {
+      target_base_url = "${local.dc_base}/items/"
     }
 
     geonames = {
