@@ -4,7 +4,6 @@ _build
 assets/coverage
 **/node_modules
 config/dev*.exs
-config/runtime.exs
 config/test*.exs
 deps
 doc

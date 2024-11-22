@@ -7,6 +7,8 @@ defmodule Meadow.Pipeline.Dispatcher do
   *
 
   """
+  use Meadow.Utils.Logging
+
   alias Meadow.Config
   alias Meadow.Utils.Pairtree
 
@@ -234,8 +236,10 @@ defmodule Meadow.Pipeline.Dispatcher do
     do: action.send_message(%{file_set_id: file_set.id}, attributes)
 
   def dispatch_next_action(file_set, attributes) do
-    Logger.warning("Unexpected dispatch state for #{file_set.id}, #{attributes}")
-    :noop
+    with_log_metadata module: __MODULE__, attributes: attributes do
+      Logger.warning("Unexpected dispatch state for #{file_set.id}, #{attributes}")
+      :noop
+    end
   end
 
   def dispatch_next_action(file_set, last_action, attributes) do
@@ -250,8 +254,10 @@ defmodule Meadow.Pipeline.Dispatcher do
         :noop
 
       next_action ->
-        "Last action was: #{last}, next action is: #{next_action} for file set id: #{file_set.id}"
-        |> Logger.info()
+        with_log_metadata module: __MODULE__, id: file_set.id do
+          "Last action was: #{last}, next action is: #{next_action} for file set id: #{file_set.id}"
+          |> Logger.info()
+        end
 
         next_action.send_message(%{file_set_id: file_set.id}, attributes)
     end

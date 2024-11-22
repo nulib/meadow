@@ -1,8 +1,3 @@
-variable "config_secrets" {
-  type    = map(map(string))
-  default = {}
-}
-
 variable "ssl_certificate_file" {
   type    = string
   default = "../../miscellany/devbox_cert/dev.rdc.wildcard.full.pem"

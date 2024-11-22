@@ -8,10 +8,6 @@ variable "canonical_hostname" {
   default = ""
 }
 
-variable "agentless_sso_key" {
-  type = string
-}
-
 variable "aws_region" {
   type    = string
   default = "us-east-1"
@@ -27,11 +23,6 @@ variable "db_size" {
   default = 5
 }
 
-variable "dcapi_stack_name" {
-  type    = string
-  default = "dc-api-v2"  
-}
-
 variable "certificate_name" {
   type    = string
   default = "*"
@@ -43,14 +34,6 @@ variable "digital_collections_bucket" {
 
 variable "digital_collections_url" {
   type = string
-}
-
-variable "embedding_model_id" {
-  type = string
-}
-
-variable "embedding_dimensions" {
-  type = number
 }
 
 variable "fixity_function" {
@@ -112,62 +95,8 @@ variable "vpc_id" {
   type = string
 }
 
-variable "ldap_base_dn" {
-  type    = string
-  default = "DC=library,DC=northwestern,DC=edu"
-}
-
-variable "ldap_bind_dn" {
-  type = string
-}
-
-variable "ldap_bind_password" {
-  type = string
-}
-
-variable "ldap_port" {
-  type    = string
-  default = 389
-}
-
-variable "ldap_server" {
-  type = string
-}
-
-variable "elasticsearch_url" {
-  type = string
-}
-
-variable "iiif_cloudfront_distribution_id" {
-  type = string
-}
-
-variable "iiif_server_url" {
-  type = string
-}
-
-variable "iiif_manifest_url" {
-  type = string
-}
-
 variable "ec2_instance_users" {
   type = list(string)
-}
-
-variable "ezid_password" {
-  type = string
-}
-
-variable "ezid_shoulder" {
-  type = string
-}
-
-variable "ezid_target_base_url" {
-  type = string
-}
-
-variable "ezid_user" {
-  type = string
 }
 
 variable "ffmpeg_layer_sha256" {
@@ -184,10 +113,6 @@ variable "shared_bucket" {
 }
 
 variable "work_archiver_endpoint" {
-  type = string
-}
-
-variable "dc_api_v2_base" {
   type = string
 }
 

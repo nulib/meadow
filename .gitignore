@@ -49,6 +49,7 @@ npm-debug.log
 *.tfvars
 
 /infrastructure/**/.terraform/
+/infrastructure/**/*.tfstate*
 /infrastructure/**/_build/
 /infrastructure/**/build/
 /infrastructure/**/builds/

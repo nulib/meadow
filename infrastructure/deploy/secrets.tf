@@ -1,9 +1,5 @@
-data "aws_cloudformation_stack" "dc_api" {
-  name = var.dcapi_stack_name
-}
-
 locals {
-  api_token_secret = data.aws_cloudformation_stack.dc_api.parameters.ApiTokenSecret
+  dc_base = trimsuffix(var.digital_collections_url, "/")
 
   config_secrets = {
     buckets = {
@@ -28,55 +24,22 @@ locals {
       base_url = var.digital_collections_url
     }
 
-    dc_api = {
-      v2 = {
-        api_token_secret = local.api_token_secret
-        api_token_ttl    = 300
-        base_url         = var.dc_api_v2_base
-      }
-    }
-
     ezid = {
-      password        = var.ezid_password
-      shoulder        = var.ezid_shoulder
-      target_base_url = var.ezid_target_base_url
-      url             = "https://ezid.cdlib.org/"
-      user            = var.ezid_user
+      target_base_url = "${local.dc_base}/items/"
     }
 
     geonames = {
       username = var.geonames_username
     }
 
-    iiif = {
-      base_url        = var.iiif_server_url
-      distribution_id = var.iiif_cloudfront_distribution_id
-      manifest_url    = var.iiif_manifest_url
-    }
-
-    search = {
-      cluster_endpoint     = var.elasticsearch_url
-      access_key_id        = aws_iam_access_key.meadow_elasticsearch_access_key.id
-      secret_access_key    = aws_iam_access_key.meadow_elasticsearch_access_key.secret
-      embedding_model_id   = var.embedding_model_id
-      embedding_dimensions = var.embedding_dimensions
-    }
-
-    ldap = {
-      host     = var.ldap_server
-      port     = var.ldap_port
-      base     = var.ldap_base_dn
-      user_dn  = var.ldap_bind_dn
-      password = var.ldap_bind_password
+    honeybadger = {
+      api_key     = var.honeybadger_api_key
+      environment = module.core.outputs.stack.prefix
     }
 
     mediaconvert = {
       queue    = aws_media_convert_queue.transcode_queue.arn
       role_arn = aws_iam_role.transcode_role.arn
-    }
-
-    nusso = {
-      api_key = var.agentless_sso_key
     }
 
     pipeline = {
@@ -104,7 +67,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name        = "config/meadow"
+  name        = "${local.prefix}/config/meadow"
   description = "Meadow configuration secrets"
 }
 
