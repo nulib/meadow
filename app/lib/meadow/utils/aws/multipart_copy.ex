@@ -51,10 +51,18 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
       other ->
         other
     end
+
+    case ExAws.S3.head_object(dest_bucket, dest_object) |> AWS.request() do
+      {:ok, anything} -> {:ok, anything}
+      other ->
+        Logger.error("Multipart copy failed: #{inspect(other)}")
+        {:error, "Multipart copy failed: #{inspect(other)}"}
+    end
+
   end
 
   defp copy_s3_object(%__MODULE__{content_length: length} = op) when length > @threshold do
-    Logger.debug("File size #{length} > #{@threshold}; using MultipartUpload")
+    Logger.info("File size #{length} > #{@threshold}; using MultipartUpload")
 
     op
     |> initiate_upload()
@@ -63,7 +71,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   end
 
   defp copy_s3_object(%__MODULE__{content_length: length} = op) do
-    Logger.debug("File size #{length} <= #{@threshold}; using CopyObject")
+    Logger.info("File size #{length} <= #{@threshold}; using CopyObject")
 
     ExAws.S3.put_object_copy(
       op.dest_bucket,
@@ -116,19 +124,19 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   defp upload_chunks({:error, payload}), do: {:error, payload}
 
   defp complete_upload({:error, %__MODULE__{} = op}) do
-    Logger.debug("Error encountered. Aborting multipart upload.")
+    Logger.error("Error encountered. Aborting multipart upload.")
 
     ExAws.S3.abort_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id)
     |> AWS.request()
   end
 
   defp complete_upload({:error, other}) do
-    Logger.debug("Error encountered. #{inspect(other)}")
+    Logger.error("Error encountered. #{inspect(other)}")
     {:error, parse_error(other)}
   end
 
   defp complete_upload({parts, %__MODULE__{} = op}) do
-    Logger.debug("Completing multipart upload.")
+    Logger.info("Completing multipart upload.")
 
     ExAws.S3.complete_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id, parts)
     |> Map.put(:parser, &parse_complete_result/1)
