@@ -177,7 +177,7 @@ defmodule Meadow.BatchesTest do
       add = %{
         descriptive_metadata: %{
           box_name: ["His Airness"],
-          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968"}]
+          date_created: [%{edtf: "1009"}, %{edtf: "100X"}, %{edtf: "~1968?"}]
         }
       }
 
