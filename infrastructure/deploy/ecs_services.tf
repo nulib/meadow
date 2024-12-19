@@ -90,3 +90,44 @@ resource "aws_ecs_service" "meadow_all" {
 
   tags = var.tags
 }
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  count              = var.environment == "p" ? 1 : 0
+  max_capacity       = 2
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.meadow.name}/${aws_ecs_service.meadow_all.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+# Scheduled action to scale UP at 7:15 AM Central
+resource "aws_appautoscaling_scheduled_action" "scale_up" {
+  count              = var.environment == "p" ? 1 : 0
+  name               = "scale-up-to-2-tasks"
+  service_namespace  = aws_appautoscaling_target.ecs_target[0].service_namespace
+  resource_id        = aws_appautoscaling_target.ecs_target[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[0].scalable_dimension
+  timezone           = "America/Chicago"
+  schedule           = "cron(15 7 ? * MON-FRI *)"  
+
+  scalable_target_action {
+    min_capacity = 2
+    max_capacity = 2
+  }
+}
+
+# Scheduled action to scale DOWN at 6:00 PM Central
+resource "aws_appautoscaling_scheduled_action" "scale_down" {
+  count              = var.environment == "p" ? 1 : 0
+  name               = "scale-down-to-1-task"
+  service_namespace  = aws_appautoscaling_target.ecs_target[0].service_namespace
+  resource_id        = aws_appautoscaling_target.ecs_target[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[0].scalable_dimension
+  timezone           = "America/Chicago"
+  schedule           = "cron(0 18 ? * MON-FRI *)"  
+
+  scalable_target_action {
+    min_capacity = 1
+    max_capacity = 1
+  }
+}
