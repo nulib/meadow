@@ -25,7 +25,6 @@ defmodule Meadow.Application do
     end
 
     base_children = [
-      EDTF,
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
       Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
