@@ -58,14 +58,14 @@ defmodule Meadow.Search.HTTP do
             atoms: [:retry],
             rescue_only: [] do
         case ElastixHTTP.request(method, url, body, headers, options) do
-          {:ok, %{status_code: status} = response} when status in 200..399 ->
-            {:ok, response}
-
-          {:ok, %{status_code: 404} = response} ->
-            {:ok, response}
-
-          {:ok, %{status_code: 429} = response} ->
+          {:ok, %{status_code: status} = response} when status in [429, 503, 504] ->
             {:retry, response}
+
+          {:ok, response} ->
+            {:ok, response}
+
+          {:error, %HTTPoison.Error{reason: :timeout} = error} ->
+            {:retry, error}
 
           {:error, error} ->
             {:error, error}
@@ -80,6 +80,12 @@ defmodule Meadow.Search.HTTP do
         result ->
           result |> maybe_report(%{method: method, url: url, body: body})
       else
+        {:retry, %HTTPoison.Response{} = response} ->
+          response |> maybe_report(%{method: method, url: url, body: body})
+
+        {:retry, reason} ->
+          {:error, reason} |> maybe_report(%{method: method, url: url, body: body})
+
         error ->
           error |> maybe_report(%{method: method, url: url, body: body})
       end
