@@ -21,7 +21,7 @@ jobs:
           otp-version: "26"
           elixir-version: "1.15.4"
       - name: Cache Elixir dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/deps
@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache Elixir build
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/_build
@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache JS dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/assets/node_modules
@@ -75,7 +75,7 @@ jobs:
         with:
           node-version-file: ./.tool-versions
       - name: Cache Elixir dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/deps
@@ -85,7 +85,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache Elixir build
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/_build
@@ -95,7 +95,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache JS dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/assets/node_modules
@@ -192,7 +192,7 @@ jobs:
           perl Makefile.PL && \
           sudo make install
       - name: Cache Elixir dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/deps
@@ -201,7 +201,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache Elixir build
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/_build
@@ -211,7 +211,7 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Cache JS dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             app/assets/node_modules
