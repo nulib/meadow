@@ -13,11 +13,11 @@ locals {
     }
 
     db = {
-      host     = module.rds.db_instance_address
-      port     = module.rds.db_instance_port
-      user     = module.rds.db_instance_username
-      password = module.rds.db_instance_password
-      database = module.rds.db_instance_username
+      host     = module.data_services.outputs.aurora.endpoint
+      port     = module.data_services.outputs.aurora.port
+      user     = postgresql_role.meadow.name
+      password = postgresql_role.meadow.password
+      database = postgresql_database.meadow.name
     }
 
     dc = {
