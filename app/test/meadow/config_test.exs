@@ -67,7 +67,7 @@ defmodule Meadow.ConfigTest do
         assert env |> Map.get(~c"AWS_REGION") == ~c"us-east-1"
         assert env |> Map.get(~c"AWS_SECRET_ACCESS_KEY") == ~c"fake"
         assert env |> Map.get(~c"AWS_ACCESS_KEY_ID") == ~c"fake"
-        assert env |> Map.get(~c"AWS_S3_ENDPOINT") |> Enum.slice(0..15) == ~c"http://localhost"
+        assert env |> Map.get(~c"AWS_S3_ENDPOINT") |> Enum.slice(0..16) == ~c"https://localhost"
       end
     end
   end

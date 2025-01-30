@@ -56,7 +56,35 @@ If you would like to interact directly with the database
 
 ### Run the Elixir test suite
 
-- run `mix test`
+#### Start Test Services
+
+In one terminal:
+```
+cd infrastructure/localstack
+docker compose up
+```
+
+#### Provision Test Environment
+
+Watch the logs until the services seem to stabilize. Then, in another terminal:
+```
+cd infrastructure/localstack
+terraform init
+terraform apply -auto-approve \
+  -var-file test.tfvars \
+  -var localstack_endpoint=https://localhost.localstack.cloud:4566
+```
+
+You will probably see `Warning: AWS account ID not found for provider`, but this can be safely ignored.
+
+#### Run Tests
+
+```
+cd app
+mix test [test args...]
+```
+
+**Note:** `mix test` can be run repeatedly without re-provisioning as long as the Docker services are running. If you stop the services, you will need to run Terraform again.
 
 ### GraphQL API
 
