@@ -7,6 +7,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.8"
     }
+
+    postgresql = {
+      source  = "cyrilgdn/postgresql"
+      version = "~> 1.25"
+    }
   }
 }
 
@@ -33,45 +38,11 @@ module "core" {
   component = "core"
 }
 
-module "rds" {
-  source                           = "terraform-aws-modules/rds/aws"
-  version                          = "4.1.2"
-  allocated_storage                = var.db_size
-  backup_window                    = "04:00-05:00"
-  engine                           = "postgres"
-  engine_version                   = "11.22"
-  final_snapshot_identifier_prefix = "meadow-final"
-  identifier                       = "${var.stack_name}-db"
-  instance_class                   = "db.t3.medium"
-  maintenance_window               = "Sun:01:00-Sun:02:00"
-  password                         = random_string.db_password.result
-  port                             = "5432"
-  username                         = "postgres"
-  subnet_ids                       = data.aws_subnets.private_subnets.ids
-  family                           = "postgres11"
-  vpc_security_group_ids           = [aws_security_group.meadow_db.id]
-  deletion_protection              = true
-  storage_encrypted                = false
-  create_db_subnet_group           = true
-
-  performance_insights_enabled            = true
-  performance_insights_retention_period   = 7
-
-  parameters = [
-    {
-      name         = "client_encoding",
-      value        = "UTF8",
-      apply_method = "pending-reboot"
-    },
-    {
-      name         = "max_locks_per_transaction",
-      value        = 1024,
-      apply_method = "pending-reboot"
-    }
-  ]
-
-  tags = var.tags
+module "data_services" {
+  source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
+  component = "data_services"
 }
+
 
 locals {
   cors_urls = flatten([
@@ -80,11 +51,6 @@ locals {
       "https://${hostname}"
     ]
   ])
-}
-
-resource "random_string" "db_password" {
-  length  = "16"
-  special = "false"
 }
 
 resource "aws_s3_bucket" "meadow_ingest" {
