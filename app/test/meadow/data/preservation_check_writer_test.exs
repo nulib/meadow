@@ -232,4 +232,37 @@ defmodule Meadow.Data.PreservationCheckWriterTest do
                PreservationCheckWriter.generate_report(@report_filename)
     end
   end
+
+  describe "generate_report/1 with pdf (X) files" do
+    setup do
+      video_work = work_fixture(%{work_type: %{id: "VIDEO", scheme: "work_type"}})
+
+      video_access_file_set =
+        file_set_fixture(%{
+          work_id: video_work.id,
+          accession_number: "101113",
+          role: %{id: "X", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            digests: %{
+              "sha256" => @sha256,
+              "sha1" => @sha1,
+              "md5" => @md5
+            },
+            location: "s3://#{@preservation_bucket}/#{Pairtree.preservation_path(@sha256)}",
+            mime_type: "application/pdf",
+            original_filename: "test.pdf"
+          }
+        })
+
+      {:ok, file_set: pdf_aux_file_set}
+    end
+
+    @describetag s3: [@preservation_fixture]
+    test "does not record an error if pdf aux file set pyramids are missing", %{
+      file_set: _file_set
+    } do
+      assert {:ok, "s3://#{@preservation_check_bucket}/pres_check.csv", 0} =
+               PreservationCheckWriter.generate_report(@report_filename)
+    end
+  end
 end
