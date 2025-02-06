@@ -291,21 +291,15 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the pyramid path for a file set
   """
-  def pyramid_uri_for(%FileSet{role: %{id: "P"}}), do: nil
-  def pyramid_uri_for(%FileSet{role: %{id: "S"}}), do: nil
+  def pyramid_uri_for(%FileSet{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set),
+    do: pyramid_uri_from_id(file_set.id)
 
-  def pyramid_uri_for(%FileSet{core_metadata: %{mime_type: "video/" <> _thing}}),
-    do: nil
+  def pyramid_uri_for(%FileSet{role: %{id: "X"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set),
+    do: pyramid_uri_from_id(file_set.id)
 
-  def pyramid_uri_for(%FileSet{core_metadata: %{mime_type: "audio/" <> _thing}}),
-    do: nil
+  def pyramid_uri_for(_), do: nil
 
-  def pyramid_uri_for(%FileSet{core_metadata: %{mime_type: "application/pdf"}}),
-    do: nil
-
-  def pyramid_uri_for(%FileSet{} = file_set), do: pyramid_uri_for(file_set.id)
-
-  def pyramid_uri_for(file_set_id) do
+  defp pyramid_uri_from_id(file_set_id) do
     dest_bucket = Config.pyramid_bucket()
 
     dest_key = Path.join(["/", Pairtree.pyramid_path(file_set_id)])

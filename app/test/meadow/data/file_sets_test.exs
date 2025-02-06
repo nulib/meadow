@@ -252,7 +252,17 @@ defmodule Meadow.Data.FileSetsTest do
       file_set_a = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
       file_set_s = file_set_fixture(role: %{id: "S", scheme: "FILE_SET_ROLE"})
       file_set_p = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
-      file_set_x = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+      file_set_x_image = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+
+      file_set_x_pdf =
+        file_set_fixture(
+          role: %{id: "X", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "application/pdf",
+            location: "s3://foo",
+            original_filename: "s3://bar"
+          }
+        )
 
       file_set_video =
         file_set_fixture(
@@ -282,8 +292,9 @@ defmodule Meadow.Data.FileSetsTest do
       assert is_nil(FileSets.pyramid_uri_for(file_set_p))
       assert is_nil(FileSets.pyramid_uri_for(file_set_video))
       assert is_nil(FileSets.pyramid_uri_for(file_set_audio))
+      assert is_nil(FileSets.pyramid_uri_for(file_set_x_pdf))
 
-      with uri <- file_set_x |> FileSets.pyramid_uri_for() |> URI.parse() do
+      with uri <- file_set_x_image |> FileSets.pyramid_uri_for() |> URI.parse() do
         assert uri.host == Config.pyramid_bucket()
       end
     end
