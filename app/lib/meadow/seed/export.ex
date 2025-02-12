@@ -149,7 +149,7 @@ defmodule Meadow.Seed.Export do
     )
     |> Repo.all()
     |> Enum.map(fn fs ->
-      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs.id))
+      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs))
     end)
   end
 
@@ -165,7 +165,7 @@ defmodule Meadow.Seed.Export do
     )
     |> Repo.all()
     |> Enum.map(fn fs ->
-      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs.id))
+      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs))
     end)
   end
 
