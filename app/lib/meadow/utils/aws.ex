@@ -10,6 +10,8 @@ defmodule Meadow.Utils.AWS do
   alias Meadow.Utils.AWS.MultipartCopy
   alias Meadow.Utils.Pairtree
 
+  use Retry
+
   import SweetXml, only: [sigil_x: 2]
 
   require Logger
@@ -18,14 +20,36 @@ defmodule Meadow.Utils.AWS do
   Drop-in replacement for ExAws.request/2 that reports errors to Honeybadger
   """
   def request(op, config_overrides \\ []) do
-    ExAws.request(op, config_overrides) |> handle_response()
+    retry with: exponential_backoff() |> randomize() |> cap(1_000) |> Stream.take(10),
+          atoms: [:retry],
+          rescue_only: [] do
+      case ExAws.request(op, config_overrides) |> handle_response() do
+        :timeout ->
+          {:retry, :timeout}
+
+        {:error, {:http_error, status, _}} = response when status in [429, 503, 504] ->
+          {:retry, response}
+
+        {:ok, result} ->
+          {:ok, result}
+
+        error ->
+          error
+      end
+    after
+      {:ok, result} -> {:ok, result}
+      {:error, error} -> {:error, error}
+    else
+      {:retry, error} -> error
+      error -> error
+    end
   end
 
   @doc """
   Drop-in replacement for ExAws.request!/2 that reports errors to Honeybadger
   """
   def request!(op, config_overrides \\ []) do
-    case ExAws.request(op, config_overrides) |> handle_response() do
+    case request(op, config_overrides) do
       {:ok, result} ->
         result
 
