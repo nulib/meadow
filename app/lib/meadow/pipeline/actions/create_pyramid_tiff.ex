@@ -12,13 +12,13 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   def actiondoc, do: "Create pyramid TIFF from source image"
 
   def already_complete?(file_set, _) do
-    FileSets.pyramid_uri_for(file_set.id)
+    FileSets.pyramid_uri_for(file_set)
     |> Meadow.Utils.Stream.exists?()
   end
 
   def process(file_set, attributes) do
     source = file_set.core_metadata.location
-    target = FileSets.pyramid_uri_for(file_set.id)
+    target = FileSets.pyramid_uri_for(file_set)
 
     case create_pyramid_tiff(source, target) do
       {:ok, dest} ->
