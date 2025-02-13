@@ -18,9 +18,9 @@ variable "availability_zones" {
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
-variable "db_size" {
+variable "db_pool_size" {
   type    = number
-  default = 5
+  default = 100
 }
 
 variable "certificate_name" {
