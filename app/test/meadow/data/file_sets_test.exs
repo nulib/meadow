@@ -249,10 +249,24 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "pyramid_uri_for/1 for a FileSet" do
-      file_set_a = file_set_fixture(role: %{id: "A", scheme: "FILE_SET_ROLE"})
+      file_set_a = file_set_fixture(
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
+        core_metadata: %{
+          mime_type: "image/jpeg",
+          location: "s3://foo",
+          original_filename: "s3://bar"
+        }
+      )
       file_set_s = file_set_fixture(role: %{id: "S", scheme: "FILE_SET_ROLE"})
       file_set_p = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
-      file_set_x_image = file_set_fixture(role: %{id: "X", scheme: "FILE_SET_ROLE"})
+      file_set_x_image = file_set_fixture(
+        role: %{id: "X", scheme: "FILE_SET_ROLE"},
+        core_metadata: %{
+          mime_type: "image/jpeg",
+          location: "s3://foo",
+          original_filename: "s3://bar"
+        }
+      )
 
       file_set_x_pdf =
         file_set_fixture(
@@ -300,7 +314,13 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "poster_uri_for/1 for a FileSet with a playlist" do
-      file_set = file_set_fixture()
+      file_set = file_set_fixture(
+        %{
+          core_metadata: %{
+            mime_type: "video/mp4",
+            location: "s3://foo",
+            original_filename: "s3://bar"
+        }})
 
       with url <- file_set |> FileSets.poster_uri_for() do
         assert url |> String.starts_with?("s3://#{@pyramid_bucket}/posters/")

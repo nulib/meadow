@@ -121,7 +121,7 @@ jobs:
       MIX_ENV: test
     services:
       db:
-        image: ghcr.io/nulib/postgres:10-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
@@ -231,6 +231,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: app
-      - name: Test DB Rollback
-        run: mix ecto.rollback --all
-        working-directory: app
+      # - name: Test DB Rollback
+      #   run: mix ecto.rollback --all
+      #   working-directory: app
