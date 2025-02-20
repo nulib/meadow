@@ -302,7 +302,7 @@ const WorkTabsAdministrative = ({ work }) => {
                 ) : null}
               </UIFormField>
 
-              <UIFormField label="Project / Job Tasker Number">
+              <UIFormField label="Project/Job Task Number">
                 {isEditing ? (
                   <UIFormInput
                     data-testid="project-task-number"
@@ -319,7 +319,7 @@ const WorkTabsAdministrative = ({ work }) => {
                     onClick={() =>
                       handleFacetLinkClick(
                         "ProjectTaskNumber",
-                        projectTaskNumber
+                        projectTaskNumber,
                       )
                     }
                   >
