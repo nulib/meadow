@@ -25,7 +25,7 @@ describe("WorkTabsPreservation component", () => {
       </CodeListProvider>,
       {
         mocks: [verifyFileSetsMock, ...allCodeListMocks],
-      }
+      },
     );
   });
 
@@ -34,13 +34,31 @@ describe("WorkTabsPreservation component", () => {
     expect(screen.getByText("Preservation and Access"));
   });
 
+  it("renders the table in the default order and orderBy", async () => {
+    const table = await screen.findByTestId("preservation-table");
+    expect(table).toBeInTheDocument();
+    expect(table.dataset["order"]).toBe("asc");
+    expect(table.dataset["orderBy"]).toBe("created");
+  });
+
   it("renders preservation column headers", async () => {
-    const cols = ["Role", "Filename", "Created", "Verified"];
+    const cols = [
+      "ID",
+      "Role",
+      "Filename",
+      "Accession #",
+      "Created",
+      "Verified",
+    ];
     const th = await screen.findByText("Filename");
     const row = th.closest("tr");
     const utils = within(row);
-    for (let col of cols) {
-      expect(await utils.findByText(col));
+    const links = await utils.findAllByRole("link");
+
+    expect(links).toHaveLength(6);
+
+    for (let link of links) {
+      expect(cols.includes(link.textContent)).toBe(true);
     }
   });
 
