@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 function UIMeadowVersion({ showHoneyVersion }) {
   if (!__MEADOW_VERSION__) {
-    return "v.dev";
+    return "v.walex.dev";
   }
 
   return (
