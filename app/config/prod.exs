@@ -6,7 +6,4 @@ config :ex_aws,
   region: System.get_env("AWS_REGION", "us-east-1")
 
 config :logger,
-  compile_time_purge_matching: [
-    [level_lower_than: :info]
-  ],
   level: :warning
