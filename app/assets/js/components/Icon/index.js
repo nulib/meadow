@@ -28,6 +28,8 @@ import IconProjects from "@js/components/Icon/Projects";
 import IconReplace from "@js/components/Icon/Replace";
 import IconSearch from "@js/components/Icon/Search";
 import IconSort from "@js/components/Icon/Sort";
+import IconSortDown from "@js/components/Icon/SortDown";
+import IconSortUp from "@js/components/Icon/SortUp";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 import IconUpload from "@js/components/Icon/Upload";
 import IconVideo from "@js/components/Icon/Video";
@@ -65,6 +67,8 @@ export {
   IconReplace,
   IconSearch,
   IconSort,
+  IconSortDown,
+  IconSortUp,
   IconTrashCan,
   IconUpload,
   IconVideo,

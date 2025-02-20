@@ -78,12 +78,13 @@ describe("Sort file sets", () => {
   const originalFileSets = [
     {
       id: "2357ea03-9dd5-49f2-a88c-dfc9aa88be3c",
-      role: { id: "A", scheme: "FILE_SET_ROLE" },
+      role: { label: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_0",
+      insertedAt: "2022-06-23T18:05:47.239216Z",
       coreMetadata: {
         __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-6.tif",
-        originalFilename: "BBBBBBB.jpg",
+        originalFilename: "A.jpg",
         label: "inu-fava-5145080-6.jpg",
         location:
           "s3://dev-preservation/23/57/ea/03/83397074acde5c737ede5ea7b09b267940d1ddba93eaef2456ae85c928e7abe2",
@@ -95,12 +96,13 @@ describe("Sort file sets", () => {
     },
     {
       id: "26357d25-b5e0-4e27-b683-c6844a13dc6b",
-      role: { id: "A", scheme: "FILE_SET_ROLE" },
+      role: { label: "A", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_1",
+      insertedAt: "2025-08-17T18:05:47.239216Z",
       coreMetadata: {
         __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-5.tif",
-        originalFilename: "CCCCCC.jpg",
+        originalFilename: "B.jpg",
         label: "inu-fava-5145080-5.jpg",
         location:
           "s3://dev-preservation/26/35/7d/25/033a20e54f4ef254749c0e554e0378ba96242be159c7ed6e8d57810297423f69",
@@ -112,12 +114,13 @@ describe("Sort file sets", () => {
     },
     {
       id: "0607a735-9f99-4d38-b75a-6c10027f0937",
-      role: { id: "A", scheme: "FILE_SET_ROLE" },
+      role: { label: "P", scheme: "FILE_SET_ROLE" },
       accessionNumber: "inu-fava-5145080_FILE_2",
+      insertedAt: "2023-01-10T18:05:47.239216Z",
       coreMetadata: {
         __typename: "FileSetCoreMetadata",
         description: "inu-fava-5145080-1.tif",
-        originalFilename: "AAAAA.jpg",
+        originalFilename: "C.jpg",
         label: "inu-fava-5145080-1.jpg",
         location:
           "s3://dev-preservation/06/07/a7/35/e3420d439e9770bdc804a19c559ca818120f67e81c303a92a33f774eab199056",
@@ -129,15 +132,159 @@ describe("Sort file sets", () => {
     },
   ];
 
-  it("should order file sets in ascending order", () => {
-    const sorted = sortFileSets({ fileSets: originalFileSets });
-    expect(sorted[0].coreMetadata.originalFilename).toEqual("AAAAA.jpg");
-    expect(sorted[2].coreMetadata.originalFilename).toEqual("CCCCCC.jpg");
+  // Filename
+
+  it("should order file sets in ascending order by filename", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "filename",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].coreMetadata.originalFilename).toEqual("A.jpg");
+    expect(sorted[1].coreMetadata.originalFilename).toEqual("B.jpg");
+    expect(sorted[2].coreMetadata.originalFilename).toEqual("C.jpg");
   });
 
-  it("should order file sets in descending order", () => {
-    const sorted = sortFileSets({ order: "desc", fileSets: originalFileSets });
-    expect(sorted[2].coreMetadata.originalFilename).toEqual("AAAAA.jpg");
-    expect(sorted[0].coreMetadata.originalFilename).toEqual("CCCCCC.jpg");
+  it("should order file sets in descending order by filename", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "filename",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].coreMetadata.originalFilename).toEqual("C.jpg");
+    expect(sorted[1].coreMetadata.originalFilename).toEqual("B.jpg");
+    expect(sorted[2].coreMetadata.originalFilename).toEqual("A.jpg");
+  });
+
+  // Created
+
+  it("should order file sets in ascending order by created", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "created",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].insertedAt).toEqual("2022-06-23T18:05:47.239216Z");
+    expect(sorted[1].insertedAt).toEqual("2023-01-10T18:05:47.239216Z");
+    expect(sorted[2].insertedAt).toEqual("2025-08-17T18:05:47.239216Z");
+  });
+
+  it("should order file sets in descending order by created", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "created",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].insertedAt).toEqual("2025-08-17T18:05:47.239216Z");
+    expect(sorted[1].insertedAt).toEqual("2023-01-10T18:05:47.239216Z");
+    expect(sorted[2].insertedAt).toEqual("2022-06-23T18:05:47.239216Z");
+  });
+
+  // Accession Number
+
+  it("should order file sets in ascending order by accessionNumber", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "accessionNumber",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].accessionNumber).toEqual("inu-fava-5145080_FILE_0");
+    expect(sorted[1].accessionNumber).toEqual("inu-fava-5145080_FILE_1");
+    expect(sorted[2].accessionNumber).toEqual("inu-fava-5145080_FILE_2");
+  });
+
+  it("should order file sets in descending order by accessionNumber", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "accessionNumber",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].accessionNumber).toEqual("inu-fava-5145080_FILE_2");
+    expect(sorted[1].accessionNumber).toEqual("inu-fava-5145080_FILE_1");
+    expect(sorted[2].accessionNumber).toEqual("inu-fava-5145080_FILE_0");
+  });
+
+  // Role
+
+  it("should order file sets in ascending order by role", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "role",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].role.label).toEqual("A");
+    expect(sorted[1].role.label).toEqual("A");
+    expect(sorted[2].role.label).toEqual("P");
+  });
+
+  it("should order file sets in descending order by role", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "role",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].role.label).toEqual("P");
+    expect(sorted[1].role.label).toEqual("A");
+    expect(sorted[2].role.label).toEqual("A");
+  });
+
+  // ID
+
+  it("should order file sets in ascending order by role", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "id",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].id).toEqual("0607a735-9f99-4d38-b75a-6c10027f0937");
+    expect(sorted[1].id).toEqual("2357ea03-9dd5-49f2-a88c-dfc9aa88be3c");
+    expect(sorted[2].id).toEqual("26357d25-b5e0-4e27-b683-c6844a13dc6b");
+  });
+
+  it("should order file sets in descending order by role", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "id",
+      fileSets: originalFileSets,
+      verifiedFileSets: [],
+    });
+    expect(sorted[0].id).toEqual("26357d25-b5e0-4e27-b683-c6844a13dc6b");
+    expect(sorted[1].id).toEqual("2357ea03-9dd5-49f2-a88c-dfc9aa88be3c");
+    expect(sorted[2].id).toEqual("0607a735-9f99-4d38-b75a-6c10027f0937");
+  });
+
+  // Verified
+
+  it("should order file sets in ascending order by role", () => {
+    const sorted = sortFileSets({
+      order: "asc",
+      orderBy: "verified",
+      fileSets: originalFileSets,
+      verifiedFileSets: ["2357ea03-9dd5-49f2-a88c-dfc9aa88be3c"],
+    });
+    expect(sorted[0].id).toEqual("26357d25-b5e0-4e27-b683-c6844a13dc6b");
+    expect(sorted[1].id).toEqual("0607a735-9f99-4d38-b75a-6c10027f0937");
+    expect(sorted[2].id).toEqual("2357ea03-9dd5-49f2-a88c-dfc9aa88be3c");
+  });
+
+  it("should order file sets in descending order by role", () => {
+    const sorted = sortFileSets({
+      order: "desc",
+      orderBy: "verified",
+      fileSets: originalFileSets,
+      verifiedFileSets: ["2357ea03-9dd5-49f2-a88c-dfc9aa88be3c"],
+    });
+    expect(sorted[0].id).toEqual("2357ea03-9dd5-49f2-a88c-dfc9aa88be3c");
+    expect(sorted[1].id).toEqual("26357d25-b5e0-4e27-b683-c6844a13dc6b");
+    expect(sorted[2].id).toEqual("0607a735-9f99-4d38-b75a-6c10027f0937");
   });
 });
