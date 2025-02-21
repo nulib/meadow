@@ -15,9 +15,9 @@ locals {
     db = {
       host     = module.data_services.outputs.aurora.endpoint
       port     = module.data_services.outputs.aurora.port
-      user     = postgresql_role.meadow.name
-      password = postgresql_role.meadow.password
-      database = postgresql_database.meadow.name
+      user     = module.data_services.outputs.aurora.admin_user
+      password = module.data_services.outputs.aurora.admin_password
+      database = "meadow"
     }
 
     dc = {
