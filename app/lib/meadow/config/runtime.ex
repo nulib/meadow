@@ -77,6 +77,19 @@ defmodule Meadow.Config.Runtime do
       queue_target: environment_int("DB_QUEUE_TARGET", 50),
       queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
 
+    Logger.info("Configuring WalEx")
+
+    config :meadow, WalEx,
+      hostname: get_secret(:meadow, ["db", "host"]),
+      username: get_secret(:meadow, ["db", "user"]),
+      password: get_secret(:meadow, ["db", "password"]),
+      database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
+      port: get_secret(:meadow, ["db", "port"]),
+      publication: "events",
+      subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
+      name: Meadow,
+      slot_name: "meadow_#{prefix()}" 
+
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
     port = environment_int("PORT", 4000)
 

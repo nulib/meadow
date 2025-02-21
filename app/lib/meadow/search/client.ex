@@ -11,6 +11,28 @@ defmodule Meadow.Search.Client do
 
   require Logger
 
+  def delete(target, id) when is_atom(target) do
+    target |> to_string() |> delete(id)
+  end
+
+  def delete(target, id) do
+    case HTTP.delete([target, "_doc", id]) do
+      {:ok, %{status_code: 200}} ->
+        Logger.info("Deleted document #{id} from #{target}")
+        {:ok, id}
+
+      {:ok, %{status_code: 404}} ->
+        Logger.warning("Document #{id} not found in #{target}")
+        {:ok, id}
+
+      {:ok, %{body: %{"error" => %{"reason" => reason}}}} ->
+        {:error, reason}
+
+      {:error, reason} ->
+        {:error, inspect(reason)}
+    end
+  end
+
   def delete_by_query(target, query) when is_list(target) do
     target
     |> Enum.map_join(",", &to_string/1)

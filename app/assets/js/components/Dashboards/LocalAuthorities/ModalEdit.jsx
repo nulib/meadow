@@ -12,19 +12,14 @@ function DashboardsLocalAuthoritiesModalEdit({
   isOpen,
 }) {
   if (!currentAuthority) return null;
-  const [defaultValues, setDefaultValues] = React.useState({
-    hint: "",
-    label: "",
-  });
-  const methods = useForm();
-  const { isDirty } = methods.formState;
-
-  React.useEffect(() => {
-    setDefaultValues({
+  const methods = useForm({
+    defaultValues: {
       hint: currentAuthority.hint,
       label: currentAuthority.label,
-    });
-  }, [currentAuthority]);
+    },
+  });
+
+  const { isDirty } = methods.formState;
 
   const onSubmit = (data) => {
     handleUpdate(data);
@@ -59,7 +54,6 @@ function DashboardsLocalAuthoritiesModalEdit({
               required
             >
               <UIFormInput
-                defaultValue={defaultValues.label}
                 isReactHookForm
                 required
                 id="nul-authority-edit-label"
@@ -70,7 +64,6 @@ function DashboardsLocalAuthoritiesModalEdit({
             </UIFormField>
             <UIFormField label="Hint" forId="nul-authority-edit-hint">
               <UIFormInput
-                defaultValue={defaultValues.hint}
                 isReactHookForm
                 id="nul-authority-edit-hint"
                 name="hint"

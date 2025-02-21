@@ -15,8 +15,6 @@ import {
 } from "@js/components/UI/Dialog/Dialog.styled";
 import {
   IconAdd,
-  IconArrowDown,
-  IconArrowUp,
   IconCheck,
   IconDelete,
   IconReplace,
@@ -36,6 +34,7 @@ import WorkTabsPreservationReplaceFileSet from "./ReplaceFileSet";
 import WorkTabsPreservationTransferFileSetsModal from "@js/components/Work/Tabs/Preservation/TransferFileSetsModal";
 import { formatDate } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
+import UIOrderBy from "@js/components/UI/OrderBy";
 
 const WorkTabsPreservation = ({ work }) => {
   if (!work) return null;
@@ -45,6 +44,7 @@ const WorkTabsPreservation = ({ work }) => {
     React.useState(false);
   const [orderedFileSets, setOrderedFileSets] = useState({
     order: "asc",
+    orderBy: "created",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
 
@@ -88,13 +88,13 @@ const WorkTabsPreservation = ({ work }) => {
         if (graphQLErrors.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
-              `${message}: ${details && details.title ? details.title : ""}`
+              `${message}: ${details && details.title ? details.title : ""}`,
           );
           toastWrapper("is-danger", errorStrings.join(" \n "));
         }
         toastWrapper(
           "is-danger",
-          "There was an unknown error deleting the Fileset"
+          "There was an unknown error deleting the Fileset",
         );
       },
       update(cache, { data: { deleteFileSet } }) {
@@ -105,7 +105,7 @@ const WorkTabsPreservation = ({ work }) => {
               fileSets(existingfileSetsRefs, { readField }) {
                 return existingfileSetsRefs.filter(
                   (fileSetRef) =>
-                    deleteFileSet.id !== readField("id", fileSetRef)
+                    deleteFileSet.id !== readField("id", fileSetRef),
                 );
               },
             },
@@ -114,7 +114,7 @@ const WorkTabsPreservation = ({ work }) => {
           console.error("Error reading from cache after fileset delete", error);
         }
       },
-    }
+    },
   );
 
   /**
@@ -126,7 +126,7 @@ const WorkTabsPreservation = ({ work }) => {
         "is-success",
         `Work ${
           descriptiveMetadata ? descriptiveMetadata.title || "" : ""
-        } deleted successfully`
+        } deleted successfully`,
       );
       history.push(`/search`);
     },
@@ -186,13 +186,20 @@ const WorkTabsPreservation = ({ work }) => {
     deleteWork({ variables: { workId: work.id } });
   };
 
-  const handleOrderClick = () => {
-    const order = orderedFileSets.order === "asc" ? "desc" : "asc";
+  const handleOrderClick = ({ order, orderBy }) => {
+    const verifiedFileSets = orderedFileSets.fileSets
+      .filter((fileSet) =>
+        verifyFileSets.find((obj) => obj.fileSetId === fileSet.id),
+      )
+      .map((fileSet) => fileSet.id);
+
     const fileSets = sortFileSets({
       order,
+      orderBy,
       fileSets: orderedFileSets.fileSets,
+      verifiedFileSets,
     });
-    setOrderedFileSets({ order, fileSets });
+    setOrderedFileSets({ order, orderBy, fileSets });
   };
 
   const handleReplaceFilesetClick = (fileset) => {
@@ -236,24 +243,59 @@ const WorkTabsPreservation = ({ work }) => {
           <table
             className="table is-fullwidth is-striped is-hoverable is-narrow"
             data-testid="preservation-table"
+            data-order={orderedFileSets.order}
+            data-order-by={orderedFileSets.orderBy}
           >
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Role</th>
-                <th>Accession #</th>
-                <th className="is-flex">
-                  {orderedFileSets.order === "asc" ? (
-                    <IconArrowDown />
-                  ) : (
-                    <IconArrowUp />
-                  )}
-                  <a className="ml-2" onClick={handleOrderClick}>
-                    Filename
-                  </a>
+                <th>
+                  <UIOrderBy
+                    label="ID"
+                    columnName="id"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
                 </th>
-                <th>Created</th>
-                <th className="has-text-centered">Verified</th>
+                <th>
+                  <UIOrderBy
+                    label="Role"
+                    columnName="role"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
+                </th>
+                <th>
+                  <UIOrderBy
+                    label="Accession #"
+                    columnName="accessionNumber"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
+                </th>
+                <th className="is-flex">
+                  <UIOrderBy
+                    label="Filename"
+                    columnName="filename"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
+                </th>
+                <th>
+                  <UIOrderBy
+                    label="Created"
+                    columnName="created"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
+                </th>
+                <th className="has-text-centered">
+                  <UIOrderBy
+                    label="Verified"
+                    columnName="verified"
+                    orderedFileSets={orderedFileSets}
+                    onClickCallback={handleOrderClick}
+                  />
+                </th>
                 <th className="has-text-right"></th>
               </tr>
             </thead>

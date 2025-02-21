@@ -122,30 +122,66 @@ export function setVisibilityClass(visibility = "") {
 
 interface SortFileSetsProps {
   order?: "asc" | "desc";
+  orderBy:
+    | "accessionNumber"
+    | "created"
+    | "filename"
+    | "id"
+    | "role"
+    | "verified";
   fileSets: FileSet[];
+  verifiedFileSets: string[];
 }
 
 export function sortFileSets({
   order = "asc",
+  orderBy = "created",
   fileSets = [],
-}: SortFileSetsProps) {
-  const orderedFileSets = [...fileSets].sort((a, b) => {
-    const aName = a.coreMetadata?.originalFilename || "";
-    const bName = b.coreMetadata?.originalFilename || "";
+  verifiedFileSets = [],
+}: SortFileSetsProps): FileSet[] {
+  if (!Array.isArray(fileSets) || fileSets.length === 0) {
+    return [];
+  }
 
-    if (aName === bName) return 0;
+  return [...fileSets].sort((a, b) => {
+    let valA: string | number = "";
+    let valB: string | number = "";
 
-    switch (order) {
-      case "asc":
-        return aName < bName ? -1 : 1;
-      case "desc":
-        return aName < bName ? 1 : -1;
-      default:
-        return 0;
+    switch (orderBy) {
+      case "id":
+        valA = a.id;
+        valB = b.id;
+        break;
+      case "filename":
+        valA = String(a?.coreMetadata?.originalFilename);
+        valB = String(b?.coreMetadata?.originalFilename);
+        break;
+      case "role":
+        valA = String(a.role.label);
+        valB = String(b.role.label);
+        break;
+      case "accessionNumber":
+        valA = a.accessionNumber;
+        valB = b.accessionNumber;
+        break;
+      case "created":
+        valA = new Date(a.insertedAt).getTime().toString();
+        valB = new Date(b.insertedAt).getTime().toString();
+        break;
+      case "verified":
+        valA = String(verifiedFileSets.includes(a.id));
+        valB = String(verifiedFileSets.includes(b.id));
+        break;
     }
-  });
 
-  return orderedFileSets;
+    if (typeof valA === "number" && typeof valB === "number") {
+      return order === "asc" ? valA - valB : valB - valA;
+    }
+
+    return order === "asc"
+      ? valA.localeCompare(valB as string)
+      : (valB as string).localeCompare(valA as string);
+  });
 }
 
 export function toastWrapper(
