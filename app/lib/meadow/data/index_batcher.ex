@@ -9,6 +9,7 @@ defmodule Meadow.Data.IndexBatcher do
 
   import Ecto.Query
 
+  alias Meadow.Data.{Collections, Works}
   alias Meadow.Repo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Config, as: SearchConfig
@@ -75,8 +76,9 @@ defmodule Meadow.Data.IndexBatcher do
 
     from(doc in schema, where: doc.id in ^ids, preload: ^preloads)
     |> Repo.all()
+    |> maybe_add_representative_image(schema)
     |> Enum.map(&encode_document(&1, version))
-    |> Stream.reject(&(&1 == :skip))
+    |> Enum.reject(&(&1 == :skip))
     |> Bulk.upload(SearchConfig.alias_for(schema, version))
 
     Map.put(state, :ids, MapSet.new([]))
@@ -109,4 +111,12 @@ defmodule Meadow.Data.IndexBatcher do
 
       :skip
   end
+
+  def maybe_add_representative_image(items, Collection),
+    do: Enum.map(items, &Collections.add_representative_image/1)
+
+  def maybe_add_representative_image(items, Work),
+    do: Enum.map(items, &Works.add_representative_image/1)
+
+  def maybe_add_representative_image(items, _), do: items
 end
