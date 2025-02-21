@@ -59,6 +59,7 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
       |> set_rank(scope: [:work_id, :role])
+      |> put_change(:reindex_at, DateTime.utc_now())
     end
   end
 
@@ -72,6 +73,7 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> cast_embed(:structural_metadata)
       |> set_rank(scope: [:work_id, :role])
       |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
+      |> put_change(:reindex_at, DateTime.utc_now())
     end
   end
 

@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.6.6"
+  @app_version "9.7.0"
 
   def project do
     [
@@ -105,6 +105,7 @@ defmodule Meadow.MixProject do
       {:telemetry_poller, "~> 0.5"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 1.1.0"},
+      {:walex, "~> 4.6.0"},
       {:wait_for_it, "~> 2.1.2"},
       {:wormwood, "~> 0.1.0"}
     ]

@@ -1,7 +1,7 @@
 ---
 services:
   db:
-    image: ghcr.io/nulib/postgres:10-alpine
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: docker
       POSTGRES_PASSWORD: d0ck3r

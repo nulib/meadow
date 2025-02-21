@@ -10,16 +10,17 @@ defmodule Meadow.Application.Children do
   defp basic_processes do
     %{
       "batch_driver" => Meadow.BatchDriver,
-      "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
-      "index_worker" => [
-        {Meadow.Data.IndexWorker,
-         interval: Config.index_interval(), version: 2, name: Meadow.Data.IndexWorker.V2}
+      "batchers" => [
+        {Meadow.Data.IndexBatcher,
+         schema: Meadow.Data.Schemas.Work, version: 2, name: :works_batcher},
+        {Meadow.Data.IndexBatcher,
+         schema: Meadow.Data.Schemas.Collection, version: 2, name: :collections_batcher},
+        {Meadow.Data.IndexBatcher,
+         schema: Meadow.Data.Schemas.FileSet, version: 2, name: :file_sets_batcher}
       ],
+      "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "database_listeners" => [
-        Meadow.ArkListener,
-        Meadow.FilesetDeleteListener,
-        Meadow.IndexDeleteListener,
-        Meadow.StructuralMetadataListener
+        {WalEx.Supervisor, Application.get_env(:meadow, WalEx)}
       ],
       "scheduler" => Meadow.Scheduler,
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
@@ -45,8 +46,7 @@ defmodule Meadow.Application.Children do
         {Absinthe.Subscription, MeadowWeb.Endpoint}
       ],
       "web.notifiers" => [
-        {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()},
-        Meadow.Ingest.SheetNotifier
+        {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
       ]
     }
   end
