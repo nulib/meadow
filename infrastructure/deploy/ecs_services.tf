@@ -21,6 +21,8 @@ module "meadow_task_all" {
   container_config          = local.container_config
   cpu                       = 2048
   db_pool_size              = 100
+  db_queue_target           = 500
+  db_queue_interval         = 2500
   livebook_shared_bucket    = var.livebook_shared_bucket
   meadow_processes          = "all"
   memory                    = 4096
