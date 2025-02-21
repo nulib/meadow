@@ -88,7 +88,8 @@ defmodule Meadow.Config.Runtime do
       publication: "events",
       subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
       name: Meadow,
-      slot_name: "meadow_#{prefix()}" 
+      slot_name: "meadow_#{prefix()}",
+      durable_slot: true
 
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
     port = environment_int("PORT", 4000)
