@@ -10,6 +10,7 @@ defmodule Meadow.Data.IndexBatcher do
   import Ecto.Query
 
   alias Meadow.Data.{Collections, Works}
+  alias Meadow.Data.Schemas.{Collection, Work}
   alias Meadow.Repo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Config, as: SearchConfig
