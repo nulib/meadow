@@ -57,8 +57,6 @@ defmodule Meadow.Data.IndexBatcher do
     bulk_size =
       Application.get_env(:meadow, Meadow.Search.Cluster) |> Keyword.get(:bulk_size, 200)
 
-    Logger.info("#{state.schema} batcher currently has #{MapSet.size(state.ids)} documents")
-
     if MapSet.size(state.ids) >= bulk_size do
       {:noreply, flush(state)}
     else
