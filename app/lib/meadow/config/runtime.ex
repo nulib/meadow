@@ -59,6 +59,16 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Configuring Meadow.Repo")
 
+    config :meadow, Meadow.Repo.Indexing,
+      username: get_secret(:meadow, ["db", "user"]),
+      password: get_secret(:meadow, ["db", "password"]),
+      database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
+      hostname: get_secret(:meadow, ["db", "host"]),
+      port: get_secret(:meadow, ["db", "port"]),
+      pool_size: 5,
+      queue_target: environment_int("DB_QUEUE_TARGET", 50),
+      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
+
     config :meadow, Meadow.Repo,
       username: get_secret(:meadow, ["db", "user"]),
       password: get_secret(:meadow, ["db", "password"]),
@@ -73,7 +83,7 @@ defmodule Meadow.Config.Runtime do
       ],
       migration_timestamps: [type: :utc_datetime_usec],
       port: get_secret(:meadow, ["db", "port"]),
-      pool_size: environment_int("DB_POOL_SIZE", 10),
+      pool_size: environment_int("DB_POOL_SIZE", 10) - 5,
       queue_target: environment_int("DB_QUEUE_TARGET", 50),
       queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
 

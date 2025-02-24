@@ -8,7 +8,7 @@ defmodule Meadow.Events.Indexing do
   alias Meadow.Data.IndexBatcher
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Ingest.Schemas.Sheet
-  alias Meadow.Repo
+  alias Meadow.Repo.Indexing, as: IndexingRepo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Config, as: SearchConfig
 
@@ -138,7 +138,7 @@ defmodule Meadow.Events.Indexing do
   defp send_to_batcher(queryable, schema) do
     queryable
     |> select([q], q.id)
-    |> Repo.all()
+    |> IndexingRepo.all()
     |> IndexBatcher.reindex(schema)
   end
 end
