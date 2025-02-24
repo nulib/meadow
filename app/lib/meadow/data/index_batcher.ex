@@ -11,7 +11,7 @@ defmodule Meadow.Data.IndexBatcher do
 
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, Work}
-  alias Meadow.Repo
+  alias Meadow.Repo.Indexing, as: IndexingRepo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Document, as: SearchDocument
@@ -22,7 +22,7 @@ defmodule Meadow.Data.IndexBatcher do
 
   def reindex(ids, schema) do
     target = String.to_existing_atom("#{schema}_batcher")
-    send(target, {:reindex, ids})
+    GenServer.call(target, {:reindex, ids}, :infinity)
   end
 
   def child_spec(opts) do
@@ -44,41 +44,44 @@ defmodule Meadow.Data.IndexBatcher do
   end
 
   @impl GenServer
-  def handle_info({:reindex, ids}, state) do
+  def handle_call({:reindex, ids}, _from, state) do
     state = cancel_timer(state)
 
     Map.update!(state, :ids, &MapSet.union(&1, MapSet.new(ids)))
     |> maybe_flush()
   end
 
+  @impl GenServer
   def handle_info(:flush, state), do: {:noreply, flush(state)}
 
   defp maybe_flush(state) do
-    bulk_size =
-      Application.get_env(:meadow, Meadow.Search.Cluster) |> Keyword.get(:bulk_size, 200)
-
-    if MapSet.size(state.ids) >= bulk_size do
-      {:noreply, flush(state)}
+    if MapSet.size(state.ids) >= SearchConfig.bulk_page_size() do
+      send(self(), :flush)
+      {:reply, :ok, cancel_timer(state)}
     else
-      {:noreply, set_timer(state)}
+      {:reply, :ok, set_timer(state)}
     end
   end
 
   defp flush(state) do
     state = cancel_timer(state)
-    ids = MapSet.to_list(state.ids)
+
     %{schema: schema, version: version} = state
 
+    ids = MapSet.to_list(state.ids)
     Logger.info("Flushing #{length(ids)} #{schema} documents")
-
     preloads = schema.required_index_preloads()
 
-    from(doc in schema, where: doc.id in ^ids, preload: ^preloads)
-    |> Repo.all()
-    |> maybe_add_representative_image(schema)
-    |> Enum.map(&encode_document(&1, version))
-    |> Enum.reject(&(&1 == :skip))
-    |> Bulk.upload(SearchConfig.alias_for(schema, version))
+    ids
+    |> Enum.chunk_every(SearchConfig.bulk_page_size())
+    |> Enum.each(fn page ->
+      from(doc in schema, where: doc.id in ^page, preload: ^preloads)
+      |> IndexingRepo.all()
+      |> maybe_add_representative_image(schema)
+      |> Enum.map(&encode_document(&1, version))
+      |> Enum.reject(&(&1 == :skip))
+      |> Bulk.upload(SearchConfig.alias_for(schema, version))
+    end)
 
     Map.put(state, :ids, MapSet.new([]))
   end
