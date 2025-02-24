@@ -3,14 +3,13 @@ defmodule Meadow.Events.Indexing do
   Handles events related to reindexing records in the search index.
   """
 
+  use Retry
   import Ecto.Query
 
   alias Meadow.Data.IndexBatcher
-  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Repo.Indexing, as: IndexingRepo
-  alias Meadow.Search.Bulk
-  alias Meadow.Search.Config, as: SearchConfig
 
   @cascade_fields %{
     file_sets_works:
@@ -34,16 +33,14 @@ defmodule Meadow.Events.Indexing do
   end
 
   def handle_delete(%{name: name, old_record: record}) do
-    delete_from_index(name, record.id)
+    IndexBatcher.delete([record.id], name)
     do_delete_indexing(record, name)
   end
 
-  # Reindex the work when a file set is inserted
   defp do_insert_indexing(%{work_id: work_id}, :file_sets) do
     IndexBatcher.reindex([work_id], :works)
   end
 
-  # Reindex the collection when a work is inserted
   defp do_insert_indexing(%{collection_id: collection_id}, :works) do
     IndexBatcher.reindex([collection_id], :collections)
   end
@@ -60,8 +57,7 @@ defmodule Meadow.Events.Indexing do
   defp do_update_indexing(%{id: id, collection_id: collection_id}, :works, changes)
        when not is_nil(collection_id) do
     if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_collections])) do
-      from(c in Collection, where: c.id == ^collection_id)
-      |> send_to_batcher(:collections)
+      IndexBatcher.reindex([collection_id], :collections)
     end
 
     if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) do
@@ -72,8 +68,7 @@ defmodule Meadow.Events.Indexing do
 
   defp do_update_indexing(%{work_id: work_id}, :file_sets, changes) do
     if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:file_sets_works])) do
-      from(w in Work, where: w.id == ^work_id)
-      |> send_to_batcher(:works)
+      IndexBatcher.reindex([work_id], :works)
     end
   end
 
@@ -94,14 +89,12 @@ defmodule Meadow.Events.Indexing do
   end
 
   defp do_delete_indexing(%{work_id: work_id}, :file_sets) do
-    from(w in Work, where: w.id == ^work_id)
-    |> send_to_batcher(:works)
+    IndexBatcher.reindex([work_id], :works)
   end
 
   defp do_delete_indexing(%{collection_id: collection_id}, :works)
        when not is_nil(collection_id) do
-    from(c in Collection, where: c.id == ^collection_id)
-    |> send_to_batcher(:collections)
+    IndexBatcher.reindex([collection_id], :collections)
   end
 
   defp do_delete_indexing(%{id: id}, :ingest_sheets) do
@@ -123,22 +116,13 @@ defmodule Meadow.Events.Indexing do
     :noop
   end
 
-  defp delete_from_index(:collections, id), do: delete_from_schema_index(Collection, id)
-  defp delete_from_index(:file_sets, id), do: delete_from_schema_index(FileSet, id)
-  defp delete_from_index(:works, id), do: delete_from_schema_index(Work, id)
-  defp delete_from_index(:ingest_sheets, _), do: :noop
-  defp delete_from_index(:projects, _), do: :noop
-
-  defp delete_from_schema_index(schema, id) do
-    Logger.info("Deleting #{id} from #{schema} index")
-
-    Bulk.delete([id], SearchConfig.alias_for(schema, 2))
-  end
-
   defp send_to_batcher(queryable, schema) do
-    queryable
-    |> select([q], q.id)
-    |> IndexingRepo.all()
-    |> IndexBatcher.reindex(schema)
+    query = queryable |> select([q], q.id)
+
+    retry with: exponential_backoff() |> randomize() |> cap(10_000) |> Stream.take(10),
+          rescue_only: [DBConnection.ConnectionError] do
+      IndexingRepo.all(query)
+      |> IndexBatcher.reindex(schema)
+    end
   end
 end

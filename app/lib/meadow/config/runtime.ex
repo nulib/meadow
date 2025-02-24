@@ -67,7 +67,8 @@ defmodule Meadow.Config.Runtime do
       port: get_secret(:meadow, ["db", "port"]),
       pool_size: 5,
       queue_target: environment_int("DB_QUEUE_TARGET", 50),
-      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
+      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
+      parameters: [application_name: "Meadow.Repo.Indexing"]
 
     config :meadow, Meadow.Repo,
       username: get_secret(:meadow, ["db", "user"]),
@@ -85,7 +86,8 @@ defmodule Meadow.Config.Runtime do
       port: get_secret(:meadow, ["db", "port"]),
       pool_size: environment_int("DB_POOL_SIZE", 10) - 5,
       queue_target: environment_int("DB_QUEUE_TARGET", 50),
-      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
+      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
+      parameters: [application_name: "Meadow.Repo"]
 
     Logger.info("Configuring WalEx")
 

@@ -20,6 +20,11 @@ defmodule Meadow.Data.IndexBatcher do
 
   @flush_interval 5_000
 
+  def delete(ids, schema) do
+    target = String.to_existing_atom("#{schema}_batcher")
+    GenServer.call(target, {:delete, ids}, :infinity)
+  end
+
   def reindex(ids, schema) do
     target = String.to_existing_atom("#{schema}_batcher")
     GenServer.call(target, {:reindex, ids}, :infinity)
@@ -40,35 +45,60 @@ defmodule Meadow.Data.IndexBatcher do
   def init(args) do
     schema = Keyword.get(args, :schema)
     version = Keyword.get(args, :version, 2)
-    {:ok, %{schema: schema, version: version, ids: MapSet.new([])}}
+
+    {:ok,
+     %{
+       schema: schema,
+       version: version,
+       delete: MapSet.new([]),
+       update: MapSet.new([]),
+       timer_refs: []
+     }}
+  end
+
+  @impl GenServer
+  def handle_call({:delete, ids}, _from, state) do
+    state = cancel_timer(state, :delete)
+
+    Map.update!(state, :delete, &MapSet.union(&1, MapSet.new(ids)))
+    |> maybe_flush(:delete)
   end
 
   @impl GenServer
   def handle_call({:reindex, ids}, _from, state) do
-    state = cancel_timer(state)
+    state = cancel_timer(state, :update)
 
-    Map.update!(state, :ids, &MapSet.union(&1, MapSet.new(ids)))
-    |> maybe_flush()
+    Map.update!(state, :update, &MapSet.union(&1, MapSet.new(ids)))
+    |> maybe_flush(:update)
   end
 
   @impl GenServer
-  def handle_info(:flush, state), do: {:noreply, flush(state)}
+  def handle_info({:flush, action}, state), do: {:noreply, flush(state, action)}
 
-  defp maybe_flush(state) do
-    if MapSet.size(state.ids) >= SearchConfig.bulk_page_size() do
-      send(self(), :flush)
-      {:reply, :ok, cancel_timer(state)}
+  defp maybe_flush(state, action) do
+    if Map.get(state, action, MapSet.new()) |> MapSet.size() >= SearchConfig.bulk_page_size() do
+      send(self(), {:flush, action})
+      {:reply, :ok, cancel_timer(state, action)}
     else
-      {:reply, :ok, set_timer(state)}
+      {:reply, :ok, set_timer(state, action)}
     end
   end
 
-  defp flush(state) do
-    state = cancel_timer(state)
-
+  defp flush(state, :delete) do
+    state = cancel_timer(state, :delete)
     %{schema: schema, version: version} = state
 
-    ids = MapSet.to_list(state.ids)
+    MapSet.to_list(state.delete)
+    |> Bulk.delete(SearchConfig.alias_for(schema, version))
+
+    Map.put(state, :delete, MapSet.new([]))
+  end
+
+  defp flush(state, :update) do
+    state = cancel_timer(state, :update)
+    %{schema: schema, version: version} = state
+
+    ids = MapSet.to_list(state.update)
     Logger.info("Flushing #{length(ids)} #{schema} documents")
     preloads = schema.required_index_preloads()
 
@@ -83,21 +113,24 @@ defmodule Meadow.Data.IndexBatcher do
       |> Bulk.upload(SearchConfig.alias_for(schema, version))
     end)
 
-    Map.put(state, :ids, MapSet.new([]))
+    Map.put(state, :update, MapSet.new([]))
   end
 
-  defp set_timer(state) do
-    cancel_timer(state)
-    |> Map.put(:timer_ref, Process.send_after(self(), :flush, @flush_interval))
+  defp set_timer(state, action) do
+    cancel_timer(state, action)
+    |> put_in(
+      [:timer_refs, action],
+      Process.send_after(self(), {:flush, action}, @flush_interval)
+    )
   end
 
-  defp cancel_timer(state) do
-    case Map.get(state, :timer_ref) do
+  defp cancel_timer(state, action) do
+    case get_in(state, [:timer_refs, action]) do
       nil -> :noop
       ref -> Process.cancel_timer(ref)
     end
 
-    Map.put(state, :timer_ref, nil)
+    put_in(state, [:timer_refs, action], nil)
   end
 
   defp encode_document(nil, _), do: :skip
