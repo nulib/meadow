@@ -231,6 +231,7 @@ defmodule Meadow.Config.Runtime do
       mediaconvert_queue: get_secret(:meadow, ["mediaconvert", "queue"]),
       mediaconvert_role: get_secret(:meadow, ["mediaconvert", "role_arn"]),
       multipart_upload_concurrency: environment_int("MULTIPART_UPLOAD_CONCURRENCY", 50),
+      multipart_upload_timeout: environment_int("MULTIPART_UPLOAD_TIMEOUT", 30_000),
       pipeline_delay: environment_int("PIPELINE_DELAY", 120_000),
       progress_ping_interval: environment_int("PROGRESS_PING_INTERVAL", 1000),
       pyramid_tiff_working_dir: System.tmp_dir!(),
