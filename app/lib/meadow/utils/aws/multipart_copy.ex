@@ -53,12 +53,13 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
     end
 
     case ExAws.S3.head_object(dest_bucket, dest_object) |> AWS.request() do
-      {:ok, anything} -> {:ok, anything}
+      {:ok, anything} ->
+        {:ok, anything}
+
       other ->
         Logger.error("Multipart copy failed: #{inspect(other)}")
         {:error, "Multipart copy failed: #{inspect(other)}"}
     end
-
   end
 
   defp copy_s3_object(%__MODULE__{content_length: length} = op) when length > @threshold do
@@ -144,6 +145,8 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   end
 
   defp upload_chunk(%__MODULE__{} = op, chunk) do
+    Logger.debug("Uploading chunk #{chunk}")
+
     with chunk_size <- extract_chunk_size(op),
          first_byte <- (chunk - 1) * chunk_size,
          last_byte <- min(op.content_length, first_byte + chunk_size) - 1 do
@@ -165,7 +168,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
           service: :s3,
           stream_builder: nil
         }
-        |> AWS.request()
+        |> AWS.request(http_opts: [recv_timeout: Config.multipart_upload_timeout()])
 
       case result do
         {:ok, %{status_code: 200, body: %{e_tag: etag}}} -> {:ok, String.replace(etag, ~s'"', "")}

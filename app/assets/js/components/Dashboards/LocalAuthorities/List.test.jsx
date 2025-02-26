@@ -5,6 +5,7 @@ import DashboardsLocalAuthoritiesList from "./List";
 import {
   deleteNulAuthorityRecordMock,
   getNulAuthorityRecordsMock,
+  getNulAuthorityRecordsSetLimitMock,
   updateNulAuthorityRecordMock,
 } from "@js/components/Dashboards/dashboards.gql.mock";
 import { authoritiesSearchMock } from "@js/components/Work/controlledVocabulary.gql.mock";
@@ -16,6 +17,7 @@ describe("DashboardsLocalAuthoritiesList component", () => {
       mocks: [
         deleteNulAuthorityRecordMock,
         getNulAuthorityRecordsMock,
+        getNulAuthorityRecordsSetLimitMock,
         updateNulAuthorityRecordMock,
       ],
     });
@@ -32,7 +34,7 @@ describe("DashboardsLocalAuthoritiesList component", () => {
 
   it("renders correct nul authority row details", async () => {
     const td = await screen.findByText(
-      "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc"
+      "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc",
     );
     const row = td.closest("tr");
     const utils = within(row);
@@ -40,9 +42,33 @@ describe("DashboardsLocalAuthoritiesList component", () => {
     expect(utils.getByText(/Ima Hint 1/i));
   });
 
+  it("renders correct nul authority query limit options", async () => {
+    const options = await screen.findByTestId(
+      "local-authorities-dashboard-table-options",
+    );
+
+    const buttons = within(options).getAllByRole("button");
+
+    // expect 4 buttons
+    expect(buttons).toHaveLength(4);
+
+    // expect button text content
+    expect(buttons[0]).toHaveTextContent("25");
+    expect(buttons[1]).toHaveTextContent("50");
+    expect(buttons[2]).toHaveTextContent("100");
+    expect(buttons[3]).toHaveTextContent("500");
+
+    // expect default active button
+    expect(buttons[2]).toHaveClass("active", "is-primary");
+
+    // expect button click and active class change
+    await userEvent.click(buttons[0]);
+    expect(await screen.findByText("25")).toHaveClass("active", "is-primary");
+  });
+
   it("renders an edit, search, and delete buttons", async () => {
     const td = await screen.findByText(
-      "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc"
+      "info:nul/675ed59a-ab54-481a-9bd1-d9b7fd2604dc",
     );
     const row = td.closest("tr");
     const utils = within(row);

@@ -21,6 +21,7 @@ defmodule Meadow.Application do
 
     unless System.get_env("MEADOW_NO_REPO") do
       DynamicSupervisor.start_child(Meadow.Supervisor, Meadow.Repo)
+      DynamicSupervisor.start_child(Meadow.Supervisor, Meadow.Repo.Indexing)
       Meadow.Repo.wait_for_connection()
     end
 

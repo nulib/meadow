@@ -28,8 +28,7 @@ export const mockGetBatchesResults = [
     worksUpdated: 2,
   },
   {
-    add:
-      '{"administrative_metadata":{},"descriptive_metadata":{"alternate_title":["Alt title here"],"box_name":["Beta box"],"box_number":["14"],"contributor":[{"role":{"id":"asg","scheme":"marc_relator"},"term":"http://id.worldcat.org/fast/1204155"}],"keywords":["some key word","keyword2"]}}',
+    add: '{"administrative_metadata":{},"descriptive_metadata":{"alternate_title":["Alt title here"],"box_name":["Beta box"],"box_number":["14"],"contributor":[{"role":{"id":"asg","scheme":"marc_relator"},"term":"http://id.worldcat.org/fast/1204155"}],"keywords":["some key word","keyword2"]}}',
     delete: '{"genre":[{"term":"http://vocab.getty.edu/aat/300266117"}]}',
     error: null,
     id: "7b9fa4c5-fa97-46e8-8fd7-db0001dc76c3",
@@ -224,7 +223,21 @@ export const getNulAuthorityRecordsMock = {
     query: GET_NUL_AUTHORITY_RECORDS,
     variables: {
       limit: 100,
-    }
+    },
+  },
+  result: {
+    data: {
+      nulAuthorityRecords: mockNulAuthorityRecords,
+    },
+  },
+};
+
+export const getNulAuthorityRecordsSetLimitMock = {
+  request: {
+    query: GET_NUL_AUTHORITY_RECORDS,
+    variables: {
+      limit: 25,
+    },
   },
   result: {
     data: {

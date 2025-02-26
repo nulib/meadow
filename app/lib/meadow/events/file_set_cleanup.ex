@@ -4,13 +4,9 @@ defmodule Meadow.Events.FileSetCleanup do
   """
 
   alias Meadow.Config
-  alias Meadow.Data.Schemas.FileSet
-  alias Meadow.Repo
   alias Meadow.Utils.AWS
 
   use Meadow.Utils.Logging
-
-  import Ecto.Query
 
   require Logger
 
@@ -38,6 +34,7 @@ defmodule Meadow.Events.FileSetCleanup do
       Logger.info("Cleaning up #{type} derivative at #{location}")
       clean_derivative!(type, location)
     end)
+
     file_set_data
   end
 
@@ -65,19 +62,8 @@ defmodule Meadow.Events.FileSetCleanup do
   end
 
   defp clean_preservation_file!(%{id: id, core_metadata: %{"location" => location}}, _) do
-    refs =
-      from(f in FileSet,
-        where: fragment("core_metadata ->> 'location' = ?", ^location) and f.id != ^id
-      )
-      |> Repo.aggregate(:count)
-
-    if refs == 0 do
-      Logger.warning("Removing preservation file at #{location}")
-      delete_s3_uri(location)
-    else
-      references = Inflex.Pluralize.inflect("reference", refs)
-      Logger.warning("Leaving #{location} intact: #{refs} additional #{references}")
-    end
+    Logger.warning("Removing preservation file for #{id} at #{location}")
+    delete_s3_uri(location)
   end
 
   defp in_ingest_bucket(%{core_metadata: core_metadata}) do

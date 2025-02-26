@@ -59,6 +59,17 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Configuring Meadow.Repo")
 
+    config :meadow, Meadow.Repo.Indexing,
+      username: get_secret(:meadow, ["db", "user"]),
+      password: get_secret(:meadow, ["db", "password"]),
+      database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
+      hostname: get_secret(:meadow, ["db", "host"]),
+      port: get_secret(:meadow, ["db", "port"]),
+      pool_size: 5,
+      queue_target: environment_int("DB_QUEUE_TARGET", 50),
+      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
+      parameters: [application_name: "Meadow.Repo.Indexing"]
+
     config :meadow, Meadow.Repo,
       username: get_secret(:meadow, ["db", "user"]),
       password: get_secret(:meadow, ["db", "password"]),
@@ -73,9 +84,10 @@ defmodule Meadow.Config.Runtime do
       ],
       migration_timestamps: [type: :utc_datetime_usec],
       port: get_secret(:meadow, ["db", "port"]),
-      pool_size: environment_int("DB_POOL_SIZE", 10),
+      pool_size: environment_int("DB_POOL_SIZE", 10) - 5,
       queue_target: environment_int("DB_QUEUE_TARGET", 50),
-      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000)
+      queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
+      parameters: [application_name: "Meadow.Repo"]
 
     Logger.info("Configuring WalEx")
 
@@ -219,6 +231,7 @@ defmodule Meadow.Config.Runtime do
       mediaconvert_queue: get_secret(:meadow, ["mediaconvert", "queue"]),
       mediaconvert_role: get_secret(:meadow, ["mediaconvert", "role_arn"]),
       multipart_upload_concurrency: environment_int("MULTIPART_UPLOAD_CONCURRENCY", 50),
+      multipart_upload_timeout: environment_int("MULTIPART_UPLOAD_TIMEOUT", 30_000),
       pipeline_delay: environment_int("PIPELINE_DELAY", 120_000),
       progress_ping_interval: environment_int("PROGRESS_PING_INTERVAL", 1000),
       pyramid_tiff_working_dir: System.tmp_dir!(),
