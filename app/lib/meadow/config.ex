@@ -34,6 +34,14 @@ defmodule Meadow.Config do
     end
   end
 
+  @doc "Retrieve the configured multipart upload timeout value"
+  def multipart_upload_timeout do
+    case Application.get_env(:meadow, :multipart_upload_timeout) do
+      n when is_binary(n) -> String.to_integer(n)
+      n -> n
+    end
+  end
+
   @doc "Retrieve the configured preservation bucket"
   def preservation_bucket do
     Application.get_env(:meadow, :preservation_bucket)

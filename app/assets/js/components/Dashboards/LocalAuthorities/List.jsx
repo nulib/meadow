@@ -5,13 +5,9 @@ import {
   UPDATE_NUL_AUTHORITY_RECORD,
 } from "@js/components/Dashboards/dashboards.gql";
 import { IconEdit, IconImages, IconTrashCan } from "@js/components/Icon";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
-import {
-  useLazyQuery,
-  useMutation,
-  useQuery,
-} from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";
@@ -34,12 +30,15 @@ export default function DashboardsLocalAuthoritiesList() {
     },
   });
   const [searchValue, setSearchValue] = React.useState("");
+  const [limit, setLimit] = React.useState(100);
 
   // GraphQL
   const { loading, error, data } = useQuery(GET_NUL_AUTHORITY_RECORDS, {
-    variables: { limit: 100 },
-    pollInterval: 1000,
+    variables: { limit },
+    pollInterval: 10000,
   });
+
+  const limitOptions = [25, 50, 100, 500];
 
   function filterValues() {
     if (!data) return;
@@ -64,7 +63,7 @@ export default function DashboardsLocalAuthoritiesList() {
         fields: {
           nulAuthorityRecords(existingNulAuthorityRefs = [], { readField }) {
             const newData = existingNulAuthorityRefs.filter(
-              (ref) => deleteNulAuthorityRecord.id !== readField("id", ref)
+              (ref) => deleteNulAuthorityRecord.id !== readField("id", ref),
             );
             return [...newData];
           },
@@ -74,10 +73,7 @@ export default function DashboardsLocalAuthoritiesList() {
     onError({ graphQLErrors, networkError }) {
       console.error("graphQLErrors", graphQLErrors);
       console.error("networkError", networkError);
-      toastWrapper(
-        "is-danger",
-        `Error deleting authority record.`
-      );
+      toastWrapper("is-danger", `Error deleting authority record.`);
     },
   });
 
@@ -88,7 +84,7 @@ export default function DashboardsLocalAuthoritiesList() {
     onCompleted({ updateNulAuthorityRecord }) {
       toastWrapper(
         "is-success",
-        `NUL Authority: ${updateNulAuthorityRecord.label} updated`
+        `NUL Authority: ${updateNulAuthorityRecord.label} updated`,
       );
       setCurrentAuthority(null);
       filterValues();
@@ -110,10 +106,7 @@ export default function DashboardsLocalAuthoritiesList() {
     onError({ graphQLErrors, networkError }) {
       console.error("graphQLErrors", graphQLErrors);
       console.error("networkError", networkError);
-      toastWrapper(
-        "is-danger",
-        `Error searching NUL local authorities.`
-      );
+      toastWrapper("is-danger", `Error searching NUL local authorities.`);
     },
   });
 
@@ -183,6 +176,28 @@ export default function DashboardsLocalAuthoritiesList() {
           value={searchValue}
         />
       </SearchBarRow>
+
+      <div
+        className="is-flex is-justify-content-flex-end is-align-items-center mb-5"
+        data-testid="local-authorities-dashboard-table-options"
+      >
+        <label className="is-flex is-align-items-center columns is-3">
+          <span className="column">Item Count</span>
+          <div className="is-flex is-align-items-center column">
+            {limitOptions.map((option) => {
+              return (
+                <button
+                  key={option}
+                  className={`button ${limit === option ? "is-primary active" : "is-ghost"}`}
+                  onClick={() => setLimit(option)}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        </label>
+      </div>
 
       <div className="table-container">
         <table
