@@ -42,29 +42,29 @@
 }
 
 @font-face {
-  font-family: "Campton Book";
-  src: url("#{$path-fonts}/CamptonBook.woff") format("woff");
-  font-weight: normal;
+  font-family: "Poppins Light";
+  src: url("#{$path-fonts}/Poppins-Light.woff") format("woff");
+  font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Campton Bold";
-  src: url("#{$path-fonts}/CamptonBold.woff") format("woff");
-  font-weight: normal;
+  font-family: "Poppins Bold";
+  src: url("#{$path-fonts}/Poppins-Bold.woff") format("woff");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Campton Extra Bold";
-  src: url("#{$path-fonts}/CamptonExtraBold.woff") format("woff");
-  font-weight: normal;
+  font-family: "Poppins Extra Bold";
+  src: url("#{$path-fonts}/Poppins-ExtraBold.woff") format("woff");
+  font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Campton Extra Light";
-  src: url("#{$path-fonts}/CamptonExtraLight.woff") format("woff");
-  font-weight: normal;
+  font-family: "Poppins Extra Light";
+  src: url("#{$path-fonts}/Poppins-ExtraLight.woff") format("woff");
+  font-weight: 100;
   font-style: normal;
 }

@@ -46,10 +46,10 @@ $AkkuratProRegular: "Akkurat Pro Regular", Arial, sans-serif;
 $AkkuratProItalic: "Akkurat Pro Italic", Arial, sans-serif;
 $AkkuratProBold: "Akkurat Pro Bold", "Arial Black", sans-serif;
 $AkkuratProBoldItalic: "Akkurat Pro Bold Italic", "Arial Black", sans-serif;
-$CamptonBook: "Campton Book", Tahoma, sans-serif;
-$CamptonBold: "Campton Bold", Impact, sans-serif;
-$CamptonExtraBold: "Campton Extra Bold", Impact, sans-serif;
-$CamptonExtraLight: "Campton Extra Light", "Courier New", sans-serif;
+$PoppinsLight: "Poppins Light", $AkkuratProRegular, sans-serif;
+$PoppinsBold: "Poppins Bold", $AkkuratProBold, sans-serif;
+$PoppinsExtraBold: "Poppins Extra Bold", $AkkuratProBold, sans-serif;
+$PoppinsExtraLight: "Poppins Extra Light", $AkkuratLight, sans-serif;
 
 // Customize Bulma with these variables
 // Colors
@@ -64,9 +64,9 @@ $dark: $rich-black-80;
 // General
 $breadcrumb-item-separator-color: $rich-black-50;
 $family-primary: $AkkuratProRegular;
-$family-secondary: $CamptonBook;
+$family-secondary: $PoppinsLight;
 $navbar-height: 4rem;
 
-$title-family: $CamptonExtraLight;
+$title-family: $PoppinsExtraLight;
 $title-weight: 400;
 $grey: $rich-black-50;
