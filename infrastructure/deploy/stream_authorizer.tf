@@ -103,7 +103,7 @@ resource "aws_lambda_function" "stream_authorizer" {
   function_name = "${var.stack_name}-stream-authorizer"
   role          = aws_iam_role.stream_authorizer_role.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs22.x"
   memory_size   = 128
   timeout       = 5
   publish       = true

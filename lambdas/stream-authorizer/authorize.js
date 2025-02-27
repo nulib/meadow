@@ -1,9 +1,7 @@
-const isString = require("lodash.isstring");
-const fetch = require("node-fetch");
 const { dcApiEndpoint, allowedFrom } = require("./config/environment.json");
 
 const allowedFromRegexes = ((str) => {
-  const configValues = isString(str) ? str.split(";") : [];
+  const configValues = typeof str === "string" ? str.split(";") : [];
   const result = [];
   for (const re in configValues) {
     result.push(new RegExp(configValues[re]));
