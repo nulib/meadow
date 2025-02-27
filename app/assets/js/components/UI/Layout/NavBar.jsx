@@ -161,9 +161,7 @@ const UILayoutNavBar = () => {
                       <AuthDisplayAuthorized level="SUPERUSER">
                         <UILayoutNavDropdownItem>
                           <UILivebookLink>
-                            <IconText icon={<GrMultiple />}>
-                              Livebook
-                            </IconText>
+                            <IconText icon={<GrMultiple />}>Livebook</IconText>
                           </UILivebookLink>
                         </UILayoutNavDropdownItem>
                       </AuthDisplayAuthorized>
