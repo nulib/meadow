@@ -10,7 +10,7 @@ function LevelItem({ heading, title }: Stat) {
     <div className="has-text-centered py-3">
       <div>
         <p className="heading is-size-6">{heading}</p>
-        <p className="title is-size-2 is-campton-bold">{title}</p>
+        <p className="title is-size-2 is-display-bold">{title}</p>
       </div>
     </div>
   );
