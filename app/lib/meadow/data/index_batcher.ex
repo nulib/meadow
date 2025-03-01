@@ -11,7 +11,6 @@ defmodule Meadow.Data.IndexBatcher do
 
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, Work}
-  alias Meadow.Repo.Indexing, as: IndexingRepo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Document, as: SearchDocument
@@ -43,11 +42,13 @@ defmodule Meadow.Data.IndexBatcher do
 
   @impl GenServer
   def init(args) do
+    repo = Keyword.get(args, :repo, Meadow.Repo.Indexing)
     schema = Keyword.get(args, :schema)
     version = Keyword.get(args, :version, 2)
 
     {:ok,
      %{
+       repo: repo,
        schema: schema,
        version: version,
        delete: MapSet.new([]),
@@ -73,6 +74,9 @@ defmodule Meadow.Data.IndexBatcher do
   end
 
   @impl GenServer
+  def handle_call({:flush, action}, _from, state), do: {:reply, :ok, flush(state, action)}
+
+  @impl GenServer
   def handle_info({:flush, action}, state), do: {:noreply, flush(state, action)}
 
   defp maybe_flush(state, action) do
@@ -88,25 +92,26 @@ defmodule Meadow.Data.IndexBatcher do
     state = cancel_timer(state, :delete)
     %{schema: schema, version: version} = state
 
-    MapSet.to_list(state.delete)
-    |> Bulk.delete(SearchConfig.alias_for(schema, version))
+    ids = MapSet.to_list(state.delete)
+    if length(ids) > 0, do: Logger.info("Flushing #{length(ids)} #{schema} deleted documents")
+    Bulk.delete(ids, SearchConfig.alias_for(schema, version))
 
     Map.put(state, :delete, MapSet.new([]))
   end
 
   defp flush(state, :update) do
     state = cancel_timer(state, :update)
-    %{schema: schema, version: version} = state
+    %{repo: repo, schema: schema, version: version} = state
 
     ids = MapSet.to_list(state.update)
-    Logger.info("Flushing #{length(ids)} #{schema} documents")
+    if length(ids) > 0, do: Logger.info("Flushing #{length(ids)} #{schema} updated documents")
     preloads = schema.required_index_preloads()
 
     ids
     |> Enum.chunk_every(SearchConfig.bulk_page_size())
     |> Enum.each(fn page ->
       from(doc in schema, where: doc.id in ^page, preload: ^preloads)
-      |> IndexingRepo.all()
+      |> repo.all()
       |> maybe_add_representative_image(schema)
       |> Enum.map(&encode_document(&1, version))
       |> Enum.reject(&(&1 == :skip))

@@ -11,7 +11,7 @@ defmodule Meadow.Repo.Migrations.CreateBatches do
       add(:add, :text)
       add(:delete, :text)
       add(:replace, :text)
-      add(:error, :string)
+      add(:error, :text)
       add(:started, :utc_datetime_usec)
       add(:works_updated, :integer)
       add(:active, :boolean)

@@ -21,7 +21,7 @@ defmodule Meadow.Events.FileSets do
 
   on_delete(
     :file_sets,
-    @filter,
+    %{},
     [{Meadow.Events.Indexing, :handle_delete}, {Meadow.Events.FileSetCleanup, :handle_delete}],
     & &1
   )

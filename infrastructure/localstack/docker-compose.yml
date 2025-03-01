@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: d0ck3r
       PGUSER: docker
       PGPASSWORD: d0ck3r
+    command: ["postgres", "-c", "wal_level=logical"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s

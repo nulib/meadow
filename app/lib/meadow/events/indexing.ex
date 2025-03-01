@@ -9,7 +9,6 @@ defmodule Meadow.Events.Indexing do
   alias Meadow.Data.IndexBatcher
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.Schemas.Sheet
-  alias Meadow.Repo.Indexing, as: IndexingRepo
 
   @cascade_fields %{
     file_sets_works:
@@ -118,10 +117,11 @@ defmodule Meadow.Events.Indexing do
 
   defp send_to_batcher(queryable, schema) do
     query = queryable |> select([q], q.id)
+    repo = Application.get_env(:meadow, :indexing_repo)
 
     retry with: exponential_backoff() |> randomize() |> cap(10_000) |> Stream.take(10),
           rescue_only: [DBConnection.ConnectionError] do
-      IndexingRepo.all(query)
+      repo.all(query)
       |> IndexBatcher.reindex(schema)
     end
   end

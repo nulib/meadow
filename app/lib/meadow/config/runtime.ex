@@ -89,6 +89,8 @@ defmodule Meadow.Config.Runtime do
       queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
       parameters: [application_name: "Meadow.Repo"]
 
+    config :meadow, :indexing_repo, Meadow.Repo.Indexing
+
     Logger.info("Configuring WalEx")
 
     config :meadow, WalEx,

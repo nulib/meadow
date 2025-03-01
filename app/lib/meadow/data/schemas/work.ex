@@ -33,7 +33,6 @@ defmodule Meadow.Data.Schemas.Work do
 
     field(:work_type, Types.CodedTerm)
 
-    field(:reindex_at, :utc_datetime_usec)
     timestamps()
 
     embeds_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
@@ -96,7 +95,6 @@ defmodule Meadow.Data.Schemas.Work do
       |> assoc_constraint(:representative_file_set)
       |> validate_required(required_params)
       |> unique_constraint(:accession_number)
-      |> put_change(:reindex_at, DateTime.utc_now())
     end
   end
 
@@ -109,7 +107,6 @@ defmodule Meadow.Data.Schemas.Work do
       :collection_id,
       :ingest_sheet_id,
       :published,
-      :reindex_at,
       :representative_file_set_id,
       :visibility
     ]
@@ -122,7 +119,6 @@ defmodule Meadow.Data.Schemas.Work do
     |> cast_embed(:descriptive_metadata)
     |> assoc_constraint(:collection)
     |> assoc_constraint(:representative_file_set)
-    |> put_change(:reindex_at, DateTime.utc_now())
   end
 
   def required_index_preloads do

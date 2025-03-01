@@ -23,7 +23,6 @@ defmodule Meadow.Events.Arks do
         work -> update_ark_metadata(work)
       end
     end
-
   rescue
     Ecto.NoResultsError -> :noop
   end

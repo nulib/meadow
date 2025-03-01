@@ -83,7 +83,7 @@ defmodule Meadow.Data.Indexer do
     preloads = schema.required_index_preloads()
 
     from(s in schema,
-      where: s.updated_at >= ^since or s.reindex_at >= ^since
+      where: s.updated_at >= ^since
     )
     |> stream(preloads)
     |> maybe_add_representative_image(schema)
