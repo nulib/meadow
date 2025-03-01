@@ -50,6 +50,7 @@ defmodule Meadow.Config.Runtime.Test do
       queue_target: 5000,
       pool_size: 50
 
+    config :meadow, WalEx, durable_slot: false
     config :meadow, :indexing_repo, Meadow.Repo
 
     config :meadow, Meadow.Search.Cluster,

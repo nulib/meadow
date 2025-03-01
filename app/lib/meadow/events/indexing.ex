@@ -10,28 +10,32 @@ defmodule Meadow.Events.Indexing do
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.Schemas.Sheet
 
+  use WalEx.Event, name: Meadow
+
   @cascade_fields %{
     file_sets_works:
       ~w[core_metadata derivatives extracted_metadata poster_offset rank role structural_metadata]a,
     collections_works: ~w[title description]a,
     ingest_sheets_works: ~w[title]a,
-    works_collections: ~w[representative_file_set_id],
+    works_collections: ~w[representative_file_set_id]a,
     works_file_sets: ~w[published visibility]a
   }
 
   require Logger
 
-  def handle_insert(%{name: name, new_record: record}) do
+  on_event(:all, fn events -> Enum.each(events, &handle_indexing/1) end)
+
+  def handle_indexing(%{type: :insert, name: name, new_record: record}) do
     IndexBatcher.reindex([record.id], name)
     do_insert_indexing(record, name)
   end
 
-  def handle_update(%{name: name, new_record: record, changes: changes}) do
+  def handle_indexing(%{type: :update, name: name, new_record: record, changes: changes}) do
     IndexBatcher.reindex([record.id], name)
     do_update_indexing(record, name, changes)
   end
 
-  def handle_delete(%{name: name, old_record: record}) do
+  def handle_indexing(%{type: :delete, name: name, old_record: record}) do
     IndexBatcher.delete([record.id], name)
     do_delete_indexing(record, name)
   end
@@ -55,7 +59,8 @@ defmodule Meadow.Events.Indexing do
 
   defp do_update_indexing(%{id: id, collection_id: collection_id}, :works, changes)
        when not is_nil(collection_id) do
-    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_collections])) do
+    if Map.keys(changes) |> Enum.member?(:representative_file_set_id) do
+      Logger.info("Updating collection #{collection_id} representative image")
       IndexBatcher.reindex([collection_id], :collections)
     end
 
