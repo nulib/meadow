@@ -97,7 +97,7 @@ defmodule Meadow.MixProject do
       {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:quantum, "~> 3.0"},
-      {:retry, "~> 0.18.0"},
+      {:retry, "~> 0.19.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.9.0"},
       {:sweet_xml, "~> 0.6"},
