@@ -4,6 +4,7 @@ defmodule Meadow.Events.FileSetCleanup do
   """
 
   alias Meadow.Config
+  alias Meadow.Data.FileSets
   alias Meadow.Utils.AWS
 
   use Meadow.Utils.Logging
@@ -22,9 +23,8 @@ defmodule Meadow.Events.FileSetCleanup do
 
       file_set_data
       |> clean_derivatives!()
-
-      file_set_data
       |> clean_preservation_file!()
+      |> clean_structural_metadata!()
     end
   end
 
@@ -52,18 +52,21 @@ defmodule Meadow.Events.FileSetCleanup do
 
   defp clean_derivative!(_, _), do: :ok
 
-  defp clean_preservation_file!(file_set_data) do
-    clean_preservation_file!(file_set_data, in_ingest_bucket(file_set_data))
+  defp clean_preservation_file!(%{id: id, core_metadata: %{"location" => location}} = file_set_data) do
+    if in_ingest_bucket(file_set_data) do
+      Logger.warning("Leaving #{location} intact in the ingest bucket")
+    else
+      Logger.warning("Removing preservation file for #{id} at #{location}")
+      delete_s3_uri(location)
+    end
     file_set_data
   end
 
-  defp clean_preservation_file!(%{core_metadata: %{"location" => location}}, true) do
-    Logger.warning("Leaving #{location} intact in the ingest bucket")
-  end
-
-  defp clean_preservation_file!(%{id: id, core_metadata: %{"location" => location}}, _) do
-    Logger.warning("Removing preservation file for #{id} at #{location}")
-    delete_s3_uri(location)
+  defp clean_structural_metadata!(%{id: id} = file_set_data) do
+    Logger.warning("Removing structural metadata for #{id}")
+    ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
+    |> AWS.request()
+    file_set_data
   end
 
   defp in_ingest_bucket(%{core_metadata: core_metadata}) do
