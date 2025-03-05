@@ -5,8 +5,5 @@
   "main": "index.js",
   "author": "Brendan Quinn & Michael Klein",
   "license": "Apache-2.0",
-  "dependencies": {
-    "lodash.isstring": "^4.0.1",
-    "node-fetch": "^2.3.0"
-  }
+  "dependencies": {}
 }
