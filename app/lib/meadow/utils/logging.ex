@@ -12,7 +12,7 @@ defmodule Meadow.Utils.Logging do
   Transparently change the logging level around a block
 
   Examples:
-    iex> Meadow.Utils.Logging.with_log_level :warn do
+    iex> Meadow.Utils.Logging.with_log_level :warning do
     ...>   8 * 8
     ...> end
     64

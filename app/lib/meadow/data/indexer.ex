@@ -41,13 +41,18 @@ defmodule Meadow.Data.Indexer do
 
   def check_synchronize_result(:ok, schema, index) do
     expected = Repo.aggregate(schema, :count)
-    actual = SearchClient.indexed_doc_count(index)
 
-    if actual < expected * 0.9 do
-      error = Meadow.IndexerError.exception("Indexed #{actual} docs; expected #{expected}")
-      {:incomplete, error}
-    else
-      :ok
+    case SearchClient.indexed_doc_count(index) do
+      {:ok, count} ->
+        if count < expected * 0.9 do
+          error = Meadow.IndexerError.exception("Indexed #{count} docs; expected #{expected}")
+          {:incomplete, error}
+        else
+          :ok
+        end
+
+      {:error, reason} ->
+        {:incomplete, reason}
     end
   end
 

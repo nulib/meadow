@@ -1,18 +1,9 @@
 ---
 services:
   db:
-    image: postgres:16-alpine
+    image: supabase/postgres:15.8.1.047
     environment:
-      POSTGRES_USER: docker
       POSTGRES_PASSWORD: d0ck3r
-      PGUSER: docker
-      PGPASSWORD: d0ck3r
-    command: ["postgres", "-c", "wal_level=logical"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     ports:
       - 5432:5432
   ldap:
