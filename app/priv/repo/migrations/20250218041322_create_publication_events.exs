@@ -9,6 +9,7 @@ defmodule Meadow.Repo.Migrations.CreatePublicationEvents do
     execute "ALTER TABLE works REPLICA IDENTITY FULL"
     execute "ALTER TABLE file_sets REPLICA IDENTITY FULL"
     execute "ALTER TABLE collections REPLICA IDENTITY FULL"
+    execute "ALTER TABLE ingest_sheets REPLICA IDENTITY FULL"
     execute "ALTER TABLE projects REPLICA IDENTITY FULL"
   end
 
@@ -17,6 +18,7 @@ defmodule Meadow.Repo.Migrations.CreatePublicationEvents do
     execute "ALTER TABLE works REPLICA IDENTITY DEFAULT"
     execute "ALTER TABLE file_sets REPLICA IDENTITY DEFAULT"
     execute "ALTER TABLE collections REPLICA IDENTITY DEFAULT"
+    execute "ALTER TABLE ingest_sheets REPLICA IDENTITY DEFAULT"
     execute "ALTER TABLE projects REPLICA IDENTITY DEFAULT"
 
     execute "DROP PUBLICATION IF EXISTS events"

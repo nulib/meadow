@@ -55,8 +55,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
      invalid_file_set_id: invalid_file_set.id}
   end
 
-  @tag s3: [@media_fixture]
   describe "success with metadata" do
+    @describetag s3: [@media_fixture]
+
     test "process/2", %{media_file_set_id: file_set_id} do
       assert {:ok, %{id: ^file_set_id}, %{}} =
                send_test_message(ExtractMediaMetadata, %{file_set_id: file_set_id}, %{})

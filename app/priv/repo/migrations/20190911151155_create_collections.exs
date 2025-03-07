@@ -8,7 +8,7 @@ defmodule Meadow.Repo.Migrations.CreateCollections do
       add(:keywords, {:array, :string}, default: [])
       add(:finding_aid_url, :text)
       add(:admin_email, :text)
-      add(:featured, :boolean)
+      add(:featured, :boolean, null: false, default: false)
       add(:published, :boolean)
       add(:visibility, :map)
       timestamps()

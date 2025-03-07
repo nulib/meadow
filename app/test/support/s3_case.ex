@@ -45,6 +45,18 @@ defmodule Meadow.S3Case do
     quote do
       use Meadow.BucketNames
 
+      defp object_content(uri) do
+        %{path: key, host: bucket} = URI.parse(uri)
+        object_content(bucket, key)
+      end
+
+      defp object_content(bucket, key) do
+        case bucket |> ExAws.S3.get_object(key) |> ExAws.request() do
+          {:ok, %{body: body}} -> body
+          _ -> nil
+        end
+      end
+
       defp object_exists?(uri) do
         %{path: key, host: bucket} = URI.parse(uri)
         object_exists?(bucket, key)
@@ -91,6 +103,11 @@ defmodule Meadow.S3Case do
         |> empty_bucket()
         |> ExAws.S3.delete_bucket()
         |> ExAws.request()
+      end
+
+      defp delete_object(uri) do
+        %{path: key, host: bucket} = URI.parse(uri)
+        delete_object(bucket, key)
       end
 
       defp delete_object(bucket, key) do

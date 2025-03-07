@@ -11,6 +11,7 @@ defmodule Meadow.Repo.Migrations.CreateCSVMetadataMetadataUpdateJobs do
       add(:user, :string)
       add(:started_at, :utc_datetime)
       add(:active, :boolean)
+      add(:retries, :integer, default: 0)
       timestamps()
     end
 

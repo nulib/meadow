@@ -1,4 +1,4 @@
-defmodule Meadow.Events.FileSetCleanup do
+defmodule Meadow.Events.FileSets.Cleanup do
   @moduledoc """
   Handler to clean up file set assets after records are deleted
   """
@@ -8,8 +8,11 @@ defmodule Meadow.Events.FileSetCleanup do
   alias Meadow.Utils.AWS
 
   use Meadow.Utils.Logging
+  use WalEx.Event, name: Meadow
 
   require Logger
+
+  on_delete(:file_sets, %{}, [{__MODULE__, :handle_delete}], & &1)
 
   def handle_delete(%{name: name, old_record: record}) do
     with_log_metadata module: __MODULE__, id: record.id, name: name do
@@ -52,20 +55,25 @@ defmodule Meadow.Events.FileSetCleanup do
 
   defp clean_derivative!(_, _), do: :ok
 
-  defp clean_preservation_file!(%{id: id, core_metadata: %{"location" => location}} = file_set_data) do
+  defp clean_preservation_file!(
+         %{id: id, core_metadata: %{"location" => location}} = file_set_data
+       ) do
     if in_ingest_bucket(file_set_data) do
       Logger.warning("Leaving #{location} intact in the ingest bucket")
     else
       Logger.warning("Removing preservation file for #{id} at #{location}")
       delete_s3_uri(location)
     end
+
     file_set_data
   end
 
   defp clean_structural_metadata!(%{id: id} = file_set_data) do
     Logger.warning("Removing structural metadata for #{id}")
+
     ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
     |> AWS.request()
+
     file_set_data
   end
 

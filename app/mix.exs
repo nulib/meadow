@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.7.3"
+  @app_version "9.7.4"
 
   def project do
     [
@@ -54,7 +54,7 @@ defmodule Meadow.MixProject do
       {:authoritex, "~> 1.1.1"},
       {:aws_signature, "~> 0.3.1"},
       {:briefly, "~> 0.5.0"},
-      {:broadway_dashboard, "~> 0.3.0"},
+      {:broadway_dashboard, "~> 0.4.1"},
       {:broadway_sqs, "~> 0.7.0"},
       {:cachex, "~> 4.0"},
       {:configparser_ex, "~> 4.0.0"},
@@ -72,7 +72,7 @@ defmodule Meadow.MixProject do
       {:ex_aws_lambda, "~> 2.0"},
       {:ex_aws_secretsmanager, "~> 2.0"},
       {:ex_aws_ssm, "~> 2.1"},
-      {:ex_aws_sts, "~> 2.3.0"},
+      {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
       {:exldap, "~> 0.6.3"},
       {:faker, "~> 0.12", only: [:dev, :test]},
@@ -87,8 +87,8 @@ defmodule Meadow.MixProject do
       {:nimble_csv, "~> 1.2.0"},
       {:phoenix, "~> 1.7.0"},
       {:phoenix_html, "~> 3.0"},
-      {:phoenix_live_view, "~> 0.18.18"},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
+      {:phoenix_live_view, "~> 1.0.5"},
+      {:phoenix_live_dashboard, "~> 0.8.6"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.1"},

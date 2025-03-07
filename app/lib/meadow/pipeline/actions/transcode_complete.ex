@@ -60,22 +60,19 @@ defmodule Meadow.Pipeline.Actions.TranscodeComplete do
     end
   end
 
-  defp process_mediaconvert_response(nil, %{file_set_id: file_set_id}) do
-    Logger.warning(
-      "Marking #{__MODULE__} for #{file_set_id} as error because the file set was not found"
-    )
-
-    {:error, "FileSet #{file_set_id} not found"}
-  end
-
-  defp process_mediaconvert_response(file_set, %{
-         detail: %{status: "COMPLETE", playlist: playlist}
-       } = attributes) do
+  defp process_mediaconvert_response(
+         file_set,
+         %{
+           detail: %{status: "COMPLETE", playlist: playlist}
+         } = attributes
+       ) do
     derivatives = FileSets.add_derivative(file_set, :playlist, playlist)
     FileSets.update_file_set(file_set, %{derivatives: derivatives})
+
     with %{context: "Version"} <- attributes do
       AWS.invalidate_cache(file_set, :streaming)
     end
+
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end

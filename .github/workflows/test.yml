@@ -121,15 +121,9 @@ jobs:
       MIX_ENV: test
     services:
       db:
-        image: postgres:16-alpine
+        image: supabase/postgres:15.8.1.047
         env:
-          POSTGRES_USER: docker
           POSTGRES_PASSWORD: d0ck3r
-        options: >-
-          --health-cmd "pg_isready -U docker"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
         ports:
           - 5432:5432
       ldap:
@@ -169,8 +163,8 @@ jobs:
           node-version-file: ./.tool-versions
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "26"
-          elixir-version: "1.15.4"
+          otp-version: "27"
+          elixir-version: "1.18.2"
       - name: Install LDAP utils
         run: |
           sudo apt-get update -qq

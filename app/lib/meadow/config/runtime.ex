@@ -89,6 +89,8 @@ defmodule Meadow.Config.Runtime do
       queue_interval: environment_int("DB_QUEUE_INTERVAL", 1000),
       parameters: [application_name: "Meadow.Repo"]
 
+    config :meadow, :indexing_repo, Meadow.Repo.Indexing
+
     Logger.info("Configuring WalEx")
 
     config :meadow, WalEx,
@@ -99,6 +101,13 @@ defmodule Meadow.Config.Runtime do
       port: get_secret(:meadow, ["db", "port"]),
       publication: "events",
       subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
+      modules: [
+        Meadow.Events.FileSets.Cleanup,
+        Meadow.Events.FileSets.StructuralMetadata,
+        Meadow.Events.IngestSheets.SheetUpdates,
+        Meadow.Events.Works.Arks,
+        Meadow.Events.Indexing
+      ],
       name: Meadow,
       slot_name: "meadow_#{prefix()}",
       durable_slot: true

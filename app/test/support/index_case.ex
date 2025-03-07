@@ -3,16 +3,13 @@ defmodule Meadow.IndexCase do
   This module resets the search cluster between tests.
   """
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Config
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
-  alias Meadow.Ingest.Schemas.{Project, Sheet}
-  alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.{Alias, HTTP, Index}
 
-  setup tags do
+  setup _tags do
     result =
       SearchConfig.index_configs()
       |> Enum.map(fn %{schemas: [schema | _], version: version} ->
@@ -24,13 +21,6 @@ defmodule Meadow.IndexCase do
     Index.clean(Config.shared_links_index(), 0)
 
     on_exit(fn ->
-      if tags[:unboxed] do
-        Sandbox.unboxed_run(Repo, fn ->
-          [FileSet, Sheet, Project, Work, Collection]
-          |> Enum.each(fn schema -> Repo.delete_all(schema) end)
-        end)
-      end
-
       Enum.each(result, fn {alias, index} ->
         Alias.remove(alias, [index])
         Index.delete(index)
@@ -45,8 +35,17 @@ defmodule Meadow.IndexCase do
       alias Meadow.Search.Client, as: SearchClient
       import Meadow.{IndexCase, TestHelpers}
 
-      def indexed_doc_count(schema, version), do: SearchClient.indexed_doc_count(schema, version)
-      def indexed_doc_count(index), do: SearchClient.indexed_doc_count(index)
+      def indexed_doc_count(schema, version) do
+        SearchConfig.alias_for(schema, version)
+        |> Index.refresh()
+
+        SearchClient.indexed_doc_count(schema, version)
+      end
+
+      def indexed_doc_count(index) do
+        Index.refresh(index)
+        SearchClient.indexed_doc_count(index)
+      end
 
       def indexed_doc(schema, version, id) do
         SearchConfig.alias_for(schema, version)

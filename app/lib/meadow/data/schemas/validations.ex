@@ -38,6 +38,6 @@ defmodule Meadow.Data.Schemas.Validations do
         {:parameterized, {_type, f}} -> f
       end
 
-    field_spec.related.__struct__ |> Map.from_struct()
+    field_spec.related.__struct__() |> Map.from_struct()
   end
 end

@@ -14,9 +14,9 @@ ARG MEADOW_VERSION=
 ENV MIX_ENV=prod
 RUN  mix local.hex --force \
   && mix local.rebar --force
-ENV NODE_VERSION 18
-ENV NPM_VERSION 10.1.0
-ENV ARCH x64
+ENV NODE_VERSION=22
+ENV NPM_VERSION=11.1.0
+ENV ARCH=x64
 RUN apt update -qq \
  && apt install -y ca-certificates curl git gnupg \
  && mkdir -p /etc/apt/keyrings \

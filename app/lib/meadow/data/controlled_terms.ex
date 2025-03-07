@@ -26,7 +26,7 @@ defmodule Meadow.Data.ControlledTerms do
           id: "http://id.loc.gov/authorities/names/n50034776",
           label: "Carver, George Washington, 1864?-1943",
           variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
-    "Carver, George, 1864?-1943"]
+          "Carver, George, 1864?-1943"]
         }}
 
       # Found in DB cache
@@ -36,7 +36,7 @@ defmodule Meadow.Data.ControlledTerms do
           id: "http://id.loc.gov/authorities/names/n50034776",
           label: "Carver, George Washington, 1864?-1943",
           variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
-    "Carver, George, 1864?-1943"]
+          "Carver, George, 1864?-1943"]
         }}
 
       # Found in ETS cache
@@ -46,7 +46,7 @@ defmodule Meadow.Data.ControlledTerms do
           id: "http://id.loc.gov/authorities/names/n50034776",
           label: "Carver, George Washington, 1864?-1943",
           variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
-    "Carver, George, 1864?-1943"]
+          "Carver, George, 1864?-1943"]
         }}
 
       # Error
@@ -66,7 +66,7 @@ defmodule Meadow.Data.ControlledTerms do
         id: "http://id.loc.gov/authorities/names/n50034776",
         label: "Carver, George Washington, 1864?-1943",
           variants: ["Kārvar, Jārji Vāṣiṅgṭan, 1864?-1943",
-    "Carver, George, 1864?-1943"]
+          "Carver, George, 1864?-1943"]
       }
 
       # Error
