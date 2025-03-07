@@ -36,6 +36,6 @@ defmodule Mix.Tasks.Meadow.Seed.Import do
 
     Import.import(parsed_opts)
   rescue
-    exception -> Logger.error(exception.message)
+    exception -> Logger.error(Exception.message(exception))
   end
 end

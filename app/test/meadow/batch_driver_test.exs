@@ -1,5 +1,5 @@
 defmodule Meadow.BatchDriverTest do
-  use Meadow.DataCase
+  use Meadow.DataCase, shared: true
   use Meadow.IndexCase
 
   import Assertions

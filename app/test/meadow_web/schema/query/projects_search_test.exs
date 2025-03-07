@@ -1,4 +1,4 @@
-defmodule MeadowWeb.Schema.Query.ProjectsTest do
+defmodule MeadowWeb.Schema.Query.ProjectsSearchTest do
   defmodule All do
     use Meadow.DataCase
     use MeadowWeb.ConnCase, async: true
