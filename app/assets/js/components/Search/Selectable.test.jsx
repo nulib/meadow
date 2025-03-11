@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Selectable from "./Selectable";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
@@ -13,19 +13,57 @@ useIsAuthorized.mockReturnValue({
 const fn = jest.fn();
 
 describe("SearchSelectable component", () => {
+  let isSelected = false;
+
+  const TestWrapper = () => {
+    const [selected, setSelected] = useState(isSelected);
+
+    return (
+      <Selectable
+        id="foo"
+        handleSelectItem={(id) => {
+          setSelected(!selected);
+          fn(id);
+        }}
+        isSelected={selected}
+      />
+    );
+  };
+
   beforeEach(() => {
-    return render(<Selectable handleSelectItem={fn} />);
+    render(<TestWrapper />);
   });
 
   it("renders a checkbox", async () => {
-    expect(await screen.findByTestId("checkbox-search-select"));
+    const checkbox = await screen.findByTestId("checkbox-search-select");
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).toHaveAttribute("id", "search-select-foo");
+    expect(checkbox).toHaveAttribute("name", "search-select-foo");
+    expect(checkbox).toHaveAttribute("role", "checkbox");
+    expect(checkbox).toHaveAttribute("aria-label", "Select work");
+    expect(checkbox).toHaveAttribute("aria-checked", "false");
   });
 
   it("calls onChange function handler when selected/deselected", async () => {
+    const checkbox = screen.getByTestId("checkbox-search-select");
+
+    fireEvent.click(checkbox);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith("foo");
+
+    // Wait for state change and re-render
     await waitFor(() => {
-      screen.getByTestId("checkbox-search-select");
+      expect(checkbox).toHaveAttribute("aria-checked", "true");
+      expect(checkbox).toHaveAttribute("aria-label", "Deselect work");
     });
-    fireEvent.click(screen.getByTestId("checkbox-search-select"));
-    expect(fn).toHaveBeenCalled();
+
+    fireEvent.click(checkbox);
+    expect(fn).toHaveBeenCalledTimes(2);
+    expect(fn).toHaveBeenCalledWith("foo");
+
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute("aria-checked", "false");
+      expect(checkbox).toHaveAttribute("aria-label", "Select work");
+    });
   });
 });
