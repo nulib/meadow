@@ -104,7 +104,13 @@ defmodule Meadow.Data.Schemas.FileSet do
     if is_nil(group_with_id) do
       changeset
     else
-      validate_group_with_target(changeset, group_with_id)
+      role = get_field(changeset, :role)
+
+      if role && role.id == "A" do
+        validate_group_with_target(changeset, group_with_id)
+      else
+        add_error(changeset, :group_with, "Only file sets with role 'Access (A)' can be grouped")
+      end
     end
   end
 
@@ -112,8 +118,11 @@ defmodule Meadow.Data.Schemas.FileSet do
     work_id = get_field(changeset, :work_id)
 
     case Meadow.Repo.get(__MODULE__, group_with_id) do
-      %__MODULE__{group_with: nil, work_id: ^work_id} ->
+      %__MODULE__{group_with: nil, work_id: ^work_id, role: %{id: "A"}} ->
         changeset
+
+      %__MODULE__{group_with: nil, work_id: ^work_id} ->
+        add_error(changeset, :group_with, "Target file set must have role 'Access (A)'")
 
       %__MODULE__{group_with: nil} ->
         add_error(changeset, :group_with, "Target file set belongs to a different work")
