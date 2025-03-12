@@ -16,6 +16,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       description: file_set.core_metadata.description,
       download_url: FileSets.download_uri_for(file_set),
       extracted_metadata: extracted_metadata(file_set.extracted_metadata),
+      group_with: file_set.group_with,
       id: file_set.id,
       indexed_at: NaiveDateTime.utc_now(),
       label: file_set.core_metadata.label,
