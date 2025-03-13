@@ -31,7 +31,7 @@ const WorkTabsStructure = ({ work }) => {
   }
   const [isEditing, setIsEditing] = useIsEditing();
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
-    parseWorkRepresentativeImage(work)
+    parseWorkRepresentativeImage(work),
   );
   const [isReordering, setIsReordering] = useState();
   const [error, setError] = React.useState();
@@ -58,21 +58,21 @@ const WorkTabsStructure = ({ work }) => {
       onError(error) {
         console.error(
           "error in the updateFileSets GraphQL mutation :>> ",
-          error
+          error,
         );
         setError({
           message: "There was an error updating file sets.",
           responseError: error,
         });
       },
-    }
+    },
   );
   const [updateAccessFileOrder] = useMutation(UPDATE_ACCESS_FILE_ORDER, {
     onCompleted() {
       setIsReordering(false);
       toastWrapper(
         "is-success",
-        "Access copies have been successfully reordered."
+        "Access copies have been successfully reordered.",
       );
     },
     onError(error) {

@@ -50,7 +50,7 @@ export function MediaButtons({ fileSet }) {
 
   return (
     <div className="buttons is-grouped is-right">
-      {isAuthorized() && (
+      {!fileSet.group_with && isAuthorized() && (
         <Button
           data-testid="edit-structure-button"
           onClick={() =>

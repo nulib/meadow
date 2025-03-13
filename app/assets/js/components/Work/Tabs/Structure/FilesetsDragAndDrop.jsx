@@ -36,7 +36,7 @@ function FilesetsDragAndDrop({
     const updatedFileSets = reorder(
       state.fileSets,
       result.source.index,
-      result.destination.index
+      result.destination.index,
     );
 
     setState({ fileSets: updatedFileSets });
