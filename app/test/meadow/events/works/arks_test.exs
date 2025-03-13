@@ -2,9 +2,12 @@ defmodule Meadow.Events.Works.ArksTest do
   use Meadow.DataCase, async: false
 
   alias Meadow.Ark
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
+  alias Meadow.Repo
 
   import Assertions
+  import Ecto.Query
   import Meadow.TestHelpers
 
   def assert_ark_status(work, expected_status) do
@@ -28,6 +31,8 @@ defmodule Meadow.Events.Works.ArksTest do
   @moduletag walex: [Meadow.Events.Works.Arks]
   describe "Meadow.Events.Works.Arks" do
     setup do
+      start_supervised!(Meadow.Events.Works.Arks.Processor)
+
       work =
         work_fixture(%{
           published: false,
@@ -104,6 +109,34 @@ defmodule Meadow.Events.Works.ArksTest do
 
       assert_async(timeout: 2000) do
         assert {:ok, %{status: "unavailable | withdrawn"}} = Ark.get(ark)
+      end
+    end
+  end
+
+  describe "Rate limiting" do
+    setup do
+      start_supervised!(
+        {Meadow.Events.Works.Arks.Processor,
+         token_count: 5, interval: 2_000, replenish_count: 1, replenish_interval: 1_000}
+      )
+
+      :ok
+    end
+
+    test "ark events are rate limited" do
+      test_query =
+        from(Work, where: fragment("descriptive_metadata ->> 'ark' IS NOT NULL"))
+
+      # Make sure only 5 requests are processed within the first 2 seconds
+      1..10
+      |> Enum.map(fn i -> work_fixture(%{descriptive_metadata: %{title: "Title ##{i}"}}) end)
+
+      :timer.sleep(1000)
+      assert Repo.aggregate(test_query, :count) == 5
+
+      # Make sure 2 more requests are processed after 2 seconds
+      assert_async(timeout: 2000) do
+        assert Repo.aggregate(test_query, :count) == 7
       end
     end
   end

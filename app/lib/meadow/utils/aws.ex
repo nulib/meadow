@@ -189,6 +189,8 @@ defmodule Meadow.Utils.AWS do
         security_token -> [{"Host", host}, {"X-Amz-Security-Token", security_token}]
       end
 
+    encode_fn = fn c -> (URI.char_unescaped?(c) || URI.char_reserved?(c)) && c != ?* end
+
     :aws_signature.sign_v4(
       config.access_key_id,
       config.secret_access_key,
@@ -196,7 +198,7 @@ defmodule Meadow.Utils.AWS do
       "es",
       {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}},
       request.method |> to_string() |> String.upcase(),
-      request.url,
+      request.url |> URI.encode(encode_fn),
       headers,
       request.body,
       []
