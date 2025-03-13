@@ -190,6 +190,7 @@ defmodule Meadow.Indexing.V2.Work do
           accession_number: file_set.accession_number,
           duration: FileSets.duration_in_seconds(file_set),
           download_url: FileSets.download_uri_for(file_set),
+          group_with: file_set.group_with,
           height: FileSets.height(file_set),
           label: file_set.core_metadata.label,
           mime_type: file_set.core_metadata.mime_type,

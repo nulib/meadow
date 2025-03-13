@@ -14,7 +14,7 @@ defmodule Meadow.Events.Indexing do
 
   @cascade_fields %{
     file_sets_works:
-      ~w[core_metadata derivatives extracted_metadata poster_offset rank role structural_metadata]a,
+      ~w[core_metadata derivatives extracted_metadata group_with poster_offset rank role structural_metadata]a,
     collections_works: ~w[title description]a,
     ingest_sheets_works: ~w[title]a,
     works_collections: ~w[representative_file_set_id]a,

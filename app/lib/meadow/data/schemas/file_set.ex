@@ -37,11 +37,16 @@ defmodule Meadow.Data.Schemas.FileSet do
       foreign_key: :object_id,
       on_delete: :delete_all
     )
+
+    belongs_to(:group_with_file_set, __MODULE__,
+      foreign_key: :group_with,
+      type: Ecto.UUID
+    )
   end
 
   defp changeset_params do
     {[:accession_number, :role],
-     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset]}
+     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset, :group_with]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do
@@ -55,9 +60,12 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> validate_required([:core_metadata | required_params])
       |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
       |> assoc_constraint(:work)
+      |> assoc_constraint(:group_with_file_set)
       |> unsafe_validate_unique([:accession_number], Meadow.Repo)
       |> unique_constraint(:accession_number)
       |> set_rank(scope: [:work_id, :role])
+      |> validate_group_with()
+      |> foreign_key_constraint(:group_with)
     end
   end
 
@@ -71,6 +79,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       |> cast_embed(:structural_metadata)
       |> set_rank(scope: [:work_id, :role])
       |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
+      |> validate_group_with()
+      |> foreign_key_constraint(:group_with)
     end
   end
 
@@ -87,4 +97,41 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   defp rename_core_metadata(params), do: params
+
+  defp validate_group_with(changeset) do
+    group_with_id = get_field(changeset, :group_with)
+
+    if is_nil(group_with_id) do
+      changeset
+    else
+      role = get_field(changeset, :role)
+
+      if role && role.id == "A" do
+        validate_group_with_target(changeset, group_with_id)
+      else
+        add_error(changeset, :group_with, "Only file sets with role 'Access (A)' can be grouped")
+      end
+    end
+  end
+
+  defp validate_group_with_target(changeset, group_with_id) do
+    work_id = get_field(changeset, :work_id)
+
+    case Meadow.Repo.get(__MODULE__, group_with_id) do
+      %__MODULE__{group_with: nil, work_id: ^work_id, role: %{id: "A"}} ->
+        changeset
+
+      %__MODULE__{group_with: nil, work_id: ^work_id} ->
+        add_error(changeset, :group_with, "Target file set must have role 'Access (A)'")
+
+      %__MODULE__{group_with: nil} ->
+        add_error(changeset, :group_with, "Target file set belongs to a different work")
+
+      %__MODULE__{} ->
+        add_error(changeset, :group_with, "Target file set already has a group_with value")
+
+      nil ->
+        add_error(changeset, :group_with, "Target file set not found")
+    end
+  end
 end
