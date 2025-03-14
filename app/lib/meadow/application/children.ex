@@ -17,7 +17,9 @@ defmodule Meadow.Application.Children do
         |> Enum.map(&IndexBatcher.child_spec(&1)),
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "database_listeners" => [
-        {WalEx.Supervisor, Application.get_env(:meadow, WalEx)}
+        {WalEx.Supervisor, Application.get_env(:meadow, WalEx)},
+        {Meadow.Events.Works.Arks.Processor,
+         token_count: 100, interval: 1_000, replenish_count: 10}
       ],
       "scheduler" => Meadow.Scheduler,
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
