@@ -100,6 +100,7 @@ resource "aws_appautoscaling_target" "ecs_target" {
   resource_id        = "service/${aws_ecs_cluster.meadow.name}/${aws_ecs_service.meadow_all.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+  lifecycle { ignore_changes = [min_capacity] }
 }
 
 # Scheduled action to scale UP at 7:15 AM Central

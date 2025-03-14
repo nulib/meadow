@@ -40,6 +40,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       arg(:poster_offset, :integer)
       arg(:core_metadata, :file_set_core_metadata_update)
       arg(:structural_metadata, :file_set_structural_metadata_input)
+      arg(:group_with, :id)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_file_set/3)
@@ -123,6 +124,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:work, :work, resolve: dataloader(Data))
     field(:core_metadata, :file_set_core_metadata)
     field(:poster_offset, :integer)
+    field(:group_with, :id)
 
     field :streaming_url, :string do
       resolve(fn file_set, _, _ ->

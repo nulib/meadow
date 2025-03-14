@@ -4,20 +4,17 @@ defmodule Meadow.Application.Children do
   """
   alias Meadow.Application.Caches
   alias Meadow.Config
+  alias Meadow.Data.IndexBatcher
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Utils.ArkClient
   require Logger
 
   defp basic_processes do
     %{
       "batch_driver" => Meadow.BatchDriver,
-      "batchers" => [
-        {Meadow.Data.IndexBatcher,
-         schema: Meadow.Data.Schemas.Work, version: 2, name: :works_batcher},
-        {Meadow.Data.IndexBatcher,
-         schema: Meadow.Data.Schemas.Collection, version: 2, name: :collections_batcher},
-        {Meadow.Data.IndexBatcher,
-         schema: Meadow.Data.Schemas.FileSet, version: 2, name: :file_sets_batcher}
-      ],
+      "batchers" =>
+        [Work, Collection, FileSet]
+        |> Enum.map(&IndexBatcher.child_spec(&1)),
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "database_listeners" => [
         {WalEx.Supervisor, Application.get_env(:meadow, WalEx)}

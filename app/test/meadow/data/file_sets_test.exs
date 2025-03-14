@@ -444,4 +444,75 @@ defmodule Meadow.Data.FileSetsTest do
       assert is_nil(FileSets.distribution_streaming_uri_for(file_set))
     end
   end
+
+  describe "group_with functionality" do
+    test "update_file_set/2 with valid group_with value" do
+      file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      assert {:ok, %FileSet{} = updated_file_set} =
+               FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+
+      assert updated_file_set.group_with == file_set2.id
+    end
+
+    test "update_file_set/2 rejects group_with when source file set doesn't have role 'A'" do
+      file_set1 = file_set_fixture(%{role: %{id: "P", scheme: "FILE_SET_ROLE"}})
+      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      assert %{group_with: ["Only file sets with role 'Access (A)' can be grouped"]} = errors_on(changeset)
+    end
+
+    test "update_file_set/2 rejects group_with when target file set doesn't have role 'A'" do
+      file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "P", scheme: "FILE_SET_ROLE"}})
+
+      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      assert %{group_with: ["Target file set must have role 'Access (A)'"]} = errors_on(changeset)
+    end
+
+    test "update_file_set/2 rejects group_with when target file set doesn't exist" do
+      file_set = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      non_existent_id = Ecto.UUID.generate()
+
+      assert {:error, changeset} = FileSets.update_file_set(file_set, %{group_with: non_existent_id})
+      assert %{group_with: ["Target file set not found"]} = errors_on(changeset)
+    end
+
+    test "update_file_set/2 rejects group_with when target file set belongs to different work" do
+      file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      work = work_fixture()
+      file_set2 = file_set_fixture(%{work_id: work.id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      assert %{group_with: ["Target file set belongs to a different work"]} = errors_on(changeset)
+    end
+
+    test "update_file_set/2 rejects group_with when target file set already has a group_with value" do
+      file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+      file_set3 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      # First set file_set2 to group with file_set3
+      assert {:ok, %FileSet{}} = FileSets.update_file_set(file_set2, %{group_with: file_set3.id})
+
+      # Now try to set file_set1 to group with file_set2 (which already has a group_with)
+      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      assert %{group_with: ["Target file set already has a group_with value"]} = errors_on(changeset)
+    end
+
+    test "create_file_set/1 with valid group_with value" do
+      existing_file_set = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      attrs = Map.merge(@valid_attrs, %{
+        work_id: existing_file_set.work_id,
+        role: %{id: "A", scheme: "FILE_SET_ROLE"},
+        group_with: existing_file_set.id
+      })
+
+      assert {:ok, %FileSet{} = file_set} = FileSets.create_file_set(attrs)
+      assert file_set.group_with == existing_file_set.id
+    end
+  end
 end

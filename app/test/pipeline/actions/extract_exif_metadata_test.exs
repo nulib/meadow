@@ -97,8 +97,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
      invalid_file_set_id: invalid_file_set.id}
   end
 
-  @tag s3: [@exif_fixture]
   describe "success with EXIF metadata" do
+    @describetag s3: [@exif_fixture]
+
     test "process/2", %{exif_file_set_id: file_set_id} do
       assert {:ok, %{id: ^file_set_id}, %{}} =
                send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
@@ -116,8 +117,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
     end
   end
 
-  @tag s3: [@no_exif_fixture]
   describe "success without EXIF metadata" do
+    @describetag s3: [@no_exif_fixture]
+
     test "process/2", %{no_exif_file_set_id: file_set_id} do
       assert {:ok, %{id: ^file_set_id}, %{}} =
                send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
