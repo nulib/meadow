@@ -15,7 +15,7 @@ locals {
         database    = "postgres"
         host        = "localhost"
         port        = 5432
-        user        = "docker"
+        user        = "postgres"
         password    = "d0ck3r"
       }
 

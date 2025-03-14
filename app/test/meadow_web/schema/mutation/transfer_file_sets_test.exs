@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest do
           context: gql_context()
         )
 
-      assert {:ok, query_data} = result
+      assert {:ok, _query_data} = result
     end
 
     # test "missing IDs", %{work: work, ids: ids} do

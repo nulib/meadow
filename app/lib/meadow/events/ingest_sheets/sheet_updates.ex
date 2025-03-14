@@ -1,4 +1,4 @@
-defmodule Meadow.Events.SheetUpdates do
+defmodule Meadow.Events.IngestSheets.SheetUpdates do
   @moduledoc """
   Handles events related to updating ingest sheets
   """
@@ -6,8 +6,11 @@ defmodule Meadow.Events.SheetUpdates do
   alias Meadow.Ingest.Sheets
 
   use Meadow.Utils.Logging
+  use WalEx.Event, name: Meadow
 
   require Logger
+
+  on_event(:ingest_sheets, %{}, [{__MODULE__, :handle_notification}], & &1)
 
   def handle_notification(%{name: name, new_record: record}) do
     with_log_metadata module: __MODULE__, id: record.id, name: name do

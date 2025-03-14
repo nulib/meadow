@@ -2,7 +2,6 @@ defmodule Meadow.ConfigTest do
   use ExUnit.Case
   use Meadow.BucketNames
 
-  alias Elixir.Config.Reader, as: ConfigReader
   alias Meadow.Config
   import Assertions
 

@@ -13,9 +13,13 @@ defmodule Meadow.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias Meadow.Repo
 
-  using do
+  using opts do
+    shared = Keyword.get(opts, :shared, false)
+
     quote do
       alias Meadow.Repo
 
@@ -24,13 +28,43 @@ defmodule Meadow.DataCase do
       import Ecto.Query
       import Meadow.DataCase
       import Meadow.TestHelpers
+
+      @moduletag shared: unquote(shared)
     end
   end
 
   setup tags do
-    with shared <- not Map.get(tags, :async, true),
-         pid <- Sandbox.start_owner!(Meadow.Repo, shared: shared) do
-      on_exit(fn -> Sandbox.stop_owner(pid) end)
+    sandbox =
+      case tags do
+        %{unboxed: true} -> false
+        %{walex: _} -> false
+        _ -> true
+      end
+
+    shared = tags[:shared] || not tags[:async]
+    pid = Sandbox.start_owner!(Repo, sandbox: sandbox, shared: shared)
+
+    on_exit(fn ->
+      if not sandbox do
+        for table <- ~w(ark_cache works collections file_sets projects ingest_sheets) do
+          {:ok, _} = SQL.query(Repo, "TRUNCATE TABLE #{table} CASCADE", [])
+        end
+      end
+
+      Sandbox.stop_owner(pid)
+    end)
+
+    case tags do
+      %{walex: modules} ->
+        walex_config = Application.get_env(:meadow, WalEx)
+        Application.put_env(:meadow, WalEx, Keyword.put(walex_config, :modules, modules))
+        on_exit(fn -> Application.put_env(:meadow, WalEx, walex_config) end)
+
+        {WalEx.Supervisor, Application.get_env(:meadow, WalEx)}
+        |> start_supervised!()
+
+      _ ->
+        :noop
     end
 
     :ok

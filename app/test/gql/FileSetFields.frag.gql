@@ -25,4 +25,5 @@ fragment FileSetFields on FileSet {
     originalFilename
   }
   extractedMetadata
+  groupWith
 }

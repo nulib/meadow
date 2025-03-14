@@ -36,14 +36,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
   const facetProjectSensors = FACET_PROJECT_SENSORS.map(
-    (sensor) => sensor.componentId
+    (sensor) => sensor.componentId,
   );
   //TODO: Leave this in as we might want to display this info in another type of range component
   // const facetRangeSensors = FACET_RANGE_SENSORS.map(
   //   (sensor) => sensor.componentId
   // );
   const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
-    (sensor) => sensor.componentId
+    (sensor) => sensor.componentId,
   );
 
   return (
@@ -76,21 +76,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({
               ],
             }}
             renderItem={(res) => {
+              const isSelected = Boolean(selectedItems.indexOf(res._id) > -1);
               if (isListView) {
                 return (
-                  <div key={res._id} className="box">
-                    <SearchSelectable
-                      key={res._id}
-                      id={res._id}
-                      handleSelectItem={handleSelectItem}
-                      wrapsItemType="list"
-                    >
+                  <SearchSelectable
+                    key={res._id}
+                    id={res._id}
+                    handleSelectItem={handleSelectItem}
+                    isSelected={isSelected}
+                  >
+                    <div key={res._id} className="box">
                       <WorkListItem
                         key={res._id}
                         {...prepWorkItemForDisplay(res)}
                       />
-                    </SearchSelectable>
-                  </div>
+                    </div>
+                  </SearchSelectable>
                 );
               }
               return (
@@ -102,8 +103,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     key={res._id}
                     id={res._id}
                     handleSelectItem={handleSelectItem}
-                    isSelected={selectedItems.indexOf(res._id) > -1}
-                    wrapsItemType="card"
+                    isSelected={isSelected}
                   >
                     <WorkCardItem
                       key={res._id}
