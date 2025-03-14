@@ -35,15 +35,36 @@ function WorkFilesetList({
       {/* Access Files  */}
       <div data-testid="fileset-list" className="mb-5">
         <SubHead>Access files</SubHead>
-        {fileSets.access.map((fileSet) => (
-          <WorkFilesetListItem
-            key={fileSet.id}
-            fileSet={fileSet}
-            handleWorkImageChange={handleWorkImageChange}
-            isEditing={isEditing}
-            workImageFilesetId={workImageFilesetId}
-          />
-        ))}
+        {fileSets.access
+          .filter((fileSet) => !fileSet.group_with)
+          .map((fileSet) => {
+            // get all filesets that have a group_with value matching fileSet.id
+            const groupedFileSets = fileSets.access.filter(
+              (entry) => entry.group_with === fileSet.id,
+            );
+
+            return (
+              <>
+                <WorkFilesetListItem
+                  key={fileSet.id}
+                  fileSet={fileSet}
+                  handleWorkImageChange={handleWorkImageChange}
+                  isEditing={isEditing}
+                  workImageFilesetId={workImageFilesetId}
+                />
+
+                {groupedFileSets.map((groupedFileSet) => (
+                  <WorkFilesetListItem
+                    key={groupedFileSet.id}
+                    fileSet={groupedFileSet}
+                    handleWorkImageChange={handleWorkImageChange}
+                    isEditing={isEditing}
+                    workImageFilesetId={workImageFilesetId}
+                  />
+                ))}
+              </>
+            );
+          })}
       </div>
 
       {/* Auxillary Files  */}

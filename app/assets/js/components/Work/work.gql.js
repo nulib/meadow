@@ -255,6 +255,7 @@ export const GET_WORK = gql`
           }
         }
         extractedMetadata
+        group_with
         insertedAt
         role {
           id
@@ -387,7 +388,7 @@ export const LIST_INGEST_BUCKET_OBJECTS = gql`
       }
     }
   }
-`
+`;
 
 export const SET_WORK_IMAGE = gql`
   mutation SetWorkImage($fileSetId: ID!, $workId: ID!) {

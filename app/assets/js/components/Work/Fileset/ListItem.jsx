@@ -10,6 +10,7 @@ import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionButtons/Access";
 import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
 import useFileSet from "@js/hooks/useFileSet";
+import { css } from "@emotion/react";
 
 function WorkFilesetListItem({
   fileSet,
@@ -17,7 +18,7 @@ function WorkFilesetListItem({
   isEditing,
   workImageFilesetId,
 }) {
-  const { id, coreMetadata } = fileSet;
+  const { id, coreMetadata, group_with } = fileSet;
   const { hasRepresentativeImage, isImage, isMedia, isPDF, isZip } =
     useFileSet();
   const workContextState = useWorkState();
@@ -33,6 +34,9 @@ function WorkFilesetListItem({
       isMedia(fileSet) ? "full" : "square"
     }/500,/0/default.jpg`,
   });
+
+  const article = `
+    `;
 
   const handleError = (e) => {
     if (!imgState.errored) {
@@ -64,7 +68,13 @@ function WorkFilesetListItem({
   };
 
   return (
-    <article className="box" data-testid="fileset-item">
+    <article
+      className={`box is-relative ${group_with && "fileset-group-with"}`}
+      data-testid="fileset-item"
+      style={{
+        zIndex: group_with ? 0 : 1,
+      }}
+    >
       <div className="columns">
         <div className="column is-2">
           <figure className="image">
