@@ -156,9 +156,19 @@ defmodule Meadow.Events.Works.Arks do
     Processor.mint_ark(record.id)
   end
 
+  def handle_event(%{
+        type: :update,
+        changes: %{descriptive_metadata: %{old_value: %{"ark" => nil}}}
+      }) do
+    # No ARK to update
+    :noop
+  end
+
   def handle_event(%{type: :update, new_record: record, changes: changes}) do
-    unless ark_changed(changes) do
+    if needs_update?(changes) do
       Processor.update_ark(record.id)
+    else
+      Logger.info("No ARK update needed for work: #{record.id}")
     end
   rescue
     Ecto.NoResultsError -> :noop
@@ -168,17 +178,23 @@ defmodule Meadow.Events.Works.Arks do
     Processor.delete_ark(record.id)
   end
 
-  defp ark_changed(%{published: _}), do: false
-  defp ark_changed(%{visibility: _}), do: false
-
-  defp ark_changed(%{
-         descriptive_metadata: %{
-           old_value: %{"ark" => old_ark},
-           new_value: %{"ark" => new_ark}
-         }
-       }) do
-    old_ark != new_ark
+  defp needs_update?(changes) do
+    [
+      {:id, []},
+      {:published, []},
+      {:visibility, ["id"]},
+      {:work_type, ["id"]},
+      {:descriptive_metadata, ["ark"]},
+      {:descriptive_metadata, ["creator"]},
+      {:descriptive_metadata, ["title"]},
+      {:descriptive_metadata, ["publisher"]}
+    ]
+    |> Enum.any?(fn {field, path} ->
+      with field_value <- Map.get(changes, field) do
+        get_in(field_value, [:old_value | path]) != get_in(field_value, [:new_value | path])
+      end
+    end)
   end
 
-  defp ark_changed(_), do: false
+  defp needs_update?(_), do: false
 end

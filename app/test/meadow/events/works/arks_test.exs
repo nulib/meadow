@@ -8,6 +8,7 @@ defmodule Meadow.Events.Works.ArksTest do
 
   import Assertions
   import Ecto.Query
+  import ExUnit.CaptureLog
   import Meadow.TestHelpers
 
   def assert_ark_status(work, expected_status) do
@@ -110,6 +111,26 @@ defmodule Meadow.Events.Works.ArksTest do
       assert_async(timeout: 2000) do
         assert {:ok, %{status: "unavailable | withdrawn"}} = Ark.get(ark)
       end
+    end
+
+    test "update ark metadata", %{work: work} do
+      CaptureLog
+
+      log =
+        capture_log(fn ->
+          Works.update_work!(work, %{descriptive_metadata: %{title: "New Title"}})
+          :timer.sleep(250)
+        end)
+
+      refute String.contains?(log, "No ARK update needed for work: #{work.id}")
+
+      log =
+        capture_log(fn ->
+          Works.update_work!(work, %{administrative_metadata: %{project_cycle: "Next"}})
+          :timer.sleep(250)
+        end)
+
+      assert String.contains?(log, "No ARK update needed for work: #{work.id}")
     end
   end
 
