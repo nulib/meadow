@@ -75,10 +75,13 @@ config :authoritex,
 
 config :httpoison_retry, wait: 50
 
-config :ex_aws, :hackney_opts,
-  pool: :default,
-  max_connections: 500,
-  checkout_timeout: 30_000
+config :ex_aws,
+  http_client: Meadow.Utils.AWS.HttpClient,
+  hackney_opts: [
+    pool: :default,
+    max_connections: 500,
+    checkout_timeout: 30_000
+  ]
 
 config :meadow, :extra_mime_types, %{
   "aif" => "audio/x-aiff",
