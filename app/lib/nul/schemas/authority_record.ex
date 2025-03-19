@@ -25,6 +25,7 @@ defmodule NUL.Schemas.AuthorityRecord do
   def update_changeset(record, params) do
     record
     |> cast(params, [:label, :hint])
+    |> validate_required([:label])
     |> unique_constraint(:label)
   end
 

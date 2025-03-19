@@ -154,6 +154,61 @@ defmodule NUL.AuthorityRecords do
   end
 
   @doc """
+  Updates many AuthorityRecords at once. Ignores any updates for records with IDs
+  that do not already exist. Returns a list of updated Authority records.
+  """
+  def update_authority_records(list_of_attrs) do
+    updated_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+    records =
+      Enum.map(list_of_attrs, fn entry ->
+        %{
+          id: String.trim(Map.get(entry, :id)),
+          label: String.trim(Map.get(entry, :label, "")),
+          hint: String.trim(Map.get(entry, :hint, "") || ""),
+          updated_at: updated_at
+        }
+      end)
+
+    case Repo.transaction(fn -> do_update_authority_records(records) end) do
+      {:ok, results} -> results
+      other -> other
+    end
+  end
+
+  defp do_update_authority_records(records) do
+    ids = Enum.map(records, & &1.id)
+
+    existing =
+      from(ar in AuthorityRecord, where: ar.id in ^ids, select: {ar.id, ar})
+      |> Repo.all()
+      |> Enum.into(%{})
+
+    records
+    |> Enum.map(fn record ->
+      %{id: id, label: label, hint: hint} = record
+
+      case Map.get(existing, record.id) do
+        nil ->
+          {:not_found, record}
+
+        %{id: ^id, label: ^label, hint: ^hint} ->
+          {:unchanged, record}
+
+        ar ->
+          do_update_authority_record(ar, record)
+      end
+    end)
+  end
+
+  defp do_update_authority_record(existing_record, new_record) do
+    case update_authority_record(existing_record, new_record) do
+      {:ok, record} -> {:updated, record}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
   Deletes an AuthorityRecord.
   """
   def delete_authority_record(%AuthorityRecord{} = authority_record) do

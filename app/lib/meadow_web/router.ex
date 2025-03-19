@@ -57,6 +57,7 @@ defmodule MeadowWeb.Router do
 
     post("/export/:file", MeadowWeb.ExportController, :export)
     post("/authority_records/bulk_create", MeadowWeb.AuthorityRecordsController, :bulk_create)
+    post("/authority_records/bulk_update", MeadowWeb.AuthorityRecordsController, :bulk_update)
     post("/authority_records/:file", MeadowWeb.AuthorityRecordsController, :export)
     post("/create_shared_links/:file", MeadowWeb.SharedLinksController, :export)
 

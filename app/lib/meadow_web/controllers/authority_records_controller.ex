@@ -49,6 +49,50 @@ defmodule MeadowWeb.AuthorityRecordsController do
     conn
   end
 
+  def bulk_update(conn, %{"records" => upload}) do
+    Logger.info("Received #{upload.filename} of type #{upload.content_type} for bulk update")
+
+    csv_to_maps(upload.path)
+    |> do_bulk_update(conn)
+  end
+
+  defp do_bulk_update({:ok, records}, conn) do
+    results =
+      records
+      |> AuthorityRecords.update_authority_records()
+      |> Enum.map(fn
+        {:error, %{params: params, errors: errors}} ->
+          %{"id" => id, "label" => label, "hint" => hint} = params
+          errors = Enum.map(errors, fn {field, {error, _}} -> "<#{field}> #{error}" end)
+          [id, label, hint, "error", Enum.join(errors, "; ")]
+
+        {status, %{id: id, label: label, hint: hint}} ->
+          [id, label, hint, status]
+      end)
+
+    file = "authority_update_#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
+
+    conn =
+      conn
+      |> put_resp_content_type("text/csv")
+      |> put_resp_header("content-disposition", ~s[attachment; filename="#{file}"])
+      |> send_chunked(:ok)
+
+    [~w(id label hint status) | results]
+    |> CSV.dump_to_stream()
+    |> Enum.reduce_while(conn, fn csv_row, conn ->
+      case chunk(conn, csv_row) do
+        {:ok, conn} -> {:cont, conn}
+        {:error, conn} -> {:halt, conn}
+      end
+    end)
+  end
+
+  defp csv_to_maps(headers, rows) do
+    headers = Enum.map(headers, &String.to_atom/1)
+    {:ok, Enum.map(rows, fn row -> Enum.zip(headers, row) |> Enum.into(%{}) end)}
+  end
+
   defp csv_to_maps(file) do
     [headers | rows] =
       File.stream!(file, [:trim_bom], :line)
@@ -56,9 +100,11 @@ defmodule MeadowWeb.AuthorityRecordsController do
       |> Enum.to_list()
 
     case Enum.sort(headers) do
+      ~w(hint id label) ->
+        csv_to_maps(headers, rows)
+
       ~w(hint label) ->
-        headers = Enum.map(headers, &String.to_atom/1)
-        {:ok, Enum.map(rows, fn row -> Enum.zip(headers, row) |> Enum.into(%{}) end)}
+        csv_to_maps(headers, rows)
 
       other ->
         Logger.error("Bad headers: " <> inspect(other))
@@ -83,6 +129,8 @@ defmodule MeadowWeb.AuthorityRecordsController do
       |> put_resp_content_type("text/csv")
       |> put_resp_header("content-disposition", ~s[attachment; filename="#{file}"])
       |> send_chunked(:ok)
+
+    chunk(conn, CSV.dump_to_iodata([~w(id label hint)]))
 
     AuthorityRecords.with_stream(fn stream ->
       stream
