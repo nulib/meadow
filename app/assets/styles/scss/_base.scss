@@ -105,7 +105,12 @@ table {
 }
 
 .is-bold {
+  font-weight: 400 !important;
   font-family: $AkkuratProBold;
+}
+
+.is-muted {
+  color: $rich-black-50 !important;
 }
 
 .small-title {

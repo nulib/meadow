@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import WorkFilesetList from "@js/components/Work/Fileset/List";
 import PropTypes from "prop-types";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Button } from "@nulib/design-system";
+import { DragDropContext } from "react-beautiful-dnd";
+import WorkFilesetList from "@js/components/Work/Fileset/List";
 
-const reorder = (list, startIndex, endIndex) => {
+function reorder(list, startIndex, endIndex) {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
 
   return result;
-};
+}
 
 function FilesetsDragAndDrop({
   fileSets,
@@ -19,26 +19,55 @@ function FilesetsDragAndDrop({
 }) {
   const [state, setState] = useState({ fileSets });
 
+  const indexArray = state.fileSets.map((fs) => ({
+    id: fs.id,
+    group_with: fs.group_with,
+    droppableId: fs.group_with ? fs.group_with : "access",
+  }));
+
+  function handleSaveClick() {
+    handleSaveReorder(state.fileSets.map((fs) => fs.id));
+  }
+
   function handleCancelClick() {
     setState({ fileSets });
     handleCancelReorder();
   }
 
   function onDragEnd(result) {
-    if (!result.destination) {
-      return;
-    }
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
 
-    if (result.destination.index === result.source.index) {
-      return;
-    }
+    const { source, destination } = result;
 
-    const updatedFileSets = reorder(
-      state.fileSets,
-      result.source.index,
-      result.destination.index,
+    // 1) Find absolute start index
+    const sourceSubset = indexArray.filter(
+      (fs) => fs.droppableId === source.droppableId,
+    );
+    const draggedItem = sourceSubset[source.index];
+    const startIndex = indexArray.findIndex((fs) => fs.id === draggedItem?.id);
+
+    // 2) Find absolute end index
+    const destinationSubset = indexArray.filter(
+      (fs) => fs.droppableId === destination.droppableId,
     );
 
+    let endIndex;
+    if (destination.index >= destinationSubset.length) {
+      // Dropping at the end of the subset
+      endIndex =
+        indexArray.findIndex(
+          (fs) => fs.id === destinationSubset[destinationSubset.length - 1]?.id,
+        ) + 1;
+    } else {
+      const targetItem = destinationSubset[destination.index];
+      endIndex = indexArray.findIndex((fs) => fs.id === targetItem?.id);
+    }
+
+    if (startIndex === -1 || endIndex === -1) return;
+
+    // 3) Reorder the state
+    const updatedFileSets = reorder(state.fileSets, startIndex, endIndex);
     setState({ fileSets: updatedFileSets });
   }
 
@@ -48,7 +77,7 @@ function FilesetsDragAndDrop({
         <div className="buttons is-justify-content-center my-4">
           <Button
             isPrimary
-            onClick={() => handleSaveReorder(state.fileSets.map((fs) => fs.id))}
+            onClick={handleSaveClick}
             data-testid="button-reorder-save"
           >
             Save Fileset Order
@@ -63,17 +92,7 @@ function FilesetsDragAndDrop({
         </div>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="list">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              <WorkFilesetList
-                fileSets={{ access: state.fileSets }}
-                isReordering
-              />
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <WorkFilesetList fileSets={{ access: state.fileSets }} isReordering />
       </DragDropContext>
     </div>
   );

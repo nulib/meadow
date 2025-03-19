@@ -11,7 +11,7 @@ import {
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
+import WorkTabsStructureFilesetsDragAndDrop from "@js/components/Work/Tabs/Structure/FilesetsDragAndDrop";
 import { Button, Notification } from "@nulib/design-system";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
@@ -100,7 +100,8 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const filterDraggableFilesets = (fileSets) => {
-    return fileSets.filter((fs) => fs.role.id === "A");
+    const accessFiles = fileSets.filter((fs) => fs.role.id === "A");
+    return affirmOrder(accessFiles);
   };
 
   const onSubmit = (data) => {
@@ -121,6 +122,32 @@ const WorkTabsStructure = ({ work }) => {
 
     updateFileSets({ variables: { fileSets: formPostData } });
   };
+
+  function affirmOrder(fileSets) {
+    const { idMap, groupedMap } = fileSets.reduce(
+      (acc, fileSet) => {
+        acc.idMap.set(fileSet.id, fileSet);
+        if (fileSet.group_with) {
+          if (!acc.groupedMap.has(fileSet.group_with)) {
+            acc.groupedMap.set(fileSet.group_with, []);
+          }
+          acc.groupedMap.get(fileSet.group_with).push(fileSet);
+        }
+        return acc;
+      },
+      { idMap: new Map(), groupedMap: new Map() },
+    );
+
+    return fileSets.reduce((orderedList, fileSet) => {
+      if (!fileSet.group_with || !idMap.has(fileSet.group_with)) {
+        orderedList.push(fileSet);
+        if (groupedMap.has(fileSet.id)) {
+          orderedList.push(...groupedMap.get(fileSet.id));
+        }
+      }
+      return orderedList;
+    }, []);
+  }
 
   return (
     <FormProvider {...methods}>

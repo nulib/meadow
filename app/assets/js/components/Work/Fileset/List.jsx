@@ -4,6 +4,7 @@ import WorkFilesetListItem from "@js/components/Work/Fileset/ListItem";
 import WorkFilesetDraggable from "@js/components/Work/Fileset/Draggable";
 import WorkTabsStructureWebVTTModal from "@js/components/Work/Tabs/Structure/WebVTTModal";
 import { useWorkState } from "@js/context/work-context";
+import { Droppable } from "react-beautiful-dnd";
 
 function SubHead({ children }) {
   return <h3 className="my-4 ml-5 is-size-5">{children}</h3>;
@@ -19,17 +20,32 @@ function WorkFilesetList({
 
   if (isReordering) {
     return (
-      <div data-testid="fileset-draggable-list" className="mb-5">
-        {fileSets.access.map((fileSet, index) => (
-          <WorkFilesetDraggable
-            key={fileSet.id}
-            fileSet={fileSet}
-            index={index}
-          />
-        ))}
-      </div>
+      <Droppable droppableId="access" type="fileset">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div data-testid="fileset-draggable-list" className="mb-5">
+              {fileSets.access
+                .filter((fileSet) => !fileSet.group_with)
+                .map((fileSet, index) => {
+                  return (
+                    <WorkFilesetDraggable
+                      key={fileSet.id}
+                      fileSet={fileSet}
+                      index={index}
+                      groupedFileSets={fileSets.access.filter(
+                        (entry) => entry.group_with === fileSet.id,
+                      )}
+                    />
+                  );
+                })}
+            </div>
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     );
   }
+
   return (
     <>
       {/* Access Files  */}
