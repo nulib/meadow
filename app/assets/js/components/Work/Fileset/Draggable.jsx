@@ -5,18 +5,20 @@ import PropTypes from "prop-types";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { css, jsx } from "@emotion/react";
+import WorkFilesetActionButtonsGroupRemove from "./ActionButtons/GroupRemove";
+import WorkFilesetActionButtonsGroupAdd from "./ActionButtons/GroupAdd";
 
 function WorkFilesetDraggable({
   fileSet,
+  handleUpdateFileSet,
   index,
   isGrouped = false,
+  candidateFileSets = [],
   groupedFileSets = [],
 }) {
   const iiifServerUrl = useContext(IIIFContext);
 
   const article = css`
-    position: relative;
-    z-index: 0;
     background: white;
     transition: all 0.25s ease;
     padding: 1rem;
@@ -49,9 +51,13 @@ function WorkFilesetDraggable({
     gap: 1rem;
   `;
 
+  const metadata = css`
+    flex-grow: 1;
+  `;
+
+  const actions = css``;
+
   const fileSetGroup = css`
-    position: relative;
-    z-index: 1;
     margin-top: 1rem;
     padding: 1.5rem;
     background: #0001;
@@ -80,13 +86,28 @@ function WorkFilesetDraggable({
                   data-testid="fileset-image"
                 />
               </figure>
-              <div>
+              <div css={metadata}>
                 <span data-testid="fileset-label" className="is-bold">
                   {fileSet.coreMetadata.label}
                 </span>
                 <p data-testid="fileset-description" className="is-muted">
                   {fileSet.coreMetadata.description}
                 </p>
+              </div>
+              <div css={actions}>
+                {fileSet.group_with ? (
+                  <WorkFilesetActionButtonsGroupRemove
+                    fileSetId={fileSet.id}
+                    handleUpdateFileSet={handleUpdateFileSet}
+                  />
+                ) : (
+                  <WorkFilesetActionButtonsGroupAdd
+                    fileSetId={fileSet.id}
+                    candidateFileSets={candidateFileSets}
+                    handleUpdateFileSet={handleUpdateFileSet}
+                    iiifServerUrl={iiifServerUrl}
+                  />
+                )}
               </div>
             </div>
 
@@ -101,6 +122,7 @@ function WorkFilesetDraggable({
                           fileSet={groupedFileSet}
                           index={index}
                           isGrouped={true}
+                          handleUpdateFileSet={handleUpdateFileSet}
                         />
                       ))}
                       {provided.placeholder}

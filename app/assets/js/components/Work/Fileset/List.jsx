@@ -11,6 +11,7 @@ function SubHead({ children }) {
 }
 function WorkFilesetList({
   fileSets,
+  handleUpdateFileSet,
   handleWorkImageChange,
   isEditing,
   isReordering,
@@ -27,14 +28,28 @@ function WorkFilesetList({
               {fileSets.access
                 .filter((fileSet) => !fileSet.group_with)
                 .map((fileSet, index) => {
+                  const candidateFileSets = fileSets.access.filter((fs) => {
+                    return (
+                      fs.id !== fileSet.id &&
+                      !fs.group_with &&
+                      fileSets.access.some(
+                        (otherFs) => otherFs.group_with !== fs.id,
+                      )
+                    );
+                  });
+
+                  const groupedFileSets = fileSets.access.filter(
+                    (entry) => entry.group_with === fileSet.id,
+                  );
+
                   return (
                     <WorkFilesetDraggable
                       key={fileSet.id}
                       fileSet={fileSet}
+                      candidateFileSets={candidateFileSets}
+                      groupedFileSets={groupedFileSets}
+                      handleUpdateFileSet={handleUpdateFileSet}
                       index={index}
-                      groupedFileSets={fileSets.access.filter(
-                        (entry) => entry.group_with === fileSet.id,
-                      )}
                     />
                   );
                 })}

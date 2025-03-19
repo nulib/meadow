@@ -188,7 +188,7 @@ const WorkTabsStructure = ({ work }) => {
             disabled={isEditing || isReordering}
           >
             <IconSort />
-            <span>Re-order</span>
+            <span>Re-order & Group</span>
           </Button>
 
           {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}

@@ -603,6 +603,15 @@ export const UPDATE_FILE_SETS = gql`
   }
 `;
 
+export const GROUP_WITH_FILE_SET = gql`
+  mutation UpdateFileSet($id: ID!, $groupWith: ID) {
+    updateFileSet(id: $id, groupWith: $groupWith) {
+      id
+      groupWith
+    }
+  }
+`;
+
 export const VERIFY_FILE_SETS = gql`
   query VerifyFileSets($workId: ID!) {
     verifyFileSets(workId: $workId) {

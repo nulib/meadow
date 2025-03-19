@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { Button } from "@nulib/design-system";
 import { DragDropContext } from "react-beautiful-dnd";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
+import { GROUP_WITH_FILE_SET } from "../../work.gql";
+import { useMutation } from "@apollo/client";
 
 function reorder(list, startIndex, endIndex) {
   const result = Array.from(list);
@@ -25,8 +27,28 @@ function FilesetsDragAndDrop({
     droppableId: fs.group_with ? fs.group_with : "access",
   }));
 
+  const [groupWithFileSet] = useMutation(GROUP_WITH_FILE_SET, {
+    onCompleted({ groupWithFileSet }) {
+      toastWrapper("is-success", `Fileset has been removed from group`);
+    },
+  });
+
   function handleSaveClick() {
+    // Update order of all filesets
     handleSaveReorder(state.fileSets.map((fs) => fs.id));
+
+    // Update group_with values for applicable filesets
+    const updateGroupWith = state.fileSets.filter((fs) =>
+      fileSets.find(
+        (fs2) => fs2.id === fs.id && fs2.group_with !== fs.group_with,
+      ),
+    );
+
+    updateGroupWith.forEach((fs) => {
+      groupWithFileSet({
+        variables: { id: fs.id, groupWith: fs.group_with },
+      });
+    });
   }
 
   function handleCancelClick() {
@@ -71,6 +93,17 @@ function FilesetsDragAndDrop({
     setState({ fileSets: updatedFileSets });
   }
 
+  function handleUpdateFileSet(id, groupWith) {
+    const updatedFileSets = state.fileSets.map((fs) => {
+      if (fs.id === id) {
+        return { ...fs, group_with: groupWith };
+      }
+      return fs;
+    });
+
+    setState({ fileSets: updatedFileSets });
+  }
+
   return (
     <div data-testid="fileset-dnd-wrapper">
       <div className="has-text-centered">
@@ -80,10 +113,9 @@ function FilesetsDragAndDrop({
             onClick={handleSaveClick}
             data-testid="button-reorder-save"
           >
-            Save Fileset Order
+            Save
           </Button>
           <Button
-            isText
             onClick={handleCancelClick}
             data-testid="button-reorder-cancel"
           >
@@ -92,7 +124,11 @@ function FilesetsDragAndDrop({
         </div>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <WorkFilesetList fileSets={{ access: state.fileSets }} isReordering />
+        <WorkFilesetList
+          fileSets={{ access: state.fileSets }}
+          handleUpdateFileSet={handleUpdateFileSet}
+          isReordering
+        />
       </DragDropContext>
     </div>
   );
