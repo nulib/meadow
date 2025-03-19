@@ -115,7 +115,7 @@ defmodule NUL.AuthorityRecords do
     duplicates =
       from(ar in AuthorityRecord, where: ar.label in ^labels)
       |> Repo.all()
-      |> indexed_records(:duplicate)
+      |> indexed_records(:duplicate, :label)
 
     created =
       Repo.insert_all(AuthorityRecord, records,
@@ -123,7 +123,7 @@ defmodule NUL.AuthorityRecords do
         on_conflict: :nothing,
         conflict_target: :label
       )
-      |> indexed_records(:created)
+      |> indexed_records(:created, :label)
 
     results = Enum.into(created ++ duplicates, %{})
     Enum.map(labels, &Map.get(results, &1))
@@ -154,18 +154,74 @@ defmodule NUL.AuthorityRecords do
   end
 
   @doc """
+  Updates many AuthorityRecords at once. Ignores any updates for records with IDs
+  that do not already exist. Returns a list of updated Authority records.
+  """
+  def update_authority_records(list_of_attrs) do
+    updated_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+    records =
+      Enum.map(list_of_attrs, fn entry ->
+        %{
+          id: String.trim(Map.get(entry, :id)),
+          label: String.trim(Map.get(entry, :label, "")),
+          hint: String.trim(Map.get(entry, :hint, "") || ""),
+          updated_at: updated_at
+        }
+      end)
+
+    case Repo.transaction(fn -> do_update_authority_records(records) end) do
+      {:ok, results} -> results
+      other -> other
+    end
+  end
+
+  defp do_update_authority_records(records) do
+    ids = Enum.map(records, & &1.id)
+
+    existing =
+      from(ar in AuthorityRecord, where: ar.id in ^ids, select: {ar.id, ar})
+      |> Repo.all()
+      |> Enum.into(%{})
+
+    records
+    |> Enum.map(fn record ->
+      %{id: id, label: label, hint: hint} = record
+
+      case Map.get(existing, record.id) do
+        nil ->
+          {:not_found, record}
+
+        %{id: ^id, label: ^label, hint: ^hint} ->
+          {:unchanged, record}
+
+        ar ->
+          do_update_authority_record(ar, record)
+      end
+    end)
+  end
+
+  defp do_update_authority_record(existing_record, new_record) do
+    case update_authority_record(existing_record, new_record) do
+      {:ok, record} -> {:updated, record}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
   Deletes an AuthorityRecord.
   """
   def delete_authority_record(%AuthorityRecord{} = authority_record) do
     Repo.delete(authority_record)
   end
 
-  defp indexed_records({_, records}, status), do: indexed_records(records, status)
+  defp indexed_records({_, records}, status, field),
+    do: indexed_records(records, status, field)
 
-  defp indexed_records(records, status) do
+  defp indexed_records(records, status, field) do
     records
     |> Enum.map(fn record ->
-      {record.label, {status, record}}
+      {Map.get(record, field), {status, record}}
     end)
   end
 end
