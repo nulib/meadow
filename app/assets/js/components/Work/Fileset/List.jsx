@@ -82,17 +82,8 @@ function WorkFilesetList({
                   handleWorkImageChange={handleWorkImageChange}
                   isEditing={isEditing}
                   workImageFilesetId={workImageFilesetId}
+                  groupedFileSets={groupedFileSets}
                 />
-
-                {groupedFileSets.map((groupedFileSet) => (
-                  <WorkFilesetListItem
-                    key={groupedFileSet.id}
-                    fileSet={groupedFileSet}
-                    handleWorkImageChange={handleWorkImageChange}
-                    isEditing={isEditing}
-                    workImageFilesetId={workImageFilesetId}
-                  />
-                ))}
               </>
             );
           })}

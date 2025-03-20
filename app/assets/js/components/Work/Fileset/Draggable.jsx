@@ -90,8 +90,8 @@ function WorkFilesetDraggable({
                 <span data-testid="fileset-label" className="is-bold">
                   {fileSet.coreMetadata.label}
                 </span>
-                <p data-testid="fileset-description" className="is-muted">
-                  {fileSet.coreMetadata.description}
+                <p data-testid="fileset-accession-number" className="is-muted">
+                  {fileSet.accessionNumber}
                 </p>
               </div>
               <div css={actions}>
