@@ -155,7 +155,7 @@ function WorkFilesetListItem({
         <div className="has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {showWorkImageToggle() && (
+              {showWorkImageToggle() && !fileSet.group_with && (
                 <AuthDisplayAuthorized>
                   <div className="field">
                     <input

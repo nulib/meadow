@@ -19,6 +19,8 @@ function WorkFilesetList({
 }) {
   const { webVttModal } = useWorkState();
 
+  console.log("fileSets", fileSets);
+
   if (isReordering) {
     return (
       <Droppable droppableId="access" type="fileset">
@@ -28,13 +30,17 @@ function WorkFilesetList({
               {fileSets.access
                 .filter((fileSet) => !fileSet.group_with)
                 .map((fileSet, index) => {
+                  const restrictedFileSetIds = new Set(
+                    fileSets.access
+                      .map((fs) => fs.group_with)
+                      .filter((id) => id !== null),
+                  );
+
                   const candidateFileSets = fileSets.access.filter((fs) => {
                     return (
                       fs.id !== fileSet.id &&
                       !fs.group_with &&
-                      fileSets.access.some(
-                        (otherFs) => otherFs.group_with !== fs.id,
-                      )
+                      !restrictedFileSetIds.has(fs.id)
                     );
                   });
 

@@ -99,7 +99,7 @@ const WorkFilesetActionButtonsGroupAdd = ({
       <input
         className="input"
         type="text"
-        placeholder="Attach fileset..."
+        placeholder="Attach filesets..."
         aria-haspopup="true"
         aria-controls="searchbox"
         onFocus={() => setIsOpen(!isOpen)}
