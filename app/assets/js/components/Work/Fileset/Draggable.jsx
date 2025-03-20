@@ -81,6 +81,7 @@ function WorkFilesetDraggable({
             data-testid="fileset-draggable-item"
             data-is-dragging={snapshot.isDragging}
             data-is-grouped={isGrouped}
+            data-fileset-id={fileSet.id}
           >
             <div css={content} className="is-flex">
               <figure css={figure}>

@@ -167,7 +167,7 @@ const WorkFilesetActionButtonsGroupAdd = ({
   `;
 
   return (
-    <div ref={addRef} css={add}>
+    <div ref={addRef} css={add} data-testid="fileset-group-add">
       <input
         ref={inputRef}
         className="input"

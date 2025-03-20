@@ -18,7 +18,12 @@ const WorkFilesetActionButtonsGroupRemove = ({
   };
 
   return (
-    <button className="button is-text" css={button} onClick={handleRemoveClick}>
+    <button
+      className="button is-text"
+      css={button}
+      onClick={handleRemoveClick}
+      data-testid="fileset-group-remove"
+    >
       Detach
     </button>
   );
