@@ -12,6 +12,8 @@ const WorkFilesetActionButtonsGroupAdd = ({
   const addRef = React.useRef(null);
   const inputRef = React.useRef(null);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [filteredCandidateFileSets, setFilteredCandidateFileSets] =
+    React.useState(candidateFileSets);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -37,14 +39,42 @@ const WorkFilesetActionButtonsGroupAdd = ({
     };
   }, []);
 
+  useEffect(() => {
+    setFilteredCandidateFileSets(candidateFileSets);
+  }, [candidateFileSets]);
+
   const handleFocus = () => {
-    setIsOpen(true);
+    setIsOpen(!isOpen);
     inputRef.current.style.width = "300px";
   };
 
   const handleBlur = () => {
-    setIsOpen(false);
     inputRef.current.style.width = "150px";
+  };
+
+  const handleChange = (e) => {
+    const value = e.target.value.toLowerCase().normalize();
+    if (value === "") {
+      setFilteredCandidateFileSets(candidateFileSets);
+      return;
+    }
+
+    // get the filtered filesets matching label or accession number
+    const filtered = candidateFileSets.filter(
+      (candidate) =>
+        candidate.coreMetadata.label
+          .toLowerCase()
+          .normalize()
+          .includes(value) ||
+        candidate.accessionNumber.toLowerCase().normalize().includes(value),
+    );
+
+    setFilteredCandidateFileSets(filtered);
+  };
+
+  const handleOnClick = (candidateId) => {
+    handleUpdateFileSet(candidateId, fileSetId);
+    setIsOpen(false);
   };
 
   const add = css`
@@ -65,19 +95,17 @@ const WorkFilesetActionButtonsGroupAdd = ({
     position: absolute;
     right: 0;
     z-index: 2;
-    display: block;
+    display: ${isOpen ? "block" : "none"};
     background: white;
     width: 300px;
-    height: ${isOpen ? "300px" : "0px"};
-    transition: all 0.25s ease;
     max-height: 300px;
+    transition: all 0.25s ease;
     overflow-x: hidden;
-    overflow-y: ${isOpen ? "auto" : "hidden"};
-    opacity: ${isOpen ? 1 : 0};
+    overflow-y: scroll;};
     padding: 0.5rem;
 
     button {
-      display: flex;
+      display: flex; 
       width: 100%;
       align-items: flex-start;
       background: transparent;
@@ -149,6 +177,7 @@ const WorkFilesetActionButtonsGroupAdd = ({
         aria-controls="searchbox"
         onFocus={handleFocus}
         onBlur={handleBlur}
+        onChange={handleChange}
       />
       <div
         className="box"
@@ -156,29 +185,30 @@ const WorkFilesetActionButtonsGroupAdd = ({
         role="searchbox"
         aria-expanded={isOpen}
       >
-        {candidateFileSets.map((candidate) => (
-          <button
-            key={candidate.id}
-            value={candidate.id}
-            type="button"
-            onClick={() => {
-              handleUpdateFileSet(candidate.id, fileSetId);
-              setIsOpen(false);
-            }}
-          >
-            <figure>
-              <img
-                src={`${iiifServerUrl}${candidate.id}/square/32,32/0/default.jpg`}
-                placeholder="Fileset Image"
-                data-testid="fileset-image"
-              />
-            </figure>
-            <div>
-              <label>{candidate.coreMetadata.label}</label>
-              <span className="is-muted">{candidate.accessionNumber}</span>
-            </div>
-          </button>
-        ))}
+        {filteredCandidateFileSets.length ? (
+          filteredCandidateFileSets.map((candidate) => (
+            <button
+              key={candidate.id}
+              value={candidate.id}
+              type="button"
+              onClick={() => handleOnClick(candidate.id, fileSetId)}
+            >
+              <figure>
+                <img
+                  src={`${iiifServerUrl}${candidate.id}/square/32,32/0/default.jpg`}
+                  placeholder="Fileset Image"
+                  data-testid="fileset-image"
+                />
+              </figure>
+              <div>
+                <label>{candidate.coreMetadata.label}</label>
+                <span className="is-muted">{candidate.accessionNumber}</span>
+              </div>
+            </button>
+          ))
+        ) : (
+          <p>Applicable fileset(s) not found.</p>
+        )}
       </div>
     </div>
   );

@@ -38,6 +38,7 @@ function WorkFilesetDraggable({
   const figure = css`
     width: 48px;
     height: 48px;
+    flex-shrink: 0;
 
     img {
       width: 100%;
@@ -57,6 +58,7 @@ function WorkFilesetDraggable({
 
   const actions = css`
     min-width: 150px;
+    flex-shrink: 0;
   `;
 
   const fileSetGroup = css`
