@@ -1,7 +1,6 @@
 button,
 .button {
   border-radius: 2px;
-  text-transform: uppercase;
 }
 
 table {
@@ -105,7 +104,12 @@ table {
 }
 
 .is-bold {
+  font-weight: 400 !important;
   font-family: $AkkuratProBold;
+}
+
+.is-muted {
+  color: $rich-black-50 !important;
 }
 
 .small-title {
@@ -150,4 +154,32 @@ table {
 
 .meadow-toast-wrapper {
   display: block !important;
+}
+
+.fileset-group-with {
+  margin-left: 4em;
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 4px;
+    height: 130%;
+    border-radius: 2px;
+    background: $rich-black-10;
+    left: -2em;
+    top: calc((-100% / 2) - 30% + 4px);
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 2em;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, $rich-black-10, transparent);
+    left: -2em;
+    top: 50%;
+  }
 }
