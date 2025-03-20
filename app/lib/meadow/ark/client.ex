@@ -3,10 +3,10 @@ defmodule Meadow.Ark.Client do
   HTTPoison-based client for the CDLib EZID API
   """
 
-  use HTTPoison.Base
+  use Meadow.HTTP.Base
   alias Meadow.Config
 
-  def process_request_headers(headers) do
+  def reprocess_request_headers(headers) do
     with config <- Config.ark_config(),
          credentials <- Base.encode64("#{config.user}:#{config.password}") do
       headers ++ [{"Authorization", "Basic #{credentials}"}, {"Content-Type", "text/plain"}]

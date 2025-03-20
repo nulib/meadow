@@ -5,7 +5,6 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
   alias Meadow.Config
   alias Meadow.Data.FileSets
-  alias Meadow.Utils.AWS
 
   use Meadow.Utils.Logging
   use WalEx.Event, name: Meadow
@@ -72,7 +71,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
     Logger.warning("Removing structural metadata for #{id}")
 
     ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
-    |> AWS.request()
+    |> ExAws.request()
 
     file_set_data
   end
@@ -86,7 +85,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
   defp delete_s3_uri(uri, true) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(uri) do
-      case ExAws.S3.head_bucket(bucket) |> AWS.request() do
+      case ExAws.S3.head_bucket(bucket) |> ExAws.request() do
         {:error, {:http_error, 404, _}} ->
           :noop
 
@@ -97,7 +96,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
             |> Stream.map(& &1.key)
 
           ExAws.S3.delete_all_objects(bucket, keys)
-          |> AWS.request()
+          |> ExAws.request()
       end
     end
   end
@@ -105,7 +104,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
   defp delete_s3_uri(uri, false) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(uri) do
       ExAws.S3.delete_object(bucket, key)
-      |> AWS.request()
+      |> ExAws.request()
     end
   end
 end

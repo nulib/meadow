@@ -54,6 +54,8 @@ defmodule Meadow.Search.HTTP do
   def request(method, path, body, headers, options) do
     with cluster <- SearchConfig.cluster_url(),
          url <- ElastixHTTP.prepare_url(cluster, path) do
+      headers = headers |> Keyword.put_new(:"User-Agent", Meadow.HTTP.Base.ua())
+
       retry with: exponential_backoff() |> randomize() |> cap(1_000) |> Stream.take(10),
             atoms: [:retry],
             rescue_only: [] do

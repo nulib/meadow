@@ -143,7 +143,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
 
   defp post!(base_url, path, data) do
     with url <- URI.parse(base_url) |> Map.put(:path, path) |> URI.to_string() do
-      case HTTPoison.post(url, Jason.encode!(data), @headers)
+      case Meadow.HTTP.post(url, Jason.encode!(data), @headers)
            |> HTTPoison.Retry.autoretry() do
         {:ok, response} -> response
         {:error, :timeout} -> post!(base_url, path, data)

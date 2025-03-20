@@ -19,7 +19,7 @@ defmodule Meadow.Utils.Stream do
   def exists?("file://" <> filename), do: File.exists?(filename)
 
   def exists?(url) do
-    case HTTPoison.head(url, %{}, follow_redirect: true) do
+    case Meadow.HTTP.head(url, %{}, follow_redirect: true) do
       {:ok, %{status_code: status}} when status in 200..299 -> true
       _ -> false
     end
@@ -94,20 +94,20 @@ defmodule Meadow.Utils.Stream do
     end
   end
 
-  defp async_stream_start(url), do: HTTPoison.get!(url, %{}, stream_to: self(), async: :once)
+  defp async_stream_start(url), do: Meadow.HTTP.get!(url, [], stream_to: self(), async: :once)
 
   defp async_stream_next(%HTTPoison.AsyncResponse{id: id} = resp) do
     receive do
       %HTTPoison.AsyncStatus{id: ^id} ->
-        HTTPoison.stream_next(resp)
+        Meadow.HTTP.stream_next(resp)
         {[], resp}
 
       %HTTPoison.AsyncHeaders{id: ^id} ->
-        HTTPoison.stream_next(resp)
+        Meadow.HTTP.stream_next(resp)
         {[], resp}
 
       %HTTPoison.AsyncChunk{id: ^id, chunk: chunk} ->
-        HTTPoison.stream_next(resp)
+        Meadow.HTTP.stream_next(resp)
         {[chunk], resp}
 
       %HTTPoison.AsyncEnd{id: ^id} ->

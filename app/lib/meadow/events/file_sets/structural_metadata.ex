@@ -5,7 +5,6 @@ defmodule Meadow.Events.FileSets.StructuralMetadata do
 
   alias Meadow.Config
   alias Meadow.Data.FileSets
-  alias Meadow.Utils.AWS
 
   use Meadow.Utils.Logging
   use WalEx.Event, name: Meadow
@@ -34,7 +33,7 @@ defmodule Meadow.Events.FileSets.StructuralMetadata do
     ExAws.S3.put_object(Config.pyramid_bucket(), FileSets.vtt_location(id), vtt,
       content_type: "text/vtt"
     )
-    |> AWS.request()
+    |> ExAws.request()
   end
 
   defp do_write_structural_metadata(_), do: :noop

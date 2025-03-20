@@ -4,7 +4,6 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   """
 
   alias Meadow.Config
-  alias Meadow.Utils.AWS
 
   import SweetXml, only: [sigil_x: 2]
 
@@ -28,7 +27,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
     Logger.debug("Copying s3://#{src_bucket}/#{src_object} to s3://#{dest_bucket}/#{dest_object}")
 
-    case ExAws.S3.head_object(src_bucket, src_object) |> AWS.request() do
+    case ExAws.S3.head_object(src_bucket, src_object) |> ExAws.request() do
       {:ok, %{status_code: 200, headers: headers}} ->
         content_length =
           headers
@@ -52,7 +51,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
         other
     end
 
-    case ExAws.S3.head_object(dest_bucket, dest_object) |> AWS.request() do
+    case ExAws.S3.head_object(dest_bucket, dest_object) |> ExAws.request() do
       {:ok, anything} ->
         {:ok, anything}
 
@@ -81,12 +80,12 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
       op.src_object,
       op.opts
     )
-    |> AWS.request()
+    |> ExAws.request()
   end
 
   defp initiate_upload(%__MODULE__{} = op) do
     case ExAws.S3.initiate_multipart_upload(op.dest_bucket, op.dest_object, op.opts)
-         |> AWS.request() do
+         |> ExAws.request() do
       {:ok, %{body: %{upload_id: upload_id}, status_code: 200}} ->
         {:ok, op |> Map.put(:upload_id, upload_id)}
 
@@ -128,7 +127,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
     Logger.error("Error encountered. Aborting multipart upload.")
 
     ExAws.S3.abort_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id)
-    |> AWS.request()
+    |> ExAws.request()
   end
 
   defp complete_upload({:error, other}) do
@@ -141,7 +140,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
 
     ExAws.S3.complete_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id, parts)
     |> Map.put(:parser, &parse_complete_result/1)
-    |> AWS.request()
+    |> ExAws.request()
   end
 
   defp upload_chunk(%__MODULE__{} = op, chunk) do
@@ -168,7 +167,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
           service: :s3,
           stream_builder: nil
         }
-        |> AWS.request(http_opts: [recv_timeout: Config.multipart_upload_timeout()])
+        |> ExAws.request(http_opts: [recv_timeout: Config.multipart_upload_timeout()])
 
       case result do
         {:ok, %{status_code: 200, body: %{e_tag: etag}}} -> {:ok, String.replace(etag, ~s'"', "")}

@@ -6,61 +6,12 @@ defmodule Meadow.Utils.AWS do
   """
   alias Meadow.Config
   alias Meadow.Config.Secrets
-  alias Meadow.Error
   alias Meadow.Utils.AWS.MultipartCopy
   alias Meadow.Utils.Pairtree
 
   use Retry
 
-  import SweetXml, only: [sigil_x: 2]
-
   require Logger
-
-  @doc """
-  Drop-in replacement for ExAws.request/2 that reports errors to Honeybadger
-  """
-  def request(op, config_overrides \\ []) do
-    retry with: exponential_backoff() |> randomize() |> cap(1_000) |> Stream.take(10),
-          atoms: [:retry],
-          rescue_only: [] do
-      case ExAws.request(op, config_overrides) |> handle_response() do
-        :timeout ->
-          {:retry, :timeout}
-
-        {:error, {:http_error, status, _}} = response when status in [429, 503, 504] ->
-          {:retry, response}
-
-        {:ok, result} ->
-          {:ok, result}
-
-        error ->
-          error
-      end
-    after
-      {:ok, result} -> {:ok, result}
-      {:error, error} -> {:error, error}
-    else
-      {:retry, error} -> error
-      error -> error
-    end
-  end
-
-  @doc """
-  Drop-in replacement for ExAws.request!/2 that reports errors to Honeybadger
-  """
-  def request!(op, config_overrides \\ []) do
-    case request(op, config_overrides) do
-      {:ok, result} ->
-        result
-
-      error ->
-        raise ExAws.Error, """
-        ExAws Request Error!
-
-        #{inspect(error)}
-        """
-    end
-  end
 
   def presigned_url(bucket, %{upload_type: "preservation_check", filename: filename}) do
     generate_presigned_url(bucket, "#{filename}", :get)
@@ -82,7 +33,7 @@ defmodule Meadow.Utils.AWS do
     bucket
     |> check_bucket()
     |> ExAws.S3.put_object("#{name}/.folder", "")
-    |> request()
+    |> ExAws.request()
   end
 
   def add_aws_signature(request) do
@@ -223,7 +174,7 @@ defmodule Meadow.Utils.AWS do
           {:error, {:http_error, 404, _}} ->
             bucket
             |> ExAws.S3.put_bucket("us-east-1")
-            |> request!()
+            |> ExAws.request!()
 
             {:ok, :created}
 
@@ -241,71 +192,6 @@ defmodule Meadow.Utils.AWS do
     |> check_bucket()
 
     ExAws.S3.presigned_url(ExAws.Config.new(:s3), method, bucket, path)
-  end
-
-  def handle_response(response) do
-    {:current_stacktrace, [_ | [_ | stacktrace]]} = Process.info(self(), :current_stacktrace)
-    [{module, _, _, _} | _] = stacktrace
-
-    case response do
-      {:error, {:http_error, _status, response}} ->
-        {message, context} = extract_aws_error(response)
-        Error.report(%Meadow.AwsError{message: message}, module, stacktrace, context)
-
-      {:error, message} ->
-        Error.report(%Meadow.AwsError{message: to_string(message)}, module, stacktrace)
-
-      _ ->
-        :noop
-    end
-
-    response
-  end
-
-  def handle_response!(response) do
-    case handle_response(response) do
-      {:ok, result} ->
-        result
-
-      error ->
-        raise ExAws.Error, """
-        ExAws Request Error!
-
-        #{inspect(error)}
-        """
-    end
-  end
-
-  defp extract_aws_error(%{body: body, status_code: status_code}) do
-    case SweetXml.parse(body) |> SweetXml.xpath(~x"/Error") do
-      nil ->
-        status_code
-
-      {:xmlElement, :Error, _, _, _, _, _, _, children, _, _, _} ->
-        context = map_children(children) |> Enum.reject(&is_nil/1) |> Enum.into(%{})
-        {code, context} = Map.pop(context, :Code)
-        {message, context} = Map.pop(context, :Message)
-        message = "#{status_code} (#{code}): #{message}"
-
-        {message, context}
-    end
-  end
-
-  defp extract_aws_error(%{status_code: status_code}), do: {to_string(status_code), %{}}
-
-  defp extract_aws_error(other), do: {"unknown error: #{inspect(other)}", %{}}
-
-  defp map_children([]), do: []
-  defp map_children([child | children]), do: [map_child(child) | map_children(children)]
-
-  defp map_child(child) do
-    case child do
-      {:xmlElement, tag, _, _, _, _, _, _, _, _, _, _} ->
-        {tag, SweetXml.xpath(child, ~x"./text()") |> to_string()}
-
-      _ ->
-        nil
-    end
   end
 
   defp prefix, do: Secrets.prefix()
