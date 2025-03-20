@@ -19,8 +19,6 @@ function WorkFilesetList({
 }) {
   const { webVttModal } = useWorkState();
 
-  console.log("fileSets", fileSets);
-
   if (isReordering) {
     return (
       <Droppable droppableId="access" type="fileset">
