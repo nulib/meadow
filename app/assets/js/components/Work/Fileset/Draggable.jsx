@@ -55,7 +55,9 @@ function WorkFilesetDraggable({
     flex-grow: 1;
   `;
 
-  const actions = css``;
+  const actions = css`
+    min-width: 150px;
+  `;
 
   const fileSetGroup = css`
     margin-top: 1rem;
