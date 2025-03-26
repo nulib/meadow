@@ -5,13 +5,14 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import {
   GET_WORK,
+  GROUP_WITH_FILE_SET,
   SET_WORK_IMAGE,
   UPDATE_FILE_SETS,
   UPDATE_ACCESS_FILE_ORDER,
 } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
-import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
+import WorkTabsStructureFilesetsDragAndDrop from "@js/components/Work/Tabs/Structure/FilesetsDragAndDrop";
 import { Button, Notification } from "@nulib/design-system";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
@@ -31,7 +32,7 @@ const WorkTabsStructure = ({ work }) => {
   }
   const [isEditing, setIsEditing] = useIsEditing();
   const [workImageFilesetId, setWorkImageFilesetId] = useState(
-    parseWorkRepresentativeImage(work)
+    parseWorkRepresentativeImage(work),
   );
   const [isReordering, setIsReordering] = useState();
   const [error, setError] = React.useState();
@@ -48,6 +49,13 @@ const WorkTabsStructure = ({ work }) => {
       toastWrapper("is-success", "Work image has been updated");
     },
   });
+
+  const [groupWithFileSet] = useMutation(GROUP_WITH_FILE_SET, {
+    onCompleted({ groupWithFileSet }) {
+      toastWrapper("is-success", `Fileset has been removed from group`);
+    },
+  });
+
   const [updateFileSets, { loading: loadingUpdateFilesets }] = useMutation(
     UPDATE_FILE_SETS,
     {
@@ -58,21 +66,22 @@ const WorkTabsStructure = ({ work }) => {
       onError(error) {
         console.error(
           "error in the updateFileSets GraphQL mutation :>> ",
-          error
+          error,
         );
         setError({
           message: "There was an error updating file sets.",
           responseError: error,
         });
       },
-    }
+    },
   );
+
   const [updateAccessFileOrder] = useMutation(UPDATE_ACCESS_FILE_ORDER, {
     onCompleted() {
       setIsReordering(false);
       toastWrapper(
         "is-success",
-        "Access copies have been successfully reordered."
+        "Access copies have been successfully reordered.",
       );
     },
     onError(error) {
@@ -92,6 +101,14 @@ const WorkTabsStructure = ({ work }) => {
     });
   };
 
+  const handleGroupWithUpdate = (groupWithFileSets) => {
+    groupWithFileSets.forEach((fs) => {
+      groupWithFileSet({
+        variables: { id: fs.id, groupWith: fs.group_with },
+      });
+    });
+  };
+
   const handleWorkImageChange = (id) => {
     if (id === workImageFilesetId) return;
 
@@ -100,7 +117,8 @@ const WorkTabsStructure = ({ work }) => {
   };
 
   const filterDraggableFilesets = (fileSets) => {
-    return fileSets.filter((fs) => fs.role.id === "A");
+    const accessFiles = fileSets.filter((fs) => fs.role.id === "A");
+    return affirmOrder(accessFiles);
   };
 
   const onSubmit = (data) => {
@@ -121,6 +139,32 @@ const WorkTabsStructure = ({ work }) => {
 
     updateFileSets({ variables: { fileSets: formPostData } });
   };
+
+  function affirmOrder(fileSets) {
+    const { idMap, groupedMap } = fileSets.reduce(
+      (acc, fileSet) => {
+        acc.idMap.set(fileSet.id, fileSet);
+        if (fileSet.group_with) {
+          if (!acc.groupedMap.has(fileSet.group_with)) {
+            acc.groupedMap.set(fileSet.group_with, []);
+          }
+          acc.groupedMap.get(fileSet.group_with).push(fileSet);
+        }
+        return acc;
+      },
+      { idMap: new Map(), groupedMap: new Map() },
+    );
+
+    return fileSets.reduce((orderedList, fileSet) => {
+      if (!fileSet.group_with || !idMap.has(fileSet.group_with)) {
+        orderedList.push(fileSet);
+        if (groupedMap.has(fileSet.id)) {
+          orderedList.push(...groupedMap.get(fileSet.id));
+        }
+      }
+      return orderedList;
+    }, []);
+  }
 
   return (
     <FormProvider {...methods}>
@@ -161,7 +205,7 @@ const WorkTabsStructure = ({ work }) => {
             disabled={isEditing || isReordering}
           >
             <IconSort />
-            <span>Re-order</span>
+            <span>Re-order & Group</span>
           </Button>
 
           {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}
@@ -180,6 +224,7 @@ const WorkTabsStructure = ({ work }) => {
               fileSets={filterDraggableFilesets(work.fileSets)}
               handleCancelReorder={handleCancelReorder}
               handleSaveReorder={handleSaveReorder}
+              handleGroupWithUpdate={handleGroupWithUpdate}
             />
           ) : (
             <WorkFilesetList

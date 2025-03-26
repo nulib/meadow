@@ -14,6 +14,7 @@ export const mockFileSets = [
       originalFilename: "inu-dil-9d35d0ba-a84b-4e0a-99e6-9c6b548a46db.jpg",
     },
     id: "45226a50-87ca-443e-bc05-f47884e14505",
+    group_with: null,
     representativeImageUrl:
       "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/wildcat-dev/posters/6d6bb649-2a5c-40d2-8d1b-23835de1c40a",
     role: {
@@ -38,6 +39,7 @@ export const mockFileSets = [
       originalFilename: "inu-dil-41913a91-037f-494b-9113-06004a8a98fb.jpg",
     },
     id: "109b9a5c-3c6f-4a98-b98b-12402b871dc7",
+    group_with: "45226a50-87ca-443e-bc05-f47884e14505",
     representativeImageUrl:
       "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/wildcat-dev/posters/6d6bb649-2a5c-40d2-8d1b-23835de1c40a",
     role: {
@@ -62,6 +64,7 @@ export const mockFileSets = [
       originalFilename: "inu-dil-96e6d167-5022-42e7-9de7-7f851a866f44.jpg",
     },
     id: "d414d3d4-b72c-49cc-b7cc-faa9bc0f256e",
+    group_with: null,
     representativeImageUrl:
       "https://iiif.dev.rdc.library.northwestern.edu/iiif/2/wildcat-dev/posters/6d6bb649-2a5c-40d2-8d1b-23835de1c40a",
     role: {
