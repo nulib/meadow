@@ -1,8 +1,10 @@
+/** @jsx jsx */
+
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useContext } from "react";
 import { Tag } from "@nulib/design-system";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
@@ -10,14 +12,16 @@ import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import WorkFilesetActionButtonsAccess from "@js/components/Work/Fileset/ActionButtons/Access";
 import WorkFilesetActionButtonsAuxillary from "@js/components/Work/Fileset/ActionButtons/Auxillary";
 import useFileSet from "@js/hooks/useFileSet";
+import { css, jsx } from "@emotion/react";
 
 function WorkFilesetListItem({
   fileSet,
   handleWorkImageChange,
   isEditing,
   workImageFilesetId,
+  groupedFileSets,
 }) {
-  const { id, coreMetadata } = fileSet;
+  const { id, coreMetadata, group_with, accessionNumber } = fileSet;
   const { hasRepresentativeImage, isImage, isMedia, isPDF, isZip } =
     useFileSet();
   const workContextState = useWorkState();
@@ -31,8 +35,32 @@ function WorkFilesetListItem({
     errored: false, // This prevents a potential infinite loop
     src: `${fileSet.representativeImageUrl}/${
       isMedia(fileSet) ? "full" : "square"
-    }/500,/0/default.jpg`,
+    }/100,/0/default.jpg`,
   });
+
+  const figure = css`
+    width: 100px;
+    height: 100px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0.25rem;
+    }
+  `;
+
+  const flex = css`
+    display: flex;
+    gap: 1em;
+  `;
+
+  const fileSetGroup = css`
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #0001;
+    border-radius: 0.25rem;
+  `;
 
   const handleError = (e) => {
     if (!imgState.errored) {
@@ -64,10 +92,16 @@ function WorkFilesetListItem({
   };
 
   return (
-    <article className="box" data-testid="fileset-item">
-      <div className="columns">
-        <div className="column is-2">
-          <figure className="image">
+    <article
+      className={`box is-relative`}
+      data-testid="fileset-item"
+      style={{
+        zIndex: group_with ? 0 : 1,
+      }}
+    >
+      <div css={flex}>
+        <div>
+          <figure css={figure}>
             <img
               src={imgState.src}
               placeholder="Fileset Image"
@@ -76,7 +110,7 @@ function WorkFilesetListItem({
             />
           </figure>
         </div>
-        <div className="column">
+        <div className="is-flex-grow-1">
           {isMedia(fileSet) && isCurrentStateFileSet && (
             <span className="mb-4 is-inline-block">
               <Tag isInfo>Now Playing</Tag>
@@ -113,11 +147,15 @@ function WorkFilesetListItem({
               <p>{coreMetadata.description}</p>
             )}
           </UIFormField>
+
+          <UIFormField label="Accession Number">
+            <p>{accessionNumber}</p>
+          </UIFormField>
         </div>
-        <div className="column is-5 has-text-right is-clearfix">
+        <div className="has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {showWorkImageToggle() && (
+              {showWorkImageToggle() && !fileSet.group_with && (
                 <AuthDisplayAuthorized>
                   <div className="field">
                     <input
@@ -146,6 +184,22 @@ function WorkFilesetListItem({
           )}
         </div>
       </div>
+
+      {groupedFileSets?.length ? (
+        <div css={fileSetGroup}>
+          {groupedFileSets.map((groupedFileSet) => (
+            <WorkFilesetListItem
+              key={groupedFileSet.id}
+              fileSet={groupedFileSet}
+              handleWorkImageChange={handleWorkImageChange}
+              isEditing={isEditing}
+              workImageFilesetId={workImageFilesetId}
+            />
+          ))}
+        </div>
+      ) : (
+        <></>
+      )}
     </article>
   );
 }

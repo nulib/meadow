@@ -7,6 +7,7 @@ import { WorkProvider } from "@js/context/work-context";
 
 const mockHandleCancelFn = jest.fn();
 const mockHandleSaveFn = jest.fn();
+const mockGroupWithFn = jest.fn();
 
 describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
   beforeEach(() => {
@@ -16,8 +17,9 @@ describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
           fileSets={mockFileSets}
           handleCancelReorder={mockHandleCancelFn}
           handleSaveReorder={mockHandleSaveFn}
+          handleGroupWithUpdate={mockGroupWithFn}
         />
-      </WorkProvider>
+      </WorkProvider>,
     );
   });
 
@@ -32,10 +34,9 @@ describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
 
     await user.click(saveBtn);
     expect(mockHandleSaveFn).toHaveBeenCalled();
+    expect(mockGroupWithFn).toHaveBeenCalled();
 
     await user.click(cancelBtn);
     expect(mockHandleCancelFn).toHaveBeenCalled();
   });
-
-  it("renders file sets", () => {});
 });
