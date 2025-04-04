@@ -35,6 +35,10 @@ describe("WorkFilesetActionButtonsGroupAdd component", () => {
     // renders the searchbox expanded as false
     const searchbox = groupAdd.querySelector("div[role='searchbox']");
     expect(searchbox.getAttribute("aria-expanded")).toBe("false");
+
+    // children of the collapsed searchbox are not rendered
+    const buttons = searchbox.querySelectorAll("button");
+    expect(buttons).toHaveLength(0);
   });
 
   it("renders the handles user interactions", async () => {
@@ -48,6 +52,10 @@ describe("WorkFilesetActionButtonsGroupAdd component", () => {
 
     // expands the searchbox on focus
     expect(searchbox.getAttribute("aria-expanded")).toBe("true");
+
+    // children of the expanded searchbox are buttons and rendered
+    const buttons = groupAdd.querySelectorAll("button");
+    expect(buttons).toHaveLength(2);
 
     // renders candidate options
     const candidatesDefaultState = await screen.findAllByTestId(
