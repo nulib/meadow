@@ -54,7 +54,7 @@
     "js-cookie": "^3.0.5",
     "moment": "^2.30.1",
     "node-webvtt": "^1.9.4",
-    "phoenix": "^1.7.20",
+    "phoenix": "^1.7.21",
     "prop-types": "^15.8.1",
     "rc-progress": "^4.0.0",
     "react-beautiful-dnd": "^13.1.0",
