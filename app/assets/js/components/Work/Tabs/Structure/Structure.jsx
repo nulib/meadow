@@ -51,8 +51,11 @@ const WorkTabsStructure = ({ work }) => {
   });
 
   const [groupWithFileSet] = useMutation(GROUP_WITH_FILE_SET, {
-    onCompleted({ groupWithFileSet }) {
-      toastWrapper("is-success", `Fileset has been removed from group`);
+    onCompleted({ updateFileSet }) {
+      const groupWithAction = updateFileSet?.groupWith
+        ? "added to"
+        : "removed from";
+      toastWrapper("is-success", `File set has been ${groupWithAction} group`);
     },
   });
 
@@ -60,7 +63,7 @@ const WorkTabsStructure = ({ work }) => {
     UPDATE_FILE_SETS,
     {
       onCompleted({ updateFileSets }) {
-        toastWrapper("is-success", "Filesets have been updated");
+        toastWrapper("is-success", "File sets have been updated");
         setIsEditing(false);
       },
       onError(error) {

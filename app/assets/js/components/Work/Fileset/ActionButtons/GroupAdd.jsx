@@ -11,6 +11,7 @@ const WorkFilesetActionButtonsGroupAdd = ({
 }) => {
   const addRef = React.useRef(null);
   const inputRef = React.useRef(null);
+  const contentRef = React.useRef(null);
   const [isOpen, setIsOpen] = React.useState(false);
   const [filteredCandidateFileSets, setFilteredCandidateFileSets] =
     React.useState(candidateFileSets);
@@ -38,6 +39,10 @@ const WorkFilesetActionButtonsGroupAdd = ({
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
+
+  useEffect(() => {
+    if (isOpen) contentRef.current.scrollTop = 0;
+  }, [isOpen]);
 
   useEffect(() => {
     setFilteredCandidateFileSets(candidateFileSets);
@@ -103,6 +108,13 @@ const WorkFilesetActionButtonsGroupAdd = ({
     overflow-x: hidden;
     overflow-y: scroll;};
     padding: 0.5rem;
+
+    em {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--colors-richBlack50);
+      margin-top: 0.5rem;
+    } 
 
     button.candidate-option {
       display: flex; 
@@ -184,9 +196,10 @@ const WorkFilesetActionButtonsGroupAdd = ({
         css={content}
         role="searchbox"
         aria-expanded={isOpen}
+        ref={contentRef}
       >
-        {filteredCandidateFileSets.length ? (
-          filteredCandidateFileSets.map((candidate) => (
+        {isOpen && filteredCandidateFileSets.length ? (
+          filteredCandidateFileSets.slice(0, 20).map((candidate) => (
             <button
               key={candidate.id}
               value={candidate.id}
@@ -210,6 +223,12 @@ const WorkFilesetActionButtonsGroupAdd = ({
           ))
         ) : (
           <p>Applicable fileset(s) not found.</p>
+        )}
+        {filteredCandidateFileSets.length > 20 && (
+          <em>
+            Showing the first 20 available filesets. Filter by title or
+            accession number to see more.
+          </em>
         )}
       </div>
     </div>
