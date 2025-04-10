@@ -114,7 +114,7 @@
     "react-router-prop-types": "^1.0.5",
     "sass": "^1.86.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "use-phoenix-channel": "^1.1.1"
   }
 }
