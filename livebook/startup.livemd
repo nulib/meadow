@@ -1,0 +1,25 @@
+# Untitled notebook
+
+```elixir
+Code.require_file("/meadow/bootstrap.exs")
+Meadow.Bootstrap.bootstrap()
+Mix.install([
+  # Add additional dependencies here
+])
+```
+
+## Global Imports and Aliases
+
+```elixir
+import Ecto.Query
+alias Meadow.Data.{Collections, FileSets, IndexBatcher, Indexer, Works}
+alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+alias Meadow.Ingest.{Projects, Rows, Sheets}
+alias Meadow.Ingest.Schemas.{Project, Row, Sheet}
+alias Meadow.Repo
+```
+
+## Section
+```elixir
+
+```

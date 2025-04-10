@@ -223,6 +223,7 @@ jobs:
       - name: Elixir Tests
         run: mix test || mix test --failed
         env:
+          AWS_LOCALSTACK: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: app
       # - name: Test DB Rollback

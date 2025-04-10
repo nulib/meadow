@@ -1,3 +1,4 @@
+.dockerignore
 .elixir_ls
 .git
 _build

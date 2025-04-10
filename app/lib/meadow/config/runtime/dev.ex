@@ -13,7 +13,7 @@ defmodule Meadow.Config.Runtime.Dev do
   end
 
   def configure! do
-    import Config
+    import Meadow.Config.Helper
 
     fetch_cert()
 

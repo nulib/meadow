@@ -76,7 +76,10 @@ defmodule Meadow.Config.Secrets do
   end
 
   def environment do
-    if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+    case System.get_env("MEADOW_ENV") do
+      nil -> if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+      env -> String.to_atom(env)
+    end
   end
 
   def prefix do

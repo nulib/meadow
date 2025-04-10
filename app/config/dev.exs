@@ -5,7 +5,7 @@ config :ex_aws,
   secret_access_key: [:instance_role],
   region: System.get_env("AWS_REGION", "us-east-1")
 
-if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
+if System.get_env("AWS_LOCALSTACK", "false") == "true" do
   # Configures lambda scripts
   config :meadow, :lambda,
     digester: {:local, {Path.expand("../lambdas/digester/index.js"), "handler"}},

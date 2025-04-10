@@ -235,6 +235,11 @@ defmodule Meadow.Config do
   @doc "Retrieve required checksum tags"
   def required_checksum_tags, do: Application.get_env(:meadow, :required_checksum_tags)
 
+  @doc "Determine whether to use Localstack for AWS services"
+  def use_localstack? do
+    System.get_env("AWS_LOCALSTACK", "false") == "true"
+  end
+
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)

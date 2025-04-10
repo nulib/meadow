@@ -10,7 +10,7 @@ defmodule Meadow.Config.Runtime do
   # TODO: UPDATE ALL get_secret(:meadow, ["dc",...]) to use DC secrets
 
   def configure! do
-    import Config
+    import Meadow.Config.Helper
 
     clear_cache!()
     [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)

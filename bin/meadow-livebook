@@ -1,36 +1,42 @@
 #!/bin/bash
 
 ROOT=$(realpath $(dirname $0)/..)
-COOKIE=$(openssl rand -hex 32)
 HOST=$(hostname)
 MEADOW_HOSTNAME=${DEV_PREFIX}.dev.rdc.library.northwestern.edu
 LIVEBOOK_URL=https://${MEADOW_HOSTNAME}:8082/
 mkdir -p ${HOME}/.meadow_livebooks
+cp ${ROOT}/livebook/startup.livemd ${HOME}/.meadow_livebooks/_meadow.livemd > /dev/null 2>&1
 
 echo -n "   Opening ports..."
 sg open all 8080 3001 > /dev/null 2>&1
 echo -e "\r✅"
 
+echo "   Building Livebook (this may take a while)..."
+docker buildx build -f ${ROOT}/Dockerfile.livebook -t nulib/meadow:livebook $ROOT
+echo "✅ Building Livebook (this may take a while)..."
+
 echo -n "   Starting Livebook..."
-docker buildx build -t nulib/meadow:livebook $ROOT/livebook > /dev/null 2>&1
+https-proxy start 8082 8080 > /dev/null 2>&1
+credentials=$(cat $(ls -c ~/.aws/cli/cache/*.json | head -1) | jq '.Credentials')
 LIVEBOOK_CONTAINER=$(docker run --rm -d --network host \
   -v ${HOME}/.meadow_livebooks:/data/books \
-  -v ${HOME}/environment/meadow_kino:/meadow_kino \
-  -e LB_MEADOW_COOKIE=${COOKIE} \
-  -e LB_MEADOW_NODE=meadow@${HOST} \
-  -e LIVEBOOK_NODE=livebook@${HOST} \
-  -e LIVEBOOK_DISTRIBUTION=name \
-  -e LIVEBOOK_COOKIE=${COOKIE} \
+  -e AWS_ACCESS_KEY_ID=$(jq '.AccessKeyId' <<< $credentials) \
+  -e AWS_SECRET_ACCESS_KEY=$(jq '.SecretAccessKey' <<< $credentials) \
+  -e AWS_SESSION_TOKEN=$(jq '.SessionToken' <<< $credentials) \
+  -e DEV_PREFIX=${DEV_PREFIX} \
+  -e DEV_ENV=${DEV_ENV} \
+  -e MEADOW_ENV=dev \
   -e MEADOW_LIVEBOOK_BUCKET=${MEADOW_LIVEBOOK_BUCKET} \
-  -e MEADOW_URL=https://${MEADOW_HOSTNAME}:3001/ \
+  -e MEADOW_PROCESSES=batchers \
+  -e MEADOW_LIVEBOOK_LOCAL=true \
+  -e SECRET_KEY_BASE=$(openssl rand -hex 32) \
+  -e SECRETS_PATH=dev-environment \
   nulib/meadow:livebook)
-https-proxy start 8082 8080 > /dev/null 2>&1
-echo -e "\r✅"
 
-OLDDIR=$PWD
-cd $ROOT/app
-iex --name meadow@${HOST} --cookie ${COOKIE} -S mix $@
-cd $OLDDIR
+echo -e "\r✅"
+echo "[Livebook] Application running at ${LIVEBOOK_URL}"
+
+docker logs -f $LIVEBOOK_CONTAINER
 
 echo -n "   Stopping Livebook..."
 https-proxy stop 8082 > /dev/null 2>&1

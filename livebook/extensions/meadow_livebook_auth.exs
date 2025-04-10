@@ -26,9 +26,9 @@ defmodule MeadowLivebookAuth do
     System.get_env("MEADOW_LIVEBOOK_BUCKET")
     |> attach_storage()
 
-    with url <- find_meadow_url(server),
-         user <- meadow_auth(url, conn) do
-      {conn, user}
+    case System.get_env("MEADOW_LIVEBOOK_LOCAL") do
+      "true" -> {conn, %{id: "local", name: "Developer", email: "repository@northwestern.edu"}}
+      _ -> {conn, find_meadow_url(server) |> meadow_auth(conn)}
     end
   end
 
