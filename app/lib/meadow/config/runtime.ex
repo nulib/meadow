@@ -12,6 +12,8 @@ defmodule Meadow.Config.Runtime do
   def configure! do
     import Meadow.Config.Helper
 
+    Logger.info("Loading Meadow runtime configuration")
+
     clear_cache!()
     [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
 

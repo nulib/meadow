@@ -28,7 +28,7 @@ defmodule Meadow.Bootstrap do
     end
 
     Application.load(:meadow)
-    Meadow.Config.Runtime.configure!()
+    if :code.is_loaded(Mix), do: Meadow.Config.Runtime.configure!()
     Logger.configure(level: :info)
     Application.ensure_all_started(:meadow)
   end

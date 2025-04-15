@@ -1,3 +1,1 @@
-require Logger
-Logger.debug("Loading runtime configuration")
-Meadow.Config.Runtime.configure!()
+if :code.is_loaded(Mix), do: Meadow.Config.Runtime.configure!()

@@ -19,6 +19,12 @@ defmodule Meadow.Application do
         name: Meadow.TopSupervisor
       )
 
+    Logger.info("Starting Meadow application")
+
+    unless :code.is_loaded(Mix) do
+      Meadow.Config.Runtime.configure!()
+    end
+
     unless System.get_env("MEADOW_NO_REPO") do
       DynamicSupervisor.start_child(Meadow.Supervisor, Meadow.Repo)
       DynamicSupervisor.start_child(Meadow.Supervisor, Meadow.Repo.Indexing)
