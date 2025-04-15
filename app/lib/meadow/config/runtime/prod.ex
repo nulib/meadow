@@ -4,7 +4,7 @@ defmodule Meadow.Config.Runtime.Prod do
   """
 
   def configure! do
-    import Config
+    import Meadow.Config.Helper
 
     config :meadow, MeadowWeb.Endpoint,
       environment: :prod,

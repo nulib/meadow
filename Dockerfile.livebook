@@ -1,0 +1,46 @@
+# Stage 1: Build meadow inside Livebook image
+FROM ghcr.io/livebook-dev/livebook:latest AS builder
+
+ENV MIX_ENV=prod \
+  LANG=C.UTF-8
+
+WORKDIR /build/meadow
+
+COPY ./app/mix.exs ./app/mix.lock ./app/config ./
+
+RUN mix deps.get --only prod \
+ && mix deps.compile
+
+# Copy the source and build
+COPY ./app/ ./
+RUN mix compile
+
+RUN find _build/prod/lib -type l | while read -r link; do \
+      target=$(readlink -f "$link") && \
+      rm "$link" && \
+      cp -a "$target" "$link"; \
+    done
+
+# Stage 2: Final image with compiled meadow code
+FROM ghcr.io/livebook-dev/livebook:latest
+ENV LIVEBOOK_AWS_CREDENTIALS=true
+ENV LIVEBOOK_DATA_PATH=/data
+ENV LIVEBOOK_DISTRIBUTION=name
+ENV LIVEBOOK_HOME=${LIVEBOOK_DATA_PATH}/books
+ENV LIVEBOOK_IDENTITY_PROVIDER=custom:MeadowLivebookAuth
+ENV LIVEBOOK_IP=0.0.0.0
+ENV LIVEBOOK_TOKEN_ENABLED=false
+
+RUN mkdir -p ${LIVEBOOK_DATA_PATH}/books
+
+# Copy compiled _build/prod/lib into /meadow/lib in final image
+COPY --from=builder /build/meadow/_build/prod/lib /meadow/lib
+COPY --from=builder /build/meadow/config /meadow/config
+COPY ./livebook/bootstrap.exs /meadow/bootstrap.exs
+COPY ./livebook/startup.livemd /data/books/_meadow.livemd
+COPY ./livebook/extensions/* /app/user/extensions/
+
+# Optional: set MEADOW_PATH environment variable
+ENV MEADOW_PATH=/meadow/lib
+
+# (Optional) You could pre-create a starter Livebook file here if desired

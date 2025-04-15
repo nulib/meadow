@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Meadow.Reset do
     Code.compiler_options(ignore_module_conflict: true)
     Mix.Task.run("app.config")
 
-    if System.get_env("AWS_DEV_ENVIRONMENT") |> is_nil() do
+    if Meadow.Config.use_localstack?() do
       Mix.Task.run("pipeline.purge")
       Mix.Task.run("pipeline.setup")
     end

@@ -193,8 +193,28 @@
         "value": "${secret_key_base}"
       },
       {
+        "name": "MEADOW_ENV",
+        "value": "prod"
+      },
+      {
         "name": "MEADOW_LIVEBOOK_BUCKET",
         "value": "${livebook_bucket}"
+      },
+      {
+        "name": "SECRETS_PATH",
+        "value": "${secrets_path}"
+      },
+      {
+        "name": "MEADOW_PROCESSES",
+        "value": "batchers"
+      },
+      {
+        "name": "SECRET_KEY_BASE",
+        "value": "${secret_key_base}"
+      },
+      {
+        "name": "HONEYBADGER_API_KEY",
+        "value": "${honeybadger_api_key}"
       }
     ],
     "mountPoints": [],

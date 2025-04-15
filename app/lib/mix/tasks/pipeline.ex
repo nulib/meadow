@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Meadow.Pipeline.Setup do
 
   @shortdoc @moduledoc
   def run(_) do
-    if Meadow.Config.environment?(:prod) or System.get_env("AWS_DEV_ENVIRONMENT") do
+    if Meadow.Config.environment?(:prod) or not Meadow.Config.use_localstack?() do
       Logger.warning("Not in localstack environment – queue creation skipped")
     else
       [:ex_aws, :hackney] |> Enum.each(&Application.ensure_all_started/1)

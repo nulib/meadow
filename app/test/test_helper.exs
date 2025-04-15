@@ -26,7 +26,7 @@ Meadow.Repo.wait_for_connection()
 Mix.Task.run("ecto.setup")
 Mix.Task.run("meadow.search.setup")
 
-unless System.get_env("AWS_DEV_ENVIRONMENT") do
+if Meadow.Config.use_localstack?() do
   Mix.Task.run("meadow.pipeline.setup")
   Mix.Task.run("meadow.buckets.create")
   Mix.Task.run("meadow.ldap.teardown", ["test/fixtures/ldap_seed.ldif"])

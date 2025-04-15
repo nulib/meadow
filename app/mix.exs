@@ -95,7 +95,7 @@ defmodule Meadow.MixProject do
       {:phoenix_view, "~> 2.0.2"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, "~> 0.17"},
       {:quantum, "~> 3.0"},
       {:retry, "~> 0.19.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},

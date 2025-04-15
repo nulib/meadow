@@ -182,7 +182,7 @@ defmodule Meadow.S3Case do
       |> Enum.map(& &1.name)
 
     with buckets <- Meadow.Config.buckets() do
-      unless System.get_env("AWS_DEV_ENVIRONMENT") do
+      if Meadow.Config.use_localstack?() do
         (all_buckets -- buckets)
         |> Enum.each(&Logger.warning("Unexpected bucket left behind: #{&1}"))
       end
