@@ -114,7 +114,8 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - uses: docker/build-push-action@v2
         with:
-          context: ./livebook
+          context: .
+          file: ./Dockerfile.livebook
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-${{ env.DEPLOY_ENV }}
   deploy:
