@@ -1,7 +1,7 @@
 [
   {
     "name": "meadow",
-    "image": "${docker_repository}:${docker_tag}",
+    "image": "${docker_repository}:latest",
     "cpu": 0,
     "mountPoints": [],
     "essential": true,
@@ -151,7 +151,7 @@
   },
   {
     "name": "livebook",
-    "image": "${docker_repository}:livebook-${docker_tag}",
+    "image": "${docker_repository}:livebook-latest",
     "cpu": 512,
     "memoryReservation": 512,
     "portMappings": [

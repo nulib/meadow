@@ -35,7 +35,7 @@ jobs:
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
         working-directory: app
-      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${DEPLOY_ENV}"
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:latest"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
@@ -51,7 +51,9 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/meadow:latest
+            ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.MEADOW_VERSION }}
           build-args: |
             BUILD_IMAGE=hexpm/elixir:1.18.2-erlang-27.3-debian-bookworm-20250224
             RUNTIME_IMAGE=node:22-bookworm-slim
@@ -64,7 +66,7 @@ jobs:
         run: .github/scripts/upload_source_maps.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.DEPLOY_ENV }}
+          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:latest
           MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
           HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
           HONEYBADGER_REVISION: ${{ github.sha }}
@@ -117,7 +119,9 @@ jobs:
           context: .
           file: ./Dockerfile.livebook
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-${{ env.DEPLOY_ENV }}
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-latest
+            ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-${{ env.MEADOW_VERSION }}
   deploy:
     needs: 
       - build
