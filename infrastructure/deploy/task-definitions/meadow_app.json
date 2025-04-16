@@ -2,7 +2,8 @@
   {
     "name": "meadow",
     "image": "${docker_repository}:latest",
-    "cpu": 0,
+    "cpu": 1024,
+    "memoryReservation": 1024,
     "mountPoints": [],
     "essential": true,
     "environment": [
@@ -152,8 +153,8 @@
   {
     "name": "livebook",
     "image": "${docker_repository}:livebook-latest",
-    "cpu": 512,
-    "memoryReservation": 512,
+    "cpu": 0,
+    "memoryReservation": 256,
     "portMappings": [
         {
             "name": "livebook-8080-tcp",
