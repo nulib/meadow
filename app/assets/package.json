@@ -81,7 +81,7 @@
     "@babel/runtime": "^7.27.0",
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
-    "@elastic/elasticsearch-mock": "^2.0.1",
+    "@elastic/elasticsearch-mock": "^2.1.0",
     "@graphql-codegen/cli": "^5.0.5",
     "@graphql-codegen/client-preset": "^4.8.0",
     "@graphql-typed-document-node/core": "^3.2.0",
