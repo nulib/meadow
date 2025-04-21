@@ -1,0 +1,74 @@
+[
+  {
+    "name": "livebook",
+    "image": "${docker_repository}:livebook-latest",
+    "cpu": 0,
+    "memoryReservation": 256,
+    "portMappings": [
+      {
+        "name": "livebook-8080-tcp",
+        "containerPort": 8080,
+        "hostPort": 8080,
+        "protocol": "tcp",
+        "appProtocol": "http"
+      },
+      {
+        "name": "livebook-8081-tcp",
+        "containerPort": 8081,
+        "hostPort": 8081,
+        "protocol": "tcp",
+        "appProtocol": "http"
+      }
+    ],
+    "essential": true,
+    "environment": [
+      {
+        "name": "LIVEBOOK_DISTRIBUTION",
+        "value": "name"
+      },
+      {
+        "name": "LIVEBOOK_COOKIE",
+        "value": "${secret_key_base}"
+      },
+      {
+        "name": "MEADOW_ENV",
+        "value": "prod"
+      },
+      {
+        "name": "MEADOW_LIVEBOOK_BUCKET",
+        "value": "${livebook_bucket}"
+      },
+      {
+        "name": "SECRETS_PATH",
+        "value": "${secrets_path}"
+      },
+      {
+        "name": "MEADOW_PROCESSES",
+        "value": "batchers"
+      },
+      {
+        "name": "MEADOW_URL",
+        "value": "http://meadow.${discovery_zone}:4000"
+      },
+      {
+        "name": "SECRET_KEY_BASE",
+        "value": "${secret_key_base}"
+      },
+      {
+        "name": "HONEYBADGER_API_KEY",
+        "value": "${honeybadger_api_key}"
+      }
+    ],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "readonlyRootFilesystem": false,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "livebook"
+      }
+    }
+  }
+]
