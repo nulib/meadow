@@ -49,7 +49,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.7.0"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
-      {:assertions, "~> 0.20.1", only: :test},
+      {:assertions, "~> 0.21.0", only: :test},
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 1.2.0"},
       {:aws_signature, "~> 0.4.0"},
