@@ -14,6 +14,18 @@ resource "aws_ecs_task_definition" "this_task_definition" {
   tags                     = var.tags
 }
 
+resource "aws_ecs_task_definition" "this_livebook_task_definition" {
+  family                   = "${var.stack_name}-livebook"
+  container_definitions    = data.template_file.this_livebook_container_definitions.rendered
+  task_role_arn            = var.role_arn
+  execution_role_arn       = data.aws_iam_role.task_execution_role.arn
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 1024
+  memory                   = 2048
+  tags                     = var.tags
+}
+
 data "aws_ecr_repository" "meadow" {
   name = "meadow"
 }
@@ -35,5 +47,10 @@ locals {
 
 data "template_file" "this_container_definitions" {
   template = file("task-definitions/meadow_app.json")
+  vars = local.container_vars
+}
+
+data "template_file" "this_livebook_container_definitions" {
+  template = file("task-definitions/livebook_app.json")
   vars = local.container_vars
 }
