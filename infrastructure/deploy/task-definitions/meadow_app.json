@@ -2,7 +2,8 @@
   {
     "name": "meadow",
     "image": "${docker_repository}:latest",
-    "cpu": 0,
+    "cpu": 1024,
+    "memoryReservation": 1024,
     "mountPoints": [],
     "essential": true,
     "environment": [
@@ -56,7 +57,7 @@
       },
       {
         "name": "RELEASE_NODE",
-        "value": "meadow@${internal_host_name}"
+        "value": "meadow@meadow.${discovery_zone}"
       },
       {
         "name": "ALLOWED_ORIGINS",
@@ -148,85 +149,5 @@
       }
     ],
     "volumesFrom": []
-  },
-  {
-    "name": "livebook",
-    "image": "${docker_repository}:livebook-latest",
-    "cpu": 512,
-    "memoryReservation": 512,
-    "portMappings": [
-        {
-            "name": "livebook-8080-tcp",
-            "containerPort": 8080,
-            "hostPort": 8080,
-            "protocol": "tcp",
-            "appProtocol": "http"
-        },
-        {
-            "name": "livebook-8081-tcp",
-            "containerPort": 8081,
-            "hostPort": 8081,
-            "protocol": "tcp",
-            "appProtocol": "http"
-        }
-    ],
-    "essential": true,
-    "environment": [
-      {
-        "name": "LB_MEADOW_COOKIE",
-        "value": "${secret_key_base}"
-      },
-      {
-        "name": "LB_MEADOW_NODE",
-        "value": "meadow@${internal_host_name}"
-      },
-      {
-        "name": "LIVEBOOK_NODE",
-        "value": "livebook@${internal_host_name}"
-      },
-      {
-        "name": "LIVEBOOK_DISTRIBUTION",
-        "value": "name"
-      },
-      {
-        "name": "LIVEBOOK_COOKIE",
-        "value": "${secret_key_base}"
-      },
-      {
-        "name": "MEADOW_ENV",
-        "value": "prod"
-      },
-      {
-        "name": "MEADOW_LIVEBOOK_BUCKET",
-        "value": "${livebook_bucket}"
-      },
-      {
-        "name": "SECRETS_PATH",
-        "value": "${secrets_path}"
-      },
-      {
-        "name": "MEADOW_PROCESSES",
-        "value": "batchers"
-      },
-      {
-        "name": "SECRET_KEY_BASE",
-        "value": "${secret_key_base}"
-      },
-      {
-        "name": "HONEYBADGER_API_KEY",
-        "value": "${honeybadger_api_key}"
-      }
-    ],
-    "mountPoints": [],
-    "volumesFrom": [],
-    "readonlyRootFilesystem": false,
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${log_group}",
-        "awslogs-region": "${region}",
-        "awslogs-stream-prefix": "livebook"
-      }
-    }
   }
 ]

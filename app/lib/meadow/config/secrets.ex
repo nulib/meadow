@@ -86,7 +86,8 @@ defmodule Meadow.Config.Secrets do
     env =
       cond do
         System.get_env("RELEASE_NAME") -> nil
-        function_exported?(Mix, :env, 0) -> Mix.env()
+        System.get_env("MEADOW_ENV") == "prod" -> nil
+        function_exported?(Mix, :env, 0) -> environment()
         true -> nil
       end
 

@@ -7,7 +7,7 @@ locals {
     docker_tag                      = terraform.workspace
     honeybadger_api_key             = var.honeybadger_api_key
     host_name                       = local.canonical_hostname
-    internal_host_name              = "${var.stack_name}.${data.aws_service_discovery_dns_namespace.internal_dns_zone.name}"
+    discovery_zone                  = data.aws_service_discovery_dns_namespace.internal_dns_zone.name
     log_group                       = aws_cloudwatch_log_group.meadow_logs.name
     meadow_urls                     = join(",", local.meadow_urls)
     region                          = var.aws_region
@@ -74,14 +74,34 @@ resource "aws_ecs_service" "meadow_all" {
     container_port   = 4000
   }
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
+  network_configuration {
+    subnets          = data.aws_subnets.private_subnets.ids
+    security_groups  = [aws_security_group.meadow.id]
+    assign_public_ip = false
+  }
+
+  tags = var.tags
+}
+
+resource "aws_ecs_service" "meadow_livebook" {
+  name                              = "livebook"
+  cluster                           = aws_ecs_cluster.meadow.id
+  task_definition                   = module.meadow_task_all.livebook_task_definition.arn
+  desired_count                     = 1
+  enable_execute_command            = true
+  health_check_grace_period_seconds = 600
+  launch_type                       = "FARGATE"
+  depends_on                        = [aws_lb.meadow_load_balancer]
+  platform_version                  = "1.4.0"
+
   load_balancer {
     target_group_arn = aws_lb_target_group.meadow_livebook_target.arn
     container_name   = "livebook"
     container_port   = 8080
-  }
-
-  lifecycle {
-    ignore_changes = [desired_count]
   }
 
   network_configuration {

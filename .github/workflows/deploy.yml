@@ -103,6 +103,9 @@ jobs:
           fi
         env:
           BRANCH: ${{ github.ref }}
+      - name: Extract MEADOW_VERSION from mix.exs
+        run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
+        working-directory: app
       - name: Configure AWS
         run: .github/scripts/configure_aws.sh
         env:
