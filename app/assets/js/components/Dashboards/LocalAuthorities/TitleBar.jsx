@@ -72,7 +72,7 @@ function DashboardsLocalAuthoritiesTitleBar() {
               data-testid="bulk-add-button"
             >
               <IconAddMany />
-              <span>Bulk Add</span>
+              <span>Import CSV</span>
             </Button>
           </p>
           <span className="control">
