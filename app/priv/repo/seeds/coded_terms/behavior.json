@@ -1,0 +1,14 @@
+[
+  {
+    "id": "individuals",
+    "label": "Individuals"
+  },
+  {
+    "id": "continuous",
+    "label": "Continuous"
+  },
+  {
+    "id": "paged",
+    "label": "Paged"
+  }
+]

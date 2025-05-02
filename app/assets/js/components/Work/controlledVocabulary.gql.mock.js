@@ -385,8 +385,37 @@ export const codeListFileSetRoleMock = {
   },
 };
 
+export const codeListBehaviorMock = {
+  request: {
+    query: CODE_LIST_QUERY,
+    variables: { scheme: "BEHAVIOR" },
+  },
+  result: {
+    data: {
+      codeList: [
+        {
+          id: "individuals",
+          label: "Individuals",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "continuous",
+          label: "Continuous",
+          __typename: "CodedTerm",
+        },
+        {
+          id: "paged",
+          label: "Paged",
+          __typename: "CodedTerm",
+        },
+      ],
+    },
+  },
+}
+
 export const allCodeListMocks = [
   codeListAuthorityMock,
+  codeListBehaviorMock,
   codeListFileSetRoleMock,
   codeListLibraryUnitMock,
   codeListLicenseMock,
