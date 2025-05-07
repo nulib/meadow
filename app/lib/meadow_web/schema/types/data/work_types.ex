@@ -120,6 +120,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:descriptive_metadata, :work_descriptive_metadata)
     field(:work_type, :coded_term)
     field(:visibility, :coded_term)
+    field(:behavior, :coded_term)
     field(:published, :boolean)
 
     field :manifest_url, :string do
@@ -237,6 +238,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:administrative_metadata, :work_administrative_metadata_input)
     field(:descriptive_metadata, :work_descriptive_metadata_input)
     field(:visibility, :coded_term_input)
+    field(:behavior, :coded_term_input)
     field(:published, :boolean)
     field(:collection_id, :id)
   end

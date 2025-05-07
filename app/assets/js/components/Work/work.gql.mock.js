@@ -34,6 +34,7 @@ export const mockWork = {
     },
     visibility: mockVisibility,
   },
+  behavior: null,
   collection: {
     id: "7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
     title: "Collection 1232432 Name",
@@ -241,7 +242,7 @@ export const mockWork = {
   workType: mockWorkType(),
 };
 
-const mockWork2 = {
+export const mockWork2 = {
   accessionNumber: "Donohue_002b",
   administrativeMetadata: {
     libraryUnit: null,
@@ -253,6 +254,11 @@ const mockWork2 = {
     projectProposer: [],
     projectTaskNumber: [],
     status: null,
+  },
+  behavior: {
+    id: "individuals",
+    label: "Individuals",
+    scheme: "BEHAVIOR",
   },
   collection: null,
   descriptiveMetadata: {
