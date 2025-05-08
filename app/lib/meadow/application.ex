@@ -5,6 +5,7 @@ defmodule Meadow.Application do
 
   use Application
   alias Meadow.Application.Children
+  alias Meadow.Config.Runtime
 
   require Logger
 
@@ -22,7 +23,7 @@ defmodule Meadow.Application do
     Logger.info("Starting Meadow application")
 
     unless :code.is_loaded(Mix) do
-      Meadow.Config.Runtime.configure!()
+      Runtime.configure!()
     end
 
     unless System.get_env("MEADOW_NO_REPO") do
