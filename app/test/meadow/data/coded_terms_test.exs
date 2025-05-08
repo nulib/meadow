@@ -5,6 +5,7 @@ defmodule Meadow.Data.CodedTermsTest do
 
   @schemes [
     "authority",
+    "behavior",
     "file_set_role",
     "library_unit",
     "license",

@@ -1,9 +1,14 @@
+import {
+  renderWithRouterApollo,
+} from "@js/services/testing-helpers";
 import React from "react";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { mockFileSets } from "@js/mock-data/filesets";
+import { CodeListProvider } from "@js/context/code-list-context";
 import userEvent from "@testing-library/user-event";
 import { WorkProvider } from "@js/context/work-context";
+import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 
 const mockHandleCancelFn = jest.fn();
 const mockHandleSaveFn = jest.fn();
@@ -11,15 +16,20 @@ const mockGroupWithFn = jest.fn();
 
 describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
   beforeEach(() => {
-    render(
-      <WorkProvider>
-        <WorkTabsStructureFilesetsDragAndDrop
-          fileSets={mockFileSets}
-          handleCancelReorder={mockHandleCancelFn}
-          handleSaveReorder={mockHandleSaveFn}
-          handleGroupWithUpdate={mockGroupWithFn}
-        />
-      </WorkProvider>,
+    renderWithRouterApollo(
+      <CodeListProvider>
+        <WorkProvider>
+          <WorkTabsStructureFilesetsDragAndDrop
+            fileSets={mockFileSets}
+            handleCancelReorder={mockHandleCancelFn}
+            handleSaveReorder={mockHandleSaveFn}
+            handleGroupWithUpdate={mockGroupWithFn}
+          />
+        </WorkProvider>
+      </CodeListProvider>,
+      {
+        mocks: allCodeListMocks,
+      }
     );
   });
 

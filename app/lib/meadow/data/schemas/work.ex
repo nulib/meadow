@@ -33,6 +33,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     field(:work_type, Types.CodedTerm)
 
+    field(:behavior, Types.CodedTerm)
+
     timestamps()
 
     embeds_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
@@ -78,7 +80,8 @@ defmodule Meadow.Data.Schemas.Work do
        :published,
        :representative_file_set_id,
        :visibility,
-       :work_type
+       :work_type,
+       :behavior
      ]}
   end
 
@@ -108,7 +111,8 @@ defmodule Meadow.Data.Schemas.Work do
       :ingest_sheet_id,
       :published,
       :representative_file_set_id,
-      :visibility
+      :visibility,
+      :behavior,
     ]
 
     work

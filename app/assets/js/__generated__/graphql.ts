@@ -240,6 +240,8 @@ export enum BatchType {
 export enum CodeListScheme {
   /** Authority */
   Authority = "AUTHORITY",
+  /** IIIF Behavior */
+  Behavior = "BEHAVIOR",
   /** File Set Role */
   FileSetRole = "FILE_SET_ROLE",
   /** Library Unit */
@@ -413,6 +415,7 @@ export type FileSet = {
   accessionNumber: Scalars["String"]["output"];
   coreMetadata?: Maybe<FileSetCoreMetadata>;
   extractedMetadata?: Maybe<Scalars["String"]["output"]>;
+  groupWith?: Maybe<Scalars["ID"]["output"]>;
   id: Scalars["ID"]["output"];
   insertedAt: Scalars["DateTime"]["output"];
   position?: Maybe<Scalars["String"]["output"]>;
@@ -572,6 +575,11 @@ export type NulAuthorityRecord = {
   hint?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   label: Scalars["String"]["output"];
+};
+
+export type NullableUrl = {
+  __typename?: "NullableUrl";
+  url?: Maybe<Scalars["String"]["output"]>;
 };
 
 /** Fields for a `preservation_check` object */
@@ -833,6 +841,7 @@ export type RootMutationTypeUpdateCollectionArgs = {
 
 export type RootMutationTypeUpdateFileSetArgs = {
   coreMetadata?: InputMaybe<FileSetCoreMetadataUpdate>;
+  groupWith?: InputMaybe<Scalars["ID"]["input"]>;
   id: Scalars["ID"]["input"];
   posterOffset?: InputMaybe<Scalars["Int"]["input"]>;
   structuralMetadata?: InputMaybe<FileSetStructuralMetadataInput>;
@@ -913,8 +922,10 @@ export type RootQueryType = {
   ingestSheetWorkCount?: Maybe<IngestSheetCounts>;
   /** Get works created for an Ingest Sheet */
   ingestSheetWorks?: Maybe<Array<Maybe<Work>>>;
+  /** List ingest bucket objects */
+  listIngestBucketObjects?: Maybe<S3Listing>;
   /** Get the livebook URL */
-  livebookUrl?: Maybe<Url>;
+  livebookUrl?: Maybe<NullableUrl>;
   /** Get the currently signed-in user */
   me?: Maybe<User>;
   /** Get an NUL AuthorityRecord by ID */
@@ -929,6 +940,8 @@ export type RootQueryType = {
   project?: Maybe<Project>;
   /** Get a list of projects */
   projects?: Maybe<Array<Maybe<Project>>>;
+  /** Search for projects by title */
+  projectsSearch?: Maybe<Array<Maybe<Project>>>;
   /** Get a list of members of a role */
   roleMembers?: Maybe<Array<Maybe<Entry>>>;
   /** Get the list of Roles */
@@ -1015,6 +1028,10 @@ export type RootQueryTypeIngestSheetWorksArgs = {
   limit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
+export type RootQueryTypeListIngestBucketObjectsArgs = {
+  prefix?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type RootQueryTypeNulAuthorityRecordArgs = {
   id: Scalars["ID"]["input"];
 };
@@ -1039,6 +1056,10 @@ export type RootQueryTypeProjectArgs = {
 export type RootQueryTypeProjectsArgs = {
   limit?: InputMaybe<Scalars["Int"]["input"]>;
   order?: InputMaybe<SortOrder>;
+};
+
+export type RootQueryTypeProjectsSearchArgs = {
+  query: Scalars["String"]["input"];
 };
 
 export type RootQueryTypeRoleMembersArgs = {
@@ -1098,6 +1119,30 @@ export type RowErrors = {
   __typename?: "RowErrors";
   errors?: Maybe<Array<Maybe<Errors>>>;
   row?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type S3Listing = {
+  __typename?: "S3Listing";
+  folders?: Maybe<Array<Maybe<Scalars["String"]["output"]>>>;
+  objects?: Maybe<Array<Maybe<S3Object>>>;
+};
+
+export type S3Object = {
+  __typename?: "S3Object";
+  eTag?: Maybe<Scalars["String"]["output"]>;
+  key?: Maybe<Scalars["String"]["output"]>;
+  lastModified?: Maybe<Scalars["String"]["output"]>;
+  mimeType?: Maybe<Scalars["String"]["output"]>;
+  owner?: Maybe<S3Owner>;
+  size?: Maybe<Scalars["String"]["output"]>;
+  storageClass?: Maybe<Scalars["String"]["output"]>;
+  uri?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type S3Owner = {
+  __typename?: "S3Owner";
+  displayName?: Maybe<Scalars["String"]["output"]>;
+  id?: Maybe<Scalars["String"]["output"]>;
 };
 
 export enum S3UploadType {
@@ -1171,14 +1216,14 @@ export type User = {
 
 /** Meadow user roles */
 export enum UserRole {
-  /** superuser */
-  SuperUser = "SUPERUSER",
   /** administrator */
   Administrator = "ADMINISTRATOR",
   /** editor */
   Editor = "EDITOR",
   /** manager */
   Manager = "MANAGER",
+  /** superuser */
+  Superuser = "SUPERUSER",
   /** user */
   User = "USER",
 }
@@ -1195,6 +1240,7 @@ export type Work = {
   __typename?: "Work";
   accessionNumber: Scalars["String"]["output"];
   administrativeMetadata?: Maybe<WorkAdministrativeMetadata>;
+  behavior?: Maybe<CodedTerm>;
   collection?: Maybe<Collection>;
   descriptiveMetadata?: Maybe<WorkDescriptiveMetadata>;
   fileSets?: Maybe<Array<Maybe<FileSet>>>;
@@ -1359,6 +1405,7 @@ export type WorkIngestProgress = {
 /** Fields that can be updated on a work object */
 export type WorkUpdateInput = {
   administrativeMetadata?: InputMaybe<WorkAdministrativeMetadataInput>;
+  behavior?: InputMaybe<CodedTermInput>;
   collectionId?: InputMaybe<Scalars["ID"]["input"]>;
   descriptiveMetadata?: InputMaybe<WorkDescriptiveMetadataInput>;
   published?: InputMaybe<Scalars["Boolean"]["input"]>;

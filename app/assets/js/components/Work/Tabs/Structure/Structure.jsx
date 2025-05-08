@@ -235,6 +235,7 @@ const WorkTabsStructure = ({ work }) => {
               handleWorkImageChange={handleWorkImageChange}
               isEditing={isEditing}
               workImageFilesetId={workImageFilesetId}
+              work={work}
             />
           )}
         </div>

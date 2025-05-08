@@ -101,6 +101,10 @@ export const GET_WORK = gql`
     work(id: $id) {
       id
       accessionNumber
+      behavior {
+        id
+        label
+      }
       administrativeMetadata {
         libraryUnit {
           id
@@ -505,6 +509,10 @@ export const UPDATE_WORK = gql`
         label
       }
       visibility {
+        id
+        label
+      }
+      behavior {
         id
         label
       }

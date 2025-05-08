@@ -139,10 +139,22 @@ function CodeListProvider({ children }) {
     throw new Error("Error getting file set role data");
   }
 
+  // GET IIIF BEHAVIORS
+  const {
+    data: behaviorData,
+    error: behaviorError,
+    loading: behaviorLoading,
+  } = useQuery(CODE_LIST_QUERY, { variables: { scheme: "BEHAVIOR" } });
+
+  if (behaviorError) {
+    throw new Error("Error getting behavior data");
+  }
+
   return (
     <CodeListContext.Provider
       value={{
         authorityData,
+        behaviorData,
         fileSetRoleData,
         libraryUnitData,
         licenseData,
@@ -155,7 +167,8 @@ function CodeListProvider({ children }) {
         subjectRoleData,
         visibilityData,
         isLoading: Boolean(
-          fileSetRoleLoading ||
+          behaviorLoading ||
+            fileSetRoleLoading ||
             authorityLoading ||
             libraryUnitLoading ||
             licenseLoading ||
