@@ -10,6 +10,8 @@ defmodule Meadow.Data.CSV.Export do
 
   import Meadow.Data.CSV.Utils
 
+  require Logger
+
   @top_level_fields [
     ["id"],
     ["accession_number"],
@@ -137,6 +139,15 @@ defmodule Meadow.Data.CSV.Export do
     |> Enum.map(fn field_path ->
       field_content(field_path, hit)
     end)
+  rescue
+    e ->
+      Logger.error("Error generating CSV row #{get_in(hit, ["_id"])}: #{inspect(e)}")
+      error_row(hit)
+  end
+
+  defp error_row(hit) do
+    nils = fields() |> Enum.drop(2) |> Enum.map(fn _ -> nil end)
+    [Map.get(hit, "_id") | ["ERROR EXPORTING ROW" | nils]]
   end
 
   defp field_content(["project_" <> field_path], hit) do
@@ -174,7 +185,7 @@ defmodule Meadow.Data.CSV.Export do
   defp to_field(%{"edtf" => value}), do: value
 
   defp to_field(%{"label_with_role" => _, "facet" => facet}) do
-    [id, role, _] = String.split(facet, "|")
+    [id, role, _] = String.split(facet, "|", parts: 3)
     "#{role}:#{id}"
   end
 

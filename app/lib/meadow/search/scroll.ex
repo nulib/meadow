@@ -5,6 +5,7 @@ defmodule Meadow.Search.Scroll do
   """
 
   alias Meadow.Search.HTTP
+  require Logger
 
   def results(query, index) when is_binary(query) do
     Stream.resource(
@@ -18,19 +19,25 @@ defmodule Meadow.Search.Scroll do
     scroll_result([index, "/_search?scroll=1m"], query)
   end
 
-  defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => [_ | _] = hits}}}) do
+  defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => []}}}) do
+    {:halt, scroll_id}
+  end
+
+  defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => hits}}}) do
     {
       hits,
       scroll_result(["_search", "scroll"], %{scroll: "1m", scroll_id: scroll_id})
     }
   end
 
-  defp next({:ok, %{"_scroll_id" => scroll_id}}), do: {:halt, scroll_id}
+  defp next(_), do: {:halt, nil}
 
-  defp finish(scroll_id) do
+  defp finish(scroll_id) when is_binary(scroll_id) do
     HTTP.delete(["_search", "scroll", scroll_id])
     :ok
   end
+
+  defp finish(_), do: :ok
 
   defp scroll_result(path, query) do
     case HTTP.post(path, query) do
