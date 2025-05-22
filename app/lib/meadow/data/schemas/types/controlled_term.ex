@@ -6,20 +6,22 @@ defmodule Meadow.Data.Types.ControlledTerm do
   use Ecto.Type
   alias Meadow.Data.ControlledTerms
 
+  require Logger
+
   def embed_as(:json), do: :dump
 
   def type, do: :string
 
-  def cast(uri) when is_binary(uri), do: validate_uri(uri)
+  def cast(uri) when is_binary(uri), do: validate(uri)
   def cast(nil), do: {:error, message: "has a nil URI"}
-  def cast(%{id: id}), do: validate_uri(id)
-  def cast(%{"id" => id}), do: validate_uri(id)
+  def cast(%{id: id}), do: validate(id)
+  def cast(%{"id" => id}), do: validate(id)
   def cast(_), do: {:error, message: "Invalid controlled term type"}
 
-  def load(uri) when is_binary(uri), do: validate_uri(uri)
+  def load(uri) when is_binary(uri), do: validate_on_load(uri)
   def load(nil), do: :error
-  def load(%{id: id}), do: validate_uri(id)
-  def load(%{"id" => id}), do: validate_uri(id)
+  def load(%{id: id}), do: validate_on_load(id)
+  def load(%{"id" => id}), do: validate_on_load(id)
   def load(_), do: :error
 
   def dump(uri) when is_binary(uri), do: {:ok, uri}
@@ -28,9 +30,9 @@ defmodule Meadow.Data.Types.ControlledTerm do
   def dump(%{"id" => id}), do: {:ok, id}
   def dump(_), do: :error
 
-  defp validate_uri(nil), do: {:error, message: "has a nil id"}
+  defp validate(nil), do: {:error, message: "has a nil id"}
 
-  defp validate_uri(uri) do
+  defp validate(uri) do
     with id <- munge_uri(uri) do
       case ControlledTerms.fetch(id) do
         {{:ok, _}, %{label: label, variants: variants}} ->
@@ -39,6 +41,15 @@ defmodule Meadow.Data.Types.ControlledTerm do
         {:error, error} ->
           {:error, message: error}
       end
+    end
+  end
+
+  defp validate_on_load(uri) do
+    case validate(uri) do
+      {:error, message: error} ->
+        Logger.error("Error loading controlled term: #{uri}. Error: #{inspect(error)}")
+        {:ok, %{id: uri, label: "", variants: []}}
+      other -> other
     end
   end
 

@@ -17,8 +17,13 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
   isOpen,
   handleClose,
 }) {
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      bulkAction: "add" // Default to bulk add
+    }
+  });
   const [currentFile, setCurrentFile] = React.useState();
+  const [formAction, setFormAction] = React.useState("/api/authority_records/bulk_create");
 
   const onDrop = React.useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -33,11 +38,21 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  // Handle radio button change to update form action
+  const handleActionChange = (e) => {
+    const action = e.target.value;
+    if (action === "add") {
+      setFormAction("/api/authority_records/bulk_create");
+    } else if (action === "update") {
+      setFormAction("/api/authority_records/bulk_update");
+    }
+  };
+
   return (
     <FormProvider {...methods}>
       <form
         method="POST"
-        action="/api/authority_records/bulk_create"
+        action={formAction}
         encType="multipart/form-data"
         name="modal-nul-authority-bulk-add"
         data-testid="modal-nul-authority-bulk-add"
@@ -52,7 +67,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
         <div className="modal-card">
           <header className="modal-card-head">
             <p className="modal-card-title">
-              Bulk add new NUL Authority Records
+              Bulk Manage NUL Authority Records
             </p>
             <button
               className="delete"
@@ -62,9 +77,39 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
             ></button>
           </header>
           <section className="modal-card-body">
+            {/* Radio button selection for action type */}
+            <div className="field">
+              <label className="label">Select Action</label>
+              <div className="control">
+                <label className="radio mr-4">
+                  <input
+                    type="radio"
+                    name="bulkAction"
+                    value="add"
+                    defaultChecked
+                    onChange={handleActionChange}
+                    data-testid="bulk-add-radio"
+                  />
+                  <span className="ml-2">Bulk Add</span>
+                </label>
+                {/* 
+                <label className="radio">
+                  <input
+                    type="radio"
+                    name="bulkAction"
+                    value="update"
+                    onChange={handleActionChange}
+                    data-testid="bulk-update-radio"
+                  />
+                  <span className="ml-2">Bulk Update</span>
+                </label>
+                */}
+              </div>
+            </div>
+
             <div
               {...getRootProps()}
-              className="p-6 is-clickable has-text-centered"
+              className="p-6 is-clickable has-text-centered mt-4"
               css={dropZone}
             >
               <input
@@ -124,6 +169,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
 
 DashboardsLocalAuthoritiesModalBulkAdd.propTypes = {
   isOpen: PropTypes.bool,
+  handleClose: PropTypes.func.isRequired,
 };
 
 export default DashboardsLocalAuthoritiesModalBulkAdd;
