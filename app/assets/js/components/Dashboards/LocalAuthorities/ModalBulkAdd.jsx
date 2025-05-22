@@ -92,6 +92,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
                   />
                   <span className="ml-2">Bulk Add</span>
                 </label>
+                {/* 
                 <label className="radio">
                   <input
                     type="radio"
@@ -102,6 +103,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
                   />
                   <span className="ml-2">Bulk Update</span>
                 </label>
+                */}
               </div>
             </div>
 
