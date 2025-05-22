@@ -143,7 +143,8 @@ defmodule Meadow.Config.Runtime do
         timeout: 20_000,
         recv_timeout: 90_000
       ],
-      bulk_page_size: 200,
+      bulk_page_size: 1_000,
+      bulk_request_limit: 1024 * 1024 * 1024 * 10,
       bulk_wait_interval: 500,
       indexes: [
         %{

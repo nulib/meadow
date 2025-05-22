@@ -35,7 +35,7 @@ defmodule Meadow.Data.Types.ControlledTermTest do
     test "load function" do
       assert ControlledTerm.load(@controlled_term.id) == {:ok, @controlled_term}
 
-      assert ControlledTerm.load(1234) == {:ok, %{id: @controlled_term.id, label: "", variants: []}}
+      assert ControlledTerm.load("bad-id") == {:ok, %{id: "bad-id", label: "", variants: []}}
     end
   end
 

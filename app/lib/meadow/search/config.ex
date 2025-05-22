@@ -96,6 +96,11 @@ defmodule Meadow.Search.Config do
     |> Keyword.get(:bulk_page_size)
   end
 
+  def bulk_request_limit do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:bulk_request_limit)
+  end
+
   def bulk_wait_interval do
     Application.get_env(:meadow, Meadow.Search.Cluster)
     |> Keyword.get(:bulk_wait_interval)
