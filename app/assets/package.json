@@ -96,7 +96,7 @@
     "@types/react-router-dom": "^5.3.3",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "coveralls": "^3.1.1",
-    "esbuild": "^0.25.4",
+    "esbuild": "^0.25.5",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-path-alias": "^1.0.7",
     "esbuild-sass-plugin": "^3.3.1",
