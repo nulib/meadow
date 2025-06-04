@@ -9,6 +9,8 @@ defmodule NUL.AuthorityRecords do
 
   import Ecto.Query
 
+  require Logger
+
   @doc """
   Returns the list of AuthorityRecords.
 
@@ -92,7 +94,7 @@ defmodule NUL.AuthorityRecords do
   end
 
   @doc """
-  Creates many AuthorityRecords at once. Returns a list of [{:created|:duplicate}, %AuthorityRecord{}]
+  Creates many AuthorityRecords at once using bulk insert. Returns a list of [{:created|:duplicate}, %AuthorityRecord{}]
   where the record is either the newly created record or the retrieved existing record
   """
   def create_authority_records(list_of_attrs) do
@@ -127,12 +129,25 @@ defmodule NUL.AuthorityRecords do
 
     results = Enum.into(created ++ duplicates, %{})
     Enum.map(labels, &Map.get(results, &1))
+  rescue
+    error ->
+      Logger.error("Error in create_authority_records: #{inspect(error)}")
+      {:error, error}
   end
 
+  # Creates many AuthorityRecords at once by inserting each individually to get around the
+  # `(Postgrex.QueryError) postgresql protocol can not handle 135500 parameters, the maximum is 65535 error`.
+  # Uncomment this function and comment out above function for dev environment loads of full export from prod.
+  # You may also need to adjust MeadowWeb.AuthorityRecordsController.do_bulk_update/2 if you need to pass in ids.
+  # """
+
   # def create_authority_records(list_of_attrs) do
-  #   Repo.transaction(fn ->
-  #     {:ok, Enum.map(list_of_attrs, &create_authority_record/1)} |> IO.inspect()
-  #   end)
+  #   case Repo.transaction(fn ->
+  #          Enum.map(list_of_attrs, &create_authority_record/1) |> IO.inspect()
+  #        end) do
+  #     {:ok, results} -> results
+  #     {:error, error} -> {:error, error}
+  #   end
   # end
 
   @doc """
@@ -170,10 +185,60 @@ defmodule NUL.AuthorityRecords do
         }
       end)
 
-    case Repo.transaction(fn -> do_update_authority_records(records) end) do
-      {:ok, results} -> results
-      other -> other
-    end
+    # Check for duplicate labels within the batch
+    duplicate_labels_found = duplicate_labels(records)
+
+    {duplicate_records, clean_records} =
+      Enum.split_with(records, fn record -> record.label in duplicate_labels_found end)
+
+    # Check for label conflicts with existing records
+    labels = Enum.map(clean_records, & &1.label)
+    ids = Enum.map(clean_records, & &1.id)
+
+    conflicting_labels =
+      from(ar in AuthorityRecord,
+        where: ar.label in ^labels and ar.id not in ^ids,
+        select: ar.label
+      )
+      |> Repo.all()
+
+    {conflict_records, processable_records} =
+      Enum.split_with(clean_records, fn record -> record.label in conflicting_labels end)
+
+    clean_results =
+      case Repo.transaction(fn -> do_update_authority_records(processable_records) end) do
+        {:ok, results} ->
+          results
+
+        other ->
+          other
+      end
+
+    duplicate_results =
+      duplicate_records
+      |> Enum.map(fn record ->
+        %{id: record.id, label: record.label, hint: record.hint}
+      end)
+      |> indexed_records(:duplicate_in_batch)
+
+    conflict_results =
+      conflict_records
+      |> Enum.map(fn record ->
+        %{id: record.id, label: record.label, hint: record.hint}
+      end)
+      |> indexed_records(:label_already_exists)
+
+    duplicate_tuples =
+      Enum.map(duplicate_results, fn {_label, {status, record}} -> {status, record} end)
+
+    conflict_tuples =
+      Enum.map(conflict_results, fn {_label, {status, record}} -> {status, record} end)
+
+    clean_results ++ duplicate_tuples ++ conflict_tuples
+  rescue
+    error ->
+      Logger.error("Error in update_authority_records: #{inspect(error)}")
+      {:error, error}
   end
 
   defp do_update_authority_records(records) do
@@ -222,5 +287,12 @@ defmodule NUL.AuthorityRecords do
     |> Enum.map(fn record ->
       {record.label, {status, record}}
     end)
+  end
+
+  defp duplicate_labels(records) do
+    records
+    |> Enum.group_by(& &1.label)
+    |> Enum.filter(fn {_label, entries} -> length(entries) > 1 end)
+    |> Enum.map(fn {label, _entries} -> label end)
   end
 end
