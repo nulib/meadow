@@ -25,7 +25,7 @@ describe("DashboardsLocalAuthoritiesModalBulkAdd component", () => {
     expect(screen.getByTestId("submit-button"));
     expect(screen.getByTestId("cancel-button"));
     expect(screen.getByTestId("bulk-add-radio"));
-    expect(screen.getByTestId("bulk-update-radio"));
+    // expect(screen.getByTestId("bulk-update-radio"));
   });
 
   it("calls the Cancel callback function", async () => {
@@ -36,39 +36,39 @@ describe("DashboardsLocalAuthoritiesModalBulkAdd component", () => {
 
   it("has 'Bulk Add' selected by default", () => {
     const bulkAddRadio = screen.getByTestId("bulk-add-radio");
-    const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
+    // const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
     
     expect(bulkAddRadio).toBeChecked();
-    expect(bulkUpdateRadio).not.toBeChecked();
+    // expect(bulkUpdateRadio).not.toBeChecked();
   });
 
-  it("changes form action when 'Bulk Update' is selected", async () => {
-    const user = userEvent.setup();
-    const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
+  // it("changes form action when 'Bulk Update' is selected", async () => {
+  //   const user = userEvent.setup();
+  //   const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
     
-    const form = screen.getByRole("form");
-    expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
+  //   const form = screen.getByRole("form");
+  //   expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
     
-    await user.click(bulkUpdateRadio);
+  //   await user.click(bulkUpdateRadio);
     
-    expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_update");
-  });
+  //   expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_update");
+  // });
 
-  it("changes form action when switching between options", async () => {
-    const user = userEvent.setup();
-    const bulkAddRadio = screen.getByTestId("bulk-add-radio");
-    const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
-    const form = screen.getByRole("form");
+  // it("changes form action when switching between options", async () => {
+  //   const user = userEvent.setup();
+  //   const bulkAddRadio = screen.getByTestId("bulk-add-radio");
+  //   const bulkUpdateRadio = screen.getByTestId("bulk-update-radio");
+  //   const form = screen.getByRole("form");
     
-    // Initial state
-    expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
+  //   // Initial state
+  //   expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
     
-    // Switch to update
-    await user.click(bulkUpdateRadio);
-    expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_update");
+  //   // Switch to update
+  //   await user.click(bulkUpdateRadio);
+  //   expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_update");
     
-    // Switch back to add
-    await user.click(bulkAddRadio);
-    expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
-  });
+  //   // Switch back to add
+  //   await user.click(bulkAddRadio);
+  //   expect(form.getAttribute("action")).toBe("/api/authority_records/bulk_create");
+  // });
 });

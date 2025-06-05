@@ -37,13 +37,24 @@ defmodule Meadow.Search.Bulk do
   defp upload_batch(wait_interval, _) when is_integer(wait_interval),
     do: :timer.sleep(wait_interval)
 
-  defp upload_batch(docs, index) do
-    with_log_metadata module: __MODULE__, index: index do
-      bulk_document = docs |> Enum.join("\n")
+  defp upload_batch(docs, index) when is_list(docs) do
+    Logger.info("Uploading batch of #{Enum.count(docs)} documents to #{index}")
 
-      Logger.info(
-        "Uploading batch of #{Enum.count(docs)} documents (#{byte_size(bulk_document)} bytes) to #{index}"
-      )
+    docs
+    |> Enum.reduce({"", 0}, fn doc, {acc, count} ->
+      if byte_size(acc <> doc <> "\n") > SearchConfig.bulk_request_limit() do
+        upload_batch({acc, count}, index)
+        {doc <> "\n", 1}
+      else
+        {acc <> doc <> "\n", count + 1}
+      end
+    end)
+    |> upload_batch(index)
+  end
+
+  defp upload_batch({bulk_document, doc_count}, index) do
+    with_log_metadata module: __MODULE__, index: index do
+      Logger.info("Uploading #{doc_count} #{Inflex.inflect("document", doc_count)} (#{byte_size(bulk_document)} bytes) to #{index}")
 
       case HTTP.post("/#{index}/_bulk", bulk_document <> "\n") do
         {:ok, %{status_code: 413} = response} ->
