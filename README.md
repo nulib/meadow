@@ -81,10 +81,11 @@ You will probably see `Warning: AWS account ID not found for provider`, but this
 
 ```
 cd app
+export AWS_LOCALSTACK=true 
 mix test [test args...]
 ```
 
-**Note:** `mix test` can be run repeatedly without re-provisioning as long as the Docker services are running. If you stop the services, you will need to run Terraform again.
+**Note:** `mix test` can be run repeatedly without re-provisioning as long as the Docker services are running. If you stop the services, you will need to run Terraform again. Also, do not try to run Meadow with `export AWS_LOCALSTACK=true` set.
 
 ### GraphQL API
 

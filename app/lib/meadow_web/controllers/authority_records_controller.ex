@@ -12,54 +12,169 @@ defmodule MeadowWeb.AuthorityRecordsController do
   def bulk_create(conn, %{"records" => upload}) do
     Logger.info("Received #{upload.filename} of type #{upload.content_type} for bulk import")
 
-    csv_to_maps(upload.path)
+    upload.path
+    |> csv_to_maps(:create)
     |> do_bulk_create(conn)
   end
 
   defp do_bulk_create({:error, :bad_format}, conn) do
-    case conn |> get_req_header("referer") do
-      [referer | _] -> redirect(conn, external: referer)
-      _ -> send_resp(conn, 400, "Bad Request")
+    message = "Invalid CSV. Error parsing CSV file."
+
+    case get_req_header(conn, "accept") do
+      ["application/json" | _] ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{error: message})
+        )
+
+      _ ->
+        conn
+        |> send_resp(400, message)
+    end
+  end
+
+  defp do_bulk_create({:error, :bad_headers}, conn) do
+    message = "Invalid CSV format. Expected columns: label, hint"
+
+    case get_req_header(conn, "accept") do
+      ["application/json" | _] ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{error: message})
+        )
+
+      _ ->
+        conn
+        |> send_resp(400, message)
     end
   end
 
   defp do_bulk_create({:ok, records}, conn) do
-    results =
-      records
-      |> AuthorityRecords.create_authority_records()
-      |> Enum.map(fn {status, %{id: id, label: label, hint: hint}} ->
-        [id, label, hint, status]
-      end)
+    case AuthorityRecords.create_authority_records(records) do
+      {:error, error} ->
+        Logger.error("Error in bulk create: #{inspect(error)}")
 
-    file = "authority_import_#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
+        error_message =
+          case error do
+            %{message: message} -> message
+            _ -> "An error occurred while creating authority records"
+          end
 
-    conn =
-      conn
-      |> put_resp_content_type("text/csv")
-      |> put_resp_header("content-disposition", ~s[attachment; filename="#{file}"])
-      |> send_chunked(:ok)
+        case get_req_header(conn, "accept") do
+          ["application/json" | _] ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(500, Jason.encode!(%{error: error_message}))
 
-    [~w(id label hint status) | results]
-    |> CSV.dump_to_stream()
-    |> Stream.each(fn csv_row ->
-      chunk(conn, csv_row)
-    end)
-    |> Stream.run()
+          _ ->
+            conn
+            |> send_resp(500, error_message)
+        end
 
-    conn
+      results when is_list(results) ->
+        new_results =
+          results
+          |> Enum.map(fn {status, %{id: id, label: label, hint: hint}} ->
+            [id, label, hint, status]
+          end)
+
+        file = "authority_import_#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
+
+        conn =
+          conn
+          |> put_resp_content_type("text/csv")
+          |> put_resp_header("content-disposition", ~s[attachment; filename="#{file}"])
+          |> send_chunked(:ok)
+
+        [~w(id label hint status) | new_results]
+        |> CSV.dump_to_stream()
+        |> Stream.each(fn csv_row ->
+          chunk(conn, csv_row)
+        end)
+        |> Stream.run()
+
+        conn
+    end
   end
 
   def bulk_update(conn, %{"records" => upload}) do
     Logger.info("Received #{upload.filename} of type #{upload.content_type} for bulk update")
 
-    csv_to_maps(upload.path)
+    upload.path
+    |> csv_to_maps(:update)
     |> do_bulk_update(conn)
   end
 
+  defp do_bulk_update({:error, :bad_format}, conn) do
+    message = "Invalid CSV. Error parsing CSV file."
+
+    case get_req_header(conn, "accept") do
+      ["application/json" | _] ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{error: message})
+        )
+
+      _ ->
+        conn
+        |> send_resp(400, message)
+    end
+  end
+
+  defp do_bulk_update({:error, :bad_headers}, conn) do
+    message = "Invalid CSV format. Expected columns: id, label, hint"
+
+    case get_req_header(conn, "accept") do
+      ["application/json" | _] ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{error: message})
+        )
+
+      _ ->
+        conn
+        |> send_resp(400, message)
+    end
+  end
+
   defp do_bulk_update({:ok, records}, conn) do
-    results =
-      records
-      |> AuthorityRecords.update_authority_records()
+    case AuthorityRecords.update_authority_records(records) do
+      {:error, error} ->
+        Logger.error("Error in bulk update: #{inspect(error)}")
+
+        error_message =
+          case error do
+            %{message: message} -> message
+            _ -> "An error occurred while updating authority records"
+          end
+
+        case get_req_header(conn, "accept") do
+          ["application/json" | _] ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(500, Jason.encode!(%{error: error_message}))
+
+          _ ->
+            conn
+            |> send_resp(500, error_message)
+        end
+
+      results when is_list(results) ->
+        handle_bulk_update_results(conn, results)
+    end
+  end
+
+  defp handle_bulk_update_results(conn, results) do
+    new_results =
+      results
       |> Enum.map(fn
         {:error, %{params: params, errors: errors}} ->
           %{"id" => id, "label" => label, "hint" => hint} = params
@@ -78,7 +193,7 @@ defmodule MeadowWeb.AuthorityRecordsController do
       |> put_resp_header("content-disposition", ~s[attachment; filename="#{file}"])
       |> send_chunked(:ok)
 
-    [~w(id label hint status) | results]
+    [~w(id label hint status) | new_results]
     |> CSV.dump_to_stream()
     |> Enum.reduce_while(conn, fn csv_row, conn ->
       case chunk(conn, csv_row) do
@@ -88,27 +203,19 @@ defmodule MeadowWeb.AuthorityRecordsController do
     end)
   end
 
-  defp csv_to_maps(headers, rows) do
-    headers = Enum.map(headers, &String.to_atom/1)
-    {:ok, Enum.map(rows, fn row -> Enum.zip(headers, row) |> Enum.into(%{}) end)}
-  end
-
-  defp csv_to_maps(file) do
+  defp csv_to_maps(file, operation) do
     [headers | rows] =
       File.stream!(file, [:trim_bom], :line)
       |> CSV.parse_stream(skip_headers: false)
       |> Enum.to_list()
 
-    case Enum.sort(headers) do
-      ~w(hint id label) ->
-        csv_to_maps(headers, rows)
+    case validate_headers(headers, operation) do
+      :ok ->
+        headers_to_maps(headers, rows)
 
-      ~w(hint label) ->
-        csv_to_maps(headers, rows)
-
-      other ->
-        Logger.error("Bad headers: " <> inspect(other))
-        {:error, :bad_format}
+      {:error, reason} ->
+        Logger.error("Bad headers for #{operation}: #{inspect(headers)} - #{reason}")
+        {:error, :bad_headers}
     end
   rescue
     exception in NimbleCSV.ParseError ->
@@ -117,6 +224,29 @@ defmodule MeadowWeb.AuthorityRecordsController do
 
     exception ->
       reraise exception, __STACKTRACE__
+  end
+
+  defp headers_to_maps(headers, rows) do
+    headers = Enum.map(headers, &String.to_atom/1)
+    {:ok, Enum.map(rows, fn row -> Enum.zip(headers, row) |> Enum.into(%{}) end)}
+  end
+
+  defp validate_headers(headers, :create) do
+    sorted_headers = Enum.sort(headers)
+
+    case sorted_headers do
+      ~w(hint label) -> :ok
+      _ -> {:error, "Create operation requires headers: hint, label"}
+    end
+  end
+
+  defp validate_headers(headers, :update) do
+    sorted_headers = Enum.sort(headers)
+
+    case sorted_headers do
+      ~w(hint id label) -> :ok
+      _ -> {:error, "Update operation requires headers: hint, id, label"}
+    end
   end
 
   def export(conn, %{"file" => file} = params) do
