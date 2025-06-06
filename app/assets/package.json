@@ -83,7 +83,7 @@
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@elastic/elasticsearch-mock": "^2.1.0",
     "@graphql-codegen/cli": "^5.0.7",
-    "@graphql-codegen/client-preset": "^4.8.1",
+    "@graphql-codegen/client-preset": "^4.8.2",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@nulib/dcapi-types": "^2.7.0",
     "@nulib/prettier-config": "^1.2.0",
