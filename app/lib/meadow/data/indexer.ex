@@ -36,8 +36,12 @@ defmodule Meadow.Data.Indexer do
     SearchClient.hot_swap(schema, version, fn index ->
       synchronize_schema(schema, version, index, :all)
       |> check_synchronize_result(schema, index)
+      |> clean(schema, version)
     end)
   end
+
+  def check_synchronize_result({:ok, result}, schema, index),
+    do: check_synchronize_result(result, schema, index)
 
   def check_synchronize_result(:ok, schema, index) do
     expected = Repo.aggregate(schema, :count)
@@ -57,6 +61,21 @@ defmodule Meadow.Data.Indexer do
   end
 
   def check_synchronize_result(other, _, _), do: other
+
+  defp clean(:ok, schema, version) do
+    retain =
+      case SearchConfig.config_for(schema, version) do
+        %{retain: retain} when is_integer(retain) -> retain
+        _ -> 1
+      end
+
+    SearchConfig.alias_for(schema, version)
+    |> SearchIndex.clean(retain)
+
+    :ok
+  end
+
+  defp clean(result, _, _), do: result
 
   def synchronize_index do
     SearchConfig.index_versions()
