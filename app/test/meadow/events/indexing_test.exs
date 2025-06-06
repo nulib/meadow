@@ -8,6 +8,8 @@ defmodule Meadow.Events.IndexingTest do
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Ingest.{Projects, Sheets}
   alias Meadow.{Config, Repo}
+  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.HTTP, as: SearchHTTP
 
   import Assertions
   import ExUnit.CaptureLog
@@ -66,6 +68,15 @@ defmodule Meadow.Events.IndexingTest do
       assert_doc_counts_match(context)
       Indexer.reindex_all(2, [FileSet, Collection])
       assert_doc_counts_match(context)
+
+      {:ok, %{body: body}} = SearchHTTP.get("_cat/indices")
+      lines = String.split(body, "\n")
+
+      [Work, Collection, FileSet]
+      |> Enum.each(fn schema ->
+        index = SearchConfig.alias_for(schema, 2)
+        assert Enum.filter(lines, &String.contains?(&1, "#{index}-")) |> length() == 1
+      end)
     end
   end
 
