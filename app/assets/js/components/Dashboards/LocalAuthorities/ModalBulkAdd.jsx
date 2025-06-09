@@ -24,6 +24,8 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
   });
   const [currentFile, setCurrentFile] = React.useState();
   const [formAction, setFormAction] = React.useState("/api/authority_records/bulk_create");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   const onDrop = React.useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -41,6 +43,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
   // Handle radio button change to update form action
   const handleActionChange = (e) => {
     const action = e.target.value;
+    methods.setValue("bulkAction", action);
     if (action === "add") {
       setFormAction("/api/authority_records/bulk_create");
     } else if (action === "update") {
@@ -48,19 +51,68 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
     }
   };
 
+  const handleFormReset = () => {
+    setCurrentFile(null);
+    setError(null);
+    setIsSubmitting(false);
+    setFormAction("/api/authority_records/bulk_create");
+    methods.reset({
+      bulkAction: "add" 
+    });
+    handleClose();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    if (!currentFile) {
+      setError("Please select a file to upload");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('records', currentFile);
+
+    try {
+      const response = await fetch(formAction, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        // Handle CSV download for successful response
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `authority_import_${Date.now()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        handleFormReset();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'An error occurred during csv processing');
+      }
+    } catch (err) {
+      setError('Network error: Unable to upload file');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <FormProvider {...methods}>
-      <form
-        method="POST"
-        action={formAction}
-        encType="multipart/form-data"
-        name="modal-nul-authority-bulk-add"
-        data-testid="modal-nul-authority-bulk-add"
+      <div
         className={`modal ${isOpen ? "is-active" : ""}`}
-        onSubmit={() => {
-          methods.reset();
-          handleClose();
-        }}
+        data-testid="modal-nul-authority-bulk-add"
         role="form"
       >
         <div className="modal-background"></div>
@@ -73,10 +125,20 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
               className="delete"
               aria-label="close"
               type="button"
-              onClick={handleClose}
+              onClick={handleFormReset}
             ></button>
           </header>
           <section className="modal-card-body">
+            {error && (
+              <div className="notification is-danger">
+                <button
+                  className="delete"
+                  onClick={() => setError(null)}
+                ></button>
+                {error}
+              </div>
+            )}
+
             {/* Radio button selection for action type */}
             <div className="field">
               <label className="label">Select Action</label>
@@ -86,24 +148,23 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
                     type="radio"
                     name="bulkAction"
                     value="add"
-                    defaultChecked
+                    checked={methods.watch("bulkAction") === "add"}
                     onChange={handleActionChange}
                     data-testid="bulk-add-radio"
                   />
                   <span className="ml-2">Bulk Add</span>
                 </label>
-                {/* 
                 <label className="radio">
                   <input
                     type="radio"
                     name="bulkAction"
                     value="update"
+                    checked={methods.watch("bulkAction") === "update"}
                     onChange={handleActionChange}
                     data-testid="bulk-update-radio"
                   />
                   <span className="ml-2">Bulk Update</span>
                 </label>
-                */}
               </div>
             </div>
 
@@ -154,15 +215,20 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
             )}
           </section>
           <footer className="modal-card-foot buttons is-right">
-            <Button isText onClick={handleClose} data-testid="cancel-button">
+            <Button isText onClick={handleFormReset} data-testid="cancel-button">
               Cancel
             </Button>
-            <Button isPrimary type="submit" data-testid="submit-button">
-              Upload
+            <Button
+              isPrimary
+              onClick={handleSubmit}
+              data-testid="submit-button"
+              disabled={isSubmitting || !currentFile}
+            >
+              {isSubmitting ? 'Uploading...' : 'Upload'}
             </Button>
           </footer>
         </div>
-      </form>
+      </div>
     </FormProvider>
   );
 }
