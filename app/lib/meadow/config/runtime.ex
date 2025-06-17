@@ -193,7 +193,8 @@ defmodule Meadow.Config.Runtime do
         :caption,
         :table_of_contents,
         :scope_and_contents,
-        :abstract
+        :abstract,
+        :accession_number,
       ]
 
     Logger.info("Configuring EZID")
