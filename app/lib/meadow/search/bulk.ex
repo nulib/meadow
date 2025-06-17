@@ -62,8 +62,14 @@ defmodule Meadow.Search.Bulk do
           {:error, response}
 
         {:ok, %{body: %{"errors" => true, "items" => items}}} ->
-          errors = Enum.map(items, fn %{"index" => %{"error" => %{"reason" => reason }, "_id" => id}} ->
-            "work_id (#{id}): #{reason}."
+          items = Enum.filter(items, fn
+            %{"index" => %{"error" => _}} -> true
+            _ -> false
+          end)
+          errors = Enum.map(items, fn
+            %{"index" => %{"error" => %{"reason" => reason }, "_id" => id}} ->
+              "work_id (#{id}): #{reason}."
+            _ -> "Unknown error"
           end)
           Logger.error("Bulk upload encountered errors: #{inspect(errors)}")
           {:error, errors}
