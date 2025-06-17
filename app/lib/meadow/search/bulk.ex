@@ -72,7 +72,7 @@ defmodule Meadow.Search.Bulk do
             _ -> "Unknown error"
           end)
           Logger.error("Bulk upload encountered errors: #{inspect(errors)}")
-          {:error, errors}
+          {:ok, response}
 
         {:ok, %{status_code: status} = response} ->
           Logger.info("Bulk upload status: #{status}")
