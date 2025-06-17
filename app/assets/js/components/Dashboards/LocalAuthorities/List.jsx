@@ -174,6 +174,7 @@ export default function DashboardsLocalAuthoritiesList() {
           label="NUL search"
           onChange={handleSearchChange}
           value={searchValue}
+          showClearButton={true}
         />
       </SearchBarRow>
 

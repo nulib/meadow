@@ -152,19 +152,22 @@ defmodule Meadow.Config.Runtime do
           settings: priv_path("search/v2/settings/work.json"),
           version: 2,
           schemas: [Meadow.Data.Schemas.Work],
-          pipeline: prefix("dc-v2-work-pipeline")
+          pipeline: prefix("dc-v2-work-pipeline"),
+          retain: 1
         },
         %{
           name: prefix("dc-v2-file-set"),
           settings: priv_path("search/v2/settings/file_set.json"),
           version: 2,
-          schemas: [Meadow.Data.Schemas.FileSet]
+          schemas: [Meadow.Data.Schemas.FileSet],
+          retain: 1
         },
         %{
           name: prefix("dc-v2-collection"),
           settings: priv_path("search/v2/settings/collection.json"),
           version: 2,
-          schemas: [Meadow.Data.Schemas.Collection]
+          schemas: [Meadow.Data.Schemas.Collection],
+          retain: 1
         }
       ],
       embedding_model_id: get_secret(:index, ["embedding_model"]),
@@ -190,7 +193,8 @@ defmodule Meadow.Config.Runtime do
         :caption,
         :table_of_contents,
         :scope_and_contents,
-        :abstract
+        :abstract,
+        :accession_number,
       ]
 
     Logger.info("Configuring EZID")
