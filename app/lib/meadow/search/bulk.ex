@@ -61,7 +61,7 @@ defmodule Meadow.Search.Bulk do
           Logger.warning("Bulk upload too large")
           {:error, response}
 
-        {:ok, %{body: %{"errors" => true, "items" => items}}} ->
+        {:ok, %{body: %{"errors" => true, "items" => items}} = response} ->
           items = Enum.filter(items, fn
             %{"index" => %{"error" => _}} -> true
             _ -> false
