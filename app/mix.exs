@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.8.5"
+  @app_version "9.8.6"
 
   def project do
     [
