@@ -61,12 +61,18 @@ defmodule Meadow.Search.Bulk do
           Logger.warning("Bulk upload too large")
           {:error, response}
 
-        {:ok, %{body: %{"errors" => true, "items" => items}}} ->
-          errors = Enum.map(items, fn %{"index" => %{"error" => %{"reason" => reason }, "_id" => id}} ->
-            "work_id (#{id}): #{reason}."
+        {:ok, %{body: %{"errors" => true, "items" => items}} = response} ->
+          items = Enum.filter(items, fn
+            %{"index" => %{"error" => _}} -> true
+            _ -> false
+          end)
+          errors = Enum.map(items, fn
+            %{"index" => %{"error" => %{"reason" => reason }, "_id" => id}} ->
+              "work_id (#{id}): #{reason}."
+            _ -> "Unknown error"
           end)
           Logger.error("Bulk upload encountered errors: #{inspect(errors)}")
-          {:error, errors}
+          {:ok, response}
 
         {:ok, %{status_code: status} = response} ->
           Logger.info("Bulk upload status: #{status}")
