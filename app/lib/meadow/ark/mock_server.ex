@@ -1,4 +1,4 @@
-defmodule Meadow.Utils.ArkClient.MockServer do
+defmodule Meadow.Ark.MockServer do
   @moduledoc """
   Mock EZID API server for testing Meadow.Ark
 
@@ -16,7 +16,7 @@ defmodule Meadow.Utils.ArkClient.MockServer do
   plug(:match)
   plug(:dispatch)
 
-  @cache Meadow.Utils.ArkClient.MockServer.Cache
+  @cache Meadow.Ark.MockServer.Cache
   @valid_resource_types ~w(Audiovisual Collection Dataset Event Image InteractiveResource Model
     PhysicalObject Service Software Sound Text Workflow Other)
   @valid_statuses ["public", "reserved", ~r/unavailable \| (.+)$/]

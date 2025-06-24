@@ -8,40 +8,40 @@ defmodule Meadow.Roles do
 
   Examples:
 
-    iex> authorized?("User", :any)
+    iex> authorized?(:user, :any)
     true
 
-    iex> authorized?("SuperUser", "SuperUser")
+    iex> authorized?(:superuser, :superuser)
     true
 
-    iex> authorized?("Administrator", "SuperUser")
+    iex> authorized?(:administrator, :superuser)
     false
 
-    iex> authorized?("Administrator", "User")
+    iex> authorized?(:administrator, :user)
     true
 
-    iex> authorized?("Editor", "Administrator")
+    iex> authorized?(:editor, :administrator)
     false
 
-    iex> authorized?("User", "User")
+    iex> authorized?(:user, :user)
     true
 
-    iex> authorized?(%{role: "User"}, "User")
+    iex> authorized?(%{role: :user}, :user)
     true
 
-    iex> authorized?(%{}, "User")
+    iex> authorized?(%{}, :user)
     false
   """
   def authorized?(%{role: role}, authorized), do: authorized?(role, authorized)
 
   def authorized?(nil, _), do: false
   def authorized?(_, :any), do: true
-  def authorized?("SuperUser", _role), do: true
-  def authorized?("Administrator", "SuperUser"), do: false
-  def authorized?("Administrator", _role), do: true
-  def authorized?("Manager", "Editor"), do: true
-  def authorized?("Manager", "User"), do: true
-  def authorized?("Editor", "User"), do: true
+  def authorized?(:superuser, _role), do: true
+  def authorized?(:administrator, :superuser), do: false
+  def authorized?(:administrator, _role), do: true
+  def authorized?(:manager, :editor), do: true
+  def authorized?(:manager, :user), do: true
+  def authorized?(:editor, :user), do: true
   def authorized?(role, role), do: true
   def authorized?(_, _), do: false
 end

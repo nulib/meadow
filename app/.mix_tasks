@@ -71,8 +71,6 @@ local.rebar:Installs Rebar locally
 meadow.buckets.create:Create all configured S3 buckets
 meadow.elasticsearch.clear:Clear the elasticsearch meadow and shared_links indices
 meadow.elasticsearch.setup:Build elasticsearch index for the dev environment if it does not exist
-meadow.ldap.setup:Add LDAP entries specified in LDIF file(s)
-meadow.ldap.teardown:Delete LDAP entries specified in LDIF file(s)
 meadow.pipeline.purge:Purges messages from all ingest pipeline queues
 meadow.pipeline.setup:Creates resources for the ingest pipeline
 meadow.reset:Clear out meadow database, indices, and queues

@@ -22,7 +22,7 @@ defmodule MeadowWeb.Resolvers.Data.SharedLinkTest do
       {:ok, result} =
         query_gql(
           variables: %{"workId" => "1234"},
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert result.data["createSharedLink"]

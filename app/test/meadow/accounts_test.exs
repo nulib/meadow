@@ -5,9 +5,17 @@ defmodule Meadow.AccountsTest do
   import Assertions
   import Meadow.TestHelpers
 
+  alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Accounts
+  alias Meadow.Accounts.Schemas.User, as: UserSchema
+  alias Meadow.Accounts.User
+  alias Meadow.Repo
 
   describe "user login" do
+    setup do
+      Sandbox.checkout(Meadow.Repo)
+    end
+
     test "user doesn't exist" do
       assert Accounts.authorize_user_login(random_user(:unknown)) == {:error, "Unauthorized"}
     end
@@ -24,51 +32,37 @@ defmodule Meadow.AccountsTest do
         assert user.username == username
       end
     end
+
+    test "add user role" do
+      user = user_fixture(:staff_user)
+      assert Repo.get(UserSchema, user.id) |> is_nil()
+      assert {:ok, _} = Accounts.set_user_role(user.id, :editor)
+      assert User.find(user.id).role == :editor
+    end
+
+    test "set user role" do
+      user = user_fixture(:manager)
+      assert User.find(user.id).role == :manager
+      assert {:ok, _} = Accounts.set_user_role(user.id, :administrator)
+      assert User.find(user.id).role == :administrator
+    end
+
+    test "remove user role" do
+      user = user_fixture(:manager)
+      assert User.find(user.id).role == :manager
+      assert {:ok, _} = Accounts.set_user_role(user.id, nil)
+      assert Repo.get(UserSchema, user.id) |> is_nil()
+    end
   end
 
   test "list roles" do
     Accounts.list_roles()
-    |> entry_names()
     |> assert_lists_equal([
-      "SuperUsers",
-      "Administrators",
-      "Managers",
-      "Editors",
-      "Users"
+      "Superuser",
+      "Administrator",
+      "Manager",
+      "Editor",
+      "User"
     ])
-  end
-
-  describe "group membership" do
-    test "role members" do
-      assert_lists_equal(
-        Accounts.role_members(meadow_dn("Administrators")) |> entry_names(),
-        ["TestAdmins"]
-      )
-
-      assert_lists_equal(
-        Accounts.role_members(meadow_dn("Editors")) |> entry_names(),
-        []
-      )
-
-      assert_lists_equal(
-        Accounts.role_members(meadow_dn("Managers")) |> entry_names(),
-        ["TestManagers"]
-      )
-
-      assert_lists_equal(
-        Accounts.role_members(meadow_dn("Users")) |> entry_names(),
-        ["TestAdmins", "TestManagers"]
-      )
-    end
-
-    test "group members" do
-      assert_lists_equal(
-        Accounts.group_members(
-          "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
-        )
-        |> entry_names(),
-        test_users("TestAdmins")
-      )
-    end
   end
 end

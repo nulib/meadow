@@ -1,4 +1,5 @@
 defmodule MeadowWeb.PageControllerTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   test "GET /", %{conn: conn} do

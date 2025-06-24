@@ -1,9 +1,9 @@
 defmodule Meadow.Accounts.User.Test do
   use ExUnit.Case
 
-  import ExUnit.CaptureLog
   import Meadow.TestHelpers
 
+  alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Accounts.User
 
   describe "Meadow.Accounts.User.find/1" do
@@ -11,39 +11,21 @@ defmodule Meadow.Accounts.User.Test do
       old_level = Logger.level()
       Logger.configure(level: :debug)
       on_exit(fn -> Logger.configure(level: old_level) end)
-      Cachex.clear!(Meadow.Cache.Users)
+
+      Sandbox.checkout(Meadow.Repo)
 
       :ok
     end
 
-    test "get user from LDAP" do
-      with user <- random_user("TestManagers") do
-        assert capture_log(fn ->
-                 user = User.find(user)
-                 assert is_struct(user)
-                 assert user.role == "Manager"
-               end) =~ "User #{user} found in LDAP and added to cache"
-      end
-    end
-
-    test "get user from cache" do
-      with user <- random_user("TestManagers") do
-        User.find(user)
-
-        assert capture_log(fn ->
-                 user = User.find(user)
-                 assert is_struct(user)
-                 assert user.role == "Manager"
-               end) =~ "User #{user} found in cache"
+    test "find user" do
+      with user <- random_user(:manager) do
+        user = User.find(user)
+        assert is_struct(user)
       end
     end
 
     test "user not found" do
-      with user <- random_user(:unknown) do
-        assert capture_log(fn ->
-                 assert is_nil(User.find(user))
-               end) =~ "User #{user} not found"
-      end
+      assert is_nil(User.find("unknownUser"))
     end
   end
 end

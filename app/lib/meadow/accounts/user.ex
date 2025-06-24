@@ -2,51 +2,54 @@ defmodule Meadow.Accounts.User do
   @moduledoc """
   Struct for user information
   """
+  alias Meadow.Accounts
+  alias Meadow.Accounts.Directory
+
   use Meadow.Constants
-  alias Meadow.Accounts.Ldap
   require Logger
 
   defstruct [:id, :username, :email, :display_name, :role]
 
   @doc "Find a user by username and populate the User struct"
   def find(username) do
-    {status, result} =
-      Cachex.fetch(Meadow.Cache.Users, username, fn _key ->
-        case Ldap.find_user(username) do
-          nil -> {:ignore, nil}
-          user_entry -> {:commit, make_struct(user_entry)}
+    case Directory.find_user(username) do
+      {:error, error} ->
+        Logger.error("Error fetching user #{username}: #{error}")
+        nil
+
+      nil ->
+        nil
+
+      user_entry ->
+        case user_role(user_entry) do
+          :none ->
+            nil
+
+          role ->
+            make_struct(user_entry, role)
         end
-      end)
-
-    case status do
-      :ok -> Logger.debug("User #{username} found in cache")
-      :commit -> Logger.debug("User #{username} found in LDAP and added to cache")
-      :ignore -> Logger.warning("User #{username} not found")
     end
-
-    result
   end
 
-  defp make_struct(user_entry) do
+  defp make_struct(user_entry, role) do
+    net_id = Map.get(user_entry, "uid")
+
     %__MODULE__{
-      id: user_entry.id,
-      username: user_entry.name,
-      email: user_entry.attributes.mail,
-      display_name: user_entry.attributes.displayName,
-      role: user_role(user_entry)
+      id: net_id,
+      username: net_id,
+      email: Map.get(user_entry, "mail"),
+      display_name: Map.get(user_entry, "nuAllDisplayName"),
+      role: role
     }
   end
 
-  defp user_role(user_entry) do
-    with groups <- user_groups(user_entry) do
-      case Enum.find(@role_priority, fn group -> groups |> Enum.member?(group) end) do
-        nil -> nil
-        val -> Inflex.Pluralize.singularize(val)
-      end
-    end
-  end
+  defp user_role(%{"uid" => net_id, "nuAllSchoolAffiliations" => affiliations}) do
+    is_lib_staff = Enum.member?(affiliations, "lib:staff")
 
-  defp user_groups(%Ldap.Entry{} = user_entry) do
-    Ldap.list_user_groups(user_entry.id) |> Enum.map(fn e -> e.name end)
+    case {is_lib_staff, Accounts.get_role(net_id)} do
+      {true, nil} -> :user
+      {_, nil} -> :none
+      {_, role} -> role
+    end
   end
 end

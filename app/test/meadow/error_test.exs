@@ -50,7 +50,7 @@ defmodule Meadow.ErrorTest do
     test "sends error notifications" do
       restart_with_config(exclude_envs: [])
 
-      user = user_fixture("TestAdmins")
+      user = user_fixture(:administrator)
 
       conn =
         build_conn()

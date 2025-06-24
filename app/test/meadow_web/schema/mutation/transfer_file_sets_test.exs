@@ -66,7 +66,7 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest do
       result =
         query_gql(
           variables: %{"fromWorkId" => work.id, "toWorkId" => work2.id},
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result

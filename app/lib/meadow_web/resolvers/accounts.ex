@@ -3,8 +3,9 @@ defmodule MeadowWeb.Resolvers.Accounts do
   Absinthe resolver for User and Group Management related functionality
   """
   alias Meadow.Accounts
+  alias Meadow.Accounts.User
 
-  def me(_, _, %{context: %{auth_token: token, current_user: user}}) do
+  def me(_, _, %{context: %{auth_token: token, current_user: user}}) when not is_nil(user) do
     {:ok, Map.put(user, :token, token)}
   end
 
@@ -16,35 +17,42 @@ defmodule MeadowWeb.Resolvers.Accounts do
     {:ok, Accounts.list_roles()}
   end
 
-  def role_members(_, %{id: id}, _) do
-    {:ok, Accounts.role_members(id)}
+  def list_users(_, _, _) do
+    {:ok,
+     Accounts.list_users()
+     |> Enum.map(fn user ->
+       case User.find(user.id) do
+         nil ->
+           %User{
+             id: user.id,
+             username: user.id,
+             email: "",
+             display_name: "",
+             role: user.role
+           }
+
+         found ->
+           found
+       end
+     end)}
   end
 
-  def group_members(_, %{id: id}, _) do
-    {:ok, Accounts.group_members(id)}
+  def assume_role(_, %{user_role: user_role}, _) do
+    {:ok, %{new_role: user_role}}
   end
 
-  def assume_role(_, %{user_role: user_role}, %{context: %{current_user: user}}) do
-    case Accounts.assume_role(user_role, user) do
-      {:ok, role} ->
-        {:ok, %{message: "Role changed to: #{role}"}}
+  def set_user_role(_, %{user_id: user_id, user_role: user_role}, _) do
+    case Accounts.set_user_role(user_id, user_role) do
+      {:ok, _} ->
+        {:ok, %{message: update_message(user_id, user_role)}}
 
-      {:error, error} ->
-        {:error, %{message: error}}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
-  def add_group_to_role(_, %{group_id: group_id, role_id: role_id}, _) do
-    {:ok,
-     case Accounts.add_group_to_role(role_id, group_id) do
-       :ok ->
-         %{message: "OK"}
+  defp update_message(user_id, nil), do: "Removed user role for #{user_id}"
 
-       :exists ->
-         %{message: "EXISTS"}
-
-       other ->
-         %{message: other}
-     end}
-  end
+  defp update_message(user_id, user_role),
+    do: "User role updated successfully for #{user_id} to #{user_role}"
 end

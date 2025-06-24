@@ -74,7 +74,6 @@ defmodule Meadow.MixProject do
       {:ex_aws_ssm, "~> 2.1"},
       {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
-      {:exldap, "~> 0.6.3"},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},

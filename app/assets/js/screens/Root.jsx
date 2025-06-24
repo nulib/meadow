@@ -24,6 +24,7 @@ import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
 import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
 import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
 import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
+import ScreensDashboardsUsersList from "@js/screens/Dashboards/Users/List";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensProject from "./Project/Project";
 import ScreensProjectList from "./Project/List";
@@ -120,6 +121,11 @@ export default class Root extends React.Component {
                   exact
                   path="/batch-edit"
                   component={ScreensBatchEdit}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/users"
+                  component={ScreensDashboardsUsersList}
                 />
                 <PrivateRoute exact path="/" component={Home} />
                 <PrivateRoute component={NotFound} />

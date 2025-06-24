@@ -20,7 +20,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
     test "unknown output type", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/nul_authority_records.pdf")
 
       assert text_response(conn, 404) =~ "Not Found"
@@ -56,7 +56,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
     test "successful request", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/nul_authority_records.csv")
 
       assert Plug.Conn.get_resp_header(conn, "content-disposition")
@@ -83,7 +83,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
     test "bad data, no referer", %{conn: conn, upload: upload} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_create", %{records: upload})
 
       assert body = response(conn, 400)
@@ -96,7 +96,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
 
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_create", %{records: upload})
 
       assert Meadow.Repo.aggregate(AuthorityRecord, :count) == precount + 3
@@ -116,7 +116,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
 
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_create", %{records: upload})
 
       assert Meadow.Repo.aggregate(AuthorityRecord, :count) == precount + 2
@@ -162,7 +162,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
 
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_update", %{records: upload})
 
       assert conn.state == :chunked
@@ -198,7 +198,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
 
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_update", %{records: upload})
 
       assert conn.state == :chunked
@@ -225,7 +225,7 @@ defmodule MeadowWeb.AuthorityRecordsControllerTest do
 
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/authority_records/bulk_update", %{records: upload})
 
       assert conn.state == :chunked
