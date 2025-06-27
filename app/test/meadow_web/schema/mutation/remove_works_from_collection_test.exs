@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.RemoveWorksFromCollectionTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, acync: true
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   alias Meadow.Data.Collections
@@ -50,7 +50,7 @@ defmodule MeadowWeb.Schema.Mutation.RemoveWorksFromCollectionTest do
             "workIds" => Enum.map(works, & &1.id),
             "collectionId" => collection_fixture.id
           },
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

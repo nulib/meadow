@@ -21,8 +21,6 @@ defmodule MeadowWeb.AuthController do
 
     case Accounts.authorize_user_login(uid) do
       {:ok, user} ->
-        Cachex.put!(Meadow.Cache.Users, uid, user)
-
         conn
         |> put_session(:current_user, user)
         |> configure_session(renew: true)
@@ -35,13 +33,6 @@ defmodule MeadowWeb.AuthController do
   end
 
   def logout(conn, _params) do
-    current_user =
-      conn
-      |> fetch_session
-      |> get_session(:current_user)
-
-    Cachex.del!(Meadow.Cache.Users, current_user.username)
-
     conn
     |> delete_session(:current_user)
     |> Plug.Conn.assign(:current_user, nil)

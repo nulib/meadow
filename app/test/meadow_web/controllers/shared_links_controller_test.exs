@@ -17,7 +17,7 @@ defmodule MeadowWeb.SharedLinksControllerTest do
     test "unknown output type", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/create_shared_links/links.xls", %{query: @query})
 
       assert text_response(conn, 404) =~ "Not Found"
@@ -33,7 +33,7 @@ defmodule MeadowWeb.SharedLinksControllerTest do
     test "successful request", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/create_shared_links/links.csv", %{query: @query})
 
       assert Plug.Conn.get_resp_header(conn, "content-disposition")

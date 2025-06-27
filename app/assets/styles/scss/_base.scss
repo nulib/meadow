@@ -141,6 +141,11 @@ table {
   }
 }
 
+table .select {
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
 .title,
 .content .title {
   font-size: $size-1;

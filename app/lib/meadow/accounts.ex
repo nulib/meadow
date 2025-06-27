@@ -3,7 +3,9 @@ defmodule Meadow.Accounts do
   Primary Context module for user and groups related functionality
   """
 
-  alias Meadow.Accounts.{Ldap, User}
+  alias Meadow.Accounts.Schemas.User, as: UserSchema
+  alias Meadow.Accounts.User
+  alias Meadow.Repo
 
   import Ecto.Query, warn: false
 
@@ -22,32 +24,42 @@ defmodule Meadow.Accounts do
   end
 
   def list_roles do
-    Ldap.list_groups()
+    UserSchema.list_roles()
   end
 
-  def role_members(id) do
-    Ldap.list_group_members(id)
+  def role_members(role) do
+    from(u in UserSchema, where: u.role == ^role)
+    |> Repo.all()
   end
 
-  def group_members(id) do
-    Ldap.list_group_members(id)
+  def list_users do
+    from(u in UserSchema, order_by: [asc: u.id])
+    |> Repo.all()
   end
 
-  def assume_role(user_role, current_user) do
-    case(
-      Cachex.get_and_update(Meadow.Cache.Users, current_user.username, fn entry ->
-        Map.put(entry, :role, user_role)
-      end)
-    ) do
-      {:commit, %{role: role}} ->
-        {:ok, role}
+  def get_role(net_id) do
+    from(u in UserSchema, where: u.id == ^net_id, select: u.role)
+    |> Repo.one()
+  end
 
-      _ ->
-        {:error, "Could not change role to #{user_role}"}
+  def set_user_role(user_id, user_role) do
+    case Repo.get(UserSchema, user_id) |> _set_user_role(%{id: user_id, role: user_role}) do
+      {:ok, user} -> {:ok, user}
+      {:error, reason} -> {:error, reason}
     end
   end
 
-  def add_group_to_role(role_id, group_id) do
-    Ldap.add_member(role_id, group_id)
+  defp _set_user_role(nil, attrs) do
+    UserSchema.changeset(%UserSchema{}, attrs)
+    |> Repo.insert()
+  end
+
+  defp _set_user_role(%UserSchema{} = user, %{role: nil}) do
+    Repo.delete(user)
+  end
+
+  defp _set_user_role(%UserSchema{} = user, %{role: role}) do
+    UserSchema.changeset(user, %{role: role})
+    |> Repo.update()
   end
 end

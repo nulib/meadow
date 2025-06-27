@@ -6,11 +6,6 @@ services:
       POSTGRES_PASSWORD: d0ck3r
     ports:
       - 5432:5432
-  ldap:
-    image: ghcr.io/nulib/ldap-alpine
-    ports:
-      - 389:389
-      - 636:636
   opensearch:
     image: opensearchproject/opensearch:2.11.1
     environment:

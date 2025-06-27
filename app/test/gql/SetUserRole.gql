@@ -1,0 +1,5 @@
+mutation SetUserRole($userId: ID!, $userRole: UserRole!) {
+  setUserRole(userId: $userId, userRole: $userRole) {
+    message
+  }
+}

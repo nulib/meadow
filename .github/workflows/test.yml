@@ -126,11 +126,6 @@ jobs:
           POSTGRES_PASSWORD: d0ck3r
         ports:
           - 5432:5432
-      ldap:
-        image: ghcr.io/nulib/ldap-alpine
-        ports:
-          - 389:389
-          - 636:636
       opensearch:
         image: opensearchproject/opensearch:2.11.1
         env:
@@ -165,10 +160,6 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18.2"
-      - name: Install LDAP utils
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ldap-utils
       - name: Install FFMPEG
         run: |
           mkdir -p ${{ runner.temp }}/ffmpeg && \

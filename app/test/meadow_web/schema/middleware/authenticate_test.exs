@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Middleware.AuthenticateTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   alias MeadowWeb.Schema.Middleware.Authenticate

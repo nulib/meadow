@@ -16,16 +16,16 @@ defmodule MeadowWeb.Schema.Mutation.ReplaceFileSetTest do
     file_set = file_set_fixture()
 
     {:ok, result} =
-        query_gql(
-          variables: %{
-            "id" => file_set.id,
-            "coreMetadata" =>  %{
-              "original_filename" => "file.tif",
-              "location" => "s3://#{@bucket}/#{@key}"
-            }
-          },
-          context: gql_context()
-        )
+      query_gql(
+        variables: %{
+          "id" => file_set.id,
+          "coreMetadata" => %{
+            "original_filename" => "file.tif",
+            "location" => "s3://#{@bucket}/#{@key}"
+          }
+        },
+        context: gql_context()
+      )
 
     assert result.data["replaceFileSet"]
     location = get_in(result, [:data, "replaceFileSet", "coreMetadata", "location"])
@@ -41,12 +41,12 @@ defmodule MeadowWeb.Schema.Mutation.ReplaceFileSetTest do
         query_gql(
           variables: %{
             "id" => file_set.id,
-            "coreMetadata" =>  %{
+            "coreMetadata" => %{
               "original_filename" => "file.tif",
               "location" => "s3://#{@bucket}/#{@key}"
             }
           },
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

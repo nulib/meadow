@@ -2,7 +2,7 @@ defmodule Meadow.ArkTest do
   use Meadow.DataCase, async: false
 
   alias Meadow.Ark
-  alias Meadow.Utils.ArkClient.MockServer
+  alias Meadow.Ark.MockServer
 
   @ark_format ~r'^ark:/12345/nu2\d{8}$'
   @fields ~w(creator title publisher publication_year resource_type status target)a

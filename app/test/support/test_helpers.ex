@@ -3,7 +3,7 @@ defmodule Meadow.TestHelpers do
   Meadow test helpers, fixtures, etc
 
   """
-  alias Meadow.Accounts.{Ldap, User}
+  alias Meadow.Accounts.User
   alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
   alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
@@ -15,11 +15,13 @@ defmodule Meadow.TestHelpers do
   alias NimbleCSV.RFC4180, as: CSV
 
   @test_users %{
-    "TestAdmins" => ~w[auy5400 auk0124 auh7250 aud6389],
-    "TestManagers" => ~w[aut2418 aum1701 auf2249 aua6615],
-    :access => ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615],
-    :noAccess => ~w[aup9261 aup6836 aui9865 auj5680 auq9679],
-    :unknown => ~w[unknownUser]
+    administrator: ~w[auy5400 auk0124 auh7250 aud6389],
+    manager: ~w[aut2418 aum1701 auf2249 aua6615],
+    user: ~w[aup9261 aup6836],
+    staff_user: ~w[aup6836],
+    access: ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615 aup9261 aup6836],
+    noAccess: ~w[aui9865 auj5680 auq9679],
+    unknown: ~w[unknownUser]
   }
 
   defmacro exs_fixture(file) do
@@ -226,22 +228,10 @@ defmodule Meadow.TestHelpers do
         username: "user1",
         email: "email@example.com",
         display_name: "User Name",
-        role: "Administrator"
+        role: :administrator
       }
     })
   end
-
-  def delete_entry(dn) do
-    with {:ok, conn} <- Exldap.connect() do
-      :eldap.delete(conn, to_charlist(dn))
-    end
-  end
-
-  def entry_names([]), do: []
-  def entry_names(%Ldap.Entry{} = entry), do: entry.name
-  def entry_names([entry | entries]), do: [entry_names(entry) | entry_names(entries)]
-  def meadow_dn(cn), do: "CN=#{cn},OU=Meadow,OU=test,DC=library,DC=northwestern,DC=edu"
-  def test_users_dn(cn), do: "CN=#{cn},OU=TestUsers,OU=test,DC=library,DC=northwestern,DC=edu"
 
   def logged?(string, :warn, pattern),
     do: logged?(string, ~r/^warn(ing)?$/, pattern)

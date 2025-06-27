@@ -59,7 +59,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
             "filename" => @sheet_key,
             "projectId" => project.id
           },
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -73,7 +73,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateSheet do
             "filename" => @sheet_key,
             "projectId" => project.id
           },
-          context: %{current_user: %{role: "Editor"}}
+          context: %{current_user: %{role: :editor}}
         )
 
       assert result.data["createIngestSheet"]

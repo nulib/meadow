@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
@@ -6,14 +7,11 @@ defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
 
   describe "assumeRole mutation" do
     setup do
-      user = user_fixture("TestAdmins")
-      on_exit(fn -> Cachex.clear!(Meadow.Cache.Users) end)
+      user = user_fixture(:administrator)
       {:ok, %{user: user}}
     end
 
     test "should let an Administrator assume a User role", %{user: user} do
-      Cachex.put!(Meadow.Cache.Users, user.username, user)
-
       result =
         query_gql(
           variables: %{"userRole" => "USER"},
@@ -23,14 +21,14 @@ defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
       assert {:ok, query_data} = result
 
       message = get_in(query_data, [:data, "assumeRole", "message"])
-      assert message == "Role changed to: User"
+      assert message == "Role changed to: user"
     end
 
     test "non-admins are not authorized to assume roles" do
       {:ok, result} =
         query_gql(
           variables: %{"userRole" => "ADMINISTRATOR"},
-          context: %{current_user: %{username: "abc122", role: "Manager"}}
+          context: %{current_user: %{username: "abc122", role: :manager}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

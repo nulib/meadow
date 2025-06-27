@@ -364,22 +364,6 @@ export type EdtfDateInput = {
   edtf?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-/** An LDAP Entry */
-export type Entry = {
-  __typename?: "Entry";
-  id: Scalars["ID"]["output"];
-  name?: Maybe<Scalars["String"]["output"]>;
-  type?: Maybe<EntryType>;
-};
-
-/** work types */
-export enum EntryType {
-  /** group */
-  Group = "GROUP",
-  /** user */
-  User = "USER",
-}
-
 export type Error = {
   __typename?: "Error";
   field: Scalars["String"]["output"];
@@ -620,8 +604,6 @@ export type RelatedUrlEntryInput = {
 
 export type RootMutationType = {
   __typename?: "RootMutationType";
-  /** Add a group to a role */
-  addGroupToRole?: Maybe<StatusMessage>;
   /** Add a work to a Collection */
   addWorkToCollection?: Maybe<Work>;
   /** Add Works to a Collection */
@@ -666,6 +648,8 @@ export type RootMutationType = {
   replaceFileSet?: Maybe<FileSet>;
   /** Set the representative Work for a Collection */
   setCollectionImage?: Maybe<Collection>;
+  /** Set user role */
+  setUserRole?: Maybe<StatusMessage>;
   /** Set the representative FileSet (Access or Auxiliary) for a Work */
   setWorkImage?: Maybe<Work>;
   /** Swap file sets from one work to another */
@@ -686,11 +670,6 @@ export type RootMutationType = {
   updateWork?: Maybe<Work>;
   /** Kick off Validation of an Ingest Sheet */
   validateIngestSheet?: Maybe<StatusMessage>;
-};
-
-export type RootMutationTypeAddGroupToRoleArgs = {
-  groupId: Scalars["ID"]["input"];
-  roleId: Scalars["ID"]["input"];
 };
 
 export type RootMutationTypeAddWorkToCollectionArgs = {
@@ -812,6 +791,11 @@ export type RootMutationTypeSetCollectionImageArgs = {
   workId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
+export type RootMutationTypeSetUserRoleArgs = {
+  userId: Scalars["ID"]["input"];
+  userRole?: InputMaybe<UserRole>;
+};
+
 export type RootMutationTypeSetWorkImageArgs = {
   fileSetId: Scalars["ID"]["input"];
   workId: Scalars["ID"]["input"];
@@ -906,8 +890,6 @@ export type RootQueryType = {
   fetchControlledTermLabel?: Maybe<ControlledValue>;
   /** Get a list of file sets */
   fileSets?: Maybe<Array<Maybe<FileSet>>>;
-  /** Get a list of members of a group */
-  groupMembers?: Maybe<Array<Maybe<Entry>>>;
   /** Get iiif server endpoint */
   iiifServerUrl?: Maybe<Url>;
   /** Get an ingest sheet by its id */
@@ -942,10 +924,10 @@ export type RootQueryType = {
   projects?: Maybe<Array<Maybe<Project>>>;
   /** Search for projects by title */
   projectsSearch?: Maybe<Array<Maybe<Project>>>;
-  /** Get a list of members of a role */
-  roleMembers?: Maybe<Array<Maybe<Entry>>>;
   /** Get the list of Roles */
-  roles?: Maybe<Array<Maybe<Entry>>>;
+  roles?: Maybe<Array<Maybe<Scalars["String"]["output"]>>>;
+  /** List all users with their roles */
+  users?: Maybe<Array<Maybe<User>>>;
   /** Get verification status for a work's fileSets */
   verifyFileSets?: Maybe<Array<Maybe<FileSetVerificationStatus>>>;
   /** Get a work by id */
@@ -993,10 +975,6 @@ export type RootQueryTypeFetchCodedTermLabelArgs = {
 };
 
 export type RootQueryTypeFetchControlledTermLabelArgs = {
-  id: Scalars["ID"]["input"];
-};
-
-export type RootQueryTypeGroupMembersArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -1060,10 +1038,6 @@ export type RootQueryTypeProjectsArgs = {
 
 export type RootQueryTypeProjectsSearchArgs = {
   query: Scalars["String"]["input"];
-};
-
-export type RootQueryTypeRoleMembersArgs = {
-  id: Scalars["ID"]["input"];
 };
 
 export type RootQueryTypeVerifyFileSetsArgs = {

@@ -123,7 +123,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
               }
             }
           },
-          context: %{current_user: %{username: "abc123", role: "User"}}
+          context: %{current_user: %{username: "abc123", role: :user}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -145,7 +145,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
               }
             }
           },
-          context: %{current_user: %{username: "abc123", role: "Editor"}}
+          context: %{current_user: %{username: "abc123", role: :editor}}
         )
 
       assert result.data["batchUpdate"]

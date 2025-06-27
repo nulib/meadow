@@ -38,7 +38,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchDeleteTest do
             "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
             "nickname" => "This is a batch delete"
           },
-          context: %{current_user: %{username: "abc123", role: "Editors"}}
+          context: %{current_user: %{username: "abc123", role: :editor}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -51,7 +51,7 @@ defmodule MeadowWeb.Schema.Mutation.BatchDeleteTest do
             "query" => ~s'{"query":{"term":{"workType.id": "IMAGE"}}}',
             "nickname" => "This is a batch delete"
           },
-          context: %{current_user: %{username: "abc123", role: "Manager"}}
+          context: %{current_user: %{username: "abc123", role: :manager}}
         )
 
       assert result.data["batchDelete"]

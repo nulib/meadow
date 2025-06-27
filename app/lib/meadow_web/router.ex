@@ -3,6 +3,8 @@ defmodule MeadowWeb.Router do
   use Honeybadger.Plug, plug_data: MeadowWeb.ErrorMetadata
   import Phoenix.LiveDashboard.Router
 
+  alias MeadowWeb.Schema.Middleware
+
   pipeline :browser do
     plug(Plug.Logger)
     plug(:accepts, ["html"])
@@ -48,6 +50,7 @@ defmodule MeadowWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+
     plug(MeadowWeb.Plugs.SetCurrentUser)
   end
 
@@ -61,12 +64,16 @@ defmodule MeadowWeb.Router do
     post("/authority_records/:file", MeadowWeb.AuthorityRecordsController, :export)
     post("/create_shared_links/:file", MeadowWeb.SharedLinksController, :export)
 
-    forward("/graphql", Absinthe.Plug, schema: MeadowWeb.Schema)
+    forward("/graphql", Absinthe.Plug,
+      schema: MeadowWeb.Schema,
+      before_send: {Middleware.AssumeRole, :update_user_role}
+    )
 
     forward("/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
       interface: :playground,
-      socket: MeadowWeb.UserSocket
+      socket: MeadowWeb.UserSocket,
+      before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
     forward("/", Plug.Static,

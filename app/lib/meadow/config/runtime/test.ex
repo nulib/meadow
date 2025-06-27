@@ -75,6 +75,10 @@ defmodule Meadow.Config.Runtime.Test do
       sitemap_url: "http://localhost:3333/",
       store_config: [bucket: prefix("upload"), path: ""]
 
+    config :meadow, Meadow.Directory,
+      base_url: "http://localhost:3946/directory-search",
+      api_key: "directory-api-key"
+
     config :ex_unit,
       assert_receive_timeout: 500
 

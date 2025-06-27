@@ -1,7 +1,0 @@
-#import "./EntryFields.frag.gql"
-
-query GetRoleMembers($id: ID!) {
-  roleMembers(id: $id) {
-    ...EntryFields
-  }
-}

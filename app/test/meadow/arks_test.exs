@@ -2,9 +2,9 @@ defmodule Meadow.ArksTest do
   use Meadow.DataCase
 
   alias Meadow.{Ark, Arks}
+  alias Meadow.Ark.MockServer
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
-  alias Meadow.Utils.ArkClient.MockServer
 
   describe "mint_ark/1" do
     setup %{work_type: work_type} do

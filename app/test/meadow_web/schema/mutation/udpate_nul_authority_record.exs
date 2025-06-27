@@ -37,7 +37,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateNULAuthorityRecordTest do
             "label" => "test label",
             "hint" => "test hint"
           },
-          context: %{current_user: %{role: "Editor"}}
+          context: %{current_user: %{role: :editor}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -54,7 +54,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateNULAuthorityRecordTest do
             "label" => "test label",
             "hint" => "test hint"
           },
-          context: %{current_user: %{role: "Manager"}}
+          context: %{current_user: %{role: :manager}}
         )
 
       assert result.data["updateNULAuthorityRecord"]
