@@ -29,12 +29,11 @@ Mix.Task.run("meadow.search.setup")
 if Meadow.Config.use_localstack?() do
   Mix.Task.run("meadow.pipeline.setup")
   Mix.Task.run("meadow.buckets.create")
-  Mix.Task.run("meadow.ldap.teardown", ["test/fixtures/ldap_seed.ldif"])
-  Mix.Task.run("meadow.ldap.setup", ["test/fixtures/ldap_seed.ldif"])
 end
 
 ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true])
 Faker.start()
+Meadow.Directory.MockServer.prewarm()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
 Authoritex.Mock.init()
 System.delete_env("MEADOW_PROCESSES")

@@ -12,7 +12,6 @@ defmodule Meadow.Config.Secrets do
     iiif: "infrastructure/iiif",
     index: "infrastructure/index",
     inference: "infrastructure/inference",
-    ldap: "infrastructure/ldap",
     meadow: "config/meadow",
     nusso: "infrastructure/nusso",
     wildcard_ssl: "config/wildcard_ssl"

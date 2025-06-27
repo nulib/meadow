@@ -68,7 +68,7 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
             "collection_id" => collection.id,
             "work_id" => work.id
           },
-          context: %{current_user: %{role: "Editor"}}
+          context: %{current_user: %{role: :editor}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -84,7 +84,7 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
             "collection_id" => collection.id,
             "work_id" => work.id
           },
-          context: %{current_user: %{role: "Manager"}}
+          context: %{current_user: %{role: :manager}}
         )
 
       assert result.data["setCollectionImage"]
@@ -107,7 +107,7 @@ defmodule MeadowWeb.Schema.Mutation.SetCollectionImageTest do
             "collection_id" => collection.id,
             "work_id" => nil
           },
-          context: %{current_user: %{role: "Manager"}}
+          context: %{current_user: %{role: :manager}}
         )
 
       assert result.data["setCollectionImage"]

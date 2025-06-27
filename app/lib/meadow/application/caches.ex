@@ -26,12 +26,6 @@ defmodule Meadow.Application.Caches do
         stats: true
       ),
       cache_spec(
-        :user_cache,
-        Meadow.Cache.Users,
-        expiration: Cachex.Spec.expiration(default: :timer.minutes(20)),
-        stats: true
-      ),
-      cache_spec(
         :aws_credentials_cache,
         Meadow.Cache.AWS.Credentials,
         expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
@@ -42,8 +36,18 @@ defmodule Meadow.Application.Caches do
 
   def specs(:prod), do: specs()
 
-  def specs(_) do
-    [cache_spec(:ark_storage, Meadow.Utils.ArkClient.MockServer.Cache) | specs()]
+  def specs(:test) do
+    [
+      cache_spec(:user_directory, Meadow.Directory.MockServer.Cache),
+      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache)
+    ] ++ specs()
+  end
+
+  def specs(:dev) do
+    [
+      cache_spec(:user_directory, Meadow.Directory.MockServer.Cache),
+      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache)
+    ] ++ specs()
   end
 
   defp cache_spec(id, name, args \\ []) do

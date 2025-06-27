@@ -8,7 +8,7 @@ defmodule MeadowWeb.Schema.Middleware.Authorize do
   alias Meadow.Roles
 
   def call(%{context: %{current_user: current_user}} = resolution, role) do
-    if Roles.authorized?(current_user, role) do
+    if Roles.authorized?(current_user, atomize(role)) do
       resolution
     else
       resolution
@@ -20,4 +20,9 @@ defmodule MeadowWeb.Schema.Middleware.Authorize do
     resolution
     |> Absinthe.Resolution.put_result({:error, %{message: "Forbidden", status: 403}})
   end
+
+  defp atomize(value) when is_atom(value), do: value
+
+  defp atomize(value) when is_binary(value),
+    do: String.downcase(value) |> String.to_existing_atom()
 end

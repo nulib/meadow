@@ -1,4 +1,5 @@
 defmodule MeadowWeb.AuthControllerTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   alias MeadowWeb.Plugs.SetCurrentUser
@@ -15,7 +16,7 @@ defmodule MeadowWeb.AuthControllerTest do
 
   describe "/auth/logout" do
     setup do
-      user = user_fixture("TestAdmins")
+      user = user_fixture(:administrator)
 
       conn =
         build_conn()

@@ -32,16 +32,6 @@ defmodule Meadow.Config.Runtime do
     config :elastix,
       custom_headers: {Meadow.Utils.AWS, :add_aws_signature, []}
 
-    Logger.info("Configuring exldap")
-
-    config :exldap, :settings,
-      server: get_secret(:ldap, ["host"]),
-      base: get_secret(:ldap, ["base"]),
-      port: get_secret(:ldap, ["port"]),
-      user_dn: get_secret(:ldap, ["user_dn"]),
-      password: get_secret(:ldap, ["password"]),
-      ssl: get_secret(:ldap, ["ssl"], "true") == "true"
-
     Logger.info("Configuring hackney")
 
     config :hackney,
@@ -194,7 +184,7 @@ defmodule Meadow.Config.Runtime do
         :table_of_contents,
         :scope_and_contents,
         :abstract,
-        :accession_number,
+        :accession_number
       ]
 
     Logger.info("Configuring EZID")
@@ -338,6 +328,20 @@ defmodule Meadow.Config.Runtime do
              include_attributes: false
            ]}
       ]
+
+    Logger.info("Configuring Directory Server")
+
+    config :meadow, Meadow.Directory,
+      api_key: get_secret(:nusso, ["api_key"]),
+      base_url:
+        get_secret(
+          :nusso,
+          ["base_url"],
+          "https://northwestern-prod.apigee.net/agentless-websso/"
+        )
+        |> URI.parse()
+        |> Map.put(:path, "/directory-search")
+        |> URI.to_string()
 
     with mod <- environment() |> to_string() |> String.capitalize() do
       Logger.info("Configuring #{mod} environment")

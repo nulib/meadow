@@ -32,7 +32,7 @@ defmodule Meadow.Application.ChildrenTest do
 
         refute Enum.find(specs, fn
                  {_, args} when is_list(args) ->
-                   args[:plug] == Meadow.Utils.ArkClient.MockServer
+                   args[:plug] == Meadow.Ark.MockServer
 
                  _ ->
                    false

@@ -1,7 +1,3 @@
-#import "./EntryFields.frag.gql"
-
 query GetRoles {
-  roles {
-    ...EntryFields
-  }
+  roles
 }

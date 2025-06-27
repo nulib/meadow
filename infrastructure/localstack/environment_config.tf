@@ -84,15 +84,6 @@ locals {
 
     # }
 
-    "infrastructure/ldap" = {
-        base        = "OU=test,DC=library,DC=northwestern,DC=edu"
-        host        = "localhost"
-        port        = 389
-        user_dn     = "cn=Administrator,cn=Users,dc=library,dc=northwestern,dc=edu"
-        password    = "d0ck3rAdm1n!"
-        ssl         = false
-    }
-
     "infrastructure/nusso" = {
       api_key   = "test-sso-key"
       base_url  = "https://northwestern-dev.apigee.net/agentless-websso/"

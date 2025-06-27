@@ -200,6 +200,15 @@ const UILayoutNavBar = () => {
                           </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
+                      <AuthDisplayAuthorized level="SUPERUSER">
+                        <UILayoutNavDropdownItem>
+                          <Link to="/dashboards/users">
+                            <IconText icon={<IconUser />}>
+                              Manage Users
+                            </IconText>
+                          </Link>
+                        </UILayoutNavDropdownItem>
+                      </AuthDisplayAuthorized>
                     </UILayoutNavDropdownBody>
                   </UILayoutNavDropdown>
                 </AuthDisplayAuthorized>

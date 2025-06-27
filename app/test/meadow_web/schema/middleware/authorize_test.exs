@@ -1,4 +1,5 @@
 defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
 
   alias MeadowWeb.Schema.Middleware.Authorize
@@ -8,7 +9,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
 
     resolution =
       %Absinthe.Resolution{}
-      |> Map.put(:context, %{current_user: %{id: id, role: "Administrator"}})
+      |> Map.put(:context, %{current_user: %{id: id, role: :administrator}})
       |> Authorize.call("Administrator")
 
     assert %{errors: []} = resolution
@@ -32,7 +33,7 @@ defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
 
     resolution =
       %Absinthe.Resolution{}
-      |> Map.put(:context, %{current_user: %{id: id, role: "User"}})
+      |> Map.put(:context, %{current_user: %{id: id, role: :user}})
       |> Authorize.call("Administrator")
 
     assert %{errors: [%{message: "Forbidden", status: 403}]} = resolution

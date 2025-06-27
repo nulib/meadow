@@ -18,7 +18,7 @@ defmodule MeadowWeb.ExportControllerTest do
     test "unknown output type", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/export/export.xls", %{query: @query})
 
       assert text_response(conn, 404) =~ "Not Found"
@@ -34,7 +34,7 @@ defmodule MeadowWeb.ExportControllerTest do
     test "successful request", %{conn: conn} do
       conn =
         conn
-        |> auth_user(user_fixture("TestAdmins"))
+        |> auth_user(user_fixture(:administrator))
         |> post("/api/export/export.csv", %{query: @query})
 
       assert Plug.Conn.get_resp_header(conn, "content-disposition")
