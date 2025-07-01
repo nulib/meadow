@@ -31,7 +31,8 @@ defmodule MeadowWeb.ConnCase do
       defp auth_user(conn, user) do
         conn
         |> Plug.Test.init_test_session(
-          current_user: %{
+          current_user: %Meadow.Accounts.User{
+            id: user.username,
             username: user.username,
             display_name: user.display_name,
             email: user.email,

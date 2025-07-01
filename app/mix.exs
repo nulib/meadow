@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.8.5"
+  @app_version "9.9.0"
 
   def project do
     [
@@ -74,7 +74,6 @@ defmodule Meadow.MixProject do
       {:ex_aws_ssm, "~> 2.1"},
       {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
-      {:exldap, "~> 0.6.3"},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
@@ -84,9 +83,10 @@ defmodule Meadow.MixProject do
       {:jwt, "~> 0.1.11"},
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
-      {:nimble_csv, "~> 1.2.0"},
+      {:nimble_csv, "~> 1.3.0"},
       {:phoenix, "~> 1.7.0"},
-      {:phoenix_html, "~> 3.0"},
+      {:phoenix_html, "~> 4.2"},
+      {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_view, "~> 1.0.5"},
       {:phoenix_live_dashboard, "~> 0.8.6"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

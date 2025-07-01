@@ -1,6 +1,7 @@
 defmodule MeadowWeb.Schema.Query.RolesTest do
   use Meadow.Constants
 
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
@@ -8,17 +9,12 @@ defmodule MeadowWeb.Schema.Query.RolesTest do
 
   describe "roles query" do
     test "should return Meadow roles" do
-      result =
-        query_gql(
-          variables: %{},
-          context: gql_context()
-        )
+      result = query_gql(context: gql_context())
 
-      assert {:ok, query_data} = result
+      expected_roles = ["Superuser", "Administrator", "Manager", "Editor", "User"]
 
-      roles = get_in(query_data, [:data, "roles"])
-
-      assert Enum.sort(Enum.map(roles, fn role -> role["name"] end)) == Enum.sort(@role_priority)
+      assert {:ok, %{data: %{"roles" => roles}}} = result
+      assert Enum.sort(roles) == Enum.sort(expected_roles)
     end
   end
 end

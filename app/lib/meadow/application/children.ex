@@ -6,7 +6,6 @@ defmodule Meadow.Application.Children do
   alias Meadow.Config
   alias Meadow.Data.IndexBatcher
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
-  alias Meadow.Utils.ArkClient
   require Logger
 
   defp basic_processes do
@@ -75,11 +74,12 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:dev) do
-    [mock_ark_server(3943) | workers(Config.workers())]
+    [mock_server(Meadow.Ark.MockServer, 3943) | workers(Config.workers())]
   end
 
   defp specs(:test) do
-    [mock_ark_server(3944) | workers(["web.server"])]
+    [mock_server(Meadow.Ark.MockServer, 3944), mock_server(Meadow.Directory.MockServer, 3946)] ++
+      workers(["web.server"])
   end
 
   defp specs(:prod) do
@@ -108,9 +108,7 @@ defmodule Meadow.Application.Children do
     |> List.flatten()
   end
 
-  defp mock_ark_server(port) do
-    plug = ArkClient.MockServer
-
+  defp mock_server(plug, port) do
     case :gen_tcp.connect(~c"localhost", port, [], 50) do
       {:ok, _} ->
         "Skipping launch of #{inspect(plug)}. Port #{port} already in use."

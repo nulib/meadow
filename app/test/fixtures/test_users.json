@@ -1,0 +1,89 @@
+[
+  {
+    "uid": "aut2418",
+    "mail": "TestUser13@example.com",
+    "nuAllDisplayName": "Test User13",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "manager"
+  },
+  {
+    "uid": "aum1701",
+    "mail": "TestUser04@example.com",
+    "nuAllDisplayName": "Test User04",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "manager"
+  },
+  {
+    "uid": "auf2249",
+    "mail": "TestUser03@example.com",
+    "nuAllDisplayName": "Test User03",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "manager"
+  },
+  {
+    "uid": "aua6615",
+    "mail": "TestUser01@example.com",
+    "nuAllDisplayName": "Test User01",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "manager"
+  },
+  {
+    "uid": "auy5400",
+    "mail": "TestUser06@example.com",
+    "nuAllDisplayName": "Test User06",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "administrator"
+  },
+  {
+    "uid": "auk0124",
+    "mail": "TestUser05@example.com",
+    "nuAllDisplayName": "Test User05",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "administrator"
+  },
+  {
+    "uid": "auh7250",
+    "mail": "TestUser02@example.com",
+    "nuAllDisplayName": "Test User02",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "administrator"
+  },
+  {
+    "uid": "aud6389",
+    "mail": "TestUser10@example.com",
+    "nuAllDisplayName": "Test User10",
+    "nuAllSchoolAffiliations": ["lib:staff"],
+    "_role": "administrator"
+  },
+  {
+    "uid": "aup9261",
+    "mail": "TestUser09@example.com",
+    "nuAllDisplayName": "Test User09",
+    "nuAllSchoolAffiliations": ["student:undergrad"],
+    "_role": "user"
+  },
+  {
+    "uid": "aup6836",
+    "mail": "TestUser08@example.com",
+    "nuAllDisplayName": "Test User08",
+    "nuAllSchoolAffiliations": ["lib:staff"]
+  },
+  {
+    "uid": "aui9865",
+    "mail": "TestUser12@example.com",
+    "nuAllDisplayName": "Test User12",
+    "nuAllSchoolAffiliations": ["weinberg:staff"]
+  },
+  {
+    "uid": "auj5680",
+    "mail": "TestUser07@example.com",
+    "nuAllDisplayName": "Test User07",
+    "nuAllSchoolAffiliations": ["weinberg:faculty"]
+  },
+  {
+    "uid": "auq9679",
+    "mail": "TestUser11@example.com",
+    "nuAllDisplayName": "Test User11",
+    "nuAllSchoolAffiliations": ["admin"]
+  }
+]

@@ -50,7 +50,7 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
               "location" => "s3://#{@bucket}/#{@key}"
             }
           },
-          context: %{current_user: %{role: "User"}}
+          context: %{current_user: %{role: :user}}
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

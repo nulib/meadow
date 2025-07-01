@@ -1,11 +1,12 @@
 defmodule MeadowWeb.Schema.Query.GetGroupMembersTest do
+  use Meadow.DataCase
   use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/GetGroupMembers.gql")
 
   test "should return group members" do
-    user_dn = test_users_dn(random_user("TestAdmins"))
+    user_dn = test_users_dn(random_user(:administrator))
     group_dn = "CN=TestAdmins,OU=Departments,OU=test,DC=library,DC=northwestern,DC=edu"
 
     result =
