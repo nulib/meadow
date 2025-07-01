@@ -47,5 +47,38 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
              } ==
                conn.assigns[:current_user]
     end
+
+    test "SetCurrentUser plug handles logged in user roles", %{user: user} do
+      conn =
+        build_conn()
+        |> Plug.Test.init_test_session(
+          current_user: %User{
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            display_name: user.display_name,
+            role: "SuperUser"
+          }
+        )
+        |> SetCurrentUser.call(nil)
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: :superuser
+             } ==
+               conn.private.absinthe.context.current_user
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: :superuser
+             } ==
+               conn.assigns[:current_user]
+    end
   end
 end
