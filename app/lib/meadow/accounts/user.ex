@@ -8,6 +8,8 @@ defmodule Meadow.Accounts.User do
   use Meadow.Constants
   require Logger
 
+  @library_affiliations ~w(lib:faculty lib:staff)
+
   defstruct [:id, :username, :email, :display_name, :role]
 
   @doc "Find a user by username and populate the User struct"
@@ -43,10 +45,10 @@ defmodule Meadow.Accounts.User do
     }
   end
 
-  defp user_role(%{"uid" => net_id, "nuAllSchoolAffiliations" => affiliations}) do
-    is_lib_staff = Enum.member?(affiliations, "lib:staff")
+  defp user_role(%{"uid" => net_id, "nuAllSchoolAffiliations" => user_affiliations}) do
+    is_lib_affiliated = Enum.any?(@library_affiliations, fn aff -> aff in user_affiliations end)
 
-    case {is_lib_staff, Accounts.get_role(net_id)} do
+    case {is_lib_affiliated, Accounts.get_role(net_id)} do
       {true, nil} -> :user
       {_, nil} -> :none
       {_, role} -> role

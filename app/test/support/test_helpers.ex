@@ -19,6 +19,8 @@ defmodule Meadow.TestHelpers do
     manager: ~w[aut2418 aum1701 auf2249 aua6615],
     user: ~w[aup9261 aup6836],
     staff_user: ~w[aup6836],
+    faculty_user: ~w[auw7721],
+    student_user: ~w[aup9261],
     access: ~w[auy5400 auk0124 auh7250 aud6389 aut2418 aum1701 auf2249 aua6615 aup9261 aup6836],
     noAccess: ~w[aui9865 auj5680 auq9679],
     unknown: ~w[unknownUser]
