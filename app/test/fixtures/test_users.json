@@ -69,6 +69,12 @@
     "nuAllSchoolAffiliations": ["lib:staff"]
   },
   {
+    "uid": "auw7721",
+    "mail": "TestUser14@example.com",
+    "nuAllDisplayName": "Test User14",
+    "nuAllSchoolAffiliations": ["lib:faculty"]
+  },
+  {
     "uid": "aui9865",
     "mail": "TestUser12@example.com",
     "nuAllDisplayName": "Test User12",
