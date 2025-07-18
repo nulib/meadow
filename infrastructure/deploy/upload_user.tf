@@ -27,14 +27,17 @@ data "aws_iam_policy_document" "upload_bucket_access" {
       "s3:GetObjectVersion"
     ]
 
-    resources = [
+    resources = concat([
       aws_s3_bucket.meadow_ingest.arn,
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation_checks.arn,
       "${aws_s3_bucket.meadow_ingest.arn}/*",
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation_checks.arn}/*"
-    ]
+    ], var.transcription_bucket != "" ? [
+      "arn:aws:s3:::${var.transcription_bucket}",
+      "arn:aws:s3:::${var.transcription_bucket}/*"
+    ] : [])
   }
 }
 
