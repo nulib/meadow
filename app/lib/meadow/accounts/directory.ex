@@ -17,8 +17,8 @@ defmodule Meadow.Accounts.Directory do
 
     case HTTP.get(url, apikey: api_key) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, %{"results" => [user | _]}} -> user
+        case Jason.decode(body, keys: :atoms) do
+          {:ok, %{results: [user | _]}} -> user
           {:ok, _} -> {:error, "Invalid response format: no user found"}
           {:error, _} -> {:error, "Invalid response format"}
         end

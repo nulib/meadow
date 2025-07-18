@@ -87,5 +87,9 @@ defmodule Meadow.Config.Runtime.Test do
       exclude_envs: [:dev, :test],
       api_key: "abc123",
       origin: "http://localhost:4444"
+
+    config :ueberauth, Ueberauth.Strategy.NuSSO,
+      base_url: "https://northwestern-dev.apigee.net/",
+      consumer_key: "test-sso-key"
   end
 end

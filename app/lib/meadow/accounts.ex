@@ -10,18 +10,19 @@ defmodule Meadow.Accounts do
   import Ecto.Query, warn: false
 
   @doc "Determine if a NU user is authorized to use Meadow"
-  def authorize_user_login(username) do
-    case User.find(username) do
-      nil ->
-        {:error, "Unauthorized"}
-
-      user ->
-        case user.role do
-          nil -> {:error, "Unauthorized"}
-          _ -> {:ok, user}
-        end
-    end
+  def authorize_user_login(net_id) when is_binary(net_id) do
+    User.find(net_id)
+    |> handle_user_response()
   end
+
+  def authorize_user_login(user_info) do
+    User.validate(user_info)
+    |> handle_user_response()
+  end
+
+  defp handle_user_response(nil), do: {:error, "Unauthorized"}
+  defp handle_user_response(%User{role: nil}), do: {:error, "Unauthorized"}
+  defp handle_user_response(%User{} = user), do: {:ok, user}
 
   def list_roles do
     UserSchema.list_roles()

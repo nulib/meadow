@@ -72,19 +72,9 @@ defmodule Meadow.Config.Runtime.Dev do
       sitemap_url: "https://devbox.library.northwestern.edu:3333/",
       store_config: [path: "priv/static"]
 
-    config :ueberauth, Ueberauth,
-      providers: [
-        nusso:
-          {Ueberauth.Strategy.NuSSO,
-           [
-             base_url: get_secret(:meadow, ["nusso", "base_url"]),
-             callback_path: "/auth/nusso/callback",
-             callback_port: 3001,
-             consumer_key: get_secret(:meadow, ["nusso", "api_key"]),
-             include_attributes: false,
-             ssl_port: 3001
-           ]}
-      ]
+    config :ueberauth, Ueberauth.Strategy.NuSSO,
+      callback_port: 3001,
+      ssl_port: 3001
 
     if prefix = System.get_env("DEV_PREFIX") do
       config :meadow,

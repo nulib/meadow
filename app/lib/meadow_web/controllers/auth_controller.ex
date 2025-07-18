@@ -14,12 +14,15 @@ defmodule MeadowWeb.AuthController do
     |> redirect(external: referer)
   end
 
-  def callback(%{assigns: %{ueberauth_auth: %Auth{uid: uid}}} = conn, _params) do
+  def callback(
+        %{assigns: %{ueberauth_auth: %Auth{extra: %{raw_info: %{user: user_info}}}}} = conn,
+        _params
+      ) do
     referer =
       conn
       |> extract_referer()
 
-    case Accounts.authorize_user_login(uid) do
+    case Accounts.authorize_user_login(user_info) do
       {:ok, user} ->
         conn
         |> put_session(:current_user, user)

@@ -115,9 +115,6 @@ config :meadow, Meadow.Pipeline,
     Actions.FileSetComplete
   ]
 
-config :ueberauth, Ueberauth,
-  providers: [
-    nusso: {Ueberauth.Strategy.NuSSO, []}
-  ]
+config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
 
 import_config("#{Mix.env()}.exs")
