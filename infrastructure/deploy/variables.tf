@@ -138,3 +138,8 @@ variable "livebook_shared_bucket" {
   type    = string
   default = ""
 }
+
+variable "transcription_bucket" {
+  type    = string
+  default = ""
+}
