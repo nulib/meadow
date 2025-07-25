@@ -312,22 +312,19 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Configuring ueberauth for NU SSO")
 
-    config :ueberauth, Ueberauth,
-      providers: [
-        nusso:
-          {Ueberauth.Strategy.NuSSO,
-           [
-             base_url:
-               get_secret(
-                 :nusso,
-                 ["base_url"],
-                 "https://northwestern-prod.apigee.net/agentless-websso/"
-               ),
-             callback_path: "/auth/nusso/callback",
-             consumer_key: get_secret(:nusso, ["api_key"]),
-             include_attributes: false
-           ]}
-      ]
+    config :ueberauth, Ueberauth.Strategy.NuSSO,
+      base_url:
+        get_secret(
+          :nusso,
+          ["base_url"],
+          "https://northwestern-prod.apigee.net/agentless-websso/"
+        )
+        |> URI.parse()
+        |> URI.merge("..")
+        |> URI.to_string(),
+      callback_path: "/auth/nusso/callback",
+      consumer_key: get_secret(:nusso, ["api_key"]),
+      include_attributes: true
 
     Logger.info("Configuring Directory Server")
 

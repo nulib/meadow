@@ -12,6 +12,17 @@ defmodule Meadow.Accounts.User do
 
   defstruct [:id, :username, :email, :display_name, :role]
 
+  @doc "Validate user information and return a User struct"
+  def validate(user_info) do
+    case user_role(user_info) do
+      :none ->
+        nil
+
+      role ->
+        make_struct(user_info, role)
+    end
+  end
+
   @doc "Find a user by username and populate the User struct"
   def find(username) do
     case Directory.find_user(username) do
@@ -34,18 +45,18 @@ defmodule Meadow.Accounts.User do
   end
 
   defp make_struct(user_entry, role) do
-    net_id = Map.get(user_entry, "uid")
+    net_id = Map.get(user_entry, :uid)
 
     %__MODULE__{
       id: net_id,
       username: net_id,
-      email: Map.get(user_entry, "mail"),
-      display_name: Map.get(user_entry, "nuAllDisplayName"),
+      email: Map.get(user_entry, :mail),
+      display_name: Map.get(user_entry, :nuAllDisplayName),
       role: role
     }
   end
 
-  defp user_role(%{"uid" => net_id, "nuAllSchoolAffiliations" => user_affiliations}) do
+  defp user_role(%{uid: net_id, nuAllSchoolAffiliations: user_affiliations}) do
     is_lib_affiliated = Enum.any?(@library_affiliations, fn aff -> aff in user_affiliations end)
 
     case {is_lib_affiliated, Accounts.get_role(net_id)} do
