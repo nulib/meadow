@@ -23,7 +23,7 @@
     "@appbaseio/reactivesearch": "3.23.1",
     "@aws-sdk/client-s3": "^3.850.0",
     "@emotion/react": "^11.14.0",
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.3",
