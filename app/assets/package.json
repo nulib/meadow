@@ -87,7 +87,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@nulib/dcapi-types": "^2.7.0",
     "@nulib/prettier-config": "^1.2.0",
-    "@testing-library/dom": "^10.4.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
