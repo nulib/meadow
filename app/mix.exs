@@ -99,7 +99,7 @@ defmodule Meadow.MixProject do
       {:quantum, "~> 3.0"},
       {:retry, "~> 0.19.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
-      {:sitemapper, "~> 0.9.0"},
+      {:sitemapper, "~> 0.10.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 0.5"},
