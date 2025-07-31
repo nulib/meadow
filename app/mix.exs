@@ -87,7 +87,7 @@ defmodule Meadow.MixProject do
       {:phoenix, "~> 1.7.0"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_html_helpers, "~> 1.0"},
-      {:phoenix_live_view, "~> 1.0.5"},
+      {:phoenix_live_view, "~> 1.1.1"},
       {:phoenix_live_dashboard, "~> 0.8.6"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
