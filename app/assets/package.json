@@ -21,7 +21,7 @@
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
     "@appbaseio/reactivesearch": "3.23.1",
-    "@aws-sdk/client-s3": "^3.850.0",
+    "@aws-sdk/client-s3": "^3.859.0",
     "@emotion/react": "^11.14.0",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
@@ -31,7 +31,7 @@
     "@honeybadger-io/react": "^6.1.7",
     "@nulib/design-system": "^1.5.1",
     "@radix-ui/react-dialog": "^1.1.14",
-    "@samvera/clover-iiif": "^2.18.3",
+    "@samvera/clover-iiif": "^2.18.4",
     "@samvera/image-downloader": "^1.1.1",
     "bulma": "^0.9.4",
     "bulma-checkradio": "^2.1.3",
@@ -48,7 +48,7 @@
     "file-saver": "^2.0.5",
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",
-    "hls.js": "^1.6.7",
+    "hls.js": "^1.6.8",
     "inflection": "^3.0.2",
     "jest-environment-jsdom": "^30.0.5",
     "js-cookie": "^3.0.5",
@@ -66,7 +66,7 @@
     "react-hook-form": "^7.33.1",
     "react-icons": "^5.5.0",
     "react-json-pretty": "^2.2.0",
-    "recharts": "^3.1.0",
+    "recharts": "^3.1.1",
     "use-clipboard-copy": "^0.2.0"
   },
   "devDependencies": {
@@ -85,10 +85,10 @@
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.8.3",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@nulib/dcapi-types": "^2.7.0",
+    "@nulib/dcapi-types": "^2.8.0",
     "@nulib/prettier-config": "^1.2.0",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
@@ -114,7 +114,7 @@
     "react-router-prop-types": "^1.0.5",
     "sass": "^1.89.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "use-phoenix-channel": "^1.1.1"
   }
 }
