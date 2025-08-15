@@ -1,0 +1,6 @@
+mutation ($filesetIds: [ID!]!, $createWork: Boolean!, $accessionNumber: String, $workAttributes: WorkAttributesInput, $deleteEmptyWorks: Boolean) {
+  transfer_file_sets_subset(filesetIds: $filesetIds, createWork: $createWork, accessionNumber: $accessionNumber, workAttributes: $workAttributes, deleteEmptyWorks: $deleteEmptyWorks) {
+    transferredFilesetIds
+    createdWorkId
+  }
+}
