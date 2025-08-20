@@ -179,8 +179,8 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
 
       assert {:ok, %{errors: [%{message: error_message}]}} = result
       # GraphQL validation happens first, so we get a different error
-      assert String.contains?(error_message, "Expected type \"ID!\", found null") or 
-             String.contains?(error_message, "non-empty strings")
+      assert String.contains?(error_message, "Expected type \"ID!\", found null") or
+               String.contains?(error_message, "non-empty strings")
     end
 
     test "returns error when creating work without work_attributes" do
@@ -228,9 +228,10 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
         )
 
       assert {:ok, %{errors: [%{message: error_message}]}} = result
-      assert String.contains?(error_message, "No work found") or String.contains?(error_message, "Work not found")
-    end
 
+      assert String.contains?(error_message, "No work found") or
+               String.contains?(error_message, "Work not found")
+    end
   end
 
   describe "authorization" do

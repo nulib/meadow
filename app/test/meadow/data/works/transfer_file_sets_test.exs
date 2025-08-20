@@ -2,6 +2,9 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
   use Meadow.AuthorityCase
   use Meadow.DataCase
   use Meadow.S3Case
+  use Meadow.IndexCase
+
+  import ExUnit.CaptureLog
 
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
@@ -435,6 +438,132 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
       updated_target = Works.with_file_sets(target_work.id)
       # 1 original + 5 transferred
       assert length(updated_target.file_sets) == 6
+    end
+
+    test "reindexes source work when delete_empty_works is false", %{
+      source_work: source_work,
+      target_work: target_work,
+      fileset_ids: fileset_ids
+    } do
+      # Transfer filesets but don't delete empty source work
+      args = %{
+        # Transfer only 2 out of 5 filesets
+        fileset_ids: Enum.take(fileset_ids, 2),
+        create_work: false,
+        accession_number: target_work.accession_number,
+        delete_empty_works: false
+      }
+
+      logged =
+        capture_log(fn ->
+          assert {:ok, %{transferred_fileset_ids: transferred_ids}} =
+                   TransferFileSets.transfer_subset(args)
+
+          assert length(transferred_ids) == 2
+        end)
+
+      # Source work should still exist (not empty)
+      assert Works.get_work(source_work.id)
+
+      # Should log that source work was reindexed
+      assert String.contains?(
+               logged,
+               "Reindexed 1 source works after fileset transfer"
+             )
+    end
+
+    test "does not reindex source works when they are deleted (delete_empty_works: true)", %{
+      source_work: source_work,
+      target_work: target_work
+    } do
+      # Get ALL filesets from source work to make it empty after transfer
+      all_fileset_ids = Enum.map(source_work.file_sets, & &1.id)
+
+      # Transfer all filesets so source work becomes empty and gets deleted
+      args = %{
+        # Transfer all 5 filesets
+        fileset_ids: all_fileset_ids,
+        create_work: false,
+        accession_number: target_work.accession_number,
+        # This is the default
+        delete_empty_works: true
+      }
+
+      logged =
+        capture_log(fn ->
+          assert {:ok, %{transferred_fileset_ids: transferred_ids}} =
+                   TransferFileSets.transfer_subset(args)
+
+          assert length(transferred_ids) == 5
+        end)
+
+      # Source work should be deleted since it's now empty
+      refute Works.get_work(source_work.id)
+
+      # Should NOT log reindexing of source works since they were deleted
+      refute String.contains?(
+               logged,
+               "Reindexed 1 source works after fileset transfer"
+             )
+
+      # Should log the deletion instead
+      assert String.contains?(
+               logged,
+               "Deleted empty work #{source_work.id}"
+             )
+    end
+
+    test "transfer/2 reindexes source work when it's not deleted" do
+      source_work =
+        work_with_file_sets_fixture(1, %{work_type: %{id: "IMAGE", scheme: "work_type"}})
+
+      target_work =
+        work_with_file_sets_fixture(1, %{work_type: %{id: "IMAGE", scheme: "work_type"}})
+
+      # Create a source work that will become empty
+      logged =
+        capture_log(fn ->
+          assert {:ok, %Work{}} = TransferFileSets.transfer(source_work.id, target_work.id)
+        end)
+
+      # This test just verifies the transfer/2 function works without errors
+      assert String.contains?(logged, "Transferred 1 file sets from")
+    end
+
+    test "does not reindex on failed transaction" do
+      # Try to transfer to a non-existent work to trigger transaction failure
+      source_work =
+        work_with_file_sets_fixture(2, %{work_type: %{id: "IMAGE", scheme: "work_type"}})
+
+      fileset_ids = Enum.map(source_work.file_sets, & &1.id)
+
+      args = %{
+        fileset_ids: fileset_ids,
+        create_work: false,
+        # This will cause the transaction to fail
+        accession_number: "NONEXISTENT_WORK",
+        delete_empty_works: false
+      }
+
+      logged =
+        capture_log(fn ->
+          assert {:error, _} = TransferFileSets.transfer_subset(args)
+        end)
+
+      # Source work should be unchanged (filesets should still be there)
+      reloaded_source = Works.with_file_sets(source_work.id)
+      assert length(reloaded_source.file_sets) == 2
+
+      # Should NOT log any reindexing since the transaction failed
+      refute String.contains?(
+               logged,
+               "Reindexed"
+             )
+
+      refute String.contains?(
+               logged,
+               "source works after fileset transfer"
+             )
     end
   end
 

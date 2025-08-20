@@ -6,6 +6,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias Meadow.Data
+  alias Meadow.Data.IndexBatcher
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Works
   alias Meadow.Repo
@@ -123,14 +124,25 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:create_target_work, fn _repo, _changes ->
         create_target_work(work_attributes)
       end)
-      |> maybe_add_get_source_work_ids_step(delete_empty_works, fileset_ids)
+      |> Multi.run(:get_source_work_ids, fn _repo, _changes ->
+        get_source_work_ids_from_filesets(fileset_ids)
+      end)
       |> Multi.run(:transfer_filesets, fn _repo, %{create_target_work: target_work_id} ->
         transfer_fileset_subset(fileset_ids, target_work_id)
       end)
       |> maybe_add_delete_empty_works_step(delete_empty_works)
 
     case Repo.transaction(multi, timeout: :infinity) do
-      {:ok, %{create_target_work: target_work_id, transfer_filesets: transferred_ids}} ->
+      {:ok,
+       %{
+         create_target_work: target_work_id,
+         transfer_filesets: transferred_ids,
+         get_source_work_ids: source_work_ids
+       } = results} ->
+        # Only reindex source works after successful transaction
+        deleted_work_ids = Map.get(results, :delete_empty_works, [])
+        reindex_source_works_after_transaction(source_work_ids, deleted_work_ids)
+
         {:ok,
          %{
            transferred_fileset_ids: transferred_ids,
@@ -156,14 +168,20 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:get_target_work, fn _repo, _changes ->
         get_target_work(accession_number)
       end)
-      |> maybe_add_get_source_work_ids_step(delete_empty_works, fileset_ids)
+      |> Multi.run(:get_source_work_ids, fn _repo, _changes ->
+        get_source_work_ids_from_filesets(fileset_ids)
+      end)
       |> Multi.run(:transfer_filesets, fn _repo, %{get_target_work: target_work_id} ->
         transfer_fileset_subset(fileset_ids, target_work_id)
       end)
       |> maybe_add_delete_empty_works_step(delete_empty_works)
 
     case Repo.transaction(multi, timeout: :infinity) do
-      {:ok, %{transfer_filesets: transferred_ids}} ->
+      {:ok, %{transfer_filesets: transferred_ids, get_source_work_ids: source_work_ids} = results} ->
+        # Only reindex source works after successful transaction
+        deleted_work_ids = Map.get(results, :delete_empty_works, [])
+        reindex_source_works_after_transaction(source_work_ids, deleted_work_ids)
+
         {:ok,
          %{
            transferred_fileset_ids: transferred_ids
@@ -211,7 +229,9 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:refetch_to_work, fn _repo, _changes -> fetch_work(to_work_id) end)
 
     case Repo.transaction(multi, timeout: :infinity) do
-      {:ok, %{refetch_to_work: work}} ->
+      {:ok, %{refetch_to_work: work, delete_empty_work: delete_result}} ->
+        # Only reindex source work after successful transaction
+        reindex_source_work_if_not_deleted(from_work_id, delete_result)
         {:ok, work}
 
       {:error, failed_operation, failed_value, _changes_so_far} ->
@@ -376,15 +396,6 @@ defmodule Meadow.Data.Works.TransferFileSets do
     end
   end
 
-  defp maybe_add_get_source_work_ids_step(multi, true, fileset_ids) do
-    multi
-    |> Multi.run(:get_source_work_ids, fn _repo, _changes ->
-      get_source_work_ids_from_filesets(fileset_ids)
-    end)
-  end
-
-  defp maybe_add_get_source_work_ids_step(multi, false, _fileset_ids), do: multi
-
   defp maybe_add_delete_empty_works_step(multi, true) do
     multi
     |> Multi.run(:delete_empty_works, fn _repo, %{get_source_work_ids: source_work_ids} ->
@@ -403,6 +414,31 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Repo.all()
 
     {:ok, source_work_ids}
+  end
+
+  defp reindex_source_works_after_transaction(source_work_ids, deleted_work_ids) do
+    # Remove any nil work IDs and any works that were deleted
+    valid_work_ids =
+      Enum.reject(source_work_ids, fn work_id ->
+        is_nil(work_id) || work_id in deleted_work_ids
+      end)
+
+    if length(valid_work_ids) > 0 do
+      IndexBatcher.reindex(valid_work_ids, :works)
+      Logger.info("Reindexed #{length(valid_work_ids)} source works after fileset transfer")
+    end
+  end
+
+  defp reindex_source_work_if_not_deleted(_work_id, :deleted) do
+    # Work was deleted, no need to reindex
+    :ok
+  end
+
+  defp reindex_source_work_if_not_deleted(work_id, _) do
+    # Work still exists, reindex it to reflect removed filesets
+    IndexBatcher.reindex([work_id], :works)
+    Logger.info("Reindexed source work #{work_id} after fileset transfer")
+    :ok
   end
 
   defp delete_empty_works(source_work_ids) do
