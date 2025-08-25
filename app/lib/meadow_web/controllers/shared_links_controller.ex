@@ -36,7 +36,7 @@ defmodule MeadowWeb.SharedLinksController do
   end
 
   def authorize_user(%{assigns: %{current_user: current_user}} = conn, _params) do
-    if Roles.authorized?(current_user, "Editor") do
+    if Roles.authorized?(current_user, :editor) do
       conn
     else
       conn
