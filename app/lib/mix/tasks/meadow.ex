@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Meadow.Reset do
 
     Mix.Task.run("ecto.rollback", ["--all"])
     Mix.Task.run("ecto.migrate")
-    Mix.Task.run("meadow.elasticsearch.clear")
+    Mix.Task.run("meadow.search.clear")
     Mix.Task.run("meadow.seed")
   end
 end
