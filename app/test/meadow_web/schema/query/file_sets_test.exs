@@ -45,7 +45,7 @@ defmodule MeadowWeb.Schema.Query.FileSetsTest do
       "file_set_id" => file_set.id
     }
 
-    conn = build_conn() |> auth_user(user_fixture())
+    conn = build_conn() |> auth_user(user_fixture(:editor))
 
     response = post(conn, "/api/graphql", query: @delete_query, variables: input)
 
