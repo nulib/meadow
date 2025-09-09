@@ -229,4 +229,11 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def transfer_file_sets_subset(_, args, _) do
+    case TransferFileSets.transfer_subset(args) do
+      {:ok, result} -> {:ok, result}
+      {:error, error} -> {:error, message: error}
+    end
+  end
 end

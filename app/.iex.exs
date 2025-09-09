@@ -42,6 +42,8 @@ alias Meadow.Data.Schemas.{
   WorkDescriptiveMetadata
 }
 
+alias Meadow.Data.Works.TransferFileSets
+
 alias Meadow.Ingest.{Progress, Projects, Rows, Sheets, SheetsToWorks}
 
 alias Meadow.Ingest.Schemas.{

@@ -33,6 +33,25 @@ defmodule Meadow.Search.Client do
     end
   end
 
+  def doc(schema, version, id),
+    do: doc(SearchConfig.alias_for(schema, version), id)
+
+  def doc(target, id) do
+    case HTTP.get([target, "_doc", id]) do
+      {:ok, %{status_code: 200, body: %{"_source" => doc}}} ->
+        {:ok, doc}
+
+      {:ok, %{status_code: 404}} ->
+        {:error, :not_found}
+
+      {:ok, %{body: %{"error" => %{"reason" => reason}}}} ->
+        {:error, reason}
+
+      {:error, reason} ->
+        {:error, inspect(reason)}
+    end
+  end
+
   def delete_by_query(target, query) when is_list(target) do
     target
     |> Enum.map_join(",", &to_string/1)
