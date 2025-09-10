@@ -71,7 +71,7 @@ defmodule MeadowWeb.Router do
 
     forward("/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
-      interface: :playground,
+      interface: :simple,
       socket: MeadowWeb.UserSocket,
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
