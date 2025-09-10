@@ -31,8 +31,6 @@ defmodule Meadow.Config.Runtime.Dev do
         certfile: Path.join(project_root(), "priv/cert/cert.pem"),
         keyfile: Path.join(project_root(), "priv/cert/key.pem")
       ],
-      debug_errors: false,
-      code_reloader: true,
       check_origin: false,
       watchers: [
         node: [

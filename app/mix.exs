@@ -23,6 +23,7 @@ defmodule Meadow.MixProject do
         credo: :test
       ],
       releases: releases(),
+      listeners: [Phoenix.CodeReloader],
       xref: [exclude: [Phoenix.View]]
     ]
   end
