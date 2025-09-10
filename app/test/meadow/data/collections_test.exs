@@ -80,6 +80,16 @@ defmodule Meadow.Data.CollectionsTest do
       assert {:ok, 2} = Collections.get_work_count(collection.id)
     end
 
+    test "get_work_stats/1", %{collection: collection} do
+      assert counts = Collections.get_work_stats(collection.id)
+      assert counts.total == 2
+      assert counts.published == 0
+      assert counts.unpublished == 2
+      assert counts.image == 2
+      assert counts.audio == 0
+      assert counts.video == 0
+    end
+
     test "remove_works/2", %{collection: collection, works: works} do
       assert length(collection.works) == 2
 

@@ -11,4 +11,12 @@ fragment CollectionFields on Collection {
     id
     representativeImage
   }
+  stats {
+    total
+    published
+    unpublished
+    image
+    audio
+    video
+  }
 }
