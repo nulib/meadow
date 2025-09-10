@@ -16,7 +16,8 @@ defmodule Meadow.TestHelpers do
 
   @test_users %{
     administrator: ~w[auy5400 auk0124 auh7250 aud6389],
-    manager: ~w[aut2418 aum1701 auf2249 aua6615],
+    editor: ~w[aut2418],
+    manager: ~w[aum1701 auf2249 aua6615],
     user: ~w[aup9261 aup6836],
     staff_user: ~w[aup6836],
     faculty_user: ~w[auw7721],
