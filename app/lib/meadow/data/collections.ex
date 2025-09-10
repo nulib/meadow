@@ -59,6 +59,24 @@ defmodule Meadow.Data.Collections do
     {:ok, count}
   end
 
+  def get_work_stats(collection_id) do
+    collection_id =
+      if byte_size(collection_id) == 16, do: collection_id, else: Ecto.UUID.dump!(collection_id)
+
+    from(w in "works",
+      where: w.collection_id == ^collection_id,
+      select: %{
+        total: count(),
+        published: filter(count(), w.published == true),
+        unpublished: filter(count(), w.published == false),
+        image: filter(count(), fragment("?->>'id' = ?", w.work_type, "IMAGE")),
+        audio: filter(count(), fragment("?->>'id' = ?", w.work_type, "AUDIO")),
+        video: filter(count(), fragment("?->>'id' = ?", w.work_type, "VIDEO"))
+      }
+    )
+    |> Repo.one()
+  end
+
   def add_works(%Collection{} = collection, work_ids) do
     from(w in Work, where: w.id in ^work_ids)
     |> Repo.update_all(set: [collection_id: collection.id, updated_at: DateTime.utc_now()])
