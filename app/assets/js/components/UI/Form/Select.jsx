@@ -2,47 +2,61 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useFormContext } from "react-hook-form";
 
+/**
+ * `isReadOnly` simulates readonly for <select>:
+ * - Uses CSS to block interaction (keeps RHF registration + submission).
+ * - Avoid `disabled` if you need the value in RHF form state.
+ */
 const UIFormSelect = ({
   isReactHookForm,
   name,
   label,
-  // TODO: Clean up usages of UIFormSelect to use "hasErrors" instead of passing in "errors" object
   hasErrors,
   required,
   options = [],
   defaultValue,
   showHelper,
-  ...passedInProps
+  isReadOnly = false,
+  ...props
 }) => {
-  let errors = {},
-    register;
+  let errors = {};
+  let register;
 
   if (isReactHookForm) {
-    const context = useFormContext();
-    errors = context.formState.errors;
-    register = context.register;
+    const ctx = useFormContext();
+    errors = ctx.formState.errors;
+    register = ctx.register;
   }
+
+  const { style: styleProp, ...restProps } = props;
+  const regProps = register ? register(name, { required }) : {};
 
   return (
     <>
       <div className={`select ${hasErrors || errors[name] ? "is-danger" : ""}`}>
         <select
           name={name}
-          {...(register && register(name, { required }))}
+          {...regProps}
+          data-testid="select-level"
           defaultValue={defaultValue}
-          {...passedInProps}
+          aria-readonly={isReadOnly || undefined}
+          tabIndex={isReadOnly ? -1 : undefined}
+          style={{
+            pointerEvents: isReadOnly ? "none" : undefined,
+            opacity: isReadOnly ? 0.75 : undefined,
+            ...styleProp,
+          }}
+          {...restProps}
         >
           {showHelper && <option value="">-- Select --</option>}
-          {options.map((option) => (
-            <option
-              key={option.id || option.value}
-              value={option.id || option.value}
-            >
-              {option.label}
+          {options.map((opt) => (
+            <option key={opt.id || opt.value} value={opt.id || opt.value}>
+              {opt.label}
             </option>
           ))}
         </select>
       </div>
+
       {(hasErrors || errors[name]) && (
         <p data-testid="select-errors" className="help is-danger">
           {label || name} field is required
@@ -63,9 +77,11 @@ UIFormSelect.propTypes = {
       id: PropTypes.string,
       label: PropTypes.string.isRequired,
       value: PropTypes.string,
-    })
+    }),
   ),
   showHelper: PropTypes.bool,
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  isReadOnly: PropTypes.bool,
 };
 
 export default UIFormSelect;

@@ -21,19 +21,29 @@ describe("Select component", () => {
     expect(renderWithReactHookForm(<UIFormSelect {...props} />));
   });
 
-  it("renders passed through attributes to the input element", () => {
+  it("renders passed through attributes to the select element", () => {
     const { getByTestId } = renderWithReactHookForm(
-      <UIFormSelect {...props} defaultValue={2} disabled />
+      <UIFormSelect {...props} defaultValue={2} data-foo="bar" />,
     );
     const select = getByTestId("select-level");
 
     expect(select.name).toEqual(props.name);
-    expect(select.disabled).toBeTruthy();
+    expect(select.getAttribute("data-foo")).toEqual("bar");
+  });
+
+  it("renders isReadOnly attribute to the select element", () => {
+    const { getByTestId } = renderWithReactHookForm(
+      <UIFormSelect {...props} defaultValue={2} isReadOnly={true} />,
+    );
+    const select = getByTestId("select-level");
+
+    expect(select.name).toEqual(props.name);
+    expect(select.getAttribute("aria-readonly")).toBeTruthy();
   });
 
   it("renders supplied options and a default value", () => {
     const { getByTestId, getByText } = renderWithReactHookForm(
-      <UIFormSelect {...props} defaultValue={2} />
+      <UIFormSelect {...props} defaultValue={2} />,
     );
 
     expect(getByText("Level 1")).toBeInTheDocument();
@@ -46,7 +56,7 @@ describe("Select component", () => {
 
   it("selects different option values correctly", () => {
     const { getByTestId } = renderWithReactHookForm(
-      <UIFormSelect {...props} />
+      <UIFormSelect {...props} />,
     );
     const select = getByTestId("select-level");
     fireEvent.change(select, { target: { value: "3" } });
