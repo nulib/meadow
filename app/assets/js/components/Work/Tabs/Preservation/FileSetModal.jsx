@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogOverlay,
-  DialogTitle
+  DialogTitle,
 } from "@js/components/UI/Dialog/Dialog.styled";
 import { Button, Icon, Notification } from "@nulib/design-system";
 import { FormProvider, useForm } from "react-hook-form";
@@ -12,7 +12,11 @@ import { GET_WORK, INGEST_FILE_SET } from "@js/components/Work/work.gql.js";
 import React, { useState, useEffect } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
+import {
+  getFileNameFromS3Uri,
+  s3Location,
+  toastWrapper,
+} from "@js/services/helpers";
 import { useLazyQuery, useMutation } from "@apollo/client";
 
 import Error from "@js/components/UI/Error";
@@ -24,7 +28,7 @@ import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preser
 import WorkTabsPreservationFileSetForm from "@js/components/Work/Tabs/Preservation/FileSetForm";
 import useAcceptedMimeTypes from "@js/hooks/useAcceptedMimeTypes";
 import { useCodeLists } from "@js/context/code-list-context";
-import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
+import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker";
 
 function WorkTabsPreservationFileSetModal({
   closeModal,
@@ -62,7 +66,7 @@ function WorkTabsPreservationFileSetModal({
       name: getFileNameFromS3Uri(s3Object.key),
     });
     setS3UploadLocation(s3Object.key);
-    setUploadMethod('s3');
+    setUploadMethod("s3");
   };
 
   useEffect(() => {
@@ -124,12 +128,13 @@ function WorkTabsPreservationFileSetModal({
           original_filename: currentFile.name,
           location: s3UploadLocation,
         },
-      }
-    }
+      },
+    };
     ingestFileSet(mutationInput);
   };
 
   const resetForm = () => {
+    console.log("Resetting form");
     methods.reset(defaultValues);
     setCurrentFile(null);
     setS3UploadLocation(null);
@@ -152,7 +157,7 @@ function WorkTabsPreservationFileSetModal({
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
-    setUploadMethod('dragdrop');
+    setUploadMethod("dragdrop");
     if (file) {
       getPresignedUrl({
         variables: {
@@ -215,7 +220,9 @@ function WorkTabsPreservationFileSetModal({
           {urlError ? (
             <div>
               <section>
-                <Notification isDanger>Error retrieving presigned url</Notification>
+                <Notification isDanger>
+                  Error retrieving presigned url
+                </Notification>
               </section>
             </div>
           ) : (
@@ -239,7 +246,7 @@ function WorkTabsPreservationFileSetModal({
                         options={codeLists?.fileSetRoleData?.codeList}
                         required={!Boolean(watchRole)}
                         showHelper
-                        disabled={Boolean(s3UploadLocation)}
+                        isReadOnly={Boolean(s3UploadLocation)}
                       />
                     </UIFormField>
 
@@ -255,18 +262,18 @@ function WorkTabsPreservationFileSetModal({
                             handleSetFile={handleSetFile}
                             uploadProgress={uploadProgress}
                             workTypeId={workTypeId}
-                            disabled={uploadMethod === 's3'}
+                            disabled={uploadMethod === "s3"}
                           />
                         </div>
 
                         <div className="box">
                           <h3>Option 2: Choose from S3 Ingest Bucket</h3>
                           <S3ObjectPicker
-                            onFiles={console.log} 
+                            onFiles={console.log}
                             onFileSelect={handleSelectS3Object}
                             fileSetRole={watchRole}
                             workTypeId={workTypeId}
-                            disabled={uploadMethod === 'dragdrop'}
+                            disabled={uploadMethod === "dragdrop"}
                           />
                         </div>
                       </>

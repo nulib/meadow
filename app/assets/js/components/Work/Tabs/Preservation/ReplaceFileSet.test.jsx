@@ -16,7 +16,15 @@ import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.m
 jest.mock("@js/components/Work/Tabs/Preservation/S3ObjectPicker", () => {
   return function MockS3ObjectPicker({ onFileSelect }) {
     return (
-      <button onClick={() => onFileSelect({ key: "mocked-file.jpg", size: 1000, mimeType: "image/jpeg" })}>
+      <button
+        onClick={() =>
+          onFileSelect({
+            key: "mocked-file.jpg",
+            size: 1000,
+            mimeType: "image/jpeg",
+          })
+        }
+      >
         Select Mocked File
       </button>
     );
@@ -50,10 +58,9 @@ describe("Replace fileset modal", () => {
           getCurrentUserMock,
           ...allCodeListMocks,
         ],
-      }
+      },
     );
   });
-
 
   it("renders replace fileset form", async () => {
     expect(await screen.findByTestId("replace-fileset-form"));
@@ -64,7 +71,11 @@ describe("Replace fileset modal", () => {
   });
 
   it("renders file upload dropzone", async () => {
-    expect(await screen.findByText(/Drag 'n' drop a file here, or click to select file/i));
+    expect(
+      await screen.findByText(
+        /Drag and drop a file here, or click to select file/i,
+      ),
+    );
   });
 
   it("renders label input field", async () => {
