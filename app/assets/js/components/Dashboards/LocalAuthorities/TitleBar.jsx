@@ -11,7 +11,7 @@ import NLogo from "@js/components/northwesternN.svg";
 import React from "react";
 import UIIconText from "@js/components/UI/IconText";
 import { toastWrapper } from "@js/services/helpers";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 
 function DashboardsLocalAuthoritiesTitleBar() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState();

@@ -6,7 +6,7 @@ import IIIFViewer from "@js/components/UI/IIIF/Viewer";
 import WorkTabs from "./Tabs/Tabs";
 import useFileSet from "@js/hooks/useFileSet";
 import { GET_DC_API_TOKEN } from "@js/components/Work/work.gql";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const Work = ({ work }: { work: WorkType }) => {
   const workContextState = useWorkState();

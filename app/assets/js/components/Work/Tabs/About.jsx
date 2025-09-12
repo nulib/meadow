@@ -30,7 +30,7 @@ import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
 import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import { toastWrapper } from "../../../services/helpers";
 import useIsEditing from "../../../hooks/useIsEditing";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;

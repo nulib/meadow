@@ -1,6 +1,6 @@
 import { Notification } from "@nulib/design-system";
 import { LIST_ROLES_QUERY, LIST_USERS_QUERY, SET_USER_ROLE_MUTATION } from "@js/components/Auth/auth.gql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 import React from "react";
 import { toastWrapper } from "@js/services/helpers";
@@ -165,4 +165,4 @@ export default function DashboardsUsersList() {
       </div>
     </React.Fragment>
   );
-};
+}

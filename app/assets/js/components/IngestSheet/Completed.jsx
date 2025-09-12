@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import PropTypes from "prop-types";
 import {
   INGEST_SHEET_WORKS,

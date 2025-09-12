@@ -6,7 +6,7 @@ import { IconCsv } from "@js/components/Icon";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { CREATE_INGEST_SHEET } from "@js/components/IngestSheet/ingestSheet.gql.js";
 import { GET_PROJECT } from "@js/components/Project/project.gql.js";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
 

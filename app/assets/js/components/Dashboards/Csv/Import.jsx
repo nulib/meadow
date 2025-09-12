@@ -1,10 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";
-import { useQuery } from "@apollo/client";
 import DashboardsCsvImportModal from "@js/components/Dashboards/Csv/ImportModal";
 import { CSV_METADATA_UPDATE_JOB } from "@js/components/Dashboards/dashboards.gql.js";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { Button } from "@nulib/design-system";
 import IconUpload from "@js/components/Icon/Upload";
