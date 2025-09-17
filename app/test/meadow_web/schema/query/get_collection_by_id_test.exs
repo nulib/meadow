@@ -18,6 +18,8 @@ defmodule MeadowWeb.Schema.Query.GetCollectionByIdTest do
 
     collection_title = get_in(query_data, [:data, "collection", "title"])
     assert collection_title == collection_fixture.title
+    stats = get_in(query_data, [:data, "collection", "stats"])
+    assert Map.keys(stats) == ~w(audio image published total unpublished video)
   end
 
   test "Should return nil for a non-existent collection" do

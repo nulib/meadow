@@ -53,8 +53,9 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
               if (err) {
                 reject("Error running ffprobe: " + err.message);
               } else {
-                dimensions.width = data.streams[0].width;
-                dimensions.height = data.streams[0].height;
+                const videoStream = data.streams.find((s) => s.codec_type === "video");
+                dimensions.width = videoStream.width;
+                dimensions.height = videoStream.height;
 
                 s3Client
                   .send(new GetObjectCommand({ Bucket: uri.host, Key: location }))

@@ -34,6 +34,10 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
   end)
 end
 
+config :meadow, MeadowWeb.Endpoint,
+  code_reloader: true,
+  debug_errors: true
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console,
   format: "$metadata[$level] $message\n",

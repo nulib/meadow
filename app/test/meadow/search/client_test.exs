@@ -48,6 +48,41 @@ defmodule Meadow.Search.ClientTest do
 
       assert({:error, _reason} = Client.search("BAD_INDEX", %{query: %{}}))
     end
+
+    test "doc/3 with schema and version", %{works: [work | _]} do
+      # Test successful retrieval using schema/version
+      assert {:ok, doc} = Client.doc(Work, 2, work.id)
+      assert doc["id"] == work.id
+      assert doc["accession_number"] == work.accession_number
+    end
+
+    test "doc/2 with target string", %{works: [work | _]} do
+      target = SearchConfig.alias_for(Work, 2)
+
+      # Test successful retrieval using target string
+      assert {:ok, doc} = Client.doc(target, work.id)
+      assert doc["id"] == work.id
+      assert doc["accession_number"] == work.accession_number
+    end
+
+    test "doc/2 handles not found" do
+      target = SearchConfig.alias_for(Work, 2)
+      non_existent_id = Ecto.UUID.generate()
+
+      assert {:error, :not_found} = Client.doc(target, non_existent_id)
+    end
+
+    test "doc/3 handles not found with schema/version" do
+      non_existent_id = Ecto.UUID.generate()
+
+      assert {:error, :not_found} = Client.doc(Work, 2, non_existent_id)
+    end
+
+    test "doc/2 handles bad index" do
+      work_id = Ecto.UUID.generate()
+
+      assert {:error, _reason} = Client.doc("BAD_INDEX", work_id)
+    end
   end
 
   describe "hot_swap/3" do

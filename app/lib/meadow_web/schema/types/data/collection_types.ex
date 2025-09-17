@@ -94,7 +94,7 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
   # Object Types
   #
 
-  @desc "Fields for a `collection` object "
+  @desc "Fields for a `collection` object"
   object :collection do
     field :id, :id
     field :title, :string
@@ -113,9 +113,26 @@ defmodule MeadowWeb.Schema.Data.CollectionTypes do
 
     field :representative_work, :work
 
+    field :stats, :collection_stats,
+      resolve: fn query, _, _ ->
+        {:ok, Meadow.Data.Collections.get_work_stats(query.id)}
+      end
+
     field :total_works, :integer,
       resolve: fn query, _, _ ->
         Meadow.Data.Collections.get_work_count(query.id)
-      end
+      end do
+      deprecate("Use `stats.total`.")
+    end
+  end
+
+  @desc "Stats for a `collection` object"
+  object :collection_stats do
+    field :published, :integer
+    field :unpublished, :integer
+    field :image, :integer
+    field :audio, :integer
+    field :video, :integer
+    field :total, :integer
   end
 end

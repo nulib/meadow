@@ -4,7 +4,7 @@
     "mail": "TestUser13@example.com",
     "nuAllDisplayName": "Test User13",
     "nuAllSchoolAffiliations": ["lib:staff"],
-    "_role": "manager"
+    "_role": "editor"
   },
   {
     "uid": "aum1701",

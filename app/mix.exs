@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.9.6"
+  @app_version "9.10.0"
 
   def project do
     [
@@ -23,6 +23,7 @@ defmodule Meadow.MixProject do
         credo: :test
       ],
       releases: releases(),
+      listeners: [Phoenix.CodeReloader],
       xref: [exclude: [Phoenix.View]]
     ]
   end
@@ -84,7 +85,7 @@ defmodule Meadow.MixProject do
       {:logger_file_backend, "~> 0.0.11"},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.3.0"},
-      {:phoenix, "~> 1.7.0"},
+      {:phoenix, "~> 1.8.1"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_view, "~> 1.1.2"},

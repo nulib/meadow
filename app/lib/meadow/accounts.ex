@@ -50,6 +50,10 @@ defmodule Meadow.Accounts do
     end
   end
 
+  def make_superadmin(user_id) do
+    set_user_role(user_id, "superuser")
+  end
+
   defp _set_user_role(nil, attrs) do
     UserSchema.changeset(%UserSchema{}, attrs)
     |> Repo.insert()

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Button, Notification } from "@nulib/design-system";
 import classNames from "classnames";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-const webvtt = require("node-webvtt");
+import { WebVTTParser } from "webvtt-parser";
 import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
 import { toastWrapper } from "@js/services/helpers";
 import { useMutation } from "@apollo/client";
@@ -18,6 +18,8 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const params = useParams();
   const workId = params.id;
+
+  const parser = new WebVTTParser();
 
   React.useEffect(() => {
     setWebVttValue(workState.webVttModal.webVttString);
@@ -50,15 +52,40 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
     ],
   });
 
+  const throwValidationErrors = (parsedErrors) => {
+    if (!parsedErrors || parsedErrors.length === 0) return;
+
+    const jsx = (
+      <ol
+        style={{
+          margin: "1em 2em",
+        }}
+      >
+        {parsedErrors.map((err, idx) => (
+          <li key={idx}>
+            Line {err.line}, column {err.column ?? err.col}: {err.message}
+          </li>
+        ))}
+      </ol>
+    );
+
+    const error = new Error("Validation failed");
+    error.jsx = jsx;
+    throw error;
+  };
+
   const handleChange = (e) => {
     setWebVttValue(e.target.value);
+
     try {
-      const parsed = webvtt.parse(e.target.value);
-      if (parsed.valid) {
+      const parsed = parser.parse(e.target.value, "vtt");
+      if (!parsed.errors.length) {
         setParseErrors(null);
+        return;
       }
-    } catch (e) {
-      setParseErrors(e);
+      throwValidationErrors(parsed.errors);
+    } catch (err) {
+      setParseErrors(err.jsx || err.message);
     }
   };
 
@@ -111,7 +138,9 @@ function WorkTabsStructureWebVTTModal({ isActive }) {
 
           {webVttValue?.trim().length > 0 &&
             (parseErrors ? (
-              <Notification isDanger>{parseErrors.message}</Notification>
+              <Notification isDanger>
+                WebVTT is not valid: {parseErrors}
+              </Notification>
             ) : (
               <Notification isSuccess>WebVTT is valid</Notification>
             ))}
