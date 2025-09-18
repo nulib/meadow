@@ -15,6 +15,7 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
       |> fetch_session
       |> get_session(:current_user)
       |> normalize_role()
+      |> IO.inspect()
 
     token = conn |> Map.get(:req_cookies, %{}) |> Map.get("_meadow_key", "")
 
