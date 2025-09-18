@@ -51,6 +51,7 @@ defmodule MeadowWeb.Router do
   pipeline :api do
     plug(:accepts, ["json"])
 
+    plug(MeadowWeb.Plugs.BearerAuth)
     plug(MeadowWeb.Plugs.SetCurrentUser)
   end
 
