@@ -41,6 +41,7 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
       |> fetch_session
       |> get_session(:current_user)
       |> normalize_role()
+      |> IO.inspect()
 
     Plug.Conn.assign(conn, :current_user, user)
   end
