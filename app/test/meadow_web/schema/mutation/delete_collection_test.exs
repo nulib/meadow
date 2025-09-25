@@ -44,7 +44,7 @@ defmodule MeadowWeb.Schema.Mutation.DeleteCollectionTest do
       {:ok, result} =
         query_gql(
           variables: %{"collectionId" => collection_fixture.id},
-          context: %{current_user: %{role: :editor}}
+          context: gql_context(%{role: :editor})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -56,7 +56,7 @@ defmodule MeadowWeb.Schema.Mutation.DeleteCollectionTest do
       {:ok, result} =
         query_gql(
           variables: %{"collectionId" => collection_fixture.id},
-          context: %{current_user: %{role: :manager}}
+          context: gql_context(%{role: :manager})
         )
 
       assert result.data["deleteCollection"]

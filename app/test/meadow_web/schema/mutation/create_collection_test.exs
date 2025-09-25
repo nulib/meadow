@@ -23,7 +23,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
       {:ok, result} =
         query_gql(
           variables: %{"title" => "The collection title"},
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -33,7 +33,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
       {:ok, result} =
         query_gql(
           variables: %{"title" => "The collection title"},
-          context: %{current_user: %{role: :manager}}
+          context: gql_context(%{role: :manager})
         )
 
       assert result.data["createCollection"]

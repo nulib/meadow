@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.UpdateAccessFileOrderTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, acync: true
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/UpdateAccessFileOrder.gql")
@@ -73,7 +73,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateAccessFileOrderTest do
       result =
         query_gql(
           variables: %{"workId" => work.id, "fileSetIds" => Enum.reverse(file_set_ids)},
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result

@@ -47,7 +47,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
             "work_id" => work.id,
             "file_set_id" => expected_file_set.id
           },
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -63,7 +63,7 @@ defmodule MeadowWeb.Schema.Mutation.SetWorkImageTest do
             "work_id" => work.id,
             "file_set_id" => expected_file_set.id
           },
-          context: %{current_user: %{role: :editor}}
+          context: gql_context(%{role: :editor})
         )
 
       assert result.data["setWorkImage"]

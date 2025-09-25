@@ -10,11 +10,6 @@ defmodule Mix.Tasks.Meadow.Reset do
     Code.compiler_options(ignore_module_conflict: true)
     Mix.Task.run("app.config")
 
-    if Meadow.Config.use_localstack?() do
-      Mix.Task.run("pipeline.purge")
-      Mix.Task.run("pipeline.setup")
-    end
-
     Mix.Task.run("ecto.rollback", ["--all"])
     Mix.Task.run("ecto.migrate")
     Mix.Task.run("meadow.search.clear")
