@@ -77,6 +77,8 @@ defmodule MeadowWeb.Router do
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
+    forward("/mcp", Anubis.Server.Transport.StreamableHTTP.Plug, server: Meadow.MCP.Server)
+
     forward("/", Plug.Static,
       at: "/",
       from: {:meadow, "priv/static"},

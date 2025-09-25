@@ -22,12 +22,11 @@ defmodule MeadowWeb.Plugs.BearerAuth do
     with api_config <- Application.get_env(:meadow, :dc_api)[:v2] do
       {:ok, token} = :jwt.decode(token, api_config["api_token_secret"])
 
-      IO.inspect(token, label: "Decoded token")
       case token do
-        %{"exp" => exp, "isSuperUser" => isSuperUser} ->
+        %{"exp" => exp, "isSuperUser" => is_superuser} ->
           current_time = DateTime.utc_now() |> DateTime.to_unix()
 
-          if exp > current_time and isSuperUser do
+          if exp > current_time and is_superuser do
             user = %Meadow.Accounts.User{
               id: token["sub"],
               email: token["email"],
@@ -39,8 +38,6 @@ defmodule MeadowWeb.Plugs.BearerAuth do
             |> fetch_session()
             |> put_session(:current_user, user)
             |> configure_session(renew: true)
-
-
           else
             conn
             |> put_resp_content_type("application/json")

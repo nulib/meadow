@@ -22,8 +22,8 @@ jobs:
           NPM_VERSION: 11.6.0
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "26"
-          elixir-version: "1.15.4"
+          otp-version: "27"
+          elixir-version: "1.18.2"
       - name: Cache Elixir dependencies
         uses: actions/cache@v4
         with:

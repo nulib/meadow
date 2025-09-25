@@ -41,7 +41,9 @@ defmodule Meadow.Application.Children do
     %{
       "web.server" => [
         MeadowWeb.Endpoint,
-        {Absinthe.Subscription, MeadowWeb.Endpoint}
+        {Absinthe.Subscription, MeadowWeb.Endpoint},
+        Anubis.Server.Registry,
+        {Meadow.MCP.Server, transport: :streamable_http}
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
