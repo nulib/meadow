@@ -44,7 +44,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
             "collection_id" => collection.id,
             "descriptive_metadata" => %{"title" => "Something"}
           },
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -61,7 +61,7 @@ defmodule MeadowWeb.Schema.Mutation.UpdateWorkTest do
             "collection_id" => collection.id,
             "descriptive_metadata" => %{"title" => "Something"}
           },
-          context: %{current_user: %{role: :editor}}
+          context: gql_context(%{role: :editor})
         )
 
       assert result.data["updateWork"]

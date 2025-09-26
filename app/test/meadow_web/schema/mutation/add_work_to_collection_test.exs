@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.AddWorkToCollectionTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, acync: true
+  use MeadowWeb.ConnCase, async: true
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/AddWorkToCollection.gql")
@@ -29,7 +29,7 @@ defmodule MeadowWeb.Schema.Mutation.AddWorkToCollectionTest do
       result =
         query_gql(
           variables: %{"workId" => work.id, "collectionId" => collection.id},
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result

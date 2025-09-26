@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Mutation.SetUserRoleTest do
       {:ok, result} =
         query_gql(
           variables: %{"userId" => user.id, "userRole" => "ADMINISTRATOR"},
-          context: %{current_user: %{username: "abc122", role: :administrator}}
+          context: gql_context(%{role: :administrator})
         )
 
       assert %{data: %{"setUserRole" => %{"message" => message}}} = result
@@ -33,7 +33,7 @@ defmodule MeadowWeb.Schema.Mutation.SetUserRoleTest do
       {:ok, result} =
         query_gql(
           variables: %{"userId" => user.id, "userRole" => "ADMINISTRATOR"},
-          context: %{current_user: %{username: "abc122", role: :manager}}
+          context: gql_context(%{role: :manager})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

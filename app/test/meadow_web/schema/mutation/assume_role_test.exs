@@ -28,7 +28,7 @@ defmodule MeadowWeb.Schema.Mutation.AssumeRoleTest do
       {:ok, result} =
         query_gql(
           variables: %{"userRole" => "ADMINISTRATOR"},
-          context: %{current_user: %{username: "abc122", role: :manager}}
+          context: gql_context(%{role: :manager})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result

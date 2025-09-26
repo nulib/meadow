@@ -224,16 +224,18 @@ defmodule Meadow.TestHelpers do
     file_set
   end
 
-  def gql_context(extra \\ %{}) do
-    extra
-    |> Map.merge(%{
+  def gql_context(user \\ %{}, extra \\ %{}) do
+    %{
       current_user: %{
+        id: "user1",
         username: "user1",
         email: "email@example.com",
         display_name: "User Name",
         role: :administrator
       }
-    })
+      |> Map.merge(user)
+    }
+    |> Map.merge(extra)
   end
 
   def logged?(string, :warn, pattern),
