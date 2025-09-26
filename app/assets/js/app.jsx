@@ -1,7 +1,9 @@
 import "../styles/app.scss";
 
 // GraphQL-specific
-import { ApolloProvider } from "@apollo/client";
+
+
+import { ApolloProvider } from "@apollo/client/react";
 import { Honeybadger, HoneybadgerErrorBoundary } from "@honeybadger-io/react";
 import React from "react";
 import Root from "./screens/Root";

@@ -10,7 +10,7 @@ import { toastWrapper } from "@js/services/helpers";
 import { useWorkState } from "@js/context/work-context";
 import { GET_DCAPI_ENDPOINT } from "@js/components/UI/ui.gql";
 import { getApiResponse } from "@js/services/get-api-response";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const WorkFilesetActionButtonsAuxiliary = ({ fileSet }) => {
   const iiifServerUrl = useContext(IIIFContext);

@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import UIDate from "@js/components/UI/Date";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 function DashboardsBatchEditDetails({ id }) {
   const { error, loading, data } = useQuery(GET_BATCH, {

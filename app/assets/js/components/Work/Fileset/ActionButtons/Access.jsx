@@ -13,7 +13,7 @@ import { getApiResponse } from "@js/services/get-api-response";
 import { toastWrapper } from "@js/services/helpers";
 import useFileSet from "@js/hooks/useFileSet";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 export function MediaButtons({ fileSet }) {
   const [downloadStarted, setDownloadStarted] = React.useState(false);
