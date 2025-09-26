@@ -16,6 +16,26 @@ defmodule MeadowWeb.Schema.Middleware.AuthenticateTest do
     assert %{current_user: %{id: ^id}} = resolution.context
   end
 
+  test "Authenticate middleware errors when there is an invalid user in the context" do
+    resolution =
+      %Absinthe.Resolution{}
+      |> Map.put(:context, %{current_user: %{}})
+      |> Authenticate.call({})
+
+    assert %{errors: [%{message: "Unauthorized", status: 401}]} = resolution
+    assert %{current_user: %{}} = resolution.context
+  end
+
+  test "Authenticate middleware errors when there is a nil user in the context" do
+    resolution =
+      %Absinthe.Resolution{}
+      |> Map.put(:context, %{current_user: nil})
+      |> Authenticate.call({})
+
+    assert %{errors: [%{message: "Unauthorized", status: 401}]} = resolution
+    assert %{current_user: nil} = resolution.context
+  end
+
   test "Authenticate middleware errors when there is not a current user in the context" do
     resolution =
       %Absinthe.Resolution{}

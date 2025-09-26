@@ -72,7 +72,7 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest do
       result =
         query_gql(
           variables: %{"fromWorkId" => work.id, "toWorkId" => work2.id},
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result
@@ -249,7 +249,7 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
               "workType" => "IMAGE"
             }
           },
-          context: %{current_user: %{role: :user}}
+          context: gql_context(%{role: :user})
         )
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result
@@ -270,7 +270,7 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
               "visibility" => %{"id" => "OPEN", "scheme" => "VISIBILITY"}
             }
           },
-          context: %{current_user: %{role: :editor}}
+          context: gql_context(%{role: :editor})
         )
 
       assert {:ok, %{data: %{"transfer_file_sets_subset" => _}}} = result

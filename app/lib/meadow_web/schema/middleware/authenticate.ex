@@ -7,7 +7,7 @@ defmodule MeadowWeb.Schema.Middleware.Authenticate do
 
   def call(resolution, _) do
     case resolution.context do
-      %{current_user: _} ->
+      %{current_user: %{id: user_id}} when not is_nil(user_id) ->
         resolution
 
       _ ->

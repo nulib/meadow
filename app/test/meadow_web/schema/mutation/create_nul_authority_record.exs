@@ -21,7 +21,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateNULAuthorityRecordTest do
       {:ok, result} =
         query_gql(
           variables: %{"label" => "test label", "hint" => "test hint"},
-          context: %{current_user: %{role: :editor}}
+          context: gql_context(%{role: :editor})
         )
 
       assert %{errors: [%{message: "Forbidden", status: 403}]} = result
@@ -31,7 +31,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateNULAuthorityRecordTest do
       {:ok, result} =
         query_gql(
           variables: %{"label" => "test label", "hint" => "test hint"},
-          context: %{current_user: %{role: :manager}}
+          context: gql_context(%{role: :manager})
         )
 
       assert result.data["createNULAuthorityRecord"]
