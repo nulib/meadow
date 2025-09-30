@@ -152,7 +152,7 @@ resource "aws_iam_role_policy_attachment" "meadow_role_policy" {
 }
 
 resource "aws_iam_policy" "this_bucket_policy" {
-  name   = "meadow-bucket-access"
+  name   = "${var.stack_name}-bucket-access"
   policy = data.aws_iam_policy_document.this_bucket_access.json
 }
 

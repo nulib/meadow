@@ -86,6 +86,11 @@ variable "pyramid_bucket" {
   default = ""
 }
 
+variable "create_pyramid_bucket" {
+  type    = bool
+  default = false
+}
+
 variable "preservation_check_bucket" {
   type    = string
   default = ""

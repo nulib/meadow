@@ -14,6 +14,7 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Loading Meadow runtime configuration")
 
+    initialize_prefix()
     clear_cache!()
     [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
 
@@ -229,7 +230,7 @@ defmodule Meadow.Config.Runtime do
         ),
       iiif_manifest_url_deprecated:
         Path.join(
-          get_secret(:iiif, ["base"]),
+          get_secret(:iiif, ["base"], ""),
           "public/"
         ),
       iiif_distribution_id: get_secret(:iiif, ["distribution_id"]),

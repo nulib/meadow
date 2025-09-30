@@ -14,9 +14,10 @@ const deploy = args.includes("--deploy");
 
 const cwd = process.cwd();
 
+const meadowPrefix = [process.env.MEADOW_TENANT] || [process.env.DEV_PREFIX, process.env.DEV_ENV]
 const elasticsearchIndex = (suffix) =>
   JSON.stringify(
-    [process.env.DEV_PREFIX, process.env.DEV_ENV, "dc-v2", suffix]
+    [...meadowPrefix, "dc-v2", suffix]
       .filter((e) => e)
       .join("-"),
   );

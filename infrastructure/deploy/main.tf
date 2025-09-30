@@ -36,11 +36,13 @@ locals {
 module "core" {
   source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
   component = "core"
+  environment = var.environment == "s" ? "staging" : "production"
 }
 
 module "data_services" {
   source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
   component = "data_services"
+  environment = var.environment == "s" ? "staging" : "production"
 }
 
 
@@ -246,8 +248,14 @@ resource "aws_s3_bucket_cors_configuration" "meadow_streaming" {
   }
 }
 
-data "aws_s3_bucket" "pyramid_bucket" {
+resource "aws_s3_bucket" "pyramid_bucket" {
+  count  = var.create_pyramid_bucket ? 1 : 0
   bucket = var.pyramid_bucket
+  tags   = var.tags
+}
+
+data "aws_s3_bucket" "pyramid_bucket" {
+  bucket = var.create_pyramid_bucket ? aws_s3_bucket.pyramid_bucket[0].bucket : var.pyramid_bucket
 }
 
 resource "aws_s3_bucket_cors_configuration" "pyramid_bucket" {

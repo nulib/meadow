@@ -1,7 +1,7 @@
 import Config
 
 # Remove environment variables that will mess with the tests
-~w(SECRETS_PATH DEV_PREFIX)
+~w(MEADOW_TENANT SECRETS_PATH DEV_PREFIX)
 |> Enum.each(&System.delete_env(&1))
 
 config :ex_aws,

@@ -13,9 +13,13 @@ defmodule Meadow.Config.Secrets do
     index: "infrastructure/index",
     inference: "infrastructure/inference",
     meadow: "config/meadow",
+    meadow_pipeline: "config/meadow-pipeline",
     nusso: "infrastructure/nusso",
     wildcard_ssl: "config/wildcard_ssl"
   }
+
+  defp config_key(:meadow), do: Path.join(["config", System.get_env("MEADOW_TENANT", "meadow")])
+  defp config_key(config), do: Map.get(@config_map, config)
 
   defp ensure_cache! do
     if :ets.info(:secret_cache, :name) == :undefined,
@@ -36,7 +40,7 @@ defmodule Meadow.Config.Secrets do
           nil
 
         nil ->
-          case load_config(@config_map[config]) do
+          case load_config(config_key(config)) do
             nil ->
               :ets.insert(:secret_cache, {config, :missing})
               nil
@@ -81,20 +85,7 @@ defmodule Meadow.Config.Secrets do
     end
   end
 
-  def prefix do
-    env =
-      cond do
-        System.get_env("RELEASE_NAME") -> nil
-        System.get_env("MEADOW_ENV") == "prod" -> nil
-        function_exported?(Mix, :env, 0) -> environment()
-        true -> nil
-      end
-
-    [System.get_env("DEV_PREFIX"), env]
-    |> reject_empty()
-    |> join_non_empty()
-  end
-
+  def prefix, do: System.get_env("MEADOW_TENANT")
   def prefix(val), do: [prefix(), to_string(val)] |> reject_empty() |> Enum.join("-")
 
   defp reject_empty(list), do: Enum.reject(list, &(is_nil(&1) or &1 == ""))
@@ -119,6 +110,31 @@ defmodule Meadow.Config.Secrets do
     case :code.priv_dir(:meadow) do
       {:error, :bad_name} -> Path.join([".", "priv", path])
       priv_dir -> priv_dir |> to_string() |> Path.join(path)
+    end
+  end
+
+  def initialize_prefix do
+    case System.get_env("MEADOW_TENANT") do
+      v when is_binary(v) ->
+        :ok
+
+      nil ->
+        env =
+          cond do
+            System.get_env("RELEASE_NAME") -> nil
+            System.get_env("MEADOW_ENV") == "prod" -> nil
+            function_exported?(Mix, :env, 0) -> environment()
+            true -> nil
+          end
+
+        prefix =
+          [System.get_env("DEV_PREFIX"), env]
+          |> reject_empty()
+          |> join_non_empty()
+
+        System.put_env("MEADOW_TENANT", prefix)
+
+        :ok
     end
   end
 end

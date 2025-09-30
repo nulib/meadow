@@ -12,20 +12,54 @@ concurrency:
 permissions:
   actions: write
 jobs:
-  build:
+  get-environment:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
     runs-on: ubuntu-latest
+    outputs:
+      deploy_env: ${{ steps.set-deploy-env.outputs.result }}
+      container_tag: ${{ steps.set-deploy-env.outputs.result }}
+      meadow_tenant: ${{ steps.set-meadow-prefix.outputs.result }}
     steps:
-      - uses: actions/checkout@v2
       - name: Set DEPLOY_ENV from Branch Name
+        id: set-deploy-env
         run: |
           if [[ $BRANCH == 'refs/heads/main' ]]; then
-            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
+            echo "result=production" >> $GITHUB_OUTPUT
           else
-            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
+            echo "result=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_OUTPUT
           fi
         env:
           BRANCH: ${{ github.ref }}
+      - name: Set container tag from DEPLOY_ENV
+        id: set-container-tag
+        run: |
+          if [[ $DEPLOY_ENV == 'production' || $DEPLOY_ENV == 'staging' ]]; then
+            echo "result=latest" >> $GITHUB_OUTPUT
+          else
+            echo "result=$DEPLOY_ENV" >> $GITHUB_OUTPUT
+          fi
+        env:
+          DEPLOY_ENV: ${{ steps.set-deploy-env.outputs.result }}
+      - name: Set MEADOW_TENANT from DEPLOY_ENV
+        id: set-meadow-prefix
+        run: |
+          if [[ $DEPLOY_ENV == 'production' || $DEPLOY_ENV == 'staging' ]]; then
+            echo "result=" >> $GITHUB_OUTPUT
+          else
+            echo "result=$DEPLOY_ENV" >> $GITHUB_OUTPUT
+          fi
+        env:
+          DEPLOY_ENV: ${{ steps.set-deploy-env.outputs.result }}
+  build:
+    if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
+    runs-on: ubuntu-latest
+    needs: get-environment
+    env:
+      DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
+      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
+    steps:
+      - uses: actions/checkout@v2
       - name: Configure AWS
         run: .github/scripts/configure_aws.sh
         env:
@@ -35,7 +69,7 @@ jobs:
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
         working-directory: app
-      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:latest"
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${CONTAINER_TAG}"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
@@ -47,13 +81,21 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Determine container tags
+        id: determine-container-tags
+        run: |
+          ECR_TAGS="${REGISTRY_NAME}/meadow:${CONTAINER_TAG}"
+          if [[ ${CONTAINER_TAG} == "latest" ]]; then
+            ECR_TAGS="${ECR_TAGS} ${REGISTRY_NAME}/meadow:${MEADOW_VERSION}"
+          fi
+          echo "tags=${ECR_TAGS}" >> $GITHUB_OUTPUT
+        env:
+          REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
       - uses: docker/build-push-action@v2
         with:
           context: ./app
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/meadow:latest
-            ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.MEADOW_VERSION }}
+          tags: ${{ steps.determine-container-tags.outputs.tags }}
           build-args: |
             BUILD_IMAGE=hexpm/elixir:1.18.2-erlang-27.3-debian-bookworm-20250224
             RUNTIME_IMAGE=node:22-bookworm-slim
@@ -61,12 +103,13 @@ jobs:
             HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
             HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
             HONEYBADGER_REVISION=${{ github.sha }}
+            MEADOW_TENANT=${{ env.MEADOW_TENANT }}
             MEADOW_VERSION=${{ env.MEADOW_VERSION }}
       - name: Upload Source Maps to Honeybadger
         run: .github/scripts/upload_source_maps.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:latest
+          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.CONTAINER_TAG }}
           MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
           HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
           HONEYBADGER_REVISION: ${{ github.sha }}
@@ -92,17 +135,13 @@ jobs:
   build-livebook:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
     runs-on: ubuntu-latest
+    needs: get-environment
+    env:
+      DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
+      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
       - uses: actions/checkout@v2
-      - name: Set DEPLOY_ENV from Branch Name
-        run: |
-          if [[ $BRANCH == 'refs/heads/main' ]]; then
-            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
-          else
-            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
-          fi
-        env:
-          BRANCH: ${{ github.ref }}
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(grep '@app_version "' mix.exs | sed -n 's/^.*"\(.*\)".*/\1/p')" >> $GITHUB_ENV
         working-directory: app
@@ -117,46 +156,60 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Determine container tags
+        id: determine-container-tags
+        run: |
+          ECR_TAGS="${REGISTRY_NAME}/meadow:livebook-${CONTAINER_TAG}"
+          if [[ ${CONTAINER_TAG} == "latest" ]]; then
+            ECR_TAGS="${ECR_TAGS} ${REGISTRY_NAME}/meadow:livebook-${MEADOW_VERSION}"
+          fi
+          echo "tags=${ECR_TAGS}" >> $GITHUB_OUTPUT
+        env:
+          REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
       - uses: docker/build-push-action@v2
         with:
           context: .
           file: ./Dockerfile.livebook
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-latest
-            ${{ steps.login-ecr.outputs.registry }}/meadow:livebook-${{ env.MEADOW_VERSION }}
+          tags: ${{ steps.determine-container-tags.outputs.tags }}
   deploy:
     needs: 
+      - get-environment
       - build
       - build-livebook
     if: ${{ ! startsWith(github.ref, 'refs/heads/build/') }}
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
+      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Set DEPLOY_ENV from Branch Name
-        run: |
-          if [[ $BRANCH == 'refs/heads/main' ]]; then
-            echo "DEPLOY_ENV=production" >> $GITHUB_ENV
-          else
-            echo "DEPLOY_ENV=$(echo $BRANCH | awk -F/ '{print $NF}')" >> $GITHUB_ENV
-          fi
-        env:
-          BRANCH: ${{ github.ref }}
       - name: Configure AWS
         run: .github/scripts/configure_aws.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
           SECRETS: ${{ toJSON(secrets) }}
+      - name: Set Service and Task Names
+        id: set-service-task
+        run: |
+          if [[ "$DEPLOY_ENV" == "production" || "$DEPLOY_ENV" == "staging" ]]; then
+            echo "cluster=meadow" >> $GITHUB_OUTPUT
+            echo "task=meadow-all" >> $GITHUB_OUTPUT
+          else
+            echo "cluster=${MEADOW_TENANT}" >> $GITHUB_OUTPUT
+            echo "task=${MEADOW_TENANT}-all" >> $GITHUB_OUTPUT
+          fi
       - name: Update ECS Service
         run: .github/scripts/update_ecs_service.sh
         env:
-          ECS_CLUSTER: meadow
+          ECS_CLUSTER: ${{ steps.set-service-task.outputs.cluster }}
           ECS_CONTAINER: meadow
           ECS_SERVICE: meadow
-          ECS_TASK: meadow-all
+          ECS_TASK: ${{ steps.set-service-task.outputs.task }}
           PRIOR_HEAD: ${{ github.event.before }}
       - name: Notify Honeybadger
         run: .github/scripts/honeybadger_deploy_notification.sh

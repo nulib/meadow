@@ -1,7 +1,7 @@
 [
   {
     "name": "livebook",
-    "image": "${docker_repository}:livebook-latest",
+    "image": "${docker_repository}:livebook-${image_tag}",
     "cpu": 0,
     "memoryReservation": 256,
     "portMappings": [
@@ -31,6 +31,10 @@
         "value": "${secret_key_base}"
       },
       {
+        "name": "MEADOW_TENANT",
+        "value": "${meadow_tenant}"
+      },
+      {
         "name": "MEADOW_ENV",
         "value": "prod"
       },
@@ -48,7 +52,7 @@
       },
       {
         "name": "MEADOW_URL",
-        "value": "http://meadow.${discovery_zone}:4000"
+        "value": "http://${meadow_tenant}.${discovery_zone}:4000"
       },
       {
         "name": "SECRET_KEY_BASE",

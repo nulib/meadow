@@ -34,6 +34,8 @@ locals {
   container_vars = merge(
     var.container_config,
     {
+      meadow_tenant         = var.stack_name,
+      image_tag             = var.stack_name == "meadow" ? "latest" : var.stack_name,
       db_pool_size          = var.db_pool_size,
       db_queue_interval     = var.db_queue_interval,
       db_queue_target       = var.db_queue_target,
