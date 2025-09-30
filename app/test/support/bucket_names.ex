@@ -6,7 +6,7 @@ defmodule Meadow.BucketNames do
   defmacro __using__(_) do
     quote do
       with prefixed <- fn name ->
-             [System.get_env("DEV_PREFIX"), Mix.env(), name]
+             [Meadow.Config.Secrets.prefix(), name]
              |> Enum.reject(&is_nil/1)
              |> Enum.join("-")
            end do
