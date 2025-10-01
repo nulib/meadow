@@ -31,6 +31,10 @@
         "value": "${secret_key_base}"
       },
       {
+        "name": "MEADOW_CONFIG",
+        "value": "${meadow_tenant}"
+      },
+      {
         "name": "MEADOW_TENANT",
         "value": "${meadow_tenant}"
       },

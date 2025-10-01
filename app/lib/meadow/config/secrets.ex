@@ -18,7 +18,7 @@ defmodule Meadow.Config.Secrets do
     wildcard_ssl: "config/wildcard_ssl"
   }
 
-  defp config_key(:meadow), do: Path.join(["config", System.get_env("MEADOW_TENANT", "meadow")])
+  defp config_key(:meadow), do: Path.join(["config", System.get_env("MEADOW_CONFIG", "meadow")])
 
   defp config_key(config) do
     overrides =
