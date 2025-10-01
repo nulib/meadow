@@ -12,6 +12,8 @@ locals {
       streaming          = aws_s3_bucket.meadow_streaming.bucket
     }
 
+    config_overrides = var.config_overrides
+  
     db = {
       host     = module.data_services.outputs.aurora.endpoint
       port     = module.data_services.outputs.aurora.port

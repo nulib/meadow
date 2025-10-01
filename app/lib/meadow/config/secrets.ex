@@ -19,7 +19,17 @@ defmodule Meadow.Config.Secrets do
   }
 
   defp config_key(:meadow), do: Path.join(["config", System.get_env("MEADOW_TENANT", "meadow")])
-  defp config_key(config), do: Map.get(@config_map, config)
+
+  defp config_key(config) do
+    overrides =
+      get_secret(:meadow, ["config_overrides"], %{})
+      |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+      |> Enum.into(%{})
+
+    @config_map
+    |> Map.merge(overrides)
+    |> Map.get(config)
+  end
 
   defp ensure_cache! do
     if :ets.info(:secret_cache, :name) == :undefined,
