@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { CREATE_PROJECT, GET_PROJECTS, UPDATE_PROJECT } from "./project.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
 import Error from "../UI/Error";

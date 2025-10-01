@@ -4,7 +4,7 @@ import {
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
 import { sortItemsArray, toastWrapper } from "@js/services/helpers";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import PropTypes from "prop-types";

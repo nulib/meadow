@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { DIGITAL_COLLECTIONS_URL } from "@js/components/UI/ui.gql";
 import { useClipboard } from "use-clipboard-copy";
 import UISharedLink from "@js/components/UI/SharedLink";

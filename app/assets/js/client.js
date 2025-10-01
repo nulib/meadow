@@ -4,6 +4,8 @@ import {
   HttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import { Defer20220824Handler } from "@apollo/client/incremental";
+import { LocalState } from "@apollo/client/local-state";
 import { resolvers, typeDefs } from "./client-local";
 
 import { Socket as PhoenixSocket } from "phoenix";
@@ -36,7 +38,7 @@ const absintheSocketLink = createAbsintheSocketLink(
 // depending on what type of GraphQL operation is being sent.
 // If it's a subscription, send it over the WebSocket link.
 // Otherwise, if it's a query or mutation, send it over the HTTP link.
-const link = new ApolloLink.split(
+const link = ApolloLink.split(
   (operation) => hasSubscription(operation.query),
   absintheSocketLink,
   httpLink
@@ -45,6 +47,7 @@ const link = new ApolloLink.split(
 // Create the Apollo Client instance.
 const client = new ApolloClient({
   link: link,
+
   cache: new InMemoryCache({
     typePolicies: {
       ControlledValue: {
@@ -57,8 +60,24 @@ const client = new ApolloClient({
       },
     },
   }),
+
   typeDefs,
   resolvers,
+  link: new HttpLink({}),
+
+  /*
+  Inserted by Apollo Client 3->4 migration codemod.
+  If you are not using the `@client` directive in your application,
+  you can safely remove this option.
+  */
+  localState: new LocalState({}),
+
+  /*
+  Inserted by Apollo Client 3->4 migration codemod.
+  If you are not using the `@defer` directive in your application,
+  you can safely remove this option.
+  */
+  incrementalHandler: new Defer20220824Handler()
 });
 
 export default client;

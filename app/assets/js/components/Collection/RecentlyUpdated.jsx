@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql.js";
 import UISkeleton from "@js/components/UI/Skeleton";
 import CollectionImage from "@js/components/Collection/Image";

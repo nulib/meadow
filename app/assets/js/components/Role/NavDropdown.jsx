@@ -1,6 +1,6 @@
 import React from "react";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { ASSUME_ROLE } from "@js/components/Role/role.gql.js";
 import { GET_CURRENT_USER_QUERY } from "@js/components/Auth/auth.gql";
 import { toastWrapper } from "@js/services/helpers";

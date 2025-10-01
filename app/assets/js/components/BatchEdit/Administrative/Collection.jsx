@@ -2,7 +2,7 @@ import React from "react";
 import UIFormField from "@js/components/UI/Form/Field";
 import { GET_COLLECTIONS } from "@js/components/Collection/collection.gql";
 import { useFormContext } from "react-hook-form";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { sortItemsArray } from "@js/services/helpers";
 import { Notification } from "@nulib/design-system";
 

@@ -2,7 +2,7 @@ import React from "react";
 import Error from "../../components/UI/Error";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";
 import { TEMP_USER_FRIENDLY_STATUS } from "../../services/helpers";
