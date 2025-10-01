@@ -12,9 +12,7 @@ defmodule Meadow.Config.Runtime.Dev do
     Path.join(cert_path, "key.pem") |> File.write!(get_secret(:wildcard_ssl, ["key"]))
   end
 
-  def configure!, do: :ok
-
-  def old_configure! do
+  def configure! do
     import Meadow.Config.Helper
 
     fetch_cert()
