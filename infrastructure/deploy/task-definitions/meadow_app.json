@@ -122,6 +122,10 @@
       {
         "name": "FILE_SET_COMPLETE_PROCESSOR_CONCURRENCY",
         "value": "20"
+      },
+      {
+        "name": "PHX_SERVER",
+        "value": "true"
       }
     ],
     "portMappings": [
