@@ -26,6 +26,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.HelperTypes)
   import_types(__MODULE__.Data.CSVMetadataUpdateTypes)
   import_types(__MODULE__.NULAuthorityTypes)
+  import_types(__MODULE__.ChatTypes)
 
   query do
     import_fields(:account_queries)
@@ -53,12 +54,14 @@ defmodule MeadowWeb.Schema do
     import_fields(:nul_authority_mutations)
     import_fields(:shared_link_mutations)
     import_fields(:work_mutations)
+    import_fields(:chat_mutations)
   end
 
   subscription do
     import_fields(:ingest_subscriptions)
     import_fields(:file_set_subscriptions)
     import_fields(:work_subscriptions)
+    import_fields(:chat_subscriptions)
   end
 
   enum :sort_order do
