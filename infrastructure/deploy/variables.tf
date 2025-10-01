@@ -148,3 +148,8 @@ variable "transcription_bucket" {
   type    = string
   default = ""
 }
+
+variable "config_overrides" {
+  type    = map(string)
+  default = {}
+}
