@@ -1,11 +1,9 @@
-defmodule MeadowWeb.Resolvers.Chat do
-
+defmodule Meadow.Chat.Publisher do
   @moduledoc """
-  Absinthe GraphQL query resolver for Chat Context
-
+  Publishes chat messages to subscriptions
   """
 
-  def send_chat_message(_, %{conversation_id: conversation_id, type: type, message: message}, _) do
+  def publish_message(conversation_id, type, message) do
     result = %{
       id: System.unique_integer([:positive]) |> to_string(),
       conversation_id: conversation_id,
@@ -18,7 +16,5 @@ defmodule MeadowWeb.Resolvers.Chat do
       result,
       chat_response: "conversation:#{conversation_id}"
     )
-
-    {:ok, result}
   end
 end

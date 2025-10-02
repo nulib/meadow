@@ -1,4 +1,4 @@
-defmodule MeadowWeb.Schema.Types.Data.Chat do
+defmodule MeadowWeb.Schema.ChatTypes do
   @moduledoc """
   Absinthe schema for Chat and ChatMessage types
   """
@@ -10,13 +10,8 @@ defmodule MeadowWeb.Schema.Types.Data.Chat do
     field :chat_response, :chat_message do
       arg :conversation_id, non_null(:id)
 
-      config fn args, _context ->
+      config fn args, _ ->
         {:ok, topic: "conversation:#{args.conversation_id}"}
-      end
-
-      trigger [:send_chat_message], topic: fn
-        %{conversation_id: conversation_id} -> ["conversation:#{conversation_id}"]
-        _ -> []
       end
     end
   end
@@ -38,7 +33,6 @@ defmodule MeadowWeb.Schema.Types.Data.Chat do
     field :conversation_id, :id
     field :type, :string
     field :message, :string
-    field :inserted_at, :naive_datetime
   end
 
 end
