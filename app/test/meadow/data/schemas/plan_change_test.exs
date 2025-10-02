@@ -1,0 +1,327 @@
+defmodule Meadow.Data.Schemas.PlanChangeTest do
+  use Meadow.DataCase
+  alias Meadow.Data.Schemas.{Plan, PlanChange}
+
+  setup do
+    {:ok, plan} =
+      %Plan{}
+      |> Plan.changeset(%{
+        prompt: "Translate titles to Spanish",
+        query: "collection.id:abc-123"
+      })
+      |> Repo.insert()
+
+    work = work_fixture()
+    {:ok, plan: plan, work: work}
+  end
+
+  @valid_attrs %{
+    work_id: nil,
+    changeset: %{
+      descriptive_metadata: %{
+        alternate_title: ["El Gato"]
+      }
+    }
+  }
+
+  @invalid_attrs %{work_id: nil, changeset: nil}
+
+  describe "changeset/2" do
+    test "with valid attributes", %{plan: plan, work: work} do
+      attrs = Map.merge(@valid_attrs, %{plan_id: plan.id, work_id: work.id})
+      changeset = PlanChange.changeset(%PlanChange{}, attrs)
+      assert changeset.valid?
+    end
+
+    test "without required work_id", %{plan: plan} do
+      attrs = Map.merge(@invalid_attrs, %{plan_id: plan.id})
+      changeset = PlanChange.changeset(%PlanChange{}, attrs)
+      refute changeset.valid?
+      assert "can't be blank" in errors_on(changeset).work_id
+    end
+
+    test "without required changeset", %{plan: plan, work: work} do
+      attrs = %{plan_id: plan.id, work_id: work.id, changeset: nil}
+      changeset = PlanChange.changeset(%PlanChange{}, attrs)
+      refute changeset.valid?
+      assert "can't be blank" in errors_on(changeset).changeset
+    end
+
+    test "validates changeset is a map", %{plan: plan, work: work} do
+      attrs = %{plan_id: plan.id, work_id: work.id, changeset: "not a map"}
+      changeset = PlanChange.changeset(%PlanChange{}, attrs)
+      refute changeset.valid?
+      assert "is invalid" in errors_on(changeset).changeset
+    end
+
+    test "validates status is in allowed values", %{plan: plan, work: work} do
+      attrs = Map.merge(@valid_attrs, %{plan_id: plan.id, work_id: work.id, status: :invalid})
+      changeset = PlanChange.changeset(%PlanChange{}, attrs)
+      refute changeset.valid?
+    end
+
+    test "allows valid status values", %{plan: plan, work: work} do
+      for status <- [:pending, :approved, :rejected, :executed, :error] do
+        attrs = Map.merge(@valid_attrs, %{plan_id: plan.id, work_id: work.id, status: status})
+        changeset = PlanChange.changeset(%PlanChange{}, attrs)
+        assert changeset.valid?
+      end
+    end
+  end
+
+  describe "approve/2" do
+    test "transitions to approved status", %{plan: plan, work: work} do
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: @valid_attrs.changeset
+        })
+        |> Repo.insert()
+
+      changeset = PlanChange.approve(change, "user@example.com")
+
+      assert changeset.valid?
+      assert get_change(changeset, :status) == :approved
+      assert get_change(changeset, :user) == "user@example.com"
+    end
+  end
+
+  describe "reject/2" do
+    test "transitions to rejected status with notes", %{plan: plan, work: work} do
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: @valid_attrs.changeset
+        })
+        |> Repo.insert()
+
+      changeset = PlanChange.reject(change, "Translation is incorrect")
+
+      assert changeset.valid?
+      assert get_change(changeset, :status) == :rejected
+      assert get_change(changeset, :notes) == "Translation is incorrect"
+    end
+  end
+
+  describe "mark_executed/1" do
+    test "transitions to executed status with timestamp", %{plan: plan, work: work} do
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: @valid_attrs.changeset,
+          status: :approved
+        })
+        |> Repo.insert()
+
+      changeset = PlanChange.mark_executed(change)
+
+      assert changeset.valid?
+      assert get_change(changeset, :status) == :executed
+      assert get_change(changeset, :executed_at)
+    end
+  end
+
+  describe "mark_error/2" do
+    test "transitions to error status with error message", %{plan: plan, work: work} do
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: @valid_attrs.changeset,
+          status: :approved
+        })
+        |> Repo.insert()
+
+      changeset = PlanChange.mark_error(change, "Work not found")
+
+      assert changeset.valid?
+      assert get_change(changeset, :status) == :error
+      assert get_change(changeset, :error) == "Work not found"
+    end
+  end
+
+  describe "integration scenarios" do
+    test "Spanish translation for work A", %{plan: plan} do
+      work_a = work_fixture(%{descriptive_metadata: %{title: "The Cat"}})
+
+      # Agent creates change with Spanish translation
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work_a.id,
+          changeset: %{
+            descriptive_metadata: %{alternate_title: ["El Gato"]}
+          }
+        })
+        |> Repo.insert()
+
+      assert change.status == :pending
+      assert change.changeset.descriptive_metadata.alternate_title == ["El Gato"]
+
+      # User approves
+      {:ok, approved} =
+        change
+        |> PlanChange.approve("user@example.com")
+        |> Repo.update()
+
+      assert approved.status == :approved
+      assert approved.user == "user@example.com"
+
+      # System executes
+      {:ok, executed} =
+        approved
+        |> PlanChange.mark_executed()
+        |> Repo.update()
+
+      assert executed.status == :executed
+      assert executed.executed_at
+    end
+
+    test "LCNAF contributor assignment", %{plan: plan} do
+      work = work_fixture(%{descriptive_metadata: %{title: "Ansel Adams Photography"}})
+
+      # Agent creates change with LOC authority
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: %{
+            descriptive_metadata: %{
+              contributor: [
+                %{
+                  term: "Adams, Ansel, 1902-1984",
+                  role: %{id: "pht", scheme: "marc_relator"}
+                }
+              ]
+            }
+          }
+        })
+        |> Repo.insert()
+
+      assert change.changeset.descriptive_metadata.contributor == [
+               %{term: "Adams, Ansel, 1902-1984", role: %{id: "pht", scheme: "marc_relator"}}
+             ]
+
+      # User approves and executes
+      {:ok, approved} =
+        change
+        |> PlanChange.approve("curator@example.com")
+        |> Repo.update()
+
+      {:ok, executed} =
+        approved
+        |> PlanChange.mark_executed()
+        |> Repo.update()
+
+      assert executed.status == :executed
+    end
+
+    test "rejected change workflow", %{plan: plan, work: work} do
+      # Agent creates change
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          changeset: %{
+            descriptive_metadata: %{alternate_title: ["Wrong Translation"]}
+          }
+        })
+        |> Repo.insert()
+
+      # User rejects with notes
+      {:ok, rejected} =
+        change
+        |> PlanChange.reject("This translation is inaccurate")
+        |> Repo.update()
+
+      assert rejected.status == :rejected
+      assert rejected.notes == "This translation is inaccurate"
+    end
+
+    test "execution error workflow", %{plan: plan} do
+      # Create change for non-existent work
+      fake_work_id = Ecto.UUID.generate()
+
+      {:ok, change} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: fake_work_id,
+          changeset: @valid_attrs.changeset,
+          status: :approved
+        })
+        |> Repo.insert()
+
+      # Mark as error when execution fails
+      {:ok, error_change} =
+        change
+        |> PlanChange.mark_error("Work #{fake_work_id} not found")
+        |> Repo.update()
+
+      assert error_change.status == :error
+      assert error_change.error =~ "not found"
+    end
+
+    test "multiple changes for the same plan", %{plan: plan} do
+      work_a = work_fixture(%{descriptive_metadata: %{title: "The Cat"}})
+      work_b = work_fixture(%{descriptive_metadata: %{title: "The House"}})
+      work_c = work_fixture(%{descriptive_metadata: %{title: "The Dogs"}})
+
+      # Agent creates multiple changes
+      {:ok, change_a} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work_a.id,
+          changeset: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
+        })
+        |> Repo.insert()
+
+      {:ok, change_b} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work_b.id,
+          changeset: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
+        })
+        |> Repo.insert()
+
+      {:ok, change_c} =
+        %PlanChange{}
+        |> PlanChange.changeset(%{
+          plan_id: plan.id,
+          work_id: work_c.id,
+          changeset: %{descriptive_metadata: %{alternate_title: ["Los Perros"]}}
+        })
+        |> Repo.insert()
+
+      # Verify all changes belong to the same plan
+      changes = Repo.all(from c in PlanChange, where: c.plan_id == ^plan.id)
+      assert length(changes) == 3
+      assert Enum.all?(changes, &(&1.plan_id == plan.id))
+
+      # User can approve/reject individually
+      {:ok, _} = PlanChange.approve(change_a, "user@example.com") |> Repo.update()
+      {:ok, _} = PlanChange.approve(change_b, "user@example.com") |> Repo.update()
+      {:ok, _} = PlanChange.reject(change_c, "Needs review") |> Repo.update()
+
+      approved_count =
+        Repo.aggregate(
+          from(c in PlanChange, where: c.plan_id == ^plan.id and c.status == :approved),
+          :count
+        )
+
+      assert approved_count == 2
+    end
+  end
+end
