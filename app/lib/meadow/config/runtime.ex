@@ -223,6 +223,9 @@ defmodule Meadow.Config.Runtime do
         ),
       environment: environment(),
       environment_prefix: prefix(),
+      firewall_security_header:
+        get_secret(:firewall, ["security_header"], [])
+        |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end),
       iiif_server_url:
         get_secret(
           :iiif,
