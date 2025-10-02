@@ -123,6 +123,56 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all()
 ```
 
+### AI Agent Plans
+
+Meadow supports AI agent-generated plans for batch modifications to works. The system uses a two-table structure that allows agents to propose work-specific changes based on high-level prompts.
+
+#### Data Model
+
+**Plans** - High-level task definitions
+- `prompt`: Natural language instruction (e.g., "Translate titles to Spanish in alternate_title field")
+- `query`: OpenSearch query string identifying target works
+  - Collection query: `"collection.id:abc-123"`
+  - Specific works: `"id:(work-id-1 OR work-id-2 OR work-id-3)"`
+- `status`: `:pending`, `:approved`, `:rejected`, `:executed`, or `:error`
+
+**PlanChanges** - Work-specific modifications
+- `plan_id`: Foreign key to parent plan
+- `work_id`: Specific work being modified
+- `changeset`: Map of field changes tailored to this work
+- `status`: Individual approval/rejection tracking
+
+#### Example Workflow
+
+```elixir
+# 1. Create a plan with a high-level prompt and work selection
+{:ok, plan} = Meadow.Data.Planner.create_plan(%{
+  prompt: "Add a date_created EDTF string for the work based on the work's existing description, creator, and temporal subjects",
+  query: "collection.id:abc-123"
+})
+
+# 2. Agent generates work-specific changes
+{:ok, change_a} = Meadow.Data.Planner.create_plan_change(%{
+  plan_id: plan.id,
+  work_id: "work-a-id",
+  changeset: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}
+})
+
+{:ok, change_b} = Meadow.Data.Planner.create_plan_change(%{
+  plan_id: plan.id,
+  work_id: "work-b-id",
+  changeset: %{descriptive_metadata: %{date_created: ["1923-05"]}}
+})
+
+# 3. User reviews and approves
+{:ok, _} = Meadow.Data.Planner.approve_plan(plan, "user@example.com")
+{:ok, _} = Meadow.Data.Planner.approve_plan_change(change_a, "user@example.com")
+{:ok, _} = Meadow.Data.Planner.approve_plan_change(change_b, "user@example.com")
+
+# 4. Execute approved changes
+{:ok, executed_plan} = Meadow.Data.Planner.execute_plan(plan)
+```
+
 ### Doing development on the Meadow Pipeline lambdas
 
 In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use your local files instead of the deployed lambdas. Example below (you don't have to override them all. Just the ones you need).
