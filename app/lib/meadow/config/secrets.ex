@@ -9,6 +9,7 @@ defmodule Meadow.Config.Secrets do
   @config_map %{
     dcapi: "config/dcapi",
     ezid: "infrastructure/ezid",
+    firewall: "infrastructure/firewall",
     iiif: "infrastructure/iiif",
     index: "infrastructure/index",
     inference: "infrastructure/inference",
