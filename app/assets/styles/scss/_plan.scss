@@ -1,0 +1,46 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+}
+
+.chat-transcript {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: flex-end;
+  padding: 1rem 0;
+  overflow-y: scroll;
+}
+
+.chat-message {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  max-width: 61.8%; // golden ratio
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  cursor: text;
+  margin-top: 1rem;
+
+  &[data-message-user="ai"] {
+    background-color: $light-grey;
+    color: #000;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+  }
+
+  &[data-message-user="human"] {
+    background-color: $black;
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  /**
+    * Reduce the gap between consecutive messages from the same user
+    */
+  &[data-message-user="human"] + .chat-message[data-message-user="human"],
+  &[data-message-user="ai"] + .chat-message[data-message-user="ai"] {
+    margin-top: 0.38rem;
+  }
+}
