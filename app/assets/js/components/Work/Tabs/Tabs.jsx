@@ -3,14 +3,16 @@ import WorkTabAbout from "@js/components/Work/Tabs/About";
 import WorkTabStructure from "@js/components/Work/Tabs/Structure/Structure";
 import WorkTabsAdministrative from "@js/components/Work/Tabs/Administrative/Administrative";
 import WorkTabsPreservation from "@js/components/Work/Tabs/Preservation/Preservation";
+import WorkTabsPlan from "@js/components/Work/Tabs/Plan/Plan";
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import { IconMagic } from "@js/components/Icon";
 
 const WorkTabs = ({ work }) => {
   const [activeTab, setActiveTab] = useState("tab-about");
   const handleTabClick = (e) => {
-    setActiveTab(e.target.id);
+    setActiveTab(e.currentTarget.id);
   };
 
   if (!work) {
@@ -20,47 +22,62 @@ const WorkTabs = ({ work }) => {
   return (
     <CodeListProvider>
       <IIIFProvider>
-        <div className="tabs is-centered is-boxed" data-testid="tabs">
-          <ul>
-            <li className={`${activeTab === "tab-about" && "is-active"}`}>
-              <a
-                id="tab-about"
-                data-testid="tab-about"
-                onClick={handleTabClick}
-              >
-                About this item
-              </a>
-            </li>
-            <li
-              className={`${activeTab === "tab-administrative" && "is-active"}`}
-            >
-              <a
-                id="tab-administrative"
-                data-testid="tab-administrative"
-                onClick={handleTabClick}
-              >
-                Administrative
-              </a>
-            </li>
-            <li className={`${activeTab === "tab-structure" && "is-active"}`}>
-              <a
-                id="tab-structure"
-                data-testid="tab-structure"
-                onClick={handleTabClick}
-              >
-                Access files
-              </a>
-            </li>
-            <AuthDisplayAuthorized>
-              <li
-                className={`${activeTab === "tab-preservation" && "is-active"}`}
-              >
+        <div className="tabs" data-testid="tabs">
+          <ul className="is-flex is-justify-content-space-between is-align-items-center">
+            <div className="is-flex">
+              <li className={`${activeTab === "tab-about" && "is-active"}`}>
                 <a
-                  id="tab-preservation"
-                  data-testid="tab-preservation"
+                  id="tab-about"
+                  data-testid="tab-about"
                   onClick={handleTabClick}
                 >
-                  Preservation
+                  About this item
+                </a>
+              </li>
+              <li
+                className={`${activeTab === "tab-administrative" && "is-active"}`}
+              >
+                <a
+                  id="tab-administrative"
+                  data-testid="tab-administrative"
+                  onClick={handleTabClick}
+                >
+                  Administrative
+                </a>
+              </li>
+              <li className={`${activeTab === "tab-structure" && "is-active"}`}>
+                <a
+                  id="tab-structure"
+                  data-testid="tab-structure"
+                  onClick={handleTabClick}
+                >
+                  Access files
+                </a>
+              </li>
+              <AuthDisplayAuthorized>
+                <li
+                  className={`${activeTab === "tab-preservation" && "is-active"}`}
+                >
+                  <a
+                    id="tab-preservation"
+                    data-testid="tab-preservation"
+                    onClick={handleTabClick}
+                  >
+                    Preservation
+                  </a>
+                </li>
+              </AuthDisplayAuthorized>
+            </div>
+            <AuthDisplayAuthorized>
+              <li className={`${activeTab === "tab-plan" && "is-active"}`}>
+                <a
+                  id="tab-plan"
+                  data-testid="tab-plan"
+                  onClick={handleTabClick}
+                  className="is-flex is-align-items-center"
+                  style={{ gap: "0.5rem" }}
+                >
+                  <IconMagic /> <span>Auto Edit</span>
                 </a>
               </li>
             </AuthDisplayAuthorized>
@@ -95,6 +112,14 @@ const WorkTabs = ({ work }) => {
               }`}
             >
               <WorkTabsPreservation work={work} />
+            </div>
+          </AuthDisplayAuthorized>
+          <AuthDisplayAuthorized>
+            <div
+              data-testid="tab-plan-content"
+              className={`${activeTab !== "tab-plan" ? "is-hidden" : ""}`}
+            >
+              <WorkTabsPlan />
             </div>
           </AuthDisplayAuthorized>
         </div>
