@@ -17,14 +17,19 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
 
   @valid_attrs %{
     work_id: nil,
-    changeset: %{
+    add: %{
       descriptive_metadata: %{
-        alternate_title: ["El Gato"]
+        subject: [
+          %{
+            role: %{id: "TOPICAL", scheme: "subject_role"},
+            term: %{id: "http://id.loc.gov/authorities/subjects/sh85141086"}
+          }
+        ]
       }
     }
   }
 
-  @invalid_attrs %{work_id: nil, changeset: nil}
+  @invalid_attrs %{work_id: nil, add: nil, delete: nil, replace: nil}
 
   describe "changeset/2" do
     test "with valid attributes", %{plan: plan, work: work} do
@@ -40,18 +45,18 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
       assert "can't be blank" in errors_on(changeset).work_id
     end
 
-    test "without required changeset", %{plan: plan, work: work} do
-      attrs = %{plan_id: plan.id, work_id: work.id, changeset: nil}
+    test "without any operation", %{plan: plan, work: work} do
+      attrs = %{plan_id: plan.id, work_id: work.id}
       changeset = PlanChange.changeset(%PlanChange{}, attrs)
       refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).changeset
+      assert "at least one of add, delete, or replace must be specified" in errors_on(changeset).add
     end
 
-    test "validates changeset is a map", %{plan: plan, work: work} do
-      attrs = %{plan_id: plan.id, work_id: work.id, changeset: "not a map"}
+    test "validates add is a map", %{plan: plan, work: work} do
+      attrs = %{plan_id: plan.id, work_id: work.id, add: "not a map"}
       changeset = PlanChange.changeset(%PlanChange{}, attrs)
       refute changeset.valid?
-      assert "is invalid" in errors_on(changeset).changeset
+      assert "is invalid" in errors_on(changeset).add
     end
 
     test "validates status is in allowed values", %{plan: plan, work: work} do
@@ -76,7 +81,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: @valid_attrs.changeset
+          add: @valid_attrs.add
         })
         |> Repo.insert()
 
@@ -95,7 +100,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: @valid_attrs.changeset
+          add: @valid_attrs.add
         })
         |> Repo.insert()
 
@@ -114,7 +119,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: @valid_attrs.changeset,
+          add: @valid_attrs.add,
           status: :approved
         })
         |> Repo.insert()
@@ -134,7 +139,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: @valid_attrs.changeset,
+          add: @valid_attrs.add,
           status: :approved
         })
         |> Repo.insert()
@@ -157,14 +162,14 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work_a.id,
-          changeset: %{
+          add: %{
             descriptive_metadata: %{alternate_title: ["El Gato"]}
           }
         })
         |> Repo.insert()
 
       assert change.status == :pending
-      assert change.changeset.descriptive_metadata.alternate_title == ["El Gato"]
+      assert change.add.descriptive_metadata.alternate_title == ["El Gato"]
 
       # User approves
       {:ok, approved} =
@@ -194,12 +199,15 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: %{
+          add: %{
             descriptive_metadata: %{
               contributor: [
                 %{
-                  term: "Adams, Ansel, 1902-1984",
-                  role: %{id: "pht", scheme: "marc_relator"}
+                  role: %{id: "pht", scheme: "marc_relator"},
+                  term: %{
+                    id: "http://id.loc.gov/authorities/names/n79127000",
+                    label: "Adams, Ansel, 1902-1984"
+                  }
                 }
               ]
             }
@@ -207,9 +215,10 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         })
         |> Repo.insert()
 
-      assert change.changeset.descriptive_metadata.contributor == [
-               %{term: "Adams, Ansel, 1902-1984", role: %{id: "pht", scheme: "marc_relator"}}
-             ]
+      assert [contrib] = change.add.descriptive_metadata.contributor
+      assert contrib.role.id == "pht"
+      assert contrib.term.id == "http://id.loc.gov/authorities/names/n79127000"
+      assert contrib.term.label == "Adams, Ansel, 1902-1984"
 
       # User approves and executes
       {:ok, approved} =
@@ -232,7 +241,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: %{
+          add: %{
             descriptive_metadata: %{alternate_title: ["Wrong Translation"]}
           }
         })
@@ -257,7 +266,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: fake_work_id,
-          changeset: @valid_attrs.changeset,
+          add: @valid_attrs.add,
           status: :approved
         })
         |> Repo.insert()
@@ -283,7 +292,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work_a.id,
-          changeset: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
+          add: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
         })
         |> Repo.insert()
 
@@ -292,7 +301,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work_b.id,
-          changeset: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
+          add: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
         })
         |> Repo.insert()
 
@@ -301,7 +310,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> PlanChange.changeset(%{
           plan_id: plan.id,
           work_id: work_c.id,
-          changeset: %{descriptive_metadata: %{alternate_title: ["Los Perros"]}}
+          add: %{descriptive_metadata: %{alternate_title: ["Los Perros"]}}
         })
         |> Repo.insert()
 

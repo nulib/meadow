@@ -26,7 +26,16 @@ defmodule Meadow.Data.Planner do
      changes = list_plan_changes(plan.id)
      Enum.each(changes, fn change ->
        case update_plan_change(change, %{
-         changeset: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}
+         add: %{
+           descriptive_metadata: %{
+             subject: [
+               %{
+                 role: %{id: "TOPICAL", scheme: "subject_role"},
+                 term: %{id: "http://id.loc.gov/authorities/subjects/sh85141086"}
+               }
+             ]
+           }
+         }
        }) do
          {:ok, _updated_change} -> :ok
          {:error, message} -> Logger.error("Error: " <> message)
@@ -36,8 +45,8 @@ defmodule Meadow.Data.Planner do
 
   3. **Review**: User reviews and approves/rejects plan and individual changes
      ```
-     approve_plan(plan, "user@example.com")
-     approve_plan_change(change, "user@example.com")
+     approve_plan(plan, "user-netid")
+     approve_plan_change(change, "user-netid")
      ```
 
   4. **Execute**: Apply approved changes to works
@@ -48,8 +57,9 @@ defmodule Meadow.Data.Planner do
   import Ecto.Query, warn: false
   alias Meadow.Data.Schemas.{Plan, PlanChange}
   alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Works
   alias Meadow.Repo
-  alias Meadow.Utils.ChangesetErrors
+  alias Meadow.Utils.{Atoms, ChangesetErrors, StructMap}
 
   @doc """
   Returns the list of plans.
@@ -68,7 +78,7 @@ defmodule Meadow.Data.Planner do
 
   ## Example Criteria
 
-      [{:limit, 15}, {:status, :pending}, {:user, "user@example.com"}]
+      [{:limit, 15}, {:status, :pending}, {:user, "user-netid"}]
 
   ## Examples
 
@@ -279,11 +289,11 @@ defmodule Meadow.Data.Planner do
 
   ## Examples
 
-      iex> approve_plan(plan, "user@example.com")
-      {:ok, %Plan{status: :approved, user: "user@example.com"}}
+      iex> approve_plan(plan, "user-netid")
+      {:ok, %Plan{status: :approved, user: "user-netid"}}
 
-      iex> approve_plan(plan, "user@example.com", approve_changes: true)
-      {:ok, %Plan{status: :approved, user: "user@example.com"}}
+      iex> approve_plan(plan, "user-netid", approve_changes: true)
+      {:ok, %Plan{status: :approved, user: "user-netid"}}
   """
   def approve_plan(%Plan{} = plan, user \\ nil, opts \\ []) do
     result =
@@ -478,29 +488,16 @@ defmodule Meadow.Data.Planner do
     Repo.get(PlanChange, id)
   end
 
-  @doc """
-  Gets a single plan change by plan_id and work_id.
+  def get_plan_changes_by_work(%Plan{id: plan_id}, work_id),
+    do: get_plan_changes_by_work(plan_id, work_id)
 
-  Returns `nil` if the PlanChange does not exist.
+  def get_plan_changes_by_work(plan_id, %Work{id: work_id}),
+    do: get_plan_changes_by_work(plan_id, work_id)
 
-  ## Examples
-
-      iex> get_plan_change_by_work(plan.id, work.id)
-      %PlanChange{}
-
-      iex> get_plan_change_by_work(plan, work)
-      %PlanChange{}
-
-      iex> get_plan_change_by_work(plan.id, "nonexistent")
-      nil
-  """
-  def get_plan_change_by_work(%Plan{id: plan_id}, work_id), do: get_plan_change_by_work(plan_id, work_id)
-  def get_plan_change_by_work(plan_id, %Work{id: work_id}), do: get_plan_change_by_work(plan_id, work_id)
-  def get_plan_change_by_work(%Plan{id: plan_id}, %Work{id: work_id}), do: get_plan_change_by_work(plan_id, work_id)
-
-  def get_plan_change_by_work(plan_id, work_id) when is_binary(plan_id) and is_binary(work_id) do
+  def get_plan_changes_by_work(plan_id, work_id)
+      when is_binary(plan_id) and is_binary(work_id) do
     from(c in PlanChange, where: c.plan_id == ^plan_id and c.work_id == ^work_id)
-    |> Repo.one()
+    |> Repo.all()
   end
 
   @doc """
@@ -511,7 +508,16 @@ defmodule Meadow.Data.Planner do
       iex> create_plan_change(%{
       ...>   plan_id: plan.id,
       ...>   work_id: "work-123",
-      ...>   changeset: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}
+      ...>   add: %{
+      ...>     descriptive_metadata: %{
+      ...>       subject: [
+      ...>         %{
+      ...>           role: %{id: "TOPICAL", scheme: "subject_role"},
+      ...>           term: %{id: "http://id.loc.gov/authorities/subjects/sh85141086"}
+      ...>         }
+      ...>       ]
+      ...>     }
+      ...>   }
       ...> })
       {:ok, %PlanChange{}}
 
@@ -550,8 +556,24 @@ defmodule Meadow.Data.Planner do
   ## Examples
 
       iex> create_plan_changes([
-      ...>   %{plan_id: plan.id, work_id: "work-1", changeset: %{...}},
-      ...>   %{plan_id: plan.id, work_id: "work-2", changeset: %{...}}
+      ...>   %{
+      ...>     plan_id: plan.id,
+      ...>     work_id: "work-1",
+      ...>     add: %{
+      ...>       descriptive_metadata: %{
+      ...>         subject: [%{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "http://..."}}]
+      ...>       }
+      ...>     }
+      ...>   },
+      ...>   %{
+      ...>     plan_id: plan.id,
+      ...>     work_id: "work-2",
+      ...>     add: %{
+      ...>       descriptive_metadata: %{
+      ...>         subject: [%{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "http://..."}}]
+      ...>       }
+      ...>     }
+      ...>   }
       ...> ])
       {:ok, [%PlanChange{}, %PlanChange{}]}
   """
@@ -596,7 +618,7 @@ defmodule Meadow.Data.Planner do
 
   ## Examples
 
-      iex> approve_plan_change(change, "user@example.com")
+      iex> approve_plan_change(change, "user-netid")
       {:ok, %PlanChange{status: :approved}}
   """
   def approve_plan_change(%PlanChange{} = change, user \\ nil) do
@@ -768,8 +790,6 @@ defmodule Meadow.Data.Planner do
     end
   end
 
-  # Private plan creation helpers
-
   defp populate_plan_changes(plan, query) do
     try do
       query
@@ -856,7 +876,7 @@ defmodule Meadow.Data.Planner do
 
     Logger.debug("Validated #{length(valid_work_ids)} work IDs exist in database")
 
-    # Create PlanChange records with empty changesets
+    # Create PlanChange records with empty add/delete/replace maps
     entries =
       Enum.map(valid_work_ids, fn work_id ->
         Logger.debug("Creating PlanChange for work #{work_id} in plan #{plan_id}")
@@ -864,7 +884,7 @@ defmodule Meadow.Data.Planner do
         %{
           plan_id: plan_id,
           work_id: work_id,
-          changeset: %{},
+          add: %{},
           status: :pending,
           inserted_at: DateTime.utc_now(),
           updated_at: DateTime.utc_now()
@@ -875,17 +895,248 @@ defmodule Meadow.Data.Planner do
     Logger.debug("Created #{count} PlanChanges for plan #{plan_id}")
   end
 
-  # Private execution helpers
-
-  defp apply_change_to_work(%PlanChange{work_id: work_id, changeset: changeset_attrs}) do
+  defp apply_change_to_work(%PlanChange{work_id: work_id} = plan_change) do
     case Repo.get(Work, work_id) do
       nil ->
         {:error, "Work not found"}
 
       work ->
-        work
-        |> Work.update_changeset(changeset_attrs)
-        |> Repo.update()
+        apply_operations_to_work(work, plan_change)
     end
   end
+
+  defp apply_operations_to_work(work, %PlanChange{delete: delete, add: add, replace: replace}) do
+    delete = if is_nil(delete), do: %{}, else: delete
+    add = if is_nil(add), do: %{}, else: add
+    replace = if is_nil(replace), do: %{}, else: replace
+
+    Repo.transaction(fn ->
+      # Apply controlled field changes (delete/add operations)
+      apply_controlled_field_operations(work, delete, add)
+
+      # Apply uncontrolled field changes (add/replace operations)
+      apply_uncontrolled_field_operations(work, add, replace)
+
+      # Reload the work to get the updated state
+      Repo.get!(Work, work.id)
+    end)
+  end
+
+  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+
+  defp apply_controlled_field_operations(work, delete, add) do
+    @controlled_fields
+    |> Enum.each(fn field ->
+      delete_values = controlled_field_values(delete, field)
+      add_values = controlled_field_values(add, field)
+
+      unless is_nil(delete_values) and is_nil(add_values) do
+        apply_controlled_field_operation(
+          work.id,
+          field,
+          prepare_controlled_field_list(delete_values),
+          prepare_controlled_field_list(add_values)
+        )
+      end
+    end)
+  end
+
+  defp apply_controlled_field_operation(work_id, field, delete_values, add_values) do
+    require Logger
+    Logger.debug("Applying controlled field operation for #{field}")
+
+    from(w in Work, where: w.id == ^work_id)
+    |> Works.replace_controlled_value(
+      :descriptive_metadata,
+      to_string(field),
+      delete_values,
+      add_values
+    )
+    |> Repo.update_all([])
+  end
+
+  defp prepare_controlled_field_list(nil), do: []
+  defp prepare_controlled_field_list([]), do: []
+
+  defp prepare_controlled_field_list(data) when is_list(data) do
+    Enum.map(data, &normalize_controlled_field_entry/1)
+  end
+
+  defp prepare_controlled_field_list(data), do: prepare_controlled_field_list([data])
+
+  defp controlled_field_values(data, field) when is_map(data) do
+    metadata = Map.get(data, :descriptive_metadata) || Map.get(data, "descriptive_metadata")
+
+    case metadata do
+      nil -> nil
+      %{} = meta -> Map.get(meta, field) || Map.get(meta, Atom.to_string(field))
+    end
+  end
+
+  defp controlled_field_values(_data, _field), do: nil
+
+  defp normalize_controlled_field_entry(entry) do
+    entry
+    |> StructMap.deep_struct_to_map()
+    |> Atoms.atomize()
+    |> Map.put_new(:role, nil)
+    |> normalize_role()
+    |> normalize_term()
+  end
+
+  defp normalize_role(%{role: nil} = entry), do: entry
+
+  defp normalize_role(%{role: role} = entry) when is_map(role) do
+    normalized_role =
+      role
+      |> StructMap.deep_struct_to_map()
+      |> Map.take([:id, :scheme])
+      |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+      |> Enum.into(%{})
+
+    Map.put(entry, :role, if(map_size(normalized_role) == 0, do: nil, else: normalized_role))
+  end
+
+  defp normalize_role(entry), do: Map.put(entry, :role, nil)
+
+  defp normalize_term(%{term: %{} = term} = entry) do
+    normalized_term =
+      term
+      |> StructMap.deep_struct_to_map()
+      |> Map.take([:id])
+
+    Map.put(entry, :term, if(map_size(normalized_term) == 0, do: nil, else: normalized_term))
+  end
+
+  defp normalize_term(entry), do: entry
+
+  defp apply_uncontrolled_field_operations(work, add, replace) do
+    # Extract collection_id and top-level fields from replace
+    collection_id = Map.get(replace, :collection_id, :not_present)
+    visibility = Map.get(replace, :visibility, :not_present)
+    published = Map.get(replace, :published, :not_present)
+
+    work.id
+    |> update_top_level_field(:collection_id, collection_id)
+    |> update_top_level_field(:visibility, visibility)
+    |> update_top_level_field(:published, published)
+    |> merge_uncontrolled_metadata(add, :append)
+    |> merge_uncontrolled_metadata(replace, :replace)
+  end
+
+  defp update_top_level_field(work_id, _field, :not_present), do: work_id
+
+  defp update_top_level_field(work_id, field, value) do
+    require Logger
+    Logger.debug("Updating #{field} to #{inspect(value)}")
+
+    update_args = Keyword.new([{field, value}, {:updated_at, DateTime.utc_now()}])
+
+    from(w in Work, where: w.id == ^work_id, update: [set: ^update_args])
+    |> Repo.update_all([])
+
+    work_id
+  end
+
+  defp merge_uncontrolled_metadata(work_id, new_values, _mode) when map_size(new_values) == 0 do
+    work_id
+  end
+
+  defp merge_uncontrolled_metadata(work_id, new_values, mode) do
+    descriptive_metadata =
+      new_values
+      |> metadata_section(:descriptive_metadata)
+      |> Atoms.atomize()
+
+    mergeable_descriptive_metadata =
+      descriptive_metadata
+      |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
+      |> Enum.into(%{})
+      |> humanize_date_created()
+
+    mergeable_administrative_metadata =
+      new_values
+      |> metadata_section(:administrative_metadata)
+      |> Atoms.atomize()
+      |> Enum.into(%{})
+
+    if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
+      from(w in Work, where: w.id == ^work_id)
+      |> Works.merge_metadata_values(
+        :descriptive_metadata,
+        mergeable_descriptive_metadata,
+        mode
+      )
+      |> Works.merge_metadata_values(
+        :administrative_metadata,
+        mergeable_administrative_metadata,
+        mode
+      )
+      |> Works.merge_updated_at()
+      |> Repo.update_all([])
+    end
+
+    work_id
+  end
+
+  defp metadata_section(map, key) when is_map(map) do
+    Map.get(map, key) || Map.get(map, Atom.to_string(key)) || %{}
+  end
+
+  defp metadata_section(_map, _key), do: %{}
+
+  defp humanize_date_created(descriptive_metadata) do
+    case Map.fetch(descriptive_metadata, :date_created) do
+      {:ok, date_created} ->
+        put_humanized_dates(descriptive_metadata, :date_created, date_created)
+
+      :error ->
+        case Map.fetch(descriptive_metadata, "date_created") do
+          {:ok, date_created} ->
+            put_humanized_dates(descriptive_metadata, "date_created", date_created)
+
+          :error ->
+            descriptive_metadata
+        end
+    end
+  end
+
+  defp put_humanized_dates(descriptive_metadata, key, date_created) do
+    dates =
+      date_created
+      |> Enum.map(&coerce_date_entry/1)
+      |> Enum.reject(&is_nil/1)
+
+    Map.put(descriptive_metadata, key, dates)
+  end
+
+  defp humanize_edtf(nil), do: nil
+
+  defp humanize_edtf(edtf) when is_binary(edtf) do
+    case EDTF.humanize(edtf) do
+      {:error, error} -> raise error
+      result -> %{edtf: edtf, humanized: result}
+    end
+  end
+
+  defp coerce_date_entry(entry) when is_binary(entry), do: humanize_edtf(entry)
+
+  defp coerce_date_entry(entry) when is_map(entry) do
+    entry
+    |> Map.new(fn {key, value} -> {Atoms.atomize(key), value} end)
+    |> normalize_date_entry()
+  end
+
+  defp coerce_date_entry(_entry), do: humanize_edtf(nil)
+
+  defp normalize_date_entry(%{edtf: nil}), do: humanize_edtf(nil)
+
+  defp normalize_date_entry(%{edtf: edtf, humanized: humanized})
+       when not is_nil(edtf) and not is_nil(humanized) do
+    %{edtf: edtf, humanized: humanized}
+  end
+
+  defp normalize_date_entry(%{edtf: edtf}) when not is_nil(edtf), do: humanize_edtf(edtf)
+
+  defp normalize_date_entry(_entry), do: humanize_edtf(nil)
 end
