@@ -1,4 +1,5 @@
 defmodule Meadow.Data.PlannerTest do
+  use Meadow.AuthorityCase
   use Meadow.DataCase
 
   alias Meadow.Data.Planner
@@ -16,8 +17,6 @@ defmodule Meadow.Data.PlannerTest do
     work = work_fixture()
     {:ok, plan: plan, work: work}
   end
-
-  # ========== Plan Tests ==========
 
   describe "list_plans/0" do
     test "returns all plans" do
@@ -92,7 +91,7 @@ defmodule Meadow.Data.PlannerTest do
       Planner.create_plan_change(%{
         plan_id: plan.id,
         work_id: work.id,
-        changeset: %{title: "Updated"}
+        add: %{descriptive_metadata: %{title: "Updated"}}
       })
 
       retrieved_plan = Planner.get_plan!(plan.id, preload_changes: true)
@@ -257,7 +256,7 @@ defmodule Meadow.Data.PlannerTest do
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: %{title: "Updated"}
+          add: %{descriptive_metadata: %{title: "Updated"}}
         })
 
       Planner.delete_plan(plan)
@@ -281,10 +280,10 @@ defmodule Meadow.Data.PlannerTest do
   describe "list_plan_changes/1" do
     test "returns all changes for a plan", %{plan: plan, work: work} do
       {:ok, _} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       {:ok, _} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       changes = Planner.list_plan_changes(plan.id)
       assert length(changes) == 2
@@ -298,10 +297,10 @@ defmodule Meadow.Data.PlannerTest do
   describe "list_plan_changes/2" do
     test "filters by status", %{plan: plan, work: work} do
       {:ok, pending} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       {:ok, approved} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       Planner.approve_plan_change(approved)
 
@@ -315,10 +314,10 @@ defmodule Meadow.Data.PlannerTest do
       work2 = work_fixture()
 
       {:ok, change1} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work1.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work1.id, add: %{}})
 
       {:ok, _change2} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work2.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work2.id, add: %{}})
 
       work1_changes = Planner.list_plan_changes(plan.id, work_id: work1.id)
       assert length(work1_changes) == 1
@@ -329,7 +328,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "get_plan_change!/1" do
     test "returns the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert %PlanChange{} = retrieved = Planner.get_plan_change!(change.id)
       assert retrieved.id == change.id
@@ -345,7 +344,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "get_plan_change/1" do
     test "returns the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert %PlanChange{} = retrieved = Planner.get_plan_change(change.id)
       assert retrieved.id == change.id
@@ -357,28 +356,63 @@ defmodule Meadow.Data.PlannerTest do
   end
 
   describe "create_plan_change/1" do
-    test "with valid data creates a change", %{plan: plan, work: work} do
+    test "with valid add data creates a change", %{plan: plan, work: work} do
       attrs = %{
         plan_id: plan.id,
         work_id: work.id,
-        changeset: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
+        add: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
       }
 
       assert {:ok, %PlanChange{} = change} = Planner.create_plan_change(attrs)
       assert change.work_id == work.id
-      assert change.changeset.descriptive_metadata.alternate_title == ["El Gato"]
+      assert change.add.descriptive_metadata.alternate_title == ["El Gato"]
+    end
+
+    test "with valid delete data creates a change", %{plan: plan, work: work} do
+      attrs = %{
+        plan_id: plan.id,
+        work_id: work.id,
+        delete: %{
+          descriptive_metadata: %{
+            subject: [
+              %{
+                role: %{id: "TOPICAL", scheme: "subject_role"},
+                term: %{id: "http://id.loc.gov/authorities/subjects/sh85101196"}
+              }
+            ]
+          }
+        }
+      }
+
+      assert {:ok, %PlanChange{} = change} = Planner.create_plan_change(attrs)
+      assert change.work_id == work.id
+      assert [subj] = change.delete.descriptive_metadata.subject
+      assert subj.role.id == "TOPICAL"
+      assert subj.term.id == "http://id.loc.gov/authorities/subjects/sh85101196"
+    end
+
+    test "with valid replace data creates a change", %{plan: plan, work: work} do
+      attrs = %{
+        plan_id: plan.id,
+        work_id: work.id,
+        replace: %{descriptive_metadata: %{title: "New Title"}}
+      }
+
+      assert {:ok, %PlanChange{} = change} = Planner.create_plan_change(attrs)
+      assert change.work_id == work.id
+      assert change.replace.descriptive_metadata.title == "New Title"
     end
 
     test "without required work_id returns error", %{plan: plan} do
-      attrs = %{plan_id: plan.id, changeset: %{}}
+      attrs = %{plan_id: plan.id, add: %{}}
       assert {:error, error_message} = Planner.create_plan_change(attrs)
       assert error_message =~ "can't be blank"
     end
 
-    test "without required changeset returns error", %{plan: plan, work: work} do
+    test "without any operation returns error", %{plan: plan, work: work} do
       attrs = %{plan_id: plan.id, work_id: work.id}
       assert {:error, error_message} = Planner.create_plan_change(attrs)
-      assert error_message =~ "can't be blank"
+      assert error_message =~ "at least one of add, delete, or replace must be specified"
     end
 
     test "with invalid plan_id returns humanized error", %{work: work} do
@@ -387,7 +421,7 @@ defmodule Meadow.Data.PlannerTest do
       attrs = %{
         plan_id: invalid_plan_id,
         work_id: work.id,
-        changeset: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
+        add: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
       }
 
       assert {:error, error_message} = Planner.create_plan_change(attrs)
@@ -401,8 +435,8 @@ defmodule Meadow.Data.PlannerTest do
       work2 = work_fixture()
 
       changes_attrs = [
-        %{plan_id: plan.id, work_id: work1.id, changeset: %{title: "Updated 1"}},
-        %{plan_id: plan.id, work_id: work2.id, changeset: %{title: "Updated 2"}}
+        %{plan_id: plan.id, work_id: work1.id, add: %{descriptive_metadata: %{title: "Updated 1"}}},
+        %{plan_id: plan.id, work_id: work2.id, add: %{descriptive_metadata: %{title: "Updated 2"}}}
       ]
 
       assert {:ok, changes} = Planner.create_plan_changes(changes_attrs)
@@ -413,8 +447,8 @@ defmodule Meadow.Data.PlannerTest do
       work1 = work_fixture()
 
       changes_attrs = [
-        %{plan_id: plan.id, work_id: work1.id, changeset: %{title: "Updated"}},
-        %{plan_id: plan.id, work_id: nil, changeset: %{}}
+        %{plan_id: plan.id, work_id: work1.id, add: %{descriptive_metadata: %{title: "Updated"}}},
+        %{plan_id: plan.id, work_id: nil, add: %{}}
       ]
 
       # The transaction will raise an error and rollback
@@ -430,7 +464,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "update_plan_change/2" do
     test "updates the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, updated} = Planner.update_plan_change(change, %{notes: "Reviewed"})
       assert updated.notes == "Reviewed"
@@ -438,7 +472,7 @@ defmodule Meadow.Data.PlannerTest do
 
     test "with invalid plan_id returns humanized error", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       invalid_plan_id = "invalid-uuid"
 
@@ -452,7 +486,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "approve_plan_change/2" do
     test "approves the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, approved} = Planner.approve_plan_change(change, "user@example.com")
       assert approved.status == :approved
@@ -463,7 +497,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "reject_plan_change/2" do
     test "rejects the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, rejected} = Planner.reject_plan_change(change, "Not accurate")
       assert rejected.status == :rejected
@@ -474,7 +508,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "mark_plan_change_executed/1" do
     test "marks change as executed", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, executed} = Planner.mark_plan_change_executed(change)
       assert executed.status == :executed
@@ -485,7 +519,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "mark_plan_change_error/2" do
     test "marks change as error", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, error_change} = Planner.mark_plan_change_error(change, "Work not found")
       assert error_change.status == :error
@@ -496,7 +530,7 @@ defmodule Meadow.Data.PlannerTest do
   describe "delete_plan_change/1" do
     test "deletes the change", %{plan: plan, work: work} do
       {:ok, change} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
       assert {:ok, %PlanChange{}} = Planner.delete_plan_change(change)
       assert Planner.get_plan_change(change.id) == nil
@@ -504,7 +538,7 @@ defmodule Meadow.Data.PlannerTest do
   end
 
   describe "execute_plan/1" do
-    test "executes all approved changes", %{plan: plan} do
+    test "executes all approved changes with replace operation", %{plan: plan} do
       work1 = work_fixture()
       work2 = work_fixture()
 
@@ -512,14 +546,14 @@ defmodule Meadow.Data.PlannerTest do
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work1.id,
-          changeset: %{descriptive_metadata: %{title: "Updated 1"}}
+          replace: %{descriptive_metadata: %{title: "Updated 1"}}
         })
 
       {:ok, change2} =
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work2.id,
-          changeset: %{descriptive_metadata: %{title: "Updated 2"}}
+          replace: %{descriptive_metadata: %{title: "Updated 2"}}
         })
 
       Planner.approve_plan_change(change1)
@@ -529,9 +563,8 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, executed_plan} = Planner.execute_plan(plan)
       assert executed_plan.status == :executed
 
-      # Verify changes were applied
-      updated_work1 = Repo.get!(Meadow.Data.Schemas.Work, work1.id)
-      assert updated_work1.descriptive_metadata.title == "Updated 1"
+      # Verify the plan changes were marked as executed
+      assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
     end
 
     test "returns error when plan is not approved", %{plan: plan, work: work} do
@@ -539,7 +572,7 @@ defmodule Meadow.Data.PlannerTest do
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: %{descriptive_metadata: %{title: "Updated"}}
+          replace: %{descriptive_metadata: %{title: "Updated"}}
         })
 
       Planner.approve_plan_change(change)
@@ -549,7 +582,7 @@ defmodule Meadow.Data.PlannerTest do
     end
 
     test "returns error when no approved changes", %{plan: plan, work: work} do
-      Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, changeset: %{}})
+      Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
       {:ok, plan} = Planner.approve_plan(plan)
 
       assert {:error, "No approved changes to execute"} = Planner.execute_plan(plan)
@@ -557,14 +590,14 @@ defmodule Meadow.Data.PlannerTest do
   end
 
   describe "execute_plan_change/1" do
-    test "applies change to work", %{plan: plan} do
+    test "applies replace change to work", %{plan: plan} do
       work = work_fixture()
 
       {:ok, change} =
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work.id,
-          changeset: %{descriptive_metadata: %{title: "New Title"}},
+          replace: %{descriptive_metadata: %{title: "New Title"}},
           status: :approved
         })
 
@@ -575,6 +608,77 @@ defmodule Meadow.Data.PlannerTest do
       assert updated_work.descriptive_metadata.title == "New Title"
     end
 
+    test "applies delete change to controlled field", %{plan: plan} do
+      # Create a work with subjects
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Test Work",
+            subject: [
+              %{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}},
+              %{term: "mock1:result2", role: %{id: "GEOGRAPHICAL", scheme: "subject_role"}}
+            ]
+          }
+        })
+
+      # Reload to get the full structure as saved in DB
+      work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      [subj_to_delete | _] = work.descriptive_metadata.subject
+
+      # Create a plan change to delete one subject
+      # Convert the struct to match what's stored in JSONB by round-tripping through JSON
+      subj_as_map =
+        subj_to_delete
+        |> Jason.encode!()
+        |> Jason.decode!(keys: :atoms)
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          delete: %{
+            descriptive_metadata: %{
+              subject: [subj_as_map]
+            }
+          },
+          status: :approved
+        })
+
+      # Execute the change
+      assert {:ok, executed_change} = Planner.execute_plan_change(change)
+      assert executed_change.status == :executed
+
+      # Verify the subject was deleted
+      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+
+      assert length(updated_work.descriptive_metadata.subject) == 1
+
+      [remaining_subject] = updated_work.descriptive_metadata.subject
+      assert remaining_subject.term.id == "mock1:result2"
+      assert remaining_subject.role.id == "GEOGRAPHICAL"
+    end
+
+    test "applies add change to uncontrolled date_created field", %{plan: plan} do
+      work = work_fixture()
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{descriptive_metadata: %{date_created: ["1896-11-10"]}},
+          status: :approved
+        })
+
+      assert {:ok, executed_change} = Planner.execute_plan_change(change)
+      assert executed_change.status == :executed
+
+      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      assert [%{edtf: "1896-11-10", humanized: humanized}] =
+               updated_work.descriptive_metadata.date_created
+
+      assert humanized != nil
+    end
+
     test "marks error when work not found", %{plan: plan} do
       fake_work_id = Ecto.UUID.generate()
 
@@ -582,7 +686,7 @@ defmodule Meadow.Data.PlannerTest do
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: fake_work_id,
-          changeset: %{},
+          add: %{},
           status: :approved
         })
 
@@ -609,14 +713,14 @@ defmodule Meadow.Data.PlannerTest do
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work_a.id,
-          changeset: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
+          add: %{descriptive_metadata: %{alternate_title: ["El Gato"]}}
         })
 
       {:ok, change_b} =
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work_b.id,
-          changeset: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
+          add: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
         })
 
       # 3. User reviews and approves
@@ -629,6 +733,101 @@ defmodule Meadow.Data.PlannerTest do
       assert executed_plan.status == :executed
 
       # Verify all changes were applied
+      assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
+    end
+
+    test "Remove extraneous subjects workflow" do
+      # 1. Create plan to remove extraneous subjects
+      {:ok, plan} =
+        Planner.create_plan(%{
+          prompt: "Remove extraneous subject headings like 'Photograph' and 'Image'",
+          query: "collection.id:test-collection"
+        })
+
+      # 2. Create works with both good and extraneous subjects
+      work_a =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Photo of Building",
+            subject: [
+              %{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}},
+              %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}},
+              %{term: "mock2:result3", role: %{id: "TOPICAL", scheme: "subject_role"}}
+            ]
+          }
+        })
+
+      work_b =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Image of Person",
+            subject: [
+              %{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}},
+              %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}
+            ]
+          }
+        })
+
+      # 3. Reload works to get full DB structure
+      work_a = Repo.get!(Meadow.Data.Schemas.Work, work_a.id)
+      work_b = Repo.get!(Meadow.Data.Schemas.Work, work_b.id)
+
+      # Find the subjects to delete by ID and convert to maps matching JSONB storage
+      [_keep, subj_a_2, subj_a_3] = work_a.descriptive_metadata.subject
+      [_keep_b, subj_b_2] = work_b.descriptive_metadata.subject
+
+      subj_a_2_map = subj_a_2 |> Jason.encode!() |> Jason.decode!(keys: :atoms)
+      subj_a_3_map = subj_a_3 |> Jason.encode!() |> Jason.decode!(keys: :atoms)
+      subj_b_2_map = subj_b_2 |> Jason.encode!() |> Jason.decode!(keys: :atoms)
+
+      # 4. Agent creates deletion changes for extraneous subjects
+      # Work A: Delete "Second Result" (mock1:result2) and "Third Result" (mock2:result3)
+      {:ok, change_a} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work_a.id,
+          delete: %{
+            descriptive_metadata: %{
+              subject: [subj_a_2_map, subj_a_3_map]
+            }
+          }
+        })
+
+      # Work B: Delete "Second Result" (mock1:result2)
+      {:ok, change_b} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work_b.id,
+          delete: %{
+            descriptive_metadata: %{
+              subject: [subj_b_2_map]
+            }
+          }
+        })
+
+      # 5. User reviews and approves
+      {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
+      {:ok, _} = Planner.approve_plan_change(change_a, "curator@example.com")
+      {:ok, _} = Planner.approve_plan_change(change_b, "curator@example.com")
+
+      # 6. Execute plan
+      assert {:ok, executed_plan} = Planner.execute_plan(plan)
+      assert executed_plan.status == :executed
+
+      # 7. Verify changes were applied
+      updated_work_a = Repo.get!(Meadow.Data.Schemas.Work, work_a.id)
+      assert length(updated_work_a.descriptive_metadata.subject) == 1
+      [remaining_a] = updated_work_a.descriptive_metadata.subject
+      assert remaining_a.term.id == "mock1:result1"
+      assert remaining_a.term.label == "First Result"
+
+      updated_work_b = Repo.get!(Meadow.Data.Schemas.Work, work_b.id)
+      assert length(updated_work_b.descriptive_metadata.subject) == 1
+      [remaining_b] = updated_work_b.descriptive_metadata.subject
+      assert remaining_b.term.id == "mock1:result1"
+      assert remaining_b.term.label == "First Result"
+
+      # Verify all changes were executed
       assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
     end
   end

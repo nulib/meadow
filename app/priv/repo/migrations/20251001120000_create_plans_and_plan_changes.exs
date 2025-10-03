@@ -18,7 +18,10 @@ defmodule Meadow.Repo.Migrations.CreatePlansAndPlanChanges do
       add :id, :uuid, primary_key: true, default: fragment("gen_random_uuid()")
       add :plan_id, references(:plans, type: :uuid, on_delete: :delete_all), null: false
       add :work_id, :uuid, null: false
-      add :changeset, :jsonb, null: false
+      add :changeset, :jsonb
+      add :add, :jsonb
+      add :delete, :jsonb
+      add :replace, :jsonb
       add :status, :string, null: false, default: "pending"
       add :user, :string
       add :notes, :text

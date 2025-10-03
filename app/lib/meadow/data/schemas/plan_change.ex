@@ -12,25 +12,33 @@ defmodule Meadow.Data.Schemas.PlanChange do
 
   Generated PlanChanges:
   - Work A (description mentions "November 10, 1896"):
-    `changeset: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}`
+    `add: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}`
   - Work B (temporal subject shows "1920s"):
-    `changeset: %{descriptive_metadata: %{date_created: ["192X"]}}`
+    `add: %{descriptive_metadata: %{date_created: ["192X"]}}`
 
   ### Scenario 2: Looking Up and Assigning Contributors
   Plan prompt: "Look up LCNAF names from description and assign as contributors with MARC relators"
 
   Generated PlanChanges:
   - Work A (description mentions "photographed by Ansel Adams"):
-    `changeset: %{descriptive_metadata: %{contributor: [%{term: "Adams, Ansel, 1902-1984", role: %{id: "pht", scheme: "marc_relator"}}]}}`
+    `add: %{descriptive_metadata: %{contributor: [%{term: "Adams, Ansel, 1902-1984", role: %{id: "pht", scheme: "marc_relator"}}]}}`
   - Work B (description mentions "interviewed by Studs Terkel"):
-    `changeset: %{descriptive_metadata: %{contributor: [%{term: "Terkel, Studs, 1912-2008", role: %{id: "ivr", scheme: "marc_relator"}}]}}`
+    `add: %{descriptive_metadata: %{contributor: [%{term: "Terkel, Studs, 1912-2008", role: %{id: "ivr", scheme: "marc_relator"}}]}}`
+
+  ### Scenario 3: Removing Extraneous Subject Headings
+  Plan prompt: "Remove extraneous subject headings like 'Photograph' and 'Image'"
+
+  Generated PlanChanges:
+  - Work A has generic subjects to remove:
+    `delete: %{descriptive_metadata: %{subject: [%{term: "Photograph"}, %{term: "Image"}]}}`
 
   ## Fields
 
   - `plan_id` - Foreign key to the parent Plan
   - `work_id` - The specific work being modified
-  - `changeset` - Map of field changes specific to this work
-    Structure matches Meadow.Data.Schemas.Work field structure
+  - `add` - Map of values to append to existing work data
+  - `delete` - Map of values to remove from existing work data
+  - `replace` - Map of values to fully replace in work data
 
   - `status` - Current state of this change:
     - `:pending` - Change proposed, awaiting review
@@ -56,7 +64,9 @@ defmodule Meadow.Data.Schemas.PlanChange do
   schema "plan_changes" do
     field :plan_id, Ecto.UUID
     field :work_id, Ecto.UUID
-    field :changeset, :map
+    field :add, :map
+    field :delete, :map
+    field :replace, :map
     field :status, Ecto.Enum, values: @statuses, default: :pending
     field :user, :string
     field :notes, :string
@@ -71,10 +81,13 @@ defmodule Meadow.Data.Schemas.PlanChange do
   @doc false
   def changeset(plan_change, attrs) do
     plan_change
-    |> cast(attrs, [:plan_id, :work_id, :changeset, :status, :user, :notes, :executed_at, :error])
-    |> validate_required([:work_id, :changeset])
+    |> cast(attrs, [:plan_id, :work_id, :add, :delete, :replace, :status, :user, :notes, :executed_at, :error])
+    |> validate_required([:work_id])
+    |> validate_at_least_one_operation()
     |> validate_inclusion(:status, @statuses)
-    |> validate_changeset_format()
+    |> validate_map_format(:add)
+    |> validate_map_format(:delete)
+    |> validate_map_format(:replace)
     |> foreign_key_constraint(:plan_id)
   end
 
@@ -134,16 +147,28 @@ defmodule Meadow.Data.Schemas.PlanChange do
     |> validate_inclusion(:status, @statuses)
   end
 
-  defp validate_changeset_format(changeset) do
-    case get_field(changeset, :changeset) do
+  defp validate_at_least_one_operation(changeset) do
+    add = get_field(changeset, :add)
+    delete = get_field(changeset, :delete)
+    replace = get_field(changeset, :replace)
+
+    if is_nil(add) and is_nil(delete) and is_nil(replace) do
+      add_error(changeset, :add, "at least one of add, delete, or replace must be specified")
+    else
+      changeset
+    end
+  end
+
+  defp validate_map_format(changeset, field) do
+    case get_field(changeset, field) do
       nil ->
         changeset
 
-      cs when is_map(cs) ->
+      value when is_map(value) ->
         changeset
 
       _ ->
-        add_error(changeset, :changeset, "must be a map/object")
+        add_error(changeset, field, "must be a map/object")
     end
   end
 end
