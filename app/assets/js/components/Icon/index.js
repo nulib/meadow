@@ -23,10 +23,12 @@ import IconExternalLink from "@js/components/Icon/ExternalLink";
 import IconFile from "@js/components/Icon/File";
 import IconImages from "@js/components/Icon/Images";
 import IconList from "@js/components/Icon/List";
+import IconMagic from "@js/components/Icon/Magic";
 import IconMinus from "@js/components/Icon/Minus";
 import IconPlay from "@js/components/Icon/Play";
 import IconProjects from "@js/components/Icon/Projects";
 import IconReplace from "@js/components/Icon/Replace";
+import IconReply from "@js/components/Icon/Reply";
 import IconSearch from "@js/components/Icon/Search";
 import IconSort from "@js/components/Icon/Sort";
 import IconSortDown from "@js/components/Icon/SortDown";
@@ -63,10 +65,12 @@ export {
   IconFile,
   IconImages,
   IconList,
+  IconMagic,
   IconMinus,
   IconPlay,
   IconProjects,
   IconReplace,
+  IconReply,
   IconSearch,
   IconSort,
   IconSortDown,

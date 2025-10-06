@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 import IIIFViewer from "@js/components/UI/IIIF/Viewer";
-import WorkTabs from "./Tabs/Tabs";
+import WorkTabs from "@js/components/Work/Tabs/Tabs";
 import useFileSet from "@js/hooks/useFileSet";
 import { GET_DC_API_TOKEN } from "@js/components/Work/work.gql";
 import { useQuery } from "@apollo/client";
@@ -36,7 +36,7 @@ const Work = ({ work }: { work: WorkType }) => {
       const currentDate = new Date();
       const expiresDate = new Date(expires);
       const expireDifference = expiresDate.getTime() - currentDate.getTime();
-      
+
       if (expireDifference < timePadding) {
         refetchDcApiToken();
       }
