@@ -1,37 +1,77 @@
 .chat {
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 700px;
+  max-height: 80vh;
+  min-height: 0;
+  position: relative;
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 1) 3rem
+  );
+}
+
+.chat-body {
+  flex: 1 1 0;
+  min-height: 0; /* lets it shrink */
+  overflow-y: auto;
+  position: relative;
+  margin-right: -1rem; /* offset padding on .chat */
 }
 
 .chat-transcript {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  justify-content: flex-end;
+  flex: 1 1 auto; /* fill the wrapper */
+  min-height: 0;
   padding: 1rem 0;
-  overflow-y: scroll;
+  padding-right: 1rem; /* offset padding on .chat */
+  display: flex; /* optional; keeps transcript flex-based */
+  flex-direction: column;
+}
+
+.chat-transcript-scroll-to-bottom {
+  position: absolute;
+  left: 50%;
+  top: -4rem;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  border-radius: 9999px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  svg {
+    fill: $rich-black-50;
+  }
 }
 
 .chat-message {
-  padding: 0.5rem 0.75rem;
+  padding: 1rem 1.25rem;
   border-radius: 0.5rem;
   max-width: 61.8%; // golden ratio
   word-wrap: break-word;
   white-space: pre-wrap;
+  font-size: 1rem;
   cursor: text;
   margin-top: 1rem;
 
   &[data-message-user="ai"] {
     background-color: $light-grey;
-    color: #000;
+    color: $rich-black-80;
     align-self: flex-start;
     border-bottom-left-radius: 0;
   }
 
   &[data-message-user="human"] {
-    background-color: $black;
-    color: #fff;
+    background-color: $nu-purple-10;
+    color: $nu-purple-120;
     align-self: flex-end;
     border-bottom-right-radius: 0;
   }
