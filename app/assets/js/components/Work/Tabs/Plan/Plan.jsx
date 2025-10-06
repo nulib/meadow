@@ -5,9 +5,7 @@ import Plan from "@js/components/Plan/Plan";
 const WorkTabsPlan = () => {
   return (
     <div data-testid="preservation-tab">
-      <UITabsStickyHeader title="Automatically Edit and Enhance">
-        <>other options? recipe dropdown?</>
-      </UITabsStickyHeader>
+      <UITabsStickyHeader title="Automatically Edit and Enhance"></UITabsStickyHeader>
       <div>
         <Plan />
       </div>
