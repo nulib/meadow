@@ -123,6 +123,135 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all()
 ```
 
+### AI Agent Plans
+
+Meadow supports AI agent-generated plans for batch modifications to works. The system uses a two-table structure that allows agents to propose work-specific changes based on high-level prompts.
+
+#### Data Model
+
+**Plans** - High-level task definitions
+- `prompt`: Natural language instruction (e.g., "Add a date_created EDTF string for the work based on the work's existing description, creator, and temporal subjects")
+- `query`: OpenSearch query string identifying target works
+  - Collection query: `"collection.id:abc-123"`
+  - Specific works: `"id:(work-id-1 OR work-id-2 OR work-id-3)"`
+- `status`: `:pending`, `:approved`, `:rejected`, `:executed`, or `:error`
+
+**PlanChanges** - Work-specific modifications
+- `plan_id`: Foreign key to parent plan
+- `work_id`: Specific work being modified
+- `add`: Map of values to append to existing work data
+- `delete`: Map of values to remove from existing work data
+- `replace`: Map of values to fully replace in work data
+- `status`: Individual approval/rejection tracking
+
+Each PlanChange must specify at least one operation (`add`, `delete`, or `replace`).
+
+#### PlanChange payloads
+
+- `add` merges values into existing metadata. For lists (like subjects or notes) the values are appended when they are not already present. Scalar fields (e.g., `title`) are merged according to the context (`:append` for `add`, `:replace` for `replace`).
+- `delete` removes the provided values verbatim. For controlled vocabularies this means the JSON structure must match what is stored in the database (role/term maps). The planner normalizes structs and string-keyed maps automatically when executing changes.
+- `replace` overwrites existing values for the provided keys. Use this when the existing content should be replaced entirely instead of appended or removed.
+
+Controlled metadata entries (subjects, creators, contributors, etc.) follow the shape below. For subjects you must supply both the `role` (with at least `id`/`scheme`) and the `term.id`; extra fields such as `label` or `variants` are ignored during execution but can be included when working with structs in IEx:
+
+```elixir
+%{
+  descriptive_metadata: %{
+    subject: [
+      %{
+        role: %{id: "TOPICAL", scheme: "subject_role"},
+        term: %{
+          id: "http://id.loc.gov/authorities/subjects/sh85141086",
+          label: "Universities and colleges",
+          variants: ["Colleges", "Higher education institutions"]
+        }
+      }
+    ]
+  }
+}
+```
+
+When constructing PlanChanges you can mix-and-match operations as needed. For example, to remove an outdated subject and add a new one in a single change:
+
+```elixir
+delete: %{
+  descriptive_metadata: %{
+    subject: [
+      %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "mock1:result2"}}
+    ]
+  }
+},
+add: %{
+  descriptive_metadata: %{
+    subject: [
+      %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "mock1:result5"}}
+    ]
+  }
+}
+```
+
+#### Example Workflows
+
+**Adding new metadata:**
+```elixir
+# 1. Create a plan with a query - PlanChanges are auto-generated for matching works
+{:ok, plan} = Meadow.Data.Planner.create_plan(%{
+  prompt: "Add a date_created EDTF string for the work based on the work's existing description, creator, and temporal subjects",
+  query: "collection.id:abc-123"
+})
+
+# 2. Agent updates each auto-generated PlanChange with work-specific values
+changes = Meadow.Data.Planner.list_plan_changes(plan.id)
+
+change_a = Enum.at(changes, 0)
+{:ok, updated_change_a} = Meadow.Data.Planner.update_plan_change(change_a, %{
+  add: %{descriptive_metadata: %{date_created: ["1896-11-10"]}}
+})
+
+change_b = Enum.at(changes, 1)
+{:ok, updated_change_b} = Meadow.Data.Planner.update_plan_change(change_b, %{
+  add: %{descriptive_metadata: %{date_created: ["1923-05"]}}
+})
+```
+
+**Removing unwanted values:**
+```elixir
+# Remove extraneous subject headings
+{:ok, change} = Meadow.Data.Planner.create_plan_change(%{
+  plan_id: plan.id,
+  work_id: "work-id",
+  delete: %{
+    descriptive_metadata: %{
+      subject: [
+        %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "http://example.org/photograph"}},
+        %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: "http://example.org/image"}}
+      ]
+    }
+  }
+})
+```
+
+**Replacing existing values:**
+```elixir
+# Replace the title
+{:ok, change} = Meadow.Data.Planner.create_plan_change(%{
+  plan_id: plan.id,
+  work_id: "work-id",
+  replace: %{descriptive_metadata: %{title: "New Title"}}
+})
+```
+
+**Reviewing and executing:**
+```elixir
+# 3. User reviews and approves
+{:ok, _} = Meadow.Data.Planner.approve_plan(plan, "user@example.com")
+{:ok, _} = Meadow.Data.Planner.approve_plan_change(change_a, "user@example.com")
+{:ok, _} = Meadow.Data.Planner.approve_plan_change(change_b, "user@example.com")
+
+# 4. Execute approved changes
+{:ok, executed_plan} = Meadow.Data.Planner.execute_plan(plan)
+```
+
 ### Doing development on the Meadow Pipeline lambdas
 
 In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use your local files instead of the deployed lambdas. Example below (you don't have to override them all. Just the ones you need).

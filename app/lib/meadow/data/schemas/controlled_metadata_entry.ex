@@ -3,6 +3,7 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
   Schema for Controlled Entry with Role qualifier
   """
 
+  @derive {Jason.Encoder, only: [:role, :term]}
   import Ecto.Changeset
   use Ecto.Schema
   alias Meadow.Data.Types
