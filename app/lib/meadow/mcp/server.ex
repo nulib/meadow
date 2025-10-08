@@ -7,4 +7,5 @@ defmodule Meadow.MCP.Server do
     capabilities: [:tools]
 
   component(Meadow.MCP.GraphQL)
+  component(Meadow.MCP.IDQuery)
 end
