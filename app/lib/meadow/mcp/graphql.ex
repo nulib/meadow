@@ -21,7 +21,6 @@ defmodule Meadow.MCP.GraphQL do
     )
   end
 
-  @impl true
   def name, do: "graphql"
 
   @impl true
