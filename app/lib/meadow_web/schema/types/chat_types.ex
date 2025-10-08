@@ -11,9 +11,6 @@ defmodule MeadowWeb.Schema.ChatTypes do
     field :chat_response, :chat_response do
       arg :conversation_id, non_null(:id)
 
-      middleware(Middleware.Authenticate)
-      middleware(Middleware.Authorize, "Editor")
-
       config fn args, _ ->
         {:ok, topic: "conversation:#{args.conversation_id}"}
       end
