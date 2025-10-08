@@ -1,0 +1,18 @@
+mutation SendChatMessage(
+  $conversationId: ID!
+  $type: String!
+  $query: String!
+  $prompt: String!
+) {
+  sendChatMessage(
+    conversationId: $conversationId
+    type: $type
+    query: $query
+    prompt: $prompt
+  ) {
+    conversationId
+    type
+    query
+    prompt
+  }
+}

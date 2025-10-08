@@ -1,0 +1,6 @@
+subscription ChatResponse($conversationId: ID!) {
+  chatResponse(conversationId: $conversationId) {
+    conversationId
+    message
+  }
+}
