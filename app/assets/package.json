@@ -67,6 +67,7 @@
     "react-json-pretty": "^2.2.0",
     "recharts": "^3.2.1",
     "use-clipboard-copy": "^0.2.0",
+    "uuid": "^13.0.0",
     "webvtt-parser": "^2.2.0"
   },
   "devDependencies": {

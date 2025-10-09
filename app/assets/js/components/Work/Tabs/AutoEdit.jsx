@@ -2,15 +2,15 @@ import React from "react";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import Plan from "@js/components/Plan/Plan";
 
-const WorkTabsPlan = () => {
+const WorkTabsAutoEdit = ({ work }) => {
   return (
     <div data-testid="preservation-tab">
       <UITabsStickyHeader title="Automatically Edit and Enhance"></UITabsStickyHeader>
       <div>
-        <Plan />
+        <Plan works={[work]} />
       </div>
     </div>
   );
 };
 
-export default WorkTabsPlan;
+export default WorkTabsAutoEdit;
