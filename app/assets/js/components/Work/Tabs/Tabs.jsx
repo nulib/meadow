@@ -3,7 +3,7 @@ import WorkTabAbout from "@js/components/Work/Tabs/About";
 import WorkTabStructure from "@js/components/Work/Tabs/Structure/Structure";
 import WorkTabsAdministrative from "@js/components/Work/Tabs/Administrative/Administrative";
 import WorkTabsPreservation from "@js/components/Work/Tabs/Preservation/Preservation";
-import WorkTabsPlan from "@js/components/Work/Tabs/Plan/Plan";
+import WorkTabsAutoEdit from "@js/components/Work/Tabs/AutoEdit";
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
@@ -69,10 +69,10 @@ const WorkTabs = ({ work }) => {
               </AuthDisplayAuthorized>
             </div>
             <AuthDisplayAuthorized>
-              <li className={`${activeTab === "tab-plan" && "is-active"}`}>
+              <li className={`${activeTab === "tab-auto-edit" && "is-active"}`}>
                 <a
-                  id="tab-plan"
-                  data-testid="tab-plan"
+                  id="tab-auto-edit"
+                  data-testid="tab-auto-edit"
                   onClick={handleTabClick}
                   className="is-flex is-align-items-center"
                   style={{ gap: "0.5rem" }}
@@ -116,10 +116,10 @@ const WorkTabs = ({ work }) => {
           </AuthDisplayAuthorized>
           <AuthDisplayAuthorized>
             <div
-              data-testid="tab-plan-content"
-              className={`${activeTab !== "tab-plan" ? "is-hidden" : ""}`}
+              data-testid="tab-auto-edit-content"
+              className={`${activeTab !== "tab-auto-edit" ? "is-hidden" : ""}`}
             >
-              <WorkTabsPlan />
+              <WorkTabsAutoEdit work={work} />
             </div>
           </AuthDisplayAuthorized>
         </div>

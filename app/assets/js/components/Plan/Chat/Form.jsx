@@ -55,4 +55,4 @@ const PlanChatForm = ({
   );
 };
 
-export default PlanChatForm;
+export default React.memo(PlanChatForm);
