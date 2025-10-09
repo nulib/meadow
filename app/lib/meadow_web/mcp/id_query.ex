@@ -1,4 +1,4 @@
-defmodule Meadow.MCP.IDQuery do
+defmodule MeadowWeb.MCP.IDQuery do
   @moduledoc """
   Return a list of Work IDs matching a given OpenSearch query.
   """
@@ -30,7 +30,7 @@ defmodule Meadow.MCP.IDQuery do
   end
 
   defp fetch_ids({:error, reason}, frame) do
-    {:error, format_reason(reason) |> MCPError.execution(), frame}
+    {:reply, Response.tool() |> Response.error(format_reason(reason)), frame}
   end
 
   defp fetch_ids(slice, frame) do
