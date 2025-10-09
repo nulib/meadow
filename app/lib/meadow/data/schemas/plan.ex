@@ -41,6 +41,7 @@ defmodule Meadow.Data.Schemas.Plan do
 
   @statuses [:pending, :approved, :rejected, :executed, :error]
 
+  @derive {JSON.Encoder, except: [:plan_changes, :__meta__]}
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "plans" do

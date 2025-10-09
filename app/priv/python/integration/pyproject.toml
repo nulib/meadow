@@ -1,0 +1,15 @@
+[project]
+name = "meadow-metadata-agent-integration"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  # Rely on the local agent package; Pythonx.uv_init will replace ${PRIV_PATH}
+  # in [tool.uv.sources] below to an absolute path at runtime.
+  "meadow-metadata-agent"
+]
+
+[tool.uv]
+reinstall-package = ["meadow-metadata-agent"]
+
+[tool.uv.sources]
+meadow-metadata-agent = { path = "${PRIV_PATH}/python/agent" }

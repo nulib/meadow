@@ -72,3 +72,14 @@ yarn.lock
 **/*/.DS_Store
 
 lambdas/stream-authorizer/config
+.env
+AGENT.md
+
+# Python build artifacts
+/app/priv/python/agent/build/
+/app/priv/python/agent/dist/
+/app/priv/python/agent/src/*.egg-info/
+/app/priv/python/agent/**/__pycache__/
+/app/priv/python/agent/**/*.pyc
+/app/priv/python/agent/**/*.pyo
+/app/priv/python/agent/**/*.pyd
