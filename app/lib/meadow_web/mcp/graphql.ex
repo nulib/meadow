@@ -1,4 +1,4 @@
-defmodule Meadow.MCP.GraphQL do
+defmodule MeadowWeb.MCP.GraphQL do
   @moduledoc """
   Execute GraphQL queries against the Meadow API.
   """
@@ -8,7 +8,6 @@ defmodule Meadow.MCP.GraphQL do
     name: "graphql",
     mime_type: "application/json"
 
-  alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   require Logger
 
@@ -35,7 +34,7 @@ defmodule Meadow.MCP.GraphQL do
         {:reply, Response.tool() |> Response.json(data), frame}
 
       {:error, reason} ->
-        {:error, MCPError.execution(reason), frame}
+        {:reply, Response.tool() |> Response.error(reason), frame}
     end
   end
 

@@ -48,7 +48,7 @@ config :meadow,
   ecto_repos: [Meadow.Repo]
 
 # Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
+config :phoenix, json_library: Jason, serve_endpoints: true
 
 config :authoritex,
   authorities: [
