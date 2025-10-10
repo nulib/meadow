@@ -48,6 +48,16 @@ defmodule Meadow.Config.Runtime.Dev do
         ]
       ]
 
+    if dev_prefix = System.get_env("DEV_PREFIX"),
+      do:
+        config(:meadow, MeadowWeb.Endpoint,
+          url: [
+            scheme: "https",
+            host: "#{dev_prefix}.dev.rdc.library.northwestern.edu",
+            port: 3001
+          ]
+        )
+
     config :meadow,
       index_interval: 30_000,
       mediaconvert_queue: prefix("transcode"),

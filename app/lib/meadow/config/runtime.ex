@@ -126,6 +126,9 @@ defmodule Meadow.Config.Runtime do
       render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
       pubsub_server: Meadow.PubSub
 
+    if hostname = System.get_env("MEADOW_HOSTNAME"),
+      do: config(:meadow, MeadowWeb.Endpoint, url: [scheme: "https", host: hostname])
+
     Logger.info("Configuring Meadow.Search.Cluster")
 
     config :meadow, Meadow.Search.Cluster,
