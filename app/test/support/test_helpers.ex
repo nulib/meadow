@@ -4,7 +4,7 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Accounts.User
-  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Plan, PlanChange, Work}
   alias Meadow.Data.Works
   alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
@@ -296,5 +296,41 @@ defmodule Meadow.TestHelpers do
     |> :rand.uniform()
     |> Kernel.+(min)
     |> Integer.to_string(36)
+  end
+
+  def plan_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        prompt: "Test plan prompt",
+        query: "collection.id:test-123",
+        status: :pending
+      })
+
+    {:ok, plan} =
+      %Plan{}
+      |> Plan.changeset(attrs)
+      |> Repo.insert()
+
+    plan
+  end
+
+  def plan_change_fixture(attrs \\ %{}) do
+    plan = attrs[:plan] || plan_fixture()
+    work = attrs[:work] || work_fixture()
+
+    attrs =
+      Enum.into(attrs, %{
+        plan_id: plan.id,
+        work_id: work.id,
+        add: %{descriptive_metadata: %{title: "Updated title"}},
+        status: :pending
+      })
+
+    {:ok, plan_change} =
+      %PlanChange{}
+      |> PlanChange.changeset(attrs)
+      |> Repo.insert()
+
+    plan_change
   end
 end
