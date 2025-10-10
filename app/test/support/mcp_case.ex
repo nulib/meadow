@@ -7,7 +7,6 @@ defmodule MeadowWeb.MCPCase do
   use ExUnit.CaseTemplate
 
   alias Anubis.Server.{Frame, Handlers}
-  import Meadow.TestHelpers
 
   using do
     quote do
@@ -20,7 +19,8 @@ defmodule MeadowWeb.MCPCase do
   Fetch the list of available MCP tools.
   """
   def list_tools do
-    call_mcp("tools/list")
+    Frame.new()
+    |> call_mcp("tools/list")
     |> Map.update("tools", [], fn tools ->
       Enum.map(tools, fn tool ->
         %{
@@ -36,8 +36,9 @@ defmodule MeadowWeb.MCPCase do
   @doc """
   Call an MCP tool with the given name and parameters.
   """
-  def call_tool(tool, params \\ %{}) do
-    call_mcp("tools/call", %{
+  def call_tool(tool, params, context \\ []) do
+    Frame.new(context)
+    |> call_mcp("tools/call", %{
       "name" => tool,
       "arguments" => params
     })
@@ -59,8 +60,7 @@ defmodule MeadowWeb.MCPCase do
      end)}
   end
 
-  defp call_mcp(method, params \\ %{}) do
-    frame = Frame.new(current_user: user_fixture())
+  defp call_mcp(frame, method, params \\ %{}) do
     request = %{"method" => method, "params" => params}
     {:reply, response, _frame} = Handlers.handle(request, MeadowWeb.MCP.Server, frame)
     response
