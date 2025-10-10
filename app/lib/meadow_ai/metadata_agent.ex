@@ -4,6 +4,8 @@ defmodule MeadowAI.MetadataAgent do
 
   alias Meadow.Config
   alias Meadow.Config.Secrets
+  alias Meadow.Utils.DCAPI
+  alias Routes, as: Routes
 
   @moduledoc """
   A GenServer that wraps PythonX functionality and provides AI-powered metadata generation tools.
@@ -37,7 +39,6 @@ defmodule MeadowAI.MetadataAgent do
     GenServer.call(__MODULE__, {:query, prompt, opts}, timeout)
   end
 
-
   @doc """
   Gets the current status of the MetadataAgent.
   """
@@ -69,6 +70,7 @@ defmodule MeadowAI.MetadataAgent do
           last_failure: nil,
           circuit_breaker_state: :closed
         }
+
         Logger.info("MetadataAgent started successfully")
         {:ok, state}
 
@@ -80,9 +82,19 @@ defmodule MeadowAI.MetadataAgent do
 
   @impl true
   def handle_call({:query, prompt, opts}, _from, state) do
-    meadow_ai_config = Application.get_env(:meadow, :meadow_ai, [])
-    opts = Keyword.put_new(opts, :graphql_endpoint, Keyword.get(meadow_ai_config, :graphql_endpoint, "https://localhost:3001/api/graphql"))
-    |> Keyword.put_new(:graphql_auth_token, Keyword.get(meadow_ai_config, :graphql_auth_token))
+    {:ok, %{token: token}} = DCAPI.token(600, [], true)
+
+    opts =
+      opts
+      |> Keyword.put_new(
+        :graphql_endpoint,
+        Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "graphql"])
+      )
+      |> Keyword.put_new(
+        :mcp_url,
+        Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
+      )
+      |> Keyword.put_new(:graphql_auth_token, token)
 
     case state.python_initialized do
       true ->
@@ -92,6 +104,7 @@ defmodule MeadowAI.MetadataAgent do
 
       false ->
         Logger.warning("MetadataAgent: Python session not initialized, attempting restart...")
+
         case initialize_python_session([]) do
           {:ok, session_info} ->
             new_state = %{state | python_initialized: true, session_info: session_info}
@@ -104,7 +117,6 @@ defmodule MeadowAI.MetadataAgent do
     end
   end
 
-
   @impl true
   def handle_call(:status, _from, state) do
     status_info = %{
@@ -113,6 +125,7 @@ defmodule MeadowAI.MetadataAgent do
       request_count: state.request_count,
       uptime_seconds: DateTime.diff(DateTime.utc_now(), state.startup_time)
     }
+
     {:reply, {:ok, status_info}, state}
   end
 
@@ -123,10 +136,11 @@ defmodule MeadowAI.MetadataAgent do
     case initialize_python_session([]) do
       {:ok, session_info} ->
         new_state = %{
-          state |
-          session_info: session_info,
-          startup_time: DateTime.utc_now()
+          state
+          | session_info: session_info,
+            startup_time: DateTime.utc_now()
         }
+
         Logger.info("Python session restarted successfully")
         {:reply, :ok, new_state}
 
@@ -190,16 +204,20 @@ defmodule MeadowAI.MetadataAgent do
 
         # Ensure function exists and call it
         query_code = pyread("agent_integration.py")
-        result = Pythonx.eval(
-          query_code,
-          %{
-            "prompt" => prompt,
-            "context_json" => context_json,
-            "graphql_endpoint" => Keyword.get(opts, :graphql_endpoint),
-            "graphql_auth_token" => Keyword.get(opts, :graphql_auth_token),
-            "mcp_url" => Application.get_env(:meadow, :meadow_ai) |> Keyword.get(:mcp_url, "http://localhost:3001/api/mcp"),
-            "iiif_server_url" => Config.iiif_server_url()
-          })
+
+        result =
+          Pythonx.eval(
+            query_code,
+            %{
+              "prompt" => prompt,
+              "context_json" => context_json,
+              "graphql_endpoint" => opts[:graphql_endpoint],
+              "graphql_auth_token" => opts[:graphql_auth_token],
+              "mcp_url" => opts[:mcp_url],
+              "iiif_server_url" => Config.iiif_server_url()
+            }
+          )
+
         case result do
           {response, _globals} -> {:ok, parse_claude_response(response)}
           error -> {:error, {:pythonx_eval_error, error}}
@@ -236,6 +254,7 @@ defmodule MeadowAI.MetadataAgent do
     # Pythonx.decode returns the value directly, not wrapped in {:ok, result}
     try do
       decoded = Pythonx.decode(response)
+
       if is_binary(decoded) do
         String.trim(decoded)
       else
@@ -248,7 +267,8 @@ defmodule MeadowAI.MetadataAgent do
         response
         |> inspect()
         |> String.replace(~r/#Pythonx\.Object<\s*"(.*)"\s*>/, "\\1")
-        |> String.replace("\\n", "\n")  # Fix escaped newlines
+        # Fix escaped newlines
+        |> String.replace("\\n", "\n")
         |> String.trim()
     end
   end
