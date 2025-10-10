@@ -3,7 +3,12 @@ defmodule MeadowWeb.MCP.GraphQLTest do
   alias Meadow.Data.CodedTerms
 
   describe "GraphQL Tool" do
-    test "execute a simple GraphQL query" do
+    setup do
+      user = user_fixture()
+      {:ok, %{user: user}}
+    end
+
+    test "execute a simple GraphQL query", %{user: user} do
       query = """
       query WhoAmi {
         me {
@@ -13,13 +18,13 @@ defmodule MeadowWeb.MCP.GraphQLTest do
       """
 
       assert {:ok, [{:text, text}]} =
-               call_tool("graphql", %{"query" => query}) |> parse_response()
+               call_tool("graphql", %{"query" => query}, current_user: user) |> parse_response()
 
       assert response = Jason.decode!(text)
-      assert get_in(response, ["me", "displayName"]) |> String.contains?("Test User")
+      assert get_in(response, ["me", "displayName"]) |> String.contains?(user.display_name)
     end
 
-    test "execute a GraphQL query with variables" do
+    test "execute a GraphQL query with variables", %{user: user} do
       query = """
       query CodeList($scheme: CodeListScheme!) {
         codeList(scheme:$scheme){
@@ -32,7 +37,9 @@ defmodule MeadowWeb.MCP.GraphQLTest do
       variables = %{"scheme" => "NOTE_TYPE"}
 
       assert {:ok, [{:text, text}]} =
-               call_tool("graphql", %{"query" => query, "variables" => variables})
+               call_tool("graphql", %{"query" => query, "variables" => variables},
+                 current_user: user
+               )
                |> parse_response()
 
       assert response = Jason.decode!(text)
@@ -40,7 +47,7 @@ defmodule MeadowWeb.MCP.GraphQLTest do
       assert length(response["codeList"]) == CodedTerms.list_coded_terms("note_type") |> length()
     end
 
-    test "handle GraphQL errors gracefully" do
+    test "handle GraphQL errors gracefully", %{user: user} do
       query = """
       query InvalidQuery {
         invalidField {
@@ -49,7 +56,9 @@ defmodule MeadowWeb.MCP.GraphQLTest do
       }
       """
 
-      assert {:error, error} = call_tool("graphql", %{"query" => query}) |> parse_response()
+      assert {:error, error} =
+               call_tool("graphql", %{"query" => query}, current_user: user) |> parse_response()
+
       assert String.contains?(error, ~s{Cannot query field "invalidField"})
     end
   end
