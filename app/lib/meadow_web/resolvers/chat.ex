@@ -9,17 +9,21 @@ defmodule MeadowWeb.Resolvers.Chat do
         %{conversation_id: conversation_id, type: type, query: query, prompt: prompt},
         _
       ) do
-    response = %{
-      conversation_id: conversation_id,
-      message: "Here is your plan....",
-      type: "plan"
-    }
+    Task.start(fn ->
+      {:ok, ai_response} = MeadowAI.query(prompt, context: %{query: query})
 
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
-      response,
-      chat_response: "conversation:#{conversation_id}"
-    )
+      response = %{
+        conversation_id: conversation_id,
+        message: ai_response,
+        type: type
+      }
+
+      Absinthe.Subscription.publish(
+        MeadowWeb.Endpoint,
+        response,
+        chat_response: "conversation:#{conversation_id}"
+      )
+    end)
 
     {:ok, %{conversation_id: conversation_id, type: type, query: query, prompt: prompt}}
   end
