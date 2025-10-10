@@ -9,46 +9,37 @@ defmodule MeadowWeb.Schema.ChatTypes do
 
   object :chat_subscriptions do
     field :chat_response, :chat_response do
-      arg :conversation_id, non_null(:id)
+      arg(:conversation_id, non_null(:id))
 
-      config fn args, _ ->
+      config(fn args, _ ->
         {:ok, topic: "conversation:#{args.conversation_id}"}
-      end
+      end)
     end
   end
 
   object :chat_mutations do
     field :send_chat_message, type: :chat_message do
-      arg :conversation_id, non_null(:id)
-      arg :type, non_null(:string)
-      arg :query, non_null(:string)
-      arg :prompt, non_null(:string)
+      arg(:conversation_id, non_null(:id))
+      arg(:type, non_null(:string))
+      arg(:query, non_null(:string))
+      arg(:prompt, non_null(:string))
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
 
-      resolve &Resolvers.Chat.send_chat_message/3
+      resolve(&Resolvers.Chat.send_chat_message/3)
     end
   end
 
-
-
   object :chat_message do
-    field :conversation_id, :id,
-      description: "Ref for the conversation"
-    field :type, :string,
-      description: "Type of message, e.g. 'chat'"
-    field :query, :string,
-      description: "The search query associated with the message"
-    field :prompt, :string,
-      description: "The prompt associated with the message"
+    field(:conversation_id, :id, description: "Ref for the conversation")
+    field(:type, :string, description: "Type of message, e.g. 'chat'")
+    field(:query, :string, description: "The search query associated with the message")
+    field(:prompt, :string, description: "The prompt associated with the message")
   end
 
   object :chat_response do
-    field :conversation_id, :id
-    field :type, :string,
-      description: "Type of message, e.g. 'chat'"
-    field :message, :string,
-      description: "AI response message"
+    field(:conversation_id, :id)
+    field(:type, :string, description: "Type of message, e.g. 'chat'")
+    field(:message, :string, description: "AI response message")
   end
-
 end

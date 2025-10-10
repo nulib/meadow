@@ -52,8 +52,18 @@ defmodule Meadow.Application.Children do
     }
   end
 
+  defp agent_processes do
+    %{
+      "metadata" => {MeadowAI.MetadataAgent, []}
+    }
+  end
+
   defp all_processes,
-    do: basic_processes() |> Map.merge(pipeline_processes()) |> Map.merge(web_processes())
+    do:
+      basic_processes()
+      |> Map.merge(pipeline_processes())
+      |> Map.merge(web_processes())
+      |> Map.merge(agent_processes())
 
   defp process_aliases do
     %{
@@ -61,7 +71,8 @@ defmodule Meadow.Application.Children do
       "none" => [],
       "basic" => basic_processes() |> Enum.map(fn {key, _} -> key end),
       "pipeline" => pipeline_processes() |> Enum.map(fn {key, _} -> key end),
-      "web" => web_processes() |> Enum.map(fn {key, _} -> key end)
+      "web" => web_processes() |> Enum.map(fn {key, _} -> key end),
+      "agent" => agent_processes() |> Enum.map(fn {key, _} -> key end)
     }
   end
 
@@ -97,6 +108,8 @@ defmodule Meadow.Application.Children do
   def processes("basic"), do: basic_processes()
   def processes("pipeline"), do: pipeline_processes()
   def processes("web"), do: web_processes()
+  def processes("agent"), do: agent_processes()
+
   def processes(_), do: []
 
   defp expand_workers(workers) do

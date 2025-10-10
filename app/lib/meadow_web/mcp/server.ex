@@ -10,4 +10,5 @@ defmodule MeadowWeb.MCP.Server do
 
   component(MCP.GraphQL)
   component(MCP.IDQuery)
+  component(MCP.GetPlanChanges)
 end
