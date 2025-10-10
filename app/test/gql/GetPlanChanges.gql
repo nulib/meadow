@@ -1,0 +1,11 @@
+query GetPlanChanges($planId: ID!) {
+  planChanges(planId: $planId) {
+    id
+    planId
+    workId
+    add
+    delete
+    replace
+    status
+  }
+}

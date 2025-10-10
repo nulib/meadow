@@ -1,0 +1,8 @@
+mutation UpdatePlanChangeStatus($id: ID!, $status: PlanStatus!, $notes: String) {
+  updatePlanChangeStatus(id: $id, status: $status, notes: $notes) {
+    id
+    status
+    user
+    notes
+  }
+}

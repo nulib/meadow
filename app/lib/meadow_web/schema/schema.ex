@@ -27,6 +27,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.CSVMetadataUpdateTypes)
   import_types(__MODULE__.NULAuthorityTypes)
   import_types(__MODULE__.ChatTypes)
+  import_types(__MODULE__.Data.PlanTypes)
 
   query do
     import_fields(:account_queries)
@@ -39,6 +40,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:ingest_queries)
     import_fields(:csv_metadata_update_queries)
     import_fields(:nul_authority_queries)
+    import_fields(:plan_queries)
     import_fields(:preservation_check_queries)
     import_fields(:s3_queries)
     import_fields(:work_queries)
@@ -52,6 +54,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:ingest_mutations)
     import_fields(:csv_metadata_update_mutations)
     import_fields(:nul_authority_mutations)
+    import_fields(:plan_mutations)
     import_fields(:shared_link_mutations)
     import_fields(:work_mutations)
     import_fields(:chat_mutations)
