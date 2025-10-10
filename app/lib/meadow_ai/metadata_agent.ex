@@ -5,7 +5,7 @@ defmodule MeadowAI.MetadataAgent do
   alias Meadow.Config
   alias Meadow.Config.Secrets
   alias Meadow.Utils.DCAPI
-  alias Routes, as: Routes
+  alias MeadowWeb.Router.Helpers, as: Routes
 
   @moduledoc """
   A GenServer that wraps PythonX functionality and provides AI-powered metadata generation tools.
@@ -169,65 +169,61 @@ defmodule MeadowAI.MetadataAgent do
   end
 
   defp initialize_python_session(_opts) do
-    try do
-      Logger.info("Initializing MetadataAgent")
+    Logger.info("Initializing MetadataAgent")
 
-      # Initialize PythonX with Claude Code Python SDK
-      # Use the on-disk pyproject but rewrite the local source path to an absolute path
-      # so Pythonx.uv_init() can resolve it even if it runs from a temp directory.
-      pyproject =
-        pyread("pyproject.toml")
-        |> String.replace("${PRIV_PATH}", :code.priv_dir(:meadow) |> to_string())
+    # Initialize PythonX with Claude Code Python SDK
+    # Use the on-disk pyproject but rewrite the local source path to an absolute path
+    # so Pythonx.uv_init() can resolve it even if it runs from a temp directory.
+    pyproject =
+      pyread("pyproject.toml")
+      |> String.replace("${PRIV_PATH}", :code.priv_dir(:meadow) |> to_string())
 
-      case Pythonx.uv_init(pyproject, force: true) do
-        :ok ->
-          {:ok, %{initialized_at: DateTime.utc_now()}}
+    case Pythonx.uv_init(pyproject, force: true) do
+      :ok ->
+        {:ok, %{initialized_at: DateTime.utc_now()}}
 
-        _ ->
-          {:error, :pythonx_init_failed}
-      end
-    rescue
-      error ->
-        {:error, {:initialization_error, error}}
+      _ ->
+        {:error, :pythonx_init_failed}
     end
+  rescue
+    error ->
+      {:error, {:initialization_error, error}}
   end
 
   defp execute_claude_query(prompt, opts) do
-    try do
-      context = Keyword.get(opts, :context, %{})
+    context = Keyword.get(opts, :context, %{})
 
-      if String.length(prompt) > 10_000 do
-        {:error, {:input_too_large, "Prompt exceeds 10,000 characters"}}
-      else
-        # Serialize context as JSON for Python
-        context_json = Jason.encode!(context)
+    if String.length(prompt) > 10_000 do
+      {:error, {:input_too_large, "Prompt exceeds 10,000 characters"}}
+    else
+      # Serialize context as JSON for Python
+      context_json = Jason.encode!(context)
 
-        # Ensure function exists and call it
-        query_code = pyread("agent_integration.py")
+      # Ensure function exists and call it
+      query_code = pyread("agent_integration.py")
 
-        result =
-          Pythonx.eval(
-            query_code,
-            %{
-              "prompt" => prompt,
-              "context_json" => context_json,
-              "graphql_endpoint" => opts[:graphql_endpoint],
-              "graphql_auth_token" => opts[:graphql_auth_token],
-              "mcp_url" => opts[:mcp_url],
-              "iiif_server_url" => Config.iiif_server_url()
-            }
-          )
+      result =
+        Pythonx.eval(
+          query_code,
+          %{
+            "prompt" => prompt,
+            "context_json" => context_json,
+            "graphql_endpoint" => opts[:graphql_endpoint],
+            "graphql_auth_token" => opts[:graphql_auth_token],
+            "mcp_url" => opts[:mcp_url],
+            "iiif_server_url" => Config.iiif_server_url()
+          }
+        )
 
-        case result do
-          {response, _globals} -> {:ok, parse_claude_response(response)}
-          error -> {:error, {:pythonx_eval_error, error}}
-        end
+      case result do
+        {response, _globals} -> {:ok, parse_claude_response(response)}
+        error -> {:error, {:pythonx_eval_error, error}}
       end
-    rescue
-      error ->
-        log_python_error(error)
-        {:error, {:query_execution_error, error}}
     end
+  rescue
+    error ->
+      log_python_error(error)
+      {:error, {:query_execution_error, error}}
   end
 
   defp log_python_error(%Pythonx.Error{} = error) do
@@ -252,25 +248,23 @@ defmodule MeadowAI.MetadataAgent do
 
   defp parse_claude_response(%Pythonx.Object{} = response) do
     # Pythonx.decode returns the value directly, not wrapped in {:ok, result}
-    try do
-      decoded = Pythonx.decode(response)
+    decoded = Pythonx.decode(response)
 
-      if is_binary(decoded) do
-        String.trim(decoded)
-      else
-        to_string(decoded) |> String.trim()
-      end
-    rescue
-      error ->
-        Logger.warning("Failed to decode Pythonx.Object: #{inspect(error)}")
-        # Fallback: extract from inspect output
-        response
-        |> inspect()
-        |> String.replace(~r/#Pythonx\.Object<\s*"(.*)"\s*>/, "\\1")
-        # Fix escaped newlines
-        |> String.replace("\\n", "\n")
-        |> String.trim()
+    if is_binary(decoded) do
+      String.trim(decoded)
+    else
+      to_string(decoded) |> String.trim()
     end
+  rescue
+    error ->
+      Logger.warning("Failed to decode Pythonx.Object: #{inspect(error)}")
+      # Fallback: extract from inspect output
+      response
+      |> inspect()
+      |> String.replace(~r/#Pythonx\.Object<\s*"(.*)"\s*>/, "\\1")
+      # Fix escaped newlines
+      |> String.replace("\\n", "\n")
+      |> String.trim()
   end
 
   defp parse_claude_response(response), do: to_string(response) |> String.trim()

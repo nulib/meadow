@@ -4,12 +4,12 @@ defmodule MeadowWeb.Resolvers.Helpers do
   """
 
   alias Meadow.Config
-  alias Meadow.Utils.AWS
+  alias Meadow.Utils.{AWS, DCAPI}
 
   def get_dc_api_token(_, _args, _) do
     with api_config <- Application.get_env(:meadow, :dc_api)[:v2],
          ttl <- Map.get(api_config, "api_token_ttl", 300) do
-      Meadow.Utils.DCAPI.token(ttl, [], true)
+      DCAPI.token(ttl, [], true)
     end
   end
 

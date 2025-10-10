@@ -20,11 +20,13 @@ defmodule Meadow.Utils.DCAPI do
          issued_at <- DateTime.utc_now(),
          expires_at <- DateTime.add(issued_at, ttl) do
       token = %{
+        sub: "meadow",
+        name: "Meadow Generated Token",
         iss: "meadow",
         exp: DateTime.to_unix(expires_at),
         iat: DateTime.to_unix(issued_at),
         entitlements: entitlements,
-        isLoggedIn: false,
+        isLoggedIn: true,
         isSuperUser: is_superuser
       }
 
