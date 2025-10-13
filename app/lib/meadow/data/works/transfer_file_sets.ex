@@ -171,6 +171,9 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:get_source_work_ids, fn _repo, _changes ->
         get_source_work_ids_from_filesets(fileset_ids)
       end)
+      |> Multi.run(:validate_work_types, fn _repo, %{get_target_work: target_work_id, get_source_work_ids: source_work_ids} ->
+        validate_work_types_match(source_work_ids, target_work_id)
+      end)
       |> Multi.run(:transfer_filesets, fn _repo, %{get_target_work: target_work_id} ->
         transfer_fileset_subset(fileset_ids, target_work_id)
       end)
@@ -340,6 +343,32 @@ defmodule Meadow.Data.Works.TransferFileSets do
     Ecto.NoResultsError -> {:error, "No work found with accession #{accession_number}"}
   end
 
+  defp validate_work_types_match(source_work_ids, target_work_id) do
+    # Get all unique source work types
+    source_works =
+      source_work_ids
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&Works.get_work!/1)
+
+    target_work = Works.get_work!(target_work_id)
+
+    # Check if all source works have the same work type as target
+    mismatched_works =
+      Enum.filter(source_works, fn source_work ->
+        source_work.work_type.id != target_work.work_type.id
+      end)
+
+    case mismatched_works do
+      [] ->
+        {:ok, :valid}
+
+      _ ->
+        source_type = List.first(source_works).work_type.id
+        target_type = target_work.work_type.id
+        {:error, "Work type mismatch: source work(s) are #{source_type}, target work is #{target_type}"}
+    end
+  end
+
   defp transfer_fileset_subset(fileset_ids, target_work_id) do
     max_rank_in_target_work =
       FileSet
@@ -497,15 +526,21 @@ defmodule Meadow.Data.Works.TransferFileSets do
   end
 
   defp humanize_subset_error(failed_operation, failed_value) do
-    case failed_operation do
-      :validate_fileset_ids -> failed_value
-      :validate_work_attributes -> failed_value
-      :create_target_work -> failed_value
-      :get_target_work -> failed_value
-      :transfer_filesets -> failed_value
-      :get_source_work_ids -> failed_value
-      :delete_empty_works -> failed_value
-      _ -> "Unknown error occurred"
+    known_operations = [
+      :validate_fileset_ids,
+      :validate_work_attributes,
+      :validate_work_types,
+      :create_target_work,
+      :get_target_work,
+      :transfer_filesets,
+      :get_source_work_ids,
+      :delete_empty_works
+    ]
+
+    if failed_operation in known_operations do
+      failed_value
+    else
+      "Unknown error occurred"
     end
   end
 

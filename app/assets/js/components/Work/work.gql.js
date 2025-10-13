@@ -573,6 +573,27 @@ export const TRANSFER_FILE_SETS = gql`
   }
 `;
 
+export const TRANSFER_FILE_SETS_SUBSET = gql`
+  mutation TransferFileSetsSubset(
+    $filesetIds: [ID!]!
+    $createWork: Boolean!
+    $accessionNumber: String
+    $workAttributes: WorkAttributesInput
+    $deleteEmptyWorks: Boolean
+  ) {
+    transferFileSetsSubset(
+      filesetIds: $filesetIds
+      createWork: $createWork
+      accessionNumber: $accessionNumber
+      workAttributes: $workAttributes
+      deleteEmptyWorks: $deleteEmptyWorks
+    ) {
+      transferredFilesetIds
+      createdWorkId
+    }
+  }
+`;
+
 export const WORK_ARCHIVER_ENDPOINT = gql`
   query WorkArchiverEndpoint {
     workArchiverEndpoint {
