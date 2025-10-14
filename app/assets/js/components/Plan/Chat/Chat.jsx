@@ -1,14 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import PlanChatForm from "@js/components/Plan/Chat/Form";
 import PlanChatTranscript from "@js/components/Plan/Chat/Transcript";
-import { mockChatMessages } from "@js/components/Plan/Chat/mockChatMessages";
+import { useSendChatMessage } from "@js/hooks/useSendChatMessage";
+import { useChatResponse } from "@js/hooks/useChatResponse";
+import { v4 as uuidv4 } from "uuid";
 
-const NEAR_PX = 80; // how close to bottom to consider "at bottom"
+const conversationId = uuidv4();
 
-const PlanChat = () => {
+const PlanChat = ({ initialMessage, query }) => {
   const scrollerRef = useRef(null);
-  const [messages, setMessages] = useState(mockChatMessages);
+  const [messages, setMessages] = useState([initialMessage]);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const { data: chatResponseMessage, error: subscriptionError } =
+    useChatResponse(conversationId);
+
+  const { sendChatMessage, error: sendError } = useSendChatMessage();
 
   const scrollToBottom = (smooth = true) => {
     const el = scrollerRef?.current;
@@ -20,25 +27,64 @@ const PlanChat = () => {
         behavior: smooth ? "smooth" : "auto",
       });
     } else {
-      // jsdom/older env fallback
       el.scrollTop = el.scrollHeight ?? 0;
     }
-  };
-
-  // Handle new message submission
-  const handleSubmitMessage = (text) => {
-    const newMessage = { content: text, isUser: true, type: "message" };
-    setMessages((prev) => [...prev, newMessage]);
-    scrollToBottom(true);
   };
 
   const nearBottom = () => {
     const el = scrollerRef.current;
     if (!el) return true;
-    return el.scrollHeight - el.scrollTop - el.clientHeight <= NEAR_PX;
+    return el.scrollHeight - el.scrollTop - el.clientHeight <= 80;
   };
 
-  // Toggle button while user scrolls
+  const handleSubmitMessage = async (text) => {
+    const newMessage = { content: text, isUser: true, type: "message" };
+    setMessages((prev) => [...prev, newMessage]);
+
+    try {
+      await sendChatMessage({
+        conversationId,
+        type: "chat",
+        prompt: text,
+        query,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+
+    scrollToBottom(true);
+  };
+
+  useEffect(() => {
+    if (!chatResponseMessage) return;
+    setMessages((prev) => [
+      ...prev,
+      { content: chatResponseMessage.message, isUser: false, type: "message" },
+    ]);
+    if (isAtBottom) scrollToBottom(true);
+  }, [chatResponseMessage]);
+
+  /**
+   * Surface errors from hooks as chat messages
+   */
+  const lastErrorRef = useRef(null);
+  useEffect(() => {
+    const err = sendError || subscriptionError;
+    if (!err) return;
+    const msg = err?.message || String(err);
+    if (msg && msg !== lastErrorRef.current) {
+      setMessages((prev) => [
+        ...prev,
+        { content: msg, isUser: false, type: "error" },
+      ]);
+      lastErrorRef.current = msg;
+    }
+  }, [sendError, subscriptionError]);
+
+  /**
+   * Logic to track if user is near bottom of scroll
+   * and update isAtBottom state accordingly
+   */
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -56,7 +102,9 @@ const PlanChat = () => {
     };
   }, []);
 
-  // Auto-scroll on new messages if already near bottom
+  /**
+   * Scroll handling when messages change
+   */
   useEffect(() => {
     if (nearBottom()) {
       setIsAtBottom(true);
@@ -64,9 +112,8 @@ const PlanChat = () => {
     } else {
       setIsAtBottom(false);
     }
-  }, [mockChatMessages]); // replace with real messages state later
+  }, [messages]);
 
-  // Keep pinned when content height changes
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || !("ResizeObserver" in window)) return;
