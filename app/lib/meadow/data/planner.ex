@@ -285,40 +285,69 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Approves a plan and optionally all its proposed changes.
+  Proposes a plan.
+
+  ## Examples
+
+      iex> propose_plan(plan)
+      {:ok, %Plan{status: :proposed}}
+  """
+
+  def propose_plan(%Plan{} = plan) do
+    Repo.transaction(fn ->
+      from(c in PlanChange,
+        where: c.plan_id == ^plan.id and c.status == :pending,
+        where: ^change_fragment(:not_empty),
+        update: [set: [status: :proposed, updated_at: ^DateTime.utc_now()]]
+      )
+      |> Repo.update_all([])
+
+      plan
+      |> Plan.propose()
+      |> Repo.update!()
+    end)
+  end
+
+  @doc """
+  Approves a plan.
 
   ## Examples
 
       iex> approve_plan(plan, "user-netid")
       {:ok, %Plan{status: :approved, user: "user-netid"}}
-
-      iex> approve_plan(plan, "user-netid", approve_changes: true)
-      {:ok, %Plan{status: :approved, user: "user-netid"}}
   """
-  def approve_plan(%Plan{} = plan, user \\ nil, opts \\ []) do
-    result =
-      plan
-      |> Plan.approve(user)
-      |> Repo.update()
+  def approve_plan(%Plan{} = plan, user \\ nil) do
+    case check_approvable(plan) do
+      :ok ->
+        plan
+        |> Plan.approve(user)
+        |> Repo.update()
 
-    if opts[:approve_changes] do
-      case result do
-        {:ok, approved_plan} ->
-          # Also approve all pending changes
-          from(c in PlanChange,
-            where: c.plan_id == ^approved_plan.id and c.status == :pending,
-            update: [set: [status: :approved, user: ^user]]
-          )
-          |> Repo.update_all([])
-
-          {:ok, approved_plan}
-
-        error -> error
-      end
-    else
-      result
+      {:error, msg} ->
+        {:error, msg}
     end
   end
+
+  defp check_approvable(%Plan{id: plan_id, status: :proposed}) do
+    alias Inflex.Pluralize
+
+    from(c in PlanChange,
+      where: c.plan_id == ^plan_id and c.status in [:pending, :proposed],
+      where: ^change_fragment(:not_empty),
+      select: count(c.id)
+    )
+    |> Repo.one()
+    |> case do
+      0 ->
+        :ok
+
+      unreviewed ->
+        {:error,
+         "Cannot approve plan with #{unreviewed} unreviewed #{Pluralize.inflect("change", unreviewed)}"}
+    end
+  end
+
+  defp check_approvable(%Plan{}), do: {:error, "Only proposed plans can be approved"}
 
   @doc """
   Rejects a plan.
@@ -430,6 +459,7 @@ defmodule Meadow.Data.Planner do
     criteria
     |> Keyword.put(:plan_id, plan_id)
     |> plan_change_query()
+    |> order_by([c], asc: c.inserted_at)
     |> Repo.all()
   end
 
@@ -454,6 +484,9 @@ defmodule Meadow.Data.Planner do
 
       {:order, order}, query ->
         from(c in query, order_by: [{^order, :inserted_at}])
+
+      {:has_changes, has_changes}, query ->
+        from(c in query, where: ^change_fragment(has_changes))
     end)
   end
 
@@ -641,6 +674,40 @@ defmodule Meadow.Data.Planner do
     change
     |> PlanChange.reject(notes)
     |> Repo.update()
+  end
+
+  @doc """
+  Approves all proposed changes for a given plan
+  """
+  def approve_proposed_plan_changes(%Plan{} = plan, user \\ nil) do
+    timestamp = DateTime.utc_now()
+
+    {count, _} =
+      from(c in PlanChange,
+        where: c.plan_id == ^plan.id and c.status == :proposed,
+        where: ^change_fragment(:not_empty),
+        update: [set: [status: :approved, user: ^user, updated_at: ^timestamp]]
+      )
+      |> Repo.update_all([])
+
+    {:ok, maybe_reload_plan(plan), count}
+  end
+
+  @doc """
+  Rejects all proposed changes for a given plan
+  """
+  def reject_proposed_plan_changes(%Plan{} = plan, notes \\ nil) do
+    timestamp = DateTime.utc_now()
+
+    {count, _} =
+      from(c in PlanChange,
+        where: c.plan_id == ^plan.id and c.status == :proposed,
+        where: ^change_fragment(:not_empty),
+        update: [set: [status: :rejected, notes: ^notes, updated_at: ^timestamp]]
+      )
+      |> Repo.update_all([])
+
+    {:ok, maybe_reload_plan(plan), count}
   end
 
   @doc """
@@ -1144,6 +1211,14 @@ defmodule Meadow.Data.Planner do
 
   defp normalize_date_entry(_entry), do: humanize_edtf(nil)
 
+  defp maybe_reload_plan(plan) do
+    if Ecto.assoc_loaded?(plan.plan_changes) do
+      Repo.preload(plan, :plan_changes)
+    else
+      plan
+    end
+  end
+
   defp preload_plan_changes(query, true), do: preload(query, :plan_changes)
 
   defp preload_plan_changes(query, filter) when filter in [:empty, :not_empty] do
@@ -1152,6 +1227,9 @@ defmodule Meadow.Data.Planner do
   end
 
   defp preload_plan_changes(query, _), do: query
+
+  defp change_fragment(true), do: change_fragment(:not_empty)
+  defp change_fragment(false), do: change_fragment(:empty)
 
   defp change_fragment(:empty) do
     dynamic(
