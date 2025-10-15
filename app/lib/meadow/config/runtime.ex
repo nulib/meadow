@@ -317,6 +317,11 @@ defmodule Meadow.Config.Runtime do
         }
       ]
 
+    config :meadow,
+      pythonx_env: %{
+        "CLAUDE_CODE_USE_BEDROCK" => "1"
+      }
+
     Logger.info("Configuring ueberauth for NU SSO")
 
     config :ueberauth, Ueberauth.Strategy.NuSSO,
