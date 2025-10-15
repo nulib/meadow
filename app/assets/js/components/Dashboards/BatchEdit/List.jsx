@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 import { Tag } from "@nulib/design-system";
 import UIDate from "@js/components/UI/Date";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const colHeaders = [
   "Nickname",

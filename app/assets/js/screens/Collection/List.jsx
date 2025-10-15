@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTIONS,
   DELETE_COLLECTION,
 } from "@js/components/Collection/collection.gql.js";
 import Error from "@js/components/UI/Error";
 import { Link } from "react-router-dom";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { toastWrapper } from "@js/services/helpers";
 import Layout from "../Layout";
 import UIFormInput from "@js/components/UI/Form/Input";

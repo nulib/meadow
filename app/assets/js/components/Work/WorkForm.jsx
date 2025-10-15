@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { CREATE_WORK, GET_WORK_TYPES } from "./work.gql.js";
 import { useForm, FormProvider } from "react-hook-form";
 import Error from "@js/components/UI/Error";

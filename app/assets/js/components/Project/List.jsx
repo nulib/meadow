@@ -1,6 +1,6 @@
 import { Button, Notification } from "@nulib/design-system";
 import React, { useState } from "react";
-import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import {
   DELETE_PROJECT,
   GET_PROJECTS,

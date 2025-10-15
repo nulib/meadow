@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import useIsEditing from "@js/hooks/useIsEditing";
 import { useForm, FormProvider } from "react-hook-form";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import {
   GET_WORK,
   GROUP_WITH_FILE_SET,

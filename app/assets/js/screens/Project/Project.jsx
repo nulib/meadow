@@ -5,7 +5,7 @@ import Layout from "../Layout";
 import IngestSheetList from "@js/components/IngestSheet/List";
 import Error from "@js/components/UI/Error";
 import UISkeleton from "@js/components/UI/Skeleton";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import {
   GET_PROJECT,
   INGEST_SHEET_STATUS_UPDATES_FOR_PROJECT_SUBSCRIPTION,

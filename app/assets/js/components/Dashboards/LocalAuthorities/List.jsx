@@ -7,7 +7,7 @@ import {
 import { IconEdit, IconImages, IconTrashCan } from "@js/components/Icon";
 import { useHistory } from "react-router-dom";
 import { ModalDelete, SearchBarRow } from "@js/components/UI/UI";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 
 import { AUTHORITIES_SEARCH } from "@js/components/Work/controlledVocabulary.gql";
 import DashboardsLocalAuthoritiesModalEdit from "@js/components/Dashboards/LocalAuthorities/ModalEdit";

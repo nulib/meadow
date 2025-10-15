@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
 import { GET_PRESERVATION_CHECKS } from "@js/components/Dashboards/dashboards.gql";
 import UIDate from "@js/components/UI/Date";
 import { IconDownload } from "@js/components/Icon";

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Collection from "@js/components/Collection/Collection";
-import { useQuery } from "@apollo/client";
 import {
   GET_COLLECTION,
   GET_COLLECTIONS,
@@ -8,7 +7,7 @@ import {
   UPDATE_COLLECTION,
 } from "@js/components/Collection/collection.gql";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { toastWrapper } from "@js/services/helpers";
 import Layout from "@js/screens/Layout";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";

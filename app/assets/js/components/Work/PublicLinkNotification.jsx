@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { DIGITAL_COLLECTIONS_URL } from "@js/components/UI/ui.gql";
 import UISharedLink from "@js/components/UI/SharedLink";
 

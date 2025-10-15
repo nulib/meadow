@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import Error from "@js/components/UI/Error";
 import { FaSpinner } from "react-icons/fa";
 

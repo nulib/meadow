@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import Error from "../UI/Error";
 import UILoadingPage from "../UI/LoadingPage";
 import { IIIF_SERVER_URL } from "./iiif.gql";

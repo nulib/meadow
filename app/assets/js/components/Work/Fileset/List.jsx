@@ -8,7 +8,7 @@ import UIFormSelect from "@js/components/UI/Form/Select";
 import { useWorkState } from "@js/context/work-context";
 import { Droppable } from "react-beautiful-dnd";
 import { useCodeLists } from "@js/context/code-list-context";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { UPDATE_WORK } from "../work.gql.js";
 import { toastWrapper } from "../../../services/helpers";
 
