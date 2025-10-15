@@ -3,7 +3,6 @@ defmodule MeadowAI.MetadataAgent do
   require Logger
 
   alias Meadow.Config
-  alias Meadow.Config.Secrets
   alias Meadow.Utils.DCAPI
   alias MeadowWeb.Router.Helpers, as: Routes
 
@@ -180,6 +179,7 @@ defmodule MeadowAI.MetadataAgent do
 
     case Pythonx.uv_init(pyproject, force: true) do
       :ok ->
+        initialize_python_environment()
         {:ok, %{initialized_at: DateTime.utc_now()}}
 
       _ ->
@@ -188,6 +188,20 @@ defmodule MeadowAI.MetadataAgent do
   rescue
     error ->
       {:error, {:initialization_error, error}}
+  end
+
+  # Set environment variables for Python session
+  defp initialize_python_environment do
+    env = Application.get_env(:meadow, :pythonx_env, %{})
+
+    Pythonx.eval(
+      """
+      import os
+      env = {k.decode('utf-8'): v.decode('utf-8') for k, v in env.items()}
+      os.environ.update(env)
+      """,
+      %{"env" => env}
+    )
   end
 
   defp execute_claude_query(prompt, opts) do
