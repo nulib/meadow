@@ -35,7 +35,7 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   end
 
   def plan_changes(_, %{plan_id: plan_id}, _) do
-    {:ok, Planner.list_plan_changes(plan_id)}
+    {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
   end
 
   def plan_change(_, %{id: id}, _) do
@@ -67,6 +67,24 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
           {:error, changeset} ->
             {:error, message: "Could not update plan change status", details: changeset}
         end
+    end
+  end
+
+  def update_proposed_plan_change_statuses(_, %{plan_id: plan_id, status: status} = args, %{
+        context: %{current_user: user}
+      }) do
+    case Planner.get_plan(plan_id) do
+      nil ->
+        {:error, "Plan not found"}
+
+      plan ->
+        case status do
+          :approved -> Planner.approve_proposed_plan_changes(plan, user.username)
+          :rejected -> Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
+          _ -> {:error, "Invalid status transition"}
+        end
+
+        {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
     end
   end
 end
