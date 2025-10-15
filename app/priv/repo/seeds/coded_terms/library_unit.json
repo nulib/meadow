@@ -30,5 +30,9 @@
   {
     "id": "UNIVERSITY_MAIN_LIBRARY",
     "label": "University (MAIN) Library"
+  },
+  {
+    "id": "PRITZKER_LEGAL_RESEARCH_CENTER",
+    "label": "Pritzker Legal Research Center"
   }
 ]
