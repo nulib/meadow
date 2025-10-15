@@ -49,9 +49,9 @@ defmodule Meadow.Data.Planner do
      approve_plan_change(change, "user-netid")
      ```
 
-  4. **Execute**: Apply approved changes to works
+  4. **Apply**: Apply approved changes to works
      ```
-     execute_plan(plan)
+     apply_plan(plan)
      ```
   """
   import Ecto.Query, warn: false
@@ -78,12 +78,12 @@ defmodule Meadow.Data.Planner do
 
   ## Example Criteria
 
-      [{:limit, 15}, {:status, :pending}, {:user, "user-netid"}]
+      [{:limit, 15}, {:status, :proposed}, {:user, "user-netid"}]
 
   ## Examples
 
-      iex> list_plans([status: :pending])
-      [%Plan{status: :pending}, ...]
+      iex> list_plans([status: :proposed])
+      [%Plan{status: :proposed}, ...]
   """
   def list_plans(criteria) do
     criteria
@@ -96,8 +96,8 @@ defmodule Meadow.Data.Planner do
 
   ## Examples
 
-      iex> plan_query([status: :pending]) |> Repo.all()
-      [%Plan{status: :pending}, ...]
+      iex> plan_query([status: :proposed]) |> Repo.all()
+      [%Plan{status: :proposed}, ...]
   """
   def plan_query(criteria) do
     query = from(Plan)
@@ -170,15 +170,15 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Gets pending plans.
+  Gets proposed plans.
 
   ## Examples
 
-      iex> get_pending_plans()
-      [%Plan{status: :pending}, ...]
+      iex> get_proposed_plans()
+      [%Plan{status: :proposed}, ...]
   """
-  def get_pending_plans(opts \\ []) do
-    query = from(p in Plan, where: p.status == :pending, order_by: [asc: :inserted_at])
+  def get_proposed_plans(opts \\ []) do
+    query = from(p in Plan, where: p.status == :proposed, order_by: [asc: :inserted_at])
 
     query =
       if opts[:preload_changes] do
@@ -191,7 +191,7 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Gets approved plans ready for execution.
+  Gets approved plans ready to apply.
 
   ## Examples
 
@@ -262,8 +262,11 @@ defmodule Meadow.Data.Planner do
   """
   def create_plan!(attrs \\ %{}) do
     case create_plan(attrs) do
-      {:ok, plan} -> plan
-      {:error, changeset} -> raise Ecto.InvalidChangesetError, action: :insert, changeset: changeset
+      {:ok, plan} ->
+        plan
+
+      {:error, changeset} ->
+        raise Ecto.InvalidChangesetError, action: :insert, changeset: changeset
     end
   end
 
@@ -285,7 +288,7 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Approves a plan and optionally all its pending changes.
+  Approves a plan and optionally all its proposed changes.
 
   ## Examples
 
@@ -335,16 +338,16 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Marks a plan as executed.
+  Marks a plan as completed.
 
   ## Examples
 
-      iex> mark_plan_executed(plan)
-      {:ok, %Plan{status: :executed}}
+      iex> mark_plan_completed(plan)
+      {:ok, %Plan{status: :completed}}
   """
-  def mark_plan_executed(%Plan{} = plan) do
+  def mark_plan_completed(%Plan{} = plan) do
     plan
-    |> Plan.mark_executed()
+    |> Plan.mark_completed()
     |> Repo.update()
   end
 
@@ -414,15 +417,15 @@ defmodule Meadow.Data.Planner do
 
   ## Example Criteria
 
-      [{:status, :pending}, {:work_id, "work-123"}]
+      [{:status, :proposed}, {:work_id, "work-123"}]
 
   ## Examples
 
-      iex> list_plan_changes(plan_id, [status: :pending])
-      [%PlanChange{status: :pending}, ...]
+      iex> list_plan_changes(plan_id, [status: :proposed])
+      [%PlanChange{status: :proposed}, ...]
 
-      iex> list_plan_changes(plan, [status: :pending])
-      [%PlanChange{status: :pending}, ...]
+      iex> list_plan_changes(plan, [status: :proposed])
+      [%PlanChange{status: :proposed}, ...]
   """
   def list_plan_changes(%Plan{id: plan_id}, criteria), do: list_plan_changes(plan_id, criteria)
 
@@ -642,16 +645,16 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Marks a plan change as executed.
+  Marks a plan change as completed.
 
   ## Examples
 
-      iex> mark_plan_change_executed(change)
-      {:ok, %PlanChange{status: :executed}}
+      iex> mark_plan_change_completed(change)
+      {:ok, %PlanChange{status: :completed}}
   """
-  def mark_plan_change_executed(%PlanChange{} = change) do
+  def mark_plan_change_completed(%PlanChange{} = change) do
     change
-    |> PlanChange.mark_executed()
+    |> PlanChange.mark_completed()
     |> Repo.update()
   end
 
@@ -694,30 +697,30 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
-  Executes a plan by applying all approved changes to their respective works.
+  Applies a plan by applying all approved changes to their respective works.
 
-  Returns {:ok, plan} if all changes were applied successfully.
-  Returns {:error, reason} if execution failed.
+  Returns {:ok, plan} if all changes were completed successfully.
+  Returns {:error, reason} if plan failed.
 
   ## Examples
 
-      iex> execute_plan(plan)
-      {:ok, %Plan{status: :executed}}
+      iex> apply_plan(plan)
+      {:ok, %Plan{status: :completed}}
 
-      iex> execute_plan(plan_with_no_approved_changes)
-      {:error, "No approved changes to execute"}
+      iex> apply_plan(plan_with_no_approved_changes)
+      {:error, "No approved changes to apply"}
   """
-  def execute_plan(%Plan{status: :approved} = plan) do
+  def apply_plan(%Plan{status: :approved} = plan) do
     approved_changes = load_approved_changes(plan)
 
     approved_changes
     |> validate_has_changes()
-    |> execute_changes_transaction(plan)
-    |> handle_execution_result(plan)
+    |> apply_changes_transaction(plan)
+    |> handle_apply_changes_result(plan)
   end
 
-  def execute_plan(%Plan{}) do
-    {:error, "Plan must be approved before execution"}
+  def apply_plan(%Plan{}) do
+    {:error, "Plan must be approved before applying"}
   end
 
   defp load_approved_changes(plan) do
@@ -728,30 +731,30 @@ defmodule Meadow.Data.Planner do
     |> Repo.all()
   end
 
-  defp validate_has_changes([]), do: {:error, "No approved changes to execute"}
+  defp validate_has_changes([]), do: {:error, "No approved changes to apply"}
   defp validate_has_changes(changes), do: {:ok, changes}
 
-  defp execute_changes_transaction({:error, _} = error, _plan), do: error
+  defp apply_changes_transaction({:error, _} = error, _plan), do: error
 
-  defp execute_changes_transaction({:ok, approved_changes}, plan) do
+  defp apply_changes_transaction({:ok, approved_changes}, plan) do
     Repo.transaction(
       fn ->
-        Enum.each(approved_changes, &execute_single_change/1)
+        Enum.each(approved_changes, &apply_single_change/1)
 
-        mark_plan_executed(plan)
+        mark_plan_completed(plan)
         |> unwrap_or_rollback()
       end,
       timeout: :infinity
     )
   end
 
-  defp execute_single_change(change) do
+  defp apply_single_change(change) do
     apply_change_to_work(change)
     |> handle_change_result(change)
   end
 
   defp handle_change_result({:ok, _work}, change) do
-    mark_plan_change_executed(change)
+    mark_plan_change_completed(change)
     |> unwrap_or_rollback()
   end
 
@@ -762,28 +765,28 @@ defmodule Meadow.Data.Planner do
   defp unwrap_or_rollback({:ok, result}), do: result
   defp unwrap_or_rollback({:error, reason}), do: Repo.rollback(reason)
 
-  defp handle_execution_result({:ok, executed_plan}, _plan), do: {:ok, executed_plan}
+  defp handle_apply_changes_result({:ok, completed_plan}, _plan), do: {:ok, completed_plan}
 
-  defp handle_execution_result({:error, "No approved changes to execute"} = error, _plan) do
+  defp handle_apply_changes_result({:error, "No approved changes to apply"} = error, _plan) do
     error
   end
 
-  defp handle_execution_result({:error, reason}, plan) do
+  defp handle_apply_changes_result({:error, reason}, plan) do
     mark_plan_error(plan, inspect(reason))
   end
 
   @doc """
-  Executes a single plan change by applying the changeset to the work.
+  Applies a single plan change's changeset to the work.
 
   ## Examples
 
-      iex> execute_plan_change(change)
-      {:ok, %PlanChange{status: :executed}}
+      iex> apply_plan_change(change)
+      {:ok, %PlanChange{status: :completed}}
   """
-  def execute_plan_change(%PlanChange{} = change) do
+  def apply_plan_change(%PlanChange{} = change) do
     case apply_change_to_work(change) do
       {:ok, _work} ->
-        mark_plan_change_executed(change)
+        mark_plan_change_completed(change)
 
       {:error, reason} ->
         mark_plan_change_error(change, inspect(reason))
@@ -885,7 +888,7 @@ defmodule Meadow.Data.Planner do
           plan_id: plan_id,
           work_id: work_id,
           add: %{},
-          status: :pending,
+          status: :proposed,
           inserted_at: DateTime.utc_now(),
           updated_at: DateTime.utc_now()
         }

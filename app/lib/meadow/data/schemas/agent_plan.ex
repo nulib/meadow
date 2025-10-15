@@ -10,20 +10,20 @@ defmodule Meadow.Data.Schemas.AgentPlan do
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "agent_plans" do
-    field :query, :string
-    field :changeset, :map
-    field :status, Ecto.Enum, values: @statuses, default: :pending
-    field :user, :string
-    field :notes, :string
-    field :executed_at, :utc_datetime_usec
-    field :error, :string
+    field(:query, :string)
+    field(:changeset, :map)
+    field(:status, Ecto.Enum, values: @statuses, default: :pending)
+    field(:user, :string)
+    field(:notes, :string)
+    field(:completed_at, :utc_datetime_usec)
+    field(:error, :string)
     timestamps()
   end
 
   @doc false
   def changeset(agent_plan, attrs) do
     agent_plan
-    |> cast(attrs, [:query, :changeset, :status, :user, :notes, :executed_at, :error])
+    |> cast(attrs, [:query, :changeset, :status, :user, :notes, :completed_at, :error])
     |> validate_required([:query, :changeset])
     |> validate_inclusion(:status, @statuses)
     |> validate_changeset_format()
@@ -52,7 +52,7 @@ defmodule Meadow.Data.Schemas.AgentPlan do
   """
   def mark_executed(agent_plan) do
     agent_plan
-    |> cast(%{status: :executed, executed_at: DateTime.utc_now()}, [:status, :executed_at])
+    |> cast(%{status: :executed, completed_at: DateTime.utc_now()}, [:status, :completed_at])
     |> validate_inclusion(:status, @statuses)
   end
 

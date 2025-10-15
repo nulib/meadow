@@ -226,14 +226,15 @@ defmodule Meadow.TestHelpers do
 
   def gql_context(user \\ %{}, extra \\ %{}) do
     %{
-      current_user: %{
-        id: "user1",
-        username: "user1",
-        email: "email@example.com",
-        display_name: "User Name",
-        role: :administrator
-      }
-      |> Map.merge(user)
+      current_user:
+        %{
+          id: "user1",
+          username: "user1",
+          email: "email@example.com",
+          display_name: "User Name",
+          role: :administrator
+        }
+        |> Map.merge(user)
     }
     |> Map.merge(extra)
   end
@@ -303,7 +304,7 @@ defmodule Meadow.TestHelpers do
       Enum.into(attrs, %{
         prompt: "Test plan prompt",
         query: "collection.id:test-123",
-        status: :pending
+        status: :proposed
       })
 
     {:ok, plan} =
@@ -323,7 +324,7 @@ defmodule Meadow.TestHelpers do
         plan_id: plan.id,
         work_id: work.id,
         add: %{descriptive_metadata: %{title: "Updated title"}},
-        status: :pending
+        status: :proposed
       })
 
     {:ok, plan_change} =

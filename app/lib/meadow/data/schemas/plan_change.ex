@@ -41,15 +41,16 @@ defmodule Meadow.Data.Schemas.PlanChange do
   - `replace` - Map of values to fully replace in work data
 
   - `status` - Current state of this change:
-    - `:pending` - Change proposed, awaiting review
-    - `:approved` - Change approved for execution
-    - `:rejected` - Change rejected, will not be executed
-    - `:executed` - Change has been applied to the work
+    - `:pending` - Change created, no proposed updates yet
+    - `:proposed` - Change proposed, awaiting review
+    - `:approved` - Change approved, will be completed
+    - `:rejected` - Change rejected, will not be completed
+    - `:completed` - Change has been completed to the work
     - `:error` - Execution failed for this change
 
   - `user` - User who approved/rejected this specific change
   - `notes` - Optional notes about this change (e.g., reason for rejection)
-  - `executed_at` - When this change was applied
+  - `completed_at` - When this change was completed
   - `error` - Error message if this change failed to apply
   """
   use Ecto.Schema
@@ -57,24 +58,24 @@ defmodule Meadow.Data.Schemas.PlanChange do
 
   alias Meadow.Data.Schemas.Plan
 
-  @statuses [:pending, :approved, :rejected, :executed, :error]
+  @statuses [:pending, :proposed, :approved, :rejected, :completed, :error]
 
   @derive {JSON.Encoder, except: [:plan, :__meta__]}
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "plan_changes" do
-    field :plan_id, Ecto.UUID
-    field :work_id, Ecto.UUID
-    field :add, :map
-    field :delete, :map
-    field :replace, :map
-    field :status, Ecto.Enum, values: @statuses, default: :pending
-    field :user, :string
-    field :notes, :string
-    field :executed_at, :utc_datetime_usec
-    field :error, :string
+    field(:plan_id, Ecto.UUID)
+    field(:work_id, Ecto.UUID)
+    field(:add, :map)
+    field(:delete, :map)
+    field(:replace, :map)
+    field(:status, Ecto.Enum, values: @statuses, default: :pending)
+    field(:user, :string)
+    field(:notes, :string)
+    field(:completed_at, :utc_datetime_usec)
+    field(:error, :string)
 
-    belongs_to :plan, Plan, foreign_key: :plan_id, references: :id, define_field: false
+    belongs_to(:plan, Plan, foreign_key: :plan_id, references: :id, define_field: false)
 
     timestamps()
   end
@@ -82,7 +83,18 @@ defmodule Meadow.Data.Schemas.PlanChange do
   @doc false
   def changeset(plan_change, attrs) do
     plan_change
-    |> cast(attrs, [:plan_id, :work_id, :add, :delete, :replace, :status, :user, :notes, :executed_at, :error])
+    |> cast(attrs, [
+      :plan_id,
+      :work_id,
+      :add,
+      :delete,
+      :replace,
+      :status,
+      :user,
+      :notes,
+      :completed_at,
+      :error
+    ])
     |> validate_required([:work_id])
     |> validate_at_least_one_operation()
     |> validate_inclusion(:status, @statuses)
@@ -121,16 +133,16 @@ defmodule Meadow.Data.Schemas.PlanChange do
   end
 
   @doc """
-  Mark change as executed
+  Mark change as completed
 
   ## Example
 
-      iex> change |> PlanChange.mark_executed() |> Repo.update()
-      {:ok, %PlanChange{status: :executed, executed_at: ~U[2025-10-01 12:00:00.000000Z]}}
+      iex> change |> PlanChange.mark_completed() |> Repo.update()
+      {:ok, %PlanChange{status: :completed, completed_at: ~U[2025-10-01 12:00:00.000000Z]}}
   """
-  def mark_executed(plan_change) do
+  def mark_completed(plan_change) do
     plan_change
-    |> cast(%{status: :executed, executed_at: DateTime.utc_now()}, [:status, :executed_at])
+    |> cast(%{status: :completed, completed_at: DateTime.utc_now()}, [:status, :completed_at])
     |> validate_inclusion(:status, @statuses)
   end
 

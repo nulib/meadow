@@ -8,7 +8,7 @@ defmodule Meadow.Repo.Migrations.CreateAgentPlans do
       add(:status, :string, null: false, default: "pending")
       add(:user, :string)
       add(:notes, :text)
-      add(:executed_at, :utc_datetime_usec)
+      add(:completed_at, :utc_datetime_usec)
       add(:error, :text)
       timestamps()
     end
