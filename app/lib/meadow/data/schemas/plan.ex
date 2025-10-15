@@ -23,37 +23,38 @@ defmodule Meadow.Data.Schemas.Plan do
     Example: `"collection.id:abc-123"` or `"id:(73293ebf-288b-4d4f-8843-488391796fea OR 2a27f163-c7fd-437c-8d4d-c2dbce72c884)"`
 
   - `status` - Current state of the plan:
-    - `:pending` - Plan created, awaiting review
-    - `:approved` - Plan approved for execution
-    - `:rejected` - Plan rejected, will not be executed
-    - `:executed` - All approved changes have been applied
+    - `:pending` - Plan created, proposing changes
+    - `:proposed` - Changes created, awaiting review
+    - `:approved` - Plan approved, will be completed
+    - `:rejected` - Plan rejected, will not be completed
+    - `:completed` - All approved changes have been completed
     - `:error` - Execution failed
 
-  - `user` - User who approved/executed the plan
+  - `user` - User who approved/completed the plan
   - `notes` - Optional notes about approval/rejection
-  - `executed_at` - When the plan was executed
-  - `error` - Error message if execution failed
+  - `completed_at` - When the plan was completed
+  - `error` - Error message if application failed
   """
   use Ecto.Schema
   import Ecto.Changeset
 
   alias Meadow.Data.Schemas.PlanChange
 
-  @statuses [:pending, :approved, :rejected, :executed, :error]
+  @statuses [:pending, :proposed, :approved, :rejected, :completed, :error]
 
   @derive {JSON.Encoder, except: [:plan_changes, :__meta__]}
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "plans" do
-    field :prompt, :string
-    field :query, :string
-    field :status, Ecto.Enum, values: @statuses, default: :pending
-    field :user, :string
-    field :notes, :string
-    field :executed_at, :utc_datetime_usec
-    field :error, :string
+    field(:prompt, :string)
+    field(:query, :string)
+    field(:status, Ecto.Enum, values: @statuses, default: :pending)
+    field(:user, :string)
+    field(:notes, :string)
+    field(:completed_at, :utc_datetime_usec)
+    field(:error, :string)
 
-    has_many :plan_changes, PlanChange, foreign_key: :plan_id
+    has_many(:plan_changes, PlanChange, foreign_key: :plan_id)
 
     timestamps()
   end
@@ -61,7 +62,7 @@ defmodule Meadow.Data.Schemas.Plan do
   @doc false
   def changeset(plan, attrs) do
     plan
-    |> cast(attrs, [:prompt, :query, :status, :user, :notes, :executed_at, :error])
+    |> cast(attrs, [:prompt, :query, :status, :user, :notes, :completed_at, :error])
     |> validate_required([:prompt])
     |> validate_inclusion(:status, @statuses)
   end
@@ -95,16 +96,16 @@ defmodule Meadow.Data.Schemas.Plan do
   end
 
   @doc """
-  Mark plan as executed
+  Mark plan as completed
 
   ## Example
 
-      iex> plan |> Plan.mark_executed() |> Repo.update()
-      {:ok, %Plan{status: :executed, executed_at: ~U[2025-10-01 12:00:00.000000Z]}}
+      iex> plan |> Plan.mark_completed() |> Repo.update()
+      {:ok, %Plan{status: :completed, completed_at: ~U[2025-10-01 12:00:00.000000Z]}}
   """
-  def mark_executed(plan) do
+  def mark_completed(plan) do
     plan
-    |> cast(%{status: :executed, executed_at: DateTime.utc_now()}, [:status, :executed_at])
+    |> cast(%{status: :completed, completed_at: DateTime.utc_now()}, [:status, :completed_at])
     |> validate_inclusion(:status, @statuses)
   end
 

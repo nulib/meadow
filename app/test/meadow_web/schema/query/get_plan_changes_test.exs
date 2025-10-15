@@ -23,7 +23,7 @@ defmodule MeadowWeb.Schema.Query.GetPlanChangesTest do
 
     first_change = List.first(changes)
     assert first_change["id"] == plan_change.id
-    assert first_change["status"] == "PENDING"
+    assert first_change["status"] == "PROPOSED"
   end
 
   test "should return empty list for plan with no changes" do

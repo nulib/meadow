@@ -134,7 +134,7 @@ Meadow supports AI agent-generated plans for batch modifications to works. The s
 - `query`: OpenSearch query string identifying target works
   - Collection query: `"collection.id:abc-123"`
   - Specific works: `"id:(work-id-1 OR work-id-2 OR work-id-3)"`
-- `status`: `:pending`, `:approved`, `:rejected`, `:executed`, or `:error`
+- `status`: `:pending, `:proposed`, `:approved`, `:rejected`, `:completed`, or `:error`
 
 **PlanChanges** - Work-specific modifications
 - `plan_id`: Foreign key to parent plan
@@ -149,10 +149,10 @@ Each PlanChange must specify at least one operation (`add`, `delete`, or `replac
 #### PlanChange payloads
 
 - `add` merges values into existing metadata. For lists (like subjects or notes) the values are appended when they are not already present. Scalar fields (e.g., `title`) are merged according to the context (`:append` for `add`, `:replace` for `replace`).
-- `delete` removes the provided values verbatim. For controlled vocabularies this means the JSON structure must match what is stored in the database (role/term maps). The planner normalizes structs and string-keyed maps automatically when executing changes.
+- `delete` removes the provided values verbatim. For controlled vocabularies this means the JSON structure must match what is stored in the database (role/term maps). The planner normalizes structs and string-keyed maps automatically when applying changes.
 - `replace` overwrites existing values for the provided keys. Use this when the existing content should be replaced entirely instead of appended or removed.
 
-Controlled metadata entries (subjects, creators, contributors, etc.) follow the shape below. For subjects you must supply both the `role` (with at least `id`/`scheme`) and the `term.id`; extra fields such as `label` or `variants` are ignored during execution but can be included when working with structs in IEx:
+Controlled metadata entries (subjects, creators, contributors, etc.) follow the shape below. For subjects you must supply both the `role` (with at least `id`/`scheme`) and the `term.id`; extra fields such as `label` or `variants` are ignored when applying but can be included when working with structs in IEx:
 
 ```elixir
 %{
@@ -241,15 +241,15 @@ change_b = Enum.at(changes, 1)
 })
 ```
 
-**Reviewing and executing:**
+**Reviewing and applying:**
 ```elixir
 # 3. User reviews and approves
 {:ok, _} = Meadow.Data.Planner.approve_plan(plan, "user@example.com")
 {:ok, _} = Meadow.Data.Planner.approve_plan_change(change_a, "user@example.com")
 {:ok, _} = Meadow.Data.Planner.approve_plan_change(change_b, "user@example.com")
 
-# 4. Execute approved changes
-{:ok, executed_plan} = Meadow.Data.Planner.execute_plan(plan)
+# 4. Apply approved changes
+{:ok, completed_plan} = Meadow.Data.Planner.apply_plan(plan)
 ```
 
 ### Doing development on the Meadow Pipeline lambdas

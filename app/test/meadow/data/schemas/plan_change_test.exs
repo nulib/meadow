@@ -49,6 +49,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
       attrs = %{plan_id: plan.id, work_id: work.id}
       changeset = PlanChange.changeset(%PlanChange{}, attrs)
       refute changeset.valid?
+
       assert "at least one of add, delete, or replace must be specified" in errors_on(changeset).add
     end
 
@@ -66,7 +67,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
     end
 
     test "allows valid status values", %{plan: plan, work: work} do
-      for status <- [:pending, :approved, :rejected, :executed, :error] do
+      for status <- [:pending, :proposed, :approved, :rejected, :completed, :error] do
         attrs = Map.merge(@valid_attrs, %{plan_id: plan.id, work_id: work.id, status: status})
         changeset = PlanChange.changeset(%PlanChange{}, attrs)
         assert changeset.valid?
@@ -112,8 +113,8 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
     end
   end
 
-  describe "mark_executed/1" do
-    test "transitions to executed status with timestamp", %{plan: plan, work: work} do
+  describe "mark_completed/1" do
+    test "transitions to completed status with timestamp", %{plan: plan, work: work} do
       {:ok, change} =
         %PlanChange{}
         |> PlanChange.changeset(%{
@@ -124,11 +125,11 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         })
         |> Repo.insert()
 
-      changeset = PlanChange.mark_executed(change)
+      changeset = PlanChange.mark_completed(change)
 
       assert changeset.valid?
-      assert get_change(changeset, :status) == :executed
-      assert get_change(changeset, :executed_at)
+      assert get_change(changeset, :status) == :completed
+      assert get_change(changeset, :completed_at)
     end
   end
 
@@ -164,11 +165,12 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
           work_id: work_a.id,
           add: %{
             descriptive_metadata: %{alternate_title: ["El Gato"]}
-          }
+          },
+          status: :proposed
         })
         |> Repo.insert()
 
-      assert change.status == :pending
+      assert change.status == :proposed
       assert change.add.descriptive_metadata.alternate_title == ["El Gato"]
 
       # User approves
@@ -180,14 +182,14 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
       assert approved.status == :approved
       assert approved.user == "user@example.com"
 
-      # System executes
-      {:ok, executed} =
+      # System applies
+      {:ok, completed} =
         approved
-        |> PlanChange.mark_executed()
+        |> PlanChange.mark_completed()
         |> Repo.update()
 
-      assert executed.status == :executed
-      assert executed.executed_at
+      assert completed.status == :completed
+      assert completed.completed_at
     end
 
     test "LCNAF contributor assignment", %{plan: plan} do
@@ -220,18 +222,18 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
       assert contrib.term.id == "http://id.loc.gov/authorities/names/n79127000"
       assert contrib.term.label == "Adams, Ansel, 1902-1984"
 
-      # User approves and executes
+      # User approves and applies
       {:ok, approved} =
         change
         |> PlanChange.approve("curator@example.com")
         |> Repo.update()
 
-      {:ok, executed} =
+      {:ok, completed} =
         approved
-        |> PlanChange.mark_executed()
+        |> PlanChange.mark_completed()
         |> Repo.update()
 
-      assert executed.status == :executed
+      assert completed.status == :completed
     end
 
     test "rejected change workflow", %{plan: plan, work: work} do
@@ -315,7 +317,7 @@ defmodule Meadow.Data.Schemas.PlanChangeTest do
         |> Repo.insert()
 
       # Verify all changes belong to the same plan
-      changes = Repo.all(from c in PlanChange, where: c.plan_id == ^plan.id)
+      changes = Repo.all(from(c in PlanChange, where: c.plan_id == ^plan.id))
       assert length(changes) == 3
       assert Enum.all?(changes, &(&1.plan_id == plan.id))
 

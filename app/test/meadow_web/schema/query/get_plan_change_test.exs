@@ -17,7 +17,7 @@ defmodule MeadowWeb.Schema.Query.GetPlanChangeTest do
     assert {:ok, query_data} = result
 
     plan_change_status = get_in(query_data, [:data, "planChange", "status"])
-    assert plan_change_status == "PENDING"
+    assert plan_change_status == "PROPOSED"
   end
 
   test "should return nil for a non-existent plan change" do
