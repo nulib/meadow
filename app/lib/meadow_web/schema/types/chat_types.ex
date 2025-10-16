@@ -41,5 +41,6 @@ defmodule MeadowWeb.Schema.ChatTypes do
     field(:conversation_id, :id)
     field(:type, :string, description: "Type of message, e.g. 'chat'")
     field(:message, :string, description: "AI response message")
+    field(:plan_id, :id, description: "The ID of the plan created for this chat message")
   end
 end
