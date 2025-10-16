@@ -47,6 +47,7 @@ const WorkTabsPreservation = ({ work }) => {
     orderBy: "created",
     fileSets: sortFileSets({ fileSets: work.fileSets }),
   });
+  const [selectedFilesets, setSelectedFilesets] = useState([]);
 
   // Keep track of whether these modals are open,
   // and also additional data which the dependent modals rely upon
@@ -215,8 +216,32 @@ const WorkTabsPreservation = ({ work }) => {
   };
 
   const handleTransferFileSetsClick = () => {
+    if (selectedFilesets.length === 0) {
+      return;
+    }
     setTransferFilesetsModal({ fromWorkId: work.id, isVisible: true });
   };
+
+  const handleSelectAllFilesets = (e) => {
+    if (e.target.checked) {
+      setSelectedFilesets(orderedFileSets.fileSets.map((fs) => fs.id));
+    } else {
+      setSelectedFilesets([]);
+    }
+  };
+
+  const handleSelectFileset = (filesetId) => {
+    setSelectedFilesets((prev) => {
+      if (prev.includes(filesetId)) {
+        return prev.filter((id) => id !== filesetId);
+      } else {
+        return [...prev, filesetId];
+      }
+    });
+  };
+
+  const isAllSelected = selectedFilesets.length === orderedFileSets.fileSets.length && orderedFileSets.fileSets.length > 0;
+  const isSomeSelected = selectedFilesets.length > 0 && !isAllSelected;
 
   return (
     <div data-testid="preservation-tab">
@@ -248,6 +273,19 @@ const WorkTabsPreservation = ({ work }) => {
           >
             <thead>
               <tr>
+                <th style={{ width: "40px" }}>
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={(input) => {
+                      if (input) {
+                        input.indeterminate = isSomeSelected;
+                      }
+                    }}
+                    onChange={handleSelectAllFilesets}
+                    aria-label="Select all filesets"
+                  />
+                </th>
                 <th>
                   <UIOrderBy
                     label="ID"
@@ -305,6 +343,14 @@ const WorkTabsPreservation = ({ work }) => {
                   const metadata = fileset.coreMetadata;
                   return (
                     <tr key={fileset.id} data-testid="preservation-row">
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilesets.includes(fileset.id)}
+                          onChange={() => handleSelectFileset(fileset.id)}
+                          aria-label={`Select fileset ${fileset.id}`}
+                        />
+                      </td>
                       <td>{fileset.id}</td>
                       <td>{fileset.role?.id}</td>
                       <td>{fileset.accessionNumber}</td>
@@ -383,21 +429,36 @@ const WorkTabsPreservation = ({ work }) => {
           </Dialog.Root>
           <Button
             as="span"
+            className={selectedFilesets.length === 0 ? "has-tooltip-multiline" : ""}
             data-testid="button-transfer-file-sets"
             onClick={handleTransferFileSetsClick}
+            disabled={selectedFilesets.length === 0}
+            data-tooltip={
+              selectedFilesets.length === 0
+                ? "Select one or more filesets from the table above to transfer"
+                : undefined
+            }
           >
             <span className="icon">
               <IconReplace />
             </span>
-            <span>Transfer File Sets to Existing Work</span>
+            <span>
+              Transfer File Sets
+              {selectedFilesets.length > 0 && ` (${selectedFilesets.length})`}
+            </span>
           </Button>
         </AuthDisplayAuthorized>
       </div>
 
       <WorkTabsPreservationTransferFileSetsModal
-        closeModal={() => setTransferFilesetsModal({ isVisible: false })}
+        closeModal={() => {
+          setTransferFilesetsModal({ isVisible: false });
+          setSelectedFilesets([]);
+        }}
         isVisible={transferFilesetsModal.isVisible}
         fromWorkId={work.id}
+        selectedFilesets={selectedFilesets}
+        work={work}
       />
 
       <WorkTabsPreservationFileSetModal
