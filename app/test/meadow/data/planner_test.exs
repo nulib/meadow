@@ -7,7 +7,8 @@ defmodule Meadow.Data.PlannerTest do
 
   @valid_plan_attrs %{
     prompt: "Translate titles to Spanish in alternate_title field",
-    query: "collection.id:abc-123"
+    query: "collection.id:abc-123",
+    status: :proposed
   }
 
   @invalid_plan_attrs %{prompt: nil}
@@ -31,14 +32,14 @@ defmodule Meadow.Data.PlannerTest do
 
   describe "list_plans/1" do
     test "filters plans by status" do
-      {:ok, pending_plan} = Planner.create_plan(@valid_plan_attrs)
+      {:ok, proposed_plan} = Planner.create_plan(@valid_plan_attrs)
       {:ok, approved_plan} = Planner.create_plan(@valid_plan_attrs)
       Planner.approve_plan(approved_plan)
 
-      pending_plans = Planner.list_plans(status: :pending)
-      pending_ids = Enum.map(pending_plans, & &1.id)
-      assert pending_plan.id in pending_ids
-      refute approved_plan.id in pending_ids
+      proposed_plans = Planner.list_plans(status: :proposed)
+      proposed_ids = Enum.map(proposed_plans, & &1.id)
+      assert proposed_plan.id in proposed_ids
+      refute approved_plan.id in proposed_ids
     end
 
     test "limits results" do
@@ -110,32 +111,32 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
-  describe "get_pending_plans/1" do
-    test "returns only pending plans" do
-      {:ok, pending1} = Planner.create_plan(@valid_plan_attrs)
-      {:ok, pending2} = Planner.create_plan(@valid_plan_attrs)
+  describe "get_proposed_plans/1" do
+    test "returns only proposed plans" do
+      {:ok, proposed1} = Planner.create_plan(@valid_plan_attrs)
+      {:ok, proposed2} = Planner.create_plan(@valid_plan_attrs)
       {:ok, approved} = Planner.create_plan(@valid_plan_attrs)
       Planner.approve_plan(approved)
 
-      pending_plans = Planner.get_pending_plans()
-      pending_ids = Enum.map(pending_plans, & &1.id)
-      assert pending1.id in pending_ids
-      assert pending2.id in pending_ids
-      refute approved.id in pending_ids
+      proposed_plans = Planner.get_proposed_plans()
+      proposed_ids = Enum.map(proposed_plans, & &1.id)
+      assert proposed1.id in proposed_ids
+      assert proposed2.id in proposed_ids
+      refute approved.id in proposed_ids
     end
 
-    test "returns empty list when no pending plans" do
+    test "returns empty list when no proposed plans" do
       Repo.delete_all(Plan)
       {:ok, plan} = Planner.create_plan(@valid_plan_attrs)
       Planner.approve_plan(plan)
 
-      assert Planner.get_pending_plans() == []
+      assert Planner.get_proposed_plans() == []
     end
   end
 
   describe "get_approved_plans/1" do
     test "returns only approved plans" do
-      {:ok, pending} = Planner.create_plan(@valid_plan_attrs)
+      {:ok, proposed} = Planner.create_plan(@valid_plan_attrs)
       {:ok, approved1} = Planner.create_plan(@valid_plan_attrs)
       {:ok, approved2} = Planner.create_plan(@valid_plan_attrs)
       Planner.approve_plan(approved1)
@@ -145,7 +146,7 @@ defmodule Meadow.Data.PlannerTest do
       approved_ids = Enum.map(approved_plans, & &1.id)
       assert approved1.id in approved_ids
       assert approved2.id in approved_ids
-      refute pending.id in approved_ids
+      refute proposed.id in approved_ids
     end
 
     test "returns empty list when no approved plans" do
@@ -161,7 +162,7 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, %Plan{} = plan} = Planner.create_plan(@valid_plan_attrs)
       assert plan.prompt == @valid_plan_attrs.prompt
       assert plan.query == @valid_plan_attrs.query
-      assert plan.status == :pending
+      assert plan.status == :proposed
     end
 
     test "with invalid data returns error changeset" do
@@ -227,17 +228,17 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
-  describe "mark_plan_executed/1" do
-    test "transitions plan to executed status with timestamp", %{plan: plan} do
-      assert {:ok, %Plan{} = executed_plan} = Planner.mark_plan_executed(plan)
-      assert executed_plan.status == :executed
-      assert executed_plan.executed_at != nil
+  describe "mark_plan_completed/1" do
+    test "transitions plan to completed status with timestamp", %{plan: plan} do
+      assert {:ok, %Plan{} = completed_plan} = Planner.mark_plan_completed(plan)
+      assert completed_plan.status == :completed
+      assert completed_plan.completed_at != nil
     end
   end
 
   describe "mark_plan_error/2" do
     test "transitions plan to error status with error message", %{plan: plan} do
-      error_message = "Failed to execute plan"
+      error_message = "Failed to Apply plan"
 
       assert {:ok, %Plan{} = error_plan} = Planner.mark_plan_error(plan, error_message)
       assert error_plan.status == :error
@@ -296,17 +297,19 @@ defmodule Meadow.Data.PlannerTest do
 
   describe "list_plan_changes/2" do
     test "filters by status", %{plan: plan, work: work} do
-      {:ok, pending} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
+      attrs = %{plan_id: plan.id, work_id: work.id, add: %{}, status: :proposed}
+
+      {:ok, proposed} =
+        Planner.create_plan_change(attrs)
 
       {:ok, approved} =
-        Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
+        Planner.create_plan_change(attrs)
 
       Planner.approve_plan_change(approved)
 
-      pending_changes = Planner.list_plan_changes(plan.id, status: :pending)
-      assert length(pending_changes) == 1
-      assert hd(pending_changes).id == pending.id
+      proposed_changes = Planner.list_plan_changes(plan.id, status: :proposed)
+      assert length(proposed_changes) == 1
+      assert hd(proposed_changes).id == proposed.id
     end
 
     test "filters by work_id", %{plan: plan} do
@@ -435,8 +438,16 @@ defmodule Meadow.Data.PlannerTest do
       work2 = work_fixture()
 
       changes_attrs = [
-        %{plan_id: plan.id, work_id: work1.id, add: %{descriptive_metadata: %{title: "Updated 1"}}},
-        %{plan_id: plan.id, work_id: work2.id, add: %{descriptive_metadata: %{title: "Updated 2"}}}
+        %{
+          plan_id: plan.id,
+          work_id: work1.id,
+          add: %{descriptive_metadata: %{title: "Updated 1"}}
+        },
+        %{
+          plan_id: plan.id,
+          work_id: work2.id,
+          add: %{descriptive_metadata: %{title: "Updated 2"}}
+        }
       ]
 
       assert {:ok, changes} = Planner.create_plan_changes(changes_attrs)
@@ -505,14 +516,14 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
-  describe "mark_plan_change_executed/1" do
-    test "marks change as executed", %{plan: plan, work: work} do
+  describe "mark_plan_change_completed/1" do
+    test "marks change as completed", %{plan: plan, work: work} do
       {:ok, change} =
         Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
 
-      assert {:ok, executed} = Planner.mark_plan_change_executed(change)
-      assert executed.status == :executed
-      assert executed.executed_at
+      assert {:ok, completed} = Planner.mark_plan_change_completed(change)
+      assert completed.status == :completed
+      assert completed.completed_at
     end
   end
 
@@ -537,8 +548,8 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
-  describe "execute_plan/1" do
-    test "executes all approved changes with replace operation", %{plan: plan} do
+  describe "apply_plan/1" do
+    test "applies all approved changes with replace operation", %{plan: plan} do
       work1 = work_fixture()
       work2 = work_fixture()
 
@@ -560,11 +571,11 @@ defmodule Meadow.Data.PlannerTest do
       Planner.approve_plan_change(change2)
       {:ok, plan} = Planner.approve_plan(plan)
 
-      assert {:ok, executed_plan} = Planner.execute_plan(plan)
-      assert executed_plan.status == :executed
+      assert {:ok, completed_plan} = Planner.apply_plan(plan)
+      assert completed_plan.status == :completed
 
-      # Verify the plan changes were marked as executed
-      assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
+      # Verify the plan changes were marked as completed
+      assert Planner.list_plan_changes(plan.id, status: :completed) |> length() == 2
     end
 
     test "returns error when plan is not approved", %{plan: plan, work: work} do
@@ -577,19 +588,19 @@ defmodule Meadow.Data.PlannerTest do
 
       Planner.approve_plan_change(change)
 
-      # Plan is still pending, even though changes are approved
-      assert {:error, "Plan must be approved before execution"} = Planner.execute_plan(plan)
+      # Plan is still proposed, even though changes are approved
+      assert {:error, "Plan must be approved before applying"} = Planner.apply_plan(plan)
     end
 
     test "returns error when no approved changes", %{plan: plan, work: work} do
       Planner.create_plan_change(%{plan_id: plan.id, work_id: work.id, add: %{}})
       {:ok, plan} = Planner.approve_plan(plan)
 
-      assert {:error, "No approved changes to execute"} = Planner.execute_plan(plan)
+      assert {:error, "No approved changes to apply"} = Planner.apply_plan(plan)
     end
   end
 
-  describe "execute_plan_change/1" do
+  describe "apply_plan_change/1" do
     test "applies replace change to work", %{plan: plan} do
       work = work_fixture()
 
@@ -601,8 +612,8 @@ defmodule Meadow.Data.PlannerTest do
           status: :approved
         })
 
-      assert {:ok, executed_change} = Planner.execute_plan_change(change)
-      assert executed_change.status == :executed
+      assert {:ok, completed_change} = Planner.apply_plan_change(change)
+      assert completed_change.status == :completed
 
       updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
       assert updated_work.descriptive_metadata.title == "New Title"
@@ -644,9 +655,9 @@ defmodule Meadow.Data.PlannerTest do
           status: :approved
         })
 
-      # Execute the change
-      assert {:ok, executed_change} = Planner.execute_plan_change(change)
-      assert executed_change.status == :executed
+      # Apply the change
+      assert {:ok, completed_change} = Planner.apply_plan_change(change)
+      assert completed_change.status == :completed
 
       # Verify the subject was deleted
       updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
@@ -669,10 +680,11 @@ defmodule Meadow.Data.PlannerTest do
           status: :approved
         })
 
-      assert {:ok, executed_change} = Planner.execute_plan_change(change)
-      assert executed_change.status == :executed
+      assert {:ok, completed_change} = Planner.apply_plan_change(change)
+      assert completed_change.status == :completed
 
       updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+
       assert [%{edtf: "1896-11-10", humanized: humanized}] =
                updated_work.descriptive_metadata.date_created
 
@@ -690,7 +702,7 @@ defmodule Meadow.Data.PlannerTest do
           status: :approved
         })
 
-      assert {:ok, error_change} = Planner.execute_plan_change(change)
+      assert {:ok, error_change} = Planner.apply_plan_change(change)
       assert error_change.status == :error
       assert error_change.error == "\"Work not found\""
     end
@@ -728,12 +740,12 @@ defmodule Meadow.Data.PlannerTest do
       {:ok, _} = Planner.approve_plan_change(change_a, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_b, "curator@example.com")
 
-      # 4. Execute plan
-      assert {:ok, executed_plan} = Planner.execute_plan(plan)
-      assert executed_plan.status == :executed
+      # 4. Apply plan
+      assert {:ok, completed_plan} = Planner.apply_plan(plan)
+      assert completed_plan.status == :completed
 
-      # Verify all changes were applied
-      assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
+      # Verify all changes were completed
+      assert Planner.list_plan_changes(plan.id, status: :completed) |> length() == 2
     end
 
     test "Remove extraneous subjects workflow" do
@@ -810,11 +822,11 @@ defmodule Meadow.Data.PlannerTest do
       {:ok, _} = Planner.approve_plan_change(change_a, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_b, "curator@example.com")
 
-      # 6. Execute plan
-      assert {:ok, executed_plan} = Planner.execute_plan(plan)
-      assert executed_plan.status == :executed
+      # 6. Apply plan
+      assert {:ok, completed_plan} = Planner.apply_plan(plan)
+      assert completed_plan.status == :completed
 
-      # 7. Verify changes were applied
+      # 7. Verify changes were completed
       updated_work_a = Repo.get!(Meadow.Data.Schemas.Work, work_a.id)
       assert length(updated_work_a.descriptive_metadata.subject) == 1
       [remaining_a] = updated_work_a.descriptive_metadata.subject
@@ -827,8 +839,8 @@ defmodule Meadow.Data.PlannerTest do
       assert remaining_b.term.id == "mock1:result1"
       assert remaining_b.term.label == "First Result"
 
-      # Verify all changes were executed
-      assert Planner.list_plan_changes(plan.id, status: :executed) |> length() == 2
+      # Verify all changes were completed
+      assert Planner.list_plan_changes(plan.id, status: :completed) |> length() == 2
     end
   end
 end

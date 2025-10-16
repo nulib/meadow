@@ -67,7 +67,7 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
     field(:status, :plan_status)
     field(:user, :string)
     field(:notes, :string)
-    field(:executed_at, :datetime)
+    field(:completed_at, :datetime)
     field(:error, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
@@ -84,7 +84,7 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
     field(:status, :plan_status)
     field(:user, :string)
     field(:notes, :string)
-    field(:executed_at, :datetime)
+    field(:completed_at, :datetime)
     field(:error, :string)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
@@ -92,10 +92,11 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
 
   @desc "Plan status values"
   enum :plan_status do
-    value(:pending, as: :pending, description: "Pending review")
-    value(:approved, as: :approved, description: "Approved for execution")
-    value(:rejected, as: :rejected, description: "Rejected, will not be executed")
-    value(:executed, as: :executed, description: "Successfully executed")
-    value(:error, as: :error, description: "Execution failed")
+    value(:pending, as: :pending, description: "Plan created")
+    value(:proposed, as: :proposed, description: "Pending review")
+    value(:approved, as: :approved, description: "Approved, will be applied")
+    value(:rejected, as: :rejected, description: "Rejected, will not be applied")
+    value(:completed, as: :completed, description: "Successfully applied")
+    value(:error, as: :error, description: "Failed to apply")
   end
 end

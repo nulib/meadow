@@ -25,8 +25,11 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
           end
 
         case result do
-          {:ok, updated_plan} -> {:ok, updated_plan}
-          {:error, changeset} -> {:error, message: "Could not update plan status", details: changeset}
+          {:ok, updated_plan} ->
+            {:ok, updated_plan}
+
+          {:error, changeset} ->
+            {:error, message: "Could not update plan status", details: changeset}
         end
     end
   end
@@ -42,7 +45,9 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
     end
   end
 
-  def update_plan_change_status(_, %{id: id, status: status} = args, %{context: %{current_user: user}}) do
+  def update_plan_change_status(_, %{id: id, status: status} = args, %{
+        context: %{current_user: user}
+      }) do
     case Planner.get_plan_change(id) do
       nil ->
         {:error, "Plan change not found"}
@@ -56,8 +61,11 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
           end
 
         case result do
-          {:ok, updated_change} -> {:ok, updated_change}
-          {:error, changeset} -> {:error, message: "Could not update plan change status", details: changeset}
+          {:ok, updated_change} ->
+            {:ok, updated_change}
+
+          {:error, changeset} ->
+            {:error, message: "Could not update plan change status", details: changeset}
         end
     end
   end

@@ -27,7 +27,7 @@ defmodule Meadow.Data.Schemas.PlanTest do
     end
 
     test "allows valid status values" do
-      for status <- [:pending, :approved, :rejected, :executed, :error] do
+      for status <- [:pending, :proposed, :approved, :rejected, :completed, :error] do
         changeset = Plan.changeset(%Plan{}, Map.put(@valid_attrs, :status, status))
         assert changeset.valid?
       end
@@ -41,7 +41,7 @@ defmodule Meadow.Data.Schemas.PlanTest do
 
   describe "approve/2" do
     test "transitions to approved status" do
-      plan = %Plan{status: :pending}
+      plan = %Plan{status: :proposed}
       changeset = Plan.approve(plan, "user@example.com")
 
       assert changeset.valid?
@@ -50,7 +50,7 @@ defmodule Meadow.Data.Schemas.PlanTest do
     end
 
     test "works without user" do
-      plan = %Plan{status: :pending}
+      plan = %Plan{status: :proposed}
       changeset = Plan.approve(plan)
 
       assert changeset.valid?
@@ -60,7 +60,7 @@ defmodule Meadow.Data.Schemas.PlanTest do
 
   describe "reject/2" do
     test "transitions to rejected status with notes" do
-      plan = %Plan{status: :pending}
+      plan = %Plan{status: :proposed}
       changeset = Plan.reject(plan, "Changes not needed")
 
       assert changeset.valid?
@@ -69,7 +69,7 @@ defmodule Meadow.Data.Schemas.PlanTest do
     end
 
     test "works without notes" do
-      plan = %Plan{status: :pending}
+      plan = %Plan{status: :proposed}
       changeset = Plan.reject(plan)
 
       assert changeset.valid?
@@ -77,14 +77,14 @@ defmodule Meadow.Data.Schemas.PlanTest do
     end
   end
 
-  describe "mark_executed/1" do
-    test "transitions to executed status with timestamp" do
+  describe "mark_completed/1" do
+    test "transitions to completed status with timestamp" do
       plan = %Plan{status: :approved}
-      changeset = Plan.mark_executed(plan)
+      changeset = Plan.mark_completed(plan)
 
       assert changeset.valid?
-      assert get_change(changeset, :status) == :executed
-      assert get_change(changeset, :executed_at)
+      assert get_change(changeset, :status) == :completed
+      assert get_change(changeset, :completed_at)
     end
   end
 
@@ -106,11 +106,12 @@ defmodule Meadow.Data.Schemas.PlanTest do
         %Plan{}
         |> Plan.changeset(%{
           prompt: "Translate titles to Spanish in alternate_title field",
-          query: "collection.id:abc-123"
+          query: "collection.id:abc-123",
+          status: :proposed
         })
         |> Repo.insert()
 
-      assert plan.status == :pending
+      assert plan.status == :proposed
       assert plan.prompt == "Translate titles to Spanish in alternate_title field"
 
       # User approves the plan
@@ -122,14 +123,14 @@ defmodule Meadow.Data.Schemas.PlanTest do
       assert approved_plan.status == :approved
       assert approved_plan.user == "user@example.com"
 
-      # System marks as executed
-      {:ok, executed_plan} =
+      # System marks as completed
+      {:ok, completed_plan} =
         approved_plan
-        |> Plan.mark_executed()
+        |> Plan.mark_completed()
         |> Repo.update()
 
-      assert executed_plan.status == :executed
-      assert executed_plan.executed_at
+      assert completed_plan.status == :completed
+      assert completed_plan.completed_at
     end
 
     test "LCNAF lookup workflow with error" do
