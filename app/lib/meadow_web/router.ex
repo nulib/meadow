@@ -70,6 +70,13 @@ defmodule MeadowWeb.Router do
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
+    forward("/graphiql/agent", Absinthe.Plug.GraphiQL,
+      schema: MeadowWeb.Schema.Agent,
+      interface: :simple,
+      socket: MeadowWeb.UserSocket,
+      before_send: {Middleware.AssumeRole, :update_user_role}
+    )
+
     forward("/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
       interface: :simple,
