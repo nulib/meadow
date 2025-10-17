@@ -6,6 +6,7 @@ export const CHAT_RESPONSE = gql`
       conversationId
       message
       type
+      planId
     }
   }
 `;
