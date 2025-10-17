@@ -39,7 +39,7 @@ defmodule MeadowWeb.MCP.GraphQL do
   end
 
   defp run_query(query, variables, context) do
-    case Absinthe.run(query, MeadowWeb.Schema, variables: variables, context: context) do
+    case Absinthe.run(query, MeadowWeb.Schema.Agent, variables: variables, context: context) do
       {:ok, %{errors: [%{message: reason} | _]}} -> {:error, reason}
       {:ok, %{data: data}} -> {:ok, data}
       {:error, reason} -> {:error, reason}
