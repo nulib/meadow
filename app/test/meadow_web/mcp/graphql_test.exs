@@ -5,23 +5,30 @@ defmodule MeadowWeb.MCP.GraphQLTest do
   describe "GraphQL Tool" do
     setup do
       user = user_fixture()
-      {:ok, %{user: user}}
+      collection = collection_fixture()
+      {:ok, %{user: user, collection: collection}}
     end
 
-    test "execute a simple GraphQL query", %{user: user} do
+    test "execute a simple GraphQL query", %{user: user, collection: collection} do
       query = """
-      query WhoAmi {
-        me {
-          displayName
+      query GetCollection($collectionId: ID!) {
+        collection(collectionId: $collectionId) {
+          id
+          title
         }
       }
       """
 
+      variables = %{"collectionId" => collection.id}
+
       assert {:ok, [{:text, text}]} =
-               call_tool("graphql", %{"query" => query}, current_user: user) |> parse_response()
+               call_tool("graphql", %{"query" => query, "variables" => variables},
+                 current_user: user
+               )
+               |> parse_response()
 
       assert response = Jason.decode!(text)
-      assert get_in(response, ["me", "displayName"]) |> String.contains?(user.display_name)
+      assert get_in(response, ["collection", "title"]) == collection.title
     end
 
     test "execute a GraphQL query with variables", %{user: user} do
