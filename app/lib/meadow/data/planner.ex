@@ -532,6 +532,7 @@ defmodule Meadow.Data.Planner do
 
     case Repo.insert(changeset) do
       {:ok, plan_change} ->
+        broadcast_plan_change_update(plan_change, "created")
         {:ok, plan_change}
 
       {:error, changeset} ->
@@ -604,6 +605,7 @@ defmodule Meadow.Data.Planner do
 
     case Repo.update(changeset) do
       {:ok, updated_change} ->
+        broadcast_plan_change_update(updated_change, "updated")
         {:ok, updated_change}
 
       {:error, changeset} ->
@@ -694,6 +696,18 @@ defmodule Meadow.Data.Planner do
   """
   def change_plan_change(%PlanChange{} = change, attrs \\ %{}) do
     PlanChange.changeset(change, attrs)
+  end
+
+  defp broadcast_plan_change_update(%PlanChange{} = plan_change, action) do
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      %{
+        plan_id: plan_change.plan_id,
+        plan_change: plan_change,
+        action: action
+      },
+      plan_changes_updated: "plan:#{plan_change.plan_id}"
+    )
   end
 
   @doc """
@@ -894,8 +908,13 @@ defmodule Meadow.Data.Planner do
         }
       end)
 
-    {count, _} = Repo.insert_all(PlanChange, entries)
+    {count, inserted_changes} = Repo.insert_all(PlanChange, entries, returning: true)
     Logger.debug("Created #{count} PlanChanges for plan #{plan_id}")
+
+    # Broadcast each created plan change
+    Enum.each(inserted_changes, fn plan_change ->
+      broadcast_plan_change_update(plan_change, "created")
+    end)
   end
 
   defp apply_change_to_work(%PlanChange{work_id: work_id} = plan_change) do
