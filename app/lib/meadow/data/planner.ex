@@ -131,16 +131,8 @@ defmodule Meadow.Data.Planner do
       ** (Ecto.NoResultsError)
   """
   def get_plan!(id, opts \\ []) do
-    query = from(p in Plan, where: p.id == ^id)
-
-    query =
-      if opts[:preload_changes] do
-        from(p in query, preload: :plan_changes)
-      else
-        query
-      end
-
-    Repo.one!(query)
+    get_plan_query(id, opts)
+    |> Repo.one!()
   end
 
   @doc """
@@ -157,16 +149,21 @@ defmodule Meadow.Data.Planner do
       nil
   """
   def get_plan(id, opts \\ []) do
-    query = from(p in Plan, where: p.id == ^id)
+    get_plan_query(id, opts)
+    |> Repo.one()
+  end
 
-    query =
-      if opts[:preload_changes] do
-        from(p in query, preload: :plan_changes)
-      else
-        query
-      end
+  @doc """
+  Returns a query for getting a plan with optional preloading of changes.
 
-    Repo.one(query)
+  ## Examples
+      iex> get_plan_query("123", preload_changes: true)
+      iex> get_plan_query("123", preload_changes: :empty)
+      iex> get_plan_query("123", preload_changes: :not_empty)
+  """
+  def get_plan_query(id, opts) do
+    from(p in Plan, where: p.id == ^id)
+    |> preload_plan_changes(opts[:preload_changes])
   end
 
   @doc """
@@ -832,7 +829,7 @@ defmodule Meadow.Data.Planner do
 
   defp fetch_work_ids_from_query(query) do
     alias Meadow.Search.Config, as: SearchConfig
-    alias Meadow.Search.HTTP
+    alias Meadow.Search.Scroll
 
     # The query should be a JSON string (like in Batches)
     # Convert it to a map, ensure _source is empty, then back to JSON
@@ -842,24 +839,9 @@ defmodule Meadow.Data.Planner do
       |> Map.put("_source", "")
       |> Jason.encode!()
 
-    HTTP.post!([SearchConfig.alias_for(Work, 2), "_search?scroll=10m"], query_body)
-    |> Map.get(:body)
-    |> collect_work_ids([])
-  end
-
-  defp collect_work_ids(%{"hits" => %{"hits" => []}}, acc), do: acc
-
-  defp collect_work_ids(%{"_scroll_id" => scroll_id, "hits" => hits}, acc) do
-    alias Meadow.Search.HTTP
-
-    work_ids =
-      hits
-      |> Map.get("hits")
-      |> Enum.map(&Map.get(&1, "_id"))
-
-    HTTP.post!("/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
-    |> Map.get(:body)
-    |> collect_work_ids(acc ++ work_ids)
+    Scroll.results(query_body, SearchConfig.alias_for(Work, 2))
+    |> Stream.map(&Map.get(&1, "_id"))
+    |> Enum.to_list()
   end
 
   defp create_plan_changes_for_works([], plan_id) do
@@ -1142,4 +1124,51 @@ defmodule Meadow.Data.Planner do
   defp normalize_date_entry(%{edtf: edtf}) when not is_nil(edtf), do: humanize_edtf(edtf)
 
   defp normalize_date_entry(_entry), do: humanize_edtf(nil)
+
+  defp preload_plan_changes(query, true), do: preload(query, :plan_changes)
+
+  defp preload_plan_changes(query, filter) when filter in [:empty, :not_empty] do
+    subquery = from(c in PlanChange, where: ^change_fragment(filter), select: c)
+    preload(query, plan_changes: ^subquery)
+  end
+
+  defp preload_plan_changes(query, _), do: query
+
+  defp change_fragment(:empty) do
+    dynamic(
+      [c],
+      fragment(
+        """
+          (?.add IS NULL OR ?.add = jsonb_build_object())
+          AND (?.delete IS NULL OR ?.delete = jsonb_build_object())
+          AND (?.replace IS NULL OR ?.replace = jsonb_build_object())
+        """,
+        c,
+        c,
+        c,
+        c,
+        c,
+        c
+      )
+    )
+  end
+
+  defp change_fragment(:not_empty) do
+    dynamic(
+      [c],
+      fragment(
+        """
+          (?.add IS NOT NULL AND ?.add != jsonb_build_object())
+          OR (?.delete IS NOT NULL AND ?.delete != jsonb_build_object())
+          OR (?.replace IS NOT NULL AND ?.replace != jsonb_build_object())
+        """,
+        c,
+        c,
+        c,
+        c,
+        c,
+        c
+      )
+    )
+  end
 end

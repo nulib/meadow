@@ -106,6 +106,33 @@ defmodule Meadow.Data.PlannerTest do
       assert retrieved_plan.id == plan.id
     end
 
+    test "returns the plan with preloaded changes", %{plan: plan, work: work} do
+      {:ok, non_empty_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{descriptive_metadata: %{title: "Updated"}}
+        })
+
+      {:ok, empty_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{}
+        })
+
+      retrieved_plan = Planner.get_plan(plan.id, preload_changes: true)
+      assert length(retrieved_plan.plan_changes) == 2
+
+      retrieved_plan = Planner.get_plan(plan.id, preload_changes: :empty)
+      assert length(retrieved_plan.plan_changes) == 1
+      assert retrieved_plan.plan_changes |> hd() |> Map.get(:id) == empty_change.id
+
+      retrieved_plan = Planner.get_plan(plan.id, preload_changes: :not_empty)
+      assert length(retrieved_plan.plan_changes) == 1
+      assert retrieved_plan.plan_changes |> hd() |> Map.get(:id) == non_empty_change.id
+    end
+
     test "returns nil if plan doesn't exist" do
       assert Planner.get_plan(Ecto.UUID.generate()) == nil
     end
