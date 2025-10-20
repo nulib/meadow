@@ -105,30 +105,57 @@ Important:
 
 CRITICAL - Controlled Term Fields:
 The following fields REQUIRE controlled terms from external authorities and MUST use the authoritiesSearch GraphQL query:
-- contributor (with optional role from marc_relator)
+- contributor (with REQUIRED role from marc_relator)
 - creator (with optional role from marc_relator)
 - genre
 - language
 - location
-- subject (with optional role from subject_role)
+- subject (with REQUIRED role from subject_role)
 - style_period
 - technique
 
 For these fields, you MUST:
 1. Use the authoritiesSearch query to find valid controlled term IDs
 2. Never make up or guess term IDs
-3. The data structure is:
+3. The data structure MUST be (note that term is an OBJECT with id field):
    {
-     "term": "controlled-term-id-from-search",
-     "role": {"id": "role-id", "scheme": "marc_relator"} // optional, only for contributor/creator/subject
+     "term": {"id": "controlled-term-id-from-search"},
+     "role": {"id": "role-id", "scheme": "role-scheme"}
    }
 
-Example authoritiesSearch query:
+IMPORTANT STRUCTURE NOTES:
+- "term" MUST be an object with "id" field, NOT a bare string
+- "role" is REQUIRED for subject and contributor fields
+- "role" is optional for creator field
+
+FINDING ROLE VALUES:
+- For subject roles: Query codeList(scheme: SUBJECT_ROLE) to get valid role IDs
+  Common values: "TOPICAL", "GEOGRAPHIC", "TEMPORAL", "GENRE_FORM"
+- For contributor/creator roles: Query codeList(scheme: MARC_RELATOR) to get valid role IDs
+  These are 3-letter codes like "pht" (photographer), "art" (artist), "ctb" (contributor)
+- Always use the exact "id" value returned from the codeList query
+
+Example authoritiesSearch query to find controlled term IDs:
 query {
   authoritiesSearch(authority: "lcsh", query: "cats") {
     id
     label
     hint
+  }
+}
+
+Example codeList query to get available role codes:
+query {
+  codeList(scheme: MARC_RELATOR) {
+    id
+    label
+  }
+}
+
+query {
+  codeList(scheme: SUBJECT_ROLE) {
+    id
+    label
   }
 }
 
@@ -150,15 +177,25 @@ The controlled term format in add/replace operations:
 {
   "descriptive_metadata": {
     "subject": [
-      {"term": "http://id.worldcat.org/fast/849374", "role": {"id": "subject", "scheme": "subject_role"}}
+      {"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}
     ],
     "creator": [
-      {"term": "http://id.loc.gov/authorities/names/n79021164"}
+      {"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}}
+    ],
+    "contributor": [
+      {"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}, "role": {"id": "pht", "scheme": "marc_relator"}}
     ]
   }
 }
 
-When adding controlled terms, ALWAYS search first to get the correct ID!
+WORKFLOW FOR ADDING CONTROLLED TERMS:
+1. First, use authoritiesSearch to find the controlled term ID (the "term" value)
+2. If the field requires a role (subject, contributor), query codeList to get valid role IDs
+3. Construct the entry with the correct nested structure:
+   {"term": {"id": "found-term-id"}, "role": {"id": "found-role-id", "scheme": "appropriate-scheme"}}
+4. Use update_plan_change to add the properly structured entry
+
+When adding controlled terms, ALWAYS search first to get the correct IDs!
 """,
                 tools=[
                     "mcp__meadow__graphql",
@@ -177,8 +214,16 @@ When adding controlled terms, ALWAYS search first to get the correct ID!
         Use the get_plan_changes tool to get a list of changes planned for a given plan UUID and work UUID.
 
         CRITICAL: When working with controlled vocabulary fields (subject, creator, contributor, genre,
-        language, location, style_period, technique), you MUST use the authoritiesSearch GraphQL query
-        to find valid controlled term IDs. Never make up or guess term IDs.
+        language, location, style_period, technique), you MUST:
+        1. Use the authoritiesSearch GraphQL query to find valid controlled term IDs
+        2. For fields requiring roles (subject, contributor), use codeList query to get valid role IDs:
+           - codeList(scheme: SUBJECT_ROLE) for subject roles
+           - codeList(scheme: MARC_RELATOR) for contributor/creator roles
+        3. Structure the term correctly as an OBJECT: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
+        4. Never use bare strings for term values - they must be objects with "id" field
+        5. Include required "role" field for subject and contributor fields
+
+        Never make up or guess term IDs or role IDs - always query for them first.
 
         Do not look for information in the file system or local codebase.
         """)
