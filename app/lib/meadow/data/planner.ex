@@ -884,7 +884,7 @@ defmodule Meadow.Data.Planner do
           plan_id: plan_id,
           work_id: work_id,
           add: %{},
-          status: :proposed,
+          status: :pending,
           inserted_at: DateTime.utc_now(),
           updated_at: DateTime.utc_now()
         }
