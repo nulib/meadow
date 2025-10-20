@@ -24,9 +24,14 @@ async def query_claude(prompt, context_json, mcp_url, iiif_server_url, graphql_a
         1. Retrieve all pending PlanChanges for plan {plan_id}
         2. Analyze each work's metadata
         3. Generate appropriate metadata changes based on your prompt
-        4. Update each PlanChange with the proposed changes
+        4. Use authoritiesSearch for all controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique)
+        5. Update each PlanChange with the proposed changes
 
         Context data: {json.dumps(context_data, indent=2)}
+
+        IMPORTANT: For controlled vocabulary fields like subject headings, creator names, genres, etc.,
+        the subagent MUST use the authoritiesSearch GraphQL query to find valid controlled term IDs.
+        Never make up or guess term IDs for these fields.
 
         Once the subagent completes, provide a summary of the changes proposed."""
     else:
@@ -97,11 +102,69 @@ Important:
 - Process changes one at a time
 - Check for pending changes after each update to ensure nothing is missed
 - Return a summary with the count of changes proposed when complete
+
+CRITICAL - Controlled Term Fields:
+The following fields REQUIRE controlled terms from external authorities and MUST use the authoritiesSearch GraphQL query:
+- contributor (with optional role from marc_relator)
+- creator (with optional role from marc_relator)
+- genre
+- language
+- location
+- subject (with optional role from subject_role)
+- style_period
+- technique
+
+For these fields, you MUST:
+1. Use the authoritiesSearch query to find valid controlled term IDs
+2. Never make up or guess term IDs
+3. The data structure is:
+   {
+     "term": "controlled-term-id-from-search",
+     "role": {"id": "role-id", "scheme": "marc_relator"} // optional, only for contributor/creator/subject
+   }
+
+Example authoritiesSearch query:
+query {
+  authoritiesSearch(authority: "lcsh", query: "cats") {
+    id
+    label
+    hint
+  }
+}
+
+Available authorities (use appropriate one for the field type):
+- "lcsh" - Library of Congress Subject Headings (for subject)
+- "lcnaf" - Library of Congress Name Authority (for creator, contributor)
+- "lcgft" - Library of Congress Genre/Form Terms (for genre)
+- "lclang" - Library of Congress Languages (for language)
+- "fast" - FAST terms (alternative for subjects)
+- "fast-personal", "fast-corporate-name", "fast-geographic", "fast-topical", "fast-form" - specific FAST subsets
+- "aat" - Getty AAT (for technique, style_period, genre)
+- "tgn" - Getty TGN (for location)
+- "ulan" - Getty ULAN (for creator, contributor)
+- "geonames" - GeoNames (for location)
+- "homosaurus" - Homosaurus LGBTQ+ vocabulary
+- "nul-authority" - Northwestern local authority (for any field)
+
+The controlled term format in add/replace operations:
+{
+  "descriptive_metadata": {
+    "subject": [
+      {"term": "http://id.worldcat.org/fast/849374", "role": {"id": "subject", "scheme": "subject_role"}}
+    ],
+    "creator": [
+      {"term": "http://id.loc.gov/authorities/names/n79021164"}
+    ]
+  }
+}
+
+When adding controlled terms, ALWAYS search first to get the correct ID!
 """,
                 tools=[
                     "mcp__meadow__graphql",
                     "mcp__meadow__get_plan_changes",
-                    "mcp__meadow__update_plan_change"
+                    "mcp__meadow__update_plan_change",
+                    "mcp__image_fetcher__fetch_iiif_image"
                 ]
             )
         },
@@ -112,6 +175,10 @@ Important:
         to process all pending changes for that plan.
 
         Use the get_plan_changes tool to get a list of changes planned for a given plan UUID and work UUID.
+
+        CRITICAL: When working with controlled vocabulary fields (subject, creator, contributor, genre,
+        language, location, style_period, technique), you MUST use the authoritiesSearch GraphQL query
+        to find valid controlled term IDs. Never make up or guess term IDs.
 
         Do not look for information in the file system or local codebase.
         """)
