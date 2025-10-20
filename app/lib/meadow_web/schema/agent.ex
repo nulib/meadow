@@ -7,7 +7,9 @@ defmodule MeadowWeb.Schema.Agent do
   import_types(Absinthe.Type.Custom)
   import_types(MeadowWeb.Schema.Types.Json)
 
-  alias Meadow.Data
+  alias Meadow.{Data, Repo}
+  alias Meadow.Data.Schemas.FileSet
+  import Ecto.Query
 
   import_types(MeadowWeb.Schema.IngestTypes)
   import_types(MeadowWeb.Schema.Data.WorkTypes)
@@ -49,11 +51,21 @@ defmodule MeadowWeb.Schema.Agent do
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Data, Data.datasource())
+      |> Dataloader.add_source(OrderedFileSets, ordered_file_set_source())
 
     Map.put(ctx, :loader, loader)
   end
 
   def plugins do
     [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+  end
+
+  defp ordered_file_set_source do
+    Dataloader.Ecto.new(Repo,
+      query: fn
+        FileSet, _ -> from(f in FileSet, order_by: f.rank)
+        queryable, _ -> queryable
+      end
+    )
   end
 end
