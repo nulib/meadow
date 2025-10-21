@@ -1,7 +1,7 @@
 #import "./ControlledValueFields.frag.gql"
 
-query AuthoritiesSearch($authority: ID!, $query: String!) {
-  authoritiesSearch(authority: $authority, query: $query) {
+query AuthoritiesSearch($authority: ID!, $query: String!, $limit: Int) {
+  authoritiesSearch(authority: $authority, query: $query, limit: $limit) {
     ...ControlledValueFields
   }
 }

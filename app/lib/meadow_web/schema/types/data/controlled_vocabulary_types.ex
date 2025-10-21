@@ -36,6 +36,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :authorities_search, list_of(:controlled_value) do
       arg(:authority, non_null(:id))
       arg(:query, non_null(:string))
+      arg(:limit, :integer)
       middleware(Middleware.Authenticate)
 
       resolve(&AuthoritiesSearch.search/2)

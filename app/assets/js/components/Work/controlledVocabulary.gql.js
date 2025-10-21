@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const AUTHORITIES_SEARCH = gql`
-  query AuthoritiesSearch($authority: ID!, $query: String!) {
-    authoritiesSearch(authority: $authority, query: $query) {
+  query AuthoritiesSearch($authority: ID!, $query: String!, $limit: Int) {
+    authoritiesSearch(authority: $authority, query: $query, limit: $limit) {
       hint
       id
       label
