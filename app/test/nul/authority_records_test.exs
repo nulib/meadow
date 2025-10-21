@@ -34,6 +34,13 @@ defmodule NUL.AuthorityRecordsTest do
       assert AuthorityRecords.list_authority_records() |> length() == 3
     end
 
+    test "list_authority_records/1 respects limit parameter" do
+      assert AuthorityRecords.list_authority_records(1) |> length() == 1
+      assert AuthorityRecords.list_authority_records(2) |> length() == 2
+      assert AuthorityRecords.list_authority_records(3) |> length() == 3
+      assert AuthorityRecords.list_authority_records(100) |> length() == 3
+    end
+
     test "get_authority_record!/1", %{authority_record: authority_record} do
       assert AuthorityRecords.get_authority_record!(authority_record.id)
 
