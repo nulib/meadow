@@ -36,6 +36,17 @@ defmodule MeadowWeb.Schema.ChatTypes do
 
       resolve(&Resolvers.Chat.send_chat_message/3)
     end
+
+    @desc "Publish a chat response to subscribed clients (for internal use by agents)"
+    field :publish_chat_response, type: :chat_response do
+      arg(:conversation_id, non_null(:id))
+      arg(:message, non_null(:string))
+      arg(:type, non_null(:string))
+      arg(:plan_id, :id)
+      middleware(Middleware.Authenticate)
+
+      resolve(&Resolvers.Chat.publish_chat_response/3)
+    end
   end
 
   object :chat_message do

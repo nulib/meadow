@@ -24,9 +24,14 @@ async def query_claude(prompt, context_json, mcp_url, iiif_server_url, graphql_a
         1. Retrieve all pending PlanChanges for plan {plan_id}
         2. Analyze each work's metadata
         3. Generate appropriate metadata changes based on your prompt
-        4. Update each PlanChange with the proposed changes
+        4. Use authoritiesSearch for all controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique)
+        5. Update each PlanChange with the proposed changes
 
         Context data: {json.dumps(context_data, indent=2)}
+
+        IMPORTANT: For controlled vocabulary fields like subject headings, creator names, genres, etc.,
+        the subagent MUST use the authoritiesSearch GraphQL query to find valid controlled term IDs.
+        Never make up or guess term IDs for these fields.
 
         Once the subagent completes, provide a summary of the changes proposed."""
     else:
@@ -97,11 +102,106 @@ Important:
 - Process changes one at a time
 - Check for pending changes after each update to ensure nothing is missed
 - Return a summary with the count of changes proposed when complete
+
+CRITICAL - Controlled Term Fields:
+The following fields REQUIRE controlled terms from external authorities and MUST use the authoritiesSearch GraphQL query:
+- contributor (with REQUIRED role from marc_relator)
+- creator (with optional role from marc_relator)
+- genre
+- language
+- location
+- subject (with REQUIRED role from subject_role)
+- style_period
+- technique
+
+For these fields, you MUST:
+1. Use the authoritiesSearch query to find valid controlled term IDs
+2. Never make up or guess term IDs
+3. The data structure MUST be (note that term is an OBJECT with id field):
+   {
+     "term": {"id": "controlled-term-id-from-search"},
+     "role": {"id": "role-id", "scheme": "role-scheme"}
+   }
+
+IMPORTANT STRUCTURE NOTES:
+- "term" MUST be an object with "id" field, NOT a bare string
+- "role" is REQUIRED for subject and contributor fields
+- "role" is optional for creator field
+
+FINDING ROLE VALUES:
+- For subject roles: Query codeList(scheme: SUBJECT_ROLE) to get valid role IDs
+  Common values: "TOPICAL", "GEOGRAPHIC", "TEMPORAL", "GENRE_FORM"
+- For contributor/creator roles: Query codeList(scheme: MARC_RELATOR) to get valid role IDs
+  These are 3-letter codes like "pht" (photographer), "art" (artist), "ctb" (contributor)
+- Always use the exact "id" value returned from the codeList query
+
+Example authoritiesSearch query to find controlled term IDs:
+query {
+  authoritiesSearch(authority: "lcsh", query: "cats") {
+    id
+    label
+    hint
+  }
+}
+
+Example codeList query to get available role codes:
+query {
+  codeList(scheme: MARC_RELATOR) {
+    id
+    label
+  }
+}
+
+query {
+  codeList(scheme: SUBJECT_ROLE) {
+    id
+    label
+  }
+}
+
+Available authorities (use appropriate one for the field type):
+- "lcsh" - Library of Congress Subject Headings (for subject)
+- "lcnaf" - Library of Congress Name Authority (for creator, contributor)
+- "lcgft" - Library of Congress Genre/Form Terms (for genre)
+- "lclang" - Library of Congress Languages (for language)
+- "fast" - FAST terms (alternative for subjects)
+- "fast-personal", "fast-corporate-name", "fast-geographic", "fast-topical", "fast-form" - specific FAST subsets
+- "aat" - Getty AAT (for technique, style_period, genre)
+- "tgn" - Getty TGN (for location)
+- "ulan" - Getty ULAN (for creator, contributor)
+- "geonames" - GeoNames (for location)
+- "homosaurus" - Homosaurus LGBTQ+ vocabulary
+- "nul-authority" - Northwestern local authority (for any field)
+
+The controlled term format in add/replace operations:
+{
+  "descriptive_metadata": {
+    "subject": [
+      {"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}
+    ],
+    "creator": [
+      {"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}}
+    ],
+    "contributor": [
+      {"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}, "role": {"id": "pht", "scheme": "marc_relator"}}
+    ]
+  }
+}
+
+WORKFLOW FOR ADDING CONTROLLED TERMS:
+1. First, use authoritiesSearch to find the controlled term ID (the "term" value)
+2. If the field requires a role (subject, contributor), query codeList to get valid role IDs
+3. Construct the entry with the correct nested structure:
+   {"term": {"id": "found-term-id"}, "role": {"id": "found-role-id", "scheme": "appropriate-scheme"}}
+4. Use update_plan_change to add the properly structured entry
+
+When adding controlled terms, ALWAYS search first to get the correct IDs!
 """,
                 tools=[
                     "mcp__meadow__graphql",
                     "mcp__meadow__get_plan_changes",
-                    "mcp__meadow__update_plan_change"
+                    "mcp__meadow__update_plan_change",
+                    "mcp__image_fetcher__fetch_iiif_image"
                 ]
             )
         },
@@ -112,6 +212,18 @@ Important:
         to process all pending changes for that plan.
 
         Use the get_plan_changes tool to get a list of changes planned for a given plan UUID and work UUID.
+
+        CRITICAL: When working with controlled vocabulary fields (subject, creator, contributor, genre,
+        language, location, style_period, technique), you MUST:
+        1. Use the authoritiesSearch GraphQL query to find valid controlled term IDs
+        2. For fields requiring roles (subject, contributor), use codeList query to get valid role IDs:
+           - codeList(scheme: SUBJECT_ROLE) for subject roles
+           - codeList(scheme: MARC_RELATOR) for contributor/creator roles
+        3. Structure the term correctly as an OBJECT: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
+        4. Never use bare strings for term values - they must be objects with "id" field
+        5. Include required "role" field for subject and contributor fields
+
+        Never make up or guess term IDs or role IDs - always query for them first.
 
         Do not look for information in the file system or local codebase.
         """)
