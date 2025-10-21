@@ -240,6 +240,23 @@ defmodule Meadow.Data.PlannerTest do
       assert approved_plan.status == :approved
       assert approved_plan.user == "user@example.com"
     end
+
+    test "prevents approving non-proposed plans", %{plan: plan} do
+      {:ok, plan} = Planner.update_plan(plan, %{status: :pending})
+
+      assert {:error, "Only proposed plans can be approved"} = Planner.approve_plan(plan)
+    end
+
+    test "prevents approving plans with unreviewed changes", %{plan: plan} do
+      {:ok, _} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: Ecto.UUID.generate(),
+          add: %{descriptive_metadata: %{title: "Updated"}}
+        })
+
+      assert {:error, "Cannot approve plan with 1 unreviewed change"} = Planner.approve_plan(plan)
+    end
   end
 
   describe "reject_plan/2" do
@@ -543,6 +560,41 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
+  describe "approve_proposed_plan_changes" do
+    test "approves all proposed changes for a plan", %{plan: plan, work: work} do
+      change = fn type, map ->
+        Planner.create_plan_change(%{
+          type => map,
+          plan_id: plan.id,
+          work_id: work.id
+        })
+        |> elem(1)
+      end
+
+      proposed = [
+        change.(:add, %{}),
+        change.(:delete, %{descriptive_metadata: %{title: ["Old Title"]}}),
+        change.(:replace, %{}),
+        change.(:replace, %{descriptive_metadata: %{title: "New Title"}}),
+        change.(:add, %{descriptive_metadata: %{alternate_title: ["Alt Title"]}})
+      ]
+
+      {:ok, plan} = Planner.propose_plan(plan)
+
+      Enum.at(proposed, 3) |> Planner.reject_plan_change()
+      assert {:ok, ^plan, 2} = plan |> Planner.approve_proposed_plan_changes()
+
+      new_statuses =
+        proposed
+        |> Enum.map(fn %{id: change_id} ->
+          %{status: status} = Planner.get_plan_change!(change_id)
+          status
+        end)
+
+      assert new_statuses == [:pending, :approved, :pending, :rejected, :approved]
+    end
+  end
+
   describe "mark_plan_change_completed/1" do
     test "marks change as completed", %{plan: plan, work: work} do
       {:ok, change} =
@@ -762,10 +814,12 @@ defmodule Meadow.Data.PlannerTest do
           add: %{descriptive_metadata: %{alternate_title: ["La Casa"]}}
         })
 
+      {:ok, plan} = Planner.propose_plan(plan)
+
       # 3. User reviews and approves
-      {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_a, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_b, "curator@example.com")
+      {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
 
       # 4. Apply plan
       assert {:ok, completed_plan} = Planner.apply_plan(plan)
@@ -844,10 +898,12 @@ defmodule Meadow.Data.PlannerTest do
           }
         })
 
+      {:ok, plan} = Planner.propose_plan(plan)
+
       # 5. User reviews and approves
-      {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_a, "curator@example.com")
       {:ok, _} = Planner.approve_plan_change(change_b, "curator@example.com")
+      {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
 
       # 6. Apply plan
       assert {:ok, completed_plan} = Planner.apply_plan(plan)

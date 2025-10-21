@@ -53,6 +53,16 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Plans.update_plan_change_status/3)
     end
+
+    @desc "Update all proposed plan change statuses (approve or reject)"
+    field :update_proposed_plan_change_statuses, list_of(:plan_change) do
+      arg(:plan_id, non_null(:id))
+      arg(:status, non_null(:plan_status))
+      arg(:notes, :string)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Plans.update_proposed_plan_change_statuses/3)
+    end
   end
 
   #

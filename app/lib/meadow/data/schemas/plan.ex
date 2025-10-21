@@ -68,6 +68,15 @@ defmodule Meadow.Data.Schemas.Plan do
   end
 
   @doc """
+  Transition plan to proposed status
+  """
+  def propose(plan) do
+    plan
+    |> cast(%{status: :proposed}, [:status])
+    |> validate_inclusion(:status, @statuses)
+  end
+
+  @doc """
   Transition plan to approved status
 
   ## Example
