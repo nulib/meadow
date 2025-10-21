@@ -83,5 +83,64 @@ defmodule MeadowWeb.Schema.Query.AuthoritiesSearchTest do
                }
       end
     end
+
+    test "Respects limit parameter in search" do
+      # Create multiple authority records
+      records =
+        Enum.map(1..5, fn i ->
+          %{
+            id: "info:nul/" <> Ecto.UUID.generate(),
+            label: "Test Record #{i}",
+            hint: "Hint #{i}"
+          }
+        end)
+
+      Enum.each(records, fn record ->
+        Ecto.Changeset.change(%AuthorityRecord{}, record)
+        |> Meadow.Repo.insert()
+      end)
+
+      # Search with limit of 2
+      result =
+        query_gql(
+          variables: %{
+            "authority" => "nul-authority",
+            "query" => "Test Record",
+            "limit" => 2
+          },
+          context: gql_context()
+        )
+
+      assert {:ok, %{data: query_data}} = result
+      assert length(get_in(query_data, ["authoritiesSearch"])) == 2
+
+      # Search with limit of 5
+      result =
+        query_gql(
+          variables: %{
+            "authority" => "nul-authority",
+            "query" => "Test Record",
+            "limit" => 5
+          },
+          context: gql_context()
+        )
+
+      assert {:ok, %{data: query_data}} = result
+      assert length(get_in(query_data, ["authoritiesSearch"])) == 5
+
+      # Search without limit (should default to 30)
+      result =
+        query_gql(
+          variables: %{
+            "authority" => "nul-authority",
+            "query" => "Test Record"
+          },
+          context: gql_context()
+        )
+
+      assert {:ok, %{data: query_data}} = result
+      # Should return all 5 records since it's less than the default limit of 30
+      assert length(get_in(query_data, ["authoritiesSearch"])) == 5
+    end
   end
 end

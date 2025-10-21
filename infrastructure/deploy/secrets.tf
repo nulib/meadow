@@ -17,9 +17,9 @@ locals {
     db = {
       host     = module.data_services.outputs.aurora.endpoint
       port     = module.data_services.outputs.aurora.port
-      user     = module.data_services.outputs.aurora.admin_user
-      password = module.data_services.outputs.aurora.admin_password
-      database = replace(var.stack_name, "-", "_")
+      user     = local.database_user
+      password = random_string.db_password.result
+      database = local.database_name
     }
 
     dc = {
