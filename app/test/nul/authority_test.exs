@@ -89,5 +89,20 @@ defmodule NUL.AuthorityTest do
     test "no results" do
       assert {:ok, []} = Authority.search("M1551ng")
     end
+
+    test "respects limit parameter" do
+      # Search for "Legend" matches 3 records (2 in hint, 1 in label)
+      assert {:ok, results} = Authority.search("Legend", 1)
+      assert length(results) == 1
+
+      assert {:ok, results} = Authority.search("Legend", 2)
+      assert length(results) == 2
+
+      assert {:ok, results} = Authority.search("Legend", 3)
+      assert length(results) == 3
+
+      assert {:ok, results} = Authority.search("Legend", 100)
+      assert length(results) == 3
+    end
   end
 end

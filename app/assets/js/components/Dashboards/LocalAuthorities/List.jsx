@@ -47,6 +47,7 @@ export default function DashboardsLocalAuthoritiesList() {
         variables: {
           authority: "nul-authority",
           query: searchValue,
+          limit: limit,
         },
       });
     } else {
@@ -113,7 +114,7 @@ export default function DashboardsLocalAuthoritiesList() {
   React.useEffect(() => {
     if (!data) return;
     filterValues();
-  }, [data, searchValue]);
+  }, [data, searchValue, limit]);
 
   if (loading || deleteAuthorityLoading || updateLoading) return null;
   if (error) return <Notification isDanger>{error.toString()}</Notification>;
