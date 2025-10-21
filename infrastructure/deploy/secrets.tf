@@ -15,9 +15,9 @@ locals {
     db = {
       host     = module.data_services.outputs.aurora.endpoint
       port     = module.data_services.outputs.aurora.port
-      user     = module.data_services.outputs.aurora.admin_user
-      password = module.data_services.outputs.aurora.admin_password
-      database = "meadow"
+      user     = local.database_user
+      password = random_string.db_password.result
+      database = local.database_name
     }
 
     dc = {
@@ -67,7 +67,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "config_secrets" {
-  name        = "${local.prefix}/config/meadow"
+  name        = "${local.prefix}/config/${var.stack_name}"
   description = "Meadow configuration secrets"
 }
 
