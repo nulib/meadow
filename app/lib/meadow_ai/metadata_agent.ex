@@ -6,6 +6,8 @@ defmodule MeadowAI.MetadataAgent do
   alias Meadow.Utils.DCAPI
   alias MeadowWeb.Router.Helpers, as: Routes
 
+  import MeadowAI.Python
+
   @moduledoc """
   A GenServer that wraps PythonX functionality and provides AI-powered metadata generation tools.
 
@@ -162,48 +164,6 @@ defmodule MeadowAI.MetadataAgent do
   end
 
   # Private Functions
-  defp pyread(file) do
-    priv_dir = :code.priv_dir(:meadow) |> to_string()
-    Path.join([priv_dir, "python", "integration", file]) |> File.read!()
-  end
-
-  defp initialize_python_session(_opts) do
-    Logger.info("Initializing MetadataAgent")
-
-    # Initialize PythonX with Claude Code Python SDK
-    # Use the on-disk pyproject but rewrite the local source path to an absolute path
-    # so Pythonx.uv_init() can resolve it even if it runs from a temp directory.
-    pyproject =
-      pyread("pyproject.toml")
-      |> String.replace("${PRIV_PATH}", :code.priv_dir(:meadow) |> to_string())
-
-    case Pythonx.uv_init(pyproject, force: true) do
-      :ok ->
-        initialize_python_environment()
-        {:ok, %{initialized_at: DateTime.utc_now()}}
-
-      _ ->
-        {:error, :pythonx_init_failed}
-    end
-  rescue
-    error ->
-      {:error, {:initialization_error, error}}
-  end
-
-  # Set environment variables for Python session
-  defp initialize_python_environment do
-    env = Application.get_env(:meadow, :pythonx_env, %{})
-
-    Pythonx.eval(
-      """
-      import os
-      env = {k.decode('utf-8'): v.decode('utf-8') for k, v in env.items()}
-      os.environ.update(env)
-      """,
-      %{"env" => env}
-    )
-  end
-
   defp execute_claude_query(prompt, opts) do
     context = Keyword.get(opts, :context, %{})
 

@@ -108,6 +108,8 @@ jobs:
           terraform init
           terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=https://localhost.localstack.cloud:4566
         working-directory: ./infrastructure/localstack
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
