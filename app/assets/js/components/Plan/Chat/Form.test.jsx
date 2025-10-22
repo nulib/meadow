@@ -17,7 +17,20 @@ jest.mock("@js/components/Plan/Chat/AutoTextArea", () => ({
 jest.mock("@js/components/Icon", () => ({
   __esModule: true,
   IconArrowDown: () => <span data-testid="icon-down" />,
+  IconList: () => <span data-testid="icon-list" />,
   IconReply: () => <span data-testid="icon-reply" />,
+}));
+
+/**
+ * Mock recipes module
+ */
+jest.mock("@js/components/Plan/recipes", () => ({
+  __esModule: true,
+  recipes: [
+    "Add a description to the work based on the visual content of the image",
+    "Add, update, or replace subject headings as appropriate",
+    "Fill out controlled fields if possible",
+  ],
 }));
 
 describe("PlanChatForm", () => {
@@ -168,5 +181,122 @@ describe("PlanChatForm", () => {
 
     expect(onSubmitMessage).toHaveBeenCalledWith("Direct submit");
     expect(input).toHaveValue("");
+  });
+
+  test("renders recipes button", () => {
+    render(
+      <PlanChatForm
+        showScrollButton={false}
+        onScrollToBottom={jest.fn()}
+        onSubmitMessage={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /recipes/i })).toBeInTheDocument();
+  });
+
+  test("clicking recipes button shows recipe dropdown", async () => {
+    render(
+      <PlanChatForm
+        showScrollButton={false}
+        onScrollToBottom={jest.fn()}
+        onSubmitMessage={jest.fn()}
+      />,
+    );
+
+    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+
+    // Dropdown should not be visible initially
+    expect(
+      screen.queryByText(
+        /Add a description to the work based on the visual content/i,
+      ),
+    ).not.toBeInTheDocument();
+
+    // Click to show recipes
+    await userEvent.click(recipesButton);
+
+    // All three recipes should be visible
+    expect(
+      screen.getByText(
+        /Add a description to the work based on the visual content/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Add, update, or replace subject headings/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Fill out controlled fields if possible/i),
+    ).toBeInTheDocument();
+  });
+
+  test("selecting a recipe populates the input and hides dropdown", async () => {
+    render(
+      <PlanChatForm
+        showScrollButton={false}
+        onScrollToBottom={jest.fn()}
+        onSubmitMessage={jest.fn()}
+      />,
+    );
+
+    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+    const input = screen.getByTestId("msg-input");
+
+    // Show recipes
+    await userEvent.click(recipesButton);
+
+    // Click on second recipe - use fireEvent to avoid triggering document mousedown
+    const recipe = screen.getByText(/Add, update, or replace subject headings/i);
+    fireEvent.click(recipe);
+
+    // Input should be populated with the recipe text
+    expect(input).toHaveValue(
+      "Add, update, or replace subject headings as appropriate",
+    );
+
+    // Dropdown should be hidden
+    expect(
+      screen.queryByText(/Add, update, or replace subject headings/i),
+    ).not.toBeInTheDocument();
+  });
+
+  test("submitting after selecting a recipe clears input and hides dropdown", async () => {
+    const onSubmitMessage = jest.fn();
+
+    render(
+      <PlanChatForm
+        showScrollButton={false}
+        onScrollToBottom={jest.fn()}
+        onSubmitMessage={onSubmitMessage}
+      />,
+    );
+
+    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+    const input = screen.getByTestId("msg-input");
+    const submitButton = screen.getByRole("button", { name: /reply/i });
+
+    // Show recipes and select one - use fireEvent to avoid triggering document mousedown
+    await userEvent.click(recipesButton);
+    const recipe = screen.getByText(/Fill out controlled fields if possible/i);
+    fireEvent.click(recipe);
+
+    // Re-open recipes to test that submit closes it
+    await userEvent.click(recipesButton);
+
+    // Submit the form
+    await userEvent.click(submitButton);
+
+    // Should have called onSubmitMessage with the recipe text
+    expect(onSubmitMessage).toHaveBeenCalledWith(
+      "Fill out controlled fields if possible",
+    );
+
+    // Input should be cleared
+    expect(input).toHaveValue("");
+
+    // Dropdown should be hidden
+    expect(
+      screen.queryByText(/Fill out controlled fields if possible/i),
+    ).not.toBeInTheDocument();
   });
 });
