@@ -212,6 +212,8 @@ jobs:
             ${{ runner.os }}-npm-v6-
       - name: Set SECRET_KEY_BASE
         run: echo "SECRET_KEY_BASE=$(openssl rand -hex 32)" >> $GITHUB_ENV
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
