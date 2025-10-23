@@ -1,6 +1,21 @@
+locals {
+  database_user = replace(var.stack_name, "-", "_")
+  database_name = replace(var.stack_name, "-", "_")
+}
+
 resource "random_string" "db_password" {
   length  = "16"
   special = "false"
+}
+
+resource "aws_lambda_invocation" "create_db_user" {
+  function_name = module.data_services.outputs.aurora.user_lambda
+
+  input = jsonencode({
+    username = local.database_user
+    password = random_string.db_password.result
+    database = local.database_name
+  })
 }
 
 # Using the postgresql provider to manage the database and user resources
