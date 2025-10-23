@@ -51,6 +51,13 @@ $PoppinsBold: "Poppins Bold", $AkkuratProBold, sans-serif;
 $PoppinsExtraBold: "Poppins Extra Bold", $AkkuratProBold, sans-serif;
 $PoppinsExtraLight: "Poppins Extra Light", $AkkuratLight, sans-serif;
 
+$background-user-message: linear-gradient(
+  173deg,
+  $white -38.2%,
+  $nu-purple-10 61.8%,
+  $nu-purple-30 161.8%
+);
+
 // Customize Bulma with these variables
 // Colors
 $primary: $nu-purple;

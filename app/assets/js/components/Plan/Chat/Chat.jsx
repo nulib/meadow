@@ -7,9 +7,9 @@ import { v4 as uuidv4 } from "uuid";
 
 const conversationId = uuidv4();
 
-const PlanChat = ({ initialMessage, query }) => {
+const PlanChat = ({ initialMessages, query, planIdCallback }) => {
   const scrollerRef = useRef(null);
-  const [messages, setMessages] = useState([initialMessage]);
+  const [messages, setMessages] = useState(initialMessages || []);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   const { data: chatResponseMessage, error: subscriptionError } =
@@ -57,10 +57,19 @@ const PlanChat = ({ initialMessage, query }) => {
 
   useEffect(() => {
     if (!chatResponseMessage) return;
+
+    if (chatResponseMessage.type === "plan_id")
+      planIdCallback(chatResponseMessage.planId);
+
     setMessages((prev) => [
       ...prev,
-      { content: chatResponseMessage.message, isUser: false, type: "message" },
+      {
+        content: chatResponseMessage.message,
+        isUser: false,
+        type: chatResponseMessage.type,
+      },
     ]);
+
     if (isAtBottom) scrollToBottom(true);
   }, [chatResponseMessage]);
 

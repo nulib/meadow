@@ -36,8 +36,14 @@ defmodule MeadowAI.Python do
         {:error, :pythonx_init_failed}
     end
   rescue
+    error in RuntimeError ->
+      case error.message do
+        "Python interpreter has already been initialized" -> {:ok, :already_initialized}
+        _ -> {:error, {:initialization_error, error}}
+      end
+
     error ->
-      {:error, {:initialization_error, error}}
+      {:error, {:initialization_exception, error}}
   end
 
   defp initialize_python_environment do

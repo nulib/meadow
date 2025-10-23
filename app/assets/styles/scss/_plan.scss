@@ -1,3 +1,54 @@
+.plan {
+  display: flex;
+  margin: 1rem 0;
+
+  &[data-has-plan="true"] .plan-workspace {
+    width: 61.8%;
+    background: $white;
+  }
+  &[data-has-plan="true"] .chat-wrapper {
+    width: 38.2%;
+    border-color: $light-grey;
+  }
+}
+
+.plan-workspace {
+  width: 38.2%;
+  transition: all 0.618s ease-in-out;
+  background: $background-user-message;
+  border-radius: 0.5rem;
+}
+
+.plan-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: $black;
+  font-size: 1.25rem;
+  padding: 2rem;
+  text-align: center;
+  gap: "1rem";
+
+  img {
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }
+}
+
+.chat-wrapper {
+  width: 61.8%;
+  transition: all 0.618s ease-in-out;
+  padding: 1.25rem 0 1.25rem 1rem;
+  margin-top: -1.25rem;
+  margin-bottom: -1.25rem;
+  border-left: 1px solid transparent;
+}
+
 .chat {
   display: flex;
   flex-direction: column;
@@ -54,25 +105,34 @@
 }
 
 .chat-message {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  max-width: 61.8%; // golden ratio
+  max-width: 94.444%; // golden ratio
   word-wrap: break-word;
   white-space: pre-wrap;
   font-size: 1rem;
   cursor: text;
   margin-top: 1rem;
 
+  em {
+    font-family: $AkkuratProItalic;
+  }
+
+  strong {
+    font-weight: 400;
+    font-family: $AkkuratProBold;
+  }
+
   &[data-message-user="ai"] {
-    background-color: $light-grey;
-    color: $rich-black-80;
+    background: $light-grey;
+    color: $black;
     align-self: flex-start;
     border-bottom-left-radius: 0;
   }
 
   &[data-message-user="human"] {
-    background-color: $nu-purple-10;
-    color: $nu-purple-120;
+    background: $background-user-message;
+    color: $black;
     align-self: flex-end;
     border-bottom-right-radius: 0;
   }

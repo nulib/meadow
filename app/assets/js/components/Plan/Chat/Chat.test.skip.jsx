@@ -48,7 +48,7 @@ jest.mock("uuid", () => ({ v4: () => "conv-123" }));
  */
 jest.mock("@js/components/Plan/Chat/Transcript", () => ({
   __esModule: true,
-  default: ({ messages }) => (
+  default: ({ messages = [] }) => (
     <div data-testid="transcript">
       {messages.map((m, i) => (
         <div key={i} data-testid={`msg-${i}`}>
