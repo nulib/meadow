@@ -22,15 +22,15 @@ defmodule MeadowWeb.Plugs.SetCurrentUser do
     Absinthe.Plug.put_options(conn, context: %{auth_token: token, current_user: user})
   end
 
-  defp check_config_user(conn) do
-    if Mix.env() in [:dev, :test] do
+  if Mix.env() in [:dev, :test] do
+    defp check_config_user(conn) do
       case Application.get_env(:meadow, :force_current_user) do
         nil -> conn
         user_id -> Plug.Conn.assign(conn, :current_user, User.find(user_id))
       end
-    else
-      conn
     end
+  else
+    defp check_config_user(conn), do: conn
   end
 
   defp load_session_user(%Plug.Conn{assigns: %{current_user: _user}} = conn), do: conn
