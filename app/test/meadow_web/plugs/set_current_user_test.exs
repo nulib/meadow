@@ -81,4 +81,45 @@ defmodule MeadowWeb.Plugs.SetCurrentUserTest do
                conn.assigns[:current_user]
     end
   end
+
+  describe "with force_current_user config set" do
+    setup do
+      user = user_fixture(:administrator)
+
+      Application.put_env(:meadow, :force_current_user, user.username)
+
+      on_exit(fn ->
+        Application.delete_env(:meadow, :force_current_user)
+      end)
+
+      {:ok, %{user: user}}
+    end
+
+    test "SetCurrentUser plug adds the forced current user to the Conn/Absinthe Context", %{
+      user: user
+    } do
+      conn =
+        build_conn()
+        |> Plug.Test.init_test_session(current_user: nil)
+        |> SetCurrentUser.call(nil)
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: :administrator
+             } ==
+               conn.private.absinthe.context.current_user
+
+      assert %User{
+               username: user.username,
+               email: user.email,
+               id: user.id,
+               display_name: user.display_name,
+               role: :administrator
+             } ==
+               conn.assigns[:current_user]
+    end
+  end
 end
