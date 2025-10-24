@@ -45,28 +45,19 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
       required: true
     )
 
-    field(:add, :map,
-      description: "Map of values to append to existing work data"
-    )
+    field(:add, :map, description: "Map of values to append to existing work data")
 
-    field(:delete, :map,
-      description: "Map of values to remove from existing work data"
-    )
+    field(:delete, :map, description: "Map of values to remove from existing work data")
 
-    field(:replace, :map,
-      description: "Map of values to fully replace in work data"
-    )
+    field(:replace, :map, description: "Map of values to fully replace in work data")
 
     field(:status, :string,
       description: "Status: pending, proposed, approved, rejected, completed, error"
     )
 
-    field(:notes, :string,
-      description: "Optional notes about this change"
-    )
+    field(:notes, :string, description: "Optional notes about this change")
   end
 
-  @impl true
   def name, do: "update_plan_change"
 
   @impl true

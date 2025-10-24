@@ -73,13 +73,18 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   def update_proposed_plan_change_statuses(_, %{plan_id: plan_id, status: status} = args, %{
         context: %{current_user: user}
       }) do
-    with {:ok, plan} <- fetch_plan(plan_id),
-         {:ok, updated_plan, change_count} <- change_plan_changes(plan, status, args, user) do
-      maybe_update_plan_status(status, {:ok, updated_plan, change_count}, user)
+    case fetch_plan(plan_id) do
+      {:ok, plan} ->
+        case change_plan_changes(plan, status, args, user) do
+          {:ok, updated_plan, change_count} ->
+            {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
 
-      {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
-    else
-      {:error, _} = error -> error
+          {:error, _} = error ->
+            error
+        end
+
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -120,10 +125,4 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   defp change_plan_changes(_plan, _status, _args, _user) do
     {:error, "Invalid status transition"}
   end
-
-  defp maybe_update_plan_status(:approved, {:ok, plan, _count}, user) do
-    Planner.approve_plan(plan, user.username)
-  end
-
-  defp maybe_update_plan_status(_, _result, _user), do: :ok
 end
