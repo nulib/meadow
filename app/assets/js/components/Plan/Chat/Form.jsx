@@ -82,7 +82,6 @@ const PlanChatForm = ({
           title={showRecipes ? "Hide recipes" : "Show recipe prompts"}
         >
           <IconList />
-          {showRecipes ? "Hide" : "Recipes"}
         </button>
 
         <div style={{ flex: 1, position: "relative" }}>
