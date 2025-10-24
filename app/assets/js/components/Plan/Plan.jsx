@@ -39,11 +39,20 @@ const Plan = ({ works }) => {
     ) : null;
   });
 
+  console.log({ planChanges });
+
   return (
     <div className="plan box" data-has-plan={hasPlan}>
       <div className="plan-workspace">
         {planId ? (
-          <PlanPanelChanges planId={planId} planChanges={planChanges} />
+          <PlanPanelChanges
+            id={planId}
+            changes={planChanges}
+            target={{
+              title: targetTitle,
+              thumbnails: targetThumbnails,
+            }}
+          />
         ) : (
           <div className="plan-placeholder">
             {targetThumbnails}
