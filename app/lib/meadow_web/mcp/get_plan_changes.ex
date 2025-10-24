@@ -59,7 +59,6 @@ defmodule MeadowWeb.MCP.GetPlanChanges do
     )
   end
 
-  @impl true
   def name, do: "get_plan_changes"
 
   @impl true
