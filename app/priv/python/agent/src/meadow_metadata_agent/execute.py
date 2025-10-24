@@ -2,9 +2,7 @@ import asyncio
 import json
 from claude_agent_sdk import create_sdk_mcp_server, ClaudeAgentOptions, ClaudeSDKClient, AgentDefinition
 from .prompts import (agent_prompt, proposer_prompt, system_prompt)
-from .tools import (
-    fetch_iiif_image_tool
-)
+from .tools import (make_fetch_iiif_image_tool)
 
 async def query_claude(prompt, context_json, mcp_url, iiif_server_url, additional_headers={}):
     context_data = json.loads(context_json) if context_json else {}
@@ -25,7 +23,7 @@ async def query_claude(prompt, context_json, mcp_url, iiif_server_url, additiona
             "image_fetcher": create_sdk_mcp_server(
                 name="metadata",
                 version="1.0.0",
-                tools=[fetch_iiif_image_tool]
+                tools=[make_fetch_iiif_image_tool(additional_headers)]
             )
         },
         allowed_tools=[
