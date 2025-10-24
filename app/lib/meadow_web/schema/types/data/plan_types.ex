@@ -63,6 +63,14 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Plans.update_proposed_plan_change_statuses/3)
     end
+
+    @desc "Apply an approved plan to works"
+    field :apply_plan, :plan do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Plans.apply_plan/3)
+    end
   end
 
   #
