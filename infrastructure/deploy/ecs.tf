@@ -92,6 +92,28 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     ]
     resources = ["arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
   }
+
+  statement {
+    sid       = "bedrock"
+    effect    = "Allow"
+    actions   = [
+      "bedrock:GetInferenceProfile",
+      "bedrock:ListInferenceProfiles",
+      "bedrock:DeleteInferenceProfile",
+      "bedrock:TagResource",
+      "bedrock:UntagResource",
+      "bedrock:ListTagsForResource",
+      "bedrock:InvokeModel*",
+      "bedrock:InvokeModelWithResponseStream",
+      "bedrock:CreateModelInvocationJob",
+      "bedrock:CreateInferenceProfile",
+    ]
+    resources = [
+      "arn:aws:bedrock:*::foundation-model/*",
+      "arn:aws:bedrock:*:*:inference-profile/*",
+      "arn:aws:bedrock:*:*:application-inference-profile/*"
+    ]
+  }
 }
 
 resource "aws_security_group" "meadow_load_balancer" {
