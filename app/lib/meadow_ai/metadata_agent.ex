@@ -17,6 +17,8 @@ defmodule MeadowAI.MetadataAgent do
   - Session management and error recovery
   """
 
+  @default_timeout 600_000
+
   # Client API
 
   def start_link(opts \\ []) do
@@ -36,7 +38,7 @@ defmodule MeadowAI.MetadataAgent do
   {:ok, response} | {:error, reason}
   """
   def query(prompt, opts \\ []) do
-    timeout = Keyword.get(opts, :timeout, 120_000)
+    timeout = Keyword.get(opts, :timeout, @default_timeout)
     GenServer.call(__MODULE__, {:query, prompt, opts}, timeout)
   end
 
@@ -83,8 +85,10 @@ defmodule MeadowAI.MetadataAgent do
 
   @impl true
   def handle_call({:query, prompt, opts}, _from, state) do
+    timeout = div(Keyword.get(opts, :timeout, @default_timeout), 1000)
+
     {:ok, %{token: token}} =
-      DCAPI.token(600,
+      DCAPI.token(timeout,
         scopes: ["read:Public", "read:Published", "read:Private", "read:Unpublished"],
         is_superuser: true
       )

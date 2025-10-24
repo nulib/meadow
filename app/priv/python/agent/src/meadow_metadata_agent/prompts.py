@@ -27,6 +27,9 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
     IMPORTANT: For controlled vocabulary fields like subject headings, creator names, genres, etc.,
     the subagent MUST use the authoritiesSearch GraphQL query to find valid controlled term IDs.
     Never make up or guess term IDs for these fields.
+    
+    IMPORTANT: For coded fields (controlled field roles, note types, etc.), the subagent MUST use the 
+    codeList query to get the list of valid IDs.
 
     Once the subagent completes, provide a summary of the changes proposed.
     """
