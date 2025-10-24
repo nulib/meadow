@@ -83,7 +83,11 @@ defmodule MeadowAI.MetadataAgent do
 
   @impl true
   def handle_call({:query, prompt, opts}, _from, state) do
-    {:ok, %{token: token}} = DCAPI.token(600, [], true)
+    {:ok, %{token: token}} =
+      DCAPI.token(600,
+        scopes: ["read:Public", "read:Published", "read:Private", "read:Unpublished"],
+        is_superuser: true
+      )
 
     opts =
       opts

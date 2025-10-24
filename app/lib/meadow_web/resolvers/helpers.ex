@@ -9,7 +9,7 @@ defmodule MeadowWeb.Resolvers.Helpers do
   def get_dc_api_token(_, _args, _) do
     with api_config <- Application.get_env(:meadow, :dc_api)[:v2],
          ttl <- Map.get(api_config, "api_token_ttl", 300) do
-      DCAPI.token(ttl, [], true)
+      DCAPI.token(ttl, is_superuser: true)
     end
   end
 
