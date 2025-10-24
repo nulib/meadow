@@ -192,7 +192,9 @@ describe("PlanChatForm", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /recipes/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /show recipe prompts/i }),
+    ).toBeInTheDocument();
   });
 
   test("clicking recipes button shows recipe dropdown", async () => {
@@ -204,7 +206,9 @@ describe("PlanChatForm", () => {
       />,
     );
 
-    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+    const recipesButton = screen.getByRole("button", {
+      name: /show recipe prompts/i,
+    });
 
     // Dropdown should not be visible initially
     expect(
@@ -239,7 +243,9 @@ describe("PlanChatForm", () => {
       />,
     );
 
-    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+    const recipesButton = screen.getByRole("button", {
+      name: /show recipe prompts/i,
+    });
     const input = screen.getByTestId("msg-input");
 
     // Show recipes
@@ -271,7 +277,9 @@ describe("PlanChatForm", () => {
       />,
     );
 
-    const recipesButton = screen.getByRole("button", { name: /recipes/i });
+    const recipesButton = screen.getByRole("button", {
+      name: /show recipe prompts/i,
+    });
     const input = screen.getByTestId("msg-input");
     const submitButton = screen.getByRole("button", { name: /reply/i });
 
