@@ -1,49 +1,66 @@
 import { useQuery } from "@apollo/client";
 import React, { useEffect } from "react";
-import { GET_PLAN, GET_PLAN_CHANGES } from "../plan.gql";
-import UILoader from "../../UI/Loader";
-import PlanPanelChangesDiff from "./Diff";
+import { GET_PLAN } from "@js/components/Plan/plan.gql";
+import UILoader from "@js/components/UI/Loader";
+import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
+import { Button } from "@nulib/design-system";
 
-const PlanPanelChanges = ({ planChanges, planId }) => {
-  const [planLoading, setPlanLoading] = React.useState(false);
-  const [proposedChanges, setProposedChanges] = React.useState({});
+const PlanPanelChanges = ({ changes, id, target }) => {
+  const [loading, setLoading] = React.useState(true);
+  const [proposedChanges, setProposedChanges] = React.useState(null);
 
-  const planPending = useQuery(GET_PLAN, {
-    variables: { id: planId },
+  const pending = useQuery(GET_PLAN, {
+    variables: { id },
     fetchPolicy: "no-cache",
   });
-
-  console.log({ planPending });
-  console.log({ planChanges });
 
   /**
    * Check if we have any pending changes
    * If so, keep loading until they are resolved
    */
   useEffect(() => {
-    const hasPendingChanges = planPending.data?.plan?.status === "PENDING";
-    setPlanLoading(hasPendingChanges);
-  }, [planPending.data?.plan]);
+    if (!pending.data?.plan) return;
+
+    const hasPendingChanges = pending.data?.plan?.status === "PENDING";
+    setLoading(hasPendingChanges);
+  }, [pending.data?.plan]);
 
   /**
-   * When planChanges are updated, check if there are proposed changes
+   * When changes are updated, check if there are proposed changes
    * If so, set them to state and stop loading
    */
   useEffect(() => {
-    if (planChanges?.planChange) {
-      if (planChanges.planChange.status === "PROPOSED") {
-        setPlanLoading(false);
-        setProposedChanges(planChanges.planChange);
+    if (changes?.planChange) {
+      if (changes.planChange.status === "PROPOSED") {
+        setLoading(false);
+        setProposedChanges(changes.planChange);
       }
     }
-  }, [planChanges?.planChange]);
+  }, [changes?.planChange]);
+
+  /**
+   * Handle Approve Changes button click
+   */
+  const handleApproveChanges = () => {
+    console.log("Approve Changes clicked");
+  };
 
   return (
-    <div>
-      {planLoading ? (
-        <UILoader />
+    <div className="plan-panel-changes">
+      {loading ? (
+        <div className="plan-panel-changes--loading plan-placeholder">
+          {target.thumbnails}
+          <p className="is-6">{target.title}</p>
+          <UILoader />
+        </div>
       ) : (
-        <PlanPanelChangesDiff proposedChanges={proposedChanges} />
+        <div className="plan-panel-changes--content">
+          <h3 className="title is-4 mb-3">Proposed Changes</h3>
+          <PlanPanelChangesDiff proposedChanges={proposedChanges || {}} />
+          <Button isPrimary={true} onClick={handleApproveChanges}>
+            Approve Changes
+          </Button>
+        </div>
       )}
     </div>
   );

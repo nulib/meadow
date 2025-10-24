@@ -19,6 +19,31 @@
   border-radius: 0.5rem;
 }
 
+.plan-panel-changes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  &--loading {
+    text-align: center;
+    p {
+      margin-bottom: 2rem;
+      font-size: 1.25rem;
+    }
+  }
+
+  &--content {
+    width: 100%;
+    height: 100%;
+
+    button {
+      margin-top: 1rem;
+    }
+  }
+}
+
 .plan-placeholder {
   display: flex;
   flex-direction: column;
