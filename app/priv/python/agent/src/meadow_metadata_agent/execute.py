@@ -6,7 +6,7 @@ from .tools import (
     fetch_iiif_image_tool
 )
 
-async def query_claude(prompt, context_json, mcp_url, iiif_server_url, graphql_auth_token):
+async def query_claude(prompt, context_json, mcp_url, iiif_server_url, additional_headers={}):
     context_data = json.loads(context_json) if context_json else {}
     enhanced_prompt = agent_prompt(prompt, context_data)
 
@@ -15,9 +15,7 @@ async def query_claude(prompt, context_json, mcp_url, iiif_server_url, graphql_a
     meadow_server_config = {
         "type": "http",
         "url": mcp_url,
-        "headers": {
-            "Authorization": f"Bearer {graphql_auth_token}"
-        } if graphql_auth_token else {}
+        "headers": additional_headers
     }
     print(f"Meadow MCP server config: {meadow_server_config}")
 

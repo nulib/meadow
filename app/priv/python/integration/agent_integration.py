@@ -14,6 +14,6 @@ prompt_str = ensure_string(prompt)
 context_json_str = ensure_string(context_json)
 mcp_url_str = ensure_string(mcp_url)
 iiif_server_url_str = ensure_string(iiif_server_url)
-graphql_auth_token_str = ensure_string(graphql_auth_token)
+additional_header_strs = {ensure_string(k): ensure_string(v) for k, v in additional_headers.items()}
 
-asyncio.run(query_claude(prompt_str, context_json_str, mcp_url_str, iiif_server_url_str, graphql_auth_token_str))
+asyncio.run(query_claude(prompt_str, context_json_str, mcp_url_str, iiif_server_url_str, additional_header_strs))

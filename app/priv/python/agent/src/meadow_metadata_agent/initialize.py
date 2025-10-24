@@ -7,8 +7,6 @@ from .tools import (
 aws_bearer_token = os.getenv("AWS_BEARER_TOKEN_BEDROCK")
 os.putenv("CLAUDE_CODE_USE_BEDROCK", "1")
 aws_region = os.getenv("AWS_REGION", "us-east-1")
-graphql_auth_token = os.getenv("GRAPHQL_AUTH_TOKEN")
-mcp_url = os.getenv("MCP_URL")
 iiif_server_url = os.getenv("IIIF_SERVER_URL")
 
 print(f"Configured for AWS Bedrock in region: {aws_region}")
@@ -18,11 +16,3 @@ image_fetcher = create_sdk_mcp_server(
     version="1.0.0",
     tools=[fetch_iiif_image_tool]
 )
-
-meadow_server: McpServerConfig = {
-    "type": "http",
-    "url": mcp_url,
-    "headers": {
-        "Authorization": f"Bearer {graphql_auth_token}"
-    } if graphql_auth_token else {}
-}

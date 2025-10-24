@@ -96,6 +96,10 @@ defmodule MeadowAI.MetadataAgent do
         Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
       )
       |> Keyword.put_new(:graphql_auth_token, token)
+      |> Keyword.put_new(
+        :firewall_security_header,
+        Application.get_env(:meadow, :firewall_security_header)
+      )
 
     case state.python_initialized do
       true ->
@@ -176,6 +180,22 @@ defmodule MeadowAI.MetadataAgent do
       # Ensure function exists and call it
       query_code = pyread("agent_integration.py")
 
+      auth_header =
+        case opts[:graphql_auth_token] do
+          nil -> {}
+          token -> {"Authorization", "Bearer #{token}"}
+        end
+
+      firewall_secrurity_header =
+        case opts[:firewall_security_header] do
+          [] -> {}
+          header -> {header[:name], header[:value]}
+        end
+
+      headers =
+        [auth_header, firewall_secrurity_header]
+        |> Enum.into(%{})
+
       result =
         Pythonx.eval(
           query_code,
@@ -183,9 +203,9 @@ defmodule MeadowAI.MetadataAgent do
             "prompt" => prompt,
             "context_json" => context_json,
             "graphql_endpoint" => opts[:graphql_endpoint],
-            "graphql_auth_token" => opts[:graphql_auth_token],
             "mcp_url" => opts[:mcp_url],
-            "iiif_server_url" => Config.iiif_server_url()
+            "iiif_server_url" => Config.iiif_server_url(),
+            "additional_headers" => headers
           }
         )
 
