@@ -78,13 +78,50 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
         {:error, "Plan not found"}
 
       plan ->
-        case status do
-          :approved -> Planner.approve_proposed_plan_changes(plan, user.username)
-          :rejected -> Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
-          _ -> {:error, "Invalid status transition"}
+        result =
+          case status do
+            :approved ->
+              # Approve all proposed plan changes
+              Planner.approve_proposed_plan_changes(plan, user.username)
+
+            :rejected ->
+              Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
+
+            _ ->
+              {:error, "Invalid status transition"}
+          end
+
+        # Also update the plan status itself if approving all changes
+        if status == :approved do
+          case result do
+            {:ok, _, _} ->
+              Planner.approve_plan(plan, user.username)
+
+            _ ->
+              :ok
+          end
         end
 
         {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
+    end
+  end
+
+  def apply_plan(_, %{id: id}, _) do
+    case Planner.get_plan(id) do
+      nil ->
+        {:error, "Plan not found"}
+
+      plan ->
+        case Planner.apply_plan(plan) do
+          {:ok, updated_plan} ->
+            {:ok, updated_plan}
+
+          {:error, reason} when is_binary(reason) ->
+            {:error, reason}
+
+          {:error, changeset} ->
+            {:error, message: "Could not apply plan", details: changeset}
+        end
     end
   end
 end

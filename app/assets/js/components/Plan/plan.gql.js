@@ -68,3 +68,14 @@ export const GET_PLAN_CHANGES = gql`
     }
   }
 `;
+
+export const APPLY_PLAN = gql`
+  mutation applyPlan($id: ID!) {
+    applyPlan(id: $id) {
+      id
+      status
+      completedAt
+      error
+    }
+  }
+`;
