@@ -73,36 +73,13 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   def update_proposed_plan_change_statuses(_, %{plan_id: plan_id, status: status} = args, %{
         context: %{current_user: user}
       }) do
-    case Planner.get_plan(plan_id) do
-      nil ->
-        {:error, "Plan not found"}
+    with {:ok, plan} <- fetch_plan(plan_id),
+         {:ok, updated_plan, change_count} <- change_plan_changes(plan, status, args, user) do
+      maybe_update_plan_status(status, {:ok, updated_plan, change_count}, user)
 
-      plan ->
-        result =
-          case status do
-            :approved ->
-              # Approve all proposed plan changes
-              Planner.approve_proposed_plan_changes(plan, user.username)
-
-            :rejected ->
-              Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
-
-            _ ->
-              {:error, "Invalid status transition"}
-          end
-
-        # Also update the plan status itself if approving all changes
-        if status == :approved do
-          case result do
-            {:ok, _, _} ->
-              Planner.approve_plan(plan, user.username)
-
-            _ ->
-              :ok
-          end
-        end
-
-        {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
+      {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
+    else
+      {:error, _} = error -> error
     end
   end
 
@@ -124,4 +101,29 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
         end
     end
   end
+
+  defp fetch_plan(plan_id) do
+    case Planner.get_plan(plan_id) do
+      nil -> {:error, "Plan not found"}
+      plan -> {:ok, plan}
+    end
+  end
+
+  defp change_plan_changes(plan, :approved, _args, user) do
+    Planner.approve_proposed_plan_changes(plan, user.username)
+  end
+
+  defp change_plan_changes(plan, :rejected, args, _user) do
+    Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
+  end
+
+  defp change_plan_changes(_plan, _status, _args, _user) do
+    {:error, "Invalid status transition"}
+  end
+
+  defp maybe_update_plan_status(:approved, {:ok, plan, _count}, user) do
+    Planner.approve_plan(plan, user.username)
+  end
+
+  defp maybe_update_plan_status(_, _result, _user), do: :ok
 end
