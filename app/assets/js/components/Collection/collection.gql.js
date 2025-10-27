@@ -99,6 +99,14 @@ export const GET_COLLECTION = gql`
         id
         representativeImage
       }
+      stats {
+        audio
+        image
+        published
+        total
+        unpublished
+        video
+      }
       title
       totalWorks
       visibility {
