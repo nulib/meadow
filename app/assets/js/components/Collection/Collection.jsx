@@ -18,6 +18,7 @@ const Collection = ({ collection }) => {
     findingAidUrl,
     keywords = [],
     totalWorks,
+    stats,
   } = collection;
 
   const handleViewAllWorksClick = () => {
@@ -27,6 +28,12 @@ const Collection = ({ collection }) => {
         value: collection.title,
       },
     });
+  };
+
+  const handleFacetClick = (facetComponentId, facetValue) => {
+    const collectionFacet = `Collection=${encodeURIComponent(JSON.stringify([collection.title]))}`;
+    const additionalFacet = `${facetComponentId}=${encodeURIComponent(JSON.stringify([facetValue]))}`;
+    history.push(`/search?${collectionFacet}&${additionalFacet}`);
   };
 
   return (
@@ -87,6 +94,65 @@ const Collection = ({ collection }) => {
               <strong>Total Works</strong>
             </dt>
             <dd>{totalWorks}</dd>
+            {stats && (
+              <>
+                <dt>
+                  <strong>Work Statistics</strong>
+                </dt>
+                <dd>
+                  <ul>
+                    <li>
+                      <a
+                        onClick={() => handleViewAllWorksClick()}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Total Works ({stats.total})
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        onClick={() => handleFacetClick("Published", false)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Unpublished ({stats.unpublished})
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        onClick={() => handleFacetClick("Published", true)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Published ({stats.published})
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        onClick={() => handleFacetClick("WorkType", "Video")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Video ({stats.video})
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        onClick={() => handleFacetClick("WorkType", "Audio")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Audio ({stats.audio})
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        onClick={() => handleFacetClick("WorkType", "Image")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Image ({stats.image})
+                      </a>
+                    </li>
+                  </ul>
+                </dd>
+              </>
+            )}
           </dl>
           {totalWorks > 0 && (
             <div className="pt-3">
