@@ -4,10 +4,13 @@ import { GET_PLAN } from "@js/components/Plan/plan.gql";
 import UILoader from "@js/components/UI/Loader";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
 import { Button } from "@nulib/design-system";
+import { set } from "react-hook-form";
+import { IconCheck, IconCheckAlt } from "../../Icon";
 
 const PlanPanelChanges = ({ changes, id, target }) => {
   const [loading, setLoading] = React.useState(true);
   const [proposedChanges, setProposedChanges] = React.useState(null);
+  const [isApproved, setIsApproved] = React.useState(false);
 
   const pending = useQuery(GET_PLAN, {
     variables: { id },
@@ -42,7 +45,15 @@ const PlanPanelChanges = ({ changes, id, target }) => {
    * Handle Approve Changes button click
    */
   const handleApproveChanges = () => {
+    setIsApproved(!isApproved);
     console.log("Approve Changes clicked");
+  };
+
+  /**
+   * Handle Apply Changes button click
+   */
+  const handleApplyChanges = () => {
+    console.log("Apply Changes clicked");
   };
 
   return (
@@ -55,11 +66,29 @@ const PlanPanelChanges = ({ changes, id, target }) => {
         </div>
       ) : (
         <div className="plan-panel-changes--content">
-          <h3 className="title is-4 mb-3">Proposed Changes</h3>
+          <div className="plan-panel-changes--actions">
+            <h3 className="mb-5">Proposed Changes</h3>
+            <div>
+              <button
+                onClick={handleApproveChanges}
+                data-variant="approve"
+                data-approved={isApproved}
+              >
+                <span>
+                  <IconCheckAlt />
+                </span>
+                Approve
+              </button>
+              <button
+                onClick={handleApplyChanges}
+                data-variant="primary"
+                disabled={!isApproved}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
           <PlanPanelChangesDiff proposedChanges={proposedChanges || {}} />
-          <Button isPrimary={true} onClick={handleApproveChanges}>
-            Approve Changes
-          </Button>
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 import React from "react";
 import PlanChat from "@js/components/Plan/Chat/Chat";
 import { usePlanChanges } from "@js/hooks/usePlanChanges";
-import PlanPanelChanges from "./Panel/Changes";
+import PlanPanelChanges from "@js/components/Plan/Panel/Changes";
+import SquircleThumbnail from "@js/components/UI/SquircleThumbnail";
 
 const Plan = ({ works }) => {
   const query = works.map((work) => `id:(${work.id})`).join(" OR ");
@@ -30,16 +31,15 @@ const Plan = ({ works }) => {
     const thumbnail = new URL(work.representativeImage);
     thumbnail.pathname += "/square/100,/0/default.jpg";
     return thumbnail ? (
-      <img
+      <SquircleThumbnail
         key={work.id}
         src={thumbnail.toString()}
         alt={work.descriptiveMetadata.title || "work thumbnail"}
-        className="thumbnail-image"
+        size={75}
+        exponent={6}
       />
     ) : null;
   });
-
-  console.log({ planChanges });
 
   return (
     <div className="plan box" data-has-plan={hasPlan}>
@@ -65,7 +65,9 @@ const Plan = ({ works }) => {
         )}
       </div>
       <div className="chat-wrapper">
-        <button> collapse the chat </button>
+        <div className="chat-controls">
+          <button> collapse the chat </button>
+        </div>
         <PlanChat
           query={query}
           initialMessages={initialMessages}
