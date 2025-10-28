@@ -34,12 +34,106 @@
     }
   }
 
+  &--actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-right: 1.25rem;
+
+    > div {
+      display: flex;
+      gap: 1rem;
+    }
+
+    h3 {
+      font-weight: 400;
+      font-size: 1.382rem;
+      letter-spacing: -0.025rem;
+      margin: 0 !important;
+      padding: 0;
+    }
+
+    button {
+      margin: 0;
+      padding: calc(0.5rem - 1px) 1rem;
+      height: 40px;
+      border: none;
+      display: flex;
+      font-size: 1rem;
+      font-family: $AkkuratProRegular;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      gap: 0.25rem;
+      transition: all 0.3s ease;
+
+      span {
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+
+      &[data-variant="primary"] {
+        background: $nu-purple;
+        color: $white;
+      }
+
+      &[data-variant="approve"] {
+        background: $light-grey;
+        color: $rich-black-50;
+
+        svg {
+          fill: $rich-black-10;
+          transition: all 0.3s ease;
+        }
+
+        &:hover {
+          background: $light-grey2;
+
+          svg {
+            fill: $rich-black-20;
+          }
+        }
+
+        span {
+          width: 16px;
+          height: 16px;
+          border: none;
+        }
+
+        &[data-approved="true"] {
+          background: $dark-green !important;
+          color: $white;
+
+          svg {
+            fill: $white !important;
+          }
+        }
+      }
+
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
   &--content {
     width: 100%;
     height: 100%;
 
-    button {
-      margin-top: 1rem;
+    table {
+      width: calc(100% + 1.25rem) !important;
+      margin-left: -1.25rem;
+      margin-right: -1.25rem;
+
+      th {
+        font-family: $AkkuratProBold;
+        color: $rich-black-50;
+        font-weight: 400;
+        padding: 0.5rem 1.25rem;
+      }
     }
   }
 }
@@ -55,14 +149,6 @@
   padding: 2rem;
   text-align: center;
   gap: "1rem";
-
-  img {
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-  }
 }
 
 .chat-wrapper {
@@ -72,21 +158,29 @@
   margin-top: -1.25rem;
   margin-bottom: -1.25rem;
   border-left: 1px solid transparent;
+  position: relative;
 }
 
 .chat {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  height: 600px;
+  height: 100%;
+  min-height: 600px;
   max-height: 80vh;
-  min-height: 0;
   position: relative;
   mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
     rgba(0, 0, 0, 1) 3rem
   );
+}
+
+.chat-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
 }
 
 .chat-body {
