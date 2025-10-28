@@ -1,26 +1,24 @@
 defmodule Meadow.Repo.Migrations.CreatePublicationEvents do
   use Ecto.Migration
 
-  def change do
+  @tables ~w(works file_sets collections ingest_sheets projects)
+
+  def up do
     # Create the publication for WAL events
-    execute "CREATE PUBLICATION events FOR ALL TABLES"
+    execute("CREATE PUBLICATION events FOR TABLE #{Enum.join(@tables, ", ")}")
 
     # Set REPLICA IDENTITY FULL for tables we want to track
-    execute "ALTER TABLE works REPLICA IDENTITY FULL"
-    execute "ALTER TABLE file_sets REPLICA IDENTITY FULL"
-    execute "ALTER TABLE collections REPLICA IDENTITY FULL"
-    execute "ALTER TABLE ingest_sheets REPLICA IDENTITY FULL"
-    execute "ALTER TABLE projects REPLICA IDENTITY FULL"
+    Enum.each(@tables, fn table ->
+      execute("ALTER TABLE #{table} REPLICA IDENTITY FULL")
+    end)
   end
 
   def down do
     # Reset REPLICA IDENTITY to default
-    execute "ALTER TABLE works REPLICA IDENTITY DEFAULT"
-    execute "ALTER TABLE file_sets REPLICA IDENTITY DEFAULT"
-    execute "ALTER TABLE collections REPLICA IDENTITY DEFAULT"
-    execute "ALTER TABLE ingest_sheets REPLICA IDENTITY DEFAULT"
-    execute "ALTER TABLE projects REPLICA IDENTITY DEFAULT"
+    Enum.each(@tables, fn table ->
+      execute("ALTER TABLE #{table} REPLICA IDENTITY FULL")
+    end)
 
-    execute "DROP PUBLICATION IF EXISTS events"
+    execute("DROP PUBLICATION IF EXISTS events")
   end
 end
