@@ -7,108 +7,27 @@ on:
       - "deploy/**"
       - "build/**"
 jobs:
-  dependencies:
+  js-test:
     runs-on: ubuntu-latest
-    env:
-      MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions
+          cache: 'npm'
+          cache-dependency-path: |
+            app/assets/package-lock.json
+            app/priv/nodejs/*/package-lock.json
+            lambdas/*/package-lock.json
       - name: Install NPM
         run: npm install -g npm@${{ env.NPM_VERSION }}
         env:
           NPM_VERSION: 11.6.0
-      - uses: erlef/setup-beam@v1
-        with:
-          otp-version: "27"
-          elixir-version: "1.18.2"
-      - name: Cache Elixir dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/deps
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
-      - name: Cache Elixir build
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/_build
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-          restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
-      - name: Cache JS dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/assets/node_modules
-            app/priv/nodejs/*/node_modules
-            lambdas/*/node_modules
-          key: ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-npm-v6-
-      - name: Install Elixir dependencies
-        run: mix do deps.get, compile
-        working-directory: app
       - name: Install JS dependencies
         run: |
           npm ci --force --no-fund
           npm list
         working-directory: app/assets
-      - name: Install Lambda dependencies
-        run: |
-          for pkg in $(find app/priv/nodejs -maxdepth 2 -name package-lock.json) $(find lambdas -maxdepth 2 -name package-lock.json)
-          do
-            cd $(dirname $pkg)
-            npm ci --no-fund
-            cd -
-          done
-  js-test:
-    runs-on: ubuntu-latest
-    needs: dependencies
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version-file: ./.tool-versions
-      - name: Cache Elixir dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/deps
-            app/_build
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
-      - name: Cache Elixir build
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/_build
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-          restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
-      - name: Cache JS dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/assets/node_modules
-            app/priv/nodejs/*/node_modules
-            lambdas/*/node_modules
-          key: ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-npm-v6-
       - name: JS Static Analysis
         run: npm run-script prettier
         working-directory: app/assets
@@ -120,50 +39,26 @@ jobs:
         working-directory: app/assets
   elixir-test:
     runs-on: ubuntu-latest
-    needs: dependencies
     env:
       MIX_ENV: test
-    services:
-      db:
-        image: supabase/postgres:15.8.1.047
-        env:
-          POSTGRES_PASSWORD: d0ck3r
-        ports:
-          - 5432:5432
-      opensearch:
-        image: opensearchproject/opensearch:2.11.1
-        env:
-          bootstrap.memory_lock: true
-          OPENSEARCH_JAVA_OPTS: "-Xms256m -Xmx256m"
-          DISABLE_INSTALL_DEMO_CONFIG: true
-          DISABLE_SECURITY_PLUGIN: true
-          discovery.type: single-node
-        ports:
-          - 9200:9200
-      localstack:
-        image: localstack/localstack
-        env:
-          DOCKER_HOST: unix:///var/run/docker.sock
-          GATEWAY_LISTEN: 0.0.0.0:4566
-        ports:
-          - 4566:4566
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock:ro
     steps:
       - uses: actions/checkout@v2
-      - uses: hashicorp/setup-terraform@v3
-      - name: Provision Localstack using Terraform
-        run: |
-          terraform init
-          terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=https://localhost.localstack.cloud:4566
+      - name: Start service containers in background
+        run: docker compose up -d &
         working-directory: ./infrastructure/localstack
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions
+          cache: 'npm'
+          cache-dependency-path: |
+            app/assets/package-lock.json
+            app/priv/nodejs/*/package-lock.json
+            lambdas/*/package-lock.json
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "27"
           elixir-version: "1.18.2"
+      - uses: hashicorp/setup-terraform@v3
       - name: Install FFMPEG
         run: |
           mkdir -p ${{ runner.temp }}/ffmpeg && \
@@ -180,40 +75,41 @@ jobs:
           cd Image-ExifTool-${EXIFTOOL_VERSION} && \
           perl Makefile.PL && \
           sudo make install
-      - name: Cache Elixir dependencies
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Cache Elixir dependencies and build
         uses: actions/cache@v4
         with:
           path: |
+            app/_build
             app/deps
           key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
-      - name: Cache Elixir build
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/_build
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-          restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/**/*.{ex,eex,exs}') }}
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
-      - name: Cache JS dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/assets/node_modules
-            app/priv/nodejs/*/node_modules
-            lambdas/*/node_modules
-          key: ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-v6-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-npm-v6-
+      - name: Install Elixir dependencies
+        run: mix do deps.get, compile
+        working-directory: app
+        env:
+          MIX_ENV: test
+      - name: Install Lambda dependencies
+        run: |
+          for pkg in $(find app/priv/nodejs -maxdepth 2 -name package-lock.json) $(find lambdas -maxdepth 2 -name package-lock.json)
+          do
+            cd $(dirname $pkg)
+            npm ci --no-fund
+            cd -
+          done
+      - name: Wait for services to be ready
+        run: timeout 60 bash -c 'while ! ./all-healthy.sh; do sleep 2; done'
+        working-directory: ./infrastructure/localstack
       - name: Set SECRET_KEY_BASE
         run: echo "SECRET_KEY_BASE=$(openssl rand -hex 32)" >> $GITHUB_ENV
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+      - name: Provision Localstack using Terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=https://localhost.localstack.cloud:4566
+        working-directory: ./infrastructure/localstack
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
