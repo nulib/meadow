@@ -76,7 +76,7 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
     case fetch_plan(plan_id) do
       {:ok, plan} ->
         case change_plan_changes(plan, status, args, user) do
-          {:ok, updated_plan, change_count} ->
+          {:ok, _, _} ->
             {:ok, Planner.list_plan_changes(plan_id, has_changes: true)}
 
           {:error, _} = error ->
