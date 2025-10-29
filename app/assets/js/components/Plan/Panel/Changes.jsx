@@ -9,7 +9,48 @@ import UILoader from "@js/components/UI/Loader";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
 import { IconCheckAlt, IconMagic } from "@js/components/Icon";
 
+const mockProposedChanges = {
+  __typename: "PlanChange",
+  add: {
+    descriptive_metadata: {
+      description: [
+        "Illuminated manuscript page depicting Saint Denis, the patron saint of Paris, carrying his severed head after his martyrdom. The saint is shown in elaborate episcopal vestments featuring gold and red floral patterns on a richly decorated gold background. He wears an ornate white and gold mitre and holds his own head, which displays a serene expression. Two angels with large green wings flank the central figure, wearing pink robes. At the bottom of the composition, two additional severed heads are visible, likely representing Denis's companions. The scene is framed by a decorative gold border, with the Latin inscription 'DIONISII SOCIORVM QVE EIVS' (Denis and his companions) in blue text at the base. The bright blue sky background and architectural elements visible in the distance place the scene in a narrative context. This iconic depiction represents the legend of St. Denis as a cephalophore saint, continuing to preach after his beheading.",
+      ],
+      subject: [
+        {
+          role: {
+            id: "TOPICAL",
+            scheme: "SUBJECT_ROLE",
+          },
+          term: {
+            id: "http://id.loc.gov/authorities/subjects/sh85005008",
+          },
+        },
+        {
+          role: {
+            id: "TOPICAL",
+            scheme: "SUBJECT_ROLE",
+          },
+          term: {
+            id: "http://id.loc.gov/authorities/subjects/sh85025092",
+          },
+        },
+      ],
+    },
+  },
+  delete: null,
+  id: "726de9a7-1e7d-4a07-aebd-e0b5f0cdbfb8",
+  replace: {
+    descriptive_metadata: {
+      title: "St. Denis",
+    },
+  },
+  status: "PROPOSED",
+};
+
 const PlanPanelChanges = ({ plan, changes, id, target }) => {
+  console.log({ changes });
+
   const [loading, setLoading] = React.useState(true);
   const [isApproved, setIsApproved] = React.useState(false);
 
@@ -111,7 +152,7 @@ const PlanPanelChanges = ({ plan, changes, id, target }) => {
 
   return (
     <div className="plan-panel-changes">
-      {loading ? (
+      {!loading ? (
         <div className="plan-panel-changes--loading plan-placeholder">
           {target.thumbnails}
           <p className="is-6">{target.title}</p>
@@ -174,7 +215,9 @@ const PlanPanelChanges = ({ plan, changes, id, target }) => {
             </div>
           </div>
 
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={mockProposedChanges || changes?.planChange || {}}
+          />
         </div>
       )}
     </div>

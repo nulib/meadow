@@ -84,6 +84,8 @@ const WorkTabsAbout = ({ work }) => {
 
   const { descriptiveMetadata } = work;
 
+  console.log({ descriptiveMetadata });
+
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
 

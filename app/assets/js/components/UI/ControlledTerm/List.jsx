@@ -23,7 +23,7 @@ const UIControlledTermList = ({ items = [], title }) => {
                   {componentId ? (
                     <UIFacetLink facetComponentId={componentId} item={item} />
                   ) : (
-                    item.term.label
+                    item.term?.label || item.term?.id
                   )}
                 </div>
                 <div className="tooltip-content">
@@ -67,7 +67,7 @@ UIControlledTermList.propTypes = {
         id: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
       }),
-    })
+    }),
   ),
 };
 
