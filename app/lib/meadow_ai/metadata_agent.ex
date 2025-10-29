@@ -204,6 +204,8 @@ defmodule MeadowAI.MetadataAgent do
         [auth_header, firewall_secrurity_header]
         |> Enum.into(%{})
 
+      {:ok, io_handler} = MeadowAI.IOHandler.open()
+
       result =
         Pythonx.eval(
           query_code,
@@ -214,7 +216,8 @@ defmodule MeadowAI.MetadataAgent do
             "mcp_url" => opts[:mcp_url],
             "iiif_server_url" => Config.iiif_server_url(),
             "additional_headers" => headers
-          }
+          },
+          stderr_device: io_handler
         )
 
       case result do
