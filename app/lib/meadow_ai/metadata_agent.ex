@@ -204,7 +204,7 @@ defmodule MeadowAI.MetadataAgent do
         [auth_header, firewall_secrurity_header]
         |> Enum.into(%{})
 
-      {:ok, io_handler} = MeadowAI.IOHandler.open()
+      {:ok, io_handler} = MeadowAI.IOHandler.open(id: Map.get(context, :plan_id))
 
       result =
         Pythonx.eval(
@@ -217,7 +217,7 @@ defmodule MeadowAI.MetadataAgent do
             "iiif_server_url" => Config.iiif_server_url(),
             "additional_headers" => headers
           },
-          stderr_device: io_handler
+          stdout_device: io_handler
         )
 
       case result do
