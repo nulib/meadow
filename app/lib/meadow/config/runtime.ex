@@ -317,7 +317,8 @@ defmodule Meadow.Config.Runtime do
         }
       ]
 
-    config :meadow,
+    config :meadow, MeadowAI,
+      metrics_log: log_configuration(),
       pythonx_env: %{
         "CLAUDE_CODE_USE_BEDROCK" => "1"
       }
@@ -380,5 +381,29 @@ defmodule Meadow.Config.Runtime do
         get_secret(:meadow, ["buckets", "preservation_check"], prefix("preservation-checks")),
       streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming"))
     ]
+  end
+
+  def log_configuration do
+    case System.get_env("ECS_CONTAINER_METADATA_URI_V4") do
+      nil ->
+        []
+
+      uri ->
+        log_options =
+          Meadow.HTTP.get!(uri)
+          |> Map.get(:body)
+          |> Jason.decode!()
+          |> Map.get("LogOptions")
+
+        [
+          group: log_options["awslogs-group"],
+          region: log_options["awslogs-region"],
+          stream:
+            log_options["awslogs-stream"]
+            |> String.split("/")
+            |> List.insert_at(-2, "metrics")
+            |> Enum.join("/")
+        ]
+    end
   end
 end

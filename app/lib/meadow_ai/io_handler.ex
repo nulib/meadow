@@ -5,10 +5,19 @@ defmodule MeadowAI.IOHandler do
 
   use GenServer
 
+  alias MeadowAI.Config, as: AIConfig
   require Logger
 
   def open(metadata \\ []) do
     GenServer.start(__MODULE__, metadata: metadata)
+  end
+
+  def close(pid) do
+    if Process.alive?(pid) do
+      GenServer.stop(pid)
+    else
+      {:error, :not_open}
+    end
   end
 
   @impl true
@@ -16,6 +25,7 @@ defmodule MeadowAI.IOHandler do
     metadata =
       Keyword.get(opts, :metadata, [])
       |> Keyword.put_new(:module, __MODULE__)
+
     Logger.metadata(metadata)
     {:ok, %{buffer: ""}}
   end
@@ -57,7 +67,7 @@ defmodule MeadowAI.IOHandler do
     remaining
   end
 
-  defp handle_json({:ok, %{"action" => "emit", "data" => message}}) do
+  defp handle_json({:ok, message}) do
     handle_message(message)
   end
 
@@ -74,16 +84,16 @@ defmodule MeadowAI.IOHandler do
   # storing in a database, etc. `Logger.metadata()` can be used
   # to access context such as the plan_id.
 
-  defp handle_message(%{"type" => "debug", "message" => message}) do
-    Logger.debug(message)
-  end
-
-  defp handle_message(%{"type" => "info", "message" => message}) do
-    Logger.info(message)
-  end
+  # Generate handle_message clauses for each Logger level
+  Logger.levels()
+  |> Enum.each(fn level ->
+    defp handle_message(%{"type" => unquote(to_string(level)), "message" => message}) do
+      Logger.log(unquote(level), message)
+    end
+  end)
 
   defp handle_message(%{"type" => "usage", "message" => message}) do
-    Logger.info("Token and Cost Info:\n#{format_message(message)}")
+    log_metrics(message)
   end
 
   defp handle_message(%{"type" => "text", "message" => message}) do
@@ -91,12 +101,13 @@ defmodule MeadowAI.IOHandler do
   end
 
   defp handle_message(%{"type" => "tool_result", "message" => message}) do
-    message = case Jason.decode(message) do
-      {:ok, decoded} -> decoded
-      {:error, _} -> message
-    end
+    message =
+      case Jason.decode(message) do
+        {:ok, decoded} -> format_message(decoded)
+        {:error, _} -> message
+      end
 
-    Logger.info("Tool Result:\n#{format_message(message)}")
+    Logger.info("Tool Result:\n#{message}")
   end
 
   defp handle_message(%{"type" => "raw_message", "message" => message}) do
@@ -109,5 +120,20 @@ defmodule MeadowAI.IOHandler do
 
   defp format_message(message) do
     inspect(message, pretty: true, limit: :infinity)
+  end
+
+  defp log_metrics(message) do
+    config = AIConfig.get(:metrics_log)
+
+    CloudwatchLogs.create_log_stream(config[:group], config[:stream])
+    |> ExAws.request()
+
+    CloudwatchLogs.put_log_events(config[:group], config[:stream], [
+      %{
+        "timestamp" => DateTime.utc_now() |> DateTime.to_unix(:millisecond),
+        "message" => Jason.encode!(message)
+      }
+    ])
+    |> ExAws.request()
   end
 end
