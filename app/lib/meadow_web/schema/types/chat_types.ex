@@ -15,14 +15,6 @@ defmodule MeadowWeb.Schema.ChatTypes do
         {:ok, topic: "conversation:#{args.conversation_id}"}
       end)
     end
-
-    field :plan_changes_updated, :plan_change_update do
-      arg(:plan_id, non_null(:id))
-
-      config(fn args, _ ->
-        {:ok, topic: "plan:#{args.plan_id}"}
-      end)
-    end
   end
 
   object :chat_mutations do
@@ -61,11 +53,5 @@ defmodule MeadowWeb.Schema.ChatTypes do
     field(:type, :string, description: "Type of message, e.g. 'chat', 'plan_id'")
     field(:message, :string, description: "AI response message")
     field(:plan_id, :id, description: "The ID of the plan created for this chat message")
-  end
-
-  object :plan_change_update do
-    field(:plan_id, non_null(:id), description: "The plan ID")
-    field(:plan_change, :plan_change, description: "The updated plan change")
-    field(:action, non_null(:string), description: "The action that occurred: 'created', 'updated', 'deleted'")
   end
 end

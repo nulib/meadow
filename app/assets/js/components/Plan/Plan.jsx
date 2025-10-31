@@ -1,6 +1,7 @@
 import React from "react";
 import PlanChat from "@js/components/Plan/Chat/Chat";
 import { usePlanChanges } from "@js/hooks/usePlanChanges";
+import { usePlan } from "@js/hooks/usePlan";
 import PlanPanelChanges from "@js/components/Plan/Panel/Changes";
 import SquircleThumbnail from "@js/components/UI/SquircleThumbnail";
 
@@ -11,6 +12,7 @@ const Plan = ({ works }) => {
   const hasPlan = Boolean(planId);
 
   const { data: planChanges, error: planChangesError } = usePlanChanges(planId);
+  const { data: plan, error: planError } = usePlan(planId);
 
   const initialMessages = [
     `You are editing ${works.length === 1 ? `the _${works[0].workType.label}_ work **${works[0].descriptiveMetadata.title ? works[0].descriptiveMetadata.title : "No title"}**` : `${works.length} works`}.`,
@@ -47,6 +49,7 @@ const Plan = ({ works }) => {
         {planId ? (
           <PlanPanelChanges
             id={planId}
+            plan={plan}
             changes={planChanges}
             target={{
               title: targetTitle,
@@ -65,9 +68,9 @@ const Plan = ({ works }) => {
         )}
       </div>
       <div className="chat-wrapper">
-        <div className="chat-controls">
+        {/* <div className="chat-controls">
           <button> collapse the chat </button>
-        </div>
+        </div> */}
         <PlanChat
           query={query}
           initialMessages={initialMessages}
