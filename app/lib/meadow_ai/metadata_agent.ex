@@ -4,6 +4,8 @@ defmodule MeadowAI.MetadataAgent do
 
   alias Meadow.Config
   alias Meadow.Utils.DCAPI
+  alias MeadowAI.Config, as: AIConfig
+  alias MeadowAI.IOHandler
   alias MeadowWeb.Router.Helpers, as: Routes
 
   import MeadowAI.Python
@@ -111,7 +113,7 @@ defmodule MeadowAI.MetadataAgent do
 
     case state.python_initialized do
       true ->
-        result = execute_claude_query(prompt, opts)
+        result = check_prompt_and_execute(prompt, opts)
         new_state = %{state | request_count: state.request_count + 1}
         {:reply, result, new_state}
 
@@ -121,7 +123,7 @@ defmodule MeadowAI.MetadataAgent do
         case initialize_python_session([]) do
           {:ok, session_info} ->
             new_state = %{state | python_initialized: true, session_info: session_info}
-            result = execute_claude_query(prompt, opts)
+            result = check_prompt_and_execute(prompt, opts)
             {:reply, result, %{new_state | request_count: new_state.request_count + 1}}
 
           {:error, reason} ->
@@ -176,34 +178,47 @@ defmodule MeadowAI.MetadataAgent do
   end
 
   # Private Functions
-  defp execute_claude_query(prompt, opts) do
-    context = Keyword.get(opts, :context, %{})
-
+  defp check_prompt_and_execute(prompt, opts) do
     if String.length(prompt) > 10_000 do
       {:error, {:input_too_large, "Prompt exceeds 10,000 characters"}}
     else
-      # Serialize context as JSON for Python
-      context_json = Jason.encode!(context)
+      execute_claude_query(prompt, opts)
+    end
+  end
 
-      # Ensure function exists and call it
-      query_code = pyread("agent_integration.py")
+  defp execute_claude_query(prompt, opts) do
+    simple = AIConfig.get(:simple, false)
+    if simple, do: Logger.warning("MetadataAgent running in simple mode")
 
-      auth_header =
-        case opts[:graphql_auth_token] do
-          nil -> {}
-          token -> {"Authorization", "Bearer #{token}"}
-        end
+    context =
+      Keyword.get(opts, :context, %{})
+      |> Map.put_new(:simple, simple)
 
-      firewall_secrurity_header =
-        case opts[:firewall_security_header] do
-          [] -> {}
-          header -> {header[:name], header[:value]}
-        end
+    # Serialize context as JSON for Python
+    context_json = Jason.encode!(context)
 
-      headers =
-        [auth_header, firewall_secrurity_header]
-        |> Enum.into(%{})
+    # Ensure function exists and call it
+    query_code = pyread("agent_integration.py")
 
+    auth_header =
+      case opts[:graphql_auth_token] do
+        nil -> {}
+        token -> {"Authorization", "Bearer #{token}"}
+      end
+
+    firewall_secrurity_header =
+      case opts[:firewall_security_header] do
+        [] -> {}
+        header -> {header[:name], header[:value]}
+      end
+
+    headers =
+      [auth_header, firewall_secrurity_header]
+      |> Enum.into(%{})
+
+    {:ok, io_handler} = IOHandler.open(id: Map.get(context, :plan_id))
+
+    try do
       result =
         Pythonx.eval(
           query_code,
@@ -214,13 +229,16 @@ defmodule MeadowAI.MetadataAgent do
             "mcp_url" => opts[:mcp_url],
             "iiif_server_url" => Config.iiif_server_url(),
             "additional_headers" => headers
-          }
+          },
+          stdout_device: io_handler
         )
 
       case result do
         {response, _globals} -> {:ok, parse_claude_response(response)}
         error -> {:error, {:pythonx_eval_error, error}}
       end
+    after
+      IOHandler.close(io_handler)
     end
   rescue
     error ->

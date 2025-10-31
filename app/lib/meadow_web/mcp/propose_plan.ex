@@ -11,7 +11,6 @@ defmodule MeadowWeb.MCP.ProposePlan do
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Data.Planner
-  alias Meadow.Repo
   require Logger
 
   schema do
@@ -24,10 +23,11 @@ defmodule MeadowWeb.MCP.ProposePlan do
   def name, do: "propose_plan"
 
   @impl true
-  def execute(%{plan_id: plan_id} = request, frame) do
+  def execute(%{plan_id: plan_id}, frame) do
     Logger.debug("MCP Server proposing plan: #{plan_id}")
 
     plan = Planner.get_plan(plan_id)
+
     case Planner.propose_plan(plan) do
       {:ok, updated_plan} ->
         {:reply, Response.tool() |> Response.json(%{plan: updated_plan}), frame}

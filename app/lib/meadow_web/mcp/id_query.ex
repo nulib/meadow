@@ -8,7 +8,6 @@ defmodule MeadowWeb.MCP.IDQuery do
     name: "id_query",
     mime_type: "application/json"
 
-  alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Data.Schemas.Work
   alias Meadow.Search.Config, as: SearchConfig
