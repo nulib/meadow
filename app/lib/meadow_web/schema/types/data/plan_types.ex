@@ -73,6 +73,24 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
     end
   end
 
+  object :plan_subscriptions do
+    field :plan_updated, :plan do
+      arg(:plan_id, non_null(:id))
+
+      config(fn args, _ ->
+        {:ok, topic: "plan:#{args.plan_id}"}
+      end)
+    end
+
+    field :plan_changes_updated, :plan_change_update do
+      arg(:plan_id, non_null(:id))
+
+      config(fn args, _ ->
+        {:ok, topic: "plan_change:#{args.plan_id}"}
+      end)
+    end
+  end
+
   #
   # Object Types
   #
@@ -116,5 +134,11 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
     value(:rejected, as: :rejected, description: "Rejected, will not be applied")
     value(:completed, as: :completed, description: "Successfully applied")
     value(:error, as: :error, description: "Failed to apply")
+  end
+
+  object :plan_change_update do
+    field(:plan_id, non_null(:id), description: "The plan ID")
+    field(:plan_change, :plan_change, description: "The updated plan change")
+    field(:action, non_null(:string), description: "The action that occurred: 'created', 'updated', 'deleted'")
   end
 end

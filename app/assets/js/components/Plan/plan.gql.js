@@ -32,16 +32,27 @@ export const SEND_CHAT_MESSAGE = gql`
   }
 `;
 
-export const PLAN_CHANGES = gql`
+export const PLAN_CHANGES_UPDATED = gql`
   subscription ($planId: ID!) {
     planChangesUpdated(planId: $planId) {
       planId
+      action
       planChange {
+        id
         status
         add
         replace
         delete
       }
+    }
+  }
+`;
+
+export const PLAN_UPDATED = gql`
+  subscription ($planId: ID!) {
+    planUpdated(planId: $planId) {
+      id
+      status
     }
   }
 `;
@@ -65,6 +76,36 @@ export const GET_PLAN_CHANGES = gql`
       add
       delete
       replace
+    }
+  }
+`;
+
+export const UPDATE_PLAN_STATUS = gql`
+  mutation updatePlanStatus($id: ID!, $status: PlanStatus!) {
+    updatePlanStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
+
+export const UPDATE_PLAN_CHANGE_STATUS = gql`
+  mutation updatePlanChangeStatus($id: ID!, $status: PlanStatus!) {
+    updatePlanChangeStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
+
+export const UPDATE_PROPOSED_PLAN_CHANGE_STATUSES = gql`
+  mutation updateProposedPlanChangeStatuses(
+    $planId: ID!
+    $status: PlanStatus!
+  ) {
+    updateProposedPlanChangeStatuses(planId: $planId, status: $status) {
+      planId
+      status
     }
   }
 `;
