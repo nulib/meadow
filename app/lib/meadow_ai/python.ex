@@ -3,6 +3,7 @@ defmodule MeadowAI.Python do
   Helper functions for initializing and managing the PythonX session
   with the Claude Code Python SDK.
   """
+  alias MeadowAI.Config, as: AIConfig
   require Logger
 
   @doc """
@@ -16,7 +17,7 @@ defmodule MeadowAI.Python do
   @doc """
   Initializes the PythonX session and ensures python dependencies are installed.
   """
-  def initialize_python_session(_opts) do
+  def initialize_python_session(opts) do
     Logger.info("Initializing MetadataAgent")
     Application.ensure_all_started(:pythonx)
 
@@ -27,7 +28,9 @@ defmodule MeadowAI.Python do
       pyread("pyproject.toml")
       |> String.replace("${PRIV_PATH}", :code.priv_dir(:meadow) |> to_string())
 
-    case Pythonx.uv_init(pyproject) do
+    force = Keyword.get(opts, :force, false)
+
+    case Pythonx.uv_init(pyproject, force: force) do
       :ok ->
         initialize_python_environment()
         {:ok, %{initialized_at: DateTime.utc_now()}}
@@ -47,7 +50,7 @@ defmodule MeadowAI.Python do
   end
 
   defp initialize_python_environment do
-    env = Application.get_env(:meadow, :pythonx_env, %{})
+    env = AIConfig.get(:pythonx_env, %{})
 
     Pythonx.eval(
       """

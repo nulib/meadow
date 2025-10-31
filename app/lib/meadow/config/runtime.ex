@@ -327,7 +327,8 @@ defmodule Meadow.Config.Runtime do
         }
       ]
 
-    config :meadow,
+    config :meadow, MeadowAI,
+      metrics_log: log_configuration(),
       pythonx_env: %{
         "CLAUDE_CODE_USE_BEDROCK" => "1"
       }

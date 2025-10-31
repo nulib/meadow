@@ -11,9 +11,6 @@ class FallbackEncoder(json.JSONEncoder):
             }
 
 def emit_message(message):
-    # with open('raw_messages.log', 'a') as f:
-    #     print(f"RAW MESSAGE: {message}", file=f)
-
     if hasattr(message, 'usage'):
         emit(
             "usage",
@@ -47,10 +44,7 @@ def emit_content(block):
 
 def emit(message_type, message):
     output = {
-        'action': 'emit',
-        'data': {
-            'type': message_type,
-            'message': message
-        }
+        'type': message_type,
+        'message': message
     }
     print(json.dumps(output, cls=FallbackEncoder))
