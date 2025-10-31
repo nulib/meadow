@@ -1,9 +1,9 @@
 import { useSubscription } from "@apollo/client";
-import { PLAN_CHANGES } from "@js/components/Plan/plan.gql";
+import { PLAN_CHANGES_UPDATED } from "@js/components/Plan/plan.gql";
 
 export function usePlanChanges(planId) {
   try {
-    const { data, loading, error } = useSubscription(PLAN_CHANGES, {
+    const { data, loading, error } = useSubscription(PLAN_CHANGES_UPDATED, {
       variables: { planId },
       shouldResubscribe: true,
       fetchPolicy: "no-cache",

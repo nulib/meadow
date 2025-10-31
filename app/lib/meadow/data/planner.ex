@@ -294,7 +294,7 @@ defmodule Meadow.Data.Planner do
   """
 
   def propose_plan(%Plan{} = plan) do
-    Repo.transaction(fn ->
+    result = Repo.transaction(fn ->
       from(c in PlanChange,
         where: c.plan_id == ^plan.id and c.status == :pending,
         where: ^change_fragment(:not_empty),
@@ -306,6 +306,13 @@ defmodule Meadow.Data.Planner do
       |> Plan.propose()
       |> Repo.update!()
     end)
+
+    case result do
+      {:ok, updated_plan} ->
+        broadcast_plan_update(updated_plan)
+        {:ok, updated_plan}
+      error -> error
+    end
   end
 
   @doc """
@@ -319,9 +326,14 @@ defmodule Meadow.Data.Planner do
   def approve_plan(%Plan{} = plan, user \\ nil) do
     case check_approvable(plan) do
       :ok ->
-        plan
+        case plan
         |> Plan.approve(user)
-        |> Repo.update()
+        |> Repo.update() do
+          {:ok, updated_plan} = result ->
+            broadcast_plan_update(updated_plan)
+            result
+          error -> error
+        end
 
       {:error, msg} ->
         {:error, msg}
@@ -358,9 +370,14 @@ defmodule Meadow.Data.Planner do
       {:ok, %Plan{status: :rejected, notes: "Changes not needed"}}
   """
   def reject_plan(%Plan{} = plan, notes \\ nil) do
-    plan
+    case plan
     |> Plan.reject(notes)
-    |> Repo.update()
+    |> Repo.update() do
+      {:ok, updated_plan} = result ->
+        broadcast_plan_update(updated_plan)
+        result
+      error -> error
+    end
   end
 
   @doc """
@@ -372,9 +389,14 @@ defmodule Meadow.Data.Planner do
       {:ok, %Plan{status: :completed}}
   """
   def mark_plan_completed(%Plan{} = plan) do
-    plan
+    case plan
     |> Plan.mark_completed()
-    |> Repo.update()
+    |> Repo.update() do
+      {:ok, updated_plan} = result ->
+        broadcast_plan_update(updated_plan)
+        result
+      error -> error
+    end
   end
 
   @doc """
@@ -386,9 +408,14 @@ defmodule Meadow.Data.Planner do
       {:ok, %Plan{status: :error, error: "Database connection failed"}}
   """
   def mark_plan_error(%Plan{} = plan, error) do
-    plan
+    case plan
     |> Plan.mark_error(error)
-    |> Repo.update()
+    |> Repo.update() do
+      {:ok, updated_plan} = result ->
+        broadcast_plan_update(updated_plan)
+        result
+      error -> error
+    end
   end
 
   @doc """
@@ -690,6 +717,16 @@ defmodule Meadow.Data.Planner do
       )
       |> Repo.update_all([])
 
+    # Broadcast updates for each approved plan change since update_all bypasses callbacks
+    if count > 0 do
+      from(c in PlanChange,
+        where: c.plan_id == ^plan.id and c.status == :approved,
+        where: ^change_fragment(:not_empty)
+      )
+      |> Repo.all()
+      |> Enum.each(&broadcast_plan_change_update(&1, "updated"))
+    end
+
     {:ok, maybe_reload_plan(plan), count}
   end
 
@@ -719,9 +756,16 @@ defmodule Meadow.Data.Planner do
       {:ok, %PlanChange{status: :completed}}
   """
   def mark_plan_change_completed(%PlanChange{} = change) do
-    change
-    |> PlanChange.mark_completed()
-    |> Repo.update()
+    changeset = PlanChange.mark_completed(change)
+
+    case Repo.update(changeset) do
+      {:ok, updated_change} ->
+        broadcast_plan_change_update(updated_change, "updated")
+        {:ok, updated_change}
+
+      {:error, _} = error ->
+        error
+    end
   end
 
   @doc """
@@ -733,9 +777,16 @@ defmodule Meadow.Data.Planner do
       {:ok, %PlanChange{status: :error}}
   """
   def mark_plan_change_error(%PlanChange{} = change, error) do
-    change
-    |> PlanChange.mark_error(error)
-    |> Repo.update()
+    changeset = PlanChange.mark_error(change, error)
+
+    case Repo.update(changeset) do
+      {:ok, updated_change} ->
+        broadcast_plan_change_update(updated_change, "updated")
+        {:ok, updated_change}
+
+      {:error, _} = error ->
+        error
+    end
   end
 
   @doc """
@@ -770,7 +821,15 @@ defmodule Meadow.Data.Planner do
         plan_change: plan_change,
         action: action
       },
-      plan_changes_updated: "plan:#{plan_change.plan_id}"
+      plan_changes_updated: "plan_change:#{plan_change.plan_id}"
+    )
+  end
+
+  defp broadcast_plan_update(%Plan{} = plan) do
+    Absinthe.Subscription.publish(
+      MeadowWeb.Endpoint,
+      plan,
+      plan_updated: "plan:#{plan.id}"
     )
   end
 

@@ -1,59 +1,112 @@
-import { useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import React, { useEffect } from "react";
-import { GET_PLAN } from "@js/components/Plan/plan.gql";
+import {
+  APPLY_PLAN,
+  UPDATE_PLAN_STATUS,
+  UPDATE_PROPOSED_PLAN_CHANGE_STATUSES,
+} from "@js/components/Plan/plan.gql";
 import UILoader from "@js/components/UI/Loader";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
-import { Button } from "@nulib/design-system";
-import { set } from "react-hook-form";
-import { IconCheck, IconCheckAlt } from "../../Icon";
+import { IconCheckAlt, IconMagic } from "@js/components/Icon";
 
-const PlanPanelChanges = ({ changes, id, target }) => {
+const PlanPanelChanges = ({ plan, changes, id, target }) => {
   const [loading, setLoading] = React.useState(true);
-  const [proposedChanges, setProposedChanges] = React.useState(null);
   const [isApproved, setIsApproved] = React.useState(false);
 
-  const pending = useQuery(GET_PLAN, {
-    variables: { id },
-    fetchPolicy: "no-cache",
-  });
+  // New UI-phase flags
+  const [isApplying, setIsApplying] = React.useState(false);
+  const [applyStartedAt, setApplyStartedAt] = React.useState(null);
+  const [showCompleted, setShowCompleted] = React.useState(false);
 
-  /**
-   * Check if we have any pending changes
-   * If so, keep loading until they are resolved
-   */
+  const status = plan?.status || "PENDING";
+
+  const [applyPlan] = useMutation(APPLY_PLAN);
+  const [updatePlanStatus] = useMutation(UPDATE_PLAN_STATUS);
+  const [updateProposedPlanChangeStatuses] = useMutation(
+    UPDATE_PROPOSED_PLAN_CHANGE_STATUSES,
+  );
+
   useEffect(() => {
-    if (!pending.data?.plan) return;
-
-    const hasPendingChanges = pending.data?.plan?.status === "PENDING";
-    setLoading(hasPendingChanges);
-  }, [pending.data?.plan]);
-
-  /**
-   * When changes are updated, check if there are proposed changes
-   * If so, set them to state and stop loading
-   */
-  useEffect(() => {
-    if (changes?.planChange) {
-      if (changes.planChange.status === "PROPOSED") {
+    switch (status) {
+      case "PENDING":
+        setLoading(true);
+        // reset UI-phase flags when backing out
+        setIsApplying(false);
+        setApplyStartedAt(null);
+        setShowCompleted(false);
+        break;
+      case "PROPOSED":
         setLoading(false);
-        setProposedChanges(changes.planChange);
-      }
+        setIsApproved(false);
+        setIsApplying(false);
+        setApplyStartedAt(null);
+        setShowCompleted(false);
+        break;
+      case "APPROVED":
+        setLoading(false);
+        setShowCompleted(false);
+        break;
+      case "COMPLETED":
+        // handled below to enforce min spinner time
+        break;
     }
-  }, [changes?.planChange]);
+  }, [status]);
 
   /**
-   * Handle Approve Changes button click
+   * Handle the COMPLETED state with an enforced minimum
+   * of 1s spinner time to limit blinking between states.
    */
-  const handleApproveChanges = () => {
-    setIsApproved(!isApproved);
-    console.log("Approve Changes clicked");
+  useEffect(() => {
+    if (status !== "COMPLETED") return;
+    if (isApplying && applyStartedAt) {
+      const elapsed = Date.now() - applyStartedAt;
+      const remaining = Math.max(1000 - elapsed, 0);
+      const t = setTimeout(() => {
+        setIsApplying(false);
+        setShowCompleted(true);
+      }, remaining);
+      return () => clearTimeout(t);
+    }
+
+    /**
+     * If we reach COMPLETED state but we're not in the applying
+     * phase, we need to show the completed state immediately.
+     */
+    setShowCompleted(true);
+  }, [status, isApplying, applyStartedAt]);
+
+  const handleApproveChanges = async () => {
+    try {
+      await updateProposedPlanChangeStatuses({
+        variables: { planId: id, status: "APPROVED" },
+        onCompleted: ({ updateProposedPlanChangeStatuses }) => {
+          if (updateProposedPlanChangeStatuses) {
+            updatePlanStatus({
+              variables: { id, status: "APPROVED" },
+              onCompleted: () => setIsApproved(true),
+            });
+          }
+        },
+      });
+    } catch (e) {
+      console.error("Error approving changes:", e);
+    }
   };
 
-  /**
-   * Handle Apply Changes button click
-   */
   const handleApplyChanges = () => {
-    console.log("Apply Changes clicked");
+    try {
+      setIsApplying(true);
+      setApplyStartedAt(Date.now());
+      setShowCompleted(false);
+
+      applyPlan({
+        variables: { id },
+        onCompleted: () => {},
+      });
+    } catch (e) {
+      setIsApplying(false);
+      setApplyStartedAt(null);
+    }
   };
 
   return (
@@ -66,29 +119,62 @@ const PlanPanelChanges = ({ changes, id, target }) => {
         </div>
       ) : (
         <div className="plan-panel-changes--content">
+          <div className="plan-panel-changes--status">
+            <span data-status={status} data-active={status === "PROPOSED"}>
+              Proposed
+            </span>
+            <hr className="plan-panel-changes--status--divider" />
+            <span data-status={status} data-active={status === "APPROVED"}>
+              Approved
+            </span>
+            <hr className="plan-panel-changes--status--divider" />
+            <span
+              data-status={status}
+              data-active={showCompleted || status === "COMPLETED"}
+            >
+              Applied
+            </span>
+          </div>
+
           <div className="plan-panel-changes--actions">
-            <h3 className="mb-5">Proposed Changes</h3>
+            <h3 className="mb-5">Changes</h3>
             <div>
-              <button
-                onClick={handleApproveChanges}
-                data-variant="approve"
-                data-approved={isApproved}
-              >
+              {/* Approve Changes button only shown when proposed */}
+              {status === "PROPOSED" && (
+                <button onClick={handleApproveChanges} data-variant="approve">
+                  Approve Changes
+                </button>
+              )}
+
+              {/* Apply Changes button only shown when approved */}
+              {status === "APPROVED" && !isApplying && (
+                <button
+                  onClick={handleApplyChanges}
+                  data-variant="primary"
+                  disabled={!isApproved || isApplying}
+                >
+                  {isApplying ? "Applying…" : "Apply Changes"}
+                </button>
+              )}
+
+              {/* Spinner during wait window, minimum 1 second */}
+              {(isApplying || (status === "COMPLETED" && !showCompleted)) && (
                 <span>
-                  <IconCheckAlt />
+                  <IconMagic />
+                  Applying changes…
                 </span>
-                Approve
-              </button>
-              <button
-                onClick={handleApplyChanges}
-                data-variant="primary"
-                disabled={!isApproved}
-              >
-                Apply
-              </button>
+              )}
+
+              {/* Success message after applying changes */}
+              {showCompleted && (
+                <span>
+                  <IconCheckAlt /> Your changes have been applied.
+                </span>
+              )}
             </div>
           </div>
-          <PlanPanelChangesDiff proposedChanges={proposedChanges || {}} />
+
+          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
         </div>
       )}
     </div>
