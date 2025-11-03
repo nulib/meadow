@@ -26,7 +26,7 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
 
     IMPORTANT: For controlled vocabulary fields like subject headings, creator names, genres, etc.,
     the subagent MUST use the authoritiesSearch GraphQL query to find valid controlled term IDs.
-    Never make up or guess term IDs for these fields.
+    Never make up or guess term IDs for these fields. 
     
     IMPORTANT: For coded fields (controlled field roles, note types, etc.), the subagent MUST use the 
     codeList query to get the list of valid IDs.
@@ -94,9 +94,10 @@ def proposer_prompt():
     2. Never make up or guess term IDs
     3. The data structure MUST be (note that term is an OBJECT with id field):
       {
-        "term": {"id": "controlled-term-id-from-search"},
-        "role": {"id": "role-id", "scheme": "role-scheme"}
+        "term": {"id": "controlled-term-id-from-search", "label": "The Label"},
+        "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}  # role is REQUIRED for subject and contributor
       }
+    4. Include the label for the term and role if available from the authoritiesSearch results
 
     IMPORTANT STRUCTURE NOTES:
     - "term" MUST be an object with "id" field, NOT a bare string
