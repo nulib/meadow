@@ -33,9 +33,9 @@ const UIBehaviorModal = ({
   }
 
   const behaviorDefinitions = {
-    individuals: "Display each canvas separately (e.g., individual images or objects)",
-    continuous: "Display canvases end-to-end in a scrolling view (e.g., scrolls, long documents)",
-    paged: "Display canvases as facing pages with page-turning navigation (e.g., books)"
+    individuals: "Display each file set separately (e.g., photographs)",
+    continuous: "Display file sets end-to-end as a single view (e.g., scrolls)",
+    paged: "Display file sets as facing pages (e.g., books)"
   };
 
   return (
