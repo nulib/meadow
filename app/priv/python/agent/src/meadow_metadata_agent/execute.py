@@ -1,26 +1,26 @@
 import json
-import sys
 from claude_agent_sdk import create_sdk_mcp_server, ClaudeAgentOptions, ClaudeSDKClient, AgentDefinition, ResultMessage
 from .prompts import (agent_prompt, proposer_prompt, system_prompt)
 from .message_handler import emit, emit_message
 from .tools import (make_fetch_iiif_image_tool)
 
-async def query_claude(prompt, context_json, mcp_url, iiif_server_url, additional_headers={}):
+async def query_claude(model, prompt, context_json, mcp_url, iiif_server_url, additional_headers={}):
     context_data = json.loads(context_json) if context_json else {}
     if context_data.get("simple"):
-        return await execute_simple(prompt, context_data)
+        return await execute_simple(model, prompt, context_data)
     else:
-        return await execute_agent(prompt, context_data, mcp_url, iiif_server_url, additional_headers)
+        return await execute_agent(model, prompt, context_data, mcp_url, iiif_server_url, additional_headers)
     
-async def execute_simple(prompt, context_data):
+async def execute_simple(model, prompt, context_data):
     enhanced_prompt = f"{prompt}\n\nContext data: {json.dumps(context_data, indent=2) if context_data else 'None'}"
     client_options = ClaudeAgentOptions(
+        model=model,
         system_prompt="You are a helpful assistant that responds to user queries. Do not use any tools."
     )
 
     return await execute_query(client_options, enhanced_prompt)
 
-async def execute_agent(prompt, context_data, mcp_url, iiif_server_url, additional_headers={}):
+async def execute_agent(model, prompt, context_data, mcp_url, iiif_server_url, additional_headers={}):
     enhanced_prompt = agent_prompt(prompt, context_data)
 
     # Build MCP server config with optional auth headers
@@ -33,6 +33,7 @@ async def execute_agent(prompt, context_data, mcp_url, iiif_server_url, addition
     emit("debug", f"Meadow MCP server config: {meadow_server_config}")
 
     client_options = ClaudeAgentOptions(
+        model=model,
         mcp_servers={
             "meadow": meadow_server_config,
             "image_fetcher": create_sdk_mcp_server(

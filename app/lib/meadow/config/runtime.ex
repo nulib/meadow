@@ -319,6 +319,12 @@ defmodule Meadow.Config.Runtime do
 
     config :meadow, MeadowAI,
       metrics_log: log_configuration(),
+      model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        ),
       pythonx_env: %{
         "CLAUDE_CODE_USE_BEDROCK" => "1"
       }

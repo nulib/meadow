@@ -131,7 +131,7 @@ defmodule MeadowAI.IOHandler do
     CloudwatchLogs.put_log_events(config[:group], config[:stream], [
       %{
         "timestamp" => DateTime.utc_now() |> DateTime.to_unix(:millisecond),
-        "message" => Jason.encode!(message)
+        "message" => Jason.encode!(Map.put(message, "model", AIConfig.get(:model)))
       }
     ])
     |> ExAws.request()
