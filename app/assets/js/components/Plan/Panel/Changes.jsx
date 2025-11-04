@@ -12,8 +12,6 @@ import { IconCheckAlt, IconMagic } from "@js/components/Icon";
 const PlanPanelChanges = ({ plan, changes, id, target }) => {
   const [loading, setLoading] = React.useState(true);
   const [isApproved, setIsApproved] = React.useState(false);
-
-  // New UI-phase flags
   const [isApplying, setIsApplying] = React.useState(false);
   const [applyStartedAt, setApplyStartedAt] = React.useState(null);
   const [showCompleted, setShowCompleted] = React.useState(false);

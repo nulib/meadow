@@ -1,58 +1,104 @@
+import { Tag } from "@nulib/design-system";
 import React from "react";
+import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
+import { toArray, toRows } from "@js/components/Plan/Panel/diff-helpers";
 
-const flattenObject = (obj, parentKey = "") => {
-  const result = {};
-  for (const [key, value] of Object.entries(obj)) {
-    const newKey = parentKey ? `${parentKey}.${key}` : key;
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(result, flattenObject(value, newKey));
-    } else {
-      result[newKey] = value;
-    }
+/**
+ * Tag indicating the method of change
+ */
+const MethodTag = ({ method }) => {
+  let tagProps = {};
+  let text = "";
+
+  switch (method) {
+    case "add":
+      tagProps = { isSuccess: true };
+      text = "Add";
+      break;
+    case "delete":
+      tagProps = { isDanger: true };
+      text = "Delete";
+      break;
+    case "replace":
+      tagProps = { isInfo: true };
+      text = "Replace";
+      break;
+    default:
+      tagProps = {};
+      text = "";
+      break;
   }
-  return result;
+
+  return (
+    <Tag as="span" {...tagProps}>
+      {text}
+    </Tag>
+  );
+};
+
+/**
+ * Render a generic (non-controlled) value
+ */
+const renderGenericValue = (value) => {
+  if (value == null) return "—";
+  if (typeof value !== "object") return String(value);
+  if (value instanceof Date) return value.toISOString();
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "—";
+    return (
+      <ul>
+        {value.map((v, i) => (
+          <li key={i}>
+            {typeof v === "object" ? JSON.stringify(v, null, 0) : String(v)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // Defensively render other objects as JSON
+  return JSON.stringify(value, null, 0);
 };
 
 const PlanPanelChangesDiff = ({ proposedChanges }) => {
-  const addEntries = proposedChanges.add
-    ? Object.entries(flattenObject(proposedChanges.add))
-    : [];
-  const deleteEntries = proposedChanges.delete
-    ? Object.entries(flattenObject(proposedChanges.delete))
-    : [];
-  const replaceEntries = proposedChanges.replace
-    ? Object.entries(flattenObject(proposedChanges.replace))
-    : [];
+  const changes = [
+    ...toRows(proposedChanges.add, "add"),
+    ...toRows(proposedChanges.delete, "delete"),
+    ...toRows(proposedChanges.replace, "replace"),
+  ];
+
+  changes.sort(
+    (a, b) =>
+      a.label.localeCompare(b.label) || a.method.localeCompare(b.method),
+  );
 
   return (
     <table className="table is-fullwidth is-striped">
       <thead>
         <tr>
-          <th>Status</th>
+          <th>Type</th>
           <th>Field</th>
           <th>Proposed Value</th>
         </tr>
       </thead>
       <tbody>
-        {addEntries.map(([field, value]) => (
-          <tr key={`add-${field}`}>
-            <td>Add</td>
-            <td>{field}</td>
-            <td>{Array.isArray(value) ? value.join(", ") : String(value)}</td>
-          </tr>
-        ))}
-        {deleteEntries.map(([field, value]) => (
-          <tr key={`delete-${field}`}>
-            <td>Delete</td>
-            <td>{field}</td>
-            <td>{Array.isArray(value) ? value.join(", ") : String(value)}</td>
-          </tr>
-        ))}
-        {replaceEntries.map(([field, value]) => (
-          <tr key={`replace-${field}`}>
-            <td>Replace</td>
-            <td>{field}</td>
-            <td>{Array.isArray(value) ? value.join(", ") : String(value)}</td>
+        {changes.map((change) => (
+          <tr key={change.id} data-method={change.method}>
+            <td>
+              <MethodTag method={change.method} />
+            </td>
+            <td>{change.label}</td>
+            <td>
+              {change.controlled ? (
+                <UIControlledTermList
+                  title={change.label}
+                  items={toArray(change.value)}
+                />
+              ) : (
+                renderGenericValue(change.value)
+              )}
+            </td>
           </tr>
         ))}
       </tbody>
