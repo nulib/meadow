@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import useIsEditing from "@js/hooks/useIsEditing";
 import { useForm, FormProvider } from "react-hook-form";
@@ -10,6 +10,7 @@ import {
   UPDATE_FILE_SETS,
   UPDATE_ACCESS_FILE_ORDER,
 } from "@js/components/Work/work.gql.js";
+import { UPDATE_WORK } from "@js/components/Work/work.gql.js";
 import { toastWrapper } from "@js/services/helpers";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import WorkTabsStructureFilesetsDragAndDrop from "@js/components/Work/Tabs/Structure/FilesetsDragAndDrop";
@@ -19,6 +20,8 @@ import classNames from "classnames";
 import { IconEdit, IconSort } from "@js/components/Icon";
 import useFileSet from "@js/hooks/useFileSet";
 import DownloadAll from "@js/components/UI/Modal/DownloadAll";
+import BehaviorModal from "@js/components/UI/Modal/Behavior";
+import { useCodeLists } from "@js/context/code-list-context";
 
 const parseWorkRepresentativeImage = (work) => {
   if (!work.representativeImage) return;
@@ -35,8 +38,11 @@ const WorkTabsStructure = ({ work }) => {
     parseWorkRepresentativeImage(work),
   );
   const [isReordering, setIsReordering] = useState();
+  const [isBehaviorModalVisible, setIsBehaviorModalVisible] = useState(false);
   const [error, setError] = React.useState();
   const { filterFileSets } = useFileSet();
+  const codeLists = useCodeLists();
+  const [behaviors, setBehaviors] = useState([]);
 
   const methods = useForm();
 
@@ -94,6 +100,23 @@ const WorkTabsStructure = ({ work }) => {
     awaitRefetchQueries: true,
   });
 
+  const [updateWork] = useMutation(UPDATE_WORK, {
+    onCompleted({ updateWork }) {
+      toastWrapper("is-success", "Work behavior updated successfully");
+      setIsBehaviorModalVisible(false);
+    },
+    onError(error) {
+      toastWrapper("is-danger", "Error updating work behavior");
+      console.error("Error updating work behavior", error);
+    },
+  });
+
+  useEffect(() => {
+    if (codeLists.behaviorData) {
+      setBehaviors(codeLists.behaviorData.codeList);
+    }
+  }, [codeLists.behaviorData]);
+
   const handleCancelReorder = () => {
     setIsReordering(false);
   };
@@ -117,6 +140,24 @@ const WorkTabsStructure = ({ work }) => {
 
     setWorkImageFilesetId(id === workImageFilesetId ? null : id);
     setWorkImage({ variables: { fileSetId: id, workId: work.id } });
+  };
+
+  const handleBehaviorSave = (behaviorId) => {
+    if (!behaviorId) {
+      toastWrapper("is-warning", "Please select a valid behavior");
+      return;
+    }
+    updateWork({
+      variables: {
+        id: work.id,
+        work: {
+          behavior: {
+            id: behaviorId,
+            scheme: "BEHAVIOR",
+          }
+        }
+      }
+    });
   };
 
   const filterDraggableFilesets = (fileSets) => {
@@ -204,6 +245,13 @@ const WorkTabsStructure = ({ work }) => {
           )}
 
           <Button
+            onClick={() => setIsBehaviorModalVisible(true)}
+            disabled={isEditing || isReordering}
+          >
+            <span>Behavior</span>
+          </Button>
+
+          <Button
             onClick={() => setIsReordering(true)}
             disabled={isEditing || isReordering}
           >
@@ -213,6 +261,14 @@ const WorkTabsStructure = ({ work }) => {
 
           {work?.workType?.id === "IMAGE" && <DownloadAll workId={work?.id} />}
         </UITabsStickyHeader>
+
+        <BehaviorModal
+          isVisible={isBehaviorModalVisible}
+          behaviors={behaviors}
+          currentBehavior={work?.behavior?.id}
+          onClose={() => setIsBehaviorModalVisible(false)}
+          onSave={handleBehaviorSave}
+        />
 
         <div className="mt-4">
           {error && (
