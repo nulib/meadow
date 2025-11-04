@@ -1,6 +1,7 @@
 defmodule MeadowAI.IOHandlerTest do
   use ExUnit.Case
 
+  alias MeadowAI.Config, as: AIConfig
   alias MeadowAI.IOHandler
   import ExUnit.CaptureLog
 
@@ -90,7 +91,8 @@ defmodule MeadowAI.IOHandlerTest do
           "output_tokens" => 765,
           "server_tool_use" => %{"web_search_requests" => 0},
           "service_tier" => "standard"
-        }
+        },
+        "model" => AIConfig.get(:model)
       }
 
       IO.write(io, Jason.encode!(%{"type" => "usage", "message" => usage}) <> "\n")

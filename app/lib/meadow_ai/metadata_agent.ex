@@ -223,6 +223,7 @@ defmodule MeadowAI.MetadataAgent do
         Pythonx.eval(
           query_code,
           %{
+            "model" => AIConfig.get(:model),
             "prompt" => prompt,
             "context_json" => context_json,
             "graphql_endpoint" => opts[:graphql_endpoint],
