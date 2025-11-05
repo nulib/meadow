@@ -58,11 +58,17 @@ const UIBehaviorModal = ({
     onSave(selectedBehavior);
   }
 
+  const behaviorOrder = ['individuals', 'paged', 'continuous'];
+
   const behaviorDefinitions = {
     individuals: "Display each file set separately (e.g., photographs)",
     continuous: "Display file sets end-to-end as a single view (e.g., scrolls)",
     paged: "Display file sets as facing pages (e.g., books)"
   };
+
+  const orderedBehaviors = behaviorOrder
+    .map(id => behaviors.find(b => b.id === id))
+    .filter(Boolean);
 
   const renderPreview = (behaviorId) => {
     const placeholderImage = "/images/placeholder.png";
@@ -126,8 +132,8 @@ const UIBehaviorModal = ({
         <section className="modal-card-body">
           <UIFormField label="Choose how content is displayed">
             <div className="control" data-testid="radio-behavior">
-              {behaviors.length > 0 ? (
-                behaviors.map((behavior) => (
+              {orderedBehaviors.length > 0 ? (
+                orderedBehaviors.map((behavior) => (
                   <div key={behavior.id} style={{ marginBottom: '1rem' }}>
                     <label className="radio">
                       <input
