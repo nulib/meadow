@@ -106,7 +106,7 @@ defmodule Meadow.MixProject do
       {:sitemapper, "~> 0.10.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.0"},
+      {:telemetry_poller, "~> 1.3.0"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 2.2.0"},
       {:walex, "~> 4.7.0"},

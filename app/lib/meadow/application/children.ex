@@ -43,7 +43,8 @@ defmodule Meadow.Application.Children do
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         Anubis.Server.Registry,
-        {MeadowWeb.MCP.Server, transport: :streamable_http}
+        {MeadowWeb.MCP.Server, transport: :streamable_http},
+        MeadowWeb.Subscription
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
@@ -81,8 +82,11 @@ defmodule Meadow.Application.Children do
   """
   def specs do
     with env <- Config.environment() do
-      (Caches.specs(env) ++ specs(env))
-      |> Enum.reject(&is_nil/1)
+      [
+        Meadow.Notification
+        | (Caches.specs(env) ++ specs(env))
+          |> Enum.reject(&is_nil/1)
+      ]
     end
   end
 
