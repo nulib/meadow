@@ -17,15 +17,9 @@ defmodule Meadow.Events.IngestSheets.SheetUpdates do
       Logger.info("Sending notifications for ingest sheet: #{record.id}")
       sheet = Sheets.get_ingest_sheet!(record.id)
 
-      Absinthe.Subscription.publish(
-        MeadowWeb.Endpoint,
-        sheet,
-        ingest_sheet_update: "sheet:" <> sheet.id
-      )
+      Meadow.Notification.publish(sheet, ingest_sheet_update: "sheet:" <> sheet.id)
 
-      Absinthe.Subscription.publish(
-        MeadowWeb.Endpoint,
-        sheet,
+      Meadow.Notification.publish(sheet,
         ingest_sheet_updates_for_project: "sheets:" <> sheet.project_id
       )
     end
