@@ -32,6 +32,17 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "logstream"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.id}:log-group:/ecs/${var.stack_name}:*"]
+  }
+
   statement {
     sid    = "lambda"
     effect = "Allow"
