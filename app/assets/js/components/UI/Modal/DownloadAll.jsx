@@ -38,11 +38,6 @@ const UIDownloadAll = ({ workId }) => {
   function handleSubmit() {
     const url = data.workArchiverEndpoint.url;
 
-    // Keep this for local dev testing
-    const testStagingUrl =
-      "https://hqlgk8g5ja.execute-api.us-east-1.amazonaws.com/latest/archiver";
-    const testStagingWorkId = "b524801b-5f97-4ab1-a2b9-b590d9fe14e3";
-
     fetch(
       `${url}?${new URLSearchParams({
         workId,
