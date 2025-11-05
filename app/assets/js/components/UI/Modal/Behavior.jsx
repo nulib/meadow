@@ -71,7 +71,7 @@ const UIBehaviorModal = ({
                         onChange={handleRadioChange}
                         style={{ marginRight: '0.5rem' }}
                       />
-                      <strong>{behavior.label}</strong>
+                      <strong>{behavior.label}{behavior.id === 'individuals' ? ' (Default)' : ''}</strong>
                     </label>
                     <p style={{ marginLeft: '1.5rem', color: '#666', fontSize: '0.9em' }}>
                       {behaviorDefinitions[behavior.id] || ""}

@@ -17,7 +17,7 @@ import WorkTabsStructureFilesetsDragAndDrop from "@js/components/Work/Tabs/Struc
 import { Button, Notification } from "@nulib/design-system";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
-import { IconEdit, IconSort } from "@js/components/Icon";
+import { IconEdit, IconSort, IconBehaviorIndividuals, IconBehaviorContinuous, IconBehaviorPaged } from "@js/components/Icon";
 import useFileSet from "@js/hooks/useFileSet";
 import DownloadAll from "@js/components/UI/Modal/DownloadAll";
 import BehaviorModal from "@js/components/UI/Modal/Behavior";
@@ -109,6 +109,8 @@ const WorkTabsStructure = ({ work }) => {
       toastWrapper("is-danger", "Error updating work behavior");
       console.error("Error updating work behavior", error);
     },
+    refetchQueries: [{ query: GET_WORK, variables: { id: work.id } }],
+    awaitRefetchQueries: true,
   });
 
   useEffect(() => {
@@ -184,6 +186,19 @@ const WorkTabsStructure = ({ work }) => {
     updateFileSets({ variables: { fileSets: formPostData } });
   };
 
+  const getBehaviorIcon = () => {
+    const behaviorId = work?.behavior?.id || "individuals";
+    switch (behaviorId) {
+      case "continuous":
+        return <IconBehaviorContinuous />;
+      case "paged":
+        return <IconBehaviorPaged />;
+      case "individuals":
+      default:
+        return <IconBehaviorIndividuals />;
+    }
+  };
+
   function affirmOrder(fileSets) {
     const { idMap, groupedMap } = fileSets.reduce(
       (acc, fileSet) => {
@@ -248,7 +263,8 @@ const WorkTabsStructure = ({ work }) => {
             onClick={() => setIsBehaviorModalVisible(true)}
             disabled={isEditing || isReordering}
           >
-            <span>Behavior</span>
+            {getBehaviorIcon()}
+            <span>Display</span>
           </Button>
 
           <Button
