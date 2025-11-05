@@ -146,7 +146,7 @@ const WorkTabsStructure = ({ work }) => {
 
   const handleBehaviorSave = (behaviorId) => {
     if (!behaviorId) {
-      toastWrapper("is-warning", "Please select a valid behavior");
+      toastWrapper("is-warning", "Please select a valid display type");
       return;
     }
     updateWork({

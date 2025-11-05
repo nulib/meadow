@@ -4,6 +4,32 @@ import { Button } from "@nulib/design-system";
 import classNames from "classnames";
 import UIFormField from "@js/components/UI/Form/Field";
 
+/** @jsx jsx */
+import { jsx } from "@emotion/react";
+import styled from "@emotion/styled";
+
+const PreviewContainer = styled.div`
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: ${props => props.gap || '8px'};
+`;
+
+const Thumbnail = styled.img`
+  width: 45px;
+  height: 30px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  margin-right: ${props => props.touching ? '-1px' : '0'};
+`;
+
+const PagedGroup = styled.div`
+  display: flex;
+  gap: 0px;
+`;
+
 const UIBehaviorModal = ({
   isVisible,
   behaviors,
@@ -38,6 +64,47 @@ const UIBehaviorModal = ({
     paged: "Display file sets as facing pages (e.g., books)"
   };
 
+  const renderPreview = (behaviorId) => {
+    const placeholderImage = "/images/placeholder.png";
+
+    switch (behaviorId) {
+      case 'individuals':
+        return (
+          <PreviewContainer>
+            <Thumbnail src={placeholderImage} alt="" />
+            <Thumbnail src={placeholderImage} alt="" />
+            <Thumbnail src={placeholderImage} alt="" />
+          </PreviewContainer>
+        );
+      case 'continuous':
+        return (
+          <PreviewContainer gap="0px">
+            <Thumbnail src={placeholderImage} alt="" touching />
+            <Thumbnail src={placeholderImage} alt="" touching />
+            <Thumbnail src={placeholderImage} alt="" touching />
+            <Thumbnail src={placeholderImage} alt="" touching />
+            <Thumbnail src={placeholderImage} alt="" />
+          </PreviewContainer>
+        );
+      case 'paged':
+        return (
+          <PreviewContainer>
+            <Thumbnail src={placeholderImage} alt="" />
+            <PagedGroup>
+              <Thumbnail src={placeholderImage} alt="" touching />
+              <Thumbnail src={placeholderImage} alt="" />
+            </PagedGroup>
+            <PagedGroup>
+              <Thumbnail src={placeholderImage} alt="" touching />
+              <Thumbnail src={placeholderImage} alt="" />
+            </PagedGroup>
+          </PreviewContainer>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       className={classNames("modal", {
@@ -48,7 +115,7 @@ const UIBehaviorModal = ({
       <div className="modal-background" onClick={handleCancelClick}></div>
       <div className="modal-card">
         <div className="modal-card-head">
-          <p className="modal-card-title">Select Behavior</p>
+          <p className="modal-card-title">Select Display Type</p>
           <button
             type="button"
             className="delete"
@@ -76,6 +143,7 @@ const UIBehaviorModal = ({
                     <p style={{ marginLeft: '1.5rem', color: '#666', fontSize: '0.9em' }}>
                       {behaviorDefinitions[behavior.id] || ""}
                     </p>
+                    {renderPreview(behavior.id)}
                   </div>
                 ))
               ) : (
