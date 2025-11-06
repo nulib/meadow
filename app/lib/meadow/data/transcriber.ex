@@ -33,7 +33,7 @@ defmodule Meadow.Data.Transcriber do
           {:ok, %{text: binary(), raw: map(), streamed_chunks: list()}} | {:error, term()}
   def transcribe(file_set_id, opts \\ []) when is_binary(file_set_id) do
     previous_metadata = Logger.metadata()
-    Logger.metadata(file_set_id: file_set_id)
+    Logger.metadata(id: file_set_id)
     Logger.info("Starting transcription job")
 
     result =
@@ -48,7 +48,7 @@ defmodule Meadow.Data.Transcriber do
         {:ok, %{text: text, raw: response, streamed_chunks: chunks}}
       else
         {:error, reason} = error ->
-          Logger.error("Transcription job failed", reason: inspect(reason))
+          Logger.error("Transcription job failed: #{inspect(reason)}")
           error
       end
 
@@ -72,14 +72,14 @@ defmodule Meadow.Data.Transcriber do
   defp representative_image_url(%FileSet{} = file_set) do
     case FileSets.representative_image_url_for(file_set) do
       nil ->
-        Logger.warning("No representative image available for transcription",
-          file_set_id: file_set.id
+        Logger.warning(
+          "No representative image available for transcription in FileSet #{file_set.id}"
         )
 
         {:error, {:no_representative_image, file_set.id}}
 
       url ->
-        Logger.debug("Resolved IIIF base URL", base_url: url)
+        Logger.debug("Resolved IIIF base URL: #{url}")
         {:ok, url}
     end
   end
@@ -94,16 +94,14 @@ defmodule Meadow.Data.Transcriber do
         {:ok, encoded, header_value(headers, "content-type") || "image/jpeg"}
 
       {:ok, %{status_code: status} = response} ->
-        Logger.warning("Failed to fetch IIIF image",
-          status: status,
-          url: base_url,
-          response: Map.get(response, :body)
+        Logger.warning(
+          "Failed to fetch IIIF image #{base_url}: HTTP #{status} #{inspect(response)}"
         )
 
         {:error, {:image_fetch_failed, status, Map.get(response, :body)}}
 
       {:error, reason} ->
-        Logger.warning("HTTP error fetching IIIF image", url: base_url, reason: inspect(reason))
+        Logger.warning("HTTP error fetching IIIF image #{base_url}: #{inspect(reason)}")
         {:error, {:image_fetch_error, reason}}
     end
   end
@@ -204,9 +202,9 @@ defmodule Meadow.Data.Transcriber do
   end
 
   defp invoke_model_with_stream(model_id, body) do
-    Logger.info("Invoking Bedrock streaming endpoint", model_id: model_id)
+    Logger.info("Invoking Bedrock streaming endpoint")
     operation = build_stream_operation(model_id, body)
-    invoke_with_stream(operation, model_id)
+    invoke_with_stream(operation)
   end
 
   defp build_stream_operation(model_id, body) do
@@ -222,29 +220,25 @@ defmodule Meadow.Data.Transcriber do
     %{post | stream_builder: &BedrockStream.stream_objects!(post, nil, &1)}
   end
 
-  defp invoke_with_stream(operation, model_id) do
-    stream = ExAws.stream!(operation, service_override: :bedrock)
-    consume_stream(model_id, stream)
+  defp invoke_with_stream(operation) do
+    ExAws.stream!(operation, service_override: :bedrock)
+    |> consume_stream()
   rescue
     error ->
-      Logger.error("Streaming invocation failed",
-        model_id: model_id,
-        error: Exception.message(error)
-      )
-
+      Logger.error("Streaming invocation failed: #{Exception.message(error)}")
       {:error, {:bedrock_stream_failed, error}}
   end
 
-  defp consume_stream(model_id, stream) do
+  defp consume_stream(stream) do
     {chunks, final_response} = reduce_stream(stream)
 
     case final_response do
       nil ->
-        Logger.debug("Streaming completed without final response payload", model_id: model_id)
+        Logger.debug("Streaming completed without final response payload")
         {:ok, %{}, Enum.reverse(chunks)}
 
       response ->
-        Logger.debug("Streaming completed with final payload", model_id: model_id)
+        Logger.debug("Streaming completed with final payload")
         {:ok, response, Enum.reverse(chunks)}
     end
   end
@@ -252,14 +246,12 @@ defmodule Meadow.Data.Transcriber do
   defp reduce_stream(stream) do
     Enum.reduce(stream, {[], nil}, fn
       {:chunk, chunk}, {acc, _last} ->
-        Logger.debug("Received stream chunk", keys: Map.keys(chunk))
+        Logger.debug("Received stream chunk")
         {[chunk | acc], chunk}
 
       {:bad_chunk, data, reason}, {acc, last} ->
-        Logger.warning("Malformed stream chunk",
-          reason: inspect(reason),
-          data_preview: binary_part(data, 0, min(100, byte_size(data)))
-        )
+        preview = binary_part(data, 0, min(100, byte_size(data)))
+        Logger.warning("Malformed stream chunk (#{inspect(reason)}): #{inspect(preview)}...")
 
         {acc, last}
 
@@ -268,7 +260,7 @@ defmodule Meadow.Data.Transcriber do
         {[chunk | acc], last}
 
       other, {acc, last} ->
-        Logger.debug("Unhandled stream message", message: inspect(other))
+        Logger.debug("Unhandled stream message: #{inspect(other)}")
         {acc, last}
     end)
   end
