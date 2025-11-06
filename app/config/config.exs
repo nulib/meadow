@@ -42,7 +42,25 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id, :lambda, :module, :id]
+  metadata: [
+    :request_id,
+    :lambda,
+    :module,
+    :id,
+    :file_set_id,
+    :base_url,
+    :status,
+    :url,
+    :response,
+    :reason,
+    :model_id,
+    :error,
+    :keys,
+    :data_preview,
+    :message,
+    :headers,
+    :hackney_opts
+  ]
 
 config :meadow,
   ecto_repos: [Meadow.Repo]

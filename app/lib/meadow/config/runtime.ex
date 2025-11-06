@@ -229,7 +229,7 @@ defmodule Meadow.Config.Runtime do
         ),
       iiif_manifest_url_deprecated:
         Path.join(
-          get_secret(:iiif, ["base"]),
+          get_secret(:iiif, ["base"], ""),
           "public/"
         ),
       iiif_distribution_id: get_secret(:iiif, ["distribution_id"]),
@@ -260,6 +260,12 @@ defmodule Meadow.Config.Runtime do
           :meadow,
           ["streaming", "base_url"],
           "https://#{prefix()}-streaming.s3.amazonaws.com/"
+        ),
+      transcriber_model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
         ),
       transcoding_presets: %{
         audio: [
