@@ -166,7 +166,7 @@ defmodule Meadow.Data.Transcriber do
             "toolSpec" => %{
               "name" => "provide_transcription",
               "description" =>
-                "Provide the exact transcribed text from the image without any preamble or explanation.",
+                "Provide the EXACT transcribed text IN FULL from the image without any preamble, explanation, exicision, truncation, or abbreviation.",
               "inputSchema" => %{
                 "json" => %{
                   "type" => "object",

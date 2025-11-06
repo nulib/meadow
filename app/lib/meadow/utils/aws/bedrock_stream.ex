@@ -12,7 +12,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   require Logger
 
   @content_type "application/vnd.amazon.eventstream"
-  @default_timeout 30_000
+  @default_timeout 120_000
 
   @uint32_size 4
   @checksum_size 4
