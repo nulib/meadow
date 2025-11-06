@@ -12,7 +12,9 @@ defmodule Meadow.Data.Schemas.FileSetCoreMetadata do
     field :original_filename
     field :description
     field :label
+    field :alt_text
     field :digests, :map
+    field :image_caption
     field :mime_type
 
     timestamps()
@@ -21,8 +23,10 @@ defmodule Meadow.Data.Schemas.FileSetCoreMetadata do
   def changeset(metadata, params) do
     metadata
     |> cast(params, [
+      :alt_text,
       :description,
       :digests,
+      :image_caption,
       :label,
       :location,
       :mime_type,

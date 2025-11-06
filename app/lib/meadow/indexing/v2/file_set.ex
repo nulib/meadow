@@ -9,6 +9,7 @@ defmodule Meadow.Indexing.V2.FileSet do
   def encode(file_set) do
     %{
       accession_number: file_set.accession_number,
+      alt_text: file_set.core_metadata.alt_text,
       api_link: Path.join([api_url(), "file-sets", file_set.id]),
       api_model: "FileSet",
       create_date: file_set.inserted_at,
@@ -18,6 +19,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       extracted_metadata: extracted_metadata(file_set.extracted_metadata),
       group_with: file_set.group_with,
       id: file_set.id,
+      image_caption: file_set.core_metadata.image_caption,
       indexed_at: NaiveDateTime.utc_now(),
       label: file_set.core_metadata.label,
       mime_type: file_set.core_metadata.mime_type,

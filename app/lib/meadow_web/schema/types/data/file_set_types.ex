@@ -78,6 +78,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_core_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_core_metadata_input do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:label, :string)
     field(:location, :string)
     field(:original_filename, :string)
@@ -93,6 +95,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
   input_object :file_set_core_metadata_update do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:label, :string)
     field(:description, :string)
   end
@@ -154,6 +158,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "`file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
   object :file_set_core_metadata do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:location, :string)
     field(:label, :string)
     field(:mime_type, :string)
