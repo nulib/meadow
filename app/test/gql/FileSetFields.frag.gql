@@ -16,10 +16,12 @@ fragment FileSetFields on FileSet {
     value
   }
   coreMetadata {
+    altText
     description
     digests {
       md5
     }
+    imageCaption
     label
     location
     originalFilename
