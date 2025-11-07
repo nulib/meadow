@@ -66,6 +66,11 @@ defmodule Meadow.Config do
     Application.get_env(:meadow, :streaming_bucket)
   end
 
+  @doc "Retrieve the configured derivatives bucket"
+  def derivatives_bucket do
+    Application.get_env(:meadow, :derivatives_bucket)
+  end
+
   @doc "Retrieve the environment specific URL for the streaming endpoint"
   def streaming_url do
     Application.get_env(:meadow, :streaming_url)

@@ -44,8 +44,8 @@ defmodule Meadow.Data.Transcriber do
            request_body <- build_request_body(file_set.id, encoded_image, mime_type, opts),
            {:ok, response, chunks} <- invoke_model_with_stream(model_id, request_body) do
         Logger.info("Completed transcription job")
-        text = transcription_text(response, chunks)
-        {:ok, %{text: text, raw: response, streamed_chunks: chunks}}
+        %{text: text, languages: languages} = transcription_text(response, chunks)
+        {:ok, %{text: text, languages: languages, raw: response, streamed_chunks: chunks}}
       else
         {:error, reason} = error ->
           Logger.error("Transcription job failed: #{inspect(reason)}")
@@ -164,7 +164,7 @@ defmodule Meadow.Data.Transcriber do
             "toolSpec" => %{
               "name" => "provide_transcription",
               "description" =>
-                "Provide the EXACT transcribed text IN FULL from the image without any preamble, explanation, exicision, truncation, or abbreviation.",
+                "Provide the EXACT transcribed text IN FULL from the image without any preamble, explanation, exicision, truncation, or abbreviation. Also detect the language(s) used in the text.",
               "inputSchema" => %{
                 "json" => %{
                   "type" => "object",
@@ -172,9 +172,14 @@ defmodule Meadow.Data.Transcriber do
                     "transcribed_text" => %{
                       "type" => "string",
                       "description" => "The exact text transcribed from the image"
+                    },
+                    "detected_languages" => %{
+                      "type" => "array",
+                      "items" => %{"type" => "string"},
+                      "description" => "ISO 639 language codes for languages detected in the text (e.g., ['en', 'lg', 'fr'])"
                     }
                   },
-                  "required" => ["transcribed_text"]
+                  "required" => ["transcribed_text", "detected_languages"]
                 }
               }
             }
@@ -265,23 +270,23 @@ defmodule Meadow.Data.Transcriber do
     end)
   end
 
-  defp transcription_text(response, []), do: extract_primary_text(response)
+  defp transcription_text(response, []), do: extract_transcription_data(response)
 
   defp transcription_text(response, chunks) do
-    case extract_primary_text(response) do
-      "" -> extract_text_from_chunks(chunks)
-      text -> text
+    case extract_transcription_data(response) do
+      %{text: ""} -> extract_data_from_chunks(chunks)
+      data -> data
     end
   end
 
   # ConverseStream final events (text extracted from chunks, not final payload)
-  defp extract_primary_text(%{"messageStop" => _}), do: ""
-  defp extract_primary_text(%{"metadata" => _}), do: ""
-  defp extract_primary_text(%{"usage" => _}), do: ""
-  defp extract_primary_text(%{"metrics" => _}), do: ""
-  defp extract_primary_text(_), do: ""
+  defp extract_transcription_data(%{"messageStop" => _}), do: %{text: "", languages: []}
+  defp extract_transcription_data(%{"metadata" => _}), do: %{text: "", languages: []}
+  defp extract_transcription_data(%{"usage" => _}), do: %{text: "", languages: []}
+  defp extract_transcription_data(%{"metrics" => _}), do: %{text: "", languages: []}
+  defp extract_transcription_data(_), do: %{text: "", languages: []}
 
-  defp extract_text_from_chunks(chunks) do
+  defp extract_data_from_chunks(chunks) do
     # Accumulate tool use input chunks
     json_chunks =
       chunks
@@ -291,12 +296,16 @@ defmodule Meadow.Data.Transcriber do
 
     # Try to parse as JSON tool input
     case Jason.decode(json_chunks) do
+      {:ok, %{"transcribed_text" => text, "detected_languages" => languages}} ->
+        %{text: String.trim(text), languages: languages}
+
       {:ok, %{"transcribed_text" => text}} ->
-        String.trim(text)
+        # Fallback if no languages detected (backward compatibility)
+        %{text: String.trim(text), languages: ["en"]}
 
       _ ->
         # Fallback to treating as plain text (for backward compatibility)
-        String.trim(json_chunks)
+        %{text: String.trim(json_chunks), languages: ["en"]}
     end
   end
 
