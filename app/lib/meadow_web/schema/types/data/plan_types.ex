@@ -71,6 +71,17 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Plans.apply_plan/3)
     end
+
+    @desc "Update plan change content (add, replace, delete)"
+    field :update_plan_change, :plan_change do
+      arg(:id, non_null(:id))
+      arg(:add, :json)
+      arg(:replace, :json)
+      arg(:delete, :json)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Plans.update_plan_change/3)
+    end
   end
 
   object :plan_subscriptions do

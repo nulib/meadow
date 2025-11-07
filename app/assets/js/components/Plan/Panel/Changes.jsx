@@ -172,7 +172,10 @@ const PlanPanelChanges = ({ plan, changes, id, target }) => {
             </div>
           </div>
 
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={changes?.planChange || {}}
+            planChangeId={changes?.planChange?.id}
+          />
         </div>
       )}
     </div>

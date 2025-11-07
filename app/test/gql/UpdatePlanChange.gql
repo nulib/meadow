@@ -1,0 +1,9 @@
+mutation UpdatePlanChange($id: ID!, $add: Json, $replace: Json, $delete: Json) {
+  updatePlanChange(id: $id, add: $add, replace: $replace, delete: $delete) {
+    id
+    add
+    replace
+    delete
+    status
+  }
+}

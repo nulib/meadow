@@ -107,6 +107,32 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
     end
   end
 
+  def update_plan_change(_, %{id: id} = args, _) do
+    case Planner.get_plan_change(id) do
+      nil ->
+        {:error, "Plan change not found"}
+
+      plan_change ->
+        # Extract only the fields we want to update
+        attrs =
+          args
+          |> Map.take([:add, :replace, :delete])
+          |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+          |> Map.new()
+
+        case Planner.update_plan_change(plan_change, attrs) do
+          {:ok, updated_change} ->
+            {:ok, updated_change}
+
+          {:error, error_message} when is_binary(error_message) ->
+            {:error, error_message}
+
+          {:error, changeset} ->
+            {:error, message: "Could not update plan change", details: changeset}
+        end
+    end
+  end
+
   defp fetch_plan(plan_id) do
     case Planner.get_plan(plan_id) do
       nil -> {:error, "Plan not found"}

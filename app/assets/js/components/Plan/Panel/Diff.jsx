@@ -1,67 +1,8 @@
-import { Tag } from "@nulib/design-system";
 import React from "react";
-import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
-import { toArray, toRows } from "@js/components/Plan/Panel/diff-helpers";
+import { toRows } from "@js/components/Plan/Panel/diff-helpers";
+import DiffRow from "./DiffRow";
 
-/**
- * Tag indicating the method of change
- */
-const MethodTag = ({ method }) => {
-  let tagProps = {};
-  let text = "";
-
-  switch (method) {
-    case "add":
-      tagProps = { isSuccess: true };
-      text = "Add";
-      break;
-    case "delete":
-      tagProps = { isDanger: true };
-      text = "Delete";
-      break;
-    case "replace":
-      tagProps = { isInfo: true };
-      text = "Replace";
-      break;
-    default:
-      tagProps = {};
-      text = "";
-      break;
-  }
-
-  return (
-    <Tag as="span" {...tagProps}>
-      {text}
-    </Tag>
-  );
-};
-
-/**
- * Render a generic (non-controlled) value
- */
-const renderGenericValue = (value) => {
-  if (value == null) return "—";
-  if (typeof value !== "object") return String(value);
-  if (value instanceof Date) return value.toISOString();
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) return "—";
-    return (
-      <ul>
-        {value.map((v, i) => (
-          <li key={i}>
-            {typeof v === "object" ? JSON.stringify(v, null, 0) : String(v)}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  // Defensively render other objects as JSON
-  return JSON.stringify(value, null, 0);
-};
-
-const PlanPanelChangesDiff = ({ proposedChanges }) => {
+const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
   const changes = [
     ...toRows(proposedChanges.add, "add"),
     ...toRows(proposedChanges.delete, "delete"),
@@ -84,22 +25,12 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
       </thead>
       <tbody>
         {changes.map((change) => (
-          <tr key={change.id} data-method={change.method}>
-            <td>
-              <MethodTag method={change.method} />
-            </td>
-            <td>{change.label}</td>
-            <td>
-              {change.controlled ? (
-                <UIControlledTermList
-                  title={change.label}
-                  items={toArray(change.value)}
-                />
-              ) : (
-                renderGenericValue(change.value)
-              )}
-            </td>
-          </tr>
+          <DiffRow
+            key={change.id}
+            change={change}
+            planChangeId={planChangeId}
+            allProposedChanges={proposedChanges}
+          />
         ))}
       </tbody>
     </table>

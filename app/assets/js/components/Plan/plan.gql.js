@@ -110,6 +110,23 @@ export const UPDATE_PROPOSED_PLAN_CHANGE_STATUSES = gql`
   }
 `;
 
+export const UPDATE_PLAN_CHANGE = gql`
+  mutation updatePlanChange(
+    $id: ID!
+    $add: Json
+    $replace: Json
+    $delete: Json
+  ) {
+    updatePlanChange(id: $id, add: $add, replace: $replace, delete: $delete) {
+      id
+      add
+      replace
+      delete
+      status
+    }
+  }
+`;
+
 export const APPLY_PLAN = gql`
   mutation applyPlan($id: ID!) {
     applyPlan(id: $id) {
