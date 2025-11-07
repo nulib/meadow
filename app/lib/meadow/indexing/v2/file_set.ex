@@ -10,6 +10,7 @@ defmodule Meadow.Indexing.V2.FileSet do
     %{
       accession_number: file_set.accession_number,
       alt_text: file_set.core_metadata.alt_text,
+      annotations: encode_annotations(file_set),
       api_link: Path.join([api_url(), "file-sets", file_set.id]),
       api_model: "FileSet",
       create_date: file_set.inserted_at,
@@ -34,6 +35,32 @@ defmodule Meadow.Indexing.V2.FileSet do
       work_id: file_set.work_id
     }
     |> Meadow.Utils.Map.nillify_empty()
+  end
+
+  defp encode_annotations(file_set) do
+    annotations = FileSets.list_annotations(file_set.id)
+
+    annotations
+    |> Enum.filter(&(&1.status == "completed"))
+    |> Enum.map(fn annotation ->
+      content =
+        case FileSets.read_annotation_content(annotation) do
+          {:ok, content} -> content
+          _ -> nil
+        end
+
+      %{
+        id: annotation.id,
+        type: annotation.type,
+        language: annotation.language,
+        model: annotation.model,
+        content: content
+      }
+    end)
+    |> case do
+      [] -> nil
+      annotations -> annotations
+    end
   end
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])

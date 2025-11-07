@@ -1,0 +1,17 @@
+mutation (
+  $annotationId: ID!
+  $content: String!
+  $language: [String!]
+) {
+  updateFileSetAnnotation(
+    annotationId: $annotationId
+    content: $content
+    language: $language
+  ) {
+    id
+    type
+    language
+    status
+    content
+  }
+}

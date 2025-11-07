@@ -92,7 +92,7 @@ defmodule Meadow.Config.Runtime do
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
       port: get_secret(:meadow, ["db", "port"]),
       publication: "events",
-      subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
+      subscriptions: ["works", "file_sets", "file_set_annotations", "collections", "ingest_sheets", "projects"],
       modules: [
         Meadow.Events.FileSets.Cleanup,
         Meadow.Events.FileSets.StructuralMetadata,
@@ -372,7 +372,8 @@ defmodule Meadow.Config.Runtime do
       upload_bucket: get_secret(:meadow, ["buckets", "upload"], prefix("uploads")),
       preservation_check_bucket:
         get_secret(:meadow, ["buckets", "preservation_check"], prefix("preservation-checks")),
-      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming"))
+      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming")),
+      derivatives_bucket: get_secret(:meadow, ["buckets", "derivatives"], prefix("derivatives"))
     ]
   end
 end

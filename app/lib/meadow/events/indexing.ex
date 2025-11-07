@@ -48,6 +48,10 @@ defmodule Meadow.Events.Indexing do
     IndexBatcher.reindex([collection_id], :collections)
   end
 
+  defp do_insert_indexing(%{file_set_id: file_set_id}, :file_set_annotations) do
+    IndexBatcher.reindex([file_set_id], :file_sets)
+  end
+
   defp do_insert_indexing(_, _), do: :noop
 
   defp do_update_indexing(%{id: id}, :collections, changes) do
@@ -76,6 +80,10 @@ defmodule Meadow.Events.Indexing do
     end
   end
 
+  defp do_update_indexing(%{file_set_id: file_set_id}, :file_set_annotations, _changes) do
+    IndexBatcher.reindex([file_set_id], :file_sets)
+  end
+
   defp do_update_indexing(%{id: id}, :ingest_sheets, changes) do
     if Map.keys(changes) |> Enum.member?(:title) do
       from(w in Work, where: w.ingest_sheet_id == ^id)
@@ -94,6 +102,10 @@ defmodule Meadow.Events.Indexing do
 
   defp do_delete_indexing(%{work_id: work_id}, :file_sets) do
     IndexBatcher.reindex([work_id], :works)
+  end
+
+  defp do_delete_indexing(%{file_set_id: file_set_id}, :file_set_annotations) do
+    IndexBatcher.reindex([file_set_id], :file_sets)
   end
 
   defp do_delete_indexing(%{collection_id: collection_id}, :works)
