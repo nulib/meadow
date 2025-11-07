@@ -92,6 +92,17 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     end
   end
 
+  object :file_set_subscriptions do
+    @desc "Subscription for file set annotation updates"
+    field :file_set_annotation, :file_set_annotation do
+      arg(:file_set_id, non_null(:id))
+
+      config(fn args, _ ->
+        {:ok, topic: args.file_set_id}
+      end)
+    end
+  end
+
   #
   # Input Object Types
   #

@@ -94,6 +94,7 @@ defmodule Meadow.Config.Runtime do
       publication: "events",
       subscriptions: ["works", "file_sets", "file_set_annotations", "collections", "ingest_sheets", "projects"],
       modules: [
+        Meadow.Events.FileSets.Annotations,
         Meadow.Events.FileSets.Cleanup,
         Meadow.Events.FileSets.StructuralMetadata,
         Meadow.Events.IngestSheets.SheetUpdates,
@@ -101,7 +102,7 @@ defmodule Meadow.Config.Runtime do
         Meadow.Events.Indexing
       ],
       name: Meadow,
-      slot_name: "meadow_#{prefix()}",
+      slot_name: String.replace("meadow_#{prefix()}", "-", "_"),
       durable_slot: true
 
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
