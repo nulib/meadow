@@ -173,7 +173,7 @@ defmodule MeadowWeb.Resolvers.Data do
       {:error, :not_found} ->
         {:error, message: "Annotation not found"}
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:error, message: "Could not update annotation", details: ChangesetErrors.humanize_errors(changeset)}
 
       {:error, reason} ->
