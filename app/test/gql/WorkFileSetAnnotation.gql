@@ -1,0 +1,9 @@
+subscription WorkFileSetAnnotation($workId: ID!) {
+  workFileSetAnnotation(workId: $workId) {
+    id
+    type
+    language
+    status
+    content
+  }
+}
