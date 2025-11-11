@@ -11,7 +11,8 @@ const createPyramidTiff = (source, dest) => {
       let metadata;
       const transformStream = sharp({
         limitInputPixels: false,
-        sequentialRead: true
+        sequentialRead: true,
+        unlimited: true
       })
       .removeAlpha()
       .resize({
