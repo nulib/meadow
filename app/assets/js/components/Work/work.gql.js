@@ -247,7 +247,9 @@ export const GET_WORK = gql`
         id
         accessionNumber
         coreMetadata {
+          altText
           description
+          imageCaption
           label
           location
           mimeType
@@ -315,7 +317,9 @@ export const GET_WORKS = gql`
         }
         accessionNumber
         coreMetadata {
+          altText
           description
+          imageCaption
           originalFilename
           location
           label

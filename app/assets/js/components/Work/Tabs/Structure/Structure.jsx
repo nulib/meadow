@@ -179,6 +179,8 @@ const WorkTabsStructure = ({ work }) => {
         coreMetadata: {
           label: data[id].label,
           description: data[id].description,
+          altText: data[id].altText,
+          imageCaption: data[id].imageCaption,
         },
       });
     }
