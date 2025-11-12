@@ -16,7 +16,7 @@ defmodule Meadow.Repo.Migrations.CreatePublicationEvents do
   def down do
     # Reset REPLICA IDENTITY to default
     Enum.each(@tables, fn table ->
-      execute("ALTER TABLE #{table} REPLICA IDENTITY FULL")
+      execute("ALTER TABLE #{table} REPLICA IDENTITY DEFAULT")
     end)
 
     execute("DROP PUBLICATION IF EXISTS events")

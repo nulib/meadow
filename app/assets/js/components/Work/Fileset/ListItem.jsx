@@ -148,6 +148,36 @@ function WorkFilesetListItem({
             )}
           </UIFormField>
 
+          <UIFormField label="Alt Text">
+            {isEditing ? (
+              <UIFormInput
+                isReactHookForm
+                label="Alt Text"
+                name={`${id}.altText`}
+                data-testid="input-alt-text"
+                placeholder="Alt Text"
+                defaultValue={coreMetadata.altText}
+              />
+            ) : (
+              <p>{coreMetadata.altText}</p>
+            )}
+          </UIFormField>
+
+          <UIFormField label="Image Caption">
+            {isEditing ? (
+              <UIFormTextarea
+                isReactHookForm
+                name={`${id}.imageCaption`}
+                data-testid="textarea-metadata-image-caption"
+                defaultValue={coreMetadata.imageCaption}
+                label="Image Caption"
+                rows="2"
+              />
+            ) : (
+              <p>{coreMetadata.imageCaption}</p>
+            )}
+          </UIFormField>
+
           <UIFormField label="Accession Number">
             <p>{accessionNumber}</p>
           </UIFormField>

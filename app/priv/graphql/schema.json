@@ -1,7 +1,6 @@
 {
   "data": {
     "__schema": {
-      "description": null,
       "directives": [
         {
           "args": [
@@ -17,7 +16,6 @@
             }
           ],
           "description": "Marks an element of a GraphQL schema as no longer supported.",
-          "isRepeatable": false,
           "locations": [
             "ARGUMENT_DEFINITION",
             "ENUM_VALUE",
@@ -44,7 +42,6 @@
             }
           ],
           "description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
-          "isRepeatable": false,
           "locations": [
             "FIELD",
             "FRAGMENT_SPREAD",
@@ -70,7 +67,6 @@
             }
           ],
           "description": "Directs the executor to skip this field or fragment when the `if` argument is true.",
-          "isRepeatable": false,
           "locations": [
             "FIELD",
             "FRAGMENT_SPREAD",
@@ -96,7 +92,6 @@
             }
           ],
           "description": "Exposes a URL that specifies the behavior of this scalar.",
-          "isRepeatable": false,
           "locations": [
             "SCALAR"
           ],
@@ -3045,6 +3040,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "stats",
+              "type": {
+                "kind": "OBJECT",
+                "name": "CollectionStats",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "title",
               "type": {
                 "kind": "SCALAR",
@@ -3054,9 +3061,9 @@
             },
             {
               "args": [],
-              "deprecationReason": null,
+              "deprecationReason": "Use `stats.total`.",
               "description": null,
-              "isDeprecated": false,
+              "isDeprecated": true,
               "name": "totalWorks",
               "type": {
                 "kind": "SCALAR",
@@ -3097,6 +3104,89 @@
           "interfaces": [],
           "kind": "OBJECT",
           "name": "Collection",
+          "possibleTypes": null
+        },
+        {
+          "description": "Stats for a `collection` object",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "audio",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "image",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "published",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "total",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "unpublished",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "video",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "CollectionStats",
           "possibleTypes": null
         },
         {
@@ -3943,6 +4033,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "altText",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "description",
               "type": {
                 "kind": "SCALAR",
@@ -3959,6 +4061,18 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Digests",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "imageCaption",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -4025,7 +4139,27 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "altText",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "description",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "imageCaption",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -4076,7 +4210,27 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "altText",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "description",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "imageCaption",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -5914,6 +6068,85 @@
               "args": [
                 {
                   "defaultValue": null,
+                  "description": "Required when create_work is false. Accession number of the target work",
+                  "name": "accessionNumber",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "true = create new work, false = transfer to existing work",
+                  "name": "createWork",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
+                  }
+                },
+                {
+                  "defaultValue": "true",
+                  "description": "Whether to delete source works that become empty after transfer (default: true)",
+                  "name": "deleteEmptyWorks",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "List of file set IDs to transfer",
+                  "name": "filesetIds",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "SCALAR",
+                          "name": "ID",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Required when create_work is true. Complete work definition including metadata",
+                  "name": "workAttributes",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "WorkAttributesInput",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Transfer a subset of file sets to an existing work or create a new work with comprehensive metadata",
+              "isDeprecated": false,
+              "name": "transferFileSetsSubset",
+              "type": {
+                "kind": "OBJECT",
+                "name": "TransferFileSetsResult",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
                   "description": null,
                   "name": "fileSetIds",
                   "type": {
@@ -6722,6 +6955,16 @@
                       "name": "ID",
                       "ofType": null
                     }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "limit",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
                   }
                 },
                 {
@@ -8453,6 +8696,49 @@
           "possibleTypes": null
         },
         {
+          "description": "Result of transferring file sets",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "createdWorkId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "transferredFilesetIds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "TransferFileSetsResult",
+          "possibleTypes": null
+        },
+        {
           "description": null,
           "enumValues": null,
           "fields": [
@@ -9135,6 +9421,115 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "WorkAdministrativeMetadataInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "Complete work definition for creating a new work during file set transfer",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "Unique identifier for the work",
+              "name": "accessionNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Administrative metadata (project info, library unit, etc.)",
+              "name": "administrativeMetadata",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "WorkAdministrativeMetadataInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Behavior setting for the work",
+              "name": "behavior",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "CodedTermInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Optional collection to add the work to",
+              "name": "collectionId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Rich descriptive metadata (title, description, etc.)",
+              "name": "descriptiveMetadata",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "WorkDescriptiveMetadataInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Optional ingest sheet reference",
+              "name": "ingestSheetId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Whether the work should be published (default: false)",
+              "name": "published",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Visibility setting (default: RESTRICTED)",
+              "name": "visibility",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "CodedTermInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Work type (e.g., 'IMAGE', 'AUDIO', 'VIDEO')",
+              "name": "workType",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "WorkAttributesInput",
           "possibleTypes": null
         },
         {

@@ -9,7 +9,7 @@ defmodule Meadow.Data.FileSets do
   alias Ecto.Multi
 
   alias Meadow.Config
-  alias Meadow.Data.Schemas.FileSet
+  alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -470,4 +470,264 @@ defmodule Meadow.Data.FileSets do
   def auxiliary?(_), do: false
   def supplemental?(%{role: %{id: "S"}}), do: true
   def supplemental?(_), do: false
+
+  @doc """
+  Get the S3 location for an annotation file.
+
+  ## Examples
+
+      iex> annotation_location(%FileSetAnnotation{id: "123", file_set_id: "456", type: "transcription"})
+      "s3://bucket-name/annotations/45/6-/transcription-123.txt"
+
+  """
+  def annotation_location(%FileSetAnnotation{id: id, file_set_id: file_set_id, type: type}) do
+    dest_bucket = Config.derivatives_bucket()
+    dest_key = annotation_key(file_set_id, id, type)
+    %URI{scheme: "s3", host: dest_bucket, path: "/#{dest_key}"} |> URI.to_string()
+  end
+
+  @doc """
+  Get the S3 key (path) for an annotation file.
+  """
+  def annotation_key(file_set_id, annotation_id, type) do
+    # Using pairtree for file_set_id to avoid too many files in one directory
+    pairtree = Pairtree.generate!(file_set_id)
+    "annotations/#{pairtree}/#{type}-#{annotation_id}.txt"
+  end
+
+  @doc """
+  Write annotation content to S3.
+
+  ## Examples
+
+      iex> write_annotation_content(%FileSetAnnotation{}, "This is the transcription text")
+      {:ok, "s3://bucket/path/to/file.txt"}
+
+  """
+  def write_annotation_content(%FileSetAnnotation{} = annotation, content) when is_binary(content) do
+    location = annotation_location(annotation)
+    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
+
+    case ExAws.S3.put_object(bucket, key, content, content_type: "text/plain; charset=utf-8")
+         |> ExAws.request() do
+      {:ok, _} -> {:ok, location}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Read annotation content from S3.
+
+  ## Examples
+
+      iex> read_annotation_content(%FileSetAnnotation{s3_location: "s3://..."})
+      {:ok, "This is the transcription text"}
+
+  """
+  def read_annotation_content(%FileSetAnnotation{s3_location: location}) when is_binary(location) do
+    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
+
+    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
+      {:ok, %{body: body}} -> {:ok, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def read_annotation_content(_), do: {:error, :no_s3_location}
+
+  @doc """
+  Transcribes a file set using AI and stores the result as an annotation.
+
+  This function creates an annotation record with status "pending" and kicks off
+  the transcription process in the background. The annotation is returned immediately
+  so the client can monitor its status via subscription.
+
+  ## Options
+
+    * `:language` - Language codes for the transcription (default: ["en"])
+    * `:model` - AI model identifier (default: from config)
+    * `:prompt` - Custom prompt for transcription
+    * `:max_tokens` - Maximum tokens for generation
+
+  ## Examples
+
+      iex> transcribe_file_set("file-set-id")
+      {:ok, %FileSetAnnotation{status: "pending", id: "..."}}
+
+      iex> transcribe_file_set("invalid-id")
+      {:error, reason}
+
+  """
+  def transcribe_file_set(file_set_id, opts \\ []) when is_binary(file_set_id) do
+    with {:ok, file_set} <- fetch_file_set_for_transcription(file_set_id),
+         {:ok, annotation} <- create_pending_annotation(file_set, opts) do
+      # Kick off transcription in background
+      Task.start(fn -> process_transcription(annotation, opts) end)
+      {:ok, annotation}
+    end
+  end
+
+  defp process_transcription(annotation, opts) do
+    alias Meadow.Data.Transcriber
+
+    # Update to in_progress
+    {:ok, annotation} = update_annotation(annotation, %{status: "in_progress"})
+
+    case Transcriber.transcribe(annotation.file_set_id, opts) do
+      {:ok, transcription} ->
+        case write_annotation_content(annotation, transcription.text) do
+          {:ok, s3_location} ->
+            update_annotation(annotation, %{
+              status: "completed",
+              s3_location: s3_location,
+              language: transcription.languages
+            })
+
+          {:error, _reason} ->
+            update_annotation(annotation, %{status: "error"})
+        end
+
+      {:error, _reason} ->
+        update_annotation(annotation, %{status: "error"})
+    end
+  end
+
+  defp fetch_file_set_for_transcription(file_set_id) do
+    case Repo.get(FileSet, file_set_id) |> Repo.preload(work: []) do
+      nil ->
+        {:error, :file_set_not_found}
+
+      %FileSet{role: %{id: role_id}} when role_id != "A" ->
+        {:error, :invalid_role}
+
+      %FileSet{work: %{work_type: %{id: work_type_id}}} when work_type_id != "IMAGE" ->
+        {:error, :invalid_work_type}
+
+      %FileSet{} = file_set ->
+        {:ok, file_set}
+    end
+  end
+
+  defp create_pending_annotation(file_set, opts) do
+    model = Keyword.get(opts, :model, Application.get_env(:meadow, :transcriber_model))
+    language = Keyword.get(opts, :language, ["en"])
+
+    create_annotation(file_set, %{
+      type: "transcription",
+      status: "pending",
+      language: language,
+      model: model
+    })
+  end
+
+  @doc """
+  Updates the content of an annotation in S3 and updates the annotation record.
+
+  ## Options
+
+    * `:language` - List of ISO 639 language codes to update
+
+  ## Examples
+
+      iex> update_annotation_content("annotation-id", "Updated transcription text")
+      {:ok, %FileSetAnnotation{}}
+
+      iex> update_annotation_content("annotation-id", "text", %{language: ["lg", "en"]})
+      {:ok, %FileSetAnnotation{}}
+
+      iex> update_annotation_content("invalid-id", "text")
+      {:error, :not_found}
+
+  """
+  def update_annotation_content(annotation_id, content, opts \\ %{}) when is_binary(content) do
+    case get_annotation(annotation_id) do
+      nil ->
+        {:error, :not_found}
+
+      annotation ->
+        update_attrs = %{s3_location: nil}
+        update_attrs = if opts[:language], do: Map.put(update_attrs, :language, opts[:language]), else: update_attrs
+
+        with {:ok, s3_location} <- write_annotation_content(annotation, content) do
+          update_annotation(annotation, Map.put(update_attrs, :s3_location, s3_location))
+        end
+    end
+  end
+
+  @doc """
+  Creates an annotation for a file set.
+
+  ## Examples
+
+      iex> create_annotation(%FileSet{id: "123"}, %{type: "transcription", status: "pending"})
+      {:ok, %FileSetAnnotation{}}
+
+      iex> create_annotation(%FileSet{id: "123"}, %{type: nil})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_annotation(%FileSet{id: file_set_id}, attrs) do
+    attrs
+    |> Map.put(:file_set_id, file_set_id)
+    |> create_annotation()
+  end
+
+  def create_annotation(attrs) when is_map(attrs) do
+    %FileSetAnnotation{}
+    |> FileSetAnnotation.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Gets an annotation by id.
+  """
+  def get_annotation(id), do: Repo.get(FileSetAnnotation, id)
+
+  @doc """
+  Gets an annotation by id, raising if not found.
+  """
+  def get_annotation!(id), do: Repo.get!(FileSetAnnotation, id)
+
+  @doc """
+  Lists all annotations for a file set.
+
+  ## Examples
+
+      iex> list_annotations(%FileSet{id: "123"})
+      [%FileSetAnnotation{}, ...]
+
+      iex> list_annotations("file-set-id")
+      [%FileSetAnnotation{}, ...]
+
+  """
+  def list_annotations(%FileSet{id: file_set_id}) do
+    list_annotations(file_set_id)
+  end
+
+  def list_annotations(file_set_id) when is_binary(file_set_id) do
+    from(a in FileSetAnnotation, where: a.file_set_id == ^file_set_id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Updates an annotation.
+
+  ## Examples
+
+      iex> update_annotation(%FileSetAnnotation{}, %{status: "completed"})
+      {:ok, %FileSetAnnotation{}}
+
+  """
+  def update_annotation(%FileSetAnnotation{} = annotation, attrs) do
+    annotation
+    |> FileSetAnnotation.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes an annotation.
+  """
+  def delete_annotation(%FileSetAnnotation{} = annotation) do
+    Repo.delete(annotation)
+  end
 end

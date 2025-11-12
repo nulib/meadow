@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import WorkFilesetListItem from "@js/components/Work/Fileset/ListItem";
 import WorkFilesetDraggable from "@js/components/Work/Fileset/Draggable";
 import WorkTabsStructureWebVTTModal from "@js/components/Work/Tabs/Structure/WebVTTModal";
-import UIFormField from "@js/components/UI/Form/Field";
-import UIFormSelect from "@js/components/UI/Form/Select";
 import { useWorkState } from "@js/context/work-context";
 import { Droppable } from "react-beautiful-dnd";
-import { useCodeLists } from "@js/context/code-list-context";
-import { useMutation } from "@apollo/client";
-import { UPDATE_WORK } from "../work.gql.js";
-import { toastWrapper } from "../../../services/helpers";
 
 function SubHead({ children }) {
   return <h3 className="my-4 ml-5 is-size-5">{children}</h3>;
@@ -25,49 +19,11 @@ function WorkFilesetList({
   work,
 }) {
   const { webVttModal } = useWorkState();
-  const codeLists = useCodeLists();
-  const [behaviors, setBehaviors] = useState([])
 
   const uniqueGroupWithValues = fileSets.access
     .filter((fs) => fs.group_with !== null)
     .map((fs) => fs.group_with)
     .filter((value, index, self) => self.indexOf(value) === index);
-
-  const [updateWork, { _loading, _error, _data }] = useMutation(UPDATE_WORK, {
-      onCompleted({ updateWork }) {
-        toastWrapper("is-success", "Work behavior updated successfully");
-      },
-      onError(error) {
-        toastWrapper("is-danger", "Error updating work behavior");
-        console.error("Error updating work behavior", error);
-      },
-    }
-  );
-
-  function handleBehaviorChange(e) {
-    const id = e.target.value;
-    if(!id) {
-      toastWrapper("is-warning", "Please select a valid behavior");
-      return;
-    }
-    updateWork({
-      variables: {
-        id: work.id,
-        work: {
-          behavior: {
-            id,
-            scheme: "BEHAVIOR",
-          }
-        }
-      }
-    })
-  }
-
-  useEffect(()=> {
-    if(codeLists.behaviorData) {
-      setBehaviors(codeLists.behaviorData.codeList)
-    }
-  }, [codeLists.behaviorData])
 
   if (isReordering) {
     return (
@@ -114,21 +70,6 @@ function WorkFilesetList({
       {/* Access Files  */}
       <div data-testid="fileset-list" className="mb-5">
         <SubHead>Access files</SubHead>
-        <UIFormField label="Behavior" data-testid="behavior-wrapper">
-          {
-            behaviors.length > 0 && (
-              <UIFormSelect
-                data-testid="behavior-select"
-                name="behavior"
-                label="Behavior"
-                showHelper={!work?.behavior}
-                options={behaviors}
-                defaultValue={work?.behavior?.id}
-                onChange={(e) => handleBehaviorChange(e)}
-              />
-            )
-          }
-        </UIFormField>
         {fileSets.access
           .filter((fileSet) => !fileSet.group_with)
           .map((fileSet) => {

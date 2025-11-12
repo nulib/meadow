@@ -23,48 +23,6 @@ useIsAuthorized.mockReturnValue({
 });
 
 describe("WorkFilesetList component", () => {
-  it("renders the behavior dropdow with no behavior", async () => {
-    renderWithRouterApollo(
-      <CodeListProvider>
-          <WorkProvider>
-            {withReactBeautifulDND(WorkFilesetList, {
-              fileSets: { access: mockFileSets, auxiliary: [] },
-              isReordering: false,
-              work: mockWork,
-            })}
-          </WorkProvider>
-      </CodeListProvider>,
-      {
-        mocks: allCodeListMocks,
-      }
-    );
-    await waitFor(() => {
-      expect(screen.getByTestId("behavior-select"));
-      expect(screen.getByTestId("behavior-select").value).toBe("");
-    });
-  });
-
-  it("renders the behavior dropdown with no work behavior", async () => {
-    renderWithRouterApollo(
-      <CodeListProvider>
-          <WorkProvider>
-            {withReactBeautifulDND(WorkFilesetList, {
-              fileSets: { access: mockFileSets, auxiliary: [] },
-              isReordering: false,
-              work: mockWork2,
-            })}
-          </WorkProvider>
-      </CodeListProvider>,
-      {
-        mocks: allCodeListMocks,
-      }
-    );
-    await waitFor(() => {
-      expect(screen.getByTestId("behavior-select"));
-      expect(screen.getByTestId("behavior-select").value).toBe("individuals");
-    });
-  });
-
   it("renders a draggable list component if re-ordering the list", async () => {
     renderWithRouterApollo(
       <CodeListProvider>

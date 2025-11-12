@@ -200,6 +200,11 @@ resource "aws_s3_bucket" "meadow_preservation_checks" {
   tags   = var.tags
 }
 
+resource "aws_s3_bucket" "meadow_derivatives" {
+  bucket = "${var.stack_name}-${var.environment}-derivatives"
+  tags   = var.tags
+}
+
 resource "aws_s3_bucket" "meadow_streaming" {
   bucket = "${var.stack_name}-${var.environment}-streaming"
   tags   = var.tags
@@ -320,6 +325,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       aws_s3_bucket.meadow_uploads.arn,
       aws_s3_bucket.meadow_preservation.arn,
       aws_s3_bucket.meadow_preservation_checks.arn,
+      aws_s3_bucket.meadow_derivatives.arn,
       aws_s3_bucket.meadow_streaming.arn,
       data.aws_s3_bucket.pyramid_bucket.arn,
       data.aws_s3_bucket.digital_collections_bucket.arn
@@ -344,6 +350,7 @@ data "aws_iam_policy_document" "this_bucket_access" {
       "${aws_s3_bucket.meadow_uploads.arn}/*",
       "${aws_s3_bucket.meadow_preservation.arn}/*",
       "${aws_s3_bucket.meadow_preservation_checks.arn}/*",
+      "${aws_s3_bucket.meadow_derivatives.arn}/*",
       "${aws_s3_bucket.meadow_streaming.arn}/*",
       "${data.aws_s3_bucket.pyramid_bucket.arn}/*",
       "${data.aws_s3_bucket.digital_collections_bucket.arn}/*"

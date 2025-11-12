@@ -142,6 +142,48 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def transcribe_file_set(_, args, _) do
+    opts =
+      []
+      |> maybe_add_opt(:language, args[:language])
+      |> maybe_add_opt(:model, args[:model])
+
+    case FileSets.transcribe_file_set(args[:file_set_id], opts) do
+      {:ok, annotation} ->
+        {:ok, annotation}
+
+      {:error, :invalid_role} ->
+        {:error, message: "Transcription is only available for Access (A) file sets"}
+
+      {:error, :invalid_work_type} ->
+        {:error, message: "Transcription is only available for Image works"}
+
+      {:error, reason} ->
+        {:error, message: "Could not transcribe file_set", details: inspect(reason)}
+    end
+  end
+
+  def update_file_set_annotation(_, args, _) do
+    opts = if args[:language], do: %{language: args[:language]}, else: %{}
+
+    case FileSets.update_annotation_content(args[:annotation_id], args[:content], opts) do
+      {:ok, annotation} ->
+        {:ok, annotation}
+
+      {:error, :not_found} ->
+        {:error, message: "Annotation not found"}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, message: "Could not update annotation", details: ChangesetErrors.humanize_errors(changeset)}
+
+      {:error, reason} ->
+        {:error, message: "Could not update annotation", details: inspect(reason)}
+    end
+  end
+
+  defp maybe_add_opt(opts, _key, nil), do: opts
+  defp maybe_add_opt(opts, key, value), do: Keyword.put(opts, key, value)
+
   def list_ingest_bucket_objects(_, %{prefix: prefix}, _) do
     prefix =
       cond do

@@ -124,6 +124,17 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     end
   end
 
+  object :work_subscriptions do
+    @desc "Subscription for annotation updates for all file sets within a work"
+    field :work_file_set_annotation, :file_set_annotation do
+      arg(:work_id, non_null(:id))
+
+      config(fn args, _ ->
+        {:ok, topic: args.work_id}
+      end)
+    end
+  end
+
   @desc "Result of transferring file sets"
   object :transfer_file_sets_result do
     field(:transferred_fileset_ids, non_null(list_of(:string)))

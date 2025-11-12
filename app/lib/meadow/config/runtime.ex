@@ -93,8 +93,9 @@ defmodule Meadow.Config.Runtime do
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
       port: get_secret(:meadow, ["db", "port"]),
       publication: "events",
-      subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
+      subscriptions: ["works", "file_sets", "file_set_annotations", "collections", "ingest_sheets", "projects"],
       modules: [
+        Meadow.Events.FileSets.Annotations,
         Meadow.Events.FileSets.Cleanup,
         Meadow.Events.FileSets.StructuralMetadata,
         Meadow.Events.IngestSheets.SheetUpdates,
@@ -102,7 +103,7 @@ defmodule Meadow.Config.Runtime do
         Meadow.Events.Indexing
       ],
       name: Meadow,
-      slot_name: "meadow_#{prefix()}",
+      slot_name: String.replace("meadow_#{prefix()}", "-", "_"),
       durable_slot: true
 
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
@@ -268,6 +269,12 @@ defmodule Meadow.Config.Runtime do
           ["streaming", "base_url"],
           "https://#{prefix()}-streaming.s3.amazonaws.com/"
         ),
+      transcriber_model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        ),
       transcoding_presets: %{
         audio: [
           %{NameModifier: "-high", Preset: "meadow-audio-high"},
@@ -385,7 +392,8 @@ defmodule Meadow.Config.Runtime do
       upload_bucket: get_secret(:meadow, ["buckets", "upload"], prefix("uploads")),
       preservation_check_bucket:
         get_secret(:meadow, ["buckets", "preservation_check"], prefix("preservation-checks")),
-      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming"))
+      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming")),
+      derivatives_bucket: get_secret(:meadow, ["buckets", "derivatives"], prefix("derivatives"))
     ]
   end
 
