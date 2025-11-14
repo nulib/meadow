@@ -1,6 +1,6 @@
 /* eslint-disable */
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
 };
@@ -295,10 +295,23 @@ export type Collection = {
   /** @deprecated Use  `representativeWork`. */
   representativeImage?: Maybe<Scalars["String"]["output"]>;
   representativeWork?: Maybe<Work>;
+  stats?: Maybe<CollectionStats>;
   title?: Maybe<Scalars["String"]["output"]>;
+  /** @deprecated Use `stats.total`. */
   totalWorks?: Maybe<Scalars["Int"]["output"]>;
   visibility?: Maybe<CodedTerm>;
   works?: Maybe<Array<Maybe<Work>>>;
+};
+
+/** Stats for a `collection` object */
+export type CollectionStats = {
+  __typename?: "CollectionStats";
+  audio?: Maybe<Scalars["Int"]["output"]>;
+  image?: Maybe<Scalars["Int"]["output"]>;
+  published?: Maybe<Scalars["Int"]["output"]>;
+  total?: Maybe<Scalars["Int"]["output"]>;
+  unpublished?: Maybe<Scalars["Int"]["output"]>;
+  video?: Maybe<Scalars["Int"]["output"]>;
 };
 
 /** Controlled metadata entry */
@@ -416,8 +429,10 @@ export type FileSet = {
 /** `file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field. */
 export type FileSetCoreMetadata = {
   __typename?: "FileSetCoreMetadata";
+  altText?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   digests?: Maybe<Digests>;
+  imageCaption?: Maybe<Scalars["String"]["output"]>;
   label?: Maybe<Scalars["String"]["output"]>;
   location?: Maybe<Scalars["String"]["output"]>;
   mimeType?: Maybe<Scalars["String"]["output"]>;
@@ -426,7 +441,9 @@ export type FileSetCoreMetadata = {
 
 /** Same as `file_set_core_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field. */
 export type FileSetCoreMetadataInput = {
+  altText?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  imageCaption?: InputMaybe<Scalars["String"]["input"]>;
   label?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
   originalFilename?: InputMaybe<Scalars["String"]["input"]>;
@@ -434,7 +451,9 @@ export type FileSetCoreMetadataInput = {
 
 /** Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field. */
 export type FileSetCoreMetadataUpdate = {
+  altText?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  imageCaption?: InputMaybe<Scalars["String"]["input"]>;
   label?: InputMaybe<Scalars["String"]["input"]>;
 };
 
@@ -654,6 +673,8 @@ export type RootMutationType = {
   setWorkImage?: Maybe<Work>;
   /** Swap file sets from one work to another */
   transferFileSets?: Maybe<Work>;
+  /** Transfer a subset of file sets to an existing work or create a new work with comprehensive metadata */
+  transferFileSetsSubset?: Maybe<TransferFileSetsResult>;
   /** Change the order of a work's access files */
   updateAccessFileOrder?: Maybe<Work>;
   /** Update a Collection */
@@ -806,6 +827,14 @@ export type RootMutationTypeTransferFileSetsArgs = {
   toWorkId: Scalars["ID"]["input"];
 };
 
+export type RootMutationTypeTransferFileSetsSubsetArgs = {
+  accessionNumber?: InputMaybe<Scalars["String"]["input"]>;
+  createWork: Scalars["Boolean"]["input"];
+  deleteEmptyWorks?: InputMaybe<Scalars["Boolean"]["input"]>;
+  filesetIds: Array<Scalars["ID"]["input"]>;
+  workAttributes?: InputMaybe<WorkAttributesInput>;
+};
+
 export type RootMutationTypeUpdateAccessFileOrderArgs = {
   fileSetIds?: InputMaybe<Array<InputMaybe<Scalars["ID"]["input"]>>>;
   workId: Scalars["ID"]["input"];
@@ -946,6 +975,7 @@ export type RootQueryTypeActionStatesArgs = {
 
 export type RootQueryTypeAuthoritiesSearchArgs = {
   authority: Scalars["ID"]["input"];
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
   query: Scalars["String"]["input"];
 };
 
@@ -1174,6 +1204,13 @@ export enum StructuralMetadataType {
   Webvtt = "WEBVTT",
 }
 
+/** Result of transferring file sets */
+export type TransferFileSetsResult = {
+  __typename?: "TransferFileSetsResult";
+  createdWorkId?: Maybe<Scalars["String"]["output"]>;
+  transferredFilesetIds: Array<Maybe<Scalars["String"]["output"]>>;
+};
+
 export type Url = {
   __typename?: "Url";
   url: Scalars["String"]["output"];
@@ -1255,6 +1292,28 @@ export type WorkAdministrativeMetadataInput = {
   projectProposer?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
   projectTaskNumber?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
   status?: InputMaybe<CodedTermInput>;
+};
+
+/** Complete work definition for creating a new work during file set transfer */
+export type WorkAttributesInput = {
+  /** Unique identifier for the work */
+  accessionNumber: Scalars["String"]["input"];
+  /** Administrative metadata (project info, library unit, etc.) */
+  administrativeMetadata?: InputMaybe<WorkAdministrativeMetadataInput>;
+  /** Behavior setting for the work */
+  behavior?: InputMaybe<CodedTermInput>;
+  /** Optional collection to add the work to */
+  collectionId?: InputMaybe<Scalars["ID"]["input"]>;
+  /** Rich descriptive metadata (title, description, etc.) */
+  descriptiveMetadata?: InputMaybe<WorkDescriptiveMetadataInput>;
+  /** Optional ingest sheet reference */
+  ingestSheetId?: InputMaybe<Scalars["ID"]["input"]>;
+  /** Whether the work should be published (default: false) */
+  published?: InputMaybe<Scalars["Boolean"]["input"]>;
+  /** Visibility setting (default: RESTRICTED) */
+  visibility?: InputMaybe<CodedTermInput>;
+  /** Work type (e.g., 'IMAGE', 'AUDIO', 'VIDEO') */
+  workType: Scalars["String"]["input"];
 };
 
 /** `work_descriptive_metadata` represents all descriptive metadata associated with a work object. */
