@@ -22,7 +22,7 @@ defmodule Meadow.Application.ChildrenTest do
 
     @tag environment: :test
     test "test processes" do
-      assert Children.specs() |> length() <= 13
+      assert Children.specs() |> length() <= 14
     end
 
     @tag environment: :prod

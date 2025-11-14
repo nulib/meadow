@@ -24,6 +24,10 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
 
     Context data: {json.dumps(context_data, indent=2)}
 
+    CRITICAL: While processing the plan, you and the subagent MUST provide progress updates using the send_status_update tool.
+    Updates should be short (3-5 words), user-friendly progress messages, suitable for displaying in the UI to update the user on the 
+    progress of the plan.
+
     IMPORTANT: For controlled vocabulary fields like subject headings, creator names, genres, etc.,
     the subagent MUST use the authoritiesSearch GraphQL query to find valid controlled term IDs.
     Never make up or guess term IDs for these fields. 
