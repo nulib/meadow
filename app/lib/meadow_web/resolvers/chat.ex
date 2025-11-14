@@ -13,8 +13,8 @@ defmodule MeadowWeb.Resolvers.Chat do
     case Planner.create_plan(%{prompt: prompt, query: query}) do
       {:ok, plan} ->
         # Publish plan_id immediately to frontend with dedicated message type
-        Absinthe.Subscription.publish(
-          MeadowWeb.Endpoint,
+        Cachex.put!(Meadow.Cache.Chat.Conversations, plan.id, conversation_id)
+        Meadow.Notification.publish(
           %{
             conversation_id: conversation_id,
             message: "Plan created with ID: #{plan.id}",
@@ -29,8 +29,7 @@ defmodule MeadowWeb.Resolvers.Chat do
           {:ok, ai_response} = MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id})
 
           # Publish final agent response as chat message
-          Absinthe.Subscription.publish(
-            MeadowWeb.Endpoint,
+          Meadow.Notification.publish(
             %{
               conversation_id: conversation_id,
               message: ai_response,

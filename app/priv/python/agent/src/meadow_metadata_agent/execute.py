@@ -2,7 +2,7 @@ import json
 from claude_agent_sdk import create_sdk_mcp_server, ClaudeAgentOptions, ClaudeSDKClient, AgentDefinition, ResultMessage
 from .prompts import (agent_prompt, proposer_prompt, system_prompt)
 from .message_handler import emit, emit_message
-from .tools import (make_fetch_iiif_image_tool)
+from .tools import (make_fetch_iiif_image_tool, send_status_update_tool)
 
 async def query_claude(model, prompt, context_json, mcp_url, iiif_server_url, additional_headers={}):
     context_data = json.loads(context_json) if context_json else {}
@@ -36,10 +36,10 @@ async def execute_agent(model, prompt, context_data, mcp_url, iiif_server_url, a
         model=model,
         mcp_servers={
             "meadow": meadow_server_config,
-            "image_fetcher": create_sdk_mcp_server(
+            "agent_tools": create_sdk_mcp_server(
                 name="metadata",
                 version="1.0.0",
-                tools=[make_fetch_iiif_image_tool(additional_headers)]
+                tools=[make_fetch_iiif_image_tool(additional_headers), send_status_update_tool]
             )
         },
         allowed_tools=[
@@ -47,7 +47,8 @@ async def execute_agent(model, prompt, context_data, mcp_url, iiif_server_url, a
             "mcp__meadow__get_plan_changes",
             "mcp__meadow__propose_plan",
             "mcp__meadow__update_plan_change",
-            "mcp__image_fetcher__fetch_iiif_image"
+            "mcp__agent_tools__send_status_update",
+            "mcp__agent_tools__fetch_iiif_image"
         ],
         disallowed_tools=["Bash", "Grep", "Glob"],
         agents={
@@ -59,7 +60,8 @@ async def execute_agent(model, prompt, context_data, mcp_url, iiif_server_url, a
                     "mcp__meadow__get_plan_changes",
                     "mcp__meadow__propose_plan",
                     "mcp__meadow__update_plan_change",
-                    "mcp__image_fetcher__fetch_iiif_image"
+                    "mcp__agent_tools__send_status_update",
+                    "mcp__agent_tools__fetch_iiif_image",
                 ]
             )
         },
