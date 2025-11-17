@@ -6,6 +6,7 @@ defmodule MeadowAI.IOHandler do
   use GenServer
 
   alias MeadowAI.Config, as: AIConfig
+  alias Meadow.Notification
   require Logger
 
   def open(metadata \\ []) do
@@ -91,6 +92,25 @@ defmodule MeadowAI.IOHandler do
       Logger.log(unquote(level), message)
     end
   end)
+
+  defp handle_message(%{"type" => "status_update", "message" => message}) do
+    %{"plan_id" => plan_id, "message" => message, "agent" => agent} = Jason.decode!(message)
+    case plan_id do
+      nil ->
+        Logger.warning("Status Update: #{message} (no plan ID in metadata)")
+
+      _ ->
+        Logger.debug("Status update received from #{agent}")
+        conversation_id = Cachex.get!(Meadow.Cache.Chat.Conversations, plan_id)
+        %{
+          conversation_id: conversation_id,
+          type: "status_update",
+          message: message,
+          plan_id: plan_id
+        }
+        |> Notification.publish(chat_response: "conversation:#{conversation_id}")
+    end
+  end
 
   defp handle_message(%{"type" => "usage", "message" => message}) do
     log_metrics(message)

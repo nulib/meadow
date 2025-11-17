@@ -8,6 +8,12 @@ defmodule Meadow.Application.Caches do
     [
       cache_spec(:global_cache, Meadow.Cache),
       cache_spec(
+        :chat_conversation_cache,
+        Meadow.Cache.Chat.Conversations,
+        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        stats: true
+      ),
+      cache_spec(
         :coded_term_cache,
         Meadow.Cache.CodedTerms,
         expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
