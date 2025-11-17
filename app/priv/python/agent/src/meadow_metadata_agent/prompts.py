@@ -34,6 +34,8 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
     
     IMPORTANT: For coded fields (controlled field roles, note types, etc.), the subagent MUST use the 
     codeList query to get the list of valid IDs.
+    
+    IMPORTANT: Do not propose any changes to deprecated fields.
 
     Once the subagent completes, provide a summary of the changes proposed.
     """
@@ -75,6 +77,7 @@ def proposer_prompt():
 
     Important:
     - Always query work data - do not make assumptions
+    - Do not propose changes to deprecated fields
     - Process changes one at a time
     - Check for pending changes after each update to ensure nothing is missed
     - When finished looping, you MUST use the propose_plan tool so that the plan is marked ready
