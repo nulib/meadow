@@ -5,6 +5,12 @@ defmodule Meadow.Config do
 
   @meadow_version Mix.Project.config() |> Keyword.get(:version)
 
+  @doc "Get AI-related configuration"
+  def ai(key, default \\ nil) do
+    Application.get_env(:meadow, :ai, [])
+    |> Keyword.get(key, default)
+  end
+
   @doc "Retrieve the environment specific URL for the Digital Collections website"
   def digital_collections_url do
     Application.get_env(:meadow, :digital_collections_url)

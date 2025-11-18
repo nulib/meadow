@@ -63,6 +63,19 @@ defmodule Meadow.Config.Runtime.Dev do
         {"*/10 * * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
       ]
 
+    config :meadow, :ai,
+      metrics_log: [
+        group: get_secret(:meadow, ["logging", "log_group"]),
+        region: ExAws.Config.new(:s3)[:region],
+        stream:
+          Path.join([
+            prefix(),
+            "meadow",
+            "metrics",
+            :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+          ])
+      ]
+
     config :meadow, :sitemaps,
       base_url: "https://dc.library.northwestern.edu/",
       gzip: false,

@@ -43,3 +43,7 @@ provider "aws" {
     sts            = var.localstack_endpoint
   }
 }
+
+resource "aws_cloudwatch_log_group" "meadow_ai_metrics" {
+  name = "/nul/meadow"
+}
