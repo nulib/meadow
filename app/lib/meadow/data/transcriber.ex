@@ -3,9 +3,11 @@ defmodule Meadow.Data.Transcriber do
   Facilitates image transcription by invoking the configured AWS Bedrock model.
   """
 
+  alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.HTTP
+  alias Meadow.Utils.AWS, as: AWSUtils
   alias Meadow.Utils.AWS.BedrockStream
 
   require Logger
@@ -45,6 +47,7 @@ defmodule Meadow.Data.Transcriber do
            {:ok, response, chunks} <- invoke_model_with_stream(model_id, request_body) do
         Logger.info("Completed transcription job")
         %{text: text, languages: languages} = transcription_text(response, chunks)
+        log_metrics(response)
         {:ok, %{text: text, languages: languages, raw: response, streamed_chunks: chunks}}
       else
         {:error, reason} = error ->
@@ -107,7 +110,7 @@ defmodule Meadow.Data.Transcriber do
   end
 
   defp transcriber_model do
-    Application.get_env(:meadow, :transcriber_model, @default_model)
+    Config.ai(:transcriber_model, @default_model)
     |> case do
       model when is_binary(model) and byte_size(model) > 0 ->
         {:ok, model}
@@ -366,4 +369,16 @@ defmodule Meadow.Data.Transcriber do
   end
 
   defp normalize_max_tokens(_), do: @default_max_tokens
+
+  defp log_metrics(%{"usage" => usage}) do
+    {:ok, model} = transcriber_model()
+    message = %{
+      source: __MODULE__,
+      model: model,
+      tokens: usage
+    }
+    AWSUtils.log_metrics(message)
+  end
+
+  defp log_metrics(_), do: :noop
 end

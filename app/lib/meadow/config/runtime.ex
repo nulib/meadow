@@ -262,12 +262,6 @@ defmodule Meadow.Config.Runtime do
           ["streaming", "base_url"],
           "https://#{prefix()}-streaming.s3.amazonaws.com/"
         ),
-      transcriber_model:
-        get_secret(
-          :meadow,
-          ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-        ),
       transcoding_presets: %{
         audio: [
           %{NameModifier: "-high", Preset: "meadow-audio-high"},
@@ -287,6 +281,15 @@ defmodule Meadow.Config.Runtime do
     config :meadow, buckets()
 
     Logger.info("Configuring meadow lambdas")
+
+    config :meadow, :ai,
+      metrics_log: log_configuration(),
+      transcriber_model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        )
 
     config :meadow, :lambda,
       digester: {:lambda, get_secret(:meadow, ["pipeline", "digester"], "digester:$LATEST")},
@@ -376,5 +379,29 @@ defmodule Meadow.Config.Runtime do
       streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming")),
       derivatives_bucket: get_secret(:meadow, ["buckets", "derivatives"], prefix("derivatives"))
     ]
+  end
+
+  def log_configuration do
+    case System.get_env("ECS_CONTAINER_METADATA_URI_V4") do
+      nil ->
+        []
+
+      uri ->
+        log_options =
+          Meadow.HTTP.get!(uri)
+          |> Map.get(:body)
+          |> Jason.decode!()
+          |> Map.get("LogOptions")
+
+        [
+          group: log_options["awslogs-group"],
+          region: log_options["awslogs-region"],
+          stream:
+            log_options["awslogs-stream"]
+            |> String.split("/")
+            |> List.insert_at(-2, "metrics")
+            |> Enum.join("/")
+        ]
+    end
   end
 end

@@ -7,6 +7,13 @@ defmodule Meadow.Utils.AWSTest do
   @bucket @ingest_bucket
   @random_bucket "nonexistent-#{DateTime.utc_now() |> DateTime.to_unix()}"
 
+  describe "log_metrics/1" do
+    test "log_metrics/1 sends a log to CloudWatch Logs" do
+      message = %{"test_key" => "test_value"}
+      assert {:ok, _response} = AWS.log_metrics(message)
+    end
+  end
+
   describe "create_s3_folder/2" do
     setup do
       on_exit(fn ->
