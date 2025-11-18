@@ -100,7 +100,7 @@
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-path-alias": "^1.0.7",
     "esbuild-sass-plugin": "^3.3.1",
-    "glob": "^11.1.0",
+    "glob": "^12.0.0",
     "jest": "^30.2.0",
     "jest-localstorage-mock": "^2.4.21",
     "lodash.debounce": "^4.0.8",

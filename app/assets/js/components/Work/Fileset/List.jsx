@@ -5,6 +5,7 @@ import WorkFilesetDraggable from "@js/components/Work/Fileset/Draggable";
 import WorkTabsStructureWebVTTModal from "@js/components/Work/Tabs/Structure/WebVTTModal";
 import { useWorkState } from "@js/context/work-context";
 import { Droppable } from "react-beautiful-dnd";
+import WorkTabsStructureTranscriptionModal from "../Tabs/Structure/Transcription/Modal";
 
 function SubHead({ children }) {
   return <h3 className="my-4 ml-5 is-size-5">{children}</h3>;
@@ -18,7 +19,10 @@ function WorkFilesetList({
   workImageFilesetId,
   work,
 }) {
-  const { webVttModal } = useWorkState();
+  const { transcriptionModal, webVttModal } = useWorkState();
+
+  const isTranscriptionModalActive = transcriptionModal?.isOpen;
+  const isWebVttModalActive = webVttModal?.isOpen;
 
   const uniqueGroupWithValues = fileSets.access
     .filter((fs) => fs.group_with !== null)
@@ -108,7 +112,10 @@ function WorkFilesetList({
           ))}
         </>
       )}
-      <WorkTabsStructureWebVTTModal isActive={webVttModal?.isOpen} />
+      <WorkTabsStructureTranscriptionModal
+        isActive={isTranscriptionModalActive}
+      />
+      <WorkTabsStructureWebVTTModal isActive={isWebVttModalActive} />
     </>
   );
 }
@@ -124,7 +131,7 @@ WorkFilesetList.propTypes = {
     behavior: PropTypes.shape({
       id: PropTypes.string,
       label: PropTypes.string,
-    })
+    }),
   }),
 };
 

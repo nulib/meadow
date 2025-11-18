@@ -22,7 +22,7 @@ import UISkeleton from "@js/components/UI/Skeleton";
 import Work from "@js/components/Work/Work";
 import WorkHeaderButtons from "@js/components/Work/HeaderButtons";
 import WorkMultiEditBar from "@js/components/Work/MultiEditBar";
-import { WorkProvider } from "@js/context/work-context";
+import { WorkProvider, defaultState } from "@js/context/work-context";
 import WorkPublicLinkNotification from "@js/components/Work/PublicLinkNotification";
 import WorkSharedLinkNotification from "@js/components/Work/SharedLinkNotification";
 import WorkTagsList from "@js/components/Work/TagsList";
@@ -90,7 +90,7 @@ const ScreensWork = () => {
     onCompleted({ updateWork }) {
       toastWrapper(
         "is-success",
-        `Work has been ${updateWork.published ? "published" : "unpublished"}`
+        `Work has been ${updateWork.published ? "published" : "unpublished"}`,
       );
     },
   });
@@ -121,7 +121,7 @@ const ScreensWork = () => {
 
   const handleMultiNavClick = (nextWorkIndex) => {
     history.push(
-      `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`
+      `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`,
     );
   };
 
@@ -233,7 +233,7 @@ const ScreensWork = () => {
                             onClick={() =>
                               handleFacetLinkClick(
                                 "Collection",
-                                data.work.collection.title
+                                data.work.collection.title,
                               )
                             }
                           >
@@ -254,7 +254,7 @@ const ScreensWork = () => {
         <UISkeleton rows={20} />
       ) : (
         <ErrorBoundary FallbackComponent={FallbackErrorComponent}>
-          <WorkProvider>
+          <WorkProvider initialState={{ ...defaultState, work: data.work }}>
             <Work work={data.work} key={data.work.id} />
           </WorkProvider>
         </ErrorBoundary>
