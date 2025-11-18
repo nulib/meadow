@@ -609,7 +609,7 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp create_pending_annotation(file_set, opts) do
-    model = Keyword.get(opts, :model, Application.get_env(:meadow, :transcriber_model))
+    model = Keyword.get(opts, :model, Config.ai(:transcriber_model))
     language = Keyword.get(opts, :language, ["en"])
 
     create_annotation(file_set, %{
