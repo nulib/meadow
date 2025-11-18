@@ -9,6 +9,7 @@ defmodule Meadow.Data.Transcriber do
   alias Meadow.HTTP
   alias Meadow.Utils.AWS, as: AWSUtils
   alias Meadow.Utils.AWS.BedrockStream
+  alias Meadow.Utils.DCAPI
 
   require Logger
 
@@ -88,9 +89,14 @@ defmodule Meadow.Data.Transcriber do
   end
 
   defp fetch_base64_image(base_url) do
+
+    headers = with {:ok, %{token: token}} <- DCAPI.superuser_token() do
+      [{"Authorization", "Bearer #{token}"} | @image_request_headers]
+    end
+
     base_url
     |> build_image_url()
-    |> HTTP.get(@image_request_headers, @image_request_opts)
+    |> HTTP.get(headers, @image_request_opts)
     |> case do
       {:ok, %{status_code: 200, body: body, headers: headers}} ->
         encoded = Base.encode64(body)
