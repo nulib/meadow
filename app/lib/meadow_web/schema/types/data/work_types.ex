@@ -171,10 +171,18 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "`controlled_fields` represents all controlled descriptive metadata fields on a work."
   object :controlled_fields do
     field(:contributor, list_of(:controlled_metadata_entry))
-    field(:creator, list_of(:controlled_metadata_entry))
+
+    field(:creator, list_of(:controlled_metadata_entry)) do
+      deprecate "Creator field is deprecated"
+    end
+
     field(:genre, list_of(:controlled_metadata_entry))
     field(:language, list_of(:controlled_metadata_entry))
-    field(:location, list_of(:controlled_metadata_entry))
+
+    field(:location, list_of(:controlled_metadata_entry)) do
+      deprecate "Location field is deprecated"
+    end
+
     field(:notes, list_of(:note_entry))
     field(:related_url, list_of(:related_url_entry))
     field(:style_period, list_of(:controlled_metadata_entry))
@@ -201,7 +209,11 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:physical_description_material, list_of(:string))
     field(:physical_description_size, list_of(:string))
     field(:provenance, list_of(:string))
-    field(:publisher, list_of(:string))
+
+    field(:publisher, list_of(:string)) do
+      deprecate "Publisher field is deprecated"
+    end
+
     field(:related_material, list_of(:string))
     field(:rights_holder, list_of(:string))
     field(:scope_and_contents, list_of(:string))
