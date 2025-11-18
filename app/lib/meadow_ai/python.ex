@@ -3,7 +3,7 @@ defmodule MeadowAI.Python do
   Helper functions for initializing and managing the PythonX session
   with the Claude Code Python SDK.
   """
-  alias MeadowAI.Config, as: AIConfig
+  alias Meadow.Config
   require Logger
 
   @doc """
@@ -50,7 +50,7 @@ defmodule MeadowAI.Python do
   end
 
   defp initialize_python_environment do
-    env = AIConfig.get(:pythonx_env, %{})
+    env = Config.ai(:pythonx_env, %{})
 
     Pythonx.eval(
       """

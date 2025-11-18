@@ -1,7 +1,7 @@
 defmodule MeadowAI.IOHandlerTest do
   use ExUnit.Case
 
-  alias MeadowAI.Config, as: AIConfig
+  alias Meadow.Config
   alias MeadowAI.IOHandler
   import ExUnit.CaptureLog
 
@@ -9,7 +9,7 @@ defmodule MeadowAI.IOHandlerTest do
     setup do
       old_level = Logger.level()
       Logger.configure(level: :debug)
-      config = MeadowAI.Config.get(:metrics_log)
+      config = Config.ai(:metrics_log)
       {:ok, pid} = IOHandler.open()
 
       on_exit(fn ->
@@ -92,7 +92,8 @@ defmodule MeadowAI.IOHandlerTest do
           "server_tool_use" => %{"web_search_requests" => 0},
           "service_tier" => "standard"
         },
-        "model" => AIConfig.get(:model)
+        "model" => Config.ai(:model),
+        "source" => "Elixir.MeadowAI.MetadataAgent"
       }
 
       IO.write(io, Jason.encode!(%{"type" => "usage", "message" => usage}) <> "\n")
