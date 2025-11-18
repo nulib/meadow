@@ -3,9 +3,13 @@ import React from "react";
 const WorkStateContext = React.createContext();
 const WorkDispatchContext = React.createContext();
 
-const defaultState = {
+export const defaultState = {
   activeMediaFileSet: null,
   dcApiToken: null,
+  transcriptionModal: {
+    fileSetId: null,
+    isOpen: false,
+  },
   webVttModal: {
     fileSetId: null,
     isOpen: false,
@@ -16,6 +20,15 @@ const defaultState = {
 
 function workReducer(state, action) {
   switch (action.type) {
+    case "toggleTranscriptionModal": {
+      return {
+        ...state,
+        transcriptionModal: {
+          fileSetId: action.fileSetId,
+          isOpen: Boolean(action.fileSetId),
+        },
+      };
+    }
     case "toggleWebVttModal": {
       return {
         ...state,
