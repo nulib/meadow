@@ -13,6 +13,22 @@ defmodule Meadow.Utils.AWS do
 
   require Logger
 
+  @doc "Log a message to the configured CloudWatch Logs metrics log"
+  def log_metrics(message) do
+    with log_config <- Config.ai(:metrics_log) do
+      CloudwatchLogs.create_log_stream(log_config[:group], log_config[:stream])
+      |> ExAws.request()
+
+      CloudwatchLogs.put_log_events(log_config[:group], log_config[:stream], [
+        %{
+          "timestamp" => DateTime.utc_now() |> DateTime.to_unix(:millisecond),
+          "message" => Jason.encode!(message)
+        }
+      ])
+      |> ExAws.request()
+    end
+  end
+
   def presigned_url(bucket, %{upload_type: "preservation_check", filename: filename}) do
     generate_presigned_url(bucket, "#{filename}", :get)
   end
