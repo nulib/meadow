@@ -16,7 +16,7 @@ import {
   getCollectionMock,
   getCollectionsMock,
 } from "@js/components/Collection/collection.gql.mock";
-import { WorkProvider } from "@js/context/work-context";
+import { WorkProvider, defaultState } from "@js/context/work-context";
 
 jest.mock("@js/services/get-api-response-headers");
 
@@ -54,7 +54,7 @@ jest.mock("@samvera/clover-iiif/viewer", () => {
 describe("Work component", () => {
   beforeEach(() => {
     renderWithRouterApollo(
-      <WorkProvider>
+      <WorkProvider initialState={{ ...defaultState, work: mockWork }}>
         <Work work={mockWork} />
       </WorkProvider>,
       { mocks },

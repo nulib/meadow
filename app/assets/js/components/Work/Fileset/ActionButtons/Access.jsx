@@ -77,32 +77,55 @@ export function MediaButtons({ fileSet }) {
 }
 
 export function ImageButtons({ iiifServerUrl, fileSet }) {
+  const dispatch = useWorkDispatch();
+  const { isAuthorized } = useIsAuthorized();
+
+  if (!fileSet) return null;
+
   return (
-    <div
-      data-testid="download-image-fileset"
-      className="field has-addons is-flex is-justify-content-flex-end"
-    >
-      <p className="control">
-        <a
-          href={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL_TIFF}`}
-          target="_blank"
-          className="button"
-        >
-          <span className="icon">
-            <IconDownload />
-          </span>{" "}
-          <span>TIF</span>
-        </a>
-      </p>
-      <p className="control">
-        <ImageDownloader
-          imageUrl={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL}`}
-          imageTitle={fileSet.accessionNumber}
-          className="button"
-        >
-          JPG
-        </ImageDownloader>
-      </p>
+    <div className="buttons is-grouped is-right">
+      {!fileSet.group_with &&
+        fileSet.representativeImageUrl &&
+        isAuthorized() && (
+          <a
+            className="button"
+            data-testid="edit-structure-button"
+            onClick={() =>
+              dispatch({
+                type: "toggleTranscriptionModal",
+                fileSetId: fileSet.id,
+              })
+            }
+          >
+            Transcription
+          </a>
+        )}
+      <div
+        data-testid="download-image-fileset"
+        className="field has-addons is-flex is-justify-content-flex-end"
+      >
+        <p className="control">
+          <a
+            href={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL_TIFF}`}
+            target="_blank"
+            className="button"
+          >
+            <span className="icon">
+              <IconDownload />
+            </span>{" "}
+            <span>TIF</span>
+          </a>
+        </p>
+        <p className="control">
+          <ImageDownloader
+            imageUrl={`${iiifServerUrl}${fileSet.id}${IIIF_SIZES.IIIF_FULL}`}
+            imageTitle={fileSet.accessionNumber}
+            className="button"
+          >
+            JPG
+          </ImageDownloader>
+        </p>
+      </div>
     </div>
   );
 }

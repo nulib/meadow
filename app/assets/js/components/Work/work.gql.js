@@ -246,6 +246,13 @@ export const GET_WORK = gql`
       fileSets {
         id
         accessionNumber
+        annotations {
+          id
+          type
+          status
+          language
+          content
+        }
         coreMetadata {
           altText
           description
@@ -314,6 +321,13 @@ export const GET_WORKS = gql`
         role {
           id
           label
+        }
+        annotations {
+          id
+          type
+          status
+          language
+          content
         }
         accessionNumber
         coreMetadata {
