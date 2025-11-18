@@ -73,7 +73,7 @@ defmodule Meadow.Config.Runtime.Dev do
         {"*/10 * * * *", {Meadow.Data.PreservationChecks, :start_job, []}}
       ]
 
-    config :meadow, MeadowAI,
+    config :meadow, :ai,
       metrics_log: [
         group: get_secret(:meadow, ["logging", "log_group"]),
         region: ExAws.Config.new(:s3)[:region],

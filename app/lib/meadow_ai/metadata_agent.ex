@@ -4,7 +4,6 @@ defmodule MeadowAI.MetadataAgent do
 
   alias Meadow.Config
   alias Meadow.Utils.DCAPI
-  alias MeadowAI.Config, as: AIConfig
   alias MeadowAI.IOHandler
   alias MeadowWeb.Router.Helpers, as: Routes
 
@@ -187,7 +186,7 @@ defmodule MeadowAI.MetadataAgent do
   end
 
   defp execute_claude_query(prompt, opts) do
-    simple = AIConfig.get(:simple, false)
+    simple = Config.ai(:simple, false)
     if simple, do: Logger.warning("MetadataAgent running in simple mode")
 
     context =
@@ -223,7 +222,7 @@ defmodule MeadowAI.MetadataAgent do
         Pythonx.eval(
           query_code,
           %{
-            "model" => AIConfig.get(:model),
+            "model" => Config.ai(:model),
             "prompt" => prompt,
             "context_json" => context_json,
             "graphql_endpoint" => opts[:graphql_endpoint],

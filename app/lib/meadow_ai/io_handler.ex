@@ -5,8 +5,9 @@ defmodule MeadowAI.IOHandler do
 
   use GenServer
 
-  alias MeadowAI.Config, as: AIConfig
+  alias Meadow.Config
   alias Meadow.Notification
+  alias Meadow.Utils.AWS, as: AWSUtils
   require Logger
 
   def open(metadata \\ []) do
@@ -143,17 +144,9 @@ defmodule MeadowAI.IOHandler do
   end
 
   defp log_metrics(message) do
-    config = AIConfig.get(:metrics_log)
-
-    CloudwatchLogs.create_log_stream(config[:group], config[:stream])
-    |> ExAws.request()
-
-    CloudwatchLogs.put_log_events(config[:group], config[:stream], [
-      %{
-        "timestamp" => DateTime.utc_now() |> DateTime.to_unix(:millisecond),
-        "message" => Jason.encode!(Map.put(message, "model", AIConfig.get(:model)))
-      }
-    ])
-    |> ExAws.request()
+    message
+    |> Map.put("source", MeadowAI.MetadataAgent)
+    |> Map.put("model", Config.ai(:model))
+    |> AWSUtils.log_metrics()
   end
 end

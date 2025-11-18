@@ -269,12 +269,6 @@ defmodule Meadow.Config.Runtime do
           ["streaming", "base_url"],
           "https://#{prefix()}-streaming.s3.amazonaws.com/"
         ),
-      transcriber_model:
-        get_secret(
-          :meadow,
-          ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-        ),
       transcoding_presets: %{
         audio: [
           %{NameModifier: "-high", Preset: "meadow-audio-high"},
@@ -294,6 +288,24 @@ defmodule Meadow.Config.Runtime do
     config :meadow, buckets()
 
     Logger.info("Configuring meadow lambdas")
+
+    config :meadow, :ai,
+      metrics_log: log_configuration(),
+      model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        ),
+      pythonx_env: %{
+        "CLAUDE_CODE_USE_BEDROCK" => "1"
+      },
+      transcriber_model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        )
 
     config :meadow, :lambda,
       digester: {:lambda, get_secret(:meadow, ["pipeline", "digester"], "digester:$LATEST")},
@@ -323,18 +335,6 @@ defmodule Meadow.Config.Runtime do
           {Meadow.Data.PreservationChecks, :start_job, []}
         }
       ]
-
-    config :meadow, MeadowAI,
-      metrics_log: log_configuration(),
-      model:
-        get_secret(
-          :meadow,
-          ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-        ),
-      pythonx_env: %{
-        "CLAUDE_CODE_USE_BEDROCK" => "1"
-      }
 
     Logger.info("Configuring ueberauth for NU SSO")
 

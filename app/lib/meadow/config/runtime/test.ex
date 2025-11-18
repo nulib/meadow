@@ -79,7 +79,7 @@ defmodule Meadow.Config.Runtime.Test do
       base_url: "http://localhost:3946/directory-search",
       api_key: "directory-api-key"
 
-    config :meadow, MeadowAI,
+    config :meadow, :ai,
       metrics_log: [
         group: get_secret(:meadow, ["logging", "log_group"]),
         region: ExAws.Config.new(:s3)[:region],
