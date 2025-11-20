@@ -9,7 +9,7 @@ import { IIIF_SIZES } from "@js/services/global-vars";
 import { toastWrapper } from "@js/services/helpers";
 import { useMutation } from "@apollo/client";
 import { UPDATE_FILE_SET_ANNOTATION } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
-import WorkTabsStructureTranscriptionWorkflow from "./Workflow";
+import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
@@ -109,6 +109,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
             </div>
             <WorkTabsStructureTranscriptionWorkflow
               fileSetId={fileSetId}
+              key={fileSetId}
               workId={workId}
               hasTranscriptionCallback={handleHasTranscriptionCallback}
               isActive={isActive}

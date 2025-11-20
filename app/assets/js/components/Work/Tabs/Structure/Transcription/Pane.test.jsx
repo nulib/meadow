@@ -4,11 +4,12 @@ import { render, screen } from "@testing-library/react";
 import WorkTabsStructureTranscriptionPane from "./Pane";
 
 describe("WorkTabsStructureTranscriptionPane", () => {
-  it("renders a textarea with annotation content and calls callback", () => {
+  it("renders a textarea with annotation attributes and calls callback when content is a string", () => {
     const hasTranscriptionCallback = jest.fn();
     const annotation = {
       id: "ann-1",
       type: "transcription",
+      status: "done",
       content: "This is the transcription.",
     };
 
@@ -16,7 +17,6 @@ describe("WorkTabsStructureTranscriptionPane", () => {
       <WorkTabsStructureTranscriptionPane
         annotation={annotation}
         hasTranscriptionCallback={hasTranscriptionCallback}
-        isGenerating={false}
       />,
     );
 
@@ -25,16 +25,18 @@ describe("WorkTabsStructureTranscriptionPane", () => {
     expect(textarea).toHaveValue("This is the transcription.");
     expect(textarea).toHaveAttribute("data-annotation-id", "ann-1");
     expect(textarea).toHaveAttribute("data-annotation-type", "transcription");
+    expect(textarea).toHaveAttribute("data-annotation-status", "done");
 
     expect(hasTranscriptionCallback).toHaveBeenCalledTimes(1);
     expect(hasTranscriptionCallback).toHaveBeenCalledWith(true);
   });
 
-  it("shows generating message when isGenerating and no annotation content", () => {
+  it("shows generating overlay when status is in_progress and no content, without calling callback", () => {
     const hasTranscriptionCallback = jest.fn();
     const annotation = {
       id: "ann-2",
       type: "transcription",
+      status: "in_progress",
       content: null,
     };
 
@@ -42,27 +44,29 @@ describe("WorkTabsStructureTranscriptionPane", () => {
       <WorkTabsStructureTranscriptionPane
         annotation={annotation}
         hasTranscriptionCallback={hasTranscriptionCallback}
-        isGenerating={true}
       />,
     );
 
-    expect(
-      screen.getByText("Generating transcription, please wait..."),
-    ).toBeInTheDocument();
+    // Overlay text
+    expect(screen.getByText("Generating transcription...")).toBeInTheDocument();
 
-    // No textarea when generating with no content
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    // Textarea is still rendered but empty
+    const textarea = screen.getByRole("textbox");
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveValue("");
+    expect(textarea).toHaveAttribute("data-annotation-status", "in_progress");
 
-    // Should not yet have called the callback
+    // Callback should not be called because content is not a string
     expect(hasTranscriptionCallback).not.toHaveBeenCalled();
   });
 
-  it("switches from generating state to showing textarea when content arrives", () => {
+  it("switches from generating state to showing textarea content and calls callback when content arrives", () => {
     const hasTranscriptionCallback = jest.fn();
 
     const initialAnnotation = {
       id: "ann-3",
       type: "transcription",
+      status: "in_progress",
       content: null,
     };
 
@@ -70,20 +74,19 @@ describe("WorkTabsStructureTranscriptionPane", () => {
       <WorkTabsStructureTranscriptionPane
         annotation={initialAnnotation}
         hasTranscriptionCallback={hasTranscriptionCallback}
-        isGenerating={true}
       />,
     );
 
-    // Initially: generating message
-    expect(
-      screen.getByText("Generating transcription, please wait..."),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    // Initially: overlay visible, textarea empty, no callback
+    expect(screen.getByText("Generating transcription...")).toBeInTheDocument();
+    const initialTextarea = screen.getByRole("textbox");
+    expect(initialTextarea).toHaveValue("");
     expect(hasTranscriptionCallback).not.toHaveBeenCalled();
 
-    // Now simulate "transcription finished" – annotation gains content
+    // Now simulate "transcription finished" – annotation gains content and status changes
     const updatedAnnotation = {
       ...initialAnnotation,
+      status: "done",
       content: "Final generated transcription",
     };
 
@@ -91,13 +94,18 @@ describe("WorkTabsStructureTranscriptionPane", () => {
       <WorkTabsStructureTranscriptionPane
         annotation={updatedAnnotation}
         hasTranscriptionCallback={hasTranscriptionCallback}
-        isGenerating={false}
       />,
     );
+
+    // Overlay should be gone
+    expect(
+      screen.queryByText("Generating transcription..."),
+    ).not.toBeInTheDocument();
 
     const textarea = screen.getByRole("textbox");
     expect(textarea).toBeInTheDocument();
     expect(textarea).toHaveValue("Final generated transcription");
+    expect(textarea).toHaveAttribute("data-annotation-status", "done");
 
     expect(hasTranscriptionCallback).toHaveBeenCalledTimes(1);
     expect(hasTranscriptionCallback).toHaveBeenCalledWith(true);

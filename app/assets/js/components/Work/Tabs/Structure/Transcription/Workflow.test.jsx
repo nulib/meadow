@@ -11,7 +11,7 @@ import { toastWrapper } from "@js/services/helpers";
 
 // ---- Mocks ----
 
-// UseFileSetAnnotation hook
+// useFileSetAnnotation hook
 jest.mock("@js/hooks/useFileSetAnnotation", () => ({
   useFileSetAnnotation: jest.fn(),
 }));
@@ -32,12 +32,11 @@ jest.mock("@nulib/design-system", () => {
 // Pane component → simple div so we can assert props
 jest.mock("@js/components/Work/Tabs/Structure/Transcription/Pane", () => {
   const React = require("react");
-  return function MockPane({ annotation, isGenerating }) {
+  return function MockPane({ annotation }) {
     return (
       <div
         data-testid="transcription-pane"
         data-annotation-id={annotation?.id || ""}
-        data-is-generating={isGenerating ? "true" : "false"}
       />
     );
   };
@@ -59,7 +58,6 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     __typename: "Work",
   };
 
-  // Helper to render with Apollo mocks
   const renderWorkflow = ({ mocks, hookData, isActive = true } = {}) => {
     // Default: no fileSet annotation from hook
     useFileSetAnnotation.mockReturnValue(
@@ -78,43 +76,36 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     );
   };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders the Generate Transcription button when there is no annotation", async () => {
     const workMocks = [
       {
-        request: {
-          query: GET_WORK,
-          variables: { id: workId },
-        },
-        result: {
-          data: {
-            work: baseWork,
-          },
-        },
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
       },
-      // extra mocks in case refetch is triggered
       {
-        request: {
-          query: GET_WORK,
-          variables: { id: workId },
-        },
-        result: {
-          data: {
-            work: baseWork,
-          },
-        },
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
       },
     ];
 
-    renderWorkflow({ mocks: workMocks });
+    const { container } = renderWorkflow({ mocks: workMocks });
 
     const button = await screen.findByRole("button", {
       name: /generate transcription/i,
     });
 
     expect(button).toBeInTheDocument();
+
+    // Wrapper should NOT have the data-annotation attribute yet
+    const wrapper = container.firstChild;
+    expect(wrapper).not.toHaveAttribute("data-annotation");
   });
 
-  it("calls TRANSCRIBE_FILE_SET and shows generating state + toast when button is clicked", async () => {
+  it("calls TRANSCRIBE_FILE_SET and shows a success toast when button is clicked", async () => {
     const workMocks = [
       // initial GET_WORK
       {
@@ -128,7 +119,7 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
           },
         },
       },
-      // refetch (effect or refetchQueries)
+      // refetch after mutation
       {
         request: {
           query: GET_WORK,
@@ -164,7 +155,6 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
 
     fireEvent.click(button);
 
-    // onCompleted should trigger toast + setIsGenerating(true)
     await waitFor(() => {
       expect(toastWrapper).toHaveBeenCalledWith(
         "is-success",
@@ -172,12 +162,11 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
       );
     });
 
-    const wrapper = screen.getByTestId("transcription-pane").parentElement;
-    // the top-level div has data-generating attribute
-    expect(wrapper).toHaveAttribute("data-generating", "true");
+    // Still no Pane yet (annotation will appear on a subsequent fetch)
+    expect(screen.queryByTestId("transcription-pane")).not.toBeInTheDocument();
   });
 
-  it("renders Pane when an annotation already exists (hasTranscription=true)", async () => {
+  it("renders Pane when an annotation already exists", async () => {
     const completedAnnotation = {
       id: "ann-1",
       status: "completed",
@@ -200,6 +189,7 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
                 {
                   id: fileSetId,
                   annotations: [completedAnnotation],
+                  __typename: "FileSet",
                 },
               ],
             },
@@ -214,12 +204,15 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
       },
     };
 
-    renderWorkflow({ mocks: workMocks, hookData });
+    const { container } = renderWorkflow({ mocks: workMocks, hookData });
 
     const pane = await screen.findByTestId("transcription-pane");
     expect(pane).toBeInTheDocument();
     expect(pane).toHaveAttribute("data-annotation-id", "ann-1");
-    expect(pane).toHaveAttribute("data-is-generating", "false");
+
+    // Wrapper div should also reflect the annotation id
+    const wrapper = container.firstChild;
+    expect(wrapper).toHaveAttribute("data-annotation", "ann-1");
 
     // No "Generate Transcription" button when we already have an annotation
     expect(
