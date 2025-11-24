@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@nulib/design-system";
 import WorkTabsStructureTranscriptionPane from "@js/components/Work/Tabs/Structure/Transcription/Pane";
 import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
@@ -14,46 +14,40 @@ function WorkTabsStructureTranscriptionWorkflow({
   workId,
   hasTranscriptionCallback,
 }) {
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const { data } = useFileSetAnnotation(fileSetId);
-
-  const { data: { work } = {}, refetch } = useQuery(GET_WORK, {
+  const { data: { fileSetAnnotation } = {} } = useFileSetAnnotation(fileSetId);
+  const {
+    data: { work } = {},
+    loading: workLoading,
+    refetch: workRefetch,
+  } = useQuery(GET_WORK, {
     variables: { id: workId },
   });
 
   const [transcribeFileSet] = useMutation(TRANSCRIBE_FILE_SET);
 
-  const fileSet = work?.fileSets?.find((fs) => fs.id === fileSetId);
+  const workFileSet = work?.fileSets?.find((fs) => fs.id === fileSetId);
   const annotation =
-    data?.fileSetAnnotation?.status === "completed"
-      ? data?.fileSetAnnotation
-      : fileSet?.annotations?.find(
+    fileSetAnnotation?.status === "completed"
+      ? fileSetAnnotation
+      : workFileSet?.annotations?.find(
           (annotation) => annotation.type === "transcription",
         );
 
-  const hasTranscription = Boolean(annotation);
-
-  useEffect(() => {
-    if (hasTranscription) setIsGenerating(false);
-  }, [hasTranscription]);
-
   useEffect(() => {
     if (isActive) {
-      refetch();
+      workRefetch();
     }
   }, [isActive]);
 
   const handleStartTranscription = () => {
-    if (!fileSet?.id) return;
+    if (!fileSetId) return;
 
     transcribeFileSet({
       variables: {
-        fileSetId: fileSet.id,
+        fileSetId,
       },
       onCompleted: () => {
         toastWrapper("is-success", "Generating transcription");
-        setIsGenerating(true);
       },
       refetchQueries: [
         {
@@ -65,9 +59,10 @@ function WorkTabsStructureTranscriptionWorkflow({
     });
   };
 
+  if (workLoading) return null;
+
   return (
     <div
-      data-generating={isGenerating}
       data-annotation={annotation?.id}
       style={{
         width: "50%",
@@ -78,13 +73,7 @@ function WorkTabsStructureTranscriptionWorkflow({
         alignItems: "center",
       }}
     >
-      {isGenerating || hasTranscription ? (
-        <WorkTabsStructureTranscriptionPane
-          annotation={annotation}
-          hasTranscriptionCallback={hasTranscriptionCallback}
-          isGenerating={isGenerating}
-        />
-      ) : (
+      {!annotation ? (
         <Button
           isPrimary
           isLowercase
@@ -93,6 +82,11 @@ function WorkTabsStructureTranscriptionWorkflow({
         >
           Generate Transcription
         </Button>
+      ) : (
+        <WorkTabsStructureTranscriptionPane
+          annotation={annotation}
+          hasTranscriptionCallback={hasTranscriptionCallback}
+        />
       )}
     </div>
   );

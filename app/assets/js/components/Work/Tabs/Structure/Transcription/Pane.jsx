@@ -3,38 +3,64 @@ import React, { useEffect, useRef } from "react";
 function WorkTabsStructureTranscriptionPane({
   annotation,
   hasTranscriptionCallback,
-  isGenerating,
 }) {
   const textAreaRef = useRef(null);
+  const { content, id, status, type } = annotation;
 
   useEffect(() => {
-    if (annotation?.content) {
-      if (textAreaRef.current) {
-        textAreaRef.current.value = annotation.content;
-        hasTranscriptionCallback(true);
-      }
+    if (!textAreaRef.current) return;
+    if (typeof content === "string") {
+      hasTranscriptionCallback(true);
+      textAreaRef.current.value = content;
       return;
     }
-  }, [annotation, isGenerating]);
-
-  if (isGenerating && !annotation?.content) {
-    return <div>Generating transcription, please wait...</div>;
-  }
+  }, [content]);
 
   return (
-    <textarea
-      className="textarea"
-      data-annotation-id={annotation?.id}
-      data-annotation-type={annotation?.type}
-      id="file-set-transcription-textarea"
-      ref={textAreaRef}
+    <div
+      data-testid="transcription-pane"
+      className="textarea-wrapper"
       style={{
         height: "100%",
-        whiteSpace: "pre-wrap",
-        minWidth: "unset",
-        resize: "none",
+        width: "100%",
+        position: "relative",
+        zIndex: 0,
       }}
-    />
+    >
+      {status === "in_progress" && (
+        <div
+          className="transcription-generating-overlay"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#fff6",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1,
+          }}
+        >
+          <span>Generating transcription...</span>
+        </div>
+      )}
+      <textarea
+        className="textarea"
+        data-annotation-id={id}
+        data-annotation-status={status}
+        data-annotation-type={type}
+        id="file-set-transcription-textarea"
+        ref={textAreaRef}
+        style={{
+          height: "100%",
+          whiteSpace: "pre-wrap",
+          minWidth: "unset",
+          resize: "none",
+        }}
+      />
+    </div>
   );
 }
 
