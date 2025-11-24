@@ -8,6 +8,8 @@ import SquircleThumbnail from "@js/components/UI/SquircleThumbnail";
 const Plan = ({ works }) => {
   const query = works.map((work) => `id:(${work.id})`).join(" OR ");
   const [planId, setPlanId] = React.useState(null);
+  const [loadingMessage, setLoadingMessage] =
+    React.useState("Initializing plan");
 
   const hasPlan = Boolean(planId);
 
@@ -48,9 +50,10 @@ const Plan = ({ works }) => {
       <div className="plan-workspace">
         {planId ? (
           <PlanPanelChanges
+            changes={planChanges}
             id={planId}
             plan={plan}
-            changes={planChanges}
+            loadingMessage={loadingMessage}
             target={{
               title: targetTitle,
               thumbnails: targetThumbnails,
@@ -75,6 +78,7 @@ const Plan = ({ works }) => {
           query={query}
           initialMessages={initialMessages}
           planIdCallback={(planId) => setPlanId(planId)}
+          planLoadingMessageCallback={(message) => setLoadingMessage(message)}
         />
       </div>
     </div>

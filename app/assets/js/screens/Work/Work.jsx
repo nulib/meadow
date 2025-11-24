@@ -90,7 +90,7 @@ const ScreensWork = () => {
     onCompleted({ updateWork }) {
       toastWrapper(
         "is-success",
-        `Work has been ${updateWork.published ? "published" : "unpublished"}`
+        `Work has been ${updateWork.published ? "published" : "unpublished"}`,
       );
     },
   });
@@ -121,7 +121,7 @@ const ScreensWork = () => {
 
   const handleMultiNavClick = (nextWorkIndex) => {
     history.push(
-      `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`
+      `/work/${batchState.editAndViewWorks[nextWorkIndex]}/multi/${nextWorkIndex},${multiTotalItems}`,
     );
   };
 
@@ -233,7 +233,7 @@ const ScreensWork = () => {
                             onClick={() =>
                               handleFacetLinkClick(
                                 "Collection",
-                                data.work.collection.title
+                                data.work.collection.title,
                               )
                             }
                           >
@@ -249,7 +249,6 @@ const ScreensWork = () => {
           </div>
         </section>
       </ErrorBoundary>
-
       {loading ? (
         <UISkeleton rows={20} />
       ) : (
