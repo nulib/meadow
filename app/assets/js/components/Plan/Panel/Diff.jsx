@@ -1,4 +1,3 @@
-import { Tag } from "@nulib/design-system";
 import React from "react";
 import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
 import { toArray, toRows } from "@js/components/Plan/Panel/diff-helpers";
@@ -7,33 +6,24 @@ import { toArray, toRows } from "@js/components/Plan/Panel/diff-helpers";
  * Tag indicating the method of change
  */
 const MethodTag = ({ method }) => {
-  let tagProps = {};
   let text = "";
 
   switch (method) {
     case "add":
-      tagProps = { isSuccess: true };
       text = "Add";
       break;
     case "delete":
-      tagProps = { isDanger: true };
       text = "Delete";
       break;
     case "replace":
-      tagProps = { isInfo: true };
       text = "Replace";
       break;
     default:
-      tagProps = {};
       text = "";
       break;
   }
 
-  return (
-    <Tag as="span" {...tagProps}>
-      {text}
-    </Tag>
-  );
+  return <span data-testid="tag">{text}</span>;
 };
 
 /**
