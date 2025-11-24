@@ -7,7 +7,12 @@ import { v4 as uuidv4 } from "uuid";
 
 const conversationId = uuidv4();
 
-const PlanChat = ({ initialMessages, query, planIdCallback }) => {
+const PlanChat = ({
+  initialMessages,
+  query,
+  planIdCallback,
+  planLoadingMessageCallback,
+}) => {
   const scrollerRef = useRef(null);
   const [messages, setMessages] = useState(initialMessages || []);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -61,14 +66,18 @@ const PlanChat = ({ initialMessages, query, planIdCallback }) => {
     if (chatResponseMessage.type === "plan_id")
       planIdCallback(chatResponseMessage.planId);
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        content: chatResponseMessage.message,
-        isUser: false,
-        type: chatResponseMessage.type,
-      },
-    ]);
+    if (chatResponseMessage.type === "status_update")
+      planLoadingMessageCallback(chatResponseMessage.message);
+
+    if (chatResponseMessage.type !== "status_update")
+      setMessages((prev) => [
+        ...prev,
+        {
+          content: chatResponseMessage.message,
+          isUser: false,
+          type: chatResponseMessage.type,
+        },
+      ]);
 
     if (isAtBottom) scrollToBottom(true);
   }, [chatResponseMessage]);

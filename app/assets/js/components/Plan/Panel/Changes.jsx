@@ -9,7 +9,7 @@ import UILoader from "@js/components/UI/Loader";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
 import { IconCheckAlt, IconMagic } from "@js/components/Icon";
 
-const PlanPanelChanges = ({ plan, changes, id, target }) => {
+const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
   const [loading, setLoading] = React.useState(true);
   const [isApproved, setIsApproved] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
@@ -34,11 +34,14 @@ const PlanPanelChanges = ({ plan, changes, id, target }) => {
         setShowCompleted(false);
         break;
       case "PROPOSED":
-        setLoading(false);
-        setIsApproved(false);
-        setIsApplying(false);
-        setApplyStartedAt(null);
-        setShowCompleted(false);
+        // set timeout to simulate loading
+        setTimeout(() => {
+          setLoading(false);
+          setIsApproved(false);
+          setIsApplying(false);
+          setApplyStartedAt(null);
+          setShowCompleted(false);
+        }, 2000);
         break;
       case "APPROVED":
         setLoading(false);
@@ -112,8 +115,12 @@ const PlanPanelChanges = ({ plan, changes, id, target }) => {
       {loading ? (
         <div className="plan-panel-changes--loading plan-placeholder">
           {target.thumbnails}
-          <p className="is-6">{target.title}</p>
           <UILoader />
+          {loadingMessage && (
+            <span className="plan-panel-changes--loading--message">
+              {loadingMessage}
+            </span>
+          )}
         </div>
       ) : (
         <div className="plan-panel-changes--content">

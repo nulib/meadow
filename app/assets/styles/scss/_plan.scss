@@ -28,9 +28,17 @@
 
   &--loading {
     text-align: center;
-    p {
-      margin-bottom: 2rem;
-      font-size: 1.25rem;
+
+    [role="img"] {
+      margin-bottom: 1.618rem !important;
+    }
+
+    &--message {
+      display: block;
+      font-family: $PoppinsBold;
+      font-size: 1rem;
+      color: $nu-purple;
+      margin-top: -0.382rem;
     }
   }
 

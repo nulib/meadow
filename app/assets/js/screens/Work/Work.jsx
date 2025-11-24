@@ -249,7 +249,6 @@ const ScreensWork = () => {
           </div>
         </section>
       </ErrorBoundary>
-
       {loading ? (
         <UISkeleton rows={20} />
       ) : (
