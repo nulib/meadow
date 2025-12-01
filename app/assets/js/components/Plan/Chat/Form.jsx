@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { IconArrowDown, IconList, IconReply } from "@js/components/Icon";
+import { IconArrowDown, IconEnter, IconList } from "@js/components/Icon";
 import PlanChatAutoTextArea from "@js/components/Plan/Chat/AutoTextArea";
 import { recipes } from "@js/components/Plan/recipes";
 
@@ -93,7 +93,7 @@ const PlanChatForm = ({
           />
 
           <button
-            className="button is-primary is-flex is-uppercase"
+            className="button is-primary is-flex"
             style={{
               gap: "0.5rem",
               alignItems: "center",
@@ -102,8 +102,9 @@ const PlanChatForm = ({
               right: "1rem",
             }}
             type="submit"
+            name="submit"
           >
-            Reply <IconReply />
+            Submit <IconEnter />
           </button>
         </div>
       </div>

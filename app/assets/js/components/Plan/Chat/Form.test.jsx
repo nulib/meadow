@@ -18,7 +18,7 @@ jest.mock("@js/components/Icon", () => ({
   __esModule: true,
   IconArrowDown: () => <span data-testid="icon-down" />,
   IconList: () => <span data-testid="icon-list" />,
-  IconReply: () => <span data-testid="icon-reply" />,
+  IconEnter: () => <span data-testid="icon-enter" />,
 }));
 
 /**
@@ -44,7 +44,7 @@ describe("PlanChatForm", () => {
     );
 
     expect(screen.getByTestId("msg-input")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /reply/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
   });
 
   test("renders 'scroll to bottom' button when showScrollButton=true and calls handler", async () => {
@@ -105,7 +105,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /reply/i });
+    const submit = screen.getByRole("button", { name: /submit/i });
 
     await userEvent.type(input, "   Hello world   ");
     await userEvent.click(submit);
@@ -127,7 +127,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /reply/i });
+    const submit = screen.getByRole("button", { name: /submit/i });
 
     await userEvent.type(input, "     ");
     await userEvent.click(submit);
@@ -142,7 +142,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /reply/i });
+    const submit = screen.getByRole("button", { name: /submit/i });
 
     await userEvent.type(input, "Hello!");
     await userEvent.click(submit);
@@ -252,7 +252,9 @@ describe("PlanChatForm", () => {
     await userEvent.click(recipesButton);
 
     // Click on second recipe - use fireEvent to avoid triggering document mousedown
-    const recipe = screen.getByText(/Add, update, or replace subject headings/i);
+    const recipe = screen.getByText(
+      /Add, update, or replace subject headings/i,
+    );
     fireEvent.click(recipe);
 
     // Input should be populated with the recipe text
@@ -281,7 +283,7 @@ describe("PlanChatForm", () => {
       name: /show recipe prompts/i,
     });
     const input = screen.getByTestId("msg-input");
-    const submitButton = screen.getByRole("button", { name: /reply/i });
+    const submitButton = screen.getByRole("button", { name: /submit/i });
 
     // Show recipes and select one - use fireEvent to avoid triggering document mousedown
     await userEvent.click(recipesButton);
