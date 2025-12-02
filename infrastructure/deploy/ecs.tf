@@ -32,6 +32,17 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "logstream"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.id}:log-group:/ecs/${var.stack_name}:*"]
+  }
+
   statement {
     sid    = "lambda"
     effect = "Allow"
@@ -91,6 +102,28 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
       "sqs:SetQueueAttributes"
     ]
     resources = ["arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
+  }
+
+  statement {
+    sid       = "bedrock"
+    effect    = "Allow"
+    actions   = [
+      "bedrock:GetInferenceProfile",
+      "bedrock:ListInferenceProfiles",
+      "bedrock:DeleteInferenceProfile",
+      "bedrock:TagResource",
+      "bedrock:UntagResource",
+      "bedrock:ListTagsForResource",
+      "bedrock:InvokeModel*",
+      "bedrock:InvokeModelWithResponseStream",
+      "bedrock:CreateModelInvocationJob",
+      "bedrock:CreateInferenceProfile",
+    ]
+    resources = [
+      "arn:aws:bedrock:*::foundation-model/*",
+      "arn:aws:bedrock:*:*:inference-profile/*",
+      "arn:aws:bedrock:*:*:application-inference-profile/*"
+    ]
   }
 }
 

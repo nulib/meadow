@@ -4,7 +4,7 @@ import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import PropTypes from "prop-types";
-import React, { useContext } from "react";
+import React from "react";
 import { Tag } from "@nulib/design-system";
 import UIFormField from "@js/components/UI/Form/Field";
 import UIFormInput from "@js/components/UI/Form/Input";
@@ -145,6 +145,36 @@ function WorkFilesetListItem({
               />
             ) : (
               <p>{coreMetadata.description}</p>
+            )}
+          </UIFormField>
+
+          <UIFormField label="Alt Text">
+            {isEditing ? (
+              <UIFormInput
+                isReactHookForm
+                label="Alt Text"
+                name={`${id}.altText`}
+                data-testid="input-alt-text"
+                placeholder="Alt Text"
+                defaultValue={coreMetadata.altText}
+              />
+            ) : (
+              <p>{coreMetadata.altText}</p>
+            )}
+          </UIFormField>
+
+          <UIFormField label="Image Caption">
+            {isEditing ? (
+              <UIFormTextarea
+                isReactHookForm
+                name={`${id}.imageCaption`}
+                data-testid="textarea-metadata-image-caption"
+                defaultValue={coreMetadata.imageCaption}
+                label="Image Caption"
+                rows="2"
+              />
+            ) : (
+              <p>{coreMetadata.imageCaption}</p>
             )}
           </UIFormField>
 

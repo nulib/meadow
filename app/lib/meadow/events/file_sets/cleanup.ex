@@ -27,6 +27,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
       |> clean_derivatives!()
       |> clean_preservation_file!()
       |> clean_structural_metadata!()
+      |> clean_annotations!()
     end
   end
 
@@ -72,6 +73,19 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
     ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
     |> ExAws.request()
+
+    file_set_data
+  end
+
+  defp clean_annotations!(%{id: file_set_id} = file_set_data) do
+    annotations = FileSets.list_annotations(file_set_id)
+
+    Enum.each(annotations, fn annotation ->
+      if annotation.s3_location do
+        Logger.warning("Removing annotation #{annotation.type} at #{annotation.s3_location}")
+        delete_s3_uri(annotation.s3_location)
+      end
+    end)
 
     file_set_data
   end

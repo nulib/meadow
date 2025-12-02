@@ -6,6 +6,9 @@ import IconArrowLeft from "@js/components/Icon/ArrowLeft";
 import IconArrowRight from "@js/components/Icon/ArrowRight";
 import IconArrowUp from "@js/components/Icon/ArrowUp";
 import IconAudio from "@js/components/Icon/Audio";
+import IconBehaviorIndividuals from "@js/components/Icon/BehaviorIndividuals";
+import IconBehaviorContinuous from "@js/components/Icon/BehaviorContinuous";
+import IconBehaviorPaged from "@js/components/Icon/BehaviorPaged";
 import IconBell from "@js/components/Icon/Bell";
 import IconBinaryFile from "@js/components/Icon/BinaryFile";
 import IconBucket from "@js/components/Icon/Bucket";
@@ -46,6 +49,9 @@ export {
   IconArrowRight,
   IconArrowUp,
   IconAudio,
+  IconBehaviorIndividuals,
+  IconBehaviorContinuous,
+  IconBehaviorPaged,
   IconBell,
   IconBinaryFile,
   IconBucket,

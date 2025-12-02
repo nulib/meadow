@@ -42,6 +42,10 @@ locals {
         manifest_url      = "http://test-pyramids.s3.localhost.localstack.cloud:4566/public/"
       }
 
+      logging = {
+        log_group = aws_cloudwatch_log_group.meadow_ai_metrics.name
+      }
+
       mediaconvert = {
         queue       = "arn:aws:mediaconvert:::queues/Default"
         role_arn    = "arn:aws:iam:::role/service-role/MediaConvert_Default_Role"

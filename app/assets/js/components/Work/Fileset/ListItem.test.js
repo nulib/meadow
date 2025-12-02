@@ -47,13 +47,15 @@ describe("Fileset component", () => {
         </WorkProvider>,
       );
     }
-    it("renders the image preview, label and description", async () => {
+    it("renders the image preview, label, description, alt text, and image caption", async () => {
       setUpTests();
       await waitFor(() => {
         expect(screen.getByTestId("fileset-item"));
         expect(screen.getByTestId("fileset-image"));
         expect(screen.getByText(mockFileSets[0].coreMetadata.label));
         expect(screen.getByText(mockFileSets[0].coreMetadata.description));
+        expect(screen.getByText(mockFileSets[0].coreMetadata.altText));
+        expect(screen.getByText(mockFileSets[0].coreMetadata.imageCaption));
       });
     });
 
@@ -150,10 +152,12 @@ describe("Fileset component", () => {
       expect(await screen.findByTestId("fileset-item"));
     });
 
-    it("renders label and description form elements", () => {
+    it("renders label, description, alt text, and image caption form elements", () => {
       expect(screen.getByTestId("fileset-image"));
       expect(screen.getByTestId("input-label"));
       expect(screen.getByTestId("textarea-metadata-description"));
+      expect(screen.getByTestId("input-alt-text"));
+      expect(screen.getByTestId("textarea-metadata-image-caption"));
     });
 
     it("does not render the toggle representative Work checkbox", () => {

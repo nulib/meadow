@@ -92,8 +92,9 @@ defmodule Meadow.Config.Runtime do
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
       port: get_secret(:meadow, ["db", "port"]),
       publication: "events",
-      subscriptions: ["works", "file_sets", "collections", "ingest_sheets", "projects"],
+      subscriptions: ["works", "file_sets", "file_set_annotations", "collections", "ingest_sheets", "projects"],
       modules: [
+        Meadow.Events.FileSets.Annotations,
         Meadow.Events.FileSets.Cleanup,
         Meadow.Events.FileSets.StructuralMetadata,
         Meadow.Events.IngestSheets.SheetUpdates,
@@ -101,7 +102,7 @@ defmodule Meadow.Config.Runtime do
         Meadow.Events.Indexing
       ],
       name: Meadow,
-      slot_name: "meadow_#{prefix()}",
+      slot_name: String.replace("meadow_#{prefix()}", "-", "_"),
       durable_slot: true
 
     host = System.get_env("MEADOW_HOSTNAME", "localhost")
@@ -229,7 +230,7 @@ defmodule Meadow.Config.Runtime do
         ),
       iiif_manifest_url_deprecated:
         Path.join(
-          get_secret(:iiif, ["base"]),
+          get_secret(:iiif, ["base"], ""),
           "public/"
         ),
       iiif_distribution_id: get_secret(:iiif, ["distribution_id"]),
@@ -280,6 +281,15 @@ defmodule Meadow.Config.Runtime do
     config :meadow, buckets()
 
     Logger.info("Configuring meadow lambdas")
+
+    config :meadow, :ai,
+      metrics_log: log_configuration(),
+      transcriber_model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        )
 
     config :meadow, :lambda,
       digester: {:lambda, get_secret(:meadow, ["pipeline", "digester"], "digester:$LATEST")},
@@ -366,7 +376,32 @@ defmodule Meadow.Config.Runtime do
       upload_bucket: get_secret(:meadow, ["buckets", "upload"], prefix("uploads")),
       preservation_check_bucket:
         get_secret(:meadow, ["buckets", "preservation_check"], prefix("preservation-checks")),
-      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming"))
+      streaming_bucket: get_secret(:meadow, ["buckets", "streaming"], prefix("streaming")),
+      derivatives_bucket: get_secret(:meadow, ["buckets", "derivatives"], prefix("derivatives"))
     ]
+  end
+
+  def log_configuration do
+    case System.get_env("ECS_CONTAINER_METADATA_URI_V4") do
+      nil ->
+        []
+
+      uri ->
+        log_options =
+          Meadow.HTTP.get!(uri)
+          |> Map.get(:body)
+          |> Jason.decode!()
+          |> Map.get("LogOptions")
+
+        [
+          group: log_options["awslogs-group"],
+          region: log_options["awslogs-region"],
+          stream:
+            log_options["awslogs-stream"]
+            |> String.split("/")
+            |> List.insert_at(-2, "metrics")
+            |> Enum.join("/")
+        ]
+    end
   end
 end

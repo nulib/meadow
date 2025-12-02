@@ -281,8 +281,7 @@ defmodule Meadow.Ingest.Progress do
   end
 
   def send_notification(sheet_id) do
-    Absinthe.Subscription.publish(
-      MeadowWeb.Endpoint,
+    Meadow.Notification.publish(
       pipeline_progress(sheet_id),
       ingest_progress: sheet_id
     )

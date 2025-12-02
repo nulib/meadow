@@ -22,7 +22,7 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
     },
     mediaconvert_client: MediaConvert.Mock
 
-  [:mediaconvert, :s3, :secretsmanager, :sns, :sqs]
+  [:logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs]
   |> Enum.each(fn service ->
     config :ex_aws, service,
       scheme: "https://",

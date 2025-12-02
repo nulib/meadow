@@ -246,8 +246,17 @@ export const GET_WORK = gql`
       fileSets {
         id
         accessionNumber
+        annotations {
+          id
+          type
+          status
+          language
+          content
+        }
         coreMetadata {
+          altText
           description
+          imageCaption
           label
           location
           mimeType
@@ -313,9 +322,18 @@ export const GET_WORKS = gql`
           id
           label
         }
+        annotations {
+          id
+          type
+          status
+          language
+          content
+        }
         accessionNumber
         coreMetadata {
+          altText
           description
+          imageCaption
           originalFilename
           location
           label

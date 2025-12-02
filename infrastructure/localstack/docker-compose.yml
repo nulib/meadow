@@ -14,6 +14,11 @@ services:
       DISABLE_INSTALL_DEMO_CONFIG: true
       DISABLE_SECURITY_PLUGIN: true
       discovery.type: single-node
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -f http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - 9200:9200
   localstack:

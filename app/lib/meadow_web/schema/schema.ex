@@ -57,6 +57,8 @@ defmodule MeadowWeb.Schema do
 
   subscription do
     import_fields(:ingest_subscriptions)
+    import_fields(:file_set_subscriptions)
+    import_fields(:work_subscriptions)
   end
 
   enum :sort_order do

@@ -1,0 +1,9 @@
+subscription FileSetAnnotation($fileSetId: ID!) {
+  fileSetAnnotation(fileSetId: $fileSetId) {
+    id
+    type
+    language
+    status
+    content
+  }
+}

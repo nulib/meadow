@@ -3,7 +3,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   FileSets are used to describe objects stored in Amazon S3
   """
   use Ecto.Schema
-  alias Meadow.Data.Schemas.{ActionState, FileSetCoreMetadata, FileSetStructuralMetadata, Work}
+  alias Meadow.Data.Schemas.{ActionState, FileSetAnnotation, FileSetCoreMetadata, FileSetStructuralMetadata, Work}
   alias Meadow.Data.Types
 
   import Ecto.Changeset
@@ -35,6 +35,12 @@ defmodule Meadow.Data.Schemas.FileSet do
     has_many(:action_states, ActionState,
       references: :id,
       foreign_key: :object_id,
+      on_delete: :delete_all
+    )
+
+    has_many(:annotations, FileSetAnnotation,
+      references: :id,
+      foreign_key: :file_set_id,
       on_delete: :delete_all
     )
 

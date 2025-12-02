@@ -70,6 +70,37 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_file_set/3)
     end
+
+    @desc "Transcribe a FileSet using AI"
+    field :transcribe_file_set, :file_set_annotation do
+      arg(:file_set_id, non_null(:id))
+      arg(:language, list_of(:string))
+      arg(:model, :string)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.transcribe_file_set/3)
+    end
+
+    @desc "Update the content of a FileSet annotation"
+    field :update_file_set_annotation, :file_set_annotation do
+      arg(:annotation_id, non_null(:id))
+      arg(:content, non_null(:string))
+      arg(:language, list_of(:string))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.update_file_set_annotation/3)
+    end
+  end
+
+  object :file_set_subscriptions do
+    @desc "Subscription for file set annotation updates"
+    field :file_set_annotation, :file_set_annotation do
+      arg(:file_set_id, non_null(:id))
+
+      config(fn args, _ ->
+        {:ok, topic: args.file_set_id}
+      end)
+    end
   end
 
   #
@@ -78,6 +109,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_core_metadata`. This represents all metadata associated with a file_set accepted on creation. It is stored in a single json field."
   input_object :file_set_core_metadata_input do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:label, :string)
     field(:location, :string)
     field(:original_filename, :string)
@@ -93,6 +126,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "Same as `file_set_core_metadata`. This represents all updatable metadata associated with a file_set. It is stored in a single json field."
   input_object :file_set_core_metadata_update do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:label, :string)
     field(:description, :string)
   end
@@ -122,6 +157,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:position, :string)
     field(:rank, :integer)
     field(:work, :work, resolve: dataloader(Data))
+    field(:annotations, list_of(:file_set_annotation), resolve: dataloader(Data))
     field(:core_metadata, :file_set_core_metadata)
     field(:poster_offset, :integer)
     field(:group_with, :id)
@@ -154,6 +190,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
   @desc "`file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
   object :file_set_core_metadata do
+    field(:alt_text, :string)
+    field(:image_caption, :string)
     field(:location, :string)
     field(:label, :string)
     field(:mime_type, :string)
@@ -181,5 +219,28 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   @desc "accepted types for structural metadata"
   enum :structural_metadata_type do
     value(:webvtt, as: "webvtt", description: "Web VTT")
+  end
+
+  @desc "A `file_set_annotation` object represents annotations like transcriptions for a file set"
+  object :file_set_annotation do
+    field(:id, non_null(:id))
+    field(:file_set_id, non_null(:id))
+    field(:type, non_null(:string))
+    field(:language, list_of(:string))
+    field(:model, :string)
+    field(:s3_location, :string)
+    field(:status, non_null(:string))
+    field(:inserted_at, non_null(:datetime))
+    field(:updated_at, non_null(:datetime))
+
+    field :content, :string do
+      resolve(fn annotation, _, _ ->
+        case FileSets.read_annotation_content(annotation) do
+          {:ok, content} -> {:ok, content}
+          {:error, :no_s3_location} -> {:ok, nil}
+          {:error, _reason} -> {:ok, nil}
+        end
+      end)
+    end
   end
 end

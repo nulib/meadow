@@ -3,6 +3,7 @@ locals {
 
   config_secrets = {
     buckets = {
+      derivatives        = aws_s3_bucket.meadow_derivatives.bucket
       ingest             = aws_s3_bucket.meadow_ingest.bucket
       preservation       = aws_s3_bucket.meadow_preservation.bucket
       pyramid            = var.pyramid_bucket

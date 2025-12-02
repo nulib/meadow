@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "9.10.3"
+  @app_version "9.11.0"
 
   def project do
     [
@@ -103,7 +103,7 @@ defmodule Meadow.MixProject do
       {:sitemapper, "~> 0.10.0"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 0.5"},
+      {:telemetry_poller, "~> 1.3.0"},
       {:tzdata, "~> 1.1.0"},
       {:ueberauth_nusso, "~> 2.2.0"},
       {:walex, "~> 4.7.0"},

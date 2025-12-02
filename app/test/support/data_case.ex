@@ -46,7 +46,8 @@ defmodule Meadow.DataCase do
 
     on_exit(fn ->
       if not sandbox do
-        for table <- ~w(ark_cache works collections file_sets projects ingest_sheets) do
+        for table <-
+              ~w(ark_cache works collections file_sets file_set_annotations projects ingest_sheets) do
           {:ok, _} = SQL.query(Repo, "TRUNCATE TABLE #{table} CASCADE", [])
         end
       end
