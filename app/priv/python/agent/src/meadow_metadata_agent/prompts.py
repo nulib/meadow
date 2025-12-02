@@ -26,7 +26,12 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
     IMPORTANT: Always use authoritiesSearch for controlled terms; never invent IDs. For coded fields (roles, note types, etc.), 
     use codeList. Do not touch deprecated fields.
 
-    Finish with a summary of proposed changes.
+    Finish with a concise summary of proposed changes. Keep the summary focused on the changed fields instead of the plan process itself. Do not mention the subagent or anything related to plan status. Do not include headers or introductory text in the summary.
+    
+    <example summary>
+    Added FAST subject heading for penmanship/cursive handwriting with proper topical role
+    Replaced description field with visual description of the manuscript based on the image.
+    </example summary>
     """
 
 def agent_prompt_without_plan(user_query, context_data):
