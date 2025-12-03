@@ -1,6 +1,10 @@
 import React from "react";
 import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
-import { toArray, toRows, isCodedTerm } from "@js/components/Plan/Panel/diff-helpers";
+import {
+  toArray,
+  toRows,
+  isCodedTerm,
+} from "@js/components/Plan/Panel/diff-helpers";
 
 /**
  * Tag indicating the method of change
@@ -77,37 +81,40 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
   );
 
   return (
-    <table className="table is-fullwidth is-striped">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Field</th>
-          <th>Proposed Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {changes.map((change) => (
-          <tr key={change.id} data-method={change.method}>
-            <td>
-              <MethodTag method={change.method} />
-            </td>
-            <td>{change.label}</td>
-            <td>
-              {change.controlled ? (
-                <UIControlledTermList
-                  title={change.label}
-                  items={toArray(change.value)}
-                />
-              ) : isCodedTerm(change.path) ? (
-                renderCodedTerm(change.value)
-              ) : (
-                renderGenericValue(change.value)
-              )}
-            </td>
+    <>
+      <h3 className="mb-3">Details</h3>
+      <table className="table is-fullwidth is-striped">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Field</th>
+            <th>Proposed Value</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {changes.map((change) => (
+            <tr key={change.id} data-method={change.method}>
+              <td>
+                <MethodTag method={change.method} />
+              </td>
+              <td>{change.label}</td>
+              <td>
+                {change.controlled ? (
+                  <UIControlledTermList
+                    title={change.label}
+                    items={toArray(change.value)}
+                  />
+                ) : isCodedTerm(change.path) ? (
+                  renderCodedTerm(change.value)
+                ) : (
+                  renderGenericValue(change.value)
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 };
 

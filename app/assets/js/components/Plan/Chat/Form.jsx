@@ -7,10 +7,18 @@ const PlanChatForm = ({
   showScrollButton,
   onScrollToBottom,
   onSubmitMessage,
+  originalPrompt,
 }) => {
   const [message, setMessage] = useState("");
   const [showRecipes, setShowRecipes] = useState(false);
   const recipesRef = useRef(null);
+
+  // Pre-populate with originalPrompt when it changes (e.g., after rejection)
+  useEffect(() => {
+    if (originalPrompt) {
+      setMessage(originalPrompt);
+    }
+  }, [originalPrompt]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -88,7 +96,7 @@ const PlanChatForm = ({
           <PlanChatAutoTextArea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Ask a question..."
+            placeholder="Enter prompt..."
             style={{ resize: "none", padding: "1rem 10rem 0.4rem 1rem" }}
           />
 
@@ -104,7 +112,7 @@ const PlanChatForm = ({
             type="submit"
             name="submit"
           >
-            Submit <IconEnter />
+            Suggest Edits <IconEnter />
           </button>
         </div>
       </div>
