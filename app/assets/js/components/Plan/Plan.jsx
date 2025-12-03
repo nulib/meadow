@@ -1,29 +1,33 @@
 import React from "react";
-import PlanChat from "@js/components/Plan/Chat/Chat";
 import { usePlanChanges } from "@js/hooks/usePlanChanges";
 import { usePlan } from "@js/hooks/usePlan";
+import { useSendChatMessage } from "@js/hooks/useSendChatMessage";
+import { useChatResponse } from "@js/hooks/useChatResponse";
 import PlanPanelChanges from "@js/components/Plan/Panel/Changes";
+import PlanChatForm from "@js/components/Plan/Chat/Form";
 import SquircleThumbnail from "@js/components/UI/SquircleThumbnail";
+import { toastWrapper } from "@js/services/helpers";
+import { v4 as uuidv4 } from "uuid";
+
+const conversationId = uuidv4();
 
 const Plan = ({ works }) => {
   const query = works.map((work) => `id:(${work.id})`).join(" OR ");
   const [planId, setPlanId] = React.useState(null);
   const [loadingMessage, setLoadingMessage] =
     React.useState("Initializing plan");
-
-  const hasPlan = Boolean(planId);
+  const [summary, setSummary] = React.useState(null);
+  const [originalPrompt, setOriginalPrompt] = React.useState(null);
 
   const { data: planChanges, error: planChangesError } = usePlanChanges(planId);
   const { data: plan, error: planError } = usePlan(planId);
 
-  const initialMessages = [
-    `You are editing ${works.length === 1 ? `the _${works[0].workType.label}_ work **${works[0].descriptiveMetadata.title ? works[0].descriptiveMetadata.title : "No title"}**` : `${works.length} works`}.`,
-    `What would you like to modify?`,
-  ].map((content) => ({
-    content,
-    type: "message",
-    isUser: false,
-  }));
+  const { data: chatResponseMessage, error: subscriptionError } =
+    useChatResponse(conversationId);
+
+  const { sendChatMessage, error: sendError } = useSendChatMessage();
+
+  const status = plan?.status || null;
 
   const targetTitle =
     works.length === 1
@@ -45,41 +49,89 @@ const Plan = ({ works }) => {
     ) : null;
   });
 
+  const handleSubmitMessage = async (text) => {
+    setOriginalPrompt(text);
+    try {
+      await sendChatMessage({
+        conversationId,
+        type: "chat",
+        prompt: text,
+        query,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!chatResponseMessage) return;
+
+    if (chatResponseMessage.type === "plan_id")
+      setPlanId(chatResponseMessage.planId);
+
+    if (chatResponseMessage.type === "status_update")
+      setLoadingMessage(chatResponseMessage.message);
+
+    // Capture all non-status messages as the summary (last one wins)
+    if (chatResponseMessage.type !== "status_update" && chatResponseMessage.type !== "plan_id")
+      setSummary(chatResponseMessage.message);
+  }, [chatResponseMessage]);
+
+  // Reset to initial screen when plan is completed
+  const handlePlanCompleted = (rejectedPrompt = null, status = null) => {
+    setPlanId(null);
+    setLoadingMessage("Initializing plan");
+    setSummary(null);
+
+    if (!rejectedPrompt){
+      setOriginalPrompt(null);
+    }
+
+    // Show toast notifications after returning to initial screen
+    if (status === "COMPLETED") {
+      toastWrapper("is-success", "Your changes have been applied. Refresh your browser to see the changes.");
+    } else if (status === "REJECTED") {
+      toastWrapper("is-warning", "Your changes have been cancelled. Please adjust your prompt and try again.");
+    } else if (status === "ERROR") {
+      toastWrapper("is-danger", "An error occurred. Please try again.");
+    }
+  };
+
+  // Show initial form screen when no plan
+  const showInitialForm = !planId;
+
   return (
-    <div className="plan box" data-has-plan={hasPlan}>
+    <div className="plan box" data-has-plan={Boolean(planId)}>
       <div className="plan-workspace">
-        {planId ? (
+        {showInitialForm ? (
+          <div className="plan-placeholder">
+            {targetThumbnails}
+            <p className="is-6" style={{ marginBottom: "4rem" }}>{targetTitle}</p>
+            <p className="subtitle is-6">
+              Describe the changes you want to make to this work, and an AI
+              assistant will help you make those changes.
+            </p>
+            <PlanChatForm
+              showScrollButton={false}
+              onSubmitMessage={handleSubmitMessage}
+              originalPrompt={originalPrompt}
+            />
+          </div>
+        ) : (
           <PlanPanelChanges
             changes={planChanges}
             id={planId}
             plan={plan}
             loadingMessage={loadingMessage}
+            summary={summary}
+            originalPrompt={originalPrompt}
             target={{
               title: targetTitle,
               thumbnails: targetThumbnails,
             }}
+            onCompleted={handlePlanCompleted}
           />
-        ) : (
-          <div className="plan-placeholder">
-            {targetThumbnails}
-            <p className="is-6">{targetTitle}</p>
-            <p className="subtitle is-6 mt-3">
-              Describe the changes you want to make to this work, and an AI
-              assistant will help you make those changes.
-            </p>
-          </div>
         )}
-      </div>
-      <div className="chat-wrapper">
-        {/* <div className="chat-controls">
-          <button> collapse the chat </button>
-        </div> */}
-        <PlanChat
-          query={query}
-          initialMessages={initialMessages}
-          planIdCallback={(planId) => setPlanId(planId)}
-          planLoadingMessageCallback={(message) => setLoadingMessage(message)}
-        />
       </div>
     </div>
   );

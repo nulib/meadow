@@ -44,7 +44,7 @@ describe("PlanChatForm", () => {
     );
 
     expect(screen.getByTestId("msg-input")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /suggest edits/i })).toBeInTheDocument();
   });
 
   test("renders 'scroll to bottom' button when showScrollButton=true and calls handler", async () => {
@@ -105,7 +105,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /submit/i });
+    const submit = screen.getByRole("button", { name: /suggest edits/i });
 
     await userEvent.type(input, "   Hello world   ");
     await userEvent.click(submit);
@@ -127,7 +127,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /submit/i });
+    const submit = screen.getByRole("button", { name: /suggest edits/i });
 
     await userEvent.type(input, "     ");
     await userEvent.click(submit);
@@ -142,7 +142,7 @@ describe("PlanChatForm", () => {
     );
 
     const input = screen.getByTestId("msg-input");
-    const submit = screen.getByRole("button", { name: /submit/i });
+    const submit = screen.getByRole("button", { name: /suggest edits/i });
 
     await userEvent.type(input, "Hello!");
     await userEvent.click(submit);
@@ -159,7 +159,7 @@ describe("PlanChatForm", () => {
       />,
     );
 
-    expect(screen.getByPlaceholderText(/ask a question/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter prompt/i)).toBeInTheDocument();
   });
 
   test("form submit event path works (submit the form directly)", async () => {
@@ -283,7 +283,7 @@ describe("PlanChatForm", () => {
       name: /show recipe prompts/i,
     });
     const input = screen.getByTestId("msg-input");
-    const submitButton = screen.getByRole("button", { name: /submit/i });
+    const submitButton = screen.getByRole("button", { name: /suggest edits/i });
 
     // Show recipes and select one - use fireEvent to avoid triggering document mousedown
     await userEvent.click(recipesButton);

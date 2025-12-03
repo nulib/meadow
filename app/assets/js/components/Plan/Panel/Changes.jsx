@@ -6,15 +6,24 @@ import {
   UPDATE_PROPOSED_PLAN_CHANGE_STATUSES,
 } from "@js/components/Plan/plan.gql";
 import UILoader from "@js/components/UI/Loader";
+import UISkeleton from "@js/components/UI/Skeleton";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
-import { IconCheckAlt, IconMagic } from "@js/components/Icon";
+import { IconMagic } from "@js/components/Icon";
 
-const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
+const PlanPanelChanges = ({
+  changes,
+  id,
+  loadingMessage,
+  plan,
+  summary,
+  originalPrompt,
+  target,
+  onCompleted,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const [isApproved, setIsApproved] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
   const [applyStartedAt, setApplyStartedAt] = React.useState(null);
-  const [showCompleted, setShowCompleted] = React.useState(false);
 
   const status = plan?.status || "PENDING";
 
@@ -31,7 +40,6 @@ const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
         // reset UI-phase flags when backing out
         setIsApplying(false);
         setApplyStartedAt(null);
-        setShowCompleted(false);
         break;
       case "PROPOSED":
         // set timeout to simulate loading
@@ -40,41 +48,53 @@ const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
           setIsApproved(false);
           setIsApplying(false);
           setApplyStartedAt(null);
-          setShowCompleted(false);
         }, 2000);
         break;
       case "APPROVED":
         setLoading(false);
-        setShowCompleted(false);
         break;
+      case "REJECTED":
+      case "ERROR":
       case "COMPLETED":
-        // handled below to enforce min spinner time
+        // handled in separate useEffect
         break;
     }
   }, [status]);
 
   /**
-   * Handle the COMPLETED state with an enforced minimum
-   * of 1s spinner time to limit blinking between states.
+   * Handle terminal states (REJECTED, ERROR, COMPLETED)
+   * Reset to initial screen and show toast notification
    */
   useEffect(() => {
-    if (status !== "COMPLETED") return;
-    if (isApplying && applyStartedAt) {
-      const elapsed = Date.now() - applyStartedAt;
-      const remaining = Math.max(1000 - elapsed, 0);
-      const t = setTimeout(() => {
-        setIsApplying(false);
-        setShowCompleted(true);
-      }, remaining);
-      return () => clearTimeout(t);
+    if (status === "REJECTED") {
+      onCompleted?.(originalPrompt, "REJECTED");
+      return;
     }
 
-    /**
-     * If we reach COMPLETED state but we're not in the applying
-     * phase, we need to show the completed state immediately.
-     */
-    setShowCompleted(true);
-  }, [status, isApplying, applyStartedAt]);
+    if (status === "ERROR") {
+      onCompleted?.(originalPrompt, "ERROR");
+      return;
+    }
+
+    if (status === "COMPLETED") {
+      // Enforce minimum spinner time of 1s
+      if (isApplying && applyStartedAt) {
+        const elapsed = Date.now() - applyStartedAt;
+        const remaining = Math.max(1000 - elapsed, 0);
+        const t = setTimeout(() => {
+          setIsApplying(false);
+          setTimeout(() => {
+            onCompleted?.(null, "COMPLETED");
+          }, 500);
+        }, remaining);
+        return () => clearTimeout(t);
+      }
+      // If not applying, reset immediately
+      setTimeout(() => {
+        onCompleted?.(null, "COMPLETED");
+      }, 500);
+    }
+  }, [status, isApplying, applyStartedAt, onCompleted, originalPrompt]);
 
   const handleApproveChanges = async () => {
     try {
@@ -94,11 +114,21 @@ const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
     }
   };
 
+  const handleRejectChanges = () => {
+    try {
+      updatePlanStatus({
+        variables: { id, status: "REJECTED" },
+        onCompleted: () => {},
+      });
+    } catch (e) {
+      console.error("Error rejecting changes:", e);
+    }
+  };
+
   const handleApplyChanges = () => {
     try {
       setIsApplying(true);
       setApplyStartedAt(Date.now());
-      setShowCompleted(false);
 
       applyPlan({
         variables: { id },
@@ -135,7 +165,7 @@ const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
             <hr className="plan-panel-changes--status--divider" />
             <span
               data-status={status}
-              data-active={showCompleted || status === "COMPLETED"}
+              data-active={status === "COMPLETED"}
             >
               Applied
             </span>
@@ -146,39 +176,53 @@ const PlanPanelChanges = ({ changes, id, loadingMessage, plan, target }) => {
             <div>
               {/* Approve Changes button only shown when proposed */}
               {status === "PROPOSED" && (
-                <button onClick={handleApproveChanges} data-variant="approve">
-                  Approve Changes
-                </button>
+                <>
+                  <button onClick={handleRejectChanges} data-variant="reject">
+                    Reject Changes
+                  </button>
+                  <button onClick={handleApproveChanges} data-variant="approve">
+                    Approve Changes
+                  </button>
+                </>
               )}
 
               {/* Apply Changes button only shown when approved */}
               {status === "APPROVED" && !isApplying && (
-                <button
-                  onClick={handleApplyChanges}
-                  data-variant="primary"
-                  disabled={!isApproved || isApplying}
-                >
-                  {isApplying ? "Applying…" : "Apply Changes"}
-                </button>
+                <>
+                  <button onClick={handleRejectChanges} data-variant="reject">
+                    Reject Changes
+                  </button>
+                  <button
+                    onClick={handleApplyChanges}
+                    data-variant="primary"
+                    disabled={!isApproved || isApplying}
+                  >
+                    {isApplying ? "Applying…" : "Apply Changes"}
+                  </button>
+                </>
               )}
 
-              {/* Spinner during wait window, minimum 1 second */}
-              {(isApplying || (status === "COMPLETED" && !showCompleted)) && (
+              {/* Spinner during apply */}
+              {isApplying && (
                 <span>
                   <IconMagic />
                   Applying changes…
                 </span>
               )}
-
-              {/* Success message after applying changes */}
-              {showCompleted && (
-                <span>
-                  <IconCheckAlt /> Your changes have been applied.
-                </span>
-              )}
             </div>
           </div>
 
+          {summary ? (
+            <div className="plan-panel-changes--summary mt-5 mb-5">
+              <h3 className="mb-3">Summary</h3>
+              <p>{summary}</p>
+            </div>
+          ) : (
+            <div className="plan-panel-changes--summary mt-5 mb-5">
+              <h3 className="mb-3">Summary</h3>
+              <UISkeleton type="text" rows={3} />
+            </div>
+          )}
           <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
         </div>
       )}
