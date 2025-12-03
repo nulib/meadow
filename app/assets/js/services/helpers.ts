@@ -31,7 +31,7 @@ export function formatSimpleISODate(date: string) {
 export function isUrlValid(url: string) {
   return Boolean(
     url.match(URL_PATTERN_MATCH) &&
-      URL_PATTERN_START.some((validStart) => url.startsWith(validStart)),
+    URL_PATTERN_START.some((validStart) => url.startsWith(validStart)),
   );
 }
 
